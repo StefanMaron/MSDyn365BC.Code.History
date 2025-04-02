@@ -200,58 +200,6 @@ table 461 "Prepayment Inv. Line Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Job Task";
         }
-        field(31000; "Entry No."; Integer)
-        {
-            Caption = 'Entry No.';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31002; "VAT Difference Inv. (LCY)"; Decimal)
-        {
-            Caption = 'VAT Difference Inv. (LCY)';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31003; "Amount (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Amount (LCY)';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31004; "VAT Amount (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'VAT Amount (LCY)';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31005; "VAT Base Amount (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'VAT Base Amount (LCY)';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31006; "Amount Incl. VAT (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Amount Incl. VAT (LCY)';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
     }
 
     keys
@@ -476,6 +424,11 @@ table 461 "Prepayment Inv. Line Buffer"
         "VAT Amount" := Round(Amount * VATPostingSetup."VAT %" / 100);
         "VAT Amount (ACY)" := Round("Amount (ACY)" * VATPostingSetup."VAT %" / 100, Currency."Amount Rounding Precision");
         OnAfterUpdateVATAmounts(Rec, Currency);
+    end;
+
+    internal procedure GetVATPct() VATPct: Decimal
+    begin
+        VATPct := "VAT %";
     end;
 
     [IntegrationEvent(false, false)]

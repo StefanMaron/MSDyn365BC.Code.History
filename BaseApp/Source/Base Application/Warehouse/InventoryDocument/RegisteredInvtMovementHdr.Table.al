@@ -9,8 +9,6 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Family;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
@@ -100,9 +98,6 @@ table 7344 "Registered Invt. Movement Hdr."
             else
             if ("Source Type" = const(5746)) "Transfer Receipt Header" where("No." = field("Source No."))
             else
-            if ("Source Type" = const(5405)) "Production Order"."No." where(Status = filter(Released | Finished),
-                                                                                                "No." = field("Source No."))
-            else
             if ("Source Type" = const(900)) "Assembly Header"."No." where("Document Type" = const(Order),
                                                                                                                                                                   "No." = field("Source No."));
         }
@@ -136,8 +131,6 @@ table 7344 "Registered Invt. Movement Hdr."
             if ("Destination Type" = const(Location)) Location
             else
             if ("Destination Type" = const(Item)) Item
-            else
-            if ("Destination Type" = const(Family)) Family
             else
             if ("Destination Type" = const("Sales Order")) "Sales Header"."No." where("Document Type" = const(Order));
         }

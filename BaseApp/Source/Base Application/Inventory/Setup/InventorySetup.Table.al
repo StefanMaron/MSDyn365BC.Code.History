@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Setup;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Setup;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -10,15 +14,17 @@ using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Transfer;
+using Microsoft.Upgrade;
 using Microsoft.Warehouse.InternalDocument;
 using Microsoft.Warehouse.InventoryDocument;
-using Microsoft.Upgrade;
-using System.Utilities;
 using System.Globalization;
+using System.Utilities;
 
 table 313 "Inventory Setup"
 {
     Caption = 'Inventory Setup';
+    DrillDownPageID = "Inventory Setup";
+    LookupPageID = "Inventory Setup";
     Permissions = TableData "Inventory Adjmt. Entry (Order)" = m;
     DataClassification = CustomerContent;
 
@@ -26,6 +32,7 @@ table 313 "Inventory Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Automatic Cost Posting"; Boolean)
@@ -159,14 +166,6 @@ table 313 "Inventory Setup"
             Caption = 'Catalog Item Nos.';
             TableRelation = "No. Series";
         }
-        field(5725; "Use Item References"; Boolean)
-        {
-            AccessByPermission = TableData "Item Reference" = R;
-            Caption = 'Use Item References';
-            ObsoleteReason = 'Replaced by default visibility for Item Reference''s fields and actions.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
         field(5790; "Outbound Whse. Handling Time"; DateFormula)
         {
             AccessByPermission = TableData Location = R;
@@ -278,6 +277,7 @@ table 313 "Inventory Setup"
             Caption = 'Posted Phys. Invt. Order Nos.';
             TableRelation = "No. Series";
         }
+#if not CLEANSCHEMA27
         field(5877; "Invt. Orders Package Tracking"; Boolean)
         {
             Caption = 'Invt. Orders Package Tracking';
@@ -290,6 +290,7 @@ table 313 "Inventory Setup"
             ObsoleteTag = '27.0';
 #endif
         }
+#endif
         field(6500; "Package Caption"; Text[30])
         {
             Caption = 'Package Caption';
@@ -341,83 +342,6 @@ table 313 "Inventory Setup"
             Caption = 'Internal Movement Nos.';
             TableRelation = "No. Series";
         }
-        field(11765; "Posting Desc. Code"; Code[10])
-        {
-            Caption = 'Posting Desc. Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31042; "Automatic Maintenance Posting"; Boolean)
-        {
-            Caption = 'Automatic Maintenance Posting';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31071; "Use GPPG from SKU"; Boolean)
-        {
-            Caption = 'Use GPPG from SKU';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31072; "Date Order Inventory Change"; Boolean)
-        {
-            Caption = 'Date Order Inventory Change';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31073; "Def.Template for Phys.Pos.Adj"; Code[10])
-        {
-            Caption = 'Def.Template for Phys.Pos.Adj';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31074; "Def.Template for Phys.Neg.Adj"; Code[10])
-        {
-            Caption = 'Def.Template for Phys.Neg.Adj';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31075; "Skip Update SKU on Posting"; Boolean)
-        {
-            Caption = 'Skip Update SKU on Posting';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31076; "Check Item Charge Pst.Group"; Boolean)
-        {
-            Caption = 'Check Item Charge Pst.Group';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31077; "Exact Cost Reversing Mandatory"; Boolean)
-        {
-            Caption = 'Exact Cost Reversing Mandatory';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31078; "Post Neg. Transfers as Corr."; Boolean)
-        {
-            Caption = 'Post Neg. Transfers as Corr.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31079; "Post Exp. Cost Conv. as Corr."; Boolean)
-        {
-            Caption = 'Post Exp. Cost Conv. as Corr.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys
@@ -437,7 +361,6 @@ table 313 "Inventory Setup"
         Item: Record Item;
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         ObjTransl: Record "Object Translation";
-        RecordHasBeenRead: Boolean;
 
 #pragma warning disable AA0074
         Text000: Label 'Some unadjusted value entries will not be covered with the new setting. You must run the Adjust Cost - Item Entries batch job once to adjust these.';
@@ -449,11 +372,10 @@ table 313 "Inventory Setup"
         ItemEntriesAdjustQst: Label 'If you change the %1, the program must adjust all item entries.The adjustment of all entries can take several hours.\Do you really want to change the %1?', Comment = '%1 - field caption';
 
     procedure GetRecordOnce()
+    var
+        InventorySetupCodeunit: Codeunit "Inventory Setup";
     begin
-        if RecordHasBeenRead then
-            exit;
-        Get();
-        RecordHasBeenRead := true;
+        InventorySetupCodeunit.GetSetup(Rec);
     end;
 
     local procedure UpdateInvtAdjmtEntryOrder()
@@ -507,5 +429,11 @@ table 313 "Inventory Setup"
     begin
         exit("Automatic Cost Adjustment" <> "Automatic Cost Adjustment"::Never);
     end;
-}
 
+    procedure UseLegacyPosting(): Boolean
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+    begin
+        exit(not FeatureKeyManagement.IsConcurrentInventoryPostingEnabled());
+    end;
+}

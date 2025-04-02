@@ -218,25 +218,16 @@ table 325 "VAT Posting Setup"
                 NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
             end;
         }
+#if not CLEANSCHEMA26
         field(6201; "Non-Ded. Sales VAT Account"; Code[20])
         {
             Caption = 'Non-Deductible Sales VAT Account';
             TableRelation = "G/L Account";
             ObsoleteReason = 'Non-Deductible VAT is not implemented for Sales.';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-
-            trigger OnValidate()
-            begin
-                TestNotSalesTax(CopyStr(FieldCaption("Non-Ded. Sales VAT Account"), 1, 100));
-                CheckGLAcc("Non-Ded. Sales VAT Account");
-            end;
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
         field(6202; "Non-Ded. Purchase VAT Account"; Code[20])
         {
             Caption = 'Non-Deductible Purchase VAT Account';
@@ -256,171 +247,6 @@ table 325 "VAT Posting Setup"
             begin
                 NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
             end;
-        }
-        field(11760; "Reverse Charge Check"; Option)
-        {
-            Caption = 'Reverse Charge Check';
-            OptionCaption = ' ,Limit Check,Limit Check & Export';
-            OptionMembers = " ","Limit Check","Limit Check & Export";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11761; "Purchase VAT Delay Account"; Code[20])
-        {
-            Caption = 'Purchase VAT Delay Account';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11762; "Sales VAT Delay Account"; Code[20])
-        {
-            Caption = 'Sales VAT Delay Account';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11763; "Non Deduct. VAT Corr. Account"; Code[20])
-        {
-            Caption = 'Non Deduct. VAT Corr. Account';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11764; "Sales VAT Postponed Account"; Code[20])
-        {
-            Caption = 'Sales VAT Postponed Account';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11765; "Allow Blank VAT Date"; Boolean)
-        {
-            Caption = 'Allow Blank VAT Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11766; "Allow Non Deductible VAT"; Boolean)
-        {
-            Caption = 'Allow Non Deductible VAT';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(31000; "Sales Ded. VAT Base Adj. Acc."; Code[20])
-        {
-            Caption = 'Sales Ded. VAT Base Adj. Acc.';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31001; "Purch. Ded. VAT Base Adj. Acc."; Code[20])
-        {
-            Caption = 'Purch. Ded. VAT Base Adj. Acc.';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31002; "Sales Advance Offset VAT Acc."; Code[20])
-        {
-            Caption = 'Sales Advance Offset VAT Acc.';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31003; "Purch. Advance Offset VAT Acc."; Code[20])
-        {
-            Caption = 'Purch. Advance Offset VAT Acc.';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31004; "Sales Advance VAT Account"; Code[20])
-        {
-            Caption = 'Sales Advance VAT Account';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31005; "Purch. Advance VAT Account"; Code[20])
-        {
-            Caption = 'Purch. Advance VAT Account';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31060; "VIES Purchases"; Boolean)
-        {
-            Caption = 'VIES Purchases';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31061; "VIES Sales"; Boolean)
-        {
-            Caption = 'VIES Sales';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31070; "Intrastat Service"; Boolean)
-        {
-            Caption = 'Intrastat Service';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31100; "VAT Rate"; Option)
-        {
-            Caption = 'VAT Rate';
-            OptionCaption = ' ,Base,Reduced,Reduced 2';
-            OptionMembers = " ",Base,Reduced,"Reduced 2";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31101; "Supplies Mode Code"; Option)
-        {
-            Caption = 'Supplies Mode Code';
-            OptionCaption = ' ,par. 89,par. 90';
-            OptionMembers = " ","par. 89","par. 90";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31102; "Insolvency Proceedings (p.44)"; Boolean)
-        {
-            Caption = 'Insolvency Proceedings (p.44)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by "Corrections for Bad Receivable"';
-            ObsoleteTag = '15.0';
-        }
-        field(31103; "Ratio Coefficient"; Boolean)
-        {
-            Caption = 'Ratio Coefficient';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31104; "Corrections for Bad Receivable"; Option)
-        {
-            Caption = 'Corrections for Bad Receivable';
-            OptionCaption = ' ,Insolvency Proceedings (p.44),Bad Receivable (p.46 resp. 74a)';
-            OptionMembers = " ","Insolvency Proceedings (p.44)","Bad Receivable (p.46 resp. 74a)";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
         }
     }
 
@@ -693,4 +519,3 @@ table 325 "VAT Posting Setup"
     begin
     end;
 }
-

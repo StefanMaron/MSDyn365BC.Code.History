@@ -185,34 +185,6 @@ table 5846 "Inventory Report Entry"
         {
             Caption = 'Deleted G/L Accounts Warning';
         }
-        field(11760; "Inv. Rounding Adj."; Decimal)
-        {
-            Caption = 'Inv. Rounding Adj.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11761; Consumption; Decimal)
-        {
-            Caption = 'Consumption';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11762; "Change In Inv.Of WIP"; Decimal)
-        {
-            Caption = 'Change In Inv.Of WIP';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11763; "Change In Inv.Of Product"; Decimal)
-        {
-            Caption = 'Change In Inv.Of Product';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys

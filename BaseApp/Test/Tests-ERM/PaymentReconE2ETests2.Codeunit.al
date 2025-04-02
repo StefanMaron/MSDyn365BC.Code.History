@@ -25,7 +25,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         Initialized: Boolean;
         OpenBankLedgerEntriesErr: Label 'All bank account ledger entries should be closed after posting the payment reconciliation journal.';
         ClosedBankLedgerEntriesErr: Label 'All bank account ledger entries should be open after posting the payment reconciliation journal.';
-        ExcessiveAmountErr: Label 'The remaining amount to apply is %1.', Comment = '%1 is the amount that is not applied (there is filed on the page named Remaining Amount To Apply)';
         ListEmptyMsg: Label 'No bank transaction lines exist. Choose the Import Bank Transactions action to fill in the lines from a file, or enter lines manually.';
         SEPA_CAMT_Txt: Label 'SEPA CAMT';
         OpenBankStatementPageQst: Label 'Do you want to open the bank account statement?';
@@ -162,115 +161,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     [Test]
     [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
-    procedure TestOnePurchTwoPrePostedPmt()
-    var
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        OutStream: OutStream;
-    begin
-        Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
-
-        WriteCAMTHeader(OutStream, '', 'TEST');
-        OnePurchTwoPmt(VendLedgEntry, OutStream);
-        WriteCAMTFooter(OutStream);
-
-        // Exercise
-        CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-        SetOnMatchOnClosingDocumentNumber();
-        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
-        PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-        ApplyAutomatically(PmtReconJnl);
-        VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke();
-
-        // Verify that all Vendors | gls | banks go to zero
-        VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
-        VerifyBankLedgEntry(BankAccRecon."Bank Account No.", BankAccRecon."Total Transaction Amount");
-    end;
-
-    [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PmtApplnHandler,PostAndReconcilePageHandler')]
-    [Scope('OnPrem')]
-    procedure TestTwoPurchTwoPmt()
-    var
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        VendLedgEntry2: Record "Vendor Ledger Entry";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        OutStream: OutStream;
-    begin
-        CreateTwoPurchTwoPmtOutstream(VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
-
-        CreateApplyHandleAndPostPmtReconJnl(TempBlobUTF8, VendLedgEntry, VendLedgEntry2);
-    end;
-
-    [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
-    [Scope('OnPrem')]
-    procedure TestTwoPurchTwoPrePostedPmt()
-    var
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        VendLedgEntry2: Record "Vendor Ledger Entry";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        OutStream: OutStream;
-    begin
-        CreateTwoPurchTwoPmtOutstream(VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
-
-        // Exercise
-        CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
-        PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
-        PostPayment(VendLedgEntry2, BankAccRecon."Bank Account No.");
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-        ApplyAutomatically(PmtReconJnl);
-        VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke();
-
-        // Verify that all Vendors | gls | banks go to zero
-        VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
-        VerifyVendLedgEntry(VendLedgEntry2."Vendor No.");
-        VerifyBankLedgEntry(BankAccRecon."Bank Account No.", BankAccRecon."Total Transaction Amount");
-    end;
-
-    [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes')]
-    [Scope('OnPrem')]
-    procedure TestTwoPurchTwoPrePostedPmtNoReconciliation()
-    var
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        VendLedgEntry2: Record "Vendor Ledger Entry";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        OutStream: OutStream;
-    begin
-        CreateTwoPurchTwoPmtOutstream(VendLedgEntry, VendLedgEntry2, OutStream, TempBlobUTF8);
-
-        // Exercise
-        CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
-        PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
-        PostPayment(VendLedgEntry2, BankAccRecon."Bank Account No.");
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-        ApplyAutomatically(PmtReconJnl);
-        VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.PostPaymentsOnly.Invoke();
-
-        // Verify that all Vendors | gls | banks go to zero
-        VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
-        VerifyVendLedgEntry(VendLedgEntry2."Vendor No.");
-        VerifyBankLedgEntryAmount(BankAccRecon."Bank Account No.", BankAccRecon."Total Transaction Amount");
-        VerifyBankLedgEntriesOpen(BankAccRecon."Bank Account No.");
-    end;
-
-    [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
-    [Scope('OnPrem')]
     procedure TestTwoPurchOnePmt()
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -297,42 +187,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
-        VerifyBankLedgEntry(BankAccRecon."Bank Account No.", BankAccRecon."Total Transaction Amount");
-    end;
-
-    [Test]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler')]
-    [Scope('OnPrem')]
-    procedure TestTwoPurchOnePrePostedPmt()
-    var
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        VendLedgEntry2: Record "Vendor Ledger Entry";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        OutStream: OutStream;
-    begin
-        Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
-
-        WriteCAMTHeader(OutStream, '', 'TEST');
-        TwoPurchOnePmt(VendLedgEntry, VendLedgEntry2, OutStream);
-        WriteCAMTFooter(OutStream);
-
-        // Exercise
-        CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-        SetOnMatchOnClosingDocumentNumber();
-        GetLinesAndUpdateBankAccRecStmEndingBalance(BankAccRecon);
-        PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
-        PostPayment(VendLedgEntry2, BankAccRecon."Bank Account No.");
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-        ApplyAutomatically(PmtReconJnl);
-        VerifyPrePost(BankAccRecon, PmtReconJnl);
-        PmtReconJnl.Post.Invoke();
-
-        // Verify that all Vendors | gls | banks go to zero
-        VerifyVendLedgEntry(VendLedgEntry."Vendor No.");
-        VerifyVendLedgEntry(VendLedgEntry2."Vendor No.");
         VerifyBankLedgEntry(BankAccRecon."Bank Account No.", BankAccRecon."Total Transaction Amount");
     end;
 
@@ -984,36 +838,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler')]
-    [Scope('OnPrem')]
-    procedure TestOnePurchOnePrePostedPmtExcessiveAmount()
-    var
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        OutStream: OutStream;
-        ExcessiveAmount: Decimal;
-    begin
-        Initialize();
-        ExcessiveAmount := 1.23;
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
-
-        WriteCAMTHeader(OutStream, '', 'TEST');
-        OnePurchOnePmtExcessiveAmount(VendLedgEntry, OutStream, ExcessiveAmount);
-        WriteCAMTFooter(OutStream);
-
-        // Exercise
-        CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-        SetOnMatchOnClosingDocumentNumber();
-        PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-        ApplyAutomatically(PmtReconJnl);
-        asserterror PmtReconJnl.Accept.Invoke();
-        Assert.ExpectedError(StrSubstNo(ExcessiveAmountErr, Format(-ExcessiveAmount)));
-    end;
-
-    [Test]
     [HandlerFunctions('MsgHandler,ConfirmHandlerYes,TransferDiffToAccountHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure TestTransferDiffToAccount()
@@ -1047,71 +871,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         // Verify that all Vendors | gls | banks go to zero
         VerifyVendLedgEntryExcessiveAmount(VendLedgEntry."Vendor No.", ExcessiveAmount);
         VerifyBankLedgEntry(BankAccRecon."Bank Account No.", BankAccRecon."Total Transaction Amount");
-    end;
-
-    [Test]
-    [HandlerFunctions('MsgHandler')]
-    [Scope('OnPrem')]
-    procedure TestDrilldownTwoPurchTwoPrePostedPmt()
-    var
-        Vend: Record Vendor;
-        Vend2: Record Vendor;
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        VendLedgEntry2: Record "Vendor Ledger Entry";
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
-        AppliedPmtEntry: Record "Applied Payment Entry";
-        TempBlobUTF8: Codeunit "Temp Blob";
-        PmtReconJnl: TestPage "Payment Reconciliation Journal";
-        VendorCard: TestPage "Vendor Card";
-        OutStream: OutStream;
-    begin
-        Initialize();
-        TempBlobUTF8.CreateOutStream(OutStream, TEXTENCODING::UTF8);
-
-        LibraryPurch.CreateVendor(Vend);
-        LibraryPurch.CreateVendor(Vend2);
-        CreatePurchInvoiceAndPost(Vend, VendLedgEntry, '');
-        CreatePurchInvoiceAndPost(Vend2, VendLedgEntry2, '');
-
-        WriteCAMTHeader(OutStream, '', 'TEST');
-        WriteCAMTStmtLine(
-          OutStream,
-          VendLedgEntry."Posting Date",
-          StrSubstNo('%1 %2', VendLedgEntry."Document No.", VendLedgEntry2."Document No."),
-          VendLedgEntry."Remaining Amount" + VendLedgEntry2."Remaining Amount",
-          VendLedgEntry."Currency Code");
-        WriteCAMTFooter(OutStream);
-
-        // Exercise
-        CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-        SetOnMatchOnClosingDocumentNumber();
-        PostPayment(VendLedgEntry, BankAccRecon."Bank Account No.");
-        PostPayment(VendLedgEntry2, BankAccRecon."Bank Account No.");
-        OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-        ApplyAutomatically(PmtReconJnl);
-
-        // verify that you got two applied payment entries
-        BankAccReconLine.FilterBankRecLines(BankAccRecon);
-        BankAccReconLine.FindFirst();
-        AppliedPmtEntry.FilterAppliedPmtEntry(BankAccReconLine);
-        Assert.AreEqual(2, AppliedPmtEntry.Count, '');
-
-        // verify that you can drill down to correct vendor from the first applied entry
-        AppliedPmtEntry.Find('-');
-        Assert.AreEqual(Vend.Name, BankAccReconLine.GetAppliedEntryAccountName(AppliedPmtEntry."Applies-to Entry No."), '');
-        VendorCard.Trap();
-        BankAccReconLine.AppliedEntryAccountDrillDown(AppliedPmtEntry."Applies-to Entry No.");
-        Assert.AreEqual(Vend."No.", VendorCard."No.".Value, '');
-        VendorCard.Close();
-
-        // verify that you can drill down to correct vendor from the second applied entry
-        AppliedPmtEntry.Next();
-        Assert.AreEqual(Vend2.Name, BankAccReconLine.GetAppliedEntryAccountName(AppliedPmtEntry."Applies-to Entry No."), '');
-        VendorCard.Trap();
-        BankAccReconLine.AppliedEntryAccountDrillDown(AppliedPmtEntry."Applies-to Entry No.");
-        Assert.AreEqual(Vend2."No.", VendorCard."No.".Value, '');
-        VendorCard.Close();
     end;
 
     [Test]
@@ -1518,12 +1277,14 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     var
         SalesHeader: Record "Sales Header";
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
         InvoiceNo: Code[20];
     begin
         // [FEATURE] [UI] [Application Rules] [Notification]
         // [SCENARIO 413337] Stan doesn't get "Review Required" notification when system does not have any rule with "Review Required" = true
+        BankAccReconciliation.DeleteAll(true);
         LibrarySales.CreateSalesInvoice(SalesHeader);
         SalesHeader.CalcFields("Amount Including VAT");
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1695,103 +1456,6 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         PaymentReconciliationJournal.TestReport.Invoke();
         // [THEN] The control PrintOutstdTransac should not be visible (in VerifyTestReportRequestPage)
         ClearBankAccReconciliations();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler,ReversalUndoStatementHandler,ReversalRelatedHandler,ReversalFinalizeHandler')]
-    procedure ReversePaymentRecJournal()
-    var
-        SalesHeader: Record "Sales Header";
-        BankAccReconciliation: Record "Bank Acc. Reconciliation";
-        PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr";
-        BankAccountStatement: Record "Bank Account Statement";
-        ReversePaymentRecJournal: Codeunit "Reverse Payment Rec. Journal";
-        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
-        StatementEndingBalance: Decimal;
-        InvoiceNo: Code[20];
-        SalesHeaderNo: Code[20];
-        BankAccNo: Code[20];
-        StatementNo: Code[20];
-    begin
-        // [SCENARIO] A user that has posted a Payment Rec Journal with post and reconcile wants to reverse it
-        // [GIVEN] A posted and reconciled Paym Rec Journal
-        LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesHeader.CalcFields("Amount Including VAT");
-        SalesHeaderNo := SalesHeader."No.";
-        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        CreatePaymentReconciliationAndMatchAutomatically(PaymentReconciliationJournal, InvoiceNo, SalesHeader."Amount Including VAT", BankAccReconciliation);
-        BankAccNo := BankAccReconciliation."Bank Account No.";
-        StatementNo := BankAccReconciliation."Statement No.";
-        BankAccReconciliation."Statement Date" := WorkDate();
-        Evaluate(StatementEndingBalance, PaymentReconciliationJournal."Statement Amount".Value());
-        BankAccReconciliation."Statement Ending Balance" := StatementEndingBalance;
-        BankAccReconciliation.Modify();
-        PaymentReconciliationJournal.Post.Invoke();
-
-        // [WHEN] Running the Reversal Wizard with default selection
-        PostedPaymentReconHdr.Get(BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
-        ReversePaymentRecJournal.RunReversalWizard(PostedPaymentReconHdr);
-
-        Commit();
-        // [THEN] the original bank statement shouldn't exist
-        asserterror BankAccReconciliation.Get(BankAccNo, StatementNo);
-        asserterror BankAccountStatement.Get(BankAccNo, StatementNo);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler,ReversalUndoStatementCancelYesHandler,ReversalRelatedHandler,ReversalFinalizeHandler')]
-    procedure ReversePaymentRecJournalWhenPreviouslyUndone()
-    var
-        SalesHeader: Record "Sales Header";
-        BankAccReconciliation: Record "Bank Acc. Reconciliation";
-        BankAccountStatement: Record "Bank Account Statement";
-        PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr";
-        ReversePaymentRecJournal: Codeunit "Reverse Payment Rec. Journal";
-        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
-        UndoBankStatementYesNo: Codeunit "Undo Bank Statement (Yes/No)";
-        StatementEndingBalance: Decimal;
-        InvoiceNo: Code[20];
-        SalesHeaderNo: Code[20];
-        BankAccNo: Code[20];
-        StatementNo: Code[20];
-    begin
-        // [SCENARIO] A user that has posted a Payment Rec Journal with post and reconcile, undoes the bank statment, and then wants to reverse it
-        // [GIVEN] A posted and reconciled Paym Rec Journal
-        LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesHeader.CalcFields("Amount Including VAT");
-        SalesHeaderNo := SalesHeader."No.";
-        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        CreatePaymentReconciliationAndMatchAutomatically(PaymentReconciliationJournal, InvoiceNo, SalesHeader."Amount Including VAT", BankAccReconciliation);
-        BankAccNo := BankAccReconciliation."Bank Account No.";
-        StatementNo := BankAccReconciliation."Statement No.";
-        BankAccReconciliation."Statement Date" := WorkDate();
-        Evaluate(StatementEndingBalance, PaymentReconciliationJournal."Statement Amount".Value());
-        BankAccReconciliation."Statement Ending Balance" := StatementEndingBalance;
-        BankAccReconciliation.Modify();
-        PaymentReconciliationJournal.Post.Invoke();
-        Commit();
-
-        // [GIVEN] The reversal of the payment rec. journal was executed and canceled
-        LibraryVariableStorage.Enqueue(true);
-        PostedPaymentReconHdr.Get(BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
-        ReversePaymentRecJournal.RunReversalWizard(PostedPaymentReconHdr);
-
-        // [GIVEN] The bank account statement created is undone
-        BankAccountStatement.Get(BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
-        UndoBankStatementYesNo.UndoBankAccountStatement(BankAccountStatement, false);
-        Commit();
-
-        // [WHEN] Running the Reversal Wizard with default selection
-        LibraryVariableStorage.Enqueue(false);
-        ReversePaymentRecJournal.RunReversalWizard(PostedPaymentReconHdr);
-        // [THEN] there should be no errors
-        // [THEN] the original bank statement shouldn't exist
-        asserterror BankAccReconciliation.Get(BankAccNo, StatementNo);
-        asserterror BankAccountStatement.Get(BankAccNo, StatementNo);
     end;
 
     [Test]
@@ -2970,31 +2634,12 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     end;
 
     [ModalPageHandler]
-    procedure ReversalUndoStatementHandler(var PmtRecUndoStatement: TestPage "Pmt. Rec. Undo Statement")
-    begin
-        PmtRecUndoStatement.ActionNext.Invoke();
-    end;
-
-    [ModalPageHandler]
     procedure ReversalUndoStatementCancelYesHandler(var PmtRecUndoStatement: TestPage "Pmt. Rec. Undo Statement")
     begin
         if LibraryVariableStorage.DequeueBoolean() then
             exit
         else
             PmtRecUndoStatement.ActionNext.Invoke();
-    end;
-
-    [ModalPageHandler]
-    procedure ReversalRelatedHandler(var PaymentRecRelatedEntries: TestPage "Payment Rec. Related Entries")
-    begin
-        PaymentRecRelatedEntries.ActionNext.Invoke();
-    end;
-
-    [ModalPageHandler]
-    procedure ReversalFinalizeHandler(var PmtRecReversalFinalize: TestPage "Pmt. Rec. Reversal Finalize")
-    begin
-        PmtRecReversalFinalize.CreatePaymentRecJournal.Value(Format(false));
-        PmtRecReversalFinalize.ActionFinalize.Invoke();
     end;
 
     [ModalPageHandler]

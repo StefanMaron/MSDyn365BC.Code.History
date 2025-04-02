@@ -1,4 +1,4 @@
-﻿codeunit 134141 "ERM Bank Reconciliation"
+codeunit 134141 "ERM Bank Reconciliation"
 {
     Permissions = TableData "Bank Account Ledger Entry" = rid,
                   TableData "Bank Account Statement" = rimd;

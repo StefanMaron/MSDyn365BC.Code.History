@@ -8,12 +8,14 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Setup;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.VAT.Calculation;
+#if not CLEAN26
 using Microsoft.Foundation.Address;
+#endif
+using Microsoft.Foundation.Company;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
-using System.Utilities;
 using Microsoft.Sales.Setup;
-using Microsoft.Foundation.Company;
+using System.Utilities;
 
 tableextension 11734 "Service Header CZL" extends "Service Header"
 {
@@ -174,6 +176,7 @@ tableextension 11734 "Service Header CZL" extends "Service Header"
                 TestField("VAT Currency Code CZL", "Currency Code");
             end;
         }
+#if not CLEANSCHEMA25
         field(11780; "VAT Date CZL"; Date)
         {
             Caption = 'VAT Date';
@@ -182,6 +185,7 @@ tableextension 11734 "Service Header CZL" extends "Service Header"
             ObsoleteTag = '25.0';
             ObsoleteReason = 'Replaced by VAT Reporting Date.';
         }
+#endif
         field(11781; "Registration No. CZL"; Text[20])
         {
             Caption = 'Registration No.';
@@ -205,6 +209,7 @@ tableextension 11734 "Service Header CZL" extends "Service Header"
                     Clear("Credit Memo Type CZL");
             end;
         }
+#if not CLEANSCHEMA25
         field(31068; "Physical Transfer CZL"; Boolean)
         {
             Caption = 'Physical Transfer';
@@ -221,6 +226,7 @@ tableextension 11734 "Service Header CZL" extends "Service Header"
             ObsoleteTag = '25.0';
             ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions. This field is not used any more.';
         }
+#endif
         field(31072; "EU 3-Party Intermed. Role CZL"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
@@ -292,7 +298,8 @@ tableextension 11734 "Service Header CZL" extends "Service Header"
         "SWIFT Code CZL" := SWIFTCode;
         OnAfterUpdateBankInfoCZL(Rec);
     end;
-
+#if not CLEAN26
+    [Obsolete('Pending removal. Use IsIntrastatTransaction from Intrastat Core extension instead.', '26.0')]
     procedure IsIntrastatTransactionCZL(): Boolean
     var
         CountryRegion: Record "Country/Region";
@@ -307,6 +314,7 @@ tableextension 11734 "Service Header CZL" extends "Service Header"
             exit(false);
         exit(CountryRegion.IsIntrastatCZL("VAT Country/Region Code", false));
     end;
+#endif
 
     procedure GetDefaulBankAccountNoCZL() BankAccountNo: Code[20]
     var
@@ -387,11 +395,13 @@ tableextension 11734 "Service Header CZL" extends "Service Header"
     local procedure OnBeforeGetDefaulBankAccountNoCZL(var ServiceHeader: Record "Service Header"; var BankAccountNo: Code[20]; var IsHandled: Boolean);
     begin
     end;
-
+#if not CLEAN26
+    [Obsolete('Pending removal. Use OnBeforeCheckIsIntrastatTransaction from Intrastat Core extension instead.', '26.0')]
     [IntegrationEvent(true, false)]
     local procedure OnBeforeIsIntrastatTransactionCZL(ServiceHeader: Record "Service Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmProcessCZL(ConfirmQuestion: Text; var IsHandled: Boolean);

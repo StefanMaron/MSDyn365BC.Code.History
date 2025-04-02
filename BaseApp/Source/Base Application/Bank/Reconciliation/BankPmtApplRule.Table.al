@@ -1,4 +1,7 @@
-#pragma warning disable AS0002
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Reconciliation;
 
 using System.Text;
@@ -65,52 +68,14 @@ table 1252 "Bank Pmt. Appl. Rule"
         {
             Caption = 'Apply Immediatelly';
         }
-        field(11705; "Variable Symbol Matched"; Option)
-        {
-            Caption = 'Variable Symbol Matched';
-            OptionCaption = 'Not Considered,Yes,No,Yes - Multiple';
-            OptionMembers = "Not Considered",Yes,No,"Yes - Multiple";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11706; "Specific Symbol Matched"; Option)
-        {
-            Caption = 'Specific Symbol Matched';
-            OptionCaption = 'Not Considered,Yes,No,Yes - Multiple';
-            OptionMembers = "Not Considered",Yes,No,"Yes - Multiple";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11707; "Constant Symbol Matched"; Option)
-        {
-            Caption = 'Constant Symbol Matched';
-            OptionCaption = 'Not Considered,Yes,No,Yes - Multiple';
-            OptionMembers = "Not Considered",Yes,No,"Yes - Multiple";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11710; "Bank Transaction Type"; Option)
-        {
-            Caption = 'Bank Transaction Type';
-            OptionCaption = 'Both,+,-';
-            OptionMembers = Both,"+","-";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
     }
 
     keys
     {
-#pragma warning disable AS0009
         key(Key1; "Match Confidence", Priority)
         {
             Clustered = true;
         }
-#pragma warning restore AS0009
         key(Key2; Score)
         {
         }
@@ -504,4 +469,3 @@ table 1252 "Bank Pmt. Appl. Rule"
     end;
 }
 
-#pragma warning restore AS0002, AS0009

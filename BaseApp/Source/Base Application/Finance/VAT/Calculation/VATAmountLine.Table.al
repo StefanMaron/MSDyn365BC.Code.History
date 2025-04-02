@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -198,154 +198,6 @@ table 290 "VAT Amount Line"
             Caption = 'Non-Deductible VAT Difference';
             Editable = false;
         }
-        field(11764; "VAT Difference (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'VAT Difference (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
-            ObsoleteTag = '21.0';
-        }
-        field(11765; "VAT % (Non Deductible)"; Decimal)
-        {
-            Caption = 'VAT % (Non Deductible)';
-            Editable = false;
-            MaxValue = 100;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11766; "VAT Base (Non Deductible)"; Decimal)
-        {
-            Caption = 'VAT Base (Non Deductible)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11767; "VAT Amount (Non Deductible)"; Decimal)
-        {
-            Caption = 'VAT Amount (Non Deductible)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11770; "Ext. VAT Base (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Ext. VAT Base (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
-            ObsoleteTag = '21.0';
-        }
-        field(11771; "Ext. VAT Amount (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Ext. VAT Amount (LCY)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
-            ObsoleteTag = '21.0';
-        }
-        field(11772; "Ext.Amount Including VAT (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Ext.Amount Including VAT (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
-            ObsoleteTag = '21.0';
-        }
-        field(11773; "Ext. VAT Difference (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Ext. VAT Difference (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
-            ObsoleteTag = '21.0';
-        }
-        field(11774; "Ext. Calc. VAT Amount (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Ext. Calc. VAT Amount (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
-            ObsoleteTag = '21.0';
-        }
-        field(11775; "VAT Base (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'VAT Base (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11776; "VAT Amount (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'VAT Amount (LCY)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11777; "Amount Including VAT (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Amount Including VAT (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
-            ObsoleteTag = '21.0';
-        }
-        field(11778; "Calculated VAT Amount (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Calculated VAT Amount (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
-            ObsoleteTag = '21.0';
-        }
-        field(11780; "Modified (LCY)"; Boolean)
-        {
-            Caption = 'Modified (LCY)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
-            ObsoleteTag = '21.0';
-        }
-        field(11781; "Currency Code"; Code[10])
-        {
-            Caption = 'Currency Code';
-            Editable = false;
-            TableRelation = Currency.Code;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.';
-            ObsoleteTag = '21.0';
-        }
-        field(31000; "Letter VAT Amount (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Letter VAT Amount (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31001; "Letter VAT Difference (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Letter VAT Difference (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
     }
 
     keys
@@ -439,6 +291,7 @@ table 290 "VAT Amount Line"
             "VAT Base" += VATAmountLine."VAT Base";
             "Amount Including VAT" += VATAmountLine."Amount Including VAT";
             "VAT Difference" += VATAmountLine."VAT Difference";
+            "Pmt. Discount Amount" += VATAmountLine."Pmt. Discount Amount";
             "VAT Amount" := "Amount Including VAT" - "VAT Base";
             "Calculated VAT Amount" += VATAmountLine."Calculated VAT Amount";
             NonDeductibleVAT.Increment(Rec, VATAmountLine);
@@ -453,23 +306,8 @@ table 290 "VAT Amount Line"
         exit(true);
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced with InsertNewLine with NonDeductibleVATPct parameter', '23.0')]
-    procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Enum "Tax Calculation Type"; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean)
-    begin
-        Init();
-        "VAT Identifier" := VATIdentifier;
-        "VAT Calculation Type" := VATCalcType;
-        "Tax Group Code" := TaxGroupCode;
-        "Use Tax" := UseTax;
-        "VAT %" := TaxRate;
-        Modified := true;
-        Positive := IsPositive;
-        "Includes Prepayment" := IsPrepayment;
-        Insert();
-    end;
-#endif
-
+#if not CLEAN26
+    [Obsolete('Replaced by procedures using Source Record.', '26.0')]
     procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Enum "Tax Calculation Type"; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean; NonDeductibleVATPct: Decimal)
     begin
         Rec.Init();
@@ -484,6 +322,7 @@ table 290 "VAT Amount Line"
         Rec."Non-Deductible VAT %" := NonDeductibleVATPct;
         Rec.Insert();
     end;
+#endif
 
     procedure GetLine(Number: Integer)
     begin
@@ -777,6 +616,15 @@ table 290 "VAT Amount Line"
             until Next() = 0;
     end;
 
+    internal procedure ApplyNonDeductibleVAT(NonDeductibleVAT: Decimal)
+    begin
+        "VAT Base" += NonDeductibleVAT;
+        "VAT Amount" -= NonDeductibleVAT;
+        "Line Amount" += NonDeductibleVAT;
+        OnApplyNonDeductibleVATOnBeforeModify(Rec, NonDeductibleVAT);
+        Modify();
+    end;
+
 #if not CLEAN25
     [Obsolete('Replaced by procedures using Source Record.', '25.0')]
     procedure SumLine(LineAmount: Decimal; InvDiscAmount: Decimal; VATDifference: Decimal; AllowInvDisc: Boolean; Prepayment: Boolean)
@@ -960,6 +808,7 @@ table 290 "VAT Amount Line"
         "VAT Amount" := PurchInvLine."Amount Including VAT" - PurchInvLine.Amount;
         "Amount Including VAT" := PurchInvLine."Amount Including VAT";
         "Line Amount" := PurchInvLine."Line Amount";
+        OnCopyFromPurchInvLineOnAfterSetLineAmount(Rec, PurchInvLine);
         if PurchInvLine."Allow Invoice Disc." then
             "Inv. Disc. Base Amount" := PurchInvLine."Line Amount";
         "Invoice Discount Amount" := PurchInvLine."Inv. Discount Amount";
@@ -983,6 +832,7 @@ table 290 "VAT Amount Line"
         "VAT Amount" := PurchCrMemoLine."Amount Including VAT" - PurchCrMemoLine.Amount;
         "Amount Including VAT" := PurchCrMemoLine."Amount Including VAT";
         "Line Amount" := PurchCrMemoLine."Line Amount";
+        OnCopyFromPurchCrMemoLineOnAfterSetLineAmount(Rec, PurchCrMemoLine);
         if PurchCrMemoLine."Allow Invoice Disc." then
             "Inv. Disc. Base Amount" := PurchCrMemoLine."Line Amount";
         "Invoice Discount Amount" := PurchCrMemoLine."Inv. Discount Amount";
@@ -1237,6 +1087,21 @@ table 290 "VAT Amount Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateLinesOnAfterInitPrevVATAmountLine(var PrevVATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; PricesIncludingVAT: Boolean; var VATBaseDiscountPerc: Decimal; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyNonDeductibleVATOnBeforeModify(var VATAmountLine: Record "VAT Amount Line"; NonDeductibleVAT: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromPurchInvLineOnAfterSetLineAmount(var VATAmountLine: Record "VAT Amount Line"; var PurchInvLine: Record "Purch. Inv. Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromPurchCrMemoLineOnAfterSetLineAmount(var VATAmountLine: Record "VAT Amount Line"; var PurchCrMemoLine: Record "Purch. Cr. Memo Line");
     begin
     end;
 

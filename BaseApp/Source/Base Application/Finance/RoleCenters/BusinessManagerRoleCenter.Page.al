@@ -26,7 +26,9 @@ using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Task;
 using Microsoft.HumanResources.Employee;
+#if not CLEAN26
 using Microsoft.Integration.Entity;
+#endif
 using Microsoft.Intercompany;
 using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Item;
@@ -342,71 +344,100 @@ page 9022 "Business Manager Role Center"
             {
                 Caption = 'Excel Reports';
                 Image = Excel;
-                action(ExcelTemplatesBalanceSheet)
+#if not CLEAN26
+                group(Legacy)
                 {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Balance Sheet';
-                    Image = "Report";
-                    RunObject = Codeunit "Run Template Balance Sheet";
-                    ToolTip = 'Open a spreadsheet that shows your company''s assets, liabilities, and equity.';
-                }
-                action(ExcelTemplateIncomeStmt)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Income Statement';
-                    Image = "Report";
-                    RunObject = Codeunit "Run Template Income Stmt.";
-                    ToolTip = 'Open a spreadsheet that shows your company''s income and expenses.';
-                }
-                action(ExcelTemplateCashFlowStmt)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Cash Flow Statement';
-                    Image = "Report";
-                    RunObject = Codeunit "Run Template CashFlow Stmt.";
-                    ToolTip = 'Open a spreadsheet that shows how changes in balance sheet accounts and income affect the company''s cash holdings.';
-                }
-                action(ExcelTemplateRetainedEarn)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Retained Earnings Statement';
-                    Image = "Report";
-                    RunObject = Codeunit "Run Template Retained Earn.";
-                    ToolTip = 'Open a spreadsheet that shows your company''s changes in retained earnings based on net income from the other financial statements.';
-                }
+                    Caption = 'Legacy';
+                    Image = Excel;
+                    ObsoleteReason = 'These reports have been deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+
+                    action(ExcelTemplatesBalanceSheet)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Balance Sheet';
+                        Image = "Report";
+                        RunObject = Codeunit "Run Template Balance Sheet";
+                        ToolTip = 'Open a spreadsheet that shows your company''s assets, liabilities, and equity.';
+                        ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '26.0';
+                    }
+                    action(ExcelTemplateIncomeStmt)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Income Statement';
+                        Image = "Report";
+                        RunObject = Codeunit "Run Template Income Stmt.";
+                        ToolTip = 'Open a spreadsheet that shows your company''s income and expenses.';
+                        ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '26.0';
+                    }
+                    action(ExcelTemplateCashFlowStmt)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Cash Flow Statement';
+                        Image = "Report";
+                        RunObject = Codeunit "Run Template CashFlow Stmt.";
+                        ToolTip = 'Open a spreadsheet that shows how changes in balance sheet accounts and income affect the company''s cash holdings.';
+                        ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '26.0';
+                    }
+                    action(ExcelTemplateRetainedEarn)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Retained Earnings Statement';
+                        Image = "Report";
+                        RunObject = Codeunit "Run Template Retained Earn.";
+                        ToolTip = 'Open a spreadsheet that shows your company''s changes in retained earnings based on net income from the other financial statements.';
+                        ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '26.0';
+                    }
 #if not CLEAN25
-                action(ExcelTemplateTrialBalance)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Trial Balance';
-                    Image = "Report";
-                    RunObject = Codeunit "Run Template Trial Balance";
-                    ToolTip = 'Open a spreadsheet that shows a summary trial balance by account.';
-                    ObsoleteReason = 'Functionality replaced by "EXR Trial Balance Excel". Extend this report object with Excel layout instead.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                }
-                action(ExcelTemplateAgedAccPay)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Aged Accounts Payable';
-                    Image = "Report";
-                    RunObject = Codeunit "Run Template Aged Acc. Pay.";
-                    ToolTip = 'Open a spreadsheet that shows a list of aged remaining balances for each vendor by period.';
-                    ObsoleteReason = 'Functionality replaced by "EXR Aged Acc Payable Excel". Extend this report object with Excel layout instead.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
-                }
-                action(ExcelTemplateAgedAccRec)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Aged Accounts Receivable';
-                    Image = "Report";
-                    RunObject = Codeunit "Run Template Aged Acc. Rec.";
-                    ToolTip = 'Open a spreadsheet that shows when customer payments are due or overdue by period.';
-                    ObsoleteReason = 'Functionality replaced by  "EXR Aged Accounts Rec Excel". Extend this report object with Excel layout instead.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '25.0';
+                    action(ExcelTemplateTrialBalance)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Trial Balance';
+                        Image = "Report";
+                        RunObject = Codeunit "Run Template Trial Balance";
+                        ToolTip = 'Open a spreadsheet that shows a summary trial balance by account.';
+#pragma warning disable AS0072
+                        ObsoleteReason = 'Functionality replaced by "EXR Trial Balance Excel". Extend this report object with Excel layout instead.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
+#pragma warning restore AS0072
+                    }
+                    action(ExcelTemplateAgedAccPay)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Aged Accounts Payable';
+                        Image = "Report";
+                        RunObject = Codeunit "Run Template Aged Acc. Pay.";
+                        ToolTip = 'Open a spreadsheet that shows a list of aged remaining balances for each vendor by period.';
+#pragma warning disable AS0072
+                        ObsoleteReason = 'Functionality replaced by "EXR Aged Acc Payable Excel". Extend this report object with Excel layout instead.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
+#pragma warning restore AS0072
+                    }
+                    action(ExcelTemplateAgedAccRec)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Aged Accounts Receivable';
+                        Image = "Report";
+                        RunObject = Codeunit "Run Template Aged Acc. Rec.";
+                        ToolTip = 'Open a spreadsheet that shows when customer payments are due or overdue by period.';
+#pragma warning disable AS0072
+                        ObsoleteReason = 'Functionality replaced by "EXR Aged Accounts Rec Excel". Extend this report object with Excel layout instead.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
+#pragma warning restore AS0072
+                    }
+#endif
                 }
 #endif
             }

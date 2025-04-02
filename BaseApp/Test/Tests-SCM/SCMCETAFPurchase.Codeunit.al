@@ -12,10 +12,12 @@ codeunit 137601 "SCM CETAF Purchase"
     var
         LibraryRandom: Codeunit "Library - Random";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPatterns: Codeunit "Library - Patterns";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -124,9 +126,9 @@ codeunit 137601 "SCM CETAF Purchase"
         Initialize();
 
         // Setup Item and SKU.
-        LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, 0, 0, 0, '');
         if MakeSKU then
-            LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
+            LibraryWarehouse.CreateStockkeepingUnit(StockkeepingUnit, Item);
 
         // Inventory Flow.
         LibraryPatterns.GRPH1Outbound1PurchRcvd(
@@ -139,9 +141,9 @@ codeunit 137601 "SCM CETAF Purchase"
 
         // Cost modification.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(
+        LibraryPurchase.AssignPurchChargeToPurchRcptLine(
           PurchaseHeader, PurchRcptLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
-        LibraryPatterns.ASSIGNPurchChargeToPurchaseLine(
+        LibraryPurchase.AssignPurchChargeToPurchaseLine(
           PurchaseHeader, PurchaseLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -203,9 +205,9 @@ codeunit 137601 "SCM CETAF Purchase"
         // Setup Item Tracking Code, Item and SKU.
         Initialize();
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
-        LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, ItemTrackingCode.Code);
+        LibraryInventory.CreateItem(Item, CostingMethod, 0, 0, 0, ItemTrackingCode.Code);
         if MakeSKU then
-            LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
+            LibraryWarehouse.CreateStockkeepingUnit(StockkeepingUnit, Item);
 
         // Inventory flow.
         LibraryPatterns.GRPH3Purch1SalesItemTracked(
@@ -341,9 +343,9 @@ codeunit 137601 "SCM CETAF Purchase"
     begin
         // Setup Item and SKU.
         Initialize();
-        LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, 0, 0, 0, '');
         if MakeSKU then
-            LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
+            LibraryWarehouse.CreateStockkeepingUnit(StockkeepingUnit, Item);
 
         // Inventory Flow.
         LibraryPatterns.GRPHPurchPartialRcvd1PurchReturn(
@@ -361,16 +363,16 @@ codeunit 137601 "SCM CETAF Purchase"
         // for Purchase.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(
+        LibraryPurchase.AssignPurchChargeToPurchRcptLine(
           PurchaseHeader, PurchRcptLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
-        LibraryPatterns.ASSIGNPurchChargeToPurchaseLine(
+        LibraryPurchase.AssignPurchChargeToPurchaseLine(
           PurchaseHeader, PurchaseLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         // for Purchase Return.
         PurchaseHeader1.Get(PurchaseLine1."Document Type", PurchaseLine1."Document No.");
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader1);
-        LibraryPatterns.ASSIGNPurchChargeToPurchReturnLine(
+        LibraryPurchase.AssignPurchChargeToPurchReturnLine(
           PurchaseHeader1, PurchaseLine1, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
 
         // Exercise.
@@ -539,9 +541,9 @@ codeunit 137601 "SCM CETAF Purchase"
     begin
         // Setup Item and SKU.
         Initialize();
-        LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, 0, 0, 0, '');
         if MakeSKU then
-            LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
+            LibraryWarehouse.CreateStockkeepingUnit(StockkeepingUnit, Item);
 
         // Inventory Flow.
         LibraryPatterns.GRPHPurchPartialRcvd1PurchReturn(
@@ -556,7 +558,7 @@ codeunit 137601 "SCM CETAF Purchase"
         // Apply charge to last Purchase Receipt.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(
+        LibraryPurchase.AssignPurchChargeToPurchRcptLine(
           PurchaseHeader, PurchRcptLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, InvoicePurchase);
@@ -616,9 +618,9 @@ codeunit 137601 "SCM CETAF Purchase"
     begin
         // Setup Item and SKU.
         Initialize();
-        LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, 0, 0, 0, '');
         if MakeSKU then
-            LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
+            LibraryWarehouse.CreateStockkeepingUnit(StockkeepingUnit, Item);
 
         // Inventory Flow.
         LibraryPatterns.GRPHPurchPartialRcvd1PurchReturn(
@@ -636,7 +638,7 @@ codeunit 137601 "SCM CETAF Purchase"
         // Cost modification.
         // for Purchase Return.
         PurchaseHeader1.Get(PurchaseLine1."Document Type", PurchaseLine1."Document No.");
-        LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(
+        LibraryPurchase.AssignPurchChargeToPurchRcptLine(
           PurchaseHeader1, PurchRcptLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
 
         // Exercise.
@@ -686,28 +688,28 @@ codeunit 137601 "SCM CETAF Purchase"
     begin
         // Setup Item and SKU.
         Initialize();
-        LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, 0, 0, 0, '');
         if MakeSKU then
-            LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
+            LibraryWarehouse.CreateStockkeepingUnit(StockkeepingUnit, Item);
 
         // Inventory Flow.
-        LibraryPatterns.MAKEPurchaseInvoice(
+        LibraryPurchase.CreatePurchaseInvoice(
           PurchaseHeader, PurchaseLine, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code",
           LibraryRandom.RandInt(10), WorkDate(), LibraryRandom.RandDec(100, 5));
-        LibraryPatterns.MAKEPurchaseReturnOrder(
+        LibraryPurchase.CreatePurchaseReturnOrder(
           PurchaseHeader1, PurchaseLine1, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", PurchaseLine.Quantity,
           WorkDate() + 1, LibraryRandom.RandDec(100, 5));
 
         // Cost modification.
         // for Purchase.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        LibraryPatterns.ASSIGNPurchChargeToPurchaseLine(
+        LibraryPurchase.AssignPurchChargeToPurchaseLine(
           PurchaseHeader, PurchaseLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         // for Purchase Return.
         PurchaseHeader1.Get(PurchaseLine1."Document Type", PurchaseLine1."Document No.");
-        LibraryPatterns.ASSIGNPurchChargeToPurchReturnLine(
+        LibraryPurchase.AssignPurchChargeToPurchReturnLine(
           PurchaseHeader1, PurchaseLine1, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
 
         // Exercise.
@@ -876,33 +878,33 @@ codeunit 137601 "SCM CETAF Purchase"
     begin
         // Setup Item and SKU.
         Initialize();
-        LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, 0, 0, 0, '');
         if MakeSKU then
-            LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
+            LibraryWarehouse.CreateStockkeepingUnit(StockkeepingUnit, Item);
 
         // Inventory Flow.
         if PartialPosting then begin
             Qty := LibraryRandom.RandDec(100, 2);
             InvoiceQty := LibraryRandom.RandDecInRange(0, 1, 1) * Qty;
-            LibraryPatterns.POSTPurchaseOrderPartially(
+            LibraryPurchase.PostPurchaseOrderPartially(
               PurchaseHeader1, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate(),
               LibraryRandom.RandDec(100, 5), true, LibraryRandom.RandDecInDecimalRange(InvoiceQty, Qty, 2), true, InvoiceQty);
 
             Qty := LibraryRandom.RandDec(100, 2);
             InvoiceQty := LibraryRandom.RandDecInRange(0, 1, 1) * Qty;
-            LibraryPatterns.POSTPurchaseOrderPartially(
+            LibraryPurchase.PostPurchaseOrderPartially(
               PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate() + 1,
               LibraryRandom.RandDec(100, 5), true, LibraryRandom.RandDecInDecimalRange(InvoiceQty, Qty, 2), true, InvoiceQty);
         end else begin
             Qty := LibraryRandom.RandDec(100, 2);
             InvoiceQty := LibraryRandom.RandDecInRange(0, 1, 1) * Qty;
-            LibraryPatterns.POSTPurchaseOrderPartially(
+            LibraryPurchase.PostPurchaseOrderPartially(
               PurchaseHeader1, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate(),
               LibraryRandom.RandDec(100, 5), true, Qty, true, InvoiceQty);
 
             Qty := LibraryRandom.RandDec(100, 2);
             InvoiceQty := LibraryRandom.RandDecInRange(0, 1, 1) * Qty;
-            LibraryPatterns.POSTPurchaseOrderPartially(
+            LibraryPurchase.PostPurchaseOrderPartially(
               PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate() + 1,
               LibraryRandom.RandDec(100, 5), true, Qty, true, InvoiceQty);
         end;
@@ -912,11 +914,11 @@ codeunit 137601 "SCM CETAF Purchase"
         PurchaseHeaderInv.Validate("Posting Date", WorkDate() + 3);
         PurchRcptLine.SetRange("Order No.", PurchaseHeader1."No.");
         PurchRcptLine.FindFirst();
-        LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(
+        LibraryPurchase.AssignPurchChargeToPurchRcptLine(
           PurchaseHeaderInv, PurchRcptLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
         PurchRcptLine.SetRange("Order No.", PurchaseHeader2."No.");
         PurchRcptLine.FindFirst();
-        LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(
+        LibraryPurchase.AssignPurchChargeToPurchRcptLine(
           PurchaseHeaderInv, PurchRcptLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
 
         // Exercise.

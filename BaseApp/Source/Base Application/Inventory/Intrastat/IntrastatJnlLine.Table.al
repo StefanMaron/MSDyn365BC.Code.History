@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+#if not CLEANSCHEMA25 
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,9 +7,13 @@ namespace Microsoft.Inventory.Intrastat;
 
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Shipping;
+#if not CLEAN26
 using Microsoft.Inventory.Ledger;
+#endif
 using Microsoft.Inventory.Location;
+#if not CLEAN26
 using Microsoft.Projects.Project.Ledger;
+#endif
 
 table 263 "Intrastat Jnl. Line"
 {
@@ -66,18 +71,32 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
         }
+#if not CLEANSCHEMA29
+#pragma warning disable AS0105        
         field(11; "Source Type"; Enum "Intrastat Source Type")
         {
             BlankZero = true;
             Caption = 'Source Type';
+#if CLEAN26
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#endif
+            ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
         }
+#pragma warning restore AS0105
+#endif
         field(12; "Source Entry No."; Integer)
         {
             Caption = 'Source Entry No.';
             Editable = false;
+#if not CLEAN26
             TableRelation = if ("Source Type" = const("Item Entry")) "Item Ledger Entry"
             else
             if ("Source Type" = const("Job Entry")) "Job Ledger Entry";
+#endif
         }
         field(13; "Net Weight"; Decimal)
         {
@@ -205,118 +224,6 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Counterparty';
         }
-        field(31060; "Additional Costs"; Boolean)
-        {
-            Caption = 'Additional Costs';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
-        field(31061; "Source Entry Date"; Date)
-        {
-            Caption = 'Source Entry Date';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
-        field(31062; "Statistic Indication"; Code[10])
-        {
-            Caption = 'Statistic Indication';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
-        field(31063; "Statistics Period"; Code[10])
-        {
-            Caption = 'Statistics Period';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
-        field(31065; "Declaration No."; Code[10])
-        {
-            Caption = 'Declaration No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
-        field(31066; "Statement Type"; Option)
-        {
-            Caption = 'Statement Type';
-            Editable = false;
-            OptionCaption = 'Primary,Null,Replacing,Deleting';
-            OptionMembers = Primary,Null,Replacing,Deleting;
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
-        field(31067; "Prev. Declaration No."; Code[10])
-        {
-            Caption = 'Prev. Declaration No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
-        field(31068; "Prev. Declaration Line No."; Integer)
-        {
-            Caption = 'Prev. Declaration Line No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
-        field(31069; "Shipment Method Code"; Code[10])
-        {
-            Caption = 'Shipment Method Code';
-            ObsoleteReason = 'Merge to W1';
-            ObsoleteState = Removed;
-            TableRelation = "Shipment Method";
-            ObsoleteTag = '18.0';
-        }
-        field(31070; "Specific Movement"; Code[10])
-        {
-            Caption = 'Specific Movement';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
-        field(31071; "Supplem. UoM Code"; Code[10])
-        {
-            Caption = 'Supplem. UoM Code';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
-        field(31072; "Supplem. UoM Quantity"; Decimal)
-        {
-            Caption = 'Supplem. UoM Quantity';
-            DecimalPlaces = 0 : 3;
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
-        field(31073; "Supplem. UoM Net Weight"; Decimal)
-        {
-            Caption = 'Supplem. UoM Net Weight';
-            DecimalPlaces = 2 : 5;
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
-        field(31074; "Base Unit of Measure"; Code[10])
-        {
-            Caption = 'Base Unit of Measure';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-        }
     }
 
     keys
@@ -325,9 +232,11 @@ table 263 "Intrastat Jnl. Line"
         {
             Clustered = true;
         }
+#if not CLEAN26
         key(Key2; "Source Type", "Source Entry No.")
         {
         }
+#endif
         key(Key3; Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Country/Region of Origin Code", "Partner VAT ID")
         {
         }
@@ -344,3 +253,5 @@ table 263 "Intrastat Jnl. Line"
     }
 }
 
+
+#endif

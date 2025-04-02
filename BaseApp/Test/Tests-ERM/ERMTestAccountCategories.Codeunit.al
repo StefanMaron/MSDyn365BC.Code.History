@@ -107,6 +107,9 @@ codeunit 134444 "ERM Test Account Categories"
         // [GIVEN] G/L Account Card page was open
         GLAccountCardPage.OpenNew();
 
+        // [GIVEN] "Account Category" was set
+        GLAccountCardPage."Account Category".SetValue("G/L Account Report Type"::"Balance Sheet");
+
         // [WHEN] Lookup is invoked for Account Subcategory
         GLAccountCardPage.SubCategoryDescription.Lookup();
         // Handled by GLAccountCategoriesLookupHandler
@@ -125,6 +128,7 @@ codeunit 134444 "ERM Test Account Categories"
         GLAccount: Record "G/L Account";
         GLAccountCategory: Record "G/L Account Category";
         GLAccountCardPage: TestPage "G/L Account Card";
+
     begin
         // [FEATURE] [UI]
         // [SCENARIO 284151] Account Subcategory Validate on G/L Account Card page doesn't insert current record

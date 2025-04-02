@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CRM.Contact;
 
 using Microsoft.Bank.BankAccount;
@@ -277,14 +281,6 @@ table 5050 Contact
                     VATRegistrationValidation();
             end;
         }
-        field(89; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
         field(91; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
@@ -405,19 +401,16 @@ table 5050 Contact
                 Validate("Privacy Blocked", true);
             end;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -640,15 +633,6 @@ table 5050 Contact
             Caption = 'No. of Interactions';
             Editable = false;
             FieldClass = FlowField;
-        }
-        field(5075; "Business Relation"; Text[50])
-        {
-            Caption = 'Business Relation';
-            OptimizeForTextSearch = true;
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by the Contact Business Relation field.';
-            ObsoleteTag = '22.0';
         }
         field(5076; "Cost (LCY)"; Decimal)
         {
@@ -893,38 +877,6 @@ table 5050 Contact
             Caption = 'Xrm Id';
             Editable = false;
         }
-        field(11790; "Registration No."; Text[20])
-        {
-            Caption = 'Registration No.';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11791; "Tax Registration No."; Text[20])
-        {
-            Caption = 'Tax Registration No.';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11792; "Registered Name"; Text[250])
-        {
-            Caption = 'Registered Name';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11795; "Instant Messaging"; Text[250])
-        {
-            Caption = 'Instant Messaging';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Instant Messaging has been discontinued.';
-            ObsoleteTag = '22.0';
-        }
     }
 
     keys
@@ -970,14 +922,6 @@ table 5050 Contact
         key(Key13; SystemModifiedAt)
         {
         }
-#if not CLEAN23
-        key(Key14; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
         key(Key15; "Contact Business Relation")
         {
         }
@@ -1294,6 +1238,7 @@ table 5050 Contact
         NoOriginalCustomerTemplateMsg: Label 'Sales quote %1 without an original customer template was assigned to the customer created from template %2.', Comment = '%1=Document No.,%2=Customer Template Code';
         PhoneNoCannotContainLettersErr: Label 'must not contain letters';
         FieldLengthErr: Label 'must not have the length more than 20 symbols';
+        VendorTemplNotFoundMsg: Label 'You cannot create vendor because there is no vendor template with contact type: %1.', Comment = '%1=Contact Type';
 
     protected var
         HideValidationDialog: Boolean;
@@ -1702,8 +1647,22 @@ table 5050 Contact
         VendorTempl: Record "Vendor Templ.";
         VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
     begin
+        if not CheckIfVendorTempleExist() then begin
+            if GuiAllowed() then
+                Message(StrSubstNo(VendorTemplNotFoundMsg, Rec.Type));
+            exit;
+        end;
+
         if VendorTemplMgt.SelectVendorTemplateFromContact(VendorTempl, Rec) then
             exit(CreateVendorFromTemplate(VendorTempl.Code));
+    end;
+
+    local procedure CheckIfVendorTempleExist(): Boolean
+    var
+        VendorTempl: Record "Vendor Templ.";
+    begin
+        VendorTempl.SetRange("Contact Type", Rec.Type);
+        exit(not VendorTempl.IsEmpty());
     end;
 
     procedure CreateVendorFromTemplate(VendorTemplateCode: Code[20]) VendorNo: Code[20]
@@ -3027,6 +2986,7 @@ table 5050 Contact
         OnBeforeTouchContact(ContactNo, IsHandled);
         if IsHandled then
             exit;
+
         Cont.LockTable();
         if Cont.Get(ContactNo) then begin
             Cont.SetLastDateTimeModified();
@@ -3967,4 +3927,3 @@ table 5050 Contact
     begin
     end;
 }
-

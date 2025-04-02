@@ -143,32 +143,6 @@ table 370 "Excel Buffer"
             Caption = 'Cell Value as Blob';
             DataClassification = SystemMetadata;
         }
-        field(11790; "Font Color"; Integer)
-        {
-            Caption = 'Font Color';
-            DataClassification = SystemMetadata;
-            InitValue = -1;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11791; "Foreground Color"; Integer)
-        {
-            Caption = 'Foreground Color';
-            DataClassification = SystemMetadata;
-            InitValue = -1;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11792; "Font Name"; Text[80])
-        {
-            Caption = 'Font Name';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
     }
 
     keys

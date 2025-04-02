@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Bank.Reconciliation;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -89,15 +93,6 @@ table 274 "Bank Acc. Reconciliation Line"
             begin
                 Difference := "Statement Amount" - "Applied Amount";
             end;
-        }
-        field(10; Type; Option)
-        {
-            Caption = 'Type';
-            OptionCaption = 'Bank Account Ledger Entry,Check Ledger Entry,Difference';
-            OptionMembers = "Bank Account Ledger Entry","Check Ledger Entry",Difference;
-            ObsoleteReason = 'This field is prone to confusion and is redundant. A type Difference can be manually tracked and a type Check Ledger Entry has a related Bank Account Ledger Entry';
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
         }
         field(11; "Applied Entries"; Integer)
         {
@@ -283,178 +278,6 @@ table 274 "Bank Acc. Reconciliation Line"
             begin
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
-        }
-        field(11700; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11701; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11702; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11705; "External Document No."; Code[35])
-        {
-            Caption = 'External Document No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11710; "Currency Code"; Code[10])
-        {
-            Caption = 'Currency Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11711; "Currency Factor"; Decimal)
-        {
-            Caption = 'Currency Factor';
-            DecimalPlaces = 0 : 15;
-            Editable = false;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11715; "Statement Amount (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Statement Amount (LCY)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11716; "Debit Amount"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            BlankZero = true;
-            Caption = 'Debit Amount';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11717; "Credit Amount"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            BlankZero = true;
-            Caption = 'Credit Amount';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11720; "Document Type"; Option)
-        {
-            Caption = 'Document Type';
-            OptionCaption = ' ,Payment,,,,,Refund';
-            OptionMembers = " ",Payment,,,,,Refund;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11725; "Difference (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            BlankZero = true;
-            Caption = 'Difference (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11726; "Applied Amount (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            BlankZero = true;
-            Caption = 'Applied Amount (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11727; "Applied Amount (BCY)"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            BlankZero = true;
-            Caption = 'Applied Amount (BCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11728; "Statement Amount (BCY)"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            Caption = 'Statement Amount (BCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11729; "Difference (BCY)"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            BlankZero = true;
-            Caption = 'Difference (BCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11730; IBAN; Code[50])
-        {
-            Caption = 'IBAN';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11731; "SWIFT Code"; Code[20])
-        {
-            Caption = 'SWIFT Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11740; "Posting Group"; Code[20])
-        {
-            Caption = 'Posting Group';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31000; "Advance Letter Link Code"; Code[30])
-        {
-            Caption = 'Advance Letter Link Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31010; Prepayment; Boolean)
-        {
-            Caption = 'Prepayment';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
         }
     }
 
@@ -778,7 +601,6 @@ table 274 "Bank Acc. Reconciliation Line"
                 BankAccRecMatchBuffer.Delete();
             end;
         end;
-
 
         BankAccRecMatchBuffer.Reset();
         BankAccRecMatchBuffer.SetRange("Ledger Entry No.", BankAccLedgEntry."Entry No.");

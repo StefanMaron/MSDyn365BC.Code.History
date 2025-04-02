@@ -4,9 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
-#if not CLEAN23
-using Microsoft.Finance.EU3PartyTrade;
-#endif
 using Microsoft.Finance.GeneralLedger.Setup;
 
 tableextension 11739 "VAT Statement Line CZL" extends "VAT Statement Line"
@@ -52,6 +49,7 @@ tableextension 11739 "VAT Statement Line CZL" extends "VAT Statement Line"
             OptionMembers = " ",Yes,No;
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA27
         field(31073; "EU-3 Party Trade CZL"; Option)
         {
             Caption = 'EU-3 Party Trade';
@@ -67,6 +65,7 @@ tableextension 11739 "VAT Statement Line CZL" extends "VAT Statement Line"
 #endif
             ObsoleteReason = 'Replaced by "EU 3 Party Trade" field in "EU 3-Party Trade Purchase" app.';
         }
+#endif
         field(31110; "VAT Ctrl. Report Section CZL"; Code[20])
         {
             Caption = 'VAT Control Report Section Code';
@@ -79,33 +78,4 @@ tableextension 11739 "VAT Statement Line CZL" extends "VAT Statement Line"
             DataClassification = CustomerContent;
         }
     }
-#if not CLEAN23
-    internal procedure ConvertEU3PartyTradeToEnum(): Enum "EU3 Party Trade Filter"
-    begin
-#pragma warning disable AL0432
-        case "EU-3 Party Trade CZL" of
-            "EU-3 Party Trade CZL"::" ":
-                exit("EU 3 Party Trade"::All);
-            "EU-3 Party Trade CZL"::Yes:
-                exit("EU 3 Party Trade"::EU3);
-            "EU-3 Party Trade CZL"::No:
-                exit("EU 3 Party Trade"::"non-EU3");
-        end
-#pragma warning restore AL0432
-    end;
-
-    internal procedure ConvertEnumToEU3PartyTrade(EU3PartyTradeFilter: Enum "EU3 Party Trade Filter")
-    begin
-#pragma warning disable AL0432
-        case EU3PartyTradeFilter of
-            EU3PartyTradeFilter::EU3:
-                "EU-3 Party Trade CZL" := "EU-3 Party Trade CZL"::Yes;
-            EU3PartyTradeFilter::"non-EU3":
-                "EU-3 Party Trade CZL" := "EU-3 Party Trade CZL"::No;
-            EU3PartyTradeFilter::All:
-                "EU-3 Party Trade CZL" := "EU-3 Party Trade CZL"::" ";
-        end;
-#pragma warning restore AL0432
-    end;
-#endif
 }

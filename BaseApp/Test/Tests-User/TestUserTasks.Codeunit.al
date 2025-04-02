@@ -113,6 +113,43 @@ codeunit 134769 "Test User Tasks"
     end;
 
     [Test]
+    procedure TestUserCompleteTask()
+    var
+        UserTask: Record "User Task";
+        UserTaskMgt: Codeunit "User Task Management";
+    begin
+        // [SCENARIO] Test the User Task purge.
+
+        // [GIVEN] Several Task records with different creators.
+        UserTask.DeleteAll();
+        UserTask.Init();
+        UserTask."Created By" := UserSecurityId();
+        UserTask."Assigned To" := UserSecurityId();
+        UserTask.Insert();
+
+        Clear(UserTask);
+        UserTask.Init();
+        UserTask."Created By" := UserSecurityId();
+        UserTask."Assigned To" := UserSecurityId();
+        UserTask.Insert();
+
+        Clear(UserTask);
+        UserTask.Init();
+        UserTask."Created By" := User2."User Security ID";
+        UserTask."Assigned To" := User2."User Security ID";
+        UserTask.Insert();
+        Clear(UserTask);
+
+        UserTaskMgt.SetFiltersToShowMyUserTasks(UserTask, 0); // 0 - DueDateFilterOptions::NONE:
+        UserTask.FilterGroup(2);
+        UserTaskMgt.CompleteTasks(UserTask);
+
+        Clear(UserTask);
+        UserTask.SetRange("Percent Complete", 100);
+        Assert.RecordCount(UserTask, 2);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure WinEncodingInDescriptionBLOB()
     var

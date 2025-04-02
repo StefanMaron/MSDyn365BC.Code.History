@@ -759,6 +759,8 @@
         VerifyVATEntry(PurchaseLine, DocumentNo, VatAmount);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsHandler,CheckValuesOnVATAmountLinesMPH')]
     [Scope('OnPrem')]
@@ -780,7 +782,31 @@
         // Verify: Verify VAT Amount on VAT Amount Lines page.
         // Verification done in handler.
     end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsHandlerNM,CheckValuesOnVATAmountLinesMPH')]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsVATAmountNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // Check VAT Amount field value on VAT Amount Line using Sales Order Statistics page.
 
+        // Setup: Create Sales Order with Random Quantity and Unit Price.
+        Initialize();
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, false);
+
+        // Exercise: Open Sales Order Statistics page.
+        LibraryVariableStorage.Enqueue(SalesLine."Line Amount" * SalesLine."VAT %" / 100);
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
+
+        // Verify: Verify VAT Amount on VAT Amount Lines page.
+        // Verification done in handler.
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsHandler,CheckValuesOnVATAmountLinesMPH')]
     [Scope('OnPrem')]
@@ -804,6 +830,34 @@
         // Verify: Verify VAT Amount field on VAT Amount Lines page.
         // Verification done in handler.
     end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler,CheckValuesOnVATAmountLinesMPH')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsVATAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // Check whether VAT Amount field is editable on VAT Amount Line using Purchase Order Statistics page.
+
+        // Setup.
+        Initialize();
+        ModifyAllowVATDifferencePurchases(false);
+
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseLine."Document Type"::Order, false);
+
+        // Exercise: Open Sales Order Statistics page.
+        LibraryVariableStorage.Enqueue(PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100);
+        OpenPurchOrderStatistics(PurchaseHeader."No.");
+
+        // Verify: Verify VAT Amount field on VAT Amount Lines page.
+        // Verification done in handler.
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
 
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsHandler,EditSalesVATAmountLinesHandler')]
@@ -843,9 +897,10 @@
         // [THEN] Document Totals on "Purch Order" page are updated: "VAT Amount" is 21.
         PurchOrderPage.PurchLines."Total VAT Amount".AssertEquals(ExpectedVATAmount);
     end;
+#endif
 
     [Test]
-    [HandlerFunctions('SalesOrderStatisticsHandler,EditSalesVATAmountLinesHandler')]
+    [HandlerFunctions('SalesOrderStatisticsHandlerNM,EditSalesVATAmountLinesHandler')]
     [Scope('OnPrem')]
     procedure SalesOrderDocTotalsAfterVATUpdatedOnStatsPage()
     var
@@ -869,7 +924,7 @@
         LibraryVariableStorage.Enqueue(ExpectedVATAmount);
 
         // [GIVEN] "Sales Order Statistics" page is open from "Sales Order" page
-        SalesOrderPage.Statistics.Invoke(); // handled by SalesOrderStatisticsChangeVATHandler
+        SalesOrderPage.SalesOrderStatistics.Invoke(); // handled by SalesOrderStatisticsChangeVATHandler
 
         // [GIVEN] "VAT Amount" is changed to 21 in the line on the "Invoice" tab
         // Executed in VATAmountLinesHandler
@@ -880,6 +935,8 @@
         SalesOrderPage.SalesLines."Total VAT Amount".AssertEquals(ExpectedVATAmount);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsHandler,EditSalesVATAmountLinesHandler')]
     [Scope('OnPrem')]
@@ -912,6 +969,7 @@
         VerifyVATDifference(SalesHeader."Document Type", SalesHeader."No.", GLAccountNo, 0); // VAT Difference must be zero in both lines.
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsHandler,VATAmountLineHandler')]
     [Scope('OnPrem')]
@@ -932,7 +990,62 @@
 
         // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
     end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsHandlerNM,EditSalesVATAmountLinesHandler')]
+    [Scope('OnPrem')]
+    procedure VATDifferenceOnSalesLineNM()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATAmountLine: Record "VAT Amount Line";
+        MaxVATDifference: Decimal;
+        GLAccountNo: Code[20];
+    begin
+        // Check VAT Difference field value on Sales Line when second line is entered after editing VAT Amount on first Sales Line using Statistics page.
 
+        // Setup: Update General Ledger and Sales & Receivable Setup,Create Sales Order.
+        // Take Random value for Max. VAT Difference.
+        Initialize();
+        MaxVATDifference := ModifyAllowVATDifferenceSales(true);
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, true);
+
+        // Exercise: Edit VAT Amount on VAT Amount Lines page and create new Sales Line.
+        CalcSalesVATAmountLines(VATAmountLine, SalesHeader, SalesLine);
+        LibraryVariableStorage.Enqueue(VATAmountLine."VAT Amount" - MaxVATDifference);
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
+        VATPostingSetup.Get(SalesHeader."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
+        GLAccountNo := CreateSalesLineThroughPage(VATPostingSetup, SalesHeader."No.");
+
+        // Verify: Verify VAT Difference on Sales Lines.
+        VerifyVATDifference(SalesHeader."Document Type", SalesHeader."No.", SalesLine."No.", 0);
+        VerifyVATDifference(SalesHeader."Document Type", SalesHeader."No.", GLAccountNo, 0); // VAT Difference must be zero because we have not edit the VAT Amount for this line.
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsHandlerNM,VATAmountLineHandler')]
+    [Scope('OnPrem')]
+    procedure VATAmtFromSalesOrderStatisticsNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // Check that field VAT Amount must not be editable on VAT Amount Line Page of Sales Order Statistics Page.
+
+        // Setup: Create Sales Order and take 1 for No of Sales Lines.
+        Initialize();
+        ModifyAllowVATDifferenceSales(false);
+        CreateSalesDocWithPartQtyToShip(SalesHeader, SalesLine, 1, SalesHeader."Document Type"::Order);
+
+        // Exercise: Open Statistics page from Sales Order.
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
+
+        // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsHandler,VATAmountLineHandler')]
     [Scope('OnPrem')]
@@ -953,7 +1066,31 @@
 
         // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler,VATAmountLineHandler')]
+    [Scope('OnPrem')]
+    procedure VATAmtFromPurchaseOrderStatistics()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // Check that field VAT Amount must not be editable on VAT Amount Line Page of Purchase Order Statistics Page.
+
+        // Setup: Create Purchase Order and take 1 for No of Purchase Lines.
+        Initialize();
+        ModifyAllowVATDifferencePurchases(false);
+        CreatePurchDocWithPartQtyToRcpt(PurchaseHeader, PurchaseLine, '', 1, PurchaseHeader."Document Type"::Order);
+
+        // Exercise: Open Statistics page from Purchase Order.
+        OpenPurchOrderStatistics(PurchaseHeader."No.");
+
+        // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesQuoteStatisticsHandler')]
     [Scope('OnPrem')]
@@ -993,7 +1130,49 @@
 
         // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
     end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesQuoteStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure VATAmtFromSalesQuoteSalesStatistics()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // Check that field VAT Amount must not be editable on VAT Amount Line Page of Sales Quotes Statistics page.
 
+        // Setup: Create Sales Quote and take 1 for No of Sales Lines.
+        Initialize();
+        CreateSalesDocWithPartQtyToShip(SalesHeader, SalesLine, 1, SalesHeader."Document Type"::Quote);
+
+        // Exercise: Open Statistics page from Sales Quote.
+        OpenSalesQuoteSalesStatistics(SalesHeader."No.");
+
+        // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
+    end;
+
+    [Test]
+    [HandlerFunctions('BlanketOrderStatisticsHandlerNM,VATAmountLineHandler')]
+    [Scope('OnPrem')]
+    procedure VATAmtFromSalesBlanketOrderNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // Check that field VAT Amount must not be editable on VAT Amount Line Page of Sales Blanket Order Statistics page.
+
+        // Setup: Create Sales Blanket Order and take 1 for No of Sales Lines.
+        Initialize();
+        CreateSalesDocWithPartQtyToShip(SalesHeader, SalesLine, 1, SalesHeader."Document Type"::"Blanket Order");
+
+        // Exercise: Open Statistics page from Blanket Sales Order.
+        OpenBlanketSalesOrderStatisticsNM(SalesHeader."No.");
+
+        // Verify: Verification is done for VAT Amount in 'VATAmountLineHandler' handler method.
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('YesConfirmHandler,PurchaseStatisticsHandler')]
     [Scope('OnPrem')]
@@ -1016,7 +1195,33 @@
         // Verify: Verification for Total Incl. VAT on Purchase Invoice Statistics page.
         // Verification done in PurchaseStatisticsHandler.
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler,PurchaseStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoicePurchStatistics()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // Check Total Incl. VAT field on Purchase Invoice Statistics before posting Invoice.
+
+        // Setup: Create Purchase Invoice and take 1 for No. of Purchase Line.
+        Initialize();
+        CreatePurchDocWithPartQtyToRcpt(PurchaseHeader, PurchaseLine, '', 1, PurchaseHeader."Document Type"::Invoice);
+        ModifyPurchaseHeaderPricesInclVAT(PurchaseHeader, true);
+
+        // Exercise: Open Statistics page from Purchase Invoice.
+        LibraryVariableStorage.Enqueue(PurchaseLine."Amount Including VAT");
+        OpenPurchaseInvoicePurchStatistics(PurchaseHeader."No.");
+
+        // Verify: Verification for Total Incl. VAT on Purchase Invoice Statistics page.
+        // Verification done in PurchaseStatisticsPageHandler.
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('YesConfirmHandler,SalesStatisticsHandler')]
     [Scope('OnPrem')]
@@ -1039,6 +1244,30 @@
 
         // Verify: Verification for Total Incl. VAT on Sales Invoice Statistics page.
         // Verification done in SalesStatisticsHandler.
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('YesConfirmHandler,SalesStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceSalesStatistics()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // Check Total Incl. VAT field on Sales Invoice Statistics before posting Invoice.
+
+        // Setup: Create Sales Invoice and take 1 for No. of Sales Line.
+        Initialize();
+        CreateSalesDocWithPartQtyToShip(SalesHeader, SalesLine, 1, SalesHeader."Document Type"::Invoice);
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+
+        // Exercise: Open Statistics page from Sales Invoice.
+        LibraryVariableStorage.Enqueue(SalesLine."Amount Including VAT");
+        OpenSalesInvoiceSalesStatistics(SalesHeader."No.");
+
+        // Verify: Verification for Total Incl. VAT on Sales Invoice Statistics page.
+        // Verification done in SalesStatisticsPageHandler.
     end;
 
     [Test]
@@ -1588,6 +1817,8 @@
         VerifyPurchLineAmounts(PurchaseLine, 45.61, 57.02);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('InvoicingVATAmountSalesOrderStatisticsHandler')]
     [Scope('OnPrem')]
@@ -1611,6 +1842,34 @@
         LibraryVariableStorage.Enqueue(
           SalesLine."Line Amount" * SalesLine."VAT %" / 100 * SalesLine."Qty. to Ship" / SalesLine.Quantity);
         OpenSalesOrderStatistics(SalesHeader."No.");
+
+        // [THEN] Invoicing tab has VAT Amount for remaining quantity = 2.250 (2.500 * (10 - 1))
+        // verification is done in InvoicingVATAmountSalesOrderStatisticsHandler
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('InvoicingVATAmountSalesOrderStatisticsHandlerNM')]
+    [Scope('OnPrem')]
+    procedure VATAmountOnInvoiceTabSalesOrderPartShipAndInvoiceNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Statistics]
+        // [SCENARIO 376292] VAT Amount should be calculated on Sales order statistics /Invoicing fasttab for remaining quantity when post Sales Order partially Ship then Invoice
+        Initialize();
+
+        // [GIVEN] Sales Order with Quantity = 10, Line Amount = 10.000, VAT Amount = 2.500
+        CreateSalesDocWithPartQtyToShip(SalesHeader, SalesLine, 1, SalesHeader."Document Type"::Order);
+
+        // [GIVEN] Partially posted Sales Invoice as Ship with QtyToShip = 1, then posted separately as Invoice with QtyToInvoice = 1
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [WHEN] Open Sales Order Statistics
+        LibraryVariableStorage.Enqueue(
+          SalesLine."Line Amount" * SalesLine."VAT %" / 100 * SalesLine."Qty. to Ship" / SalesLine.Quantity);
+        OpenSalesOrderStatisticsNM(SalesHeader."No.");
 
         // [THEN] Invoicing tab has VAT Amount for remaining quantity = 2.250 (2.500 * (10 - 1))
         // verification is done in InvoicingVATAmountSalesOrderStatisticsHandler
@@ -2278,7 +2537,7 @@
         PostingDate := WorkDate();
         DocumentDate := WorkDate() + 1;
 
-        // [Then] VAT Date equal to posting date 
+        // [Then] VAT Date equal to posting date
         VATDate := GLSetup.GetVATDate(PostingDate, DocumentDate);
         Assert.AreEqual(PostingDate, VATDate, VatDateComparisonErr);
         Assert.AreNotEqual(DocumentDate, VATDate, VatDateComparisonErr);
@@ -2299,12 +2558,12 @@
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
         GLSetup.Modify();
 
-        // [Then] VAT Date is updated to be equal to posting date 
+        // [Then] VAT Date is updated to be equal to posting date
         PostingDate := WorkDate();
         GLSetup.UpdateVATDate(PostingDate, Enum::"VAT Reporting Date"::"Posting Date", VATDate);
         Assert.AreEqual(VATDate, PostingDate, VatDateComparisonErr);
 
-        // [Then] VAT Date is not updated to be equal to document date 
+        // [Then] VAT Date is not updated to be equal to document date
         DocumentDate := 0D;
         GLSetup.UpdateVATDate(DocumentDate, Enum::"VAT Reporting Date"::"Document Date", VATDate);
         Assert.AreNotEqual(VATDate, DocumentDate, VatDateComparisonErr);
@@ -2621,7 +2880,7 @@
         GLSetup."VAT Reporting Date" := GLSetup."VAT Reporting Date"::"Posting Date";
         GLSetup.Modify();
 
-        // [Then] Open Sales invoice    
+        // [Then] Open Sales invoice
         PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."VAT Reporting Date".SetValue(WorkDate());
         Evaluate(FieldDate, PurchaseCreditMemo."VAT Reporting Date".Value);
@@ -3314,7 +3573,7 @@
         // [SCENARIO 445818] When adjusting VAT Date, it should reflect in related documents
         Initialize();
 
-        // [WHEN] Posting sales invoice 
+        // [WHEN] Posting sales invoice
         DocType := Enum::"Gen. Journal Document Type"::Invoice;
         PostType := Enum::"General Posting Type"::Sale;
         DocNo := CreateAndPostSalesDoc(0D, DocType);
@@ -3350,7 +3609,7 @@
         // [SCENARIO 445818] When adjusting VAT Date, it should reflect in related documents
         Initialize();
 
-        // [WHEN] Posting purchase invoice 
+        // [WHEN] Posting purchase invoice
         DocType := Enum::"Gen. Journal Document Type"::Invoice;
         PostType := Enum::"General Posting Type"::Purchase;
         DocNo := CreateAndPostPurchDoc(0D, DocType);
@@ -3386,7 +3645,7 @@
         // [SCENARIO 445818] When adjusting VAT Date, it should reflect in related documents
         Initialize();
 
-        // [WHEN] Posting Sales Credit Memo  
+        // [WHEN] Posting Sales Credit Memo
         DocType := Enum::"Gen. Journal Document Type"::"Credit Memo";
         PostType := Enum::"General Posting Type"::Sale;
         DocNo := CreateAndPostSalesDoc(0D, DocType);
@@ -3422,7 +3681,7 @@
         // [SCENARIO 445818] When adjusting VAT Date, it should reflect in related documents
         Initialize();
 
-        // [WHEN] Posting Purchase Credit memo  
+        // [WHEN] Posting Purchase Credit memo
         DocType := Enum::"Gen. Journal Document Type"::"Credit Memo";
         PostType := Enum::"General Posting Type"::Purchase;
         DocNo := CreateAndPostPurchDoc(0D, DocType);
@@ -3495,7 +3754,7 @@
         PostType: Enum "General Posting Type";
     begin
         // [FEATURE] [VAT]
-        // [SCENARIO 448377] Adjusting VAT Date with no doc type 
+        // [SCENARIO 448377] Adjusting VAT Date with no doc type
         Initialize();
 
         // [WHEN] Posting with Sales Invoice to generate VAT entry
@@ -3527,7 +3786,7 @@
         PostType: Enum "General Posting Type";
     begin
         // [FEATURE] [VAT]
-        // [SCENARIO 448377] Adjusting VAT Date with no post type 
+        // [SCENARIO 448377] Adjusting VAT Date with no post type
         Initialize();
 
         // [WHEN] Posting with Sales Invoice to generate VAT entry
@@ -3648,7 +3907,7 @@
         VATEntryNo: Integer;
     begin
         // [FEATURE] [VAT]
-        // [SCENARIO 466417] Blocking change From and To if there is VAT Return Period 
+        // [SCENARIO 466417] Blocking change From and To if there is VAT Return Period
         Initialize();
 
         // [WHEN] We disable the control
@@ -3674,11 +3933,11 @@
         CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 1); // Closed to Closed OK
         CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Closed to Relased OK
         CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate());     // Released to Closed OK
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Closed to Open OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Closed to Open OK
         CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Released to Open OK  
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK  
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 3); // Released to Released OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Released to Open OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 3); // Released to Released OK
         CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate());     // RESET
 
         // [WHEN] We warn for changes for closed periods
@@ -3690,11 +3949,11 @@
         CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 1); // Closed to Closed OK
         CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Closed to Relased OK
         CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate());     // Released to Closed OK
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Closed to Open OK  
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK  
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Released to Open OK  
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK  
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 3); // Released to Released OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Closed to Open OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Released to Open OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 3); // Released to Released OK
         CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate());     // RESET
 
         // [WHEN] We block posting with no warnings
@@ -3717,12 +3976,12 @@
         GeneralLedgerSetup.Modify();
         Commit();
 
-        // [THEN] Check that we can do changes through the UI for released and open and we are blocked for closed 
+        // [THEN] Check that we can do changes through the UI for released and open and we are blocked for closed
         CorrectVATDateAndVerifyError(VATEntryNo, WorkDate(), VATReturnPeriodClosedErr); // FROM Released TO Closed FAIL
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Released to Open OK 
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Released to Open OK
         CorrectVATDateAndVerifyError(VATEntryNo, WorkDate(), VATReturnPeriodClosedErr); // FROM Open TO Closed FAIL
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK  
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 3); // Released to Released OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 3); // Released to Released OK
 
         // [WHEN] Reset VAT entry to closed period and change Control setting
         GeneralLedgerSetup.Get();
@@ -3747,11 +4006,11 @@
         GeneralLedgerSetup.Modify();
         Commit();
 
-        // [THEN] Check that we can do changes through the UI for released and open and we are blocked for closed 
+        // [THEN] Check that we can do changes through the UI for released and open and we are blocked for closed
         CorrectVATDateAndVerifyError(VATEntryNo, WorkDate(), VATReturnPeriodClosedErr); // FROM Released TO Closed FAIL
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Released to Open OK 
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Released to Open OK
         CorrectVATDateAndVerifyError(VATEntryNo, WorkDate(), VATReturnPeriodClosedErr); // FROM Open TO Closed FAIL
-        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK
         CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 3); // Released to Released OK
     end;
 
@@ -4694,7 +4953,7 @@
         InitalVATDate := WorkDate();
         UpdatedVATDate := CalcDate('<+1M>', WorkDate());
 
-        // [WHEN] Sales Gen. Journal Line posted   
+        // [WHEN] Sales Gen. Journal Line posted
         CreateSalesJournalLine(GenJournalLine);
         GenJournalLine."VAT Reporting Date" := InitalVATDate;
         GenJournalLine.Modify();
@@ -4702,7 +4961,7 @@
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        // [WHEN] Purchase Gen. Journal Line posted 
+        // [WHEN] Purchase Gen. Journal Line posted
         CreatePurchaseJournalLine(GenJournalLine);
         GenJournalLine."VAT Reporting Date" := InitalVATDate;
         GenJournalLine."Document No." := DocumentNo;
@@ -4747,7 +5006,7 @@
         Initialize();
         VATDate := CalcDate('<+1M>', WorkDate());
 
-        // [WHEN] Sales Gen. Journal Line posted   
+        // [WHEN] Sales Gen. Journal Line posted
         CreateSalesJournalLine(GenJournalLine);
         DocumentNo := GenJournalLine."Document No.";
 
@@ -4783,7 +5042,7 @@
         Initialize();
         VATDate := CalcDate('<+1M>', WorkDate());
 
-        // [WHEN] Sales Gen. Journal Line posted   
+        // [WHEN] Sales Gen. Journal Line posted
         CreateSalesJournalLine(GenJournalLine);
         DocumentNo := GenJournalLine."Document No.";
 
@@ -4820,7 +5079,7 @@
         VATSetup."Allow VAT Date To" := WorkDate();
         VATSetup.Modify();
 
-        // [WHEN] General Journal Line defined with VAT Date out of Allowed Period 
+        // [WHEN] General Journal Line defined with VAT Date out of Allowed Period
         CreateSalesJournalLine(GenJournalLine);
         GenJournalLine."VAT Reporting Date" := CalcDate('<+1M>', WorkDate());
         GenJournalLine.Modify();
@@ -4853,7 +5112,7 @@
         VATSetup."Allow VAT Date To" := WorkDate();
         VATSetup.Modify();
 
-        // [WHEN] General Journal Line defined with VAT Date out of Allowed Period 
+        // [WHEN] General Journal Line defined with VAT Date out of Allowed Period
         DocType := Enum::"Gen. Journal Document Type"::Invoice;
         PostType := Enum::"General Posting Type"::Sale;
 
@@ -4888,7 +5147,7 @@
         VATSetup."Allow VAT Date To" := WorkDate();
         VATSetup.Modify();
 
-        // [WHEN] General Journal Line defined with VAT Date out of Allowed Period 
+        // [WHEN] General Journal Line defined with VAT Date out of Allowed Period
         DocType := Enum::"Sales Document Type"::Order;
         PostType := Enum::"General Posting Type"::Sale;
         CreateSalesDoc(SalesHeader, CalcDate('<+1M>', WorkDate()), DocType);
@@ -4915,7 +5174,7 @@
         VATSetup."Allow VAT Date To" := WorkDate();
         VATSetup.Modify();
 
-        // [WHEN] General Journal Line defined with VAT Date out of Allowed Period 
+        // [WHEN] General Journal Line defined with VAT Date out of Allowed Period
         DocType := Enum::"Purchase Document Type"::Order;
         PostType := Enum::"General Posting Type"::Purchase;
         CreatePurchDoc(PurchaseHeader, CalcDate('<+1M>', WorkDate()), DocType);
@@ -5808,6 +6067,8 @@
         PurchaseHeader.Modify();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenSalesOrderStatistics(DocumentNo: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
@@ -5817,6 +6078,7 @@
         SalesOrder.Statistics.Invoke();
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenSalesQuoteStatistics(DocumentNo: Code[20])
     var
         SalesQuote: TestPage "Sales Quote";
@@ -5825,7 +6087,27 @@
         SalesQuote.FILTER.SetFilter("No.", DocumentNo);
         SalesQuote.Statistics.Invoke();
     end;
+#endif
+    local procedure OpenSalesOrderStatisticsNM(DocumentNo: Code[20])
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", DocumentNo);
+        SalesOrder.SalesOrderStatistics.Invoke();
+    end;
 
+    local procedure OpenSalesQuoteSalesStatistics(DocumentNo: Code[20])
+    var
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        SalesQuote.OpenEdit();
+        SalesQuote.FILTER.SetFilter("No.", DocumentNo);
+        SalesQuote.SalesStatistics.Invoke();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenBlanketSalesOrderStatistics(DocumentNo: Code[20])
     var
         BlanketSalesOrder: TestPage "Blanket Sales Order";
@@ -5835,6 +6117,7 @@
         BlanketSalesOrder.Statistics.Invoke();
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenSalesInvoiceStatistics(DocumentNo: Code[20])
     var
         SalesInvoice: TestPage "Sales Invoice";
@@ -5843,7 +6126,27 @@
         SalesInvoice.FILTER.SetFilter("No.", DocumentNo);
         SalesInvoice.Statistics.Invoke();
     end;
+#endif
+    local procedure OpenBlanketSalesOrderStatisticsNM(DocumentNo: Code[20])
+    var
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+    begin
+        BlanketSalesOrder.OpenEdit();
+        BlanketSalesOrder.FILTER.SetFilter("No.", DocumentNo);
+        BlanketSalesOrder.SalesOrderStatistics.Invoke();
+    end;
 
+    local procedure OpenSalesInvoiceSalesStatistics(DocumentNo: Code[20])
+    var
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", DocumentNo);
+        SalesInvoice.SalesStatistics.Invoke();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenPurchaseOrderStatistics(DocumentNo: Code[20])
     var
         PurchaseOrder: TestPage "Purchase Order";
@@ -5852,7 +6155,19 @@
         PurchaseOrder.FILTER.SetFilter("No.", DocumentNo);
         PurchaseOrder.Statistics.Invoke();
     end;
+#endif
 
+    local procedure OpenPurchOrderStatistics(DocumentNo: Code[20])
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.FILTER.SetFilter("No.", DocumentNo);
+        PurchaseOrder.PurchaseOrderStatistics.Invoke();
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     local procedure OpenPurchaseInvoiceStatistics(DocumentNo: Code[20])
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
@@ -5860,6 +6175,16 @@
         PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", DocumentNo);
         PurchaseInvoice.Statistics.Invoke();
+    end;
+#endif
+
+    local procedure OpenPurchaseInvoicePurchStatistics(DocumentNo: Code[20])
+    var
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.FILTER.SetFilter("No.", DocumentNo);
+        PurchaseInvoice.PurchaseStatistics.Invoke();
     end;
 
     local procedure PurchaseVATAmountCalculation(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
@@ -6078,9 +6403,7 @@
             Customer."VAT Bus. Posting Group", SalesHeader.TableCaption(), SalesHeader."No."));
     end;
 
-    local procedure VerifyVATDifference(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20];
-                                                          No: Code[20];
-                                                          VATDifference: Decimal)
+    local procedure VerifyVATDifference(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; No: Code[20]; VATDifference: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -6088,9 +6411,7 @@
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("No.", No);
         SalesLine.FindFirst();
-        Assert.AreNearlyEqual(
-          VATDifference, SalesLine."VAT Difference", LibraryERM.GetAmountRoundingPrecision(),
-          StrSubstNo(AmountErr, SalesLine.FieldCaption("VAT Difference"), VATDifference, SalesLine.TableCaption()));
+        Assert.AreNearlyEqual(VATDifference, SalesLine."VAT Difference", LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(AmountErr, SalesLine.FieldCaption("VAT Difference"), VATDifference, SalesLine.TableCaption()));
     end;
 
     local procedure VerifyVATEntry(PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; Amount: Decimal)
@@ -6243,6 +6564,8 @@
         // Message Handler.
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
@@ -6250,7 +6573,17 @@
         // Modal Page Handler.
         SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
     end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsHandlerNM(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        // Modal Page Handler.
+        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
+    end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
@@ -6258,7 +6591,19 @@
         // Modal Page Handler.
         PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
     end;
+#endif
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    begin
+        // Page Handler.
+        PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
+    end;
+
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseStatisticsHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
@@ -6266,7 +6611,18 @@
         // Modal Page Handler.
         PurchaseStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
+#endif
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseStatisticsPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    begin
+        //  Page Handler.
+        PurchaseStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
@@ -6275,11 +6631,19 @@
         SalesStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CheckValuesOnVATAmountLinesMPH(var VATAmountLines: TestPage "VAT Amount Lines")
+    procedure BlanketOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
-        VATAmountLines."VAT Amount".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        SalesOrderStatistics.NoOfVATLines_General.DrillDown();
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatisticsPageHandler(var SalesStatistics: TestPage "Sales Statistics")
+    begin
+        SalesStatistics.TotalAmount1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
@@ -6293,14 +6657,30 @@
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure BlanketOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    procedure CheckValuesOnVATAmountLinesMPH(var VATAmountLines: TestPage "VAT Amount Lines")
+    begin
+        VATAmountLines."VAT Amount".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure BlanketOrderStatisticsHandlerNM(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         SalesOrderStatistics.NoOfVATLines_General.DrillDown();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesQuoteStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
+    begin
+        Assert.IsFalse(SalesStatistics.VATAmount.Editable(), StrSubstNo(VATAmountMsg, SalesStatistics.VATAmount.Caption));
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesQuoteStatisticsPageHandler(var SalesStatistics: TestPage "Sales Statistics")
     begin
         Assert.IsFalse(SalesStatistics.VATAmount.Editable(), StrSubstNo(VATAmountMsg, SalesStatistics.VATAmount.Caption));
     end;
@@ -6312,9 +6692,17 @@
         Assert.IsFalse(VATAmountLines."VAT Amount".Editable(), StrSubstNo(VATAmountMsg, VATAmountLines."VAT Amount".Caption));
     end;
 
+#if not CLEAN26
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure InvoicingVATAmountSalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        SalesOrderStatistics.VATAmount_Invoicing.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure InvoicingVATAmountSalesOrderStatisticsHandlerNM(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         SalesOrderStatistics.VATAmount_Invoicing.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
@@ -6482,4 +6870,3 @@
         Assert.IsFalse(BatchPostPurchCreditMemos.ReplaceVATDate.Visible(), '');
     end;
 }
-

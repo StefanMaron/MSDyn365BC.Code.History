@@ -473,74 +473,6 @@ table 17 "G/L Entry"
             Caption = 'Last Modified DateTime';
             Editable = false;
         }
-        field(11704; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11760; "VAT Date"; Date)
-        {
-            Caption = 'VAT Date';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11762; "Closed at Date"; Date)
-        {
-            Caption = 'Closed at Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11763; "Applies-to ID"; Code[50])
-        {
-            Caption = 'Applies-to ID';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11764; "Date Filter"; Date)
-        {
-            Caption = 'Date Filter';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-            FieldClass = FlowFilter;
-        }
-        field(11765; "Amount to Apply"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Amount to Apply';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11766; "Applying Entry"; Boolean)
-        {
-            Caption = 'Applying Entry';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11767; Closed; Boolean)
-        {
-            Caption = 'Closed';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11768; "Applied Amount"; Decimal)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-            Editable = false;
-            FieldClass = FlowField;
-        }
     }
 
     keys
@@ -599,7 +531,7 @@ table 17 "G/L Entry"
 
     fieldgroups
     {
-        fieldgroup(DropDown; "Entry No.", Description, "G/L Account No.", "Posting Date", "Document Type", "Document No.")
+        fieldgroup(DropDown; "Entry No.", Description, Amount, "G/L Account No.", "Posting Date", "Document Type", "Document No.")
         {
         }
     }

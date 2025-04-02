@@ -136,47 +136,6 @@
         UpdateVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
-    [Scope('OnPrem')]
-    procedure UnapplyWithPmtDiscForCustomer()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GenJournalLine: Record "Gen. Journal Line";
-        DocumentNo: Code[20];
-        CurrencyCode: Code[10];
-        PmtDiscAmountInclVAT: Decimal;
-        PmtDiscAmountVAT: Decimal;
-        OldAdjustforPaymentDiscount: Boolean;
-    begin
-        // Create Sales Invoice with Currency, run Adjust Exchange Rate Batch Job, Apply Payment from General Journal Line, Unapply
-        // Payment and Check VAT Adjustment and VAT Excluding entry created on Detailed Customer Ledger Entry.
-
-        // Setup: Modify Setup.
-        Initialize();
-        GeneralLedgerSetup.Get();
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, true);
-
-        // Create Sales Invoice with Payment Discount and Currency and Post it and Apply Payment with General Journal Line.
-        CurrencyCode := CreateCurrency();
-        PmtDiscAmountInclVAT := CreateAndPostDocument(DocumentNo, CurrencyCode);
-        PmtDiscAmountInclVAT := GetCurrencyExchRateAmount(PmtDiscAmountInclVAT, CurrencyCode);
-        PmtDiscAmountVAT := FindVATAmount(VATPostingSetup, PmtDiscAmountInclVAT);
-
-        // Exercise: Unapply Payment from Customer Ledger Entry.
-        UnapplyCustLedgerEntry(GenJournalLine."Document Type"::Payment, DocumentNo);
-
-        // Verify: Verify Detailed Customer Ledger Entry for VAT Adjustment and VAT Excluding entries with Currency.
-        VerifyPmtDiscDetailedCustLedgEntries(DocumentNo, -PmtDiscAmountInclVAT, -PmtDiscAmountVAT);
-
-        // TearDown: Cleanup the Setups done.
-        UpdateVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure UnapplyWithPmtDiscForCustomerExchRateAdjmt()
@@ -270,61 +229,6 @@
 
         UpdateVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);
     end;
-
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('NothingAdjustedMessageHandler')]
-    [Scope('OnPrem')]
-    procedure UnapplyWithPmtDiscForVendor()
-    var
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GenJournalLine: Record "Gen. Journal Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        PostedDocumentNo: Code[20];
-        CurrencyCode: Code[10];
-        BuyfromVendorNo: Code[20];
-        Amount: Decimal;
-        PmtDiscAmountInclVAT: Decimal;
-        PmtDiscAmountVAT: Decimal;
-        OldAdjustforPaymentDiscount: Boolean;
-    begin
-        // Create Purchase Invoice with currency, Post it, run Adjust Exchange Rate Batch Job and Post Payment with apply entry from General
-        // Line and Check VAT Adjustment and VAT Excluding entry created on Detailed Vendor Ledger Entry.
-
-        // Setup: Modify Setup.
-        Initialize();
-        GeneralLedgerSetup.Get();
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, true);
-
-        // Create Purchase Invoice with Payment Discount, Currency and Post it and Apply Payment with General Journal Line.
-        CurrencyCode := CreateCurrency();
-        BuyfromVendorNo := CreateVendor();
-        PostedDocumentNo := CreateAndPostPurchaseInvoice(BuyfromVendorNo, CurrencyCode);
-        Amount := GetPurchaseInvoiceHeaderAmt(PmtDiscAmountInclVAT, PostedDocumentNo);
-        PmtDiscAmountVAT := FindVATAmount(VATPostingSetup, PmtDiscAmountInclVAT);
-
-        CreateExchangeRate(CurrencyCode);
-        FindCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode);
-
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date");
-
-        CreatePostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, BuyfromVendorNo, Amount,
-          CurrencyCode);
-        ApplyAndPostVendorEntry(GenJournalLine."Document No.", GenJournalLine.Amount, PostedDocumentNo);
-
-        // Exercise: Unapply Payment from Vendor Ledger Entry.
-        UnapplyVendLedgerEntry(GenJournalLine."Document Type", GenJournalLine."Document No.");
-
-        // Verify: Verify Detailed Vendor Ledger Entry for VAT Adjustment and VAT Excluding entries.
-        asserterror VerifyPmtDiscDetailedVendLedgEntries(GenJournalLine."Document No.", PmtDiscAmountInclVAT, PmtDiscAmountVAT);
-
-        // TearDown: Cleanup the Setups done.
-        UpdateVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1785,22 +1689,6 @@
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Exchange Rate Amount");
         CurrencyExchangeRate.Modify(true);
     end;
-
-#if not CLEAN23
-    local procedure CreateAndPostDocument(var DocumentNo: Code[20]; CurrencyCode: Code[10]) PmtDiscAmount: Decimal
-    var
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-        PostedDocumentNo: Code[20];
-        SelltoCustomerNo: Code[20];
-    begin
-        SelltoCustomerNo := CreateCustomer();
-        PostedDocumentNo := CreateAndPostSalesInvoice(SelltoCustomerNo, CurrencyCode);
-        CreateExchangeRate(CurrencyCode);
-        FindCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode);
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date");
-        DocumentNo := CreatePostApplyCustGenJournalLine(PmtDiscAmount, SelltoCustomerNo, PostedDocumentNo, CreateCurrency());
-    end;
-#endif
 
     local procedure PostSalesInvoiceAndApplyPayment(var DocumentNo: Code[20]; CurrencyCode: Code[10]) PmtDiscAmount: Decimal
     var

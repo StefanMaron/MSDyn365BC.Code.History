@@ -53,19 +53,16 @@ table 13 "Salesperson/Purchaser"
         {
             Caption = 'Privacy Blocked';
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -397,21 +394,6 @@ table 13 "Salesperson/Purchaser"
         {
             Caption = 'Blocked';
         }
-        field(11795; "Instant Messaging"; Text[250])
-        {
-            Caption = 'Instant Messaging';
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11796; "Mobile Phone No."; Text[30])
-        {
-            Caption = 'Mobile Phone No.';
-            ExtendedDatatype = PhoneNo;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
     }
 
     keys
@@ -426,14 +408,6 @@ table 13 "Salesperson/Purchaser"
         key(Key3; SystemModifiedAt)
         {
         }
-#if not CLEAN23
-        key(Key4; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     fieldgroups

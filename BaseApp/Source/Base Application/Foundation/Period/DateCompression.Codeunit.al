@@ -37,6 +37,7 @@ codeunit 9040 "Date Compression"
         DefaultDateCompressionDescriptionLbl: Label 'Date Compressed', Comment = 'this label is used as a description on compressed entries.', MaxLength = 100;
         StartDateCompressionTelemetryMsg: Label 'Running date compression codeunit %1.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression codeunit %1.', Locked = true;
+        DateCompressionCompletedLbl: Label 'Date compression completed by UserSecurityId %1 in company %2.', Comment = '%1 - User Security ID, %2 - Company name', Locked = true;
 
     procedure InitDateComprSettingsBuffer(var DateComprSettingsBuffer: Record "Date Compr. Settings Buffer")
     var
@@ -628,6 +629,8 @@ codeunit 9040 "Date Compression"
         TelemetryDimensions.Add('SavedSpaceInMB', Format(DateComprSettingsBuffer."Saved Space (MB)", 0, 9));
 
         Session.LogMessage('0000F53', StrSubstNo(EndDateCompressionTelemetryMsg, Codeunit::"Date Compression"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
+        if DateComprSettingsBuffer."No. of Records Removed" > 0 then
+            Session.LogAuditMessage(StrSubstNo(DateCompressionCompletedLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0, TelemetryDimensions);
     end;
 
     [IntegrationEvent(false, false)]

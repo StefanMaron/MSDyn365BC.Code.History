@@ -1,6 +1,11 @@
-﻿namespace Microsoft.Assembly.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Assembly.Document;
 
 using Microsoft.Assembly.Comment;
+using Microsoft.Assembly.Costing;
 using Microsoft.Assembly.Setup;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -15,7 +20,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Activity;
@@ -179,6 +183,18 @@ table 900 "Assembly Header"
             trigger OnValidate()
             begin
                 TestStatusOpen();
+            end;
+        }
+        field(17; "Gen. Bus. Posting Group"; Code[20])
+        {
+            Caption = 'Gen. Bus. Posting Group';
+            TableRelation = "Gen. Business Posting Group";
+
+            trigger OnValidate()
+            begin
+                TestStatusOpen();
+                if xRec."Gen. Bus. Posting Group" <> Rec."Gen. Bus. Posting Group" then
+                    ChangeGenBusPostingGroupAssemblyLines();
             end;
         }
         field(19; Comment; Boolean)
@@ -671,14 +687,6 @@ table 900 "Assembly Header"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
-        field(11700; "Gen. Bus. Posting Group"; Code[20])
-        {
-            Caption = 'Gen. Bus. Posting Group';
-            TableRelation = "Gen. Business Posting Group";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys
@@ -806,6 +814,7 @@ table 900 "Assembly Header"
 #pragma warning restore AA0074
         UpdateDimensionLineMsg: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         ConfirmDeleteQst: Label 'The items have been picked. If you delete the Assembly Header, then the items will remain in the operation area until you put them away.\Related item tracking information that is defined during the pick will be deleted.\Are you sure that you want to delete the Assembly Header?';
+        ChangeFieldQst: Label 'Do you want change %1 from %2 to %3 in all lines?', Comment = '%1 = Gen. Bus. Post. Group FieldCaption, %2 = xRec Gen. Bus. Post. Group, %3 = Gen. Bus. Post. Group';
 
     protected var
         StatusCheckSuspended: Boolean;
@@ -847,6 +856,7 @@ table 900 "Assembly Header"
             "Ending Date" := WorkDate();
 
         SetDefaultLocation();
+        SetDefaultGenBusPostingGroup();
 
         OnAfterInitRecord(Rec);
     end;
@@ -1221,12 +1231,12 @@ table 900 "Assembly Header"
 
     procedure UpdateUnitCost()
     var
-        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+        CalculateAssemblyCost: Codeunit "Calculate Assembly Cost";
         RolledUpAsmUnitCost: Decimal;
         OverHeadAmt: Decimal;
     begin
         RolledUpAsmUnitCost := CalcRolledUpAsmUnitCost();
-        OverHeadAmt := CalculateStandardCost.CalcOverHeadAmt(RolledUpAsmUnitCost, "Indirect Cost %", "Overhead Rate");
+        OverHeadAmt := CalculateAssemblyCost.CalcOverHeadAmt(RolledUpAsmUnitCost, "Indirect Cost %", "Overhead Rate");
         Validate("Unit Cost", RoundUnitAmount(RolledUpAsmUnitCost + OverHeadAmt));
         Modify(true);
     end;
@@ -1247,6 +1257,14 @@ table 900 "Assembly Header"
             if AsmSetup."Default Location for Orders" <> '' then
                 if "Location Code" = '' then
                     Validate("Location Code", AsmSetup."Default Location for Orders");
+    end;
+
+    local procedure SetDefaultGenBusPostingGroup()
+    begin
+        if AssemblySetup.Get() then
+            if AssemblySetup."Default Gen. Bus. Post. Group" <> '' then
+                if Rec."Gen. Bus. Posting Group" = '' then
+                    Validate("Gen. Bus. Posting Group", AssemblySetup."Default Gen. Bus. Post. Group");
     end;
 
     procedure SetItemFilter(var Item: Record Item)
@@ -2022,6 +2040,58 @@ table 900 "Assembly Header"
             until (AssemblyLine.Next() = 0) or Confirmed;
     end;
 
+    procedure AssemblyLinesExist(): Boolean
+    var
+        AssemblyLine: Record "Assembly Line";
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAssemblyLinesExist(Rec, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
+        AssemblyLine.Reset();
+        AssemblyLine.SetRange("Document Type", "Document Type");
+        AssemblyLine.SetRange("Document No.", "No.");
+        exit(not AssemblyLine.IsEmpty());
+    end;
+
+    procedure ChangeGenBusPostingGroupAssemblyLines()
+    var
+        AssemblyLine: Record "Assembly Line";
+        Confirmed: Boolean;
+        IsHandled: Boolean;
+    begin
+        if not AssemblyLinesExist() then
+            exit;
+
+        OnBeforeChangeGenBusPostingGroupAssemblyLines(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        IsHandled := false;
+        ChangeGenBusPostingGroupAssemblyLinesOnBeforeConfirm(Rec, xRec, HideValidationDialog, Confirmed, IsHandled);
+        if not IsHandled then
+            if GetHideValidationDialog() or not GuiAllowed() then
+                Confirmed := true
+            else
+                Confirmed := ConfirmManagement.GetResponseOrDefault(StrSubstNo(ChangeFieldQst, FieldCaption("Gen. Bus. Posting Group"),
+                                                                      xRec."Gen. Bus. Posting Group", Rec."Gen. Bus. Posting Group"), false);
+
+        if Confirmed then begin
+            AssemblyLine.SetRange("Document Type", Rec."Document Type");
+            AssemblyLine.SetRange("Document No.", Rec."No.");
+            AssemblyLine.SetFilter(Type, '<>%1', AssemblyLine.Type::" ");
+            AssemblyLine.ModifyAll("Gen. Bus. Posting Group", Rec."Gen. Bus. Posting Group");
+        end;
+    end;
+
+    procedure GetHideValidationDialog(): Boolean
+    begin
+        exit(HideValidationDialog);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var AssemblyHeader: Record "Assembly Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CallingFieldNo: Integer)
     begin
@@ -2234,6 +2304,21 @@ table 900 "Assembly Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateDates(var AssemblyHeader: Record "Assembly Header"; FieldNumToCalculateFrom: Integer; var DoNotValidateButJustAssign: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssemblyLinesExist(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeChangeGenBusPostingGroupAssemblyLines(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure ChangeGenBusPostingGroupAssemblyLinesOnBeforeConfirm(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; HideValidationDialog: Boolean; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

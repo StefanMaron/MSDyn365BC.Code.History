@@ -172,20 +172,6 @@ table 5809 "Item Charge Assignment (Sales)"
                 "Amount to Handle" := Round("Qty. to Handle" * "Unit Cost", Currency."Amount Rounding Precision");
             end;
         }
-        field(31060; "Incl. in Intrastat Amount"; Boolean)
-        {
-            Caption = 'Incl. in Intrastat Amount';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31061; "Incl. in Intrastat Stat. Value"; Boolean)
-        {
-            Caption = 'Incl. in Intrastat Stat. Value';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys

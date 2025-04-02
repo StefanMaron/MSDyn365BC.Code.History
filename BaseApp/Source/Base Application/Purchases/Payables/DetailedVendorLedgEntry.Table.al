@@ -223,21 +223,6 @@ table 380 "Detailed Vendor Ledg. Entry"
             Editable = false;
             TableRelation = "Exch. Rate Adjmt. Reg.";
         }
-        field(11768; "Vendor Posting Group"; Code[20])
-        {
-            Caption = 'Vendor Posting Group';
-            TableRelation = "Vendor Posting Group";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31000; Advance; Boolean)
-        {
-            Caption = 'Advance';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
     }
 
     keys

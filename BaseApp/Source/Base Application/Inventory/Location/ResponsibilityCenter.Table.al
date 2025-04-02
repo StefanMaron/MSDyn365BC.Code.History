@@ -178,57 +178,6 @@ table 5714 "Responsibility Center"
             Caption = 'Date Filter';
             FieldClass = FlowFilter;
         }
-        field(11700; "Bank Account Code"; Code[20])
-        {
-            Caption = 'Bank Account Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11701; "Bank Account No."; Text[30])
-        {
-            Caption = 'Bank Account No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11702; "Bank Branch No."; Text[20])
-        {
-            Caption = 'Bank Branch No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11706; "Transit No."; Text[20])
-        {
-            Caption = 'Transit No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11707; IBAN; Code[50])
-        {
-            Caption = 'IBAN';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11708; "SWIFT Code"; Code[20])
-        {
-            Caption = 'SWIFT Code';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11709; "Bank Name"; Text[100])
-        {
-            Caption = 'Bank Name';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys

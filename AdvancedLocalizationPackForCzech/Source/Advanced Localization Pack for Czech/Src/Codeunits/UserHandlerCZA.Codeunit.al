@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Capacity;
 
-using System.Environment;
 using System.Security.User;
 
 codeunit 11702 "User Handler CZA"
@@ -12,11 +11,10 @@ codeunit 11702 "User Handler CZA"
     Access = Internal;
     Permissions = TableData "Capacity Ledger Entry" = rm;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"User Management", OnRenameUserOnBeforeProcessField, '', false, false)]
-    local procedure MyProcedure(TableID: Integer; OldUserName: Code[50]; NewUserName: Code[50]; var IsHandled: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"User", OnRenameUserOnBeforeProcessField, '', false, false)]
+    local procedure OnRenameUserOnBeforeProcessField(TableID: Integer; OldUserName: Code[50]; NewUserName: Code[50]; CompanyName: Text[30]; var IsHandled: Boolean)
     var
         CapacityLedgerEntry: Record "Capacity Ledger Entry";
-        Company: Record Company;
     begin
         if TableID <> Database::"Capacity Ledger Entry" then
             exit;
@@ -26,15 +24,12 @@ codeunit 11702 "User Handler CZA"
 
         IsHandled := true;
 
-        if Company.FindSet() then
+        CapacityLedgerEntry.ChangeCompany(CompanyName);
+        CapacityLedgerEntry.SetRange("User ID CZA", OldUserName);
+        if CapacityLedgerEntry.FindSet(true) then
             repeat
-                CapacityLedgerEntry.ChangeCompany(Company.Name);
-                CapacityLedgerEntry.SetRange("User ID CZA", OldUserName);
-                if CapacityLedgerEntry.FindSet(true) then
-                    repeat
-                        CapacityLedgerEntry."User ID CZA" := NewUserName;
-                        CapacityLedgerEntry.Modify();
-                    until CapacityLedgerEntry.Next() = 0;
-            until Company.Next() = 0;
+                CapacityLedgerEntry."User ID CZA" := NewUserName;
+                CapacityLedgerEntry.Modify();
+            until CapacityLedgerEntry.Next() = 0;
     end;
 }

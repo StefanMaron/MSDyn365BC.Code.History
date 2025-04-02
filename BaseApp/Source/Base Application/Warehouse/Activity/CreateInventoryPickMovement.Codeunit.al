@@ -774,6 +774,10 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     local procedure SetFilterProductionLine(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrder: Record "Production Order"): Boolean
+#if not CLEAN26
+    var
+        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+#endif
     begin
         ProdOrderComponent.SetRange(ProdOrderComponent.Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange(ProdOrderComponent."Prod. Order No.", ProductionOrder."No.");
@@ -782,12 +786,26 @@ codeunit 7322 "Create Inventory Pick/Movement"
         ProdOrderComponent.SetRange(ProdOrderComponent."Planning Level Code", 0);
         if IsInvtMovement then begin
             ProdOrderComponent.SetFilter(ProdOrderComponent."Bin Code", '<>%1', '');
-            ProdOrderComponent.SetFilter(ProdOrderComponent."Flushing Method", '%1|%2|%3',
-              ProdOrderComponent."Flushing Method"::Manual,
-              ProdOrderComponent."Flushing Method"::"Pick + Forward",
-              ProdOrderComponent."Flushing Method"::"Pick + Backward");
+#if not CLEAN26
+            if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+                ProdOrderComponent.SetFilter(ProdOrderComponent."Flushing Method", '%1|%2|%3|%4',
+                  ProdOrderComponent."Flushing Method"::Manual,
+                  ProdOrderComponent."Flushing Method"::"Pick + Manual",
+                  ProdOrderComponent."Flushing Method"::"Pick + Forward",
+                  ProdOrderComponent."Flushing Method"::"Pick + Backward")
+            else
+#endif
+                ProdOrderComponent.SetFilter(ProdOrderComponent."Flushing Method", '%1|%2|%3',
+                  ProdOrderComponent."Flushing Method"::"Pick + Manual",
+                  ProdOrderComponent."Flushing Method"::"Pick + Forward",
+                  ProdOrderComponent."Flushing Method"::"Pick + Backward");
         end else
-            ProdOrderComponent.SetRange(ProdOrderComponent."Flushing Method", ProdOrderComponent."Flushing Method"::Manual);
+#if not CLEAN26
+            if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+                ProdOrderComponent.SetFilter(ProdOrderComponent."Flushing Method", '%1|%2', ProdOrderComponent."Flushing Method"::Manual, ProdOrderComponent."Flushing Method"::"Pick + Manual")
+            else
+#endif
+                ProdOrderComponent.SetRange(ProdOrderComponent."Flushing Method", ProdOrderComponent."Flushing Method"::"Pick + Manual");
         ProdOrderComponent.SetFilter(ProdOrderComponent."Remaining Quantity", '>0');
 
         if ApplyAdditionalSourceDocFilters then begin

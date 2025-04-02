@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Assembly.Document;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Assembly.Document;
 
 using Microsoft.Assembly.Setup;
 using Microsoft.Finance.Dimension;
@@ -105,6 +109,7 @@ table 901 "Assembly Line"
                         Validate("Dimension Set ID", 0);
 
                     "Due Date" := AssemblyHeader."Starting Date";
+                    Rec.Validate("Gen. Bus. Posting Group", AssemblyHeader."Gen. Bus. Posting Group");
                     case Type of
                         Type::Item:
                             CopyFromItem();
@@ -560,6 +565,11 @@ table 901 "Assembly Line"
                 TestStatusOpen();
             end;
         }
+        field(64; "Gen. Bus. Posting Group"; Code[20])
+        {
+            Caption = 'Gen. Bus. Posting Group';
+            TableRelation = "Gen. Business Posting Group";
+        }
         field(65; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
@@ -706,14 +716,6 @@ table 901 "Assembly Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
-        field(11700; "Gen. Bus. Posting Group"; Code[20])
-        {
-            Caption = 'Gen. Bus. Posting Group';
-            TableRelation = "Gen. Business Posting Group";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys
@@ -805,7 +807,7 @@ table 901 "Assembly Line"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         AvailabilityPageTitleLbl: Label 'The available inventory for item %1 is lower than the entered quantity at this location.', Comment = '%1=Item No.';
-        ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = FieldCaption(Consumed Quantity), %4 = Consumed Quantity, %5 = TableCaption';
+        ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Any related item tracking information defined during the pick process will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = FieldCaption(Consumed Quantity), %4 = Consumed Quantity, %5 = TableCaption';
 
     protected var
         StatusCheckSuspended: Boolean;
@@ -1032,7 +1034,7 @@ table 901 "Assembly Line"
         ItemAvailabilityCheck.RunModal();
     end;
 
-    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     var
         UOMMgt: Codeunit "Unit of Measure Management";
     begin
@@ -2016,11 +2018,19 @@ table 901 "Assembly Line"
     end;
 
     local procedure ConfirmDeletion()
+    var
+        Location: Record Location;
     begin
         if CalledFromHeader then
             exit;
 
-        if "Consumed Quantity" < "Qty. Picked" then
+        if "Consumed Quantity" < "Qty. Picked" then begin
+            if "Location Code" <> '' then begin
+                GetLocation(Location, "Location Code");
+                if Location."Asm. Consump. Whse. Handling" = Location."Asm. Consump. Whse. Handling"::"No Warehouse Handling" then
+                    exit;
+            end;
+
             if not Confirm(
                 StrSubstNo(
                     ConfirmDeleteQst,
@@ -2032,6 +2042,7 @@ table 901 "Assembly Line"
                 false)
             then
                 Error('');
+        end;
     end;
 
     local procedure SetQtyPerUoMAndQtyRoundingPrecision()
@@ -2076,6 +2087,11 @@ table 901 "Assembly Line"
     procedure SuspendDeletionCheck(Suspend: Boolean)
     begin
         CalledFromHeader := Suspend;
+    end;
+
+    procedure GetSuspendDeletionCheck(): Boolean
+    begin
+        exit(CalledFromHeader);
     end;
 
     [IntegrationEvent(false, false)]

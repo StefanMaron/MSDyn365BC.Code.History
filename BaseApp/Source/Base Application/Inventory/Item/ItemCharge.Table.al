@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 using Microsoft.Finance.Dimension;
@@ -83,83 +87,6 @@ table 5800 "Item Charge"
             begin
                 Rec.ValidateShortcutDimCode(2, "Global Dimension 2 Code");
             end;
-        }
-        field(31060; "Incl. in Intrastat Amount"; Boolean)
-        {
-            Caption = 'Incl. in Intrastat Amount';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31061; "Incl. in Intrastat Stat. Value"; Boolean)
-        {
-            Caption = 'Incl. in Intrastat Stat. Value';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31070; "Use Ledger Entry Dimensions"; Boolean)
-        {
-            Caption = 'Use Ledger Entry Dimensions';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31071; "Sales Only"; Boolean)
-        {
-            Caption = 'Sales Only';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31072; "Purchase Only"; Boolean)
-        {
-            Caption = 'Purchase Only';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31073; "Disable Receipt Lines"; Boolean)
-        {
-            Caption = 'Disable Receipt Lines';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31074; "Disable Transfer Receipt Lines"; Boolean)
-        {
-            Caption = 'Disable Transfer Receipt Lines';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31075; "Disable Return Schipment Lines"; Boolean)
-        {
-            Caption = 'Disable Return Schipment Lines';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31076; "Disable Sales Schipment Lines"; Boolean)
-        {
-            Caption = 'Disable Sales Schipment Lines';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31077; "Disable Return Receipt Lines"; Boolean)
-        {
-            Caption = 'Disable Return Receipt Lines';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31078; "Assigment on Receive/Shipment"; Boolean)
-        {
-            Caption = 'Assigment on Receive/Shipment';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item charges enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
         }
     }
 

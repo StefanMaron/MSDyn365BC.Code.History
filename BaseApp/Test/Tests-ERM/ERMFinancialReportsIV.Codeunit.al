@@ -1113,11 +1113,7 @@ codeunit 134992 "ERM Financial Reports IV"
         SaveVATStatementReport(VATStatementLine."Statement Name", Selection, PeriodSelection::"Within Period");
 
         // Verify: Verify Amount on VAT Statement Report.
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange('VatStmtLineRowNo', VATStatementLine."Row No.");
-        if not LibraryReportDataset.GetNextRow() then
-            Error(NoDataRowErr, 'VatStmtLineRowNo', VATStatementLine."Row No.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmount', Amount);
+        VerifyTotalAmountOnVATStatementReport(VATStatementLine, Amount);
 
         // Tear Down: Delete VAT Statement Template created earlier.
         VATStatementTemplate.Get(VATStatementLine."Statement Template Name");

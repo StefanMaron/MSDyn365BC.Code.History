@@ -123,6 +123,11 @@ codeunit 131305 "Library - ERM Country Data"
         // NAVCZ
     end;
 
+    procedure SetDiscountPostingInPurchasePayablesSetup()
+    begin
+        exit;
+    end;
+
     procedure UpdateSalesReceivablesSetup()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -135,6 +140,11 @@ codeunit 131305 "Library - ERM Country Data"
         SalesReceivablesSetup."Allow Document Deletion Before" := CalcDate('<CY>', WorkDate());
         SalesReceivablesSetup.Modify();
         // NAVCZ
+    end;
+
+    procedure SetDiscountPostingInSalesReceivablesSetup()
+    begin
+        exit;
     end;
 
     procedure UpdateGenProdPostingGroup()

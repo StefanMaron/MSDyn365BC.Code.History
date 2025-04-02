@@ -317,12 +317,12 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         ProdOrderNo := CreateAndRefreshProductionOrder(ItemNo);
 
         // Create Consumption Journal, Delete Released production Order line and Post Consumption Journal.
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, '', ItemJournalBatch."Template Type"::Consumption, ProdOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, '', ItemJournalBatch."Template Type"::Consumption, ProdOrderNo);
         DeleteProdOrderLine(ProdOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // Create and Post Output Journal.
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo, ItemJournalBatch."Template Type"::Output, ProdOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNo, ItemJournalBatch."Template Type"::Output, ProdOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProdOrderNo);
 

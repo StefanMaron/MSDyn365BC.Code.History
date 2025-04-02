@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA28 
 namespace Microsoft.Purchases.Pricing;
 
 using Microsoft.Finance.Currency;
@@ -11,7 +12,7 @@ table 1315 "Purch. Price Line Disc. Buff."
     ObsoleteTag = '16.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '26.0';
+    ObsoleteTag = '28.0';
 #endif    
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price Worksheet Line';
     DataClassification = CustomerContent;
@@ -183,3 +184,5 @@ table 1315 "Purch. Price Line Disc. Buff."
 #endif
 }
 
+ 
+#endif

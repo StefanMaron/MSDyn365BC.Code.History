@@ -577,7 +577,6 @@ report 6636 "Purchase - Return Shipment"
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
         ShptBuyFromAddr: array[8] of Text[100];
-        CompanyAddr: array[8] of Text[100];
         PurchaserText: Text[50];
         ReferenceText: Text[80];
         CopyText: Text[30];
@@ -619,6 +618,7 @@ report 6636 "Purchase - Return Shipment"
         CompanyInfo: Record "Company Information";
         FirstLineHasBeenOutput: Boolean;
         ShptShipToAddr: array[8] of Text[100];
+        CompanyAddr: array[8] of Text[100];
 
     procedure InitializeRequest(NewNoOfCopies: Decimal; NewShowInternalInfo: Boolean; NewShowCorrectionLines: Boolean; NewLogInteraction: Boolean)
     begin

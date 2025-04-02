@@ -54,11 +54,6 @@ report 13 "VAT Register"
             column(VATReportingDateCaption; VATReportingDateLbl)
             {
             }
-#if not CLEAN23
-            column(PostingDateCaption; PostingDateCaptionLbl)
-            {
-            }
-#endif
             column(DocumentTypeCaption; DocumentTypeCaptionLbl)
             {
             }
@@ -83,11 +78,6 @@ report 13 "VAT Register"
             dataitem("VAT Entry"; "VAT Entry")
             {
                 DataItemTableView = sorting("Entry No.");
-#if not CLEAN23
-                column(PostingDate_VatEntry; Format("Posting Date"))
-                {
-                }
-#endif
                 column(VATDate_VatEntry; Format("VAT Reporting Date"))
                 {
                 }
@@ -209,9 +199,6 @@ report 13 "VAT Register"
         AllamountsareInLbl: Label 'All amounts are in';
         VATRegisterCaptionLbl: Label 'VAT Register';
         PageNoCaptionLbl: Label 'Page';
-#if not CLEAN23
-        PostingDateCaptionLbl: Label 'Posting Date';
-#endif
         VATReportingDateLbl: Label 'VAT Reporting Date';
         DocumentTypeCaptionLbl: Label 'Document Type';
         GenBusPostingGroupCaptionLbl: Label 'Gen. Bus. Posting Group';

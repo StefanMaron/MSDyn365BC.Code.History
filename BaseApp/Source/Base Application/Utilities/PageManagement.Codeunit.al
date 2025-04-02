@@ -9,7 +9,6 @@ using Microsoft.Foundation.Company;
 using Microsoft.HumanResources.Employee;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Inventory.Analysis;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Purchases.Archive;
@@ -201,8 +200,6 @@ codeunit 700 "Page Management"
                 exit(PAGE::"Cash Flow Setup");
             Database::"Sales Invoice Header":
                 exit(PAGE::"Posted Sales Invoice");
-            Database::"Production Order":
-                exit(GetProductionOrderPageID(RecRef));
             Database::User:
                 exit(Page::"User Card");
             Database::Employee:
@@ -234,7 +231,11 @@ codeunit 700 "Page Management"
         exit(0);
     end;
 
+#if not CLEAN26
     local procedure GetSalesHeaderPageID(RecRef: RecordRef) Result: Integer
+#else
+    local procedure GetSalesHeaderPageID(RecRef: RecordRef): Integer
+#endif
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -253,14 +254,18 @@ codeunit 700 "Page Management"
             SalesHeader."Document Type"::"Return Order":
                 exit(PAGE::"Sales Return Order");
         end;
+#if not CLEAN26
         OnAfterGetSalesHeaderPageID(RecRef, SalesHeader, Result);
+#endif
     end;
 
+#if not CLEAN26
     local procedure GetPurchaseHeaderPageID(RecRef: RecordRef) Result: Integer
     var
         PurchaseHeader: Record "Purchase Header";
     begin
         RecRef.SetTable(PurchaseHeader);
+
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::Quote:
                 Result := PAGE::"Purchase Quote";
@@ -277,6 +282,29 @@ codeunit 700 "Page Management"
         end;
         OnAfterGetPurchaseHeaderPageID(RecRef, PurchaseHeader, Result);
     end;
+#else
+    local procedure GetPurchaseHeaderPageID(RecRef: RecordRef): Integer
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        RecRef.SetTable(PurchaseHeader);
+
+        case PurchaseHeader."Document Type" of
+            PurchaseHeader."Document Type"::Quote:
+                exit(PAGE::"Purchase Quote");
+            PurchaseHeader."Document Type"::Order:
+                exit(PAGE::"Purchase Order");
+            PurchaseHeader."Document Type"::Invoice:
+                exit(PAGE::"Purchase Invoice");
+            PurchaseHeader."Document Type"::"Credit Memo":
+                exit(PAGE::"Purchase Credit Memo");
+            PurchaseHeader."Document Type"::"Blanket Order":
+                exit(PAGE::"Blanket Purchase Order");
+            PurchaseHeader."Document Type"::"Return Order":
+                exit(PAGE::"Purchase Return Order");
+        end;
+    end;
+#endif
 
     local procedure GetGenJournalBatchPageID(RecRef: RecordRef): Integer
     var
@@ -391,25 +419,6 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetProductionOrderPageID(RecRef: RecordRef): Integer
-    var
-        ProductionOrder: Record "Production Order";
-    begin
-        RecRef.SetTable(ProductionOrder);
-        case ProductionOrder.Status of
-            ProductionOrder.Status::Simulated:
-                exit(PAGE::"Simulated Production Order");
-            ProductionOrder.Status::Planned:
-                exit(PAGE::"Planned Production Order");
-            ProductionOrder.Status::"Firm Planned":
-                exit(PAGE::"Firm Planned Prod. Order");
-            ProductionOrder.Status::Released:
-                exit(PAGE::"Released Production Order");
-            ProductionOrder.Status::Finished:
-                exit(PAGE::"Finished Production Order");
-        end;
-    end;
-
     local procedure GetSalesHeaderListPageID(RecRef: RecordRef): Integer
     var
         SalesHeader: Record "Sales Header";
@@ -500,18 +509,22 @@ codeunit 700 "Page Management"
     local procedure OnAfterGetPageID(var RecordRef: RecordRef; var PageID: Integer)
     begin
     end;
+#if not CLEAN26
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Use OnBeforeGetConditionalCardPageID instead and check the RecRef points to "Sales Header".', '26.0')]
     local procedure OnAfterGetSalesHeaderPageID(RecRef: RecordRef; SalesHeader: Record "Sales Header"; var Result: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Use OnBeforeGetConditionalCardPageID instead and check the RecRef points to "Purchase Header".', '26.0')]
     local procedure OnAfterGetPurchaseHeaderPageID(RecRef: RecordRef; PurchaseHeader: Record "Purchase Header"; var Result: Integer)
     begin
     end;
-
+#endif
 #if not CLEAN25
+
     internal procedure RunOnAfterGetServiceHeaderPageID(RecRef: RecordRef; ServiceHeader: Record Microsoft.Service.Document."Service Header"; var Result: Integer)
     begin
         OnAfterGetServiceHeaderPageID(RecRef, ServiceHeader, Result);

@@ -52,47 +52,49 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'Sell-to Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+            ToolTip = 'Specifies the number of the customer that you shipped the items on the credit memo to.';
         }
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
-        }
+                    }
         field(4; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+            ToolTip = 'Specifies the number of the customer that you send or sent the credit memo to.';
         }
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
-        }
+                    }
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
-        }
+                    }
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
-        }
+                    }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
-        }
+                    }
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
-            TableRelation = "Post Code".City;
+                        TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
-        }
+                    }
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
-        }
+                    }
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
@@ -101,29 +103,29 @@ table 114 "Sales Cr.Memo Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
-        }
+                    }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
-        }
+                    }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-        }
+                    }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-        }
+                    }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
-            TableRelation = "Post Code".City;
+                        TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
-        }
+                    }
         field(20; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
@@ -135,7 +137,7 @@ table 114 "Sales Cr.Memo Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
-        }
+                    }
         field(23; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
@@ -222,7 +224,7 @@ table 114 "Sales Cr.Memo Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
-            TableRelation = "Language Selection"."Language Tag";
+                        TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Salesperson Code"; Code[20])
         {
@@ -294,11 +296,11 @@ table 114 "Sales Cr.Memo Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
-        }
+                    }
         field(72; "Registration Number"; Text[50])
         {
             Caption = 'Registration No.';
-            DataClassification = CustomerContent;
+                        DataClassification = CustomerContent;
         }
         field(73; "Reason Code"; Code[10])
         {
@@ -332,29 +334,29 @@ table 114 "Sales Cr.Memo Header"
         field(79; "Sell-to Customer Name"; Text[100])
         {
             Caption = 'Sell-to Customer Name';
-        }
+                    }
         field(80; "Sell-to Customer Name 2"; Text[50])
         {
             Caption = 'Sell-to Customer Name 2';
-        }
+                    }
         field(81; "Sell-to Address"; Text[100])
         {
             Caption = 'Sell-to Address';
-        }
+                    }
         field(82; "Sell-to Address 2"; Text[50])
         {
             Caption = 'Sell-to Address 2';
-        }
+                    }
         field(83; "Sell-to City"; Text[30])
         {
             Caption = 'Sell-to City';
-            TableRelation = "Post Code".City;
+                        TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(84; "Sell-to Contact"; Text[100])
         {
             Caption = 'Sell-to Contact';
-        }
+                    }
         field(85; "Bill-to Post Code"; Code[20])
         {
             Caption = 'Bill-to Post Code';
@@ -365,7 +367,7 @@ table 114 "Sales Cr.Memo Header"
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
-        }
+                    }
         field(87; "Bill-to Country/Region Code"; Code[10])
         {
             Caption = 'Bill-to Country/Region Code';
@@ -381,7 +383,7 @@ table 114 "Sales Cr.Memo Header"
         {
             CaptionClass = '5,2,' + "Sell-to Country/Region Code";
             Caption = 'Sell-to County';
-        }
+                    }
         field(90; "Sell-to Country/Region Code"; Code[10])
         {
             Caption = 'Sell-to Country/Region Code';
@@ -397,7 +399,7 @@ table 114 "Sales Cr.Memo Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
-        }
+                    }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
             Caption = 'Ship-to Country/Region Code';
@@ -423,7 +425,7 @@ table 114 "Sales Cr.Memo Header"
         field(100; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
-        }
+                    }
         field(101; "Area"; Code[10])
         {
             Caption = 'Area';
@@ -449,7 +451,7 @@ table 114 "Sales Cr.Memo Header"
         field(106; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
-            ObsoleteReason = 'Field length will be increased to 50.';
+                        ObsoleteReason = 'Field length will be increased to 50.';
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
         }
@@ -458,7 +460,7 @@ table 114 "Sales Cr.Memo Header"
         field(106; "Package Tracking No."; Text[50])
         {
             Caption = 'Package Tracking No.';
-        }
+                    }
 #pragma warning restore AS0086
 #endif
         field(107; "Pre-Assigned No. Series"; Code[20])
@@ -544,25 +546,17 @@ table 114 "Sales Cr.Memo Header"
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
-            ExtendedDatatype = PhoneNo;
+                        ExtendedDatatype = PhoneNo;
         }
         field(172; "Sell-to E-Mail"; Text[80])
         {
             Caption = 'Email';
-            ExtendedDatatype = EMail;
+                        ExtendedDatatype = EMail;
         }
         field(179; "VAT Reporting Date"; Date)
         {
             Caption = 'VAT Date';
             Editable = false;
-        }
-        field(180; "Rcvd-from Country/Region Code"; Code[10])
-        {
-            Caption = 'Received-from Country/Region Code';
-            TableRelation = "Country/Region";
-            ObsoleteReason = 'Use new field on range 181';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
         }
         field(181; "Rcvd.-from Count./Region Code"; Code[10])
         {
@@ -577,7 +571,7 @@ table 114 "Sales Cr.Memo Header"
         field(210; "Ship-to Phone No."; Text[30])
         {
             Caption = 'Ship-to Phone No.';
-            ExtendedDatatype = PhoneNo;
+                        ExtendedDatatype = PhoneNo;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -593,7 +587,7 @@ table 114 "Sales Cr.Memo Header"
         field(710; "Document Exchange Identifier"; Text[50])
         {
             Caption = 'Document Exchange Identifier';
-        }
+                    }
         field(711; "Document Exchange Status"; Enum "Sales Document Exchange Status")
         {
             Caption = 'Document Exchange Status';
@@ -601,7 +595,7 @@ table 114 "Sales Cr.Memo Header"
         field(712; "Doc. Exch. Original Identifier"; Text[50])
         {
             Caption = 'Doc. Exch. Original Identifier';
-        }
+                    }
         field(1302; Paid; Boolean)
         {
             CalcFormula = - exist("Cust. Ledger Entry" where("Entry No." = field("Cust. Ledger Entry No."),
@@ -701,249 +695,10 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Get Return Receipt Used';
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(8001; "Draft Cr. Memo SystemId"; Guid)
         {
             Caption = 'Draft Cr. Memo System Id';
             DataClassification = SystemMetadata;
-        }
-        field(11700; "Bank Account Code"; Code[20])
-        {
-            Caption = 'Bank Account Code';
-            TableRelation = "Customer Bank Account".Code where("Customer No." = field("Bill-to Customer No."));
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11701; "Bank Account No."; Text[30])
-        {
-            Caption = 'Bank Account No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11702; "Bank Branch No."; Text[20])
-        {
-            Caption = 'Bank Branch No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11703; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11704; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11705; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11706; "Transit No."; Text[20])
-        {
-            Caption = 'Transit No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11707; IBAN; Code[50])
-        {
-            Caption = 'IBAN';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11708; "SWIFT Code"; Code[20])
-        {
-            Caption = 'SWIFT Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11709; "Bank Name"; Text[100])
-        {
-            Caption = 'Bank Name';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11730; "Cash Desk Code"; Code[20])
-        {
-            Caption = 'Cash Desk Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11731; "Cash Document Status"; Option)
-        {
-            Caption = 'Cash Document Status';
-            OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
-            OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11760; "VAT Date"; Date)
-        {
-            Caption = 'VAT Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11761; "VAT Currency Factor"; Decimal)
-        {
-            Caption = 'VAT Currency Factor';
-            DecimalPlaces = 0 : 15;
-            Editable = false;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11763; "Postponed VAT"; Boolean)
-        {
-            Caption = 'Postponed VAT';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11764; "Postponed VAT Realized"; Boolean)
-        {
-            Caption = 'Postponed VAT Realized';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11766; "Credit Memo Type"; Option)
-        {
-            Caption = 'Credit Memo Type';
-            OptionCaption = ',Corrective Tax Document,Internal Correction,Insolvency Tax Document';
-            OptionMembers = ,"Corrective Tax Document","Internal Correction","Insolvency Tax Document";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11790; "Registration No."; Text[20])
-        {
-            Caption = 'Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11791; "Tax Registration No."; Text[20])
-        {
-            Caption = 'Tax Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11792; "Original User ID"; Code[50])
-        {
-            Caption = 'Original User ID';
-            DataClassification = EndUserIdentifiableInformation;
-            TableRelation = User."User Name";
-            ValidateTableRelation = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is not needed and it should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11793; "Quote Validity"; Date)
-        {
-            Caption = 'Quote Validity';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Quote Validity moved to W1 solution and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31000; "Prepayment Type"; Option)
-        {
-            Caption = 'Prepayment Type';
-            OptionCaption = ' ,Prepayment,Advance';
-            OptionMembers = " ",Prepayment,Advance;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31003; "Letter No."; Code[20])
-        {
-            Caption = 'Letter No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31060; "Perform. Country/Region Code"; Code[10])
-        {
-            Caption = 'Perform. Country/Region Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries hase been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31061; "Curr. Factor Perf. Country/Reg"; Decimal)
-        {
-            Caption = 'Curr. Factor Perf. Country/Reg';
-            DecimalPlaces = 0 : 15;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries hase been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31063; "Physical Transfer"; Boolean)
-        {
-            Caption = 'Physical Transfer';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31064; "Intrastat Exclude"; Boolean)
-        {
-            Caption = 'Intrastat Exclude';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31065; "Industry Code"; Code[20])
-        {
-            Caption = 'Industry Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31066; "EU 3-Party Intermediate Role"; Boolean)
-        {
-            Caption = 'EU 3-Party Intermediate Role';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31100; "Original Document VAT Date"; Date)
-        {
-            Caption = 'Original Document VAT Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
         }
     }
 
@@ -1343,4 +1098,3 @@ table 114 "Sales Cr.Memo Header"
     begin
     end;
 }
-

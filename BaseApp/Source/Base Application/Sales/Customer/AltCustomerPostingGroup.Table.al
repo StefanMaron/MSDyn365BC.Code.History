@@ -17,6 +17,7 @@ table 960 "Alt. Customer Posting Group"
         {
             Caption = 'Alternative Customer Posting Group';
             TableRelation = "Customer Posting Group";
+            ToolTip = 'Specifies the customer group for posting business transactions to general ledger accounts.';
 
             trigger OnValidate()
             begin

@@ -43,48 +43,16 @@ tableextension 11702 "Vendor CZL" extends Vendor
                     RegistrationLogMgtCZL.LogVendor(Rec);
             end;
         }
+#if not CLEANSCHEMA26
         field(11770; "Registration No. CZL"; Text[20])
         {
             Caption = 'Registration No.';
             DataClassification = CustomerContent;
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
             ObsoleteReason = 'Replaced by standard "Registration Number" field.';
-#if not CLEAN23
-
-            trigger OnValidate()
-            var
-                RegistrationLogCZL: Record "Registration Log CZL";
-                RegNoServiceConfigCZL: Record "Reg. No. Service Config CZL";
-                ResultRecordRef: RecordRef;
-                LogNotVerified: Boolean;
-                IsHandled: Boolean;
-            begin
-                OnBeforeOnValidateRegistrationNoCZL(Rec, xRec, IsHandled);
-                if IsHandled then
-                    exit;
-
-                if not RegistrationNoMgtCZL.CheckRegistrationNo("Registration No. CZL", "No.", Database::Vendor) then
-                    exit;
-
-                LogNotVerified := true;
-                if "Registration No. CZL" <> xRec."Registration No. CZL" then
-                    if RegNoServiceConfigCZL.RegNoSrvIsEnabled() then begin
-                        LogNotVerified := false;
-                        RegistrationLogMgtCZL.ValidateRegNoWithARES(ResultRecordRef, Rec, "No.", RegistrationLogCZL."Account Type"::Vendor);
-                        ResultRecordRef.SetTable(Rec);
-                    end;
-
-                if LogNotVerified then
-                    RegistrationLogMgtCZL.LogVendor(Rec);
-            end;
-#endif
         }
+#endif
         field(11771; "Tax Registration No. CZL"; Text[20])
         {
             Caption = 'Tax Registration No.';
@@ -124,6 +92,7 @@ tableextension 11702 "Vendor CZL" extends Vendor
             Caption = 'Disable Unreliability Check';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA25
         field(31070; "Transaction Type CZL"; Code[10])
         {
             Caption = 'Transaction Type';
@@ -151,18 +120,8 @@ tableextension 11702 "Vendor CZL" extends Vendor
             ObsoleteTag = '25.0';
             ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
         }
-    }
-#if not CLEAN23
-    keys
-    {
-        key(Key11700; "Registration No. CZL")
-        {
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'Replaced by standard "Registration Number" field.';
-        }
-    }
 #endif
+    }
 
     var
         UnrelPayerServiceSetupCZL: Record "Unrel. Payer Service Setup CZL";

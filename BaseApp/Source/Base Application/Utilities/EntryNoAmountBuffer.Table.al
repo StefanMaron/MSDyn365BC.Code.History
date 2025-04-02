@@ -44,26 +44,6 @@ table 386 "Entry No. Amount Buffer"
             Caption = 'End Date';
             DataClassification = SystemMetadata;
         }
-        field(11760; "Debit Amount"; Decimal)
-        {
-            AutoFormatType = 1;
-            BlankZero = true;
-            Caption = 'Debit Amount';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11761; "Credit Amount"; Decimal)
-        {
-            AutoFormatType = 1;
-            BlankZero = true;
-            Caption = 'Credit Amount';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
     }
 
     keys

@@ -1,6 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Setup;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Location;
 using Microsoft.Sales.History;
@@ -9,11 +14,14 @@ table 905 "Assembly Setup"
 {
     Caption = 'Assembly Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Assembly Setup";
+    LookupPageID = "Assembly Setup";
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
             DataClassification = SystemMetadata;
         }
@@ -65,12 +73,11 @@ table 905 "Assembly Setup"
         {
             Caption = 'Create Movements Automatically';
         }
-        field(11700; "Gen. Bus. Posting Group"; Code[20])
+        field(140; "Default Gen. Bus. Post. Group"; Code[20])
         {
-            Caption = 'Gen. Bus. Posting Group';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
+            Caption = 'Default General Business Posting Group';
+            ToolTip = 'Specifies the general business posting group that is used by default for assembly orders.';
+            TableRelation = "Gen. Business Posting Group";
         }
     }
 

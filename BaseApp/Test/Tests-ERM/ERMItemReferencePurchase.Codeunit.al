@@ -1650,8 +1650,6 @@ codeunit 134464 "ERM Item Reference Purchase"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Item Reference Purchase");
-
-        LibraryItemReference.EnableFeature(true);
         Commit();
         IsInitialized := true;
 

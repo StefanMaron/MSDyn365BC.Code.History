@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Transfer;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
@@ -234,27 +238,6 @@ table 5746 "Transfer Receipt Header"
             begin
                 Rec.ShowDimensions();
             end;
-        }
-        field(31064; "Intrastat Exclude"; Boolean)
-        {
-            Caption = 'Intrastat Exclude';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31070; "Gen. Bus. Post. Group Ship"; Code[20])
-        {
-            Caption = 'Gen. Bus. Post. Group Ship';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31071; "Gen. Bus. Post. Group Receive"; Code[20])
-        {
-            Caption = 'Gen. Bus. Post. Group Receive';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
         }
     }
 

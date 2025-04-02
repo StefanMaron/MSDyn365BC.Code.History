@@ -15,6 +15,7 @@ using System.Threading;
 using System.Environment;
 using System.Media;
 using System.Globalization;
+using System;
 
 #pragma warning disable AS0018, AS0025
 codeunit 1800 "Assisted Company Setup"

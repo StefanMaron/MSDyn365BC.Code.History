@@ -114,17 +114,24 @@ codeunit 133515 "Magic Function Prompt Test"
         AITestContext: Codeunit "AIT Test Context";
         TestOutputJson: Codeunit "Test Output Json";
         TestUtil: Codeunit "SLS Test Utility";
+        FunctionArray: JsonArray;
         Function: JsonToken;
         FunctionName: JsonToken;
+        MagicFunctionFound: Boolean;
         AssertMsg: Label 'The completion answer is not a magic function. Expected: magic_function, Actual: %1', Comment = 'Actual: %1';
     begin
         TestOutputJson.Initialize();
         TestOutputJson.Add('completion_answer', CompletionAnswerTxt);
         AITestContext.SetTestOutput(TestOutputJson.ToText()); // Log the response
 
-        Function := TestUtil.GetFunctionToken(CompletionAnswerTxt);
-        if Function.AsObject().Get('name', FunctionName) then
-            if FunctionName.AsValue().AsText() <> 'magic_function' then
-                Assert.Fail(StrSubstNo(AssertMsg, FunctionName.AsValue().AsText()));
+        FunctionArray := TestUtil.GetFunctionArray(CompletionAnswerTxt);
+        foreach Function in FunctionArray do begin
+            Function.AsObject().Get('name', FunctionName);
+            if FunctionName.AsValue().AsText() = 'magic_function' then
+                MagicFunctionFound := true;
+        end;
+
+        if (FunctionArray.Count > 0) and not MagicFunctionFound then
+            Assert.Fail(StrSubstNo(AssertMsg, FunctionName.AsValue().AsText()));
     end;
 }

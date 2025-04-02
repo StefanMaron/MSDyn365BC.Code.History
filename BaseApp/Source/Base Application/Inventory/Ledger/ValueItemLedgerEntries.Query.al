@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Ledger;
 
 query 1316 "Value Item Ledger Entries"
@@ -27,10 +31,10 @@ query 1316 "Value Item Ledger Entries"
             {
                 DataItemLink = "Entry No." = Value_Entry."Item Ledger Entry No.";
                 SqlJoinType = InnerJoin;
-                filter(Item_Ledg_Document_No; "Document No.")
+                column(Item_Ledg_Document_No; "Document No.")
                 {
                 }
-                filter(Item_Ledg_Document_Line_No; "Document Line No.")
+                column(Item_Ledg_Document_Line_No; "Document Line No.")
                 {
                 }
                 filter(Item_Ledg_Document_Type; "Document Type")

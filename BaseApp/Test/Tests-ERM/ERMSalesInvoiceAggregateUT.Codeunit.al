@@ -35,7 +35,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesAccountIsMissingTxt: Label 'Sales Account is missing in General Posting Setup.';
         CogsAccountIsMissingTxt: Label 'COGS Account is missing in General Posting Setup.';
         SalesVatAccountIsMissingTxt: Label 'Sales VAT Account is missing in VAT Posting Setup.';
-        DueDateMustBeUpdatedTxt: Label 'Due Date must be udpadated';
+        DueDateMustBeUpdatedTxt: Label 'Due Date must be updated';
         TaxAmountErr: Label 'Tax Amount must be equal to %1', Comment = '%1= Expected Tax Amount';
 
     local procedure Initialize()
@@ -1410,6 +1410,8 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         asserterror SalesInvoiceAggregator.PropagateOnModify(SalesInvoiceEntityAggregate, TempFieldBuffer);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('OpenSalesStatisticsPage')]
@@ -1446,11 +1448,48 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // [THEN] Verify the Total Tax Amount on Sales Invoice and Sales Statistics page.
         Assert.AreEqual(ExpectedTaxAmount, ActualTaxAmount, StrSubstNo(TaxAmountErr, ExpectedTaxAmount));
     end;
+#endif
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SalesStatisticsPageHandler')]
+    procedure VerifyTotalTaxAmountSamenStatisticsPage()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoice: TestPage "Sales Invoice";
+        UnitPrice: array[4] of Decimal;
+        Quantity: array[4] of Integer;
+        ExpectedTaxAmount: Decimal;
+        ActualTaxAmount: Decimal;
+    begin
+        // [SCENARIO 524113] Correct VAT in Statistics FactBox when "Price Including VAT" is activated.
+        Initialize();
 
+        // [GIVEN] Create VAT Posting Setup with VAT Percentage 20
+        CreateVATPostingSetup(VATPostingSetup, 20);
+
+        // [GIVEN] Create Static Unit Price to get the 0.01 difference
+        AssignStaticValues524113(UnitPrice, Quantity);
+
+        // [GIVEN] Create Four Sales Invoice Lines
+        CreateInvoiceWithMultipleLineThroughTestPageNoDiscount(SalesInvoice, VATPostingSetup, UnitPrice, Quantity);
+
+        // [GIVEN] Save Total Tax Amount on Page as actual result
+        ActualTaxAmount := SalesInvoice.SalesLines."Total VAT Amount".AsDecimal();
+
+        // [WHEN] Open Sales Statistics page to get the VAT Amount
+        SalesInvoice.SalesStatistics.Invoke();
+        ExpectedTaxAmount := LibraryVariableStorage.DequeueDecimal();
+
+        // [THEN] Verify the Total Tax Amount on Sales Invoice and Sales Statistics page.
+        Assert.AreEqual(ExpectedTaxAmount, ActualTaxAmount, StrSubstNo(TaxAmountErr, ExpectedTaxAmount));
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('OpenSalesStatisticsPage')]
-    procedure VerifyTotalTaxAmountSameonSalesInvoiceAndSalesStatistics()
+    procedure VerifyTotalTaxAmountSameonSalesInvoiceAndStatistics()
     var
         VATPostingSetup: Record "VAT Posting Setup";
         SalesInvoice: TestPage "Sales Invoice";
@@ -1478,6 +1517,42 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // [WHEN] Open Sales Statistics page to get the VAT Amount
         SalesStatistics.Trap();
         SalesInvoice.Statistics.Invoke();
+        ExpectedTaxAmount := LibraryVariableStorage.DequeueDecimal();
+
+        // [THEN] Verify the Total Tax Amount on Sales Invoice and Sales Statistics page.
+        Assert.AreEqual(ExpectedTaxAmount, ActualTaxAmount, StrSubstNo(TaxAmountErr, ExpectedTaxAmount));
+    end;
+#endif
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SalesStatisticsPageHandler')]
+    procedure VerifyTotalTaxAmountSameonSalesInvoiceAndSalesStatistics()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoice: TestPage "Sales Invoice";
+        UnitPrice: array[3] of Decimal;
+        Quantity: array[3] of Integer;
+        ExpectedTaxAmount: Decimal;
+        ActualTaxAmount: Decimal;
+    begin
+        // [SCENARIO 502847] Correct VAT in Statistics FactBox when "Price Including VAT" is activated.
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup with VAT Percentage 7
+        CreateVATPostingSetup(VATPostingSetup, 7);
+
+        // [GIVEN] Create Static Unit Price to get the 0.01 difference
+        AssignStaticValues502847(UnitPrice, Quantity);
+
+        // [GIVEN] Create Four Sales Invoice Lines
+        CreateInvoiceWithMultipleLineThroughTestPageNoDiscount(SalesInvoice, VATPostingSetup, UnitPrice, Quantity);
+
+        // [GIVEN] Save Total Tax Amount on Page as actual result
+        ActualTaxAmount := SalesInvoice.SalesLines."Total VAT Amount".AsDecimal();
+
+        // [WHEN] Open Sales Statistics page to get the VAT Amount
+        SalesInvoice.SalesStatistics.Invoke();
         ExpectedTaxAmount := LibraryVariableStorage.DequeueDecimal();
 
         // [THEN] Verify the Total Tax Amount on Sales Invoice and Sales Statistics page.
@@ -2497,11 +2572,19 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure OpenSalesStatisticsPage(var SalesStatistics: TestPage "Sales Statistics")
     begin
         LibraryVariableStorage.Enqueue(SalesStatistics.VATAmount.AsDecimal());
     end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatisticsPageHandler(var SalesStatistics: TestPage "Sales Statistics")
+    begin
+        LibraryVariableStorage.Enqueue(SalesStatistics.VATAmount.AsDecimal());
+    end;
 }
-

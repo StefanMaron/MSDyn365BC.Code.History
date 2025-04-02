@@ -8,9 +8,6 @@ using System.Integration;
 using System.Reflection;
 using System.Security.User;
 using System.Threading;
-#if not CLEAN23
-using System.Utilities;
-#endif
 
 codeunit 6301 "Power BI Service Mgt."
 {
@@ -34,11 +31,6 @@ codeunit 6301 "Power BI Service Mgt."
         PowerBiLicenseCheckErrorTelemetryMsg: Label 'Power BI license check finished with error.', Locked = true;
         PowerBiLicenseCheckSuccessTelemetryMsg: Label 'Power BI license check returned success.', Locked = true;
         PowerBiTelemetryCategoryLbl: Label 'AL Power BI Embedded', Locked = true;
-#if not CLEAN23
-        OngoingDeploymentTelemetryMsg: Label 'Setting Power BI Ongoing Deployment record for user. Field: %1; Value: %2.', Locked = true;
-        ErrorWebResponseTelemetryMsg: Label 'GetData failed with an error. The status code is: %1.', Locked = true;
-        DataNotFoundErr: Label 'The report(s) you are trying to load do not exist.';
-#endif
         EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token.', Locked = true;
         ScheduleSyncTelemetryMsg: Label 'Scheduling sync for UTC datetime: %1.', Locked = true;
 
@@ -59,17 +51,6 @@ codeunit 6301 "Power BI Service Mgt."
 
         exit(OperationResult.Successful);
     end;
-
-#if not CLEAN23
-    [Scope('OnPrem')]
-    [Obsolete('A report is enabled for a context if there is a mathcing entry in table "Power BI Report Configuration". Substitute calls to IsReportEnabled(ReportId, Context) with PowerBIReportConfiguration.Get(UserSecurityId(), ReportId, Context).', '23.0')]
-    procedure IsReportEnabled(ReportId: Guid; EnglishContext: Text): Boolean
-    var
-        PowerBIReportConfiguration: Record "Power BI Report Configuration";
-    begin
-        exit(PowerBIReportConfiguration.Get(UserSecurityId(), ReportId, EnglishContext));
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure IsUserReadyForPowerBI(): Boolean
@@ -107,14 +88,6 @@ codeunit 6301 "Power BI Service Mgt."
         exit(MainPageRatioTxt);
     end;
 
-#if not CLEAN23
-    [Obsolete('Error texts should be defined per extension. In other words, define your own text constants.', '23.0')]
-    procedure GetUnauthorizedErrorText(): Text
-    begin
-        exit(UnauthorizedErr);
-    end;
-#endif
-
     procedure GetContentPacksServicesUrl(): Text
     var
         EnvironmentInformation: Codeunit "Environment Information";
@@ -132,21 +105,6 @@ codeunit 6301 "Power BI Service Mgt."
         exit(PowerBIMyOrgUrlTxt);
     end;
 
-#if not CLEAN23
-    [Scope('OnPrem')]
-    [Obsolete('This function requires now a context parameter.', '23.0')]
-    procedure SynchronizeReportsInBackground()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        ScheduledDateTime: DateTime;
-    begin
-        ScheduledDateTime := CurrentDateTime();
-
-        Session.LogMessage('0000FB2', StrSubstNo(ScheduleSyncTelemetryMsg, Format(ScheduledDateTime, 50, 9)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
-        JobQueueEntry.ScheduleJobQueueEntryForLater(Codeunit::"Power BI Report Synchronizer", ScheduledDateTime, GetJobQueueCategoryCode(), '')
-    end;
-#endif
-
     [Scope('OnPrem')]
     procedure SynchronizeReportsInBackground(Context: Text[50])
     var
@@ -162,17 +120,8 @@ codeunit 6301 "Power BI Service Mgt."
     [Scope('OnPrem')]
     procedure IsUserSynchronizingReports(): Boolean
     var
-#if not CLEAN23
-        PowerBIUserStatus: Record "Power BI User Status";
-#endif
         JobQueueEntry: Record "Job Queue Entry";
     begin
-#if not CLEAN23
-        if PowerBIUserStatus.Get(UserSecurityId()) then
-            if PowerBIUserStatus."Is Synchronizing" then
-                exit(true);
-#endif
-
         JobQueueEntry.SetRange("User ID", UserId());
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Power BI Report Synchronizer");
@@ -183,111 +132,6 @@ codeunit 6301 "Power BI Service Mgt."
 
         exit(false);
     end;
-
-#if not CLEAN23
-    [Scope('OnPrem')]
-    [Obsolete('Information on whether the user is synchronizing reports is no longer kept in a dedicated table. Instead, a user is synchronizing if they have a pending job queue entry for codeunit Power BI Report Synchronizer. If you want to stop synchronization for a user, create a new Job Queue Entry for codeunit Power BI Report Synchronizer and set it to On Hold. If you want to restart synchronization, make sure there is a ready job queue entry for codeunit Power BI Report Synchronizer.', '23.0')]
-    procedure SetIsSynchronizing(IsSynchronizing: Boolean)
-    var
-        PowerBIUserStatus: Record "Power BI User Status";
-    begin
-        SendPowerBiOngoingDeploymentsTelemetry(PowerBIUserStatus.FieldCaption("Is Synchronizing"), IsSynchronizing);
-        PowerBIUserStatus.LockTable();
-
-        if PowerBIUserStatus.Get(UserSecurityId()) then begin
-            PowerBIUserStatus."Is Synchronizing" := IsSynchronizing;
-            PowerBIUserStatus.Modify();
-        end else begin
-            PowerBIUserStatus.Init();
-            PowerBIUserStatus."User Security ID" := UserSecurityId();
-            PowerBIUserStatus."Is Synchronizing" := IsSynchronizing;
-            PowerBIUserStatus.Insert();
-        end;
-    end;
-
-    local procedure SendPowerBiOngoingDeploymentsTelemetry(FieldChanged: Text; NewValue: Boolean)
-    begin
-        Session.LogMessage('0000AYR', StrSubstNo(OngoingDeploymentTelemetryMsg, FieldChanged, NewValue), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Check "Power BI Report Uploads" table directly', '23.0')]
-    [Scope('OnPrem')]
-    procedure HasUploads(): Boolean
-    var
-        PowerBIReportUploads: Record "Power BI Report Uploads";
-    begin
-        exit(not PowerBIReportUploads.IsEmpty);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Use interface "Power BI Service Provider" and its implementations instead.', '23.0')]
-    procedure GetData(var ExceptionMessage: Text; var ExceptionDetails: Text; Url: Text) ResponseText: Text
-    var
-        HttpStatusCode: Integer;
-    begin
-        ResponseText := GetDataCatchErrors(ExceptionMessage, ExceptionDetails, HttpStatusCode, Url);
-
-        if ExceptionMessage <> '' then begin
-            Session.LogMessage('0000BJL', StrSubstNo(ErrorWebResponseTelemetryMsg, HttpStatusCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
-
-            case true of
-                HttpStatusCode = 401:
-                    Error(UnauthorizedErr);
-                HttpStatusCode = 404:
-                    Error(DataNotFoundErr);
-                else
-                    Error(GenericErr);
-            end;
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Use interface "Power BI Service Provider" and its implementations instead.', '23.0')]
-    procedure GetDataCatchErrors(var ExceptionMessage: Text; var ExceptionDetails: Text; var ErrorStatusCode: Integer; Url: Text): Text
-    var
-        DotNetExceptionHandler: Codeunit "DotNet Exception Handler";
-        WebRequestHelper: Codeunit "Web Request Helper";
-        HttpWebResponse: DotNet HttpWebResponse;
-        WebException: DotNet WebException;
-        Exception: DotNet Exception;
-        ResponseText: Text;
-        AccessToken: SecretText;
-    begin
-        Clear(ErrorStatusCode);
-        Clear(ExceptionMessage);
-        Clear(ExceptionDetails);
-
-        AccessToken := AzureAdMgt.GetAccessTokenAsSecretText(GetPowerBIResourceUrl(), GetPowerBiResourceName(), false);
-
-        if AccessToken.IsEmpty() then begin
-            Session.LogMessage('0000FT6', EmptyAccessTokenTelemetryMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
-            ExceptionMessage := UnauthorizedErr;
-            ExceptionDetails := UnauthorizedErr;
-            ErrorStatusCode := 401;
-            exit('');
-        end;
-
-        if not WebRequestHelper.GetResponseTextUsingCharset('GET', Url, AccessToken, ResponseText) then begin
-            Exception := GetLastErrorObject();
-            ExceptionMessage := Exception.Message;
-            ExceptionDetails := Exception.ToString();
-
-            DotNetExceptionHandler.Collect();
-            if DotNetExceptionHandler.CastToType(WebException, GetDotNetType(WebException)) then begin // If this is true, WebException is not null
-                HttpWebResponse := WebException.Response;
-                if not IsNull(HttpWebResponse) then
-                    ErrorStatusCode := HttpWebResponse.StatusCode;
-            end;
-        end;
-
-        if WebRequestHelper.IsFailureStatusCode(Format(ErrorStatusCode)) and (ExceptionMessage = '') then
-            ExceptionMessage := GenericErr;
-
-        exit(ResponseText);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure GetReportsUrl(): Text
@@ -392,32 +236,8 @@ codeunit 6301 "Power BI Service Mgt."
         exit(UserPermissions.IsSuper(UserSecurityId));
     end;
 
-#if not CLEAN23
-    [Scope('OnPrem')]
-    [Obsolete('Use platform capabilities to escape text in JSON strings instead. For example, text is escaped by platform when calling JsonArray.Add(Text).', '23.0')]
-    procedure FormatSpecialChars(Selection: Text): Text
-    var
-        i: Integer;
-    begin
-        if Selection = '' then
-            exit('');
-
-        for i := 1 to StrLen(Selection) do
-            // EX: 1 1/2" (Char at pos 4 and 6) -> 1 1\/2\" (Char now at pos 5 and 7)
-            if (Selection[i] in [34]) or (Selection[i] in [47]) or (Selection[i] in [92])
-            then begin
-                Selection := InsStr(Selection, '\', i);
-                i := i + 1;
-            end;
-        exit(Selection);
-    end;
-#endif
-
     procedure CheckPowerBITablePermissions(): Boolean
     var
-#if not CLEAN23
-        PowerBIUserConfiguration: Record "Power BI User Configuration";
-#endif
         PowerBIBlob: Record "Power BI Blob";
         PowerBIDefaultSelection: Record "Power BI Default Selection";
         PowerBIContextSettings: Record "Power BI Context Settings";
@@ -426,11 +246,6 @@ codeunit 6301 "Power BI Service Mgt."
         PowerBICustomerReports: Record "Power BI Customer Reports";
         PowerBIDisplayedElement: Record "Power BI Displayed Element";
     begin
-#if not CLEAN23
-        if not (PowerBIUserConfiguration.WritePermission and PowerBIUserConfiguration.ReadPermission) then
-            exit(false);
-#endif
-
         exit(PowerBIBlob.ReadPermission()
             and PowerBIDefaultSelection.ReadPermission()
             and PowerBICustomerReports.ReadPermission()

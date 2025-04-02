@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Loaner;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Loaner;
 
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Document;

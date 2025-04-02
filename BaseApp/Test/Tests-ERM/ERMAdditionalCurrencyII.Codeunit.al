@@ -19,9 +19,6 @@
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
-#if not CLEAN23
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
-#endif
         WrongAmountErr: Label '%1 must be %2 in %3.';
         WrongBankAccLedgEntryAmtErr: Label 'Wrong %1 in Bank Account Ledger Entry.';
 
@@ -195,9 +192,6 @@
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure SalesInvoiceWithPaymentGeneralAndUnrealizedLoss()
     begin
@@ -208,9 +202,6 @@
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure SalesInvoiceWithPaymentGeneralAndUnrealizedGain()
     begin
@@ -239,11 +230,7 @@
         ModifyExchangeRateAmount(CurrencyCode, IsLossEntry);
 
         if IsAdjustExchRate then
-#if not CLEAN23
-            LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
-#else
             LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
-#endif
 
         InvoiceDocNo := FindSalesInvoiceHeader(SalesHeader."Sell-to Customer No.");
         CreatePostGenJnlLineAndApplyToDoc(
@@ -420,9 +407,6 @@
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure PurchInvoiceWithPaymentGeneralAndUnrealizedLoss()
     begin
@@ -433,9 +417,6 @@
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure PurchInvoiceWithPaymentGeneralAndUnrealizedGain()
     begin
@@ -464,11 +445,7 @@
         ModifyExchangeRateAmount(CurrencyCode, not IsLossEntry);
 
         if IsAdjustExchRate then
-#if not CLEAN23
-            LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
-#else
             LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
-#endif
         CreatePostGenJnlLineAndApplyToDoc(
           GenJournalLine."Account Type"::Vendor, PurchHeader."Buy-from Vendor No.",
           -Amount, InvoiceDocNo);
@@ -1179,14 +1156,5 @@
         Assert.AreEqual(
           ExpectedAmount, GLEntry."Additional-Currency Amount", GLEntry.FieldCaption("Additional-Currency Amount"));
     end;
-#if not CLEAN23
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-#endif
 }
 

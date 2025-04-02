@@ -194,20 +194,6 @@ table 298 "Issued Reminder Line"
             Caption = 'System-Created Entry';
             Editable = false;
         }
-        field(11761; Days; Integer)
-        {
-            Caption = 'Days';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
-        }
-        field(11762; "Multiple Interest Rate"; Decimal)
-        {
-            Caption = 'Multiple Interest Rate';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
-        }
     }
 
     keys

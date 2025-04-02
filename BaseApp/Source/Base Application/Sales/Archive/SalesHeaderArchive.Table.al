@@ -32,6 +32,7 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Pricing;
 using System.Globalization;
+using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
 
@@ -53,20 +54,24 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Sell-to Customer No.';
             TableRelation = Customer;
+            ToolTip = 'Specifies the number of the customer who will receive the products and be billed by default.';
         }
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
         }
         field(4; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+            ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
         }
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
+            ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
         }
         field(6; "Bill-to Name 2"; Text[50])
         {
@@ -75,67 +80,82 @@ table 5107 "Sales Header Archive"
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
+            ToolTip = 'Specifies the address of the customer to whom you sent the invoice.';
         }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
+            ToolTip = 'Specifies an additional line of the address.';
         }
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
             TableRelation = "Post Code".City;
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the city of the address.';
         }
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+            ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
         }
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
         }
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
             TableRelation = "Ship-to Address".Code where("Customer No." = field("Sell-to Customer No."));
+            ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
         }
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
+            ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
         }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer at the address that the items are shipped to.';
         }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
+            ToolTip = 'Specifies the address that the items are shipped to.';
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
+            ToolTip = 'Specifies an additional part of the ship-to address, in case it is a long address.';
         }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
             TableRelation = "Post Code".City;
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the city of the address that the items are shipped to.';
         }
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
+            ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
         }
         field(19; "Order Date"; Date)
         {
             Caption = 'Order Date';
+            ToolTip = 'Specifies the date the order was created. The order date is also used to determine the prices and discounts on the document.';
         }
         field(20; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the date when the document was posted.';
         }
         field(21; "Shipment Date"; Date)
         {
             Caption = 'Shipment Date';
+            ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
         }
         field(22; "Posting Description"; Text[100])
         {
@@ -145,10 +165,12 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Payment Terms Code';
             TableRelation = "Payment Terms";
+            ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount on the sales document.';
         }
         field(24; "Due Date"; Date)
         {
             Caption = 'Due Date';
+            ToolTip = 'Specifies when the related sales invoice must be paid.';
         }
         field(25; "Payment Discount %"; Decimal)
         {
@@ -156,32 +178,38 @@ table 5107 "Sales Header Archive"
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
+            ToolTip = 'Specifies the payment discount percentage that is granted if the customer pays on or before the date entered in the Pmt. Discount Date field. The discount percentage is specified in the Payment Terms Code field.';
         }
         field(26; "Pmt. Discount Date"; Date)
         {
             Caption = 'Pmt. Discount Date';
+            ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
         }
         field(27; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
             TableRelation = "Shipment Method";
+            ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
         }
         field(28; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
             TableRelation = Location where("Use As In-Transit" = const(false));
+            ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. Location code for individual lines can differ from it.';
         }
         field(29; "Shortcut Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
         }
         field(30; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
         }
         field(31; "Customer Posting Group"; Code[20])
         {
@@ -192,6 +220,7 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+            ToolTip = 'Specifies the currency that is used on the entry.';
         }
         field(33; "Currency Factor"; Decimal)
         {
@@ -207,6 +236,7 @@ table 5107 "Sales Header Archive"
         field(35; "Prices Including VAT"; Boolean)
         {
             Caption = 'Prices Including VAT';
+            ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
         }
         field(37; "Invoice Disc. Code"; Code[20])
         {
@@ -231,6 +261,7 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Salesperson Code';
             TableRelation = "Salesperson/Purchaser";
+            ToolTip = 'Specifies which salesperson is associated with the sales document.';
         }
         field(45; "Order Class"; Code[10])
         {
@@ -258,10 +289,12 @@ table 5107 "Sales Header Archive"
         field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
+            ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
             Caption = 'Applies-to Doc. No.';
+            ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
         }
         field(55; "Bal. Account No."; Code[20])
         {
@@ -359,16 +392,19 @@ table 5107 "Sales Header Archive"
         field(75; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
+            ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
         }
         field(76; "Transaction Type"; Code[10])
         {
             Caption = 'Transaction Type';
             TableRelation = "Transaction Type";
+            ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
         }
         field(77; "Transport Method"; Code[10])
         {
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
+            ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
         }
         field(78; "VAT Country/Region Code"; Code[10])
         {
@@ -378,6 +414,7 @@ table 5107 "Sales Header Archive"
         field(79; "Sell-to Customer Name"; Text[100])
         {
             Caption = 'Sell-to Customer Name';
+            ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
         }
         field(80; "Sell-to Customer Name 2"; Text[50])
         {
@@ -386,68 +423,81 @@ table 5107 "Sales Header Archive"
         field(81; "Sell-to Address"; Text[100])
         {
             Caption = 'Sell-to Address';
+            ToolTip = 'Specifies the main address of the customer.';
         }
         field(82; "Sell-to Address 2"; Text[50])
         {
             Caption = 'Sell-to Address 2';
+            ToolTip = 'Specifies an additional part of the address.';
         }
         field(83; "Sell-to City"; Text[30])
         {
             Caption = 'Sell-to City';
             TableRelation = "Post Code".City;
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the city of the customer''s main address.';
         }
         field(84; "Sell-to Contact"; Text[100])
         {
             Caption = 'Sell-to Contact';
+            ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
         }
         field(85; "Bill-to Post Code"; Code[20])
         {
             Caption = 'Bill-to Post Code';
             TableRelation = "Post Code";
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the postal code of the customer''s billing address.';
         }
         field(86; "Bill-to County"; Text[30])
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
+            ToolTip = 'Specifies the county of the customer on the sales document.';
         }
         field(87; "Bill-to Country/Region Code"; Code[10])
         {
             Caption = 'Bill-to Country/Region Code';
             TableRelation = "Country/Region";
+            ToolTip = 'Specifies the country or region of the customer on the sales document.';
         }
         field(88; "Sell-to Post Code"; Code[20])
         {
             Caption = 'Sell-to Post Code';
             TableRelation = "Post Code";
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the postal code of the customer''s main address.';
         }
         field(89; "Sell-to County"; Text[30])
         {
             CaptionClass = '5,2,' + "Sell-to Country/Region Code";
             Caption = 'Sell-to County';
+            ToolTip = 'Specifies the county of your customer.';
         }
         field(90; "Sell-to Country/Region Code"; Code[10])
         {
             Caption = 'Sell-to Country/Region Code';
             TableRelation = "Country/Region";
+            ToolTip = 'Specifies the country or region of your customer.';
         }
         field(91; "Ship-to Post Code"; Code[20])
         {
             Caption = 'Ship-to Post Code';
             TableRelation = "Post Code";
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
         }
         field(92; "Ship-to County"; Text[30])
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
+            ToolTip = 'Specifies the county of the ship-to address.';
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
+            ToolTip = 'Specifies the country/region code of the address that the items are shipped to.';
         }
         field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
@@ -457,6 +507,7 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Exit Point';
             TableRelation = "Entry/Exit Point";
+            ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
         }
         field(98; Correction; Boolean)
         {
@@ -465,31 +516,37 @@ table 5107 "Sales Header Archive"
         field(99; "Document Date"; Date)
         {
             Caption = 'Document Date';
+            ToolTip = 'Specifies the date the document was created.';
         }
         field(100; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
         }
         field(101; "Area"; Code[10])
         {
             Caption = 'Area';
             TableRelation = Area;
+            ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
         }
         field(102; "Transaction Specification"; Code[10])
         {
             Caption = 'Transaction Specification';
             TableRelation = "Transaction Specification";
+            ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
         }
         field(104; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
             TableRelation = "Payment Method";
+            ToolTip = 'Specifies how the customer must pay for products on the sales document.';
         }
         field(105; "Shipping Agent Code"; Code[10])
         {
             AccessByPermission = TableData "Shipping Agent Services" = R;
             Caption = 'Shipping Agent Code';
             TableRelation = "Shipping Agent";
+            ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
         }
 #if not CLEAN24
         field(106; "Package Tracking No."; Text[30])
@@ -498,12 +555,14 @@ table 5107 "Sales Header Archive"
             ObsoleteReason = 'Field length will be increased to 50.';
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
+            ToolTip = 'Specifies the shipping agent''s package number.';
         }
 #else
 #pragma warning disable AS0086
         field(106; "Package Tracking No."; Text[50])
         {
             Caption = 'Package Tracking No.';
+            ToolTip = 'Specifies the shipping agent''s package number.';
         }
 #pragma warning restore AS0086
 #endif
@@ -526,15 +585,18 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Tax Area Code';
             TableRelation = "Tax Area";
+            ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
         }
         field(115; "Tax Liable"; Boolean)
         {
             Caption = 'Tax Liable';
+            ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
         }
         field(116; "VAT Bus. Posting Group"; Code[20])
         {
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
+            ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
         }
         field(117; Reserve; Enum "Reserve Method")
         {
@@ -543,6 +605,7 @@ table 5107 "Sales Header Archive"
         field(118; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';
+            ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
         }
         field(119; "VAT Base Discount %"; Decimal)
         {
@@ -554,6 +617,7 @@ table 5107 "Sales Header Archive"
         field(120; Status; Enum "Sales Document Status")
         {
             Caption = 'Status';
+            ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
         }
         field(121; "Invoice Discount Calculation"; Option)
         {
@@ -661,6 +725,7 @@ table 5107 "Sales Header Archive"
         field(152; "Quote Valid Until Date"; Date)
         {
             Caption = 'Quote Valid To Date';
+            ToolTip = 'Specifies how long the quote is valid.';
         }
         field(153; "Quote Sent to Customer"; DateTime)
         {
@@ -700,14 +765,7 @@ table 5107 "Sales Header Archive"
         field(179; "VAT Reporting Date"; Date)
         {
             Caption = 'VAT Date';
-        }
-        field(180; "Rcvd-from Country/Region Code"; Code[10])
-        {
-            Caption = 'Received-from Country/Region Code';
-            TableRelation = "Country/Region";
-            ObsoleteReason = 'Use new field on range 181';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
+            ToolTip = 'Specifies the entry''s VAT date.';
         }
         field(181; "Rcvd.-from Count./Region Code"; Code[10])
         {
@@ -722,6 +780,7 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Ship-to Phone No.';
             ExtendedDatatype = PhoneNo;
+            ToolTip = 'Specifies the telephone number of the company''s shipping address.';
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -733,13 +792,6 @@ table 5107 "Sales Header Archive"
             begin
                 Rec.ShowDimensions();
             end;
-        }
-        field(827; "Credit Card No."; Code[20])
-        {
-            Caption = 'Credit Card No.';
-            ObsoleteReason = 'This field is not needed and it is not used anymore.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(3998; "Source Doc. Exists"; Boolean)
         {
@@ -761,14 +813,17 @@ table 5107 "Sales Header Archive"
         field(5043; "Interaction Exist"; Boolean)
         {
             Caption = 'Interaction Exist';
+            ToolTip = 'Specifies that the archived document is linked to an interaction log entry.';
         }
         field(5044; "Time Archived"; Time)
         {
             Caption = 'Time Archived';
+            ToolTip = 'Specifies what time the document was archived.';
         }
         field(5045; "Date Archived"; Date)
         {
             Caption = 'Date Archived';
+            ToolTip = 'Specifies the date when the document was archived.';
         }
         field(5046; "Archived By"; Code[50])
         {
@@ -776,10 +831,12 @@ table 5107 "Sales Header Archive"
             DataClassification = EndUserIdentifiableInformation;
             Editable = false;
             TableRelation = User."User Name";
+            ToolTip = 'Specifies the user ID of the person who archived this document.';
         }
         field(5047; "Version No."; Integer)
         {
             Caption = 'Version No.';
+            ToolTip = 'Specifies the version number of the archived document.';
         }
         field(5048; "Doc. No. Occurrence"; Integer)
         {
@@ -789,24 +846,21 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Campaign No.';
             TableRelation = Campaign;
-        }
-        field(5051; "Sell-to Customer Template Code"; Code[10])
-        {
-            Caption = 'Sell-to Customer Template Code';
-            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code".';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
+            ToolTip = 'Specifies the campaign number the document is linked to.';
         }
         field(5052; "Sell-to Contact No."; Code[20])
         {
             Caption = 'Sell-to Contact No.';
             TableRelation = Contact;
+            ToolTip = 'Specifies the number of the contact person at the customer''s main address.';
         }
         field(5053; "Bill-to Contact No."; Code[20])
         {
             Caption = 'Bill-to Contact No.';
             TableRelation = Contact;
+            ToolTip = 'Specifies the number of the contact person at the customer''s billing address.';
         }
+#if not CLEANSCHEMA25
         field(5054; "Bill-to Customer Template Code"; Code[10])
         {
             Caption = 'Bill-to Customer Template Code (obsoleted)';
@@ -814,6 +868,7 @@ table 5107 "Sales Header Archive"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(5055; "Opportunity No."; Code[20])
         {
             Caption = 'Opportunity No.';
@@ -824,21 +879,25 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Sell-to Customer Template Code';
             TableRelation = "Customer Templ.";
+            ToolTip = 'Specifies information about sales quotes, purchase quotes, or orders in earlier versions of the document';
         }
         field(5057; "Bill-to Customer Templ. Code"; Code[20])
         {
             Caption = 'Bill-to Customer Template Code';
             TableRelation = "Customer Templ.";
+            ToolTip = 'Specifies information about sales quotes, purchase quotes, or orders in earlier versions of the document.';
         }
         field(5700; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
+            ToolTip = 'Specifies the code of the responsibility center (for example, a distribution center) assigned to the customer or associated with the order.';
         }
         field(5750; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Shipping Advice';
+            ToolTip = 'Specifies the shipping advice, which informs whether partial deliveries are acceptable.';
         }
         field(5752; "Completely Shipped"; Boolean)
         {
@@ -864,24 +923,29 @@ table 5107 "Sales Header Archive"
         field(5790; "Requested Delivery Date"; Date)
         {
             Caption = 'Requested Delivery Date';
+            ToolTip = 'Specifies the date that your customer has asked for the order to be delivered.';
         }
         field(5791; "Promised Delivery Date"; Date)
         {
             Caption = 'Promised Delivery Date';
+            ToolTip = 'Specifies the date that you have promised to deliver the order, as a result of the Order Promising function.';
         }
         field(5792; "Shipping Time"; DateFormula)
         {
             Caption = 'Shipping Time';
+            ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
         }
         field(5793; "Outbound Whse. Handling Time"; DateFormula)
         {
             AccessByPermission = TableData Location = R;
             Caption = 'Outbound Whse. Handling Time';
+            ToolTip = 'Specifies a date formula for the time it takes to get items ready to ship from this location. The time element is used in the calculation of the delivery date as follows: Shipment Date + Outbound Warehouse Handling Time = Planned Shipment Date + Shipping Time = Planned Delivery Date.';
         }
         field(5794; "Shipping Agent Service Code"; Code[10])
         {
             Caption = 'Shipping Agent Service Code';
             TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
+            ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
         }
         field(5795; "Late Order Shipping"; Boolean)
         {
@@ -894,6 +958,7 @@ table 5107 "Sales Header Archive"
             Caption = 'Late Order Shipping';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Indicates a delay in the shipment of one or more lines, or that the shipment date is either the same as or earlier than the work date.';
         }
         field(5796; "Date Filter"; Date)
         {
@@ -936,169 +1001,7 @@ table 5107 "Sales Header Archive"
             Caption = 'Assigned User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
-        }
-        field(11700; "Bank Account Code"; Code[20])
-        {
-            Caption = 'Bank Account Code';
-            TableRelation = if ("Document Type" = filter(Quote | Order | Invoice | "Blanket Order")) "Bank Account"."No."
-            else
-            if ("Document Type" = filter("Credit Memo" | "Return Order")) "Customer Bank Account".Code where("Customer No." = field("Bill-to Customer No."));
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11701; "Bank Account No."; Text[30])
-        {
-            Caption = 'Bank Account No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11703; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11704; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11705; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11706; "Transit No."; Text[20])
-        {
-            Caption = 'Transit No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11707; IBAN; Code[50])
-        {
-            Caption = 'IBAN';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11708; "SWIFT Code"; Code[20])
-        {
-            Caption = 'SWIFT Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11760; "VAT Date"; Date)
-        {
-            Caption = 'VAT Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11761; "VAT Currency Factor"; Decimal)
-        {
-            Caption = 'VAT Currency Factor';
-            DecimalPlaces = 0 : 15;
-            Editable = false;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11762; "Tax Corrective Document"; Boolean)
-        {
-            Caption = 'Tax Corrective Document';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11765; "Posting Desc. Code"; Code[10])
-        {
-            Caption = 'Posting Desc. Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11790; "Registration No."; Text[20])
-        {
-            Caption = 'Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11791; "Tax Registration No."; Text[20])
-        {
-            Caption = 'Tax Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11793; "Quote Validity"; Date)
-        {
-            Caption = 'Quote Validity';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Quote Validity moved to W1 solution and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11797; "Last Version"; Boolean)
-        {
-            Caption = 'Last Version';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteTag = '21.0';
-        }
-        field(31060; "Perform. Country/Region Code"; Code[10])
-        {
-            Caption = 'Perform. Country/Region Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31061; "Curr. Factor Perf. Country/Reg"; Decimal)
-        {
-            Caption = 'Curr. Factor Perf. Country/Reg';
-            DecimalPlaces = 0 : 15;
-            Editable = false;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31063; "Physical Transfer"; Boolean)
-        {
-            Caption = 'Physical Transfer';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31064; "Intrastat Exclude"; Boolean)
-        {
-            Caption = 'Intrastat Exclude';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31066; "EU 3-Party Intermediate Role"; Boolean)
-        {
-            Caption = 'EU 3-Party Intermediate Role';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
+            ToolTip = 'Specifies the ID of the user who is responsible for the document.';
         }
     }
 
@@ -1184,9 +1087,18 @@ table 5107 "Sales Header Archive"
         end;
     end;
 
+    procedure GetWorkDescription() WorkDescription: Text
+    var
+        TypeHelper: Codeunit "Type Helper";
+        InStream: InStream;
+    begin
+        CalcFields("Work Description");
+        "Work Description".CreateInStream(InStream, TextEncoding::UTF8);
+        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var SalesHeaderArchive: Record "Sales Header Archive"; var IsHandled: Boolean)
     begin
     end;
 }
-

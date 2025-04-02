@@ -9,12 +9,14 @@ using Microsoft.Bank.Setup;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
+#if not CLEAN26
 using Microsoft.Foundation.Address;
+#endif
 using Microsoft.Foundation.BatchProcessing;
 using Microsoft.Foundation.Company;
 using Microsoft.Sales.Customer;
-using System.Utilities;
 using Microsoft.Sales.Setup;
+using System.Utilities;
 
 tableextension 11703 "Sales Header CZL" extends "Sales Header"
 {
@@ -208,6 +210,7 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
                 UpdateVATCurrencyFactorCZL();
             end;
         }
+#if not CLEANSCHEMA25
         field(11780; "VAT Date CZL"; Date)
         {
             Caption = 'VAT Date';
@@ -216,6 +219,7 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
             ObsoleteTag = '25.0';
             ObsoleteReason = 'Replaced by VAT Reporting Date.';
         }
+#endif
         field(11781; "Registration No. CZL"; Text[20])
         {
             Caption = 'Registration No.';
@@ -239,6 +243,7 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
                     Clear("Credit Memo Type CZL");
             end;
         }
+#if not CLEANSCHEMA25
         field(31068; "Physical Transfer CZL"; Boolean)
         {
             Caption = 'Physical Transfer';
@@ -255,6 +260,7 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
             ObsoleteTag = '25.0';
             ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions. This field is not used any more.';
         }
+#endif
         field(31072; "EU 3-Party Intermed. Role CZL"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
@@ -276,9 +282,11 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         ConfirmManagement: Codeunit "Confirm Management";
+#if not CLEAN26
         GlobalDocumentType: Enum "Sales Document Type";
         GlobalDocumentNo: Code[20];
         GlobalIsIntrastatTransaction: Boolean;
+#endif
         IsConfirmedCZL: Boolean;
         UpdateExchRateQst: Label 'Do you want to update the exchange rate for VAT?';
         UpdateExchRateForAddCurrencyQst: Label 'Do you want to update the exchange rate for additional currency?';
@@ -303,7 +311,7 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
 
         if ("Currency Factor" <> xRec."Currency Factor") and
            ("Currency Factor" <> "VAT Currency Factor CZL") and
-           (("VAT Reporting Date" = xRec."VAT Reporting Date") or (xRec."VAT Reporting Date" = 0D))
+           ("VAT Reporting Date" = "Posting Date")
         then begin
             "VAT Currency Factor CZL" := "Currency Factor";
             if (xRec."Currency Factor" = xRec."VAT Currency Factor CZL") or
@@ -419,17 +427,8 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
         "SWIFT Code CZL" := SWIFTCode;
         OnAfterUpdateBankInfoCZL(Rec);
     end;
-
-    procedure IsIntrastatTransactionCZL(): Boolean
-    begin
-        if ("Document Type" <> GlobalDocumentType) or ("No." <> GlobalDocumentNo) or ("No." = '') then begin
-            GlobalDocumentType := "Document Type";
-            GlobalDocumentNo := "No.";
-            GlobalIsIntrastatTransaction := UpdateGlobalIsIntrastatTransaction();
-        end;
-        exit(GlobalIsIntrastatTransaction);
-    end;
-
+#if not CLEAN26
+    [Obsolete('Pending removal. Replaced by internal ShipOrReceiveInventoriableTypeItems function from Intrastat Core extension. ', '26.0')]
     procedure ShipOrReceiveInventoriableTypeItemsCZL(): Boolean
     var
         SalesLine: Record "Sales Line";
@@ -443,6 +442,17 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
                 if ((SalesLine."Qty. to Ship" <> 0) or (SalesLine."Return Qty. to Receive" <> 0)) and SalesLine.IsInventoriableItem() then
                     exit(true);
             until SalesLine.Next() = 0;
+    end;
+
+    [Obsolete('Pending removal. Use IsIntrastatTransaction from Intrastat Core extension instead.', '26.0')]
+    procedure IsIntrastatTransactionCZL(): Boolean
+    begin
+        if ("Document Type" <> GlobalDocumentType) or ("No." <> GlobalDocumentNo) or ("No." = '') then begin
+            GlobalDocumentType := "Document Type";
+            GlobalDocumentNo := "No.";
+            GlobalIsIntrastatTransaction := UpdateGlobalIsIntrastatTransaction();
+        end;
+        exit(GlobalIsIntrastatTransaction);
     end;
 
     local procedure UpdateGlobalIsIntrastatTransaction(): Boolean
@@ -459,6 +469,7 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
             exit(false);
         exit(CountryRegion.IsIntrastatCZL("VAT Country/Region Code", false));
     end;
+#endif
 
     procedure GetDefaulBankAccountNoCZL() BankAccountNo: Code[20]
     var
@@ -534,11 +545,13 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
     local procedure OnAfterUpdateBankInfoCZL(var SalesHeader: Record "Sales Header")
     begin
     end;
-
+#if not CLEAN26
+    [Obsolete('Pending removal. Use OnBeforeCheckIsIntrastatTransaction from Intrastat Core extension instead.', '26.0')]
     [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateGlobalIsIntrastatTransaction(SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVATDateOnBeforeCheckNeedUpdateVATCurrencyFactorCZL(var SalesHeader: Record "Sales Header"; var IsIsConfirmedCZL: Boolean; var NeedUpdateVATCurrencyFactor: Boolean; xSalesHeader: Record "Sales Header")

@@ -374,6 +374,13 @@ page 6053 "Service Contract Quote"
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                 }
+                field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                {
+                    ApplicationArea = Service;
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the name of the customer that the items are shipped to.';
+                    Visible = false;
+                }
                 field("Ship-to Address"; Rec."Ship-to Address")
                 {
                     ApplicationArea = Service;
@@ -612,6 +619,7 @@ page 6053 "Service Contract Quote"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Contract Header"),
                               "Document Type" = const("Service Contract Quote"),
                               "No." = field("Contract No.");

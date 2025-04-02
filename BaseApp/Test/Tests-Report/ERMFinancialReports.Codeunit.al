@@ -884,7 +884,7 @@ codeunit 134982 "ERM Financial Reports"
     var
         ImportConsolidationFromFile: Report "Import Consolidation from File";
     begin
-        ImportConsolidationFromFile.InitializeRequest(1, FilePathTxt, '10000');
+        ImportConsolidationFromFile.SetParameters("Business Unit File Format"::"Version 3.70 or Earlier (.txt)", FilePathTxt, '10000');
         ImportConsolidationFromFile.Run();
     end;
 

@@ -1,4 +1,4 @@
-﻿codeunit 134269 "Matching on Payment Discounts"
+codeunit 134269 "Matching on Payment Discounts"
 {
     Permissions = TableData "Cust. Ledger Entry" = imd,
                   TableData "Vendor Ledger Entry" = imd;

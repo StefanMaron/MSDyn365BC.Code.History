@@ -56,13 +56,11 @@ page 9657 "Customer Report Selections"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Report ID';
-                    ToolTip = 'Specifies the ID of the report.';
                 }
                 field(ReportCaption; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Report Name';
-                    ToolTip = 'Specifies the name of the report.';
                 }
                 field("Custom Report Description"; Rec."Custom Report Description")
                 {
@@ -70,7 +68,6 @@ page 9657 "Customer Report Selections"
                     Caption = 'Custom Layout Description';
                     DrillDown = true;
                     Lookup = true;
-                    ToolTip = 'Specifies a description of the custom report layout.';
                     Visible = false;
                     trigger OnDrillDown()
                     begin
@@ -106,7 +103,6 @@ page 9657 "Customer Report Selections"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send To Email';
-                    ToolTip = 'Specifies that the report is used when sending emails.';
 
                     trigger OnAssistEdit()
                     begin
@@ -116,17 +112,14 @@ page 9657 "Customer Report Selections"
                 field("Use for Email Body"; Rec."Use for Email Body")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
                 }
                 field("Use for Email Attachment"; Rec."Use for Email Attachment")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
                 }
                 field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the ID of the email body layout that is used.';
                     Visible = false;
                 }
                 field("Email Body Layout Description"; Rec."Email Body Layout Description")
@@ -134,7 +127,6 @@ page 9657 "Customer Report Selections"
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
                     Lookup = true;
-                    ToolTip = 'Specifies a description of the custom email body layout that is used.';
                     Visible = false;
 
                     trigger OnDrillDown()

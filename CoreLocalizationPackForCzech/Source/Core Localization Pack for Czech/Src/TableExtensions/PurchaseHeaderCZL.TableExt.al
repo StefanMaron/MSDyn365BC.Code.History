@@ -7,13 +7,12 @@ namespace Microsoft.Purchases.Document;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Setup;
 using Microsoft.Finance.Currency;
-#if not CLEAN23
-using Microsoft.Finance.EU3PartyTrade;
-#endif
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
+#if not CLEAN26
 using Microsoft.Foundation.Address;
+#endif
 using Microsoft.Foundation.BatchProcessing;
 using Microsoft.Purchases.Vendor;
 using System.Reflection;
@@ -254,6 +253,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA25
         field(11780; "VAT Date CZL"; Date)
         {
             Caption = 'VAT Date';
@@ -262,6 +262,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
             ObsoleteTag = '25.0';
             ObsoleteReason = 'Replaced by VAT Reporting Date.';
         }
+#endif
         field(11781; "Registration No. CZL"; Text[20])
         {
             Caption = 'Registration No.';
@@ -272,6 +273,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
             Caption = 'Tax Registration No.';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA25
         field(31068; "Physical Transfer CZL"; Boolean)
         {
             Caption = 'Physical Transfer';
@@ -288,6 +290,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
             ObsoleteTag = '25.0';
             ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions. This field is not used any more.';
         }
+#endif
         field(31072; "EU 3-Party Intermed. Role CZL"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
@@ -306,6 +309,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
                         "EU 3 Party Trade" := true;
             end;
         }
+#if not CLEANSCHEMA27
         field(31073; "EU 3-Party Trade CZL"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
@@ -327,6 +331,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
             end;
 #endif
         }
+#endif
         field(31112; "Original Doc. VAT Date CZL"; Date)
         {
             Caption = 'Original Document VAT Date';
@@ -338,14 +343,11 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
         GeneralLedgerSetup: Record "General Ledger Setup";
         UnreliablePayerMgtCZL: Codeunit "Unreliable Payer Mgt. CZL";
         ConfirmManagement: Codeunit "Confirm Management";
-#if not CLEAN23
-#pragma warning disable AL0432
-        EU3PartyTradeFeatMgt: Codeunit "EU3 Party Trade Feat Mgt. CZL";
-#pragma warning restore AL0432
-#endif
+#if not CLEAN26
         GlobalDocumentType: Enum "Purchase Document Type";
         GlobalDocumentNo: Code[20];
         GlobalIsIntrastatTransaction: Boolean;
+#endif
         IsConfirmedCZL: Boolean;
         UpdateExchRateQst: Label 'Do you want to update the exchange rate for VAT?';
         UpdateExchRateForAddCurrencyQst: Label 'Do you want to update the exchange rate for additional currency?';
@@ -407,7 +409,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
 
         if ("Currency Factor" <> xRec."Currency Factor") and
            ("Currency Factor" <> "VAT Currency Factor CZL") and
-           (("VAT Reporting Date" = xRec."VAT Reporting Date") or (xRec."VAT Reporting Date" = 0D))
+           ("VAT Reporting Date" = "Posting Date")
         then begin
             "VAT Currency Factor CZL" := "Currency Factor";
             if (xRec."Currency Factor" = xRec."VAT Currency Factor CZL") or
@@ -525,17 +527,8 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
         "SWIFT Code CZL" := SWIFTCode;
         OnAfterUpdateBankInfoCZL(Rec);
     end;
-
-    procedure IsIntrastatTransactionCZL(): Boolean
-    begin
-        if ("Document Type" <> GlobalDocumentType) or ("No." <> GlobalDocumentNo) or ("No." = '') then begin
-            GlobalDocumentType := "Document Type";
-            GlobalDocumentNo := "No.";
-            GlobalIsIntrastatTransaction := UpdateGlobalIsIntrastatTransaction();
-        end;
-        exit(GlobalIsIntrastatTransaction);
-    end;
-
+#if not CLEAN26
+    [Obsolete('Pending removal. Replaced by internal ShipOrReceiveInventoriableTypeItems function from Intrastat Core extension. ', '26.0')]
     procedure ShipOrReceiveInventoriableTypeItemsCZL(): Boolean
     var
         PurchaseLine: Record "Purchase Line";
@@ -548,6 +541,17 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
                 if ((PurchaseLine."Qty. to Receive" <> 0) or (PurchaseLine."Return Qty. to Ship" <> 0)) and PurchaseLine.IsInventoriableItem() then
                     exit(true);
             until PurchaseLine.Next() = 0;
+    end;
+
+    [Obsolete('Pending removal. Use IsIntrastatTransaction from Intrastat Core extension instead.', '26.0')]
+    procedure IsIntrastatTransactionCZL(): Boolean
+    begin
+        if ("Document Type" <> GlobalDocumentType) or ("No." <> GlobalDocumentNo) or ("No." = '') then begin
+            GlobalDocumentType := "Document Type";
+            GlobalDocumentNo := "No.";
+            GlobalIsIntrastatTransaction := UpdateGlobalIsIntrastatTransaction();
+        end;
+        exit(GlobalIsIntrastatTransaction);
     end;
 
     local procedure UpdateGlobalIsIntrastatTransaction(): Boolean
@@ -570,6 +574,7 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
             exit(CountryRegion.IsIntrastatCZL("VAT Country/Region Code", true));
         exit(CountryRegion.IsIntrastatCZL("Ship-to Country/Region Code", true));
     end;
+#endif
 
     procedure GetDefaulBankAccountNoCZL() BankAccountNo: Code[20]
     var
@@ -584,6 +589,8 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
 #if not CLEAN24
 
     internal procedure IsEU3PartyTradeFeatureEnabled(): Boolean
+    var
+        EU3PartyTradeFeatMgt: Codeunit Microsoft.Finance.EU3PartyTrade."EU3 Party Trade Feat Mgt. CZL";
     begin
         exit(EU3PartyTradeFeatMgt.IsEnabled());
     end;
@@ -630,11 +637,13 @@ tableextension 11705 "Purchase Header CZL" extends "Purchase Header"
     local procedure OnAfterUpdateBankInfoCZL(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
-
+#if not CLEAN26
+    [Obsolete('Pending removal. Use OnBeforeCheckIsIntrastatTransaction from Intrastat Core extension instead.', '26.0')]
     [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateGlobalIsIntrastatTransaction(PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVATDateOnBeforeCheckNeedUpdateVATCurrencyFactorCZL(var PurchaseHeader: Record "Purchase Header"; var IsIsConfirmedCZL: Boolean; var NeedUpdateVATCurrencyFactor: Boolean; xPurchaseHeader: Record "Purchase Header")

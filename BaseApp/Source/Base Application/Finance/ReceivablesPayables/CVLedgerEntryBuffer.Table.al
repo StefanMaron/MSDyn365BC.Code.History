@@ -438,24 +438,6 @@ table 382 "CV Ledger Entry Buffer"
             Editable = false;
             TableRelation = "Dimension Set Entry";
         }
-        field(31000; "Prepayment Type"; Option)
-        {
-            Caption = 'Prepayment Type';
-            DataClassification = SystemMetadata;
-            OptionCaption = ' ,Prepayment,Advance';
-            OptionMembers = " ",Prepayment,Advance;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31002; "Open For Advance Letter"; Boolean)
-        {
-            Caption = 'Open For Advance Letter';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
     }
 
     keys

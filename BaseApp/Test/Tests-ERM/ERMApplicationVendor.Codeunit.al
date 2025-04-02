@@ -33,9 +33,6 @@
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
         VendorAmount: Decimal;
-#if not CLEAN23
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
-#endif
         WrongBalancePerTransNoErr: Label 'Wrong total amount of detailed entries per transaction.';
         NoEntriesAppliedErr: Label 'Cannot post because you did not specify which entry to apply. You must specify an entry in the Applies-to ID field for one or more open entries.';
 
@@ -213,9 +210,6 @@
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure VendorUnrealizedGain()
     var
@@ -238,9 +232,6 @@
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure VendorUnrealizedLoss()
     var
@@ -263,9 +254,6 @@
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure FutureCurrAdjTransaction()
     var
@@ -321,13 +309,8 @@
         LastTransactionNo[1] := GetLastTransactionNo();
 
         // [WHEN] Run the Adjust Exchange Rates Batch job on (WorkDate() + 1)
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(
-          CurrencyCode, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
-#else
         LibraryERM.RunExchRateAdjustmentSimple(
           CurrencyCode, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
-#endif
 
         // [THEN] posted G/L Entries on different dates have different "Transaction No."
         // [THEN] Dtld. Vendor Ledger Entries have same "Transaction No." with related G/L Entries
@@ -1007,13 +990,8 @@
         Desc := GenerateDocument(GenJournalBatch, Vendor, PmtType, InvType, PmtAmount, InvAmount, '<1D>', '', Currency.Code);
 
         // Run the Adjust Exchange Rates Batch job.
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(
-            Currency.Code, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
-#else
         LibraryERM.RunExchRateAdjustmentSimple(
             Currency.Code, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
-#endif
 
         VendorApplyUnapply(Desc, Stepwise);
 
@@ -1804,15 +1782,6 @@
     begin
     end;
 
-#if not CLEAN23
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-
-#endif
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyVendorEntriesPageHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")

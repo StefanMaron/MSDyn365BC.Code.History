@@ -181,20 +181,6 @@ table 5360 "CRM Customeraddress"
             ExternalName = 'longitude';
             ExternalType = 'Double';
         }
-        field(22; ShippingMethodCode; Option)
-        {
-            Caption = 'Shipping Method';
-            Description = 'Select a shipping method for deliveries sent to this address.';
-            ExternalName = 'shippingmethodcode';
-            ExternalType = 'Picklist';
-            InitValue = " ";
-            OptionCaption = ' ,Airborne,DHL,FedEx,UPS,Postal Mail,Full Load,Will Call';
-            OptionOrdinalValues = -1, 1, 2, 3, 4, 5, 6, 7;
-            OptionMembers = " ",Airborne,DHL,FedEx,UPS,PostalMail,FullLoad,WillCall;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is replaced by field 50 ShippingMethodCodeEnum';
-            ObsoleteTag = '19.0';
-        }
         field(23; Telephone2; Text[50])
         {
             Caption = 'Phone 2';
@@ -452,4 +438,3 @@ table 5360 "CRM Customeraddress"
         }
     }
 }
-

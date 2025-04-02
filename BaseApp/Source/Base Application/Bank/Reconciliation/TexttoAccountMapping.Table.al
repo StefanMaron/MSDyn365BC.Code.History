@@ -1,4 +1,7 @@
-#pragma warning disable AS0002
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.BankAccount;
@@ -71,86 +74,14 @@ table 1251 "Text-to-Account Mapping"
             Caption = 'Vendor No.';
             TableRelation = Vendor;
         }
-        field(11701; Description; Text[50])
-        {
-            Caption = 'Description';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11705; Priority; Integer)
-        {
-            Caption = 'Priority';
-            MaxValue = 1000;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11710; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11711; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11712; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11715; "Bank Account No."; Text[30])
-        {
-            Caption = 'Bank Account No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11716; IBAN; Code[50])
-        {
-            Caption = 'IBAN';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11717; "SWIFT Code"; Code[20])
-        {
-            Caption = 'SWIFT Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11720; "Bank Transaction Type"; Option)
-        {
-            Caption = 'Bank Transaction Type';
-            OptionCaption = 'Both,+,-';
-            OptionMembers = Both,"+","-";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
     }
 
     keys
     {
-#pragma warning disable AS0009
         key(Key1; "Line No.")
         {
             Clustered = true;
         }
-#pragma warning restore AS0009
         key(Key2; "Mapping Text", "Vendor No.")
         {
             Enabled = false;
@@ -419,4 +350,3 @@ table 1251 "Text-to-Account Mapping"
     end;
 }
 
-#pragma warning restore AS0002, AS0009

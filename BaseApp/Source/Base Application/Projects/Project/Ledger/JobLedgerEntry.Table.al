@@ -113,6 +113,12 @@ table 169 "Job Ledger Entry"
             else
             if (Type = const(Resource)) "Resource Unit of Measure".Code where("Resource No." = field("No."));
         }
+        field(19; "Job Register No."; Integer)
+        {
+            Caption = 'Job Register No.';
+            Editable = false;
+            TableRelation = "Job Register";
+        }
         field(20; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
@@ -477,59 +483,6 @@ table 169 "Job Ledger Entry"
             Caption = 'Package No.';
             CaptionClass = '6,1';
         }
-        field(11763; Correction; Boolean)
-        {
-            Caption = 'Correction';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31061; "Tariff No."; Code[20])
-        {
-            Caption = 'Tariff No.';
-            TableRelation = "Tariff Number";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31062; "Statistic Indication"; Code[10])
-        {
-            Caption = 'Statistic Indication';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31063; "Intrastat Transaction"; Boolean)
-        {
-            Caption = 'Intrastat Transaction';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31064; "Country/Region of Origin Code"; Code[10])
-        {
-            Caption = 'Country/Region of Origin Code';
-            TableRelation = "Country/Region";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31065; "Shipment Method Code"; Code[10])
-        {
-            Caption = 'Shipment Method Code';
-            TableRelation = "Shipment Method";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Merge to W1';
-            ObsoleteTag = '21.0';
-        }
-        field(31066; "Net Weight"; Decimal)
-        {
-            Caption = 'Net Weight';
-            DecimalPlaces = 0 : 5;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys
@@ -540,7 +493,7 @@ table 169 "Job Ledger Entry"
         }
         key(Key2; "Job No.", "Job Task No.", "Entry Type", "Posting Date")
         {
-            SumIndexFields = "Total Cost (LCY)", "Line Amount (LCY)", "Total Cost", "Line Amount";
+            IncludedFields = "Total Cost (LCY)", "Line Amount (LCY)", "Total Cost", "Line Amount";
         }
         key(Key3; "Document No.", "Posting Date")
         {
@@ -596,6 +549,15 @@ table 169 "Job Ledger Entry"
         Job: Record Job;
         DimMgt: Codeunit DimensionManagement;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Job Ledger Entry", 'r')]
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Job Ledger Entry"));
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Job Ledger Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";

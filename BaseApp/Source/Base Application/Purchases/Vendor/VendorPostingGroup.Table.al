@@ -293,14 +293,6 @@ table 93 "Vendor Posting Group"
         {
             Caption = 'View All Accounts on Lookup';
         }
-        field(31001; "Advance Account"; Code[20])
-        {
-            Caption = 'Advance Account';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
     }
 
     keys

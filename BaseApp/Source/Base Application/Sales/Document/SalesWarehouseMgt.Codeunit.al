@@ -16,9 +16,6 @@ using Microsoft.Warehouse.Worksheet;
 codeunit 5991 "Sales Warehouse Mgt."
 {
     var
-#if not CLEAN23
-        WMSManagement: Codeunit "WMS Management";
-#endif
         WhseManagement: Codeunit "Whse. Management";
         WhseValidateSourceHeader: Codeunit "Whse. Validate Source Header";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
@@ -36,9 +33,6 @@ codeunit 5991 "Sales Warehouse Mgt."
             SalesLine.SetRange("Document No.", SourceNo);
             SalesLine.SetRange("Line No.", SourceLineNo);
             IsHandled := false;
-#if not CLEAN23
-            WMSManagement.RunOnShowSourceDocLineOnBeforeShowSalesLines(SalesLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
-#endif
             OnBeforeShowSalesLines(SalesLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
             if not IsHandled then
                 ShowSalesLines(SalesLine);
@@ -125,9 +119,6 @@ codeunit 5991 "Sales Warehouse Mgt."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN23
-        WhseValidateSourceLine.RunOnBeforeSalesLineVerifyChange(NewSalesLine, OldSalesLine, IsHandled);
-#endif
         OnBeforeSalesLineVerifyChange(NewSalesLine, OldSalesLine, IsHandled);
         if IsHandled then
             exit;
@@ -155,9 +146,6 @@ codeunit 5991 "Sales Warehouse Mgt."
         WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo("Shipment Date"));
 
         OnAfterSalesLineVerifyChange(NewRecordRef, OldRecordRef);
-#if not CLEAN23
-        WhseValidateSourceLine.RunOnAfterSalesLineVerifyChange(NewRecordRef, OldRecordRef);
-#endif
     end;
 
     procedure SalesLineDelete(var SalesLine: Record "Sales Line")
@@ -169,9 +157,6 @@ codeunit 5991 "Sales Warehouse Mgt."
             WhseValidateSourceLine.RaiseCannotBeDeletedErr(SalesLine.TableCaption());
 
         OnAfterSalesLineDelete(SalesLine);
-#if not CLEAN23
-        WhseValidateSourceLine.RunOnAfterSalesLineDelete(SalesLine);
-#endif        
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Validate Source Line", 'OnWhseLineExistOnBeforeCheckReceipt', '', false, false)]
@@ -230,9 +215,6 @@ codeunit 5991 "Sales Warehouse Mgt."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN23
-        WhseValidateSourceHeader.RunOnBeforeSalesHeaderVerifyChange(NewSalesHeader, OldSalesHeader, IsHandled);
-#endif
         OnBeforeSalesHeaderVerifyChange(NewSalesHeader, OldSalesHeader, IsHandled);
         if IsHandled then
             exit;
@@ -288,9 +270,6 @@ codeunit 5991 "Sales Warehouse Mgt."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnBeforeFromSalesLine2ShptLine(SalesLine, Result, IsHandled);
-#endif
         OnBeforeFromSalesLine2ShptLine(SalesLine, Result, IsHandled, WarehouseShipmentHeader);
         if IsHandled then
             exit(Result);
@@ -302,9 +281,6 @@ codeunit 5991 "Sales Warehouse Mgt."
         if SalesLine.AsmToOrderExists(AssemblyHeader) then begin
             ATOWhseShptLineQty := AssemblyHeader."Remaining Quantity" - SalesLine."ATO Whse. Outstanding Qty.";
             ATOWhseShptLineQtyBase := AssemblyHeader."Remaining Quantity (Base)" - SalesLine."ATO Whse. Outstd. Qty. (Base)";
-#if not CLEAN23
-            WhseCreateSourceDocument.RunOnFromSalesLine2ShptLineOnBeforeCreateATOShipmentLine(WarehouseShipmentHeader, AssemblyHeader, SalesLine, ATOWhseShptLineQty, ATOWhseShptLineQtyBase);
-#endif
             OnFromSalesLine2ShptLineOnBeforeCreateATOShipmentLine(WarehouseShipmentHeader, AssemblyHeader, SalesLine, ATOWhseShptLineQty, ATOWhseShptLineQtyBase);
             if ATOWhseShptLineQtyBase > 0 then begin
                 if not CreateShptLineFromSalesLine(WarehouseShipmentHeader, SalesLine, ATOWhseShptLineQty, ATOWhseShptLineQtyBase, true) then
@@ -314,9 +290,6 @@ codeunit 5991 "Sales Warehouse Mgt."
             end;
         end;
 
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnFromSalesLine2ShptLineOnBeforeCreateShipmentLine(WarehouseShipmentHeader, SalesLine, TotalOutstandingWhseShptQty, TotalOutstandingWhseShptQtyBase);
-#endif
         OnFromSalesLine2ShptLineOnBeforeCreateShipmentLine(WarehouseShipmentHeader, SalesLine, TotalOutstandingWhseShptQty, TotalOutstandingWhseShptQtyBase);
 
         if TotalOutstandingWhseShptQtyBase > 0 then
@@ -344,9 +317,6 @@ codeunit 5991 "Sales Warehouse Mgt."
           SalesLine."No.", SalesLine.Description, SalesLine."Description 2", SalesLine."Location Code",
           SalesLine."Variant Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
           SalesLine."Qty. Rounding Precision", SalesLine."Qty. Rounding Precision (Base)");
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnAfterInitNewWhseShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, AssembleToOrder);
-#endif
         IsHandled := false;
         Return := false;
         OnAfterInitNewWhseShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, AssembleToOrder, WhseShptLineQty, WhseShptLineQtyBase, IsHandled, Return);
@@ -370,14 +340,8 @@ codeunit 5991 "Sales Warehouse Mgt."
         if WarehouseShipmentLine."Bin Code" = '' then
             WarehouseShipmentLine."Bin Code" := SalesLine."Bin Code";
         WhseCreateSourceDocument.UpdateShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnBeforeCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
-#endif
         OnBeforeCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
         WhseCreateSourceDocument.CreateShipmentLine(WarehouseShipmentLine);
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnAfterCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
-#endif
         OnAfterCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
         exit(not WarehouseShipmentLine.HasErrorOccured());
     end;
@@ -389,9 +353,6 @@ codeunit 5991 "Sales Warehouse Mgt."
         Result: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnBeforeSalesLine2ReceiptLine(WarehouseReceiptHeader, SalesLine, Result, IsHandled);
-#endif
         OnBeforeSalesLine2ReceiptLine(WarehouseReceiptHeader, SalesLine, Result, IsHandled);
         if IsHandled then
             exit(Result);
@@ -403,9 +364,6 @@ codeunit 5991 "Sales Warehouse Mgt."
             SalesLine."No.", SalesLine.Description, SalesLine."Description 2", SalesLine."Location Code",
             SalesLine."Variant Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
             SalesLine."Qty. Rounding Precision", SalesLine."Qty. Rounding Precision (Base)");
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnSalesLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, SalesLine);
-#endif
         OnSalesLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, SalesLine);
         case SalesLine."Document Type" of
             SalesLine."Document Type"::Order:
@@ -425,19 +383,10 @@ codeunit 5991 "Sales Warehouse Mgt."
             WarehouseReceiptLine."Bin Code" := WarehouseReceiptHeader."Bin Code";
         if WarehouseReceiptLine."Bin Code" = '' then
             WarehouseReceiptLine."Bin Code" := SalesLine."Bin Code";
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnSalesLine2ReceiptLineOnBeforeUpdateReceiptLine(WarehouseReceiptLine, SalesLine);
-#endif
         OnSalesLine2ReceiptLineOnBeforeUpdateReceiptLine(WarehouseReceiptLine, SalesLine);
         WhseCreateSourceDocument.UpdateReceiptLine(WarehouseReceiptLine, WarehouseReceiptHeader);
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnBeforeCreateReceiptLineFromSalesLine(WarehouseReceiptLine, WarehouseReceiptHeader, SalesLine);
-#endif
         OnBeforeCreateReceiptLineFromSalesLine(WarehouseReceiptLine, WarehouseReceiptHeader, SalesLine);
         WhseCreateSourceDocument.CreateReceiptLine(WarehouseReceiptLine);
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnAfterCreateRcptLineFromSalesLine(WarehouseReceiptLine, WarehouseReceiptHeader, SalesLine);
-#endif
         OnAfterCreateRcptLineFromSalesLine(WarehouseReceiptLine, WarehouseReceiptHeader, SalesLine);
         exit(not WarehouseReceiptLine.HasErrorOccured());
     end;
@@ -454,9 +403,6 @@ codeunit 5991 "Sales Warehouse Mgt."
     begin
         IsHandled := false;
         ReturnValue := false;
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnBeforeCheckIfSalesLine2ShptLine(SalesLine, ReturnValue, IsHandled);
-#endif
         OnBeforeCheckIfSalesLine2ShptLine(SalesLine, ReturnValue, IsHandled);
         if IsHandled then
             exit(ReturnValue);
@@ -480,9 +426,6 @@ codeunit 5991 "Sales Warehouse Mgt."
     begin
         IsHandled := false;
         ReturnValue := false;
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnBeforeCheckIfSalesLine2ReceiptLine(SalesLine, ReturnValue, IsHandled);
-#endif
         OnBeforeCheckIfSalesLine2ReceiptLine(SalesLine, ReturnValue, IsHandled);
         if IsHandled then
             exit(ReturnValue);

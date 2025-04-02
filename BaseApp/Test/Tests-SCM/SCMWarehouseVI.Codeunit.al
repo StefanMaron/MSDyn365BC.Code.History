@@ -20,7 +20,6 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryPlanning: Codeunit "Library - Planning";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -1009,8 +1008,8 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
         // [GIVEN] Quantity on inventory is greater than zero for both items
-        LibraryPatterns.POSTPositiveAdjustment(Item[1], Location.Code, '', '', 1, WorkDate(), 0);
-        LibraryPatterns.POSTPositiveAdjustment(Item[2], Location.Code, '', '', 1, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item[1], Location.Code, '', '', 1, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item[2], Location.Code, '', '', 1, WorkDate(), 0);
 
         // [GIVEN] Calculate physical inventory
         CalcPhysInvtDatesAndRunCalculateCountingPeriodInPhysInvtJournal(
@@ -1047,9 +1046,9 @@ codeunit 137408 "SCM Warehouse VI"
 
         // [GIVEN] Quantity on inventory is greater than zero for both SKUs
         Item.Get(SKU[1]."Item No.");
-        LibraryPatterns.POSTPositiveAdjustment(Item, SKU[1]."Location Code", '', '', 1, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item, SKU[1]."Location Code", '', '', 1, WorkDate(), 0);
         Item.Get(SKU[2]."Item No.");
-        LibraryPatterns.POSTPositiveAdjustment(Item, SKU[2]."Location Code", '', '', 1, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item, SKU[2]."Location Code", '', '', 1, WorkDate(), 0);
 
         // [GIVEN] Calculate physical inventory
         CalcPhysInvtDatesAndRunCalculateCountingPeriodInPhysInvtJournal(

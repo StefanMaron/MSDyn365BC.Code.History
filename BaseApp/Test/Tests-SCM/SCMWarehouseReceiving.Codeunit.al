@@ -78,6 +78,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         ReceiptBinCodeErr: Label 'Bin Code Should be Receipt Bin Code of Location';
         PickQuantityBaseErr: Label 'Pick Quantity (Base) was Calculated incorrectly';
         WarehouseHeaderDeleteConfirmationMsg: Label 'The Whse. Receipt is not completely received.\Do you really want to delete the Whse. Receipt?';
+        ExceedsErr: Label 'exceeds the available capacity';
         FromBinBlankErr: Label 'From Bin Should be blank';
 
     [Test]
@@ -4150,6 +4151,71 @@ codeunit 137152 "SCM Warehouse - Receiving"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerEnqueueQuestion')]
+    procedure AllowCheckBinPolicyOnPutAwayWithMaxQtyViolationTest()
+    begin
+        CheckBinCapacityPolicyHandledAsDifferentCapacitySetups(LocationWhite."Bin Capacity Policy"::"Allow More Than Max. Capacity");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProhibitCheckBinPolicyOnPutAwayWithMaxQtyViolationTest()
+    begin
+        CheckBinCapacityPolicyHandledAsDifferentCapacitySetups(LocationWhite."Bin Capacity Policy"::"Prohibit More Than Max. Cap.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProhibitCheckBinPolicyWithNoMaxQtySetAndCubViolationTest()
+    var
+        Bin: Record Bin;
+        Bin2: Record Bin;
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseEmployee: Record "Warehouse Employee";
+        Quantity: Decimal;
+        Quantity2: Decimal;
+    begin
+        // Setup: Create Bins with Maximum Quantity. Create and Release Purchase Order.
+        Initialize();
+        Quantity := LibraryRandom.RandInt(50);
+        Quantity2 := Quantity + LibraryRandom.RandInt(50);
+        LibraryInventory.CreateItem(Item);
+        CreateBinAndUpdateBinContent(Bin, Item, LocationWhite.Code, Quantity, true);
+        CreateBinAndUpdateBinContent(Bin2, Item, LocationWhite.Code, Quantity2, true);
+
+        // [GIVEN] 'Bin Capacity Policy' is set
+        LocationWhite.Validate("Bin Capacity Policy", LocationWhite."Bin Capacity Policy"::"Prohibit More Than Max. Cap.");
+        LocationWhite.Modify(true);
+
+        // [GIVEN] Max weight on the Bin is set
+        Bin.Validate("Maximum Cubage", Quantity);
+        Bin.Modify(true);
+
+        // [GIVEN] Current user added as an warehouse employee
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, false);
+
+        // [GIVEN] Item with weight set on the unit of measure
+        ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        ItemUnitOfMeasure.Validate(Cubage, 1);
+        ItemUnitOfMeasure.Modify(true);
+
+        // [WHEN] Create and Post Warehouse Receipt
+        CreatePurchaseOrderAndPostWarehouseReceipt(PurchaseHeader, LocationWhite.Code, Item."No.", Quantity + Quantity2, Item."Base Unit of Measure");
+        FilterWarehouseActivityLinesWithBinCode(
+            WarehouseActivityLine, WarehouseActivityHeader."Source Document"::"Purchase Order",
+            PurchaseHeader."No.", '', WarehouseActivityLine."Activity Type"::"Put-away", Item."No.", Bin2.Code);
+
+        // [THEN] Error is thrown for max. Qty. violation
+        asserterror UpdateWarehouseActivityLineQty(WarehouseActivityLine, Bin.Code);
+        Assert.ExpectedError(ExceedsErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     [HandlerFunctions('SetLotItemWithQtyToHandleTrackingPageHandler,ConfirmHandlerTrue')]
     procedure CreateMovementFromMovementWorksheetWithExpirationDateOfFEFOItem()
     var
@@ -6576,6 +6642,73 @@ codeunit 137152 "SCM Warehouse - Receiving"
             LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[i]);
     end;
 
+    procedure CheckBinCapacityPolicyHandledAsDifferentCapacitySetups(BinCapacityPolicy: Option "Never Check Capacity","Allow More Than Max. Capacity","Prohibit More Than Max. Cap.")
+    var
+        Bin: Record Bin;
+        Bin2: Record Bin;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        Quantity: Decimal;
+        Quantity2: Decimal;
+    begin
+        // Setup: Create Bins with Maximum Quantity. Create and Release Purchase Order.
+        Initialize();
+        Quantity := LibraryRandom.RandInt(50);
+        Quantity2 := Quantity + LibraryRandom.RandInt(50);
+
+        LibraryInventory.CreateItem(Item);
+        CreateBinAndUpdateBinContent(Bin, Item, LocationWhite.Code, Quantity, true);
+        CreateBinAndUpdateBinContent(Bin2, Item, LocationWhite.Code, Quantity2, true);
+
+        // [GIVEN] 'Bin Capacity Policy' is set
+        LocationWhite.Validate("Always Create Put-away Line", true);
+        LocationWhite.Validate("Bin Capacity Policy", BinCapacityPolicy);
+        LocationWhite.Modify(true);
+
+        // [WHEN] Create and Post Warehouse Receipt
+        CreatePurchaseOrderAndPostWarehouseReceipt(PurchaseHeader, LocationWhite.Code, Item."No.", Quantity + Quantity2, Item."Base Unit of Measure");
+        FilterWarehouseActivityLinesWithBinCode(
+            WarehouseActivityLine, WarehouseActivityHeader."Source Document"::"Purchase Order",
+            PurchaseHeader."No.", '', WarehouseActivityLine."Activity Type"::"Put-away", Item."No.", Bin2.Code);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."activity Type", WarehouseActivityLine."No.");
+
+        // [THEN] Error is thrown for max. Qty. violation
+        LibraryVariableStorage.Enqueue(true);
+        if (BinCapacityPolicy = BinCapacityPolicy::"Prohibit More Than Max. Cap.") then begin
+            asserterror UpdateWarehouseActivityLineQty(WarehouseActivityLine, Bin.Code);
+            Assert.ExpectedError(ExceedsErr);
+        end else
+            UpdateWarehouseActivityLineQty(WarehouseActivityLine, Bin.Code);
+
+        // [THEN] Expected confirmations are shown
+        if BinCapacityPolicy = BinCapacityPolicy::"Allow More Than Max. Capacity" then
+            Assert.ExpectedConfirm(ExceedsErr, LibraryVariableStorage.DequeueText());
+    end;
+
+    local procedure FilterWarehouseActivityLinesWithBinCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; SourceNo2: Code[20]; ActivityType: Enum "Warehouse Activity Type"; Itemno: code[20]; BinCode: Code[20])
+    begin
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetFilter("Source No.", '%1|%2', SourceNo, SourceNo2);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Bin Code", BinCode);
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.FindSet();
+    end;
+
+    local procedure UpdateWarehouseActivityLineQty(var WarehouseActivityLine: Record "Warehouse Activity Line"; BinCode: Code[20])
+    var
+        WarehousePutAwayPage: TestPage "Warehouse Put-away";
+    begin
+        WarehousePutAwayPage.OpenEdit();
+        WarehousePutAwayPage.Filter.SetFilter("No.", WarehouseActivityLine."No.");
+        WarehousePutAwayPage.WhseActivityLines.Filter.SetFilter("Line No.", Format(WarehouseActivityLine."Line No."));
+        WarehousePutAwayPage.WhseActivityLines."Bin Code".SetValue(BinCode);
+        WarehousePutAwayPage.Close();
+    end;
+
     local procedure VerifyWarehouseActivityLineWithBin(ItemNo: Code[20]; TakeBin: Code[20]; PlaceBin: Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -6908,5 +7041,13 @@ codeunit 137152 "SCM Warehouse - Receiving"
         CreateWhsePutAwayPick.CreateInventorytPutAway.SetValue(true);
         CreateWhsePutAwayPick.OK().Invoke();
     end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerEnqueueQuestion(Question: Text; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean();
+        LibraryVariableStorage.Enqueue(Question);
+    end;
+
 }
 

@@ -1,4 +1,4 @@
-﻿namespace Microsoft.HumanResources.Payables;
+namespace Microsoft.HumanResources.Payables;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -166,14 +166,6 @@ table 5223 "Detailed Employee Ledger Entry"
             Caption = 'Exch. Rate Adjmt. Reg. No.';
             Editable = false;
             TableRelation = "Exch. Rate Adjmt. Reg.";
-        }
-        field(11768; "Employee Posting Group"; Code[20])
-        {
-            Caption = 'Employee Posting Group';
-            TableRelation = "Employee Posting Group";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
         }
     }
 

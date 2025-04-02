@@ -177,7 +177,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
         OnEntriesExistOnAfterGetItem(Item, AvgCostCalcOverview);
 
         ValueEntry.Reset();
-        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
+        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code", "Entry No.");
         ValueEntry.SetRange("Item No.", AvgCostCalcOverview."Item No.");
 
         if Item."Costing Method" = Item."Costing Method"::Average then begin

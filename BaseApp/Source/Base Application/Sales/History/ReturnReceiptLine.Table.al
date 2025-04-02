@@ -12,6 +12,7 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
@@ -326,6 +327,16 @@ table 6661 "Return Receipt Line"
                 Rec.ShowDimensions();
             end;
         }
+        field(1001; "Job Task No."; Code[20])
+        {
+            Caption = 'Project Task No.';
+            TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
+        }
+        field(1002; "Job Contract Entry No."; Integer)
+        {
+            BlankZero = true;
+            Caption = 'Project Contract Entry No.';
+        }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
@@ -390,36 +401,6 @@ table 6661 "Return Receipt Line"
             TableRelation = "Responsibility Center";
             ValidateTableRelation = true;
         }
-        field(5705; "Cross-Reference No."; Code[20])
-        {
-            Caption = 'Cross-Reference No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
-        {
-            Caption = 'Unit of Measure (Cross Ref.)';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5707; "Cross-Reference Type"; Option)
-        {
-            Caption = 'Cross-Reference Type';
-            OptionCaption = ' ,Customer,Vendor,Bar Code';
-            OptionMembers = " ",Customer,Vendor,"Bar Code";
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5708; "Cross-Reference Type No."; Code[30])
-        {
-            Caption = 'Cross-Reference Type No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
         field(5709; "Item Category Code"; Code[20])
         {
             Caption = 'Item Category Code';
@@ -433,13 +414,6 @@ table 6661 "Return Receipt Line"
         {
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
-        }
-        field(5712; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(5725; "Item Reference No."; Code[50])
         {
@@ -510,14 +484,6 @@ table 6661 "Return Receipt Line"
         {
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
-        }
-        field(11762; "Reason Code"; Code[10])
-        {
-            Caption = 'Reason Code';
-            TableRelation = "Reason Code";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
         }
     }
 
@@ -796,8 +762,7 @@ table 6661 "Return Receipt Line"
     procedure GetSalesCrMemoLines(var TempSalesCrMemoLine: Record "Sales Cr.Memo Line" temporary)
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        ValueItemLedgerEntries: Query "Value Item Ledger Entries";
     begin
         TempSalesCrMemoLine.Reset();
         TempSalesCrMemoLine.DeleteAll();
@@ -805,25 +770,20 @@ table 6661 "Return Receipt Line"
         if Type <> Type::Item then
             exit;
 
-        FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-        ItemLedgEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ItemLedgEntry.FindSet() then begin
-            ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
-            ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
-            ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-            repeat
-                ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-                if ValueEntry.FindSet() then
-                    repeat
-                        if ValueEntry."Document Type" = ValueEntry."Document Type"::"Sales Credit Memo" then
-                            if SalesCrMemoLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.") then begin
-                                TempSalesCrMemoLine.Init();
-                                TempSalesCrMemoLine := SalesCrMemoLine;
-                                if TempSalesCrMemoLine.Insert() then;
-                            end;
-                    until ValueEntry.Next() = 0;
-            until ItemLedgEntry.Next() = 0;
-        end;
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_No, "Document No.");
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Type, Enum::"Item Ledger Document Type"::"Sales Return Receipt");
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Line_No, "Line No.");
+        ValueItemLedgerEntries.SetFilter(Item_Ledg_Invoice_Quantity, '<>0');
+        ValueItemLedgerEntries.SetRange(Value_Entry_Type, Enum::"Cost Entry Type"::"Direct Cost");
+        ValueItemLedgerEntries.SetFilter(Value_Entry_Invoiced_Qty, '<>0');
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Type, Enum::"Item Ledger Document Type"::"Sales Credit Memo");
+        ValueItemLedgerEntries.Open();
+        while ValueItemLedgerEntries.Read() do
+            if SalesCrMemoLine.Get(ValueItemLedgerEntries.Value_Entry_Doc_No, ValueItemLedgerEntries.Value_Entry_Doc_Line_No) then begin
+                TempSalesCrMemoLine.Init();
+                TempSalesCrMemoLine := SalesCrMemoLine;
+                if TempSalesCrMemoLine.Insert() then;
+            end;
     end;
 
     procedure FilterPstdDocLnItemLedgEntries(var ItemLedgEntry: Record "Item Ledger Entry")
@@ -1004,4 +964,3 @@ table 6661 "Return Receipt Line"
     begin
     end;
 }
-

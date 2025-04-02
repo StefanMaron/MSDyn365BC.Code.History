@@ -129,6 +129,7 @@ page 5780 "Whse. Pick Subform"
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the item to be handled, such as received, put-away, or assigned.';
+                    Editable = (Rec."Activity Type" = Rec."Activity Type"::Pick) and (Rec."Source Document" = Rec."Source Document"::"Prod. Consumption") and (Rec."Action Type" = Rec."Action Type"::Take);
                 }
                 field("Qty. (Base)"; Rec."Qty. (Base)")
                 {

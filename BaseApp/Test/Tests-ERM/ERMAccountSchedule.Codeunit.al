@@ -74,6 +74,7 @@ codeunit 134902 "ERM Account Schedule"
         AlreadyExistsFinRepErr: Label 'Financial report %1 will be overwritten.', Comment = '%1 - name of the financial report.';
         ColDefinitionAlreadyExistsErr: Label 'Column definition %1 will be overwritten.', Comment = '%1 - name of the column definition.';
         NoTablesAndErrorsMsg: Label '%1 tables are processed.\%2 errors found.\%3 records inserted.\%4 records modified.', Comment = '%1 = number of tables processed, %2 = number of errors, %3 = number of records inserted, %4 = number of records modified';
+        RoundingFormatTxt: Label '<Precision,2:2><Standard Format,0>', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -2987,31 +2988,6 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure AccScheduleVerifyFormulaMessage()
-    var
-        AccScheduleLine: Record "Acc. Schedule Line";
-        ColumnLayout: Record "Column Layout";
-    begin
-        exit; // NAVCZ Czech Localization has Account Schedule Formula Drill-Down Page
-        // [SCENARIO 379134] Drill Down on Account Schedule cell with Formula in Acc. Schedule line shows message with row formula
-        Initialize();
-
-        // [GIVEN] Acc. Schedule Line with Totaling Type = Formula
-        CreateColumnLayout(ColumnLayout);
-        CreateMultiAccountScheduleLine(AccScheduleLine, ColumnLayout."Column Layout Name", '',
-          '', '', AccScheduleLine."Totaling Type"::Formula, false);
-
-        // [WHEN] Drill Down on Cell with formula
-        OpenAccountScheduleOverviewPage(AccScheduleLine."Schedule Name");
-        // AccScheduleOverviewDrillDownHandler will exercise drilldown.
-
-        // [THEN] Message with row formula is displayed
-        // Verification is done by RowMessageHandler
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
     [HandlerFunctions('AccScheduleOverviewDrillDownHandler,ChartOfAccountsDrillDownPageHandler')]
     [Scope('OnPrem')]
     procedure AccScheduleVerifySourcePageDisplayed()
@@ -3716,6 +3692,84 @@ codeunit 134902 "ERM Account Schedule"
         // [THEN] Calculated amount must be equal to 200 (the only Closing Date amount involved)
         GLAccount.CalcFields("Balance at Date");
         Assert.AreEqual(Amount * 2, GLAccount."Balance at Date", GLAccount.FieldCaption("Balance at Date"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLAccNetChangeFilteredByMonthToDate()
+    var
+        GLAccount: Record "G/L Account";
+        ColumnLayout: Record "Column Layout";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Date Filter] [Month to Date] [Net Change]
+        // [SCENARIO] Month to date column should only include net change from the last month of the date filter
+
+        // [GIVEN] "G/L Account" = "A"
+        // [GIVEN] "G/L Entry" with Posting Date = "15022025" (today) and Amount = 100 for "A"
+        // [GIVEN] "G/L Entry" with Posting Date = "15012025" (1 month ago) and Amount = 200 for "A"
+        // [GIVEN] "G/L Entry" with Posting Date = "01032025" (start of next month) and Amount = 400 for "A"
+        Initialize();
+        LibraryERM.CreateGLAccount(GLAccount);
+        Amount := LibraryRandom.RandDec(100, 2);
+        MockGLEntry(Amount, WorkDate(), GLAccount."No.");
+        MockGLEntry(Amount * 2, CalcDate('<-1M>', WorkDate()), GLAccount."No.");
+        MockGLEntry(Amount * 4, CalcDate('<CM+1D>', WorkDate()), GLAccount."No.");
+
+        // [GIVEN] Account Schedule Line with Row Type = "Net Change" and Column Layout with type "Month to Date"
+        // [GIVEN] View = "Year", "Date Filter" = "15012025..28022025" (1 month ago to end of this month)
+        CreatePostingAccountsAccScheduleLine(
+          ColumnLayout, AccScheduleLine, GLAccount."No.", ColumnLayout."Column Type"::"Month to Date");
+        AccScheduleLine."Row Type" := AccScheduleLine."Row Type"::"Net Change";
+        AccScheduleLine.Modify();
+        ResetComparisonFormulasOnColumnLayout(ColumnLayout);
+
+        // [WHEN] Account Schedule Management (Codeunit 8) applies filter on given G/L Account
+        AccScheduleLine.SetRange("Date Filter", CalcDate('<-1M>', WorkDate()), CalcDate('<CM>', WorkDate()));
+        AccScheduleManagementApplyFiltersOnGLAccount(AccScheduleLine, ColumnLayout, GLAccount);
+
+        // [THEN] Calculated amount must be equal to 200 (only entries from with the current month)
+        GLAccount.CalcFields("Net Change");
+        Assert.AreEqual(Amount, GLAccount."Net Change", GLAccount.FieldCaption("Net Change"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLAccBeginningBalanceFilteredByMonthToDate()
+    var
+        GLAccount: Record "G/L Account";
+        ColumnLayout: Record "Column Layout";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Date Filter] [Month to Date] [Beginning Balance]
+        // [SCENARIO] Month to date column should only include beginning balance until the closing of last month
+
+        // [GIVEN] "G/L Account" = "A"
+        // [GIVEN] "G/L Entry" with Posting Date = "15022025" (today) and Amount = 100 for "A"
+        // [GIVEN] "G/L Entry" with Posting Date = "15012025" (1 month ago) and Amount = 200 for "A"
+        // [GIVEN] "G/L Entry" with Posting Date = "C31012025" (closing of last month) and Amount = 400 for "A"
+        Initialize();
+        LibraryERM.CreateGLAccount(GLAccount);
+        Amount := LibraryRandom.RandDec(100, 2);
+        MockGLEntry(Amount, WorkDate(), GLAccount."No.");
+        MockGLEntry(Amount * 2, CalcDate('<-1M>', WorkDate()), GLAccount."No.");
+        MockGLEntry(Amount * 4, ClosingDate(CalcDate('<-CM-1D>', WorkDate())), GLAccount."No.");
+
+        // [GIVEN] Account Schedule Line with Row Type = "Beginning Balance" and Column Layout with type "Month to Date"
+        // [GIVEN] View = "Year", "Date Filter" = "15012025..28022025" (1 month ago to end of this month)
+        CreatePostingAccountsAccScheduleLine(
+          ColumnLayout, AccScheduleLine, GLAccount."No.", ColumnLayout."Column Type"::"Month to Date");
+        ResetComparisonFormulasOnColumnLayout(ColumnLayout);
+
+        // [WHEN] Account Schedule Management (Codeunit 8) applies filter on given G/L Account
+        AccScheduleLine.SetRange("Date Filter", CalcDate('<-1M>', WorkDate()), CalcDate('<CM>', WorkDate()));
+        AccScheduleManagementApplyFiltersOnGLAccount(AccScheduleLine, ColumnLayout, GLAccount);
+
+        // [THEN] Calculated amount must be equal to 600 (only entries from last month until the closing date)
+        GLAccount.CalcFields("Net Change");
+        Assert.AreEqual(Amount * 2 + Amount * 4, GLAccount."Net Change", GLAccount.FieldCaption("Net Change"));
     end;
 
     [Test]
@@ -5557,6 +5611,207 @@ codeunit 134902 "ERM Account Schedule"
         LibraryReportDataset.AssertElementWithValueExists(
           'PeriodText',
           PeriodTextCaptionLbl + Format(StartDate) + '..' + Format(EndDate));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccountScheduleOverviewNegativeFormatMinusSign()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        FinancialReport: Record "Financial Report";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        FinancialReports: TestPage "Financial Reports";
+        Amount: Decimal;
+    begin
+        // [SCENARIO] When using minus sign as negative format, a negative amount should be displayed with a minus sign on the page
+        Initialize();
+
+        // [GIVEN] An account schedule line with negative value
+        Amount := -LibraryRandom.RandDec(100, 2);
+        SetupForAccountScheduleOverviewPage(
+          AccScheduleLine, Enum::"Column Layout Show"::Always, Amount, Enum::"Analysis Rounding Factor"::None, '');
+        FinancialReport.Get(AccScheduleLine."Schedule Name");
+        FinancialReport."Financial Report Column Group" := LibraryVariableStorage.DequeueText();
+        FinancialReport.Modify();
+
+        // [WHEN] Account schedule overview is opened with negative amount format as minus sign
+        FinancialReports.OpenView();
+        FinancialReports.FILTER.SetFilter(Name, AccScheduleLine."Schedule Name");
+        AccScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+        AccScheduleOverview.NegativeAmountFormat.Value(Format(Enum::"Analysis Negative Format"::"Minus Sign"));
+
+        // [THEN] Negative amount is displayed with a minus sign
+        AccScheduleOverview.GoToRecord(AccScheduleLine);
+        AccScheduleOverview.ColumnValues1.AssertEquals(Format(Amount, 0, RoundingFormatTxt));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccountScheduleOverviewNegativeFormatParentheses()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        FinancialReport: Record "Financial Report";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        FinancialReports: TestPage "Financial Reports";
+        Amount: Decimal;
+    begin
+        // [SCENARIO] When using parentheses as negative format, a negative amount should be displayed with parentheses on the page
+        Initialize();
+
+        // [GIVEN] An account schedule line with negative value
+        Amount := -LibraryRandom.RandDec(100, 2);
+        SetupForAccountScheduleOverviewPage(
+          AccScheduleLine, Enum::"Column Layout Show"::Always, Amount, Enum::"Analysis Rounding Factor"::None, '');
+        FinancialReport.Get(AccScheduleLine."Schedule Name");
+        FinancialReport."Financial Report Column Group" := LibraryVariableStorage.DequeueText();
+        FinancialReport.Modify();
+
+        // [WHEN] Account schedule overview is opened with negative amount format as parentheses
+        FinancialReports.OpenView();
+        FinancialReports.FILTER.SetFilter(Name, AccScheduleLine."Schedule Name");
+        AccScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+        AccScheduleOverview.NegativeAmountFormat.Value(Format(Enum::"Analysis Negative Format"::Parentheses));
+
+        // [THEN] Negative amount is displayed with parentheses
+        AccScheduleOverview.GoToRecord(AccScheduleLine);
+        AccScheduleOverview.ColumnValues1.AssertEquals('(' + Format(Abs(Amount), 0, RoundingFormatTxt) + ')');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('AccountScheduleSetNegativeFormatRequestHandler')]
+    procedure AccountScheduleReportNegativeFormatParentheses()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        FinancialReport: Record "Financial Report";
+        Amount: Decimal;
+        ReportParameters: Text;
+    begin
+        // [SCENARIO] When using parentheses as negative format, a negative amount should be displayed with parentheses in the report
+        Initialize();
+
+        // [GIVEN] An account schedule line with negative value
+        Amount := -LibraryRandom.RandDec(100, 2);
+        SetupForAccountScheduleOverviewPage(
+          AccScheduleLine, Enum::"Column Layout Show"::Always, Amount, Enum::"Analysis Rounding Factor"::None, '');
+        FinancialReport.Get(AccScheduleLine."Schedule Name");
+        FinancialReport."Financial Report Column Group" := LibraryVariableStorage.DequeueText();
+        FinancialReport.Modify();
+        AccScheduleName.Get(AccScheduleLine."Schedule Name");
+        Commit();
+
+        // [WHEN] Run Account Schedule report with negative amount format as parentheses
+        LibraryVariableStorage.Enqueue(FinancialReport."Financial Report Row Group");
+        LibraryVariableStorage.Enqueue(FinancialReport."Financial Report Column Group");
+        LibraryVariableStorage.Enqueue(Enum::"Analysis Negative Format"::Parentheses);
+        // Handled by AccountScheduleSetNegativeFormatRequestHandler
+        ReportParameters := Report.RunRequestPage(Report::"Account Schedule");
+        LibraryReportDataset.RunReportAndLoad(Report::"Account Schedule", AccScheduleName, ReportParameters);
+
+        // [THEN] Negative amount is displayed with parentheses
+        LibraryReportDataset.AssertElementWithValueExists('ColumnValuesAsText', StrSubstNo('(%1)', Format(Amount).TrimStart('-')));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('AccountScheduleSetNegativeFormatRequestHandler')]
+    procedure AccountScheduleReportNegativeFormatMinusSign()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        FinancialReport: Record "Financial Report";
+        Amount: Decimal;
+        ReportParameters: Text;
+    begin
+        // [SCENARIO] When using minus sign as negative format, a negative amount should be displayed with minus sign in the report
+        Initialize();
+
+        // [GIVEN] An account schedule line with negative value
+        Amount := -LibraryRandom.RandDec(100, 2);
+        SetupForAccountScheduleOverviewPage(
+          AccScheduleLine, Enum::"Column Layout Show"::Always, Amount, Enum::"Analysis Rounding Factor"::None, '');
+        FinancialReport.Get(AccScheduleLine."Schedule Name");
+        FinancialReport."Financial Report Column Group" := LibraryVariableStorage.DequeueText();
+        FinancialReport.Modify();
+        AccScheduleName.Get(AccScheduleLine."Schedule Name");
+        Commit();
+
+        // [WHEN] Run Account Schedule report with negative amount format as minus sign
+        LibraryVariableStorage.Enqueue(FinancialReport."Financial Report Row Group");
+        LibraryVariableStorage.Enqueue(FinancialReport."Financial Report Column Group");
+        LibraryVariableStorage.Enqueue(Enum::"Analysis Negative Format"::"Minus Sign");
+        // Handled by AccountScheduleSetNegativeFormatRequestHandler
+        ReportParameters := Report.RunRequestPage(Report::"Account Schedule");
+        LibraryReportDataset.RunReportAndLoad(Report::"Account Schedule", AccScheduleName, ReportParameters);
+
+        // [THEN] Negative amount is displayed with minus sign
+        LibraryReportDataset.AssertElementWithValueExists('ColumnValuesAsText', Format(Amount));
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleRequestPageNegativeFormatHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleInheritNegativeFormat()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        ColumnLayoutName: Record "Column Layout Name";
+        FinancialReports: TestPage "Financial Reports";
+        AccountScheduleOverview: TestPage "Acc. Schedule Overview";
+    begin
+        // [SCENARIO] Account Schedule report inherits negative format option from Account Schedule Overview
+        Initialize();
+
+        // [GIVEN] An financial report with negative amount format as minus sign
+        CreateAccountScheduleNameAndColumn(AccScheduleName, ColumnLayoutName);
+        Commit();
+        FinancialReports.OpenEdit();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleName.Name);
+        AccountScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+        AccountScheduleOverview.NegativeAmountFormat.SetValue(Enum::"Analysis Negative Format"::"Minus Sign");
+        Commit();
+
+        // [WHEN] Running account schedule report from account schedule overview
+        LibraryVariableStorage.Enqueue(Enum::"Analysis Negative Format"::"Minus Sign");
+        AccountScheduleOverview.Print.Invoke();
+        // Handled by AccountScheduleRequestPageNegativeFormatHandler
+        // [THEN] Account schedule report inherits negative amount format as minus sign
+
+        // [WHEN] Negative amount format is changed to parentheses and account schedule report is ran again
+        AccountScheduleOverview.NegativeAmountFormat.SetValue(Enum::"Analysis Negative Format"::Parentheses);
+        Commit();
+        LibraryVariableStorage.Enqueue(Enum::"Analysis Negative Format"::Parentheses);
+        AccountScheduleOverview.Print.Invoke();
+        // Handled by AccountScheduleRequestPageNegativeFormatHandler
+        // [THEN] Account schedule report inherits negative amount format as parentheses
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AccountScheduleSetNegativeFormatRequestHandler(var AccountSchedule: TestRequestPage "Account Schedule")
+    begin
+        AccountSchedule.AccSchedNam.SetValue(LibraryVariableStorage.DequeueText());
+        AccountSchedule.FinancialReport.SetValue(AccountSchedule.AccSchedNam);
+        AccountSchedule.ColumnLayoutNames.SetValue(LibraryVariableStorage.DequeueText());
+        AccountSchedule.StartDate.SetValue(WorkDate());
+        AccountSchedule.EndDate.SetValue(WorkDate());
+        AccountSchedule.NegativeAmountFormat.SetValue(LibraryVariableStorage.DequeueInteger());
+        LibraryVariableStorage.AssertEmpty();
+        AccountSchedule.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AccountScheduleRequestPageNegativeFormatHandler(var AccountSchedule: TestRequestPage "Account Schedule")
+    var
+        NegativeAmountFormat: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(NegativeAmountFormat);
+        AccountSchedule.NegativeAmountFormat.AssertEquals(NegativeAmountFormat);
+        AccountSchedule.Cancel().Invoke();
     end;
 
     local procedure Initialize()

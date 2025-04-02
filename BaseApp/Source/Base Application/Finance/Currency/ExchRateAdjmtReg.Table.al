@@ -123,27 +123,6 @@ table 86 "Exch. Rate Adjmt. Reg."
             Editable = false;
             FieldClass = FlowField;
         }
-        field(11760; "Starting Date"; Date)
-        {
-            Caption = 'Starting Date';
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11761; "Ending Date"; Date)
-        {
-            Caption = 'Ending Date';
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11762; "Running Date"; Date)
-        {
-            Caption = 'Running Date';
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
     }
 
     keys

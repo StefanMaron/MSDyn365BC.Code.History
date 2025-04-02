@@ -4,15 +4,13 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Ledger;
 
-#if not CLEAN23
-using Microsoft.Finance.EU3PartyTrade;
-#endif
 using Microsoft.Finance.VAT.Reporting;
 
 tableextension 11737 "VAT Entry CZL" extends "VAT Entry"
 {
     fields
     {
+#if not CLEANSCHEMA25
         field(11710; "VAT Date CZL"; Date)
         {
             Caption = 'VAT Date';
@@ -22,6 +20,7 @@ tableextension 11737 "VAT Entry CZL" extends "VAT Entry"
             ObsoleteTag = '25.0';
             ObsoleteReason = 'Replaced by VAT Reporting Date.';
         }
+#endif
         field(11711; "VAT Settlement No. CZL"; Code[20])
         {
             Caption = 'VAT Settlement No.';
@@ -113,12 +112,6 @@ tableextension 11737 "VAT Entry CZL" extends "VAT Entry"
         VATStmtReportSelectionNotSupportedErr: Label 'VAT statement report selection %1 is not supported.', Comment = '%1 = VAT Statement Report Selection';
 
     procedure SetVATStatementLineFiltersCZL(VATStatementLine: Record "VAT Statement Line")
-#if not CLEAN23
-#pragma warning disable AL0432
-    var
-        EU3PartyTradeFeatMgt: Codeunit "EU3 Party Trade Feat Mgt. CZL";
-#pragma warning restore AL0432
-#endif
     begin
         SetRange(Type, VATStatementLine."Gen. Posting Type");
         SetRange("VAT Bus. Posting Group", VATStatementLine."VAT Bus. Posting Group");
@@ -129,19 +122,6 @@ tableextension 11737 "VAT Entry CZL" extends "VAT Entry"
             SetRange("Gen. Bus. Posting Group", VATStatementLine."Gen. Bus. Posting Group CZL");
         if VATStatementLine."Gen. Prod. Posting Group CZL" <> '' then
             SetRange("Gen. Prod. Posting Group", VATStatementLine."Gen. Prod. Posting Group CZL");
-#if not CLEAN23
-#pragma warning disable AL0432
-        if not EU3PartyTradeFeatMgt.IsEnabled() then begin
-            SetRange("EU 3-Party Trade");
-            case VATStatementLine."EU-3 Party Trade CZL" of
-                VATStatementLine."EU-3 Party Trade CZL"::Yes:
-                    SetRange("EU 3-Party Trade", true);
-                VATStatementLine."EU-3 Party Trade CZL"::No:
-                    SetRange("EU 3-Party Trade", false);
-            end;
-        end else
-#pragma warning restore AL0432
-#endif
             case VATStatementLine."EU 3 Party Trade" of
                 VATStatementLine."EU 3 Party Trade"::EU3:
                     SetRange("EU 3-Party Trade", true);

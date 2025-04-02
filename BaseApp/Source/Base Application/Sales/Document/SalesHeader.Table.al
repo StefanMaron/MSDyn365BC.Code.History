@@ -66,7 +66,6 @@ using System;
 using System.Automation;
 using System.Globalization;
 using System.Reflection;
-using System.Security.AccessControl;
 using System.Utilities;
 using Microsoft.Foundation.NoSeries;
 using System.Threading;
@@ -567,7 +566,6 @@ table 36 "Sales Header"
 
             trigger OnValidate()
             var
-                SalesReceivablesSetup: Record "Sales & Receivables Setup";
                 IsHandled: Boolean;
                 NeedUpdateCurrencyFactor: Boolean;
             begin
@@ -588,16 +586,7 @@ table 36 "Sales Header"
                   FieldCaption("Prepmt. Cr. Memo No."), FieldCaption("Prepmt. Cr. Memo No. Series"));
 
                 UpdateVATReportingDate(FieldNo("Posting Date"));
-
-                IsHandled := false;
-                OnValidatePostingDateOnBeforeAssignDocumentDate(Rec, IsHandled);
-
-                SalesReceivablesSetup.SetLoadFields("Link Doc. Date To Posting Date");
-                SalesReceivablesSetup.GetRecordOnce();
-
-                if not IsHandled then
-                    if ("Incoming Document Entry No." = 0) and SalesReceivablesSetup."Link Doc. Date To Posting Date" then
-                        Validate("Document Date", "Posting Date");
+                UpdateDocumentDateFromLinkedPostingDate(true);
 
                 if ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) and
                    not ("Posting Date" = xRec."Posting Date")
@@ -2332,14 +2321,6 @@ table 36 "Sales Header"
                 MailManagement.CheckValidEmailAddresses("Sell-to E-Mail");
             end;
         }
-        field(175; "Payment Instructions Id"; Integer)
-        {
-            Caption = 'Payment Instructions Id';
-            TableRelation = "O365 Payment Instructions";
-            ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
         field(178; "Journal Templ. Name"; Code[10])
         {
             Caption = 'Journal Template Name';
@@ -2368,14 +2349,6 @@ table 36 "Sales Header"
                         InitVATDate();
                 end;
             end;
-        }
-        field(180; "Rcvd-from Country/Region Code"; Code[10])
-        {
-            Caption = 'Received-from Country/Region Code';
-            TableRelation = "Country/Region";
-            ObsoleteReason = 'Use new field on range 181';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
         }
         field(181; "Rcvd.-from Count./Region Code"; Code[10])
         {
@@ -2440,19 +2413,16 @@ table 36 "Sales Header"
         {
             Caption = 'Payment Service Set ID';
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -2499,13 +2469,6 @@ table 36 "Sales Header"
                 UpdateSalesLinesByFieldNo(FieldNo("Campaign No."), CurrFieldNo <> 0);
                 CreateDimFromDefaultDim(Rec.FieldNo("Campaign No."));
             end;
-        }
-        field(5051; "Sell-to Customer Template Code"; Code[10])
-        {
-            Caption = 'Sell-to Customer Template Code';
-            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code".';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
         }
         field(5052; "Sell-to Contact No."; Code[20])
         {
@@ -2652,13 +2615,6 @@ table 36 "Sales Header"
 
                 UpdateBillToCust("Bill-to Contact No.");
             end;
-        }
-        field(5054; "Bill-to Customer Template Code"; Code[10])
-        {
-            Caption = 'Bill-to Customer Template Code';
-            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Bill-to Customer Templ. Code".';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
         }
         field(5055; "Opportunity No."; Code[20])
         {
@@ -3025,13 +2981,6 @@ table 36 "Sales Header"
             Caption = 'Get Shipment Used';
             Editable = false;
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
@@ -3045,254 +2994,6 @@ table 36 "Sales Header"
                       Text061, "Assigned User ID",
                       RespCenter.TableCaption(), UserSetupMgt.GetSalesFilter("Assigned User ID"));
             end;
-        }
-        field(11700; "Bank Account Code"; Code[20])
-        {
-            Caption = 'Bank Account Code';
-            TableRelation = if ("Document Type" = filter(Quote | Order | Invoice | "Blanket Order")) "Bank Account"
-            else
-            if ("Document Type" = filter("Credit Memo" | "Return Order")) "Customer Bank Account".Code where("Customer No." = field("Bill-to Customer No."));
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11701; "Bank Account No."; Text[30])
-        {
-            Caption = 'Bank Account No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11702; "Bank Branch No."; Text[20])
-        {
-            Caption = 'Bank Branch No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11703; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11704; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11705; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11706; "Transit No."; Text[20])
-        {
-            Caption = 'Transit No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11707; IBAN; Code[50])
-        {
-            Caption = 'IBAN';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11708; "SWIFT Code"; Code[20])
-        {
-            Caption = 'SWIFT Code';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11709; "Bank Name"; Text[100])
-        {
-            Caption = 'Bank Name';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11730; "Cash Desk Code"; Code[20])
-        {
-            Caption = 'Cash Desk Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11731; "Cash Document Status"; Option)
-        {
-            Caption = 'Cash Document Status';
-            OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
-            OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11760; "VAT Date"; Date)
-        {
-            Caption = 'VAT Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11761; "VAT Currency Factor"; Decimal)
-        {
-            Caption = 'VAT Currency Factor';
-            DecimalPlaces = 0 : 15;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11762; "Tax Corrective Document"; Boolean)
-        {
-            Caption = 'Tax Corrective Document';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11763; "Postponed VAT"; Boolean)
-        {
-            Caption = 'Postponed VAT';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11765; "Posting Desc. Code"; Code[10])
-        {
-            Caption = 'Posting Desc. Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11766; "Credit Memo Type"; Option)
-        {
-            Caption = 'Credit Memo Type';
-            OptionCaption = ',Corrective Tax Document,Internal Correction,Insolvency Tax Document';
-            OptionMembers = ,"Corrective Tax Document","Internal Correction","Insolvency Tax Document";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11790; "Registration No."; Text[20])
-        {
-            Caption = 'Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11791; "Tax Registration No."; Text[20])
-        {
-            Caption = 'Tax Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11792; "Original User ID"; Code[50])
-        {
-            Caption = 'Original User ID';
-            DataClassification = EndUserIdentifiableInformation;
-            TableRelation = User."User Name";
-            ValidateTableRelation = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is not needed and it should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11793; "Quote Validity"; Date)
-        {
-            Caption = 'Quote Validity';
-            ObsoleteReason = 'Moved to Quote Valid Until Date';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(31000; "Prepayment Type"; Option)
-        {
-            Caption = 'Prepayment Type';
-            OptionCaption = ' ,Prepayment,Advance';
-            OptionMembers = " ",Prepayment,Advance;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31001; "Advance Letter No. Series"; Code[20])
-        {
-            Caption = 'Advance Letter No. Series';
-            TableRelation = "No. Series";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31002; "Advance Letter No."; Code[20])
-        {
-            Caption = 'Advance Letter No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31060; "Perform. Country/Region Code"; Code[10])
-        {
-            Caption = 'Perform. Country/Region Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31061; "Perf. Country Currency Factor"; Decimal)
-        {
-            Caption = 'Perf. Country Currency Factor';
-            DecimalPlaces = 0 : 15;
-            Editable = false;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31063; "Physical Transfer"; Boolean)
-        {
-            Caption = 'Physical Transfer';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31064; "Intrastat Exclude"; Boolean)
-        {
-            Caption = 'Intrastat Exclude';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31065; "Industry Code"; Code[20])
-        {
-            Caption = 'Industry Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31066; "EU 3-Party Intermediate Role"; Boolean)
-        {
-            Caption = 'EU 3-Party Intermediate Role';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31100; "Original Document VAT Date"; Date)
-        {
-            Caption = 'Original Document VAT Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
         }
     }
 
@@ -3586,6 +3287,10 @@ table 36 "Sales Header"
         WarnZeroQuantitySalesPostingTxt: Label 'Warn before posting Sales lines with 0 quantity';
         WarnZeroQuantitySalesPostingDescriptionTxt: Label 'Warn before posting lines on Sales documents where quantity is 0.';
         CalledFromWhseDoc: Boolean;
+        DocumentNotOpenErr: Label 'The document''s status must be Open. To change the status, use the Reopen action.';
+#if not CLEAN26
+        SkipStatsPrep: Boolean;
+#endif
 
     protected var
         Customer: Record Customer;
@@ -3674,7 +3379,9 @@ table 36 "Sales Header"
         NewOrderDate := WorkDate();
         OnInitRecordOnBeforeAssignOrderDate(Rec, NewOrderDate);
         "Order Date" := NewOrderDate;
-        "Document Date" := WorkDate();
+        UpdateDocumentDateFromLinkedPostingDate(false);
+        if Rec."Document Date" = 0D then
+            "Document Date" := WorkDate();
         if "Document Type" = "Document Type"::Quote then
             CalcQuoteValidUntilDate();
 
@@ -4705,8 +4412,11 @@ table 36 "Sales Header"
                         FieldNo("Shipping Agent Code"):
                             SalesLine.Validate("Shipping Agent Code", "Shipping Agent Code");
                         FieldNo("Shipping Agent Service Code"):
-                            if (SalesLine."No." <> '') and (SalesLine."Shipping Agent Code" <> '') then
+                            if (SalesLine."No." <> '') and (SalesLine."Shipping Agent Code" <> '') then begin
+                                if SalesLine."Shipping Agent Code" <> "Shipping Agent Code" then
+                                    SalesLine.Validate("Shipping Agent Code", "Shipping Agent Code");
                                 SalesLine.Validate("Shipping Agent Service Code", "Shipping Agent Service Code");
+                            end;
                         FieldNo("Shipping Time"):
                             if SalesLine."No." <> '' then
                                 SalesLine.Validate("Shipping Time", "Shipping Time");
@@ -6735,6 +6445,8 @@ table 36 "Sales Header"
         TempSalesLine.Insert();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Open statistics page for sales document.
     /// </summary>
@@ -6753,6 +6465,7 @@ table 36 "Sales Header"
         OpenDocumentStatisticsInternal();
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Open statistics page for sales documents.
     /// </summary>
@@ -6763,7 +6476,7 @@ table 36 "Sales Header"
     begin
         OpenDocumentStatisticsInternal();
     end;
-
+#endif
     /// <summary>
     /// Runs checks and prepares data needed to open the document statistics page.
     /// </summary>
@@ -6791,6 +6504,8 @@ table 36 "Sales Header"
         Commit();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Opens a sales document statistics page based on the document type.
     /// After the page is closed, the recalculate invoice discount field is set to false on all sales document lines.
@@ -6801,11 +6516,26 @@ table 36 "Sales Header"
 
         OnGetStatisticsPageID(StatisticsPageId, Rec);
 
+        SkipStatsPrep := true;
         PAGE.RunModal(StatisticsPageId, Rec);
+        ResetSkipStatisticsPreparationFlag();
 
         SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    procedure SkipStatisticsPreparation(): Boolean
+    begin
+        exit(SkipStatsPrep)
+    end;
+
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    procedure ResetSkipStatisticsPreparationFlag()
+    begin
+        SkipStatsPrep := false;
+    end;
+
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenDocumentStatisticsInternal()
     var
         IsHandled: Boolean;
@@ -6818,19 +6548,14 @@ table 36 "Sales Header"
         PrepareOpeningDocumentStatistics();
         ShowDocumentStatisticsPage();
     end;
-
+#endif
     local procedure IsOrderDocument(): Boolean
     begin
-        case "Document Type" of
-            "Document Type"::Order,
-            "Document Type"::"Blanket Order",
-            "Document Type"::"Return Order":
-                exit(true);
-        end;
-
-        exit(false);
+        exit("Document Type" in ["Document Type"::Order, "Document Type"::"Blanket Order", "Document Type"::"Return Order"])
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure GetStatisticsPageID(): Integer
     begin
         if IsOrderDocument() then
@@ -6838,7 +6563,7 @@ table 36 "Sales Header"
 
         exit(PAGE::"Sales Statistics");
     end;
-
+#endif
     /// <summary>
     /// Determines the available credit limit for the customer associated with the sales header.
     /// </summary>
@@ -7498,9 +7223,9 @@ table 36 "Sales Header"
                 Validate("VAT Bus. Posting Group", SellToCustomer."VAT Bus. Posting Group");
             "Tax Area Code" := SellToCustomer."Tax Area Code";
             "Tax Liable" := SellToCustomer."Tax Liable";
-            "VAT Registration No." := SellToCustomer."VAT Registration No.";
             "Registration Number" := SellToCustomer."Registration Number";
             "VAT Country/Region Code" := SellToCustomer."Country/Region Code";
+            "VAT Registration No." := SellToCustomer.GetVATRegistrationNo();
             "Shipping Advice" := SellToCustomer."Shipping Advice";
             "Salesperson Code" := SellToCustomer."Salesperson Code";
             IsHandled := false;
@@ -8577,6 +8302,7 @@ table 36 "Sales Header"
         exit("Currency Code");
     end;
 
+#if not CLEAN26
     /// <summary>
     /// Updates the salesperson code from either the ship-to addresses or bill-to customer's salesperson.
     /// </summary>
@@ -8584,6 +8310,7 @@ table 36 "Sales Header"
     /// If neither are set, it uses the default salesperson from the user setup.
     /// If salesperson is blocked, it doesn't get assigned.
     /// </remarks>
+    [Obsolete('Use UpdateShipToSalespersonCode(FieldNo: Integer) instead.', '26.0')]
     procedure UpdateShipToSalespersonCode()
     var
         ShipToAddress: Record "Ship-to Address";
@@ -8620,7 +8347,7 @@ table 36 "Sales Header"
                     SetDefaultSalesperson();
         end;
     end;
-
+#endif
     /// <summary>
     /// Updates the salesperson code from either the ship-to addresses or bill-to customer's salesperson.
     /// </summary>
@@ -8853,6 +8580,30 @@ table 36 "Sales Header"
     end;
 
     /// <summary>
+    /// Checks if sales document status is open. If it is not, an error is raised.
+    /// </summary>
+    /// <param name="ThrowErrorIfNot">Determines if an error should be raised if status is not open.</param>
+    /// <returns>True if status is open, otherwise false.</returns>
+    /// <remakrs>
+    /// If global flag StatusCheckSuspended is set to true, the procedure is not executed.
+    /// </remakrs>
+    procedure TestStatusOpen(ThrowErrorIfNot: Boolean): Boolean
+    begin
+        OnBeforeTestStatusOpen(Rec, xRec, CurrFieldNo);
+
+        if StatusCheckSuspended then
+            exit(true);
+
+        if Rec.Status <> Rec.Status::Open then begin
+            if ThrowErrorIfNot then
+                Error(DocumentNotOpenErr);
+            exit(false)
+        end;
+        OnAfterTestStatusOpen(Rec);
+        exit(true)
+    end;
+
+    /// <summary>
     /// Sets the value of the global flag StatusCheckSuspended.
     /// </summary>
     /// <remarks>
@@ -9002,7 +8753,7 @@ table 36 "Sales Header"
             Error(Text028, FieldCaption("Requested Delivery Date"), FieldCaption("Promised Delivery Date"));
     end;
 
-    local procedure SetBillToCustomerNo(var Cust: Record Customer)
+    procedure SetBillToCustomerNo(var Cust: Record Customer)
     var
         IsHandled: Boolean;
     begin
@@ -9326,7 +9077,7 @@ table 36 "Sales Header"
         OnAfterSalesLinesEditable(Rec, IsEditable);
     end;
 
-# if not CLEAN24
+#if not CLEAN24
     [Obsolete('SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
     internal procedure SetTrackInfoForCancellation()
     var
@@ -9383,7 +9134,7 @@ table 36 "Sales Header"
         end;
         exit(Connected);
     end;
-# endif
+#endif
 
     local procedure FindDocumentWithSameExternalDocNo(): Boolean
     var
@@ -9439,7 +9190,7 @@ table 36 "Sales Header"
         exit(InstructionMgt.IsMyNotificationEnabled(GetShowExternalDocAlreadyExistNotificationId()));
     end;
 
-    internal procedure UpdateSalesOrderLineIfExist()
+    procedure UpdateSalesOrderLineIfExist()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
@@ -9536,6 +9287,23 @@ table 36 "Sales Header"
         ContactBusinessRelation.SetRange("Contact No.", ContactNo);
         ContactBusinessRelation.SetRange(ContactBusinessRelation."Link to Table", ContactBusinessRelationLinkType);
         exit(ContactBusinessRelation.IsEmpty());
+    end;
+
+    local procedure UpdateDocumentDateFromLinkedPostingDate(WithValidate: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        OnValidatePostingDateOnBeforeAssignDocumentDate(Rec, IsHandled);
+        if IsHandled then
+            exit;
+        if Rec."Incoming Document Entry No." <> 0 then
+            exit;
+        GetSalesSetup();
+        if SalesSetup."Link Doc. Date To Posting Date" then
+            if WithValidate then
+                Rec.Validate("Document Date", Rec."Posting Date")
+            else
+                Rec."Document Date" := Rec."Posting Date";
     end;
 
     procedure SendICSalesDoc(var SalesHeader: Record "Sales Header")
@@ -10184,11 +9952,13 @@ table 36 "Sales Header"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenSalesOrderStatistics(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeQtyToShipIsZero(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
@@ -10579,21 +10349,25 @@ table 36 "Sales Header"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenDocumentStatistics(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareOpeningDocumentStatistics(var SalesHeader: Record "Sales Header")
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnGetStatisticsPageID(var PageID: Integer; SalesHeader: Record "Sales Header")
     begin
     end;
-
+#endif
     [IntegrationEvent(true, false)]
     local procedure OnBeforeTestStatusOpen(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
     begin
@@ -10924,11 +10698,13 @@ table 36 "Sales Header"
     begin
     end;
 
+#if not CLEAN26
     [IntegrationEvent(false, false)]
+    [Obsolete('This event is obsolete. Use OnBeforeUpdateShipToSalespersonCode instead.', '26.0')]
     local procedure OnUpdateShiptoSalespersonCodeNotAssigned(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateShipToAddressFromSellToAddress(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNumber: Integer)
     begin
@@ -11234,13 +11010,13 @@ table 36 "Sales Header"
     begin
     end;
 
-# if not CLEAN24
+#if not CLEAN24
     [IntegrationEvent(false, false)]
     [Obsolete('This event is obsolete. SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
     local procedure OnSetTrackInfoForCancellationOnBeforeInsertCancelledDocument(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: boolean)
     begin
     end;
-# endif
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateSelltoContactNoOnBeforeValidateSalespersonCode(var SalesHeader: Record "Sales Header"; Contact: Record Contact; var IsHandled: Boolean)

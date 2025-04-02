@@ -499,36 +499,6 @@ table 113 "Sales Invoice Line"
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
-        field(5705; "Cross-Reference No."; Code[20])
-        {
-            Caption = 'Cross-Reference No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
-        {
-            Caption = 'Unit of Measure (Cross Ref.)';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5707; "Cross-Reference Type"; Option)
-        {
-            Caption = 'Cross-Reference Type';
-            OptionCaption = ' ,Customer,Vendor,Bar Code';
-            OptionMembers = " ",Customer,Vendor,"Bar Code";
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5708; "Cross-Reference Type No."; Code[30])
-        {
-            Caption = 'Cross-Reference Type No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
         field(5709; "Item Category Code"; Code[20])
         {
             Caption = 'Item Category Code';
@@ -542,13 +512,6 @@ table 113 "Sales Invoice Line"
         {
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
-        }
-        field(5712; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(5725; "Item Reference No."; Code[50])
         {
@@ -597,66 +560,6 @@ table 113 "Sales Invoice Line"
         {
             Caption = 'Price description';
         }
-        field(11762; "Reason Code"; Code[10])
-        {
-            Caption = 'Reason Code';
-            TableRelation = "Reason Code";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11764; "VAT Difference (LCY)"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            Caption = 'VAT Difference (LCY)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31010; "Prepayment Cancelled"; Boolean)
-        {
-            Caption = 'Prepayment Cancelled';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31011; "Letter No."; Code[20])
-        {
-            Caption = 'Letter No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31012; "VAT Doc. Letter No."; Code[20])
-        {
-            Caption = 'VAT Doc. Letter No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31061; "Tariff No."; Code[20])
-        {
-            Caption = 'Tariff No.';
-            TableRelation = "Tariff Number";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31062; "Statistic Indication"; Code[10])
-        {
-            Caption = 'Statistic Indication';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31063; "Country/Region of Origin Code"; Code[10])
-        {
-            Caption = 'Country/Region of Origin Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys
@@ -685,8 +588,7 @@ table 113 "Sales Invoice Line"
         }
         key(Key9; "Document No.", "Location Code")
         {
-            MaintainSQLIndex = false;
-            SumIndexFields = Amount, "Amount Including VAT", "Inv. Discount Amount";
+            IncludedFields = Amount, "Amount Including VAT", "Inv. Discount Amount";
         }
         key(Key10; Type, "No.")
         {
@@ -834,29 +736,28 @@ table 113 "Sales Invoice Line"
             0, "Document No.", '', 0, "Line No."));
     end;
 
-    procedure GetSalesShptLines(var TempSalesShptLine: Record "Sales Shipment Line" temporary)
+    procedure GetSalesShptLines(var TempSalesShipmentLine: Record "Sales Shipment Line" temporary)
     var
-        SalesShptLine: Record "Sales Shipment Line";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        ValueItemLedgerEntries: Query "Value Item Ledger Entries";
     begin
-        TempSalesShptLine.Reset();
-        TempSalesShptLine.DeleteAll();
+        TempSalesShipmentLine.Reset();
+        TempSalesShipmentLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
 
-        FilterPstdDocLineValueEntries(ValueEntry);
-        if ValueEntry.FindSet() then
-            repeat
-                ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
-                if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Sales Shipment" then
-                    if SalesShptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempSalesShptLine.Init();
-                        TempSalesShptLine := SalesShptLine;
-                        if TempSalesShptLine.Insert() then;
-                    end;
-            until ValueEntry.Next() = 0;
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_No, "Document No.");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Type, Enum::"Item Ledger Document Type"::"Sales Invoice");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Line_No, "Line No.");
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Type, Enum::"Item Ledger Document Type"::"Sales Shipment");
+        ValueItemLedgerEntries.Open();
+        while ValueItemLedgerEntries.Read() do
+            if SalesShipmentLine.Get(ValueItemLedgerEntries.Item_Ledg_Document_No, ValueItemLedgerEntries.Item_Ledg_Document_Line_No) then begin
+                TempSalesShipmentLine.Init();
+                TempSalesShipmentLine := SalesShipmentLine;
+                if TempSalesShipmentLine.Insert() then;
+            end;
     end;
 
     procedure CalcShippedSaleNotReturned(var ShippedQtyNotReturned: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean)
@@ -993,7 +894,7 @@ table 113 "Sales Invoice Line"
             exit;
 
         DeferralUtilities.OpenLineScheduleView(
-            "Deferral Code", Enum::"Deferral Document Type"::Sales.AsInteger(), '', '',
+            "Deferral Code", "Deferral Document Type"::Sales.AsInteger(), '', '',
             GetDocumentType(), "Document No.", "Line No.");
     end;
 
@@ -1064,6 +965,12 @@ table 113 "Sales Invoice Line"
             CalculationDate := WorkDate();
     end;
 
+    internal procedure GetVATPct() VATPct: Decimal
+    begin
+        VATPct := "VAT %";
+        OnAfterGetVATPct(Rec, VATPct);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQty(var SalesInvoiceLine: Record "Sales Invoice Line"; QtyBase: Decimal; var Result: Decimal)
     begin
@@ -1098,5 +1005,9 @@ table 113 "Sales Invoice Line"
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var SalesInvoiceLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATPct(var SalesInvoiceLine: Record "Sales Invoice Line"; var VATPct: Decimal)
+    begin
+    end;
+}

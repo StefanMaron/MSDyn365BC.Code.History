@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Bank.BankAccount;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Bank.BankAccount;
 
 using Microsoft.Bank.Payment;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -98,48 +102,10 @@ table 289 "Payment Method"
                 end;
             end;
         }
-        field(9; "Bank Data Conversion Pmt. Type"; Text[50])
-        {
-            Caption = 'Bank Data Conversion Pmt. Type';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Changed to AMC Banking 365 Fundamentals Extension';
-            ObsoleteTag = '15.0';
-        }
-        field(10; "Use for Invoicing"; Boolean)
-        {
-            Caption = 'Use for Invoicing';
-            ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-        }
         field(11; "Last Modified Date Time"; DateTime)
         {
             Caption = 'Last Modified Date Time';
             Editable = false;
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
-        field(11730; "Cash Desk Code"; Code[20])
-        {
-            Caption = 'Cash Desk Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11731; "Cash Document Status"; Option)
-        {
-            Caption = 'Cash Document Status';
-            NotBlank = true;
-            OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
-            OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '20.0';
         }
     }
 
@@ -225,4 +191,3 @@ table 289 "Payment Method"
     begin
     end;
 }
-

@@ -621,6 +621,7 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'IC Direction';
         }
+#if not CLEANSCHEMA25
         field(116; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -629,6 +630,7 @@ table 181 "Posted Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(117; "IC Partner Transaction No."; Integer)
         {
             Caption = 'IC Partner Transaction No.';
@@ -1052,7 +1054,7 @@ table 181 "Posted Gen. Journal Line"
         }
         field(6200; "Non-Deductible VAT %"; Decimal)
         {
-            Caption = 'Non-Deductible VAT %"';
+            Caption = 'Non-Deductible VAT %';
             DecimalPlaces = 0 : 5;
         }
         field(6201; "Non-Deductible VAT Base"; Decimal)
@@ -1131,171 +1133,6 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'Indentation';
         }
-        field(11700; "Bank Account Code"; Code[20])
-        {
-            Caption = 'Bank Account Code';
-            TableRelation = if ("Account Type" = const(Customer),
-                                "Document Type" = filter(Payment | "Credit Memo")) "Customer Bank Account".Code where("Customer No." = field("Bill-to/Pay-to No."))
-            else
-            if ("Account Type" = const(Customer),
-                                         "Document Type" = filter(Refund | Invoice)) "Bank Account"
-            else
-            if ("Bal. Account Type" = const(Customer),
-                                                  "Document Type" = filter(Payment | "Credit Memo")) "Customer Bank Account".Code where("Customer No." = field("Bill-to/Pay-to No."))
-            else
-            if ("Bal. Account Type" = const(Customer),
-                                                           "Document Type" = filter(Refund | Invoice)) "Bank Account"
-            else
-            if ("Account Type" = const(Vendor),
-                                                                    "Document Type" = filter(Payment | "Credit Memo")) "Bank Account"
-            else
-            if ("Account Type" = const(Vendor),
-                                                                             "Document Type" = filter(Refund | Invoice)) "Vendor Bank Account".Code where("Vendor No." = field("Bill-to/Pay-to No."))
-            else
-            if ("Bal. Account Type" = const(Vendor),
-                                                                                      "Document Type" = filter(Payment | "Credit Memo")) "Bank Account"
-            else
-            if ("Bal. Account Type" = const(Vendor),
-                                                                                               "Document Type" = filter(Refund | Invoice)) "Vendor Bank Account".Code where("Vendor No." = field("Bill-to/Pay-to No."));
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11701; "Bank Account No."; Text[30])
-        {
-            Caption = 'Bank Account No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11703; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11704; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11705; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11706; "Transit No."; Text[20])
-        {
-            Caption = 'Transit No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11707; IBAN; Code[50])
-        {
-            Caption = 'IBAN';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11708; "SWIFT Code"; Code[20])
-        {
-            Caption = 'SWIFT Code';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11761; Compensation; Boolean)
-        {
-            Caption = 'Compensation';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11770; "Primary VAT Entry No."; Integer)
-        {
-            Caption = 'Primary VAT Entry No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT will be removed and this field should not be used.';
-            ObsoleteTag = '21.0';
-        }
-        field(11774; "VAT Difference (LCY)"; Decimal)
-        {
-            Caption = 'VAT Difference (LCY)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11775; "Bal. VAT Difference (LCY)"; Decimal)
-        {
-            Caption = 'Bal. VAT Difference (LCY)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31000; "Prepayment Type"; Option)
-        {
-            Caption = 'Prepayment Type';
-            OptionCaption = ' ,Prepayment,Advance';
-            OptionMembers = " ",Prepayment,Advance;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31001; "Advance Letter Link Code"; Code[30])
-        {
-            Caption = 'Advance Letter Link Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31003; "Advance Letter No."; Code[20])
-        {
-            Caption = 'Advance Letter No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31004; "Advance Letter Line No."; Integer)
-        {
-            Caption = 'Advance Letter Line No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31005; "Prepmt. Appl. Transaction No."; Integer)
-        {
-            Caption = 'Prepmt. Appl. Transaction No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31006; "Advance Exch. Rate Difference"; Decimal)
-        {
-            Caption = 'Advance Exch. Rate Difference';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31007; "Advance VAT Base Amount"; Decimal)
-        {
-            Caption = 'Advance VAT Base Amount';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
     }
 
     keys
@@ -1341,7 +1178,6 @@ table 181 "Posted Gen. Journal Line"
         if not FirstLine then
             Indentation := 1;
         Insert();
-
         Rec.CopyLinks(GenJournalLine);
 
         OnAfterInsertFromGenJournalLine(GenJournalLine);

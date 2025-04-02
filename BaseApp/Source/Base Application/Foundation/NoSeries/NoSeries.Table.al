@@ -37,13 +37,6 @@ table 308 "No. Series"
         {
             Caption = 'Date Order';
         }
-        field(11790; Mask; Text[20]) // CZ Functionality
-        {
-            Caption = 'Mask';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
     }
 
     keys

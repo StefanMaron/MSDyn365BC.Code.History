@@ -24,19 +24,15 @@ page 1871 "Credit Limit Details"
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
-                ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             }
             field(Name; Rec.Name)
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
-                ToolTip = 'Specifies the customer''s name.';
             }
             field("Balance (LCY)"; Rec."Balance (LCY)")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the payment amount that the customer owes for completed sales. This value is also known as the customer''s balance.';
-
                 trigger OnDrillDown()
                 begin
                     Rec.OpenCustomerLedgerEntries(false);
@@ -77,7 +73,6 @@ page 1871 "Credit Limit Details"
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
-                ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
             }
             field(OverdueBalance; Rec.CalcOverdueBalance())
             {

@@ -9,6 +9,7 @@ table 183 "Copy Gen. Journal Parameters"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Journal Template Name"; Code[10])

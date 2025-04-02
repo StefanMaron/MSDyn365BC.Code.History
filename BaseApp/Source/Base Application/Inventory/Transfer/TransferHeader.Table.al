@@ -1,7 +1,10 @@
-﻿namespace Microsoft.Inventory.Transfer;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.Finance.Dimension;
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
@@ -663,63 +666,6 @@ table 5740 "Transfer Header"
             Caption = 'Assigned User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
-        }
-        field(11730; "Receiving Wh. No. Series"; Code[20])
-        {
-            Caption = 'Receiving Wh. No. Series';
-            TableRelation = "No. Series";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11797; "Shipping No. Series"; Code[20])
-        {
-            Caption = 'Shipping No. Series';
-            TableRelation = "No. Series";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11798; "Receiving No. Series"; Code[20])
-        {
-            Caption = 'Receiving No. Series';
-            TableRelation = "No. Series";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11799; "Shipping Wh. No. Series"; Code[20])
-        {
-            Caption = 'Shipping Wh. No. Series';
-            TableRelation = "No. Series";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of No. Series Enhancements will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31064; "Intrastat Exclude"; Boolean)
-        {
-            Caption = 'Intrastat Exclude';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31070; "Gen. Bus. Post. Group Ship"; Code[20])
-        {
-            Caption = 'Gen. Bus. Post. Group Ship';
-            TableRelation = "Gen. Business Posting Group";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-
-        }
-        field(31071; "Gen. Bus. Post. Group Receive"; Code[20])
-        {
-            Caption = 'Gen. Bus. Post. Group Receive';
-            TableRelation = "Gen. Business Posting Group";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-
         }
     }
 

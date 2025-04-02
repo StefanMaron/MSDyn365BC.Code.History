@@ -12,6 +12,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         LibraryCosting: Codeunit "Library - Costing";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryPatterns: Codeunit "Library - Patterns";
@@ -378,7 +379,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         // Setup
         Initialize();
 
-        LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryPatterns.RandCost(Item));
+        LibraryInventory.CreateItemSimple(Item, CostingMethod, LibraryPatterns.RandCost(Item));
         LibraryPatterns.GRPHApplyInboundToUnappliedOutbound(Item, SalesLine);
 
         GetSalesHeader(SalesLine, SalesHeader);
@@ -424,7 +425,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         // Setup
         Initialize();
 
-        LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryPatterns.RandCost(Item));
+        LibraryInventory.CreateItemSimple(Item, CostingMethod, LibraryPatterns.RandCost(Item));
         LibraryPatterns.GRPHSalesOnly(Item, SalesLine);
 
         GetSalesHeader(SalesLine, SalesHeader);
@@ -479,7 +480,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         // Setup
         Initialize();
 
-        LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryPatterns.RandCost(Item));
+        LibraryInventory.CreateItemSimple(Item, CostingMethod, LibraryPatterns.RandCost(Item));
         LibraryPatterns.GRPHSimpleApplication(Item, SalesLine, TempItemJournalLine);
         if Item."Costing Method" <> Item."Costing Method"::Standard then
             Amount := TempItemJournalLine.Amount
@@ -512,7 +513,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
         // Setup
         Initialize();
 
-        LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryPatterns.RandCost(Item));
+        LibraryInventory.CreateItemSimple(Item, CostingMethod, LibraryPatterns.RandCost(Item));
         LibraryPatterns.GRPHSimpleApplication(Item, SalesLine, TempItemJournalLine);
 
         if CostingMethod <> Item."Costing Method"::Standard then
@@ -600,7 +601,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         Initialize();
 
-        LibraryPatterns.MAKEItem(Item, CostingMethod, LibraryPatterns.RandCost(Item), 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, LibraryPatterns.RandCost(Item), 0, 0, '');
         LibraryPatterns.GRPHSalesReturnOnly(Item, ReturnReceiptLine);
 
         Adjust(Item);
@@ -655,7 +656,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         Initialize();
 
-        LibraryPatterns.MAKEItem(Item, CostingMethod, LibraryPatterns.RandCost(Item), 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, LibraryPatterns.RandCost(Item), 0, 0, '');
         LibraryPatterns.GRPHSimpleApplication(Item, SalesLine, TempItemJournalLine);
 
         InvoicePartially(SalesLine);
@@ -712,7 +713,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         Initialize();
 
-        LibraryPatterns.MAKEItem(Item, CostingMethod, LibraryPatterns.RandCost(Item), 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, LibraryPatterns.RandCost(Item), 0, 0, '');
         LibraryPatterns.GRPHSimpleApplication(Item, SalesLine, TempItemJournalLine);
 
         Invoice(SalesLine);
@@ -768,7 +769,7 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
     begin
         Initialize();
 
-        LibraryPatterns.MAKEItem(Item, CostingMethod, LibraryPatterns.RandCost(Item), 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, LibraryPatterns.RandCost(Item), 0, 0, '');
         LibraryPatterns.GRPHSalesFromReturnReceipts(Item, SalesLine);
 
         Invoice(SalesLine);
@@ -819,19 +820,19 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
 
     local procedure AssignItemCharge(var SalesHeader: Record "Sales Header"; var SalesLineApplyTo: Record "Sales Line")
     begin
-        LibraryPatterns.ASSIGNSalesChargeToSalesLine(
+        LibrarySales.AssignSalesChargeToSalesLine(
           SalesHeader, SalesLineApplyTo, LibraryPatterns.RandDec(0, SalesLineApplyTo.Quantity, 5), LibraryPatterns.RandDec(0, 100, 5));
     end;
 
     local procedure AssignItemChargeReturn(var SalesHeader: Record "Sales Header"; var SalesLineApplyTo: Record "Sales Line")
     begin
-        LibraryPatterns.ASSIGNSalesChargeToSalesReturnLine(
+        LibrarySales.AssignSalesChargeToSalesReturnLine(
           SalesHeader, SalesLineApplyTo, LibraryPatterns.RandDec(0, SalesLineApplyTo.Quantity, 5), LibraryPatterns.RandDec(0, 100, 5));
     end;
 
     local procedure AssignItemChargeShipment(var SalesHeader: Record "Sales Header"; var SalesShptLineApplyTo: Record "Sales Shipment Line")
     begin
-        LibraryPatterns.ASSIGNSalesChargeToSalesShptLine(
+        LibrarySales.AssignSalesChargeToSalesShptLine(
           SalesHeader, SalesShptLineApplyTo, LibraryPatterns.RandDec(0, SalesShptLineApplyTo.Quantity, 5), LibraryPatterns.RandDec(0, 100, 5));
     end;
 
@@ -1027,22 +1028,22 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
 
     local procedure StandardItem(var Item: Record Item)
     begin
-        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item), 0, 0, '');
+        LibraryInventory.CreateItem(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item), 0, 0, '');
     end;
 
     local procedure AverageItem(var Item: Record Item)
     begin
-        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, LibraryPatterns.RandCost(Item), 0, 0, '');
+        LibraryInventory.CreateItem(Item, Item."Costing Method"::Average, LibraryPatterns.RandCost(Item), 0, 0, '');
     end;
 
     local procedure FIFOItem(var Item: Record Item)
     begin
-        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::FIFO, LibraryPatterns.RandCost(Item), 0, 0, '');
+        LibraryInventory.CreateItem(Item, Item."Costing Method"::FIFO, LibraryPatterns.RandCost(Item), 0, 0, '');
     end;
 
     local procedure LIFOItem(var Item: Record Item)
     begin
-        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::LIFO, LibraryPatterns.RandCost(Item), 0, 0, '');
+        LibraryInventory.CreateItem(Item, Item."Costing Method"::LIFO, LibraryPatterns.RandCost(Item), 0, 0, '');
     end;
 
     local procedure RevaluateAndAdjust(var Item: Record Item; var Factor: Decimal; RevaluationDate: Date)
@@ -1112,15 +1113,15 @@ codeunit 137602 "SCM CETAF Sales-Purchase"
 
         IsInitialized := false;
 
-        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
         Day1 := WorkDate();
         Loc := '';
         Variant := '';
 
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, Loc, Variant, 2, Day1, 10, true, true);
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, Loc, Variant, 2, Day1, 20, true, true);
+        LibraryPurchase.PostPurchaseOrder(PurchaseHeader, Item, Loc, Variant, 2, Day1, 10, true, true);
+        LibraryPurchase.PostPurchaseOrder(PurchaseHeader, Item, Loc, Variant, 2, Day1, 20, true, true);
 
-        LibraryPatterns.POSTSalesOrderPartially(SalesHeader, Item, Loc, Variant, 2, Day1, 100, true, 1, true, 0.5);
+        LibrarySales.PostSalesOrderPartially(SalesHeader, Item, Loc, Variant, 2, Day1, 100, true, 1, true, 0.5);
 
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         LibrarySales.PostSalesDocument(SalesHeader, false, true);

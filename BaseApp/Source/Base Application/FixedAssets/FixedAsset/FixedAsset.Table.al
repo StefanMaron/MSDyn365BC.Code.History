@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.FixedAsset;
 
 using Microsoft.Finance.Dimension;
@@ -45,6 +49,7 @@ table 5600 "Fixed Asset"
         field(2; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the fixed asset.';
             OptimizeForTextSearch = true;
 
             trigger OnValidate()
@@ -231,14 +236,6 @@ table 5600 "Fixed Asset"
         {
             Caption = 'Blocked';
         }
-        field(22; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
         field(23; "Maintenance Vendor No."; Code[20])
         {
             Caption = 'Maintenance Vendor No.';
@@ -321,44 +318,6 @@ table 5600 "Fixed Asset"
             begin
                 UpdateResponsibleEmployeeCode();
             end;
-        }
-        field(11792; "Full Description"; Text[100])
-        {
-            Caption = 'Full Description';
-            OptimizeForTextSearch = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Fields for Full Description will be removed and this field should not be used. Standard fields for Name are now 100. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31042; "Deprec. Book Code (Mainten.)"; Code[10])
-        {
-            Caption = 'Deprec. Book Code (Mainten.)';
-            TableRelation = "Depreciation Book";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31043; "Tax Depreciation Group Code"; Code[20])
-        {
-            Caption = 'Tax Depreciation Group Code';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31044; "SKP Code"; Code[20])
-        {
-            Caption = 'SKP Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Fixed Assets Clasification by SKP codes will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31045; "Clasification Code"; Code[20])
-        {
-            Caption = 'Clasification Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
         }
     }
 
@@ -528,8 +487,8 @@ table 5600 "Fixed Asset"
         FA := Rec;
         FASetup.Get();
         FASetup.TestField("Fixed Asset Nos.");
-            if NoSeries.LookupRelatedNoSeries(FASetup."Fixed Asset Nos.", OldFA."No. Series", FA."No. Series") then begin
-                FA."No." := NoSeries.GetNextNo(FA."No. Series");
+        if NoSeries.LookupRelatedNoSeries(FASetup."Fixed Asset Nos.", OldFA."No. Series", FA."No. Series") then begin
+            FA."No." := NoSeries.GetNextNo(FA."No. Series");
             Rec := FA;
             exit(true);
         end;
@@ -743,4 +702,3 @@ table 5600 "Fixed Asset"
     begin
     end;
 }
-

@@ -107,15 +107,6 @@ table 5225 "Employee Payment Buffer"
             Editable = false;
             TableRelation = "Dimension Set Entry";
         }
-        field(11760; "Employee Posting Group"; Code[20])
-        {
-            Caption = 'Employee Posting Group';
-            DataClassification = SystemMetadata;
-            TableRelation = "Employee Posting Group";
-            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
     }
 
     keys

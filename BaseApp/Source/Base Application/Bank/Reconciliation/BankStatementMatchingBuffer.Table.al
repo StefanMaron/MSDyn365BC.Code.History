@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -73,38 +77,7 @@ table 1250 "Bank Statement Matching Buffer"
         {
             Caption = 'Date Matches';
         }
-        field(11700; "No. of Match to Doc. No."; Integer)
-        {
-            Caption = 'No. of Match to Doc. No.';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11701; "No. of Match to V. Symbol"; Integer)
-        {
-            Caption = 'No. of Match to V. Symbol';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11702; "No. of Match to S. Symbol"; Integer)
-        {
-            Caption = 'No. of Match to S. Symbol';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11703; "No. of Match to C. Symbol"; Integer)
-        {
-            Caption = 'No. of Match to C. Symbol';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
+#if not CLEANSCHEMA25
         field(30000; "Letter Type"; Option)
         {
             Caption = 'Letter Type';
@@ -123,6 +96,7 @@ table 1250 "Bank Statement Matching Buffer"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '25.0';
         }
+#endif
         field(20; "Doc. No. Exact Score"; Integer)
         {
             Caption = 'Doc. No. Exact Score';
@@ -196,4 +170,3 @@ table 1250 "Bank Statement Matching Buffer"
         Modify(true);
     end;
 }
-

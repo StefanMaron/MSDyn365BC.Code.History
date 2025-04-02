@@ -31,14 +31,6 @@ table 1262 "Isolated Certificate"
             OptionMembers = ,Company,User,CompanyAndUser;
             DataClassification = CustomerContent;
         }
-        field(3; Password; Text[50])
-        {
-            Caption = 'Password';
-            ExtendedDatatype = Masked;
-            ObsoleteReason = 'Password should not be stored in a table, use SetCertPassword procedure on Certificate Management codeunit';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
         field(4; "Expiry Date"; DateTime)
         {
             Caption = 'Expiry Date';
@@ -93,15 +85,6 @@ table 1262 "Isolated Certificate"
             Caption = 'Issued To';
             Editable = false;
             DataClassification = CustomerContent;
-        }
-        field(31130; "Certificate Code"; Code[20])
-        {
-            Caption = 'Certificate Code';
-            Editable = false;
-            DataClassification = CustomerContent;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
         }
     }
 
@@ -178,7 +161,6 @@ table 1262 "Isolated Certificate"
 
     local procedure ExistsInIsolatedStorage(): Boolean
     begin
-        exit(ISOLATEDSTORAGE.Contains(Code, CertificateManagement.GetCertDataScope(Rec)));
+        exit(IsolatedStorage.Contains(Code, CertificateManagement.GetCertDataScope(Rec)));
     end;
 }
-

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Foundation.Navigate;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Navigate;
 
 using Microsoft.Bank.Check;
 using Microsoft.Bank.Ledger;
@@ -11,8 +15,6 @@ using Microsoft.FixedAssets.Maintenance;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Purchases.History;
@@ -609,51 +611,6 @@ report 35 "Document Entries"
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
                     SetFilter("Posting Date", PostingDateFilter);
-                end;
-            }
-            dataitem("Production Order"; "Production Order")
-            {
-                DataItemTableView = sorting(Status, "No.");
-                column(No_ProdOrder; "No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(Status_ProdOrder; Status)
-                {
-                    IncludeCaption = true;
-                }
-                column(StatusCaption_ProdOrder; FieldCaption(Status))
-                {
-                }
-                column(Desc_ProdOrder; Description)
-                {
-                    IncludeCaption = true;
-                }
-                column(SourceType_ProdOrder; "Source Type")
-                {
-                    IncludeCaption = true;
-                }
-                column(SourceNo_ProdOrder; "Source No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(UnitCost_ProdOrder; "Unit Cost")
-                {
-                    IncludeCaption = true;
-                }
-                column(CostAmt_ProdOrder; "Cost Amount")
-                {
-                    IncludeCaption = true;
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    if TempDocumentEntry."Table ID" <> DATABASE::"Production Order" then
-                        CurrReport.Break();
-
-                    SetCurrentKey(Status, "No.");
-                    SetRange(Status, Status::Released, Status::Finished);
-                    SetFilter("No.", DocNoFilter);
                 end;
             }
             dataitem("Transfer Shipment Header"; "Transfer Shipment Header")
@@ -1639,42 +1596,6 @@ report 35 "Document Entries"
                     SetFilter("Posting Date", PostingDateFilter);
                 end;
             }
-            dataitem("Capacity Ledger Entry"; "Capacity Ledger Entry")
-            {
-                DataItemTableView = sorting("Document No.", "Posting Date");
-                column(EntryNo_CapLedgEntry; "Entry No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(PstDate_CapLedgEntry; Format("Posting Date"))
-                {
-                }
-                column(DocNo_CapLedgEntry; "Document No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(Desc_CapLedgEntry; Description)
-                {
-                    IncludeCaption = true;
-                }
-                column(Qty_CapLedgEntry; Quantity)
-                {
-                    IncludeCaption = true;
-                }
-                column(CapLedgEntryPostDtCaption; CapLedgEntryPostDtCaptionLbl)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    if TempDocumentEntry."Table ID" <> DATABASE::"Capacity Ledger Entry" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("Document No.", "Posting Date");
-                    SetFilter("Document No.", DocNoFilter);
-                    SetFilter("Posting Date", PostingDateFilter);
-                end;
-            }
             dataitem("Warehouse Entry"; "Warehouse Entry")
             {
                 DataItemTableView = sorting("Reference No.", "Registering Date");
@@ -1819,7 +1740,6 @@ report 35 "Document Entries"
         FALedgEntryPostDtCaptionLbl: Label 'Posting Date';
         MaintenanceLedgEntryPostDtCaptionLbl: Label 'Posting Date';
         InsCoverageLedgEntryPostDtCaptionLbl: Label 'Posting Date';
-        CapLedgEntryPostDtCaptionLbl: Label 'Posting Date';
         WhseEntryRegisteringDateCaptionLbl: Label 'Registering Date';
 
     protected var

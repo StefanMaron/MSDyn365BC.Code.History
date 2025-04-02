@@ -12,17 +12,16 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Purchases.Analysis;
 using Microsoft.Purchases.Document;
 using Microsoft.Foundation.Task;
 using Microsoft.Purchases.History;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Purchases.Pricing;
 #endif
 using Microsoft.Purchases.Reports;
 using Microsoft.Purchases.Vendor;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.RoleCenters;
 #endif
 using Microsoft.Sales.Document;
@@ -309,7 +308,7 @@ page 9007 "Purchasing Agent Role Center"
             }
             action(SubcontractingWorksheets)
             {
-                ApplicationArea = Planning;
+                ApplicationArea = Manufacturing;
                 Caption = 'Subcontracting Worksheets';
                 RunObject = Page "Req. Wksh. Names";
                 RunPageView = where("Template Type" = const("For. Labor"),
@@ -320,7 +319,7 @@ page 9007 "Purchasing Agent Role Center"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Standard Cost Worksheets';
-                RunObject = Page "Standard Cost Worksheet Names";
+                RunObject = Page Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet Names";
                 ToolTip = 'Review or update standard costs. Purchasers, production or assembly managers can use the worksheet to simulate the effect on the cost of the manufactured or assembled item if the standard cost for consumption, production capacity usage, or assembly resource usage is changed. You can set a cost change to take effect on a specified date.';
             }
         }
@@ -450,7 +449,7 @@ page 9007 "Purchasing Agent Role Center"
                                     Recurring = const(false));
                 ToolTip = 'Calculate a supply plan to fulfill item demand with purchases or transfers.';
             }
-#if not CLEAN23
+#if not CLEAN25
             action("Pur&chase Prices")
             {
                 ApplicationArea = Basic, Suite;

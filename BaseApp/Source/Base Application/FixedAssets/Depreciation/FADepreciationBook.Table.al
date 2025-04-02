@@ -1,4 +1,8 @@
-﻿namespace Microsoft.FixedAssets.Depreciation;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.FixedAssets.Depreciation;
 
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Ledger;
@@ -714,56 +718,6 @@ table 5612 "FA Depreciation Book"
                 if not DefaultFADeprBook.IsEmpty() then
                     FieldError("Default FA Depreciation Book", OnlyOneDefaultDeprBookErr);
             end;
-        }
-        field(31040; "Depr. FA Appreciation From"; Date)
-        {
-            Caption = 'Depr. FA Appreciation From';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality will be removed and this field should not be used. (Obsolete::Removed in release 01.2021))';
-            ObsoleteTag = '18.0';
-        }
-        field(31041; "Depreciation Interupt"; Boolean)
-        {
-            Caption = 'Depreciation Interupt';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31042; "Depreciation Interupt up to"; Date)
-        {
-            Caption = 'Depreciation Interupt up to';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31043; "Depreciation Group Code"; Code[20])
-        {
-            Caption = 'Depreciation Group Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31045; "Keep Depr. Ending Date"; Boolean)
-        {
-            Caption = 'Keep Depr. Ending Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31046; "Summarize Depr. Entries From"; Code[10])
-        {
-            Caption = 'Summarize Depr. Entries From';
-            TableRelation = "Depreciation Book";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31047; Prorated; Boolean)
-        {
-            Caption = 'Prorated';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
         }
     }
 

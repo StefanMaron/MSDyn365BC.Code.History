@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Counting.Document;
 
 using Microsoft.Finance.Dimension;
@@ -403,13 +407,6 @@ table 5876 "Phys. Invt. Order Line"
             OptionCaption = ' ,Item,SKU';
             OptionMembers = " ",Item,SKU;
         }
-        field(31077; "Whse. Net Change Template"; Code[10])
-        {
-            Caption = 'Whse. Net Change Template';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
     }
 
     keys
@@ -479,7 +476,7 @@ table 5876 "Phys. Invt. Order Line"
         CannotSetErr: Label 'You cannot use item tracking because there is a difference between the values of the fields Qty. Expected (Base) = %1 and Qty. Exp. Item Tracking (Base) = %2.\%3', Comment = '%1 and %2 - Decimal, %3 = Text';
         IndenitiedValuesMsg: Label 'Identified values on the line:  %1 %2 %3 %4.', Comment = '%1,%2,%3,%4 - field captions';
         DifferentSumErr: Label 'The value of the Qty. Recorded (Base) field is different from the sum of all Quantity (Base) fields on related physical inventory recordings.%1', Comment = '%1 = text';
-        MustSpecifyErr: Label 'You must specify a serial number or lot number on physical inventory recording line %1 when the Use Item Tracking check box is selected.%2', Comment = '%1 = Recording No., %2 = Text';
+        MustSpecifyTrackingErr: Label 'You must specify an item tracking on physical inventory recording line %1 when the Use Item Tracking check box is selected.%2', Comment = '%1 = Recording No., %2 = Text';
         CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 = table caption';
         UnknownEntryTypeErr: Label 'Unknown Entry Type.';
         TableLineTok: Label '%1 %2 %3', Locked = true;
@@ -587,7 +584,7 @@ table 5876 "Phys. Invt. Order Line"
     begin
         ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey(
-            "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
+            "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date", "Entry No.");
         ItemLedgEntry.SetRange("Item No.", "Item No.");
         ItemLedgEntry.SetRange("Variant Code", "Variant Code");
         ItemLedgEntry.SetRange("Location Code", "Location Code");
@@ -705,7 +702,7 @@ table 5876 "Phys. Invt. Order Line"
         TestStatusOpen();
 
         ItemLedgEntry.Reset();
-        ItemLedgEntry.SetCurrentKey("Item No.");
+        ItemLedgEntry.SetCurrentKey("Item No.", "Entry No.");
         ItemLedgEntry.SetRange("Item No.", "Item No.");
         if ItemLedgEntry.FindLast() then
             LastItemLedgEntryNo := ItemLedgEntry."Entry No."
@@ -728,8 +725,6 @@ table 5876 "Phys. Invt. Order Line"
         end else begin
             TestField("Bin Code", '');
             ItemLedgEntry.Reset();
-            ItemLedgEntry.SetCurrentKey(
-              "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
             ItemLedgEntry.SetRange("Item No.", "Item No.");
             ItemLedgEntry.SetRange("Variant Code", "Variant Code");
             ItemLedgEntry.SetRange("Location Code", "Location Code");
@@ -812,12 +807,9 @@ table 5876 "Phys. Invt. Order Line"
                 PhysInvtRecordLine.TestField("Location Code", "Location Code");
                 PhysInvtRecordLine.TestField("Bin Code", "Bin Code");
                 if "Use Item Tracking" then
-                    if (PhysInvtRecordLine."Quantity (Base)" <> 0) and
-                       (PhysInvtRecordLine."Serial No." = '') and
-                       (PhysInvtRecordLine."Lot No." = '')
-                    then
+                    if (PhysInvtRecordLine."Quantity (Base)" <> 0) and (not PhysInvtRecordLine.TrackingExists()) then
                         Error(
-                            MustSpecifyErr, PhysInvtRecordLine."Recording No.",
+                            MustSpecifyTrackingErr, PhysInvtRecordLine."Recording No.",
                             StrSubstNo(IndenitiedValuesMsg, "Item No.", "Variant Code", "Location Code", "Bin Code"));
                 Sum := Sum + PhysInvtRecordLine."Quantity (Base)";
             until PhysInvtRecordLine.Next() = 0;

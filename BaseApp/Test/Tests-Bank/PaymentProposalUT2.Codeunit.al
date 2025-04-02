@@ -1,4 +1,4 @@
-﻿codeunit 134268 "Payment Proposal UT 2"
+codeunit 134268 "Payment Proposal UT 2"
 {
     Permissions = TableData "Cust. Ledger Entry" = imd,
                   TableData "Vendor Ledger Entry" = imd;

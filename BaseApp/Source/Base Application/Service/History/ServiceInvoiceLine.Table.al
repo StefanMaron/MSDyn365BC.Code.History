@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -17,6 +21,7 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Calculation;
+using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
@@ -193,6 +198,16 @@ table 5993 "Service Invoice Line"
             Editable = false;
             TableRelation = "Customer Price Group";
         }
+        field(45; "Job No."; Code[20])
+        {
+            Caption = 'Project No.';
+            TableRelation = Job;
+        }
+        field(46; "Job Task No."; Code[20])
+        {
+            Caption = 'Project Task No.';
+            TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
+        }
         field(52; "Work Type Code"; Code[10])
         {
             Caption = 'Work Type Code';
@@ -346,6 +361,12 @@ table 5993 "Service Invoice Line"
                 Rec.ShowDimensions();
             end;
         }
+        field(1019; "Job Planning Line No."; Integer)
+        {
+            AccessByPermission = TableData Job = R;
+            BlankZero = true;
+            Caption = 'Project Planning Line No.';
+        }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
@@ -395,13 +416,6 @@ table 5993 "Service Invoice Line"
         {
             Caption = 'Catalog';
             Editable = false;
-        }
-        field(5712; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(5725; "Item Reference No."; Code[50])
         {
@@ -752,29 +766,28 @@ table 5993 "Service Invoice Line"
         exit('');
     end;
 
-    local procedure GetServShptLines(var TempServShptLine: Record "Service Shipment Line" temporary)
+    local procedure GetServShptLines(var TempServiceShipmentLine: Record "Service Shipment Line" temporary)
     var
-        ServShptLine: Record "Service Shipment Line";
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
+        ServiceShipmentLine: Record "Service Shipment Line";
+        ValueItemLedgerEntries: Query "Value Item Ledger Entries";
     begin
-        TempServShptLine.Reset();
-        TempServShptLine.DeleteAll();
+        TempServiceShipmentLine.Reset();
+        TempServiceShipmentLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
 
-        FilterPstdDocLineValueEntries(ValueEntry);
-        if ValueEntry.FindSet() then
-            repeat
-                ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
-                if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Service Shipment" then
-                    if ServShptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempServShptLine.Init();
-                        TempServShptLine := ServShptLine;
-                        if TempServShptLine.Insert() then;
-                    end;
-            until ValueEntry.Next() = 0;
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_No, "Document No.");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Type, Enum::"Item Ledger Document Type"::"Service Invoice");
+        ValueItemLedgerEntries.SetRange(Value_Entry_Doc_Line_No, "Line No.");
+        ValueItemLedgerEntries.SetRange(Item_Ledg_Document_Type, Enum::"Item Ledger Document Type"::"Service Shipment");
+        ValueItemLedgerEntries.Open();
+        while ValueItemLedgerEntries.Read() do
+            if ServiceShipmentLine.Get(ValueItemLedgerEntries.Item_Ledg_Document_No, ValueItemLedgerEntries.Item_Ledg_Document_Line_No) then begin
+                TempServiceShipmentLine.Init();
+                TempServiceShipmentLine := ServiceShipmentLine;
+                if TempServiceShipmentLine.Insert() then;
+            end;
     end;
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
@@ -813,6 +826,12 @@ table 5993 "Service Invoice Line"
         end;
     end;
 
+    internal procedure GetVATPct() VATPct: Decimal
+    begin
+        VATPct := "VAT %";
+        OnAfterGetVATPct(Rec, VATPct);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeInsertLine(ServInvHeader: Record "Service Invoice Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
     begin
@@ -827,5 +846,9 @@ table 5993 "Service Invoice Line"
     local procedure OnAfterCopyToVATAmountLine(ServiceInvoiceLine: Record "Service Invoice Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATPct(var ServiceInvoiceLine: Record "Service Invoice Line"; var VATPct: Decimal)
+    begin
+    end;
+}

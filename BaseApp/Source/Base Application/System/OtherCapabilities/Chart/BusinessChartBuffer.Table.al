@@ -1,4 +1,4 @@
-﻿namespace System.Visualization;
+namespace System.Visualization;
 
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Period;
@@ -32,14 +32,6 @@ table 485 "Business Chart Buffer"
             DataClassification = SystemMetadata;
             OptionCaption = 'String,Integer,Decimal,DateTime';
             OptionMembers = String,"Integer",Decimal,DateTime;
-        }
-        field(4; XML; BLOB)
-        {
-            Caption = 'XML';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'Use codeunit Temp Blob instead.';
         }
         field(5; "Drill-Down X Index"; Integer)
         {
@@ -557,4 +549,3 @@ table 485 "Business Chart Buffer"
         "Drill-Down Y Value" := YValue;
     end;
 }
-

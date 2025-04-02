@@ -1,4 +1,4 @@
-﻿codeunit 134178 "WF Demo Incoming Doc"
+codeunit 134178 "WF Demo Incoming Doc"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Workflow Step Instance Archive" = d;

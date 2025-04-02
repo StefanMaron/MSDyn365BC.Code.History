@@ -1,4 +1,4 @@
-namespace Microsoft.Finance.GeneralLedger.Journal;
+﻿namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -320,20 +320,6 @@ table 80 "Gen. Journal Template"
         field(34; "Unlink Inc. Doc On Posting"; Boolean)
         {
             Caption = 'Unlink Incoming Documents On Posting';
-        }
-        field(11760; "Not Check Doc. Type"; Boolean)
-        {
-            Caption = 'Not Check Doc. Type';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Field Not Check Doc. Type is discontinued. Use the standard field Force Doc. Balance instead.';
-            ObsoleteTag = '21.0';
-        }
-        field(11761; "Not Check Correction"; Boolean)
-        {
-            Caption = 'Not Check Correction';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Check Balance in G/L Journal by Correction Field will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
         }
     }
 

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Depreciation;
 
 using Microsoft.Finance.Currency;
@@ -21,11 +25,13 @@ table 5611 "Depreciation Book"
         field(1; "Code"; Code[10])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies a code that identifies the depreciation book.';
             NotBlank = true;
         }
         field(2; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the purpose of the depreciation book.';
         }
         field(3; "G/L Integration - Acq. Cost"; Boolean)
         {
@@ -260,64 +266,6 @@ table 5611 "Depreciation Book"
                         FADeprBook.Modify();
                     until FADeprBook.Next() = 0;
             end;
-        }
-        field(31040; "Deprication from 1st Month Day"; Boolean)
-        {
-            Caption = 'Depreciation from 1st Month Day';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31041; "Acqui.,Appr.before Depr. Check"; Boolean)
-        {
-            Caption = 'Acqui.,Appr.before Depr. Check';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31042; "All Acquil. in same Year"; Boolean)
-        {
-            Caption = 'All Acquil. in same Year';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31043; "Check Deprication on Disposal"; Boolean)
-        {
-            Caption = 'Check Depreciation on Disposal';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31044; "Deprication from 1st Year Day"; Boolean)
-        {
-            Caption = 'Depreciation from 1st Year Day';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31045; "Mark Reclass. as Corrections"; Boolean)
-        {
-            Caption = 'Mark Reclass. as Corrections';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31050; "Corresp. G/L Entries on Disp."; Boolean)
-        {
-            Caption = 'Corresp. G/L Entries on Disp.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-
-        }
-        field(31051; "Corresp. FA Entries on Disp."; Boolean)
-        {
-            Caption = 'Corresp. FA Entries on Disp.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-            ObsoleteTag = '21.0';
-
         }
     }
 

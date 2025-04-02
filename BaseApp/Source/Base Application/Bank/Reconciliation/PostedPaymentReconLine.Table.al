@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.BankAccount;
@@ -136,109 +140,7 @@ table 1296 "Posted Payment Recon. Line"
         {
             Caption = 'Reconciled';
         }
-        field(11700; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11701; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11702; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11705; "External Document No."; Code[35])
-        {
-            Caption = 'External Document No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11710; "Currency Code"; Code[10])
-        {
-            Caption = 'Currency Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11711; "Currency Factor"; Decimal)
-        {
-            Caption = 'Currency Factor';
-            DecimalPlaces = 0 : 15;
-            Editable = false;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11715; "Statement Amount (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Statement Amount (LCY)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11716; "Debit Amount"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            BlankZero = true;
-            Caption = 'Debit Amount';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11717; "Credit Amount"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            BlankZero = true;
-            Caption = 'Credit Amount';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11720; "Document Type"; Option)
-        {
-            Caption = 'Document Type';
-            OptionCaption = ' ,Payment,,,,,Refund';
-            OptionMembers = " ",Payment,,,,,Refund;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11725; "Difference (LCY)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'Difference (LCY)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11726; "Applied Amount (LCY)"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            Caption = 'Applied Amount (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
+#if not CLEANSCHEMA25
         field(31000; "Advance Letter Link Code"; Code[30])
         {
             Caption = 'Advance Letter Link Code';
@@ -246,6 +148,7 @@ table 1296 "Posted Payment Recon. Line"
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys
@@ -273,4 +176,3 @@ table 1296 "Posted Payment Recon. Line"
         exit('');
     end;
 }
-

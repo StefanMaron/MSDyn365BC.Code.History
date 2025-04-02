@@ -43,6 +43,8 @@ table 85 "Acc. Schedule Line"
             else
             if ("Totaling Type" = const("Total Accounts")) "G/L Account"
             else
+            if ("Totaling Type" = const("Account Category")) "G/L Account Category"
+            else
             if ("Totaling Type" = const("Cash Flow Entry Accounts")) "Cash Flow Account"
             else
             if ("Totaling Type" = const("Cash Flow Total Accounts")) "Cash Flow Account"
@@ -268,41 +270,6 @@ table 85 "Acc. Schedule Line"
             Caption = 'Cost Budget Filter';
             FieldClass = FlowFilter;
             TableRelation = "Cost Budget Name";
-        }
-        field(31080; Calc; Option)
-        {
-            Caption = 'Calc';
-            InitValue = Always;
-            OptionCaption = 'Always,Never,When Positive,When Negative';
-            OptionMembers = Always,Never,"When Positive","When Negative";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31081; "Row Correction"; Code[10])
-        {
-            Caption = 'Row Correction';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31082; "Assets/Liabilities Type"; Option)
-        {
-            Caption = 'Assets/Liabilities Type';
-            OptionCaption = ' ,Assets,Liabilities';
-            OptionMembers = " ",Assets,Liabilities;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31083; "Source Table"; Option)
-        {
-            Caption = 'Source Table';
-            OptionCaption = ' ,VAT Entry,Value Entry,Customer Entry,Vendor Entry';
-            OptionMembers = " ","VAT Entry","Value Entry","Customer Entry","Vendor Entry";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
         }
     }
 
@@ -646,3 +613,4 @@ table 85 "Acc. Schedule Line"
     begin
     end;
 }
+

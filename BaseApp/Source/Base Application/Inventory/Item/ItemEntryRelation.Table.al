@@ -72,13 +72,6 @@ table 6507 "Item Entry Relation"
             Caption = 'Package No.';
             CaptionClass = '6,1';
         }
-        field(31070; Undo; Boolean)
-        {
-            Caption = 'Undo';
-            ObsoleteReason = 'Moved to Advance Localization Pack for Czech.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
     }
 
     keys

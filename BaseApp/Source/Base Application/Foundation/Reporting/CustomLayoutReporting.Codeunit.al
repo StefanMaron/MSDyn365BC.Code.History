@@ -289,12 +289,18 @@ codeunit 8800 "Custom Layout Reporting"
     local procedure SetCustomReportSelectionTableFilter(TableNo: Integer; RequestPageParamsView: Text)
     var
         Customer: Record Customer;
+        Vendor: Record Vendor;
     begin
         case TableNo of
             Database::Customer:
                 begin
                     Customer.SetView(RequestPageParamsView);
                     CustomReportSelection.SetFilter("Source No.", Customer.GetFilter(Customer."No."));
+                end;
+            Database::Vendor:
+                begin
+                    Vendor.SetView(RequestPageParamsView);
+                    CustomReportSelection.SetFilter("Source No.", Vendor.GetFilter(Vendor."No."));
                 end;
         end;
     end;

@@ -33,6 +33,8 @@ codeunit 134994 "ERM Account Schedule II"
         TargetNameMissingErr: Label 'You must specify a name for the new rows definition.';
         LibraryCostAccounting: Codeunit "Library - Cost Accounting";
         LibraryCashFlow: Codeunit "Library - Cash Flow";
+        InvalidRowErr: Label 'Row %1 with is visible with the value %2.';
+        RowNotFoundErr: Label 'Row %1 is not visible.';
         IsInitialized: Boolean;
 
     [Test]
@@ -396,10 +398,10 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReportSaveAsExcel(AccScheduleName, ColumnLayoutName);
 
         // [THEN] There are four lines (all) have been printed
-        LibraryReportValidation.VerifyCellValue(20, 1, LineDescription[1]);
-        LibraryReportValidation.VerifyCellValue(22, 1, LineDescription[2]);
-        LibraryReportValidation.VerifyCellValue(24, 1, LineDescription[3]);
-        LibraryReportValidation.VerifyCellValue(26, 1, LineDescription[4]);
+        LibraryReportValidation.VerifyCellValue(23, 1, LineDescription[1]);
+        LibraryReportValidation.VerifyCellValue(25, 1, LineDescription[2]);
+        LibraryReportValidation.VerifyCellValue(27, 1, LineDescription[3]);
+        LibraryReportValidation.VerifyCellValue(29, 1, LineDescription[4]);
     end;
 
     [Test]
@@ -464,10 +466,10 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReportSaveAsExcel(AccScheduleName, ColumnLayoutName);
 
         // [THEN] There are only two lines (3rd, 4th) have been printed
-        LibraryReportValidation.VerifyCellValue(20, 1, LineDescription[3]);
-        LibraryReportValidation.VerifyCellValue(22, 1, LineDescription[4]);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 24, 1);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 26, 1);
+        LibraryReportValidation.VerifyCellValue(23, 1, LineDescription[3]);
+        LibraryReportValidation.VerifyCellValue(25, 1, LineDescription[4]);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 27, 1);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 29, 1);
     end;
 
     [Test]
@@ -498,10 +500,10 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReportSaveAsExcel(AccScheduleName, ColumnLayoutName);
 
         // [THEN] There is only one line (4th) has been printed
-        LibraryReportValidation.VerifyCellValue(20, 1, LineDescription[4]);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 22, 1);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 24, 1);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 26, 1);
+        LibraryReportValidation.VerifyCellValue(23, 1, LineDescription[4]);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 25, 1);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 27, 1);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 29, 1);
     end;
 
     [Test]
@@ -532,10 +534,147 @@ codeunit 134994 "ERM Account Schedule II"
         RunAccountScheduleReportSaveAsExcel(AccScheduleName, ColumnLayoutName);
 
         // [THEN] There is only one line (3rd) has been printed
-        LibraryReportValidation.VerifyCellValue(20, 1, LineDescription[3]);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 22, 1);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 24, 1);
-        LibraryReportValidation.VerifyEmptyCellByRef('A', 26, 1);
+        LibraryReportValidation.VerifyCellValue(23, 1, LineDescription[3]);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 25, 1);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 27, 1);
+        LibraryReportValidation.VerifyEmptyCellByRef('A', 29, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateNewExcelTemplate()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinReportExcelTemplate: Record "Fin. Report Excel Template";
+        TempExcelBufferExpected: Record "Excel Buffer" temporary;
+        TempExcelBufferActual: Record "Excel Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        FinReportExcelTemplates: TestPage "Fin. Report Excel Templates";
+        OutStream: OutStream;
+        InStream: InStream;
+        TemplateCode: Code[20];
+        TemplateDesc: Text[100];
+    begin
+        // [SCENARIO] Creating a new financial report with the default template
+        Initialize();
+
+        // [GIVEN] A financial report
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        // [GIVEN] The default exported excel file
+        AccScheduleOverview.Trap();
+        OpenAccountScheduleOverviewPage(AccScheduleName.Name);
+        TempBlob.CreateOutStream(OutStream);
+        RunExportAccScheduleToExcelToStream(AccScheduleOverview, OutStream);
+        TempBlob.CreateInStream(InStream);
+        TempExcelBufferExpected.OpenBookStream(InStream, AccScheduleName.Name);
+        TempExcelBufferExpected.ReadSheet();
+
+        // [WHEN] User selects new on the excel templates page and specifies a code and description
+        TemplateCode := LibraryUtility.GenerateGUID();
+        TemplateDesc := LibraryUtility.GenerateGUID();
+        FinReportExcelTemplates.Trap();
+        AccScheduleOverview.ExcelTemplates.Invoke();
+        FinReportExcelTemplates.New();
+        FinReportExcelTemplates.Code.SetValue(TemplateCode);
+        FinReportExcelTemplates.Description.SetValue(TemplateDesc);
+        FinReportExcelTemplates.New();
+        FinReportExcelTemplates.Close();
+
+        // [THEN] A new financial report excel template should be created with the specified values
+        Assert.IsTrue(FinReportExcelTemplate.Get(AccScheduleName.Name, TemplateCode), 'Financial report excel template should be created');
+        Assert.AreEqual(TemplateDesc, FinReportExcelTemplate.Description, 'Financial report excel template description should be set');
+
+        // [THEN] The new template should also match the default exported file
+        FinReportExcelTemplate.CalcFields(Template);
+        FinReportExcelTemplate.Template.CreateInStream(InStream);
+        TempExcelBufferActual.OpenBookStream(InStream, AccScheduleName.Name);
+        TempExcelBufferActual.ReadSheet();
+        if TempExcelBufferExpected.FindSet() then
+            repeat
+                Assert.IsTrue(TempExcelBufferActual.Get(TempExcelBufferExpected."Row No.", TempExcelBufferExpected."Column No."), 'New template should have the same cells as the default');
+                Assert.AreEqual(TempExcelBufferExpected."Cell Value as Text", TempExcelBufferActual."Cell Value as Text", 'New template cell value should match the default');
+            until TempExcelBufferExpected.Next() = 0;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportToExcelWithCustomTemplate()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinReportExcelTemplate: Record "Fin. Report Excel Template";
+        ExcelBufferExpected: Record "Excel Buffer" temporary;
+        ExcelBufferActual: Record "Excel Buffer" temporary;
+        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        FileMgt: Codeunit "File Management";
+        TempBlobExpected: Codeunit "Temp Blob";
+        TempBlobActual: Codeunit "Temp Blob";
+        OutStream: OutStream;
+        InStreamExpected: InStream;
+        InStreamActual: InStream;
+        CustomTemplateFileName: Text;
+        CustomSheetName: Text;
+    begin
+        // [SCENARIO] An custom template is imported and set as the default
+        Initialize();
+
+        // [GIVEN] A financial report
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        // [GIVEN] A custom template file
+        AccScheduleOverview.Trap();
+        OpenAccountScheduleOverviewPage(AccScheduleName.Name);
+        TempBlobExpected.CreateOutStream(OutStream);
+        RunExportAccScheduleToExcelToStream(AccScheduleOverview, OutStream);
+        TempBlobExpected.CreateInStream(InStreamExpected);
+        CustomTemplateFileName := FileMgt.InStreamExportToServerFile(InStreamExpected, '');
+        // [GIVEN] A new sheet and cell value on the custom template
+        ExcelBufferExpected.OpenBookForUpdate(CustomTemplateFileName);
+        ExcelBufferExpected.SelectOrAddSheet(LibraryUtility.GenerateRandomText(10));
+        ExcelBufferExpected.EnterCell(ExcelBufferExpected, 1, 1, LibraryUtility.GenerateRandomText(100), true, true, true);
+        ExcelBufferExpected.WriteAllToCurrentSheet(ExcelBufferExpected);
+        ExcelBufferExpected.CloseBook();
+        // [GIVEN] The custom template is imported and set as the default
+        FinReportExcelTemplate.Init();
+        FinReportExcelTemplate."Financial Report Name" := AccScheduleName.Name;
+        FinReportExcelTemplate.Code := LibraryUtility.GenerateGUID();
+        FinReportExcelTemplate.Description := LibraryUtility.GenerateGUID();
+        Clear(TempBlobExpected);
+        FileMgt.BLOBImportFromServerFile(TempBlobExpected, CustomTemplateFileName);
+        TempBlobExpected.CreateInStream(InStreamExpected);
+        FinReportExcelTemplate.Template.CreateOutStream(OutStream);
+        CopyStream(OutStream, InStreamExpected);
+        FinReportExcelTemplate.Insert();
+
+        // [WHEN] The custom template is set as the default
+        AccScheduleOverview.ExcelTemplateCode.SetValue(FinReportExcelTemplate.Code);
+        if AccScheduleOverview.First() then;
+        // [WHEN] Export to Excel
+        TempBlobActual.CreateOutStream(OutStream);
+        RunExportAccScheduleToExcelToStream(AccScheduleOverview, OutStream);
+        TempBlobActual.CreateInStream(InStreamActual);
+        ExcelBufferActual.OpenBookStream(InStreamActual, CustomSheetName);
+
+        // [THEN] The exported file should match the custom template
+        FileMgt.BLOBImportFromServerFile(TempBlobExpected, CustomTemplateFileName);
+        TempBlobExpected.CreateInStream(InStreamExpected);
+        ExcelBufferExpected.GetSheetsNameListFromStream(InStreamExpected, TempNameValueBuffer);
+        ExcelBufferExpected.OpenBookStream(InStreamExpected, CustomSheetName);
+
+        TempNameValueBuffer.FindSet();
+        repeat
+            ExcelBufferExpected.OpenBookStream(InStreamExpected, TempNameValueBuffer.Value);
+            ExcelBufferExpected.ReadSheet();
+
+            ExcelBufferActual.OpenBookStream(InStreamActual, TempNameValueBuffer.Value);
+            ExcelBufferActual.ReadSheet();
+
+            if ExcelBufferExpected.FindSet() then
+                repeat
+                    Assert.IsTrue(ExcelBufferActual.Get(ExcelBufferExpected."Row No.", ExcelBufferExpected."Column No."), 'New template should have the same cells as the default');
+                    Assert.AreEqual(ExcelBufferExpected."Cell Value as Text", ExcelBufferActual."Cell Value as Text", 'New template cell value should match the default');
+                until ExcelBufferExpected.Next() = 0;
+        until TempNameValueBuffer.Next() = 0;
     end;
 
     local procedure VerifyAccSchedColumnIndentationCalc(Indentation: Integer; ShowIndentation: Option; ExpectZero: Boolean)
@@ -737,6 +876,74 @@ codeunit 134994 "ERM Account Schedule II"
         LibraryReportValidation.VerifyCellValue(3, 2, CostObject.Code);
         LibraryReportValidation.VerifyCellValue(4, 1, AccScheduleLine.FieldCaption("Cash Flow Forecast Filter"));
         LibraryReportValidation.VerifyCellValue(4, 2, CashFlowForecast."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportAccScheduleWithIntroClosingParagraph()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinancialReport: Record "Financial Report";
+        ColumnLayoutName: Code[10];
+        IntroductoryParagraph, ClosingParagraph : Text[100];
+    begin
+        // [FEATURE] [Excel]
+        // [SCENARIO] Financial Report must print introductory and closing paragraphs when defined
+        Initialize();
+
+        // [GIVEN] Financial Report with introductory and closing paragraphs
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        FinancialReport.Get(AccScheduleName.Name);
+        IntroductoryParagraph := LibraryRandom.RandText(100);
+        ClosingParagraph := LibraryRandom.RandText(100);
+        FinancialReport.SetIntroductionParagraph(IntroductoryParagraph);
+        FinancialReport.SetClosingParagraph(ClosingParagraph);
+        FinancialReport.Modify();
+
+        // [WHEN] Print Account Schedule (Report 25)
+        LibraryReportValidation.SetFileName(AccScheduleName.Name);
+        RunAccountScheduleReportSaveAsExcel(AccScheduleName.Name, ColumnLayoutName);
+
+        // [THEN] Introductory and closing paragraphs are printed
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(16, 1, IntroductoryParagraph);
+        LibraryReportValidation.VerifyCellValue(25, 1, ClosingParagraph);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ExportAccScheduleToExcelWithIntroClosingParagraph()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Record "Acc. Schedule Name";
+        FinancialReport: Record "Financial Report";
+        IntroductoryParagraph, ClosingParagraph : Text[100];
+    begin
+        // [FEATURE] [Excel]
+        // [SCENARIO] Financial Report export to excel must contain introductory and closing paragraphs when defined
+        Initialize();
+
+        // [GIVEN] Financial Report with introductory and closing paragraphs
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        FinancialReport.Get(AccScheduleName.Name);
+        IntroductoryParagraph := LibraryRandom.RandText(100);
+        ClosingParagraph := LibraryRandom.RandText(100);
+        FinancialReport.SetIntroductionParagraph(IntroductoryParagraph);
+        FinancialReport.SetClosingParagraph(ClosingParagraph);
+        FinancialReport.Modify();
+
+        // [WHEN] Print Account Schedule (Report 25)
+        LibraryReportValidation.SetFileName(AccScheduleName.Name);
+        AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
+        AccScheduleLine.SetRange("Date Filter", CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        RunExportAccSchedule(AccScheduleLine, AccScheduleName);
+
+        // [THEN] Introductory and closing paragraphs are printed
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(3, 1, IntroductoryParagraph);
+        LibraryReportValidation.VerifyCellValue(9, 1, ClosingParagraph);
     end;
 
     [Test]
@@ -1927,6 +2134,132 @@ codeunit 134994 "ERM Account Schedule II"
         AccountSchedule.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('AccScheduleOverviewWithDisabledLinePageHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewExcludeLinesWithShowAllLinesDisabledPositiveBalance()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Code[10];
+        ColumnLayoutName: Code[10];
+        LineDescription: array[4] of Text;
+    begin
+        // [SCENARIO] Acc. Schedule Overview only shows lines with the value range specified by the row definition, when show all lines is disabled
+        Initialize();
+
+        // [GIVEN] 4 GL accounts with balances
+        // [GIVEN] 4 account schedule lines with "Show" = "When Positive Balance", assigned one GL account each
+        // [GIVEN] Only line 3 has a positive balance
+        CreateAccScheduleWithFourLines(AccScheduleName, ColumnLayoutName, LineDescription, AccScheduleLine.Show::"When Positive Balance");
+        LibraryVariableStorage.Enqueue(LineDescription[1]);
+        LibraryVariableStorage.Enqueue(LineDescription[2]);
+        LibraryVariableStorage.Enqueue(LineDescription[4]);
+
+        // [WHEN] Acc. Schedule Overview page is opened
+        OpenAccountScheduleOverviewPage(AccScheduleName);
+
+        // [THEN] Lines 1, 2, 4 are hidden
+        // Handled in AccScheduleOverviewWithDisabledLinePageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('AccScheduleOverviewWithDisabledLinePageHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewExcludeLinesWithShowAllLinesDisabledNegativeBalance()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Code[10];
+        ColumnLayoutName: Code[10];
+        LineDescription: array[4] of Text;
+    begin
+        // [SCENARIO] Acc. Schedule Overview only shows lines with the value range specified by the row definition, when show all lines is disabled
+        Initialize();
+
+        // [GIVEN] 4 GL accounts with balances
+        // [GIVEN] 4 account schedule lines with "Show" = "When Negative Balance", assigned one GL account each
+        // [GIVEN] Only line 4 has a negative balance
+        CreateAccScheduleWithFourLines(AccScheduleName, ColumnLayoutName, LineDescription, AccScheduleLine.Show::"When Negative Balance");
+        LibraryVariableStorage.Enqueue(LineDescription[1]);
+        LibraryVariableStorage.Enqueue(LineDescription[2]);
+        LibraryVariableStorage.Enqueue(LineDescription[3]);
+
+        // [WHEN] Acc. Schedule Overview page is opened
+        OpenAccountScheduleOverviewPage(AccScheduleName);
+
+        // [THEN] Lines 1, 2, 3 are hidden
+        // Handled in AccScheduleOverviewWithDisabledLinePageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('AccScheduleOverviewWithDisabledLinePageHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewExcludeLinesWithShowAllLinesDisabledNotZero()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleName: Code[10];
+        ColumnLayoutName: Code[10];
+        LineDescription: array[4] of Text;
+    begin
+        // [SCENARIO] Acc. Schedule Overview only shows lines with the value range specified by the row definition, when show all lines is disabled
+        Initialize();
+
+        // [GIVEN] 4 GL accounts with balances
+        // [GIVEN] 4 account schedule lines with "Show" = "If Any Column Not Zero", assigned one GL account each
+        // [GIVEN] Only line 3 and 4 has a non-zero balance
+        CreateAccScheduleWithFourLines(AccScheduleName, ColumnLayoutName, LineDescription, AccScheduleLine.Show::"If Any Column Not Zero");
+        LibraryVariableStorage.Enqueue(LineDescription[1]);
+        LibraryVariableStorage.Enqueue(LineDescription[2]);
+
+        // [WHEN] Acc. Schedule Overview page is opened
+        OpenAccountScheduleOverviewPage(AccScheduleName);
+
+        // [THEN] Lines 1, 2 are hidden
+        // Handled in AccScheduleOverviewWithDisabledLinePageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('AccScheduleOverviewWithShowAllEnabledPageHandler')]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewIncludeLinesWithShowAllLinesEnabled()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        // [SCENARIO] Acc. Schedule Overview shows all lines when Show All Lines is enabled
+        Initialize();
+
+        // [GIVEN] Account Schedule was created
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+
+        // [GIVEN] Account Schedule Lines for each show option value, but no balance
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate(Show, AccScheduleLine.Show::Yes);
+        AccScheduleLine.Modify(true);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate(Show, AccScheduleLine.Show::No);
+        AccScheduleLine.Modify(true);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate(Show, AccScheduleLine.Show::"If Any Column Not Zero");
+        AccScheduleLine.Modify(true);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate(Show, AccScheduleLine.Show::"When Positive Balance");
+        AccScheduleLine.Modify(true);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate(Show, AccScheduleLine.Show::"When Negative Balance");
+        AccScheduleLine.Modify(true);
+
+        // [WHEN] Acc. Schedule Overview page is opened with Show All Lines enabled
+        OpenAccountScheduleOverviewPage(AccScheduleName.Name);
+
+        // [THEN] All lines are visible
+        // Handled in AccScheduleOverviewWithShowAllEnabledPageHandler
+    end;
+
     local procedure Initialize()
     var
         FinancialReportMgt: Codeunit "Financial Report Mgt.";
@@ -2151,7 +2484,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         FinancialReport.Get(AccScheduleName.Name);
         ExportAccSchedToExcel.SetFileNameSilent(LibraryReportValidation.GetFileName());
-        ExportAccSchedToExcel.SetOptions(AccScheduleLine, FinancialReport."Financial Report Column Group", false);
+        ExportAccSchedToExcel.SetOptions(AccScheduleLine, FinancialReport."Financial Report Column Group", false, AccScheduleName.Name);
         ExportAccSchedToExcel.SetTestMode(true);
         ExportAccSchedToExcel.UseRequestPage(false);
         ExportAccSchedToExcel.Run();
@@ -2184,6 +2517,27 @@ codeunit 134994 "ERM Account Schedule II"
         FinancialReportXMLNode.ReplaceWith(NewFinancialReportXMLElement);
         RequestPageXMLDocument.WriteTo(RequestPageXML);
         LibraryReportDataset.RunReportAndLoad(REPORT::"Account Schedule", AccScheduleName, RequestPageXML);
+    end;
+
+    local procedure RunExportAccScheduleToExcelToStream(AccScheduleOverview: TestPage "Acc. Schedule Overview"; var OutStream: OutStream)
+    var
+        FinancialReport: Record "Financial Report";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        FinReportExcelTemplate: Record "Fin. Report Excel Template";
+        ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
+    begin
+        FinancialReport.Get(AccScheduleOverview.FinancialReportName.Value);
+        AccScheduleLine.SetRange("Schedule Name", AccScheduleOverview.CurrentSchedName.Value);
+        AccScheduleLine.SetFilter("Date Filter", AccScheduleOverview.DateFilter.Value); // Mirror the filter from the overview page
+        ExportAccSchedToExcel.SetOptions(AccScheduleLine, FinancialReport."Financial Report Column Group", FinancialReport.UseAmountsInAddCurrency, FinancialReport.Name);
+        if AccScheduleOverview.ExcelTemplateCode.Value <> '' then begin
+            FinReportExcelTemplate.Get(FinancialReport.Name, AccScheduleOverview.ExcelTemplateCode.Value);
+            ExportAccSchedToExcel.SetUseExistingTemplate(FinReportExcelTemplate);
+        end;
+        ExportAccSchedToExcel.SetSaveToStream(true);
+        ExportAccSchedToExcel.UseRequestPage(false);
+        ExportAccSchedToExcel.RunModal();
+        ExportAccSchedToExcel.GetSavedStream(OutStream);
     end;
 
     local procedure UpdateGLSetupAddReportingCurrency(CurrencyCode: Code[10])
@@ -2453,6 +2807,36 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         AccountSchedule.CurrentSchedName.AssertEquals(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(AccScheduleName.Name)));
         AccountSchedule.Show.SetValue(AccScheduleLine.Show::No);
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewWithDisabledLinePageHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
+    var
+        UnexpectedLineDescription: Variant;
+    begin
+        while LibraryVariableStorage.Length() > 0 do begin
+            LibraryVariableStorage.Dequeue(UnexpectedLineDescription);
+            AccScheduleOverview.First();
+            repeat
+                Assert.AreNotEqual(UnexpectedLineDescription, AccScheduleOverview.Description.Value, StrSubstNo(InvalidRowErr, AccScheduleOverview.Description.Value, AccScheduleOverview.ColumnValues1.Value));
+            until not AccScheduleOverview.Next();
+        end;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewWithShowAllEnabledPageHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        AccScheduleOverview.ShowLinesWithShowNo.SetValue(true);
+        AccScheduleOverview.First();
+        AccScheduleLine.SetRange("Schedule Name", AccScheduleOverview.CurrentSchedName.Value);
+        AccScheduleLine.FindSet();
+        repeat
+            Assert.IsTrue(AccScheduleOverview.GoToRecord(AccScheduleLine), RowNotFoundErr);
+        until AccScheduleLine.Next() = 0;
     end;
 
     [RequestPageHandler]

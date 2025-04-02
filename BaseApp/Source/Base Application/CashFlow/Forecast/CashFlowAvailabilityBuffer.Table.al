@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CashFlow.Forecast;
 
 table 930 "Cash Flow Availability Buffer"
@@ -74,22 +78,6 @@ table 930 "Cash Flow Availability Buffer"
         field(22; Total; Decimal)
         {
             Caption = 'Total';
-        }
-        field(11700; "Sales Advances"; Decimal)
-        {
-            Caption = 'Sales Advances';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11701; "Purchase Advances"; Decimal)
-        {
-            Caption = 'Purchase Advances';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
         }
     }
 

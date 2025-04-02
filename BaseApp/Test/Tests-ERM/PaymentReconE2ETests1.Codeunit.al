@@ -3166,7 +3166,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         // Warning HeaderError1 does not exist for Payment Reconciliation (TFS 398635)
         LibraryReportDataset.AssertElementWithValueNotExist(
             'HeaderError1', 'Statement Ending Balance must be equal to Total Balance.');
-         LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdBankTransactions', OutstdTransactions);
+        LibraryReportDataset.AssertElementWithValueExists('Bank_Acc__Reconciliation___TotalOutstdBankTransactions', OutstdTransactions);
 
         // Verify Totals
         Assert.AreEqual(GLBalance,

@@ -9,6 +9,7 @@ using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Setup;
 using System.Utilities;
 
 table 5804 "Avg. Cost Adjmt. Entry Point"
@@ -93,6 +94,7 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
         CalendarPeriod: Record Date;
     begin
         Reset();
+        ReadIsolation(IsolationLevel::ReadUncommitted);
         "Item No." := ValueEntry."Item No.";
         "Valuation Date" := ValueEntry."Valuation Date";
         GetItem(ValueEntry."Item No.");
@@ -136,7 +138,12 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
 
     procedure UpdateValuationDate(ValueEntry: Record "Value Entry")
     begin
+        Rec.ReadIsolation(IsolationLevel::ReadUnCommitted);
         if ValuationExists(ValueEntry) then begin
+            if not "Cost Is Adjusted" then
+                exit;
+            Rec.ReadIsolation(IsolationLevel::UpdLock);
+            Rec.Find();
             if not "Cost Is Adjusted" then
                 exit;
             "Cost Is Adjusted" := false;
@@ -257,8 +264,30 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
 
     local procedure GetItem(ItemNo: Code[20])
     begin
+        Item.ReadIsolation(IsolationLevel::ReadUncommitted);
         if ItemNo <> Item."No." then
             Item.Get(ItemNo);
+    end;
+
+    procedure RunCostAdjustmentUntilValuationDate()
+    var
+        InventorySetup: Record "Inventory Setup";
+        CostAdjustmentParameter: Record "Cost Adjustment Parameter";
+        CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.";
+        CostAdjustmentItemRunner: Codeunit "Cost Adjustment Item Runner";
+    begin
+        InventorySetup.Get();
+        GetItem("Item No.");
+        Item.SetRecFilter();
+        Item.SetRange("Date Filter", 0D, "Valuation Date");
+
+        CostAdjustmentParameter."Post to G/L" := InventorySetup."Automatic Cost Posting";
+        CostAdjustmentParamsMgt.SetParameters(CostAdjustmentParameter);
+        CostAdjustmentItemRunner.SetParameters(CostAdjustmentParamsMgt);
+        CostAdjustmentItemRunner.Run(Item);
+
+        Item.Find();
+        Item.UpdateCostIsAdjusted();
     end;
 
     [IntegrationEvent(false, false)]

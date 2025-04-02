@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Setup;
+namespace Microsoft.Finance.GeneralLedger.Setup;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Analysis;
@@ -40,6 +40,7 @@ table 98 "General Ledger Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Allow Posting From"; Date)
@@ -574,14 +575,6 @@ table 98 "General Ledger Setup"
             Editable = false;
             MinValue = 0;
         }
-        field(96; "Adapt Main Menu to Permissions"; Boolean)
-        {
-            Caption = 'Adapt Main Menu to Permissions';
-            InitValue = true;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced with UI Elements Removal feature.';
-            ObsoleteTag = '24.0';
-        }
         field(97; "Allow G/L Acc. Deletion Before"; Date)
         {
             Caption = 'Check G/L Acc. Deletion After';
@@ -617,6 +610,7 @@ table 98 "General Ledger Setup"
             Caption = 'Block Deletion of G/L Accounts';
             InitValue = true;
         }
+#if not CLEANSCHEMA25
         field(110; "Acc. Sched. for Balance Sheet"; Code[10])
         {
             Caption = 'Account Schedule for Balance Sheet';
@@ -669,6 +663,7 @@ table 98 "General Ledger Setup"
                 Error(AccSchedObsoleteErr);
             end;
         }
+#endif
         field(114; "Fin. Rep. for Balance Sheet"; Code[10])
         {
             Caption = 'Financial Report for Balance Sheet';
@@ -730,13 +725,6 @@ table 98 "General Ledger Setup"
                 end;
             end;
         }
-        field(152; "Use Legacy G/L Entry Locking"; Boolean)
-        {
-            Caption = 'Use Legacy G/L Entry Locking';
-            ObsoleteReason = 'Legacy G/L Locking is no longer supported.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
         field(160; "Payroll Trans. Import Format"; Code[20])
         {
             Caption = 'Payroll Trans. Import Format';
@@ -745,18 +733,6 @@ table 98 "General Ledger Setup"
             trigger OnValidate()
             begin
                 FeatureTelemetry.LogUptake('0004H8X', 'DK payroll service', Enum::"Feature Uptake Status"::Discovered);
-            end;
-        }
-        field(161; "VAT Reg. No. Validation URL"; Text[250])
-        {
-            Caption = 'VAT Reg. No. Validation URL';
-            ObsoleteReason = 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-
-            trigger OnValidate()
-            begin
-                Error(ObsoleteErr);
             end;
         }
         field(162; "Local Currency Symbol"; Text[10])
@@ -892,202 +868,14 @@ table 98 "General Ledger Setup"
             TableRelation = "G/L Account Category";
             Caption = 'Account Receivables G/L Account Category';
         }
-	    field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
+        field(191; "App. Dimension Posting"; Enum "Exch. Rate Adjmt. Dimensions")
         {
             Caption = 'Dimension Posting';
             DataClassification = CustomerContent;
         }
-        field(11730; "Cash Desk Nos."; Code[20])
+        field(192; "Hide Company Bank Account"; Boolean)
         {
-            Caption = 'Cash Desk Nos.';
-            TableRelation = "No. Series";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11731; "Cash Payment Limit (LCY)"; Decimal)
-        {
-            Caption = 'Cash Payment Limit (LCY)';
-            DecimalPlaces = 0 : 2;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11760; "Closed Period Entry Pos.Date"; Date)
-        {
-            Caption = 'Closed Period Entry Pos.Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11761; "Rounding Date"; Date)
-        {
-            Caption = 'Rounding Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11762; "Statement Templ. Name Coeff."; Code[10])
-        {
-            Caption = 'Statement Templ. Name Coeff.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-
-        }
-        field(11763; "Statement Name Coeff."; Code[10])
-        {
-            Caption = 'Statement Name Coeff.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11764; "Statement Line No. Coeff."; Integer)
-        {
-            Caption = 'Statement Line No. Coeff.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11765; "Round VAT Coeff."; Boolean)
-        {
-            Caption = 'Round VAT Coeff.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality is no longer needed.';
-            ObsoleteTag = '18.0';
-        }
-        field(11766; "VAT Coeff. Rounding Precision"; Decimal)
-        {
-            Caption = 'VAT Coeff. Rounding Precision';
-            DecimalPlaces = 2 : 4;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality is no longer needed.';
-            ObsoleteTag = '18.0';
-        }
-        field(11768; "Allow VAT Posting From"; Date)
-        {
-            Caption = 'Allow VAT Posting From';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11769; "Allow VAT Posting To"; Date)
-        {
-            Caption = 'Allow VAT Posting To';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11770; "Use VAT Date"; Boolean)
-        {
-            Caption = 'Use VAT Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letters)';
-            ObsoleteTag = '22.0';
-        }
-        field(11771; "Check VAT Identifier"; Boolean)
-        {
-            Caption = 'Check VAT Identifier';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The enhanced functionality of VAT Identifier will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11772; "Check Posting Debit/Credit"; Boolean)
-        {
-            Caption = 'Check Posting Debit/Credit';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11773; "Mark Neg. Qty as Correction"; Boolean)
-        {
-            Caption = 'Mark Neg. Qty as Correction';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11774; "Company Officials Nos."; Code[20])
-        {
-            Caption = 'Company Officials Nos.';
-            TableRelation = "No. Series";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11775; "Correction As Storno"; Boolean)
-        {
-            Caption = 'Correction As Storno';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(11776; "Dont Check Dimension"; Boolean)
-        {
-            Caption = 'Dont Check Dimension';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11790; "User Checks Allowed"; Boolean)
-        {
-            Caption = 'User Checks Allowed';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11791; "User ID Lookup only User Check"; Boolean)
-        {
-            Caption = 'User ID Lookup only User Check';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of user ID Lookup only user Check has been removed and this field should not be used.';
-            ObsoleteTag = '21.0';
-
-        }
-        field(11792; "Delete Card with Entries"; Boolean)
-        {
-            Caption = 'Delete Card with Entries';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Disable Cards Deleting will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11793; "Reg. No. Validation URL"; Text[250])
-        {
-            Caption = 'Reg. No. Validation URL';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'This field has been replaced by Table 11757 Reg. No. Srv Config.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(31000; "Prepayment Type"; Option)
-        {
-            Caption = 'Prepayment Type';
-            OptionCaption = ' ,Prepayments,Advances';
-            OptionMembers = " ",Prepayments,Advances;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31002; "Use Adv. CM Nos for Adv. Corr."; Boolean)
-        {
-            Caption = 'Use Adv. CM Nos for Adv. Corr.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31080; "Shared Account Schedule"; Code[10])
-        {
-            Caption = 'Shared Account Schedule';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31081; "Acc. Schedule Results Nos."; Code[20])
-        {
-            Caption = 'Acc. Schedule Results Nos.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '22.0';
+            Caption = 'Hide Company Bank Account';
         }
     }
 
@@ -1145,7 +933,6 @@ table 98 "General Ledger Setup"
 #pragma warning disable AA0470
         DependentFieldActivatedErr: Label 'You cannot change %1 because %2 is selected.';
 #pragma warning restore AA0470
-        ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
         AccSchedObsoleteErr: Label 'This field is obsolete and it has been replaced by Table 88 Financial Report';
         VATDateFeatureTok: Label 'VAT Date', Locked = true;
         VATPeriodControlUsageMsg: Label 'Control VAT Period set to %1', Locked = true;
@@ -1399,4 +1186,3 @@ table 98 "General Ledger Setup"
     begin
     end;
 }
-

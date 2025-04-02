@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.FixedAsset;
 
 using Microsoft.Finance.GeneralLedger.Account;
@@ -434,31 +438,6 @@ table 5606 "FA Posting Group"
             begin
                 CheckGLAcc("Book Val. Acc. on Disp. (Loss)", false);
             end;
-        }
-        field(31040; "Acq. Cost Bal. Acc. on Disp."; Code[20])
-        {
-            Caption = 'Acq. Cost Bal. Acc. on Disp.';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Fixed Asset Localization for Czech';
-            ObsoleteTag = '21.0';
-
-        }
-        field(31041; "Book Value Bal. Acc. on Disp."; Code[20])
-        {
-            Caption = 'Book Value Bal. Acc. on Disp.';
-            TableRelation = "G/L Account";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Fixed Asset Localization for Czech';
-            ObsoleteTag = '21.0';
-
-        }
-        field(31042; "Use Standard Disposal"; Boolean)
-        {
-            Caption = 'Use Standard Disposal';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Disposal Posting was changed and this field should not be used. This field is replaced by a UseStandardDisposal function. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
         }
     }
 

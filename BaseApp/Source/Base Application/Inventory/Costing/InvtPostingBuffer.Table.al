@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Finance.Dimension;
@@ -93,14 +97,6 @@ table 48 "Invt. Posting Buffer"
             Editable = false;
             TableRelation = "Dimension Set Entry";
         }
-        field(11763; "G/L Correction"; Boolean)
-        {
-            Caption = 'G/L Correction';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-            ObsoleteReason = 'The field is not used anymore.';
-        }
     }
 
     keys
@@ -128,7 +124,8 @@ table 48 "Invt. Posting Buffer"
            "Account Type"::"Capacity Variance",
            "Account Type"::"Subcontracted Variance",
            "Account Type"::"Cap. Overhead Variance",
-           "Account Type"::"Mfg. Overhead Variance"];
+           "Account Type"::"Mfg. Overhead Variance",
+           "Account Type"::"Material - Non Inventory Variance"];
 
         OnUseInvtPostSetup(Rec, UseInventoryPostingSetup);
 
@@ -140,3 +137,4 @@ table 48 "Invt. Posting Buffer"
     begin
     end;
 }
+

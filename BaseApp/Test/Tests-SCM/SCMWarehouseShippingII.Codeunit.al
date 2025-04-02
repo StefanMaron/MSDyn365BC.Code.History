@@ -3424,7 +3424,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         ParentItem.Validate("Reordering Policy", ParentItem."Reordering Policy"::Order);
         ParentItem.Modify(true);
         LibraryInventory.CreateItem(ComponentItem);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ParentItem."No.", BOMComponent.Type::Item, ComponentItem."No.", 1, ComponentItem."Base Unit of Measure");
     end;
 
@@ -3477,6 +3477,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Flushing Method", Item."Flushing Method"::"Pick + Manual");
         Item.Modify(true);
     end;
 

@@ -13,16 +13,7 @@ codeunit 132807 "Removed Tables Data Setup"
         ChangeLogSetupTable: Record "Change Log Setup (Table)";
     begin
         // Insert references to removed tables
-        ChangeLogSetupTable."Table No." := 53; // "Batch Processing Parameter Map"
-        ChangeLogSetupTable.Insert();
-
-        ChangeLogSetupTable."Table No." := 897; // "What's New Notified"
-        ChangeLogSetupTable.Insert();
-
-        ChangeLogSetupTable."Table No." := 1442; // "Headline RC Accountant"
-        ChangeLogSetupTable.Insert();
-
-        ChangeLogSetupTable."Table No." := 2000000101; // "Debugger Call Stack"
+        ChangeLogSetupTable."Table No." := 132805; // "Table State Obsolete Removed"
         ChangeLogSetupTable.Insert();
 
         // Insert references to non-removed tables

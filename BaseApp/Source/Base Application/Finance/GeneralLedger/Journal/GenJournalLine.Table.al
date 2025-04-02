@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -1987,6 +1987,7 @@ table 81 "Gen. Journal Line"
         {
             Caption = 'IC Direction';
         }
+#if not CLEANSCHEMA25
         field(116; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -1995,6 +1996,7 @@ table 81 "Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(117; "IC Partner Transaction No."; Integer)
         {
             Caption = 'IC Partner Transaction No.';
@@ -2221,13 +2223,6 @@ table 81 "Gen. Journal Line"
             begin
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
-        }
-        field(827; "Credit Card No."; Code[20])
-        {
-            Caption = 'Credit Card No.';
-            ObsoleteReason = 'This field is not needed and it is not used anymore.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(1000; "Remit-to Code"; Code[20])
         {
@@ -2946,13 +2941,6 @@ table 81 "Gen. Journal Line"
         {
             Caption = 'Non-Ded. VAT FA Cost';
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(8001; "Account Id"; Guid)
         {
             Caption = 'Account Id';
@@ -3032,290 +3020,6 @@ table 81 "Gen. Journal Line"
                 UpdateVendorNo();
             end;
         }
-        field(11700; "Bank Account Code"; Code[20])
-        {
-            Caption = 'Bank Account Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11701; "Bank Account No."; Text[30])
-        {
-            Caption = 'Bank Account No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11703; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11704; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11705; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11706; "Transit No."; Text[20])
-        {
-            Caption = 'Transit No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11707; IBAN; Code[50])
-        {
-            Caption = 'IBAN';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11708; "SWIFT Code"; Code[20])
-        {
-            Caption = 'SWIFT Code';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11760; "VAT Date"; Date)
-        {
-            Caption = 'VAT Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11761; Compensation; Boolean)
-        {
-            Caption = 'Compensation';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11763; "Postponed VAT"; Boolean)
-        {
-            Caption = 'Postponed VAT';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11764; "VAT Delay"; Boolean)
-        {
-            Caption = 'VAT Delay';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11765; "VAT % (Non Deductible)"; Decimal)
-        {
-            Caption = 'VAT % (Non Deductible)';
-            MaxValue = 100;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has bee removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11766; "VAT Base (Non Deductible)"; Decimal)
-        {
-            AutoFormatExpression = Rec."Currency Code";
-            Caption = 'VAT Base (Non Deductible)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11767; "VAT Amount (Non Deductible)"; Decimal)
-        {
-            AutoFormatExpression = Rec."Currency Code";
-            Caption = 'VAT Amount (Non Deductible)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11768; "Currency Factor VAT"; Decimal)
-        {
-            Caption = 'Currency Factor VAT';
-            DecimalPlaces = 0 : 15;
-            Editable = false;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11769; "Currency Code VAT"; Code[10])
-        {
-            Caption = 'Currency Code VAT';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-
-        }
-        field(11770; "Primary VAT Entry No."; Integer)
-        {
-            Caption = 'Primary VAT Entry No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11772; "VAT Base LCY (Non Deduct.)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'VAT Base LCY (Non Deduct.)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11773; "VAT Amount LCY (Non Deduct.)"; Decimal)
-        {
-            AutoFormatType = 1;
-            Caption = 'VAT Amount LCY (Non Deduct.)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Non-deductible VAT has been removed and this field should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(11774; "VAT Difference (LCY)"; Decimal)
-        {
-            Caption = 'VAT Difference (LCY)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11775; "Bal. VAT Difference (LCY)"; Decimal)
-        {
-            Caption = 'Bal. VAT Difference (LCY)';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11790; "Registration No."; Text[20])
-        {
-            Caption = 'Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11791; "Tax Registration No."; Text[20])
-        {
-            Caption = 'Tax Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31000; "Prepayment Type"; Option)
-        {
-            Caption = 'Prepayment Type';
-            OptionCaption = ' ,Prepayment,Advance';
-            OptionMembers = " ",Prepayment,Advance;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31001; "Advance Letter Link Code"; Code[30])
-        {
-            Caption = 'Advance Letter Link Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31003; "Advance Letter No."; Code[20])
-        {
-            Caption = 'Advance Letter No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31004; "Advance Letter Line No."; Integer)
-        {
-            Caption = 'Advance Letter Line No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31005; "Prepmt. Appl. Transaction No."; Integer)
-        {
-            Caption = 'Prepmt. Appl. Transaction No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31006; "Advance Exch. Rate Difference"; Decimal)
-        {
-            Caption = 'Advance Exch. Rate Difference';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31007; "Advance VAT Base Amount"; Decimal)
-        {
-            Caption = 'Advance VAT Base Amount';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '22.0';
-        }
-        field(31060; "Perform. Country/Region Code"; Code[10])
-        {
-            Caption = 'Perform. Country/Region Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31066; "EU 3-Party Intermediate Role"; Boolean)
-        {
-            Caption = 'EU 3-Party Intermediate Role';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31070; "Item Ledger Entry No."; Integer)
-        {
-            Caption = 'Item Ledger Entry No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31100; "Original Document VAT Date"; Date)
-        {
-            Caption = 'Original Document VAT Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31101; "Original Document Partner Type"; Option)
-        {
-            Caption = 'Original Document Partner Type';
-            OptionCaption = ' ,Customer,Vendor';
-            OptionMembers = " ",Customer,Vendor;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31102; "Original Document Partner No."; Code[20])
-        {
-            Caption = 'Original Document Partner No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
     }
 
     keys
@@ -3383,7 +3087,8 @@ table 81 "Gen. Journal Line"
         // Lines are deleted 1 by 1, this actually check if this is the last line in the General journal Bach
         GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        if GenJournalLine.Count = 1 then
+        GenJournalLine.SetFilter("Line No.", '<>%1', "Line No.");
+        if GenJournalLine.IsEmpty() then
             if GenJournalBatch.Get(Rec."Journal Template Name", Rec."Journal Batch Name") then
                 ApprovalsMgmt.PreventDeletingRecordWithOpenApprovalEntry(GenJournalBatch);
 
@@ -4023,7 +3728,7 @@ table 81 "Gen. Journal Line"
             exit(true);
         if (GenJnlLineForChange."Document No." <> PrevDocNo) or (GenJnlLineForChange."Posting Date" <> PrevPostingDate) then
             exit(true);
-        if GenJnlLineForChange."Document Type" = GenJnlLineForChange."Document Type"::" " then
+        if GenJnlLineForChange."Document Type" in [GenJnlLineForChange."Document Type"::" ", GenJnlLineForChange."Document Type"::Payment, GenJnlLineForChange."Document Type"::Refund] then
             exit(false);
         exit((PrevCustVendNo <> '') and (CurrCustVendNo <> '') and (CurrCustVendNo <> PrevCustVendNo));
     end;
@@ -7951,96 +7656,301 @@ table 81 "Gen. Journal Line"
                 RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, RestrictBatchUsageDetailsTxt);
     end;
 
+    /// <summary>
+    /// Event triggered before creating dimensions from the Default Dimensions during the validation of the "Account No." field.
+    /// By subscribing to this event, developers can override the default dimension creation process for the "Account No." field.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being validated.</param>
+    /// <param name="IsHandled">A boolean variable that can be set to true to stop the validation process.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAccountNoOnValidateOnBeforeCreateDim(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the setup of a new General Journal Line is complete.
+    /// This event allows developers to add custom logic or adjustments after the setup of a new General Journal Line is finalized.
+    /// </summary>
+    /// <param name="GenJournalLine">The new General Journal Line that has been set up.</param>
+    /// <param name="GenJnlTemplate">The General Journal Template used for the new line.</param>
+    /// <param name="GenJnlBatch">The General Journal Batch used for the new line.</param>
+    /// <param name="LastGenJnlLine">The last General Journal Line used for assigning data to General Journal Line setup process.</param>
+    /// <param name="Balance">Genaral journal line balance.</param>
+    /// <param name="BottomLine">Indicates whether the current line is the last line in a batch of general journal lines.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplate: Record "Gen. Journal Template"; GenJournalBatch: Record "Gen. Journal Batch"; LastGenJournalLine: Record "Gen. Journal Line"; Balance: Decimal; BottomLine: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting the description from a G/L account for the general journal line.
+    /// Subscribing to this event allows developers to extend the behavior
+    /// after the description has been updated. This can be useful for implementing additional logic,
+    /// logging, or further modifications to the description.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the description has been set.
+    /// </param>
+    /// <param name="GLAccount">
+    /// The G/L account record from which the description was derived.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDescriptionFromGLAcc(var GenJournalLine: Record "Gen. Journal Line"; GLAccount: Record "G/L Account")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after clearing customer application entry fields in the "Cust. Ledger Entry" record.
+    /// This event allows developers to add custom logic after customer application entry fields have been cleared.
+    /// </summary>
+    /// <param name="CustLedgerEntry">The "Cust. Ledger Entry" record whose application entry fields have been cleared.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearCustApplnEntryFields(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after clearing employee application entry fields in the "Empl. Ledger Entry" record.
+    /// This event allows developers to add custom logic after employee application entry fields have been cleared.
+    /// </summary>
+    /// <param name="EmployeeLedgerEntry">The "Empl. Ledger Entry" record whose application entry fields have been cleared.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearEmplApplnEntryFields(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after clearing vendor application entry fields in the "Vend. Ledger Entry" record.
+    /// This event allows developers to add custom logic after vendor application entry fields have been cleared.
+    /// </summary>
+    /// <param name="VendorLedgerEntry">The "Vend. Ledger Entry" record whose application entry fields have been cleared.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearVendApplnEntryFields(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from a customer ledger entry to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring data from customer ledger entries. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied data.
+    /// </summary>
+    /// <param name="CustLedgerEntry">
+    /// The customer ledger entry record from which data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which data from the customer ledger entry has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromCustLedgEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from a vendor ledger entry to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring data from vendor ledger entries. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied data.
+    /// </summary>
+    /// <param name="VendLedgerEntry">
+    /// The vendor ledger entry record from which data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which data from the vendor ledger entry has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromVendLedgEntry(VendLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from a general journal allocation to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring data from general journal allocations. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied data.
+    /// </summary>
+    /// <param name="GenJnlAllocation">
+    /// The general journal allocation record from which data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which data from the general journal allocation has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromGenJnlAllocation(GenJnlAllocation: Record "Gen. Jnl. Allocation"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from a sales header to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring data from sales headers. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied data.
+    /// </summary>
+    /// <param name="SalesHeader">
+    /// The sales header record from which data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which data from the sales header has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader: Record "Sales Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying prepayment-related data from a sales header to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring prepayment-related data from sales headers. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied prepayment data.
+    /// </summary>
+    /// <param name="SalesHeader">
+    /// The sales header record from which prepayment-related data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which prepayment-related data from the sales header has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromSalesHeaderPrepmt(SalesHeader: Record "Sales Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying prepayment-related data for posting from a sales header to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring prepayment-related data for posting from sales headers. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied prepayment posting data.
+    /// </summary>
+    /// <param name="SalesHeader">
+    /// The sales header record from which prepayment-related data for posting is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which prepayment-related data for posting from the sales header has been copied.
+    /// </param>
+    /// <param name="UsePmtDisc">
+    /// A boolean variable indicating whether payment discount-related fields should be included.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromSalesHeaderPrepmtPost(SalesHeader: Record "Sales Header"; var GenJournalLine: Record "Gen. Journal Line"; UsePmtDisc: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying application-related data from a sales header to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring application-related data from sales headers. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied application data.
+    /// </summary>
+    /// <param name="SalesHeader">
+    /// The sales header record from which application-related data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which application-related data from the sales header has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromSalesHeaderApplyTo(SalesHeader: Record "Sales Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying payment-related data from a sales header to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring payment-related data from sales headers. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied payment data.
+    /// </summary>
+    /// <param name="SalesHeader">
+    /// The sales header record from which payment-related data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which payment-related data from the sales header has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromSalesHeaderPayment(SalesHeader: Record "Sales Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from a purchase header to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring data from purchase headers. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied data.
+    /// </summary>
+    /// <param name="PurchaseHeader">
+    /// The purchase header record from which data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which data from the purchase header has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromPurchHeader(PurchaseHeader: Record "Purchase Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from a purchase header for prepayment to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring prepayment-related data from purchase headers. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied data specific to prepayments.
+    /// </summary>
+    /// <param name="PurchaseHeader">
+    /// The purchase header record from which prepayment data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which prepayment data from the purchase header has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromPurchHeaderPrepmt(PurchaseHeader: Record "Purchase Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from a purchase header for prepayment posting to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring prepayment-related data from purchase headers during posting. This can be useful for implementing
+    /// additional logic, validations, or custom handling specific to prepayment posting scenarios.
+    /// </summary>
+    /// <param name="PurchaseHeader">
+    /// The purchase header record from which prepayment posting data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which prepayment posting data from the purchase header has been copied.
+    /// </param>
+    /// <param name="UsePmtDisc">
+    /// A boolean variable indicating whether payment discounts should be considered when copying data.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromPurchHeaderPrepmtPost(PurchaseHeader: Record "Purchase Header"; var GenJournalLine: Record "Gen. Journal Line"; UsePmtDisc: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from a purchase header for application purposes to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring application-related data from purchase headers. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied data specific to applications.
+    /// </summary>
+    /// <param name="PurchaseHeader">
+    /// The purchase header record from which application-related data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which application-related data from the purchase header has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromPurchHeaderApplyTo(PurchaseHeader: Record "Purchase Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying payment-related data from a purchase header to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring payment-related data from purchase headers. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied payment data.
+    /// </summary>
+    /// <param name="PurchaseHeader">
+    /// The purchase header record from which payment-related data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which payment-related data from the purchase header has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromPurchHeaderPayment(PurchaseHeader: Record "Purchase Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
@@ -8085,21 +7995,69 @@ table 81 "Gen. Journal Line"
     end;
 #endif
 
+    /// <summary>
+    /// Event triggered after copying data from a prepayment invoice line buffer to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring data from prepayment invoice line buffers. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied data.
+    /// </summary>
+    /// <param name="PrepmtInvLineBuffer">
+    /// The prepayment invoice line buffer record from which data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which data from the prepayment invoice line buffer has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromPrepmtInvBuffer(PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying payment-related data from a customer ledger entry to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring payment-related data from customer ledger entries. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied payment data.
+    /// </summary>
+    /// <param name="CustLedgEntry">
+    /// The customer ledger entry record from which payment-related data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which payment-related data from the customer ledger entry has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromPaymentCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying payment-related data from a vendor ledger entry to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring payment-related data from vendor ledger entries. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied payment data.
+    /// </summary>
+    /// <param name="VendLedgEntry">
+    /// The vendor ledger entry record from which payment-related data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which payment-related data from the vendor ledger entry has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromPaymentVendLedgEntry(VendLedgEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying payment-related data from an employee ledger entry to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring payment-related data from employee ledger entries. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied payment data.
+    /// </summary>
+    /// <param name="EmployeeLedgerEntry">
+    /// The employee ledger entry record from which payment-related data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which payment-related data from the employee ledger entry has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineFromPaymentEmplLedgEntry(EmployeeLedgerEntry: Record "Employee Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
@@ -8110,272 +8068,771 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving a G/L account in the context of the general journal line validation process.
+    /// Subscribing to this event allows developers to override or extend the behavior
+    /// when handling G/L account data. This can be useful for implementing additional logic,
+    /// validations, or customization related to G/L accounts.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record involved in the G/L account validation process.
+    /// </param>
+    /// <param name="GLAccount">
+    /// The G/L account record that has been retrieved and validated.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the validation.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetGLAccount(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account"; CallingFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving and setting up a balancing G/L account for the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when handling balancing G/L account data. This can be useful for implementing additional logic,
+    /// validations, or customization related to balancing G/L accounts.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the balancing G/L account is being processed.
+    /// </param>
+    /// <param name="GLAccount">
+    /// The balancing G/L account record that has been retrieved and processed.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the balancing G/L account.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetGLBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account"; CallingFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after validating the customer account for the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the customer account has been validated. This can be useful for implementing additional logic,
+    /// logging, or further modifications based on the validated customer data.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the customer account has been validated.
+    /// </param>
+    /// <param name="Customer">
+    /// The customer record that has been validated.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the customer account validation.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetCustomerAccount(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; CallingFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after validating the balancing customer account for the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the balancing customer account has been validated. This can be useful for implementing additional logic,
+    /// logging, or further modifications based on the validated balancing customer data.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the balancing customer account has been validated.
+    /// </param>
+    /// <param name="Customer">
+    /// The customer record that has been validated as the balancing account.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the balancing customer account validation.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetCustomerBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; CallingFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after validating the vendor account for the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the vendor account has been validated. This can be useful for implementing additional logic,
+    /// logging, or further modifications based on the validated vendor data.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the vendor account has been validated.
+    /// </param>
+    /// <param name="Vendor">
+    /// The vendor record that has been validated.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the vendor account validation.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetVendorAccount(var GenJournalLine: Record "Gen. Journal Line"; var Vendor: Record Vendor; CallingFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving a vendor record for the balancing account in the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when processing vendor account data for the balancing account. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to balancing vendor accounts.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the balancing vendor account is being processed.
+    /// </param>
+    /// <param name="Vendor">
+    /// The vendor record that has been retrieved and processed as the balancing account.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the balancing vendor account.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetVendorBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var Vendor: Record Vendor; CallingFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving an employee record for the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when processing employee account data. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to employee accounts.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the employee account is being processed.
+    /// </param>
+    /// <param name="Employee">
+    /// The employee record that has been retrieved and processed.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetEmployeeAccount(var GenJournalLine: Record "Gen. Journal Line"; var Employee: Record Employee)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving an employee record for the balancing account in the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when processing employee account data for the balancing account. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to balancing employee accounts.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the balancing employee account is being processed.
+    /// </param>
+    /// <param name="Employee">
+    /// The employee record that has been retrieved and processed as the balancing account.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the balancing employee account.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetEmployeeBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var Employee: Record Employee; CallingFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving a bank account record for the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when processing bank account data. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to bank accounts.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the bank account is being processed.
+    /// </param>
+    /// <param name="BankAccount">
+    /// The bank account record that has been retrieved and processed.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the bank account validation.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetBankAccount(var GenJournalLine: Record "Gen. Journal Line"; var BankAccount: Record "Bank Account"; CallingFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving a bank account record for the balancing account in the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when processing bank account data for the balancing account. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to balancing bank accounts.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the balancing bank account is being processed.
+    /// </param>
+    /// <param name="xGenJournalLine">
+    /// The previous version of the general journal line record, used for comparison or additional logic.
+    /// </param>
+    /// <param name="BankAccount">
+    /// The bank account record that has been retrieved and processed as the balancing account.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the balancing bank account validation.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetBankBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; var BankAccount: Record "Bank Account"; CallingFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving a fixed asset record for the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when processing fixed asset data. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to fixed assets.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the fixed asset account is being processed.
+    /// </param>
+    /// <param name="FixedAsset">
+    /// The fixed asset record that has been retrieved and processed.
+    /// </param>
+    /// <param name="CurrFieldNo">
+    /// The current field number being processed in the context of the fixed asset validation.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetFAAccount(var GenJournalLine: Record "Gen. Journal Line"; var FixedAsset: Record "Fixed Asset"; CurrFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving a fixed asset record for the balancing account in the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when processing fixed asset data for the balancing account. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to balancing fixed asset accounts.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the balancing fixed asset account is being processed.
+    /// </param>
+    /// <param name="FixedAsset">
+    /// The fixed asset record that has been retrieved and processed as the balancing account.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetFABalAccount(var GenJournalLine: Record "Gen. Journal Line"; var FixedAsset: Record "Fixed Asset")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving an intercompany partner record for the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when processing intercompany partner account data. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to intercompany partner accounts.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the intercompany partner account is being processed.
+    /// </param>
+    /// <param name="ICPartner">
+    /// The intercompany partner record that has been retrieved and processed.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetICPartnerAccount(var GenJournalLine: Record "Gen. Journal Line"; var ICPartner: Record "IC Partner")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving an intercompany partner record for the balancing account in the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when processing intercompany partner data for the balancing account. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to balancing intercompany partner accounts.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the balancing intercompany partner account is being processed.
+    /// </param>
+    /// <param name="ICPartner">
+    /// The intercompany partner record that has been retrieved and processed as the balancing account.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterAccountNoOnValidateGetICPartnerBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var ICPartner: Record "IC Partner")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the temporary Job Journal Line has been created.
+    /// This event allows developers to add custom logic or modify the temporary Job Journal Line after it has been created.
+    /// </summary>
+    /// <param name="JobJournalLine">The temporary Job Journal Line record that was created.</param>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before changes were applied.</param>
+    /// <param name="CurrFieldNo">The number of the current field being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateTempJobJnlLine(var JobJournalLine: Record "Job Journal Line"; GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; CurrFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters for the Vendor Ledger Entry during the validation of the "Applies-to Doc. No." field.
+    /// This event allows developers to adjust or add additional filters to the Vendor Ledger Entry record after the default filters have been set.
+    /// </summary>
+    /// <param name="GenJournalLine">The current general journal line being processed.</param>
+    /// <param name="VendorLedgerEntry">The vendor ledger entry record with filters applied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAppliesToDocNoOnValidateOnAfterVendLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters for the Customer Ledger Entry during the validation of the "Applies-to Doc. No." field.
+    /// This event allows developers to adjust or add additional filters to the Customer Ledger Entry record after the default filters have been set.
+    /// </summary>
+    /// <param name="Rec">The current Gen. Journal Line being processed.</param>
+    /// <param name="CustLedgerEntry">The Customer Ledger Entry record with filters set.</param>
+    /// <param name="TempGenJnlLine">A temporary Gen. Journal Line record used for processing.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAppliesToDocNoOnValidateOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; TempGenJnlLine: Record "Gen. Journal Line" temporary)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before updating amounts for ledger entries during the validation of the "Applies-to Doc. No." field.
+    /// This event allows developers to add custom logic before the default updates to amounts are made for ledger entries.
+    /// </summary>
+    /// <param name="GenJournalLine">The current Gen. Journal Line being processed.</param>
+    /// <param name="TempGenJnlLine">A temporary Gen. Journal Line record used for processing.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAppliesToDocNoOnValidateOnBeforeUpdAmtToEntries(var GenJournalLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after updating amounts for ledger entries during the validation of the "Applies-to Doc. No." field.
+    /// This event allows developers to add additional processing after amounts have been updated for the related ledger entries.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="TempGenJnlLine">A temporary General Journal Line record used during the processing.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAppliesToDocNoOnValidateOnAfterUpdAmtToEntries(var GenJournalLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating apply requirements during the validation of the "Applies-to Doc. No." field.
+    /// This event allows developers to add custom logic before the default apply requirements validation has been finished.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAppliesToDocNoOnValidateOnBeforeValidateApplyRequirements(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before assigning the Job Currency Code to the current record.
+    /// This event allows developers to add custom logic or skip the default logic for assigning the Job Currency Code.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for assigning the Job Currency Code.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAssignJobCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before clearing customer/vendor/employee application entries in the General Journal Line.
+    /// This event allows developers to change the custom logic before the default logic for clearing customer/vendor/employees application entries has been executed.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before the current changes.</param>
+    /// <param name="AccType">The account type of the General Journal Line.</param>
+    /// <param name="AccNo">The account number associated with the General Journal Line.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeClearCustVendApplnEntry(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before creating a temporary Job Journal Line.
+    /// This event allows developers to implement custom logic or skip the default creation process for the temporary Job Journal Line.
+    /// </summary>
+    /// <param name="JobJournalLine">The temporary Job Journal Line record being created.</param>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before changes were applied.</param>
+    /// <param name="CurrFieldNo">The number of the current field being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for creating the temporary Job Journal Line.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateTempJobJnlLine(var JobJournalLine: Record "Job Journal Line"; GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before the drill-down on the exported amount has been performed.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when drilling down on the exported amount. This can be useful for implementing
+    /// custom filtering, logging, or other specialized logic regarding credit transfer entries.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The record from which the drill-down on the exported amount has been initialized.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean flag indicating whether the default drill-down logic should be skipped.
+    /// Setting this flag to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDrillDownExportedAmount(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting up a new General Journal Line.
+    /// This event allows developers to add custom logic or skip the default setup logic for a new General Journal Line.
+    /// </summary>
+    /// <param name="GenJnlTemplate">The General Journal Template being used for the new line.</param>
+    /// <param name="GenJnlBatch">The General Journal Batch being used for the new line.</param>
+    /// <param name="GenJnlLine">The General Journal Line record being set up.</param>
+    /// <param name="LastGenJnlLine">The last General Journal Line used for assigning data to General Journal Line setup process.</param>
+    /// <param name="GLSetupRead">Indicates whether the GL Setup has been read.</param>
+    /// <param name="Balance">Genaral journal line balance.</param>
+    /// <param name="BottomLine">Indicates whether the current line is the last line in a batch of general journal lines.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default setup logic for the new line.</param>
+    /// <param name="Rec">The current General Journal Line being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetUpNewLine(var GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var GLSetupRead: Boolean; Balance: Decimal; BottomLine: Boolean; var IsHandled: Boolean; var Rec: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after updating prices from the temporary Job Journal Line.
+    /// This event allows developers to implement custom logic after the prices and costs have been updated from the temporary Job Journal Line
+    /// to the current General Journal Line record.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record with updated prices and costs.</param>
+    /// <param name="JobJournalLine">The temporary Job Journal Line record used to update the prices and costs.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdatePricesFromJobJnlLine(var GenJournalLine: Record "Gen. Journal Line"; JobJournalLine: Record "Job Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after updating the "Sales/Purch. (LCY)" field in the Gen. Journal Line.
+    /// This event allows developers to add custom calculations after the "Sales/Purch. (LCY)" value has been updated.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line where the "Sales/Purch. (LCY)" field has been updated.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSalesPurchLCY(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after creating fixed asset acquisition lines in the general journal.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when generating fixed asset acquisition lines and the corresponding balancing lines. This can be useful
+    /// for implementing additional logic, validations, or handling specific business rules related to fixed asset acquisitions.
+    /// </summary>
+    /// <param name="FAGenJournalLine">
+    /// The general journal line record representing the fixed asset acquisition line.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the fixed asset acquisition lines are being created.
+    /// </param>
+    /// <param name="BalancingGenJournalLine">
+    /// The general journal line record representing the balancing line for the fixed asset acquisition.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateFAAcquisitionLines(var FAGenJournalLine: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line"; var BalancingGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after clearing the posting group fields on the current record.
+    /// This event allows developers to change custom logic after the posting groups have been reset.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record with cleared posting group fields.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearPostingGroups(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after clearing the balance posting group fields on the current record.
+    /// This event allows developers to change custom logic after the balance posting groups have been reset.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record with cleared balance posting group fields.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearBalPostingGroups(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving the "Due Date" of the related applied document.
+    /// This event allows developers to add custom logic or override the retrieved due date.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="AccType">The account type used to determine the document due date (e.g., Customer, Vendor).</param>
+    /// <param name="AccNo">The account number associated with the selected account type.</param>
+    /// <param name="Result">A date variable representing the retrieved document due date.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAppliesToDocDueDate(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; var Result: Date)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving the "Pmt. Discount Date" of the related applied document.
+    /// This event allows developers to add custom logic or override the retrieved payment discount date.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="GenJournalAccountType">The account type used to determine the payment discount date (e.g., Customer, Vendor).</param>
+    /// <param name="GenJournalAccountNo">The account number associated with the selected account type.</param>
+    /// <param name="Result">A date variable representing the retrieved payment discount date.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAppliesToDocPmtDiscountDate(var GenJournalLine: Record "Gen. Journal Line"; GenJournalAccountType: Enum "Gen. Journal Account Type"; GenJournalAccountNo: Code[20]; var Result: Date)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving the "Entry No." based on the account type and account number.
+    /// This event allows developers to add custom logic after retrieving the "Entry No.".
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="AccType">The account type used to determine the document entry number (e.g., Customer, Vendor, Employee).</param>
+    /// <param name="AccNo">The account number associated with the selected account type.</param>
+    /// <param name="Result">An integer representing the retrieved document entry number.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAppliesToDocEntryNo(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; var Result: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the Customer Ledger Entry has been retrieved and processed.
+    /// This event allows developers to add custom logic to update the General Journal Line.
+    /// </summary>
+    /// <param name="Rec">The current General Journal Line record being processed.</param>
+    /// <param name="CustLedgEntry">The Customer Ledger Entry record that was retrieved and processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetCustLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after calculating the deferral amount.
+    /// Subscribing to this event allows developers to extend the behavior
+    /// after the deferral amount has been determined. This can be useful for implementing custom
+    /// logic, logging, or further adjustments to the calculated deferral amount.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the deferral amount has been calculated.
+    /// </param>
+    /// <param name="DeferralAmount">
+    /// The calculated deferral amount that can be further adjusted by the subscriber.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetDeferralAmount(var GenJournalLine: Record "Gen. Journal Line"; var DeferralAmount: Decimal)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the Employee Ledger Entry has been fully retrieved and processed.
+    /// This event allows developers to add custom logic to update the General Journal Line.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="EmployeeLedgerEntry">The Employee Ledger Entry record that was retrieved and processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetEmplLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving the depreciation book for a fixed asset.
+    /// This event allows developers to add custom logic after the depreciation book is retrieved.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record where the depreciation book code has been updated.</param>
+    /// <param name="FANo">The Fixed Asset number for which the depreciation book has been determined.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetFADeprBook(var GenJournalLine: Record "Gen. Journal Line"; FANo: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving the VAT Posting Setup record based on the provided VAT Business Posting Group and VAT Product Posting Group.
+    /// This event allows developers to change the default logic after the VAT Posting Setup record has been retrieved or initialized.
+    /// </summary>
+    /// <param name="VATPostingSetup">The VAT Posting Setup record that was retrieved or initialized.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the Vendor Ledger Entry has been retrieved and processed.
+    /// This event allows developers to add custom logic to update the General Journal Line.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="VendorLedgerEntry">The Vendor Ledger Entry record that was retrieved and processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetVendLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after initializing a new General Journal Line with the provided data.
+    /// This event allows developers to add custom logic after the initialization of a new General Journal Line has been completed.
+    /// </summary>
+    /// <param name="GenJournalLine">The initialized General Journal Line.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitNewLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after calculating sales tax during the validation of the "VAT Base Amount" or "Bal. VAT Base Amount" fields.
+    /// This event allows developers to add custom logic after the sales tax has been calculated.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="CurrFieldNo">The number of the field currently being validated.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesTaxCalculateCalculateTax(var GenJournalLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the reverse calculation of sales tax during VAT calculation.
+    /// Subscribing to this event allows developers to execute custom logic immediately after the reverse calculation of sales tax has been completed.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being validated.</param>
+    /// <param name="CurrFieldNo">The number of the currently validated field.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesTaxCalculateReverseCalculateTax(var GenJournalLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the "Amount to Apply" has been set for the relevant ledger entry.
+    /// This event allows developers to add custom logic after the "Amount to Apply" has been calculated.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetApplyToAmount(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after updating the "Country/Region Code" and "VAT Registration No." fields.
+    /// This event allows developers to add custom logic after the fields have been updated based on the No. provided.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record with updated fields.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before the update.</param>
+    /// <param name="No">The account number (Customer or Vendor) used to retrieve the "Country/Region Code" and "VAT Registration No".</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateCountryCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; No: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the "Amount" field has been validated in the General Journal Line.
+    /// This event allows developers to change the calculations of General Journal Line fields.
+    /// </summary>
+    /// <param name="GenJnlLine">The current General Journal Line that was processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateAmount(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after validating requirements to apply for a General Journal Line.
+    /// This event allows developers to add custom logic after the validation process for apply requirements has been completed.
+    /// </summary>
+    /// <param name="TempGenJnlLine">The temporary General Journal Line record that was validated.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateApplyRequirements(TempGenJnlLine: Record "Gen. Journal Line" temporary)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after validating a shortcut dimension code in the General Journal Line.
+    /// This event allows developers to add custom logic after the shortcut dimension code has been validated.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before the current changes.</param>
+    /// <param name="FieldNumber">The field number of the shortcut dimension that was validated.</param>
+    /// <param name="ShortcutDimCode">The shortcut dimension code that was validated.</param>
+    /// <param name="CurrFieldNo">The number of field currently being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; CallingFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after checking the "Direct Posting" field on a G/L Account in the General Journal Line.
+    /// This event allows developers to change the default logic after the "Direct Posting" field has been validated.
+    /// </summary>
+    /// <param name="GLAccount">The G/L Account record that was validated.</param>
+    /// <param name="GenJournalLine">The current General Journal Line that was processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckDirectPosting(var GLAccount: Record "G/L Account"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting the amount using the remaining values from a ledger entry.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when setting the amount based on calculated payment discounts, amounts to apply, and remaining values.
+    /// This can be useful for implementing custom calculations, validations, or additional business logic.
+    /// </summary>
+    /// <param name="GenJnlLine">
+    /// The general journal line record whose amount is being set.
+    /// </param>
+    /// <param name="CustLedgEntry">
+    /// The customer ledger entry record used in the calculation of the amount, if applicable.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetAmountWithRemaining(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after completing the processing of setting journal line fields from application data.
+    /// This event allows developers to add additional logic after journal line fields have been set.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="AccType">The account type used during processing (e.g., Customer, Vendor, Employee).</param>
+    /// <param name="AccNo">The account number associated with the selected account type.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before changes were applied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetJournalLineFieldsFromApplication(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20];
                                                                                                                             xGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after updating the "Applies-to Doc. Type" and "Applies-to Doc. No." fields in the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when these fields are updated. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to document type and applies-to fields.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record where the "Applies-to Doc. Type" and "Applies-to Doc. No." fields have been updated.
+    /// </param>
+    /// <param name="DocType">
+    /// The updated document type represented as an integer.
+    /// </param>
+    /// <param name="DocNo">
+    /// The updated document number.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateDocumentTypeAndAppliesToFields(var GenJournalLine: Record "Gen. Journal Line"; DocType: Integer; DocNo: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before clearing the "Job No." field in the General Journal Line.
+    /// This event allows developers to add custom logic or skip the default validation process.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="CurrentFieldNo">The number of field currently being validated.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default clearing of the "Job No." field.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBlankJobNo(var GenJournalLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Account Type" field in the General Journal Line.
+    /// This event allows developers to change the default validation logic for the "Account Type" field.
+    /// </summary>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default validation logic for the "Account Type" field.</param>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckAccountTypeOnJobValidation(var IsHandled: Boolean; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before checking the "Direct Posting" field on a G/L Account in the General Journal Line.
+    /// This event allows developers to change the default logic for the "Direct Posting" field.
+    /// </summary>
+    /// <param name="GLAccount">The G/L Account record being validated.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default validation logic for the "Direct Posting" field.</param>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDirectPosting(var GLAccount: Record "G/L Account"; var IsHandled: Boolean; GenJournalLine: Record "Gen. Journal Line")
     begin
@@ -8386,6 +8843,34 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered prior to checking if the posting date of a general journal line is before the applied document's posting date.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when validating posting dates. This can be useful for implementing additional logic, custom validations,
+    /// or handling specific scenarios related to posting date comparisons.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record being validated.
+    /// </param>
+    /// <param name="ApplyPostingDate">
+    /// The posting date of the document being applied.
+    /// </param>
+    /// <param name="ApplyDocType">
+    /// The document type of the document being applied, represented as an integer.
+    /// </param>
+    /// <param name="ApplyDocNo">
+    /// The document number of the document being applied.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default behavior for the posting date comparison should be skipped.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
+    /// <param name="RecordVariant">
+    /// A variant representing additional data or context related to the applied document.
+    /// </param>
+    /// <param name="CustLedgerEntry">
+    /// The customer ledger entry record, if applicable, associated with the validation process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; ApplyDocNo: Code[20]; var IsHandled: Boolean; RecordVariant: Variant; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
@@ -8398,466 +8883,1110 @@ table 81 "Gen. Journal Line"
     begin
     end;
 #endif
+
+    /// <summary>
+    /// Event triggered before copying dimensions from the job task line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when copying dimension information from the job journal line. This can be useful for
+    /// implementing custom dimension handling, additional validations, or logging.
+    /// </summary>
+    /// <param name="TempJobJnlLine">
+    /// The temporary job journal line record from which dimensions will be copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The current general journal line record to which dimensions will be copied.
+    /// </param>
+    /// <param name="xGenJournalLine">
+    /// The previous version of the general journal line record, used for comparison or other logic.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default copy-dimension logic should be skipped.
+    /// Setting this flag to 'true' will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDimensionsFromJobTaskLine(TempJobJnlLine: Record "Job Journal Line" temporary; var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before determining the Account Type and Account No. from a General Journal Line.
+    /// This event allows developers to add custom logic or skip the default logic for setting account type and number.
+    /// </summary>
+    /// <param name="GenJournalLine2">The General Journal Line record being processed.</param>
+    /// <param name="AccType">The Account Type to be determined from the General Journal Line (e.g., Customer, Vendor, Employee).</param>
+    /// <param name="AccNo">The account number to be determined from the General Journal Line.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for determining Account Type and Account No.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAccTypeAndNo(GenJournalLine2: Record "Gen. Journal Line"; var AccType: Enum "Gen. Journal Account Type"; var AccNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before retrieving the deferral posting date.
+    /// This event allows developers to implement custom logic or override the default procedure for determining the deferral posting date.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="DeferralPostDate">The deferral posting date to be returned. This value is used if IsHandled is set to true.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for retrieving the deferral posting date.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDeferralPostDate(GenJournalLine: Record "Gen. Journal Line"; var DeferralPostDate: Date; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before retrieving the depreciation book for a fixed asset.
+    /// This event allows developers to implement custom logic before the process of setting the depreciation book code has begun.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record where the depreciation book code is being determined.</param>
+    /// <param name="FANo">The Fixed Asset No. for which the depreciation book is being retrieved.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFADeprBook(var GenJournalLine: Record "Gen. Journal Line"; FANo: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before retrieving the Vendor Ledger Entry.
+    /// This event allows developers to add custom logic or skip the default logic for retrieving the Vendor Ledger Entry.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="isHandled">A boolean variable that, if set to true, skips the default logic for retrieving the Vendor Ledger Entry.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetVendLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before retrieving the Customer Ledger Entry.
+    /// This event allows developers to implement custom logic or skip the default logic for retrieving the Customer Ledger Entry.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="isHandled">A boolean variable that, if set to true, skips the default logic for retrieving the Customer Ledger Entry.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetCustLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before determining if the General Journal Line is empty.
+    /// This event allows developers to add custom logic or override the default logic used to determine if the line is empty.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being evaluated.</param>
+    /// <param name="Result">A boolean variable representing whether the line is considered empty. If IsHandled is set to true, this value determines the result.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic and uses the value of Result variable.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeEmptyLine(GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before determining if a Customer, Vendor, or IC Partner is added based on the General Journal Line.
+    /// This event allows developers to add custom logic or skip the default logic for checking the addition of Customer, Vendor, or IC Partner.
+    /// </summary>
+    /// <param name="GenJournalLine">The General Journal Line record being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for determining if a Customer, Vendor, or IC Partner is added.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsCustVendICAdded(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before determining if the description is considered ad-hoc.
+    /// This event allows developers to add custom logic or skip the default logic for identifying ad-hoc descriptions.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before changes.</param>
+    /// <param name="Result">A boolean variable indicating whether the description is considered ad-hoc.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for determining ad-hoc descriptions.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsAdHocDescription(GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before determining if the balance account description is ad-hoc.
+    /// This event allows developers to add custom logic or skip the default logic for determining ad-hoc balance account descriptions.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before changes.</param>
+    /// <param name="Result">A boolean variable indicating whether the description is considered ad-hoc.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for determining ad-hoc balance account descriptions.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsAdHocBalAccDescription(GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before the job task has been set.
+    /// This event allows developers to implement custom logic or override the default process.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being evaluated.</param>
+    /// <param name="Result">A boolean variable that determines the result of the evaluation if IsHandled is set to true.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, overrides the default logic and uses the value of Result.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeJobTaskIsSet(GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before the logic of the function LookUpAppliesToDocCust has been executed.
+    /// This event allows developers to add custom logic before the standard lookup process has been executed.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record for which the lookup is being performed.</param>
+    /// <param name="AccNo">The Customer No. used for filtering during the lookup.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default lookup process.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookUpAppliesToDocCust(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before the function LookUpAppliesToDocEmpl has been executed.
+    /// This event allows developers to add custom logic or override the default lookup process for an Employee.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record for which the lookup is being performed.</param>
+    /// <param name="AccNo">The Employee No. used for filtering during the lookup process.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default lookup logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookUpAppliesToDocEmpl(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before the function LookUpAppliesToDocVend has been executed.
+    /// This event allows developers to add custom logic or completely override the default lookup process for a Vendor.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record for which the lookup is being performed.</param>
+    /// <param name="AccNo">The Vendor No. used for filtering during the lookup process.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default lookup logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookUpAppliesToDocVend(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before renumbering document number on the General Journal Lines.
+    /// This event allows developers to change the default logic for renumbering document number on General Journal Lines.
+    /// </summary>
+    /// <param name="DocNo">The current document number being processed.</param>
+    /// <param name="GenJnlLine2">The General Journal Line record being processed for renumbering.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default renumbering logic for document number.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRenumberDocNoOnLines(var DocNo: Code[20]; var GenJnlLine2: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before renumbering the "Applies-to ID" field in the General Journal Line and related ledger entries.
+    /// This event allows developers to add custom logic before the renumbering process has begun.
+    /// </summary>
+    /// <param name="GenJnlLine2">The General Journal Line where "Applies-to ID" has to be replaced.</param>
+    /// <param name="OriginalAppliesToID">The "Applies-to ID" to be replaced.</param>
+    /// <param name="NewAppliesToID">The new "Applies-to ID" value.</param>
+    /// <param name="AccType">The account type of the General Journal Line being processed.</param>
+    /// <param name="AccNo">The account number related to the General Journal Line being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRenumberAppliesToID(GenJournalLine: Record "Gen. Journal Line"; OriginalAppliesToID: Code[50]; NewAppliesToID: Code[50]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]);
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before the "Apply Customer Entries" page has been opened in lookup mode.
+    /// This event allows developers to add custom logic before opening the "Apply Customer Entries" page in lookup mode.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record initiating the lookup process.</param>
+    /// <param name="CustLedgEntry">The Customer Ledger Entry record used to filter and display data in the lookup.</param>
+    /// <param name="AccNo">The Customer No. used for filtering entries during the lookup.</param>
+    /// <param name="Result">A boolean variable indicating the outcome of the lookup operation if the default logic is skipped.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic and uses the value of Result.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunApplyCustEntriesPageLookupOk(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry"; AccNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before running the "Apply Vendor Entries" page in lookup mode.
+    /// This event allows developers to add custom logic or override the function before the "Apply Vendor Entries" page has been opened in lookup mode.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record initiating the lookup process.</param>
+    /// <param name="VendLedgEntry">The Vendor Ledger Entry record used for filtering and processing during the lookup.</param>
+    /// <param name="AccNo">The Vendor No. used to set filters on the Vendor Ledger Entry.</param>
+    /// <param name="Result">A boolean variable indicating the result if the default logic is skipped.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic and uses the value of Result.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunApplyVendEntriesPageLookupOk(var GenJournalLine: Record "Gen. Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry"; AccNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before calculating the total transfer amount.
+    /// This event allows developers to add custom logic or skip the default logic for calculating the total transfer amount.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed for calculating the total transfer amount.</param>
+    /// <param name="Result">A decimal variable representing the total transfer amount.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default calculation process.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTotalExportedAmount(var GenJournalLine: Record "Gen. Journal Line"; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the amount with a customer ledger entry.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when initializing the process of setting the amount with a customer ledger entry. This can be useful
+    /// for implementing custom logic or validations before the amount has been set.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record involved in the operation.
+    /// </param>
+    /// <param name="CustLedgerEntry">
+    /// The customer ledger entry record used for setting the amount.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetAmountWithCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the amount with a vendor ledger entry.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when initializing the process of setting the amount with a vendor ledger entry. This can be useful
+    /// for implementing custom logic or validations before the amount has been set.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record involved in the operation.
+    /// </param>
+    /// <param name="VendorLedgerEntry">
+    /// The vendor ledger entry record used for setting the amount.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetAmountWithVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the "Amount to Apply" for a Ledger Entry.
+    /// This event allows developers to add custom logic before the process of setting the "Amount to Apply" has begun.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetApplyToAmount(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting all filters on the Customer Ledger Entry during the lookup process.
+    /// This event allows developers to add filtering or validations after the Customer Ledger Entry filters have been applied.
+    /// </summary>
+    /// <param name="CustLedgEntry">The Customer Ledger Entry record with the applied filters.</param>
+    /// <param name="GenJournalLine">The current record for which the lookup is being performed.</param>
+    /// <param name="AccNo">The Customer No. used for filtering during the lookup.</param>
     [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocCustOnAfterSetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before updating amounts on the temporary Job Journal Line.
+    /// This event allows developers to add custom logic or skip the default process for updating amounts on the temporary Job Journal Line.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before changes were applied.</param>
+    /// <param name="TempJobJournalLine">The temporary Job Journal Line record being updated.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for updating amounts.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAmountsOnTempJobJnlLine(GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; TempJobJournalLine: Record "Job Journal Line" temporary; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before updating the "Applies-to Amount" in the General Journal Line.
+    /// This event allows developers to add custom logic or skip the default update process for the "Applies-to Amount" field.
+    /// </summary>
+    /// <param name="Rec">The current General Journal Line being processed.</param>
+    /// <param name="xRec">The previous state of the General Journal Line before the current changes.</param>
+    /// <param name="CurrFieldNo">The number of the field currently being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for updating the "Applies-to Amount" field.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateApplyToAmount(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before updating the "Country/Region Code" and "VAT Registration No." fields.
+    /// This event allows developers to add custom logic or override the default process before the fields have been updated.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being updated.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before the update.</param>
+    /// <param name="No">The account number (Customer or Vendor) used to retrieve the "Country/Region Code" and "VAT Registration No".</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCountryCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; No: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before the validation of the "Amount (LCY)" field.
+    /// This event allows developers to add custom logic or override the default validation process by setting the IsHandled variable to true.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed during the validation.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before the current changes were made.</param>
+    /// <param name="CurrFieldNo">The number of the field currently being validated.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, indicates the validation process will be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateAmountLCY(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Campaign No." field in the General Journal Line.
+    /// This event allows developers to add custom logic or skip the default validation process for the "Campaign No." field.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default validation logic for the "Campaign No." field.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateCampaignNo(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating application requirements for a General Journal Line.
+    /// This event allows developers to add custom logic or override the default validation process for the application.
+    /// </summary>
+    /// <param name="TempGenJournalLine">The temporary General Journal Line record being validated.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateApplyRequirements(var TempGenJournalLine: Record "Gen. Journal Line" temporary; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Bal. Gen. Bus. Posting Group" field in the General Journal Line.
+    /// This event allows developers to add custom logic or modify the condition for checking if the "Bal. Gen. Bus. Posting Group" field is empty.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="CheckIfFieldIsEmpty">A boolean variable that, if set to true, requires the "Bal. Gen. Bus. Posting Group" to be blank.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBalGenBusPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; var CheckIfFieldIsEmpty: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Bal. Gen. Posting Type" field in the General Journal Line.
+    /// This event allows developers to add custom logic or modify the condition for checking if the "Bal. Gen. Posting Type" field is empty.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="CheckIfFieldIsEmpty">A boolean variable that, if set to true, requires the "Bal. Gen. Posting Type" field to be blank.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBalGenPostingType(var GenJournalLine: Record "Gen. Journal Line"; var CheckIfFieldIsEmpty: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Bal. Gen. Prod. Posting Group" field in the General Journal Line.
+    /// This event allows developers to add custom logic or modify the condition for checking if the "Bal. Gen. Prod. Posting Group" field is empty.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="CheckIfFieldIsEmpty">A boolean variable that, if set to true, requires the "Bal. Gen. Prod. Posting Group" to be blank.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBalGenProdPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; var CheckIfFieldIsEmpty: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the currency code on the General Journal Line.
+    /// This event allows developers to add custom logic or override the default currency code validation logic.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default currency code validation logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Deferral Code" field in the General Journal Line.
+    /// This event allows developers to add custom logic or completely skip the default validation process for the "Deferral Code" field.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default validation logic for the "Deferral Code" field.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateDeferralCode(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the Document Date from the Posting Date on the General Journal Line.
+    /// This event allows developers to add custom logic or override the default validation logic for the Document Date based on the Posting Date.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before changes.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default Document Date validation logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateDocumentDateFromPostingDate(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "VAT Prod. Posting Group" field in the General Journal Line.
+    /// This event allows developers to add custom logic or completely skip the default validation logic for the "VAT Prod. Posting Group" field.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default validation logic for the "VAT Prod. Posting Group" field.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateVATProdPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Gen. Bus. Posting Group" field in the General Journal Line.
+    /// This event allows developers to add custom logic or modify the condition for checking if the "Gen. Bus. Posting Group" field is empty.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="CheckIfFieldIsEmpty">A boolean variable that, if set to true, requires the "Gen. Bus. Posting Group" to be blank.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateGenBusPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; var CheckIfFieldIsEmpty: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Gen. Posting Type" field in the General Journal Line.
+    /// This event allows developers to add custom logic or modify the condition for checking if the "Gen. Posting Type" field is empty.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="CheckIfFieldIsEmpty">A boolean variable that, if set to true, requires the "Gen. Posting Type" to be blank.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateGenPostingType(var GenJournalLine: Record "Gen. Journal Line"; var CheckIfFieldIsEmpty: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Gen. Prod. Posting Group" field in the General Journal Line.
+    /// This event allows developers to add custom logic or modify the condition for checking if the "Gen. Prod. Posting Group" field is empty.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="CheckIfFieldIsEmpty">A boolean variable that, if set to true, requires the "Gen. Prod. Posting Group" to be blank.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateGenProdPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; var CheckIfFieldIsEmpty: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating a shortcut dimension code in the General Journal Line.
+    /// This event allows developers to change the default logic for shortcut dimension code validation.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before the current changes.</param>
+    /// <param name="FieldNumber">The field number of the shortcut dimension being validated.</param>
+    /// <param name="ShortcutDimCode">The shortcut dimension code being validated.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default validation logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before finding the Job Currency Factor during the creation of a temporary Job Journal Line.
+    /// This event allows developers to customize the logic for retrieving the Job Currency Factor.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="CurrExchRate">The Currency Exchange Rate record used for retrieving exchange rate.</param>
     [IntegrationEvent(false, false)]
     local procedure OnCreateTempJobJnlLineOnBeforeFindJobCurrencyFactor(var GenJournalLine: Record "Gen. Journal Line"; var CurrExchRate: Record "Currency Exchange Rate")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating fields during the creation of a temporary Job Journal Line.
+    /// This event allows developers to add custom logic before field validations have been executed.
+    /// </summary>
+    /// <param name="TempJobJnlLine">The temporary Job Journal Line record being processed.</param>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before changes.</param>
+    /// <param name="CurrFieldNo">The number of the field currently being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnCreateTempJobJnlLimeOnBeforeValidateFields(var TempJobJnlLine: Record "Job Journal Line"; var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after running the payment export process.
+    /// This event allows developers to change custom logic after the export has been completed.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record that was processed for payment export.</param>
     [IntegrationEvent(false, false)]
     local procedure OnExportPaymentFileOnAfterRunExport(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before running the payment export process.
+    /// This event allows developers to execute custom logic or modify parameters before the export codeunit has been run.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed for payment export.</param>
     [IntegrationEvent(false, false)]
     local procedure OnExportPaymentFileOnBeforeRunExport(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before checking document numbers on journal lines during the payment file export process.
+    /// This event allows developers to add custom validation logic or skip the default document number checks.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed for payment export.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default document number validation logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnExportPaymentFileOnBeforeCheckDocNoOnLines(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters for finding the first Customer Ledger Entry with the specified "Applies-to ID" and "Customer No."
+    /// This event allows developers to add custom logic or modify the applied filters before retrieving the record.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="CustLedgEntry">The Customer Ledger Entry record with the applied filters.</param>
     [IntegrationEvent(false, false)]
     local procedure OnFindFirstCustLedgEntryWithAppliesToIDOnAfterSetFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters for finding the first Vendor Ledger Entry with the specified "Applies-to ID" and "Vendor No.".
+    /// This event allows developers to add custom logic or modify the applied filters before retrieving the record.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="VendLedgEntry">The Vendor Ledger Entry record with the applied filters. This can be modified by the subscriber.</param>
     [IntegrationEvent(false, false)]
     local procedure OnFindFirstVendLedgEntryWithAppliesToIDOnAfterSetFilters(var GenJournalLine: Record "Gen. Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters for finding the first Customer Ledger Entry with the specified "Applies-to Doc. No.", "Applies-to Doc. Type" and "Customer No."
+    /// This event allows developers to add custom logic or modify the applied filters before retrieving the record.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="AccNo">The customer account number used to filter Customer Ledger Entries.</param>
+    /// <param name="CustLedgEntry">The Customer Ledger Entry record with the applied filters.</param>
     [IntegrationEvent(false, false)]
     local procedure OnFindFirstCustLedgEntryWithAppliesToDocNoOnAfterSetFilters(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters for finding the first Vendor Ledger Entry with the specified "Applies-to Doc. No."
+    /// This event allows developers to add custom logic or modify the applied filters before retrieving the record.
+    /// </summary>
+    /// <param name="Rec">The current General Journal Line record being processed.</param>
+    /// <param name="AccNo">The vendor account number used to filter Vendor Ledger Entries.</param>
+    /// <param name="VendLedgEntry">The Vendor Ledger Entry record with the applied filters. This can be modified by the subscriber.</param>
     [IntegrationEvent(false, false)]
     local procedure OnFindFirstVendLedgEntryWithAppliesToDocNoOnAfterSetFilters(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before G/L Account check and its values transfer to General Journal Line.
+    /// This event allows developers to add custom logic or modifications before the G/L Account has been checked in the General Journal Line.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="GLAccount">The G/L Account record being validated.</param>
     [IntegrationEvent(false, false)]
     local procedure OnGetFAVATSetupOnBeforeCheckGLAcc(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after assigning the "Customer No." from the Customer Ledger Entry to the General Journal Line.
+    /// This event allows developers to add custom logic after the "Customer No." has been assigned to the General Journal Line.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="CustLedgerEntry">The Customer Ledger Entry record used to assign the "Customer No.".</param>
     [IntegrationEvent(false, false)]
     local procedure OnGetCustLedgerEntryOnAfterAssignCustomerNo(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after assigning the "Vendor No." from the Vendor Ledger Entry to the General Journal Line.
+    /// This event allows developers to add custom logic after the "Vendor No." has been assigned to the General Journal Line.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="VendorLedgerEntry">The Vendor Ledger Entry record used to assign the "Vendor No.".</param>
     [IntegrationEvent(false, false)]
     local procedure OnGetVendLedgerEntryOnAfterAssignVendorNo(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after updating the "Document Type" and "Applies-to Doc. No." fields during the lookup process.
+    /// This event allows developers to add custom logic after the "Document Type" and "Applies-to Doc. No." fields have been set.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record with updated fields.</param>
+    /// <param name="CustLedgEntry">The Customer Ledger Entry record used for updating the fields.</param>
     [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocCustOnAfterUpdateDocumentTypeAndAppliesTo(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after a Customer Ledger Entry record has been selected in the "Apply Customer Entries" page.
+    /// This event allows developers to add custom logic to the Customer Ledger Entry after it has been selected from the page.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record for which the lookup is being performed.</param>
+    /// <param name="CustLedgEntry">The selected Customer Ledger Entry record.</param>
     [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocCustOnAfterApplyCustEntriesGetRecord(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after all filters have been set on the Employee Ledger Entry during the lookup process.
+    /// This event allows developers to add additional filters or validations after the Employee Ledger Entry filters have been applied.
+    /// </summary>
+    /// <param name="EmployeeLedgerEntry">The Employee Ledger Entry record with the applied filters.</param>
+    /// <param name="GenJournalLine">The current General Journal Line record for which the lookup is being performed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocEmplOnAfterSetFilters(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after updating the "Applies-to Doc. Type" and "Applies-to Doc. No." fields during the lookup process.
+    /// This event allows developers to add custom logic or modifications after the "Applies-to Doc. Type" and "Applies-to Doc. No." fields have been set.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record with updated fields.</param>
+    /// <param name="EmployeeLedgerEntry">The Employee Ledger Entry record used to update the fields.</param>
     [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocEmplOnAfterUpdateDocumentTypeAndAppliesTo(var GenJournalLine: Record "Gen. Journal Line"; EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after all filters have been set on the Vendor Ledger Entry during the lookup process.
+    /// This event allows developers to add additional filters or validations after the Vendor Ledger Entry filters have been applied.
+    /// </summary>
+    /// <param name="VendorLedgerEntry">The Vendor Ledger Entry record with the applied filters.</param>
+    /// <param name="GenJournalLine">The current General Journal Line record for which the lookup is being performed.</param>
+    /// <param name="AccNo">The Vendor No. used for filtering during the lookup process.</param>
     [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocVendOnAfterSetFilters(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after updating the "Document Type" and "Applies-to Doc. No." fields during the lookup process.
+    /// This event allows developers to add additional logic or modifications after the "Document Type" and "Applies-to Doc. No." fields have been set.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record with updated fields.</param>
+    /// <param name="VendorLedgerEntry">The Vendor Ledger Entry record used to update the fields.</param>
     [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocVendOnAfterUpdateDocumentTypeAndAppliesTo(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before evaluating the "Check Printed" field during the modification of the General Journal Line.
+    /// This event allows developers to add custom logic or skip the default check for the "Check Printed" field.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being modified.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before the modification.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for checking the "Check Printed" field.</param>
     [IntegrationEvent(false, false)]
     local procedure OnModifyOnBeforeTestCheckPrinted(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the "Customer Ledger Entry" record during the renumbering of "Applies-to ID".
+    /// This event allows developers to modify or extend the filters applied to the "Customer Ledger Entry" record.
+    /// </summary>
+    /// <param name="GenJournalLine">The General Journal Line where "Applies-to ID" is to be replaced.</param>
+    /// <param name="AccNo">The account number associated with the General Journal Line.</param>
+    /// <param name="CustLedgEntry">The "Customer Ledger Entry" record with filters applied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnRenumberAppliesToIDOnAfterCustLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the "Vendor Ledger Entry" record during the renumbering of "Applies-to ID".
+    /// This event allows developers to modify or extend the filters applied to the "Vendor Ledger Entry" record.
+    /// </summary>
+    /// <param name="GenJournalLine">The General Journal Line where "Applies-to ID" is to be replaced.</param>
+    /// <param name="AccNo">The account number associated with the General Journal Line.</param>
+    /// <param name="VendLedgEntry">The "Vendor Ledger Entry" record with filters applied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnRenumberAppliesToIDOnAfterVendLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; AccNo: Code[20]; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after applying filters to the Customer Ledger Entry during the "Amount to Apply" setting process.
+    /// This event allows developers to add or modify filters after they have been applied to the Customer Ledger Entry record.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="CustLedgEntry">The Customer Ledger Entry record with the applied filters.</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetApplyToAmountOnAfterCustLedgEntrySetFilters(GenJournalLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after applying filters to the Vendor Ledger Entry during the "Amount to Apply" setting process.
+    /// This event allows developers to add or modify filters after they have been applied to the Vendor Ledger Entry record.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="VendLedgEntry">The Vendor Ledger Entry record with the applied filters.</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetApplyToAmountOnAfterVendLedgEntrySetFilters(GenJournalLine: Record "Gen. Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before modifying a Customer Ledger Entry record to set the "Amount to Apply".
+    /// This event allows developers to add custom logic before the edit process has begun.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="CustLedgerEntry">The Customer Ledger Entry record being edited.</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetApplyToAmountOnBeforeCustEntryEdit(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before editing a Vendor Ledger Entry record to set the "Amount to Apply".
+    /// This event allows developers to add custom logic before the edit process has begun.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="VendorLedgerEntry">The Vendor Ledger Entry record being edited.</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetApplyToAmountOnBeforeVendEntryEdit(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before editing an Employee Ledger Entry record to set the "Amount to Apply".
+    /// This event allows developers to add custom logic before the edit process has begun.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="EmployeeLedgerEntry">The Employee Ledger Entry record being edited.</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetApplyToAmountOnBeforeEmplEntryEdit(var GenJournalLine: Record "Gen. Journal Line"; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before incrementing the "Document No." during the setup of a new General Journal Line.
+    /// This event allows developers to customize or skip the logic for generating the next document number.
+    /// </summary>
+    /// <param name="GenJnlLine">The General Journal Line record being processed.</param>
+    /// <param name="LastGenJnlLine">The last General Journal Line used for assigning data to General Journal Line setup process.</param>
+    /// <param name="Balance">The General Journal Line balance.</param>
+    /// <param name="BottomLine">A boolean variable that indicates whether the current line is the last line in a batch of general journal lines.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for incrementing the document number.</param>
+    /// <param name="Rec">The current General Journal Line being processed.</param>
+    /// <param name="GenJnlBatch">The General Journal Batch being used for the new line.</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetUpNewLineOnBeforeIncrDocNo(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var BottomLine: Boolean; var IsHandled: Boolean; var Rec: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the "Document No." for a new General Journal Line.
+    /// This event allows developers to customize or skip the logic for setting the document number.
+    /// </summary>
+    /// <param name="GenJnlLine">The General Journal Line record being processed.</param>
+    /// <param name="LastGenJnlLine">The last General Journal Line used for assigning data to General Journal Line setup process.</param>
+    /// <param name="Balance">The General Journal Line balance.</param>
+    /// <param name="BottomLine">A boolean variable that indicates whether the current line is the last line in a batch of general journal lines.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for setting the document number.</param>
+    /// <param name="Rec">The current General Journal Line being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetUpNewLineOnBeforeSetDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var BottomLine: Boolean; var IsHandled: Boolean; var Rec: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the balancing account fields during the setup of a new General Journal Line.
+    /// This event allows developers to customize or skip the logic for setting balancing account fields.
+    /// </summary>
+    /// <param name="GenJnlLine">The General Journal Line record being processed.</param>
+    /// <param name="LastGenJnlLine">The last General Journal Line used for assigning data to General Journal Line setup process.</param>
+    /// <param name="Balance">The General Journal Line balance.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for setting balancing account fields.</param>
+    /// <param name="GenJnlTemplate">The General Journal Template being used for the new line.</param>
+    /// <param name="GenJnlBatch">The General Journal Batch being used for the new line.</param>
+    /// <param name="BottomLine">A boolean variable that indicates whether the current line is the last line in a batch of General Journal Lines.</param>
+    /// <param name="Rec">The current General Journal Line being processed.</param>
+    /// <param name="CurrFieldNo">The number of the field currently being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetUpNewLineOnBeforeSetBalAccount(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var IsHandled: Boolean; GenJnlTemplate: Record "Gen. Journal Template"; GenJnlBatch: Record "Gen. Journal Batch"; BottomLine: Boolean; var Rec: Record "Gen. Journal Line"; CurrentFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after finding the first Customer Ledger Entry using the "Applies-to ID".
+    /// This event allows developers to add custom logic after a Customer Ledger Entry has been successfully retrieved by "Applies-to ID".
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="CustLedgEntry">The Customer Ledger Entry record that was found based on "Applies-to ID".</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstCustLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry");
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after finding the first Customer Ledger Entry using the "Applies-to Doc. No.".
+    /// This event allows developers to add custom logic after a Customer Ledger Entry has been successfully retrieved by "Applies-to Doc. No.".
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="CustLedgEntry">The Customer Ledger Entry record that was found based on "Applies-to Doc. No.".</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstCustLedgEntryWithAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry");
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after finding the first Vendor Ledger Entry using the "Applies-to ID".
+    /// This event allows developers to add custom logic after a Vendor Ledger Entry has been successfully retrieved by "Applies-to ID".
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="VendLedgEntry">The Vendor Ledger Entry record that was found based on "Applies-to ID".</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry");
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after finding the first Vendor Ledger Entry using the "Applies-to Doc. No.".
+    /// This event allows developers to add custom logic after a Vendor Ledger Entry has been successfully retrieved by "Applies-to Doc. No.".
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="VendLedgEntry">The Vendor Ledger Entry record that was found based on "Applies-to Doc. No.".</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry");
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after finding the first Employee Ledger Entry using the "Applies-to ID".
+    /// This event allows developers to add custom logic after an Employee Ledger Entry has been successfully retrieved by "Applies-to ID".
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="CustLedgEntry">The Employee Ledger Entry record that was found based on "Applies-to ID".</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstEmplLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Employee Ledger Entry");
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after assigning the "Balance (LCY)" field during the update of line balance.
+    /// This event allows developers to change default logic of the Line Balance calculation.
+    /// </summary>
+    /// <param name="BalanceLCY">The calculated "Balance (LCY)" value.</param>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
     [IntegrationEvent(true, false)]
     local procedure OnUpdateLineBalanceOnAfterAssignBalanceLCY(var BalanceLCY: Decimal; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the "Amount (LCY)" field has been calculated.
+    /// This event allows developers to add custom logic or adjustments after the "Amount (LCY)" field has been updated.
+    /// </summary>
+    /// <param name="AmountLCY">The calculated local currency amount assigned to the "Amount (LCY)" field.</param>
     [IntegrationEvent(true, false)]
     local procedure OnValidateAmountOnAfterAssignAmountLCY(var AmountLCY: Decimal)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before checking the customer's credit limit during the amount validation.
+    /// This event allows developers to change the default logic for checking customer credit limit.
+    /// </summary>
+    /// <param name="Rec">The current General Journal Line being processed.</param>
+    /// <param name="CurrFieldNo">The number of the field currently being processed.</param>
+    /// <param name="CustCheckCreditLimit">The codeunit managing customer credit limit check.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default customer credit limit check.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateAmountOnBeforeCheckCreditLimit(var GenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after calculation of the "Bal. VAT Amount (LCY)" field during the validation of the "Bal. VAT %" field.
+    /// This event allows developers to add custom logic after the "Bal. VAT Amount (LCY)" field has been updated based on the calculated VAT.
+    /// </summary>
+    /// <param name="BalVATAmountLCY">The updated "Bal. VAT Amount (LCY)" value.</param>
     [IntegrationEvent(true, false)]
     local procedure OnValidateBalVATPctOnAfterAssignBalVATAmountLCY(var BalVATAmountLCY: Decimal)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before calculating the "Due Date" based on the payment terms during the validation of the "Payment Terms Code" field.
+    /// This event allows developers to add custom logic or override the default calculation for the "Due Date".
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="PaymentTerms">The Payment Terms record retrieved with the "Payment Terms Code".</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default "Due Date" calculation.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeCalculateDueDate(var GenJournalLine: Record "Gen. Journal Line"; PaymentTerms: Record "Payment Terms"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before calculating the "Pmt. Discount Date" based on the payment terms during the validation of the "Payment Terms Code" field.
+    /// This event allows developers to add custom logic or override the default calculation for the "Pmt. Discount Date".
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="PaymentTerms">The payment terms record associated with the "Payment Terms Code".</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default discount date calculation.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeCalculatePmtDiscountDate(var GenJournalLine: Record "Gen. Journal Line"; PaymentTerms: Record "Payment Terms"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Amount" field during the validation of the "Bal. VAT Base Amount" field.
+    /// This event allows developers to add custom logic before the "Amount" field has been validated.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="Currency">The currency record used for rounding and VAT calculations.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateBalVATBaseAmountOnBeforeValidateAmount(var GenJournalLine: Record "Gen. Journal Line"; Currency: Record Currency)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Amount" field during the validation of the "VAT Base Amount" field.
+    /// This event allows developers to add custom logic or modify the General Journal Line before the "Amount" field has been validated.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="Currency">The currency record used for rounding and VAT calculations.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateVATBaseAmountOnBeforeValidateAmount(var GenJournalLine: Record "Gen. Journal Line"; Currency: Record Currency)
     begin
     end;
 
+    /// <summary>
+    /// This event is triggered before updating sales and purchase amounts in LCY during the validation of the VAT or Balance VAT percentage.
+    /// Subscribing to this event allows developers to create custom logic for updating sales and purchase amounts in LCY
+    /// based on the VAT percentage and related fields.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being validated.</param>
+    /// <param name="Currency">The Currency record that provides data such as rounding precision.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateVATPctOnBeforeUpdateSalesPurchLCY(var GenJournalLine: Record "Gen. Journal Line"; Currency: Record Currency)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before performing VAT calculation based on VAT Posting Setup and checks of the "VAT Prod. Posting Group" field.
+    /// This event allows developers to modify the VAT calculation and check process.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="VATPostingSetup">The VAT Posting Setup record associated with the "VAT Bus. Posting Group" and "VAT Prod. Posting Group".</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default VAT calculation and checks.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateVATProdPostingGroupOnBeforeVATCalculationCheck(var GenJournalLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after assigning the "Account Type" related data retrieved during the validation of the "Account No." field.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being validated.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before the changes.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateAccountNoOnAfterAssignValue(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before retrieving data based on the value of the field "Account Type" during the validation of the "Account No." field.
+    /// Subscribing to this event allows developers to add custom logic before related "Account Type" data has been retrieved.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being validated.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before the changes.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateAccountNoOnBeforeAssignValue(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before checking the "Keep Description" field during the validation of the field "Account Type".
+    /// This event allows developers to implement custom logic before the "Keep Description" field has been validated.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record on which the validation is being performed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before the changes.</param>
+    /// <param name="CurrFieldNo">The number of the field currently being validated.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateAccountTypeOnBeforeCheckKeepDescription(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the Customer Ledger Entry when "Applies-to ID" has been specified.
+    /// This event allows developers to add or modify filters after they have been applied to the Customer Ledger Entry.
+    /// </summary>
+    /// <param name="TempGenJnlLine">The temporary General Journal Line record being validated.</param>
+    /// <param name="CustLedgEntry">The Customer Ledger Entry record with the applied filters.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateApplyRequirementsOnAfterCustLedgEntrySetFiltersWithAppliesToID(TempGenJnlLine: Record "Gen. Journal Line" temporary; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the Customer Ledger Entry when "Applies-to ID" has not been specified.
+    /// This event allows developers to add or modify filters after they have been applied to the Customer Ledger Entry record when "Applies-to Doc. No." has been used.
+    /// </summary>
+    /// <param name="TempGenJnlLine">The temporary General Journal Line record being validated.</param>
+    /// <param name="CustLedgEntry">The Customer Ledger Entry record with the applied filters.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateApplyRequirementsOnAfterCustLedgEntrySetFiltersWithoutAppliesToID(TempGenJnlLine: Record "Gen. Journal Line" temporary; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the Vendor Ledger Entry when "Applies-to ID" has been specified.
+    /// This event allows developers to add or modify filters after they have been set to the Vendor Ledger Entry.
+    /// </summary>
+    /// <param name="TempGenJournalLine">The temporary General Journal Line record being validated.</param>
+    /// <param name="VendorLedgerEntry">The Vendor Ledger Entry record with the applied filters.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateApplyRequirementsOnAfterVendLedgEntrySetFiltersWithAppliesToID(TempGenJournalLine: Record "Gen. Journal Line" temporary; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the Vendor Ledger Entry when "Applies-to Doc. No." has not been specified.
+    /// This event allows developers to add or modify filters after they have been applied to the Vendor Ledger Entry record when "Applies-to Doc. No." has been used.
+    /// </summary>
+    /// <param name="TempGenJournalLine">The temporary General Journal Line record being validated.</param>
+    /// <param name="VendorLedgerEntry">The Vendor Ledger Entry record with the applied filters.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateApplyRequirementsOnAfterVendLedgEntrySetFiltersWithoutAppliesToID(TempGenJournalLine: Record "Gen. Journal Line" temporary; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after assigning values to the record based on the "Bal. Account Type" field value during the "Bal. Account No." field validation.
+    /// Subscribing to this event allows developers to add custom logic after the standard validation process has been executed based on the "Bal. Account Type" field value.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being validated.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before the changes.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateBalAccountNoOnAfterAssignValue(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before assigning values to the record based on the "Bal. Account Type" field value during the "Bal. Account No." field validation.
+    /// Subscribing to this event allows developers to add custom logic before the standard validation process has been executed based on the "Bal. Account Type" field value.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being validated.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before the changes.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateBalAccountNoOnBeforeAssignValue(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line")
     begin
@@ -8981,7 +10110,7 @@ table 81 "Gen. Journal Line"
     /// Updates the account ID with the system ID of the related bank account.
     /// </summary>
     /// <remarks>
-    /// If account number is empty, account Id is cleared.
+    /// If account number is empty, account ID is cleared.
     /// </remarks>
     procedure UpdateBankAccountID()
     var
@@ -9193,7 +10322,7 @@ table 81 "Gen. Journal Line"
     /// Updates the journal batch ID with the system ID of the related general journal batch.
     /// </summary>
     /// <remarks>
-    /// If the journal template name and journal batch name do not correspond to a general journal batch record, 
+    /// If the journal template name and journal batch name do not match those of the general journal batch record,
     /// the procedure is not executed.
     /// </remarks>
     procedure UpdateJournalBatchID()
@@ -9255,6 +10384,15 @@ table 81 "Gen. Journal Line"
             UpdateDescription(Employee.Initials);
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving a vendor record for the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when processing vendor account data. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to vendor accounts.
+    /// </summary>
+    /// <param name="Vendor">
+    /// The vendor record that has been retrieved and processed.
+    /// </param>
     [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnGenJnlLineGetVendorAccount(Vendor: Record Vendor)
@@ -9266,7 +10404,7 @@ table 81 "Gen. Journal Line"
     /// </summary>
     /// <remarks>
     /// Deferral schedule cannot be specified for a fixed asset account type.
-    /// If the deferral schedule doesn't exist yet, a new one is created and commited before the page is opened.
+    /// If the deferral schedule does not exist yet, a new one is created and committed before the page has been opened.
     /// </remarks>
     procedure ShowDeferralSchedule()
     begin
@@ -9306,7 +10444,7 @@ table 81 "Gen. Journal Line"
     end;
 
     /// <summary>
-    /// Checks if the shortcut dimension code is valid for the recurring method on general journal line.
+    /// Checks if the shortcut dimension code is valid for the recurring method on a general journal line.
     /// </summary>
     /// <param name="ShortcutDimCode">Shortcut dimension code to check.</param>
     procedure CheckShortcutDimCodeRecurringMethod(ShortcutDimCode: Code[20])
@@ -9348,7 +10486,7 @@ table 81 "Gen. Journal Line"
     end;
 
     /// <summary>
-    /// Sends a general journal line to a specified posting codeunit for processing,
+    /// Sends a general journal line to a specified posting codeunit for processing.
     /// </summary>
     /// <param name="PostingCodeunitID">Posting codeunit ID to use.</param>
     procedure SendToPosting(PostingCodeunitID: Integer)
@@ -9509,162 +10647,447 @@ table 81 "Gen. Journal Line"
         exit(HasNoMultipleLine());
     end;
 
+    /// <summary>
+    /// Event triggered after initializing default dimension sources for the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when setting up default dimension sources. This can be useful for implementing additional logic,
+    /// custom dimension sources, or handling specific business rules related to dimensions.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which default dimension sources are being initialized.
+    /// </param>
+    /// <param name="DefaultDimSource">
+    /// A list of dictionaries containing the default dimension sources that have been initialized.
+    /// </param>
+    /// <param name="FromFieldNo">
+    /// The field number that triggered the initialization of default dimension sources.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var GenJournalLine: Record "Gen. Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FromFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after performing the update of the current journal line.
+    /// This event allows developers to change custom logic after the journal line has been cleaned.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record after the cleaning operations have been applied.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before the cleaning operations were applied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCleanLine(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after clearing customer/vendor/employee application entries in the General Journal Line.
+    /// This event allows developers to change the default logic after the standard clearing process for customer/vendor/employee application entries has been completed.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before the current changes.</param>
+    /// <param name="AccType">The account type of the General Journal Line.</param>
+    /// <param name="AccNo">The account number of the General Journal Line.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearCustVendApplnEntry(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from an issued finance charge memo header to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring data from issued finance charge memo headers. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied data.
+    /// </summary>
+    /// <param name="IssuedFinChargeMemoHeader">
+    /// The issued finance charge memo header record from which data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which data from the issued finance charge memo header has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromIssuedFinChargeMemoHeader(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from an issued reminder header to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring data from issued reminder headers. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied data.
+    /// </summary>
+    /// <param name="IssuedReminderHeader">
+    /// The issued reminder header record from which data is being copied.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which data from the issued reminder header has been copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromIssuedReminderHeader(IssuedReminderHeader: Record "Issued Reminder Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after filters have been set on the Customer Ledger Entry.
+    /// This event allows developers to add or modify filters after they have been applied to the Customer Ledger Entry.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="CustLedgerEntry">The Customer Ledger Entry record with the applied filters.</param>
     [IntegrationEvent(false, false)]
     local procedure OnGetCustLedgerEntryOnAfterSetFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after renumbering the "Applies-to ID" field in the General Journal Line and related ledger entries.
+    /// This event allows developers to add custom logic after the renumbering process has been completed.
+    /// </summary>
+    /// <param name="GenJournalLine">The General Journal Line processed for renumbering.</param>
+    /// <param name="OriginalAppliesToID">The "Applies to ID" to be replaced.</param>
+    /// <param name="NewAppliesToID">The new "Applies-to ID" value.</param>
+    /// <param name="AccountType">The account type of the processed General Journal Line.</param>
+    /// <param name="AccountNo">The account number related to the processed General Journal Line.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterRenumberAppliesToID(GenJournalLine: Record "Gen. Journal Line"; OriginalAppliesToID: Code[50]; NewAppliesToID: Code[50]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]);
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after evaluating whether the description should be replaced in the journal line.
+    /// This event allows developers to add the custom logic after the default description check has been completed.
+    /// </summary>
+    /// <param name="GenJnlBatch">The General Journal Batch associated with the operation.</param>
+    /// <param name="Result">A boolean variable indicating whether the description should be replaced.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterReplaceDescription(GenJnlBatch: Record "Gen. Journal Batch"; var Result: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the renumbering of "Document No." on General Journal Lines has been completed.
+    /// This event allows developers to add custom logic after the renumbering process has been finished.
+    /// </summary>
+    /// <param name="DocNo">The final document number assigned during the renumbering process.</param>
+    /// <param name="GenJnlLine2">The last General Journal Line processed during renumbering.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterRenumberDocNoOnLines(var DocNo: Code[20]; var GenJnlLine2: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters for the Employee Ledger Entry during the validation of the "Applies-to Doc. No." field.
+    /// This event allows developers to adjust or add additional filters to the Employee Ledger Entry record after the default filters have been set.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="EmplLedgEntry">The Employee Ledger Entry record with filters applied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAppliesToDocNoValidateOnAfterEmplLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; var EmplLedgerEntry: Record "Employee Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before calculating the deferral amount.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when determining the deferral amount. This can be useful for implementing custom logic or validations
+    /// before the deferral amount has been calculated.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the deferral amount is being calculated.
+    /// </param>
+    /// <param name="DeferralAmount">
+    /// The calculated deferral amount that can be modified by the subscriber.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default behavior for calculating the deferral amount should be skipped.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDeferralAmount(var GenJournalLine: Record "Gen. Journal Line"; var DeferralAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before retrieving the Customer Ledger Entry based on the related applied document.
+    /// This event allows developers to add custom logic or skip the default logic for retrieving Customer Ledger Entries.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="CustLedgEntry">The Customer Ledger Entry record to be retrieved and processed.</param>
+    /// <param name="AccNo">The customer account number used to filter Customer Ledger Entries.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for retrieving Customer Ledger Entries.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAppliesToDocCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry"; AccNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before determining if the General Journal Line has been applied.
+    /// This event allows developers to implement custom logic or override the default behavior for determining if the line has been applied.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being evaluated.</param>
+    /// <param name="Result">A boolean variable that indicates whether the line is applied. This value is used if IsHandled is set to true.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for determining if the line is applied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsApplied(var GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before executing the deletion logic for the General Journal Line.
+    /// This event allows developers to add custom logic or skip the default deletion process for the General Journal Line.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default deletion logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDelete(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before updating the "Source Type" and "Source No." fields in the General Journal Line.
+    /// This event allows developers to change the default logic for updating the "Source Type" and "Source No." fields.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for updating the "Source Type" and "Source No." fields.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSource(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before displaying the deferral schedule.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when showing deferrals. This can be useful for implementing custom logic, validations, or
+    /// alternate workflows before the deferral schedule has been displayed.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record associated with the deferral operation.
+    /// </param>
+    /// <param name="ReturnValue">
+    /// The boolean return value that can be modified by the subscriber to influence the behavior of the deferral operation.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default behavior for showing the deferrals should be skipped.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDeferrals(GenJournalLine: Record "Gen. Journal Line"; var ReturnValue: Boolean; var IsHandled: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after modifying the "Source Type" and "Source No." fields in the General Journal Line.
+    /// This event allows developers to add custom logic after the "Source Type" and "Source No." fields have been modified.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line that was modified.</param>
+    /// <param name="CurrFieldNo">The number of the field currently being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSource(var GenJournalLine: Record "Gen. Journal Line"; CurrFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from an issued reminder line to the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when transferring data from issued reminder lines. This can be useful for implementing
+    /// additional logic, validations, or custom handling of the copied data.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record to which data from the issued reminder line has been copied.
+    /// </param>
+    /// <param name="IssuedReminderLine">
+    /// The issued reminder line record from which data is being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromIssuedReminderLine(var GenJournalLine: Record "Gen. Journal Line"; IssuedReminderLine: Record "Issued Reminder Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after creating dimensions for the General Journal Line.
+    /// This event allows developers to add custom logic after dimensions have been created.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="CurrFieldNo">The number of the field currently being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before the current changes.</param>
+    /// <param name="OldDimSetID">The original Dimension Set ID before the changes.</param>
+    /// <param name="DefaultDimSource">The list of default dimensions used to generate the new Dimension Set ID.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDim(var GenJournalLine: Record "Gen. Journal Line"; CurrFieldNo: Integer; xGenJournalLine: Record "Gen. Journal Line"; OldDimSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the dimensions have been edited in the General Journal Line.
+    /// This event allows developers to perform additional actions after the dimension editing process has been completed, including checking if changes occurred.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line with the updated dimension set.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before the changes.</param>
+    /// <param name="OldDimSetID">The Dimension Set ID before the changes were made.</param>
+    /// <param name="IsChanged">A boolean variable indicating whether the Dimension Set ID has been changed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowDimensions(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; OldDimSetID: Integer; var IsChanged: Boolean)
     begin
     end;
 
-
+    /// <summary>
+    /// Event triggered before showing and editing dimensions in the General Journal Line.
+    /// This event allows developers to change the custom logic of this function.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before the current changes.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default dimension editing logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDimensions(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before the lookup on a shortcut dimension code in the General Journal Line.
+    /// This event allows developers to add custom logic or skip the default lookup process for the shortcut dimension code.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before the current changes.</param>
+    /// <param name="FieldNumber">The field number of the shortcut dimension being looked up.</param>
+    /// <param name="ShortcutDimCode">The shortcut dimension code being looked up.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default lookup logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before performing the lookup for the "Applies-to Doc. No." field.
+    /// This event allows developers to add custom logic or override the default lookup behavior by setting the IsHandled variable to true.
+    /// </summary>
+    /// <param name="GenJournalLine">The current  General Journal Line record on which the lookup is being performed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default lookup logic, and exits the lookup trigger.</param>
     [IntegrationEvent(true, false)]
     local procedure OnBeforeLookupAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the balancing account number when a job number has been specified.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when performing validation on the balancing account number. This can be useful for implementing custom validations
+    /// or handling specific business rules related to balancing accounts and job numbers.
+    /// </summary>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default validation behavior should be skipped.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
+    /// <param name="GenJournalLine">
+    /// The general journal line record being validated.
+    /// </param>
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckBalAccountNoOnJobNoValidation(var IsHandled: Boolean; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before determining whether to skip renumbering the "Document No." in the General Journal Line.
+    /// This event allows developers to add custom logic or override the default renumbering process.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="Result">A boolean variable indicating whether the renumbering should be skipped.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic and uses the value of Result to determine if renumbering is skipped.</param>
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSkipRenumberDocumentNo(GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Job Task No." field in the General Journal Line.
+    /// This event allows developers to add custom logic or skip the default validation for the "Job Task No." field.
+    /// </summary>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before the current changes.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default validation logic for the "Job Task No." field.</param>
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateJobTaskNo(xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered when none of the predefined account types (Customer, Vendor, Employee) have been matched during the privacy block check.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when encountering unsupported or custom account types in the privacy block validation process. This can be useful for implementing additional logic
+    /// or handling specific scenarios related to custom account types.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record being processed in the privacy block validation.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCheckIfPrivacyBlockedCaseElse(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the "Applies-to ID" field for Customer Ledger Entries during clearing of customer application entries.
+    /// This event allows developers to change the default behavior before the "Applies-to ID" has been set in Customer Ledger Entries.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="CustLedgerEntry">The Customer Ledger Entry record associated with the "Applies-to ID".</param>
     [IntegrationEvent(false, false)]
     local procedure OnClearCustVendApplnEntryOnBeforeCustEntrySetApplIDSetApplId(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving a customer record for the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when processing customer account data. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to customer accounts.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the customer account is being processed.
+    /// </param>
+    /// <param name="Customer">
+    /// The customer record that has been retrieved and processed.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the customer account.
+    /// </param>
     [IntegrationEvent(true, false)]
     local procedure OnGetCustomerAccountOnAfterCustGet(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; CallingFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after retrieving a customer record for the balancing account in the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when processing customer account data for the balancing account. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to balancing customer accounts.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the balancing customer account is being processed.
+    /// </param>
+    /// <param name="Customer">
+    /// The customer record that has been retrieved and processed as the balancing account.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the balancing customer account.
+    /// </param>
     [IntegrationEvent(true, false)]
     local procedure OnGetCustomerBalAccountOnAfterCustGet(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; CallingFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered if the "FA Posting Type" does not match any predefined "FA Posting Type" values.
+    /// This event allows developers to add custom logic for handling additional "FA Posting Type" cases.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="DepreciationBook">The Depreciation Book record related to the General Journal Line.</param>
+    /// <param name="UseFAAddCurrExchRate">A boolean variable indicating whether the "FA Add.-Currency Factor" should be used.</param>
     [IntegrationEvent(false, false)]
     local procedure OnGetFAAddCurrExchRateOnCaseElse(GenJournalLine: Record "Gen. Journal Line"; DepreciationBook: Record "Depreciation Book"; var UseFAAddCurrExchRate: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before resetting the "Bal. Account No." and "IC Account No." fields during the validation of the "Bal. Account Type" field.
+    /// This event allows developers to add custom logic or modify the current record before the "Bal. Account No." and "IC Account No." fields have been reset.
+    /// </summary>
+    /// <param name="Rec">The current General Journal Line being processed.</param>
+    /// <param name="xRec">The previous state of the General Journal Line before the current changes.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateBalAccountTypeOnBeforeSetBalAccountNo(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line")
     begin
@@ -9675,106 +11098,312 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting the description for a balancing G/L account.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when updating the description for a balancing G/L account. This can be useful for implementing additional logic
+    /// or applying specific business rules.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the balancing G/L account description has been set.
+    /// </param>
+    /// <param name="GLAcc">
+    /// The balancing G/L account record used to derive the description.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnGetGLBalAccountOnAfterSetDescription(var GenJournalLine: Record "Gen. Journal Line"; GLAcc: Record "G/L Account")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before creating dimensions for the General Journal Line.
+    /// This event allows developers to add custom logic or skip the dimension creation by setting the IsHandled variable to true.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default dimension creation logic.</param>
+    /// <param name="CurrentFieldNo">The number of the field currently being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before confirming whether the "Bill-to Customer" differs from the "Account No." in the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when checking for a mismatch between the "Bill-to Customer" and the "Account No.". This can be useful for
+    /// implementing custom confirmation logic, validations, or additional checks.
+    /// </summary>
+    /// <param name="GenJorunalLine">
+    /// The general journal line record involved in the validation process.
+    /// </param>
+    /// <param name="Customer">
+    /// The customer record associated with the validation process.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the validation.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default confirmation behavior should be skipped.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckConfirmDifferentCustomerAndBillToCustomer(var GenJorunalLine: Record "Gen. Journal Line"; Customer: Record Customer; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before confirming whether the "Pay-to Vendor" differs from the "Account No." in the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when checking for a mismatch between the "Pay-to Vendor" and the "Account No.". This can be useful for
+    /// implementing custom confirmation logic, validations, or additional checks.
+    /// </summary>
+    /// <param name="GenJorunalLine">
+    /// The general journal line record involved in the validation process.
+    /// </param>
+    /// <param name="Vendor">
+    /// The vendor record associated with the validation process.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the validation.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default confirmation behavior should be skipped.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckConfirmDifferentVendorAndPayToVendor(var GenJorunalLine: Record "Gen. Journal Line"; Vendor: Record Vendor; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before checking if the "VAT Prod. Posting Group" field is empty in the General Journal Line.
+    /// This event allows developers to change the default logic for validating the "VAT Prod. Posting Group" field.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before the current changes.</param>
+    /// <param name="CallingFieldNo">The field number currently being validated or processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default validation logic for the "VAT Prod. Posting Group" field.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckEmptyVATProdPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the currency code for a bank account customer line in the general journal.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when determining the currency code for a bank account customer line. This can be useful for implementing custom logic,
+    /// validations, or additional business rules related to currency code assignment.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the currency code is being determined.
+    /// </param>
+    /// <param name="Customer">
+    /// The customer record associated with the bank account line.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the currency code assignment.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default behavior for setting the currency code should be skipped.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSetCurrencyCodeForBankCustLine(var GenJournalLine: Record "Gen. Journal Line"; Customer: Record Customer; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the currency code for a bank account vendor line in the general journal.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when determining the currency code for a bank account vendor line. This can be useful for implementing custom logic,
+    /// validations, or additional business rules related to currency code assignment.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the currency code is being determined.
+    /// </param>
+    /// <param name="Vendor">
+    /// The vendor record associated with the bank account line.
+    /// </param>
+    /// <param name="CallingFieldNo">
+    /// The current field number being processed in the context of the currency code assignment.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default behavior for setting the currency code should be skipped.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSetCurrencyCodeForBankVendLine(var GenJournalLine: Record "Gen. Journal Line"; Vendor: Record Vendor; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before clearing job-related amounts in the General Journal Line.
+    /// This event allows developers to change the default behavior of clearing job-related amounts.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for clearing job-related amounts.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeClearJobRelatedAmounts(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the "Currency Code" field in the General Journal Line.
+    /// This event allows developers to change the logic for setting the "Currency Code" based on the account type and account number.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="AccType2">The account type for which the "Currency Code" is being set.</param>
+    /// <param name="AccNo2">The account number for which the "Currency Code" is being set.</param>
+    /// <param name="Result">A boolean variable that defines if the Currency Code is set.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for setting the "Currency Code".</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; AccType2: Enum "Gen. Journal Account Type"; AccNo2: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after a Vendor Ledger Entry record has been selected in the "Apply Vendor Entries" page.
+    /// This event allows developers to modify or add logic to the Vendor Ledger Entry after it has been selected from the page.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record for which the lookup is being performed.</param>
+    /// <param name="GenJnlLine">The General Journal Line record associated with the lookup process.</param>
+    /// <param name="GenJnlApply">The "Gen. Jnl.-Apply" codeunit.</param>
+    /// <param name="PaymentToleranceMgt">The "Payment Tolerance Management" codeunit.</param>
+    /// <param name="VendLedgEntry">The selected Vendor Ledger Entry record.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, overrides the default processing logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocVendOnAfterApplyVendEntriesGetRecord(var GenJournalLine: Record "Gen. Journal Line"; GenJnlLine: Record "Gen. Journal Line"; GenJnlApply: Codeunit "Gen. Jnl.-Apply"; PaymentToleranceMgt: Codeunit "Payment Tolerance Management"; VendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the entire lookup process for document application for a vendor has been completed.
+    /// This event allows developers to perform final processing after the lookup process has been completed.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record after the lookup process has been executed.</param>
+    /// <param name="VendLedgEntry">The Vendor Ledger Entry record used in the lookup.</param>
+    /// <param name="CustLedgerEntry">The Customer Ledger Entry record, if applicable, used during the lookup process.</param>
+    /// <param name="ApplyVendorEntries">The "Apply Vendor Entries" page used during the lookup process.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookUpAppliesToDocVend(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; ApplyVendorEntries: Page "Apply Vendor Entries")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before calculating the "Balance (LCY)" sum of a document related to the General Journal Line.
+    /// This event allows developers to add custom logic or modify filters on the General Journal Line record before the balance calculation has been completed.
+    /// </summary>
+    /// <param name="GenJournalLine">The General Journal Line record used for calculating the document balance, with filters applied.</param>
+    /// <param name="GenJnlTemplate">The General Journal Template record associated with the General Journal Line.</param>
     [IntegrationEvent(false, false)]
     local procedure OnGetDocumentBalanceOnBeforeCalcBalance(var GenJournalLine: Record "Gen. Journal Line"; GenJnlTemplate: Record "Gen. Journal Template")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before performing VAT calculation based on VAT Posting Setup and checks during the validation of "Bal. VAT Prod. Posting Group" field.
+    /// This event allows developers to modify the VAT calculation and check process for balancing account.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="VATPostingSetup">The VAT Posting Setup record associated with the "Bal. VAT Bus. Posting Group" and "Bal. VAT Prod. Posting Group".</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default VAT calculation checks and calculations for the balancing account.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateBalVATProdPostingGroupOnBeforeBalVATCalculationCheck(var GenJournalLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after determining whether the "FA Posting Type" has been set to "Acquisition Cost" in the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after checking the acquisition cost status. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to fixed asset posting types.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record being evaluated for acquisition cost.
+    /// </param>
+    /// <param name="AcquisitionCost">
+    /// A boolean value indicating whether the "FA Posting Type" is "Acquisition Cost".
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsAcquisitionCost(var GenJournalLine: Record "Gen. Journal Line"; var AcquisitionCost: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the lookup on a shortcut dimension code in the General Journal Line.
+    /// This event allows developers to add custom logic after the shortcut dimension code lookup has been done.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before the current changes.</param>
+    /// <param name="FieldNumber">The field number of the shortcut dimension looked up.</param>
+    /// <param name="ShortcutDimCode">The shortcut dimension code that was looked up.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookupShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before updating the currency factor during currency code validation.
+    /// This event allows the implementation of custom logic before the currency factor has been recalculated based on the current exchange rate.
+    /// </summary>
+    /// <param name="GenJournalLine">The current record for which the currency factor is being updated.</param>
+    /// <param name="CurrExchRate">The current exchange rate object used to calculate the currency factor.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateCurrencyCodeOnBeforeUpdateCurrencyFactor(var GenJournalLine: Record "Gen. Journal Line"; var CurrExchRate: Record "Currency Exchange Rate")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before clearing application entries during the deletion of the General Journal Line.
+    /// This event allows developers to change the default logic before application/allocation entries have been cleared.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed for deletion.</param>
+    /// <param name="GenJournalBatch">The General Journal Batch associated with the current line.</param>
+    /// <param name="GenJnlAlloc">The General Journal Allocation associated with the current line.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for clearing application/allocation entries.</param>
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforeClearCustVendApplnEntry(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; GenJnlAlloc: Record "Gen. Jnl. Allocation"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the journal line fields have been set based on the application logic.
+    /// This event allows developers to add custom logic after the journal line fields have been updated from the application.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed, with the updated journal line fields applied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnLookupAppliestoDocNoOnAfterSetJournalLineFieldsFromApplication(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after deleting payment tolerance in the Applied Ledger Entries for the previous "Applies-to Doc. No." value during validation.
+    /// This event allows developers to add custom logic after Applied Ledger Entries payment tolerance fields have been reset for the
+    /// xGenJournalLine."Applies-to Doc. No." value.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before made changes.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateAppliesToDocNoOnAfterDelPmtToApplnDocNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before checking if a job task is set during the validation of the "Job Task No." field.
+    /// This event allows developers to add custom logic before determining if a job task has been set.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateJobTaskNoOnBeforeJobTaskIsSet(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before clearing data exchange entries related to the General Journal Line.
+    /// This event allows developers to implement custom logic or override the default logic for deleting data exchange entries.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for deleting data exchange entries.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeClearDataExchangeEntries(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
@@ -9787,21 +11416,76 @@ table 81 "Gen. Journal Line"
     begin
     end;
 #endif
+
+    /// <summary>
+    /// Event triggered before default validation for the "Job No." field has been executed.
+    /// This event allows developers to add custom logic or override the default validation for the "Job No." field.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being validated.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line record before the current changes were made.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default validation logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateJobNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before checking for changes to the posting group in the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when validating posting group changes. This can be useful for implementing custom logic,
+    /// validations, or handling specific business rules related to posting group modifications.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record currently being processed.
+    /// </param>
+    /// <param name="xGenJournalLine">
+    /// The previous version of the general journal line record, used for comparison.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default behavior for checking posting group changes should be skipped.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPostingGroupChange(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before suggesting a balancing amount during the setup of a new General Journal Line.
+    /// This event allows developers to change the default logic before the system suggests a balancing amount for the General Journal Line.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="GenJnlBatch">The General Journal Batch associated with the current line.</param>
+    /// <param name="CurrFieldNo">The field number currently being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetupNewLineOnBeforeSuggestBalancingAmount(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; CurrentFieldNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying document fields into the current record.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when handling document fields. This can be useful for implementing additional logic
+    /// or validations related to document types, numbers, or other fields.
+    /// </summary>
+    /// <param name="GenJnlLine">
+    /// The current general journal line record to which the document fields have been copied.
+    /// </param>
+    /// <param name="DocType">
+    /// The document type being copied.
+    /// </param>
+    /// <param name="DocNo">
+    /// The document number being copied.
+    /// </param>
+    /// <param name="ExtDocNo">
+    /// The external document number being copied.
+    /// </param>
+    /// <param name="SourceCode">
+    /// The source code associated with the document being copied.
+    /// </param>
+    /// <param name="NoSeriesCode">
+    /// The number series code used for posting, if specified.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyDocumentFields(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20];
                                                                                                            ExtDocNo: Text[35];
@@ -9810,136 +11494,355 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after finding the first Employee Ledger Entry using the "Applies-to Doc. No.".
+    /// This event allows developers to add custom logic after an Employee Ledger Entry has successfully been located by "Applies-to Doc. No.".
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="EmployeeLedgerEntry">The Employee Ledger Entry record that was found based on "Applies-to Doc. No.".</param>
     [IntegrationEvent(false, false)]
     local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstEmplLedgEntryWithAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; EmployeeLedgerEntry: Record "Employee Ledger Entry");
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before clearing the applied General Journal Line.
+    /// This event allows developers to add custom logic or skip the default clearing process for applied General Journal Lines.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default clearing logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyClearAppliedGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before updating the currency code on the General Journal Line.
+    /// This event allows developers to implement custom logic or override the default currency code update logic.
+    /// </summary>
+    /// <param name="Rec">The current General Journal Line record being processed.</param>
+    /// <param name="NewCurrencyCode">The new currency code to be applied to the General Journal Line.</param>
+    /// <param name="isHandled">A boolean variable that, if set to true, skips the default currency code update logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; NewCurrencyCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before checking and potentially modifying the currency code during application.
+    /// Subscribing to this event allows developers to override or extend the behavior
+    /// when validating the general journal line's currency code against the customer or vendor ledger entry's currency code.
+    /// This can be useful for implementing custom validation logic or additional checks.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record being validated.
+    /// </param>
+    /// <param name="VendorLedgerEntry">
+    /// The vendor ledger entry involved in the currency validation, if applicable.
+    /// </param>
+    /// <param name="CustLedgerEntry">
+    /// The customer ledger entry involved in the currency validation, if applicable.
+    /// </param>
+    /// <param name="AccountType">
+    /// The account type (e.g., Customer, Vendor) used to determine the context of the currency validation.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCheckModifyCurrencyCodeOnBeforeCheckAgainstApplnCurrency(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; AccountType: Enum "Gen. Journal Account Type")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after modifying the General Journal Line with a new "Document No." during the renumbering process.
+    /// This event allows developers to change default logic after a General Journal Line has been updated with a new "Document No.".
+    /// </summary>
+    /// <param name="DocNo">The new "Document No." assigned to the General Journal Line.</param>
+    /// <param name="GenJournalLine3">The General Journal Line record that was modified.</param>
     [IntegrationEvent(false, false)]
     local procedure OnRenumberDocNoOnLinesOnAfterModifyGenJnlLine3(var DocNo: Code[20]; var GenJournalLine3: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before checking whether the description should be replaced in the journal line.
+    /// This event allows developers to change the custom logic or skip the standard process.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="GenJournalTemplate">The General Journal Template associated with the operation.</param>
+    /// <param name="Result">A boolean variable indicating whether the description should be replaced.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default check.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReplaceDescription(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalTemplate: Record "Gen. Journal Template"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the payment terms code for a customer account in the general journal line.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// when validating the payment terms code. This can be useful for implementing additional logic,
+    /// validations, or specific workflows before the payment terms code has been validated.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the payment terms code is being validated.
+    /// </param>
+    /// <param name="Customer">
+    /// The customer record associated with the general journal line.
+    /// </param>
+    /// <param name="HideValidationDialog">
+    /// A boolean variable indicating whether the validation dialog should be hidden during the validation process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnGetCustomerAccountOnBeforeValidatePaymentTermsCode(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; HideValidationDialog: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before retrieving the "Due Date" of the related applied document.
+    /// This event allows developers to add custom logic or skip the default logic for determining the "Due Date".
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed.</param>
+    /// <param name="Result">A date variable representing the document's due date.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for determining the "Due Date".</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAppliesToDocDueDate(var GenJournalLine: Record "Gen. Journal Line"; var Result: Date; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the bank account's currency code during "Currency Code" validation.
+    /// This event allows developers to add custom logic before the standard validation of the Bank Account Currency Code.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record on which the currency code validation is being performed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default bank account validation logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnValidateCurrencyCodeOnBeforeCheckBankAccountCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after updating allocations during the line balance update process.
+    /// This event allows developers to change default calculation logic after allocations have been updated for the General Journal Line.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
     [IntegrationEvent(false, false)]
     procedure OnUpdateLineBalanceOnAfterUpdateAllocations(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before initializing the rounding precision of the currency in the General Journal Line.
+    /// This event allows developers to add custom logic before the initialization of the currency rounding precision.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="Currency">The Currency record associated with the General Journal Line or General Ledger Setup.</param>
     [IntegrationEvent(false, false)]
     local procedure OnGetCurrencyOnBeforeInitRoundingPrecision(var GenJournalLine: Record "Gen. Journal Line"; var Currency: Record Currency)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before initializing rounding precision during the calculation of VAT amount in LCY.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when calculating the VAT amount in LCY. This can be useful for implementing custom rounding logic,
+    /// additional validations, or handling specific business rules related to VAT calculation.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the VAT amount in LCY is being calculated.
+    /// </param>
+    /// <param name="Currency">
+    /// The currency record for the LCY (local currency), which can be modified before initialization.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLCYOnBeforeInitRoundingPrecision(var GenJournalLine: Record "Gen. Journal Line"; var Currency: Record Currency)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered when none of the defined account types (Customer, Vendor, Employee) have been handled during the validation of the "Applies-to Doc. No." field.
+    /// This event allows developers to add custom logic for other account types.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="xGenJournalLine">The previous state of the General Journal Line before changes were made.</param>
+    /// <param name="TempGenJnlLine">A temporary General Journal Line record used for processing.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAppliesToDocNoOnValidateOnCaseElse(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; var TempGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after checking of the "G/L Account" in the General Journal Line.
+    /// This event allows developers to add custom logic after the "G/L Account" validation checks have been completed.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line that was processed.</param>
+    /// <param name="GLAccount">The G/L Account record that was validated.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckGLAcc(var GenJournalLine: Record "Gen. Journal Line"; GLAccount: Record "G/L Account")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the filter on the "Open" field of the Customer Ledger Entry during the lookup process.
+    /// This event allows developers to override or modify the logic that sets the "Open" field filter on the Customer Ledger Entry.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record for which the lookup is being performed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default "Open" field filter setting.</param>
     [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocCustOnBeforeCustLedgerEntrySetRangeOpen(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before exporting the payment file.
+    /// This event allows developers to add custom logic or skip the default logic for exporting the payment file.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record being processed for payment export.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default export payment file logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeExportPaymentFile(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before copying VAT setup to journal lines in the General Journal Line for the Fixed Asset.
+    /// This event allows developers to add custom logic or skip the default process of copying VAT setup.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
+    /// <param name="GLAccount">The G/L Account record associated with the process.</param>
+    /// <param name="FAPostingGroup">The Fixed Asset Posting Group record associated with the process.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default logic for copying VAT setup.</param>
     [IntegrationEvent(false, false)]
     local procedure OnGetFAVATSetupOnBeforeCopyVATSetupToJnlLines(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account"; var FAPostingGroup: Record "FA Posting Group"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the filter on the "Open" field of the Vendor Ledger Entry during the lookup process.
+    /// This event allows developers to override or modify the default logic for setting the "Open" field filter on the Vendor Ledger Entry.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line record for which the lookup is being performed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default "Open" field filter logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocVendOnBeforeVendLedgerEntrySetRangeOpen(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the amount with the remaining amount from a customer ledger entry.
+    /// Subscribing to this event allows developers to override or extend the behavior
+    /// when determining the amount based on the remaining customer ledger entry data. This can be useful
+    /// for customizing the calculation of the amount or applying specific business rules.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record involved in the operation.
+    /// </param>
+    /// <param name="CustLedgerEntry">
+    /// The customer ledger entry record used for setting the remaining amount.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default behavior for setting the amount with the remaining data should be skipped.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnSetAmountWithCustLedgEntryOnBeforeSetAmountWithRemaining(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the amount with the remaining amount from a vendor ledger entry.
+    /// Subscribing to this event allows developers to override or extend the behavior
+    /// when determining the amount based on the remaining vendor ledger entry data. This can be useful
+    /// for customizing the calculation of the amount or applying specific business rules.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record involved in the operation.
+    /// </param>
+    /// <param name="VendLedgerEntry">
+    /// The vendor ledger entry record used for setting the remaining amount.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default behavior for setting the amount with the remaining data should be skipped.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnSetAmountWithVendLedgEntryOnBeforeSetAmountWithRemaining(var GenJournalLine: Record "Gen. Journal Line"; var VendLedgerEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before setting the description from a G/L account for the general journal line.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when setting the description. This can be useful for implementing custom logic, validations,
+    /// or additional processing before the description has been updated.
+    /// </summary>
+    /// <param name="GenJournalLine">
+    /// The general journal line record for which the description is being set.
+    /// </param>
+    /// <param name="GLAccount">
+    /// The G/L account record from which the description is being derived.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDescriptionFromGLAcc(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before checking of the "G/L Account" in the General Journal Line.
+    /// This event allows developers to add custom logic before the "G/L Account" validation checks have been executed.
+    /// </summary>
+    /// <param name="GLAccount">The G/L Account record being validated.</param>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckGLAcc(var GLAccount: Record "G/L Account"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the "Job Planning Line" during the lookup of the "Job Planning Line No." field.
+    /// This event allows developers to change the filters applied to the "Job Planning Line" record or add custom logic before the lookup has been displayed.
+    /// </summary>
+    /// <param name="JobPlanningLine">The "Job Planning Line" record with the filters applied.</param>
+    /// <param name="GenJournalLine">The current General Journal Line being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnLookupJobPlanningLineNoOnAfterJobPlanningLineSetFilter(var JobPlanningLine: Record "Job Planning Line"; var GenJournalLine: Record "Gen. Journal Line");
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Job Planning Line No." field in the General Journal Line.
+    /// This event allows developers to add custom logic or skip the default validation process for the "Job Planning Line No." field.
+    /// </summary>
+    /// <param name="Rec">The current General Journal Line being processed.</param>
+    /// <param name="IsHandled">A boolean variable that, if set to true, skips the default validation logic for the "Job Planning Line No." field.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateJobPlanningLineNo(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after editing the dimension set in the General Journal Line.
+    /// This event allows developers to add custom logic after the dimension set has been updated in the General Journal Line.
+    /// </summary>
+    /// <param name="GenJournalLine">The current General Journal Line with the updated dimension set.</param>
+    /// <param name="OldDimensionSetId">The Dimension Set ID prior to the changes made.</param>
     [IntegrationEvent(false, false)]
     local procedure OnShowDimensionsOnAfterEditDimensionSet(var GenJournalLine: Record "Gen. Journal Line"; OldDimensionSetId: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after calculating the remaining amount on the Vendor Ledger Entry.
+    /// This event allows developers to add custom logic after the "Remaining Amount" field has been calculated on the Vendor Ledger Entry.
+    /// </summary>
+    /// <param name="VendorLedgerEntry">The Vendor Ledger Entry record with the calculated "Remaining Amount".</param>
     [IntegrationEvent(false, false)]
     local procedure OnGetVendLedgerEntryOnAfterCalcRemainingAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after calculating the "Remaining Amount" on the Customer Ledger Entry.
+    /// This event allows developers to add custom logic after the "Remaining Amount" field has been calculated on the Customer Ledger Entry.
+    /// </summary>
+    /// <param name="CustLedgerEntry">The Customer Ledger Entry record with the calculated "Remaining Amount".</param>
     [IntegrationEvent(false, false)]
     local procedure OnGetCustLedgerEntryOnAfterCalcRemainingAmount(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
