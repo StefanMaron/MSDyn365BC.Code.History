@@ -35,7 +35,10 @@ page 1173 "Document Attachment Details"
                         Selection: Integer;
                     begin
                         if Rec.HasContent() then
-                            Rec.Export(true)
+                            if Rec.SupportedByFileViewer() then
+                                Rec.ViewFile()
+                            else
+                                Rec.Export(true)
                         else
                             if not IsOfficeAddin or not EmailHasAttachments then
                                 InitiateUploadFile()
@@ -98,6 +101,14 @@ page 1173 "Document Attachment Details"
                     ToolTip = 'Specifies if the attachment must flow to transactions.';
                     Visible = ServiceDocumentFlow;
                 }
+                field("Document Flow Production"; Rec."Document Flow Production")
+                {
+                    ApplicationArea = All;
+                    CaptionClass = GetCaptionClass(21);
+                    Editable = FlowFieldsEditable;
+                    ToolTip = 'Specifies if the attachment must flow to transactions.';
+                    Visible = ProductionDocumentFlow;
+                }
             }
         }
     }
@@ -147,6 +158,20 @@ page 1173 "Document Attachment Details"
                 trigger OnAction()
                 begin
                     Rec.OpenInOneDrive("Document Sharing Intent"::Share);
+                end;
+            }
+            action(OpenInFileViewer)
+            {
+                ApplicationArea = All;
+                Caption = 'View';
+                Image = View;
+                Enabled = ViewEnabled;
+                Scope = Repeater;
+                ToolTip = 'View the file. You will be able to download the file from the viewer control. Works only on limited number of file types.';
+
+                trigger OnAction()
+                begin
+                    Rec.ViewFile();
                 end;
             }
             action(Preview)
@@ -215,6 +240,9 @@ page 1173 "Document Attachment Details"
         }
         area(Promoted)
         {
+            actionref(OpenInFileViewer_Promoted; OpenInFileViewer)
+            {
+            }
             actionref(Preview_Promoted; Preview)
             {
             }
@@ -271,6 +299,7 @@ page 1173 "Document Attachment Details"
             ShareEditOptionVisible := DocumentSharing.EditEnabledForFile('.' + Rec."File Extension");
         end;
         DownloadEnabled := Rec.HasContent() and (not IsMultiSelect);
+        ViewEnabled := DownloadEnabled and Rec.SupportedByFileViewer();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -286,10 +315,11 @@ page 1173 "Document Attachment Details"
         FilterTxt: Label '*.jpg;*.jpeg;*.bmp;*.png;*.gif;*.tiff;*.tif;*.pdf;*.docx;*.doc;*.xlsx;*.xls;*.pptx;*.ppt;*.msg;*.xml;*.*', Locked = true;
         ImportTxt: Label 'Attach a document.';
         SelectFileTxt: Label 'Attach a file';
-        PurchaseDocumentFlow: Boolean;
+        PurchaseDocumentFlow, ProductionDocumentFlow : Boolean;
         ShareOptionsVisible: Boolean;
         ShareEditOptionVisible: Boolean;
         DownloadEnabled: Boolean;
+        ViewEnabled: Boolean;
         FlowFieldsEditable: Boolean;
         EmailHasAttachments: Boolean;
         IsOfficeAddin: Boolean;
@@ -297,6 +327,7 @@ page 1173 "Document Attachment Details"
         FlowToPurchTxt: Label 'Flow to Purch. Trx';
         FlowToSalesTxt: Label 'Flow to Sales Trx';
         FlowToServiceTxt: Label 'Flow to Service Trx';
+        FlowToProductionTxt: Label 'Flow to Production Trx';
         MenuOptionsTxt: Label 'Attach from email,Upload file', Comment = 'Comma seperated phrases must be translated seperately.';
         SelectInstructionTxt: Label 'Choose the files to attach.';
 
@@ -323,15 +354,14 @@ page 1173 "Document Attachment Details"
 
     local procedure GetCaptionClass(FieldNo: Integer): Text
     begin
-        if SalesDocumentFlow and PurchaseDocumentFlow and ServiceDocumentFlow then
-            case FieldNo of
-                9:
-                    exit(FlowToPurchTxt);
-                11:
-                    exit(FlowToSalesTxt);
-                13:
-                    exit(FlowToServiceTxt);
-            end;
+        if SalesDocumentFlow and (FieldNo = 11) then
+            exit(FlowToSalesTxt);
+        if PurchaseDocumentFlow and (FieldNo = 9) then
+            exit(FlowToPurchTxt);
+        if ServiceDocumentFlow and (FieldNo = 13) then
+            exit(FlowToServiceTxt);
+        if ProductionDocumentFlow and (FieldNo = 21) then
+            exit(FlowToProductionTxt);
     end;
 
     procedure OpenForRecRef(RecRef: RecordRef)
@@ -345,6 +375,7 @@ page 1173 "Document Attachment Details"
         SalesDocumentFlow := DocumentAttachmentMgmt.IsSalesDocumentFlow(RecRef.Number);
         PurchaseDocumentFlow := DocumentAttachmentMgmt.IsPurchaseDocumentFlow(RecRef.Number);
         ServiceDocumentFlow := DocumentAttachmentMgmt.IsServiceDocumentFlow(RecRef.Number);
+        ProductionDocumentFlow := DocumentAttachmentMgmt.IsProductionDocumentFlow(RecRef.Number);
         FlowFieldsEditable := DocumentAttachmentMgmt.IsFlowFieldsEditable(RecRef.Number);
 
         DocumentAttachmentMgmt.SetDocumentAttachmentFiltersForRecRefInternal(Rec, RecRef, false);

@@ -224,7 +224,6 @@ page 343 "Check Credit Limit"
                   SalesHeader."Amount Including VAT", SalesHeader."Currency Factor"));
     end;
 
-    [Scope('OnPrem')]
     procedure SalesHeaderShowWarningAndGetCause(SalesHeader: Record "Sales Header"; var NotificationContextGuidOut: Guid): Boolean
     var
         Result: Boolean;
@@ -387,6 +386,7 @@ page 343 "Check Credit Limit"
         Rec.SetRange("No.", Rec."No.");
         Cust2.Copy(Rec);
 
+        SalesSetup.Get();
         if (SalesSetup."Credit Warnings" in
             [SalesSetup."Credit Warnings"::"Both Warnings",
              SalesSetup."Credit Warnings"::"Credit Limit"]) and

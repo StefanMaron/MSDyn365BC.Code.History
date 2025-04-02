@@ -105,6 +105,8 @@ codeunit 487 "Job Queue Start Report"
             REPORT.Print(ReportID, JobQueueEntry.GetReportParameters(), JobQueueEntry."Printer Name", RecRef)
         else
             REPORT.Print(ReportID, JobQueueEntry.GetReportParameters(), JobQueueEntry."Printer Name");
+
+        OnAfterProcessPrint(ReportId, JobQueueEntry, RunOnRec);
     end;
 
     local procedure ProcessSaveAs(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; RunOnRec: Boolean; var RecordRef: RecordRef; RepFormat: ReportFormat; var OutStream: OutStream)
@@ -189,6 +191,11 @@ codeunit 487 "Job Queue Start Report"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunReportOnBeforeCommit(ReportInbox: Record "Report Inbox"; var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterProcessPrint(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; RunOnRec: Boolean)
     begin
     end;
 }

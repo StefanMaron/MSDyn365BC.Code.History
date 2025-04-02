@@ -44,6 +44,7 @@ table 9657 "Custom Report Selection"
         {
             Caption = 'Report ID';
             TableRelation = "Report Metadata"."ID";
+            ToolTip = 'Specifies the ID of the report.';
 
             trigger OnValidate()
             begin
@@ -62,6 +63,7 @@ table 9657 "Custom Report Selection"
             Caption = 'Report Caption';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the name of the report.';
         }
         field(7; "Custom Report Layout Code"; Code[20])
         {
@@ -78,10 +80,12 @@ table 9657 "Custom Report Selection"
             CalcFormula = lookup("Custom Report Layout".Description where(Code = field("Custom Report Layout Code")));
             Caption = 'Custom Report Description';
             FieldClass = FlowField;
+            ToolTip = 'Specifies a description of the custom report layout.';
         }
         field(9; "Send To Email"; Text[200])
         {
             Caption = 'Send To Email';
+            ToolTip = 'Specifies that the report is used when sending emails.';
 
             trigger OnValidate()
             var
@@ -99,6 +103,7 @@ table 9657 "Custom Report Selection"
         {
             Caption = 'Use for Email Attachment';
             InitValue = true;
+            ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
 
             trigger OnValidate()
             begin
@@ -112,6 +117,8 @@ table 9657 "Custom Report Selection"
         field(20; "Use for Email Body"; Boolean)
         {
             Caption = 'Use for Email Body';
+            ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
+
             trigger OnValidate()
             begin
                 if not "Use for Email Body" then begin
@@ -126,6 +133,7 @@ table 9657 "Custom Report Selection"
             Caption = 'Email Body Layout Code';
             TableRelation = "Custom Report Layout" where(Code = field("Email Body Layout Code"),
                                                           "Report ID" = field("Report ID"));
+            ToolTip = 'Specifies the ID of the email body layout that is used.';
 
             trigger OnValidate()
             begin
@@ -140,6 +148,7 @@ table 9657 "Custom Report Selection"
             Caption = 'Email Body Layout Description';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies a description of the custom email body layout that is used.';
         }
         field(23; "Use Email from Contact"; Boolean)
         {
@@ -524,22 +533,26 @@ table 9657 "Custom Report Selection"
     begin
     end;
 
+#if not CLEAN24
     [IntegrationEvent(false, false)]
     [Obsolete('Not used with platform layout selection', '24.0')]
     local procedure OnBeforeCheckEmailBodyUsage(var CustomReportSelection: Record "Custom Report Selection"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeGetSendToEmail(Update: Boolean; var Result: Text[250]; var IsHandled: Boolean)
     begin
     end;
 
+#if not CLEAN24
     [IntegrationEvent(false, false)]
     [Obsolete('Not used with platform layout selection', '24.0')]
     local procedure OnCheckEmailBodyUsageOnAfterCalcShowEmailBodyDefinedError(var Rec: Record "Custom Report Selection"; var CustomReportSelection: Record "Custom Report Selection"; var ShowEmailBodyDefinedError: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromReportSelections(var CustomReportSelection: Record "Custom Report Selection"; var ReportSelections: Record "Report Selections")

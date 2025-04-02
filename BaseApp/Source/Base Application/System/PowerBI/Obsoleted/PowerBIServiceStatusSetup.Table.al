@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA25 
 namespace System.Integration.PowerBI;
 
 /// <summary>
@@ -52,3 +53,5 @@ table 6309 "Power BI Service Status Setup"
         SingletonErr: Label 'There should be only one record for Power BI Service Status Setup.';
 }
 
+ 
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN26
 namespace Microsoft.Sales.Peppol;
 
 using Microsoft.Finance.VAT.Calculation;
@@ -7,6 +8,9 @@ using System.Utilities;
 
 xmlport 1602 "Sales Invoice - PEPPOL 2.0"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'PEPPOL 2.0 is no longer supported.';
+    ObsoleteTag = '26.0';
     Caption = 'Sales Invoice - PEPPOL 2.0';
     Direction = Export;
     Encoding = UTF8;
@@ -2128,4 +2132,4 @@ xmlport 1602 "Sales Invoice - PEPPOL 2.0"
     begin
     end;
 }
-
+#endif

@@ -121,71 +121,64 @@ table 7318 "Posted Whse. Receipt Header"
 
     trigger OnInsert()
     var
+        WarehouseSetup: Record "Warehouse Setup";
         NoSeries: Codeunit "No. Series";
 #if not CLEAN24
         NoSeriesMgt: Codeunit NoSeriesManagement;
 #endif
         IsHandled: Boolean;
     begin
-        WhseSetup.Get();
+        WarehouseSetup.Get();
         if "No." = '' then begin
             IsHandled := false;
-            OnInsertOnBeforeTestWhseReceiptNos(WhseSetup, IsHandled);
+            OnInsertOnBeforeTestWhseReceiptNos(WarehouseSetup, IsHandled);
             if not IsHandled then
-                WhseSetup.TestField("Whse. Receipt Nos.");
+                WarehouseSetup.TestField("Whse. Receipt Nos.");
 #if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(WhseSetup."Posted Whse. Receipt Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(WarehouseSetup."Posted Whse. Receipt Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
             if not IsHandled then begin
 #endif
-                "No. Series" := WhseSetup."Posted Whse. Receipt Nos.";
+                "No. Series" := WarehouseSetup."Posted Whse. Receipt Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
 #if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", WhseSetup."Posted Whse. Receipt Nos.", "Posting Date", "No.");
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", WarehouseSetup."Posted Whse. Receipt Nos.", "Posting Date", "No.");
             end;
 #endif
         end;
     end;
 
+    procedure GetHeaderStatus(SkipLineNo: Integer): Integer
     var
-        WhseSetup: Record "Warehouse Setup";
-
-    procedure GetHeaderStatus(LineNo: Integer): Integer
-    var
-        PostedWhseRcptLine2: Record "Posted Whse. Receipt Line";
-        OrderStatus: Option " ","Partially Put Away","Completely Put Away";
-        First: Boolean;
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
     begin
-        First := true;
-        PostedWhseRcptLine2.SetRange("No.", "No.");
-        if LineNo <> 0 then
-            PostedWhseRcptLine2.SetFilter("Line No.", '<>%1', LineNo);
-        if PostedWhseRcptLine2.Find('-') then
-            repeat
-                case OrderStatus of
-                    OrderStatus::" ":
-                        if (PostedWhseRcptLine2.Status = PostedWhseRcptLine2.Status::"Completely Put Away") and
-                           (not First)
-                        then
-                            OrderStatus := OrderStatus::"Partially Put Away"
-                        else
-                            OrderStatus := PostedWhseRcptLine2.Status;
-                    OrderStatus::"Completely Put Away":
-                        if PostedWhseRcptLine2.Status <> PostedWhseRcptLine2.Status::"Completely Put Away" then
-                            OrderStatus := OrderStatus::"Partially Put Away";
-                end;
-                First := false;
-            until PostedWhseRcptLine2.Next() = 0;
-        exit(OrderStatus);
+        PostedWhseReceiptLine.SetRange("No.", "No.");
+        if SkipLineNo <> 0 then
+            PostedWhseReceiptLine.SetFilter("Line No.", '<>%1', SkipLineNo);
+
+        PostedWhseReceiptLine.SetRange(Status, PostedWhseReceiptLine.Status::"Completely Put Away");
+        if not PostedWhseReceiptLine.IsEmpty() then begin
+            PostedWhseReceiptLine.SetFilter(Status, '<>%1', PostedWhseReceiptLine.Status::"Completely Put Away");
+            if not PostedWhseReceiptLine.IsEmpty() then
+                exit(PostedWhseReceiptLine.Status::"Partially Put Away");
+
+            exit(PostedWhseReceiptLine.Status::"Completely Put Away");
+        end else begin
+            PostedWhseReceiptLine.SetRange(Status, PostedWhseReceiptLine.Status::"Partially Put Away");
+            if not PostedWhseReceiptLine.IsEmpty() then
+                exit(PostedWhseReceiptLine.Status::"Partially Put Away");
+        end;
+
+        exit(PostedWhseReceiptLine.Status::" ");
     end;
 
     local procedure DeleteRelatedLines()
     var
         Location: Record Location;
         WhsePutAwayRequest: Record "Whse. Put-away Request";
-        PostedWhseRcptLine: Record "Posted Whse. Receipt Line";
-        WhseCommentLine: Record "Warehouse Comment Line";
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
+        WarehouseCommentLine: Record "Warehouse Comment Line";
     begin
         if Location.RequirePutaway("Location Code") then
             TestField("Document Status", "Document Status"::"Completely Put Away");
@@ -194,43 +187,43 @@ table 7318 "Posted Whse. Receipt Header"
         WhsePutAwayRequest.SetRange("Document No.", "No.");
         WhsePutAwayRequest.DeleteAll();
 
-        PostedWhseRcptLine.SetRange("No.", "No.");
-        PostedWhseRcptLine.DeleteAll();
+        PostedWhseReceiptLine.SetRange("No.", "No.");
+        PostedWhseReceiptLine.DeleteAll();
 
-        WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Posted Whse. Receipt");
-        WhseCommentLine.SetRange(Type, WhseCommentLine.Type::" ");
-        WhseCommentLine.SetRange("No.", "No.");
-        WhseCommentLine.DeleteAll();
+        WarehouseCommentLine.SetRange("Table Name", WarehouseCommentLine."Table Name"::"Posted Whse. Receipt");
+        WarehouseCommentLine.SetRange(Type, WarehouseCommentLine.Type::" ");
+        WarehouseCommentLine.SetRange("No.", "No.");
+        WarehouseCommentLine.DeleteAll();
     end;
 
-    procedure LookupPostedWhseRcptHeader(var PostedWhseRcptHeader: Record "Posted Whse. Receipt Header")
+    procedure LookupPostedWhseRcptHeader(var PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header")
     begin
         Commit();
-        if UserId <> '' then begin
-            PostedWhseRcptHeader.FilterGroup := 2;
-            PostedWhseRcptHeader.SetRange("Location Code");
+        if UserId() <> '' then begin
+            PostedWhseReceiptHeader.FilterGroup := 2;
+            PostedWhseReceiptHeader.SetRange("Location Code");
         end;
-        if PAGE.RunModal(0, PostedWhseRcptHeader) = ACTION::LookupOK then;
-        if UserId <> '' then begin
-            PostedWhseRcptHeader.FilterGroup := 2;
-            PostedWhseRcptHeader.SetRange("Location Code", PostedWhseRcptHeader."Location Code");
-            PostedWhseRcptHeader.FilterGroup := 0;
+        if Page.RunModal(0, PostedWhseReceiptHeader) = Action::LookupOK then;
+        if UserId() <> '' then begin
+            PostedWhseReceiptHeader.FilterGroup := 2;
+            PostedWhseReceiptHeader.SetRange("Location Code", PostedWhseReceiptHeader."Location Code");
+            PostedWhseReceiptHeader.FilterGroup := 0;
         end;
     end;
 
     procedure FindFirstAllowedRec(Which: Text[1024]): Boolean
     var
-        PostedWhseRcptHeader: Record "Posted Whse. Receipt Header";
+        PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header";
         WMSManagement: Codeunit "WMS Management";
     begin
         if Find(Which) then begin
-            PostedWhseRcptHeader := Rec;
+            PostedWhseReceiptHeader := Rec;
             while true do begin
                 if WMSManagement.LocationIsAllowedToView("Location Code") then
                     exit(true);
 
                 if Next(1) = 0 then begin
-                    Rec := PostedWhseRcptHeader;
+                    Rec := PostedWhseReceiptHeader;
                     if Find(Which) then
                         while true do begin
                             if WMSManagement.LocationIsAllowedToView("Location Code") then
@@ -247,22 +240,22 @@ table 7318 "Posted Whse. Receipt Header"
 
     procedure FindNextAllowedRec(Steps: Integer): Integer
     var
-        PostedWhseRcptHeader: Record "Posted Whse. Receipt Header";
+        PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header";
         WMSManagement: Codeunit "WMS Management";
         RealSteps: Integer;
         NextSteps: Integer;
     begin
         RealSteps := 0;
         if Steps <> 0 then begin
-            PostedWhseRcptHeader := Rec;
+            PostedWhseReceiptHeader := Rec;
             repeat
                 NextSteps := Next(Steps / Abs(Steps));
                 if WMSManagement.LocationIsAllowedToView("Location Code") then begin
                     RealSteps := RealSteps + NextSteps;
-                    PostedWhseRcptHeader := Rec;
+                    PostedWhseReceiptHeader := Rec;
                 end;
             until (NextSteps = 0) or (RealSteps = Steps);
-            Rec := PostedWhseRcptHeader;
+            Rec := PostedWhseReceiptHeader;
             if not Find() then;
         end;
         exit(RealSteps);

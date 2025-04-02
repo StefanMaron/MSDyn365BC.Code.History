@@ -221,7 +221,7 @@ codeunit 228 "Test Report-Print"
     var
         ServTestReportPrint: Codeunit "Serv. Test Report Print";
     begin
-        ServTestReportPrint.PrintServiceHeader(NEwServiceHeader);
+        ServTestReportPrint.PrintServiceHeader(NewServiceHeader);
     end;
 #endif
 

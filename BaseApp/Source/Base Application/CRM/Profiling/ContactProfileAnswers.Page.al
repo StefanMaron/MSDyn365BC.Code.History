@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CRM.Profiling;
 
 using Microsoft.CRM.Contact;
@@ -68,6 +72,7 @@ page 5114 "Contact Profile Answers"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Set';
                     ToolTip = 'Specifies the answer to the question.';
+                    Editable = (Rec.Type = Rec.Type::Answer);
 
                     trigger OnValidate()
                     begin

@@ -213,23 +213,6 @@ codeunit 6200 "Non-Deductible VAT"
         NonDedVATImpl.SetNonDeductibleVAT(InvoicePostingBuffer, TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff);
     end;
 
-#if not CLEAN23
-    /// <summary>
-    /// Set Non-Deductible VAT amounts in the invoice post buffer
-    /// </summary>
-    /// <param name="InvoicePostBuffer">The current invoice post buffer to be updated</param>
-    /// <param name="TotalNonDedVATBase">Total Non-Deductible VAT base</param>
-    /// <param name="TotalNonDedVATAmount">Total Non-Deductible VAT amount</param>
-    /// <param name="TotalNonDedVATBaseACY">Total Non-Deductible VAT base in additional currency</param>
-    /// <param name="TotalNonDedVATAmountACY">Total Non-Deductible VAT amount in additional currency</param>
-    /// <param name="TotalNonDedVATDiff">Total Non-Deductible VAT difference</param>
-    [Obsolete('Replaced with SetNonDeductibleVAT', '23.0')]
-    procedure SetNonDeductibleVAT(var InvoicePostBuffer: Record "Invoice Post. Buffer"; TotalNonDedVATBase: Decimal; TotalNonDedVATAmount: Decimal; TotalNonDedVATBaseACY: Decimal; TotalNonDedVATAmountACY: Decimal; TotalNonDedVATDiff: Decimal)
-    begin
-        NonDedVATImpl.SetNonDeductibleVAT(InvoicePostBuffer, TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff);
-    end;
-#endif
-
     /// <summary>
     /// Set Non-Deductible VAT amounts in the VAT entry
     /// </summary>
@@ -316,23 +299,6 @@ codeunit 6200 "Non-Deductible VAT"
         NonDedVATImpl.Update(TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff, InvoicePostingBuffer);
     end;
 
-#if not CLEAN23
-    /// <summary>
-    /// Updates total Non-Deductible VAT amounts in the invoice post buffer
-    /// </summary>
-    /// <param name="TotalNonDedVATBase">Total Non-Deductible VAT base</param>
-    /// <param name="TotalNonDedVATAmount">Total Non-Deductible VAT amount</param>
-    /// <param name="TotalNonDedVATBaseACY">Total Non-Deductible VAT base in additional currency</param>
-    /// <param name="TotalNonDedVATAmountACY">Total Non-Deductible VAT amount in additional currency</param>
-    /// <param name="TotalNonDedVATDiff">Total Non-Deductible VAT difference</param>
-    /// <param name="InvoicePostBuffer">The current invoice post buffer to update totals</param>
-    [Obsolete('Replaced with UpdateNonDeductibleAmountsInInvoicePostingBuffer', '23.0')]
-    procedure Update(var TotalNonDedVATBase: Decimal; var TotalNonDedVATAmount: Decimal; var TotalNonDedVATBaseACY: Decimal; var TotalNonDedVATAmountACY: Decimal; var TotalNonDedVATDiff: Decimal; InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        NonDedVATImpl.Update(TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff, InvoicePostBuffer);
-    end;
-#endif
-
     /// <summary>
     /// Update Non-Deductible VAT amounts in the VAT amount line
     /// </summary>
@@ -342,20 +308,6 @@ codeunit 6200 "Non-Deductible VAT"
     begin
         NonDedVATImpl.Update(VATAmountLine, Currency);
     end;
-
-#if not CLEAN23
-    /// <summary>
-    /// Update Non-Deductible VAT amounts in the invoice post buffer with rounding
-    /// </summary>
-    /// <param name="InvoicePostBuffer">The current invoice post buffer</param>
-    /// <param name="RemainderInvoicePostBuffer">Remainder from rounding to add to the next line</param>
-    /// <param name="AmountRoundingPrecision">Amount rounding precision to apply for rounding</param>
-    [Obsolete('Replaced with UpdateAmount', '23.0')]
-    procedure Update(var InvoicePostBuffer: Record "Invoice Post. Buffer"; var RemainderInvoicePostBuffer: Record "Invoice Post. Buffer"; AmountRoundingPrecision: Decimal)
-    begin
-        NonDedVATImpl.Update(InvoicePostBuffer, RemainderInvoicePostBuffer, AmountRoundingPrecision);
-    end;
-#endif
 
     /// <summary>
     /// Update Non-Deductible VAT amounts in the invoice posting buffer with rounding
@@ -561,18 +513,6 @@ codeunit 6200 "Non-Deductible VAT"
         NonDedVATImpl.Reverse(InvoicePostingBuffer);
     end;
 
-#if not CLEAN23
-    /// <summary>
-    /// Reverse the Non-Deductible VAT base and amount in the invoice post buffer
-    /// </summary>
-    /// <param name="InvoicePostBuffer">The current invoice post buffer</param>
-    [Obsolete('Replaced with Reverse', '23.0')]
-    procedure Reverse(var InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        NonDedVATImpl.Reverse(InvoicePostBuffer);
-    end;
-#endif
-
     /// <summary>
     /// Reverse Non-Deductible amount in G/L Entry
     /// </summary>
@@ -622,19 +562,6 @@ codeunit 6200 "Non-Deductible VAT"
         NonDedVATImpl.Increment(TotalInvoicePostingBuffer, InvoicePostingBuffer);
     end;
 
-#if not CLEAN23
-    /// <summary>
-    /// Increment Non-Deductible VAT amounts in the invoice post buffer
-    /// </summary>
-    /// <param name="TotalInvoicePostBuffer">The invoice post buffer to be incremented</param>
-    /// <param name="InvoicePostBuffer">The current invoice post buffer</param>
-    [Obsolete('Replaced with Increment', '23.0')]
-    procedure Increment(var TotalInvoicePostBuffer: Record "Invoice Post. Buffer"; InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        NonDedVATImpl.Increment(TotalInvoicePostBuffer, InvoicePostBuffer);
-    end;
-#endif
-
     /// <summary>
     /// Identifies if the current FA ledger entry is a Non-Deductible VAT entry in the first acquisition
     /// </summary>
@@ -674,18 +601,6 @@ codeunit 6200 "Non-Deductible VAT"
     begin
         NonDedVATImpl.ClearNonDeductibleVAT(InvoicePostingBuffer);
     end;
-
-#if not CLEAN23
-    /// <summary>
-    /// Clear Non-Deductible VAT in the invoice post buffer
-    /// </summary>
-    /// <param name="InvoicePostBuffer">The current invoice post buffer</param>
-    [Obsolete('Replaced with ClearNonDedVATInInvoicePostingBuffer', '23.0')]
-    procedure ClearNonDeductibleVAT(var InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        NonDedVATImpl.ClearNonDeductibleVAT(InvoicePostBuffer);
-    end;
-#endif
 
     /// <summary>
     /// Clear Non-Deductible VAT amounts in additional currency in VAT entry
@@ -743,18 +658,6 @@ codeunit 6200 "Non-Deductible VAT"
         NonDedVATImpl.Calculate(InvoicePostingBuffer);
     end;
 
-#if not CLEAN23
-    /// <summary>
-    /// Calculate Non-Deductible VAT amounts in the invoice post buffer
-    /// </summary>
-    /// <param name="InvoicePostBuffer">The current invoice post buffer</param>
-    [Obsolete('Replaced with Calculate', '23.0')]
-    procedure Calculate(var InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        NonDedVATImpl.Calculate(InvoicePostBuffer);
-    end;
-#endif
-
     /// <summary>
     /// Calculate Non-Deductible VAT per unit
     /// </summary>
@@ -781,19 +684,6 @@ codeunit 6200 "Non-Deductible VAT"
         NonDedVATImpl.Copy(InvoicePostingBuffer, PurchaseLine);
     end;
 
-#if not CLEAN23
-    /// <summary>
-    /// Copy Non-Deductible VAT from the purchase line to the invoice post buffer
-    /// </summary>
-    /// <param name="InvoicePostBuffer">The current invoice post buffer</param>
-    /// <param name="PurchaseLine">The current purchase line</param>
-    [Obsolete('Replaced with Copy', '23.0')]
-    procedure Copy(var InvoicePostBuffer: Record "Invoice Post. Buffer"; PurchaseLine: Record "Purchase Line")
-    begin
-        NonDedVATImpl.Copy(InvoicePostBuffer, PurchaseLine);
-    end;
-#endif
-
     /// <summary>
     /// Copy Non-Deductible VAT from the general journal line to the VAT Entry
     /// </summary>
@@ -813,19 +703,6 @@ codeunit 6200 "Non-Deductible VAT"
     begin
         NonDedVATImpl.Copy(GenJournalLine, InvoicePostingBuffer);
     end;
-
-#if not CLEAN23
-    /// <summary>
-    /// Copy Non-Deductible VAT from the invoice post buffer to the general journal line
-    /// </summary>
-    /// <param name="GenJournalLine">The current general journal line</param>
-    /// <param name="InvoicePostBuffer">The current invoice post buffer</param>
-    [Obsolete('Replaced with Copy', '23.0')]
-    procedure Copy(var GenJournalLine: Record "Gen. Journal Line"; InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        NonDedVATImpl.Copy(GenJournalLine, InvoicePostBuffer);
-    end;
-#endif
 
     /// <summary>
     /// Exchange Non-Deductible VAT fields with the balance side in general journaal line
@@ -878,19 +755,6 @@ codeunit 6200 "Non-Deductible VAT"
         exit(NonDedVATImpl.UseNonDeductibleVATAmountForJobCost());
     end;
 
-#if not CLEAN23
-    /// <summary>
-    /// Adjust romunding for invoice post buffer
-    /// </summary>
-    /// <param name="RoundingInvoicePostBuffer">The invoice post buffer for rounding</param>
-    /// <param name="CurrInvoicePostBuffer">The current invoice post buffer</param>
-    [Obsolete('Replaced with AdjustRoundingForInvoicePostingBufferUpdate', '23.0')]
-    procedure AdjustRoundingForInvoicePostBufferUpdate(var RoundingInvoicePostBuffer: Record "Invoice Post. Buffer"; var CurrInvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        NonDedVATImpl.AdjustRoundingForInvoicePostBufferUpdate(RoundingInvoicePostBuffer, CurrInvoicePostBuffer);
-    end;
-#endif
-
     /// <summary>
     /// Apply rounding for the final posting from the invoice posting buffer
     /// </summary>
@@ -900,19 +764,6 @@ codeunit 6200 "Non-Deductible VAT"
     begin
         NonDedVATImpl.ApplyRoundingForFinalPostingFromInvoicePostingBuffer(RoundingInvoicePostingBuffer, CurrInvoicePostingBuffer);
     end;
-
-#if not CLEAN23
-    /// <summary>
-    /// Apply rounding for the final posting from the invoice post buffer 
-    /// </summary>
-    /// <param name="RoundingInvoicePostBuffer">The invoice post buffer for rounding</param>
-    /// <param name="CurrInvoicePostBuffer">The current invoice post buffer</param>
-    [Obsolete('Replaced with ApplyRoundingForFinalPostingFromInvoicePostingBuffer', '23.0')]
-    procedure ApplyRoundingForFinalPostingFromInvoicePostBuffer(var RoundingInvoicePostBuffer: Record "Invoice Post. Buffer"; var CurrInvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        NonDedVATImpl.ApplyRoundingForFinalPostingFromInvoicePostBuffer(RoundingInvoicePostBuffer, CurrInvoicePostBuffer);
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     internal procedure OnBeforeGetNonDeductibleVATPctForPurchLine(var NonDeductibleVATPct: Decimal; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)

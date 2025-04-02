@@ -712,6 +712,12 @@ table 6550 "Whse. Item Tracking Line"
         OnAfterHasSameTrackingWithItemEntryRelation(Rec, WhseItemEntryRelation, IsSameTracking);
     end;
 
+    procedure HasSameTrackingWithItemLedgerEntry(ItemLedgerEntry: Record "Item Ledger Entry") IsSameTracking: Boolean
+    begin
+        IsSameTracking :=
+            (ItemLedgerEntry."Lot No." = "Lot No.") and (ItemLedgerEntry."Serial No." = "Serial No.") and (ItemLedgerEntry."Package No." = "Package No.");
+    end;
+
     procedure TrackingExists() IsTrackingExist: Boolean
     begin
         IsTrackingExist := ("Lot No." <> '') or ("Serial No." <> '');

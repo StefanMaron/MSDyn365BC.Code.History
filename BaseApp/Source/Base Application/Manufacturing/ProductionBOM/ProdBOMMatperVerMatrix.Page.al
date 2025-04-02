@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.ProductionBOM;
 
 using Microsoft.Inventory.Item;
@@ -327,17 +331,15 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                     trigger OnAction()
                     var
                         Item: Record Item;
-                        ProdBOMHeader: Record "Production BOM Header";
-                        BOMMatrixForm: Page "Prod. BOM Matrix per Version";
+                        ProductionBOMHeader: Record "Production BOM Header";
+                        ProdBOMMatrixPerVersion: Page "Prod. BOM Matrix per Version";
                     begin
                         Item.Get(Rec."Item No.");
-                        if Item."Production BOM No." = '' then
-                            exit;
+                        Item.TestField("Production BOM No.");
 
-                        ProdBOMHeader.Get(Item."Production BOM No.");
-                        BOMMatrixForm.Set(ProdBOMHeader);
-
-                        BOMMatrixForm.Run();
+                        ProductionBOMHeader.Get(Item."Production BOM No.");
+                        ProdBOMMatrixPerVersion.Set(ProductionBOMHeader);
+                        ProdBOMMatrixPerVersion.RunModal();
                     end;
                 }
                 action("Where-Used")

@@ -259,8 +259,8 @@ codeunit 6103 "E-Document Subscription"
                 begin
                     PostedSourceDocumentHeader.SetTable(PurchInvHeader);
                     PurchInvHeader.CalcFields("Amount Including VAT");
-                    if EDocument."Amount Incl. VAT" <> PurchInvHeader."Amount Including VAT" then
-                        Error(WrongAmountErr, PurchInvHeader."Amount Including VAT", EDocument."Amount Incl. VAT");
+                    if EDocument.GetTotalAmountIncludingVAT() <> PurchInvHeader."Amount Including VAT" then
+                        Error(WrongAmountErr, PurchInvHeader."Amount Including VAT", EDocument.GetTotalAmountIncludingVAT());
                 end;
         end;
     end;

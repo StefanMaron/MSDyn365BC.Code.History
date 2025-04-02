@@ -7,6 +7,7 @@ namespace Microsoft.Shared.Report;
 
 using System.Environment.Configuration;
 using System.Reflection;
+
 /// <summary>
 /// A dialog page for adding new report layouts.
 /// </summary>
@@ -90,6 +91,12 @@ page 9662 "Report Layout New Dialog"
                 Caption = 'Create a Blank Layout from the report object';
                 ToolTip = 'Specifies whether the layout should be created from the report design or from an existing layout on disk.';
             }
+            field(ExcelMultipleDataSheets; ExcelMultipleDataSheets)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Create Multiple Data Sheets';
+                ToolTip = 'Specifies whether the Excel layout should contain multiple data sheets.';
+            }
         }
     }
 
@@ -97,6 +104,7 @@ page 9662 "Report Layout New Dialog"
     begin
         FormatOptions := FormatOptions::Excel;
         CreateEmptyLayout := false;
+        ExcelMultipleDataSheets := "Excel Sheet Configuration"::Default;
         LayoutName := '';
         AvailableInAllCompanies := true;
         if ReportID <> 0 then
@@ -115,6 +123,7 @@ page 9662 "Report Layout New Dialog"
         FormatOptions: Option "RDLC","Word","Excel","Custom"; // For Custom type, 'External' will be shown in UI
         AvailableInAllCompanies: Boolean;
         CreateEmptyLayout: Boolean;
+        ExcelMultipleDataSheets: enum "Excel Sheet Configuration";
         emptyGuid: Guid;
 
     internal procedure SetReportID(NewReportID: Integer)
@@ -165,6 +174,11 @@ page 9662 "Report Layout New Dialog"
     internal procedure SelectedCreateEmptyLayout(): Boolean
     begin
         exit(CreateEmptyLayout);
+    end;
+
+    internal procedure SelectedExcelMultipleDataSheets(): enum "Excel Sheet Configuration"
+    begin
+        exit(ExcelMultipleDataSheets);
     end;
 
 }

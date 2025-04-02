@@ -359,6 +359,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Acc. Schedule Name" = RM,
                   tabledata "Financial Report" = RM,
                   tabledata "Financial Report User Filters" = RIMD,
+                  tabledata "Fin. Report Excel Template" = RM,
                   tabledata "Account Schedules Chart Setup" = RM,
                   tabledata "Account Use Buffer" = RM,
                   tabledata "Accounting Period" = RM,
@@ -749,9 +750,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Document Entry" = RM,
                   tabledata "Document Search Result" = RM,
                   tabledata "Document Sending Profile" = RM,
-#if not CLEAN23
-                  tabledata "Document Service Cache" = Rm,
-#endif
                   tabledata "Drop Shpt. Post. Buffer" = RM,
                   tabledata "Dtld. Price Calculation Setup" = RIMD,
                   tabledata "Duplicate Price Line" = RIMD,
@@ -949,9 +947,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Inventory Report Entry" = RM,
                   tabledata "Inventory Report Header" = RM,
                   tabledata "Inventory Setup" = RM,
-#if not CLEAN23
-                  tabledata "Invoice Post. Buffer" = RM,
-#endif
                   tabledata "Invoice Posting Buffer" = RM,
                   tabledata "Invoiced Booking Item" = RM,
                   tabledata "Invt. Document Header" = RIMD,
@@ -1075,7 +1070,9 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata Maintenance = RM,
                   tabledata "Maintenance Ledger Entry" = Rm,
                   tabledata "Maintenance Registration" = RM,
+#if not CLEAN24
                   tabledata "Man. Integration Field Mapping" = RIMD,
+#endif
                   tabledata "Man. Integration Table Mapping" = RIMD,
                   tabledata "Man. Int. Field Mapping" = RIMD,
                   tabledata Manufacturer = RM,
@@ -1211,11 +1208,6 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Posted Whse. Receipt Line" = RM,
                   tabledata "Posted Whse. Shipment Header" = RM,
                   tabledata "Posted Whse. Shipment Line" = RM,
-#if not CLEAN23
-                  tabledata "Power BI User Configuration" = RIMD,
-                  tabledata "Power BI Report Configuration" = RIMD,
-                  tabledata "Power BI User Status" = RIMD,
-#endif
                   tabledata "Power BI Chart Buffer" = RIMD,
                   tabledata "Power BI Context Settings" = RIMD,
                   tabledata "Power BI Customer Reports" = RIMD,

@@ -447,9 +447,11 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         ApprovalEntry.SetRange("Approver ID", UserId);
-        ApprovalEntry.SetRange("Related to Change", false);
-        OnFindOpenApprovalEntryForCurrUserOnAfterApprovalEntrySetFilters(ApprovalEntry);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if not ApprovalEntry.IsEmpty() then
+            ApprovalEntry.SetRange("Related to Change", false);
 
+        OnFindOpenApprovalEntryForCurrUserOnAfterApprovalEntrySetFilters(ApprovalEntry);
         exit(ApprovalEntry.FindFirst());
     end;
 
@@ -904,6 +906,7 @@ codeunit 1535 "Approvals Mgmt."
         UserSetup: Record "User Setup";
         UsrId: Code[50];
         SequenceNo: Integer;
+        IsUserAllowedToApproveIfNoApprovalUserExists: Boolean;
     begin
         UsrId := UserId;
 
@@ -912,11 +915,12 @@ codeunit 1535 "Approvals Mgmt."
         if not UserSetup.Get(UserId) then
             Error(UserIdNotInSetupErr, UsrId);
 
-        OnCreateApprovalRequestForApproverOnAfterCheckUserSetupUserID(UserSetup, WorkflowStepArgument, ApprovalEntryArgument);
+        IsUserAllowedToApproveIfNoApprovalUserExists := UserSetup."Approval Administrator";
+        OnCreateApprovalRequestForApproverOnAfterCheckUserSetupUserID(UserSetup, WorkflowStepArgument, ApprovalEntryArgument, IsUserAllowedToApproveIfNoApprovalUserExists);
 
         UsrId := UserSetup."Approver ID";
         if not UserSetup.Get(UsrId) then begin
-            if not UserSetup."Approval Administrator" then
+            if not IsUserAllowedToApproveIfNoApprovalUserExists then
                 Error(ApproverUserIdNotInSetupErr, UserSetup."User ID");
             UsrId := UserId;
         end;
@@ -1996,7 +2000,9 @@ codeunit 1535 "Approvals Mgmt."
     begin
         ApprovalEntry.SetRange("Table ID", DATABASE::"Gen. Journal Line");
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        ApprovalEntry.SetRange("Related to Change", false);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if not ApprovalEntry.IsEmpty() then
+            ApprovalEntry.SetRange("Related to Change", false);
         OnHasAnyOpenJournalLineApprovalEntriesOnAfterApprovalEntrySetFilters(ApprovalEntry);
         if ApprovalEntry.IsEmpty() then
             exit(false);
@@ -2274,10 +2280,13 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Table ID", RecID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecID);
         ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Created, ApprovalEntry.Status::Open);
-        ApprovalEntry.SetRange("Related to Change", false);
 
         if not UserSetup."Approval Administrator" then
             ApprovalEntry.SetRange("Sender ID", UserId);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if not ApprovalEntry.IsEmpty() then
+            ApprovalEntry.SetRange("Related to Change", false);
+
         Result := ApprovalEntry.FindFirst();
         OnAfterCanCancelApprovalForRecord(RecID, Result, ApprovalEntry, UserSetup);
     end;
@@ -2873,7 +2882,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateApprovalRequestForApproverOnAfterCheckUserSetupUserID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    local procedure OnCreateApprovalRequestForApproverOnAfterCheckUserSetupUserID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry"; var IsUserAllowedToAproveIfNoApprovalUserExists: Boolean)
     begin
     end;
 

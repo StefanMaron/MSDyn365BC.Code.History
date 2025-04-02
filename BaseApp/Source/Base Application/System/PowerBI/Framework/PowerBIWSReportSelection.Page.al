@@ -148,26 +148,6 @@ page 6322 "Power BI WS Report Selection"
                     CurrPage.Update();
                 end;
             }
-#if not CLEAN23
-            action(Refresh)
-            {
-                ApplicationArea = All;
-                Caption = 'Refresh List';
-                Image = Refresh;
-                ToolTip = 'Update the report list with any newly added reports.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This page should not stay open for long. Refresh is not necessary.';
-                ObsoleteTag = '23.0';
-                Visible = false;
-                trigger OnAction()
-                begin
-                    IsErrorMessageVisible := false;
-
-                    if not TryLoadReportsList() then
-                        ShowLatestErrorMessage();
-                end;
-            }
-#endif
             action(MyOrganization)
             {
                 ApplicationArea = All;
@@ -194,20 +174,6 @@ page 6322 "Power BI WS Report Selection"
                     HyperLink(PowerBIServiceMgt.GetContentPacksServicesUrl());
                 end;
             }
-#if not CLEAN23
-            action(ConnectionInfo)
-            {
-                ApplicationArea = All;
-                Caption = 'Connection Information';
-                Image = Setup;
-                RunObject = Page "Content Pack Setup Wizard";
-                ToolTip = 'Show information for connecting to Power BI content packs.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Instead, follow the Business Central documentation page "Building Power BI Reports to Display Dynamics 365 Business Central Data" available at https://learn.microsoft.com/en-gb/dynamics365/business-central/across-how-use-financials-data-source-powerbi';
-                ObsoleteTag = '23.0';
-            }
-#endif
             action(CleanDeployments)
             {
                 ApplicationArea = All;
@@ -224,15 +190,6 @@ page 6322 "Power BI WS Report Selection"
         }
         area(Promoted)
         {
-#if not CLEAN23
-            group(Category_Report)
-            {
-                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
-                ObsoleteReason = 'This group was empty.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '23.0';
-            }
-#endif
             group(Category_Category4)
             {
                 Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
@@ -251,30 +208,12 @@ page 6322 "Power BI WS Report Selection"
             {
                 Caption = 'Get Reports', Comment = 'Generated from the PromotedActionCategories property index 4.';
 
-#if not CLEAN23
-                actionref(Refresh_Promoted; Refresh)
-                {
-                    ObsoleteReason = 'Action removed.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                    Visible = false;
-                }
-#endif
                 actionref(MyOrganization_Promoted; MyOrganization)
                 {
                 }
                 actionref(Services_Promoted; Services)
                 {
                 }
-#if not CLEAN23
-                actionref(ConnectionInfo_Promoted; ConnectionInfo)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Instead, follow the Business Central documentation page "Building Power BI Reports to Display Dynamics 365 Business Central Data" available at https://learn.microsoft.com/en-gb/dynamics365/business-central/across-how-use-financials-data-source-powerbi';
-                    ObsoleteTag = '23.0';
-                }
-#endif
             }
         }
     }

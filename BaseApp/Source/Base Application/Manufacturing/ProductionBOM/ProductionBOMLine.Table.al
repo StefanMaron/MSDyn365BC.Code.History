@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.ProductionBOM;
 
 using Microsoft.Foundation.Enums;
@@ -448,6 +452,75 @@ table 99000772 "Production BOM Line"
         if not ItemUnitOfMeasure.Get(Item."No.", "Unit of Measure Code") then
             Error(BOMLineUOMErr, "Unit of Measure Code", Item."No.", "Production BOM No.", "Version Code", "Line No.");
         exit(UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"));
+    end;
+
+    /// <summary>
+    /// Opens a page for selecting multiple items to add to the document.
+    /// Selected items are added to the document.
+    /// </summary>
+    procedure SelectMultipleItems()
+    var
+        ItemListPage: Page "Item List";
+        SelectionFilter: Text;
+    begin
+        SelectionFilter := ItemListPage.SelectActiveItemsForProductionBOM();
+
+        if SelectionFilter <> '' then
+            AddItems(SelectionFilter);
+    end;
+
+    /// <summary>
+    /// Adds items to the document based on the provided selection filter.
+    /// </summary>
+    /// <param name="SelectionFilter">The filter to use for selecting items.</param>
+    procedure AddItems(SelectionFilter: Text)
+    var
+        Item: Record Item;
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        InitNewLine(ProductionBOMLine);
+        Item.SetLoadFields("No.");
+        Item.SetFilter("No.", SelectionFilter);
+        if Item.FindSet() then
+            repeat
+                AddItem(ProductionBOMLine, Item."No.");
+            until Item.Next() = 0;
+    end;
+
+    /// <summary>
+    /// Adds an item to the document.
+    /// </summary>
+    /// <remarks>
+    /// After the line is added, assembly order is automatically created if required.
+    /// If the item has extended text, the text is added as a line.
+    /// </remarks>
+    /// <param name="ProductionBOMLine">Return value: The added Production BOM Line. Production BOM Line must have the number set.</param>
+    /// <param name="ItemNo">Return value: The number of the item to add.</param>
+    procedure AddItem(var ProductionBOMLine: Record "Production BOM Line"; ItemNo: Code[20])
+    begin
+        ProductionBOMLine.Init();
+        ProductionBOMLine."Line No." += 10000;
+        ProductionBOMLine.Validate(Type, Type::Item);
+        ProductionBOMLine.Validate("No.", ItemNo);
+        ProductionBOMLine.Insert(true);
+    end;
+
+    /// <summary>
+    /// Initializes a new Production BOM Line based on the current Production BOM Line.
+    /// </summary>
+    /// <param name="NewProductionBOMLine">Return value: The new Production BOM Line.</param>
+    procedure InitNewLine(var NewProductionBOMLine: Record "Production BOM Line")
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        NewProductionBOMLine.Copy(Rec);
+        ProductionBOMLine.SetLoadFields("Line No.");
+        ProductionBOMLine.SetRange("Production BOM No.", NewProductionBOMLine."Production BOM No.");
+        ProductionBOMLine.SetRange("Version Code", NewProductionBOMLine."Version Code");
+        if ProductionBOMLine.FindLast() then
+            NewProductionBOMLine."Line No." := ProductionBOMLine."Line No."
+        else
+            NewProductionBOMLine."Line No." := 0;
     end;
 
     [IntegrationEvent(false, false)]

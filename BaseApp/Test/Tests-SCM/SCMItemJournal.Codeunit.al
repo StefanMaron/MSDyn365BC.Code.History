@@ -2177,18 +2177,6 @@
     end;
 
     [Test]
-    procedure InitValueOfTypeFieldOnItemJournalLine()
-    var
-        ItemJournalLine: Record "Item Journal Line";
-    begin
-        // [SCENARIO] Init value of the Type field on Item Journal Line is <blank>.
-        Initialize();
-
-        ItemJournalLine.Init();
-        ItemJournalLine.TestField(Type, ItemJournalLine.Type::" ");
-    end;
-
-    [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler')]
     procedure ItemReclassGenerateNegativeAndPositiveWeightinSequenceInWshEntry()
     var
@@ -2254,6 +2242,59 @@
 
         // [THEN] Verify that Item Reclassification Journal generates two warehouse entries, first with a negative weight and second with a positive. Also, the Quantity and Weight should have the same sign in the warehouse entry (Positive weight for a positive qty and negative weight for a negative qty).
         VerifyWshEntryforItemReclassJournal(Item."No.", LotNo, ItemUnitofMeasure.Weight);
+    end;
+
+    [Test]
+    procedure InitValueOfTypeFieldOnItemJournalLine()
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [SCENARIO] Init value of the Type field on Item Journal Line is <blank>.
+        Initialize();
+
+        ItemJournalLine.Init();
+        ItemJournalLine.TestField(Type, ItemJournalLine.Type::" ");
+    end;
+
+    [Test]
+    procedure TestSequenceNumbers()
+    var
+        InventorySetup: Record "Inventory Setup";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+        ItemRegister: Record "Item Register";
+        SequenceNoMgt: codeunit "Sequence No. Mgt.";
+        CurrentItemLedgerEntryNo: Integer;
+    begin
+        if InventorySetup.UseLegacyPosting() then
+            exit; // Test is not applicable for legacy posting.
+        // Posting Item Journal and Verifying Item Ledger Entries.
+        Initialize();
+
+        // Setup: Create Item Journal with Entry Type Positive Adjustment.
+        CreateItemJournal(ItemJournalLine);
+        CurrentItemLedgerEntryNo := ItemLedgerEntry.GetLastEntryNo();
+
+        // Exercise: Post Item Journal.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // Verify: Verify Item Ledger Entry.
+        Assert.IsTrue(SequenceNoMgt.GetCurrentSeqNo(Database::"Item Ledger Entry") > CurrentItemLedgerEntryNo, 'Item Ledger Entry Sequence No. is not updated.');
+        ItemRegister.FindLast();
+        ItemLedgerEntry.SetRange("Entry No.", CurrentItemLedgerEntryNo + 1, SequenceNoMgt.GetCurrentSeqNo(Database::"Item Ledger Entry"));
+        if ItemLedgerEntry.FindSet() then
+            repeat
+                Assert.AreEqual(ItemRegister."No.", ItemLedgerEntry."Item Register No.", 'Item Ledger Entry is not created for the correct Register.');
+                Assert.AreEqual(ItemRegister."No." mod 5, ItemLedgerEntry."SIFT Bucket No.", 'Sift Bucket is not created for the correct Register.');
+            until ItemLedgerEntry.Next() = 0;
+
+        ValueEntry.SetRange("Entry No.", ItemRegister."From Value Entry No.", ItemRegister."To Value Entry No.");
+        if ValueEntry.FindSet() then
+            repeat
+                Assert.AreEqual(ItemRegister."No.", ValueEntry."Item Register No.", 'Value Entry is not created for the correct Register.');
+                Assert.AreEqual(ItemRegister."No." mod 5, ValueEntry."SIFT Bucket No.", 'Value Entry.Sift Bucket is not created for the correct Register.');
+            until ValueEntry.Next() = 0;
     end;
 
     local procedure Initialize()

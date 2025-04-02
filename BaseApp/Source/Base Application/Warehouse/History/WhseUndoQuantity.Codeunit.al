@@ -24,7 +24,6 @@ codeunit 7320 "Whse. Undo Quantity"
     end;
 
     var
-        WMSMgmt: Codeunit "WMS Management";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
 
 #pragma warning disable AA0074
@@ -36,39 +35,39 @@ codeunit 7320 "Whse. Undo Quantity"
 
     procedure InsertTempWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; RefDoc: Integer; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var NextLineNo: Integer)
     var
-        WhseEntry: Record "Warehouse Entry";
-        WhseMgt: Codeunit "Whse. Management";
+        WarehouseEntry: Record "Warehouse Entry";
+        WhseManagement: Codeunit "Whse. Management";
+        WMSManagement: Codeunit "WMS Management";
     begin
-        WhseEntry.Reset();
-        WhseEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
-        WhseEntry.SetRange("Reference No.", ItemJnlLine."Document No.");
-        WhseEntry.SetRange("Item No.", ItemJnlLine."Item No.");
-        OnInsertTempWhseJnlLineOnAfterWhseEntrySetFilters(ItemJnlLine, SourceType, SourceSubType, SourceNo, SourceLineNo, RefDoc, WhseEntry);
-        if WhseEntry.Find('+') then
+        WarehouseEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
+        WarehouseEntry.SetRange("Reference No.", ItemJnlLine."Document No.");
+        WarehouseEntry.SetRange("Item No.", ItemJnlLine."Item No.");
+        OnInsertTempWhseJnlLineOnAfterWhseEntrySetFilters(ItemJnlLine, SourceType, SourceSubType, SourceNo, SourceLineNo, RefDoc, WarehouseEntry);
+        if WarehouseEntry.Find('+') then
             repeat
                 TempWhseJnlLine.Init();
-                OnInsertTempWhseJnlLineOnAfterTempWhseJnlLineInit(ItemJnlLine, WhseEntry, TempWhseJnlLine);
-                if WhseEntry."Entry Type" = WhseEntry."Entry Type"::"Positive Adjmt." then
+                OnInsertTempWhseJnlLineOnAfterTempWhseJnlLineInit(ItemJnlLine, WarehouseEntry, TempWhseJnlLine);
+                if WarehouseEntry."Entry Type" = WarehouseEntry."Entry Type"::"Positive Adjmt." then
                     ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::"Negative Adjmt."
                 else
                     ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::"Positive Adjmt.";
-                ItemJnlLine.Quantity := Abs(WhseEntry.Quantity);
-                ItemJnlLine."Quantity (Base)" := Abs(WhseEntry."Qty. (Base)");
-                ItemJnlLine."Qty. per Unit of Measure" := WhseEntry."Qty. per Unit of Measure";
-                WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 0, TempWhseJnlLine, false);
+                ItemJnlLine.Quantity := Abs(WarehouseEntry.Quantity);
+                ItemJnlLine."Quantity (Base)" := Abs(WarehouseEntry."Qty. (Base)");
+                ItemJnlLine."Qty. per Unit of Measure" := WarehouseEntry."Qty. per Unit of Measure";
+                WMSManagement.CreateWhseJnlLine(ItemJnlLine, 0, TempWhseJnlLine, false);
                 TempWhseJnlLine.SetSource(SourceType, SourceSubType, SourceNo, SourceLineNo, 0);
                 TempWhseJnlLine."Source Document" :=
-                  WhseMgt.GetWhseJnlSourceDocument(TempWhseJnlLine."Source Type", TempWhseJnlLine."Source Subtype");
+                  WhseManagement.GetWhseJnlSourceDocument(TempWhseJnlLine."Source Type", TempWhseJnlLine."Source Subtype");
                 TempWhseJnlLine."Reference Document" := Enum::"Whse. Reference Document Type".FromInteger(RefDoc);
                 TempWhseJnlLine."Reference No." := ItemJnlLine."Document No.";
                 TempWhseJnlLine."Location Code" := ItemJnlLine."Location Code";
-                TempWhseJnlLine."Zone Code" := WhseEntry."Zone Code";
-                TempWhseJnlLine."Bin Code" := WhseEntry."Bin Code";
-                TempWhseJnlLine.SetWhseDocument(WhseEntry."Whse. Document Type", WhseEntry."Whse. Document No.", 0);
-                TempWhseJnlLine."Unit of Measure Code" := WhseEntry."Unit of Measure Code";
+                TempWhseJnlLine."Zone Code" := WarehouseEntry."Zone Code";
+                TempWhseJnlLine."Bin Code" := WarehouseEntry."Bin Code";
+                TempWhseJnlLine.SetWhseDocument(WarehouseEntry."Whse. Document Type", WarehouseEntry."Whse. Document No.", 0);
+                TempWhseJnlLine."Unit of Measure Code" := WarehouseEntry."Unit of Measure Code";
                 TempWhseJnlLine."Line No." := NextLineNo;
-                TempWhseJnlLine.CopyTrackingFromWhseEntry(WhseEntry);
-                TempWhseJnlLine."Expiration Date" := WhseEntry."Expiration Date";
+                TempWhseJnlLine.CopyTrackingFromWhseEntry(WarehouseEntry);
+                TempWhseJnlLine."Expiration Date" := WarehouseEntry."Expiration Date";
                 if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::"Negative Adjmt." then begin
                     TempWhseJnlLine."From Zone Code" := TempWhseJnlLine."Zone Code";
                     TempWhseJnlLine."From Bin Code" := TempWhseJnlLine."Bin Code";
@@ -76,10 +75,10 @@ codeunit 7320 "Whse. Undo Quantity"
                     TempWhseJnlLine."To Zone Code" := TempWhseJnlLine."Zone Code";
                     TempWhseJnlLine."To Bin Code" := TempWhseJnlLine."Bin Code";
                 end;
-                OnBeforeTempWhseJnlLineInsert(TempWhseJnlLine, WhseEntry, ItemJnlLine);
+                OnBeforeTempWhseJnlLineInsert(TempWhseJnlLine, WarehouseEntry, ItemJnlLine);
                 TempWhseJnlLine.Insert();
                 NextLineNo := TempWhseJnlLine."Line No." + 10000;
-            until WhseEntry.Next(-1) = 0;
+            until WarehouseEntry.Next(-1) = 0;
     end;
 
     procedure PostTempWhseJnlLine(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
@@ -298,42 +297,30 @@ codeunit 7320 "Whse. Undo Quantity"
 
     local procedure DeleteWhsePutAwayRequest(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
     var
-        PostedWhseRcptLine2: Record "Posted Whse. Receipt Line";
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
         WhsePutAwayRequest: Record "Whse. Put-away Request";
-        "Sum": Decimal;
     begin
-        PostedWhseRcptLine2.SetRange("No.", PostedWhseRcptLine."No.");
-        if PostedWhseRcptLine2.Find('-') then begin
-            repeat
-                Sum := Sum + PostedWhseRcptLine2."Qty. (Base)";
-            until PostedWhseRcptLine2.Next() = 0;
-
-            if Sum = 0 then begin
-                WhsePutAwayRequest.SetRange("Document Type", WhsePutAwayRequest."Document Type"::Receipt);
-                WhsePutAwayRequest.SetRange("Document No.", PostedWhseRcptLine."No.");
-                WhsePutAwayRequest.DeleteAll();
-            end;
+        PostedWhseReceiptLine.SetRange("No.", PostedWhseRcptLine."No.");
+        PostedWhseReceiptLine.CalcSums("Qty. Put Away");
+        if PostedWhseReceiptLine."Qty. (Base)" = 0 then begin
+            WhsePutAwayRequest.SetRange("Document Type", WhsePutAwayRequest."Document Type"::Receipt);
+            WhsePutAwayRequest.SetRange("Document No.", PostedWhseRcptLine."No.");
+            WhsePutAwayRequest.DeleteAll();
         end;
     end;
 
     local procedure DeleteWhsePickRequest(var PostedWhseShptLine: Record "Posted Whse. Shipment Line")
     var
-        PostedWhseShptLine2: Record "Posted Whse. Shipment Line";
+        PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
         WhsePickRequest: Record "Whse. Pick Request";
-        "Sum": Decimal;
     begin
-        PostedWhseShptLine2.SetRange("No.", PostedWhseShptLine."No.");
-        if PostedWhseShptLine2.Find('-') then begin
-            repeat
-                Sum := Sum + PostedWhseShptLine2."Qty. (Base)";
-            until PostedWhseShptLine2.Next() = 0;
-
-            if Sum = 0 then begin
-                WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
-                WhsePickRequest.SetRange("Document No.", PostedWhseShptLine."No.");
-                if not WhsePickRequest.IsEmpty() then
-                    WhsePickRequest.DeleteAll();
-            end;
+        PostedWhseShipmentLine.SetRange("No.", PostedWhseShptLine."No.");
+        PostedWhseShipmentLine.CalcSums("Qty. (Base)");
+        if PostedWhseShipmentLine."Qty. (Base)" = 0 then begin
+            WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
+            WhsePickRequest.SetRange("Document No.", PostedWhseShptLine."No.");
+            if not WhsePickRequest.IsEmpty() then
+                WhsePickRequest.DeleteAll();
         end;
     end;
 
@@ -477,16 +464,16 @@ codeunit 7320 "Whse. Undo Quantity"
 
     local procedure UpdateWhseRequest(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; LocationCode: Code[10])
     var
-        WhseRequest: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
     begin
-        WhseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        WhseRequest.SetRange("Source Type", SourceType);
-        WhseRequest.SetRange("Source Subtype", SourceSubType);
-        WhseRequest.SetRange("Source No.", SourceNo);
-        WhseRequest.SetRange("Location Code", LocationCode);
-        if WhseRequest.FindFirst() and WhseRequest."Completely Handled" then begin
-            WhseRequest."Completely Handled" := false;
-            WhseRequest.Modify();
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WarehouseRequest.SetRange("Source Type", SourceType);
+        WarehouseRequest.SetRange("Source Subtype", SourceSubType);
+        WarehouseRequest.SetRange("Source No.", SourceNo);
+        WarehouseRequest.SetRange("Location Code", LocationCode);
+        if WarehouseRequest.FindFirst() and WarehouseRequest."Completely Handled" then begin
+            WarehouseRequest."Completely Handled" := false;
+            WarehouseRequest.Modify();
         end;
     end;
 

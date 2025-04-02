@@ -22,7 +22,7 @@ codeunit 8905 "Email Message Impl."
                   tabledata "Email Message" = rimd,
                   tabledata "Email Error" = rd,
                   tabledata "Email Recipient" = rid,
-                  tabledata "Email Message Attachment" = rid,
+                  tabledata "Email Message Attachment" = rimd,
                   tabledata "Email Related Record" = rd,
                   tabledata "Tenant Media" = rm,
                   tabledata "Email Attachments" = rimd;
@@ -552,6 +552,11 @@ codeunit 8905 "Email Message Impl."
     begin
         GlobalEmailMessageAttachment.SetRange("Email Message Id", GlobalEmailMessage.Id);
         exit(GlobalEmailMessageAttachment.Next());
+    end;
+
+    procedure Attachments_GetId(): BigInteger
+    begin
+        exit(GlobalEmailMessageAttachment.Id);
     end;
 
     procedure Attachments_GetName(): Text[250]

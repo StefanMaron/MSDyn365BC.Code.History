@@ -23,8 +23,6 @@ page 7177 "Available Credit"
                 field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the payment amount that the customer owes for completed sales. This value is also known as the customer''s balance.';
-
                     trigger OnDrillDown()
                     var
                         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -40,13 +38,10 @@ page 7177 "Available Credit"
                 field("Outstanding Orders (LCY)"; Rec."Outstanding Orders (LCY)")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies your expected sales income from the customer in LCY based on ongoing sales orders.';
                 }
                 field("Shipped Not Invoiced (LCY)"; Rec."Shipped Not Invoiced (LCY)")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Shipped Not Invd. (LCY)';
-                    ToolTip = 'Specifies your expected sales income from the customer in LCY based on ongoing sales orders where items have been shipped.';
                 }
                 field(GetReturnRcdNotInvAmountLCY; Rec.GetReturnRcdNotInvAmountLCY())
                 {
@@ -57,8 +52,6 @@ page 7177 "Available Credit"
                 field("Outstanding Invoices (LCY)"; Rec."Outstanding Invoices (LCY)")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Outstanding Invoices (LCY)';
-                    ToolTip = 'Specifies your expected sales income from the customer in LCY based on unpaid sales invoices.';
                 }
                 field(GetTotalAmountLCYUI; Rec.GetTotalAmountLCYUI())
                 {
@@ -71,7 +64,6 @@ page 7177 "Available Credit"
                 {
                     ApplicationArea = Suite;
                     StyleExpr = StyleTxt;
-                    ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
                 }
                 field(CalcAvailableCreditUI; Rec.CalcAvailableCreditUI())
                 {

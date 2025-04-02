@@ -1,8 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Planning;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 
 page 99000862 "Planning Components"
@@ -133,7 +138,6 @@ page 99000862 "Planning Components"
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the inventory location, where the item on the planning component line will be registered.';
-                    Visible = false;
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
@@ -303,6 +307,20 @@ page 99000862 "Planning Components"
                     trigger OnAction()
                     begin
                         Rec.OpenItemTrackingLines();
+                    end;
+                }
+                action(SelectMultiItems)
+                {
+                    AccessByPermission = TableData Item = R;
+                    ApplicationArea = Planning;
+                    Caption = 'Select items';
+                    Ellipsis = true;
+                    Image = NewItem;
+                    ToolTip = 'Add two or more items from the list of your inventory items.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.SelectMultipleItems();
                     end;
                 }
             }

@@ -11,6 +11,7 @@ page 99000917 "Report Selection - Prod. Order"
 {
     ApplicationArea = Manufacturing;
     Caption = 'Report Selections Production Order';
+    AdditionalSearchTerms = 'Report Selections Manufacturing';
     PageType = Worksheet;
     SaveValues = true;
     SourceTable = "Report Selections";
@@ -37,19 +38,16 @@ page 99000917 "Report Selection - Prod. Order"
                 field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies a number that indicates where this report is in the printing order.';
                 }
                 field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Manufacturing;
                     LookupPageID = Objects;
-                    ToolTip = 'Specifies the object ID of the report.';
                 }
                 field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDown = false;
-                    ToolTip = 'Specifies the display name of the report.';
                 }
             }
         }
@@ -102,6 +100,8 @@ page 99000917 "Report Selection - Prod. Order"
                 Rec.SetRange(Usage, Rec.Usage::M4);
             "Report Selection Usage Prod."::"Prod. Order":
                 Rec.SetRange(Usage, Rec.Usage::"Prod.Order");
+            "Report Selection Usage Prod."::"Prod. Output Item Label":
+                Rec.SetRange(Usage, Rec.Usage::"Prod. Output Item Label");
         end;
         OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2);
         Rec.FilterGroup(0);
@@ -125,6 +125,8 @@ page 99000917 "Report Selection - Prod. Order"
                         ReportUsage2 := "Report Selection Usage Prod."::"Gantt Chart";
                     NewReportUsage::"Prod.Order":
                         ReportUsage2 := "Report Selection Usage Prod."::"Prod. Order";
+                    NewReportUsage::"Prod. Output Item Label":
+                        ReportUsage2 := "Report Selection Usage Prod."::"Prod. Output Item Label";
                     else
                         OnInitUsageFilterOnElseCase(NewReportUsage, ReportUsage2);
                 end;

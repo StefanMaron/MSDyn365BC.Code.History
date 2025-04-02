@@ -622,52 +622,6 @@ codeunit 134022 "ERM Payment Tolerance"
         VerifyVendorPaymentRemainingAmountIsZero(GenJournalLine."Document No.");
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('MessageHandler,ApplyCustomerEntryPageHandlerForMultipleDocument,PostApplicationHandler,AdjustExchangeRatesReportHandler')]
-    [Scope('OnPrem')]
-    procedure ApplySalesCreditMemoWithTwoRefunds()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Index: Integer;
-        AdjustmentFactor: Decimal;
-        GenJournalLineAmount: Decimal;
-        CurrencyCode: Code[10];
-        CustomerNoToApply: Code[20];
-    begin
-        // [FEATURE] [Sales]
-        // [SCENARIO] Check No Remaining Amount is left when a Credit Memo with Currency Code is applied to two refunds.
-
-        // Setup: Update Pmt. Discount Grace Period in General Ledger Setup. Create a Customer with Payment term code having Calc. Discount on Credit Memo.
-        // Create Currency with its currency exchange rate.
-        Initialize();
-        GenJournalLineAmount := 10 * LibraryRandom.RandDec(1000, 2);
-        LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
-        CustomerNoToApply := CreateCustomerWithPmtTerms(CreatePaymentTermsWithDiscOnCreditMemo());  // CustomerNoToApply is used in report handler
-        CurrencyCode := CreateCurrencyWithGainLossAccount();
-        AdjustmentFactor := CreateAndUpdateCurrencyExchangeRate(CurrencyCode);
-
-        // Exercise: Create and Post One Credit Memo with currency and two refunds. Apply it through Customer Ledger Entries. Run Adjust Currency Exchange Rate
-        // Batch job.
-        CreateGenJournalLineWithCurrencyCode(
-          GenJournalLine, CustomerNoToApply, CurrencyCode, GenJournalLine."Document Type"::"Credit Memo",
-          -GenJournalLineAmount, WorkDate(), GenJournalLine."Account Type"::Customer);
-        PostGeneralJnlLine(GenJournalLine);
-        for Index := 1 to 2 do begin
-            CreateGenJournalLineWithCurrencyCode(
-              GenJournalLine, CustomerNoToApply, '', GenJournalLine."Document Type"::Refund,
-              (GenJournalLineAmount * AdjustmentFactor) / 2, CalcDate('<1D>', WorkDate()), GenJournalLine."Account Type"::Customer);
-            PostGeneralJnlLine(GenJournalLine);
-        end;
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
-        LibraryVariableStorage.Enqueue(CustomerNoToApply);
-        ApplyCustomerLedgerEntries(CustomerNoToApply, GenJournalLine."Document Type"::"Credit Memo");
-
-        // Verify : Verify that no remaing amount is left in Refund and Credit Memo.
-        VerifyRefundAndCreditMemoRemainingAmountIsZero(CustomerNoToApply);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('MessageHandler,ApplyCustomerEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
     [Scope('OnPrem')]
@@ -711,54 +665,6 @@ codeunit 134022 "ERM Payment Tolerance"
         // Verify : Verify that no remaing amount is left in Refund and Credit Memo.
         VerifyRefundAndCreditMemoRemainingAmountIsZero(CustomerNoToApply);
     end;
-
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('MessageHandler,ApplyVendorEntryPageHandlerForMultipleDocument,PostApplicationHandler,AdjustExchangeRatesReportHandler')]
-    [Scope('OnPrem')]
-    procedure ApplyPurchInvoiceWithTwoPayments()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        Index: Integer;
-        AdjustmentFactor: Decimal;
-        GenJournalLineAmount: Decimal;
-        CurrencyCode: Code[10];
-        VendorNoToApply: Code[20];
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO] Check No Remaining Amount is left when a Invoice with Currency Code is applied to two payments.
-
-        // Setup: Update Pmt. Discount Grace Period in General Ledger Setup. Create a Vendor with payment terms code.
-        // Create Currency with its currency exchange rate.
-        Initialize();
-        GenJournalLineAmount := 10 * LibraryRandom.RandDec(1000, 2);
-        LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
-        VendorNoToApply := CreateVendorWithPmtTerms(CreatePaymentTermsWithDiscOnCreditMemo());
-        CurrencyCode := CreateCurrencyWithGainLossAccount();
-        AdjustmentFactor := CreateAndUpdateCurrencyExchangeRate(CurrencyCode);
-
-        // Exercise: Create and Post One Invoice currency and two Payments. Apply it through Vendor Ledger Entries. Run Adjust Currency Exchange Rate
-        // Batch job.
-
-        CreateGenJournalLineWithCurrencyCode(
-          GenJournalLine, VendorNoToApply, CurrencyCode, GenJournalLine."Document Type"::Invoice,
-          -GenJournalLineAmount, WorkDate(), GenJournalLine."Account Type"::Vendor);
-        PostGeneralJnlLine(GenJournalLine);
-
-        for Index := 1 to 2 do begin
-            CreateGenJournalLineWithCurrencyCode(
-              GenJournalLine, VendorNoToApply, '', GenJournalLine."Document Type"::Payment,
-              (GenJournalLineAmount * AdjustmentFactor) / 2, CalcDate('<1D>', WorkDate()), GenJournalLine."Account Type"::Vendor);
-            PostGeneralJnlLine(GenJournalLine);
-        end;
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
-        LibraryVariableStorage.Enqueue(VendorNoToApply);
-        ApplyVendorLedgerEntries(VendorNoToApply, GenJournalLine."Document Type"::Invoice);
-
-        // Verify : Verify that no remaing amount is left in Invoice and Payments.
-        VerifyInvoiceAndPaymentsRemainingAmountIsZero(VendorNoToApply);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('MessageHandler,ApplyVendorEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
@@ -5240,14 +5146,6 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // This is a dummy Handler
     end;
-
-#if not CLEAN23
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-    end;
-#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

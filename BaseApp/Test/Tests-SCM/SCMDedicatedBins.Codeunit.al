@@ -45,6 +45,7 @@ codeunit 137502 "SCM Dedicated Bins"
         // set Manufacturing Setup Component @ Location = blank
         MfgSetup.Get();
         MfgSetup.Validate("Components at Location", '');
+        MfgSetup.Validate("Default Flushing Method", MfgSetup."Default Flushing Method"::"Pick + Manual");
         MfgSetup.Modify(true);
         IsInitialized := true;
         Commit();
@@ -405,6 +406,7 @@ codeunit 137502 "SCM Dedicated Bins"
         ProdOrderComponent2: Record "Prod. Order Component";
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
         // create resources
         LibraryManufacturing.CreateWorkCenter(WorkCenter1);
@@ -517,6 +519,8 @@ codeunit 137502 "SCM Dedicated Bins"
         AssertBinCodesOnComponents(ProdOrderComponent, ChildItem2."No.", '100', ChildItem2."Flushing Method", Location.Code, 'MC1-IB');
         AssertBinCodesOnComponents(ProdOrderComponent, ChildItem3."No.", '200', ChildItem3."Flushing Method", Location.Code, 'WC1-OSFB');
 
+        ManufacturingSetup.Get();
+
         // set flushing method = Forward for X-CHILD1
         ProdOrderComponent.SetRange("Item No.", ChildItem1."No.");
         ProdOrderComponent.FindFirst();
@@ -533,7 +537,7 @@ codeunit 137502 "SCM Dedicated Bins"
         AssertBinCodesOnComponents(ProdOrderComponent,
           ChildItem1."No.",
           '',
-          ProdOrderComponent."Flushing Method"::Manual,
+          ManufacturingSetup."Default Flushing Method",
           Location.Code,
           WorkCenter1."To-Production Bin Code");
 
@@ -564,7 +568,7 @@ codeunit 137502 "SCM Dedicated Bins"
         FindItemJournal(ItemJournalTemplate, ItemJournalBatch);
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, true, false, false);
-        AssertBinCodesOnComponents(ProdOrderComponent, ChildItem1."No.", '', ProdOrderComponent."Flushing Method"::Manual,
+        AssertBinCodesOnComponents(ProdOrderComponent, ChildItem1."No.", '', ManufacturingSetup."Default Flushing Method",
           Location.Code, WorkCenter1."To-Production Bin Code");
         AssertBinCodesOnComponents(ProdOrderComponent, ChildItem2."No.", '100', ChildItem2."Flushing Method",
           Location.Code, MachineCenter1."To-Production Bin Code");
@@ -578,22 +582,22 @@ codeunit 137502 "SCM Dedicated Bins"
         ProdOrderComponent.FindLast();
         ProdOrderComponent.Validate("Location Code", Location.Code);
         ProdOrderComponent.Validate("Routing Link Code", '300');
-        ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::Manual);
+        ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::"Pick + Manual");
         ProdOrderComponent.Modify(true);
-        AssertBinCodesOnComponents(ProdOrderComponent, ChildItem3."No.", '300', ProdOrderComponent."Flushing Method"::Manual,
+        AssertBinCodesOnComponents(ProdOrderComponent, ChildItem3."No.", '300', ProdOrderComponent."Flushing Method"::"Pick + Manual",
           Location.Code, Location."To-Production Bin Code");
 
         // change the bin code on this component line and refresh (only calc. routing)
         ProdOrderComponent.Validate("Bin Code", 'DUMMY');
         ProdOrderComponent.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, true, false, false);
-        AssertBinCodesOnComponents(ProdOrderComponent, ChildItem1."No.", '', ProdOrderComponent."Flushing Method"::Manual,
+        AssertBinCodesOnComponents(ProdOrderComponent, ChildItem1."No.", '', ManufacturingSetup."Default Flushing Method",
           Location.Code, WorkCenter1."To-Production Bin Code");
-        AssertBinCodesOnComponents(ProdOrderComponent, ChildItem2."No.", '100', ProdOrderComponent."Flushing Method"::Manual,
+        AssertBinCodesOnComponents(ProdOrderComponent, ChildItem2."No.", '100', ManufacturingSetup."Default Flushing Method",
           Location.Code, MachineCenter1."To-Production Bin Code");
         AssertBinCodesOnComponents(ProdOrderComponent, ChildItem3."No.", '200', ProdOrderComponent."Flushing Method"::Backward,
           Location.Code, WorkCenter1."Open Shop Floor Bin Code");
-        AssertBinCodesOnComponents(ProdOrderComponent, ChildItem3."No.", '300', ProdOrderComponent."Flushing Method"::Manual,
+        AssertBinCodesOnComponents(ProdOrderComponent, ChildItem3."No.", '300', ProdOrderComponent."Flushing Method"::"Pick + Manual",
           Location.Code, Location."To-Production Bin Code");
 
         // refresh prod. order by ONLY calc. components

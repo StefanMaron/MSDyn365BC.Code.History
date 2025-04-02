@@ -34,31 +34,31 @@ codeunit 906 "SO Activities Calculate"
         ReturnResults.Add(SalesCue.FieldName("S. Ord. - Reserved From Stock"), Format(SalesCue."S. Ord. - Reserved From Stock"));
     end;
 
-    procedure EvaluateResults(var Results: Dictionary of [Text, Text]; var SalesCue: Record "Sales Cue")
+    procedure EvaluateResults(var ResultsDictionary: Dictionary of [Text, Text]; var SalesCue: Record "Sales Cue")
     var
         ResultValue: Text;
     begin
-        if Results.Count() = 0 then
+        if ResultsDictionary.Count() = 0 then
             exit;
 
-        if TryGetDictionaryValue(Results, SalesCue.FieldName("Average Days Delayed"), ResultValue) then
+        if TryGetDictionaryValue(ResultsDictionary, SalesCue.FieldName("Average Days Delayed"), ResultValue) then
             Evaluate(SalesCue."Average Days Delayed", ResultValue);
-        if TryGetDictionaryValue(Results, SalesCue.FieldName("Avg. Days Delayed Updated On"), ResultValue) then
+        if TryGetDictionaryValue(ResultsDictionary, SalesCue.FieldName("Avg. Days Delayed Updated On"), ResultValue) then
             Evaluate(SalesCue."Avg. Days Delayed Updated On", ResultValue, 9);
-        if TryGetDictionaryValue(Results, SalesCue.FieldName("Ready to Ship"), ResultValue) then
+        if TryGetDictionaryValue(ResultsDictionary, SalesCue.FieldName("Ready to Ship"), ResultValue) then
             Evaluate(SalesCue."Ready to Ship", ResultValue);
-        if TryGetDictionaryValue(Results, SalesCue.FieldName("Partially Shipped"), ResultValue) then
+        if TryGetDictionaryValue(ResultsDictionary, SalesCue.FieldName("Partially Shipped"), ResultValue) then
             Evaluate(SalesCue."Partially Shipped", ResultValue);
-        if TryGetDictionaryValue(Results, SalesCue.FieldName(Delayed), ResultValue) then
+        if TryGetDictionaryValue(ResultsDictionary, SalesCue.FieldName(Delayed), ResultValue) then
             Evaluate(SalesCue.Delayed, ResultValue);
-        if TryGetDictionaryValue(Results, SalesCue.FieldName("S. Ord. - Reserved From Stock"), ResultValue) then
+        if TryGetDictionaryValue(ResultsDictionary, SalesCue.FieldName("S. Ord. - Reserved From Stock"), ResultValue) then
             Evaluate(SalesCue."S. Ord. - Reserved From Stock", ResultValue);
     end;
 
     [TryFunction]
-    local procedure TryGetDictionaryValue(var Results: Dictionary of [Text, Text]; DictionaryKey: Text; var ReturnValue: Text)
+    local procedure TryGetDictionaryValue(var ResultsDictionary: Dictionary of [Text, Text]; DictionaryKey: Text; var ReturnValue: Text)
     begin
-        ReturnValue := Results.Get(DictionaryKey);
+        ReturnValue := ResultsDictionary.Get(DictionaryKey);
     end;
 
     local procedure CalculateCueFieldValues(var SalesCue: Record "Sales Cue")

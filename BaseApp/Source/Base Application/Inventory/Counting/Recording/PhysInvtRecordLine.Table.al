@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Counting.Recording;
 
 using Microsoft.Foundation.UOM;
@@ -437,7 +441,6 @@ table 5878 "Phys. Invt. Record Line"
     end;
 
     var
-        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         UnitOfMeasure: Record "Unit of Measure";
@@ -449,7 +452,10 @@ table 5878 "Phys. Invt. Record Line"
         SerialNoAlreadyExistErr: Label 'Serial No. %1 for item %2 already exists.', Comment = '%1 = serial no. %2 = item no.';
         QuantityCannotBeErr: Label 'Quantity cannot be larger than 1 when Serial No. is assigned.';
 
-    local procedure GetPhysInvtRecordHeader()
+    protected var
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+
+    procedure GetPhysInvtRecordHeader()
     begin
         TestField("Order No.");
         TestField("Recording No.");
@@ -650,7 +656,7 @@ table 5878 "Phys. Invt. Record Line"
     end;
 #endif
 
-    local procedure InsertTrackingBuffer(var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary; ItemTrackingSetup: Record "Item Tracking Setup"; ExpirationDate: Date; QtyBase: Decimal)
+    procedure InsertTrackingBuffer(var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary; ItemTrackingSetup: Record "Item Tracking Setup"; ExpirationDate: Date; QtyBase: Decimal)
     begin
         if ItemTrackingSetup.TrackingExists() then begin
             if not TempInvtOrderTracking.Get(ItemTrackingSetup."Serial No.", ItemTrackingSetup."Lot No.", ItemTrackingSetup."Package No.") then begin

@@ -1,6 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Location;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Transfer;
@@ -73,6 +78,21 @@ page 5703 "Location Card"
                     {
                         ApplicationArea = Location;
                         ToolTip = 'Specifies the country/region of the address.';
+
+                        trigger OnValidate()
+                        begin
+                            IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+                        end;
+                    }
+                    group(CountyGroup)
+                    {
+                        ShowCaption = false;
+                        Visible = IsCountyVisible;
+                        field(County; Rec.County)
+                        {
+                            ApplicationArea = Location;
+                            ToolTip = 'Specifies the state, province or county as a part of the address.';
+                        }
                     }
                     field(ShowMap; ShowMapLbl)
                     {
@@ -613,6 +633,7 @@ page 5703 "Location Card"
     begin
         UpdateEnabled();
         TransitValidation();
+        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
     end;
 
     trigger OnInit()
@@ -664,7 +685,9 @@ page 5703 "Location Card"
 
     var
         CalendarManagement: Codeunit "Calendar Management";
+        FormatAddress: Codeunit "Format Address";
         EditInTransit: Boolean;
+        IsCountyVisible: Boolean;
         ShowMapLbl: Label 'Show on Map';
 
     protected var
@@ -725,7 +748,7 @@ page 5703 "Location Card"
         SpecialEquipmentEnable := Rec."Bin Mandatory";
         PickBinPolicyEnable := Rec."Bin Mandatory" and not Rec."Directed Put-away and Pick";
         PutawayBinPolicyEnable := Rec."Bin Mandatory" and not Rec."Directed Put-away and Pick";
-        ProdPutawayWhseHandlingEnable := not Rec."Use As In-Transit" and not Rec."Directed Put-away and Pick";
+        ProdPutawayWhseHandlingEnable := not Rec."Use As In-Transit";
         ProdPickWhseHandlingEnable := not Rec."Use As In-Transit" and not Rec."Directed Put-away and Pick";
         JobPickWhseHandlingEnable := not Rec."Use As In-Transit" and not Rec."Directed Put-away and Pick";
         AssemblyPickWhseHandlingEnable := not Rec."Use As In-Transit" and not Rec."Directed Put-away and Pick";

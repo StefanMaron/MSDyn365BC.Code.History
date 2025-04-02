@@ -582,7 +582,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         CreateAndRefreshProductionOrder(ProductionOrder, ParentItem."No.", 1, '');
         FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
 
-        LibraryPatterns.MAKEConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, ChildItem, WorkDate(), Location.Code, '', 1, 0);
+        LibraryManufacturing.CreateConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, ChildItem, WorkDate(), Location.Code, '', 1, 0);
         ItemJnlLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJnlLine.FindFirst();

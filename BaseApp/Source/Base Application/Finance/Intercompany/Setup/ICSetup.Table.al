@@ -12,6 +12,7 @@ table 443 "IC Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "IC Partner Code"; Code[20])

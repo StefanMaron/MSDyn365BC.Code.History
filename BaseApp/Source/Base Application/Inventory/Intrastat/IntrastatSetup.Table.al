@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+#if not CLEANSCHEMA25 
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -58,13 +59,6 @@ table 247 "Intrastat Setup"
             else
             if ("Intrastat Contact Type" = const(Vendor)) Vendor."No.";
         }
-        field(8; "Use Advanced Checklist"; Boolean)
-        {
-            Caption = 'Use Advanced Checklist';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-            ObsoleteReason = 'Unconditionally replaced by Advanced Intrastat Checklist';
-        }
         field(9; "Cust. VAT No. on File"; Enum "Intrastat VAT No. On File")
         {
             Caption = 'Customer VAT No. on File';
@@ -121,3 +115,5 @@ table 247 "Intrastat Setup"
     end;
 }
 
+
+#endif

@@ -174,6 +174,8 @@ report 1010 "Job WIP To G/L"
 
     requestpage
     {
+        AboutTitle = 'About Project WIP To G/L';
+        AboutText = 'Get an overview of the status of ongoing projects in your company''s financial statements.';
 
         layout
         {

@@ -426,9 +426,6 @@ codeunit 9018 "Azure AD Plan Impl."
     var
         NavUserPlan: Record "User Plan";
         TempNavUserPlan: Record "User Plan" temporary;
-#if not CLEAN22
-        AzureADPlan: Codeunit "Azure AD Plan";
-#endif
         PlanConfiguration: Codeunit "Plan Configuration";
         IsCustomized: Boolean;
     begin
@@ -462,11 +459,6 @@ codeunit 9018 "Azure AD Plan Impl."
                     NavUserPlan.LockTable();
                     NavUserPlan.Delete();
                     if RemovePermissionsOnDeletePlan then begin
-#if not CLEAN22
-#pragma warning disable AL0432
-                        AzureADPlan.OnRemoveUserGroupsForUserAndPlan(NavUserPlan."Plan ID", NavUserPlan."User Security ID");
-#pragma warning restore AL0432
-#endif
                         IsCustomized := PlanConfiguration.IsCustomized(NavUserPlan."Plan ID");
                         if IsCustomized then
                             PlanConfiguration.RemoveCustomPermissionsFromUser(NavUserPlan."Plan ID", UserSecurityID)
@@ -894,4 +886,3 @@ codeunit 9018 "Azure AD Plan Impl."
     begin
     end;
 }
-

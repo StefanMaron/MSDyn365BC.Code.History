@@ -4,6 +4,7 @@ using Microsoft.Foundation.BatchProcessing;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Setup;
 using System.Threading;
+using Microsoft.Inventory.Setup;
 
 codeunit 88 "Sales Post via Job Queue"
 {
@@ -186,10 +187,14 @@ codeunit 88 "Sales Post via Job Queue"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         JobQueueCategory: Record "Job Queue Category";
+        InventorySetup: Record "Inventory Setup";
     begin
         SalesReceivablesSetup.Get();
         if SalesReceivablesSetup."Job Queue Category Code" <> '' then
             exit(SalesReceivablesSetup."Job Queue Category Code");
+
+        if not InventorySetup.UseLegacyPosting() then
+            exit(''); // allow sales post to run concurrently.
 
         JobQueueCategory.InsertRec(
             CopyStr(DefaultCategoryCodeLbl, 1, MaxStrLen(JobQueueCategory.Code)),

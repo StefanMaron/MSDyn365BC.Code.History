@@ -1333,29 +1333,27 @@ codeunit 137154 "SCM Warehouse Management II"
 
     [Test]
     [Scope('OnPrem')]
-    procedure WarehouseReceiptFromPurchaseOrderWithJob()
+    procedure WarehouseReceiptFromPurchaseOrderWithJobWithoutTask()
     var
         Item: Record Item;
         Job: Record Job;
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        WarehouseReceiptLine: Record "Warehouse Receipt Line";
         LibraryJob: Codeunit "Library - Job";
     begin
+        // [FEATURE] [WMS] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
+        // [SCENARIO] [545709] To Release Purchase Order, if "Job No." is defined in Purchase Line then "Job Task No." is also needed.
         // Setup: Create Item and Job. Create and release Purchase Order with Job.
         Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryJob.CreateJob(Job);
-        CreateAndReleasePurchaseOrder(
-          PurchaseHeader, PurchaseLine, Item."No.", '', Job."No.", LocationBlue.Code, '', LibraryRandom.RandDec(100, 2), WorkDate(), false);  // Tracking as False.
 
         // Exercise.
-        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        asserterror CreateAndReleasePurchaseOrder(
+          PurchaseHeader, PurchaseLine, Item."No.", '', Job."No.", LocationBlue.Code, '', LibraryRandom.RandDec(100, 2), WorkDate(), false);  // Tracking as False.
 
-        // Verify: Warehouse Receipt Line must not exists.
-        asserterror FindWarehouseReceiptLine(
-            WarehouseReceiptLine, WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
-        Assert.AssertNothingInsideFilter();
+        // Verify: Expected error message: Project Task No. must have a value in Purchase Line...
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Job Task No."), '');
     end;
 
     [Test]
@@ -2677,7 +2675,7 @@ codeunit 137154 "SCM Warehouse Management II"
         PurchaseLine: Record "Purchase Line";
         LibraryJob: Codeunit "Library - Job";
     begin
-        // [SCENARIO] Setting location with Directed Put-away and Pick on purchase line with job is not allowed.
+        // [SCENARIO] [545709] Setting location with Directed Put-away and Pick on purchase line with job is allowed.
 
         // [GIVEN] Item and Job. Create purchase line with no job nor location.
         Initialize();
@@ -2696,10 +2694,9 @@ codeunit 137154 "SCM Warehouse Management II"
         // [THEN] No error occur.
 
         // [WHEN] Setting location with Directed Put-away and Pick.
-        asserterror PurchaseLine.Validate("Location Code", LocationWhite.Code);
+        PurchaseLine.Validate("Location Code", LocationWhite.Code);
 
-        // [THEN] A validation error occurs.
-        Assert.ExpectedTestFieldError(LocationWhite.FieldCaption("Directed Put-away and Pick"), Format(false));
+        // [THEN] No error occur.
     end;
 
     [Test]
@@ -2712,7 +2709,7 @@ codeunit 137154 "SCM Warehouse Management II"
         PurchaseLine: Record "Purchase Line";
         LibraryJob: Codeunit "Library - Job";
     begin
-        // [SCENARIO] Setting job on purchase line with location with Directed Put-away and Pick is not allowed.
+        // [SCENARIO] Setting job on purchase line with location with Directed Put-away and Pick is allowed.
 
         // [GIVEN] Item and Job. Create purchase line with no job nor location.
         Initialize();
@@ -2726,10 +2723,9 @@ codeunit 137154 "SCM Warehouse Management II"
         // [THEN] No error occur.
 
         // [WHEN] Setting job no.
-        asserterror PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Validate("Job No.", Job."No.");
 
-        // [THEN] A validation error occurs.
-        Assert.ExpectedTestFieldError(LocationWhite.FieldCaption("Directed Put-away and Pick"), Format(false));
+        // [THEN] No error occur.
     end;
 
     [Test]
@@ -4393,7 +4389,7 @@ codeunit 137154 "SCM Warehouse Management II"
     begin
         LibraryInventory.ClearItemJournal(OutputItemJournalTemplate, OutputItemJournalBatch);
         LibraryManufacturing.CreateOutputJournal(ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, '', ProductionOrderNo);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
         LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
     end;
 

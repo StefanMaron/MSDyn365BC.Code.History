@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Counting.Document;
 
 using Microsoft.Inventory.Counting.History;
@@ -26,7 +30,7 @@ report 5882 "Copy Phys. Invt. Order"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Document Type';
                         OptionCaption = 'Phys. Invt. Order,Posted Phys. Invt. Order ';
-                        ToolTip = 'Specifies the number of the document.';
+                        ToolTip = 'Specifies the type of the document.';
 
                         trigger OnValidate()
                         begin
