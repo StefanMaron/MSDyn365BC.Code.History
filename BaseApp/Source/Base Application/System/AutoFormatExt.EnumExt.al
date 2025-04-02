@@ -6,7 +6,16 @@ namespace System.Text;
 
 enumextension 60 "Auto Format Ext" extends "Auto Format"
 {
-    value(1; AmountFormat) { }
-    value(2; UnitAmountFormat) { }
-    value(10; CurrencySymbolFormat) { }
+    value(1; AmountFormat)
+    {
+        Caption = 'Amount Format';
+    }
+    value(2; UnitAmountFormat)
+    {
+        Caption = 'Unit Amount Format';
+    }
+    value(10; CurrencySymbolFormat)
+    {
+        Caption = 'Currency Symbol Format';
+    }
 }

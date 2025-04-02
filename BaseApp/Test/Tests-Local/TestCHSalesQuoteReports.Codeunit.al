@@ -2,7 +2,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
 {
     // // [FEATURE] [Sales] [Quote]
     // Test CH Sales Quote Reports:
-    // 
+    //
     // 1.  VariantsOnSalesQuote
     // 2.  VariantsNotOnSalesQuoteStatistics
     // 3.  VariantsNotOnSalesOrderStatistics
@@ -13,7 +13,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
     // 8.  CombineShipmentsDescLine
     // 9.  MakeSalesOrderWithSpecialLines
     // 10. Verify "Completely Shipped" in Sales Header is correct after post shipment for Sales Order with Special Lines
-    // 
+    //
     //   Covers Test Cases for WI
     //   -------------------------------------------------------
     //   Test Function Name                               TFS ID
@@ -27,7 +27,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
     //   VATAmtOnPostedCrMemo
     //   CombineShipmentsDescLine
     //   MakeSalesOrderWithSpecialLines
-    // 
+    //
     //   Covers Test Cases for WI
     //   -------------------------------------------------------
     //   Test Function Name                               TFS ID
@@ -77,6 +77,8 @@ codeunit 144057 "Test CH Sales Quote Reports"
         VerifySalesQuoteReport(SalesHeader, true);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [Test]
     [HandlerFunctions('SalesStatisticsModalPageHandler')]
     [Scope('OnPrem')]
@@ -99,6 +101,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         // Verify. In page handler.
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatisticsModalPageHandler')]
     [Scope('OnPrem')]
@@ -117,6 +120,50 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.Statistics.Invoke();
+
+        // Verify. In page handler.
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure VariantsNotOnSalesQuoteSalesStatistics()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        Initialize();
+
+        // Setup.
+        SetupSalesOrderWithSpecialLines(SalesHeader, SalesHeader."Document Type"::Quote);
+        CalcSalesStatistics(SalesHeader);
+
+        // Exercise.
+        SalesQuote.OpenEdit();
+        SalesQuote.GotoRecord(SalesHeader);
+        SalesQuote.SalesStatistics.Invoke();
+
+        // Verify. In page handler.
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure VariantsNotOnSalesOrderStatisticsNM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        Initialize();
+
+        // Setup.
+        SetupSalesOrderWithSpecialLines(SalesHeader, SalesHeader."Document Type"::Order);
+        CalcSalesStatistics(SalesHeader);
+
+        // Exercise.
+        SalesOrder.OpenEdit();
+        SalesOrder.GotoRecord(SalesHeader);
+        SalesOrder.SalesOrderStatistics.Invoke();
 
         // Verify. In page handler.
     end;
@@ -587,6 +634,8 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsModalPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
@@ -609,6 +658,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
           GeneralLedgerSetup."Amount Rounding Precision", '');
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatisticsModalPageHandler(var SalesStatistics: TestPage "Sales Statistics")
@@ -628,6 +678,49 @@ codeunit 144057 "Test CH Sales Quote Reports"
         Assert.AreNearlyEqual(TotalQty, SalesStatistics."TotalSalesLine.Quantity".AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
         Assert.AreNearlyEqual(TotalCost, SalesStatistics.TotalAdjCostLCY.AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
     end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        TotalAmount: Variant;
+        TotalQty: Variant;
+        TotalCost: Variant;
+    begin
+        GeneralLedgerSetup.Get();
+        LibraryVariableStorage.Dequeue(TotalAmount);
+        LibraryVariableStorage.Dequeue(TotalQty);
+        LibraryVariableStorage.Dequeue(TotalCost);
+
+        Assert.AreNearlyEqual(TotalAmount, SalesOrderStatistics.LineAmountGeneral.AsDecimal(),
+          GeneralLedgerSetup."Amount Rounding Precision", '');
+        Assert.AreNearlyEqual(TotalAmount, SalesOrderStatistics."TotalAmount1[1]".AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
+        Assert.AreNearlyEqual(TotalQty, SalesOrderStatistics."TotalSalesLine[1].Quantity".AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
+        Assert.AreNearlyEqual(TotalCost, SalesOrderStatistics."TotalAdjCostLCY[1]".AsDecimal(),
+          GeneralLedgerSetup."Amount Rounding Precision", '');
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatisticsPageHandler(var SalesStatistics: TestPage "Sales Statistics")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        TotalAmount: Variant;
+        TotalQty: Variant;
+        TotalCost: Variant;
+    begin
+        GeneralLedgerSetup.Get();
+        LibraryVariableStorage.Dequeue(TotalAmount);
+        LibraryVariableStorage.Dequeue(TotalQty);
+        LibraryVariableStorage.Dequeue(TotalCost);
+
+        Assert.AreNearlyEqual(TotalAmount, SalesStatistics.Amount.AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
+        Assert.AreNearlyEqual(TotalAmount, SalesStatistics.TotalAmount1.AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
+        Assert.AreNearlyEqual(TotalQty, SalesStatistics."TotalSalesLine.Quantity".AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
+        Assert.AreNearlyEqual(TotalCost, SalesStatistics.TotalAdjCostLCY.AsDecimal(), GeneralLedgerSetup."Amount Rounding Precision", '');
+    end;
+
 
     [ConfirmHandler]
     [Scope('OnPrem')]
@@ -642,4 +735,3 @@ codeunit 144057 "Test CH Sales Quote Reports"
     begin
     end;
 }
-

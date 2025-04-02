@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.MachineCenter;
 
 using Microsoft.Inventory.Location;
@@ -54,7 +58,6 @@ page 99000760 "Machine Center Card"
                 field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
                 {
@@ -90,7 +93,6 @@ page 99000760 "Machine Center Card"
                 {
                     ApplicationArea = Manufacturing;
                     Importance = Promoted;
-                    ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
                 }
                 field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
@@ -241,7 +243,7 @@ page 99000760 "Machine Center Card"
                     RunPageLink = Type = const("Machine Center"),
                                   "No." = field("No."),
                                   "Posting Date" = field("Date Filter");
-                    RunPageView = sorting(Type, "No.", "Work Shift Code", "Item No.", "Posting Date");
+                    RunPageView = sorting(Type, "No.", "Item No.", "Posting Date");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the capacity ledger entries of the involved production order. Capacity is recorded either as time (run time, stop time, or setup time) or as quantity (scrap quantity or output quantity).';
                 }

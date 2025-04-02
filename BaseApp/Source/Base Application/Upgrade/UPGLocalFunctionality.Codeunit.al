@@ -23,7 +23,6 @@ codeunit 104100 "Upg Local Functionality"
 #if not CLEAN24
     local procedure UpdatePhysInventoryOrders()
     var
-        SourceCodeSetup: Record "Source Code Setup";
         InventorySetup: Record "Inventory Setup";
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         PhysInvtOrderLine: Record "Phys. Invt. Order Line";
@@ -63,11 +62,6 @@ codeunit 104100 "Upg Local Functionality"
             InventorySetup."Phys. Invt. Order Nos." := InventorySetup."Phys. Inv. Order Nos.";
             InventorySetup."Posted Phys. Invt. Order Nos." := InventorySetup."Posted Phys. Inv. Order Nos.";
             InventorySetup.Modify();
-        end;
-
-        if SourceCodeSetup.Get() then begin
-            SourceCodeSetup."Phys. Invt. Orders" := SourceCodeSetup."Phys. Invt. Order";
-            SourceCodeSetup.Modify();
         end;
 
         if UPGPhysInventoryOrderHeader.FindSet() then

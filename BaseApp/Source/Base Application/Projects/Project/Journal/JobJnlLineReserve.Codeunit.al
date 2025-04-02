@@ -1,4 +1,4 @@
-namespace Microsoft.Projects.Project.Journal;
+﻿namespace Microsoft.Projects.Project.Journal;
 
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Tracking;

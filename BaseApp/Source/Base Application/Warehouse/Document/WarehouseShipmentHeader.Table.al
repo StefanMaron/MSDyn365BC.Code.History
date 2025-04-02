@@ -164,12 +164,10 @@ table 7320 "Warehouse Shipment Header"
                 end;
             end;
         }
-        field(34; "Document Status"; Option)
+        field(34; "Document Status"; Enum "Warehouse Shipment Status")
         {
             Caption = 'Document Status';
             Editable = false;
-            OptionCaption = ' ,Partially Picked,Partially Shipped,Completely Picked,Completely Shipped';
-            OptionMembers = " ","Partially Picked","Partially Shipped","Completely Picked","Completely Shipped";
 
             trigger OnValidate()
             var
@@ -469,44 +467,52 @@ table 7320 "Warehouse Shipment Header"
         end;
     end;
 
-    procedure GetDocumentStatus(LineNo: Integer): Integer
+#if not CLEAN26
+    [Obsolete('Replaced by procedure GetShipmentStatus()', '26.0')]
+    procedure GetDocumentStatus(SkipLineNo: Integer): Integer
+    begin
+        exit(GetShipmentStatus(SkipLineNo).AsInteger());
+    end;
+#endif
+
+    procedure GetShipmentStatus(SkipLineNo: Integer): Enum "Warehouse Shipment Status"
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
         WarehouseShipmentLine.SetRange("No.", "No.");
-        if LineNo <> 0 then
-            WarehouseShipmentLine.SetFilter("Line No.", '<>%1', LineNo);
+        if SkipLineNo <> 0 then
+            WarehouseShipmentLine.SetFilter("Line No.", '<>%1', SkipLineNo);
         if not WarehouseShipmentLine.FindFirst() then
             exit(WarehouseShipmentLine.Status::" ");
 
         OnGetDocumentStatusOnBeforeCheckPartllyShipped(Rec, WarehouseShipmentLine);
         WarehouseShipmentLine.SetRange(Status, WarehouseShipmentLine.Status::"Partially Shipped");
-        if WarehouseShipmentLine.FindFirst() then
-            exit(WarehouseShipmentLine.Status);
+        if not WarehouseShipmentLine.IsEmpty() then
+            exit(WarehouseShipmentLine.Status::"Partially Shipped");
 
         WarehouseShipmentLine.SetRange(Status, WarehouseShipmentLine.Status::"Partially Picked");
-        if WarehouseShipmentLine.FindFirst() then
-            exit(WarehouseShipmentLine.Status);
+        if not WarehouseShipmentLine.IsEmpty() then
+            exit(WarehouseShipmentLine.Status::"Partially Picked");
 
         WarehouseShipmentLine.SetRange(Status, WarehouseShipmentLine.Status::"Completely Picked");
-        if WarehouseShipmentLine.FindFirst() then begin
+        if not WarehouseShipmentLine.IsEmpty() then begin
             WarehouseShipmentLine.SetFilter(Status, '<%1', WarehouseShipmentLine.Status::"Completely Picked");
-            if WarehouseShipmentLine.FindFirst() then
+            if not WarehouseShipmentLine.IsEmpty() then
                 exit(WarehouseShipmentLine.Status::"Partially Picked");
 
-            exit(WarehouseShipmentLine.Status);
+            exit(WarehouseShipmentLine.Status::"Completely Picked");
         end;
 
         WarehouseShipmentLine.SetRange(Status, WarehouseShipmentLine.Status::"Completely Shipped");
-        if WarehouseShipmentLine.FindFirst() then begin
+        if not WarehouseShipmentLine.IsEmpty() then begin
             WarehouseShipmentLine.SetFilter(Status, '<%1', WarehouseShipmentLine.Status::"Completely Shipped");
-            if WarehouseShipmentLine.FindFirst() then
+            if not WarehouseShipmentLine.IsEmpty() then
                 exit(WarehouseShipmentLine.Status::"Partially Shipped");
 
-            exit(WarehouseShipmentLine.Status);
+            exit(WarehouseShipmentLine.Status::"Completely Shipped");
         end;
 
-        exit(WarehouseShipmentLine.Status);
+        exit(WarehouseShipmentLine.Status::" ");
     end;
 
     procedure MessageIfShipmentLinesExist(ChangedFieldName: Text[80])

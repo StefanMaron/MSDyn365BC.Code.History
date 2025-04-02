@@ -15,6 +15,7 @@ codeunit 134020 "ERM Accounts"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -185,12 +186,14 @@ codeunit 134020 "ERM Accounts"
     procedure GLAccountByPage()
     var
         SourceGLAccount: Record "G/L Account";
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
         GLAccountNo: Code[20];
     begin
         // Create New G/L Account by Page and verify it.
 
         // Setup.
         Initialize();
+        LibraryNotificationMgt.DisableMyNotification(FinancialReportMgt.GetUpdateFinancialReportNotificationId());
 
         // Exercise: Create New G/L Account by Chart Of Accounts Page.
         SourceGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());

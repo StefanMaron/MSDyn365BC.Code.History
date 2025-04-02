@@ -2,6 +2,7 @@
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Company;
 using Microsoft.Inventory.Location;
@@ -280,6 +281,7 @@ codeunit 5700 "User Setup Management"
     var
         VATSetup: Record "VAT Setup";
         UserSetup2: Record "User Setup";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         AllowPostingFrom: Date;
         AllowPostingTo: Date;
         IsHandled: Boolean;
@@ -287,6 +289,9 @@ codeunit 5700 "User Setup Management"
         OnBeforeIsVATDateValidWithSetup(VATDate, Result, IsHandled, SetupRecordID, FieldNo);
         if IsHandled then
             exit(Result);
+
+        if not VATReportingDateMgt.IsVATDateEnabled() then
+            exit(true);
 
         if UserId() <> '' then
             if UserSetup2.Get(UserId) then begin

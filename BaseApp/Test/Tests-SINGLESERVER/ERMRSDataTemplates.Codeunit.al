@@ -11,6 +11,7 @@ codeunit 136601 "ERM RS Data Templates"
     var
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryRapidStart: Codeunit "Library - Rapid Start";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryERM: Codeunit "Library - ERM";
@@ -45,6 +46,7 @@ codeunit 136601 "ERM RS Data Templates"
         InvalidDefaultValueAfterValidationErr: Label 'Default value was not updated after validation.';
         EmptyDefaultValueErr: Label 'The Default Value field must be filled in if the Mandatory check box is selected.';
         WrongFieldValueErr: Label 'Lookup field value is wrong.';
+        BaseUnitOfMeasureErr: Label 'Value of %1 must not be deleted.';
 
     local procedure Cleanup(PackageCode: Code[20]; TemplateCode: Code[20])
     var
@@ -1032,7 +1034,7 @@ codeunit 136601 "ERM RS Data Templates"
         Initialize();
 
         // [GIVEN] BOM Component with blank Item's "No."
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItem(Item), BOMComponent.Type::Item, '', 1, '');
+        LibraryInventory.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItem(Item), BOMComponent.Type::Item, '', 1, '');
 
         // [GIVEN] Config. Template Header for Item
         // [WHEN] Validate "Service" as "Default Value" for Item's "Type" in Config. Template Line
@@ -1716,6 +1718,68 @@ codeunit 136601 "ERM RS Data Templates"
         ConfigTemplateLine.TestField("Default Value", Format(Item."Assembly Policy"::"Assemble-to-Order"));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,ConfigTemplateHeader_CreateInstance_MessageHandler')]
+    procedure PackageItemProductionBOMNoOnValidatePackage();
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        ConfigPackageField: Record "Config. Package Field";
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ConfigPackageCard: TestPage "Config. Package Card";
+        BaseUnitOfMeasureCode: Code[20];
+    begin
+        // [SCENARIO 558341] Validation Package in Configuration Package is not deleting certain fields data in Item Card.
+        Initialize();
+
+        // [GIVEN] Enable Dynamic Low Level Code in Manufacturing Setup.
+        ManufacturingSetup.GetRecordOnce();
+        ManufacturingSetup.Validate("Dynamic Low-Level Code", true);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN]  Create Production BOM and Certify.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, Item."No.", LibraryRandom.RandInt(2));
+
+        // [GIVEN] Store Base Unit of Measure.
+        BaseUnitOfMeasureCode := Item."Base Unit of Measure";
+
+        // [GIVEN] Create a Package.
+        LibraryRapidStart.CreatePackage(ConfigPackage);
+
+        // [GIVEN] Create Package Table for Item.
+        LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, Database::Item);
+
+        // [GIVEN] Enable Validate Field in Configuration Package Field for Production BOM No.
+        ConfigPackageField.Get(ConfigPackage.Code, Database::Item, Item.FieldNo("Production BOM No."));
+        ConfigPackageField.Validate("Validate Field", true);
+        ConfigPackageField.Modify(true);
+
+        // [GIVEN] Create Package Data for "No.".
+        LibraryRapidStart.CreatePackageData(ConfigPackage.Code, Database::Item, 1, Item.FIELDNO("No."), Item."No.");
+
+        // [GIVEN] Create Package Data for "Production BOM No.".
+        LibraryRapidStart.CreatePackageData(ConfigPackage.Code, Database::Item, 1, Item.FIELDNO("Production BOM No."), ProductionBOMHeader."No.");
+
+        // [WHEN] Validate Package on Configuration Package Card.
+        ConfigPackageCard.OpenEdit();
+        ConfigPackageCard.GoToRecord(ConfigPackage);
+        ConfigPackageCard.ValidatePackage.Invoke();
+
+        // [THEN] Base Unit of Measure must not be deleted.
+        Item.Get(Item."No.");
+        Assert.AreEqual(
+            BaseUnitOfMeasureCode,
+            Item."Base Unit of Measure",
+            StrSubstNo(
+                BaseUnitOfMeasureErr,
+                Item.FieldCaption("Base Unit of Measure")));
+    end;
+
     local procedure Initialize()
     var
         ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
@@ -2055,6 +2119,12 @@ codeunit 136601 "ERM RS Data Templates"
     procedure ConfirmHandlerNo(Question: Text; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [ModalPageHandler]

@@ -722,16 +722,8 @@ codeunit 144043 "Test ESR Import"
 
     [Normal]
     local procedure CreateFileName() FileName: Text
-    var
-        environment: DotNet Environment;
-        directoryInfo: DotNet DirectoryInfo;
     begin
-        // Since field length for storing the path is 50 characters we have to use some other known folder.
-        // We will try to create a file in windows\temp
-        directoryInfo := directoryInfo.DirectoryInfo(environment.SystemDirectory);
-        FileName := directoryInfo.Parent.FullName + '\temp';
-
-        FileName := FileName + '\' + CopyStr(Format(CreateGuid()), 2, 8);
+        FileName := TemporaryPath() + CopyStr(Format(CreateGuid()), 2, 8);
         Assert.IsTrue(StrLen(FileName) <= 50, StrSubstNo('Cannot create files larger than 50 characters: %1', FileName));
     end;
 

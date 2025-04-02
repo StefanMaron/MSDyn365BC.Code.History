@@ -152,6 +152,8 @@ report 7319 "Warehouse Bin List"
     requestpage
     {
         Caption = 'Whse. Structure List';
+        AboutTitle = 'About Warehouse Bin List';
+        AboutText = 'Get an overview of warehouse bins, their setup, and the quantity of items in them.';
 
         layout
         {

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA28 
 namespace Microsoft.Sales.Pricing;
 
 #if not CLEAN25
@@ -19,7 +20,7 @@ table 1304 "Sales Price and Line Disc Buff"
     ObsoleteTag = '16.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '26.0';
+    ObsoleteTag = '28.0';
 #endif    
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price Worksheet Line';
     DataClassification = CustomerContent;
@@ -1001,3 +1002,5 @@ table 1304 "Sales Price and Line Disc Buff"
 #endif
 }
 
+ 
+#endif

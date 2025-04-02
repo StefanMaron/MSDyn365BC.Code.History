@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -22,6 +22,7 @@ table 9060 "SB Owner Cue"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Released Sales Quotes"; Integer)
@@ -62,18 +63,6 @@ table 9060 "SB Owner Cue"
                                                             Open = const(true)));
             Caption = 'Overdue Sales Documents';
             FieldClass = FlowField;
-        }
-        field(7; "SOs Shipped Not Invoiced"; Integer)
-        {
-            AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = count("Sales Header" where("Document Type" = const(Order),
-                                                      "Completely Shipped" = const(true),
-                                                      "Shipped Not Invoiced" = const(true)));
-            Caption = 'SOs Shipped Not Invoiced';
-            FieldClass = FlowField;
-            ObsoleteReason = 'Poor performance';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
         }
         field(8; "Customers - Blocked"; Integer)
         {
@@ -190,4 +179,3 @@ table 9060 "SB Owner Cue"
         PAGE.Run(PAGE::"Sales Order List", SalesHeader);
     end;
 }
-

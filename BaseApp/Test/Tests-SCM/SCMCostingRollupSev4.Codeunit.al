@@ -76,8 +76,8 @@
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
         // Setup. Make item, post receive and invoice purchase.
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', LibraryRandom.RandDec(10, 2),
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::FIFO, 0);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, '', '', LibraryRandom.RandDec(10, 2),
           WorkDate(), LibraryRandom.RandDec(100, 2), true, false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
@@ -126,15 +126,15 @@
         Initialize();
 
         // Setup. Post purchase and sale, assign purchase charge to sales shipment.
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', 18, WorkDate(), 30, true, true);
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', 18, WorkDate(), 0, true, true);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::FIFO, 0);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, '', '', 18, WorkDate(), 30, true, true);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, '', '', 18, WorkDate(), 0, true, true);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
         SalesShptLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
 
         Clear(PurchaseHeader);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
-        LibraryPatterns.MAKEItemChargePurchaseLine(PurchaseLine, ItemCharge, PurchaseHeader, 1, 1500);
+        LibraryPurchase.CreateItemChargePurchaseLine(PurchaseLine, ItemCharge, PurchaseHeader, 1, 1500);
         SalesShptLine."Item Charge Base Amount" := PurchaseLine.Amount;
         SalesShptLine.Modify();
         LibraryPurchase.CreateItemChargeAssignment(ItemChargeAssignmentPurch, PurchaseLine, ItemCharge,
@@ -171,12 +171,12 @@
         Initialize();
 
         // Setup: Create item, add to inventory then remove, generating a rounding entry.
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::FIFO, 0);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibraryPatterns.POSTPositiveAdjustmentAmount(Item, Location.Code, '', 3, WorkDate(), 10);
-        LibraryPatterns.POSTNegativeAdjustment(Item, Location.Code, '', '', 1, WorkDate(), 0);
-        LibraryPatterns.POSTNegativeAdjustment(Item, Location.Code, '', '', 1, WorkDate(), 0);
-        LibraryPatterns.POSTNegativeAdjustment(Item, Location.Code, '', '', 1, WorkDate(), 0);
+        LibraryInventory.PostNegativeAdjustment(Item, Location.Code, '', '', 1, WorkDate(), 0);
+        LibraryInventory.PostNegativeAdjustment(Item, Location.Code, '', '', 1, WorkDate(), 0);
+        LibraryInventory.PostNegativeAdjustment(Item, Location.Code, '', '', 1, WorkDate(), 0);
 
         // Setup dimension with code mandatory for Inventory account.
         InventoryPostingSetup.Get(Location.Code, Item."Inventory Posting Group");
@@ -215,19 +215,19 @@
         Initialize();
 
         // Setup. Create lot tracked item. Purchase and adjust inventory.
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, LibraryRandom.RandDec(10, 2));
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::FIFO, LibraryRandom.RandDec(10, 2));
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
         Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
         Item.Modify();
 
         LotNo := LibraryUtility.GenerateRandomCode(ReservationEntry.FieldNo("Lot No."), DATABASE::"Reservation Entry");
         Qty := LibraryRandom.RandDecInRange(100, 200, 2);
-        LibraryPatterns.POSTPurchaseOrderWithItemTracking(PurchaseHeader, Item, '', '', Qty, WorkDate(), 0, true, false, '', LotNo);
+        LibraryPurchase.PostPurchaseOrderWithItemTracking(PurchaseHeader, Item, '', '', Qty, WorkDate(), 0, true, false, '', LotNo);
         LibraryPatterns.POSTNegativeAdjustmentWithItemTracking(Item, '', '', Qty - 50, WorkDate(), '', LotNo);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
 
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Item);
-        LibraryPatterns.MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Qty - 75, 0);
 
         // Exercise. Try to apply from the journal.
@@ -262,9 +262,9 @@
         UnitCost := LibraryRandom.RandDec(100, 2);
         UnitPrice := UnitCost + LibraryRandom.RandDec(10, 2);
 
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', Qty, WorkDate(), UnitCost);
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty, WorkDate(), UnitPrice, true, true);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Average, 0);
+        LibrarySales.CreateSalesOrder(SalesHeader, SalesLine, Item, '', '', Qty, WorkDate(), UnitCost);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty, WorkDate(), UnitPrice, true, true);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
         SalesShptLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
@@ -334,33 +334,33 @@
           InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant", InventorySetup."Average Cost Period"::Day);
         LibraryInventory.SetAutomaticCostAdjmtAlways();
 
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, LibraryRandom.RandDec(10, 2));
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Average, LibraryRandom.RandDec(10, 2));
         // Create SKUs for the item. These calls also create locations with no warehousing functionality
-        LibraryPatterns.MAKEStockkeepingUnit(SKU1, Item);
-        LibraryPatterns.MAKEStockkeepingUnit(SKU2, Item);
-        LibraryPatterns.MAKEStockkeepingUnit(SKU3, Item);
+        LibraryWarehouse.CreateStockkeepingUnit(SKU1, Item);
+        LibraryWarehouse.CreateStockkeepingUnit(SKU2, Item);
+        LibraryWarehouse.CreateStockkeepingUnit(SKU3, Item);
         Location1.Get(SKU1."Location Code");
         Location2.Get(SKU2."Location Code");
         Location3.Get(SKU3."Location Code");
 
         // Exercise: Post item journal adjustments. The quantities are manipulated so we end up with a negative qty on hand
         Qty := LibraryRandom.RandDec(5, 2);
-        LibraryPatterns.POSTItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Sale,
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Sale,
           Item, Location1.Code, '', '', Qty, WorkDate(), LibraryRandom.RandDec(10, 2));
-        LibraryPatterns.POSTItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Purchase,
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Purchase,
           Item, Location1.Code, '', '', Qty, WorkDate(), LibraryRandom.RandDec(10, 2));
-        LibraryPatterns.POSTItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Sale,
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Sale,
           Item, Location2.Code, '', '', Qty, WorkDate(), LibraryRandom.RandDec(10, 2));
-        LibraryPatterns.POSTItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Purchase,
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Purchase,
           Item, Location2.Code, '', '', Qty, WorkDate(), LibraryRandom.RandDec(10, 2));
 
         // Now we have 0 quantity of Item. Force a negative quantity
         Qty := LibraryRandom.RandDec(5, 2);
         Qty2 := LibraryRandom.RandDecInRange(6, 10, 2);
         UnitAmount := LibraryRandom.RandDec(10, 2);
-        LibraryPatterns.POSTItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Sale,
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Sale,
           Item, Location3.Code, '', '', Qty2, WorkDate(), LibraryRandom.RandDec(10, 2));
-        LibraryPatterns.POSTItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Purchase,
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Purchase,
           Item, Location3.Code, '', '', Qty, WorkDate(), UnitAmount);
 
         // Verify: the unit cost on the item card is updated when we have negative qty on hand
@@ -398,8 +398,8 @@
 
         // Setup: Preparation for subcontracting orders: location, production item & routing setup
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        LibraryPatterns.MAKEItemSimple(ChildItem, ChildItem."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
-        LibraryPatterns.MAKEItemSimple(ParentItem, ParentItem."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
+        LibraryInventory.CreateItemSimple(ChildItem, ChildItem."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
+        LibraryInventory.CreateItemSimple(ParentItem, ParentItem."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
         CreateRoutingSetup(WorkCenter, RoutingLine, RoutingLink);
         CreateProductionBOM(ProductionBOMHeader, ParentItem, ChildItem, RoutingLink.Code, LibraryRandom.RandDec(20, 2));
         ParentItem.Validate("Routing No.", RoutingLine."Routing No.");
@@ -408,7 +408,7 @@
         RunAdjustCostItemEntries('', '');  // Any item & item category
 
         // Supply child item
-        LibraryPatterns.POSTPositiveAdjustment(ChildItem, Location.Code, '', '',
+        LibraryInventory.PostPositiveAdjustment(ChildItem, Location.Code, '', '',
           LibraryRandom.RandDec(50, 2), WorkDate(), 0);
 
         // Create a released production order for parent item, calculate subcontracts and create subcontract Purch. Order
@@ -431,7 +431,7 @@
         RunAdjustCostItemEntries('', '');
 
         // Revaluate the parent item and run the Adjust Cost - Item entries job
-        LibraryPatterns.MAKERevaluationJournalLine(ItemJournalBatch, ParentItem,
+        LibraryInventory.CreateRevaluationJournalLine(ItemJournalBatch, ParentItem,
           WorkDate(), "Inventory Value Calc. Per"::Item, false, false, true, "Inventory Value Calc. Base"::" ");
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
@@ -486,20 +486,20 @@
 
         // Setup
         // Create a 'make-to-order' child item with 2 UOMs and standard costing method
-        LibraryPatterns.MAKEItemSimple(ChildItem, ChildItem."Costing Method"::Standard, 0);
-        LibraryPatterns.MAKEAdditionalItemUOM(NonBaseChildItemUOM, ChildItem."No.", LibraryRandom.RandDec(20, 2));
+        LibraryInventory.CreateItemSimple(ChildItem, ChildItem."Costing Method"::Standard, 0);
+        LibraryInventory.CreateItemUnitOfMeasureCode(NonBaseChildItemUOM, ChildItem."No.", LibraryRandom.RandDec(20, 2));
         ChildItem.Validate("Replenishment System", ChildItem."Replenishment System"::"Prod. Order");
         ChildItem.Validate("Manufacturing Policy", ChildItem."Manufacturing Policy"::"Make-to-Order");
         ChildItem.Modify(true);
 
         // Create a Prod BOM for the child item using its base UOM
-        LibraryPatterns.MAKEItemSimple(GrandchildItem, GrandchildItem."Costing Method"::Standard, LibraryRandom.RandDec(5, 2));
+        LibraryInventory.CreateItemSimple(GrandchildItem, GrandchildItem."Costing Method"::Standard, LibraryRandom.RandDec(5, 2));
         LibraryManufacturing.CreateCertifiedProductionBOM(ProdBOMHeader, GrandchildItem."No.", LibraryRandom.RandDec(5, 2));
         ChildItem.Validate("Production BOM No.", ProdBOMHeader."No.");
         ChildItem.Modify(true);
 
         // Create a parent item
-        LibraryPatterns.MAKEItemSimple(ParentItem, ParentItem."Costing Method"::Standard, 0);
+        LibraryInventory.CreateItemSimple(ParentItem, ParentItem."Costing Method"::Standard, 0);
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
         ParentItem.Validate("Manufacturing Policy", ParentItem."Manufacturing Policy"::"Make-to-Order");
         ParentItem.Modify(true);
@@ -696,16 +696,16 @@
         Initialize();
 
         // Setup: make item, setup inventory setup, post item journals
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Average, 0);
 
         LibraryInventory.SetAutomaticCostAdjmtNever();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Month);
 
         UnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 800, CalcDate('<1M>', WorkDate()), UnitCost);
-        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 200, CalcDate('<2M>', WorkDate()), 0);
-        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 200, CalcDate('<3M>', WorkDate()), 0);
-        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 100, CalcDate('<1Y>', WorkDate()), 0);
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', 800, CalcDate('<1M>', WorkDate()), UnitCost);
+        LibraryInventory.PostNegativeAdjustment(Item, '', '', '', 200, CalcDate('<2M>', WorkDate()), 0);
+        LibraryInventory.PostNegativeAdjustment(Item, '', '', '', 200, CalcDate('<3M>', WorkDate()), 0);
+        LibraryInventory.PostNegativeAdjustment(Item, '', '', '', 100, CalcDate('<1Y>', WorkDate()), 0);
 
         // Exercise: Run adjust cost, and verify that no error occurs
         AdjustCostAndVerify(Item."No.", UnitCost);
@@ -746,7 +746,7 @@
         if Confirm(CloseFiscalYearQst) then;
 
         // Setup: make item, make postings, adjust cost, close year
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Average, 0);
 
         PostingDate := CalcDate('<-1Y>', WorkDate());
         PositiveItemJournalUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -755,11 +755,11 @@
         else
             NegativeItemJournalUnitCost := 0;
         if PositiveBeforeNegative then begin
-            LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 1, PostingDate, PositiveItemJournalUnitCost);
-            LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 1, PostingDate, NegativeItemJournalUnitCost);
+            LibraryInventory.PostPositiveAdjustment(Item, '', '', '', 1, PostingDate, PositiveItemJournalUnitCost);
+            LibraryInventory.PostNegativeAdjustment(Item, '', '', '', 1, PostingDate, NegativeItemJournalUnitCost);
         end else begin
-            LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 1, PostingDate, NegativeItemJournalUnitCost);
-            LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 1, PostingDate, PositiveItemJournalUnitCost);
+            LibraryInventory.PostNegativeAdjustment(Item, '', '', '', 1, PostingDate, NegativeItemJournalUnitCost);
+            LibraryInventory.PostPositiveAdjustment(Item, '', '', '', 1, PostingDate, PositiveItemJournalUnitCost);
         end;
 
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -768,6 +768,7 @@
         CODEUNIT.Run(CODEUNIT::"Fiscal Year-Close", AccountingPeriod);
 
         // Exercise: Delete item
+        Item.Find();
         Item.Delete(true);
 
         // Verify: Item is deleted and no error occurs
@@ -801,13 +802,13 @@
         InventoryPeriod.Insert();
 
         // Setup: Make item, post purchase, post sales.
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Average, 0);
         Qty := LibraryRandom.RandDecInRange(1, 100, 2);
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty, WorkDate(), 1, true, true);
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', Qty, WorkDate(), 1, true, true);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty, WorkDate(), 1, true, true);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, '', '', Qty, WorkDate(), 1, true, true);
 
         // Setup: Post sales credit
-        LibraryPatterns.MAKESalesCreditMemo(SalesHeader, SalesLine, Item, '', '', Qty, WorkDate(), 1, 12);
+        LibrarySales.CreateSalesCreditMemo(SalesHeader, SalesLine, Item, '', '', Qty, WorkDate(), 1, 12);
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
         ItemLedgerEntry.FindLast();

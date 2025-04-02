@@ -655,6 +655,16 @@ page 42 "Sales Order"
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 ToolTip = 'Specifies the name that products on the sales document will be shipped to.';
                             }
+                            field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'Name 2';
+                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                                Importance = Additional;
+                                ToolTip = 'Specifies an additional part of the name that products on the sales document will be shipped to.';
+                                QuickEntry = false;
+                                Visible = false;
+                            }
                             field("Ship-to Address"; Rec."Ship-to Address")
                             {
                                 ApplicationArea = Basic, Suite;
@@ -1078,6 +1088,7 @@ page 42 "Sales Order"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Sales Header"),
                               "No." = field("No."),
@@ -1195,6 +1206,7 @@ page 42 "Sales Order"
             {
                 Caption = 'O&rder';
                 Image = "Order";
+#if not CLEAN26
                 action(Statistics)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1202,6 +1214,9 @@ page 42 "Sales Order"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
 
                     trigger OnAction()
                     var
@@ -1216,6 +1231,23 @@ page 42 "Sales Order"
                         CurrPage.SalesLines.Page.ForceTotalsCalculation();
                     end;
                 }
+#endif
+                action(SalesOrderStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Enabled = Rec."No." <> '';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+#if CLEAN26
+                    Visible = true;
+#else
+                    Visible = false;
+#endif
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    RunObject = Page "Sales Order Statistics";
+                    RunPageOnRec = true;
+                }
                 action(Customer)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1227,6 +1259,17 @@ page 42 "Sales Order"
                                   "Date Filter" = field("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer on the sales document.';
+                }
+                action(CustomerStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Statistics';
+                    Enabled = IsCustomerOrContactNotEmpty;
+                    Image = Statistics;
+                    RunObject = Page "Customer Statistics";
+                    RunPageLink = "No." = field("Sell-to Customer No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the sell-to customer on the sales document.';
                 }
                 action(Dimensions)
                 {
@@ -2451,9 +2494,18 @@ page 42 "Sales Order"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN26
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
+#else
+                actionref(SalesOrderStatistics_Promoted; SalesOrderStatistics)
+                {
+                }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -2930,11 +2982,13 @@ page 42 "Sales Order"
             IsPostingGroupEditable := BillToCustomer."Allow Multiple Posting Groups";
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin
     end;
-
+#endif
     procedure CheckNotificationsOnce()
     begin
         CallNotificationCheck := true;
@@ -3037,4 +3091,3 @@ page 42 "Sales Order"
     begin
     end;
 }
-

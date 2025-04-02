@@ -17,7 +17,6 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryJob: Codeunit "Library - Job";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -310,7 +309,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         InventorySetup.Get();
         ExecuteUIHandlers();
         CreateCurrencyWithExchangeRate(Currency);
-        ItemNo := CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::Manual,
+        ItemNo := CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::"Pick + Manual",
             Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10));
         SetupForAdjustCostOnACY(SalesHeader, ItemNo, Currency.Code);
 
@@ -354,7 +353,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         InventorySetup.Get();
         ExecuteUIHandlers();
         CreateCurrencyWithExchangeRate(Currency);
-        ItemNo := CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::Manual,
+        ItemNo := CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::"Pick + Manual",
             Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10));
         SetupForAdjustCostOnACY(SalesHeader, ItemNo, Currency.Code);
 
@@ -403,21 +402,21 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
 
         // Setup: Create Item and post Positive Adj Item Journal Line.
         Item.Get(
-          CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::Manual, Item."Replenishment System"::Purchase, 0));
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 2388, WorkDate(), 63.3152);
+          CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::"Pick + Manual", Item."Replenishment System"::Purchase, 0));
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', 2388, WorkDate(), 63.3152);
         PosAdjItemLedgerEntry.SetRange("Item No.", Item."No.");
         PosAdjItemLedgerEntry.FindFirst();
 
         // Exercise: Post Neg Adj. Item Journal Lines with Fixed Application.
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
 
-        LibraryPatterns.MAKEItemJournalLineWithApplication(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
+        LibraryInventory.CreateItemJournalLineWithApplication(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
           ItemJournalLine."Entry Type"::"Negative Adjmt.", 597, 63.3152, PosAdjItemLedgerEntry."Entry No.");
-        LibraryPatterns.MAKEItemJournalLineWithApplication(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
+        LibraryInventory.CreateItemJournalLineWithApplication(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
           ItemJournalLine."Entry Type"::"Negative Adjmt.", 597, 63.3152, PosAdjItemLedgerEntry."Entry No.");
-        LibraryPatterns.MAKEItemJournalLineWithApplication(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
+        LibraryInventory.CreateItemJournalLineWithApplication(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
           ItemJournalLine."Entry Type"::"Negative Adjmt.", 597, 63.3152, PosAdjItemLedgerEntry."Entry No.");
-        LibraryPatterns.MAKEItemJournalLineWithApplication(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
+        LibraryInventory.CreateItemJournalLineWithApplication(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
           ItemJournalLine."Entry Type"::"Negative Adjmt.", 597, 63.3152, PosAdjItemLedgerEntry."Entry No.");
 
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -487,7 +486,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
           InventorySetup."Average Cost Period");
         CreateAndPostJobJournalLine(JobJournalLine);
         Item.Get(JobJournalLine."No.");
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '',
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '',
           LibraryRandom.RandDec(100, 2), WorkDate(), LibraryRandom.RandDec(100, 2));
         LibraryCosting.AdjustCostItemEntries(JobJournalLine."No.", '');
 
@@ -555,8 +554,8 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         UpdateProdOrderLineUnitOfMeasureCode(ProdOrderLine, ParentItem."No.", ItemUnitOfMeasure.Code);
 
         // Open Production Journal and Post.
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ChildItem, '', '', ProdQty * QtyPer * QtyPerBaseUOM, WorkDate(), 0);
-        LibraryPatterns.POSTOutput(ProdOrderLine, ProdQty, WorkDate(), 0);
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ChildItem, '', '', ProdQty * QtyPer * QtyPerBaseUOM, WorkDate(), 0);
+        LibraryManufacturing.POSTOutput(ProdOrderLine, ProdQty, WorkDate(), 0);
 
         // Exercise: Change Status from Released to Finished.
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
@@ -612,20 +611,20 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
           InventorySetup2."Automatic Cost Adjustment"::Never, InventorySetup."Average Cost Calc. Type"::Item,
           InventorySetup."Average Cost Period"::Day);
 
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Average, 0);
 
         // Exercise
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
           ItemJournalLine."Entry Type"::"Positive Adjmt.", 15, 200.5807);
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
           ItemJournalLine."Entry Type"::"Positive Adjmt.", 5, 200.58);
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
           ItemJournalLine."Entry Type"::"Negative Adjmt.", 0.8, 0);
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
           ItemJournalLine."Entry Type"::"Negative Adjmt.", 0.4, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -678,7 +677,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         ItemJournalLine: Record "Item Journal Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::FIFO, 0);
 
         CreateItemJournalLineWithGlobalDim(ItemJournalBatch, ItemJournalLine, Item);
 
@@ -689,12 +688,12 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         // Exercise: Create a revaluation journal line to apply to the posted purchase
         if ManualRevaluation then begin
             LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Revaluation);
-            LibraryPatterns.MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
+            LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
               ItemJournalLine."Entry Type"::Purchase, ItemLedgerEntry.Quantity, 0);
             ItemJournalLine.Validate("Applies-to Entry", ItemLedgerEntry."Entry No.");
             ItemJournalLine.Modify(true);
         end else begin
-            LibraryPatterns.MAKERevaluationJournalLine(ItemJournalBatch, Item, WorkDate(),
+            LibraryInventory.CreateRevaluationJournalLine(ItemJournalBatch, Item, WorkDate(),
               "Inventory Value Calc. Per"::"Item Ledger Entry", false, false, false, "Inventory Value Calc. Base"::" ");
             ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
             ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
@@ -747,7 +746,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         Job: Record Job;
         JobTask: Record "Job Task";
     begin
-        Item.Get(CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::Manual,
+        Item.Get(CreateAndModifyItem('', Item."Costing Method"::Average, Item."Flushing Method"::"Pick + Manual",
             Item."Replenishment System"::Purchase, 0));
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -840,7 +839,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         DimVal: Record "Dimension Value";
     begin
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
-        LibraryPatterns.MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, '', '', WorkDate(),
           ItemJournalLine."Entry Type"::Purchase, LibraryRandom.RandInt(10), LibraryRandom.RandInt(10));
 
         GeneralLedgerSetup.Get();
@@ -1071,7 +1070,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
           InventorySetup."Average Cost Period");
         Item.Get(ItemNo);
         PosAdjQty := LibraryRandom.RandDec(100, 2);
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', LibraryRandom.RandInt(10) + 10, WorkDate(), PosAdjQty);
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', LibraryRandom.RandInt(10) + 10, WorkDate(), PosAdjQty);
         CreatePurchaseOrderWithCurrency(
           PurchaseLine, ItemNo, CurrencyCode, CalcDate('<1M + ' + Format(LibraryRandom.RandInt(3)) + 'D>', WorkDate()),
           LibraryRandom.RandInt(50), PosAdjQty + LibraryRandom.RandInt(40));

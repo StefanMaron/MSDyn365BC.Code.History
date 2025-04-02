@@ -27,7 +27,7 @@ codeunit 5751 "Get Source Doc. Inbound"
 
     local procedure CreateWhseReceiptHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request") Result: Boolean
     var
-        WhseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -45,49 +45,49 @@ codeunit 5751 "Get Source Doc. Inbound"
         OnBeforeGetSourceDocumentsRun(GetSourceDocuments, WarehouseRequest, ServVendDocNo);
         GetSourceDocuments.RunModal();
 
-        GetSourceDocuments.GetLastReceiptHeader(WhseReceiptHeader);
-        OnAfterCreateWhseReceiptHeaderFromWhseRequest(WhseReceiptHeader, WarehouseRequest, GetSourceDocuments);
+        GetSourceDocuments.GetLastReceiptHeader(WarehouseReceiptHeader);
+        OnAfterCreateWhseReceiptHeaderFromWhseRequest(WarehouseReceiptHeader, WarehouseRequest, GetSourceDocuments);
         exit(true);
     end;
 
-    procedure GetInboundDocs(var WhseReceiptHeader: Record "Warehouse Receipt Header")
+    procedure GetInboundDocs(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     var
         WhseGetSourceFilter: Record "Warehouse Source Filter";
         WhseSourceFilterSelection: Page "Filters to Get Source Docs.";
     begin
-        WhseReceiptHeader.Find();
-        WhseSourceFilterSelection.SetOneCreatedReceiptHeader(WhseReceiptHeader);
+        WarehouseReceiptHeader.Find();
+        WhseSourceFilterSelection.SetOneCreatedReceiptHeader(WarehouseReceiptHeader);
         WhseGetSourceFilter.FilterGroup(2);
         WhseGetSourceFilter.SetRange(Type, WhseGetSourceFilter.Type::Inbound);
         WhseGetSourceFilter.FilterGroup(0);
         WhseSourceFilterSelection.SetTableView(WhseGetSourceFilter);
         WhseSourceFilterSelection.RunModal();
 
-        OnGetInboundDocsBeforeUpdateReceiptHeaderStatus(WhseReceiptHeader);
-        UpdateReceiptHeaderStatus(WhseReceiptHeader);
+        OnGetInboundDocsBeforeUpdateReceiptHeaderStatus(WarehouseReceiptHeader);
+        UpdateReceiptHeaderStatus(WarehouseReceiptHeader);
 
-        OnAfterGetInboundDocs(WhseReceiptHeader);
+        OnAfterGetInboundDocs(WarehouseReceiptHeader);
     end;
 
-    procedure GetSingleInboundDoc(var WhseReceiptHeader: Record "Warehouse Receipt Header")
+    procedure GetSingleInboundDoc(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
         IsHandled: Boolean;
     begin
-        OnBeforeGetSingleInboundDoc(WhseReceiptHeader, IsHandled);
+        OnBeforeGetSingleInboundDoc(WarehouseReceiptHeader, IsHandled);
         if IsHandled then
             exit;
 
         Clear(GetSourceDocuments);
-        WhseReceiptHeader.Find();
+        WarehouseReceiptHeader.Find();
 
-        SetWarehouseRequestFilters(WhseRqst, WhseReceiptHeader);
+        SetWarehouseRequestFilters(WarehouseRequest, WarehouseReceiptHeader);
 
-        GetSourceDocForHeader(WhseReceiptHeader, WhseRqst);
+        GetSourceDocForHeader(WarehouseReceiptHeader, WarehouseRequest);
 
-        UpdateReceiptHeaderStatus(WhseReceiptHeader);
+        UpdateReceiptHeaderStatus(WarehouseReceiptHeader);
 
-        OnAfterGetSingleInboundDoc(WhseReceiptHeader);
+        OnAfterGetSingleInboundDoc(WarehouseReceiptHeader);
     end;
 
     local procedure GetSourceDocForHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseRequest: Record "Warehouse Request")
@@ -112,36 +112,36 @@ codeunit 5751 "Get Source Doc. Inbound"
         GetSourceDocuments.RunModal();
     end;
 
-    local procedure SetWarehouseRequestFilters(var WhseRqst: Record "Warehouse Request"; WhseReceiptHeader: Record "Warehouse Receipt Header")
+    local procedure SetWarehouseRequestFilters(var WarehouseRequest: Record "Warehouse Request"; WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
-        WhseRqst.FilterGroup(2);
-        WhseRqst.SetRange(Type, WhseRqst.Type::Inbound);
-        WhseRqst.SetRange("Location Code", WhseReceiptHeader."Location Code");
-        WhseRqst.FilterGroup(0);
-        WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
-        WhseRqst.SetRange("Completely Handled", false);
+        WarehouseRequest.FilterGroup(2);
+        WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound);
+        WarehouseRequest.SetRange("Location Code", WarehouseReceiptHeader."Location Code");
+        WarehouseRequest.FilterGroup(0);
+        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Released);
+        WarehouseRequest.SetRange("Completely Handled", false);
 
-        OnAfterSetWarehouseRequestFilters(WhseRqst, WhseReceiptHeader);
+        OnAfterSetWarehouseRequestFilters(WarehouseRequest, WarehouseReceiptHeader);
     end;
 
-    procedure CreateFromPurchOrder(PurchHeader: Record "Purchase Header")
+    procedure CreateFromPurchOrder(PurchaseHeader: Record "Purchase Header")
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateFromPurchOrder(PurchHeader, IsHandled);
+        OnBeforeCreateFromPurchOrder(PurchaseHeader, IsHandled);
         if IsHandled then
             exit;
 
-        ShowDialog(CreateFromPurchOrderHideDialog(PurchHeader));
+        ShowDialog(CreateFromPurchOrderHideDialog(PurchaseHeader));
     end;
 
     procedure CreateFromPurchOrderHideDialog(PurchHeader: Record "Purchase Header"): Boolean
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
     begin
-        FindWarehouseRequestForPurchaseOrder(WhseRqst, PurchHeader);
-        exit(CreateWhseReceiptHeaderFromWhseRequest(WhseRqst));
+        FindWarehouseRequestForPurchaseOrder(WarehouseRequest, PurchHeader);
+        exit(CreateWhseReceiptHeaderFromWhseRequest(WarehouseRequest));
     end;
 
     procedure CreateFromSalesReturnOrder(SalesHeader: Record "Sales Header")
@@ -158,10 +158,10 @@ codeunit 5751 "Get Source Doc. Inbound"
 
     procedure CreateFromSalesReturnOrderHideDialog(SalesHeader: Record "Sales Header"): Boolean
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
     begin
-        FindWarehouseRequestForSalesReturnOrder(WhseRqst, SalesHeader);
-        exit(CreateWhseReceiptHeaderFromWhseRequest(WhseRqst));
+        FindWarehouseRequestForSalesReturnOrder(WarehouseRequest, SalesHeader);
+        exit(CreateWhseReceiptHeaderFromWhseRequest(WarehouseRequest));
     end;
 
     procedure CreateFromInbndTransferOrder(TransHeader: Record "Transfer Header")
@@ -178,41 +178,41 @@ codeunit 5751 "Get Source Doc. Inbound"
 
     procedure CreateFromInbndTransferOrderHideDialog(TransHeader: Record "Transfer Header"): Boolean
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
     begin
-        FindWarehouseRequestForInbndTransferOrder(WhseRqst, TransHeader);
-        exit(CreateWhseReceiptHeaderFromWhseRequest(WhseRqst));
+        FindWarehouseRequestForInbndTransferOrder(WarehouseRequest, TransHeader);
+        exit(CreateWhseReceiptHeaderFromWhseRequest(WarehouseRequest));
     end;
 
     procedure GetSingleWhsePutAwayDoc(CurrentWkshTemplateName: Code[10]; CurrentWkshName: Code[10]; LocationCode: Code[10])
     var
-        WhsePutAwayRqst: Record "Whse. Put-away Request";
+        WhsePutAwayRequest: Record "Whse. Put-away Request";
         GetWhseSourceDocuments: Report "Get Inbound Source Documents";
         WhsePutAwayDocSelection: Page "Put-away Selection";
     begin
-        WhsePutAwayRqst.FilterGroup(2);
-        WhsePutAwayRqst.SetRange("Completely Put Away", false);
-        WhsePutAwayRqst.SetRange("Location Code", LocationCode);
-        WhsePutAwayRqst.FilterGroup(0);
+        WhsePutAwayRequest.FilterGroup(2);
+        WhsePutAwayRequest.SetRange("Completely Put Away", false);
+        WhsePutAwayRequest.SetRange("Location Code", LocationCode);
+        WhsePutAwayRequest.FilterGroup(0);
 
         WhsePutAwayDocSelection.LookupMode(true);
-        WhsePutAwayDocSelection.SetTableView(WhsePutAwayRqst);
+        WhsePutAwayDocSelection.SetTableView(WhsePutAwayRequest);
         if WhsePutAwayDocSelection.RunModal() <> ACTION::LookupOK then
             exit;
 
-        WhsePutAwayDocSelection.GetResult(WhsePutAwayRqst);
+        WhsePutAwayDocSelection.GetResult(WhsePutAwayRequest);
 
-        OnGetSingleWhsePutAwayDocOnAfterGetResultWhsePutAwayRqst(WhsePutAwayRqst);
+        OnGetSingleWhsePutAwayDocOnAfterGetResultWhsePutAwayRqst(WhsePutAwayRequest);
 
         GetWhseSourceDocuments.SetWhseWkshName(
           CurrentWkshTemplateName, CurrentWkshName, LocationCode);
 
         GetWhseSourceDocuments.UseRequestPage(false);
-        GetWhseSourceDocuments.SetTableView(WhsePutAwayRqst);
+        GetWhseSourceDocuments.SetTableView(WhsePutAwayRequest);
         GetWhseSourceDocuments.RunModal();
     end;
 
-    procedure GetRequireReceiveRqst(var WhseRqst: Record "Warehouse Request")
+    procedure GetRequireReceiveRqst(var WarehouseRequest: Record "Warehouse Request")
     var
         Location: Record Location;
         LocationList: List of [Code[20]];
@@ -221,63 +221,63 @@ codeunit 5751 "Get Source Doc. Inbound"
         BlankLocationExists: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetRequireReceiveRqst(WhseRqst, IsHandled);
+        OnBeforeGetRequireReceiveRqst(WarehouseRequest, IsHandled);
         if IsHandled then
             exit;
 
-        if WhseRqst.FindSet() then begin
+        if WarehouseRequest.FindSet() then begin
             repeat
-                if Location.RequireReceive(WhseRqst."Location Code") then begin
-                    if WhseRqst."Location Code" = '' then
+                if Location.RequireReceive(WarehouseRequest."Location Code") then begin
+                    if WarehouseRequest."Location Code" = '' then
                         BlankLocationExists := true;
-                    if not LocationList.Contains(WhseRqst."Location Code") then
-                        LocationList.Add(WhseRqst."Location Code");
+                    if not LocationList.Contains(WarehouseRequest."Location Code") then
+                        LocationList.Add(WarehouseRequest."Location Code");
                 end;
-            until WhseRqst.Next() = 0;
+            until WarehouseRequest.Next() = 0;
 
             GenerateLocationCodeFilter(LocationList, LocationCodeFilter, BlankLocationExists);
 
-            WhseRqst.SetFilter("Location Code", LocationCodeFilter);
+            WarehouseRequest.SetFilter("Location Code", LocationCodeFilter);
         end;
     end;
 
-    local procedure FindWarehouseRequestForPurchaseOrder(var WhseRqst: Record "Warehouse Request"; PurchHeader: Record "Purchase Header")
+    local procedure FindWarehouseRequestForPurchaseOrder(var WarehouseRequest: Record "Warehouse Request"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchHeader.TestField(Status, PurchHeader.Status::Released);
-        WhseRqst.SetRange(Type, WhseRqst.Type::Inbound);
-        WhseRqst.SetRange("Source Type", Database::"Purchase Line");
-        WhseRqst.SetRange("Source Subtype", PurchHeader."Document Type");
-        WhseRqst.SetRange("Source No.", PurchHeader."No.");
-        WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
-        GetRequireReceiveRqst(WhseRqst);
+        PurchaseHeader.TestField(Status, PurchaseHeader.Status::Released);
+        WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound);
+        WarehouseRequest.SetRange("Source Type", Database::"Purchase Line");
+        WarehouseRequest.SetRange("Source Subtype", PurchaseHeader."Document Type");
+        WarehouseRequest.SetRange("Source No.", PurchaseHeader."No.");
+        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Released);
+        GetRequireReceiveRqst(WarehouseRequest);
 
-        OnAfterFindWarehouseRequestForPurchaseOrder(WhseRqst, PurchHeader);
+        OnAfterFindWarehouseRequestForPurchaseOrder(WarehouseRequest, PurchaseHeader);
     end;
 
-    local procedure FindWarehouseRequestForSalesReturnOrder(var WhseRqst: Record "Warehouse Request"; SalesHeader: Record "Sales Header")
+    local procedure FindWarehouseRequestForSalesReturnOrder(var WarehouseRequest: Record "Warehouse Request"; SalesHeader: Record "Sales Header")
     begin
         SalesHeader.TestField(Status, SalesHeader.Status::Released);
-        WhseRqst.SetRange(Type, WhseRqst.Type::Inbound);
-        WhseRqst.SetRange("Source Type", Database::"Sales Line");
-        WhseRqst.SetRange("Source Subtype", SalesHeader."Document Type");
-        WhseRqst.SetRange("Source No.", SalesHeader."No.");
-        WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
-        GetRequireReceiveRqst(WhseRqst);
+        WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound);
+        WarehouseRequest.SetRange("Source Type", Database::"Sales Line");
+        WarehouseRequest.SetRange("Source Subtype", SalesHeader."Document Type");
+        WarehouseRequest.SetRange("Source No.", SalesHeader."No.");
+        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Released);
+        GetRequireReceiveRqst(WarehouseRequest);
 
-        OnAfterFindWarehouseRequestForSalesReturnOrder(WhseRqst, SalesHeader);
+        OnAfterFindWarehouseRequestForSalesReturnOrder(WarehouseRequest, SalesHeader);
     end;
 
-    local procedure FindWarehouseRequestForInbndTransferOrder(var WhseRqst: Record "Warehouse Request"; TransHeader: Record "Transfer Header")
+    local procedure FindWarehouseRequestForInbndTransferOrder(var WarehouseRequest: Record "Warehouse Request"; TransHeader: Record "Transfer Header")
     begin
         TransHeader.TestField(Status, TransHeader.Status::Released);
-        WhseRqst.SetRange(Type, WhseRqst.Type::Inbound);
-        WhseRqst.SetRange("Source Type", Database::"Transfer Line");
-        WhseRqst.SetRange("Source Subtype", 1);
-        WhseRqst.SetRange("Source No.", TransHeader."No.");
-        WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
-        GetRequireReceiveRqst(WhseRqst);
+        WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound);
+        WarehouseRequest.SetRange("Source Type", Database::"Transfer Line");
+        WarehouseRequest.SetRange("Source Subtype", 1);
+        WarehouseRequest.SetRange("Source No.", TransHeader."No.");
+        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Released);
+        GetRequireReceiveRqst(WarehouseRequest);
 
-        OnAfterFindWarehouseRequestForInbndTransferOrder(WhseRqst, TransHeader);
+        OnAfterFindWarehouseRequestForInbndTransferOrder(WarehouseRequest, TransHeader);
     end;
 
     local procedure OpenWarehouseReceiptPage()
@@ -286,13 +286,23 @@ codeunit 5751 "Get Source Doc. Inbound"
         WMSManagement: Codeunit "WMS Management";
         IsHandled: Boolean;
     begin
-        GetSourceDocuments.GetLastReceiptHeader(WarehouseReceiptHeader);
+        GetSourceDocuments.GetCreatedReceiptHeaders(WarehouseReceiptHeader);
+        WarehouseReceiptHeader.MarkedOnly(true);
+        WarehouseReceiptHeader.FindSet();
         IsHandled := false;
         OnOpenWarehouseReceiptPage(WarehouseReceiptHeader, ServVendDocNo, IsHandled, GetSourceDocuments);
-        if not IsHandled then begin            
+        if IsHandled then
+            exit;
+
+        repeat
             WMSManagement.CheckUserIsWhseEmployeeForLocation(WarehouseReceiptHeader."Location Code", true);
-            PAGE.Run(PAGE::"Warehouse Receipt", WarehouseReceiptHeader);
-        end
+        until WarehouseReceiptHeader.Next() = 0;
+        case WarehouseReceiptHeader.Count() of
+            1:
+                Page.Run(Page::"Warehouse Receipt", WarehouseReceiptHeader);
+            else
+                Page.Run(Page::"Warehouse Receipts", WarehouseReceiptHeader);
+        end;
     end;
 
     local procedure UpdateReceiptHeaderStatus(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")

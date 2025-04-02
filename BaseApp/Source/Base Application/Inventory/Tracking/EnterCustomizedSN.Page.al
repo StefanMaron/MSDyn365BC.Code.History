@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Inventory.Item;
@@ -21,11 +25,20 @@ page 6515 "Enter Customized SN"
                     Caption = 'Item No.';
                     ToolTip = 'Specifies the number of the item for which you want to assign serial numbers.';
                     Editable = false;
+                    Enabled = ItemNo <> '';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
+                    var
+                        Item: Record Item;
+                        ItemCard: Page "Item Card";
                     begin
+                        if ItemNo = '' then
+                            exit;
+
                         Item."No." := ItemNo;
-                        Page.RunModal(0, Item);
+
+                        ItemCard.SetRecord(Item);
+                        ItemCard.RunModal();
                     end;
                 }
                 field(VariantCode; VariantCode)
@@ -34,14 +47,22 @@ page 6515 "Enter Customized SN"
                     Caption = 'Variant Code';
                     ToolTip = 'Specifies the variant code of the item for which you want to assign serial numbers.';
                     Editable = false;
+                    Visible = (ItemNo <> '') and (VariantCode <> '');
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
+                    var
+                        ItemVariant: Record "Item Variant";
+                        ItemVariantCard: Page "Item Variant Card";
                     begin
-                        ItemVariant.Reset();
+                        if (ItemNo = '') or (VariantCode = '') then
+                            exit;
+
                         ItemVariant.SetRange("Item No.", ItemNo);
                         ItemVariant."Item No." := ItemNo;
                         ItemVariant.Code := VariantCode;
-                        Page.RunModal(0, ItemVariant);
+
+                        ItemVariantCard.SetRecord(ItemVariant);
+                        ItemVariantCard.RunModal();
                     end;
                 }
                 field(CustomizedSN; CustomizedSN)
@@ -99,8 +120,6 @@ page 6515 "Enter Customized SN"
     end;
 
     var
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
         ItemNo: Code[20];
         VariantCode: Code[10];
         QtyToCreate: Integer;

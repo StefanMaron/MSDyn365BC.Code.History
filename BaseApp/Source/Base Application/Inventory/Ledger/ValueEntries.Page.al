@@ -1,11 +1,14 @@
-﻿namespace Microsoft.Inventory.Ledger;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Ledger;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using System.Security.User;
@@ -523,21 +526,20 @@ page 5802 "Value Entries"
         DimensionManagement.UseShortcutDims(Dim1Visible, Dim2Visible, Dim3Visible, Dim4Visible, Dim5Visible, Dim6Visible, Dim7Visible, Dim8Visible);
     end;
 
-    local procedure GetCaption(): Text[250]
+    local procedure GetCaption(): Text
     var
         GLSetup: Record "General Ledger Setup";
         ObjTransl: Record "Object Translation";
         Item: Record Item;
-        ProdOrder: Record "Production Order";
         Cust: Record Customer;
         Vend: Record Vendor;
         Dimension: Record Dimension;
         DimValue: Record "Dimension Value";
-        SourceTableName: Text[100];
+        SourceTableName: Text;
         SourceFilter: Text;
-        Description: Text[100];
+        SourceDescription: Text;
     begin
-        Description := '';
+        SourceDescription := '';
 
         case true of
             Rec.GetFilter("Item Ledger Entry No.") <> '':
@@ -556,30 +558,17 @@ page 5802 "Value Entries"
                     SourceFilter := Rec.GetFilter("Item No.");
                     if MaxStrLen(Item."No.") >= StrLen(SourceFilter) then
                         if Item.Get(SourceFilter) then
-                            Description := Item.Description;
-                end;
-            (Rec.GetFilter("Order No.") <> '') and (Rec."Order Type" = Rec."Order Type"::Production):
-                begin
-                    SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, 5405);
-                    SourceFilter := Rec.GetFilter("Order No.");
-                    if MaxStrLen(ProdOrder."No.") >= StrLen(SourceFilter) then
-                        if ProdOrder.Get(ProdOrder.Status::Released, SourceFilter) or
-                           ProdOrder.Get(ProdOrder.Status::Finished, SourceFilter)
-                        then begin
-                            SourceTableName := StrSubstNo('%1 %2', ProdOrder.Status, SourceTableName);
-                            Description := ProdOrder.Description;
-                        end;
+                            SourceDescription := Item.Description;
                 end;
             Rec.GetFilter("Source No.") <> '':
                 case Rec."Source Type" of
                     Rec."Source Type"::Customer:
                         begin
-                            SourceTableName :=
-                              ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, 18);
+                            SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, 18);
                             SourceFilter := Rec.GetFilter("Source No.");
                             if MaxStrLen(Cust."No.") >= StrLen(SourceFilter) then
                                 if Cust.Get(SourceFilter) then
-                                    Description := Cust.Name;
+                                    SourceDescription := Cust.Name;
                         end;
                     Rec."Source Type"::Vendor:
                         begin
@@ -588,7 +577,7 @@ page 5802 "Value Entries"
                             SourceFilter := Rec.GetFilter("Source No.");
                             if MaxStrLen(Vend."No.") >= StrLen(SourceFilter) then
                                 if Vend.Get(SourceFilter) then
-                                    Description := Vend.Name;
+                                    SourceDescription := Vend.Name;
                         end;
                 end;
             Rec.GetFilter("Global Dimension 1 Code") <> '':
@@ -599,7 +588,7 @@ page 5802 "Value Entries"
                     SourceTableName := Dimension.GetMLName(GlobalLanguage);
                     if MaxStrLen(DimValue.Code) >= StrLen(SourceFilter) then
                         if DimValue.Get(GLSetup."Global Dimension 1 Code", SourceFilter) then
-                            Description := DimValue.Name;
+                            SourceDescription := DimValue.Name;
                 end;
             Rec.GetFilter("Global Dimension 2 Code") <> '':
                 begin
@@ -609,13 +598,13 @@ page 5802 "Value Entries"
                     SourceTableName := Dimension.GetMLName(GlobalLanguage);
                     if MaxStrLen(DimValue.Code) >= StrLen(SourceFilter) then
                         if DimValue.Get(GLSetup."Global Dimension 2 Code", SourceFilter) then
-                            Description := DimValue.Name;
+                            SourceDescription := DimValue.Name;
                 end;
             Rec.GetFilter("Document Type") <> '':
                 begin
                     SourceTableName := Rec.GetFilter("Document Type");
                     SourceFilter := Rec.GetFilter("Document No.");
-                    Description := Rec.GetFilter("Document Line No.");
+                    SourceDescription := Rec.GetFilter("Document Line No.");
                 end;
             FilterGroupNo = DATABASE::"Item Analysis View Entry":
                 begin
@@ -624,11 +613,11 @@ page 5802 "Value Entries"
                             Clear(Item);
                     SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, DATABASE::"Item Analysis View Entry");
                     SourceFilter := Item."No.";
-                    Description := Item.Description;
+                    SourceDescription := Item.Description;
                 end;
         end;
 
-        exit(StrSubstNo('%1 %2 %3', SourceTableName, SourceFilter, Description));
+        exit(StrSubstNo('%1 %2 %3', SourceTableName, SourceFilter, SourceDescription));
     end;
 }
 

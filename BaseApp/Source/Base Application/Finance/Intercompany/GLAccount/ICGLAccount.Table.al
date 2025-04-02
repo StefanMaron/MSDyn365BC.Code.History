@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Intercompany.GLAccount;
 
 using Microsoft.Finance.GeneralLedger.Account;
@@ -24,11 +28,9 @@ table 410 "IC G/L Account"
         {
             Caption = 'Account Type';
         }
-        field(4; "Income/Balance"; Option)
+        field(4; "Income/Balance"; Enum "G/L Account Report Type")
         {
             Caption = 'Income/Balance';
-            OptionCaption = 'Income Statement,Balance Sheet';
-            OptionMembers = "Income Statement","Balance Sheet";
         }
         field(5; Blocked; Boolean)
         {

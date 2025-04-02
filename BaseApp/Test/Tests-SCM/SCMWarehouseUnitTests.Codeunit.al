@@ -12,24 +12,23 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
-        QtyMustNotBeChangedErr: Label '%1 must not be changed';
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryRandom: Codeunit "Library - Random";
         UoMMgt: Codeunit "Unit of Measure Management";
+        QtyMustNotBeChangedErr: Label '%1 must not be changed';
         WhseShptCreatedMsg: Label 'Warehouse Shipment Header has been created.';
         WarehouseReceiptHeaderCreatedMsg: Label '1 Warehouse Receipt Header has been created.';
         TrackingAmtNotMachPickErr: Label 'Registered Warehouse Pick amount do not match Item Tracking Line amount. ';
-        LibraryRandom: Codeunit "Library - Random";
         TransferLineNotExistErr: Label 'Transfer Line doesn''t exist.';
         TransferLineShouldnotExistErr: Label 'Transfer Line shouldn''t exist.';
         NotificationMsg: Label 'The available inventory for item %1 is lower than the entered quantity at this location.', Comment = '%1=Item No.';
         CannotCreateBinWithoutLocationErr: Label 'Location Code must have a value';
-        LibrarySales: Codeunit "Library - Sales";
         ItemTrkgManagedByWhseMsg: Label 'You cannot assign a serial, lot or package number because item tracking for this document line is done through a warehouse activity.';
 
     [Test]
@@ -765,7 +764,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, Location.Code, CompItem."No.", '');
         SKU.Validate("Shelf No.", LibraryUtility.GenerateGUID());
         SKU.Modify(true);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
 
         // [GIVEN] Post item "C" to inventory.
@@ -2521,6 +2520,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         ProdOrderComponent.Status := ProductionOrder.Status;
         ProdOrderComponent."Prod. Order No." := ProductionOrder."No.";
         ProdOrderComponent."Item No." := ItemNo;
+        ProdOrderComponent."Flushing Method" := ProdOrderComponent."Flushing Method"::"Pick + Manual";
         ProdOrderComponent."Location Code" := LocationCode;
         ProdOrderComponent."Quantity per" := 1;
         ProdOrderComponent."Expected Quantity" := 7;

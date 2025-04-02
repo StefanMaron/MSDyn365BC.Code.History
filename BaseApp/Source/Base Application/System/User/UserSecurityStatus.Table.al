@@ -1,4 +1,4 @@
-﻿namespace System.Security.User;
+namespace System.Security.User;
 
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
@@ -36,15 +36,7 @@ table 9062 "User Security Status"
         {
             Caption = 'Reviewed';
         }
-        field(14; "Belongs To Subscription Plan"; Boolean)
-        {
-            CalcFormula = exist(System.Azure.Identity."User Plan" where("User Security ID" = field("User Security ID")));
-            Caption = 'Belongs To Subscription Plan';
-            FieldClass = FlowField;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Removed because it uses the table "User Plan" (internal table). The logic has been moved to the page where the value is used';
-            ObsoleteTag = '15.0';
-        }
+#if not CLEANSCHEMA25
         field(15; "Belongs to User Group"; Boolean)
         {
             CalcFormula = exist("User Group Member" where("User Security ID" = field("User Security ID")));
@@ -54,6 +46,7 @@ table 9062 "User Security Status"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(20; "Users - To review"; Integer)
         {
             CalcFormula = count("User Security Status" where(Reviewed = const(false),
@@ -61,14 +54,7 @@ table 9062 "User Security Status"
             Caption = 'Users - To review';
             FieldClass = FlowField;
         }
-        field(21; "Users - Without Subscriptions"; Integer)
-        {
-            Caption = 'Users - Without Subscriptions';
-            FieldClass = FlowField;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Removed because it refers to the field "Belongs To Subscription Plan" (marked as obsolete). The logic has been moved to the page where the value is used';
-            ObsoleteTag = '15.0';
-        }
+#if not CLEANSCHEMA25
         field(22; "Users - Not Group Members"; Integer)
         {
             Caption = 'Users - Not Group Members';
@@ -77,6 +63,7 @@ table 9062 "User Security Status"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(25; "CDS Integration Errors"; Integer)
         {
             CalcFormula = count("Integration Synch. Job Errors");
@@ -166,4 +153,3 @@ table 9062 "User Security Status"
         ActivityLog.LogActivity(RecordId, ActivityLog.Status::Success, SecurityContextTok, SecurityActivityTok, ActivityMessage);
     end;
 }
-

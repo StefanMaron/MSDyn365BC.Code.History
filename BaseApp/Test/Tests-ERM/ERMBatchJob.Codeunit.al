@@ -48,6 +48,8 @@ codeunit 134900 "ERM Batch Job"
         NotificationMsg: Label 'An error or warning occured during operation Batch processing of %1 records.', Comment = '%1 - table name';
         NotPaidPrepaymentErr: Label 'There are unpaid prepayment invoices related to the document of type Order with the number %1.';
         NotPaidPurchPrepaymentErr: Label 'There are unpaid prepayment invoices that are related to the document of type Order with the number %1.';
+        DefaultSalesCategoryCodeLbl: Label 'SALESBCKGR';
+        DefaultPurchCategoryCodeLbl: Label 'PURCHBCKGR';
 
     [Test]
     [Scope('OnPrem')]
@@ -2277,7 +2279,7 @@ codeunit 134900 "ERM Batch Job"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         i: Integer;
-        JobQueueEntryId: array[2] of Guid;
+        JobQueueEntryId: List of [Guid];
     begin
         // [FEATURE] [Batch Post] [Order] [Sales]
         // [SCENARIO] Job queue category code filled in job queue entry in the case of empty sales setup
@@ -2285,19 +2287,23 @@ codeunit 134900 "ERM Batch Job"
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
         // [GIVEN] Sales Orders
         for i := 1 to ArrayLen(SalesHeader) do
             CreateSalesDocument(SalesHeader[i], SalesLine, SalesHeader[1]."Document Type"::Order);
+
         // [GIVEN] "Job Queue Category Code" is empty in sales and receivables setup
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Job Queue Category Code", '');
         SalesReceivablesSetup.Modify(true);
+
         // [WHEN] Post Sales Orders with Batch Post as Ship and Invoice.
         SalesPostBatchShipInvoice(SalesHeader);
         for i := 1 to ArrayLen(SalesHeader) do
-            GetJobQueueEntryId(JobQueueEntryId[i], SalesHeader[i].RecordId);
+            JobQueueEntryId.Add(GetJobQueueEntryId(SalesHeader[i].RecordId));
         for i := 1 to ArrayLen(SalesHeader) do
             LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader[i].RecordId);
+
         // [THEN] Job Queue Category Code filled in job queue log entry
         // [THEN] 'SALESBCKGR' Job Category Code exists
         VerifySalesJobQueueCategoryCode(JobQueueEntryId);
@@ -2313,7 +2319,7 @@ codeunit 134900 "ERM Batch Job"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         i: Integer;
-        JobQueueEntryId: array[2] of Guid;
+        JobQueueEntryId: List of [Guid];
     begin
         // [FEATURE] [Batch Post] [Order] [Purchase]
         // [SCENARIO] Job queue category code filled in job queue entry in the case of empty purchase setup
@@ -2321,19 +2327,23 @@ codeunit 134900 "ERM Batch Job"
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
         // [GIVEN] Purchase Orders
         for i := 1 to ArrayLen(PurchaseHeader) do
             CreatePurchaseDocument(PurchaseHeader[i], PurchaseLine, PurchaseHeader[i]."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
         // [GIVEN] "Job Queue Category Code" is empty in purchases and payables setup
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Job Queue Category Code", '');
         PurchasesPayablesSetup.Modify(true);
+
         // [WHEN] Run Batch Post Purchase Order
         RunBatchPostPurchaseOrders(PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", true, true, 0D, false, false, false);
         for i := 1 to ArrayLen(PurchaseHeader) do
-            GetJobQueueEntryId(JobQueueEntryId[i], PurchaseHeader[i].RecordId);
+            JobQueueEntryId.Add(GetJobQueueEntryId(PurchaseHeader[i].RecordId));
         for i := 1 to ArrayLen(PurchaseHeader) do
             LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader[i].RecordId);
+
         // [THEN] Job Queue Category Code filled in job queue log entry
         // [THEN] 'PURCHBCKGR' Job Category Code exists
         VerifyPurchaseJobQueueCategoryCode(JobQueueEntryId);
@@ -4219,42 +4229,46 @@ codeunit 134900 "ERM Batch Job"
         Assert.RecordIsNotEmpty(ItemLedgerEntry);
     end;
 
-    local procedure GetJobQueueEntryId(var JobQueueEntryId: Guid; RecordIdToProcess: RecordId)
+    local procedure GetJobQueueEntryId(RecordIdToProcess: RecordId): Guid
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
         JobQueueEntry.SetRange("Record ID to Process", RecordIdToProcess);
         JobQueueEntry.FindFirst();
-        JobQueueEntryId := JobQueueEntry.ID;
+        exit(JobQueueEntry.ID);
     end;
 
-    local procedure VerifySalesJobQueueCategoryCode(JobQueueEntryId: array[2] of Guid)
+    local procedure VerifySalesJobQueueCategoryCode(JobQueueEntryId: List of [Guid])
     var
         JobQueueCategory: Record "Job Queue Category";
         JobQueueLogEntry: Record "Job Queue Log Entry";
+        InventorySetup: Record "Inventory Setup";
         i: Integer;
     begin
-        JobQueueCategory.Get('SALESBCKGR');
+        if InventorySetup.UseLegacyPosting() then
+            JobQueueCategory.Get(DefaultSalesCategoryCodeLbl)
+        else
+            JobQueueCategory.Code := ''; // already default, but just to document the intent
 
-        for i := 1 to ArrayLen(JobQueueEntryId) do begin
-            JobQueueLogEntry.SetRange(ID, JobQueueEntryId[i]);
+        for i := 1 to JobQueueEntryId.Count do begin
+            JobQueueLogEntry.SetRange(ID, JobQueueEntryId.Get(i));
             JobQueueLogEntry.FindFirst();
-            Assert.AreEqual(JobQueueLogEntry."Job Queue Category Code", 'SALESBCKGR', 'Wrong job queue category code');
+            Assert.AreEqual(JobQueueLogEntry."Job Queue Category Code", JobQueueCategory.Code, 'Wrong job queue category code');
         end;
     end;
 
-    local procedure VerifyPurchaseJobQueueCategoryCode(JobQueueEntryId: array[2] of Guid)
+    local procedure VerifyPurchaseJobQueueCategoryCode(JobQueueEntryId: List of [Guid])
     var
         JobQueueCategory: Record "Job Queue Category";
         JobQueueLogEntry: Record "Job Queue Log Entry";
         i: Integer;
     begin
-        JobQueueCategory.Get('PURCHBCKGR');
+        JobQueueCategory.Get(DefaultPurchCategoryCodeLbl);
 
-        for i := 1 to ArrayLen(JobQueueEntryId) do begin
-            JobQueueLogEntry.SetRange(ID, JobQueueEntryId[i]);
+        for i := 1 to JobQueueEntryId.Count do begin
+            JobQueueLogEntry.SetRange(ID, JobQueueEntryId.Get(i));
             JobQueueLogEntry.FindFirst();
-            Assert.AreEqual(JobQueueLogEntry."Job Queue Category Code", 'PURCHBCKGR', 'Wrong job queue category code');
+            Assert.AreEqual(JobQueueLogEntry."Job Queue Category Code", JobQueueCategory.Code, 'Wrong job queue category code');
         end;
     end;
 

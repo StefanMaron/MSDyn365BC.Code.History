@@ -15,6 +15,7 @@ table 800 "Online Map Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Map Parameter Setup Code"; Code[10])

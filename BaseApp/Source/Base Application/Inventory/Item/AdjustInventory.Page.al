@@ -6,7 +6,6 @@ namespace Microsoft.Inventory.Item;
 
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
-using System.Environment.Configuration;
 
 page 1327 "Adjust Inventory"
 {
@@ -131,10 +130,9 @@ page 1327 "Adjust Inventory"
 
     trigger OnOpenPage()
     var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LineNo: Integer;
     begin
-        Rec.GetLocationsIncludingUnspecifiedLocation(not ApplicationAreaMgmtFacade.IsLocationEnabled(), true);
+        Rec.GetLocationsIncludingUnspecifiedLocation(false, true);
         Rec.SetRange("Bin Mandatory", false);
         LocationCount := Rec.Count;
 

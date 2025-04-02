@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+#if not CLEANSCHEMA26 
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -10,13 +11,8 @@ table 9551 "Document Service Cache"
     Extensible = false;
     ReplicateData = false;
     ObsoleteReason = 'No longer required';
-#if not CLEAN23
-    ObsoleteState = Pending;
-    ObsoleteTag = '23.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '26.0';
-#endif
     DataClassification = CustomerContent;
 
     fields
@@ -41,3 +37,5 @@ table 9551 "Document Service Cache"
         }
     }
 }
+ 
+#endif

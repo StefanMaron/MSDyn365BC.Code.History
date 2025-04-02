@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Finance.Dimension;
@@ -120,7 +124,8 @@ table 48 "Invt. Posting Buffer"
            "Account Type"::"Capacity Variance",
            "Account Type"::"Subcontracted Variance",
            "Account Type"::"Cap. Overhead Variance",
-           "Account Type"::"Mfg. Overhead Variance"];
+           "Account Type"::"Mfg. Overhead Variance",
+           "Account Type"::"Material - Non Inventory Variance"];
 
         OnUseInvtPostSetup(Rec, UseInventoryPostingSetup);
 

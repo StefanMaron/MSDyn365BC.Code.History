@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
@@ -9,6 +13,8 @@ page 5406 "Prod. Order Line List"
     Editable = false;
     PageType = List;
     SourceTable = "Prod. Order Line";
+    ApplicationArea = Manufacturing;
+    UsageCategory = Lists;
 
     layout
     {

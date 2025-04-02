@@ -1,6 +1,9 @@
-﻿namespace Microsoft.Foundation.Navigate;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Navigate;
 
-using Microsoft.Assembly.History;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
 using Microsoft.Bank.Ledger;
@@ -21,8 +24,6 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.WIP;
 using Microsoft.Projects.Resources.Ledger;
@@ -36,8 +37,6 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
-using Microsoft.Warehouse.History;
-using Microsoft.Warehouse.Ledger;
 using System.IO;
 using System.Text;
 
@@ -506,39 +505,6 @@ page 344 Navigate
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         BankAccount: Record "Bank Account";
-#pragma warning disable AA0074
-        Text000: Label 'The business contact type was not specified.';
-        Text001: Label 'There are no posted records with this external document number.';
-        Text002: Label 'Counting records...';
-        Text013: Label 'There are no posted records with this document number.';
-        Text014: Label 'There are no posted records with this combination of document number and posting date.';
-        Text015: Label 'The search results in too many external documents. Specify a business contact no.';
-        Text016: Label 'The search results in too many external documents. Use Navigate from the relevant ledger entries.';
-#pragma warning restore AA0074
-        PostedSalesInvoiceTxt: Label 'Posted Sales Invoice';
-        PostedSalesCreditMemoTxt: Label 'Posted Sales Credit Memo';
-        PostedSalesShipmentTxt: Label 'Posted Sales Shipment';
-        IssuedReminderTxt: Label 'Issued Reminder';
-        IssuedFinanceChargeMemoTxt: Label 'Issued Finance Charge Memo';
-        PostedPurchaseInvoiceTxt: Label 'Posted Purchase Invoice';
-        PostedPurchaseCreditMemoTxt: Label 'Posted Purchase Credit Memo';
-        PostedPurchaseReceiptTxt: Label 'Posted Purchase Receipt';
-        PostedReturnReceiptTxt: Label 'Posted Return Receipt';
-        PostedReturnShipmentTxt: Label 'Posted Return Shipment';
-        PostedTransferShipmentTxt: Label 'Posted Transfer Shipment';
-        PostedTransferReceiptTxt: Label 'Posted Transfer Receipt';
-        PostedDirectTransferTxt: Label 'Posted Direct Transfer';
-        SalesQuoteTxt: Label 'Sales Quote';
-        SalesOrderTxt: Label 'Sales Order';
-        SalesInvoiceTxt: Label 'Sales Invoice';
-        PurchaseQuoteTxt: Label 'Purchase Quote';
-        PurchaseOrderTxt: Label 'Purchase Order';
-        PurchaseInvoiceTxt: Label 'Purchase Invoice';
-        SalesReturnOrderTxt: Label 'Sales Return Order';
-        SalesCreditMemoTxt: Label 'Sales Credit Memo';
-        PostedAssemblyOrderTxt: Label 'Posted Assembly Order';
-        ProductionOrderTxt: Label 'Production Order';
-        PostedGenJournalLineTxt: Label 'Posted Gen. Journal Line';
         [SecurityFiltering(SecurityFilter::Filtered)]
         Cust: Record Customer;
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -554,27 +520,11 @@ page 344 Navigate
         [SecurityFiltering(SecurityFilter::Filtered)]
         IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
-        PurchRcptHeader: Record "Purch. Rcpt. Header";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        PurchInvHeader: Record "Purch. Inv. Header";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        ReturnShptHeader: Record "Return Shipment Header";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        ProductionOrderHeader: Record "Production Order";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        PostedAssemblyHeader: Record "Posted Assembly Header";
-        [SecurityFiltering(SecurityFilter::Filtered)]
         TransShptHeader: Record "Transfer Shipment Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         TransRcptHeader: Record "Transfer Receipt Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         DirectTransHeader: Record "Direct Trans. Header";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        PostedWhseRcptLine: Record "Posted Whse. Receipt Line";
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        PostedWhseShptLine: Record "Posted Whse. Shipment Line";
         [SecurityFiltering(SecurityFilter::Filtered)]
         GLEntry: Record "G/L Entry";
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -618,13 +568,11 @@ page 344 Navigate
         [SecurityFiltering(SecurityFilter::Filtered)]
         InsuranceCovLedgEntry: Record "Ins. Coverage Ledger Entry";
         [SecurityFiltering(SecurityFilter::Filtered)]
-        CapacityLedgEntry: Record "Capacity Ledger Entry";
+        CapacityLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
 #if not CLEAN25
         [SecurityFiltering(SecurityFilter::Filtered)]
         WarrantyLedgerEntry: Record Microsoft.Service.Ledger."Warranty Ledger Entry";
 #endif
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        WhseEntry: Record "Warehouse Entry";
         TempRecordBuffer: Record "Record Buffer" temporary;
         [SecurityFiltering(SecurityFilter::Filtered)]
         CostEntry: Record "Cost Entry";
@@ -660,6 +608,38 @@ page 344 Navigate
         PageCaptionTxt: Label 'Selected - %1';
 #pragma warning restore AA0470
 
+#pragma warning disable AA0074
+        Text000: Label 'The business contact type was not specified.';
+        Text001: Label 'There are no posted records with this external document number.';
+        Text002: Label 'Counting records...';
+        Text013: Label 'There are no posted records with this document number.';
+        Text014: Label 'There are no posted records with this combination of document number and posting date.';
+        Text015: Label 'The search results in too many external documents. Specify a business contact no.';
+        Text016: Label 'The search results in too many external documents. Use Navigate from the relevant ledger entries.';
+#pragma warning restore AA0074
+        PostedSalesInvoiceTxt: Label 'Posted Sales Invoice';
+        PostedSalesCreditMemoTxt: Label 'Posted Sales Credit Memo';
+        PostedSalesShipmentTxt: Label 'Posted Sales Shipment';
+        IssuedReminderTxt: Label 'Issued Reminder';
+        IssuedFinanceChargeMemoTxt: Label 'Issued Finance Charge Memo';
+        PostedPurchaseInvoiceTxt: Label 'Posted Purchase Invoice';
+        PostedPurchaseCreditMemoTxt: Label 'Posted Purchase Credit Memo';
+        PostedPurchaseReceiptTxt: Label 'Posted Purchase Receipt';
+        PostedReturnReceiptTxt: Label 'Posted Return Receipt';
+        PostedReturnShipmentTxt: Label 'Posted Return Shipment';
+        PostedTransferShipmentTxt: Label 'Posted Transfer Shipment';
+        PostedTransferReceiptTxt: Label 'Posted Transfer Receipt';
+        PostedDirectTransferTxt: Label 'Posted Direct Transfer';
+        SalesQuoteTxt: Label 'Sales Quote';
+        SalesOrderTxt: Label 'Sales Order';
+        SalesInvoiceTxt: Label 'Sales Invoice';
+        PurchaseQuoteTxt: Label 'Purchase Quote';
+        PurchaseOrderTxt: Label 'Purchase Order';
+        PurchaseInvoiceTxt: Label 'Purchase Invoice';
+        SalesReturnOrderTxt: Label 'Sales Return Order';
+        SalesCreditMemoTxt: Label 'Sales Credit Memo';
+        PostedGenJournalLineTxt: Label 'Posted Gen. Journal Line';
+
     protected var
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesShptHeader: Record "Sales Shipment Header";
@@ -685,6 +665,14 @@ page 344 Navigate
         POPurchaseHeader: Record "Purchase Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         PIPurchaseHeader: Record "Purchase Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        PurchInvHeader: Record "Purch. Inv. Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        ReturnShptHeader: Record "Return Shipment Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlLine: Record "Gen. Journal Line";
 #if not CLEAN25
@@ -912,7 +900,6 @@ page 344 Navigate
         FindBankEntries();
         FindFAEntries();
         FindCapEntries();
-        FindWhseEntries();
         FindCostEntries();
         FindPostedGenJournalLine();
 
@@ -1114,7 +1101,7 @@ page 344 Navigate
             CapacityLedgEntry.SetCurrentKey("Document No.", "Posting Date");
             CapacityLedgEntry.SetFilter("Document No.", DocNoFilter);
             CapacityLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            Rec.InsertIntoDocEntry(Database::"Capacity Ledger Entry", CapacityLedgEntry.TableCaption(), CapacityLedgEntry.Count);
+            Rec.InsertIntoDocEntry(Database::Microsoft.Manufacturing.Capacity."Capacity Ledger Entry", CapacityLedgEntry.TableCaption(), CapacityLedgEntry.Count);
         end;
     end;
 
@@ -1130,19 +1117,6 @@ page 344 Navigate
             Rec.InsertIntoDocEntry(Database::"Cost Entry", CostEntry.TableCaption(), CostEntry.Count);
         end;
         OnAfterFindCostEntries(Rec, DocNoFilter, PostingDateFilter);
-    end;
-
-    local procedure FindWhseEntries()
-    begin
-        if (DocNoFilter = '') and (PostingDateFilter = '') then
-            exit;
-        if WhseEntry.ReadPermission() then begin
-            WhseEntry.Reset();
-            WhseEntry.SetCurrentKey("Reference No.", "Registering Date");
-            WhseEntry.SetFilter("Reference No.", DocNoFilter);
-            WhseEntry.SetFilter("Registering Date", PostingDateFilter);
-            Rec.InsertIntoDocEntry(Database::"Warehouse Entry", WhseEntry.TableCaption(), WhseEntry.Count);
-        end;
     end;
 
     local procedure FindJobEntries()
@@ -1185,14 +1159,10 @@ page 344 Navigate
         FindPurchInvoiceHeader();
         FindReturnShptHeader();
         FindPurchCrMemoHeader();
-        FindProdOrderHeader();
-        FindPostedAssemblyHeader();
         FindTransShptHeader();
         FindTransRcptHeader();
         FindDirectTransHeader();
         FindPstdPhysInvtOrderHdr();
-        FindPostedWhseShptLine();
-        FindPostedWhseRcptLine();
         FindPostedInvtReceipt();
         FindPostedInvtShipment();
 
@@ -1355,58 +1325,6 @@ page 344 Navigate
         end;
     end;
 
-    local procedure FindProdOrderHeader()
-    begin
-        if (DocNoFilter = '') and (PostingDateFilter = '') then
-            exit;
-        if ProductionOrderHeader.ReadPermission() then begin
-            ProductionOrderHeader.Reset();
-            ProductionOrderHeader.SetRange(
-              Status,
-              ProductionOrderHeader.Status::Released,
-              ProductionOrderHeader.Status::Finished);
-            ProductionOrderHeader.SetFilter("No.", DocNoFilter);
-            Rec.InsertIntoDocEntry(Database::"Production Order", ProductionOrderTxt, ProductionOrderHeader.Count);
-        end;
-    end;
-
-    local procedure FindPostedAssemblyHeader()
-    begin
-        if (DocNoFilter = '') and (PostingDateFilter = '') then
-            exit;
-        if PostedAssemblyHeader.ReadPermission() then begin
-            PostedAssemblyHeader.Reset();
-            PostedAssemblyHeader.SetFilter("No.", DocNoFilter);
-            Rec.InsertIntoDocEntry(Database::"Posted Assembly Header", PostedAssemblyOrderTxt, PostedAssemblyHeader.Count);
-        end;
-    end;
-
-    local procedure FindPostedWhseShptLine()
-    begin
-        if (DocNoFilter = '') and (PostingDateFilter = '') then
-            exit;
-        if PostedWhseShptLine.ReadPermission() then begin
-            PostedWhseShptLine.Reset();
-            PostedWhseShptLine.SetCurrentKey("Posted Source No.", "Posting Date");
-            PostedWhseShptLine.SetFilter("Posted Source No.", DocNoFilter);
-            PostedWhseShptLine.SetFilter("Posting Date", PostingDateFilter);
-            Rec.InsertIntoDocEntry(Database::"Posted Whse. Shipment Line", PostedWhseShptLine.TableCaption(), PostedWhseShptLine.Count);
-        end;
-    end;
-
-    local procedure FindPostedWhseRcptLine()
-    begin
-        if (DocNoFilter = '') and (PostingDateFilter = '') then
-            exit;
-        if PostedWhseRcptLine.ReadPermission() then begin
-            PostedWhseRcptLine.Reset();
-            PostedWhseRcptLine.SetCurrentKey("Posted Source No.", "Posting Date");
-            PostedWhseRcptLine.SetFilter("Posted Source No.", DocNoFilter);
-            PostedWhseRcptLine.SetFilter("Posting Date", PostingDateFilter);
-            Rec.InsertIntoDocEntry(Database::"Posted Whse. Receipt Line", PostedWhseRcptLine.TableCaption(), PostedWhseRcptLine.Count);
-        end;
-    end;
-
     local procedure FindPstdPhysInvtOrderHdr()
     begin
         if (DocNoFilter = '') and (PostingDateFilter = '') then
@@ -1507,9 +1425,9 @@ page 344 Navigate
 
 #if not CLEAN25
     [Obsolete('Replaced by procedure InsertIntoDocEntry() in table Document Entry', '25.0')]
-    procedure InsertIntoDocEntry(var TempDocumentEntry: Record "Document Entry" temporary; DocTableID: Integer; DocType: Enum "Document Entry Document Type"; DocTableName: Text; DocNoOfRecords: Integer)
+    procedure InsertIntoDocEntry(var TempDocumentEntry: Record "Document Entry" temporary; DocTableID: Integer; DocEntryType: Enum "Document Entry Document Type"; DocTableName: Text; DocNoOfRecords: Integer)
     begin
-        TempDocumentEntry.InsertIntoDocEntry(DocTableID, DocType, DocTableName, DocNoOfRecords);
+        TempDocumentEntry.InsertIntoDocEntry(DocTableID, DocEntryType, DocTableName, DocNoOfRecords);
     end;
 #endif
 
@@ -1607,12 +1525,6 @@ page 344 Navigate
               PurchRcptHeader."Posting Date", Format(Rec."Table Name"), PurchRcptHeader."No.",
               2, PurchRcptHeader."Buy-from Vendor No.");
         end;
-        if NoOfRecords(Database::"Posted Whse. Receipt Line") = 1 then begin
-            PostedWhseRcptLine.FindFirst();
-            SetSource(
-              PostedWhseRcptLine."Posting Date", Format(Rec."Table Name"), PostedWhseRcptLine."Posted Source No.",
-              2, '');
-        end;
         if NoOfRecords(Database::"Pstd. Phys. Invt. Order Hdr") = 1 then begin
             PstdPhysInvtOrderHdr.FindFirst();
             SetSource(
@@ -1660,12 +1572,6 @@ page 344 Navigate
             SetSource(
               SalesShptHeader."Posting Date", Format(Rec."Table Name"), SalesShptHeader."No.",
               1, SalesShptHeader."Sell-to Customer No.");
-        end;
-        if NoOfRecords(Database::"Posted Whse. Shipment Line") = 1 then begin
-            PostedWhseShptLine.FindFirst();
-            SetSource(
-              PostedWhseShptLine."Posting Date", Format(Rec."Table Name"), PostedWhseShptLine."Posted Source No.",
-              1, PostedWhseShptLine."Destination No.");
         end;
         if NoOfRecords(Database::"Issued Reminder Header") = 1 then begin
             IssuedReminderHeader.FindFirst();
@@ -1771,13 +1677,6 @@ page 344 Navigate
                         PAGE.Run(PAGE::"Posted Purchase Receipt", PurchRcptHeader)
                     else
                         PAGE.Run(0, PurchRcptHeader);
-                Database::"Production Order":
-                    PAGE.Run(0, ProductionOrderHeader);
-                Database::"Posted Assembly Header":
-                    if Rec."No. of Records" = 1 then
-                        PAGE.Run(PAGE::"Posted Assembly Order", PostedAssemblyHeader)
-                    else
-                        PAGE.Run(0, PostedAssemblyHeader);
                 Database::"Transfer Shipment Header":
                     if Rec."No. of Records" = 1 then
                         PAGE.Run(PAGE::"Posted Transfer Shipment", TransShptHeader)
@@ -1788,10 +1687,6 @@ page 344 Navigate
                         PAGE.Run(PAGE::"Posted Transfer Receipt", TransRcptHeader)
                     else
                         PAGE.Run(0, TransRcptHeader);
-                Database::"Posted Whse. Shipment Line":
-                    PAGE.Run(0, PostedWhseShptLine);
-                Database::"Posted Whse. Receipt Line":
-                    PAGE.Run(0, PostedWhseRcptLine);
                 Database::"G/L Entry":
                     PAGE.Run(0, GLEntry);
                 Database::"VAT Entry":
@@ -1834,10 +1729,8 @@ page 344 Navigate
                     PAGE.Run(0, MaintenanceLedgEntry);
                 Database::"Ins. Coverage Ledger Entry":
                     PAGE.Run(0, InsuranceCovLedgEntry);
-                Database::"Capacity Ledger Entry":
+                Database::Microsoft.Manufacturing.Capacity."Capacity Ledger Entry":
                     PAGE.Run(0, CapacityLedgEntry);
-                Database::"Warehouse Entry":
-                    PAGE.Run(0, WhseEntry);
                 Database::"Cost Entry":
                     PAGE.Run(0, CostEntry);
                 Database::"Pstd. Phys. Invt. Order Hdr":
@@ -1964,7 +1857,7 @@ page 344 Navigate
         end;
     end;
 
-    procedure MakeExtFilter(var DateFilter: Text; AddDate: Date; var DocNoFilter: Text; AddDocNo: Code[20])
+    procedure MakeExtFilter(var DateFilter: Text; AddDate: Date; var DocumentNoFilter: Text; AddDocNo: Code[20])
     begin
         if DateFilter = '' then
             DateFilter := Format(AddDate)
@@ -1975,12 +1868,12 @@ page 344 Navigate
                 else
                     TooLongFilter();
 
-        if DocNoFilter = '' then
-            DocNoFilter := AddDocNo
+        if DocumentNoFilter = '' then
+            DocumentNoFilter := AddDocNo
         else
-            if StrPos(DocNoFilter, AddDocNo) = 0 then
-                if MaxStrLen(DocNoFilter) >= StrLen(DocNoFilter + '|' + AddDocNo) then
-                    DocNoFilter := DocNoFilter + '|' + AddDocNo
+            if StrPos(DocumentNoFilter, AddDocNo) = 0 then
+                if MaxStrLen(DocumentNoFilter) >= StrLen(DocumentNoFilter + '|' + AddDocNo) then
+                    DocumentNoFilter := DocumentNoFilter + '|' + AddDocNo
                 else
                     TooLongFilter();
     end;
@@ -2012,7 +1905,7 @@ page 344 Navigate
         Error(Text016);
     end;
 
-    local procedure FindUnpostedSalesDocs(DocType: Enum "Sales Document Type"; DocTableName: Text[100]; var SalesHeader: Record "Sales Header")
+    local procedure FindUnpostedSalesDocs(SalesDocType: Enum "Sales Document Type"; DocTableName: Text[100]; var SalesHeader: Record "Sales Header")
     begin
         SalesHeader."SecurityFiltering"(SECURITYFILTER::Filtered);
         if SalesHeader.ReadPermission() then begin
@@ -2026,9 +1919,9 @@ page 344 Navigate
                 SalesHeader.SetFilter("External Document No.", ExtDocNo);
             if PostingDateFilter <> '' then
                 SalesHeader.SetFilter("Posting Date", PostingDateFilter);
-            SalesHeader.SetRange("Document Type", DocType);
+            SalesHeader.SetRange("Document Type", SalesDocType);
             OnFindUnpostedSalesDocsOnAfterSetFilters(SalesHeader);
-            Rec.InsertIntoDocEntry(Database::"Sales Header", DocType, DocTableName, SalesHeader.Count);
+            Rec.InsertIntoDocEntry(Database::"Sales Header", SalesDocType, DocTableName, SalesHeader.Count);
         end;
     end;
 
@@ -2050,7 +1943,7 @@ page 344 Navigate
         end;
     end;
 
-    local procedure FindUnpostedPurchaseDocs(DocType: Enum "Purchase Document Type"; DocTableName: Text[100]; var PurchaseHeader: Record "Purchase Header")
+    local procedure FindUnpostedPurchaseDocs(PurchDocType: Enum "Purchase Document Type"; DocTableName: Text[100]; var PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader."SecurityFiltering"(SECURITYFILTER::Filtered);
         if PurchaseHeader.ReadPermission() then begin
@@ -2061,14 +1954,14 @@ page 344 Navigate
             if ContactNo <> '' then
                 PurchaseHeader.SetFilter("Sell-to Customer No.", ContactNo);
             if ExtDocNo <> '' then
-                if DocType = DocType::Order then
+                if PurchDocType = PurchDocType::Order then
                     PurchaseHeader.SetFilter("Vendor Order No.", ExtDocNo)
                 else
                     PurchaseHeader.SetFilter("Vendor Invoice No.", ExtDocNo);
             if PostingDateFilter <> '' then
                 PurchaseHeader.SetFilter("Posting Date", PostingDateFilter);
-            PurchaseHeader.SetRange("Document Type", DocType);
-            Rec.InsertIntoDocEntry(Database::"Purchase Header", DocType, DocTableName, PurchaseHeader.Count);
+            PurchaseHeader.SetRange("Document Type", PurchDocType);
+            Rec.InsertIntoDocEntry(Database::"Purchase Header", PurchDocType, DocTableName, PurchaseHeader.Count);
         end;
     end;
 

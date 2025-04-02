@@ -1,4 +1,5 @@
-﻿namespace Microsoft.Sales.Peppol;
+﻿#if not CLEAN26
+namespace Microsoft.Sales.Peppol;
 
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
@@ -8,6 +9,9 @@ using System.Utilities;
 
 xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'PEPPOL 2.1 is no longer supported.';
+    ObsoleteTag = '26.0';
     Caption = 'Sales Credit Memo - PEPPOL 2.1';
     Direction = Export;
     Encoding = UTF8;
@@ -2279,4 +2283,4 @@ xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
     begin
     end;
 }
-
+#endif

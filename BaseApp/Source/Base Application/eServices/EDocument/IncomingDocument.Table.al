@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -145,38 +145,6 @@ table 130 "Incoming Document"
         {
             Caption = 'URL';
             Editable = false;
-        }
-        field(19; URL1; Text[250])
-        {
-            Caption = 'URL1';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'URL field was introduced';
-            ObsoleteTag = '15.0';
-        }
-        field(20; URL2; Text[250])
-        {
-            Caption = 'URL2';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'URL field was introduced';
-            ObsoleteTag = '15.0';
-        }
-        field(21; URL3; Text[250])
-        {
-            Caption = 'URL3';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'URL field was introduced';
-            ObsoleteTag = '15.0';
-        }
-        field(22; URL4; Text[250])
-        {
-            Caption = 'URL4';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'URL field was introduced';
-            ObsoleteTag = '15.0';
         }
         field(23; "Vendor Name"; Text[100])
         {
@@ -346,103 +314,6 @@ table 130 "Incoming Document"
         field(162; Processed; Boolean)
         {
             Caption = 'Processed';
-        }
-        field(11530; "Swiss QRBill"; Boolean)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11531; "Swiss QRBill Vendor Address 1"; Text[100])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11532; "Swiss QRBill Vendor Address 2"; Text[100])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11533; "Swiss QRBill Vendor Post Code"; Code[20])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11534; "Swiss QRBill Vendor City"; Text[100])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11535; "Swiss QRBill Vendor Country"; Code[10])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11536; "Swiss QRBill Debitor Name"; Text[100])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11537; "Swiss QRBill Debitor Address1"; Text[100])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11538; "Swiss QRBill Debitor Address2"; Text[100])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11539; "Swiss QRBill Debitor PostCode"; Code[20])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11540; "Swiss QRBill Debitor City"; Text[100])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11541; "Swiss QRBill Debitor Country"; Code[10])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11542; "Swiss QRBill Reference Type"; Option)
-        {
-            OptionMembers = "Without Reference","Creditor Reference (ISO 11649)","QR Reference";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11543; "Swiss QRBill Reference No."; Code[50])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11544; "Swiss QRBill Unstr. Message"; Text[140])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
-        }
-        field(11545; "Swiss QRBill Bill Info"; Text[140])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
-            ObsoleteTag = '18.0';
         }
     }
 
@@ -2533,4 +2404,3 @@ table 130 "Incoming Document"
     begin
     end;
 }
-

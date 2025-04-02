@@ -1,3 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.AllocationAccount;
+
+using Microsoft.Sales.Document;
+using Microsoft.Purchases.Document;
+using Microsoft.Finance.Deferral;
+
 codeunit 2674 "Alloc. Acc. Handle Doc. Post"
 {
     EventSubscriberInstance = Manual;

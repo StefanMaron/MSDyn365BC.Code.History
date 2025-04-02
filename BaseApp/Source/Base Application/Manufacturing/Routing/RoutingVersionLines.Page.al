@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Routing;
 
 page 99000767 "Routing Version Lines"
@@ -52,7 +56,6 @@ page 99000767 "Routing Version Lines"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the routing link code.';
-                    Visible = false;
                 }
                 field(Description; Rec.Description)
                 {

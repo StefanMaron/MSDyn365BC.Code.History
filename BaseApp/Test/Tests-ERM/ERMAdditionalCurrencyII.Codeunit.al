@@ -13,9 +13,6 @@
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
-#if not CLEAN23
-        LibraryUtility: Codeunit "Library - Utility";
-#endif
         LibraryERMUnapply: Codeunit "Library - ERM Unapply";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -194,30 +191,6 @@
         SalesInvoiceWithPaymentGeneralAndModifiedExchRate(false, false);
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('AdjustExchReqPageHandler,AdjustExchConfirmHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceWithPaymentGeneralAndUnrealizedLoss()
-    begin
-        // Verify Additional Currency Amount of Unrealized Loss G/L Entry
-        // after Posting Sales Invoice with Payment General Line
-        // in case of increasing Exchange Rate and Adjust Exchange Rate
-        SalesInvoiceWithPaymentGeneralAndModifiedExchRate(true, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('AdjustExchReqPageHandler,AdjustExchConfirmHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceWithPaymentGeneralAndUnrealizedGain()
-    begin
-        // Verify Additional Currency Amount of Unrealized Gain G/L Entry
-        // after Posting Sales Invoice with Payment General Line
-        // in case of decreasing Exchange Rate and Adjust Exchange Rate
-        SalesInvoiceWithPaymentGeneralAndModifiedExchRate(false, true);
-    end;
-#endif
-
     local procedure SalesInvoiceWithPaymentGeneralAndModifiedExchRate(IsLossEntry: Boolean; IsAdjustExchRate: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -237,11 +210,7 @@
         ModifyExchangeRateAmount(CurrencyCode, IsLossEntry);
 
         if IsAdjustExchRate then
-#if not CLEAN23
-            RunAdjustExchangeRates(CurrencyCode);
-#else
             LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
-#endif
 
         InvoiceDocNo := FindSalesInvoiceHeader(SalesHeader."Sell-to Customer No.");
         CreatePostGenJnlLineAndApplyToDoc(
@@ -417,30 +386,6 @@
         PurchInvoiceWithPaymentGeneralAndModifiedExchRate(false, false);
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('AdjustExchReqPageHandler,AdjustExchConfirmHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchInvoiceWithPaymentGeneralAndUnrealizedLoss()
-    begin
-        // Verify Additional Currency Amount of Unrealized Loss G/L Entry
-        // after Posting Purchase Invoice with Payment General Line
-        // in case of increasing Exchange Rate and Adjust Exchange Rate
-        PurchInvoiceWithPaymentGeneralAndModifiedExchRate(true, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('AdjustExchReqPageHandler,AdjustExchConfirmHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchInvoiceWithPaymentGeneralAndUnrealizedGain()
-    begin
-        // Verify Additional Currency Amount of Unrealized Gain G/L Entry
-        // after Posting Purchase Invoice with Payment General Line
-        // in case of decreasing Exchange Rate and Adjust Exchange Rate
-        PurchInvoiceWithPaymentGeneralAndModifiedExchRate(false, true);
-    end;
-#endif
-
     local procedure PurchInvoiceWithPaymentGeneralAndModifiedExchRate(IsLossEntry: Boolean; IsAdjustExchRate: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -460,11 +405,7 @@
         ModifyExchangeRateAmount(CurrencyCode, not IsLossEntry);
 
         if IsAdjustExchRate then
-#if not CLEAN23
-            RunAdjustExchangeRates(CurrencyCode);
-#else
             LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
-#endif
         CreatePostGenJnlLineAndApplyToDoc(
           GenJournalLine."Account Type"::Vendor, PurchHeader."Buy-from Vendor No.",
           -Amount, InvoiceDocNo);
@@ -992,22 +933,6 @@
         GeneralLedgerSetup.Modify(true);
     end;
 
-#if not CLEAN23
-    local procedure RunAdjustExchangeRates(CurrencyCode: Code[20])
-    var
-        Currency: Record Currency;
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
-    begin
-        Currency.SetRange(Code, CurrencyCode);
-        AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(
-          WorkDate(), WorkDate(), 'Test', WorkDate(),
-          LibraryUtility.GenerateGUID(), true, false);
-        Commit();
-        AdjustExchangeRates.Run();
-    end;
-#endif
-
     local procedure ApplyPostVendPayment2Invoices(PayDocNo: Code[20]; InvDocNo1: Code[20]; InvDocNo2: Code[20])
     var
         VendLedgerEntryFrom: Record "Vendor Ledger Entry";
@@ -1064,24 +989,6 @@
         CustLedgerEntry.SetRange(Open, false);
         CustLedgerEntry.FindLast();
         LibraryERMUnapply.UnapplyCustomerLedgerEntryBase(CustLedgerEntry, PostingDate);
-    end;
-
-#if not CLEAN23
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchReqPageHandler(var AdjustExchReqPage: TestRequestPage "Adjust Exchange Rates")
-    begin
-        AdjustExchReqPage.AdjCustomers.SetValue(true);
-        AdjustExchReqPage.AdjVendors.SetValue(true);
-        AdjustExchReqPage.Post.SetValue(true);
-        AdjustExchReqPage.SaveAsXml(TemporaryPath + 'tmp', TemporaryPath + 'tmp2');
-    end;
-#endif
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
     end;
 
     local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -1209,13 +1116,5 @@
         Assert.AreEqual(
           ExpectedAmount, GLEntry."Additional-Currency Amount", GLEntry.FieldCaption("Additional-Currency Amount"));
     end;
-#if not CLEAN23
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandler(Message: Text[1024])
-    begin
-    end;
-#endif
 }
 

@@ -18,6 +18,71 @@ codeunit 130509 "Library - Sales"
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         WrongDocumentTypeErr: Label 'Document type not supported: %1', Locked = true;
 
+    procedure AssignSalesChargeToSalesShptLine(SalesHeader: Record "Sales Header"; SalesShptLine: Record "Sales Shipment Line"; Qty: Decimal; UnitCost: Decimal)
+    var
+        ItemCharge: Record "Item Charge";
+        SalesLine: Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        CreateItemChargeSalesLine(SalesLine, ItemCharge, SalesHeader, Qty, UnitCost);
+
+        SalesShptLine.TestField(Type, SalesShptLine.Type::Item);
+
+        LibrarySales.CreateItemChargeAssignment(ItemChargeAssignmentSales, SalesLine, ItemCharge,
+          ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
+          SalesShptLine."Document No.", SalesShptLine."Line No.",
+          SalesShptLine."No.", Qty, UnitCost);
+        ItemChargeAssignmentSales.Insert();
+    end;
+
+    procedure AssignSalesChargeToSalesLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Qty: Decimal; UnitCost: Decimal)
+    var
+        ItemCharge: Record "Item Charge";
+        SalesLine1: Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        CreateItemChargeSalesLine(SalesLine1, ItemCharge, SalesHeader, Qty, UnitCost);
+
+        SalesLine.TestField(Type, SalesLine.Type::Item);
+
+        LibrarySales.CreateItemChargeAssignment(ItemChargeAssignmentSales, SalesLine1, ItemCharge,
+          ItemChargeAssignmentSales."Applies-to Doc. Type"::Order,
+          SalesLine."Document No.", SalesLine."Line No.",
+          SalesLine."No.", Qty, UnitCost);
+        ItemChargeAssignmentSales.Insert();
+    end;
+
+    procedure AssignSalesChargeToSalesReturnLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Qty: Decimal; UnitCost: Decimal)
+    var
+        ItemCharge: Record "Item Charge";
+        SalesLine1: Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        CreateItemChargeSalesLine(SalesLine1, ItemCharge, SalesHeader, Qty, UnitCost);
+
+        SalesLine.TestField(Type, SalesLine.Type::Item);
+
+        LibrarySales.CreateItemChargeAssignment(ItemChargeAssignmentSales, SalesLine1, ItemCharge,
+          ItemChargeAssignmentSales."Applies-to Doc. Type"::"Return Order",
+          SalesLine."Document No.", SalesLine."Line No.",
+          SalesLine."No.", Qty, UnitCost);
+        ItemChargeAssignmentSales.Insert();
+    end;
+
+    procedure CreateItemChargeSalesLine(var SalesLine: Record "Sales Line"; var ItemCharge: Record "Item Charge"; SalesHeader: Record "Sales Header"; Qty: Decimal; UnitCost: Decimal)
+    var
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", ItemCharge."No.", Qty);
+        SalesLine.Validate("Unit Price", UnitCost);
+        SalesLine.Validate("Unit Cost", UnitCost);
+        SalesLine.Modify(true);
+    end;
+
     procedure BatchPostSalesHeaders(var SalesHeader: Record "Sales Header"; Ship: Boolean; Invoice: Boolean; PostingDate: Date; ReplacePostingDate: Boolean; ReplaceDocumentDate: Boolean; CalcInvDiscount: Boolean)
     var
         BatchPostSalesOrders: Report "Batch Post Sales Orders";
@@ -186,7 +251,7 @@ codeunit 130509 "Library - Sales"
         CustomerPostingGroup.Insert(true);
     end;
 
-    procedure CreateAltCustomerPostingGroup(ParentCode: Code[10]; AltCode: Code[10])
+    procedure CreateAltCustomerPostingGroup(ParentCode: Code[20]; AltCode: Code[20])
     var
         AltCustomerPostingGroup: Record "Alt. Customer Posting Group";
     begin
@@ -324,6 +389,58 @@ codeunit 130509 "Library - Sales"
           LineGLAccount, PrepmtGLAccount, LineGLAccount."Gen. Posting Type"::Sale, VATCalculationType, VATCalculationType);
         LibraryERMCountryData.CreateVATData();
         exit(PrepmtGLAccount."No.");
+    end;
+
+    procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal)
+    begin
+        CreateSalesHeader(SalesHeader, DocType, '');
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+        SalesLine."Location Code" := LocationCode;
+        SalesLine."Variant Code" := VariantCode;
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+    end;
+
+    procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal)
+    begin
+        CreateSalesDocument(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
+    end;
+
+    procedure CreateSalesInvoice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal)
+    begin
+        CreateSalesDocument(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
+    end;
+
+    procedure CreateSalesQuote(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal)
+    begin
+        CreateSalesDocument(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Quote, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
+    end;
+
+    procedure CreateSalesBlanketOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal)
+    begin
+        CreateSalesDocument(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order", Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
+    end;
+
+    procedure CreateSalesReturnOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal; UnitPrice: Decimal)
+    begin
+        CreateSalesDocument(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
+        SalesLine.Validate("Unit Cost (LCY)", UnitCost);
+        SalesLine.Modify();
+    end;
+
+    procedure CreateSalesCreditMemo(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal; UnitPrice: Decimal)
+    begin
+        CreateSalesDocument(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
+        SalesLine.Validate("Unit Cost (LCY)", UnitCost);
+        SalesLine.Modify();
     end;
 
     procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ShipmentDate: Date)
@@ -827,6 +944,30 @@ codeunit 130509 "Library - Sales"
     begin
         Clear(SalesGetShipment);
         SalesGetShipment.Run(SalesLine);
+    end;
+
+    procedure PostSalesOrder(var SalesHeader: Record "Sales Header"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal; Ship: Boolean; Invoice: Boolean)
+    begin
+        PostSalesOrderPartially(SalesHeader, Item, LocationCode, VariantCode, Qty, PostingDate, UnitCost, Ship, Qty, Invoice, Qty);
+    end;
+
+    procedure PostSalesOrderPartially(var SalesHeader: Record "Sales Header"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal; Ship: Boolean; ShipQty: Decimal; Invoice: Boolean; InvoiceQty: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesOrder(SalesHeader, SalesLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitCost);
+        SalesLine.Validate("Qty. to Ship", ShipQty);
+        SalesLine.Validate("Qty. to Invoice", InvoiceQty);
+        SalesLine.Modify();
+        PostSalesDocument(SalesHeader, Ship, Invoice);
+    end;
+
+    procedure PostSalesLine(SalesLine: Record "Sales Line"; Ship: Boolean; Invoice: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        PostSalesDocument(SalesHeader, Ship, Invoice);
     end;
 
     procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; NewShipReceive: Boolean; NewInvoice: Boolean): Code[20]

@@ -7,9 +7,6 @@ namespace Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
-#if not CLEAN23
-using Microsoft.Foundation.Enums;
-#endif
 using Microsoft.Sales.Customer;
 using System.Utilities;
 
@@ -416,18 +413,6 @@ report 11007 "VAT-Vies Declaration Tax - DE"
                     group("Statement Period")
                     {
                         Caption = 'Statement Period';
-#if not CLEAN23
-                        field(VATDateTypeField; VATDateType)
-                        {
-                            ApplicationArea = VAT;
-                            Caption = 'Period Date Type';
-                            ToolTip = 'Specifies the type of date used for the reporting period.';
-                            Visible = false;
-                            ObsoleteReason = 'Selected VAT Date type no longer supported.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '23.0';
-                        }
-#endif
                         field(RepPeriod; RepPeriod)
                         {
                             ApplicationArea = Basic, Suite;
@@ -552,9 +537,6 @@ report 11007 "VAT-Vies Declaration Tax - DE"
         CorrectedNotification: Boolean;
         UseAmtsInAddCurr: Boolean;
         QuarterValue: Text[30];
-#if not CLEAN23
-        VATDateType: Enum "VAT Date Type";
-#endif
         Text11000: Label '%1 must not be less than %2 for Services.';
         ChangeToMonthlyReporting: Boolean;
         RevokeMonthlyReporting: Boolean;

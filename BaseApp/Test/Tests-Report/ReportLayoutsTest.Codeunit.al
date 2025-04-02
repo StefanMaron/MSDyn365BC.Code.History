@@ -181,6 +181,41 @@ codeunit 139595 "Report Layouts Test"
         Assert.AreEqual(EditedLayoutNameTxt, TenantReportLayoutSelection."Layout Name", 'The inserted layout name does not match the layout.');
     end;
 
+    [Test]
+    [HandlerFunctions('NewRDLCLayoutModalHandler,MessageHandlerValidateLayout')]
+    procedure TestReportLayoutsValidateLayout()
+    var
+        TenantReportLayout: Record "Tenant Report Layout";
+        ReportLayoutList: Record "Report Layout List";
+        ReportLayoutsTest: Codeunit "Report Layouts Test";
+        ReportLayoutsPage: TestPage "Report Layouts";
+        EmptyGuid: Guid;
+    begin
+        // Init - Ensure layouts are not inserted for the test report and insert a new layout
+        EnsureNewLayoutsAreCleaned();
+
+        BindSubscription(ReportLayoutsTest);
+
+        ReportLayoutsPage.OpenView();
+        Assert.IsTrue(ReportLayoutsPage.NewLayout.Enabled(), 'New layout should always be enabled.');
+
+        ReportLayoutsTest.SetLayoutContents(SampleTextTxt);
+        ReportLayoutsPage.NewLayout.Invoke();
+
+        Assert.IsTrue(TenantReportLayout.Get(139595, NewLayoutNameTxt, EmptyGuid), 'A layout should exist in the Tenant Report Layout table.');
+
+        Assert.AreEqual(NewLayoutNameTxt, TenantReportLayout.Name, 'Incorrect layout name.');
+
+        Assert.AreEqual('', TenantReportLayout."Company Name", 'A layout should exist for all companies.');
+
+        // Act - Set a selection
+        ReportLayoutList.Get(139595, NewLayoutNameTxt, EmptyGuid);
+        ReportLayoutsPage.GoToRecord(ReportLayoutList);
+
+        // Act -  Validate the layout
+        ReportLayoutsPage.ValidateLayout.Invoke();
+    end;
+
     local procedure EditLayoutTestCore(InitialCompanyName: Text; EditedCompanyName: Text)
     var
         TenantReportLayout: Record "Tenant Report Layout";
@@ -249,6 +284,55 @@ codeunit 139595 "Report Layouts Test"
         EditLayoutTestCore('', CompanyName());
     end;
 
+    [Test]
+    [HandlerFunctions('NewLayoutModalHandler,EditLayoutModalHandlerSetIsObsoleteTrue')]
+    procedure TestReportLayouts_SetLayoutAsObsoleteTrue()
+    begin
+        EditLayoutTestCore('', '');
+    end;
+
+    [Test]
+    [HandlerFunctions('NewLayoutModalHandler,EditLayoutModalHandlerSetIsObsoleteFalse')]
+    procedure TestReportLayouts_SetLayoutAsObsoleteFalse()
+    begin
+        EditLayoutTestCore('', '');
+    end;
+
+    [Test]
+    [HandlerFunctions('NewLayoutModalHandler,MessageHandlerLayoutInfoDialog')]
+    procedure TestReportLayoutsInfoDialog()
+    var
+        TenantReportLayout: Record "Tenant Report Layout";
+        ReportLayoutList: Record "Report Layout List";
+        ReportLayoutsTest: Codeunit "Report Layouts Test";
+        ReportLayoutsPage: TestPage "Report Layouts";
+        EmptyGuid: Guid;
+    begin
+        // Init - Ensure layouts are not inserted for the test report and insert a new layout
+        EnsureNewLayoutsAreCleaned();
+
+        BindSubscription(ReportLayoutsTest);
+
+        ReportLayoutsPage.OpenView();
+        Assert.IsTrue(ReportLayoutsPage.NewLayout.Enabled(), 'New layout should always be enabled.');
+
+        ReportLayoutsTest.SetLayoutContents(SampleTextTxt);
+        ReportLayoutsPage.NewLayout.Invoke();
+
+        Assert.IsTrue(TenantReportLayout.Get(139595, NewLayoutNameTxt, EmptyGuid), 'Layout should exist in the Tenant Report Layout table.');
+
+        Assert.AreEqual(NewLayoutNameTxt, TenantReportLayout.Name, 'Incorrect layout name.');
+
+        Assert.AreEqual('', TenantReportLayout."Company Name", 'Layout should exist for all companies.');
+
+        // Act - Set a selection
+        ReportLayoutList.Get(139595, NewLayoutNameTxt, EmptyGuid);
+        ReportLayoutsPage.GoToRecord(ReportLayoutList);
+
+        // Act - Show the info dialog
+        ReportLayoutsPage.ShowInfoDialog.Invoke();
+    end;
+
     /// <summary>
     /// Sets the contents of the layout that will be inserted by
     /// the event subscriber.
@@ -281,6 +365,20 @@ codeunit 139595 "Report Layouts Test"
 
         Assert.AreEqual('Yes', ReportLayoutNewDialog.AvailableInAllCompanies.Value, 'The available in all companies toggle should be on by default.');
         ReportLayoutNewDialog.AvailableInAllCompanies.SetValue(false);
+
+        ReportLayoutNewDialog.ReportID.Value := '139595';
+        ReportLayoutNewDialog.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure NewRDLCLayoutModalHandler(var ReportLayoutNewDialog: TestPage "Report Layout New Dialog")
+    begin
+        ReportLayoutNewDialog.LayoutName.Value := NewLayoutNameTxt;
+        ReportLayoutNewDialog.Description.Value := NewLayoutNameTxt;
+        ReportLayoutNewDialog."Format Options".Value := 'RDLC';
+        ReportLayoutNewDialog.CreateEmptyLayout.SetValue(true);
+
+        Assert.AreEqual('Yes', ReportLayoutNewDialog.AvailableInAllCompanies.Value, 'The available in all companies toggle should be on by default.');
 
         ReportLayoutNewDialog.ReportID.Value := '139595';
         ReportLayoutNewDialog.OK().Invoke();
@@ -333,6 +431,24 @@ codeunit 139595 "Report Layouts Test"
         ReportLayoutEditDialog.OK().Invoke();
     end;
 
+    [ModalPageHandler]
+    procedure EditLayoutModalHandlerSetIsObsoleteTrue(var ReportLayoutEditDialog: TestPage "Report Layout Edit Dialog")
+    begin
+        ReportLayoutEditDialog.LayoutName.Value := EditedLayoutNameTxt;
+        ReportLayoutEditDialog.Description.Value := EditedLayoutNameTxt;
+        ReportLayoutEditDialog.IsObsolete.SetValue(true);
+        ReportLayoutEditDialog.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure EditLayoutModalHandlerSetIsObsoleteFalse(var ReportLayoutEditDialog: TestPage "Report Layout Edit Dialog")
+    begin
+        ReportLayoutEditDialog.LayoutName.Value := EditedLayoutNameTxt;
+        ReportLayoutEditDialog.Description.Value := EditedLayoutNameTxt;
+        ReportLayoutEditDialog.IsObsolete.SetValue(false);
+        ReportLayoutEditDialog.OK().Invoke();
+    end;
+
     [ConfirmHandler]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
@@ -342,6 +458,35 @@ codeunit 139595 "Report Layouts Test"
     [MessageHandler]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [MessageHandler]
+    procedure MessageHandlerLayoutInfoDialog(Message: Text[1024])
+    var
+        MessagePattern: Text;
+        Regex: DotNet Regex;
+    begin
+        // Arrange
+        MessagePattern := '^Report ID: [0-9]+\\' +
+                          'Report Name: .*\\' +
+                          'Layout Name: .*\\' +
+                          'Description: .*\\' +
+                          'Type: .+\\' +
+                          'System ID: .*\\' +
+                          'Created Date: .*\\' +
+                          'Created By: .*\\' +
+                          'Last Modified Date: .*\\' +
+                          'Last Modified By: .*$';
+
+        // Assert
+        Assert.IsTrue(Regex.IsMatch(Message, MessagePattern), 'The message must match the regex pattern.');
+    end;
+
+    [MessageHandler]
+    procedure MessageHandlerValidateLayout(Message: Text[1024])
+    begin
+        // Assert
+        Assert.AreEqual('The report layout is valid.', Message, 'The validation should return a valid message.');
     end;
 
     local procedure EnsureNewLayoutsAreCleaned()

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 using Microsoft.Inventory.Item.Catalog;
@@ -61,6 +65,10 @@ page 5405 "Item Variant Card"
                     {
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies that the item variant cannot be entered on purchase documents, except return orders and credit memos, and journals.';
+                    }
+                    field("Production Blocked"; Rec."Production Blocked")
+                    {
+                        ApplicationArea = Manufacturing;
                     }
                 }
             }

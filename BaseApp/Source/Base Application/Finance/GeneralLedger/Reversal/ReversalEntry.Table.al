@@ -181,12 +181,10 @@ table 179 "Reversal Entry"
             else
             if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset";
         }
-        field(27; "FA Posting Category"; Option)
+        field(27; "FA Posting Category"; Enum "FA Ledger Posting Category")
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'FA Posting Category';
-            OptionCaption = ' ,Disposal,Bal. Disposal';
-            OptionMembers = " ",Disposal,"Bal. Disposal";
         }
         field(28; "FA Posting Type"; Enum "Reversal Entry FA Posting Type")
         {
@@ -213,6 +211,7 @@ table 179 "Reversal Entry"
             Caption = 'Source Currency VAT Amount';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA27
         field(3010536; "Amount (FCY)"; Decimal)
         {
             Caption = 'Amount (FCY)';
@@ -225,6 +224,7 @@ table 179 "Reversal Entry"
             ObsoleteTag = '24.0';
 #endif
         }
+#endif
     }
 
     keys

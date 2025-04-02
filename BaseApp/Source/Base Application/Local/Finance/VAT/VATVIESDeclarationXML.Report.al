@@ -6,9 +6,6 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Company;
-#if not CLEAN23
-using Microsoft.Foundation.Enums;
-#endif
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Sales.Customer;
 using System.IO;
@@ -272,18 +269,6 @@ report 11108 "VAT - VIES Declaration XML"
                     group("Statement Period")
                     {
                         Caption = 'Statement Period';
-#if not CLEAN23
-                        field(VATDateTypeField; VATDateType)
-                        {
-                            ApplicationArea = VAT;
-                            Caption = 'Period Date Type';
-                            ToolTip = 'Specifies the type of date used for the report period.';
-                            Visible = false;
-                            ObsoleteReason = 'Selected VAT Date type no longer supported.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '23.0';
-                        }
-#endif
                         field(RepPeriodFrom; RepPeriodFrom)
                         {
                             ApplicationArea = Basic, Suite;
@@ -411,9 +396,6 @@ report 11108 "VAT - VIES Declaration XML"
         "Sum": Decimal;
         SumPrn: Decimal;
         Reportingtype: Option "Normal transmission","Recall of an earlier report";
-#if not CLEAN23
-        VATDateType: Enum "VAT Date Type";
-#endif
         PaketNr: Code[9];
         AmountsInReportCurrency: Boolean;
         GesamtrueckDone: Boolean;

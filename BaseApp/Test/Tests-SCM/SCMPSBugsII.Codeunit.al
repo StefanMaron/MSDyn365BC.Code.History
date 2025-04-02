@@ -948,7 +948,7 @@ codeunit 137036 "SCM PS Bugs - II"
         // Random values not important.
         LibraryManufacturing.CreateItemManufacturing(
           Item, Item."Costing Method"::FIFO, LibraryRandom.RandInt(10), Item."Reordering Policy",
-          Item."Flushing Method"::Manual, '', ProductionBOMNo);
+          Item."Flushing Method"::"Pick + Manual", '', ProductionBOMNo);
         Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
         Item.Modify(true);

@@ -173,6 +173,7 @@ codeunit 5063 ArchiveManagement
             exit;
 
         SalesHeaderArchive.Init();
+        SalesHeader.CalcFields("Work Description");
         SalesHeaderArchive.TransferFields(SalesHeader);
         SalesHeaderArchive."Archived By" := CopyStr(UserId(), 1, MaxStrLen(SalesHeaderArchive."Archived By"));
         SalesHeaderArchive."Date Archived" := Today();
@@ -1058,4 +1059,3 @@ codeunit 5063 ArchiveManagement
     begin
     end;
 }
-

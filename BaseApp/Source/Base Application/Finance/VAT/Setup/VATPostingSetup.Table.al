@@ -219,25 +219,16 @@ table 325 "VAT Posting Setup"
                 NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
             end;
         }
+#if not CLEANSCHEMA26
         field(6201; "Non-Ded. Sales VAT Account"; Code[20])
         {
             Caption = 'Non-Deductible Sales VAT Account';
             TableRelation = "G/L Account";
             ObsoleteReason = 'Non-Deductible VAT is not implemented for Sales.';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-
-            trigger OnValidate()
-            begin
-                TestNotSalesTax(CopyStr(FieldCaption("Non-Ded. Sales VAT Account"), 1, 100));
-                CheckGLAcc("Non-Ded. Sales VAT Account");
-            end;
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
         field(6202; "Non-Ded. Purchase VAT Account"; Code[20])
         {
             Caption = 'Non-Deductible Purchase VAT Account';

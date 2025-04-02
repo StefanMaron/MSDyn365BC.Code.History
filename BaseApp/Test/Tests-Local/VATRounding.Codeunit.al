@@ -285,7 +285,7 @@ codeunit 144000 "VAT Rounding"
         SalesLine.Modify(true);
 
         // [WHEN] Open Statistic Page
-        SalesHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Sales Order Statistics", SalesHeader);
 
         // [THEN] Amount and "VAT amount" in Statistic page are equal to amount and "VAT amount" in "Sales line"
         SalesLine.TestField(Amount, LibraryVariableStorage.DequeueDecimal());
@@ -342,7 +342,7 @@ codeunit 144000 "VAT Rounding"
         SalesLine2.Modify(true);
 
         // [WHEN] Open Statistic Page
-        SalesHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Sales Order Statistics", SalesHeader);
 
         // [THEN] Amount and "VAT amount" in Statistic page are equal to amount and "VAT amount" for Sales Order
         Assert.AreEqual(GetAmountTotal(SalesHeader), LibraryVariableStorage.DequeueDecimal(), '');

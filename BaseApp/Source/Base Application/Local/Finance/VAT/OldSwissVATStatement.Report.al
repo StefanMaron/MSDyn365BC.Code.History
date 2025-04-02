@@ -534,7 +534,6 @@ report 11518 "Old Swiss VAT Statement"
                         DateCreated := DT2Date(GLRegister.SystemCreatedAt)
                     else
                         DateCreated := GLRegister."Creation Date";
-
                     FilterTxt := StrSubstNo(ClosedEntriesTxt, GLRegister."No.", DateCreated);
                 end else
                     FilterTxt := StrSubstNo(OpenEntriesTxt, OpenTillDate);

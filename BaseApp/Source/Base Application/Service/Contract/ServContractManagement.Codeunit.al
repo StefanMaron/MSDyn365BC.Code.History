@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Contract;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Contract;
 
 using Microsoft.CRM.Team;
 using Microsoft.Finance.Currency;
@@ -17,7 +21,6 @@ using Microsoft.Service.Item;
 using Microsoft.Service.Ledger;
 using Microsoft.Service.Setup;
 using Microsoft.Utilities;
-using System.Environment.Configuration;
 using System.Reflection;
 using System.Security.User;
 using System.Utilities;
@@ -62,7 +65,6 @@ codeunit 5940 ServContractManagement
         NoSeriesMgt: Codeunit NoSeriesManagement;
 #endif
         DimMgt: Codeunit DimensionManagement;
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         NextLine: Integer;
         PostingDate: Date;
         WDate: Date;
@@ -310,7 +312,10 @@ codeunit 5940 ServContractManagement
         end else begin
             YearContractCorrection := false;
             ServLedgEntry."Moved from Prepaid Acc." := true;
-            ServLedgEntry."Posting Date" := ServHeader2."Posting Date";
+            if InvFromDate = InvToDate then
+                ServLedgEntry."Posting Date" := InvFromDate
+            else
+                ServLedgEntry."Posting Date" := ServHeader2."Posting Date";
             FilterServiceContractLine(
               ServContractLine, ServContractHeader."Contract No.", ServContractHeader."Contract Type", LineNo);
             if AddingNewLines then
@@ -494,7 +499,7 @@ codeunit 5940 ServContractManagement
         if not IsHandled then
             Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
 
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
+        if CheckCustomerBusPostingGroup() then
             Cust.TestField("Gen. Bus. Posting Group");
 
         ServHeader2.Name := Cust.Name;
@@ -859,8 +864,10 @@ codeunit 5940 ServContractManagement
         OnCreateOrGetCreditHeaderOnBeforeCheckBlockedCustOnDocs(ServHeader2, ServContract, IsHandled);
         if not IsHandled then
             Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then
+
+        if CheckCustomerBusPostingGroup() then
             Cust.TestField("Gen. Bus. Posting Group");
+
         ServHeader2.Name := Cust.Name;
         ServHeader2."Name 2" := Cust."Name 2";
         ServHeader2.Address := Cust.Address;
@@ -2544,6 +2551,20 @@ codeunit 5940 ServContractManagement
         exit('<CM>');
     end;
 
+    local procedure CheckCustomerBusPostingGroup(): Boolean
+    var
+        ApplicationAreaMgmt: Codeunit System.Environment.Configuration."Application Area Mgmt.";
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckCustomer(result, IsHandled);
+        if IsHandled then
+            exit;
+
+        Result := not ApplicationAreaMgmt.IsSalesTaxEnabled();
+    end;
+
     local procedure CalcAndSetRemainingAmount(ServLedgerEntry: Record "Service Ledger Entry"; ServContractLine: Record "Service Contract Line"; var AmountLCY: Decimal; var UnitPrice: Decimal; var UnitCost: Decimal; var ContractDiscAmt: Decimal; InvFrom: Date; InvTo: Date; AmtRoundingPrecision: Decimal)
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
@@ -3140,6 +3161,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateOrGetCreditHeaderOnAfterCopyFromCustomer(var ServiceHeader: Record "Service Header"; ServiceContract: Record "Service Contract Header"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCustomer(var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

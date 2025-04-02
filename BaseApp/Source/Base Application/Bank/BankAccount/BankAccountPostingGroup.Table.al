@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.BankAccount;
 
 using Microsoft.Finance.GeneralLedger.Account;
@@ -15,13 +19,6 @@ table 277 "Bank Account Posting Group"
         {
             Caption = 'Code';
             NotBlank = true;
-        }
-        field(2; "G/L Bank Account No."; Code[20])
-        {
-            Caption = 'G/L Bank Account No.';
-            ObsoleteReason = 'Moved to G/L Account No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '20.0';
         }
         field(3; "G/L Account No."; Code[20])
         {
@@ -63,4 +60,3 @@ table 277 "Bank Account Posting Group"
         end;
     end;
 }
-

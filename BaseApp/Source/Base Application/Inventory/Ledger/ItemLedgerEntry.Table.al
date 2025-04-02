@@ -1,5 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Ledger;
-
+ 
 using Microsoft.CRM.Team;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -16,7 +20,6 @@ using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
@@ -87,6 +90,18 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Invoiced Quantity';
             DecimalPlaces = 0 : 5;
+        }
+        field(20; "Item Register No."; Integer)
+        {
+            Caption = 'Item Register No.';
+            Editable = false;
+            TableRelation = "Item Register";
+        }
+        field(21; "SIFT Bucket No."; Integer)
+        {
+            Caption = 'SIFT Bucket No.';
+            ToolTip = 'Specifies an automatically generated number that is used by the system to enable better concurrency.';
+            Editable = false;
         }
         field(28; "Applies-to Entry"; Integer)
         {
@@ -310,13 +325,6 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Derived from Blanket Order';
         }
-        field(5700; "Cross-Reference No."; Code[20])
-        {
-            Caption = 'Cross-Reference No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
         field(5701; "Originally Ordered No."; Code[20])
         {
             AccessByPermission = TableData "Item Substitution" = R;
@@ -346,13 +354,6 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
-        }
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(5725; "Item Reference No."; Code[50])
         {
@@ -463,9 +464,16 @@ table 32 "Item Ledger Entry"
             Caption = 'Shipped Qty. Not Returned';
             DecimalPlaces = 0 : 5;
         }
+        field(5819; "Item Ledger Entry Quantity"; Decimal)
+        {
+            CalcFormula = sum("Value Entry"."Item Ledger Entry Quantity" where("Item Ledger Entry No." = field("Entry No.")));
+            Caption = 'Item Ledger Entry Quantity on Value Entry';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(5833; "Prod. Order Comp. Line No."; Integer)
         {
-            AccessByPermission = TableData "Production Order" = R;
             Caption = 'Prod. Order Comp. Line No.';
         }
         field(6500; "Serial No."; Code[50])
@@ -540,7 +548,7 @@ table 32 "Item Ledger Entry"
         {
             Clustered = true;
         }
-        key(Key2; "Item No.")
+        key(Key2; "Item No.", "SIFT Bucket No.")
         {
             SumIndexFields = "Invoiced Quantity", Quantity;
         }
@@ -548,15 +556,15 @@ table 32 "Item Ledger Entry"
         {
             IncludedFields = Quantity, "Location Code";
         }
-        key(Key4; "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date")
+        key(Key4; "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date", "SIFT Bucket No.")
         {
             SumIndexFields = Quantity, "Invoiced Quantity";
         }
         key(Key5; "Source Type", "Source No.", "Item No.", "Variant Code", "Posting Date")
         {
-            SumIndexFields = Quantity;
+            IncludedFields = Quantity;
         }
-        key(Key6; "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date")
+        key(Key6; "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "SIFT Bucket No.")
         {
             SumIndexFields = Quantity, "Remaining Quantity";
             IncludedFields = "Job No.", "Job Task No.", "Document Type", "Document No.", "Order Type", "Order No.", "Serial No.", "Lot No.", "Package No.";
@@ -617,6 +625,27 @@ table 32 "Item Ledger Entry"
         IsNotOnInventoryErr: Label 'You have insufficient quantity of Item %1 on inventory.';
 #pragma warning restore AA0470
 
+    trigger OnInsert()
+    begin
+        Rec."SIFT Bucket No." := Rec."Item Register No." mod 5;
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Ledger Entry", 'r')]
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Item Ledger Entry"));
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Ledger Entry", 'r')]
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
@@ -624,13 +653,6 @@ table 32 "Item Ledger Entry"
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");
-    end;
-
-    procedure GetLastEntryNo(): Integer;
-    var
-        FindRecordManagement: Codeunit "Find Record Management";
-    begin
-        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
     procedure ShowReservationEntries(Modal: Boolean)
@@ -747,7 +769,7 @@ table 32 "Item Ledger Entry"
     procedure FilterLinesWithItemToPlan(var Item: Record Item; NetChange: Boolean)
     begin
         Reset();
-        SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
+        SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Entry No.");
         SetRange("Item No.", Item."No.");
         SetRange(Open, true);
         SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
@@ -778,7 +800,7 @@ table 32 "Item Ledger Entry"
         IsHandled: Boolean;
     begin
         Reset();
-        SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
+        SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Entry No.");
         SetRange("Item No.", ReservationEntry."Item No.");
         SetRange(Open, true);
         IsHandled := false;
@@ -979,7 +1001,7 @@ table 32 "Item Ledger Entry"
     procedure SetItemVariantLocationFilters(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; PostingDate: Date)
     begin
         Reset();
-        SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
+        SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Entry No.");
         SetRange("Item No.", ItemNo);
         SetRange("Variant Code", VariantCode);
         SetRange("Location Code", LocationCode);
@@ -1087,19 +1109,22 @@ table 32 "Item Ledger Entry"
 
     procedure CollectItemLedgerEntryTypesUsed(var ItemLedgerEntryTypesUsed: Dictionary of [Enum "Item Ledger Entry Type", Boolean]; ItemNoFilter: Text)
     var
-        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntryTypes: Query "Item Ledger Entry Types";
         ItemLedgerEntryType: Enum "Item Ledger Entry Type";
         i: Integer;
     begin
         Clear(ItemLedgerEntryTypesUsed);
 
-        if ItemNoFilter <> '' then
-            ItemLedgerEntry.SetFilter("Item No.", ItemNoFilter);
         foreach i in "Item Ledger Entry Type".Ordinals() do begin
             ItemLedgerEntryType := "Item Ledger Entry Type".FromInteger(i);
-            ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntryType);
-            ItemLedgerEntryTypesUsed.Add(ItemLedgerEntryType, not ItemLedgerEntry.IsEmpty());
+            ItemLedgerEntryTypesUsed.Add(ItemLedgerEntryType, false);
         end;
+
+
+        ItemLedgerEntryTypes.SetFilter(Item_No_, ItemNoFilter);
+        ItemLedgerEntryTypes.Open();
+        while ItemLedgerEntryTypes.Read() do
+            ItemLedgerEntryTypesUsed.Set(ItemLedgerEntryTypes.Entry_Type, true);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1222,4 +1247,3 @@ table 32 "Item Ledger Entry"
     begin
     end;
 }
-
