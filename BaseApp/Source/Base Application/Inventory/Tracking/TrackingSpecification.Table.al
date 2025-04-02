@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Tracking;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
@@ -150,7 +154,7 @@ table 336 "Tracking Specification"
             var
                 ItemLedgEntry: Record "Item Ledger Entry";
             begin
-                ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
+                ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Entry No.");
                 ItemLedgEntry.SetRange("Item No.", "Item No.");
                 ItemLedgEntry.SetRange(Positive, true);
                 ItemLedgEntry.SetRange("Location Code", "Location Code");
@@ -558,7 +562,7 @@ table 336 "Tracking Specification"
     end;
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit AssemblyHeaderReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Assembly Header-Reserve', '25.0')]
     procedure InitFromAsmHeader(var AsmHeader: Record Microsoft.Assembly.Document."Assembly Header")
     var
         AssemblyHeaderReserve: Codeunit Microsoft.Assembly.Document."Assembly Header-Reserve";
@@ -568,7 +572,7 @@ table 336 "Tracking Specification"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit AssemblyHeaderReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Assembly Line-Reserve', '25.0')]
     procedure InitFromAsmLine(var AsmLine: Record Microsoft.Assembly.Document."Assembly Line")
     var
         AssemblyLineReserve: Codeunit Microsoft.Assembly.Document."Assembly Line-Reserve";
@@ -578,7 +582,7 @@ table 336 "Tracking Specification"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit ItemJnlLineReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Item Jnl. Line-Reserve', '25.0')]
     procedure InitFromItemJnlLine(ItemJnlLine: Record "Item Journal Line")
     var
         ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
@@ -588,7 +592,7 @@ table 336 "Tracking Specification"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit InvtDocLineReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Invt. Doc. Line-Reserve', '25.0')]
     procedure InitFromInvtDocLine(var InvtDocLine: Record Microsoft.Inventory.Document."Invt. Document Line")
     var
         InvtDocLineReserve: Codeunit Microsoft.Inventory.Document."Invt. Doc. Line-Reserve";
@@ -598,7 +602,7 @@ table 336 "Tracking Specification"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit JobJnlLineReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Job Jnl. Line-Reserve', '25.0')]
     procedure InitFromJobJnlLine(var JobJnlLine: Record Microsoft.Projects.Project.Journal."Job Journal Line")
     var
         JobJnlLineReserve: Codeunit Microsoft.Projects.Project.Journal."Job Jnl. Line-Reserve";
@@ -608,7 +612,7 @@ table 336 "Tracking Specification"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit JobPlanningLineReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Job Planning Line-Reserve', '25.0')]
     procedure InitFromJobPlanningLine(var JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line")
     var
         JobPlanningLineReserve: Codeunit Microsoft.Projects.Project.Planning."Job Planning Line-Reserve";
@@ -618,7 +622,7 @@ table 336 "Tracking Specification"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit PurchLineReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Purch. Line-Reserve', '25.0')]
     procedure InitFromPurchLine(PurchLine: Record "Purchase Line")
     var
         PurchLineReserve: Codeunit "Purch. Line-Reserve";
@@ -628,7 +632,7 @@ table 336 "Tracking Specification"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit ProdOrderLineReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Prod. Order Line-Reserve', '25.0')]
     procedure InitFromProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     var
         ProdOrderLineReserve: Codeunit Microsoft.Manufacturing.Document."Prod. Order Line-Reserve";
@@ -638,7 +642,7 @@ table 336 "Tracking Specification"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit ProdOrderCompReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Prod. Order Comp.-Reserve', '25.0')]
     procedure InitFromProdOrderComp(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     var
         ProdOrderCompReserve: Codeunit Microsoft.Manufacturing.Document."Prod. Order Comp.-Reserve";
@@ -648,7 +652,7 @@ table 336 "Tracking Specification"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit PlngComponentReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Plng. Component-Reserve', '25.0')]
     procedure InitFromProdPlanningComp(var PlanningComponent: Record Microsoft.Inventory.Planning."Planning Component")
     var
         PlngComponentReserve: Codeunit Microsoft.Inventory.Planning."Plng. Component-Reserve";
@@ -658,7 +662,7 @@ table 336 "Tracking Specification"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit ReqLineReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Req. Line-Reserve', '25.0')]
     procedure InitFromReqLine(ReqLine: Record Microsoft.Inventory.Requisition."Requisition Line")
     var
         ReqLineReserve: Codeunit Microsoft.Inventory.Requisition."Req. Line-Reserve";
@@ -668,7 +672,7 @@ table 336 "Tracking Specification"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit SalesLineReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Sales Line-Reserve', '25.0')]
     procedure InitFromSalesLine(SalesLine: Record "Sales Line")
     var
         SalesLineReserve: Codeunit "Sales Line-Reserve";
@@ -678,7 +682,7 @@ table 336 "Tracking Specification"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit ServiceLineReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Service Line-Reserve', '25.0')]
     procedure InitFromServLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; Consume: Boolean)
     var
         ServiceLineReserve: Codeunit Microsoft.Service.Document."Service Line-Reserve";
@@ -688,7 +692,7 @@ table 336 "Tracking Specification"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Procedure moved to codeunit TransferLineReserve', '25.0')]
+    [Obsolete('Procedure moved to codeunit Transfer Line-Reserve', '25.0')]
     procedure InitFromTransLine(var TransLine: Record Microsoft.Inventory.Transfer."Transfer Line"; var AvalabilityDate: Date; Direction: Enum Microsoft.Foundation.Enums."Transfer Direction")
     var
         TransferLineReserve: Codeunit Microsoft.Inventory.Transfer."Transfer Line-Reserve";
@@ -1545,7 +1549,7 @@ table 336 "Tracking Specification"
     end;
 #endif
 
-#if  not CLEAN25
+#if not CLEAN25
     internal procedure RunOnAfterInitFromReqLine(var TrackingSpecification: Record "Tracking Specification"; RequisitionLine: Record Microsoft.Inventory.Requisition."Requisition Line")
     begin
         OnAfterInitFromReqLine(TrackingSpecification, RequisitionLine);
@@ -1564,7 +1568,7 @@ table 336 "Tracking Specification"
         OnAfterInitFromSalesLine(TrackingSpecification, SalesLine);
     end;
 
-    [Obsolete('Event moved to codeunit SalesLineReserve', '25.0')]
+    [Obsolete('Event moved to codeunit Sales Line-Reserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromSalesLine(var TrackingSpecification: Record "Tracking Specification"; SalesLine: Record "Sales Line")
     begin
@@ -1577,7 +1581,7 @@ table 336 "Tracking Specification"
         OnAfterInitFromServLine(TrackingSpecification, ServiceLine);
     end;
 
-    [Obsolete('Event moved to codeunit ServiceLineReserve', '25.0')]
+    [Obsolete('Event moved to codeunit Service Line-Reserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromServLine(var TrackingSpecification: Record "Tracking Specification"; ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
@@ -1590,7 +1594,7 @@ table 336 "Tracking Specification"
         OnAfterInitFromTransLine(TrackingSpecification, TransferLine, Direction);
     end;
 
-    [Obsolete('Event moved to codeunit TransferLineReserve', '25.0')]
+    [Obsolete('Event moved to codeunit Transfer Line-Reserve', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromTransLine(var TrackingSpecification: Record "Tracking Specification"; TransferLine: Record Microsoft.Inventory.Transfer."Transfer Line"; Direction: Enum Microsoft.Foundation.Enums."Transfer Direction")
     begin

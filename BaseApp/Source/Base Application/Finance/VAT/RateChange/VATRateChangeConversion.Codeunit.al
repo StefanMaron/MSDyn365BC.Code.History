@@ -10,9 +10,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Resource;
@@ -165,15 +162,6 @@ codeunit 550 "VAT Rate Change Conversion"
         UpdateTable(
           Database::"Standard Item Journal Line",
           ConvertVATProdPostGrp(VATRateChangeSetup."Update Std. Item Jnl. Lines"), ConvertGenProdPostGrp(VATRateChangeSetup."Update Std. Item Jnl. Lines"));
-        UpdateTable(
-          Database::"Production Order",
-          ConvertVATProdPostGrp(VATRateChangeSetup."Update Production Orders"), ConvertGenProdPostGrp(VATRateChangeSetup."Update Production Orders"));
-        UpdateTable(
-          Database::"Work Center",
-          ConvertVATProdPostGrp(VATRateChangeSetup."Update Work Centers"), ConvertGenProdPostGrp(VATRateChangeSetup."Update Work Centers"));
-        UpdateTable(
-          Database::"Machine Center",
-          ConvertVATProdPostGrp(VATRateChangeSetup."Update Machine Centers"), ConvertGenProdPostGrp(VATRateChangeSetup."Update Machine Centers"));
         UpdateTable(
           Database::"Reminder Line",
           ConvertVATProdPostGrp(VATRateChangeSetup."Update Reminders"), ConvertGenProdPostGrp(VATRateChangeSetup."Update Reminders"));
@@ -1364,12 +1352,6 @@ codeunit 550 "VAT Rate Change Conversion"
         if VATRateChangeSetup."Update Sales Documents" <> VATRateChangeSetup."Update Sales Documents"::No then
             exit(true);
         if VATRateChangeSetup."Update Purchase Documents" <> VATRateChangeSetup."Update Purchase Documents"::No then
-            exit(true);
-        if VATRateChangeSetup."Update Production Orders" <> VATRateChangeSetup."Update Production Orders"::No then
-            exit(true);
-        if VATRateChangeSetup."Update Work Centers" <> VATRateChangeSetup."Update Work Centers"::No then
-            exit(true);
-        if VATRateChangeSetup."Update Machine Centers" <> VATRateChangeSetup."Update Machine Centers"::No then
             exit(true);
         if VATRateChangeSetup."Update Reminders" <> VATRateChangeSetup."Update Reminders"::No then
             exit(true);

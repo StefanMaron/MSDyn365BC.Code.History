@@ -40,22 +40,27 @@ table 1381 "Customer Templ."
         {
             Caption = 'Code';
             NotBlank = true;
+            ToolTip = 'Specifies the code of the template.';
         }
         field(2; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the description of the template.';
         }
         field(5; Address; Text[100])
         {
             Caption = 'Address';
+            ToolTip = 'Specifies the customer''s address. This address will appear on all sales documents for the customer.';
         }
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
+            ToolTip = 'Specifies additional address information.';
         }
         field(7; City; Text[30])
         {
             Caption = 'City';
+            ToolTip = 'Specifies the customer''s city.';
 
             trigger OnLookup()
             var
@@ -79,6 +84,7 @@ table 1381 "Customer Templ."
         {
             Caption = 'Phone No.';
             ExtendedDatatype = PhoneNo;
+            ToolTip = 'Specifies the customer''s telephone number.';
         }
         field(10; "Telex No."; Text[20])
         {
@@ -88,6 +94,7 @@ table 1381 "Customer Templ."
         {
             Caption = 'Document Sending Profile';
             TableRelation = "Document Sending Profile".Code;
+            ToolTip = 'Specifies the preferred method of sending documents to this customer.';
         }
         field(14; "Our Account No."; Text[20])
         {
@@ -136,26 +143,31 @@ table 1381 "Customer Templ."
         {
             AutoFormatType = 1;
             Caption = 'Credit Limit (LCY)';
+            ToolTip = 'Specifies the maximum amount of credit that you extend to the customer for their purchases before you issue warnings. The value 0 represents unlimited credit.';
         }
         field(21; "Customer Posting Group"; Code[20])
         {
             Caption = 'Customer Posting Group';
             TableRelation = "Customer Posting Group";
+            ToolTip = 'Specifies the customer''s market type to link business transactions to.';
         }
         field(22; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+            ToolTip = 'Specifies the default currency for the customer.';
         }
         field(23; "Customer Price Group"; Code[10])
         {
             Caption = 'Customer Price Group';
             TableRelation = "Customer Price Group";
+            ToolTip = 'Specifies the customer price group code, which you can use to set up special sales prices in the Sales Prices page.';
         }
         field(24; "Language Code"; Code[10])
         {
             Caption = 'Language Code';
             TableRelation = Language;
+            ToolTip = 'Specifies the language to be used on printouts for this customer.';
         }
         field(26; "Statistics Group"; Integer)
         {
@@ -165,27 +177,32 @@ table 1381 "Customer Templ."
         {
             Caption = 'Payment Terms Code';
             TableRelation = "Payment Terms";
+            ToolTip = 'Specifies a code that indicates the payment terms that you require of the customer.';
         }
         field(28; "Fin. Charge Terms Code"; Code[10])
         {
             Caption = 'Fin. Charge Terms Code';
             TableRelation = "Finance Charge Terms";
+            ToolTip = 'Specifies whether to calculate finance charges for the customer.';
         }
         field(29; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
             TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
+            ToolTip = 'Specifies a code for the salesperson who normally handles this customer''s account.';
         }
         field(30; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
             TableRelation = "Shipment Method";
+            ToolTip = 'Specifies which shipment method to use when you ship items to the customer.';
         }
         field(31; "Shipping Agent Code"; Code[10])
         {
             AccessByPermission = TableData "Shipping Agent Services" = R;
             Caption = 'Shipping Agent Code';
             TableRelation = "Shipping Agent";
+            ToolTip = 'Specifies which shipping company is used when you ship items to the customer.';
         }
         field(32; "Place of Export"; Code[20])
         {
@@ -196,16 +213,19 @@ table 1381 "Customer Templ."
             Caption = 'Invoice Disc. Code';
             TableRelation = Customer;
             ValidateTableRelation = false;
+            ToolTip = 'Specifies a code for the invoice discount terms that you have defined for the customer.';
         }
         field(34; "Customer Disc. Group"; Code[20])
         {
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
+            ToolTip = 'Specifies the customer discount group code, which you can use as a criterion to set up special discounts in the Sales Line Discounts page.';
         }
         field(35; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
+            ToolTip = 'Specifies the country/region of the address.';
 
             trigger OnValidate()
             var
@@ -231,42 +251,51 @@ table 1381 "Customer Templ."
         field(39; Blocked; Enum "Customer Blocked")
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies which transactions with the customer that cannot be processed, for example, because the customer is insolvent.';
         }
         field(42; "Print Statements"; Boolean)
         {
             Caption = 'Print Statements';
+            ToolTip = 'Specifies whether to include this customer when you print the Statement report.';
         }
         field(45; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
             TableRelation = Customer;
+            ToolTip = 'Specifies a different customer who will be invoiced for products that you sell to the customer in the Name field on the customer card.';
         }
         field(47; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
             TableRelation = "Payment Method";
+            ToolTip = 'Specifies how the customer usually submits payment, such as bank transfer or check.';
         }
         field(48; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
             TableRelation = "Language Selection"."Language Tag";
+            ToolTip = 'Specifies the region format to be used on printouts for this customer.';
         }
         field(80; "Application Method"; Enum "Application Method")
         {
             Caption = 'Application Method';
+            ToolTip = 'Specifies how to apply payments to entries for this customer.';
         }
         field(82; "Prices Including VAT"; Boolean)
         {
             Caption = 'Prices Including VAT';
+            ToolTip = 'Specifies whether to show VAT in the Unit Price and Line Amount fields on document lines.';
         }
         field(83; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
             TableRelation = Location where("Use As In-Transit" = const(false));
+            ToolTip = 'Specifies from which location sales to this customer will be processed by default.';
         }
         field(84; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
+            ToolTip = 'Specifies the customer''s fax number.';
         }
         field(85; "Telex Answer Back"; Text[20])
         {
@@ -275,25 +304,30 @@ table 1381 "Customer Templ."
         field(86; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+            ToolTip = 'Specifies the customer''s VAT registration number for customers in EU countries/regions.';
         }
         field(87; "Combine Shipments"; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            Caption = 'Combine Shipments';
+            Caption = 'Combine Sales Shipments';
+            ToolTip = 'Specifies if several orders delivered to the customer can appear on the same sales invoice.';
         }
         field(88; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+            ToolTip = 'Specifies the customer''s trade type to link transactions made for this customer with the appropriate general ledger account according to the general posting setup.';
         }
         field(90; GLN; Code[13])
         {
             Caption = 'GLN';
             Numeric = true;
+            ToolTip = 'Specifies the customer in connection with electronic document sending.';
         }
         field(91; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
+            ToolTip = 'Specifies the postal code.';
 
             trigger OnLookup()
             var
@@ -317,19 +351,23 @@ table 1381 "Customer Templ."
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
+            ToolTip = 'Specifies the state, province or county as a part of the address.';
         }
         field(93; "EORI Number"; Text[40])
         {
             Caption = 'EORI Number';
+            ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
         }
         field(95; "Use GLN in Electronic Document"; Boolean)
         {
             Caption = 'Use GLN in Electronic Documents';
+            ToolTip = 'Specifies whether the GLN is used in electronic documents as a party identification number.';
         }
         field(102; "E-Mail"; Text[80])
         {
             Caption = 'Email';
             ExtendedDatatype = EMail;
+            ToolTip = 'Specifies the customer''s email address.';
         }
 #if not CLEAN24
         field(103; "Home Page"; Text[80])
@@ -339,6 +377,7 @@ table 1381 "Customer Templ."
             ObsoleteReason = 'Field length will be increased to 255.';
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
+            ToolTip = 'Specifies the customer''s home page address.';
         }
 #else
 #pragma warning disable AS0086
@@ -346,6 +385,7 @@ table 1381 "Customer Templ."
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ToolTip = 'Specifies the customer''s home page address.';
         }
 #pragma warning restore AS0086
 #endif
@@ -353,40 +393,48 @@ table 1381 "Customer Templ."
         {
             Caption = 'Reminder Terms Code';
             TableRelation = "Reminder Terms";
+            ToolTip = 'Specifies how reminders about late payments are handled for this customer.';
         }
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
             TableRelation = "No. Series";
+            ToolTip = 'Specifies the number series that will be used to assign numbers to customers.';
         }
         field(108; "Tax Area Code"; Code[20])
         {
             Caption = 'Tax Area Code';
             TableRelation = "Tax Area";
+            ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
         }
         field(109; "Tax Liable"; Boolean)
         {
             Caption = 'Tax Liable';
+            ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
         }
         field(110; "VAT Bus. Posting Group"; Code[20])
         {
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
+            ToolTip = 'Specifies the customer''s VAT specification to link transactions made for this customer to.';
         }
         field(115; Reserve; Enum "Reserve Method")
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Reserve';
             InitValue = Optional;
+            ToolTip = 'Specifies whether items will never, automatically (Always), or optionally be reserved for this customer.';
         }
         field(116; "Block Payment Tolerance"; Boolean)
         {
             Caption = 'Block Payment Tolerance';
+            ToolTip = 'Specifies that the customer is not allowed a payment tolerance.';
         }
         field(119; "IC Partner Code"; Code[20])
         {
             Caption = 'IC Partner Code';
             TableRelation = "IC Partner";
+            ToolTip = 'Specifies the customer''s intercompany partner code.';
         }
         field(124; "Prepayment %"; Decimal)
         {
@@ -394,18 +442,22 @@ table 1381 "Customer Templ."
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
+            ToolTip = 'Specifies a prepayment percentage that applies to all orders for this customer, regardless of the items or services on the order lines.';
         }
         field(132; "Partner Type"; Enum "Partner Type")
         {
             Caption = 'Partner Type';
+            ToolTip = 'Specifies for direct debit collections if the customer that the payment is collected from is a person or a company.';
         }
         field(133; "Intrastat Partner Type"; Enum "Partner Type")
         {
             Caption = 'Intrastat Partner Type';
+            ToolTip = 'Specifies for Intrastat reporting if the customer is a person or a company.';
         }
         field(150; "Privacy Blocked"; Boolean)
         {
             Caption = 'Privacy Blocked';
+            ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
 
             trigger OnValidate()
             begin
@@ -419,59 +471,71 @@ table 1381 "Customer Templ."
         {
             Caption = 'Disable Search by Name';
             DataClassification = SystemMetadata;
+            ToolTip = 'Specifies that you can change customer name in the document, because the name is not used in search.';
         }
         field(840; "Cash Flow Payment Terms Code"; Code[10])
         {
             Caption = 'Cash Flow Payment Terms Code';
             TableRelation = "Payment Terms";
+            ToolTip = 'Specifies a payment term that will be used to calculate cash flow for the customer.';
         }
         field(5050; "Contact Type"; Enum "Contact Type")
         {
             Caption = 'Contact Type';
+            ToolTip = 'Specifies the type of contact that will be used to create a customer with the template.';
         }
         field(5061; "Mobile Phone No."; Text[30])
         {
             Caption = 'Mobile Phone No.';
             ExtendedDatatype = PhoneNo;
+            ToolTip = 'Specifies the customer''s mobile telephone number.';
         }
         field(5700; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
+            ToolTip = 'Specifies the code for the responsibility center that will administer this customer by default.';
         }
         field(5750; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Shipping Advice';
+            ToolTip = 'Specifies if the customer accepts partial shipment of orders.';
         }
         field(5790; "Shipping Time"; DateFormula)
         {
             AccessByPermission = TableData "Shipping Agent Services" = R;
             Caption = 'Shipping Time';
+            ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
         }
         field(5792; "Shipping Agent Service Code"; Code[10])
         {
             Caption = 'Shipping Agent Service Code';
             TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
+            ToolTip = 'Specifies the code for the shipping agent service to use for this customer.';
         }
         field(7001; "Allow Line Disc."; Boolean)
         {
             Caption = 'Allow Line Disc.';
             InitValue = true;
+            ToolTip = 'Specifies whether to calculate a sales line discount when a special sales price is offered, according to setup in the Sales Prices page.';
         }
         field(7600; "Base Calendar Code"; Code[10])
         {
             Caption = 'Base Calendar Code';
             TableRelation = "Base Calendar";
+            ToolTip = 'Specifies a customizable calendar for shipment planning that holds the customer''s working days and holidays.';
         }
         field(7601; "Copy Sell-to Addr. to Qte From"; Enum "Contact Type")
         {
             AccessByPermission = TableData Contact = R;
             Caption = 'Copy Sell-to Addr. to Qte From';
+            ToolTip = 'Specifies which customer address is inserted on sales quotes that you create for the customer.';
         }
         field(7602; "Validate EU Vat Reg. No."; Boolean)
         {
             Caption = 'Validate EU VAT Reg. No.';
+            ToolTip = 'Specifies if the VAT registration number will be specified in the EU VAT Registration No. Check page so that it is validated against the VAT registration number validation service.';
         }
         field(11620; ABN; Text[11])
         {

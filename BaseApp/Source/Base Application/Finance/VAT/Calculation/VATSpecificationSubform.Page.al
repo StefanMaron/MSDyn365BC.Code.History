@@ -242,7 +242,6 @@ page 576 "VAT Specification Subform"
         Currency: Record Currency;
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         SourceHeader: Variant;
-        CurrencyCode: Code[10];
         AllowVATDifference: Boolean;
         AllowVATDifferenceOnThisTab: Boolean;
         PricesIncludingVAT: Boolean;
@@ -273,6 +272,7 @@ page 576 "VAT Specification Subform"
 
     protected var
         AllowInvDisc, InvoiceDiscountAmountEditable : Boolean;
+        CurrencyCode: Code[10];
 
     procedure SetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin
@@ -470,15 +470,15 @@ page 576 "VAT Specification Subform"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnFormCheckVATDifferenceOnAfterCalcShowVATDifferenceError(VATAmountLine: Record "VAT Amount Line"; TotalVATDifference: Decimal; Currency: Record Currency; var ShowVATDifferenceError: Boolean)
+    begin
+    end;
+
     [Scope('OnPrem')]
     procedure SetPurchHeader(var PurchHeader: Record "Purchase Header")
     begin
         PurchHeader1.Get(PurchHeader."Document Type", PurchHeader."No.");
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnFormCheckVATDifferenceOnAfterCalcShowVATDifferenceError(VATAmountLine: Record "VAT Amount Line"; TotalVATDifference: Decimal; Currency: Record Currency; var ShowVATDifferenceError: Boolean)
-    begin
     end;
 }
 

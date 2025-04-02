@@ -18,13 +18,13 @@ permissionset 6219 "D365 Agent"
     Permissions = tabledata Agent = Rimd,
                   tabledata "Agent Task" = RIMd,
                   tabledata "Agent Task File" = RIMd,
+                  tabledata "Agent Task Log Entry" = RIMd,
                   tabledata "Agent Task Message" = RIMd,
                   tabledata "Agent Task Message Attachment" = RIMD,
                   tabledata "Agent Access Control" = RIMD,
-                  tabledata "Agent Task Pane Entry" = Rimd,
-                  tabledata "Agent Task Step" = RIMd,
-                  tabledata "Agent Task Timeline Entry" = Rimd,
-                  tabledata "Agent Task Timeline Entry Step" = Rimd,
-                  tabledata "Agent Task User Int Suggestion" = Rimd,
+                  tabledata "Agent Task Memory Entry" = RIMd,
+                  tabledata "Agent Task Timeline" = Rimd,
+                  tabledata "Agent Task Timeline Step" = Rimd,
+                  tabledata "Agent Task Timeline Step Det." = Rimd,
                   system "Manage Agent Tasks" = X;
 }

@@ -6,6 +6,7 @@ table 5433 "Tenant Config. Package File"
 {
     Caption = 'Tenant Config. Package File';
     DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {

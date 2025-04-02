@@ -22,7 +22,6 @@ codeunit 137011 "SCM Revaluation-II"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryUtility: Codeunit "Library - Utility";
@@ -786,7 +785,7 @@ codeunit 137011 "SCM Revaluation-II"
           false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
 
         // [GIVEN] Item with Costing Method = Average.
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Average, 0);
 
         // [GIVEN] Two purchase orders "P1" and "P2" for the item.
         // [GIVEN] "P1" is received and invoiced, "P2" is received but not invoiced.
@@ -796,8 +795,8 @@ codeunit 137011 "SCM Revaluation-II"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
         PostingDate := GetLatestPostingDate();
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, Location.Code, '', Qty, PostingDate, UnitCost[1], true, true);
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, Location.Code, '', Qty, PostingDate, UnitCost[2], true, false);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, Location.Code, '', Qty, PostingDate, UnitCost[1], true, true);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, Location.Code, '', Qty, PostingDate, UnitCost[2], true, false);
 
         // [WHEN] Calculate inventory value in revaluation journal for the item.
         CreateRevaluationJournalAndCalcInventoryValueByLocAndVar(Item);
@@ -930,7 +929,7 @@ codeunit 137011 "SCM Revaluation-II"
           false, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::"Item & Location & Variant", AverageCostPeriod::Day);
 
         // [GIVEN] Item with Costing Method = Average.
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Average, 0);
 
         // [GIVEN] Partially posted purchase order on WORKDATE.
         // [GIVEN] Received quantity = invoiced quantity = "q". Full quantity of the purchase line = "Q".
@@ -940,7 +939,7 @@ codeunit 137011 "SCM Revaluation-II"
             UnitCost[i] := LibraryRandom.RandDec(100, 2);
         end;
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        LibraryPatterns.POSTPurchaseOrderPartially(
+        LibraryPurchase.PostPurchaseOrderPartially(
           PurchaseHeader, Item, Location.Code, '', Qty[1] + Qty[2], GetLatestPostingDate(),
           UnitCost[1], true, Qty[1], true, Qty[1]);
 
@@ -1444,7 +1443,7 @@ codeunit 137011 "SCM Revaluation-II"
         // Create Parent item and attach Production BOM.
         CreateProductionItem(
           Item, ItemCostingMethod, Item."Reordering Policy"::"Lot-for-Lot",
-          Item."Flushing Method"::Manual, RoutingNo, ProductionBOMHeader."No.", InventoryPostingGroup);
+          Item."Flushing Method"::"Pick + Manual", RoutingNo, ProductionBOMHeader."No.", InventoryPostingGroup);
     end;
 
     local procedure CreateProductionItem(var Item: Record Item; ItemCostingMethod: Enum "Costing Method"; ItemReorderPolicy: Enum "Reordering Policy"; FlushingMethod: Enum "Flushing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; InventoryPostingGroup: Code[20])
@@ -1491,7 +1490,7 @@ codeunit 137011 "SCM Revaluation-II"
         PostingDate: Date;
         i: Integer;
     begin
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Average, 0);
         CreateLocationsForTransfer(FromLocation, ToLocation, InTransitLocation);
 
         Qty := LibraryRandom.RandInt(10);
@@ -1500,12 +1499,12 @@ codeunit 137011 "SCM Revaluation-II"
 
         PostingDate := GetLatestPostingDate();
 
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, FromLocation.Code, '', Qty, PostingDate, UnitCost[1], true, false);
-        LibraryPatterns.POSTTransferOrder(
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, FromLocation.Code, '', Qty, PostingDate, UnitCost[1], true, false);
+        LibraryInventory.CreateAndPostTransferOrder(
           TransferHeader, Item, FromLocation, ToLocation, InTransitLocation, '', Qty, PostingDate, PostingDate, true, true);
 
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, FromLocation.Code, '', Qty, PostingDate, UnitCost[2], true, true);
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, ToLocation.Code, '', Qty, PostingDate, UnitCost[3], true, true);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, FromLocation.Code, '', Qty, PostingDate, UnitCost[2], true, true);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, ToLocation.Code, '', Qty, PostingDate, UnitCost[3], true, true);
     end;
 
     local procedure FilterRevaluationJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10])

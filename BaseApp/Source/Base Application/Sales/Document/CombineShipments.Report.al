@@ -12,7 +12,7 @@ using System.Globalization;
 report 295 "Combine Shipments"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Combine Shipments';
+    Caption = 'Combine Sales Shipments';
     ProcessingOnly = true;
     UsageCategory = Tasks;
 
@@ -20,7 +20,7 @@ report 295 "Combine Shipments"
     {
         dataitem(SalesOrderHeader; "Sales Header")
         {
-            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Order), "Combine Shipments" = const(true));
+            DataItemTableView = sorting("Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name") where("Document Type" = const(Order), "Combine Shipments" = const(true));
             RequestFilterFields = "Sell-to Customer No.", "Bill-to Customer No.";
             RequestFilterHeading = 'Sales Order';
             dataitem("Sales Shipment Header"; "Sales Shipment Header")
@@ -158,8 +158,6 @@ report 295 "Combine Shipments"
 
             trigger OnPreDataItem()
             begin
-                SetCurrentKey("Sell-to Customer No.", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID");
-
                 if PostingDateReq = 0D then
                     Error(Text000);
                 if DocDateReq = 0D then
@@ -297,20 +295,14 @@ report 295 "Combine Shipments"
 
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        Cust: Record Customer;
         GLSetup: Record "General Ledger Setup";
         PmtTerms: Record "Payment Terms";
-        LanguageMgt: Codeunit Language;
         SalesCalcDisc: Codeunit "Sales-Calc. Discount";
         SalesPost: Codeunit "Sales-Post";
         Window: Dialog;
-        HasAmount: Boolean;
         HideDialog: Boolean;
-        NoOfSalesInvErrors: Integer;
         NoOfSalesInv: Integer;
         NoOfskippedShiment: Integer;
-        ReportLanguage: Integer;
-        ReportFormatRegion: Text[80];
 #pragma warning disable AA0074
         Text000: Label 'Enter the posting date.';
         Text001: Label 'Enter the document date.';
@@ -336,14 +328,20 @@ report 295 "Combine Shipments"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesShptLine: Record "Sales Shipment Line";
+        Cust: Record Customer;
+        LanguageMgt: Codeunit Language;
         PostingDateReq: Date;
         DocDateReq: Date;
         VATDateReq: Date;
         CalcInvDisc: Boolean;
+        HasAmount: Boolean;
         PostInv: Boolean;
         OnlyStdPmtTerms: Boolean;
         CopyTextLines: Boolean;
         VATDateEnabled: Boolean;
+        NoOfSalesInvErrors: Integer;
+        ReportLanguage: Integer;
+        ReportFormatRegion: Text[80];
 
     local procedure FinalizeSalesInvHeader()
     var

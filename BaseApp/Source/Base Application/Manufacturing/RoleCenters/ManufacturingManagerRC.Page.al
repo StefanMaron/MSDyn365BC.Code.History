@@ -1,10 +1,15 @@
-﻿namespace Microsoft.Manufacturing.RoleCenters;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.RoleCenters;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
@@ -183,18 +188,26 @@ page 8903 "Manufacturing Manager RC"
                 group("Group6")
                 {
                     Caption = 'Reports';
+#if not CLEAN26
                     action("Machine Center List")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Machine Center List';
                         RunObject = report "Machine Center List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the page Machine Center List and will be removed in a future release.';
+                        ObsoleteTag = '26.0';
                     }
                     action("Work Center List")
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Work Center List';
                         RunObject = report "Work Center List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This report has been replaced by the page Work Center List and will be removed in a future release.';
+                        ObsoleteTag = '26.0';
                     }
+#endif
                     action("Capacity Task List")
                     {
                         ApplicationArea = Manufacturing;
@@ -211,6 +224,12 @@ page 8903 "Manufacturing Manager RC"
                     ApplicationArea = Manufacturing;
                     Caption = 'Items';
                     RunObject = page "Item List";
+                }
+                action("Stock keeping Units")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Stockkeeping Units';
+                    RunObject = page "Stockkeeping Unit List";
                 }
                 action("Production Forecasts")
                 {
@@ -509,6 +528,12 @@ page 8903 "Manufacturing Manager RC"
                     ApplicationArea = Manufacturing;
                     Caption = 'Items';
                     RunObject = page "Item List";
+                }
+                action("Stock keeping Units1")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Stockkeeping Units';
+                    RunObject = page "Stockkeeping Unit List";
                 }
                 action("Update Unit Cost...")
                 {

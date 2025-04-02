@@ -1,5 +1,7 @@
 namespace Microsoft.Warehouse.Activity;
 
+using Microsoft.Warehouse.Journal;
+
 page 5785 "Warehouse Activity Lines"
 {
     Caption = 'Warehouse Activity Lines';
@@ -127,6 +129,7 @@ page 5785 "Warehouse Activity Lines"
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the item to be handled, such as received, put-away, or assigned.';
+                    Editable = false;
                 }
                 field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
@@ -222,22 +225,6 @@ page 5785 "Warehouse Activity Lines"
             {
                 Caption = '&Line';
                 Image = Line;
-                action(Card)
-                {
-                    ApplicationArea = Warehouse;
-                    Caption = 'Card';
-                    Image = EditLines;
-                    ShortCutKey = 'Shift+F7';
-                    ToolTip = 'View or change detailed information about the record on the document or journal line.';
-                    ObsoleteReason = 'Replaced by "Show Document" action';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-
-                    trigger OnAction()
-                    begin
-                        Rec.ShowActivityDoc();
-                    end;
-                }
                 action(ShowDocument)
                 {
                     ApplicationArea = Warehouse;
@@ -277,6 +264,17 @@ page 5785 "Warehouse Activity Lines"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        WMSManagement: Codeunit "WMS Management";
+    begin
+        WMSManagement.CheckUserIsWhseEmployee();
+
+        Rec.FilterGroup(2); // set group of filters user cannot change
+        Rec.SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId()));
+        Rec.FilterGroup(0); // set filter group back to standard
+    end;
 
     trigger OnAfterGetCurrRecord()
     begin

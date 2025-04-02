@@ -462,25 +462,28 @@ table 7316 "Warehouse Receipt Header"
         WhseCommentLine.DeleteAll();
     end;
 
-    procedure GetHeaderStatus(LineNo: Integer): Integer
+    procedure GetHeaderStatus(SkipLineNo: Integer): Integer
     var
-        WhseReceiptLine2: Record "Warehouse Receipt Line";
-        OrderStatus: Option " ","Partially Received","Completely Received";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
-        WhseReceiptLine2.SetRange("No.", "No.");
-        if LineNo <> 0 then
-            WhseReceiptLine2.SetFilter("Line No.", '<>%1', LineNo);
-        if WhseReceiptLine2.Find('-') then
-            repeat
-                case OrderStatus of
-                    OrderStatus::" ":
-                        OrderStatus := WhseReceiptLine2.Status;
-                    OrderStatus::"Completely Received":
-                        if WhseReceiptLine2.Status = WhseReceiptLine2.Status::"Partially Received" then
-                            OrderStatus := OrderStatus::"Partially Received";
-                end;
-            until WhseReceiptLine2.Next() = 0;
-        exit(OrderStatus);
+        WarehouseReceiptLine.SetRange("No.", "No.");
+        if SkipLineNo <> 0 then
+            WarehouseReceiptLine.SetFilter("Line No.", '<>%1', SkipLineNo);
+
+        WarehouseReceiptLine.SetRange(Status, WarehouseReceiptLine.Status::"Completely Received");
+        if not WarehouseReceiptLine.IsEmpty() then begin
+            WarehouseReceiptLine.SetFilter(Status, '<>%1', WarehouseReceiptLine.Status::"Completely Received");
+            if not WarehouseReceiptLine.IsEmpty() then
+                exit(WarehouseReceiptLine.Status::"Partially Received");
+
+            exit(WarehouseReceiptLine.Status::"Completely Received");
+        end else begin
+            WarehouseReceiptLine.SetRange(Status, WarehouseReceiptLine.Status::"Partially Received");
+            if not WarehouseReceiptLine.IsEmpty() then
+                exit(WarehouseReceiptLine.Status::"Partially Received");
+        end;
+
+        exit(WarehouseReceiptLine.Status::" ");
     end;
 
     procedure LookupLocation(var WhseRcptHeader: Record "Warehouse Receipt Header")

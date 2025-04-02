@@ -182,12 +182,10 @@ table 179 "Reversal Entry"
             else
             if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset";
         }
-        field(27; "FA Posting Category"; Option)
+        field(27; "FA Posting Category"; Enum "FA Ledger Posting Category")
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'FA Posting Category';
-            OptionCaption = ' ,Disposal,Bal. Disposal';
-            OptionMembers = " ",Disposal,"Bal. Disposal";
         }
         field(28; "FA Posting Type"; Enum "Reversal Entry FA Posting Type")
         {
@@ -832,15 +830,6 @@ table 179 "Reversal Entry"
         FALedgerEntry.Copy(GlobalFALedgerEntry);
         MaintenanceLedgerEntry.Copy(GlobalMaintenanceLedgerEntry);
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by W1 implementation of CopyReverseFilters() and CopyWHTEntryFilter()', '23.0')]
-    procedure CopyReverseFilters(var GLEntry: Record "G/L Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var VATEntry: Record "VAT Entry"; var FALedgerEntry: Record "FA Ledger Entry"; var MaintenanceLedgerEntry: Record "Maintenance Ledger Entry"; var WHTEntry: Record "WHT Entry"; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
-    begin
-        CopyReverseFilters(GLEntry, CustLedgerEntry, VendorLedgerEntry, BankAccountLedgerEntry, VATEntry, FALedgerEntry, MaintenanceLedgerEntry, EmployeeLedgerEntry);
-        CopyWHTEntryFilters(WHTEntry);
-    end;
-#endif
 
     procedure CopyWHTEntryFilters(var WHTEntry: Record "WHT Entry")
     begin

@@ -1,11 +1,11 @@
 {
   "settings": {
+    "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false,
-    "allint.enabled": false
+    "allint.enabled": false,
+    "al.enableCodeAnalysis": false
   },
   "folders": [
     {
@@ -25,6 +25,9 @@
     },
     {
       "path": "./PowerBIReports/Test Library/PowerBI Reports Test Library"
+    },
+    {
+      "path": "./EDocumentFormats/PINTANZ/Test/E-Document Format for PINT A-NZ Tests"
     },
     {
       "path": "./FieldServiceIntegration/Test/Field Service Integration Test"
@@ -85,6 +88,12 @@
     },
     {
       "path": "./BankAccRecWithAI/Test/Bank Account Reconciliation With AI Tests"
+    },
+    {
+      "path": "./BankAccRecWithAI/Test/Bank Account Reconciliation With AI Tests/src/PromptTests"
+    },
+    {
+      "path": "./BankAccRecWithAI/Test/Bank Account Reconciliation With AI Tests/src/UnitTests"
     },
     {
       "path": "./AMCBanking365Fundamentals/Test/AMC Banking 365 Fundamentals Test Automations"
@@ -180,7 +189,13 @@
       "path": "./BaseApp/Test/Tests-SCM"
     },
     {
-      "path": "./BaseApp/Test/Tests-Service"
+      "path": "./BaseApp/Test/Tests-SCM-Assembly"
+    },
+    {
+      "path": "./BaseApp/Test/Tests-SCM-Manufacturing"
+    },
+    {
+      "path": "./BaseApp/Test/Tests-SCM-Service"
     },
     {
       "path": "./BaseApp/Test/Tests-SINGLESERVER"
@@ -213,7 +228,7 @@
       "path": "./Sustainability/Test/Sustainability Tests"
     },
     {
-      "path": "./SubscriptionBilling/Test/Subscription & Recurring Billing Tests"
+      "path": "./SubscriptionBilling/Test/Subscription Billing Tests"
     },
     {
       "path": "./System Application/Source/System Application/Email/src/Test Email"
@@ -261,7 +276,7 @@
       "path": "./BusinessFoundation/Test/Business Foundation Test Libraries"
     },
     {
-      "path": "./BusinessFoundation/Test/Business Foundation Tests"
+      "path": "./BusinessFoundation/Test/Business Foundation Tests/DisabledTests"
     },
     {
       "path": "./Email - Microsoft 365 Connector/Test/Email - Microsoft 365 Connector Tests"
@@ -271,6 +286,9 @@
     },
     {
       "path": "./ExcelReports/Test/Dynamics BC Excel Reports Tests"
+    },
+    {
+      "path": "./EDocumentConnectors/SignUp/Test/E-Document Connector - SignUp Tests"
     },
     {
       "path": "./EDocumentConnectors/Logiq/Test/E-Document Connector - Logiq Tests"

@@ -128,39 +128,42 @@ codeunit 5771 "Whse.-Sales Release"
     procedure CreateWarehouseRequest(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; WhseType: Enum "Warehouse Request Type"; var WarehouseRequest: Record "Warehouse Request")
     var
         SalesLine2: Record "Sales Line";
+        IsHandled: Boolean;
     begin
-        if ShouldCreateWarehouseRequest(WhseType, SalesLine."Location Code") then begin
-            SalesLine2.Copy(SalesLine);
-            SalesLine2.SetRange("Location Code", SalesLine."Location Code");
-            SalesLine2.SetRange("Unit of Measure Code", '');
-            if SalesLine2.FindFirst() then
-                SalesLine2.TestField("Unit of Measure Code");
+        OnBeforeCreateWarehouseRequest(SalesHeader, SalesLine, WhseType, IsHandled);
+        if not IsHandled then
+            if ShouldCreateWarehouseRequest(WhseType, SalesLine."Location Code") then begin
+                SalesLine2.Copy(SalesLine);
+                SalesLine2.SetRange("Location Code", SalesLine."Location Code");
+                SalesLine2.SetRange("Unit of Measure Code", '');
+                if SalesLine2.FindFirst() then
+                    SalesLine2.TestField("Unit of Measure Code");
 
-            WarehouseRequest.Type := WhseType;
-            WarehouseRequest."Source Type" := DATABASE::"Sales Line";
-            WarehouseRequest."Source Subtype" := SalesHeader."Document Type".AsInteger();
-            WarehouseRequest."Source No." := SalesHeader."No.";
-            WarehouseRequest."Shipment Method Code" := SalesHeader."Shipment Method Code";
-            WarehouseRequest."Shipping Agent Code" := SalesHeader."Shipping Agent Code";
-            WarehouseRequest."Shipping Agent Service Code" := SalesHeader."Shipping Agent Service Code";
-            WarehouseRequest."Shipping Advice" := SalesHeader."Shipping Advice";
-            WarehouseRequest."Document Status" := SalesHeader.Status::Released.AsInteger();
-            WarehouseRequest."Location Code" := SalesLine."Location Code";
-            WarehouseRequest."Destination Type" := WarehouseRequest."Destination Type"::Customer;
-            WarehouseRequest."Destination No." := SalesHeader."Sell-to Customer No.";
-            WarehouseRequest."External Document No." := SalesHeader."External Document No.";
-            if WhseType = WhseType::Inbound then
-                WarehouseRequest."Expected Receipt Date" := SalesHeader."Shipment Date"
-            else
-                WarehouseRequest."Shipment Date" := SalesHeader."Shipment Date";
-            SalesHeader.SetRange("Location Filter", SalesLine."Location Code");
-            SalesHeader.CalcFields("Completely Shipped");
-            WarehouseRequest."Completely Handled" := SalesHeader."Completely Shipped";
-            OnBeforeCreateWhseRequest(WarehouseRequest, SalesHeader, SalesLine, WhseType.AsInteger());
-            if not WarehouseRequest.Insert() then
-                WarehouseRequest.Modify();
-            OnAfterCreateWhseRequest(WarehouseRequest, SalesHeader, SalesLine, WhseType.AsInteger());
-        end;
+                WarehouseRequest.Type := WhseType;
+                WarehouseRequest."Source Type" := DATABASE::"Sales Line";
+                WarehouseRequest."Source Subtype" := SalesHeader."Document Type".AsInteger();
+                WarehouseRequest."Source No." := SalesHeader."No.";
+                WarehouseRequest."Shipment Method Code" := SalesHeader."Shipment Method Code";
+                WarehouseRequest."Shipping Agent Code" := SalesHeader."Shipping Agent Code";
+                WarehouseRequest."Shipping Agent Service Code" := SalesHeader."Shipping Agent Service Code";
+                WarehouseRequest."Shipping Advice" := SalesHeader."Shipping Advice";
+                WarehouseRequest."Document Status" := SalesHeader.Status::Released.AsInteger();
+                WarehouseRequest."Location Code" := SalesLine."Location Code";
+                WarehouseRequest."Destination Type" := WarehouseRequest."Destination Type"::Customer;
+                WarehouseRequest."Destination No." := SalesHeader."Sell-to Customer No.";
+                WarehouseRequest."External Document No." := SalesHeader."External Document No.";
+                if WhseType = WhseType::Inbound then
+                    WarehouseRequest."Expected Receipt Date" := SalesHeader."Shipment Date"
+                else
+                    WarehouseRequest."Shipment Date" := SalesHeader."Shipment Date";
+                SalesHeader.SetRange("Location Filter", SalesLine."Location Code");
+                SalesHeader.CalcFields("Completely Shipped");
+                WarehouseRequest."Completely Handled" := SalesHeader."Completely Shipped";
+                OnBeforeCreateWhseRequest(WarehouseRequest, SalesHeader, SalesLine, WhseType.AsInteger());
+                if not WarehouseRequest.Insert() then
+                    WarehouseRequest.Modify();
+                OnAfterCreateWhseRequest(WarehouseRequest, SalesHeader, SalesLine, WhseType.AsInteger());
+            end;
     end;
 
     local procedure ShouldCreateWarehouseRequest(WhseType: Enum "Warehouse Request Type"; LocationCode: Code[10]) ShouldCreate: Boolean
@@ -242,6 +245,11 @@ codeunit 5771 "Whse.-Sales Release"
 
     [IntegrationEvent(false, false)]
     local procedure OnReleaseOnAfterCreateWhseRequest(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWarehouseRequest(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; WhseType: Enum "Warehouse Request Type"; var IsHandled: Boolean)
     begin
     end;
 }

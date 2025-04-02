@@ -182,7 +182,7 @@ page 398 "Sales Credit Memo Statistics"
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
-                    ToolTip = 'Specifies the credit limit in LCY of the customer who you created and posted this sales credit memo for.';
+                    ToolTip = 'Specifies the credit limit of the customer on the sales document. The value 0 represents unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
@@ -270,8 +270,8 @@ page 398 "Sales Credit Memo Statistics"
         end;
 
         SalesCrMemoLine.CalcVATAmountLines(Rec, TempVATAmountLine);
-        CurrPage.Subform.PAGE.SetTempVATAmountLine(TempVATAmountLine);
-        CurrPage.Subform.PAGE.InitGlobals(Rec."Currency Code", false, false, false, false, Rec."VAT Base Discount %");
+        CurrPage.Subform.Page.SetTempVATAmountLine(TempVATAmountLine);
+        CurrPage.Subform.Page.InitGlobals(Rec."Currency Code", false, false, false, false, Rec."VAT Base Discount %");
     end;
 
     var
@@ -328,7 +328,7 @@ page 398 "Sales Credit Memo Statistics"
                 CustAmount += SalesCrMemoLine.Amount;
                 AmountInclVAT += SalesCrMemoLine."Amount Including VAT";
                 if Rec."Prices Including VAT" then
-                    InvDiscAmount += SalesCrMemoLine."Inv. Discount Amount" / (1 + SalesCrMemoLine."VAT %" / 100)
+                    InvDiscAmount += SalesCrMemoLine."Inv. Discount Amount" / (1 + SalesCrMemoLine.GetVATPct() / 100)
                 else
                     InvDiscAmount += SalesCrMemoLine."Inv. Discount Amount";
                 CostLCY += SalesCrMemoLine.Quantity * SalesCrMemoLine."Unit Cost (LCY)";
@@ -340,7 +340,7 @@ page 398 "Sales Credit Memo Statistics"
                     TotalParcels += Round(SalesCrMemoLine.Quantity / SalesCrMemoLine."Units per Parcel", 1, '>');
                 if SalesCrMemoLine."VAT %" <> VATpercentage then
                     if VATpercentage = 0 then
-                        VATpercentage := SalesCrMemoLine."VAT %"
+                        VATpercentage := SalesCrMemoLine.GetVATPct()
                     else
                         VATpercentage := -1;
                 TotalAdjCostLCY +=
@@ -372,4 +372,3 @@ page 398 "Sales Credit Memo Statistics"
     begin
     end;
 }
-

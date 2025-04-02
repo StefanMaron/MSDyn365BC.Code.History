@@ -35,7 +35,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                         FromICPartnerCode := ICSetup."IC Partner Code";
                     end;
                 }
-                fieldattribute(SourceType; ICOutboxTrans."Source Type")
+                fieldattribute(SourceType; ICOutboxTrans."IC Source Type")
                 {
                 }
                 fieldattribute(DocType; ICOutboxTrans."Document Type")

@@ -178,7 +178,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         // Setup : Update Sales and Manufacturing Setup.Create Items, Production BOM with three Items,Routing and update Item.
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup);
         UpdateManufacturingSetup(TempManufacturingSetup);
-        CreateProdOrderItemSetup(Item, Item."Flushing Method"::Manual, 3);
+        CreateProdOrderItemSetup(Item, Item."Flushing Method"::"Pick + Manual", 3);
 
         // Create Planned Production Order.Update and Refresh it.
         LibraryManufacturing.CreateProductionOrder(
@@ -325,7 +325,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         // Random values used are important for test.
         LibraryManufacturing.CreateItemManufacturing(
           Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(50, 2),
-          Item."Reordering Policy", Item."Flushing Method"::Manual, '', '');
+          Item."Reordering Policy", Item."Flushing Method"::"Pick + Manual", '', '');
         Item.Validate("Replenishment System", ReplenishmentSystem);
         Item.Modify(true);
     end;

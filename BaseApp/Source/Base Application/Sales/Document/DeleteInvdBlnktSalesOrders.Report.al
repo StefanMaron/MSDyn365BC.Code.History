@@ -95,9 +95,15 @@ report 291 "Delete Invd Blnkt Sales Orders"
         }
     }
 
+    trigger OnPostReport()
+    begin
+        Session.LogAuditMessage(StrSubstNo(DeletedInvoicedBlanketSalesOrdersLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+    end;
+
     var
         ProgressDialog: Dialog;
         ProcessingProgressTxt: Label 'Processing blanket sales orders #1##########', Comment = '%1 - Blanket Sales Order No.';
+        DeletedInvoicedBlanketSalesOrdersLbl: Label 'Invoiced blanket sales orders deleted by UserSecurityId %1 for company %2.', Comment = '%1 - User Security ID, %2 - Company name', Locked = true;
 
     local procedure DeleteApprovalEntries(SalesHeader: Record "Sales Header")
     var

@@ -98,6 +98,21 @@ codeunit 131920 "Library - Job"
         JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.")
     end;
 
+    procedure CreateJobPlanningLine(JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; Type: Enum "Job Planning Line Type"; No: Code[20]; Quantity: Decimal; var JobPlanningLine: Record "Job Planning Line")
+    begin
+        JobPlanningLine.Init();
+        JobPlanningLine.Validate("Job No.", JobTask."Job No.");
+        JobPlanningLine.Validate("Job Task No.", JobTask."Job Task No.");
+        JobPlanningLine.Validate("Line No.", GetNextLineNo(JobPlanningLine));
+        JobPlanningLine.Insert(true);
+        JobPlanningLine.Validate("Planning Date", WorkDate());
+        JobPlanningLine.Validate("Line Type", LineType);
+        JobPlanningLine.Validate(Type, Type);
+        JobPlanningLine.Validate("No.", No);
+        JobPlanningLine.Validate(Quantity, Quantity);
+        JobPlanningLine.Modify(true);
+    end;
+
     procedure CreateJobJournalLine(LineType: Enum "Job Line Type"; JobTask: Record "Job Task"; var JobJournalLine: Record "Job Journal Line")
     var
         JobJournalTemplate: Record "Job Journal Template";

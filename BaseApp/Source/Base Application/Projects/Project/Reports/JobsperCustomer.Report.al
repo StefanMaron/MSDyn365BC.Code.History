@@ -147,6 +147,8 @@ report 1012 "Jobs per Customer"
 
     requestpage
     {
+        AboutTitle = 'About Projects per Customer';
+        AboutText = 'Get an overview of all projects, with focus on scheduled price, percentage of completion, and invoiced amounts for each customer.';
 
         layout
         {

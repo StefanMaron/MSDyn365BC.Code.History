@@ -469,6 +469,7 @@ table 28076 "Purch. Tax Inv. Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
+#if not CLEANSCHEMA28
         field(5712; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -481,6 +482,7 @@ table 28076 "Purch. Tax Inv. Line"
             ObsoleteTag = '17.0';
 #endif
         }
+#endif
         field(6608; "Return Reason Code"; Code[10])
         {
             Caption = 'Return Reason Code';

@@ -3,7 +3,7 @@ namespace Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
-#if not CLEAN23
+#if not CLEAN24
 using Microsoft.Finance.ReceivablesPayables;
 #endif
 using Microsoft.Finance.SalesTax;
@@ -298,26 +298,6 @@ table 1706 "Deferral Posting Buffer"
         OnAfterPrepareRemainderPurchase(Rec, PurchaseLine);
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by PrepareInitialAmounts()', '20.0')]
-    procedure PrepareInitialPair(InvoicePostBuffer: Record "Invoice Post. Buffer"; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; GLAccount: Code[20]; DeferralAccount: Code[20])
-    var
-        NewAmountLCY: Decimal;
-        NewAmount: Decimal;
-    begin
-        if (RemainAmtToDefer <> 0) or (RemainAmtToDeferACY <> 0) then begin
-            NewAmountLCY := RemainAmtToDefer;
-            NewAmount := RemainAmtToDeferACY;
-        end else begin
-            NewAmountLCY := InvoicePostBuffer.Amount;
-            NewAmount := InvoicePostBuffer."Amount (ACY)";
-        end;
-        PrepareRemainderAmounts(NewAmountLCY, NewAmount, DeferralAccount, GLAccount);
-        "Amount (LCY)" := NewAmountLCY;
-        Amount := NewAmount;
-    end;
-#endif
-
     procedure PrepareInitialAmounts(AmountLCY: Decimal; AmountACY: decimal; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; GLAccount: Code[20]; DeferralAccount: Code[20])
     begin
         PrepareInitialAmounts(AmountLCY, AmountACY, RemainAmtToDefer, RemainAmtToDeferACY, GLAccount, DeferralAccount, 0, 0);
@@ -349,50 +329,6 @@ table 1706 "Deferral Posting Buffer"
         "Posting Date" := DeferralLine."Posting Date";
         Description := DeferralLine.Description;
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by procedure Update without parameter InvoicePostBuffer.', '19.0')]
-    procedure Update(DeferralPostBuffer: Record "Deferral Posting Buffer"; InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        Rec := DeferralPostBuffer;
-        SetRange(Type, DeferralPostBuffer.Type);
-        SetRange("G/L Account", DeferralPostBuffer."G/L Account");
-        SetRange("Gen. Bus. Posting Group", DeferralPostBuffer."Gen. Bus. Posting Group");
-        SetRange("Gen. Prod. Posting Group", DeferralPostBuffer."Gen. Prod. Posting Group");
-        SetRange("VAT Bus. Posting Group", DeferralPostBuffer."VAT Bus. Posting Group");
-        SetRange("VAT Prod. Posting Group", DeferralPostBuffer."VAT Prod. Posting Group");
-        SetRange("Tax Area Code", DeferralPostBuffer."Tax Area Code");
-        SetRange("Tax Group Code", DeferralPostBuffer."Tax Group Code");
-        SetRange("Tax Liable", DeferralPostBuffer."Tax Liable");
-        SetRange("Use Tax", DeferralPostBuffer."Use Tax");
-        SetRange("Dimension Set ID", DeferralPostBuffer."Dimension Set ID");
-        SetRange("Job No.", DeferralPostBuffer."Job No.");
-        SetRange("Deferral Code", DeferralPostBuffer."Deferral Code");
-        SetRange("Posting Date", DeferralPostBuffer."Posting Date");
-        SetRange("Partial Deferral", DeferralPostBuffer."Partial Deferral");
-        SetRange("Deferral Line No.", DeferralPostBuffer."Deferral Line No.");
-        OnUpdateOnAfterSetFilters(Rec, DeferralPostBuffer);
-        if FindFirst() then begin
-            Amount += DeferralPostBuffer.Amount;
-            "Amount (LCY)" += DeferralPostBuffer."Amount (LCY)";
-            "Sales/Purch Amount" += DeferralPostBuffer."Sales/Purch Amount";
-            "Sales/Purch Amount (LCY)" += DeferralPostBuffer."Sales/Purch Amount (LCY)";
-            if not DeferralPostBuffer."System-Created Entry" then
-                "System-Created Entry" := false;
-            if IsCombinedDeferralZero() then
-                Delete()
-            else
-                Modify();
-        end else begin
-            "Entry No." := GetLastEntryNo() + 1;
-            "Dimension Set ID" := InvoicePostBuffer."Dimension Set ID";
-            "Global Dimension 1 Code" := InvoicePostBuffer."Global Dimension 1 Code";
-            "Global Dimension 2 Code" := InvoicePostBuffer."Global Dimension 2 Code";
-            OnBeforeDeferralPostBufferInsert(Rec, DeferralPostBuffer, InvoicePostBuffer);
-            Insert();
-        end;
-    end;
-#endif
 
     procedure Update(DeferralPostBuffer: Record "Deferral Posting Buffer")
     begin
@@ -459,7 +395,7 @@ table 1706 "Deferral Posting Buffer"
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN24
     [Obsolete('Replaced by OnUpdateOnBeforeDeferralPostBufferInsert().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeferralPostBufferInsert(var ToDeferralPostingBuffer: Record "Deferral Posting Buffer"; FromDeferralPostingBuffer: Record "Deferral Posting Buffer"; InvoicePostBuffer: Record "Invoice Post. Buffer")

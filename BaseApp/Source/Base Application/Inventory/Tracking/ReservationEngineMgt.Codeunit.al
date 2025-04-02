@@ -1,10 +1,12 @@
-﻿namespace Microsoft.Inventory.Tracking;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 
@@ -362,14 +364,12 @@ codeunit 99000831 "Reservation Engine Mgt."
     var
         ReservEntry2: Record "Reservation Entry";
         ActionMessageEntry: Record "Action Message Entry";
-        ManufacturingSetup: Record "Manufacturing Setup";
+        DampenerPeriod: DateFormula;
         DateFormula: DateFormula;
         FirstDate: Date;
         NextEntryNo: Integer;
     begin
-        if not (ReservEntry."Source Type" in [Database::"Prod. Order Line",
-                                              Database::"Purchase Line"])
-        then
+        if not ShouldModifyActionMessageDating(ReservEntry) then
             exit;
 
         if not ReservEntry.Positive then
@@ -390,19 +390,14 @@ codeunit 99000831 "Reservation Engine Mgt."
           "Reservation Status", ReservEntry2."Reservation Status"::Reservation, ReservEntry2."Reservation Status"::Tracking);
         FirstDate := ReservMgt.FindDate(ReservEntry2, 0, true);
 
-        ManufacturingSetup.Get();
-        if (Format(ManufacturingSetup."Default Dampener Period") = '') or
-           ((ReservEntry.Binding = ReservEntry.Binding::"Order-to-Order") and
-            (ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Reservation))
-        then
-            Evaluate(ManufacturingSetup."Default Dampener Period", '<0D>');
+        OnModifyActionMessageDatingOnGetDampenerPeriod(ReservEntry, DampenerPeriod);
 
         ActionMessageEntry.DeleteAll();
 
         if FirstDate = 0D then
             exit;
 
-        Evaluate(DateFormula, StrSubstNo('%1%2', '-', Format(ManufacturingSetup."Default Dampener Period")));
+        Evaluate(DateFormula, StrSubstNo('%1%2', '-', Format(DampenerPeriod)));
         if CalcDate(DateFormula, FirstDate) <= ReservEntry."Expected Receipt Date" then
             exit;
 
@@ -419,6 +414,12 @@ codeunit 99000831 "Reservation Engine Mgt."
         ActionMessageEntry."Reservation Entry" := ReservEntry2."Entry No.";
         while not ActionMessageEntry.Insert() do
             ActionMessageEntry."Entry No." += 1;
+    end;
+
+    local procedure ShouldModifyActionMessageDating(ReservationEntry: Record "Reservation Entry") Result: Boolean
+    begin
+        Result := ReservationEntry."Source Type" = Database::"Purchase Line";
+        OnAfterShouldModifyActionMessageDating(ReservationEntry, Result);
     end;
 
     procedure AddItemTrackingToTempRecSet(var TempReservEntry: Record "Reservation Entry" temporary; var TrackingSpecification: Record "Tracking Specification"; QtyToAdd: Decimal; var QtyToAddAsBlank: Decimal; ItemTrackingCode: Record "Item Tracking Code"): Decimal
@@ -1278,6 +1279,16 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     [IntegrationEvent(true, false)]
     local procedure OnRevertDateToSourceDate(var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyActionMessageDatingOnGetDampenerPeriod(ReservEntry: Record "Reservation Entry"; var DampenerPeriod: Dateformula)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShouldModifyActionMessageDating(ReservationEntry: Record "Reservation Entry"; var Result: Boolean)
     begin
     end;
 }

@@ -1018,7 +1018,7 @@ codeunit 141046 "UT REP Currency Rounding"
         CustLedgerEntry.Insert();
     end;
 
-    local procedure CreateGLAccount(IncomeBalance: Option): Code[20]
+    local procedure CreateGLAccount(IncomeBalance: Enum "G/L Account Report Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
     begin
@@ -1028,7 +1028,7 @@ codeunit 141046 "UT REP Currency Rounding"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateGLBudgetEntry(IncomeBalance: Option; Amount: Decimal): Code[20]
+    local procedure CreateGLBudgetEntry(IncomeBalance: Enum "G/L Account Report Type"; Amount: Decimal): Code[20]
     var
         GLBudgetEntry: Record "G/L Budget Entry";
     begin

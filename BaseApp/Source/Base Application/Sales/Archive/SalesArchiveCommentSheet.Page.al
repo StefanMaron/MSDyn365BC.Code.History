@@ -21,18 +21,15 @@ page 5180 "Sales Archive Comment Sheet"
                 field(Date; Rec.Date)
                 {
                     ApplicationArea = Comments;
-                    ToolTip = 'Specifies the version number of the archived document.';
                 }
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = Comments;
-                    ToolTip = 'Specifies the document line number of the quote or order to which the comment applies.';
                     Visible = false;
                 }
                 field(Comment; Rec.Comment)
                 {
                     ApplicationArea = Comments;
-                    ToolTip = 'Specifies the line number for the comment.';
                 }
             }
         }

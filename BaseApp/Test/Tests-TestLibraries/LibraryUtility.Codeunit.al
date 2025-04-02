@@ -579,14 +579,14 @@ codeunit 131000 "Library - Utility"
         NoSeries: Record "No. Series";
         NoSeriesCodeunit: Codeunit "No. Series";
     begin
+        NoSeries.ReadIsolation(IsolationLevel::UpdLock);
         if not NoSeries.Get(GUIDTok) then begin
             LibraryNoSeries.CreateNoSeries(GUIDTok, true, true, false);
             LibraryNoSeries.CreateNoSeriesLine(GUIDTok, 1,
                 PadStr(InsStr(GUIDTok, '00000000', 3), 10),
                 PadStr(InsStr(GUIDTok, '99999999', 3), 10));
         end;
-
-        exit(NoSeriesCodeunit.GetNextNo(GUIDTok));
+        exit(CopyStr(NoSeriesCodeunit.GetNextNo(GUIDTok), 1, 10));
     end;
 
     procedure GetEmptyGuid(): Guid

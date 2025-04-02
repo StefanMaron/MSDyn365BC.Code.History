@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA26 
 namespace System.Integration.PowerBI;
 
 /// <summary>
@@ -8,13 +9,8 @@ table 6325 "Power BI User Status"
     Caption = 'Power BI User Status';
     ReplicateData = false;
     ObsoleteReason = 'Check if the user has a pending job queue entry for codeunit "Power BI Report Synchronizer" instead and use the status from the job queue.';
-#if not CLEAN23
-    ObsoleteState = Pending;
-    ObsoleteTag = '23.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '26.0';
-#endif
     DataClassification = CustomerContent;
 
     fields
@@ -46,3 +42,5 @@ table 6325 "Power BI User Status"
     }
 }
 
+ 
+#endif

@@ -1,6 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Ledger;
 
-using Microsoft.Manufacturing.Capacity;
 using System.Security.User;
 
 page 117 "Item Registers"
@@ -11,6 +14,7 @@ page 117 "Item Registers"
     Editable = false;
     PageType = List;
     SourceTable = "Item Register";
+    SourceTableView = sorting("No.") order(descending);
     UsageCategory = History;
 
     layout
@@ -151,7 +155,7 @@ page 117 "Item Registers"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Capacity Ledger';
                     Image = CapacityLedger;
-                    RunObject = Codeunit "Item Reg.-Show Cap. Ledger";
+                    RunObject = Codeunit Microsoft.Manufacturing.Capacity."Item Reg.-Show Cap. Ledger";
                     ToolTip = 'View the capacity ledger entries that resulted in the current register entry.';
                 }
             }

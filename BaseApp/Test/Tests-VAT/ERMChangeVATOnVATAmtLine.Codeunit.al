@@ -377,6 +377,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         Assert.AreEqual(DefaultVATAmountLineTxt, TempVATAmountLine.VATAmountText(), 'VATAmountText returned wrong text');
     end;
 
+#if not CLEAN26
     [Test]
     [Scope('OnPrem')]
     procedure VATAmountTextOnNonTempVATAmountLine()
@@ -398,6 +399,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
 
         Assert.ExpectedMessage(DefaultVATAmountLineTxt, VATAmountLine.VATAmountText());
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ServiceStatisticsHandler2')]

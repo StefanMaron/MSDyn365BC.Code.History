@@ -1,9 +1,7 @@
 namespace Microsoft.Warehouse.Request;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
@@ -34,12 +32,6 @@ table 7325 "Whse. Pick Request"
             TableRelation = if ("Document Type" = const(Shipment)) "Warehouse Shipment Header"."No."
             else
             if ("Document Type" = const("Internal Pick")) "Whse. Internal Pick Header"."No."
-            else
-#pragma warning disable AL0603
-            if ("Document Type" = const(Production)) "Production Order"."No." where(Status = field("Document Subtype"))
-            else
-            if ("Document Type" = const(Assembly)) "Assembly Header"."No." where("Document Type" = field("Document Subtype"))
-#pragma warning restore AL0603
             else
             if ("Document Type" = const(Job)) Job."No." where(Status = const(Open));
 
@@ -121,13 +113,9 @@ table 7325 "Whse. Pick Request"
     var
         WhseShptHeader: Record "Warehouse Shipment Header";
         WhseInternalPickHeader: Record "Whse. Internal Pick Header";
-        ProdOrderHeader: Record "Production Order";
-        AssemblyHeader: Record "Assembly Header";
         JobHeader: Record Job;
         WhseShptList: Page "Warehouse Shipment List";
         WhseInternalPickList: Page "Whse. Internal Pick List";
-        ProdOrderList: Page "Production Order List";
-        AssemblyOrders: Page "Assembly Orders";
         JobList: Page "Job List";
         IsHandled: Boolean;
     begin
@@ -151,20 +139,6 @@ table 7325 "Whse. Pick Request"
                     WhseInternalPickList.RunModal();
                     Clear(WhseInternalPickList);
                 end;
-            "Document Type"::Production:
-                begin
-                    if ProdOrderHeader.Get("Document Subtype", "Document No.") then
-                        ProdOrderList.SetRecord(ProdOrderHeader);
-                    ProdOrderList.RunModal();
-                    Clear(ProdOrderList);
-                end;
-            "Document Type"::Assembly:
-                begin
-                    if AssemblyHeader.Get("Document Subtype", "Document No.") then
-                        AssemblyOrders.SetRecord(AssemblyHeader);
-                    AssemblyOrders.RunModal();
-                    Clear(AssemblyOrders);
-                end;
             "Document Type"::Job:
                 begin
                     if JobHeader.Get("Document No.") then
@@ -172,11 +146,18 @@ table 7325 "Whse. Pick Request"
                     JobList.RunModal();
                     Clear(JobList);
                 end;
+            else
+                OnLookupDocumentNo(Rec);
         end;
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupDocumentNo(var WhsePickRequest: Record "Whse. Pick Request"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupDocumentNo(var WhsePickRequest: Record "Whse. Pick Request")
     begin
     end;
 }

@@ -2210,7 +2210,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst();
-        SalesLine.Validate("Qty. to Ship", Round(SalesLine.Quantity / LibraryRandom.RandInt(5), 1));
+        SalesLine.Validate("Qty. to Ship", Round(SalesLine.Quantity / LibraryRandom.RandIntInRange(2,5), 1));
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -2305,7 +2305,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         PurchLine.FindFirst();
-        PurchLine.Validate("Qty. to Receive", Round(PurchLine.Quantity / LibraryRandom.RandInt(5), 1));
+        PurchLine.Validate("Qty. to Receive", Round(PurchLine.Quantity / LibraryRandom.RandIntInRange(2, 5), 1));
         PurchLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
     end;

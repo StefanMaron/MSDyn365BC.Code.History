@@ -5738,7 +5738,10 @@
 
         // [THEN] All controls related to customer (and on SaaS) are disabled
         Assert.IsFalse(SalesInvoice.GetRecurringSalesLines.Enabled(), ControlShouldBeDisabledErr);
+#if not CLEAN26
         Assert.IsFalse(SalesInvoice.Statistics.Enabled(), ControlShouldBeDisabledErr);
+#endif
+        Assert.IsFalse(SalesInvoice.SalesStatistics.Enabled(), ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesInvoice.CalculateInvoiceDiscount.Enabled(), ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesInvoice.CopyDocument.Enabled(), ControlShouldBeDisabledErr);
 
@@ -5775,7 +5778,10 @@
 
         // [THEN] All controls related to customer (and on SaaS) are enabled
         Assert.IsTrue(SalesInvoice.GetRecurringSalesLines.Enabled(), ControlShouldBeEnabledErr);
+#if not CLEAN26
         Assert.IsTrue(SalesInvoice.Statistics.Enabled(), ControlShouldBeEnabledErr);
+#endif
+        Assert.IsTrue(SalesInvoice.SalesStatistics.Enabled(), ControlShouldBeEnabledErr);
         Assert.IsTrue(SalesInvoice.CalculateInvoiceDiscount.Enabled(), ControlShouldBeEnabledErr);
         Assert.IsTrue(SalesInvoice.CopyDocument.Enabled(), ControlShouldBeEnabledErr);
 

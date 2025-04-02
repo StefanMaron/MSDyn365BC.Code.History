@@ -57,7 +57,7 @@ page 1318 "Account Receivables KPIs"
                         ActivitiesMgt.DrillDownCalcARAccountsBalances();
                     end;
                 }
-                field("Average Collection Days"; ActivitiesMgt.CalcAverageCollectionDays())
+                field("Average Collection Days"; ActivitiesMgt.CalcAverageCollectionDays(false))
                 {
                     ApplicationArea = All;
                     Caption = 'Average Collection Days';

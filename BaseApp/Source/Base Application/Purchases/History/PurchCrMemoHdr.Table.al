@@ -49,6 +49,7 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Buy-from Vendor No.';
             NotBlank = true;
             TableRelation = Vendor;
+            ToolTip = 'Specifies the number of the vendor that you shipped the items on the credit memo to.';
         }
         field(3; "No."; Code[20])
         {
@@ -59,6 +60,7 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Pay-to Vendor No.';
             NotBlank = true;
             TableRelation = Vendor;
+            ToolTip = 'Specifies the number of the vendor that you received the credit memo from.';
         }
         field(5; "Pay-to Name"; Text[100])
         {

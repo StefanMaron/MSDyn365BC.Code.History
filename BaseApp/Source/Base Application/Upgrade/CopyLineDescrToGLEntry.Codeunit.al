@@ -1,6 +1,10 @@
+#if not CLEAN26
 codeunit 104152 "Copy Line Descr. To G/L Entry"
 {
     Subtype = Upgrade;
+    ObsoleteReason = 'It is before 15.0 change, upgrade already happened.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '26.0';
 
     trigger OnRun()
     begin
@@ -20,17 +24,11 @@ codeunit 104152 "Copy Line Descr. To G/L Entry"
     var
         SalesSetup: Record "Sales & Receivables Setup";
         PurchSetup: Record "Purchases & Payables Setup";
-        ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
         // Bug ugprade tag or remove
         if SalesSetup.Get() then begin
             SalesSetup."Copy Line Descr. to G/L Entry" := true;
             SalesSetup.Modify();
-        end;
-
-        if ServiceMgtSetup.Get() then begin
-            ServiceMgtSetup."Copy Line Descr. to G/L Entry" := true;
-            ServiceMgtSetup.Modify();
         end;
 
         if PurchSetup.Get() then begin
@@ -39,4 +37,4 @@ codeunit 104152 "Copy Line Descr. To G/L Entry"
         end;
     end;
 }
-
+#endif

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 using Microsoft.Inventory.Tracking;
@@ -17,9 +21,6 @@ using Microsoft.Warehouse.History;
 codeunit 5995 "Service Warehouse Mgt."
 {
     var
-#if not CLEAN23
-        WMSManagement: Codeunit "WMS Management";
-#endif
         WhseManagement: Codeunit "Whse. Management";
         WhseValidateSourceHeader: Codeunit "Whse. Validate Source Header";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
@@ -37,9 +38,6 @@ codeunit 5995 "Service Warehouse Mgt."
             ServiceLine.SetRange("Document No.", SourceNo);
             ServiceLine.SetRange("Line No.", SourceLineNo);
             IsHandled := false;
-#if not CLEAN23
-            WMSManagement.RunOnShowSourceDocLineOnBeforeShowServiceLines(ServiceLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
-#endif
             OnBeforeShowServiceLines(ServiceLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
             if not IsHandled then
                 ShowServiceLines(ServiceLine);
@@ -86,9 +84,6 @@ codeunit 5995 "Service Warehouse Mgt."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN23
-        WhseValidateSourceLine.RunOnBeforeServiceLineVerifyChange(NewServiceLine, OldServiceLine, IsHandled);
-#endif
         OnBeforeServiceLineVerifyChange(NewServiceLine, OldServiceLine, IsHandled);
         if IsHandled then
             exit;
@@ -109,9 +104,6 @@ codeunit 5995 "Service Warehouse Mgt."
         WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewServiceLine.FieldNo("Unit of Measure Code"));
 
         OnAfterServiceLineVerifyChange(NewRecordRef, OldRecordRef);
-#if not CLEAN23
-        WhseValidateSourceLine.RunOnAfterServiceLineVerifyChange(NewRecordRef, OldRecordRef);
-#endif
     end;
 
     procedure ServiceLineDelete(var ServiceLine: Record "Service Line")
@@ -209,9 +201,6 @@ codeunit 5995 "Service Warehouse Mgt."
         Result: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnBeforeFromService2ShptLine(WarehouseShipmentHeader, ServiceLine, Result, IsHandled);
-#endif
         OnBeforeFromService2ShptLine(WarehouseShipmentHeader, ServiceLine, Result, IsHandled);
         if IsHandled then
             exit(Result);
@@ -227,9 +216,6 @@ codeunit 5995 "Service Warehouse Mgt."
             ServiceLine."No.", ServiceLine.Description, ServiceLine."Description 2", ServiceLine."Location Code",
             ServiceLine."Variant Code", ServiceLine."Unit of Measure Code", ServiceLine."Qty. per Unit of Measure",
             ServiceLine."Qty. Rounding Precision", ServiceLine."Qty. Rounding Precision (Base)");
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnFromServiceLine2ShptLineOnAfterInitNewLine(WarehouseShipmentLine, WarehouseShipmentHeader, ServiceLine);
-#endif
         OnFromServiceLine2ShptLineOnAfterInitNewLine(WarehouseShipmentLine, WarehouseShipmentHeader, ServiceLine);
         WhseCreateSourceDocument.SetQtysOnShptLine(
             WarehouseShipmentLine, Abs(ServiceLine."Outstanding Quantity"), Abs(ServiceLine."Outstanding Qty. (Base)"));
@@ -247,14 +233,8 @@ codeunit 5995 "Service Warehouse Mgt."
         if WarehouseShipmentLine."Bin Code" = '' then
             WarehouseShipmentLine."Bin Code" := ServiceLine."Bin Code";
         WhseCreateSourceDocument.UpdateShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnFromServiceLine2ShptLineOnBeforeCreateShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, ServiceHeader, ServiceLine);
-#endif
         OnFromServiceLine2ShptLineOnBeforeCreateShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, ServiceHeader, ServiceLine);
         WhseCreateSourceDocument.CreateShipmentLine(WarehouseShipmentLine);
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnAfterCreateShptLineFromServiceLine(WarehouseShipmentLine, WarehouseShipmentHeader, ServiceLine);
-#endif
         OnAfterCreateShptLineFromServiceLine(WarehouseShipmentLine, WarehouseShipmentHeader, ServiceLine);
         exit(not WarehouseShipmentLine.HasErrorOccured());
     end;

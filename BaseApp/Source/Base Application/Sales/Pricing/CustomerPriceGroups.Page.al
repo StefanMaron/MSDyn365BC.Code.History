@@ -61,17 +61,6 @@ page 7 "Customer Price Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT business posting group that determines the default VAT percentage to add to sales prices for customers in this group.';
                 }
-#if not CLEAN23
-                field("Coupled to CRM"; Rec."Coupled to CRM")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies that the customer price group is coupled to a price list in Dynamics 365 Sales.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;

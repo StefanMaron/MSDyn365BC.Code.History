@@ -1,10 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Assembly.History;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
@@ -55,7 +57,7 @@ codeunit 6520 "Item Tracing Mgt."
             SearchCriteria::Serial:
                 if not ItemLedgEntry.SetCurrentKey("Serial No.") then
                     if ItemNoFilter <> '' then
-                        ItemLedgEntry.SetCurrentKey("Item No.")
+                        ItemLedgEntry.SetCurrentKey("Item No.", "Entry No.")
                     else
                         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive,
                           "Location Code", "Posting Date", "Expiration Date", "Lot No.", "Serial No.");
@@ -64,12 +66,12 @@ codeunit 6520 "Item Tracing Mgt."
             SearchCriteria::Both:
                 if not ItemLedgEntry.SetCurrentKey("Lot No.") then
                     if ItemNoFilter <> '' then
-                        ItemLedgEntry.SetCurrentKey("Item No.")
+                        ItemLedgEntry.SetCurrentKey("Item No.", "Entry No.")
                     else
                         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive,
                           "Location Code", "Posting Date", "Expiration Date", "Lot No.", "Serial No.");
             SearchCriteria::Item:
-                ItemLedgEntry.SetCurrentKey("Item No.");
+                ItemLedgEntry.SetCurrentKey("Item No.", "Entry No.");
         end;
         OnFirstLevelOnAfterItemLedgEntrySetCurrentKey(ItemLedgEntry);
         ItemLedgEntry.SetFilter("Lot No.", LotNoFilter);
@@ -297,7 +299,6 @@ codeunit 6520 "Item Tracing Mgt."
     procedure InsertRecord(var TempTrackEntry: Record "Item Tracing Buffer"; ParentID: Integer) Result: Boolean
     var
         TempTrackEntry2: Record "Item Tracing Buffer";
-        ProductionOrder: Record "Production Order";
         ItemLedgerEntry: Record "Item Ledger Entry";
         Job: Record Job;
         RecRef: RecordRef;
@@ -336,14 +337,6 @@ codeunit 6520 "Item Tracing Mgt."
                 else begin
                     if RecRef.Get(TempTrackEntry."Record Identifier") then
                         case RecRef.Number of
-                            Database::"Production Order":
-                                begin
-                                    RecRef.SetTable(ProductionOrder);
-                                    Description2 :=
-                                      StrSubstNo('%1 %2 %3 %4', ProductionOrder.Status, RecRef.Caption, TempTrackEntry."Entry Type", TempTrackEntry."Document No.");
-                                end;
-                            Database::"Posted Assembly Header":
-                                Description2 := StrSubstNo('%1 %2', TempTrackEntry."Entry Type", TempTrackEntry."Document No.");
                             Database::"Item Ledger Entry":
                                 begin
                                     RecRef.SetTable(ItemLedgerEntry);
@@ -532,7 +525,6 @@ codeunit 6520 "Item Tracing Mgt."
         ReturnRcptHeader: Record "Return Receipt Header";
         TransShipHeader: Record "Transfer Shipment Header";
         TransRcptHeader: Record "Transfer Receipt Header";
-        ProductionOrder: Record "Production Order";
         RecRef: RecordRef;
         IsHandled: Boolean;
     begin
@@ -620,31 +612,9 @@ codeunit 6520 "Item Tracing Mgt."
                             RecRef.GetTable(ItemLedgEntry);
                             TrackingEntry."Record Identifier" := RecRef.RecordId;
                         end;
-            TrackingEntry."Entry Type"::"Assembly Consumption",
-          TrackingEntry."Entry Type"::"Assembly Output":
-                SetRecordIDAssembly(TrackingEntry);
-            TrackingEntry."Entry Type"::Consumption,
-            TrackingEntry."Entry Type"::Output:
-                begin
-                    ProductionOrder.SetFilter(Status, '>=%1', ProductionOrder.Status::Released);
-                    ProductionOrder.SetRange("No.", TrackingEntry."Document No.");
-                    if ProductionOrder.FindFirst() then begin
-                        RecRef.GetTable(ProductionOrder);
-                        TrackingEntry."Record Identifier" := RecRef.RecordId;
-                    end;
-                end;
         end;
-    end;
 
-    local procedure SetRecordIDAssembly(var ItemTracingBuffer: Record "Item Tracing Buffer")
-    var
-        PostedAssemblyHeader: Record "Posted Assembly Header";
-        RecRef: RecordRef;
-    begin
-        if PostedAssemblyHeader.Get(ItemTracingBuffer."Document No.") then begin
-            RecRef.GetTable(PostedAssemblyHeader);
-            ItemTracingBuffer."Record Identifier" := RecRef.RecordId;
-        end;
+        OnAfterSetRecordID(TrackingEntry, RecRef);
     end;
 
     procedure ShowDocument(RecID: RecordID)
@@ -660,8 +630,6 @@ codeunit 6520 "Item Tracing Mgt."
         ReturnRcptHeader: Record "Return Receipt Header";
         TransShipHeader: Record "Transfer Shipment Header";
         TransRcptHeader: Record "Transfer Receipt Header";
-        ProductionOrder: Record "Production Order";
-        PostedAssemblyHeader: Record "Posted Assembly Header";
         RecRef: RecordRef;
         IsHandled: Boolean;
     begin
@@ -731,23 +699,8 @@ codeunit 6520 "Item Tracing Mgt."
                     RecRef.SetTable(TransRcptHeader);
                     PAGE.RunModal(PAGE::"Posted Transfer Receipt", TransRcptHeader);
                 end;
-            Database::"Posted Assembly Line",
-            Database::"Posted Assembly Header":
-                begin
-                    RecRef.SetTable(PostedAssemblyHeader);
-                    PAGE.RunModal(PAGE::"Posted Assembly Order", PostedAssemblyHeader);
-                end;
-            Database::"Production Order":
-                begin
-                    RecRef.SetTable(ProductionOrder);
-                    if ProductionOrder.Status = ProductionOrder.Status::Released then
-                        PAGE.RunModal(PAGE::"Released Production Order", ProductionOrder)
-                    else
-                        if ProductionOrder.Status = ProductionOrder.Status::Finished then
-                            PAGE.RunModal(PAGE::"Finished Production Order", ProductionOrder);
-                end;
             else
-                OnShowDocument(RecRef);
+                OnShowDocument(RecRef, RecID);
         end;
     end;
 
@@ -1096,12 +1049,17 @@ codeunit 6520 "Item Tracing Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnShowDocument(RecRef: RecordRef)
+    local procedure OnShowDocument(RecRef: RecordRef; RecID: RecordId)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnFindRecordsOnBeforeInitTempTable(var ItemTracingBuffer: Record "Item Tracing Buffer"; Direction: Option; ShowComponents: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetRecordID(var TrackingEntry: Record "Item Tracing Buffer"; RecRef: RecordRef)
     begin
     end;
 }

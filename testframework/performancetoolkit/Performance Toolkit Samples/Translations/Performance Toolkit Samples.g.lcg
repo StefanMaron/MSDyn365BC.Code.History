@@ -113,6 +113,24 @@
       <Cmt Name="Dev"><![CDATA[%1 = Parameter name]D;]A;(Namespace=System.Test.Tooling)(LookupHint=Codeunit BCPT Post Purch. Inv. - NamedType ParamValidationErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2344905 - NamedType 2327185332" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Lines]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.Tooling)(LookupHint=Codeunit BCPT Post Sales Invoices - NamedType NoOfLinesParamLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2344905 - NamedType 1355010387" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Parameter is not defined in the correct format. The expected format is "%1"]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 is a string]D;]A;(Namespace=System.Test.Tooling)(LookupHint=Codeunit BCPT Post Sales Invoices - NamedType ParamValidationErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 321474336 - NamedType 2327185332" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Lines]]></Val>

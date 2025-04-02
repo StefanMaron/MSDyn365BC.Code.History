@@ -22,6 +22,7 @@ table 9150 "My Customer"
             Caption = 'Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+            ToolTip = 'Specifies the customer numbers that are displayed in the My Customer Cue on the Role Center.';
 
             trigger OnValidate()
             begin
@@ -32,11 +33,13 @@ table 9150 "My Customer"
         {
             Caption = 'Name';
             Editable = false;
+            ToolTip = 'Specifies the name of the customer.';
         }
         field(4; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
             Editable = false;
+            ToolTip = 'Specifies the customer''s phone number.';
         }
         field(5; "Balance (LCY)"; Decimal)
         {
@@ -45,6 +48,7 @@ table 9150 "My Customer"
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the payment amount that the customer owes for completed sales.';
         }
     }
 
@@ -70,6 +74,7 @@ table 9150 "My Customer"
     var
         Customer: Record Customer;
     begin
+        Customer.SetLoadFields("Name", "Phone No.");
         if Customer.Get("Customer No.") then begin
             Name := Customer.Name;
             "Phone No." := Customer."Phone No.";

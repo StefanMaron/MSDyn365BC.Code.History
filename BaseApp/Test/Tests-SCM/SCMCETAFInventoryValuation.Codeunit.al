@@ -77,20 +77,22 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
           ParentItem, CompItem, ProdOrderLine, '', ParentItem."Costing Method"::FIFO, CompItem."Costing Method"::Average, Day1, Qty, QtyPer);
 
         // Purchase component items.
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, CompItem, '', '', (Qty * QtyPer) / 2, Day1, CompItem."Standard Cost", true, false);
-        LibraryPatterns.POSTPurchaseOrder(
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, CompItem, '', '', (Qty * QtyPer) / 2, Day1, CompItem."Standard Cost", true, false);
+        LibraryPurchase.POSTPurchaseOrder(
           PurchaseHeader1, CompItem, '', '', (Qty * QtyPer) / 2 + 1, Day1 + 30, CompItem."Standard Cost", true, false);
 
         // Post consumption.
-        LibraryPatterns.MAKEConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, CompItem, Day1 + 5, '', '', Qty * QtyPer, 0);
+        LibraryManufacturing.CreateConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, CompItem, Day1 + 5, '', '', Qty * QtyPer, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Post output.
-        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 6, Qty, 0);
+        LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 6, Qty, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Post sale.
-        LibraryPatterns.POSTSaleJournal(ParentItem, '', '', '', Qty, Day1 + 6, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.PostItemJournalLine(
+            "Item Journal Template Type"::Item, "Item Ledger Entry Type"::Sale,
+            ParentItem, '', '', '', Qty, Day1 + 6, LibraryRandom.RandDec(100, 2));
 
         // Invoice purchases.
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
@@ -146,29 +148,29 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         SubassemblyItem.Validate("Replenishment System", SubassemblyItem."Replenishment System"::"Prod. Order");
         SubassemblyItem.Modify();
 
-        LibraryPatterns.MAKEItem(CompItem, CompItem."Costing Method"::Standard, LibraryRandom.RandDec(50, 2), 0, 0, '');
+        LibraryInventory.CreateItem(CompItem, CompItem."Costing Method"::Standard, LibraryRandom.RandDec(50, 2), 0, 0, '');
 
         // Setup subassembly BOM.
-        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, SubassemblyItem, CompItem, QtyPer, '');
+        LibraryManufacturing.CreateProductionBOM(ProductionBOMHeader, SubassemblyItem, CompItem, QtyPer, '');
 
         // Purchase component items.
-        LibraryPatterns.POSTPurchaseOrder(
+        LibraryPurchase.POSTPurchaseOrder(
           PurchaseHeader, SubassemblyItem, Location.Code, '', Qty * QtyPer, Day1, CompItem."Standard Cost", true, false);
-        LibraryPatterns.POSTPurchaseOrder(
+        LibraryPurchase.POSTPurchaseOrder(
           PurchaseHeader1, CompItem, Location.Code, '', Qty * QtyPer * QtyPer, Day1, CompItem."Standard Cost", true, false);
 
         // Post consumption.
-        LibraryPatterns.MAKEConsumptionJournalLine(
+        LibraryManufacturing.CreateConsumptionJournalLine(
           ItemJournalBatch, ProdOrderLine, SubassemblyItem, Day1 + 5, Location.Code, '', Qty * QtyPer, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
-        LibraryPatterns.MAKEConsumptionJournalLine(
+        LibraryManufacturing.CreateConsumptionJournalLine(
           ItemJournalBatch, ProdOrderLine, CompItem, Day1 + 5, Location.Code, '', Qty * QtyPer * QtyPer, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
 
         // Post output.
-        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 5, Qty, 0);
+        LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 5, Qty, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
 
@@ -177,15 +179,15 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         UpdateItemStandardCost(SubassemblyItem);
 
         // Post negative consumption.
-        LibraryPatterns.MAKEConsumptionJournalLine(
+        LibraryManufacturing.CreateConsumptionJournalLine(
           ItemJournalBatch, ProdOrderLine, CompItem, Day1 + 7, Location.Code, '', -Qty * QtyPer * QtyPer, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
-        LibraryPatterns.MAKEConsumptionJournalLine(
+        LibraryManufacturing.CreateConsumptionJournalLine(
           ItemJournalBatch, ProdOrderLine, SubassemblyItem, Day1 + 7, Location.Code, '', -Qty * QtyPer, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Post negative output.
-        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 7, -Qty, 0);
+        LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 7, -Qty, 0);
         ApplyToItemLedgerEntry(ItemJournalLine, TempItemLedgerEntry, ItemJournalBatch, ParentItem."No.");
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
@@ -294,18 +296,18 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         Day1 := WorkDate();
 
         // Setup the item.
-        LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, 0, 0, 0, '');
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
-        LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
+        LibraryWarehouse.CreateStockkeepingUnit(StockkeepingUnit, Item);
 
         // Post purchase.
         Qty := LibraryRandom.RandInt(20);
-        LibraryPatterns.POSTPurchaseOrder(
+        LibraryPurchase.POSTPurchaseOrder(
           PurchaseHeader, Item, FromLocation.Code, '', Qty, Day1, LibraryRandom.RandDec(100, 2), true, false);
 
         // Reclassify into second location.
-        LibraryPatterns.POSTReclassificationJournalLine(Item, Day1 + 8, FromLocation.Code, ToLocation.Code, '', '', '', Qty);
+        LibraryInventory.PostReclassificationJournalLine(Item, Day1 + 8, FromLocation.Code, ToLocation.Code, '', '', '', Qty);
 
         // Invoice the purchase order at a different cost.
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
@@ -345,21 +347,21 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         Day1 := WorkDate();
 
         // Setup the item.
-        LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, 0, 0, 0, '');
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(InTransitLocation);
         InTransitLocation."Use As In-Transit" := true;
         InTransitLocation.Modify();
-        LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
+        LibraryWarehouse.CreateStockkeepingUnit(StockkeepingUnit, Item);
 
         // Post purchase.
         Qty := LibraryRandom.RandInt(20);
-        LibraryPatterns.POSTPurchaseOrder(
+        LibraryPurchase.POSTPurchaseOrder(
           PurchaseHeader, Item, FromLocation.Code, '', Qty, Day1, LibraryRandom.RandDec(100, 2), true, false);
 
         // Transfer into second location.
-        LibraryPatterns.POSTTransferOrder(
+        LibraryInventory.CreateAndPostTransferOrder(
           TransferHeader, Item, FromLocation, ToLocation, InTransitLocation, '', Qty, Day1 + 8, Day1 + 8, true, true);
 
         // Invoice the purchase order at a different cost.
@@ -445,22 +447,22 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         if Confirm('') then; // ES workaround.
 
         // Setup the item.
-        LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, 0, 0, 0, '');
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
         // Post sales and credit memo.
         Qty := LibraryRandom.RandInt(20);
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, Location.Code, '', Qty, Day1, LibraryRandom.RandDec(100, 2), true, true);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, Location.Code, '', Qty, Day1, LibraryRandom.RandDec(100, 2), true, true);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
 
-        LibraryPatterns.MAKESalesCreditMemo(SalesHeader, SalesLine, Item, Location.Code, '', Qty, Day1, 0, 0);
+        LibrarySales.CreateSalesCreditMemo(SalesHeader, SalesLine, Item, Location.Code, '', Qty, Day1, 0, 0);
         SalesLine.Validate("Appl.-from Item Entry", TempItemLedgerEntry."Entry No.");
         SalesLine.Modify();
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Post positive adj.
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', Qty, Day1 + 2, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', Qty, Day1 + 2, LibraryRandom.RandDec(100, 2));
 
         // Adjust.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -518,18 +520,18 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         if Confirm('') then; // ES workaround.
 
         // Setup the item.
-        LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, 0, 0, 0, '');
 
         // Post purchase, sales, sales cr. memo.
         Qty := 3 + LibraryRandom.RandInt(20);
-        LibraryPatterns.MAKEPurchaseInvoice(PurchaseHeader, PurchaseLine, Item, '', '', Qty - 3, Day1, LibraryRandom.RandDec(100, 2));
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, Item, '', '', Qty - 3, Day1, LibraryRandom.RandDec(100, 2));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        LibraryPatterns.MAKESalesInvoice(SalesHeader, SalesLine, Item, '', '', Qty - 3, Day1 + 5, LibraryRandom.RandDec(100, 2));
+        LibrarySales.CreateSalesInvoice(SalesHeader, SalesLine, Item, '', '', Qty - 3, Day1 + 5, LibraryRandom.RandDec(100, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
 
-        LibraryPatterns.MAKESalesCreditMemo(SalesHeader, SalesLine, Item, '', '', Qty - 3, Day1 + 5, 0, 0);
+        LibrarySales.CreateSalesCreditMemo(SalesHeader, SalesLine, Item, '', '', Qty - 3, Day1 + 5, 0, 0);
         SalesLine.Validate("Appl.-from Item Entry", TempItemLedgerEntry."Entry No.");
         SalesLine.Modify();
 
@@ -542,7 +544,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
         // Post revaluation.
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Revaluation);
-        LibraryPatterns.MAKEItemJournalLineWithApplication(ItemJournalLine, ItemJournalBatch, Item, '', '', Day1 + 2,
+        LibraryInventory.CreateItemJournalLineWithApplication(ItemJournalLine, ItemJournalBatch, Item, '', '', Day1 + 2,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Qty - 3, 0, TempItemLedgerEntry."Entry No.");
         ItemJournalLine.Validate("Inventory Value (Revalued)",
           ItemJournalLine."Inventory Value (Calculated)" + LibraryRandom.RandDec(10, 2));
@@ -617,7 +619,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         Day1 := WorkDate();
 
         // Setup the item.
-        LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, 0, 0, 0, '');
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(InTransitLocation);
@@ -626,15 +628,15 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
         // Post purchase.
         Qty := LibraryRandom.RandInt(20);
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, FromLocation.Code, '', Qty, Day1,
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, FromLocation.Code, '', Qty, Day1,
           LibraryRandom.RandDec(100, 2), true, true);
 
         // Transfer into second location.
-        LibraryPatterns.POSTTransferOrder(TransferHeader, Item, FromLocation, ToLocation, InTransitLocation, '', Qty, Day1 + 2,
+        LibraryInventory.CreateAndPostTransferOrder(TransferHeader, Item, FromLocation, ToLocation, InTransitLocation, '', Qty, Day1 + 2,
           Day1 + 2, true, true);
 
         // Post positive adjmt.
-        LibraryPatterns.POSTPositiveAdjustment(Item, FromLocation.Code, '', '', Qty + 1, Day1 + 5, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.PostPositiveAdjustment(Item, FromLocation.Code, '', '', Qty + 1, Day1 + 5, LibraryRandom.RandDec(100, 2));
 
         // Adjust.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -643,9 +645,9 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryCosting.CheckAdjustment(Item);
 
         // Post sales with charge.
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, FromLocation.Code, '',
+        LibrarySales.CreateSalesOrder(SalesHeader, SalesLine, Item, FromLocation.Code, '',
           Qty, Day1 + 7, LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.ASSIGNSalesChargeToSalesLine(SalesHeader, SalesLine, Qty, LibraryRandom.RandDec(100, 2));
+        LibrarySales.AssignSalesChargeToSalesLine(SalesHeader, SalesLine, Qty, LibraryRandom.RandDec(100, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Adjust.
@@ -709,7 +711,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         Day1 := WorkDate();
 
         // Setup the item.
-        LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, 0, 0, 0, '');
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location."Bin Mandatory" := true;
         Location.Modify();
@@ -718,23 +720,23 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
         // Post positive adjmt and purchase in 2 different bins.
         Qty := LibraryRandom.RandInt(20);
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', Bin1.Code,
+        LibraryInventory.PostPositiveAdjustment(Item, Location.Code, '', Bin1.Code,
           Qty, Day1, LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, Item, Location.Code, '',
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, Location.Code, '',
           Qty, Day1 + 4, LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Bin Code", Bin2.Code);
         PurchaseLine.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // Post reclassification from bin 2 to bin 1.
-        LibraryPatterns.POSTReclassificationJournalLine(Item, Day1 + 4,
+        LibraryInventory.PostReclassificationJournalLine(Item, Day1 + 4,
           Location.Code, Location.Code, '', Bin2.Code, Bin1.Code, Qty);
 
         // Assign charge to receipt.
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
         PurchRcptLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(PurchaseHeader, PurchRcptLine, 1, LibraryRandom.RandDec(100, 2));
+        LibraryPurchase.AssignPurchChargeToPurchRcptLine(PurchaseHeader, PurchRcptLine, 1, LibraryRandom.RandDec(100, 2));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Adjust.
@@ -798,12 +800,12 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         Day1 := WorkDate();
 
         // Setup the item.
-        LibraryPatterns.MAKEItem(Item, CostingMethod, LibraryRandom.RandDec(100, 2), 0, LibraryRandom.RandInt(10), '');
+        LibraryInventory.CreateItem(Item, CostingMethod, LibraryRandom.RandDec(100, 2), 0, LibraryRandom.RandInt(10), '');
 
         Qty := LibraryRandom.RandInt(20);
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', Qty, Day1, Item."Unit Cost", true, true);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, '', '', Qty, Day1, Item."Unit Cost", true, true);
         Clear(SalesHeader);
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', 2 * Qty, Day1 + 7, Item."Unit Cost", true, false);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, '', '', 2 * Qty, Day1 + 7, Item."Unit Cost", true, false);
 
         // Undo shipment and then repost.
         SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
@@ -811,8 +813,8 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', 5 * Qty, Day1 + 14, Item."Unit Cost", true, true);
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', 2 * Qty, Day1 + 21, Item."Unit Cost", true, true);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, '', '', 5 * Qty, Day1 + 14, Item."Unit Cost", true, true);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, '', '', 2 * Qty, Day1 + 21, Item."Unit Cost", true, true);
 
         // Adjust.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -904,12 +906,12 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
         // [GIVEN] Create item "I"
         Initialize();
-        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Standard, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, Item."Costing Method"::Standard, 0, 0, 0, '');
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
         // [GIVEN] Post negative adjustment for item "I"
-        LibraryPatterns.POSTNegativeAdjustment(
+        LibraryInventory.PostNegativeAdjustment(
           Item, Location.Code, ItemVariant.Code, '', LibraryRandom.RandInt(10), WorkDate(), LibraryRandom.RandDec(100, 2));
 
         // [WHEN] Run Inventory Valuation - Check
@@ -950,29 +952,29 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         // Setup the items.
         Qty := LibraryRandom.RandDec(100, 2);
         QtyPer := LibraryRandom.RandInt(10);
-        LibraryPatterns.MAKEItemSimple(ParentItem, CostingMethod, 0);
-        LibraryPatterns.MAKEItemSimple(ChildItem, CostingMethod, 0);
-        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ParentItem, ChildItem, QtyPer, '');
+        LibraryInventory.CreateItemSimple(ParentItem, CostingMethod, 0);
+        LibraryInventory.CreateItemSimple(ChildItem, CostingMethod, 0);
+        LibraryManufacturing.CreateProductionBOM(ProductionBOMHeader, ParentItem, ChildItem, QtyPer, '');
 
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader1, ChildItem, '', '', Qty * QtyPer, Day1,
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader1, ChildItem, '', '', Qty * QtyPer, Day1,
           LibraryRandom.RandDec(100, 2), true, false);
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader2, ChildItem, '', '', Qty * QtyPer, Day1 + 1,
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader2, ChildItem, '', '', Qty * QtyPer, Day1 + 1,
           LibraryRandom.RandDec(100, 2), true, false);
 
-        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ParentItem, '', '', Qty, Day1 + 5);
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ParentItem, '', '', Qty, Day1 + 5);
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst();
-        LibraryPatterns.MAKEConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, ChildItem, Day1 + 2, '', '', Qty * QtyPer, 0);
+        LibraryManufacturing.CreateConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, ChildItem, Day1 + 2, '', '', Qty * QtyPer, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Post output.
-        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 3, Qty, 0);
+        LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 3, Qty, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
 
         // Undo output.
-        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 4, -Qty, 0);
+        LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 4, -Qty, 0);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst();
@@ -981,7 +983,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Post output again.
-        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 5, 2 * Qty, 0);
+        LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, Day1 + 5, 2 * Qty, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Finish prod. order.
@@ -996,7 +998,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         LibraryCosting.AdjustCostItemEntries(ChildItem."No." + '|' + ParentItem."No.", '');
 
         // Sell.
-        LibraryPatterns.POSTSalesOrder(SalesHeader, ParentItem, '', '', 2 * Qty, Day1 + 14, 0, true, true);
+        LibrarySales.PostSalesOrder(SalesHeader, ParentItem, '', '', 2 * Qty, Day1 + 14, 0, true, true);
 
         // Adjust.
         LibraryCosting.AdjustCostItemEntries(ChildItem."No." + '|' + ParentItem."No.", '');
@@ -1034,17 +1036,17 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         ProductionBOMHeader: Record "Production BOM Header";
     begin
         // Setup produced and component item.
-        LibraryPatterns.MAKEItem(ParentItem, ParentCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
+        LibraryInventory.CreateItem(ParentItem, ParentCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
         ParentItem.Modify();
 
-        LibraryPatterns.MAKEItem(CompItem, CompCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
+        LibraryInventory.CreateItem(CompItem, CompCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
 
         // Setup BOM and Routing.
-        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ParentItem, CompItem, QtyPer, '');
+        LibraryManufacturing.CreateProductionBOM(ProductionBOMHeader, ParentItem, CompItem, QtyPer, '');
 
         // Released production order.
-        LibraryPatterns.MAKEProductionOrder(
+        LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ParentItem, LocationCode, '', ProducedQty, ProdOrderDate);
         FindProdOrderLine(ProdOrderLine, ProductionOrder);
     end;

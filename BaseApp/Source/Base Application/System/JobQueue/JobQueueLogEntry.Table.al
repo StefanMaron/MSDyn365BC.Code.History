@@ -67,35 +67,6 @@ table 474 "Job Queue Log Entry"
         {
             Caption = 'Error Message';
         }
-        field(12; "Error Message 2"; Text[250])
-        {
-            Caption = 'Error Message 2';
-            ObsoleteReason = 'Error Message field size has been increased.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(13; "Error Message 3"; Text[250])
-        {
-            Caption = 'Error Message 3';
-            ObsoleteReason = 'Error Message field size has been increased.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(14; "Error Message 4"; Text[250])
-        {
-            Caption = 'Error Message 4';
-            ObsoleteReason = 'Error Message field size has been increased.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(16; "Processed by User ID"; Text[65])
-        {
-            Caption = 'Processed by User ID';
-            DataClassification = EndUserIdentifiableInformation;
-            ObsoleteTag = '23.0';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The Processed by User ID is the same as User ID';
-        }
         field(17; "Job Queue Category Code"; Code[10])
         {
             Caption = 'Job Queue Category Code';
@@ -276,4 +247,3 @@ table 474 "Job Queue Log Entry"
         exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 }
-

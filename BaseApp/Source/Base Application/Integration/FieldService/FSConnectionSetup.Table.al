@@ -1,7 +1,9 @@
-﻿// ------------------------------------------------------------------------------------------------
+#if not CLEANSCHEMA28 
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+#pragma warning disable AS0002
 namespace Microsoft.Integration.FieldService;
 
 #if not CLEAN25
@@ -241,16 +243,20 @@ table 6418 "FS Connection Setup"
             TableRelation = "Unit of Measure";
 #endif
         }
+#if not CLEAN25
         field(203; "Line Synch. Rule"; Enum "FS Work Order Line Synch. Rule")
         {
             DataClassification = SystemMetadata;
             Caption = 'Synchronize work order products/services';
         }
+#endif
+#if not CLEAN25
         field(204; "Line Post Rule"; Enum "FS Work Order Line Post Rule")
         {
             DataClassification = SystemMetadata;
             Caption = 'Automatically post project journal lines';
         }
+#endif
     }
 
     keys
@@ -1140,4 +1146,5 @@ table 6418 "FS Connection Setup"
     end;
 #endif
 }
-
+#endif
+#pragma warning disable AS0002

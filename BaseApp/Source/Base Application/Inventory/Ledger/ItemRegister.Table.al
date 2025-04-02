@@ -1,9 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Ledger;
 
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Journal;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Utilities;
 using System.Security.AccessControl;
 
@@ -12,6 +16,7 @@ table 46 "Item Register"
     Caption = 'Item Register';
     LookupPageID = "Item Registers";
     DataClassification = CustomerContent;
+    Permissions = TableData "Item Register" = ri;
 
     fields
     {
@@ -76,12 +81,12 @@ table 46 "Item Register"
         field(5831; "From Capacity Entry No."; Integer)
         {
             Caption = 'From Capacity Entry No.';
-            TableRelation = "Capacity Ledger Entry";
+            TableRelation = Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
         }
         field(5832; "To Capacity Entry No."; Integer)
         {
             Caption = 'To Capacity Entry No.';
-            TableRelation = "Capacity Ledger Entry";
+            TableRelation = Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
         }
         field(5895; "Cost Adjustment Run Guid"; Guid)
         {
@@ -115,6 +120,23 @@ table 46 "Item Register"
         }
     }
 
+    procedure GetNextEntryNo(UseLegacyPosting: Boolean): Integer
+    begin
+        if not UseLegacyPosting then
+            exit(GetNextEntryNo());
+        Rec.LockTable();
+        exit(GetLastEntryNo() + 1);
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Register", 'r')]
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Item Register"));
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Register", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";

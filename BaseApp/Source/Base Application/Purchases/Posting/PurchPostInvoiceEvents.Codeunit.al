@@ -662,4 +662,14 @@ codeunit 826 "Purch. Post Invoice Events"
     local procedure OnBeforePrepareDeferralLine(var TempDeferralHeader: Record "Deferral Header" temporary; var TempDeferralLine: Record "Deferral Line" temporary; var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; AmountLCY: Decimal; AmountACY: Decimal; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; PurchAccount: Code[20]; DocNo: Code[20]; InvDefLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
+
+    procedure RunOnBeforeGetAmountsForDeferral(PurchLine: Record "Purchase Line"; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var DeferralAccount: Code[20]; var IsHandled: Boolean)
+    begin
+        OnBeforeGetAmountsForDeferral(PurchLine, AmtToDefer, AmtToDefer, DeferralAccount, IsHandled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAmountsForDeferral(PurchLine: Record "Purchase Line"; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var DeferralAccount: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
 }

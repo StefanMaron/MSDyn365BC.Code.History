@@ -1083,7 +1083,7 @@ codeunit 137414 "SCM Item Categories"
         ItemCategories.GotoRecord(ItemCategory);
 
         // [THEN] ItemAttributesFactbox shows "AAA" with Name and Value with Unit of Measure.
-        ItemCategories.ItemAttributesFactbox."Attribute Name".AssertEquals(ItemAttributeName);
+        ItemCategories.ItemAttributesFactbox.Attribute.AssertEquals(ItemAttributeName);
         ItemCategories.ItemAttributesFactbox.Value.AssertEquals(AttributeTextValue + ' ' + TextUoM);
         ItemCategories.Close();
     end;
@@ -1116,7 +1116,7 @@ codeunit 137414 "SCM Item Categories"
         ItemList.GotoRecord(Item);
 
         // [THEN] ItemAttributesFactbox displays "AAA" with Name and Value with Unit of Measure.
-        ItemList.ItemAttributesFactBox."Attribute Name".AssertEquals(ItemAttributeName);
+        ItemList.ItemAttributesFactBox.Attribute.AssertEquals(ItemAttributeName);
         ItemList.ItemAttributesFactBox.Value.AssertEquals(AttributeTextValue + ' ' + TextUoM);
         ItemList.Close();
     end;

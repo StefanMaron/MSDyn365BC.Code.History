@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Counting.Document;
 
 using Microsoft.Inventory.Counting.Recording;
@@ -514,7 +518,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
         ItemTrackingSetup: Record "Item Tracking Setup";
     begin
         ItemLedgerEntry.Reset();
-        ItemLedgerEntry.SetCurrentKey("Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
+        ItemLedgerEntry.SetCurrentKey("Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date", "Entry No.");
         ItemLedgerEntry.SetRange("Item No.", PhysInvtOrderLine."Item No.");
         ItemLedgerEntry.SetRange("Variant Code", PhysInvtOrderLine."Variant Code");
         ItemLedgerEntry.SetRange("Location Code", PhysInvtOrderLine."Location Code");

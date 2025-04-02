@@ -441,6 +441,7 @@ table 28074 "Sales Tax Cr.Memo Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
+#if not CLEANSCHEMA28
         field(5712; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -453,6 +454,7 @@ table 28074 "Sales Tax Cr.Memo Line"
             ObsoleteTag = '17.0';
 #endif
         }
+#endif
         field(5811; "Appl.-from Item Entry"; Integer)
         {
             Caption = 'Appl.-from Item Entry';

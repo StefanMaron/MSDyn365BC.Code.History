@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA25 
 namespace Microsoft.Purchases.Payables;
 
 using Microsoft.Finance.Currency;
@@ -181,3 +182,5 @@ table 372 "Payment Buffer"
     end;
 }
 
+ 
+#endif

@@ -4,6 +4,8 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.TimeSheet;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Projects.Resources.Setup;
 
 codeunit 212 "Res. Jnl.-Post Line"
 {
@@ -26,46 +28,44 @@ codeunit 212 "Res. Jnl.-Post Line"
         Resource: Record Resource;
         ResourceRegister: Record "Resource Register";
         ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        ResourcesSetup: Record "Resources Setup";
         ResJnlCheckLine: Codeunit "Res. Jnl.-Check Line";
         NextEntryNo: Integer;
         GLSetupRead: Boolean;
 
     procedure RunWithCheck(var ResJournalLine: Record "Res. Journal Line")
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
         ResJournalLineGlobal.Copy(ResJournalLine);
+        SequenceNoMgt.ClearSequenceNoCheck();
         Code();
         ResJournalLine := ResJournalLineGlobal;
     end;
 
     local procedure "Code"()
     var
+        xNextEntryNo: Integer;
         IsHandled: Boolean;
     begin
+        xNextEntryNo := NextEntryNo;
         IsHandled := false;
-        OnBeforePostResJnlLine(ResJournalLineGlobal, IsHandled);
+        OnBeforePostResJnlLine(ResJournalLineGlobal, IsHandled, NextEntryNo);
         if not IsHandled then begin
+            ValidateSequenceNo(NextEntryNo, xNextEntryNo, Database::"Res. Ledger Entry");
             if ResJournalLineGlobal.EmptyLine() then
                 exit;
 
             ResJnlCheckLine.RunCheck(ResJournalLineGlobal);
             OnCodeOnAfterRunCheck(ResJournalLineGlobal);
 
-            if NextEntryNo = 0 then begin
+            if (NextEntryNo = 0) and ResourcesSetup.UseLegacyPosting() then begin
                 ResLedgerEntry.LockTable();
                 NextEntryNo := ResLedgerEntry.GetLastEntryNo() + 1;
             end;
 
             if ResJournalLineGlobal."Document Date" = 0D then
                 ResJournalLineGlobal."Document Date" := ResJournalLineGlobal."Posting Date";
-
-            if ResourceRegister."No." = 0 then begin
-                ResourceRegister.LockTable();
-                if (not ResourceRegister.FindLast()) or (ResourceRegister."To Entry No." <> 0) then
-                    InsertRegister(ResJournalLineGlobal);
-            end;
-            ResourceRegister."To Entry No." := NextEntryNo;
-            OnBeforeResourceRegisterModify(ResJournalLineGlobal, ResourceRegister);
-            ResourceRegister.Modify();
 
             Resource.Get(ResJournalLineGlobal."Resource No.");
             Resource.CheckResourcePrivacyBlocked(true);
@@ -75,6 +75,9 @@ codeunit 212 "Res. Jnl.-Post Line"
             if not IsHandled then
                 Resource.TestField(Blocked, false);
             ResJournalLineGlobal."Resource Group No." := Resource."Resource Group No.";
+
+            if not ResourcesSetup.UseLegacyPosting() then
+                NextEntryNo := ResLedgerEntry.GetNextEntryNo();
 
             ResLedgerEntry.Init();
             ResLedgerEntry.CopyFromResJnlLine(ResJournalLineGlobal);
@@ -101,12 +104,18 @@ codeunit 212 "Res. Jnl.-Post Line"
 
             OnBeforeResLedgEntryInsert(ResLedgerEntry, ResJournalLineGlobal);
 
+            InsertRegister(ResLedgerEntry."Entry No.");
+            ResLedgerEntry."Resource Register No." := ResourceRegister."No.";
             ResLedgerEntry.Insert(true);
+            OnAfterResLedgEntryInsert(ResLedgerEntry, ResJournalLineGlobal);
 
-            NextEntryNo := NextEntryNo + 1;
+            if ResourcesSetup.UseLegacyPosting() then
+                NextEntryNo := NextEntryNo + 1;
         end;
 
-        OnAfterPostResJnlLine(ResJournalLineGlobal, ResLedgerEntry);
+        xNextEntryNo := NextEntryNo;
+        OnAfterPostResJnlLine(ResJournalLineGlobal, ResLedgerEntry, NextEntryNo);
+        ValidateSequenceNo(NextEntryNo, xNextEntryNo, Database::"Res. Ledger Entry");
     end;
 
     local procedure GetGLSetup()
@@ -158,19 +167,42 @@ codeunit 212 "Res. Jnl.-Post Line"
         exit(Chargeable);
     end;
 
-    local procedure InsertRegister(var ResJournalLine: Record "Res. Journal Line")
+    local procedure InsertRegister(ResLedgEntryNo: Integer)
     begin
-        ResourceRegister.Init();
-        ResourceRegister."No." := ResourceRegister."No." + 1;
-        ResourceRegister."From Entry No." := NextEntryNo;
-        ResourceRegister."To Entry No." := NextEntryNo;
-        ResourceRegister."Creation Date" := Today();
-        ResourceRegister."Creation Time" := Time();
-        ResourceRegister."Source Code" := ResJournalLine."Source Code";
-        ResourceRegister."Journal Batch Name" := ResJournalLine."Journal Batch Name";
-        ResourceRegister."User ID" := CopyStr(UserId(), 1, MaxStrLen(ResourceRegister."User ID"));
-        OnBeforeResourceRegisterInsert(ResJournalLine, ResourceRegister);
-        ResourceRegister.Insert();
+        if ResourceRegister."No." = 0 then begin
+            ResourceRegister."No." := ResourceRegister.GetNextEntryNo(ResourcesSetup.UseLegacyPosting());
+            ResourceRegister.Init();
+            ResourceRegister."From Entry No." := NextEntryNo;
+            ResourceRegister."To Entry No." := NextEntryNo;
+            ResourceRegister."Creation Date" := Today();
+            ResourceRegister."Creation Time" := Time();
+            ResourceRegister."Source Code" := ResJournalLineGlobal."Source Code";
+            ResourceRegister."Journal Batch Name" := ResJournalLineGlobal."Journal Batch Name";
+            ResourceRegister."User ID" := CopyStr(UserId(), 1, MaxStrLen(ResourceRegister."User ID"));
+            OnBeforeResourceRegisterInsert(ResJournalLineGlobal, ResourceRegister);
+            ResourceRegister.Insert();
+        end else begin
+            if ((ResLedgEntryNo < ResourceRegister."From Entry No.") and (ResLedgEntryNo <> 0)) or
+               ((ResourceRegister."From Entry No." = 0) and (ResLedgEntryNo > 0))
+            then
+                ResourceRegister."From Entry No." := ResLedgEntryNo;
+            if ResLedgEntryNo > ResourceRegister."To Entry No." then
+                ResourceRegister."To Entry No." := ResLedgEntryNo;
+            OnBeforeResourceRegisterModify(ResJournalLineGlobal, ResourceRegister);
+            ResourceRegister.Modify();
+        end;
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Res. Ledger Entry", 'r')]
+    local procedure ValidateSequenceNo(LedgEntryNo: Integer; xLedgEntryNo: Integer; TableNo: Integer)
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        if LedgEntryNo = xLedgEntryNo then
+            exit;
+        if ResourcesSetup.UseLegacyPosting() then
+            exit;
+        SequenceNoMgt.ValidateSeqNo(TableNo);
     end;
 
     [IntegrationEvent(false, false)]
@@ -179,12 +211,12 @@ codeunit 212 "Res. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostResJnlLine(var ResJournalLine: Record "Res. Journal Line"; var ResLedgEntry: Record "Res. Ledger Entry")
+    local procedure OnAfterPostResJnlLine(var ResJournalLine: Record "Res. Journal Line"; var ResLedgEntry: Record "Res. Ledger Entry"; var NextEntryNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostResJnlLine(var ResJournalLine: Record "Res. Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforePostResJnlLine(var ResJournalLine: Record "Res. Journal Line"; var IsHandled: Boolean; var NextEntryNo: Integer)
     begin
     end;
 
@@ -215,6 +247,11 @@ codeunit 212 "Res. Jnl.-Post Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnCodeOnAfterRunCheck(var ResJournalLine: Record "Res. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterResLedgEntryInsert(var ResLedgerEntry: Record "Res. Ledger Entry"; ResJournalLine: Record "Res. Journal Line")
     begin
     end;
 }

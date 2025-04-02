@@ -1,3 +1,7 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 using Microsoft.Bank.BankAccount;
@@ -48,7 +52,6 @@ using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Request;
 using System.Email;
-using System.Environment.Configuration;
 using System.Globalization;
 using System.Reflection;
 using System.Security.User;
@@ -79,6 +82,7 @@ table 5900 "Service Header"
             trigger OnValidate()
             var
                 ConfirmManagement: Codeunit "Confirm Management";
+                Confirmed: Boolean;
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -171,7 +175,8 @@ table 5900 "Service Header"
                     OnBeforeCheckBlockedCustomer(Cust, IsHandled);
                     if not IsHandled then
                         Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, false);
-                    Cust.TestField("Gen. Bus. Posting Group");
+                    if CheckBusPostingGroups() then
+                        Cust.TestField("Gen. Bus. Posting Group");
                     CopyCustomerFields(Cust);
                 end;
 
@@ -180,7 +185,7 @@ table 5900 "Service Header"
                 if not IsHandled then
                     if "Customer No." = xRec."Customer No." then
                         if ShippedServLinesExist() then
-                            if not ApplicationAreaMgmt.IsSalesTaxEnabled() then begin
+                            if CheckBusPostingGroups() then begin
                                 TestField("VAT Bus. Posting Group", xRec."VAT Bus. Posting Group");
                                 TestField("Gen. Bus. Posting Group", xRec."Gen. Bus. Posting Group");
                             end;
@@ -214,7 +219,7 @@ table 5900 "Service Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
-
+            
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
@@ -234,6 +239,7 @@ table 5900 "Service Header"
             var
                 ServCheckCreditLimit: Codeunit "Serv. Check Credit Limit";
                 ConfirmManagement: Codeunit "Confirm Management";
+                Confirmed: Boolean;
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -313,28 +319,30 @@ table 5900 "Service Header"
 
                 if Rec."Customer No." <> Rec."Bill-to Customer No." then
                     UpdateShipToSalespersonCode();
+
+                OnAfterValidateBillToCustomerNo(Rec, xRec, Cust);
             end;
         }
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
-        }
+                    }
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
-        }
+                    }
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
-        }
+                    }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
-        }
+                    }
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
-            TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code".City
+                        TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Bill-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Bill-to Country/Region Code"));
             ValidateTableRelation = false;
@@ -358,11 +366,11 @@ table 5900 "Service Header"
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
-        }
+                    }
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
-        }
+                    }
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
@@ -460,23 +468,23 @@ table 5900 "Service Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
-        }
+                    }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
-        }
+                    }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-        }
+                    }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-        }
+                    }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
-            TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
+                        TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Ship-to Country/Region Code"));
             ValidateTableRelation = false;
@@ -500,7 +508,7 @@ table 5900 "Service Header"
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
-        }
+                    }
         field(19; "Order Date"; Date)
         {
             Caption = 'Order Date';
@@ -552,6 +560,8 @@ table 5900 "Service Header"
             Caption = 'Posting Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if ("Posting No." <> '') and ("Posting No. Series" <> '') then begin
                     GlobalNoSeries.Get("Posting No. Series");
@@ -564,11 +574,15 @@ table 5900 "Service Header"
                 end;
 
                 TestField("Posting Date");
+                OnValidatePostingDateOnAfterCheckPostingDate(Rec);
 
                 GeneralLedgerSetup.GetRecordOnce();
                 GeneralLedgerSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
                 Validate("VAT Reporting Date");
-                Validate("Document Date", "Posting Date");
+                IsHandled := false;
+                OnValidatePostingDateOnAfterValidateVATReportingDate(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    Validate("Document Date", "Posting Date");
 
                 ServLine.SetRange("Document Type", "Document Type");
                 ServLine.SetRange("Document No.", "No.");
@@ -579,6 +593,8 @@ table 5900 "Service Header"
                             ServLine.Modify();
                         end;
                     until ServLine.Next() = 0;
+
+                OnValidatePostingDateOnAfterUpdatePostingDateOnLines(Rec, HideValidationDialog);
 
                 if ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) and
                    not ("Posting Date" = xRec."Posting Date")
@@ -596,38 +612,15 @@ table 5900 "Service Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
-        }
+                    }
         field(23; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
             TableRelation = "Payment Terms";
 
             trigger OnValidate()
-            var
-                PaymentTerms: Record "Payment Terms";
-                IsHandled: Boolean;
             begin
-                if ("Payment Terms Code" <> '') and ("Document Date" <> 0D) then begin
-                    PaymentTerms.Get("Payment Terms Code");
-                    if ("Document Type" in ["Document Type"::"Credit Memo"]) and
-                       not PaymentTerms."Calc. Pmt. Disc. on Cr. Memos"
-                    then begin
-                        Validate("Due Date", "Document Date");
-                        Validate("Pmt. Discount Date", 0D);
-                        Validate("Payment Discount %", 0);
-                    end else begin
-                        "Due Date" := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
-                        "Pmt. Discount Date" := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
-                        Validate("Payment Discount %", PaymentTerms."Discount %")
-                    end;
-                end else begin
-                    IsHandled := false;
-                    OnValidatePaymentTermsCodeOnBeforeValidateDueDate(Rec, IsHandled);
-                    if not IsHandled then
-                        Validate("Due Date", "Document Date");
-                    Validate("Pmt. Discount Date", 0D);
-                    Validate("Payment Discount %", 0);
-                end;
+                ValidatePaymentTerms(Rec);
             end;
         }
         field(24; "Due Date"; Date)
@@ -882,7 +875,7 @@ table 5900 "Service Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
-            TableRelation = "Language Selection"."Language Tag";
+                        TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Salesperson Code"; Code[20])
         {
@@ -944,8 +937,7 @@ table 5900 "Service Header"
                     ServApplyCustEntries.GetCustLedgEntry(CustLedgEntry);
                     GenJnlApply.CheckAgainstApplnCurrency(
                       "Currency Code", CustLedgEntry."Currency Code", GenJnlLine."Account Type"::Customer, true);
-                    "Applies-to Doc. Type" := CustLedgEntry."Document Type";
-                    "Applies-to Doc. No." := CustLedgEntry."Document No.";
+                    CopyAppliestoFieldsFromCustLedgerEntry(CustLedgEntry);
                 end;
                 Clear(ServApplyCustEntries);
             end;
@@ -1028,6 +1020,10 @@ table 5900 "Service Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+                    }
+        field(71; "Combine Shipments"; Boolean)
+        {
+            Caption = 'Combine Shipments';
         }
         field(73; "Reason Code"; Code[10])
         {
@@ -1082,15 +1078,15 @@ table 5900 "Service Header"
         field(79; Name; Text[100])
         {
             Caption = 'Name';
-        }
+                    }
         field(80; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
-        }
+                    }
         field(81; Address; Text[100])
         {
             Caption = 'Address';
-
+            
             trigger OnValidate()
             begin
                 UpdateShipToAddressFromGeneralAddress(FieldNo("Ship-to Address"));
@@ -1099,7 +1095,7 @@ table 5900 "Service Header"
         field(82; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-
+            
             trigger OnValidate()
             begin
                 UpdateShipToAddressFromGeneralAddress(FieldNo("Ship-to Address 2"));
@@ -1108,7 +1104,7 @@ table 5900 "Service Header"
         field(83; City; Text[30])
         {
             Caption = 'City';
-            TableRelation = if ("Country/Region Code" = const('')) "Post Code".City
+                        TableRelation = if ("Country/Region Code" = const('')) "Post Code".City
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
             ValidateTableRelation = false;
@@ -1132,7 +1128,7 @@ table 5900 "Service Header"
         field(84; "Contact Name"; Text[100])
         {
             Caption = 'Contact Name';
-        }
+                    }
         field(85; "Bill-to Post Code"; Code[20])
         {
             Caption = 'Bill-to Post Code';
@@ -1161,7 +1157,7 @@ table 5900 "Service Header"
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
-        }
+                    }
         field(87; "Bill-to Country/Region Code"; Code[10])
         {
             Caption = 'Bill-to Country/Region Code';
@@ -1203,7 +1199,7 @@ table 5900 "Service Header"
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
-
+            
             trigger OnValidate()
             begin
                 UpdateShipToAddressFromGeneralAddress(FieldNo("Ship-to County"));
@@ -1253,7 +1249,7 @@ table 5900 "Service Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
-        }
+                    }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
             Caption = 'Ship-to Country/Region Code';
@@ -1286,13 +1282,14 @@ table 5900 "Service Header"
                 GeneralLedgerSetup.GetRecordOnce();
                 GeneralLedgerSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
                 Validate("VAT Reporting Date");
+                OnValidateDocumentDateOnAfterValidateVATReportingDate(Rec, xRec);
                 Validate("Payment Terms Code");
             end;
         }
         field(100; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
-
+            
             trigger OnValidate()
             var
                 WhseServiceRelease: Codeunit "Whse.-Service Release";
@@ -1437,6 +1434,7 @@ table 5900 "Service Header"
             trigger OnValidate()
             begin
                 MessageIfServLinesExist(FieldCaption("Tax Liable"));
+                UpdateServLinesByFieldNo(FieldNo("Tax Liable"), false);
             end;
         }
         field(116; "VAT Bus. Posting Group"; Code[20])
@@ -1680,6 +1678,11 @@ table 5900 "Service Header"
                 Validate("Posting No. Series", GenJournalTemplate."Posting No. Series");
             end;
         }
+        field(200; "Work Description"; BLOB)
+        {
+            Caption = 'Work Description';
+            DataClassification = CustomerContent;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -1754,6 +1757,7 @@ table 5900 "Service Header"
                 Cont: Record Contact;
                 ContBusinessRelation: Record "Contact Business Relation";
                 ConfirmManagement: Codeunit "Confirm Management";
+                Confirmed: Boolean;
             begin
                 if ("Contact No." <> xRec."Contact No.") and
                    (xRec."Contact No." <> '')
@@ -1825,6 +1829,7 @@ table 5900 "Service Header"
                 Cont: Record Contact;
                 ContBusinessRelation: Record "Contact Business Relation";
                 ConfirmManagement: Codeunit "Confirm Management";
+                Confirmed: Boolean;
             begin
                 if ("Bill-to Contact No." <> xRec."Bill-to Contact No.") and
                    (xRec."Bill-to Contact No." <> '')
@@ -1966,7 +1971,7 @@ table 5900 "Service Header"
         field(5902; Description; Text[100])
         {
             Caption = 'Description';
-        }
+                    }
         field(5904; "Service Order Type"; Code[10])
         {
             Caption = 'Service Order Type';
@@ -2024,7 +2029,7 @@ table 5900 "Service Header"
         field(5915; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
-            ExtendedDatatype = PhoneNo;
+                        ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
             begin
@@ -2034,7 +2039,7 @@ table 5900 "Service Header"
         field(5916; "E-Mail"; Text[80])
         {
             Caption = 'Email';
-            ExtendedDatatype = EMail;
+                        ExtendedDatatype = EMail;
 
             trigger OnValidate()
             var
@@ -2047,7 +2052,7 @@ table 5900 "Service Header"
         field(5917; "Phone No. 2"; Text[30])
         {
             Caption = 'Phone No. 2';
-            ExtendedDatatype = PhoneNo;
+                        ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
             begin
@@ -2057,7 +2062,7 @@ table 5900 "Service Header"
         field(5918; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
-        }
+                    }
         field(5921; "No. of Unallocated Items"; Integer)
         {
             CalcFormula = count("Service Item Line" where("Document Type" = field("Document Type"),
@@ -2500,11 +2505,11 @@ table 5900 "Service Header"
         field(5955; "Ship-to Fax No."; Text[30])
         {
             Caption = 'Ship-to Fax No.';
-        }
+                    }
         field(5956; "Ship-to E-Mail"; Text[80])
         {
             Caption = 'Ship-to Email';
-            ExtendedDatatype = EMail;
+                        ExtendedDatatype = EMail;
 
             trigger OnValidate()
             var
@@ -2522,12 +2527,12 @@ table 5900 "Service Header"
         field(5958; "Ship-to Phone"; Text[30])
         {
             Caption = 'Ship-to Phone';
-            ExtendedDatatype = PhoneNo;
+                        ExtendedDatatype = PhoneNo;
         }
         field(5959; "Ship-to Phone 2"; Text[30])
         {
             Caption = 'Ship-to Phone 2';
-            ExtendedDatatype = PhoneNo;
+                        ExtendedDatatype = PhoneNo;
         }
         field(5966; "Service Zone Filter"; Code[10])
         {
@@ -2629,6 +2634,9 @@ table 5900 "Service Header"
         key(Key9; "Incoming Document Entry No.")
         {
         }
+        key(Key10; "Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name")
+        {
+        }
     }
 
     fieldgroups
@@ -2655,6 +2663,8 @@ table 5900 "Service Header"
         ServiceDocumentArchiveMgmt: Codeunit "Service Document Archive Mgmt.";
         ShowPostedDocsToPrint, IsHandled : Boolean;
     begin
+        OnBeforeOnDelete(Rec);
+
         if not UserSetupMgt.CheckRespCenter(2, "Responsibility Center") then
             Error(Text000, UserSetupMgt.GetServiceFilter());
 
@@ -2755,6 +2765,8 @@ table 5900 "Service Header"
           ServDocLog."Document Type"::"Posted Credit Memo");
         ServDocLog.DeleteAll();
 
+        OnDeleteOnBeforeShowPostedDocsToPrint(Rec);
+
         ShowPostedDocsToPrint := (ServShptHeader."No." <> '') or
            (ServInvHeader."No." <> '') or
            (ServCrMemoHeader."No." <> '');
@@ -2789,6 +2801,8 @@ table 5900 "Service Header"
         if GetFilter("Contact No.") <> '' then
             if GetRangeMin("Contact No.") = GetRangeMax("Contact No.") then
                 Validate("Contact No.", GetRangeMin("Contact No."));
+
+        OnAfterOnInsert(Rec);
     end;
 
     trigger OnModify()
@@ -2852,7 +2866,6 @@ table 5900 "Service Header"
         ReservEntry: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
         GenJournalTemplate: Record "Gen. Journal Template";
-        GlobalNoSeries: Record "No. Series";
         Salesperson: Record "Salesperson/Purchaser";
         ServOrderMgt: Codeunit ServOrderManagement;
         DimMgt: Codeunit DimensionManagement;
@@ -2861,10 +2874,8 @@ table 5900 "Service Header"
         UserSetupMgt: Codeunit "User Setup Management";
         NotifyCust: Codeunit "Customer-Notify by Email";
         ServPost: Codeunit "Service-Post";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         CurrencyDate: Date;
         TempLinkToServItem: Boolean;
-        HideValidationDialog: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text024: Label 'The %1 cannot be greater than the minimum %1 of the\ Service Item Lines.';
@@ -2899,7 +2910,6 @@ table 5900 "Service Header"
         Text044: Label 'You cannot rename a %1.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
-        Confirmed: Boolean;
 #pragma warning disable AA0074
         Text045: Label 'You can not change the %1 field because %2 %3 has %4 = %5 and the %6 has already been assigned %7 %8.', Comment = '%1=Posting date field caption;%2=Posting number series field caption;%3=Posting number series;%4=NoSeries date order field caption;%5=NoSeries date order;%6=Document type;%7=posting number field caption;%8=Posting number;';
 #pragma warning disable AA0470
@@ -2934,6 +2944,10 @@ table 5900 "Service Header"
         CannotDeleteWhenNextInvExistsErr: Label 'The service invoice cannot be deleted because there are service invoices with a later posting date.';
         CannotRestoreInvoiceDatesErr: Label 'The service invoice cannot be deleted because the previous invoice dates cannot be restored in the service contract.';
         InvoicePeriodChangedErr: Label 'The invoice period in the service contract has been changed and cannot be updated.';
+
+    protected var
+        GlobalNoSeries: Record "No. Series";
+        HideValidationDialog: Boolean;
 
     /// <summary>
     /// Lists all related number series for service header when creating new record.
@@ -3061,6 +3075,39 @@ table 5900 "Service Header"
             until ServItemLine.Next() = 0;
     end;
 
+    local procedure ValidatePaymentTerms(var ServiceHeader: Record "Service Header")
+    var
+        PaymentTerms: Record "Payment Terms";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidatePaymentTerms(ServiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (ServiceHeader."Payment Terms Code" <> '') and (ServiceHeader."Document Date" <> 0D) then begin
+            PaymentTerms.Get("Payment Terms Code");
+            if (ServiceHeader."Document Type" in [ServiceHeader."Document Type"::"Credit Memo"]) and
+               not PaymentTerms."Calc. Pmt. Disc. on Cr. Memos"
+            then begin
+                ServiceHeader.Validate("Due Date", ServiceHeader."Document Date");
+                ServiceHeader.Validate("Pmt. Discount Date", 0D);
+                ServiceHeader.Validate("Payment Discount %", 0);
+            end else begin
+                ServiceHeader."Due Date" := CalcDate(PaymentTerms."Due Date Calculation", ServiceHeader."Document Date");
+                ServiceHeader."Pmt. Discount Date" := CalcDate(PaymentTerms."Discount Date Calculation", ServiceHeader."Document Date");
+                ServiceHeader.Validate("Payment Discount %", PaymentTerms."Discount %")
+            end;
+        end else begin
+            IsHandled := false;
+            OnValidatePaymentTermsCodeOnBeforeValidateDueDate(ServiceHeader, IsHandled);
+            if not IsHandled then
+                ServiceHeader.Validate("Due Date", ServiceHeader."Document Date");
+            ServiceHeader.Validate("Pmt. Discount Date", 0D);
+            ServiceHeader.Validate("Payment Discount %", 0);
+        end;
+    end;
+
     /// <summary>
     /// Triggers validation of shortcut dimension values.
     /// </summary>
@@ -3088,7 +3135,7 @@ table 5900 "Service Header"
     /// </summary>
     /// <remarks>If no exchange rate for selected currency code exists, the system will offer to a user option to manually add missing exchange rate. 
     /// Changes will be propagated to all existing service lines related to current service header. </remarks>
-    protected procedure UpdateCurrencyFactor()
+    procedure UpdateCurrencyFactor()
     var
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
         ConfirmManagement: Codeunit "Confirm Management";
@@ -3100,7 +3147,9 @@ table 5900 "Service Header"
             exit;
 
         if "Currency Code" <> '' then begin
+            GeneralLedgerSetup.GetRecordOnce();
             CurrencyDate := "Posting Date";
+            OnUpdateCurrencyFactorOnAfterSetCurrencyDate(Rec, GeneralLedgerSetup, CurrencyDate);
             if UpdateCurrencyExchangeRates.ExchangeRatesForCurrencyExist(CurrencyDate, "Currency Code") then begin
                 "Currency Factor" := CurrExchRate.ExchangeRate(CurrencyDate, "Currency Code");
                 if "Currency Code" <> xRec."Currency Code" then
@@ -3133,6 +3182,7 @@ table 5900 "Service Header"
         TempServDocReg: Record "Service Document Register" temporary;
         ServiceCommentLine: Record "Service Comment Line";
         TempServiceCommentLine: Record "Service Comment Line" temporary;
+        Confirmed: Boolean;
         ExtendedTextAdded: Boolean;
         IsHandled: Boolean;
     begin
@@ -3242,11 +3292,17 @@ table 5900 "Service Header"
             until TempServiceCommentLine.Next() = 0;
     end;
 
-    local procedure ConfirmCurrencyFactorUpdate()
+    procedure ConfirmCurrencyFactorUpdate()
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        Confirmed: Boolean;
     begin
-        if ConfirmManagement.GetResponseOrDefault(Text015, true) then
+        if HideValidationDialog then
+            Confirmed := true
+        else
+            Confirmed := ConfirmManagement.GetResponseOrDefault(Text015, true);
+
+        if Confirmed then
             Validate("Currency Factor")
         else
             "Currency Factor" := xRec."Currency Factor";
@@ -3357,11 +3413,21 @@ table 5900 "Service Header"
                             end;
                         FieldNo("Shipping Agent Service Code"):
                             begin
+                                if ServLine."Shipping Agent Code" <> "Shipping Agent Code" then
+                                    ServLine.Validate("Shipping Agent Code", "Shipping Agent Code");
                                 ServLine.Validate("Shipping Agent Service Code", "Shipping Agent Service Code");
                                 ServLine.Modify(true);
                             end;
+                        FieldNo("Customer No."):
+                            begin
+                                ServLine.Validate("Customer No.");
+                                ServLine.Modify(true);
+                            end;
+                        FieldNo("Tax Liable"):
+                            if ServLine."No." <> '' then
+                                ServLine.Validate("Tax Liable", "Tax Liable");
                         else
-                            OnUpdateServLineByChangedFieldName(Rec, ServLine, Field."Field Caption");
+                            OnUpdateServLineByChangedFieldName(Rec, ServLine, Field."Field Caption", ChangedFieldNo);
                     end;
                 until ServLine.Next() = 0;
         end;
@@ -3716,6 +3782,7 @@ table 5900 "Service Header"
                 "Contact No." := Cont."No.";
                 "Contact Name" := Cont.Name;
                 "Phone No." := Cont."Phone No.";
+                "Fax No." := Cont."Fax No.";
                 "E-Mail" := Cont."E-Mail";
             end else begin
                 if Cust."Primary Contact No." <> '' then
@@ -3776,6 +3843,7 @@ table 5900 "Service Header"
             "E-Mail" := Cont."E-Mail";
         end else begin
             "Phone No." := '';
+            "Fax No." := '';
             "E-Mail" := '';
             "Contact Name" := '';
             exit;
@@ -3993,8 +4061,8 @@ table 5900 "Service Header"
             "Order Time" := Time;
         end;
 
-        "Posting Date" := WorkDate();
-        "Document Date" := WorkDate();
+        InitPostingDate();
+
         "Default Response Time (Hours)" := ServiceMgtSetup."Default Response Time (Hours)";
         "Link Service to Service Item" := ServiceMgtSetup."Link Service to Service Item";
 
@@ -4036,6 +4104,14 @@ table 5900 "Service Header"
                 "Responsibility Center" := UserSetupMgt.GetRespCenter(2, "Responsibility Center")
         else
             "Responsibility Center" := UserSetupMgt.GetServiceFilter();
+    end;
+
+    local procedure InitPostingDate()
+    begin
+        "Posting Date" := WorkDate();
+        "Document Date" := WorkDate();
+
+        OnAfterInitPostingDate(Rec);
     end;
 
     local procedure InitVATDate()
@@ -4546,6 +4622,14 @@ table 5900 "Service Header"
         OnAfterCopyShipToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer);
     end;
 
+    local procedure CopyAppliestoFieldsFromCustLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+        "Applies-to Doc. Type" := CustLedgerEntry."Document Type";
+        "Applies-to Doc. No." := CustLedgerEntry."Document No.";
+
+        OnAfterCopyAppliestoFieldsFromCustLedgerEntry(Rec, CustLedgerEntry);
+    end;
+
     procedure WhsePickConflict(DocType: Enum "Service Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -4805,7 +4889,7 @@ table 5900 "Service Header"
         "VAT Bus. Posting Group" := Cust."VAT Bus. Posting Group";
         "Tax Area Code" := Cust."Tax Area Code";
         "Tax Liable" := Cust."Tax Liable";
-        "VAT Registration No." := Cust."VAT Registration No.";
+        "VAT Registration No." := Cust.GetVATRegistrationNo();
         "Shipping Advice" := Cust."Shipping Advice";
         "Responsibility Center" := UserSetupMgt.GetRespCenter(2, Cust."Responsibility Center");
         Validate("Location Code", UserSetupMgt.GetLocation(2, Cust."Location Code", "Responsibility Center"));
@@ -4844,7 +4928,7 @@ table 5900 "Service Header"
         GeneralLedgerSetup.GetRecordOnce();
         if GeneralLedgerSetup."Bill-to/Sell-to VAT Calc." = GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No." then begin
             "VAT Bus. Posting Group" := Cust."VAT Bus. Posting Group";
-            "VAT Registration No." := Cust."VAT Registration No.";
+            "VAT Registration No." := Cust.GetVATRegistrationNo();
             "VAT Country/Region Code" := Cust."Country/Region Code";
             "Gen. Bus. Posting Group" := Cust."Gen. Bus. Posting Group";
         end;
@@ -4860,6 +4944,7 @@ table 5900 "Service Header"
         "Format Region" := Cust."Format Region";
         SetSalespersonCode(Cust."Salesperson Code", "Salesperson Code");
         Reserve := Cust.Reserve;
+        "Combine Shipments" := Cust."Combine Service Shipments";
 
         OnAfterCopyBillToCustomerFields(Rec, Cust, SkipBillToContact);
     end;
@@ -5058,7 +5143,7 @@ table 5900 "Service Header"
         if IsHandled then
             exit;
 
-        if HideValidationDialog then
+        if HideValidationDialog or not GuiAllowed() then
             Result := true
         else
             Result := ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text012, ChangedFieldName), true);
@@ -5093,6 +5178,20 @@ table 5900 "Service Header"
                 PostingGroupChangeInterface.ChangePostingGroup("Customer Posting Group", xRec."Customer Posting Group", Rec);
             end;
         end;
+    end;
+
+    procedure CheckBusPostingGroups(): Boolean
+    var
+        ApplicationAreaMgmt: Codeunit System.Environment.Configuration."Application Area Mgmt.";
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBusPostingGroups(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        exit(not ApplicationAreaMgmt.IsSalesTaxEnabled());
     end;
 
     /// <summary>
@@ -5381,6 +5480,26 @@ table 5900 "Service Header"
 #endif
     end;
 
+    procedure SetWorkDescription(NewWorkDescription: Text)
+    var
+        OutStream: OutStream;
+    begin
+        Clear("Work Description");
+        Rec."Work Description".CreateOutStream(OutStream, TextEncoding::UTF8);
+        OutStream.WriteText(NewWorkDescription);
+        Modify();
+    end;
+
+    procedure GetWorkDescription() WorkDescription: Text
+    var
+        TypeHelper: Codeunit "Type Helper";
+        InStream: InStream;
+    begin
+        Rec.CalcFields("Work Description");
+        Rec."Work Description".CreateInStream(InStream, TextEncoding::UTF8);
+        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), Rec.FieldName("Work Description")));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ServiceHeader: Record "Service Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
@@ -5487,7 +5606,7 @@ table 5900 "Service Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateServLineByChangedFieldName(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ChangedFieldName: Text[100])
+    local procedure OnUpdateServLineByChangedFieldName(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ChangedFieldName: Text[100]; ChangedFieldNo: Integer)
     begin
     end;
 
@@ -5578,6 +5697,11 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnInsert(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInsert(var ServiceHeader: Record "Service Header")
     begin
     end;
 
@@ -6048,6 +6172,66 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforeArchiveServiceDocument(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBusPostingGroups(var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyAppliestoFieldsFromCustLedgerEntry(var ServiceHeader: Record "Service Header"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePaymentTerms(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitPostingDate(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateBillToCustomerNo(var ServiceHeader: Record "Service Header"; var xServiceHeader: Record "Service Header"; var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCurrencyFactorOnAfterSetCurrencyDate(var ServiceHeader: Record "Service Header"; var GeneralLedgerSetup: Record "General Ledger Setup"; var CurrencyDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePostingDateOnAfterCheckPostingDate(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePostingDateOnAfterUpdatePostingDateOnLines(var ServiceHeader: Record "Service Header"; HideValidationDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePostingDateOnAfterValidateVATReportingDate(var ServiceHeader: Record "Service Header"; var xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDocumentDateOnAfterValidateVATReportingDate(var ServiceHeader: Record "Service Header"; var xServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeShowPostedDocsToPrint(var ServiceHeader: Record "Service Header")
     begin
     end;
 
