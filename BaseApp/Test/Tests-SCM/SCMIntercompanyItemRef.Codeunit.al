@@ -15,7 +15,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
@@ -417,7 +416,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         if IsInitialized then
             exit;
 
-        LibraryItemReference.EnableFeature(true);
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -739,7 +737,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
     begin
         FindICOutboxTransaction(
           ICOutboxTransaction, SalesDocumentNo, ICOutboxTransaction."Document Type",
-          ICOutboxTransaction."Source Type"::"Sales Document");
+          ICOutboxTransaction."IC Source Type"::"Sales Document");
         FindICOutboxSalesHeader(
           ICOutboxSalesHeader, ICOutboxTransaction."Transaction No.", SalesDocumentNo, ICOutboxSalesHeader."Document Type");
         ICInboxOutboxMgt.OutboxTransToInbox(ICOutboxTransaction, ICInboxTransaction, ICPartnerCode);
@@ -781,7 +779,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
         FindICOutboxTransaction(
           ICOutboxTransaction, PurchaseHeader."No.", ConvertDocTypeToICOutboxTransaction(PurchaseHeader."Document Type"),
-          ICOutboxTransaction."Source Type"::"Purchase Document");
+          ICOutboxTransaction."IC Source Type"::"Purchase Document");
         FindICOutboxPurchaseHeader(
           ICOutboxPurchaseHeader, ICOutboxTransaction."Transaction No.",
           PurchaseHeader."No.", ConvertPurchDocTypeToICOutboxPurchHeader(PurchaseHeader."Document Type"));
@@ -830,11 +828,11 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICOutboxJnlLine.FindFirst();
     end;
 
-    local procedure FindICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; DocumentNo: Code[20]; DocumentType: Enum "IC Transaction Document Type"; SourceType: Option)
+    local procedure FindICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; DocumentNo: Code[20]; DocumentType: Enum "IC Transaction Document Type"; SourceType: enum "IC Transaction Source Type")
     begin
         ICOutboxTransaction.SetRange("Document No.", DocumentNo);
         ICOutboxTransaction.SetRange("Document Type", DocumentType);
-        ICOutboxTransaction.SetRange("Source Type", SourceType);
+        ICOutboxTransaction.SetRange("IC Source Type", SourceType);
         ICOutboxTransaction.FindFirst();
     end;
 

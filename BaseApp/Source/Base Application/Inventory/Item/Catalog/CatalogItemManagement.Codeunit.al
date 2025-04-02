@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item.Catalog;
 
 using Microsoft.Foundation.NoSeries;
@@ -6,7 +10,6 @@ using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Archive;
 using Microsoft.Sales.Document;
@@ -371,12 +374,11 @@ codeunit 5703 "Catalog Item Management"
     var
         BOMComp: Record "BOM Component";
         ItemLedgEntry: Record "Item Ledger Entry";
-        ProdBOMHeader: Record "Production BOM Header";
-        ProdBOMLine: Record "Production BOM Line";
         PurchLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
         SalesLineArch: Record "Sales Line Archive";
         IsHandled: Boolean;
+        ShouldExit: Boolean;
     begin
         IsHandled := false;
         OnBeforeDelNonStockItem(Item, IsHandled);
@@ -412,19 +414,7 @@ codeunit 5703 "Catalog Item Management"
         if not SalesLineArch.IsEmpty() then
             exit;
 
-        ProdBOMLine.Reset();
-        ProdBOMLine.SetCurrentKey(Type, "No.");
-        ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
-        ProdBOMLine.SetRange("No.", Item."No.");
-        if ProdBOMLine.Find('-') then
-            repeat
-                if ProdBOMHeader.Get(ProdBOMLine."Production BOM No.") and
-                   (ProdBOMHeader.Status = ProdBOMHeader.Status::Certified)
-                then
-                    exit;
-            until ProdBOMLine.Next() = 0;
-
-        OnDelNonStockItemOnAfterCheckRelations(Item);
+        OnDelNonStockItemOnAfterCheckRelations(Item, ShouldExit);
 
         NewItem.Get(Item."No.");
         DeleteCreatedFromNonstockItem();
@@ -483,18 +473,20 @@ codeunit 5703 "Catalog Item Management"
         OnAfterInsertUnitOfMeasure(UnitOfMeasureCode, ItemNo);
     end;
 
-    [Obsolete('Replaced by GetNewItemNo(NonstockItem)', '22.0')]
+#pragma warning disable AS0074
+#if not CLEAN24
+    [Obsolete('Replaced by GetNewItemNo(NonstockItem)', '24.0')]
     procedure GetNewItemNo(NonstockItem: Record "Nonstock Item"; Length1: Integer; Length2: Integer) NewItemNo: Code[20]
     var
         IsHandled: Boolean;
     begin
-        OnBeforeGetNewItemNo(NonstockItem, Length1, Length2, NewItemNo, IsHandled);
         if IsHandled then
             exit(NewItemNo);
         DetermineItemNoAndItemNoSeries(NonstockItem);
         NewItemNo := NonstockItem."Item No.";
-        OnAfterGetNewItemNo(NonstockItem, NewItemNo);
     end;
+#endif
+#pragma warning restore AS0074
 
     procedure DetermineItemNoAndItemNoSeries(var NonstockItem: Record "Nonstock Item")
     var
@@ -587,12 +579,6 @@ codeunit 5703 "Catalog Item Management"
         end;
 #endif
         OnAfterGetItemNoFromNoSeries(NonstockItem);
-    end;
-
-    [Obsolete('Replaced by CreateNewItem(NonstockItem)', '22.0')]
-    procedure CreateNewItem(ItemNo: Code[20]; NonstockItem: Record "Nonstock Item")
-    begin
-        CreateNewItem(NonstockItem);
     end;
 
     procedure CreateNewItem(NonstockItem: Record "Nonstock Item")
@@ -690,12 +676,6 @@ codeunit 5703 "Catalog Item Management"
     begin
     end;
 
-    [Obsolete('Replaced by OnAfterDetermineItemNoAndItemNoSeries(NonstockItem)', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetNewItemNo(NonstockItem: Record "Nonstock Item"; var NewItemNo: Code[20])
-    begin
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterDetermineItemNoAndItemNoSeries(var NonstockItem: Record "Nonstock Item")
     begin
@@ -763,12 +743,6 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteCreatedFromNonstockItem(var NewItem: Record Item; var NonStock: Record "Nonstock Item"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [Obsolete('Replaced by OnBeforeDetermineItemNoAndItemNoSeries(NonstockItem, IsHandled)', '21.4')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetNewItemNo(NonstockItem: Record "Nonstock Item"; Length1: Integer; Length2: Integer; var NewItemNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -953,7 +927,7 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDelNonStockItemOnAfterCheckRelations(var Item: Record Item)
+    local procedure OnDelNonStockItemOnAfterCheckRelations(var Item: Record Item; var ShouldExit: Boolean)
     begin
     end;
 }

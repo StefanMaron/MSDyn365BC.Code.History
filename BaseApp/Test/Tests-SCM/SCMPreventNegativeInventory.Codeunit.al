@@ -13,7 +13,6 @@ codeunit 137412 "SCM Prevent Negative Inventory"
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
@@ -113,9 +112,9 @@ codeunit 137412 "SCM Prevent Negative Inventory"
         PostedRcptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Take "X" pcs. of item "I" from location, so that remainig quantity is 0
-        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', Quantity, WorkDate(), 0);
+        LibraryInventory.PostNegativeAdjustment(Item, '', '', '', Quantity, WorkDate(), 0);
         // [GIVEN] Receive "X" pcs of item "I", quantity on inventory = "X"
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', Quantity, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', Quantity, WorkDate(), 0);
 
         // [WHEN] Post purchase credit memo for "X" pcs of item "I", apply to the first purchase receipt
         CreateCreditMemoForPostedPurchaseReceipt(PurchaseHeader, PostedRcptNo, PurchaseHeader."Buy-from Vendor No.");
@@ -149,9 +148,9 @@ codeunit 137412 "SCM Prevent Negative Inventory"
         PostedRcptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [GIVEN] Take "X" pcs. of item "I" from location, so that remainig quantity is 0
-        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', Quantity, WorkDate(), 0);
+        LibraryInventory.PostNegativeAdjustment(Item, '', '', '', Quantity, WorkDate(), 0);
         // [GIVEN] Receive "X" - 1 pcs of item "I", quantity on inventory = "X" - 1
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', Quantity - 1, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', Quantity - 1, WorkDate(), 0);
 
         // [WHEN] Post purchase credit memo for "X" pcs of item "I", apply to the first purchase receipt
         CreateCreditMemoForPostedPurchaseReceipt(PurchaseHeader, PostedRcptNo, PurchaseHeader."Buy-from Vendor No.");
@@ -177,7 +176,7 @@ codeunit 137412 "SCM Prevent Negative Inventory"
         Item."Prevent Negative Inventory" := ItemPreventNegativeInventory;
         Item.Modify();
         ItemInventoryQty := LibraryRandom.RandInt(100);
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', ItemInventoryQty, WorkDate(), Item."Unit Cost");
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', ItemInventoryQty, WorkDate(), Item."Unit Cost");
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2 * ItemInventoryQty);

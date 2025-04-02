@@ -86,7 +86,7 @@ codeunit 427 ICInboxOutboxMgt
         OutboxJnlTransaction.Init();
         OutboxJnlTransaction."Transaction No." := ICTransactionNo;
         OutboxJnlTransaction."IC Partner Code" := TempGenJnlLine."IC Partner Code";
-        OutboxJnlTransaction."Source Type" := OutboxJnlTransaction."Source Type"::"Journal Line";
+        OutboxJnlTransaction."IC Source Type" := OutboxJnlTransaction."IC Source Type"::Journal;
         OutboxJnlTransaction."Document Type" := TempGenJnlLine."Document Type";
         OutboxJnlTransaction."Document No." := TempGenJnlLine."Document No.";
         OutboxJnlTransaction."Posting Date" := TempGenJnlLine."Posting Date";
@@ -209,7 +209,7 @@ codeunit 427 ICInboxOutboxMgt
         OutboxTransaction.Init();
         OutboxTransaction."Transaction No." := TransactionNo;
         OutboxTransaction."IC Partner Code" := Customer."IC Partner Code";
-        OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Sales Document";
+        OutboxTransaction."IC Source Type" := OutboxTransaction."IC Source Type"::"Sales Document";
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Order:
                 OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::Order;
@@ -329,7 +329,7 @@ codeunit 427 ICInboxOutboxMgt
         OutboxTransaction.Init();
         OutboxTransaction."Transaction No." := TransactionNo;
         OutboxTransaction."IC Partner Code" := Customer."IC Partner Code";
-        OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Sales Document";
+        OutboxTransaction."IC Source Type" := OutboxTransaction."IC Source Type"::"Sales Document";
         OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::Invoice;
         OutboxTransaction."Document No." := SalesInvHdr."No.";
         OutboxTransaction."Posting Date" := SalesInvHdr."Posting Date";
@@ -454,7 +454,7 @@ codeunit 427 ICInboxOutboxMgt
         OutboxTransaction.Init();
         OutboxTransaction."Transaction No." := TransactionNo;
         OutboxTransaction."IC Partner Code" := Customer."IC Partner Code";
-        OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Sales Document";
+        OutboxTransaction."IC Source Type" := OutboxTransaction."IC Source Type"::"Sales Document";
         OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::"Credit Memo";
         OutboxTransaction."Document No." := SalesCrMemoHdr."No.";
         OutboxTransaction."Posting Date" := SalesCrMemoHdr."Posting Date";
@@ -539,7 +539,7 @@ codeunit 427 ICInboxOutboxMgt
         OutboxTransaction.Init();
         OutboxTransaction."Transaction No." := TransactionNo;
         OutboxTransaction."IC Partner Code" := Vendor."IC Partner Code";
-        OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Purchase Document";
+        OutboxTransaction."IC Source Type" := OutboxTransaction."IC Source Type"::"Purchase Document";
         case PurchHeader."Document Type" of
             PurchHeader."Document Type"::Order:
                 OutboxTransaction."Document Type" := OutboxTransaction."Document Type"::Order;
@@ -1756,7 +1756,7 @@ codeunit 427 ICInboxOutboxMgt
             OutboxTransaction.Init();
             OutboxTransaction."Transaction No." := HandledOutboxTransaction2."Transaction No.";
             OutboxTransaction."IC Partner Code" := HandledOutboxTransaction2."IC Partner Code";
-            OutboxTransaction."Source Type" := HandledOutboxTransaction2."Source Type";
+            OutboxTransaction."IC Source Type" := HandledOutboxTransaction2."Source Type";
             OutboxTransaction."Document Type" := HandledOutboxTransaction2."Document Type";
             OutboxTransaction."Document No." := HandledOutboxTransaction2."Document No.";
             OutboxTransaction."Posting Date" := HandledOutboxTransaction2."Posting Date";
@@ -1768,8 +1768,8 @@ codeunit 427 ICInboxOutboxMgt
             OutboxTransaction."Source Line No." := HandledOutboxTransaction2."Source Line No.";
             OnRecreateOutboxTransactionOnBeforeOutboxTransactionInsert(OutboxTransaction, HandledOutboxTransaction2, HandledOutboxTransaction);
             OutboxTransaction.Insert();
-            case OutboxTransaction."Source Type" of
-                OutboxTransaction."Source Type"::"Journal Line":
+            case OutboxTransaction."IC Source Type" of
+                OutboxTransaction."IC Source Type"::Journal:
                     begin
                         HandledOutboxJnlLine.LockTable();
                         OutboxJnlLine.LockTable();
@@ -1790,7 +1790,7 @@ codeunit 427 ICInboxOutboxMgt
                         HandledOutboxTransaction.Delete(true);
                         Commit();
                     end;
-                OutboxTransaction."Source Type"::"Sales Document":
+                OutboxTransaction."IC Source Type"::"Sales Document":
                     begin
                         if HandledOutboxSalesHdr.Get(HandledOutboxTransaction2."Transaction No.",
                              HandledOutboxTransaction2."IC Partner Code", HandledOutboxTransaction2."Transaction Source")
@@ -1830,7 +1830,7 @@ codeunit 427 ICInboxOutboxMgt
                         HandledOutboxSalesHdr.Delete(true);
                         HandledOutboxTransaction.Delete(true);
                     end;
-                OutboxTransaction."Source Type"::"Purchase Document":
+                OutboxTransaction."IC Source Type"::"Purchase Document":
                     begin
                         if HandledOutboxPurchHdr.Get(HandledOutboxTransaction2."Transaction No.",
                              HandledOutboxTransaction2."IC Partner Code", HandledOutboxTransaction2."Transaction Source")
@@ -1908,7 +1908,7 @@ codeunit 427 ICInboxOutboxMgt
         OutboxTransaction.Init();
         OutboxTransaction."Transaction No." := InboxTransaction."Transaction No.";
         OutboxTransaction."IC Partner Code" := InboxTransaction."IC Partner Code";
-        OutboxTransaction."Source Type" := InboxTransaction."Source Type";
+        OutboxTransaction."IC Source Type" := InboxTransaction."Source Type";
         OutboxTransaction."Document Type" := InboxTransaction."Document Type";
         OutboxTransaction."Document No." := InboxTransaction."Document No.";
         OutboxTransaction."Posting Date" := InboxTransaction."Posting Date";
@@ -2082,11 +2082,13 @@ codeunit 427 ICInboxOutboxMgt
         exit(Item."No.");
     end;
 
+#if not CLEAN23
     [Obsolete('Use another implementation of GetItemFromItemRef.', '23.0')]
     procedure GetItemFromItemRef(RefNo: Code[50]; RefType: Enum "Item Reference Type"; RefTypeNo: Code[20]): Code[20]
     begin
         exit(GetItemFromItemRef(RefNo, RefType, RefTypeNo, 0D));
     end;
+#endif
 
     procedure GetItemFromItemRef(RefNo: Code[50]; RefType: Enum "Item Reference Type"; RefTypeNo: Code[20]; ToDate: Date): Code[20]
     var
@@ -2169,12 +2171,12 @@ codeunit 427 ICInboxOutboxMgt
         ICInboxTrans."IC Partner Code" := FromICPartnerCode;
         ICInboxTrans."Transaction Source" := ICOutboxTrans."Transaction Source";
         ICInboxTrans."Document Type" := ICOutboxTrans."Document Type";
-        case ICOutboxTrans."Source Type" of
-            ICOutboxTrans."Source Type"::"Journal Line":
+        case ICOutboxTrans."IC Source Type" of
+            ICOutboxTrans."IC Source Type"::Journal:
                 ICInboxTrans."Source Type" := ICInboxTrans."Source Type"::Journal;
-            ICOutboxTrans."Source Type"::"Sales Document":
+            ICOutboxTrans."IC Source Type"::"Sales Document":
                 ICInboxTrans."Source Type" := ICInboxTrans."Source Type"::"Purchase Document";
-            ICOutboxTrans."Source Type"::"Purchase Document":
+            ICOutboxTrans."IC Source Type"::"Purchase Document":
                 ICInboxTrans."Source Type" := ICInboxTrans."Source Type"::"Sales Document";
         end;
         ICInboxTrans."Document No." := ICOutboxTrans."Document No.";
@@ -2732,6 +2734,7 @@ codeunit 427 ICInboxOutboxMgt
 
         OnMoveOutboxTransToHandledOutboxOnBeforeHandledICOutboxTransTransferFields(HandledICOutboxTrans, ICOutboxTrans);
         HandledICOutboxTrans.TransferFields(ICOutboxTrans, true);
+        HandledICOutboxTrans."Source Type" := ICOutboxTrans."IC Source Type";
         OnMoveOutboxTransToHandledOutboxOnAfterHandledICOutboxTransTransferFields(HandledICOutboxTrans, ICOutboxTrans);
 
         case ICOutboxTrans."Line Action" of

@@ -240,6 +240,24 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service order status, which reflects the repair or maintenance status of all service items on the service order.';
                 }
+                group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(WorkDescription; WorkDescription)
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Work Description';
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or service being offered.';
+                        MultiLine = true;
+                        Importance = Additional;
+
+                        trigger OnValidate()
+                        begin
+                            Rec.SetWorkDescription(WorkDescription);
+                        end;
+                    }
+                }
                 field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
@@ -257,13 +275,6 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     Importance = Promoted;
                     ToolTip = 'Specifies if items in the Service Lines window are ready to be handled in warehouse activities.';
-                }
-                field("External Document No."; Rec."External Document No.")
-                {
-                    ApplicationArea = Service;
-                    Importance = Promoted;
-                    ShowMandatory = ExternalDocNoMandatory;
-                    ToolTip = 'Specifies the external document number for this entry.';
                 }
             }
             part(ServItemLines; "Service Order Subform")
@@ -412,21 +423,6 @@ page 5900 "Service Order"
                         MaxLaborUnitPriceOnAfterValida();
                     end;
                 }
-                field(GLN; Rec.GLN)
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the global location number of the customer.';
-                }
-                field("Account Code"; Rec."Account Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the account code of the customer.';
-                }
-                field("E-Invoice"; Rec."E-Invoice")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies whether the customer is part of the EHF system and requires an electronic service order.';
-                }
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Service;
@@ -443,6 +439,13 @@ page 5900 "Service Order"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Importance = Promoted;
+                    ShowMandatory = ExternalDocNoMandatory;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
@@ -563,6 +566,14 @@ page 5900 "Service Order"
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Service;
@@ -674,10 +685,11 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
                 }
-                field("Delivery Date"; Rec."Delivery Date")
+                field("Combine Shipments"; Rec."Combine Shipments")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the date that the item was requested for delivery in the service order.';
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether the order will be included when you use the Combine Shipments function.';
                 }
             }
             group(Details)
@@ -781,27 +793,27 @@ page 5900 "Service Order"
                 Caption = ' Foreign Trade';
                 field("Transaction Type"; Rec."Transaction Type")
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Transaction Specification"; Rec."Transaction Specification")
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Transport Method"; Rec."Transport Method")
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Exit Point"; Rec."Exit Point")
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
                 }
                 field("Area"; Rec.Area)
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
             }
@@ -824,6 +836,7 @@ page 5900 "Service Order"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -1499,6 +1512,7 @@ page 5900 "Service Order"
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
         SellToContact.GetOrClear(Rec."Contact No.");
         ActivateFields();
+        WorkDescription := Rec.GetWorkDescription();
         CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
@@ -1521,6 +1535,7 @@ page 5900 "Service Order"
         SellToContact: Record Contact;
         ServiceMgtSetup: Record "Service Mgt. Setup";
         ChangeExchangeRate: Page "Change Exchange Rate";
+        WorkDescription: Text;
         DocumentIsPosted: Boolean;
         OpenPostedServiceOrderQst: Label 'The order is posted as number %1 and moved to the Posted Service Invoices window.\\Do you want to open the posted invoice?', Comment = '%1 = posted document number';
         IsBillToCountyVisible: Boolean;

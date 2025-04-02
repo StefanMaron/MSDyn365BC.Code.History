@@ -164,7 +164,7 @@ report 10601 "Trial Balance/Previous Period"
                 trigger OnAfterGetRecord()
                 begin
                     if NewPageStatus then
-                        if IncomeOrBalance.Number = "Income/Balance"::"Income Statement" then
+                        if IncomeOrBalance.Number = "Income/Balance"::"Income Statement".AsInteger() then
                             IncomePageNo += 1
                         else
                             BalancePageNo += 1;
@@ -225,7 +225,7 @@ report 10601 "Trial Balance/Previous Period"
                     else
                         NewPageStatus := false;
 
-                    IncomeBalanceOptionNo := "Income/Balance";
+                    IncomeBalanceOptionNo := "Income/Balance".AsInteger();
                 end;
 
                 trigger OnPreDataItem()

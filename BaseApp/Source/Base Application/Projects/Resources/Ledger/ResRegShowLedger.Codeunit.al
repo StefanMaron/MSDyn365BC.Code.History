@@ -7,6 +7,7 @@ codeunit 275 "Res. Reg.-Show Ledger"
     trigger OnRun()
     begin
         ResLedgEntry.SetRange("Entry No.", Rec."From Entry No.", Rec."To Entry No.");
+        ResLedgEntry.SetFilter("Resource Register No.", '0|%1', Rec."No.");
         PAGE.Run(PAGE::"Resource Ledger Entries", ResLedgEntry);
     end;
 

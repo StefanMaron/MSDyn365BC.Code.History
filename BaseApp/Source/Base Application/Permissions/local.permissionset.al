@@ -30,9 +30,6 @@ permissionset 1001 "LOCAL"
                   tabledata "Return File" = RIMD,
                   tabledata "Return File Setup" = RIMD,
                   tabledata "Settled VAT Period" = RIMD,
-#if not CLEAN23
-                  tabledata "VAT Code" = RIMD,
-#endif
                   tabledata "VAT Reporting Code" = RIMD,
                   tabledata "VAT Specification" = RIMD,
                   tabledata "VAT Note" = RIMD,

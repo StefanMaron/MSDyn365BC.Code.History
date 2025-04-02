@@ -84,6 +84,10 @@ page 5826 "Inventory Posting Setup"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the general ledger account number to which to post manufacturing overhead variance transactions for items in this combination.';
                 }
+                field("Mat. Non-Inv. Variance Acc."; Rec."Mat. Non-Inv. Variance Acc.")
+                {
+                    ApplicationArea = Suite;
+                }
             }
         }
         area(factboxes)

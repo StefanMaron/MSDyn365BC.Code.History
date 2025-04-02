@@ -76,6 +76,7 @@ codeunit 3998 "Retention Policy Scheduler"
         RetentionPolicyLog: Codeunit "Retention Policy Log";
         BlankRecordId: RecordId;
         NextRunDateFormula: DateFormula;
+        ScheduleOffset: Duration;
     begin
         Evaluate(NextRunDateFormula, '<1D>');
         if JobQueueEntry.FindJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"Retention Policy JQ") then begin
@@ -86,6 +87,7 @@ codeunit 3998 "Retention Policy Scheduler"
             RetentionPolicyLog.LogInfo(RetentionPolicyLogCategory::"Retention Policy - Schedule", JobQueueReadyNotificationTxt);
         end else begin
             CreateRetentionPolicyJobQueueCategory();
+            ScheduleOffset := ScheduleOffset();
             JobQueueEntry.ScheduleRecurrentJobQueueEntryWithRunDateFormula(
                 JobQueueEntry."Object Type to Run"::Codeunit,
                 Codeunit::"Retention Policy JQ",
@@ -93,10 +95,16 @@ codeunit 3998 "Retention Policy Scheduler"
                 JobQueueCategoryTok,
                 0, // no rerun attempts
                 NextRunDateFormula,
-                220000T, // 10pm
-                JobTimeout());
+                220000T + ScheduleOffset, // 10pm
+                JobTimeout() - ScheduleOffset); // Ensure we don't go over 8am
             RetentionPolicyLog.LogInfo(RetentionPolicyLogCategory::"Retention Policy - Schedule", JobQueueActivatedNotificationTxt);
         end;
+    end;
+
+    local procedure ScheduleOffset(): Duration
+    begin
+        // Random offset 0 to +4hr
+        exit(Random(4 * 60 * 60 * 1000));
     end;
 
     local procedure JobTimeout(): Duration

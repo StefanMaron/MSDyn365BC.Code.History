@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Setup;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Setup;
 
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Calendar;
@@ -367,12 +371,12 @@ page 5919 "Service Mgt. Setup"
                 field("Archive Quotes"; Rec."Archive Quotes")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies if you want to archive service quotes when they are deleted.';
+                    ToolTip = 'Specifies if you want to automatically archive service quotes when: deleted, processed or printed.';
                 }
                 field("Archive Orders"; Rec."Archive Orders")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies if you want to archive service orders when they are deleted.';
+                    ToolTip = 'Specifies if you want to automatically archive service orders when: deleted, posted or printed.';
                 }
             }
             group("Journal Templates")
@@ -399,26 +403,6 @@ page 5919 "Service Mgt. Setup"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the journal template to use for posting service contract credit memos.';
-                }
-            }
-            group("E-Invoice")
-            {
-                Caption = 'E-Invoice';
-                group("Output Paths")
-                {
-                    Caption = 'Output Paths';
-                    field("E-Invoice Service Invoice Path"; Rec."E-Invoice Service Invoice Path")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'Service Invoice Path';
-                        ToolTip = 'Specifies the path and name of the folder where you want to store the files for electronic service invoices.';
-                    }
-                    field("E-Invoice Serv. Cr. Memo Path"; Rec."E-Invoice Serv. Cr. Memo Path")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'Service Cr. Memo Path';
-                        ToolTip = 'Specifies the path and name of the folder where you want to store the files for electronic service credit memos.';
-                    }
                 }
             }
         }

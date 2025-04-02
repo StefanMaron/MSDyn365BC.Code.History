@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Reminder;
+namespace Microsoft.Sales.Reminder;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -506,13 +506,6 @@ table 296 "Reminder Line"
                 if (Type = Type::" ") and ("Account Code" <> '') then
                     Error(InvalidEntryDueToFieldValueErr, FieldCaption("Account Code"), FieldCaption(Type), Type);
             end;
-        }
-        field(3010590; "Multiple Interest Rates Entry"; Boolean)
-        {
-            Caption = 'Multiple Interest Rates Entry';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
     }
 
@@ -1133,4 +1126,3 @@ table 296 "Reminder Line"
     begin
     end;    
 }
-

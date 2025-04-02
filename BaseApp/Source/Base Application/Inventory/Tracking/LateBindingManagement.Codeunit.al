@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Inventory.Ledger;
@@ -119,7 +123,7 @@ codeunit 6502 "Late Binding Management"
 
         TempTrackingSpecification.Reset();
 
-        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
+        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Entry No.");
         ItemLedgEntry.SetLoadFields("Item No.", "Variant Code", "Location Code", "Qty. per Unit of Measure", Description, "Remaining Quantity", "Serial No.", "Lot No.", "Package No.");
         ItemLedgEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
         ItemLedgEntry.SetRange("Variant Code", TempTrackingSpecification."Variant Code");
@@ -372,7 +376,7 @@ codeunit 6502 "Late Binding Management"
         ReservEntry.ReadIsolation := IsolationLevel::Default;
         if ReservEntry.IsEmpty() then;
 
-        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
+        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Entry No.");
         ItemLedgEntry.SetLoadFields("Item No.", "Variant Code", "Location Code", "Qty. per Unit of Measure", Description, "Remaining Quantity", "Serial No.", "Lot No.", "Package No.");
         ItemLedgEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
         ItemLedgEntry.SetRange("Variant Code", TempTrackingSpecification."Variant Code");

@@ -748,11 +748,7 @@
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('AdjustExchangeRateReportReqPageHandler,StatisticsMessageHandler')]
-#else
     [HandlerFunctions('ExchRateAdjustmentReportReqPageHandler,StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure CheckAdjustExchangeRatesReport()
     var
@@ -770,11 +766,7 @@
         LibraryVariableStorage.Enqueue(CurrencyCode);
 
         // 2. Exercise: Running the Adjust Exchange Rates Report.
-#if not CLEAN23
-        REPORT.Run(REPORT::"Adjust Exchange Rates");
-#else
         REPORT.Run(REPORT::"Exch. Rate Adjustment");
-#endif
 
         // 3. Verify: Check whether Adjustment Entry is created after Running the Adjust Exchange Rates Report.
         VerifyBankLedgerEntryExist(BankAccountNo);
@@ -2116,10 +2108,7 @@
           GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), LibraryRandom.RandInt(1000));
     end;
 
-    local procedure CreateGeneralJournalWithThreeLines(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNoA: Code[20];
-                                                                                                                        AccountNoB: Code[20];
-                                                                                                                        GLAccountNo: Code[20];
-                                                                                                                        AmountSign: Integer)
+    local procedure CreateGeneralJournalWithThreeLines(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNoA: Code[20]; AccountNoB: Code[20]; GLAccountNo: Code[20]; AmountSign: Integer)
     var
         LineAmount: Decimal;
     begin
@@ -2341,8 +2330,7 @@
         IssuedReminderHeader.Insert();
     end;
 
-    local procedure MockIssuedReminderLine(var IssuedReminderLine: Record "Issued Reminder Line"; IssuedReminderHeader: Record "Issued Reminder Header"; IssuedReminderLineType: Enum "Reminder Line Type"; RemainingAmount: Decimal;
-                                                                                                                                                                                     LineAmount: Decimal)
+    local procedure MockIssuedReminderLine(var IssuedReminderLine: Record "Issued Reminder Line"; IssuedReminderHeader: Record "Issued Reminder Header"; IssuedReminderLineType: Enum "Reminder Line Type"; RemainingAmount: Decimal; LineAmount: Decimal)
     begin
         IssuedReminderLine.Init();
         IssuedReminderLine."Reminder No." := IssuedReminderHeader."No.";
@@ -3121,23 +3109,6 @@
             Amount);
     end;
 
-#if not CLEAN23
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRateReportReqPageHandler(var AdjustExchangeRate: TestRequestPage "Adjust Exchange Rates")
-    var
-        "Code": Variant;
-    begin
-        CurrentSaveValuesId := REPORT::"Adjust Exchange Rates";
-        LibraryVariableStorage.Dequeue(Code);
-        AdjustExchangeRate.StartingDate.SetValue(WorkDate());
-        AdjustExchangeRate.EndingDate.SetValue(CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(3)), WorkDate()));
-        AdjustExchangeRate.DocumentNo.SetValue(LibraryUTUtility.GetNewCode());
-        AdjustExchangeRate.Currency.SetFilter(Code, Code);
-        LibraryVariableStorage.Enqueue(AdjustExchangeRate.DocumentNo.Value);
-        AdjustExchangeRate.OK().Invoke();
-    end;
-#else
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ExchRateAdjustmentReportReqPageHandler(var ExchRateAdjustment: TestRequestPage "Exch. Rate Adjustment")
@@ -3151,9 +3122,9 @@
         ExchRateAdjustment.DocumentNo.SetValue(LibraryUTUtility.GetNewCode());
         ExchRateAdjustment.CurrencyFilter.SetFilter(Code, Code);
         LibraryVariableStorage.Enqueue(ExchRateAdjustment.DocumentNo.Value);
+        ExchRateAdjustment.PreviewPost.SetValue(false);
         ExchRateAdjustment.OK().Invoke();
     end;
-#endif
 
     local procedure RunReportReminder(IssuedReminderNo: Code[20])
     begin

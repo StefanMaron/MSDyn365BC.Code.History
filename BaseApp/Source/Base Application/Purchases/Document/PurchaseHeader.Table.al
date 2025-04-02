@@ -59,7 +59,6 @@ using System.Security.User;
 using System.Threading;
 using System.Utilities;
 using Microsoft.Projects.Project.Job;
-using Microsoft.Manufacturing.WorkCenter;
 
 table 38 "Purchase Header"
 {
@@ -200,7 +199,7 @@ table 38 "Purchase Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
-
+            
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
@@ -312,7 +311,7 @@ table 38 "Purchase Header"
         field(5; "Pay-to Name"; Text[100])
         {
             Caption = 'Pay-to Name';
-            TableRelation = Vendor.Name;
+                        TableRelation = Vendor.Name;
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -340,11 +339,11 @@ table 38 "Purchase Header"
         field(6; "Pay-to Name 2"; Text[50])
         {
             Caption = 'Pay-to Name 2';
-        }
+                    }
         field(7; "Pay-to Address"; Text[100])
         {
             Caption = 'Pay-to Address';
-
+            
             trigger OnValidate()
             begin
                 ModifyPayToVendorAddress();
@@ -353,7 +352,7 @@ table 38 "Purchase Header"
         field(8; "Pay-to Address 2"; Text[50])
         {
             Caption = 'Pay-to Address 2';
-
+            
             trigger OnValidate()
             begin
                 ModifyPayToVendorAddress();
@@ -362,7 +361,7 @@ table 38 "Purchase Header"
         field(9; "Pay-to City"; Text[30])
         {
             Caption = 'Pay-to City';
-            TableRelation = if ("Pay-to Country/Region Code" = const('')) "Post Code".City
+                        TableRelation = if ("Pay-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Pay-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Pay-to Country/Region Code"));
             ValidateTableRelation = false;
@@ -387,7 +386,7 @@ table 38 "Purchase Header"
         field(10; "Pay-to Contact"; Text[100])
         {
             Caption = 'Pay-to Contact';
-
+            
             trigger OnLookup()
             var
                 Contact: Record Contact;
@@ -407,7 +406,7 @@ table 38 "Purchase Header"
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
-        }
+                    }
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
@@ -461,23 +460,23 @@ table 38 "Purchase Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
-        }
+                    }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
-        }
+                    }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-        }
+                    }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-        }
+                    }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
-            TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
+                        TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Ship-to Country/Region Code"));
             ValidateTableRelation = false;
@@ -501,7 +500,7 @@ table 38 "Purchase Header"
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
-        }
+                    }
         field(19; "Order Date"; Date)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
@@ -604,7 +603,7 @@ table 38 "Purchase Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
-        }
+                    }
         field(23; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
@@ -925,7 +924,7 @@ table 38 "Purchase Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
-            TableRelation = "Language Selection"."Language Tag";
+                        TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Purchaser Code"; Code[20])
         {
@@ -1190,7 +1189,7 @@ table 38 "Purchase Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
-        }
+                    }
         field(72; "Sell-to Customer No."; Code[20])
         {
             Caption = 'Sell-to Customer No.';
@@ -1278,7 +1277,7 @@ table 38 "Purchase Header"
         field(79; "Buy-from Vendor Name"; Text[100])
         {
             Caption = 'Buy-from Vendor Name';
-            TableRelation = Vendor.Name;
+                        TableRelation = Vendor.Name;
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -1324,11 +1323,11 @@ table 38 "Purchase Header"
         field(80; "Buy-from Vendor Name 2"; Text[50])
         {
             Caption = 'Buy-from Vendor Name 2';
-        }
+                    }
         field(81; "Buy-from Address"; Text[100])
         {
             Caption = 'Buy-from Address';
-
+            
             trigger OnValidate()
             begin
                 UpdatePayToAddressFromBuyFromAddress(FieldNo("Pay-to Address"));
@@ -1338,7 +1337,7 @@ table 38 "Purchase Header"
         field(82; "Buy-from Address 2"; Text[50])
         {
             Caption = 'Buy-from Address 2';
-
+            
             trigger OnValidate()
             begin
                 UpdatePayToAddressFromBuyFromAddress(FieldNo("Pay-to Address 2"));
@@ -1348,7 +1347,7 @@ table 38 "Purchase Header"
         field(83; "Buy-from City"; Text[30])
         {
             Caption = 'Buy-from City';
-            TableRelation = if ("Buy-from Country/Region Code" = const('')) "Post Code".City
+                        TableRelation = if ("Buy-from Country/Region Code" = const('')) "Post Code".City
             else
             if ("Buy-from Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Buy-from Country/Region Code"));
             ValidateTableRelation = false;
@@ -1380,7 +1379,7 @@ table 38 "Purchase Header"
         field(84; "Buy-from Contact"; Text[100])
         {
             Caption = 'Buy-from Contact';
-
+            
             trigger OnLookup()
             begin
                 LookupBuyFromContact();
@@ -1420,7 +1419,7 @@ table 38 "Purchase Header"
         {
             CaptionClass = '5,6,' + "Pay-to Country/Region Code";
             Caption = 'Pay-to County';
-
+            
             trigger OnValidate()
             begin
                 ModifyPayToVendorAddress();
@@ -1473,7 +1472,7 @@ table 38 "Purchase Header"
         {
             CaptionClass = '5,5,' + "Buy-from Country/Region Code";
             Caption = 'Buy-from County';
-
+            
             trigger OnValidate()
             begin
                 UpdatePayToAddressFromBuyFromAddress(FieldNo("Pay-to County"));
@@ -1530,7 +1529,7 @@ table 38 "Purchase Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
-        }
+                    }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
             Caption = 'Ship-to Country/Region Code';
@@ -1871,7 +1870,7 @@ table 38 "Purchase Header"
         field(127; "IC Reference Document No."; Code[20])
         {
             Caption = 'IC Reference Document No.';
-            Editable = false;
+                        Editable = false;
         }
         field(129; "IC Direction"; Enum "IC Direction Type")
         {
@@ -1992,7 +1991,7 @@ table 38 "Purchase Header"
         field(139; "Prepmt. Posting Description"; Text[100])
         {
             Caption = 'Prepmt. Posting Description';
-        }
+                    }
         field(142; "Prepmt. Pmt. Discount Date"; Date)
         {
             Caption = 'Prepmt. Pmt. Discount Date';
@@ -2145,7 +2144,7 @@ table 38 "Purchase Header"
         field(210; "Ship-to Phone No."; Text[30])
         {
             Caption = 'Ship-to Phone No.';
-            ExtendedDatatype = PhoneNo;
+                        ExtendedDatatype = PhoneNo;
         }
         field(300; "A. Rcd. Not Inv. Ex. VAT (LCY)"; Decimal)
         {
@@ -2515,13 +2514,6 @@ table 38 "Purchase Header"
         {
             Caption = 'Price Calculation Method';
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
@@ -2544,6 +2536,73 @@ table 38 "Purchase Header"
                                                         Status = filter(Open | Created)));
             Caption = 'Pending Approvals';
             FieldClass = FlowField;
+        }
+        field(11301; "Doc. Amount Incl. VAT"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Doc. Amount Incl. VAT';
+            ToolTip = 'Specifies the total amount (including VAT) of the purchase invoice or credit memo.';
+
+            trigger OnValidate()
+            var
+                Currency: Record Currency;
+                TotalPurchaseLine: Record "Purchase Line";
+                DocumentTotals: Codeunit "Document Totals";
+                VATAmount: Decimal;
+            begin
+                if PurchLine."VAT Calculation Type" <> PurchLine."VAT Calculation Type"::"Normal VAT" then
+                    exit;
+                if not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) then
+                    exit;
+                if not FindSuggestedPurchLine(PurchLine) then
+                    exit;
+
+                Currency.Initialize("Currency Code");
+                Currency.TestField("Amount Rounding Precision");
+                DocumentTotals.CalculatePurchaseTotals(TotalPurchaseLine, VATAmount, PurchLine);
+                UpdateDocAmountVAT("Doc. Amount Incl. VAT", VATAmount, TotalPurchaseLine."Amount Including VAT", Currency."Amount Rounding Precision");
+            end;
+        }
+        field(11302; "Doc. Amount VAT"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Doc. Amount VAT';
+            ToolTip = 'Specifies the VAT amount of the purchase invoice or credit memo.';
+
+            trigger OnValidate()
+            var
+                Currency: Record Currency;
+                TotalPurchaseLine: Record "Purchase Line";
+                DocumentTotals: Codeunit "Document Totals";
+                DocAmountVAT: Decimal;
+                VATAmount: Decimal;
+            begin
+                if not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) then
+                    exit;
+
+                if FindSuggestedPurchLine(PurchLine) and (PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Normal VAT") then begin
+                    Currency.Initialize("Currency Code");
+                    Currency.TestField("Amount Rounding Precision");
+                    DocumentTotals.CalculatePurchaseTotals(TotalPurchaseLine, VATAmount, PurchLine);
+                    DocAmountVAT := CalcDocAmountVAT(
+                        "Doc. Amount Incl. VAT", VATAmount, TotalPurchaseLine."Amount Including VAT", Currency."Amount Rounding Precision");
+
+                    if CheckDifferenceInclVAT("Doc. Amount VAT", DocAmountVAT, Currency) then
+                        Error(
+                            ErrorInfo.Create(
+                                    StrSubstNo(WarnDocAmountVatTxt, FieldCaption("Doc. Amount VAT"), Format(DocAmountVAT)),
+                                    true,
+                                    Rec));
+                end else
+                    if "Doc. Amount VAT" > "Doc. Amount Incl. VAT" then
+                        Error(
+                            ErrorInfo.Create(
+                                StrSubstNo(WarnDocAmountVatTxt, FieldCaption("Doc. Amount VAT"), Format("Doc. Amount Incl. VAT")),
+                                true,
+                                Rec));
+            end;
         }
         field(15000000; KID; Code[30])
         {
@@ -2835,7 +2894,11 @@ table 38 "Purchase Header"
         RecreatePurchaseLinesCancelErr: Label 'Change in the existing purchase lines for the field %1 is cancelled by user.', Comment = '%1 - Field Name, Sample:You must delete the existing purchase lines before you can change Currency Code.';
         WarnZeroQuantityPostingTxt: Label 'Warn before posting Purchase lines with 0 quantity';
         WarnZeroQuantityPostingDescriptionTxt: Label 'Warn before posting lines on Purchase documents where quantity is 0.';
+        WarnDocAmountVatTxt: Label '%1 must not be more than %2.', comment = '%1 - Doc. Amount VAT; %2 - DocAmountVAT';
         CalledFromWhseDoc: Boolean;
+#if not CLEAN26
+        SkipStatsPrep: Boolean;
+#endif
 
     protected var
         PurchSetup: Record "Purchases & Payables Setup";
@@ -2869,14 +2932,14 @@ table 38 "Purchase Header"
                 NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(NoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
                 if not IsHandled then begin
 #endif
-                "No. Series" := NoSeriesCode;
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
-                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-                PurchaseHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
-                PurchaseHeader2.SetLoadFields("No.");
-                while PurchaseHeader2.Get("Document Type", "No.") do
+                    "No. Series" := NoSeriesCode;
+                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series";
                     "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                    PurchaseHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
+                    PurchaseHeader2.SetLoadFields("No.");
+                    while PurchaseHeader2.Get("Document Type", "No.") do
+                        "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
 #if not CLEAN24
                     NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", NoSeriesCode, "Posting Date", "No.");
                 end;
@@ -3295,7 +3358,7 @@ table 38 "Purchase Header"
         end;
     end;
 
-    internal procedure LookupBuyFromContact()
+    procedure LookupBuyFromContact()
     var
         Contact: Record Contact;
     begin
@@ -5097,6 +5160,17 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
+    /// Retrieves the full document type name based on the purchase header document type.
+    /// </summary>
+    /// <returns>Retrieved document type name.</returns>
+    procedure GetDocTypeTxt() TypeText: Text[50]
+    var
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+    begin
+        TypeText := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+    end;
+
+    /// <summary>
     /// Adds the shipping information from a special order. If lines exist, it compares the current shipping information 
     /// with the information on the special order and throws an error if there's a mismatch.
     /// </summary>
@@ -5198,7 +5272,8 @@ table 38 "Purchase Header"
         DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", SourcePurchaseLine."No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Job, SourcePurchaseLine."Job No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", SourcePurchaseLine."Responsibility Center");
-        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", SourcePurchaseLine."Work Center No.");
+
+        OnAfterInitPurchaseLineDefaultDimSource(Rec, DefaultDimSource, SourcePurchaseLine);
     end;
 
     local procedure CollectParamsInBufferForCreateDimSet(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
@@ -5269,6 +5344,8 @@ table 38 "Purchase Header"
         end;
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Open statistics page for purchase orders.
     /// </summary>
@@ -5287,6 +5364,7 @@ table 38 "Purchase Header"
         OpenDocumentStatisticsInternal();
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Open statistics page for purchase documents.
     /// </summary>
@@ -5297,6 +5375,7 @@ table 38 "Purchase Header"
     begin
         OpenDocumentStatisticsInternal();
     end;
+#endif
 
     /// <summary>
     /// Prepares the opening document statistics for a purchase document. It checks the user's permissions, 
@@ -5321,6 +5400,8 @@ table 38 "Purchase Header"
         Commit();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Opens a purchase document statistics page based on the document type. 
     /// After the page is closed, the recalculate invoice discount field is set to false on all purchase document lines.
@@ -5334,11 +5415,26 @@ table 38 "Purchase Header"
 
         OnGetStatisticsPageID(StatisticsPageId, Rec);
 
+        SkipStatsPrep := true;
         PAGE.RunModal(StatisticsPageId, Rec);
+        ResetSkipStatisticsPreparationFlag();
 
         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    procedure SkipStatisticsPreparation(): Boolean
+    begin
+        exit(SkipStatsPrep)
+    end;
+
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    procedure ResetSkipStatisticsPreparationFlag()
+    begin
+        SkipStatsPrep := false;
+    end;
+
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenDocumentStatisticsInternal()
     var
         IsHandled: Boolean;
@@ -5351,6 +5447,7 @@ table 38 "Purchase Header"
         PrepareOpeningDocumentStatistics();
         ShowDocumentStatisticsPage();
     end;
+#endif    
 
     local procedure IsOrderDocument(): Boolean
     begin
@@ -5364,6 +5461,8 @@ table 38 "Purchase Header"
         exit(false);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure GetStatisticsPageID(): Integer
     begin
         if IsOrderDocument() then
@@ -5371,6 +5470,7 @@ table 38 "Purchase Header"
 
         exit(PAGE::"Purchase Statistics");
     end;
+#endif
 
     [IntegrationEvent(true, false)]
     procedure OnCheckPurchasePostRestrictions()
@@ -6120,7 +6220,7 @@ table 38 "Purchase Header"
         exit(UserSetup."Salespers./Purch. Code");
     end;
 
-    local procedure InitPostingNoSeries()
+    procedure InitPostingNoSeries()
     var
 #if not CLEAN24
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -7436,6 +7536,56 @@ table 38 "Purchase Header"
             Error(PrepaymentInvoicesNotPaidErr, Rec."Document Type", Rec."No.");
     end;
 
+    local procedure FindSuggestedPurchLine(var PurchaseLine: Record "Purchase Line"): Boolean
+    begin
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document Type", "Document Type");
+        PurchaseLine.SetRange("Document No.", "No.");
+        PurchaseLine.SetFilter("VAT %", '<>%1', 0);
+        if PurchaseLine.FindFirst() then
+            exit(true);
+        PurchaseLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
+        exit(PurchaseLine.FindFirst())
+    end;
+
+    /// <summary>
+    /// Calculates the VAT Amount of the Purchase Header that is entered.
+    /// </summary>
+    /// <param name="DocAmountInclVAT">The field "Doc. Amount Incl. VAT of the Purchase Header".</param>
+    /// <param name="TotalPurchLineAmtInclVAT">The total VAT amount of all the purchase lines</param>
+    /// <param name="CurrencyAmtRoundingPrecision">The rounding precision of the Currency of the Purchase Header"</param>
+    /// <returns>VAT Amount of the Purchase Header.</returns>
+    procedure CalcDocAmountVAT(DocAmountInclVAT: Decimal; VATAmount: Decimal; TotalPurchLineAmtInclVAT: Decimal; CurrencyAmtRoundingPrecision: Decimal): Decimal
+    begin
+        if TotalPurchLineAmtInclVAT <> 0 then
+            exit(Round(DocAmountInclVAT * VATAmount / TotalPurchLineAmtInclVAT, CurrencyAmtRoundingPrecision));
+
+        exit(0);
+    end;
+
+    local procedure CheckDifferenceInclVAT(HeaderDocAmountVAT: Decimal; LineDocAmountVAT: Decimal; Currency: Record Currency): Boolean
+    var
+        PurchasePayablesSetup: Record "Purchases & Payables Setup";
+        TotalVATDifference: Decimal;
+    begin
+        PurchasePayablesSetup.Get();
+
+        if HeaderDocAmountVAT = LineDocAmountVAT then
+            exit(false);
+
+        if PurchasePayablesSetup."Allow VAT Difference" then begin
+            TotalVATDifference := Abs(HeaderDocAmountVAT) - Abs(LineDocAmountVAT);
+            if Abs(TotalVATDifference) > Currency."Max. VAT Difference Allowed" then
+                exit(true)
+        end else
+            exit(true);
+    end;
+
+    local procedure UpdateDocAmountVAT(DocAmountInclVAT: Decimal; VATAmount: Decimal; TotalPurchLineAmtInclVAT: Decimal; CurrencyAmtRoundingPrecision: Decimal)
+    begin
+        "Doc. Amount VAT" := CalcDocAmountVAT(DocAmountInclVAT, VATAmount, TotalPurchLineAmtInclVAT, CurrencyAmtRoundingPrecision);
+    end;
+
     procedure SendICPurchaseDoc(var PurchaseHeader: Record "Purchase Header")
     var
         ICInOutboxMgt: Codeunit ICInboxOutboxMgt;
@@ -7927,10 +8077,13 @@ table 38 "Purchase Header"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenPurchaseOrderStatistics(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetShipToCodeEmpty(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
@@ -8207,20 +8360,26 @@ table 38 "Purchase Header"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenDocumentStatistics(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareOpeningDocumentStatistics(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnGetStatisticsPageID(var PageID: Integer; PurchaseHeader: Record "Purchase Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeTestStatusOpen(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; CallingFieldNo: Integer)
@@ -8691,6 +8850,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreatePurchLinesOnBeforePurchLinesExists(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; ChangedFieldName: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitPurchaseLineDefaultDimSource(var PurchaseHeader: Record "Purchase Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourcePurchaseLine: Record "Purchase Line")
     begin
     end;
 

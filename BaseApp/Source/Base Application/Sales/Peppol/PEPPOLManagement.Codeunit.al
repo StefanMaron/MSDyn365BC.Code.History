@@ -8,6 +8,7 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.UOM;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Inventory.Item;
@@ -125,14 +126,6 @@ codeunit 1605 "PEPPOL Management"
         OnAfterGetContractDocRefInfo(SalesHeader, ContractDocumentReferenceID, DocumentTypeCode, ContractRefDocTypeCodeListID, DocumentType);
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure with additional parameter ProcessedDocType', '23.0')]
-    procedure GetAdditionalDocRefInfo(Salesheader: Record "Sales Header"; var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text)
-    begin
-        GetAdditionalDocRefInfo(SalesHeader, AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, 0);
-    end;
-#endif
-
     procedure GetAdditionalDocRefInfo(AttachmentNumber: Integer; var DocumentAttachments: Record "Document Attachment"; Salesheader: Record "Sales Header"; var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var Filename: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text; NewProcessedDocType: Option Sale,Service)
     var
         Base64Convert: Codeunit "Base64 Convert";
@@ -157,14 +150,27 @@ codeunit 1605 "PEPPOL Management"
             AdditionalDocumentReferenceID := DocumentAttachments."No.";
             EmbeddedDocumentBinaryObject := Base64Convert.ToBase64(InStream);
             case DocumentAttachments."File Type" of
+                "Document Attachment File Type"::"XML":
+                    MimeCode := 'application/xml';
                 "Document Attachment File Type"::Image:
-                    MimeCode := 'image/' + LowerCase(DocumentAttachments."File Extension");
+                    if DocumentAttachments."File Extension".ToLower() = 'png' then
+                        MimeCode := 'image/png'
+                    else
+                        if (DocumentAttachments."File Extension".ToLower() = 'jpeg') or (DocumentAttachments."File Extension".ToLower() = 'jpg') then
+                            MimeCode := 'image/jpeg';
                 "Document Attachment File Type"::PDF:
-                    MimeCode := 'application/' + LowerCase(DocumentAttachments."File Extension");
+                    MimeCode := 'application/pdf';
                 "Document Attachment File Type"::Excel:
                     MimeCode := 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-
+                "Document Attachment File Type"::Other:
+                    if DocumentAttachments."File Extension".ToLower() = 'txt' then
+                        MimeCode := 'text/csv';
             end;
+
+            // If no correct mime code can be set, we skip the attachment
+            if MimeCode = '' then
+                AdditionalDocumentReferenceID := '';
+
         end;
 
         OnAfterGetAdditionalDocRefInfo(
@@ -183,6 +189,64 @@ codeunit 1605 "PEPPOL Management"
 
         OnAfterGetAdditionalDocRefInfo(
           AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments);
+    end;
+
+    /// <summary>
+    /// Generates a PDF attachment from report set in Report Selections.
+    /// </summary>
+    /// <param name="SalesHeader">Record "Sales Header" that contains the document information.</param>
+    /// <param name="AdditionalDocumentReferenceID">Additional Document Reference ID is set to original document no.</param>
+    /// <param name="AdditionalDocRefDocumentType">Document type is set to an empty string.</param>
+    /// <param name="URI">URI is set to an empty string.</param>
+    /// <param name="Filename">Filename generated in format 'DocumentType_DocumentNo.pdf'.</param>
+    /// <param name="MimeCode">The MimeCode is set to application/pdf.</param>
+    /// <param name="EmbeddedDocumentBinaryObject">Text output parameter that contains the Base64 encoded PDF content.</param>
+    internal procedure GeneratePDFAttachmentAsAdditionalDocRef(SalesHeader: Record "Sales Header"; var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var Filename: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text)
+    var
+        Base64Convert: Codeunit "Base64 Convert";
+        TempBlob: Codeunit "Temp Blob";
+        FileNameTok: Label '%1_%2.pdf', Comment = '1: Document Type, 2: Document No', Locked = true;
+    begin
+        AdditionalDocumentReferenceID := '';
+        AdditionalDocRefDocumentType := '';
+        URI := '';
+        MimeCode := '';
+        EmbeddedDocumentBinaryObject := '';
+        Filename := '';
+
+        if not GeneratePDFAsTempBlob(SalesHeader, TempBlob) then
+            exit;
+
+        Filename := StrSubstNo(FileNameTok, SalesHeader."Document Type", SalesHeader."No.");
+        AdditionalDocumentReferenceID := SalesHeader."No.";
+        EmbeddedDocumentBinaryObject := Base64Convert.ToBase64(TempBlob.CreateInStream());
+        MimeCode := 'application/pdf';
+    end;
+
+    local procedure GeneratePDFAsTempBlob(SalesHeader: Record "Sales Header"; var TempBlob: Codeunit "Temp Blob"): Boolean
+    var
+        ReportSelections: Record "Report Selections";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::Invoice:
+                begin
+                    SalesInvoiceHeader.SetRange("No.", SalesHeader."No.");
+                    if SalesInvoiceHeader.IsEmpty() then
+                        exit(false);
+                    ReportSelections.GetPdfReportForCust(TempBlob, "Report Selection Usage"::"S.Invoice", SalesInvoiceHeader, SalesHeader."Bill-to Customer No.");
+                end;
+            SalesHeader."Document Type"::"Credit Memo":
+                begin
+                    SalesCrMemoHeader.SetRange("No.", SalesHeader."No.");
+                    if SalesCrMemoHeader.IsEmpty() then
+                        exit(false);
+                    ReportSelections.GetPdfReportForCust(TempBlob, "Report Selection Usage"::"S.Cr.Memo", SalesCrMemoHeader, SalesHeader."Bill-to Customer No.");
+                end;
+        end;
+
+        exit(TempBlob.HasValue());
     end;
 
     procedure GetAccountingSupplierPartyInfo(var SupplierEndpointID: Text; var SupplierSchemeID: Text; var SupplierName: Text)
@@ -736,34 +800,6 @@ codeunit 1605 "PEPPOL Management"
 
         OnAfterGetTaxTotalInfoLCY(SalesHeader, TaxAmount, TaxCurrencyID, TaxTotalCurrencyID);
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by GetLegalMonetaryInfo with TempSalesLine parameter for invoice rounding.', '23.0')]
-    procedure GetLegalMonetaryInfo(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var LegalMonetaryTotalCurrencyID: Text; var TaxExclusiveAmount: Text; var TaxExclusiveAmountCurrencyID: Text; var TaxInclusiveAmount: Text; var TaxInclusiveAmountCurrencyID: Text; var AllowanceTotalAmount: Text; var AllowanceTotalAmountCurrencyID: Text; var ChargeTotalAmount: Text; var ChargeTotalAmountCurrencyID: Text; var PrepaidAmount: Text; var PrepaidCurrencyID: Text; var PayableRoundingAmount: Text; var PayableRndingAmountCurrencyID: Text; var PayableAmount: Text; var PayableAmountCurrencyID: Text)
-    begin
-        VATAmtLine.Reset();
-        VATAmtLine.CalcSums("Line Amount", "VAT Base", "Amount Including VAT", "Invoice Discount Amount");
-
-        GetLegalMonetaryDocAmounts(
-                SalesHeader, VATAmtLine, LineExtensionAmount, LegalMonetaryTotalCurrencyID,
-                TaxExclusiveAmount, TaxExclusiveAmountCurrencyID, TaxInclusiveAmount, TaxInclusiveAmountCurrencyID,
-                AllowanceTotalAmount, AllowanceTotalAmountCurrencyID, ChargeTotalAmount, ChargeTotalAmountCurrencyID);
-
-        PrepaidAmount := '0.00';
-        PrepaidCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
-
-        PayableRoundingAmount :=
-          Format(VATAmtLine."Amount Including VAT" - Round(VATAmtLine."Amount Including VAT", 0.01), 0, 9);
-        PayableRndingAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
-
-        PayableAmount := Format(Round(VATAmtLine."Amount Including VAT", 0.01), 0, 9);
-        PayableAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
-
-        OnAfterGetLegalMonetaryInfo(
-          SalesHeader, VATAmtLine, LineExtensionAmount, TaxExclusiveAmount, TaxInclusiveAmount,
-          AllowanceTotalAmount, ChargeTotalAmount, PrepaidAmount, PayableRoundingAmount, PayableAmount);
-    end;
-#endif
 
     procedure GetLegalMonetaryInfo(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var LegalMonetaryTotalCurrencyID: Text; var TaxExclusiveAmount: Text; var TaxExclusiveAmountCurrencyID: Text; var TaxInclusiveAmount: Text; var TaxInclusiveAmountCurrencyID: Text; var AllowanceTotalAmount: Text; var AllowanceTotalAmountCurrencyID: Text; var ChargeTotalAmount: Text; var ChargeTotalAmountCurrencyID: Text; var PrepaidAmount: Text; var PrepaidCurrencyID: Text; var PayableRoundingAmount: Text; var PayableRndingAmountCurrencyID: Text; var PayableAmount: Text; var PayableAmountCurrencyID: Text)
     begin
@@ -1504,28 +1540,6 @@ codeunit 1605 "PEPPOL Management"
         OnAfterFindNextSalesCrMemoLineRec(SalesCrMemoLine, SalesLine, Position, Found);
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by CopyIssuedFinCharge with TempSalesLineInvRounding parameter for invoice rounding.', '23.0')]
-    procedure CopyIssuedFinCharge(var TempSalesHeader: Record "Sales Header" temporary; var TempSalesLine: Record "Sales Line" temporary; FinChargeNo: Code[20])
-    var
-        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
-        IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line";
-        IssuedReminderHeader: Record "Issued Reminder Header";
-        IssuedReminderLine: Record "Issued Reminder Line";
-        TempSalesLineInvRounding: Record "Sales Line" temporary;
-    begin
-        IssuedFinChargeMemoHeader.Get(FinChargeNo);
-        IssuedReminderHeader.TransferFields(IssuedFinChargeMemoHeader);
-        ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader, 2);
-        IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", FinChargeNo);
-        if IssuedFinChargeMemoLine.FindSet() then
-            repeat
-                IssuedReminderLine.TransferFields(IssuedFinChargeMemoLine);
-                ReminderLineToSalesLine(TempSalesLine, TempSalesLineInvRounding, IssuedReminderHeader, IssuedReminderLine);
-            until IssuedFinChargeMemoLine.Next() = 0;
-    end;
-#endif
-
     procedure CopyIssuedFinCharge(var TempSalesHeader: Record "Sales Header" temporary; var TempSalesLine: Record "Sales Line" temporary; var TempSalesLineInvRounding: Record "Sales Line" temporary; FinChargeNo: Code[20])
     var
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
@@ -1543,25 +1557,6 @@ codeunit 1605 "PEPPOL Management"
                 ReminderLineToSalesLine(TempSalesLine, TempSalesLineInvRounding, IssuedReminderHeader, IssuedReminderLine);
             until IssuedFinChargeMemoLine.Next() = 0;
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by CopyIssuedReminder with TempSalesLineInvRounding parameter for invoice rounding.', '23.0')]
-    procedure CopyIssuedReminder(var TempSalesHeader: Record "Sales Header" temporary; var TempSalesLine: Record "Sales Line" temporary; ReminderNo: Code[20])
-    var
-        IssuedReminderHeader: Record "Issued Reminder Header";
-        IssuedReminderLine: Record "Issued Reminder Line";
-        TempSalesLineInvRounding: Record "Sales Line" temporary;
-    begin
-        IssuedReminderHeader.Get(ReminderNo);
-        ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader, 3);
-
-        IssuedReminderLine.SetRange("Reminder No.", ReminderNo);
-        if IssuedReminderLine.FindSet() then
-            repeat
-                ReminderLineToSalesLine(TempSalesLine, TempSalesLineInvRounding, IssuedReminderHeader, IssuedReminderLine);
-            until IssuedReminderLine.Next() = 0;
-    end;
-#endif
 
     procedure CopyIssuedReminder(var TempSalesHeader: Record "Sales Header" temporary; var TempSalesLine: Record "Sales Line" temporary; var TempSalesLineInvRounding: Record "Sales Line" temporary; ReminderNo: Code[20])
     var
@@ -1801,14 +1796,6 @@ codeunit 1605 "PEPPOL Management"
     begin
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by event OnAfterGetLegalMonetaryInfoWithInvRounding()', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetLegalMonetaryInfo(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var TaxExclusiveAmount: Text; var TaxInclusiveAmount: Text; var AllowanceTotalAmount: Text; var ChargeTotalAmount: Text; var PrepaidAmount: Text; var PayableRoundingAmount: Text; var PayableAmount: Text)
-    begin
-    end;
-#endif    
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetLegalMonetaryInfoWithInvRounding(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var TaxExclusiveAmount: Text; var TaxInclusiveAmount: Text; var AllowanceTotalAmount: Text; var ChargeTotalAmount: Text; var PrepaidAmount: Text; var PayableRoundingAmount: Text; var PayableAmount: Text)
     begin
@@ -1899,4 +1886,3 @@ codeunit 1605 "PEPPOL Management"
     begin
     end;
 }
-

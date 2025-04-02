@@ -2026,11 +2026,7 @@
         VATPostingSetup.SetRange("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.SetFilter("VAT %", '>%1', 0);
         if VATCalculationType = VATPostingSetup."VAT Calculation Type"::"Normal VAT" then
-#if CLEAN23
             VATPostingSetup.SetRange("VAT Number", '');
-#else
-            VATPostingSetup.SetRange("VAT Code", '');
-#endif
         if not VATPostingSetup.FindFirst() then
             CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, LibraryRandom.RandDecInDecimalRange(10, 25, 0));
     end;
@@ -2044,11 +2040,7 @@
             VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
         if SearchPostingType <> SearchPostingType::Sales then
             VATPostingSetup.SetFilter("Purchase VAT Account", '<>%1', '');
-#if CLEAN23
         VATPostingSetup.SetRange("VAT Number", '');
-#else
-        VATPostingSetup.SetRange("VAT Code", '');
-#endif
         if not VATPostingSetup.FindFirst() then
             CreateVATPostingSetupWithAccounts(VATPostingSetup,
               VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInDecimalRange(10, 25, 0));
@@ -2315,34 +2307,6 @@
         AdjustAddReportingCurrency.UseRequestPage(false);
         AdjustAddReportingCurrency.Run();
     end;
-
-#if not CLEAN23
-    // Old Adjust Exchange Rates
-#pragma warning disable AS0072
-    [Obsolete('Not used', '23.0')]
-#pragma warning restore AS0072
-    procedure RunAdjustExchangeRatesSimple(CurrencyCode: Code[10]; EndDate: Date; PostingDate: Date)
-    begin
-        RunAdjustExchangeRates(
-          CurrencyCode, 0D, EndDate, 'Test', PostingDate, LibraryUtility.GenerateGUID(), false);
-    end;
-
-#pragma warning disable AS0072
-    [Obsolete('Not used', '23.0')]
-#pragma warning restore AS0072
-    procedure RunAdjustExchangeRates(CurrencyCode: Code[10]; StartDate: Date; EndDate: Date; PostingDescription: Text[50]; PostingDate: Date; PostingDocNo: Code[20]; AdjGLAcc: Boolean)
-    var
-        Currency: Record Currency;
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
-    begin
-        Currency.SetRange(Code, CurrencyCode);
-        AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(
-            StartDate, EndDate, PostingDescription, PostingDate, PostingDocNo, true, AdjGLAcc);
-        AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run();
-    end;
-#endif
 
     // New Exch. rate adjustment for v.20
     procedure RunExchRateAdjustmentForDocNo(CurrencyCode: Code[10]; DocumentNo: Code[20])
@@ -3100,6 +3064,12 @@
         if DeletionBlockedAfterDate = 0D then
             exit(WorkDate());
         exit(DeletionBlockedAfterDate);
+    end;
+
+    procedure UpdateDirectCostNonInventoryAppliedAccountInGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
+    begin
+        GeneralPostingSetup.Validate("Direct Cost Non-Inv. App. Acc.", CreateGLAccountNo());
+        GeneralPostingSetup.Modify();
     end;
 
     [IntegrationEvent(false, false)]

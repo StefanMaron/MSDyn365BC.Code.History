@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Currency;
@@ -77,6 +81,7 @@ codeunit 5950 "Service-Calc. Discount"
             ServiceLine2.SetRange("Document Type", ServiceLine."Document Type");
             ServiceLine2.SetRange("Document No.", ServiceLine."Document No.");
             ServiceLine2.SetFilter(Type, '<>0');
+            OnCalculateInvoiceDiscountOnAfterSetServiceLineFilters(ServiceLine2);
             if ServiceLine2.Find('-') then;
             ServiceLine2.CalcVATAmountLines(0, ServHeader, ServiceLine2, TempVATAmountLine, false);
             InvDiscBase :=
@@ -267,6 +272,11 @@ codeunit 5950 "Service-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeIsServiceChargeUpdated(var ServiceLine: Record "Service Line"; CustomerPostingGroup: Record "Customer Posting Group"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnAfterSetServiceLineFilters(var ServiceLine: Record "Service Line")
     begin
     end;
 }

@@ -4384,7 +4384,7 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.SetRange('PostingDt_CustLedgEntry', Format(WorkDate()));
         LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Invoice));
         LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(CustLedgerEntry.Amount));
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(CustLedgerEntry.Amount, 0, 2));
     end;
 
     local procedure VerifyCustomerEntriesAndBalanceInCustomerBalanceToDate(GenJournalLine: Record "Gen. Journal Line"; Balance: Decimal)

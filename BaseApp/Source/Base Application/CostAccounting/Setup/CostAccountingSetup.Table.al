@@ -12,11 +12,14 @@ table 1108 "Cost Accounting Setup"
 {
     Caption = 'Cost Accounting Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Cost Accounting Setup";
+    LookupPageID = "Cost Accounting Setup";
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
             DataClassification = SystemMetadata;
         }

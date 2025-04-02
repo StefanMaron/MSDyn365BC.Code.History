@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -172,6 +172,13 @@ page 5933 "Service Invoice"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Importance = Promoted;
+                    ShowMandatory = ExternalDocNoMandatory;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
+                }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Service;
@@ -196,18 +203,6 @@ page 5933 "Service Invoice"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
-                }
-                field("Your Reference"; Rec."Your Reference")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
-                }
-                field("External Document No."; Rec."External Document No.")
-                {
-                    ApplicationArea = Service;
-                    Importance = Promoted;
-                    ShowMandatory = ExternalDocNoMandatory;
-                    ToolTip = 'Specifies the external document number for this entry.';
                 }
             }
             part(ServLines; "Service Invoice Subform")
@@ -330,25 +325,10 @@ page 5933 "Service Invoice"
                         ToolTip = 'Specifies the email address of the contact person at the customer''s billing address.';
                     }
                 }
-                field(GLN; Rec.GLN)
+                field("Your Reference"; Rec."Your Reference")
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the global location number of the customer.';
-                }
-                field("Account Code"; Rec."Account Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the account code of the customer.';
-
-                    trigger OnValidate()
-                    begin
-                        AccountCodeOnAfterValidate();
-                    end;
-                }
-                field("E-Invoice"; Rec."E-Invoice")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies whether the customer is part of the EHF system and requires an electronic service order.';
+                    ToolTip = 'Specifies a customer reference, which will be used when printing service documents.';
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
@@ -478,6 +458,14 @@ page 5933 "Service Invoice"
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Service;
@@ -548,38 +536,33 @@ page 5933 "Service Invoice"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location (for example, warehouse or distribution center) of the items specified on the service item lines.';
                 }
-                field("Delivery Date"; Rec."Delivery Date")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the date that the item was requested for delivery in the service order.';
-                }
             }
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
                 field("Transaction Type"; Rec."Transaction Type")
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Transaction Specification"; Rec."Transaction Specification")
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Transport Method"; Rec."Transport Method")
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Exit Point"; Rec."Exit Point")
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
                 }
                 field("Area"; Rec.Area)
                 {
-                    ApplicationArea = BasicEU, BasicNO;
+                    ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
             }
@@ -602,6 +585,7 @@ page 5933 "Service Invoice"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -1144,11 +1128,6 @@ page 5933 "Service Invoice"
     local procedure PricesIncludingVATOnAfterValid()
     begin
         CurrPage.Update();
-    end;
-
-    local procedure AccountCodeOnAfterValidate()
-    begin
-        CurrPage.ServLines.PAGE.UpdateForm(true);
     end;
 
     local procedure ShiptoCodeOnAfterValidate()

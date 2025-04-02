@@ -107,8 +107,9 @@ report 99001015 "Calculate Subcontracts"
         GLSetup: Record "General Ledger Setup";
         PurchLine: Record "Purchase Line";
         Item: Record Item;
+        ItemVariant: Record "Item Variant";
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
         BaseQtyToPurch: Decimal;
@@ -121,6 +122,8 @@ report 99001015 "Calculate Subcontracts"
         Text001: Label 'Processing Orders         #2########## ';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
+        ProductionBlockedOutputItemQst: Label 'Item %1 is blocked for production output and cannot be calculated. Do you want to continue?', Comment = '%1 Item No.';
+        ProductionBlockedOutputItemVariantQst: Label 'Variant %1 for item %2 is blocked for production output and cannot be calculated. Do you want to continue?', Comment = '%1 - Item Variant Code, %2 - Item No.';
 
     procedure SetWkShLine(NewReqLine: Record "Requisition Line")
     begin
@@ -143,6 +146,9 @@ report 99001015 "Calculate Subcontracts"
 
         ReqLine.SetSubcontracting(true);
         ReqLine.BlockDynamicTracking(true);
+
+        if not CanCreateRequisitionLineFromProdOrderLine(ProdOrderLine."Item No.", ProdOrderLine."Variant Code") then
+            exit;
 
         ReqLine.Init();
         ReqLine."Line No." := ReqLine."Line No." + 10000;
@@ -268,7 +274,43 @@ report 99001015 "Calculate Subcontracts"
         ReqLine.Validate("Vendor Item No.", ItemVendor."Vendor Item No.");
         OnAfterSetVendorItemNo(ReqLine, ItemVendor, Item);
     end;
-    
+
+    local procedure CanCreateRequisitionLineFromProdOrderLine(ItemNo: Code[20]; VariantCode: Code[20]): Boolean
+    begin
+        if not GuiAllowed() then
+            exit;
+
+        if ItemNo <> '' then begin
+            if Item."No." <> ItemNo then begin
+                Item.SetLoadFields("Production Blocked");
+                Item.Get(ItemNo);
+            end;
+            case Item."Production Blocked" of
+                Item."Production Blocked"::Output:
+                    begin
+                        ShowProdBlockedForItemConfirmation(ItemNo);
+                        exit(false);
+                    end;
+            end;
+        end;
+
+        if (ItemNo <> '') and (VariantCode <> '') then begin
+            if (ItemVariant."Item No." <> ItemNo) or (ItemVariant.Code <> VariantCode) then begin
+                ItemVariant.SetLoadFields("Production Blocked");
+                ItemVariant.Get(ItemNo, VariantCode);
+            end;
+            case ItemVariant."Production Blocked" of
+                ItemVariant."Production Blocked"::Output:
+                    begin
+                        ShowProdBlockedForItemVariantConfirmation(ItemNo, VariantCode);
+                        exit(false);
+                    end;
+            end;
+        end;
+
+        exit(true);
+    end;
+
     local procedure CalculateSubContractRequirements()
     begin
         if TempProdOrderRoutingLine.IsEmpty then
@@ -288,12 +330,12 @@ report 99001015 "Calculate Subcontracts"
                     DeleteRepeatedReqLines(TempProdOrderRoutingLine);
                     repeat
                         BaseQtyToPurch :=
-                            CostCalcMgt.CalcQtyAdjdForRoutingScrap(
-                                CostCalcMgt.CalcQtyAdjdForBOMScrap(
+                            MfgCostCalcMgt.CalcQtyAdjdForRoutingScrap(
+                                MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(
                                     ProdOrderLine."Quantity (Base)", ProdOrderLine."Scrap %"),
                                     TempProdOrderRoutingLine."Scrap Factor % (Accumulated)", TempProdOrderRoutingLine."Fixed Scrap Qty. (Accum.)") -
-                                (CostCalcMgt.CalcOutputQtyBaseOnPurchOrder(ProdOrderLine, TempProdOrderRoutingLine) +
-                                    CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, TempProdOrderRoutingLine));
+                            (MfgCostCalcMgt.CalcOutputQtyBaseOnPurchOrder(ProdOrderLine, TempProdOrderRoutingLine) +
+                             MfgCostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, TempProdOrderRoutingLine));
                         QtyToPurch := Round(BaseQtyToPurch / ProdOrderLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                         OnAfterCalcQtyToPurch(ProdOrderLine, QtyToPurch);
                         if QtyToPurch > 0 then
@@ -301,6 +343,18 @@ report 99001015 "Calculate Subcontracts"
                     until ProdOrderLine.Next() = 0;
                 end;
             until TempProdOrderRoutingLine.Next() = 0;
+    end;
+
+    local procedure ShowProdBlockedForItemConfirmation(ItemNo: Code[20])
+    begin
+        if not Confirm(StrSubstNo(ProductionBlockedOutputItemQst, ItemNo)) then
+            Error('');
+    end;
+
+    local procedure ShowProdBlockedForItemVariantConfirmation(ItemNo: Code[20]; VariantCode: Code[20])
+    begin
+        if not Confirm(StrSubstNo(ProductionBlockedOutputItemVariantQst, VariantCode, ItemNo)) then
+            Error('');
     end;
 
     [IntegrationEvent(false, false)]

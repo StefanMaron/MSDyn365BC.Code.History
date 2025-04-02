@@ -259,7 +259,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         OpenRelatedWarehousePicksForJob(Job);
 
         // [WHEN] Open related Warehouse Pick Card, Autofill quantity and Register pick.
-        WarehouseActivityLinesPage.Card.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
+        WarehouseActivityLinesPage.ShowDocument.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
         WarehouseActivityLinesPage.Close();
 
         // [THEN] Pick Qty / Pick Qty (Base), Qty Picked / Qty Picked (Base) and Completely Picked are filled.
@@ -656,7 +656,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         // [WHEN] Open related Warehouse Pick Card, Fill partial quantity and Register pick.
         QtyToUse := LibraryRandom.RandInt(10);
         LibraryVariableStorage.Enqueue(QtyToUse);
-        WarehouseActivityLinesPage.Card.Invoke(); //Handled in RegisterPickForOneModalPageHandler
+        WarehouseActivityLinesPage.ShowDocument.Invoke(); //Handled in RegisterPickForOneModalPageHandler
         WarehouseActivityLinesPage.Close();
 
         // [THEN] Job planning lines picked quantity is updated correctly
@@ -1464,7 +1464,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         OpenRelatedWarehousePicksForJob(Job);
 
         // [WHEN] Open related Warehouse Pick Card, Autofill quantity and Register pick.
-        WarehouseActivityLinesPage.Card.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
+        WarehouseActivityLinesPage.ShowDocument.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
         WarehouseActivityLinesPage.Close();
 
         // [THEN] Pick Qty / Pick Qty (Base), Qty Picked / Qty Picked (Base) and Completely Picked are filled.
@@ -1967,7 +1967,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         OpenRelatedWarehousePicksForJob(Job);
 
         // [WHEN] Open related Warehouse Pick Card, Autofill quantity and Register pick.
-        WarehouseActivityLinesPage.Card.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
+        WarehouseActivityLinesPage.ShowDocument.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
         WarehouseActivityLinesPage.Close();
 
         // [THEN] Warehouse entry is created
@@ -2584,7 +2584,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         OpenRelatedWarehousePicksForJob(Job);
 
         // [WHEN] Open related Warehouse Pick Card, Autofill quantity and Register pick.
-        WarehouseActivityLinesPage.Card.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
+        WarehouseActivityLinesPage.ShowDocument.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
         WarehouseActivityLinesPage.Close();
 
         // [THEN] Pick Qty / Pick Qty (Base), Qty Picked / Qty Picked (Base) and Completely Picked are filled.
@@ -3025,7 +3025,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         // [WHEN] Open related Warehouse Pick Card, Fill partial quantity and Register pick.
         QtyToUse := LibraryRandom.RandInt(10);
         LibraryVariableStorage.Enqueue(QtyToUse);
-        WarehouseActivityLinesPage.Card.Invoke(); //Handled in RegisterPickForOneModalPageHandler
+        WarehouseActivityLinesPage.ShowDocument.Invoke(); //Handled in RegisterPickForOneModalPageHandler
         WarehouseActivityLinesPage.Close();
 
         // [THEN] Job planning lines picked quantity is updated correctly
@@ -3333,7 +3333,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         OpenRelatedWarehousePicksForJob(Job);
 
         // [WHEN] Open related Warehouse Pick Card, Autofill quantity and Register pick.
-        WarehouseActivityLinesPage.Card.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
+        WarehouseActivityLinesPage.ShowDocument.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
         WarehouseActivityLinesPage.Close();
 
         // [THEN] Pick Qty / Pick Qty (Base), Qty Picked / Qty Picked (Base) and Completely Picked are filled.
@@ -3877,7 +3877,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         OpenRelatedWarehousePicksForJob(Job);
 
         // [WHEN] Open related Warehouse Pick Card, Autofill quantity and Register pick.
-        WarehouseActivityLinesPage.Card.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
+        WarehouseActivityLinesPage.ShowDocument.Invoke(); //Handled in AutoFillAndRegisterPickModalPageHandler
         WarehouseActivityLinesPage.Close();
 
         // [THEN] Warehouse entry is created

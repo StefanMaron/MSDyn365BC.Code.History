@@ -1,6 +1,9 @@
-﻿namespace Microsoft.CRM.RoleCenters;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.RoleCenters;
 
-using Microsoft.Assembly.Reports;
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Analysis;
 using Microsoft.CRM.BusinessRelation;
@@ -32,7 +35,6 @@ using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Forecast;
 #if CLEAN25
 using Microsoft.Pricing.Reports;
 using Microsoft.Pricing.Worksheet;
@@ -128,13 +130,6 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Sales Analysis by Dimensions';
                         RunObject = page "Analysis View List Sales";
                         Tooltip = 'Open the Sales Analysis by Dimensions page.';
-                    }
-                    action("Forecast")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Production Forecast';
-                        RunObject = page "Demand Forecast Names";
-                        Tooltip = 'Open the Production Forecasts page.';
                     }
                     action("Item Dimensions - Detail")
                     {
@@ -811,13 +806,6 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Item Substitutions';
                         RunObject = report "Item Substitutions";
                         Tooltip = 'Run the Item Substitutions report.';
-                    }
-                    action("Assemble to Order - Sales")
-                    {
-                        ApplicationArea = Assembly;
-                        Caption = 'Assemble to Order - Sales';
-                        RunObject = report "Assemble to Order - Sales";
-                        Tooltip = 'Run the Assemble to Order - Sales report.';
                     }
                 }
             }

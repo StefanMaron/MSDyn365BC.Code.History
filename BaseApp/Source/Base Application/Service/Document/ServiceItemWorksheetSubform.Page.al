@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
@@ -55,7 +59,7 @@ page 5907 "Service Item Worksheet Subform"
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Service, ItemReferences;
                     QuickEntry = false;
-                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a sales or purchase document.';
+                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a service document.';
                     Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -184,6 +188,23 @@ page 5907 "Service Item Worksheet Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service price adjustment group code that applies to this line.';
                     Visible = false;
+                }
+                field("Tax Liable"; Rec."Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
+                    Visible = false;
+                }
+                field("Tax Area Code"; Rec."Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
+                    Visible = false;
+                }
+                field("Tax Group Code"; Rec."Tax Group Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the sales tax group code to which this item belongs.';
                 }
                 field("Unit Price"; Rec."Unit Price")
                 {
@@ -400,12 +421,6 @@ page 5907 "Service Item Worksheet Subform"
                     begin
                         Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
-                }
-                field("Account Code"; Rec."Account Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the account code of the customer.';
-                    Visible = false;
                 }
             }
         }

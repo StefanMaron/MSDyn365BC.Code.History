@@ -36,23 +36,28 @@ table 21 "Cust. Ledger Entry"
         field(1; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
+            ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
         }
         field(3; "Customer No."; Code[20])
         {
             Caption = 'Customer No.';
             TableRelation = Customer;
+            ToolTip = 'Specifies the customer account number that the entry is linked to.';
         }
         field(4; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the customer entry''s posting date.';
         }
         field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
+            ToolTip = 'Specifies the document type that the customer entry belongs to.';
         }
         field(6; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies the entry''s document number.';
 
             trigger OnLookup()
             var
@@ -64,20 +69,24 @@ table 21 "Cust. Ledger Entry"
         field(7; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the customer entry.';
         }
         field(8; "Customer Name"; Text[100])
         {
             Caption = 'Customer Name';
+            ToolTip = 'Specifies the customer name that the entry is linked to.';
         }
         field(10; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
             DataClassification = CustomerContent;
+            ToolTip = 'Specifies the customer''s reference.';
         }
         field(11; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+            ToolTip = 'Specifies the currency code for the amount on the line.';
         }
         field(13; Amount; Decimal)
         {
@@ -89,6 +98,7 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the amount of the entry.';
         }
         field(14; "Remaining Amount"; Decimal)
         {
@@ -99,6 +109,7 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Remaining Amount';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the amount that remains to be applied to before the entry has been completely applied.';
         }
         field(15; "Original Amt. (LCY)"; Decimal)
         {
@@ -109,6 +120,7 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Original Amt. (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the amount that the entry originally consisted of, in LCY.';
         }
         field(16; "Remaining Amt. (LCY)"; Decimal)
         {
@@ -118,6 +130,7 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Remaining Amt. (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the amount that remains to be applied to before the entry is totally applied to.';
         }
         field(17; "Amount (LCY)"; Decimal)
         {
@@ -128,11 +141,13 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the amount of the entry in LCY.';
         }
         field(18; "Sales (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Sales (LCY)';
+            ToolTip = 'Specifies the total sales amount excl. VAT to the customer in LCY.';
         }
         field(19; "Profit (LCY)"; Decimal)
         {
@@ -153,23 +168,27 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'Customer Posting Group';
             TableRelation = "Customer Posting Group";
+            ToolTip = 'Specifies the customer''s market type to link business transactions to.';
         }
         field(23; "Global Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
+            ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
         }
         field(24; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
+            ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
         }
         field(25; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
             TableRelation = "Salesperson/Purchaser";
+            ToolTip = 'Specifies the code for the salesperson whom the entry is linked to.';
         }
         field(27; "User ID"; Code[50])
         {
@@ -177,15 +196,18 @@ table 21 "Cust. Ledger Entry"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
         }
         field(28; "Source Code"; Code[10])
         {
             Caption = 'Source Code';
             TableRelation = "Source Code";
+            ToolTip = 'Specifies the source code that specifies where the entry was created.';
         }
         field(33; "On Hold"; Code[3])
         {
             Caption = 'On Hold';
+            ToolTip = 'Specifies that the related entry represents an unpaid invoice for which either a payment suggestion, a reminder, or a finance charge memo exists.';
 
             trigger OnValidate()
             var
@@ -220,10 +242,12 @@ table 21 "Cust. Ledger Entry"
         field(36; Open; Boolean)
         {
             Caption = 'Open';
+            ToolTip = 'Specifies whether the amount on the entry has been fully paid or there is still a remaining amount that must be applied to.';
         }
         field(37; "Due Date"; Date)
         {
             Caption = 'Due Date';
+            ToolTip = 'Specifies the due date on the entry.';
 
             trigger OnValidate()
             var
@@ -244,6 +268,7 @@ table 21 "Cust. Ledger Entry"
         field(38; "Pmt. Discount Date"; Date)
         {
             Caption = 'Pmt. Discount Date';
+            ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
 
             trigger OnValidate()
             begin
@@ -256,6 +281,7 @@ table 21 "Cust. Ledger Entry"
             AutoFormatType = 1;
             Caption = 'Original Pmt. Disc. Possible';
             Editable = false;
+            ToolTip = 'Specifies the discount that the customer can obtain if the entry is applied to before the payment discount date.';
         }
         field(40; "Pmt. Disc. Given (LCY)"; Decimal)
         {
@@ -271,6 +297,7 @@ table 21 "Cust. Ledger Entry"
         field(43; Positive; Boolean)
         {
             Caption = 'Positive';
+            ToolTip = 'Specifies if the entry to be applied is positive.';
         }
         field(44; "Closed by Entry No."; Integer)
         {
@@ -280,16 +307,19 @@ table 21 "Cust. Ledger Entry"
         field(45; "Closed at Date"; Date)
         {
             Caption = 'Closed at Date';
+            ToolTip = 'Specifies when the entry was closed.';
         }
         field(46; "Closed by Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Closed by Amount';
+            ToolTip = 'Specifies the amount that the entry was finally applied to (closed) with.';
         }
         field(47; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';
+            ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
 
             trigger OnValidate()
             begin
@@ -308,10 +338,12 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
+            ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
         }
         field(51; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
+            ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
         }
         field(52; "Bal. Account No."; Code[20])
         {
@@ -325,6 +357,7 @@ table 21 "Cust. Ledger Entry"
             if ("Bal. Account Type" = const("Bank Account")) "Bank Account"
             else
             if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset";
+            ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
         }
         field(53; "Transaction No."; Integer)
         {
@@ -346,6 +379,7 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Debit Amount';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the total of the ledger entries that represent debits.';
         }
         field(59; "Credit Amount"; Decimal)
         {
@@ -358,6 +392,7 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Credit Amount';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the total of the ledger entries that represent credits.';
         }
         field(60; "Debit Amount (LCY)"; Decimal)
         {
@@ -369,6 +404,7 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Debit Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the total of the ledger entries that represent debits, expressed in LCY.';
         }
         field(61; "Credit Amount (LCY)"; Decimal)
         {
@@ -380,14 +416,17 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Credit Amount (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the total of the ledger entries that represent credits, expressed in LCY.';
         }
         field(62; "Document Date"; Date)
         {
             Caption = 'Document Date';
+            ToolTip = 'Specifies the customer entry''s document date.';
         }
         field(63; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
         }
         field(64; "Calculate Interest"; Boolean)
         {
@@ -406,6 +445,7 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'Closed by Currency Code';
             TableRelation = Currency;
+            ToolTip = 'Specifies the code of the currency of the entry that was applied to (and closed) this customer ledger entry.';
         }
         field(68; "Closed by Currency Amount"; Decimal)
         {
@@ -413,6 +453,7 @@ table 21 "Cust. Ledger Entry"
             AutoFormatExpression = "Closed by Currency Code";
             AutoFormatType = 1;
             Caption = 'Closed by Currency Amount';
+            ToolTip = 'Specifies the amount that was finally applied to (and closed) this customer ledger entry.';
         }
         field(73; "Adjusted Currency Factor"; Decimal)
         {
@@ -434,6 +475,7 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Original Amount';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the amount of the original entry.';
         }
         field(76; "Date Filter"; Date)
         {
@@ -445,6 +487,7 @@ table 21 "Cust. Ledger Entry"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Remaining Pmt. Disc. Possible';
+            ToolTip = 'Specifies the remaining payment discount which can be received if the payment is made before the payment discount date.';
 
             trigger OnValidate()
             begin
@@ -461,6 +504,7 @@ table 21 "Cust. Ledger Entry"
         field(78; "Pmt. Disc. Tolerance Date"; Date)
         {
             Caption = 'Pmt. Disc. Tolerance Date';
+            ToolTip = 'Specifies the latest date the amount in the entry must be paid in order for a payment discount tolerance to be granted.';
 
             trigger OnValidate()
             begin
@@ -472,6 +516,7 @@ table 21 "Cust. Ledger Entry"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Max. Payment Tolerance';
+            ToolTip = 'Specifies the maximum tolerated amount the entry can differ from the amount on the invoice or credit memo.';
 
             trigger OnValidate()
             begin
@@ -510,6 +555,7 @@ table 21 "Cust. Ledger Entry"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount to Apply';
+            ToolTip = 'Specifies the amount to apply.';
 
             trigger OnValidate()
             begin
@@ -528,6 +574,7 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'IC Partner Code';
             TableRelation = "IC Partner";
+            ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
         }
         field(86; "Applying Entry"; Boolean)
         {
@@ -537,22 +584,26 @@ table 21 "Cust. Ledger Entry"
         {
             BlankZero = true;
             Caption = 'Reversed';
+            ToolTip = 'Specifies if the entry has been part of a reverse transaction.';
         }
         field(88; "Reversed by Entry No."; Integer)
         {
             BlankZero = true;
             Caption = 'Reversed by Entry No.';
             TableRelation = "Cust. Ledger Entry";
+            ToolTip = 'Specifies the number of the correcting entry that replaced the original entry in the reverse transaction.';
         }
         field(89; "Reversed Entry No."; Integer)
         {
             BlankZero = true;
             Caption = 'Reversed Entry No.';
             TableRelation = "Cust. Ledger Entry";
+            ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
         }
         field(90; Prepayment; Boolean)
         {
             Caption = 'Prepayment';
+            ToolTip = 'Specifies if the related payment is a prepayment.';
         }
         field(171; "Payment Reference"; Code[50])
         {
@@ -562,6 +613,7 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'Payment Method Code';
             TableRelation = "Payment Method";
+            ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
 
             trigger OnValidate()
             begin
@@ -576,10 +628,12 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'Recipient Bank Account';
             TableRelation = "Customer Bank Account".Code where("Customer No." = field("Customer No."));
+            ToolTip = 'Specifies the bank account to transfer the amount to.';
         }
         field(289; "Message to Recipient"; Text[140])
         {
             Caption = 'Message to Recipient';
+            ToolTip = 'Specifies the message exported to the payment file when you use the Export Payments to File function in the Payment Journal window.';
 
             trigger OnValidate()
             var
@@ -597,12 +651,14 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'Exported to Payment File';
             Editable = false;
+            ToolTip = 'Specifies that the entry was created as a result of exporting a payment journal line.';
         }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
+            ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
 
             trigger OnLookup()
             begin
@@ -617,6 +673,7 @@ table 21 "Cust. Ledger Entry"
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(3)));
+            ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
         }
         field(482; "Shortcut Dimension 4 Code"; Code[20])
         {
@@ -626,6 +683,7 @@ table 21 "Cust. Ledger Entry"
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(4)));
+            ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
         }
         field(483; "Shortcut Dimension 5 Code"; Code[20])
         {
@@ -635,6 +693,7 @@ table 21 "Cust. Ledger Entry"
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(5)));
+            ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
         }
         field(484; "Shortcut Dimension 6 Code"; Code[20])
         {
@@ -644,6 +703,7 @@ table 21 "Cust. Ledger Entry"
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(6)));
+            ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
         }
         field(485; "Shortcut Dimension 7 Code"; Code[20])
         {
@@ -653,6 +713,7 @@ table 21 "Cust. Ledger Entry"
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(7)));
+            ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
         }
         field(486; "Shortcut Dimension 8 Code"; Code[20])
         {
@@ -662,17 +723,21 @@ table 21 "Cust. Ledger Entry"
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
                                                                                     "Global Dimension No." = const(8)));
+            ToolTip = 'Specifies the code for Shortcut Dimension 8, which is one of dimension codes that you set up in the General Ledger Setup window.';
         }
         field(1200; "Direct Debit Mandate ID"; Code[35])
         {
             Caption = 'Direct Debit Mandate ID';
             TableRelation = "SEPA Direct Debit Mandate" where("Customer No." = field("Customer No."));
+            ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct debit collection of payments.';
         }
         field(1340; "Dispute Status"; Code[10])
         {
             Caption = 'Dispute Status';
             TableRelation = "Dispute Status";
             DataClassification = CustomerContent;
+            ToolTip = 'Specifies if there is an ongoing dispute for this Invoice';
+
             trigger OnValidate()
             var
                 DisputeStatus: Record "Dispute Status";
@@ -689,6 +754,7 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'Promised Pay Date';
             DataClassification = CustomerContent;
+            ToolTip = 'Specifies the date on which the customer have promised to pay this invoice.';
         }
     }
 

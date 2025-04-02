@@ -108,22 +108,12 @@ report 15000100 "OCR Journal - Test"
             column(GenJournalLineBalanceLCYCaption; "Gen. Journal Line".FieldCaption("Balance (LCY)"))
             {
             }
-#if not CLEAN23
-            column(GenJournalLineVATCodeCaption; "Gen. Journal Line".FieldCaption("VAT Code"))
-            {
-            }
-#endif
             column(GenJournalLineVATNumberCaption; "Gen. Journal Line".FieldCaption("VAT Number"))
             {
             }
             column(GenJournalLineBalGenPostingTypeCaption; "Gen. Journal Line".FieldCaption("Bal. Gen. Posting Type"))
             {
             }
-#if not CLEAN23
-            column(GenJournalLineBalVATCodeCaption; "Gen. Journal Line".FieldCaption("Bal. VAT Code"))
-            {
-            }
-#endif
             column(GenJournalLineBalVATNumberCaption; "Gen. Journal Line".FieldCaption("Bal. VAT Number"))
             {
             }
@@ -173,22 +163,12 @@ report 15000100 "OCR Journal - Test"
                     column(BalanceLCY_GenJournalLine; "Balance (LCY)")
                     {
                     }
-#if not CLEAN23
-                    column(VATCode_GenJournalLine; "VAT Code")
-                    {
-                    }
-#endif
                     column(VATNumber_GenJournalLine; "VAT Number")
                     {
                     }
                     column(BalGenPostingType_GenJournalLine; "Bal. Gen. Posting Type")
                     {
                     }
-#if not CLEAN23
-                    column(BalVATCode_GenJournalLine; "Bal. VAT Code")
-                    {
-                    }
-#endif
                     column(BalVATNumber_GenJournalLine; "Bal. VAT Number")
                     {
                     }

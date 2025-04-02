@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Requisition;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Requisition;
 
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Enums;
@@ -355,23 +359,25 @@ codeunit 5522 "Order Planning Mgt."
         TempItemSub: Record "Item Substitution" temporary;
         TempReqLine2: Record "Requisition Line" temporary;
         ItemSubstMgt: Codeunit "Item Subst.";
+        MfgItemSubstitution: Codeunit "Mfg. Item Substitution";
         PlanningLineMgt: Codeunit "Planning Line Management";
+        GrossReq: Decimal;
+        SchedScpt: Decimal;
         UnAvailableQtyBase: Decimal;
     begin
         if not SubstitutionPossible(ReqLine) then
             Error(Text001);
 
         Clear(ItemSubstMgt);
-        if not ItemSubstMgt.PrepareSubstList(
-             ReqLine."No.",
-             ReqLine."Variant Code",
-             ReqLine."Location Code",
-             ReqLine."Due Date",
-             true)
+        if not ItemSubstMgt.FindItemSubstitutions(
+            TempItemSub,
+            ReqLine."No.",
+            ReqLine."Variant Code",
+            ReqLine."Location Code",
+            ReqLine."Due Date",
+            true, GrossReq, SchedScpt)
         then
             ItemSubstMgt.ErrorMessage(ReqLine."No.", ReqLine."Variant Code");
-
-        ItemSubstMgt.GetTempItemSubstList(TempItemSub);
 
         TempItemSub.Reset();
         TempItemSub.SetRange("Variant Code", ReqLine."Variant Code");
@@ -380,8 +386,7 @@ codeunit 5522 "Order Planning Mgt."
         if PAGE.RunModal(PAGE::"Item Substitution Entries", TempItemSub) = ACTION::LookupOK then begin
             // Update sourceline
             ProdOrderComp.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.", ReqLine."Demand Ref. No.");
-            ItemSubstMgt.UpdateComponent(
-              ProdOrderComp, TempItemSub."Substitute No.", TempItemSub."Substitute Variant Code");
+            MfgItemSubstitution.UpdateProdOrderComp(ProdOrderComp, TempItemSub."Substitute No.", TempItemSub."Substitute Variant Code");
             ProdOrderComp.Modify(true);
             ProdOrderComp.AutoReserve();
 

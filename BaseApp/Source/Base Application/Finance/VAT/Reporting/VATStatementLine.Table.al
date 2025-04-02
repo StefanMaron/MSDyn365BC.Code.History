@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -146,25 +146,16 @@ table 256 "VAT Statement Line"
         {
             Caption = 'Box No.';
         }
+#if not CLEANSCHEMA26
         field(10600; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
             ObsoleteReason = 'Use VAT Business and VAT Product posting groups for filtering.';
-#if CLEAN23
             TableRelation = "VAT Code";
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '20.0';
-
-            trigger OnValidate()
-            begin
-                if "VAT Code" <> '' then
-                    Testfield(Type, Type::"VAT Entry Totaling");
-            end;
-#endif
         }
+#endif
         field(10601; "Incl. Non Deductible VAT"; Boolean)
         {
             Caption = 'Incl. Non Deductible VAT';

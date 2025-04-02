@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -623,6 +623,7 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'IC Direction';
         }
+#if not CLEANSCHEMA25
         field(116; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -631,6 +632,7 @@ table 181 "Posted Gen. Journal Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(117; "IC Partner Transaction No."; Integer)
         {
             Caption = 'IC Partner Transaction No.';
@@ -1133,32 +1135,26 @@ table 181 "Posted Gen. Journal Line"
         {
             Caption = 'Indentation';
         }
+#if not CLEANSCHEMA26
         field(10604; "VAT Code"; Code[10])
         {
             Caption = 'VAT Code';
             TableRelation = "VAT Code".Code;
             ObsoleteReason = 'Use the field "VAT Number" instead';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#endif
         }
+#endif
+#if not CLEANSCHEMA26
         field(10605; "Bal. VAT Code"; Code[10])
         {
             Caption = 'Bal. VAT Code';
             TableRelation = "VAT Code".Code;
             ObsoleteReason = 'Use the field "Bal. VAT Number" instead';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#endif
         }
+#endif
         field(10608; "VAT Base Amount Type"; Option)
         {
             Caption = 'VAT Base Amount Type';

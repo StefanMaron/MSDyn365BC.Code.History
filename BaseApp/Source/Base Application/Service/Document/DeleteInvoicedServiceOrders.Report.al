@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 using Microsoft.Service.Comment;
@@ -117,9 +121,15 @@ report 5914 "Delete Invoiced Service Orders"
         }
     }
 
+    trigger OnPostReport()
+    begin
+        Session.LogAuditMessage(StrSubstNo(DeletedInvoicedServiceOrdersLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+    end;
+
     var
         ProgressDialog: Dialog;
         ProcessingProgressTxt: Label 'Processing Service orders #1##########', Comment = '%1 - Service Order No.';
+        DeletedInvoicedServiceOrdersLbl: Label 'Invoiced service orders deleted by UserSecurityId %1 for company %2.', Comment = '%1 - User Security ID, %2 - Company name', Locked = true;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteServiceHeader(var ServiceHeader: Record "Service Header")

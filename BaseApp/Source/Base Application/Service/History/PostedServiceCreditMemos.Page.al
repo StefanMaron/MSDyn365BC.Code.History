@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.History;
 
 using Microsoft.EServices.EDocument;
@@ -183,6 +187,7 @@ page 5971 "Posted Service Credit Memos"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Cr.Memo Header"),
                               "No." = field("No.");
             }
@@ -239,24 +244,6 @@ page 5971 "Posted Service Credit Memos"
                                   "Table Name" = const("Service Cr.Memo Header"),
                                   "No." = field("No.");
                     ToolTip = 'View or add comments for the record.';
-                }
-                separator(Action1080000)
-                {
-                }
-                action("Create Electronic Credit Memo")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Create Electronic Credit Memo';
-                    Image = CreateDocument;
-                    ToolTip = 'Create one or more XML documents that you can send to the customer. You can run the batch job for multiple credit memos or you can run it for an individual credit memo. The document number is used as the file name. The files are stored at the location that has been specified in the Sales & Receivables Setup window.';
-                    Visible = false;
-
-                    trigger OnAction()
-                    begin
-                        ServCrMemoHeader := Rec;
-                        ServCrMemoHeader.SetRecFilter();
-                        REPORT.RunModal(REPORT::"Create Elec. Service Cr. Memos", true, false, ServCrMemoHeader);
-                    end;
                 }
             }
         }

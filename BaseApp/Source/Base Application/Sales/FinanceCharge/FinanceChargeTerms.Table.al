@@ -89,13 +89,6 @@ table 5 "Finance Charge Terms"
         {
             Caption = 'Detailed Lines Description';
         }
-        field(3010590; "Multiple Lines Description"; Text[50])
-        {
-            Caption = 'Multiple Lines Description';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys

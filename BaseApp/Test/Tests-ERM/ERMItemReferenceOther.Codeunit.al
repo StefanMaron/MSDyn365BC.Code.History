@@ -369,8 +369,6 @@ codeunit 134466 "ERM Item Reference Other"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Item Reference Other");
-
-        LibraryItemReference.EnableFeature(true);
         Commit();
         IsInitialized := true;
 

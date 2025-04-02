@@ -8,9 +8,6 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Reporting;
-#if not CLEAN23
-using Microsoft.Finance.VAT.Setup;
-#endif
 using Microsoft.Foundation.Company;
 using Microsoft.Utilities;
 using System;
@@ -764,17 +761,6 @@ codeunit 10675 "SAF-T Export Mgt."
         Amount := Abs(GLEntry.Amount);
     end;
 
-#if not CLEAN23
-    [Obsolete('Use GetNotApplicableVATCode() instead', '23.0')]
-    procedure GetNotApplicationVATCode(): Code[10]
-    var
-        SAFTSetup: Record "SAF-T Setup";
-        VATCode: Record "VAT Code";
-    begin
-        SAFTSetup.Get();
-        exit(copystr(SAFTSetup."Not Applicable VAT Code", 1, MaxStrLen(VATCode.Code)));
-    end;
-#endif
     procedure GetNotApplicableVATCode(): Code[20]
     var
         SAFTSetup: Record "SAF-T Setup";

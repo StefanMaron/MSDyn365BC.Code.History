@@ -114,7 +114,17 @@ codeunit 131305 "Library - ERM Country Data"
         exit;
     end;
 
+    procedure SetDiscountPostingInPurchasePayablesSetup()
+    begin
+        exit;
+    end;
+
     procedure UpdateSalesReceivablesSetup()
+    begin
+        exit;
+    end;
+
+    procedure SetDiscountPostingInSalesReceivablesSetup()
     begin
         exit;
     end;
@@ -292,7 +302,6 @@ codeunit 131305 "Library - ERM Country Data"
         SetupGLWithVATPostingSetup(GenPostingSetup."Purch. Prepayments Account");
     end;
 
-#if CLEAN23
     local procedure RemoveVATCodesFromVATPostingSetup()
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -304,19 +313,6 @@ codeunit 131305 "Library - ERM Country Data"
                 VATPostingSetup.Modify(true);
             until VATPostingSetup.Next() = 0;
     end;
-#else
-    local procedure RemoveVATCodesFromVATPostingSetup()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        VATPostingSetup.SetFilter("VAT Code", '<>%1', '');
-        if VATPostingSetup.FindSet(true) then
-            repeat
-                VATPostingSetup.Validate("VAT Code", '');
-                VATPostingSetup.Modify(true);
-            until VATPostingSetup.Next() = 0;
-    end;
-#endif
 
     local procedure CreateMissingVATPostingSetup()
     var

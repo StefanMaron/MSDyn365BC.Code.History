@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Manufacturing.RoleCenters;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.RoleCenters;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.Navigate;
@@ -405,7 +409,7 @@ page 9010 "Production Planner Role Center"
                 }
                 action(SubcontractingWorksheets)
                 {
-                    ApplicationArea = Planning;
+                    ApplicationArea = Manufacturing;
                     Caption = 'Subcontracting Worksheets';
                     RunObject = Page "Req. Wksh. Names";
                     RunPageView = where("Template Type" = const("For. Labor"),

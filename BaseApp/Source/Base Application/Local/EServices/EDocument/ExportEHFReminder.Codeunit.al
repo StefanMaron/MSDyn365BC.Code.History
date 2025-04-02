@@ -108,34 +108,6 @@ codeunit 10630 "Export EHF Reminder"
         OutFile.Close();
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by GenerateXMLFile(TempBLOB, VariantRec)', '23.0')]
-    procedure GenerateXMLFile(var TempBlob: Codeunit "Temp Blob"; var FilPath: Text[250]; VariantRec: Variant)
-    var
-        PEPPOLManagement: Codeunit "PEPPOL Management";
-        EHFReminder30: XMLport "EHF Reminder 3.0";
-        OutFile: File;
-        InStream: InStream;
-        OutStream: OutStream;
-        BlobOutStream: OutStream;
-        XmlServerPath: Text;
-    begin
-        PEPPOLManagement.InitializeXMLExport(OutFile, XmlServerPath);
-
-        OutFile.CreateOutStream(OutStream);
-        EHFReminder30.Initialize(VariantRec);
-        EHFReminder30.SetDestination(OutStream);
-        EHFReminder30.Export();
-
-        TempBlob.CreateOutStream(BlobOutStream);
-        OutFile.CreateInStream(InStream);
-        CopyStream(BlobOutStream, InStream);
-        OutFile.Close();
-
-        FilPath := CopyStr(XmlServerPath, 1, 250);
-    end;
-#endif
-
     local procedure GetClientFileName(TableCaption2: Text; DocumentNo: Code[20]): Text[250]
     begin
         exit(

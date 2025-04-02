@@ -4,13 +4,13 @@
   "publisher": "Microsoft",
   "brief": "[Obsolete] Tests for the Report Layouts extension.",
   "description": "[Obsolete] Tests for the  Report Layouts extension. Content has been moved to the Business Central Base Application and the extension be removed in a future release.",
-  "version": "25.5.30849.31109",
+  "version": "26.0.30643.32481",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "help": "https://go.microsoft.com",
   "EULA": "https://go.microsoft.com",
   "url": "https://go.microsoft.com",
   "contextSensitiveHelpUrl": "https://go.microsoft.com",
-  "platform": "25.2.0.0",
+  "platform": "26.0.0.0",
   "idRanges": [
     {
       "from": 139500,
@@ -27,6 +27,6 @@
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "application": "25.5.0.0",
+  "application": "26.0.0.0",
   "logo": "ExtensionLogo.png"
 }

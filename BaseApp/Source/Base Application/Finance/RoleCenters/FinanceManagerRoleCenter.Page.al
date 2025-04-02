@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.RoleCenters;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.RoleCenters;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -72,8 +76,6 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Reconciliation;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -2218,13 +2220,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "Adjust Cost - Item Entries";
                         Tooltip = 'Run the Adjust Cost - Item Entries report.';
                     }
-                    action("Update Unit Cost...")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Update Unit Costs...';
-                        RunObject = report "Update Unit Cost";
-                        Tooltip = 'Run the Update Unit Costs report.';
-                    }
                     action("Post Inventory Cost to G/L")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2268,6 +2263,13 @@ page 8901 "Finance Manager Role Center"
                 group("Group53")
                 {
                     Caption = 'Reports';
+                    action("Inventory by Location")
+                    {
+                        ApplicationArea = InventoryAnalysis;
+                        Caption = 'Analyze Inventory by Location';
+                        RunObject = Query "Inventory by Location";
+                        ToolTip = 'Analyze (group, summarize, pivot) your Item Ledger Entries with related Location master data.';
+                    }
                     action("Inventory Valuation")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2323,13 +2325,6 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Status';
                         RunObject = report "Status";
                         Tooltip = 'Run the Status report.';
-                    }
-                    action("Cost Shares Breakdown")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Cost Shares Breakdown';
-                        RunObject = report "Cost Shares Breakdown";
-                        Tooltip = 'Run the Cost Shares Breakdown report.';
                     }
                     action("Item Register - Quantity")
                     {
@@ -2498,17 +2493,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = page "VAT Periods";
                         Tooltip = 'Open the VAT Periods page.';
                     }
-#if not CLEAN23
-                    action("VAT Codes")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'VAT Codes';
-                        RunObject = page "VAT Codes";
-                        ObsoleteReason = 'Use the page "VAT Reporting Codes" instead';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '23.0';
-                    }
-#endif
                     action("VAT Reporting Codes")
                     {
                         ApplicationArea = Basic, Suite;

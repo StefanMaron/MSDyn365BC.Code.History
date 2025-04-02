@@ -1,5 +1,7 @@
 namespace Microsoft.Purchases.History;
 
+using Microsoft.Foundation.Address;
+
 page 1352 "Posted Return Shpt. - Update"
 {
     Caption = 'Posted Return Shpt. - Update';
@@ -42,11 +44,16 @@ page 1352 "Posted Return Shpt. - Update"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Ship-to County"; Rec."Ship-to County")
+                group(ShipToCounty)
                 {
-                    ApplicationArea = PurchReturnOrder;
-                    Caption = 'Ship-to County';
-                    Editable = true;
+                    ShowCaption = false;
+                    Visible = IsShipToCountyVisible;
+                    field("Ship-to County"; Rec."Ship-to County")
+                    {
+                        ApplicationArea = PurchReturnOrder;
+                        Caption = 'Ship-to County';
+                        Editable = true;
+                    }
                 }
                 field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
                 {
@@ -62,9 +69,15 @@ page 1352 "Posted Return Shpt. - Update"
     {
     }
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        ActivateFields();
+    end;
+
     trigger OnOpenPage()
     begin
         xReturnShipmentHeader := Rec;
+        ActivateFields();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -76,6 +89,8 @@ page 1352 "Posted Return Shpt. - Update"
 
     var
         xReturnShipmentHeader: Record "Return Shipment Header";
+        FormatAddress: Codeunit "Format Address";
+        IsShipToCountyVisible: Boolean;
 
     local procedure RecordChanged() IsChanged: Boolean
     begin
@@ -90,6 +105,11 @@ page 1352 "Posted Return Shpt. - Update"
     begin
         Rec := ReturnShipmentHeader;
         Rec.Insert();
+    end;
+
+    local procedure ActivateFields()
+    begin
+        IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
     end;
 
     [IntegrationEvent(false, false)]

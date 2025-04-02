@@ -1641,6 +1641,7 @@ codeunit 134416 "ERM Purch. Cr. Memo Aggr. UT"
         AddFieldToBuffer(DummyPurchCrMemoEntityBuffer.FieldNo("Reason Code"), Database::"Purch. Cr. Memo Entity Buffer", TempField);
         AddFieldToBuffer(DummyPurchCrMemoEntityBuffer.FieldNo("Shortcut Dimension 1 Code"), Database::"Purch. Cr. Memo Entity Buffer", TempField);
         AddFieldToBuffer(DummyPurchCrMemoEntityBuffer.FieldNo("Shortcut Dimension 2 Code"), Database::"Purch. Cr. Memo Entity Buffer", TempField);
+        AddFieldToBuffer(DummyPurchCrMemoEntityBuffer.FieldNo("Vendor Cr. Memo No."), Database::"Purch. Cr. Memo Entity Buffer", TempField);
     end;
 
     local procedure GetFieldsThatMustMatchWithPurchaseLine(var TempField: Record "Field" temporary)

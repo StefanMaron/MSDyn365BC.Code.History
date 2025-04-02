@@ -16,14 +16,14 @@ codeunit 137070 "SCM Avg. Cost Calc."
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryCosting: Codeunit "Library - Costing";
-        IncorrectAverageCostErr: Label 'Average Cost is incorrect.';
-        IncorrectAverageCostACYErr: Label 'Average Cost (ACY) is incorrect.';
         LibraryERM: Codeunit "Library - ERM";
         LibraryJob: Codeunit "Library - Job";
-        LibraryPatterns: Codeunit "Library - Patterns";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
+        IncorrectAverageCostErr: Label 'Average Cost is incorrect.';
+        IncorrectAverageCostACYErr: Label 'Average Cost (ACY) is incorrect.';
 
     [Test]
     [Scope('OnPrem')]
@@ -80,7 +80,6 @@ codeunit 137070 "SCM Avg. Cost Calc."
         ItemLedgerEntry: Record "Item Ledger Entry";
         InventorySetup: Record "Inventory Setup";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-        Assert: Codeunit Assert;
         i: Integer;
         TotalCost: Decimal;
     begin
@@ -185,7 +184,6 @@ codeunit 137070 "SCM Avg. Cost Calc."
     var
         Item: Record Item;
         InventorySetup: Record "Inventory Setup";
-        Assert: Codeunit Assert;
         SODocNo: Code[20];
         InbndQty: Decimal;
         QtyRevalued: Decimal;
@@ -252,7 +250,6 @@ codeunit 137070 "SCM Avg. Cost Calc."
     var
         Item: Record Item;
         InventorySetup: Record "Inventory Setup";
-        Assert: Codeunit Assert;
         QtyRevalued: Decimal;
         SODocNo: Code[20];
         InbndQty: Decimal;
@@ -559,7 +556,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
 
         // [GIVEN] Item "I" tracked by serial number
         CreateItem(Item);
-        LibraryPatterns.ADDSerialNoTrackingInfo(Item."No.");
+        LibraryItemTracking.AddSerialNoTrackingInfo(Item);
         Item.Find();
 
         // [GIVEN] Purchase 10 pcs of item "I", "Unit Cost" = 100
@@ -779,7 +776,6 @@ codeunit 137070 "SCM Avg. Cost Calc."
     var
         ItemJnlLine: Record "Item Journal Line";
         ItemJournalBatch: Record "Item Journal Batch";
-        LibraryUtility: Codeunit "Library - Utility";
     begin
         // Do revaluation of Item
         GetItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Revaluation);
@@ -839,7 +835,6 @@ codeunit 137070 "SCM Avg. Cost Calc."
     var
         ValueEntry: Record "Value Entry";
         ItemLedgerEntry: Record "Item Ledger Entry";
-        Assert: Codeunit Assert;
     begin
         ItemLedgerEntry.SetCurrentKey("Item No.");
         ItemLedgerEntry.SetRange("Item No.", itemNo);
@@ -855,7 +850,6 @@ codeunit 137070 "SCM Avg. Cost Calc."
     local procedure VerifyItemUnitCost(ItemNo: Code[20]; ExpectedUnitCost: Decimal)
     var
         Item: Record Item;
-        Assert: Codeunit Assert;
     begin
         Item.Get(ItemNo);
         Assert.AreEqual(ExpectedUnitCost, Item."Unit Cost", 'The Unit Cost is not calculated correctly.');
@@ -944,8 +938,6 @@ codeunit 137070 "SCM Avg. Cost Calc."
     end;
 
     local procedure GetItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
-    var
-        LibraryUtility: Codeunit "Library - Utility";
     begin
         ItemJournalBatch.SetRange("Template Type", TemplateType);
         if ItemJournalBatch.FindFirst() then begin
@@ -967,7 +959,6 @@ codeunit 137070 "SCM Avg. Cost Calc."
     local procedure GetItemJournalTemplate(TemplateType: Enum "Item Journal Template Type"): Code[10]
     var
         ItemJournalTemplate: Record "Item Journal Template";
-        LibraryUtility: Codeunit "Library - Utility";
     begin
         ItemJournalTemplate.SetRange(Type, TemplateType);
         if ItemJournalTemplate.FindFirst() then

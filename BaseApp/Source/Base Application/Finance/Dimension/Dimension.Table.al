@@ -87,31 +87,9 @@ table 348 Dimension
                 end;
             end;
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(8001; "Last Modified Date Time"; DateTime)
         {
             Caption = 'Last Modified Date Time';
-        }
-        field(10620; "SAFT Analysis Type"; Code[9])
-        {
-            Caption = 'SAF-T Analysis Type';
-            ObsoleteReason = 'Moved to extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(10621; "Export to SAFT"; Boolean)
-        {
-            Caption = 'Export to SAF-T';
-            InitValue = true;
-            ObsoleteReason = 'Moved to extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
     }
 
@@ -663,4 +641,3 @@ table 348 Dimension
     begin
     end;
 }
-

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Finance.Analysis;
@@ -13,6 +17,7 @@ codeunit 5822 "Cost Adjustment Bucket Runner"
     var
         Item: Record Item;
         InventoryAdjustmentHandler: Codeunit "Inventory Adjustment Handler";
+        CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
@@ -21,7 +26,8 @@ codeunit 5822 "Cost Adjustment Bucket Runner"
 
         Item.SetFilter("No.", Rec."Item Filter");
         InventoryAdjustmentHandler.SetFilterItem(Item);
-        InventoryAdjustmentHandler.MakeInventoryAdjustment(false, Rec."Post to G/L");
+        SetCostAdjustmentParameters(CostAdjustmentParamsMgt, Rec);
+        InventoryAdjustmentHandler.MakeInventoryAdjustment(CostAdjustmentParamsMgt);
 
         if Rec."Post to G/L" then
             UpdateAnalysisView.UpdateAll(0, true);
@@ -50,5 +56,31 @@ codeunit 5822 "Cost Adjustment Bucket Runner"
         AvgCostEntryPointHandler.LockBuffer();
 
         exit(true);
+    end;
+
+    local procedure SetCostAdjustmentParameters(var CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt."; CostAdjItemBucket: Record "Cost Adj. Item Bucket");
+    var
+        CostAdjustmentParameter: Record "Cost Adjustment Parameter";
+    begin
+        CostAdjustmentParameter.Init();
+        CostAdjustmentParameter."Online Adjustment" := false;
+        CostAdjustmentParameter."Post to G/L" := CostAdjItemBucket."Post to G/L";
+        CostAdjustmentParameter."Item-By-Item Commit" := false;
+        if CostAdjItemBucket.Trace then
+            CostAdjustmentParameter."Max Duration" := CostAdjItemBucket."Timeout (Minutes)" * 60 * 1000 - 5000; // 5 seconds less than the timeout
+        OnAfterSetCostAdjustmentParameter(CostAdjustmentParameter);
+
+        CostAdjustmentParamsMgt.SetParameters(CostAdjustmentParameter);
+        OnAfterSetCostAdjustmentParameterOnAfterSetParameters(CostAdjustmentParamsMgt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCostAdjustmentParameter(var CostAdjustmentParameter: Record "Cost Adjustment Parameter")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCostAdjustmentParameterOnAfterSetParameters(var CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.")
+    begin
     end;
 }

@@ -403,16 +403,6 @@ table 5505 "Sales Quote Entity Buffer"
             DataClassification = CustomerContent;
             Editable = false;
         }
-        field(167; "Last Email Sent Status"; Option)
-        {
-            Caption = 'Last Email Sent Status';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Do not store the sent status in the entity but calculate it on a fly to avoid etag change after quote sending.';
-            ObsoleteState = Removed;
-            OptionCaption = 'Not Sent,In Process,Finished,Error', Locked = true;
-            OptionMembers = "Not Sent","In Process",Finished,Error;
-            ObsoleteTag = '15.0';
-        }
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
@@ -813,4 +803,3 @@ table 5505 "Sales Quote Entity Buffer"
         exit(MainRecordFound);
     end;
 }
-

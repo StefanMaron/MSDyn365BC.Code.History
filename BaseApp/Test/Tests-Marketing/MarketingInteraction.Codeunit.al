@@ -1375,34 +1375,6 @@ codeunit 136208 "Marketing Interaction"
         VerifyBlankCorrespondenceTypeOnInteractionLogEntryForContact(SalesHeader."Bill-to Contact No.", SalesHeader."No.");
     end;
 
-#if not CLEAN23
-    [Test]
-    [Scope('OnPrem')]
-    [Obsolete('Correspondence Type Fax will no longer be supported.', '23.0')]
-    procedure LogDocumentNoFax()
-    var
-        SalesHeader: Record "Sales Header";
-        InteractionLogEntry: Record "Interaction Log Entry";
-        SegManagement: Codeunit SegManagement;
-    begin
-        // [SCENARIO] Create a sales invoice for a customer that has a contact with correspondence type fax but no fax number
-        Initialize();
-        // [GIVEN] Marketing setup with default correspondence type of fax
-        SetDefaultCorrespondenceType(InteractionLogEntry."Correspondence Type"::Fax);
-
-        // [GIVEN] A Sales Invoice to a customer with a contact without fax
-        CreateSalesInvoiceForCustomerWithContact(SalesHeader);
-
-        // [WHEN] A document creation is logged
-        SegManagement.LogDocument("Interaction Log Entry Document Type"::"Sales Inv.".AsInteger(), SalesHeader."No.", 0, 0, DATABASE::Contact,
-          SalesHeader."Bill-to Contact No.", SalesHeader."Salesperson Code", SalesHeader."Campaign No.",
-          SalesHeader."Posting Description", '');
-
-        // [THEN] The interaction is logged with blank correspondence type
-        VerifyBlankCorrespondenceTypeOnInteractionLogEntryForContact(SalesHeader."Bill-to Contact No.", SalesHeader."No.");
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure SalesOrderShowInteractionLogEntriesSuiteAppArea()
@@ -2360,55 +2332,6 @@ codeunit 136208 "Marketing Interaction"
         Assert.RecordCount(InteractionLogEntry, 0);
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('ModalReportHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('Correspondence Type Fax will no longer be supported.', '23.0')]
-    procedure LogSegmentFaxCorrTypeContNoFax()
-    var
-        SegmentHeader: Record "Segment Header";
-        InteractionTemplate: Record "Interaction Template";
-        Contact: Record Contact;
-        InteractionLogEntry: Record "Interaction Log Entry";
-        Segment: TestPage Segment;
-        FileExtension: Text[250];
-    begin
-        // [SCENARIO 412541] Segment with Correspondence Type = Fax, Contact with empty "Fax No", Deliver = true should not be logged
-        Initialize();
-
-        // [GIVEN] Interaction Template with Word attachment
-        FileExtension := 'DOC';
-
-        CreateInteractionTemplateWithCorrespondenceType(
-          InteractionTemplate, InteractionTemplate."Correspondence Type (Default)"::Fax);
-        CreateInteractionTmplLanguageWithAttachmentNo(InteractionTemplate.Code, CreateAttachmentWithFileValue(FileExtension));
-
-        // [GIVEN] Contact "C" with empty "Fax No."
-        LibraryMarketing.CreatePersonContact(Contact);
-        Contact."Fax No." := '';  // clear "Fax No." field just to be sure
-        Contact.Modify();
-
-        // [GIVEN] Segment with Correspondence Type = Fax and Contact "C" specified
-        CreateSegmentWithInteractionTemplateAndContact(
-          SegmentHeader, InteractionTemplate.Code, Contact."No.",
-          SegmentHeader."Correspondence Type (Default)"::Fax);
-        Commit();
-
-        // [WHEN] Log Segment with Deliver = true
-        Segment.OpenView();
-        Segment.GotoRecord(SegmentHeader);
-        asserterror Segment.LogSegment.Invoke();
-
-        // [THEN] Error message appears stating "Contact or Contact Alt. Address should specify 'Fax No'"
-        Assert.ExpectedError(StrSubstNo(SegmentSendContactEmailFaxMissingErr, Contact.FieldCaption("Fax No."), Contact."No."));
-
-        // [THEN] No Interaction Log Entries created
-        InteractionLogEntry.SetRange("Contact No.", Contact."No.");
-        Assert.RecordCount(InteractionLogEntry, 0);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('LogSegmentDeliverFalseHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -2451,54 +2374,6 @@ codeunit 136208 "Marketing Interaction"
         InteractionLogEntry.SetRange("Contact No.", Contact."No.");
         Assert.RecordCount(InteractionLogEntry, 1);
     end;
-
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('LogSegmentDeliverFalseHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    [Obsolete('Correspondence Type Fax will no longer be supported.', '23.0')]
-    procedure LogSegmentFaxCorrTypeContNoFaxNoDeliver()
-    var
-        SegmentHeader: Record "Segment Header";
-        InteractionTemplate: Record "Interaction Template";
-        Contact: Record Contact;
-        InteractionLogEntry: Record "Interaction Log Entry";
-        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-        Segment: TestPage Segment;
-        FileExtension: Text[250];
-    begin
-        // [SCENARIO 412541] Segment with Correspondence Type = Fax, Contact with empty "Fax", Deliver = false should be logged
-        Initialize();
-
-        // [GIVEN] Interaction Template with Word attachment
-        FileExtension := 'DOC';
-
-        CreateInteractionTemplateWithCorrespondenceType(
-          InteractionTemplate, InteractionTemplate."Correspondence Type (Default)"::Fax);
-        CreateInteractionTmplLanguageWithAttachmentNo(InteractionTemplate.Code, CreateAttachmentWithFileValue(FileExtension));
-
-        // [GIVEN] Contact "C" with empty "Fax No." 
-        LibraryMarketing.CreatePersonContact(Contact);
-        Contact."Fax No." := '';  // clear "Fax No." field just to be sure
-        Contact.Modify();
-
-        // [GIVEN] Segment with Correspondence Type = Fax and Contact "C" specified
-        CreateSegmentWithInteractionTemplateAndContact(
-          SegmentHeader, InteractionTemplate.Code, Contact."No.",
-          SegmentHeader."Correspondence Type (Default)"::Fax);
-        Commit();
-        EnqueueVariablesForEmailDialog(Contact."E-Mail", SegmentHeader."Subject (Default)", '.' + FileExtension);
-
-        // [WHEN] Log Segment with Deliver = false
-        Segment.OpenView();
-        Segment.GotoRecord(SegmentHeader);
-        Segment.LogSegment.Invoke();
-
-        // [THEN] Segment is logged and Interaction Log Entry created
-        InteractionLogEntry.SetRange("Contact No.", Contact."No.");
-        Assert.RecordCount(InteractionLogEntry, 1);
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]

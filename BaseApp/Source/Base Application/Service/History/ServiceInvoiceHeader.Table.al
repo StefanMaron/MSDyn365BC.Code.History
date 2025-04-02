@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.History;
 
 using Microsoft.Bank.BankAccount;
@@ -35,6 +39,7 @@ using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
+using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
 
@@ -435,7 +440,10 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Document Date';
         }
-        //field(100; "External Document No."; Code[35]) exist same field on ID 10605
+        field(10606; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
+        }
         field(101; "Area"; Code[10])
         {
             Caption = 'Area';
@@ -526,6 +534,11 @@ table 5992 "Service Invoice Header"
         field(180; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
+        }
+        field(200; "Work Description"; BLOB)
+        {
+            Caption = 'Work Description';
+            DataClassification = CustomerContent;
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -833,31 +846,6 @@ table 5992 "Service Invoice Header"
         field(9001; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
-        }	
-        field(10600; GLN; Code[13])
-        {
-            Caption = 'GLN';
-        }
-        field(10601; "Account Code"; Text[30])
-        {
-            Caption = 'Account Code';
-        }
-        field(10604; "E-Invoice Created"; Boolean)
-        {
-            Caption = 'E-Invoice Created';
-            Editable = false;
-        }
-        field(10605; "E-Invoice"; Boolean)
-        {
-            Caption = 'E-Invoice';
-        }
-        field(10606; "External Document No."; Code[35])
-        {
-            Caption = 'External Document No.';
-        }
-        field(10607; "Delivery Date"; Date)
-        {
-            Caption = 'Delivery Date';
         }
     }
 
@@ -896,6 +884,8 @@ table 5992 "Service Invoice Header"
 
     trigger OnDelete()
     begin
+        OnBeforeOnDelete(Rec);
+
         TestField("No. Printed");
         LockTable();
 
@@ -1018,18 +1008,6 @@ table 5992 "Service Invoice Header"
         Page.RunModal(StatPageID, Rec);
     end;
 
-    [Scope('OnPrem')]
-    procedure AccountCodeLineSpecified(): Boolean
-    var
-        ServInvLine: Record "Service Invoice Line";
-    begin
-        ServInvLine.Reset();
-        ServInvLine.SetRange("Document No.", "No.");
-        ServInvLine.SetFilter(Type, '>%1', ServInvLine.Type::" ");
-        ServInvLine.SetFilter("Account Code", '<>%1&<>%2', '', "Account Code");
-        exit(not ServInvLine.IsEmpty);
-    end;
-
     procedure ShowActivityLog()
     var
         ActivityLog: Record "Activity Log";
@@ -1072,6 +1050,16 @@ table 5992 "Service Invoice Header"
             ReportSelections.Usage::"SM.Invoice".AsInteger(), ServiceInvoiceHeader, ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Bill-to Customer No.", ShowNotificationAction);
     end;
 
+    procedure GetWorkDescription(): Text
+    var
+        TypeHelper: Codeunit "Type Helper";
+        InStream: InStream;
+    begin
+        CalcFields("Work Description");
+        "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
+        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ServiceInvoiceHeader: Record "Service Invoice Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
     begin
@@ -1094,6 +1082,11 @@ table 5992 "Service Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenStatisticsOnAfterSetStatPageID(var ServiceInvoiceHeader: Record "Service Invoice Header"; var StatPageID: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
     end;
 }

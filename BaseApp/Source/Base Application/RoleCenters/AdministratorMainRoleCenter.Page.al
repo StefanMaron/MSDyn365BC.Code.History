@@ -27,7 +27,6 @@ using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Reminder;
@@ -348,13 +347,6 @@ page 8900 "Administrator Main Role Center"
                         RunObject = page "Report Selection - Inventory";
                         Tooltip = 'Open the Report Selections Inventory page.';
                     }
-                    action("Report Selections Prod. Order")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Report Selections Prod. Order';
-                        RunObject = page "Report Selection - Prod. Order";
-                        Tooltip = 'Open the Report Selections Prod. Order page.';
-                    }
                 }
                 group("Group7")
                 {
@@ -641,25 +633,12 @@ page 8900 "Administrator Main Role Center"
                     RunObject = page "Users";
                     Tooltip = 'Open the Users page.';
                 }
-                action("Security Groups")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Security Groups';
-                    RunObject = page "Security Groups";
-                }
                 action("User Setup")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Setup';
                     RunObject = page "User Setup";
                     Tooltip = 'Open the User Setup page.';
-                }
-                action("Permission Sets")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Permission Sets';
-                    RunObject = page "Permission Sets";
-                    Tooltip = 'Open the Permission Sets page.';
                 }
                 // action("Change Password")
                 // {
@@ -695,6 +674,37 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'Time Registers';
                     RunObject = page "User Time Registers";
                     Tooltip = 'Open the Time Registers page.';
+                }
+            }
+            group(Permissions)
+            {
+                Caption = 'Permissions';
+
+                action("Security Groups")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Security Groups';
+                    RunObject = page "Security Groups";
+                }
+                action("Permission Sets")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Permission Sets';
+                    RunObject = page "Permission Sets";
+                }
+                action("Permission Set by User")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Permission Set by User';
+                    RunObject = Page "Permission Set by User";
+                    ToolTip = 'View or edit the available permission sets and apply permission sets to existing users.';
+                }
+                action("Permission Set By Security Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Permission Set by Security Group';
+                    RunObject = Page "Permission Set By Sec. Group";
+                    ToolTip = 'View or edit the available permission sets and apply permission sets to existing security groups.';
                 }
             }
             group("Group20")
@@ -1059,7 +1069,7 @@ page 8900 "Administrator Main Role Center"
                 action("CopilotAICapabilities")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Copilot & AI capabilities';
+                    Caption = 'Copilot & agent capabilities';
                     RunObject = page "Copilot AI Capabilities";
                 }
             }

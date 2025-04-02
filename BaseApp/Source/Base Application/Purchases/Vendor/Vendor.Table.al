@@ -100,6 +100,8 @@ table 23 Vendor
             begin
                 if ("Search Name" = UpperCase(xRec.Name)) or ("Search Name" = '') then
                     "Search Name" := Name;
+
+                UpdateMyVendor(FieldNo(Name));
             end;
         }
         field(3; "Search Name"; Code[100])
@@ -205,6 +207,8 @@ table 23 Vendor
                 for i := 1 to StrLen("Phone No.") do
                     if Char.IsLetter("Phone No."[i]) then
                         FieldError("Phone No.", PhoneNoCannotContainLettersErr);
+
+                UpdateMyVendor(FieldNo("Phone No."));
             end;
         }
         field(10; "Telex No."; Text[20])
@@ -732,14 +736,6 @@ table 23 Vendor
                         Validate("VAT Bus. Posting Group", GenBusPostingGrp."Def. VAT Bus. Posting Group");
             end;
         }
-        field(89; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
         field(90; GLN; Code[13])
         {
             Caption = 'GLN';
@@ -1192,19 +1188,16 @@ table 23 Vendor
             Caption = 'Preferred Bank Account Code';
             TableRelation = "Vendor Bank Account".Code where("Vendor No." = field("No."));
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -1266,8 +1259,10 @@ table 23 Vendor
                         exit;
                     end;
 
-                    if Cont."Phone No." <> '' then
+                    if Cont."Phone No." <> '' then begin
                         "Phone No." := Cont."Phone No.";
+                        UpdateMyVendor(FieldNo("Phone No."));
+                    end;
                     if Cont."E-Mail" <> '' then
                         "E-Mail" := Cont."E-Mail";
                 end;
@@ -1506,13 +1501,6 @@ table 23 Vendor
         field(7602; "Validate EU Vat Reg. No."; Boolean)
         {
             Caption = 'Validate EU VAT Reg. No.';
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
         }
         field(8001; "Currency Id"; Guid)
         {
@@ -1836,14 +1824,6 @@ table 23 Vendor
         key(Key16; SystemModifiedAt)
         {
         }
-#if not CLEAN23
-        key(Key17; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
         key(Key21; "IC Partner Code")
         {
         }
@@ -1865,6 +1845,7 @@ table 23 Vendor
         PurchPrepmtPct: Record "Purchase Prepayment %";
         CustomReportSelection: Record "Custom Report Selection";
         ItemReference: Record "Item Reference";
+        MyVendor: Record "My Vendor";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
     begin
         ApprovalsMgmt.OnCancelVendorApprovalRequest(Rec);
@@ -1911,6 +1892,9 @@ table 23 Vendor
 
         VATRegistrationLogMgt.DeleteVendorLog(Rec);
         CalendarManagement.DeleteCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Vendor, "No.");
+
+        MyVendor.SetRange("Vendor No.", "No.");
+        MyVendor.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -2742,6 +2726,7 @@ table 23 Vendor
             exit;
         end;
 
+        Currency.SetLoadFields(SystemId);
         if not Currency.Get("Currency Code") then
             exit;
 
@@ -2757,6 +2742,7 @@ table 23 Vendor
             exit;
         end;
 
+        PaymentTerms.SetLoadFields(SystemId);
         if not PaymentTerms.Get("Payment Terms Code") then
             exit;
 
@@ -2772,6 +2758,7 @@ table 23 Vendor
             exit;
         end;
 
+        PaymentMethod.SetLoadFields(SystemId);
         if not PaymentMethod.Get("Payment Method Code") then
             exit;
 
@@ -2787,6 +2774,7 @@ table 23 Vendor
     var
         Currency: Record Currency;
     begin
+        Currency.SetLoadFields(Code);
         if not IsNullGuid("Currency Id") then
             Currency.GetBySystemId("Currency Id");
 
@@ -2797,6 +2785,7 @@ table 23 Vendor
     var
         PaymentTerms: Record "Payment Terms";
     begin
+        PaymentTerms.SetLoadFields(Code);
         if not IsNullGuid("Payment Terms Id") then
             PaymentTerms.GetBySystemId("Payment Terms Id");
 
@@ -2807,6 +2796,7 @@ table 23 Vendor
     var
         PaymentMethod: Record "Payment Method";
     begin
+        PaymentMethod.SetLoadFields(Code);
         if not IsNullGuid("Payment Method Id") then
             PaymentMethod.GetBySystemId("Payment Method Id");
 
@@ -2871,6 +2861,27 @@ table 23 Vendor
         LanguageSelection.SetRange("Language ID", Language."Windows Language ID");
         if LanguageSelection.FindFirst() then
             Rec.Validate("Format Region", LanguageSelection."Language Tag");
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"My Vendor", 'rm')]
+    local procedure UpdateMyVendor(CallingFieldNo: Integer)
+    var
+        MyVendor: Record "My Vendor";
+    begin
+        case CallingFieldNo of
+            FieldNo(Name):
+                begin
+                    MyVendor.SetRange("Vendor No.", "No.");
+                    if not MyVendor.IsEmpty() then
+                        MyVendor.ModifyAll(Name, Name);
+                end;
+            FieldNo("Phone No."):
+                begin
+                    MyVendor.SetRange("Vendor No.", "No.");
+                    if not MyVendor.IsEmpty() then
+                        MyVendor.ModifyAll("Phone No.", "Phone No.");
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -3108,4 +3119,3 @@ table 23 Vendor
     begin
     end;
 }
-

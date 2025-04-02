@@ -38,9 +38,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Settled VAT Period");
-#if not CLEAN23
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Code");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Reporting Code");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Specification");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Note");

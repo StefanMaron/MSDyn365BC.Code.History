@@ -16,6 +16,7 @@ table 88 "Financial Report"
             Caption = 'Name';
             NotBlank = true;
             DataClassification = CustomerContent;
+            ToolTip = 'Specifies the unique name (code) of the financial report.';
         }
         field(3; UseAmountsInAddCurrency; Boolean)
         {
@@ -82,17 +83,31 @@ table 88 "Financial Report"
             Caption = 'Date Filter';
             DataClassification = SystemMetadata;
         }
+        field(16; "Excel Template Code"; Code[50])
+        {
+            Caption = 'Default Excel Layout';
+            DataClassification = SystemMetadata;
+            TableRelation = "Fin. Report Excel Template"."Code" where("Financial Report Name" = field(Name));
+            ToolTip = 'Specifies the Excel Layout that will be used when exporting to Excel.';
+        }
+        field(17; NegativeAmountFormat; Enum "Analysis Negative Format")
+        {
+            Caption = 'Negative Amount Format';
+            DataClassification = SystemMetadata;
+        }
         // Fields not in "FinancialReportUserFilters"
         field(50; Description; Text[80])
         {
-            Caption = 'Description';
+            Caption = 'Display Title';
             DataClassification = CustomerContent;
+            ToolTip = 'Specifies a title of the financial report. The text is shown as a title on the final report when you run it to get a PDF or to print it.';
         }
         field(51; "Financial Report Row Group"; Code[10])
         {
             Caption = 'Financial Report Row Group';
             TableRelation = "Acc. Schedule Name";
             DataClassification = SystemMetadata;
+            ToolTip = 'Specifies the row definition (code) to be used for this financial report.';
             trigger OnValidate()
             begin
                 AccSchedManagement.CheckAnalysisView(Rec."Financial Report Row Group", Rec."Financial Report Column Group", true);
@@ -103,11 +118,27 @@ table 88 "Financial Report"
             Caption = 'Financial Report Column Group';
             TableRelation = "Column Layout Name";
             DataClassification = SystemMetadata;
+            ToolTip = 'Specifies the column definition (code) to be used for this financial report.';
             trigger OnValidate()
             begin
                 AccSchedManagement.CheckAnalysisView(Rec."Financial Report Row Group", Rec."Financial Report Column Group", true);
             end;
-
+        }
+        field(53; "Internal Description"; Text[250])
+        {
+            Caption = 'Internal Description';
+            ToolTip = 'Specifies the internal description of this financial report.';
+            DataClassification = CustomerContent;
+        }
+        field(54; "Introductory Paragraph"; Blob)
+        {
+            Caption = 'Introductory Paragraph';
+            DataClassification = CustomerContent;
+        }
+        field(55; "Closing Paragraph"; Blob)
+        {
+            Caption = 'Closing Paragraph';
+            DataClassification = CustomerContent;
         }
     }
     keys
@@ -126,4 +157,41 @@ table 88 "Financial Report"
         AccSchedManagement.CheckAnalysisView(Rec."Financial Report Row Group", Rec."Financial Report Column Group", true);
     end;
 
+    procedure GetIntroductoryParagraph(): Text
+    var
+        InStream: InStream;
+        TextValue: Text;
+    begin
+        Rec.CalcFields(Rec."Introductory Paragraph");
+        Rec."Introductory Paragraph".CreateInStream(InStream);
+        InStream.Read(TextValue);
+        exit(TextValue);
+    end;
+
+    procedure SetIntroductionParagraph(TextValue: Text)
+    var
+        OutStream: OutStream;
+    begin
+        Rec."Introductory Paragraph".CreateOutStream(OutStream);
+        OutStream.Write(TextValue);
+    end;
+
+    procedure GetClosingParagraph(): Text
+    var
+        InStream: InStream;
+        TextValue: Text;
+    begin
+        Rec.CalcFields(Rec."Closing Paragraph");
+        Rec."Closing Paragraph".CreateInStream(InStream);
+        InStream.Read(TextValue);
+        exit(TextValue);
+    end;
+
+    procedure SetClosingParagraph(TextValue: Text)
+    var
+        OutStream: OutStream;
+    begin
+        Rec."Closing Paragraph".CreateOutStream(OutStream);
+        OutStream.Write(TextValue);
+    end;
 }

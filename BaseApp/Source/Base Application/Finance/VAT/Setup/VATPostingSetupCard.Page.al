@@ -94,16 +94,6 @@ page 473 "VAT Posting Setup Card"
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT settlement rate.';
                 }
-#if not CLEAN23
-                field("VAT Code"; Rec."VAT Code")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the VAT Code to be used with this VAT posting setup.';
-                    ObsoleteReason = 'Use the field "VAT Number" instead';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("VAT Number"; Rec."VAT Number")
                 {
                     ApplicationArea = Basic, Suite;
@@ -135,16 +125,6 @@ page 473 "VAT Posting Setup Card"
                     ToolTip = 'Specifies the general ledger account number to which to post unrealized sales VAT (as calculated when you post sales invoices) using this particular combination of VAT business posting group and VAT product posting group.';
                     Visible = UnrealizedVATVisible;
                 }
-#if not CLEAN23
-                field("Sales VAT Reporting Code"; Rec."Sales VAT Reporting Code")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the VAT code to be used with this VAT posting setup for sales reporting.';
-                    ObsoleteReason = 'Use the field "Sale VAT Reporting Code" in BaseApp W1.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Sale VAT Reporting Code"; Rec."Sale VAT Reporting Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -193,16 +173,6 @@ page 473 "VAT Posting Setup Card"
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the relevant proportional deduction VAT rate for the particular combination of VAT business posting group and VAT product posting group.';
                 }
-#if not CLEAN23
-                field("Purchase VAT Reporting Code"; Rec."Purchase VAT Reporting Code")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the VAT code to be used with this VAT posting setup for purchase reporting.';
-                    ObsoleteReason = 'Use the field "Purch. VAT Reporting Code" in BaseApp W1.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Purch. VAT Reporting Code"; Rec."Purch. VAT Reporting Code")
                 {
                     ApplicationArea = Basic, Suite;

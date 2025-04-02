@@ -20,9 +20,6 @@
         ReversalFromLedgerErr: Label 'You cannot create this type of document when Customer %1 is blocked with type %2';
         ReversalFromRegisterErr: Label 'You cannot reverse register number %1 because it contains customer or vendor or employee ledger entries';
         ReversalFromGLEntryErr: Label 'The transaction cannot be reversed, because the Cust. Ledger Entry has been compressed.';
-#if not CLEAN23
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
-#endif
         ReversalFromLedgerPrivacyBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked for privacy.';
 
     [Test]
@@ -321,11 +318,7 @@
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('ConfirmHandler,StatisticsMessageHandler')]
-#else
     [HandlerFunctions('ConfirmHandler')]
-#endif
     [Scope('OnPrem')]
     procedure CurrencyAdjustEntryFrmLedger()
     var
@@ -343,13 +336,8 @@
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         UpdateExchangeRate(GenJournalLine."Currency Code");
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRates(
-          GenJournalLine."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), GenJournalLine."Document No.", false);
-#else
         LibraryERM.RunExchRateAdjustment(
           GenJournalLine."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), GenJournalLine."Document No.", false);
-#endif
 
         // Exercise: Reverse Posted Entry from Customer Legder.
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::" ", GenJournalLine."Document No.");
@@ -659,14 +647,5 @@
         // Handler for confirmation messages, always send positive reply.
         Reply := true;
     end;
-#if not CLEAN23
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-#endif
 }
 

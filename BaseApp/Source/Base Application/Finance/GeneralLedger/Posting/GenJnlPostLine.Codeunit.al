@@ -233,6 +233,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
 
         CheckGenJnlLine(GenJnlLine, CheckLine);
+        OnCodeOnAfterCheckGenJnlLine(GenJnlLine, CheckLine);
 
         AmountRoundingPrecision := InitAmounts(GenJnlLine);
 
@@ -268,7 +269,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                  GenJnlLine."Account Type"::"Fixed Asset"])
             then begin
                 CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJnlLine);
-                OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing, NextEntryNo);
+                OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing, NextEntryNo, JobLine);
                 Balancing := true;
             end;
 
@@ -277,7 +278,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
         if GenJnlLine."Bal. Account No." <> '' then begin
             CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJnlLine);
-            OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing, NextEntryNo);
+            OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing, NextEntryNo, JobLine);
             PostGenJnlLine(GenJnlLine, not Balancing);
         end;
 
@@ -836,11 +837,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 VATEntry."Base Before Pmt. Disc." := GLEntryAmount;
 
             VATEntryAdjustForPropDeduction(GenJnlLine, VATPostingSetup);
-#if CLEAN23
-                NorwegianVATTools.VATEntrySetVATInformation(VATEntry, GenJnlLine);
-#else
-            NorwegianVATTools.VATEntrySetVATInfo(VATEntry, GenJnlLine);
-#endif
+            NorwegianVATTools.VATEntrySetVATInformation(VATEntry, GenJnlLine);
             OnBeforeInsertVATEntry(VATEntry, GenJnlLine, NextVATEntryNo, TempGLEntryVATEntryLink, TempGLEntryBuf, GLReg);
             VATEntry.Insert(true);
             TempGLEntryVATEntryLink.InsertLinkSelf(TempGLEntryBuf."Entry No.", VATEntry."Entry No.");
@@ -887,9 +884,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN23        
-        OnBeforeInsertVATForGLEntry(GenJnlLine, VATPostingSetup, VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", VATPostingParameters."Unrealized VAT", IsHandled, VATEntry, TaxJurisdiction, VATPostingParameters."Source Currency Code", AddCurrencyCode);
-#endif
         OnBeforeInsertVATForGLEntryFromBuffer(GenJnlLine, VATPostingSetup, VATPostingParameters, IsHandled, VATEntry, TaxJurisdiction, AddCurrencyCode);
         if IsHandled then
             exit;
@@ -8185,9 +8179,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
             DetailedCVLedgEntryBuffer.SetFilter("Entry Type", '%1|%2', DetailedCVLedgEntryBuffer."Entry Type"::"Realized Gain", DetailedCVLedgEntryBuffer."Entry Type"::"Realized Loss");
             if DetailedCVLedgEntryBuffer.FindFirst() then
                 exit(GetVendDtldCVLedgEntryBufferAccNo(GenJournalLine, DetailedCVLedgEntryBuffer));
-        end;
-        
-        exit(GetVendorPayablesAccount(GenJournalLine, VendPostingGr));
+
+            exit(GetVendorPayablesAccount(GenJournalLine, VendPostingGr));
+        end else
+            exit(GetVendorPayablesAccount(GenJournalLine, VendPostingGr));
     end;
 
     [IntegrationEvent(true, false)]
@@ -8611,14 +8606,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
     local procedure OnBeforeInsertVAT(var GenJournalLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry"; var UnrealizedVAT: Boolean; var AddCurrencyCode: Code[10]; var VATPostingSetup: Record "VAT Posting Setup"; var GLEntryAmount: Decimal; var GLEntryVATAmount: Decimal; var GLEntryBaseAmount: Decimal; var SrcCurrCode: Code[10]; var SrcCurrGLEntryAmt: Decimal; var SrcCurrGLEntryVATAmt: Decimal; var SrcCurrGLEntryBaseAmt: Decimal; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced with OnBeforeInsertVATForGLEntryFromBuffer', '23.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeInsertVATForGLEntry(var GenJnlLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; GLEntryVATAmount: Decimal; SrcCurrGLEntryVATAmt: Decimal; UnrealizedVAT: Boolean; var IsHandled: Boolean; var VATEntry: Record "VAT Entry"; TaxJurisdiction: Record "Tax Jurisdiction"; SrcCurrCode: Code[10]; AddCurrencyCode: Code[10])
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeInsertVATForGLEntryFromBuffer(var GenJnlLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; VATPostingParameters: Record "VAT Posting Parameters"; var IsHandled: Boolean; var VATEntry: Record "VAT Entry"; TaxJurisdiction: Record "Tax Jurisdiction"; AddCurrencyCode: Code[10])
@@ -9246,7 +9233,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnCodeOnAfterRunExhangeAccGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean; var NextEntryNo: Integer)
+    local procedure OnCodeOnAfterRunExhangeAccGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean; var NextEntryNo: Integer; var JobLine: Boolean)
     begin
     end;
 
@@ -10612,6 +10599,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitDetailedCVLedgEntryBufCalcPmtTolerance(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenJnlLine: Record "Gen. Journal Line"; var PmtTolAmtToBeApplied: Decimal; NextTransactionNo: Integer; FirstNewVATEntryNo: Integer; var PmtTol: Decimal; var PmtTolLCY: Decimal; var PmtTolAddCurr: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCodeOnAfterCheckGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; CheckLine: Boolean)
     begin
     end;
 }

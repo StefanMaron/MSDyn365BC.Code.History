@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -17,6 +21,7 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Calculation;
+using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
@@ -189,6 +194,16 @@ table 5995 "Service Cr.Memo Line"
             Editable = false;
             TableRelation = "Customer Price Group";
         }
+        field(45; "Job No."; Code[20])
+        {
+            Caption = 'Project No.';
+            TableRelation = Job;
+        }
+        field(46; "Job Task No."; Code[20])
+        {
+            Caption = 'Project Task No.';
+            TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
+        }
         field(52; "Work Type Code"; Code[10])
         {
             Caption = 'Work Type Code';
@@ -338,6 +353,12 @@ table 5995 "Service Cr.Memo Line"
                 Rec.ShowDimensions();
             end;
         }
+        field(1019; "Job Planning Line No."; Integer)
+        {
+            AccessByPermission = TableData Job = R;
+            BlankZero = true;
+            Caption = 'Project Planning Line No.';
+        }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
@@ -382,13 +403,6 @@ table 5995 "Service Cr.Memo Line"
         {
             Caption = 'Catalog';
             Editable = false;
-        }
-        field(5712; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(5725; "Item Reference No."; Code[50])
         {
@@ -568,10 +582,6 @@ table 5995 "Service Cr.Memo Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
-        field(10600; "Account Code"; Text[30])
-        {
-            Caption = 'Account Code';
-        }
     }
 
     keys
@@ -746,6 +756,12 @@ table 5995 "Service Cr.Memo Line"
         end;
     end;
 
+    internal procedure GetVATPct() VATPct: Decimal
+    begin
+        VATPct := "VAT %";
+        OnAfterGetVATPct(Rec, VATPct);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeInsertLine(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
     begin
@@ -760,5 +776,9 @@ table 5995 "Service Cr.Memo Line"
     local procedure OnAfterCopyToVATAmountLine(ServiceCrMemoLine: Record "Service Cr.Memo Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVATPct(var ServiceCrMemoLine: Record "Service Cr.Memo Line"; var VATPct: Decimal)
+    begin
+    end;
+}

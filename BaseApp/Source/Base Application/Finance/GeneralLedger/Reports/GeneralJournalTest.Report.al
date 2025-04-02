@@ -123,22 +123,12 @@ report 2 "General Journal - Test"
                 column(BalLCYCaption_GenJnlLine; "Gen. Journal Line".FieldCaption("Balance (LCY)"))
                 {
                 }
-#if not CLEAN23
-                column(VATCaption_GenJnlLine; "Gen. Journal Line".FieldCaption("VAT Code"))
-                {
-                }
-#endif
                 column(VATNumberCaption_GenJnlLine; "Gen. Journal Line".FieldCaption("VAT Number"))
                 {
                 }
                 column(BalGenPostTypeCaption_GenJnlLine; "Gen. Journal Line".FieldCaption("Bal. Gen. Posting Type"))
                 {
                 }
-#if not CLEAN23
-                column(BalVATCodeCaption_GenJnlLine; "Gen. Journal Line".FieldCaption("Bal. VAT Code"))
-                {
-                }
-#endif
                 column(BalVATNumberCaption_GenJnlLine; "Gen. Journal Line".FieldCaption("Bal. VAT Number"))
                 {
                 }
@@ -214,22 +204,12 @@ report 2 "General Journal - Test"
                     column(TotalLCYCaption; AmountLCYCap)
                     {
                     }
-#if not CLEAN23
-                    column(VATCode_GenJnlLine; "VAT Code")
-                    {
-                    }
-#endif
                     column(VATNumber_GenJnlLine; "VAT Number")
                     {
                     }
                     column(BalGenPostType_GenJnlLine; "Bal. Gen. Posting Type")
                     {
                     }
-#if not CLEAN23
-                    column(BalVATCode_GenJnlLine; "Bal. VAT Code")
-                    {
-                    }
-#endif
                     column(BalVATNumber_GenJnlLine; "Bal. VAT Number")
                     {
                     }

@@ -217,7 +217,17 @@ codeunit 229 "Document-Print"
         OnAfterDoPrintSalesHeader(SalesHeader, SendAsEmail);
     end;
 
+    procedure EmailPurchHeader(PurchaseHeader: Record "Purchase Header")
+    begin
+        DoPrintPurchHeader(PurchaseHeader, true);
+    end;
+
     procedure PrintPurchHeader(PurchHeader: Record "Purchase Header")
+    begin
+        DoPrintPurchHeader(PurchHeader, false);
+    end;
+
+    local procedure DoPrintPurchHeader(PurchHeader: Record "Purchase Header"; SendAsEmail: Boolean)
     var
         ReportSelections: Record "Report Selections";
         ReportUsage: Enum "Report Selection Usage";
@@ -228,11 +238,17 @@ codeunit 229 "Document-Print"
         PurchHeader.SetRange("Document Type", PurchHeader."Document Type");
         PurchHeader.SetRange("No.", PurchHeader."No.");
         CalcPurchDisc(PurchHeader);
-        OnBeforeDoPrintPurchHeader(PurchHeader, ReportUsage.AsInteger(), IsPrinted);
+        OnBeforeDoPrintPurchHeader(PurchHeader, ReportUsage.AsInteger(), SendAsEmail, IsPrinted);
         if IsPrinted then
             exit;
 
-        ReportSelections.PrintWithDialogForVend(ReportUsage, PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
+        if SendAsEmail then
+            ReportSelections.SendEmailToVendor(
+                ReportUsage.AsInteger(), PurchHeader, PurchHeader."No.", PurchHeader.GetDocTypeTxt(), true, PurchHeader."Buy-from Vendor No.")
+        else
+            ReportSelections.PrintWithDialogForVend(ReportUsage, PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
+
+        OnAfterDoPrintPurchaseHeader(PurchHeader, SendAsEmail);
     end;
 
     procedure PrintPurchaseHeaderToDocumentAttachment(var PurchaseHeader: Record "Purchase Header");
@@ -872,6 +888,11 @@ codeunit 229 "Document-Print"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterDoPrintPurchaseHeader(var PurchHeader: Record "Purchase Header"; SendAsEmail: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPrintSalesInvoiceToDocumentAttachment(var SalesHeader: Record "Sales Header"; SalesInvoicePrintToAttachmentOption: Integer)
     begin
     end;
@@ -920,7 +941,7 @@ codeunit 229 "Document-Print"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDoPrintPurchHeader(var PurchHeader: Record "Purchase Header"; ReportUsage: Integer; var IsPrinted: Boolean)
+    local procedure OnBeforeDoPrintPurchHeader(var PurchHeader: Record "Purchase Header"; ReportUsage: Integer; SendAsEmail: Boolean; var IsPrinted: Boolean)
     begin
     end;
 

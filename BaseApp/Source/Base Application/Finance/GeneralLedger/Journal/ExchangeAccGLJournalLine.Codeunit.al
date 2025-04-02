@@ -20,9 +20,6 @@ codeunit 366 "Exchange Acc. G/L Journal Line"
         Rec."Gen. Posting Type" := GenJnlLine2."Bal. Gen. Posting Type";
         Rec."Gen. Bus. Posting Group" := GenJnlLine2."Bal. Gen. Bus. Posting Group";
         Rec."Gen. Prod. Posting Group" := GenJnlLine2."Bal. Gen. Prod. Posting Group";
-#if not CLEAN23
-        Rec."VAT Code" := GenJnlLine2."Bal. VAT Code";
-#endif
         Rec."VAT Number" := GenJnlLine2."Bal. VAT Number";
         Rec."VAT Bus. Posting Group" := GenJnlLine2."Bal. VAT Bus. Posting Group";
         Rec."VAT Prod. Posting Group" := GenJnlLine2."Bal. VAT Prod. Posting Group";
@@ -43,9 +40,6 @@ codeunit 366 "Exchange Acc. G/L Journal Line"
         Rec."Bal. Gen. Posting Type" := GenJnlLine2."Gen. Posting Type";
         Rec."Bal. Gen. Bus. Posting Group" := GenJnlLine2."Gen. Bus. Posting Group";
         Rec."Bal. Gen. Prod. Posting Group" := GenJnlLine2."Gen. Prod. Posting Group";
-#if not CLEAN23
-        Rec."Bal. VAT Code" := GenJnlLine2."VAT Code";
-#endif
         Rec."Bal. VAT Number" := GenJnlLine2."VAT Number";
         Rec."Bal. VAT Bus. Posting Group" := GenJnlLine2."VAT Bus. Posting Group";
         Rec."Bal. VAT Prod. Posting Group" := GenJnlLine2."VAT Prod. Posting Group";

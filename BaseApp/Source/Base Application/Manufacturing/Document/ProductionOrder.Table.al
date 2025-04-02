@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
@@ -98,7 +102,7 @@ table 5405 "Production Order"
         field(10; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-            TableRelation = if ("Source Type" = const(Item)) Item where(Type = const(Inventory))
+            TableRelation = if ("Source Type" = const(Item)) Item where(Type = const(Inventory), "Production Blocked" = filter(<> Output))
             else
             if ("Source Type" = const(Family)) Family
             else
@@ -171,7 +175,8 @@ table 5405 "Production Order"
         {
             Caption = 'Variant Code';
             TableRelation = if ("Source Type" = const(Item)) "Item Variant".Code where("Item No." = field("Source No."),
-                                                                                        Code = field("Variant Code"));
+                                                                                        Code = field("Variant Code"),
+                                                                                        "Production Blocked" = filter(<> Output));
 
             trigger OnValidate()
             var
@@ -280,6 +285,10 @@ table 5405 "Production Order"
             begin
                 if "Due Date" = 0D then
                     exit;
+
+                if CurrFieldNo <> 0 then
+                    UpdateManualScheduling();
+
                 if (CurrFieldNo = FieldNo("Due Date")) or
                    (CurrFieldNo = FieldNo("Location Code")) or
                    UpdateEndDate
@@ -366,6 +375,8 @@ table 5405 "Production Order"
 
             trigger OnValidate()
             begin
+                ValidateWarehousePutAwayLocation(Rec);
+
                 GetDefaultBin();
 
                 Validate("Due Date"); // Scheduling consider Calendar assigned to Location
@@ -564,10 +575,31 @@ table 5405 "Production Order"
 
             trigger OnValidate()
             begin
+                if CurrFieldNo <> 0 then
+                    UpdateManualScheduling();
+
                 "Ending Date" := DT2Date("Ending Date-Time");
                 "Ending Time" := DT2Time("Ending Date-Time");
                 Validate("Ending Time");
             end;
+        }
+        field(110; "Document Put-away Status"; Option)
+        {
+            Caption = 'Document Put-away Status';
+            Editable = false;
+            OptionCaption = ' ,Partially Put Away,Completely Put Away';
+            OptionMembers = " ","Partially Put Away","Completely Put Away";
+        }
+        field(200; "Reopened"; Boolean)
+        {
+            Caption = 'Reopened';
+            Editable = false;
+        }
+        field(290; "Manual Scheduling"; Boolean)
+        {
+            Caption = 'Manual Scheduling';
+            Editable = false;
+            ToolTip = 'Specifies that the End/Due Dates on the production have been scheduled manually.';
         }
         field(480; "Dimension Set ID"; Integer)
         {
@@ -633,7 +665,7 @@ table 5405 "Production Order"
 
     fieldgroups
     {
-        fieldgroup(DropDown; "No.", Description, "Source No.", "Source Type")
+        fieldgroup(DropDown; "No.", Description, "Source No.", "Source Type", "Due Date")
         {
         }
         fieldgroup(Brick; "No.", Description, "Source No.", Status, "Due Date")
@@ -648,7 +680,6 @@ table 5405 "Production Order"
         RefreshRecord: Boolean;
     begin
         if Status = Status::Released then begin
-            ConfirmDeletion();
 
             ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
             ItemLedgEntry.SetRange("Order No.", "No.");
@@ -674,6 +705,9 @@ table 5405 "Production Order"
                   Text000,
                   Status, TableCaption(), "No.", PurchLine.TableCaption());
         end;
+
+        if Status = Status::Released then
+            ConfirmDeletion();
 
         if Status = Status::Finished then
             DeleteFinishedProdOrderRelations()
@@ -812,6 +846,8 @@ table 5405 "Production Order"
         "Starting Date" := "Ending Date";
         "Starting Date-Time" := CreateDateTime("Starting Date", "Starting Time");
         "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
+
+        SetDefaultGenBusPostingGroup();
 
         OnAfterInitRecord(Rec);
     end;
@@ -1103,9 +1139,38 @@ table 5405 "Production Order"
         NavigatePage.Run();
     end;
 
+    procedure GetHeaderPutAwayStatus(SkipLineNo: Integer): Integer
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.SetLoadFields("Put-away Status");
+        ProdOrderLine.SetRange(Status, Status);
+        ProdOrderLine.SetRange("Prod. Order No.", "No.");
+        if SkipLineNo <> 0 then
+            ProdOrderLine.SetFilter("Line No.", '<>%1', SkipLineNo);
+
+        ProdOrderLine.SetRange("Put-away Status", ProdOrderLine."Put-away Status"::"Completely Put Away");
+        if not ProdOrderLine.IsEmpty() then begin
+            ProdOrderLine.SetFilter("Put-away Status", '<>%1', ProdOrderLine."Put-away Status"::"Completely Put Away");
+            if not ProdOrderLine.IsEmpty() then
+                exit(ProdOrderLine."Put-away Status"::"Partially Put Away");
+
+            exit(ProdOrderLine."Put-away Status"::"Completely Put Away");
+        end else begin
+            ProdOrderLine.SetRange("Put-away Status", ProdOrderLine."Put-away Status"::"Partially Put Away");
+            if not ProdOrderLine.IsEmpty() then
+                exit(ProdOrderLine."Put-away Status"::"Partially Put Away");
+        end;
+
+        exit(ProdOrderLine."Put-away Status"::" ");
+    end;
+
     procedure CreatePick(AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean)
     var
         ProdOrderCompLine: Record "Prod. Order Component";
+#if not CLEAN26
+        ManufacturingSetup: Record "Manufacturing Setup";
+#endif
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         ProdOrderCompLine.Reset();
@@ -1129,11 +1194,22 @@ table 5405 "Production Order"
         ProdOrderCompLine.Reset();
         ProdOrderCompLine.SetRange(Status, Status);
         ProdOrderCompLine.SetRange("Prod. Order No.", "No.");
-        ProdOrderCompLine.SetFilter(
-          "Flushing Method", '%1|%2|%3',
-          ProdOrderCompLine."Flushing Method"::Manual,
-          ProdOrderCompLine."Flushing Method"::"Pick + Forward",
-          ProdOrderCompLine."Flushing Method"::"Pick + Backward");
+
+#if not CLEAN26
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+            ProdOrderCompLine.SetFilter(
+              "Flushing Method", '%1|%2|%3|%4',
+              ProdOrderCompLine."Flushing Method"::Manual,
+              ProdOrderCompLine."Flushing Method"::"Pick + Manual",
+              ProdOrderCompLine."Flushing Method"::"Pick + Forward",
+              ProdOrderCompLine."Flushing Method"::"Pick + Backward")
+        else
+#endif
+            ProdOrderCompLine.SetFilter(
+              "Flushing Method", '%1|%2|%3',
+              ProdOrderCompLine."Flushing Method"::"Pick + Manual",
+              ProdOrderCompLine."Flushing Method"::"Pick + Forward",
+              ProdOrderCompLine."Flushing Method"::"Pick + Backward");
         ProdOrderCompLine.SetRange("Planning Level Code", 0);
         ProdOrderCompLine.SetFilter("Expected Quantity", '>0');
         if ProdOrderCompLine.Find('-') then
@@ -1242,6 +1318,7 @@ table 5405 "Production Order"
     local procedure UpdateStartingEndingTime(Direction: Option Forward,Backward)
     var
         IsHandled: Boolean;
+        NewDueDate: Date;
     begin
         ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.", "Planning Level Code");
         ProdOrderLine.Ascending(Direction = Direction::Backward);
@@ -1276,13 +1353,19 @@ table 5405 "Production Order"
                             ProdOrderLine."Ending Date" := "Ending Date";
                         end;
                 end;
+                ProdOrderLine."Manual Scheduling" := Rec."Manual Scheduling";
                 ProdOrderLine.Modify();
+
+                LeadTimeMgt.SetManualScheduling(ProdOrderLine."Manual Scheduling");
                 CalcProdOrder.SetParameter(true);
                 case Direction of
                     Direction::Forward:
                         CalcProdOrder.Recalculate(ProdOrderLine, 0, true);
                     Direction::Backward:
-                        CalcProdOrder.Recalculate(ProdOrderLine, 1, true);
+                        if ProdOrderLine."Manual Scheduling" then
+                            CalcProdOrder.Recalculate(ProdOrderLine, 1, false)
+                        else
+                            CalcProdOrder.Recalculate(ProdOrderLine, 1, true);
                 end;
                 IsHandled := false;
                 OnBeforeUpdateProdOrderLineDueDate(ProdOrderLine, IsHandled);
@@ -1290,10 +1373,20 @@ table 5405 "Production Order"
                     if ProdOrderLine."Planning Level Code" > 0 then
                         ProdOrderLine."Due Date" := ProdOrderLine."Ending Date"
                     else
-                        ProdOrderLine."Due Date" :=
-                          LeadTimeMgt.GetPlannedDueDate(
-                            ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
-                            ProdOrderLine."Ending Date", '', "Requisition Ref. Order Type"::"Prod. Order");
+                        if ProdOrderLine."Manual Scheduling" then begin
+                            NewDueDate :=
+                                LeadTimeMgt.GetPlannedDueDate(
+                                    ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
+                                    ProdOrderLine."Ending Date", '', "Requisition Ref. Order Type"::"Prod. Order");
+                            if NewDueDate > ProdOrderLine."Due Date" then
+                                if ProdOrderLine.ConfirmUpdateDueDateAndEndingDate(ProdOrderLine.FieldCaption("Due Date"), NewDueDate) then
+                                    ProdOrderLine."Due Date" := NewDueDate
+                        end else
+                            ProdOrderLine."Due Date" :=
+                              LeadTimeMgt.GetPlannedDueDate(
+                                ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
+                                ProdOrderLine."Ending Date", '', "Requisition Ref. Order Type"::"Prod. Order");
+
                 if "Due Date" = 0D then
                     "Due Date" := ProdOrderLine."Due Date";
                 case Direction of
@@ -1327,6 +1420,7 @@ table 5405 "Production Order"
     local procedure UpdateEndingDate(var ProdOrderLine: Record "Prod. Order Line")
     var
         IsHandled: Boolean;
+        NewEndingDate: Date;
     begin
         IsHandled := false;
         OnBeforeUpdateEndingDate(ProdOrderLine, Rec, IsHandled, CurrFieldNo);
@@ -1335,21 +1429,46 @@ table 5405 "Production Order"
 
         if ProdOrderLine.FindSet(true) then
             repeat
+                ProdOrderLine."Manual Scheduling" := Rec."Manual Scheduling";
                 ProdOrderLine."Due Date" := "Due Date";
                 ProdOrderLine.Modify();
                 CalcProdOrder.SetParameter(true);
-                ProdOrderLine."Ending Date" :=
-                    LeadTimeMgt.GetPlannedEndingDate(
-                        ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
-                        ProdOrderLine."Due Date", '', "Requisition Ref. Order Type"::"Prod. Order");
+                LeadTimeMgt.SetManualScheduling(ProdOrderLine."Manual Scheduling");
+                if ShouldUpdateEndingDate(ProdOrderLine) then begin
+                    NewEndingDate :=
+                        LeadTimeMgt.GetPlannedEndingDate(
+                            ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
+                            ProdOrderLine."Due Date", '', "Requisition Ref. Order Type"::"Prod. Order");
+
+                    if ProdOrderLine.ConfirmUpdateDueDateAndEndingDate(ProdOrderLine.FieldCaption("Ending Date"), NewEndingDate) then
+                        ProdOrderLine."Ending Date" := NewEndingDate;
+                end;
+
                 OnUpdateEndingDateOnBeforeCalcProdOrderRecalculate(ProdOrderLine);
-                CalcProdOrder.Recalculate(ProdOrderLine, 1, true);
+                if ProdOrderLine."Manual Scheduling" then
+                    CalcProdOrder.Recalculate(ProdOrderLine, 1, false)
+                else
+                    CalcProdOrder.Recalculate(ProdOrderLine, 1, true);
                 "Starting Date-Time" := CreateDateTime("Starting Date", "Starting Time");
                 "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
                 OnUpdateEndingDateOnBeforeProdOrderLineModify(ProdOrderLine, Rec);
                 ProdOrderLine.Modify(true);
                 ProdOrderLine.CheckEndingDate(CurrFieldNo <> 0);
             until ProdOrderLine.Next() = 0
+    end;
+
+    local procedure ShouldUpdateEndingDate(ProdOrderLine: Record "Prod. Order Line"): Boolean
+    begin
+        if not ProdOrderLine."Manual Scheduling" then
+            exit(true);
+
+        if ProdOrderLine."Ending Date" = 0D then
+            exit(true);
+
+        if ProdOrderLine."Ending Date" < ProdOrderLine."Due Date" then
+            exit(false);
+
+        exit(true);
     end;
 
     procedure ShowDocDim()
@@ -1504,6 +1623,40 @@ table 5405 "Production Order"
                     Confirmed := true;
                 end;
             until (ProdOrderComponent.Next() = 0) or Confirmed;
+    end;
+
+    local procedure ValidateWarehousePutAwayLocation(ProductionOrder: Record "Production Order")
+    var
+        PutAwayProdOrderLine: Record "Prod. Order Line";
+        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
+    begin
+        PutAwayProdOrderLine.SetLoadFields(Status, "Prod. Order No.", "Location Code", "Line No.");
+        PutAwayProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        PutAwayProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        if PutAwayProdOrderLine.FindSet() then
+            repeat
+                ProdOrderWarehouseMgt.CompareProdOrderWithProdOrderLinesForLocation(Rec, PutAwayProdOrderLine);
+            until PutAwayProdOrderLine.Next() = 0;
+    end;
+
+    local procedure SetDefaultGenBusPostingGroup()
+    begin
+        GetMfgSetup();
+        if MfgSetup."Default Gen. Bus. Post. Group" <> '' then
+            if Rec."Gen. Bus. Posting Group" = '' then
+                Validate("Gen. Bus. Posting Group", MfgSetup."Default Gen. Bus. Post. Group");
+    end;
+
+    local procedure GetMfgSetup()
+    begin
+        MfgSetup.GetRecordOnce();
+    end;
+
+    local procedure UpdateManualScheduling()
+    begin
+        GetMfgSetup();
+
+        Rec.Validate("Manual Scheduling", MfgSetup."Manual Scheduling");
     end;
 
     [IntegrationEvent(false, false)]
@@ -1687,7 +1840,7 @@ table 5405 "Production Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateAllLineDimOnAfterUpdateProdOrderCompDim(var ProductionOrder: Record "Production Order"; var  ProdOrderLine: Record "Prod. Order Line"; NewParentDimSetID: Integer; OldParentDimSetID: Integer);
+    local procedure OnUpdateAllLineDimOnAfterUpdateProdOrderCompDim(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; NewParentDimSetID: Integer; OldParentDimSetID: Integer);
     begin
     end;
 }

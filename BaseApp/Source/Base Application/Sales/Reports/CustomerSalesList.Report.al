@@ -108,6 +108,8 @@ report 119 "Customer - Sales List"
 
     requestpage
     {
+        AboutTitle = 'About Customer - Sales List';
+        AboutText = 'Get an overview of customer sales for a period. Use the overview to report to customs and tax authorities.';
         SaveValues = true;
 
         layout

@@ -79,13 +79,13 @@ page 653 "Intercompany Setup"
                 {
                     ApplicationArea = Intercompany;
                     Caption = 'Default IC Gen. Jnl. Template';
-                    ToolTip = 'Specifies journal template that wiil be used to create journal line as soon as transactions arrive in the intercompany inbox.';
+                    ToolTip = 'Specifies the journal template name that will be used to create journal lines as soon as transactions arrive in the intercompany inbox.';
                 }
                 field("Default IC Gen. Jnl. Batch"; Rec."Default IC Gen. Jnl. Batch")
                 {
                     ApplicationArea = Intercompany;
                     Caption = 'Default IC Gen. Jnl. Batch';
-                    ToolTip = 'Specifies journal batch that wiil be used to create journal line as soon as transactions arrive in the intercompany inbox.';
+                    ToolTip = 'Specifies the journal batch that will be used to create journal lines as soon as transactions arrive in the intercompany inbox.';
                 }
             }
             part("IC Partners List Part"; "IC Partners List Part")

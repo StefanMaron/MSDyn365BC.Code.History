@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.FinanceCharge;
+namespace Microsoft.Sales.FinanceCharge;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -390,13 +390,6 @@ table 303 "Finance Charge Memo Line"
                 if (Type = Type::" ") and ("Account Code" <> '') then
                     Error(Text10600, FieldCaption("Account Code"), FieldCaption(Type), Type);
             end;
-        }
-        field(3010590; "Multiple Interest Rates Entry"; Boolean)
-        {
-            Caption = 'Multiple Interest Rates Entry';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
     }
 
@@ -1056,4 +1049,3 @@ table 303 "Finance Charge Memo Line"
     begin
     end;
 }
-

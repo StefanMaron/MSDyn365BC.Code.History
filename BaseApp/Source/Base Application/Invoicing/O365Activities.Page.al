@@ -151,6 +151,7 @@ page 1310 "O365 Activities"
                 {
                     ApplicationArea = Intercompany;
                     Caption = 'Pending Inbox Transactions';
+                    Tooltip = 'Specifies the number of pending incoming intercompany transactions.';
                     DrillDownPageID = "IC Inbox Transactions";
                     Visible = Rec."IC Inbox Transactions" <> 0;
                 }
@@ -158,6 +159,7 @@ page 1310 "O365 Activities"
                 {
                     ApplicationArea = Intercompany;
                     Caption = 'Pending Outbox Transactions';
+                    ToolTip = 'Specifies the number of pending outgoing intercompany transactions.';
                     DrillDownPageID = "IC Outbox Transactions";
                     Visible = Rec."IC Outbox Transactions" <> 0;
                 }
@@ -467,7 +469,7 @@ page 1310 "O365 Activities"
         TaskId: Integer;
     begin
         if PBTList.Count() > 0 then
-            foreach TaskId in PBTList.Keys do begin
+            foreach TaskId in PBTList.Keys() do begin
                 CurrPage.CancelBackgroundTask(TaskId);
                 PBTList.Remove(TaskId);
             end;
@@ -475,7 +477,6 @@ page 1310 "O365 Activities"
         SchedulePBT(Rec.FieldName("Overdue Sales Invoice Amount"), Rec.FieldCaption("Overdue Sales Invoice Amount"));
         SchedulePBT(Rec.FieldName("Overdue Purch. Invoice Amount"), Rec.FieldCaption("Overdue Purch. Invoice Amount"));
         SchedulePBT(Rec.FieldName("Sales This Month"), Rec.FieldCaption("Sales This Month"));
-        SchedulePBT(Rec.FieldName("Top 10 Customer Sales YTD"), Rec.FieldCaption("Top 10 Customer Sales YTD"));
         SchedulePBT(Rec.FieldName("Average Collection Days"), Rec.FieldCaption("Average Collection Days"));
         SchedulePBT(Rec.FieldName("S. Ord. - Reserved From Stock"), Rec.FieldCaption("S. Ord. - Reserved From Stock"));
     end;
@@ -541,9 +542,11 @@ page 1310 "O365 Activities"
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
         ICSetup: Record "IC Setup";
     begin
+        DocExchServiceSetup.SetLoadFields("Enabled");
         if DocExchServiceSetup.Get() then
             ShowDocumentsPendingDocExchService := DocExchServiceSetup.Enabled;
 
+        ICSetup.SetLoadFields("IC Partner Code");
         if ICSetup.Get() then
             ShowIntercompanyActivities :=
               (ICSetup."IC Partner Code" <> '') and ((Rec."IC Inbox Transactions" <> 0) or (Rec."IC Outbox Transactions" <> 0));

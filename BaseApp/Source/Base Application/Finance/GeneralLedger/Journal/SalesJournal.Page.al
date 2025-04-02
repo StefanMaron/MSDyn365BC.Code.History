@@ -231,16 +231,6 @@ page 253 "Sales Journal"
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = not IsSimplePage;
                 }
-#if not CLEAN23
-                field("VAT Code"; Rec."VAT Code")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the VAT Code to be used on the line.';
-                    ObsoleteReason = 'Use the field "VAT Number" instead';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("VAT Number"; Rec."VAT Number")
                 {
                     ApplicationArea = Basic, Suite;
@@ -387,16 +377,6 @@ page 253 "Sales Journal"
                         Rec.ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-#if not CLEAN23
-                field("Bal. VAT Code"; Rec."Bal. VAT Code")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the VAT Code to be used on the line.';
-                    ObsoleteReason = 'Use the field "Bal. VAT Number" instead';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Bal. VAT Number"; Rec."Bal. VAT Number")
                 {
                     ApplicationArea = Basic, Suite;

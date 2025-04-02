@@ -68,32 +68,6 @@ page 472 "VAT Posting Setup"
                     Width = 1;
                     Visible = NonDeductibleVATVisible;
                 }
-#if not CLEAN23
-                field("VAT Code"; Rec."VAT Code")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the VAT Code to be used with this VAT posting setup.';
-                    ObsoleteReason = 'Use the field "VAT Number" instead';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-                field("Sales VAT Reporting Code"; Rec."Sales VAT Reporting Code")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the VAT code to be used with this VAT posting setup for sales reporting.';
-                    ObsoleteReason = 'Use the field "Sale VAT Reporting Code" in BaseApp W1.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-                field("Purchase VAT Reporting Code"; Rec."Purchase VAT Reporting Code")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the VAT code to be used with this VAT posting setup for purchase reporting.';
-                    ObsoleteReason = 'Use the field "Purch. VAT Reporting Code" in BaseApp W1.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("VAT Number"; Rec."VAT Number")
                 {
                     ApplicationArea = Basic, Suite;

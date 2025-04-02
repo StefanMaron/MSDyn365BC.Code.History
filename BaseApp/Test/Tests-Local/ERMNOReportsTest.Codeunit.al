@@ -496,7 +496,7 @@ codeunit 144180 "ERM NO Reports Test"
         LibraryDim.CreateDefaultDimensionCustomer(DefaultDimension, Customer."No.", Dimension.Code, DimensionValue.Code)
     end;
 
-    local procedure CreateGLAccountWithIncomeOrBalanceAndNewPage(var GLAccount: Record "G/L Account"; IncomeOrBalance: Option; NewPage: Boolean)
+    local procedure CreateGLAccountWithIncomeOrBalanceAndNewPage(var GLAccount: Record "G/L Account"; IncomeOrBalance: Enum "G/L Account Report Type"; NewPage: Boolean)
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Validate("Income/Balance", IncomeOrBalance);

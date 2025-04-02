@@ -99,6 +99,8 @@ codeunit 1501 "Workflow Management"
         WorkflowStepInstanceLoop.SetRange(Type, WorkflowStepInstanceLoop.Type::"Event");
         WorkflowStepInstanceLoop.SetRange(Status, WorkflowStepInstanceLoop.Status::Active);
         WorkflowStepInstanceLoop.SetRange("Function Name", FunctionName);
+        // "Previous Workflow Step ID" is used as primary key in WorkflowStepInstance2.Get inside the loop below. Assumtion is that no entry in WorkflowStepInstance can have ID = 0.
+        WorkflowStepInstanceLoop.SetFilter("Previous Workflow Step ID", '<>%1', 0);
         OnFindWorkflowStepInstanceWithOptionalWorkflowStartOnAfterSetWorkflowStepInstanceLoopFi1ters(RecRef, WorkflowStepInstanceLoop, FunctionName, StartWorkflow);
         WorkflowStepInstanceLoop.SetCurrentKey("Sequence No.");
 
@@ -132,6 +134,7 @@ codeunit 1501 "Workflow Management"
         end;
 
         WorkflowStepInstance.Reset();
+        WorkflowStepInstance.ReadIsolation := WorkflowStepInstance.ReadIsolation::ReadUncommitted;
         if FindMatchingWorkflowStepInstance(RecRef, xRecRef, WorkflowStepInstance, FunctionName) then begin
             GetTelemetryDimensions(FunctionName, WorkflowStepInstance.ToString(), TelemetryDimensions);
             Session.LogMessage('0000DZD', WorkflowMatchingStepFoundTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
@@ -140,6 +143,7 @@ codeunit 1501 "Workflow Management"
         end;
 
         WorkflowStepInstance.Reset();
+        WorkflowStepInstance.ReadIsolation := WorkflowStepInstance.ReadIsolation::ReadUncommitted;
         if FindWorkflow(RecRef, xRecRef, FunctionName, Workflow) then begin
             if StartWorkflow then begin
                 InstantiateWorkflow(Workflow, FunctionName, WorkflowStepInstance);

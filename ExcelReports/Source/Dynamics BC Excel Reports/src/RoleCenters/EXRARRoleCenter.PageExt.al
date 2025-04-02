@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 pageextension 4405 EXRARRoleCenter extends "Account Receivables"
 {
     actions
@@ -12,7 +13,7 @@ pageextension 4405 EXRARRoleCenter extends "Account Receivables"
                 action(EXRTrialBalanceBudgetExcel)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Trial Balance/Budget (Preview)';
+                    Caption = 'Trial Balance/Budget';
                     Image = "Report";
                     RunObject = report "EXR Trial BalanceBudgetExcel";
                     ToolTip = 'Open a spreadsheet that shows Trial Balance/Budget data.';
@@ -32,7 +33,7 @@ pageextension 4405 EXRARRoleCenter extends "Account Receivables"
                 action(EXRTrialBalbyPeriodExcel)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Trial Balance by Period (Preview)';
+                    Caption = 'Trial Balance by Period';
                     Image = "Report";
                     RunObject = report "EXR Trial Bal by Period Excel";
                     ToolTip = 'Open a spreadsheet that shows Trial Balance by Period data.';
@@ -40,7 +41,7 @@ pageextension 4405 EXRARRoleCenter extends "Account Receivables"
                 action(EXRTrialBalPrevYearExcel)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Trial Balance/Previous Year (Preview)';
+                    Caption = 'Trial Balance/Previous Year';
                     Image = "Report";
                     RunObject = report "EXR Trial Bal. Prev Year Excel";
                     ToolTip = 'Open a spreadsheet that shows Trial Balance/Previous Year data';
@@ -60,7 +61,7 @@ pageextension 4405 EXRARRoleCenter extends "Account Receivables"
                 action(EXRCustomerTopListExcel)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Customer - Top List (Preview)';
+                    Caption = 'Customer - Top List';
                     Image = "Report";
                     RunObject = report "EXR Customer Top List";
                     ToolTip = 'Open a spreadsheet that shows a list of top customers.';

@@ -367,7 +367,7 @@ codeunit 137929 "SCM Orders UI"
         WhseShipmentLines.FILTER.SetFilter(
           "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
               DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
-        WhseShipmentLines."Show &Whse. Document".Invoke();
+        WhseShipmentLines.ShowDocument.Invoke();
 
         // [WHEN] Stan pushes "Autofill Qty. to Ship" on the page ribbon
         WarehouseShipment."Autofill Qty. to Ship".Invoke();
@@ -419,7 +419,7 @@ codeunit 137929 "SCM Orders UI"
         WhseShipmentLines.FILTER.SetFilter(
           "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
               DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
-        WhseShipmentLines."Show &Whse. Document".Invoke();
+        WhseShipmentLines.ShowDocument.Invoke();
 
         // [WHEN] Stan pushes "Delete Qty. to Ship" on the page ribbon
         WarehouseShipment."Delete Qty. to Ship".Invoke();
@@ -469,7 +469,7 @@ codeunit 137929 "SCM Orders UI"
         WhseReceiptLines.FILTER.SetFilter(
           "No.", LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
             DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
-        WhseReceiptLines."Show &Whse. Document".Invoke();
+        WhseReceiptLines.ShowDocument.Invoke();
 
         // [WHEN] Stan pushes "Autofill Qty. to Receive" on the page ribbon
         WarehouseReceipt."Autofill Qty. to Receive".Invoke();
@@ -521,7 +521,7 @@ codeunit 137929 "SCM Orders UI"
         WhseReceiptLines.FILTER.SetFilter(
           "No.", LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
             DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
-        WhseReceiptLines."Show &Whse. Document".Invoke();
+        WhseReceiptLines.ShowDocument.Invoke();
 
         // [WHEN] Stan pushes "Delete Qty. to Receive" on the page ribbon
         WarehouseReceipt."Delete Qty. to Receive".Invoke();
@@ -573,7 +573,7 @@ codeunit 137929 "SCM Orders UI"
           "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
               DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         WarehouseShipment."Pick Lines".Invoke();
-        WarehouseActivityLines.Card.Invoke();
+        WarehouseActivityLines.ShowDocument.Invoke();
 
         // [WHEN] Stan pushes "Autofill Qty. to Handle" on Warehouse Pick page ribbon
         // done in WarehousePickModalPageHandlerWithAutofillQty
@@ -628,7 +628,7 @@ codeunit 137929 "SCM Orders UI"
           "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
               DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
         WarehouseShipment."Pick Lines".Invoke();
-        WarehouseActivityLines.Card.Invoke();
+        WarehouseActivityLines.ShowDocument.Invoke();
 
         // [WHEN] Stan pushes "Delete Qty. to Handle" on Warehouse Pick page ribbon
         // done in WarehousePickModalPageHandlerWithDeleteQty
@@ -684,7 +684,7 @@ codeunit 137929 "SCM Orders UI"
         PostedWhseReceipt.OpenEdit();
         PostedWhseReceipt.FILTER.SetFilter("Location Code", Location.Code);
         PostedWhseReceipt."Put-away Lines".Invoke();
-        WarehouseActivityLines.Card.Invoke();
+        WarehouseActivityLines.ShowDocument.Invoke();
 
         // [WHEN] Stan pushes "Autofill Qty. to Handle" on Warehouse Put-away page ribbon
         // done in WarehousePutAwayModalPageHandlerWithAutofillQty
@@ -742,7 +742,7 @@ codeunit 137929 "SCM Orders UI"
         PostedWhseReceipt.OpenEdit();
         PostedWhseReceipt.FILTER.SetFilter("Location Code", Location.Code);
         PostedWhseReceipt."Put-away Lines".Invoke();
-        WarehouseActivityLines.Card.Invoke();
+        WarehouseActivityLines.ShowDocument.Invoke();
 
         // [WHEN] Stan pushes "Delete Qty. to Handle" on Warehouse Put-away page ribbon
         // done in WarehousePutAwayModalPageHandlerWithDeleteQty

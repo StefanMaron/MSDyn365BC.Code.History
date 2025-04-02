@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CRM.Task;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.Task;
 
 using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Comment;
@@ -2890,7 +2894,7 @@ table 5080 "To-do"
         RunFormCode := true;
     end;
 
-    local procedure IsCalledFromForm(): Boolean
+    procedure IsCalledFromForm(): Boolean
     begin
         exit((CurrFieldNo <> 0) or RunFormCode);
     end;
@@ -2965,10 +2969,10 @@ table 5080 "To-do"
             Error('');
     end;
 
-    local procedure MakeAppointmentBody(Task: Record "To-do"; SalespersonsList: Text; SalespersonName: Text[50]): Text
+    local procedure MakeAppointmentBody(Task: Record "To-do"; SalespeopleList: Text; SalespersonName: Text[50]): Text
     begin
         exit(
-          StrSubstNo(Text015, SalespersonsList) + '<br/><br/>' +
+          StrSubstNo(Text015, SalespeopleList) + '<br/><br/>' +
           StrSubstNo(Text016, Format(Task.Date), Format(Task."Start Time"), Format(Task.Location)) + '<br/><br/>' +
           Text017 + '<br/>' +
           SalespersonName + '<br/>' +

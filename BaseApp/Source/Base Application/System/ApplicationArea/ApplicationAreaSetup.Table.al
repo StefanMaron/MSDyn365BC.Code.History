@@ -31,13 +31,6 @@ table 9178 "Application Area Setup"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
         }
-        field(40; Invoicing; Boolean)
-        {
-            Caption = 'Invoicing';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
-            ObsoleteTag = '18.0';
-        }
         field(100; Basic; Boolean)
         {
             Caption = 'Basic';
@@ -145,13 +138,6 @@ table 9178 "Application Area Setup"
         field(2650; "Inventory Analysis"; Boolean)
         {
             Caption = 'Inventory Analysis';
-        }
-        field(2700; XBRL; Boolean)
-        {
-            Caption = 'XBRL';
-            ObsoleteReason = 'XBRL feature will be discontinued';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
         }
         field(2800; Reservation; Boolean)
         {
@@ -292,4 +278,3 @@ table 9178 "Application Area Setup"
     {
     }
 }
-

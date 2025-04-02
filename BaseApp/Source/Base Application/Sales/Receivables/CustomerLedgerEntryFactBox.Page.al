@@ -36,12 +36,10 @@ page 9106 "Customer Ledger Entry FactBox"
             field("Due Date"; Rec."Due Date")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the due date on the entry.';
             }
             field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
             }
             field(NoOfReminderFinEntries; NoOfReminderFinEntries)
             {

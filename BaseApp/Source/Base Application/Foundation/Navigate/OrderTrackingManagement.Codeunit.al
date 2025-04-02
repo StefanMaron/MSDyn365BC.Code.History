@@ -1,13 +1,15 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Navigate;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 
@@ -42,10 +44,10 @@ codeunit 99000778 OrderTrackingManagement
         ItemJnlLine: Record "Item Journal Line";
         ReqLine: Record "Requisition Line";
 #if not CLEAN25
-        ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderComp: Record "Prod. Order Component";
-        AsmHeader: Record "Assembly Header";
-        AsmLine: Record "Assembly Line";
+        ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line";
+        ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component";
+        AsmHeader: Record Microsoft.Assembly.Document."Assembly Header";
+        AsmLine: Record Microsoft.Assembly.Document."Assembly Line";
 #endif
         PlanningComponent: Record "Planning Component";
 #if not CLEAN25
@@ -147,7 +149,7 @@ codeunit 99000778 OrderTrackingManagement
 
 #if not CLEAN25
     [Obsolete('Replaced by SetSourceLine()', '25.0')]
-    procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line")
+    procedure SetProdOrderLine(var CurrentProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
         ProdOrderLine := CurrentProdOrderLine;
 
@@ -173,7 +175,7 @@ codeunit 99000778 OrderTrackingManagement
 
 #if not CLEAN25
     [Obsolete('Replaced by SetSourceLine()', '25.0')]
-    procedure SetProdOrderComp(var CurrentProdOrderComp: Record "Prod. Order Component")
+    procedure SetProdOrderComp(var CurrentProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
         ProdOrderComp := CurrentProdOrderComp;
 
@@ -207,7 +209,7 @@ codeunit 99000778 OrderTrackingManagement
 
 #if not CLEAN25
     [Obsolete('Replaced by SetSourceLine()', '25.0')]
-    procedure SetAsmHeader(var CurrentAsmHeader: Record "Assembly Header")
+    procedure SetAsmHeader(var CurrentAsmHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
         AsmHeader := CurrentAsmHeader;
 
@@ -230,7 +232,7 @@ codeunit 99000778 OrderTrackingManagement
 
 #if not CLEAN25
     [Obsolete('Replaced by SetSourceLine()', '25.0')]
-    procedure SetAsmLine(var CurrentAsmLine: Record "Assembly Line")
+    procedure SetAsmLine(var CurrentAsmLine: Record Microsoft.Assembly.Document."Assembly Line")
     begin
         AsmLine := CurrentAsmLine;
 
@@ -501,7 +503,6 @@ codeunit 99000778 OrderTrackingManagement
                     ItemLedgEntry3.Get(ReservEntry3."Source Ref. No.");
                     DrillItemLedgEntries(Level + 1, ItemLedgEntry3);
                 end;
-            DATABASE::"Prod. Order Component",
             DATABASE::"Planning Component":
                 begin
                     FiltersForTrackingFromComponents(ReservEntry3, ReservEntry2);
@@ -509,7 +510,6 @@ codeunit 99000778 OrderTrackingManagement
                     if DerivePlanningFilter(ReservEntry3, FilterReservEntry) then
                         DrillOrdersUp(FilterReservEntry, Level + 1);
                 end;
-            DATABASE::"Prod. Order Line",
             DATABASE::"Requisition Line":
                 begin
                     FiltersForTrackingFromReqLine(ReservEntry3, ReservEntry2, SearchUp);
@@ -538,13 +538,8 @@ codeunit 99000778 OrderTrackingManagement
     local procedure FiltersForTrackingFromComponents(FromReservationEntry: Record "Reservation Entry"; var ToReservationEntry: Record "Reservation Entry")
     begin
         ToReservationEntry.Reset();
-        if FromReservationEntry."Source Type" = DATABASE::"Prod. Order Component" then begin
-            ToReservationEntry.SetSourceFilter(DATABASE::"Prod. Order Line", FromReservationEntry."Source Subtype", FromReservationEntry."Source ID", -1, true);
-            ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", FromReservationEntry."Source Prod. Order Line");
-        end else begin
-            ToReservationEntry.SetSourceFilter(DATABASE::"Requisition Line", 0, FromReservationEntry."Source ID", FromReservationEntry."Source Prod. Order Line", true);
-            ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", 0);
-        end;
+        ToReservationEntry.SetSourceFilter(DATABASE::"Requisition Line", 0, FromReservationEntry."Source ID", FromReservationEntry."Source Prod. Order Line", true);
+        ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", 0);
     end;
 
     local procedure FiltersForTrackingFromReqLine(FromReservationEntry: Record "Reservation Entry"; var ToReservationEntry: Record "Reservation Entry"; IsSearchUp: Boolean)
@@ -552,21 +547,16 @@ codeunit 99000778 OrderTrackingManagement
         RequisitionLine: Record "Requisition Line";
     begin
         ToReservationEntry.Reset();
-        if FromReservationEntry."Source Type" = DATABASE::"Prod. Order Line" then begin
-            ToReservationEntry.SetSourceFilter(DATABASE::"Prod. Order Component", FromReservationEntry."Source Subtype", FromReservationEntry."Source ID", -1, true);
-            ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", FromReservationEntry."Source Ref. No.");
+        RequisitionLine.Get(FromReservationEntry."Source ID", FromReservationEntry."Source Batch Name", FromReservationEntry."Source Ref. No.");
+        if RequisitionLine."Replenishment System" = RequisitionLine."Replenishment System"::Transfer then begin
+            if IsSearchUp then
+                ToReservationEntry.SetSourceFilter(DATABASE::"Requisition Line", 1, FromReservationEntry."Source ID", FromReservationEntry."Source Ref. No.", true)
+            else
+                ToReservationEntry.SetSourceFilter(DATABASE::"Requisition Line", 0, FromReservationEntry."Source ID", FromReservationEntry."Source Ref. No.", true);
+            ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", 0);
         end else begin
-            RequisitionLine.Get(FromReservationEntry."Source ID", FromReservationEntry."Source Batch Name", FromReservationEntry."Source Ref. No.");
-            if RequisitionLine."Replenishment System" = RequisitionLine."Replenishment System"::Transfer then begin
-                if IsSearchUp then
-                    ToReservationEntry.SetSourceFilter(DATABASE::"Requisition Line", 1, FromReservationEntry."Source ID", FromReservationEntry."Source Ref. No.", true)
-                else
-                    ToReservationEntry.SetSourceFilter(DATABASE::"Requisition Line", 0, FromReservationEntry."Source ID", FromReservationEntry."Source Ref. No.", true);
-                ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", 0);
-            end else begin
-                ToReservationEntry.SetSourceFilter(DATABASE::"Planning Component", 0, FromReservationEntry."Source ID", -1, true);
-                ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", FromReservationEntry."Source Ref. No.");
-            end;
+            ToReservationEntry.SetSourceFilter(DATABASE::"Planning Component", 0, FromReservationEntry."Source ID", -1, true);
+            ToReservationEntry.SetSourceFilter(FromReservationEntry."Source Batch Name", FromReservationEntry."Source Ref. No.");
         end;
     end;
 
@@ -878,16 +868,7 @@ codeunit 99000778 OrderTrackingManagement
             then
                 exit(false);
 
-            case FilterPlanningComponent."Ref. Order Type" of
-                FilterPlanningComponent."Ref. Order Type"::"Prod. Order":
-                    ToReservEntry.SetSourceFilter(
-                        DATABASE::"Prod. Order Component", FilterPlanningComponent."Ref. Order Status".AsInteger(),
-                        FilterPlanningComponent."Ref. Order No.", FilterPlanningComponent."Line No.", true);
-                FilterPlanningComponent."Ref. Order Type"::Assembly:
-                    ToReservEntry.SetSourceFilter(
-                        DATABASE::"Assembly Line", FilterPlanningComponent."Ref. Order Status".AsInteger(),
-                        FilterPlanningComponent."Ref. Order No.", FilterPlanningComponent."Line No.", true);
-            end;
+            OnDerivePlanningFilterOnSetToReservationFilter(ToReservEntry, FilterPlanningComponent);
             ToReservEntry.SetRange("Source Prod. Order Line", FilterPlanningComponent."Ref. Order Line No.");
             OK := ToReservEntry.Find('-');
         end else begin
@@ -905,19 +886,14 @@ codeunit 99000778 OrderTrackingManagement
                                 ToReservEntry.SetSourceFilter(DATABASE::"Purchase Line", 1, FilterReqLine."Ref. Order No.", FilterReqLine."Ref. Line No.", true);
                                 OK := ToReservEntry.Find('-');
                             end;
-                        FilterReqLine."Ref. Order Type"::"Prod. Order":
-                            begin
-                                ToReservEntry.SetSourceFilter(
-                                    DATABASE::"Prod. Order Line", FilterReqLine."Ref. Order Status".AsInteger(), FilterReqLine."Ref. Order No.", -1, true);
-                                ToReservEntry.SetRange("Source Prod. Order Line", FilterReqLine."Ref. Line No.");
-                                OK := ToReservEntry.Find('-');
-                            end;
                         FilterReqLine."Ref. Order Type"::Transfer:
                             begin
                                 ToReservEntry.SetSourceFilter(DATABASE::"Transfer Line", 1, FilterReqLine."Ref. Order No.", FilterReqLine."Ref. Line No.", true);
                                 ToReservEntry.SetRange("Source Prod. Order Line", 0);
                                 OK := ToReservEntry.Find('-');
                             end;
+                        else
+                            OnDerivePlanningFilterOnSetRequisitionLineFilters(ToReservEntry, FilterReqLine, OK);
                     end;
             end;
         end;
@@ -973,6 +949,16 @@ codeunit 99000778 OrderTrackingManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnSetSourceLine(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDerivePlanningFilterOnSetToReservationFilter(var ToReservEntry: Record "Reservation Entry"; FilterPlanningComponent: Record "Planning Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDerivePlanningFilterOnSetRequisitionLineFilters(var ToReservEntry: Record "Reservation Entry"; FilterReqLine: Record "Requisition Line"; var OK: Boolean)
     begin
     end;
 }

@@ -1465,7 +1465,6 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         VATPostingSetup.FindFirst();
     end;
 
-#if CLEAN23
     local procedure FindVATPostingSetupForPurchase(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     var
         VATReportingCode: Record "VAT Reporting Code";
@@ -1481,23 +1480,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
 
         Assert.Fail(VATPostingSetupErr);
     end;
-#else
-    local procedure FindVATPostingSetupForPurchase(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
-    var
-        VATCode: Record "VAT Code";
-    begin
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATCalculationType);
-        VATPostingSetup.SetFilter("VAT Code", '<>''''');
-        if VATPostingSetup.FindSet() then
-            repeat
-                VATCode.Get(VATPostingSetup."VAT Code");
-                if VATCode."Gen. Posting Type" = VATCode."Gen. Posting Type"::Purchase then
-                    exit;
-            until VATPostingSetup.Next() = 0;
 
-        Assert.Fail(VATPostingSetupErr);
-    end;
-#endif
     local procedure FindVendorLedgerEntryAmount(GenJournalLine: Record "Gen. Journal Line"; PmtDiscExclVAT: Boolean; DiscountPercentage: Decimal) PmtDiscountAmount: Decimal
     begin
         if PmtDiscExclVAT then
