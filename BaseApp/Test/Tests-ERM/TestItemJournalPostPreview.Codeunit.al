@@ -1,7 +1,7 @@
 codeunit 134777 "Test Item Journal Post Preview"
 {
     Subtype = Test;
-    TestPermissions = NonRestrictive;
+    TestPermissions = Disabled;
 
     trigger OnRun()
     begin

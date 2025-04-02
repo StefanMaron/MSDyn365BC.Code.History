@@ -592,7 +592,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         exit(false);
     end;
 
-    local procedure CalcRoutingLineBack(CalcStartEndDate: Boolean)
+    procedure CalcRoutingLineBack(CalcStartEndDate: Boolean)
     var
         WorkCenter2: Record "Work Center";
         PlanningRoutingLine2: Record "Planning Routing Line";
@@ -903,7 +903,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         exit(false);
     end;
 
-    local procedure CalcRoutingLineForward(CalcStartEndDate: Boolean)
+    procedure CalcRoutingLineForward(CalcStartEndDate: Boolean)
     var
         PlanningRoutingLine2: Record "Planning Routing Line";
         PlanningRoutingLine3: Record "Planning Routing Line";

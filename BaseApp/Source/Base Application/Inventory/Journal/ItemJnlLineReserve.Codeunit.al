@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Journal;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Journal;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
@@ -576,6 +580,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
             ReturnOption::"Gross Qty. (Base)":
                 exit(ItemJournalLine."Quantity (Base)");
         end;
+        OnAfterGetSourceValue(ReservationEntry, SourceRecRef, ReturnOption);
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Reservation Entries", 'OnLookupReserved', '', false, false)]
@@ -792,6 +797,11 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
             ItemJnlLine.Validate("Unit Cost");
             ItemJnlLine.Modify();
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSourceValue(var ReservationEntry: Record "Reservation Entry"; var SourceRecRef: RecordRef; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)")
+    begin
     end;
 
 }

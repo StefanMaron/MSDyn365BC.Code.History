@@ -1,33 +1,20 @@
 ﻿namespace Microsoft.Warehouse.Request;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
-using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Worksheet;
 
 codeunit 5777 "Whse. Validate Source Line"
 {
-#if not CLEAN23
-    var
-        AssemblyWarehouseMgt: Codeunit "Assembly Warehouse Mgt.";
-        JobWarehouseMgt: Codeunit "Job Warehouse Mgt.";
-        ServiceWarehouseMgt: Codeunit Microsoft.Service.Document."Service Warehouse Mgt.";
-        SalesWarehouseMgt: Codeunit Microsoft.Sales.Document."Sales Warehouse Mgt.";
-        PurchasesWarehouseMgt: Codeunit Microsoft.Purchases.Document."Purchases Warehouse Mgt.";
-        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
-#endif
-
     trigger OnRun()
     begin
     end;
@@ -44,38 +31,6 @@ codeunit 5777 "Whse. Validate Source Line"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         JobPostQtyPickRemainErr: Label 'You cannot post usage for project number %1 because a quantity of %2 remains to be picked.', Comment = '%1 = Project number, %2 = remaining quantity to pick';
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Sales Warehouse Mgt.', '23.0')]
-    procedure SalesLineVerifyChange(var NewSalesLine: Record Microsoft.Sales.Document."Sales Line"; var OldSalesLine: Record Microsoft.Sales.Document."Sales Line")
-    begin
-        SalesWarehouseMgt.SalesLineVerifyChange(NewSalesLine, OldSalesLine);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Sales Warehouse Mgt.', '23.0')]
-    procedure SalesLineDelete(var SalesLine: Record Microsoft.Sales.Document."Sales Line")
-    begin
-        SalesWarehouseMgt.SalesLineDelete(SalesLine);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Service Warehouse Mgt.', '23.0')]
-    procedure ServiceLineVerifyChange(var NewServiceLine: Record Microsoft.Service.Document."Service Line"; var OldServiceLine: Record Microsoft.Service.Document."Service Line")
-    begin
-        ServiceWarehouseMgt.ServiceLineVerifyChange(NewServiceLine, OldServiceLine);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Service Warehouse Mgt.', '23.0')]
-    procedure ServiceLineDelete(var ServiceLine: Record Microsoft.Service.Document."Service Line")
-    begin
-        ServiceWarehouseMgt.ServiceLineDelete(ServiceLine);
-    end;
-#endif
 
     procedure VerifyFieldNotChanged(NewRecRef: RecordRef; OldRecRef: RecordRef; FieldNumber: Integer)
     var
@@ -119,22 +74,6 @@ codeunit 5777 "Whse. Validate Source Line"
 
         exit(false);
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Purchases Warehouse Mgt.', '23.0')]
-    procedure PurchaseLineVerifyChange(var NewPurchLine: Record Microsoft.Purchases.Document."Purchase Line"; var OldPurchLine: Record Microsoft.Purchases.Document."Purchase Line")
-    begin
-        PurchasesWarehouseMgt.PurchaseLineVerifyChange(NewPurchLine, OldPurchLine);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Purchases Warehouse Mgt.', '23.0')]
-    procedure PurchaseLineDelete(var PurchLine: Record Microsoft.Purchases.Document."Purchase Line")
-    begin
-        PurchasesWarehouseMgt.PurchaseLineDelete(PurchLine);
-    end;
-#endif
 
     procedure TransLineVerifyChange(var NewTransLine: Record "Transfer Line"; var OldTransLine: Record "Transfer Line")
     var
@@ -251,12 +190,11 @@ codeunit 5777 "Whse. Validate Source Line"
 
     procedure WhseWorkSheetLinesExistForJobOrProdOrderComponent(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer; SourceQty: Decimal): Boolean
     begin
-        if not (SourceType in [Database::Job, Database::"Prod. Order Component"]) then begin
-            TableCaptionValue := '';
-            exit(false);
-        end;
+        if (SourceType in [Database::Job, 5407]) then // Database::"Prod. Order Component"
+            exit(WhseWorkSheetLinesExist(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSublineNo, SourceQty));
 
-        exit(WhseWorkSheetLinesExist(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSublineNo, SourceQty));
+        TableCaptionValue := '';
+        exit(false);
     end;
 
     internal procedure WhseWorkSheetLinesExist(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer; SourceQty: Decimal) Result: Boolean
@@ -279,99 +217,13 @@ codeunit 5777 "Whse. Validate Source Line"
         exit(false);
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Prod. Order Warehouse Mgt.', '23.0')]
-    procedure ProdComponentVerifyChange(var NewProdOrderComp: Record "Prod. Order Component"; var OldProdOrderComp: Record "Prod. Order Component")
-    begin
-        ProdOrderWarehouseMgt.ProdComponentVerifyChange(NewProdOrderComp, OldProdOrderComp);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Prod. Order Warehouse Mgt.', '23.0')]
-    procedure ProdComponentDelete(var ProdOrderComp: Record "Prod. Order Component")
-    begin
-        ProdOrderWarehouseMgt.ProdComponentDelete(ProdOrderComp);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Job Warehouse Mgt.', '23.0')]
-    procedure JobPlanningLineVerifyChange(var NewJobPlanningLine: Record "Job Planning Line"; var OldJobPlanningLine: Record "Job Planning Line"; FieldNo: Integer)
-    begin
-        JobWarehouseMgt.JobPlanningLineVerifyChange(NewJobPlanningLine, OldJobPlanningLine, FieldNo);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Job Warehouse Mgt.', '23.0')]
-    procedure JobPlanningLineDelete(var JobPlanningLine: Record "Job Planning Line")
-    begin
-        JobWarehouseMgt.JobPlanningLineDelete(JobPlanningLine);
-    end;
-#endif
-
     procedure ItemLineVerifyChange(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line")
     var
-        AssemblyLine: Record "Assembly Line";
-        ProdOrderComp: Record "Prod. Order Component";
-        Location: Record Location;
         LinesExist: Boolean;
         QtyChecked: Boolean;
-        QtyRemainingToBePicked: Decimal;
-        IsHandled: Boolean;
     begin
-        case NewItemJnlLine."Entry Type" of
-            NewItemJnlLine."Entry Type"::"Assembly Consumption":
-                begin
-                    NewItemJnlLine.TestField("Order Type", NewItemJnlLine."Order Type"::Assembly);
-                    if Location.Get(NewItemJnlLine."Location Code") and (Location."Asm. Consump. Whse. Handling" = Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then
-                        if AssemblyLine.Get(AssemblyLine."Document Type"::Order, NewItemJnlLine."Order No.", NewItemJnlLine."Order Line No.") and
-                           (NewItemJnlLine.Quantity >= 0)
-                        then begin
-                            QtyRemainingToBePicked := NewItemJnlLine.Quantity - AssemblyLine."Qty. Picked";
-                            CheckQtyRemainingToBePickedForAssemblyConsumption(NewItemJnlLine, OldItemJnlLine, QtyRemainingToBePicked);
-                            QtyChecked := true;
-                        end;
-
-                    LinesExist := false;
-                end;
-            NewItemJnlLine."Entry Type"::Consumption:
-                begin
-                    NewItemJnlLine.TestField("Order Type", NewItemJnlLine."Order Type"::Production);
-                    IsHandled := false;
-                    OnItemLineVerifyChangeOnBeforeCheckConsumptionQty(NewItemJnlLine, Location, QtyChecked, IsHandled);
-                    if not Ishandled then
-                        if Location.Get(NewItemJnlLine."Location Code") and (Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then
-                            if ProdOrderComp.Get(
-                                ProdOrderComp.Status::Released,
-                                NewItemJnlLine."Order No.", NewItemJnlLine."Order Line No.", NewItemJnlLine."Prod. Order Comp. Line No.") and
-                                (ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::Manual) and
-                                (NewItemJnlLine.Quantity >= 0)
-                            then begin
-                                QtyRemainingToBePicked :=
-                                    NewItemJnlLine.Quantity - CalcNextLevelProdOutput(ProdOrderComp) -
-                                    ProdOrderComp."Qty. Picked" + ProdOrderComp."Expected Quantity" - ProdOrderComp."Remaining Quantity";
-                                CheckQtyRemainingToBePickedForConsumption(NewItemJnlLine, OldItemJnlLine, ProdOrderComp, QtyRemainingToBePicked);
-                                QtyChecked := true;
-                            end;
-
-                    LinesExist :=
-                      WhseLinesExist(
-                        Database::"Prod. Order Component", 3, NewItemJnlLine."Order No.", NewItemJnlLine."Order Line No.", NewItemJnlLine."Prod. Order Comp. Line No.", NewItemJnlLine.Quantity) or
-                      WhseWorkSheetLinesExist(
-                        Database::"Prod. Order Component", 3, NewItemJnlLine."Order No.", NewItemJnlLine."Order Line No.", NewItemJnlLine."Prod. Order Comp. Line No.", NewItemJnlLine.Quantity);
-                end;
-            NewItemJnlLine."Entry Type"::Output:
-                begin
-                    NewItemJnlLine.TestField("Order Type", NewItemJnlLine."Order Type"::Production);
-                    LinesExist :=
-                      WhseLinesExist(
-                        Database::"Prod. Order Line", 3, NewItemJnlLine."Order No.", NewItemJnlLine."Order Line No.", 0, NewItemJnlLine.Quantity);
-                end;
-            else
-                LinesExist := false;
-        end;
+        LinesExist := false;
+        OnItemLineVerifyChangeOnCheckEntryType(NewItemJnlLine, OldItemJnlLine, LinesExist, QtyChecked);
 
         if LinesExist then begin
             if (NewItemJnlLine."Item No." <> OldItemJnlLine."Item No.") and
@@ -477,30 +329,6 @@ codeunit 5777 "Whse. Validate Source Line"
         exit(WarehouseSetup."Require Pick" and WarehouseSetup."Require Shipment");
     end;
 
-    local procedure CheckQtyRemainingToBePickedForAssemblyConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; QtyRemainingToBePicked: Decimal)
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckQtyRemainingToBePickedForAssemblyConsumption(NewItemJnlLine, OldItemJnlLine, IsHandled, QtyRemainingToBePicked);
-        if IsHandled then
-            exit;
-
-        CheckQtyRemainingToBePicked(QtyRemainingToBePicked, NewItemJnlLine."Order No.");
-    end;
-
-    local procedure CheckQtyRemainingToBePickedForConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; ProdOrderComp: Record "Prod. Order Component"; QtyRemainingToBePicked: Decimal)
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckQtyRemainingToBePickedForConsumption(NewItemJnlLine, OldItemJnlLine, IsHandled, ProdOrderComp, QtyRemainingToBePicked);
-        if IsHandled then
-            exit;
-
-        CheckQtyRemainingToBePicked(QtyRemainingToBePicked, NewItemJnlLine."Order No.");
-    end;
-
     local procedure CheckQtyRemainingToBePickedForJob(NewJobJnlLine: Record "Job Journal Line"; QtyRemainingToBePicked: Decimal)
     var
         IsHandled: Boolean;
@@ -520,133 +348,13 @@ codeunit 5777 "Whse. Validate Source Line"
             Error(Text002, OrderNo, QtyRemainingToBePicked);
     end;
 
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Prod. Order Warehouse Mgt.', '23.0')]
-    procedure ProdOrderLineVerifyChange(var NewProdOrderLine: Record "Prod. Order Line"; var OldProdOrderLine: Record "Prod. Order Line")
+#if not CLEAN26
+    [Obsolete('Replaced by same procedure in codeunit ProdOrder Warehouse Mgt.', '26.0')]
+    procedure CalcNextLevelProdOutput(ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"): Decimal
     var
-        NewRecRef: RecordRef;
-        OldRecRef: RecordRef;
+        ProdOrderWarehouseMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Warehouse Mgt.";
     begin
-        ProdOrderWarehouseMgt.ProdOrderLineVerifyChange(NewProdOrderLine, OldProdOrderLine);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Prod. Order Warehouse Mgt.', '23.0')]
-    procedure ProdOrderLineDelete(var ProdOrderLine: Record "Prod. Order Line")
-    begin
-        ProdOrderWarehouseMgt.ProdOrderLineDelete(ProdOrderLine);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Assembly Warehouse Mgt.', '23.0')]
-    procedure AssemblyLineVerifyChange(var NewAssemblyLine: Record "Assembly Line"; var OldAssemblyLine: Record "Assembly Line")
-    begin
-        AssemblyWarehouseMgt.AssemblyLineVerifyChange(NewAssemblyLine, OldAssemblyLine);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit Assembly Warehouse Mgt.', '23.0')]
-    procedure AssemblyLineDelete(var AssemblyLine: Record "Assembly Line")
-    begin
-        AssemblyWarehouseMgt.AssemblyLineDelete(AssemblyLine);
-    end;
-#endif
-
-    procedure CalcNextLevelProdOutput(ProdOrderComp: Record "Prod. Order Component"): Decimal
-    var
-        Item: Record Item;
-        WarehouseEntry: Record "Warehouse Entry";
-        ProdOrderLine: Record "Prod. Order Line";
-        OutputBase: Decimal;
-    begin
-        Item.SetLoadFields("Replenishment System");
-        Item.Get(ProdOrderComp."Item No.");
-        if Item."Replenishment System" = Item."Replenishment System"::Purchase then
-            exit(0);
-
-        ProdOrderLine.SetRange(Status, ProdOrderComp.Status);
-        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderComp."Prod. Order No.");
-        ProdOrderLine.SetRange("Item No.", ProdOrderComp."Item No.");
-        ProdOrderLine.SetRange("Planning Level Code", ProdOrderComp."Planning Level Code");
-        ProdOrderLine.SetLoadFields("Item No.");
-        if ProdOrderLine.FindFirst() then begin
-            WarehouseEntry.SetSourceFilter(
-              Database::"Item Journal Line", 5, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", true); // Output Journal
-            WarehouseEntry.SetRange("Reference No.", ProdOrderLine."Prod. Order No.");
-            WarehouseEntry.SetRange("Item No.", ProdOrderLine."Item No.");
-            WarehouseEntry.CalcSums(Quantity);
-            OutputBase := WarehouseEntry.Quantity;
-        end;
-
-        exit(OutputBase);
-    end;
-
-#if not CLEAN23
-    internal procedure RunOnAfterSalesLineVerifyChange(var NewRecRef: RecordRef; var OldRecRef: RecordRef)
-    begin
-        OnAfterSalesLineVerifyChange(NewRecRef, OldRecRef);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Sales Warehouse Mgt.', '23.0')]
-    local procedure OnAfterSalesLineVerifyChange(var NewRecRef: RecordRef; var OldRecRef: RecordRef)
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnAfterServiceLineVerifyChange(var NewRecRef: RecordRef; var OldRecRef: RecordRef)
-    begin
-        OnAfterServiceLineVerifyChange(NewRecRef, OldRecRef);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Service Warehouse Mgt.', '23.0')]
-    local procedure OnAfterServiceLineVerifyChange(var NewRecRef: RecordRef; var OldRecRef: RecordRef)
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnAfterPurchaseLineVerifyChange(var NewPurchLine: Record Microsoft.Purchases.Document."Purchase Line"; var OldPurchLine: Record Microsoft.Purchases.Document."Purchase Line"; var NewRecRef: RecordRef; var OldRecRef: RecordRef)
-    begin
-        OnAfterPurchaseLineVerifyChange(NewPurchLine, OldPurchLine, NewRecRef, OldRecRef);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Purchases Warehouse Mgt.', '23.0')]
-    local procedure OnAfterPurchaseLineVerifyChange(var NewPurchLine: Record Microsoft.Purchases.Document."Purchase Line"; var OldPurchLine: Record Microsoft.Purchases.Document."Purchase Line"; var NewRecRef: RecordRef; var OldRecRef: RecordRef)
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnAfterProdComponentVerifyChange(var NewRecRef: RecordRef; var OldRecRef: RecordRef)
-    begin
-        OnAfterProdComponentVerifyChange(NewRecRef, OldRecRef);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Prod. Order Warehouse Mgt.', '23.0')]
-    local procedure OnAfterProdComponentVerifyChange(var NewRecRef: RecordRef; var OldRecRef: RecordRef)
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnAfterProdOrderLineVerifyChange(var NewProdOrderLine: Record "Prod. Order Line"; var OldProdOrderLine: Record "Prod. Order Line"; var NewRecRef: RecordRef; var OldRecRef: RecordRef)
-    begin
-        OnAfterProdOrderLineVerifyChange(NewProdOrderLine, OldProdOrderLine, NewRecRef, OldRecRef);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Prod. Order Warehouse Mgt.', '23.0')]
-    local procedure OnAfterProdOrderLineVerifyChange(var NewProdOrderLine: Record "Prod. Order Line"; var OldProdOrderLine: Record "Prod. Order Line"; var NewRecRef: RecordRef; var OldRecRef: RecordRef)
-    begin
+        exit(ProdOrderWarehouseMgt.CalcNextLevelProdOutput(ProdOrderComp));
     end;
 #endif
 
@@ -660,155 +368,42 @@ codeunit 5777 "Whse. Validate Source Line"
     begin
     end;
 
-#if not CLEAN23
-    internal procedure RunOnAfterAssemblyLineVerifyChange(var NewRecRef: RecordRef; var OldRecRef: RecordRef)
-    begin
-        OnAfterAssemblyLineVerifyChange(NewRecRef, OldRecRef);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Assembly Warehouse Mgt.', '23.0')]
-    local procedure OnAfterAssemblyLineVerifyChange(var NewRecRef: RecordRef; var OldRecRef: RecordRef)
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnAfterSalesLineDelete(var SalesLine: Record Microsoft.Sales.Document."Sales Line")
-    begin
-        OnAfterSalesLineDelete(SalesLine);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Sales Warehouse Mgt.', '23.0')]
-    local procedure OnAfterSalesLineDelete(var SalesLine: Record Microsoft.Sales.Document."Sales Line")
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnAfterServiceLineDelete(var ServiceLine: Record Microsoft.Service.Document."Service Line")
-    begin
-        OnAfterServiceLineDelete(ServiceLine);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Service Warehouse Mgt.', '23.0')]
-    local procedure OnAfterServiceLineDelete(var ServiceLine: Record Microsoft.Service.Document."Service Line")
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnAfterPurchaseLineDelete(var PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line")
-    begin
-        OnAfterPurchaseLineDelete(PurchaseLine);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Purchase Warehouse Mgt.', '23.0')]
-    local procedure OnAfterPurchaseLineDelete(var PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransLineDelete(var TransferLine: Record "Transfer Line")
     begin
     end;
 
-#if not CLEAN23
-    internal procedure RunOnAfterProdComponentDelete(var ProdOrderComp: Record "Prod. Order Component")
+#if not CLEAN26
+    [Obsolete('Replaced by same event in codeunit Assembly Warehouse Mgt.', '26.0')]
+    internal procedure RunOnBeforeCheckQtyRemainingToBePickedForAssemblyConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean; var QtyRemainingToBePicked: Decimal)
     begin
-        OnAfterProdComponentDelete(ProdOrderComp);
+        OnBeforeCheckQtyRemainingToBePickedForAssemblyConsumption(NewItemJnlLine, OldItemJnlLine, IsHandled, QtyRemainingToBePicked);
     end;
 
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Prod. Order Warehouse Mgt.', '23.0')]
-    local procedure OnAfterProdComponentDelete(var ProdOrderComp: Record "Prod. Order Component")
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnAfterProdOrderLineDelete(var ProdOrderLine: Record "Prod. Order Line")
-    begin
-        OnAfterProdOrderLineDelete(ProdOrderLine);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Prod. Order Warehouse Mgt.', '23.0')]
-    local procedure OnAfterProdOrderLineDelete(var ProdOrderLine: Record "Prod. Order Line")
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnAfterAssemblyLineDelete(var AssemblyLine: Record "Assembly Line")
-    begin
-        OnAfterAssemblyLineDelete(AssemblyLine);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Assembly Warehouse Mgt.', '23.0')]
-    local procedure OnAfterAssemblyLineDelete(var AssemblyLine: Record "Assembly Line")
-    begin
-    end;
-#endif
-
+    [Obsolete('Replaced by same event in codeunit Assembly Warehouse Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckQtyRemainingToBePickedForAssemblyConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean; var QtyRemainingToBePicked: Decimal)
     begin
     end;
+#endif
 
+#if not CLEAN26
+    internal procedure RunOnBeforeCheckQtyRemainingToBePickedForConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean; ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; QtyRemainingToBePicked: Decimal)
+    begin
+        OnBeforeCheckQtyRemainingToBePickedForConsumption(NewItemJnlLine, OldItemJnlLine, IsHandled, ProdOrderComp, QtyRemainingToBePicked);
+    end;
+
+    [Obsolete('Replaced by same event in codeunit ProdOrder Warehouse Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckQtyRemainingToBePickedForConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean; ProdOrderComp: Record "Prod. Order Component"; QtyRemainingToBePicked: Decimal)
+    local procedure OnBeforeCheckQtyRemainingToBePickedForConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean; ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; QtyRemainingToBePicked: Decimal)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckQtyRemainingToBePickedForJob(NewJobJnlLine: Record "Job Journal Line"; QtyRemainingToBePicked: Decimal; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN23
-    internal procedure RunOnBeforePurchaseLineVerifyChange(var NewPurchLine: Record Microsoft.Purchases.Document."Purchase Line"; var OldPurchLine: Record Microsoft.Purchases.Document."Purchase Line"; var IsHandled: Boolean)
-    begin
-        OnBeforePurchaseLineVerifyChange(NewPurchLine, OldPurchLine, IsHandled);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Purchases Warehouse Mgt.', '23.0')]
-    local procedure OnBeforePurchaseLineVerifyChange(var NewPurchLine: Record Microsoft.Purchases.Document."Purchase Line"; var OldPurchLine: Record Microsoft.Purchases.Document."Purchase Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnBeforeSalesLineVerifyChange(var NewSalesLine: Record Microsoft.Sales.Document."Sales Line"; var OldSalesLine: Record Microsoft.Sales.Document."Sales Line"; var IsHandled: Boolean)
-    begin
-        OnBeforeSalesLineVerifyChange(NewSalesLine, OldSalesLine, IsHandled);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Sales Warehouse Mgt.', '23.0')]
-    local procedure OnBeforeSalesLineVerifyChange(var NewSalesLine: Record Microsoft.Sales.Document."Sales Line"; var OldSalesLine: Record Microsoft.Sales.Document."Sales Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnBeforeServiceLineVerifyChange(var NewServiceLine: Record Microsoft.Service.Document."Service Line"; var OldServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
-    begin
-        OnBeforeServiceLineVerifyChange(NewServiceLine, OldServiceLine, IsHandled);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Service Warehouse Mgt.', '23.0')]
-    local procedure OnBeforeServiceLineVerifyChange(var NewServiceLine: Record Microsoft.Service.Document."Service Line"; var OldServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransLineVerifyChange(var NewTransLine: Record "Transfer Line"; var OldTransLine: Record "Transfer Line"; var IsHandled: Boolean)
@@ -825,10 +420,18 @@ codeunit 5777 "Whse. Validate Source Line"
     begin
     end;
 
+#if not CLEAN26
+    internal procedure RunOnItemLineVerifyChangeOnBeforeCheckConsumptionQty(NewItemJournalLine: Record "Item Journal Line"; Location: Record Location; var QtyChecked: Boolean; var IsHandled: Boolean)
+    begin
+        OnItemLineVerifyChangeOnBeforeCheckConsumptionQty(NewItemJournalLine, Location, QtyChecked, IsHandled);
+    end;
+
+    [Obsolete('Replaced by same event in codeunit ProdOrderWarehouseMgt', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnItemLineVerifyChangeOnBeforeCheckConsumptionQty(NewItemJournalLine: Record "Item Journal Line"; Location: Record Location; var QtyChecked: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnTransLineCommonVerificationOnBeforeQuantityCheck(var OldTransferLine: Record "Transfer Line"; var NewTransferLine: Record "Transfer Line"; var IsHandled: Boolean)
@@ -844,19 +447,6 @@ codeunit 5777 "Whse. Validate Source Line"
     local procedure OnWhseLinesExistOnAfterWhseShptLineSetFilters(var WhseShptLine: Record "Warehouse Shipment Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceQty: Decimal; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN23
-    internal procedure RunOnBeforeProdComponentVerifyChange(var NewProdOrderComp: Record "Prod. Order Component"; var OldProdOrderComp: Record "Prod. Order Component"; var IsHandled: Boolean)
-    begin
-        OnBeforeProdComponentVerifyChange(NewProdOrderComp, OldProdOrderComp, IsHandled)
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Prod. Order Warehouse Mgt.', '23.0')]
-    local procedure OnBeforeProdComponentVerifyChange(var NewProdOrderComp: Record "Prod. Order Component"; var OldProdOrderComp: Record "Prod. Order Component"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseWorkSheetLinesExist(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer; SourceQty: Decimal; var TableCaptionValue: Text[100]; var Result: Boolean; var IsHandled: Boolean)
@@ -880,6 +470,11 @@ codeunit 5777 "Whse. Validate Source Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnWhseLinesExistOnAfterWhseActivLineSetFilters(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemLineVerifyChangeOnCheckEntryType(NewItemJnlLine: Record "Item Journal Line"; OldItemJnlLine: Record "Item Journal Line"; var LinesExist: Boolean; var QtyChecked: Boolean)
     begin
     end;
 }

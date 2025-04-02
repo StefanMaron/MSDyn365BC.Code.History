@@ -38,7 +38,7 @@ codeunit 7600 "Calendar Management"
         CombineChanges(NewCustomCalendarChange, TempCustChange)
     end;
 
-    local procedure FillSource(SourceVariant: Variant; var CustomCalendarChange: Record "Customized Calendar Change")
+    procedure FillSource(SourceVariant: Variant; var CustomCalendarChange: Record "Customized Calendar Change")
     var
         RecRef: RecordRef;
     begin

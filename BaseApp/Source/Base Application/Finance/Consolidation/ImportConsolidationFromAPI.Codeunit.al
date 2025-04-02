@@ -262,9 +262,9 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         Scopes: List of [Text];
         ClientSecret: SecretText;
         [NonDebuggable]
-        ClientId, Certificate : Text;
+        ClientId: Text;
         CertificateName, FinancialsScope, RedirectURL : Text;
-        AccessToken: SecretText;
+        AccessToken, Certificate : SecretText;
         IdToken, AuthError : Text;
         IsEnvPPE: Boolean;
     begin

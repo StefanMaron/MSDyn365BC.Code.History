@@ -1,4 +1,4 @@
-codeunit 134299 "Test Partner Integration Event"
+﻿codeunit 134299 "Test Partner Integration Event"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -81,12 +81,9 @@ codeunit 134299 "Test Partner Integration Event"
         OnAfterSalesCrMemoLineInsertTxt: Label 'OnAfterSalesCrMemoLineInsert';
         OnAfterPurchInvLineInsertTxt: Label 'OnAfterPurchInvLineInsert';
         OnAfterPurchCrMemoLineInsertTxt: Label 'OnAfterPurchCrMemoLineInsert';
-#if not CLEAN23
-        OnBeforePostBalancingEntryTxt: Label 'OnBeforePostBalancingEntry';
-#endif
-        OnBeforePostCustomerEntryTxt: Label 'OnBeforePostCustomerEntry';
-        OnBeforePostVendorEntryTxt: Label 'OnBeforePostVendorEntry';
-        OnBeforePostInvPostBufferTxt: Label 'OnBeforePostInvPostBuffer';
+        OnPostBalancingEntryOnBeforeGenJnlPostLineTxt: Label 'OnPostBalancingEntryOnBeforeGenJnlPostLine';
+        OnPostLedgerEntryOnBeforeGenJnlPostLineTxt: Label 'OnPostLedgerEntryOnBeforeGenJnlPostLine';
+        OnPostLinesOnBeforeGenJnlLinePostTxt: Label 'OnPostLinesOnBeforeGenJnlLinePost';
         OnBeforeSalesInvHeaderInsertTxt: Label 'OnBeforeSalesInvHeaderInsert';
         OnBeforeSalesInvLineInsertTxt: Label 'OnBeforeSalesInvLineInsert';
         OnBeforeSalesShptHeaderInsertTxt: Label 'OnBeforeSalesShptHeaderInsert';
@@ -935,7 +932,7 @@ codeunit 134299 "Test Partner Integration Event"
         TestPartnerIntegrationEvent: Codeunit "Test Partner Integration Event";
     begin
         // [SCENARIO] Calling the codeunit "Sales-Post" will trigger the integration events
-        // OnBeforePostBalancingEntryTxt, OnBeforePostCustomerEntryTxt, OnBeforePostInvPostBufferTxt
+        // OnBeforePostBalancingEntryTxt, OnPostLedgerEntryOnBeforeGenJnlPostLineTxt, OnBeforePostInvPostBufferTxt
 
         // Setup
         Initialize();
@@ -949,11 +946,8 @@ codeunit 134299 "Test Partner Integration Event"
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
 
         // Verify G/L posting events
-#if not CLEAN23
-        VerifyDataTypeBuffer(OnBeforePostBalancingEntryTxt);
-#endif
-        VerifyDataTypeBuffer(OnBeforePostCustomerEntryTxt);
-        VerifyDataTypeBuffer(OnBeforePostInvPostBufferTxt);
+        VerifyDataTypeBuffer(OnPostLedgerEntryOnBeforeGenJnlPostLineTxt);
+        VerifyDataTypeBuffer(OnPostLinesOnBeforeGenJnlLinePostTxt);
     end;
 
     [Test]
@@ -1246,11 +1240,8 @@ codeunit 134299 "Test Partner Integration Event"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify G/L posting events
-#if not CLEAN23
-        VerifyDataTypeBuffer(OnBeforePostBalancingEntryTxt);
-#endif
-        VerifyDataTypeBuffer(OnBeforePostVendorEntryTxt);
-        VerifyDataTypeBuffer(OnBeforePostInvPostBufferTxt);
+        VerifyDataTypeBuffer(OnPostLedgerEntryOnBeforeGenJnlPostLinetxt);
+        VerifyDataTypeBuffer(OnPostLinesOnBeforeGenJnlLinePostTxt);
     end;
 
     [Test]
@@ -2257,25 +2248,24 @@ codeunit 134299 "Test Partner Integration Event"
         InsertDataTypeBuffer(OnAfterUpdatePostingNosTxt);
     end;
 
-#if not CLEAN23
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostBalancingEntry', '', false, false)]
-    local procedure OnBeforePostBalancingEntrySalesDoc(var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Post Invoice Events", 'OnPostBalancingEntryOnBeforeGenJnlPostLine', '', false, false)]
+    local procedure OnPostBalancingEntryOnBeforeGenJnlPostLineSalesDoc(var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line")
     begin
-        InsertDataTypeBuffer(OnBeforePostBalancingEntryTxt);
+        InsertDataTypeBuffer(OnPostBalancingEntryOnBeforeGenJnlPostLineTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostCustomerEntry', '', false, false)]
-    local procedure OnBeforePostCustomerEntrySalesDoc(var GenJnlLine: Record "Gen. Journal Line"; var SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Post Invoice Events", 'OnPostLedgerEntryOnBeforeGenJnlPostLine', '', false, false)]
+    local procedure OnPostLedgerEntryOnBeforeGenJnlPostLineSalesDoc(var GenJnlLine: Record "Gen. Journal Line"; var SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line")
     begin
-        InsertDataTypeBuffer(OnBeforePostCustomerEntryTxt);
+        InsertDataTypeBuffer(OnPostLedgerEntryOnBeforeGenJnlPostLineTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostInvPostBuffer', '', false, false)]
-    local procedure OnBeforePostInvPostBufferSalesDoc(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Post Invoice Events", 'OnPostLinesOnBeforeGenJnlLinePost', '', false, false)]
+    local procedure OnPostLinesOnBeforeGenJnlLinePostSalesDoc(var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header")
     begin
-        InsertDataTypeBuffer(OnBeforePostInvPostBufferTxt);
+        InsertDataTypeBuffer(OnPostLinesOnBeforeGenJnlLinePostTxt);
     end;
-#endif
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSalesShptHeaderInsert', '', false, false)]
     local procedure OnBeforeSalesShptHeaderInsert(var SalesShptHeader: Record "Sales Shipment Header"; SalesHeader: Record "Sales Header")
     begin
@@ -2366,25 +2356,24 @@ codeunit 134299 "Test Partner Integration Event"
         InsertDataTypeBuffer(OnAfterUpdatePostingNosTxt);
     end;
 
-#if not CLEAN23
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostBalancingEntry', '', false, false)]
-    local procedure OnBeforePostBalancingEntryPurchDoc(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch. Post Invoice Events", 'OnPostBalancingEntryOnBeforeGenJnlPostLine', '', false, false)]
+    local procedure OnPostBalancingEntryOnBeforeGenJnlPostLinePurchDoc(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line")
     begin
-        InsertDataTypeBuffer(OnBeforePostBalancingEntryTxt);
+        InsertDataTypeBuffer(OnPostBalancingEntryOnBeforeGenJnlPostLineTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostVendorEntry', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch. Post Invoice Events", 'OnPostLedgerEntryOnBeforeGenJnlPostLine', '', false, false)]
     local procedure OnBeforePostVendorEntryPurchDoc(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line")
     begin
-        InsertDataTypeBuffer(OnBeforePostVendorEntryTxt);
+        InsertDataTypeBuffer(OnPostLedgerEntryOnBeforeGenJnlPostLineTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostInvPostBuffer', '', false, false)]
-    local procedure OnBeforePostInvPostBufferPurchDoc(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var PurchHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch. Post Invoice Events", 'OnPostLedgerEntryOnBeforeGenJnlPostLine', '', false, false)]
+    local procedure OnBeforePostInvPostBufferPurchDoc(var GenJnlLine: Record "Gen. Journal Line"; PurchHeader: Record "Purchase Header")
     begin
-        InsertDataTypeBuffer(OnBeforePostInvPostBufferTxt);
+        InsertDataTypeBuffer(OnPostLinesOnBeforeGenJnlLinePostTxt);
     end;
-#endif
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePurchRcptHeaderInsert', '', false, false)]
     local procedure OnBeforePurchRcptHeaderInsert(var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchaseHeader: Record "Purchase Header")
     begin

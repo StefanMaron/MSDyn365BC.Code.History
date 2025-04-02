@@ -16,7 +16,6 @@ page 9150 "My Customers"
                 field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer numbers that are displayed in the My Customer Cue on the Role Center.';
                     Width = 4;
 
                     trigger OnValidate()
@@ -27,27 +26,21 @@ page 9150 "My Customers"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Name';
                     DrillDown = false;
                     Lookup = false;
-                    ToolTip = 'Specifies the name of the customer.';
                     Width = 20;
                 }
                 field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Phone No.';
                     DrillDown = false;
                     ExtendedDatatype = PhoneNo;
                     Lookup = false;
-                    ToolTip = 'Specifies the customer''s phone number.';
                     Width = 8;
                 }
                 field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the payment amount that the customer owes for completed sales.';
-
                     trigger OnDrillDown()
                     begin
                         Customer.OpenCustomerLedgerEntries(false);
@@ -96,16 +89,16 @@ page 9150 "My Customers"
         Customer: Record Customer;
 
     local procedure SyncFieldsWithCustomer()
-    var
-        MyCustomer: Record "My Customer";
     begin
         Clear(Customer);
 
+        Customer.ReadIsolation(IsolationLevel::ReadCommitted);
+        Customer.SetLoadFields(Name, "Phone No.");
         if Customer.Get(Rec."Customer No.") then
             if (Rec.Name <> Customer.Name) or (Rec."Phone No." <> Customer."Phone No.") then begin
                 Rec.Name := Customer.Name;
                 Rec."Phone No." := Customer."Phone No.";
-                if MyCustomer.Get(Rec."User ID", Rec."Customer No.") then
+                if not IsNullGuid(Rec.SystemId) then
                     Rec.Modify();
             end;
     end;

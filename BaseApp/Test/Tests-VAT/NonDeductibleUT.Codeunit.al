@@ -184,34 +184,6 @@ codeunit 134282 "Non-Deductible UT"
     end;
 
     [Test]
-    procedure ChangingDirectUnitCostToZeroChangesNonDeductibleVAT()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // [SCENARIO 546032] Changeing the direct unit cost to zero also changes the Non-Deductible VAT of the purchase document
-
-        Initialize();
-        // [GIVEN] VAT Posting Setup with "VAT Identifier" = "X", "Allow Non-Deductible VAT" is enabled and "Non-Deductible VAT %" is specified
-        LibraryNonDeductibleVAT.CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
-        // [GIVEN] Purchase invoice with Non-Deductible VAT posting setup and a single line with direct unit cost
-        LibraryPurchase.CreatePurchHeader(
-            PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
-            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
-        LibraryPurchase.CreatePurchaseLine(
-            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-            LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandInt(100));
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
-
-        // [WHEN] Change "Direct Unit Cost" to 0 in the purchase line
-        PurchaseLine.Validate("Direct Unit Cost", 0);
-        // [THEN] "Non-Deductible VAT Base" and "Non-Deductible VAT Amount" are 0 in the purchase line
-        PurchaseLine.TestField("Non-Deductible VAT Base", 0);
-        PurchaseLine.TestField("Non-Deductible VAT Amount", 0);
-    end;
-
-    [Test]
     procedure PurchVATAccandNonDedPurchVATAccAreBalancedWhenPostsRecurrJnlWithRFReversingMethod()
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -285,6 +257,34 @@ codeunit 134282 "Non-Deductible UT"
         VerifyVATEntry(0, DocumentNo);
     end;
 
+    [Test]
+    procedure ChangingDirectUnitCostToZeroChangesNonDeductibleVAT()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 546032] Changeing the direct unit cost to zero also changes the Non-Deductible VAT of the purchase document
+
+        Initialize();
+        // [GIVEN] VAT Posting Setup with "VAT Identifier" = "X", "Allow Non-Deductible VAT" is enabled and "Non-Deductible VAT %" is specified
+        LibraryNonDeductibleVAT.CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
+        // [GIVEN] Purchase invoice with Non-Deductible VAT posting setup and a single line with direct unit cost
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
+            LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+
+        // [WHEN] Change "Direct Unit Cost" to 0 in the purchase line
+        PurchaseLine.Validate("Direct Unit Cost", 0);
+        // [THEN] "Non-Deductible VAT Base" and "Non-Deductible VAT Amount" are 0 in the purchase line
+        PurchaseLine.TestField("Non-Deductible VAT Base", 0);
+        PurchaseLine.TestField("Non-Deductible VAT Amount", 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Non-Deductible UT");
@@ -312,7 +312,7 @@ codeunit 134282 "Non-Deductible UT"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGLAccount(IncomeBalance: Option): Code[20]
+    local procedure CreateGLAccount(IncomeBalance: Enum "G/L Account Report Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
     begin

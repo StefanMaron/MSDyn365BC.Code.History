@@ -338,15 +338,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Unreal VAT Option Last - NamedType CumulativeVATAmount)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1040836186 - NamedType 873896575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[One or more currency exchange rates have been adjusted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Unrealized VAT Customer - NamedType ExchRateWasAdjustedTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1267986530 - NamedType 1395315795" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The Credit Memo doesn't have a Corrected Invoice No. Do you want to continue?]]></Val>
@@ -1128,24 +1119,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT VIES Lookup UT - NamedType WrongLogEntryOnPageErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2188954535 - NamedType 3370715141" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorect amount in G/L Entry.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non Ded. VAT Misc. - NamedType IncorrectGLEntryAmtErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2188954535 - NamedType 2465520783" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect amount in Project Ledger Entry]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non Ded. VAT Misc. - NamedType InCorrectProjLedgEntryAmtErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2320631175 - NamedType 648351519" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

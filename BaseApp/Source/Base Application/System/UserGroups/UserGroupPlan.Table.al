@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA25 
 namespace System.Security.AccessControl;
 
 table 9007 "User Group Plan"
@@ -49,3 +50,5 @@ table 9007 "User Group Plan"
     }
 }
 
+ 
+#endif

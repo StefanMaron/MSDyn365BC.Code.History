@@ -1,7 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.ProductionBOM;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Manufacturing.Document;
+using System.Environment.Configuration;
+using System.Integration;
+using System.Integration.Excel;
 
 page 99000788 "Production BOM Lines"
 {
@@ -154,6 +161,20 @@ page 99000788 "Production BOM Lines"
     {
         area(processing)
         {
+            action(SelectMultiItems)
+            {
+                AccessByPermission = TableData Item = R;
+                ApplicationArea = Manufacturing;
+                Caption = 'Select items';
+                Ellipsis = true;
+                Image = NewItem;
+                ToolTip = 'Add two or more items from the list of your inventory items.';
+
+                trigger OnAction()
+                begin
+                    Rec.SelectMultipleItems();
+                end;
+            }
             group("&Component")
             {
                 Caption = '&Component';
@@ -183,8 +204,39 @@ page 99000788 "Production BOM Lines"
                     end;
                 }
             }
+            group("Page")
+            {
+                Caption = 'Page';
+                action(EditInExcel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Edit in Excel';
+                    Image = Excel;
+                    ToolTip = 'Send the data to an Excel file for analysis or editing.';
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
+
+                    trigger OnAction()
+                    var
+                        EditinExcel: Codeunit "Edit in Excel";
+                        EditinExcelFilters: Codeunit "Edit in Excel Filters";
+                        ODataUtility: Codeunit "ODataUtility";
+                    begin
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Production BOM No.")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Production BOM No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Version Code")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Version Code", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcel.EditPageInExcel(CopyStr(CurrPage.ObjectId(false), 1, 240), Page::"Production BOM Lines", EditinExcelFilters, StrSubstNo(ExcelFileNameTxt, Rec."Production BOM No.", Rec."Version Code"));
+                    end;
+                }
+            }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
+    begin
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+    end;
 
     trigger OnAfterGetRecord()
     var
@@ -237,5 +289,7 @@ page 99000788 "Production BOM Lines"
 
     var
         VariantCodeMandatory: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
+        ExcelFileNameTxt: Label 'Production BOM Lines - %1 - %2', Comment = '%1 = Production BOM No., %2 = Version Code';
 }
 

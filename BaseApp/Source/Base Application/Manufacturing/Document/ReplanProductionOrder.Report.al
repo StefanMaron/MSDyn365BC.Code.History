@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Foundation.UOM;
@@ -202,9 +206,12 @@ report 99001026 "Replan Production Order"
 
                 trigger OnAfterGetRecord()
                 var
+                    Item: Record Item;
                     ProdOrderRouteMgt: Codeunit "Prod. Order Route Management";
                 begin
                     BlockDynamicTracking(true);
+                    Item.CheckItemAndVariantForProdBlocked("Prod. Order Line"."Item No.", "Prod. Order Line"."Variant Code", Item."Production Blocked"::Output);
+
                     if "Routing No." = '' then begin
                         CalcProdOrder.BlockDynamicTracking(true);
                         CalcProdOrder.Recalculate("Prod. Order Line", Direction, true);
@@ -216,12 +223,17 @@ report 99001026 "Replan Production Order"
             }
 
             trigger OnAfterGetRecord()
+            var
+                Item: Record Item;
             begin
                 if (CalcMethod = CalcMethod::"One level") and not First then
                     CurrReport.Break();
 
                 Window.Update(1, Status);
                 Window.Update(2, "No.");
+
+                if "Production Order"."Source Type" = "Production Order"."Source Type"::Item then
+                    Item.CheckItemAndVariantForProdBlocked("Production Order"."Source No.", "Production Order"."Variant Code", Item."Production Blocked"::Output);
 
                 if "Replan Ref. No." = '' then begin
                     "Replan Ref. No." := "No.";

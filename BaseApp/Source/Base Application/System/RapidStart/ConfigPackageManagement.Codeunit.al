@@ -1104,9 +1104,9 @@ codeunit 8611 "Config. Package Management"
         StartTime := CurrentDateTime();
         ExecutionId := CreateGuid();
         Dimensions.Add('Category', RapidStartTxt);
-        Dimensions.Add('PackageCode', ConfigPackage.Code);
+        Dimensions.Add('PackageCode', ConfigPackage.SystemId);
         Dimensions.Add('ExecutionId', Format(ExecutionId, 0, 4));
-        Session.LogMessage('0000E3N', StrSubstNo(ConfigurationPackageApplyDataStartMsg, ConfigPackage.Code), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+        Session.LogMessage('0000E3N', StrSubstNo(ConfigurationPackageApplyDataStartMsg, ConfigPackage.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
         Session.LogMessage('00009Q8', RSApplyDataStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         ConfigPackage.CalcFields("No. of Records", "No. of Errors");
@@ -1193,7 +1193,7 @@ codeunit 8611 "Config. Package Management"
         Dimensions.Add('ExecutionTimeInMs', Format(DurationAsInt));
         Dimensions.Add('RecordCount', Format(RecordCount));
         Dimensions.Add('FieldCount', Format(FieldCount));
-        Session.LogMessage('0000E3O', StrSubstNo(ConfigurationPackageApplyDataFinishMsg, ConfigPackage.Code), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+        Session.LogMessage('0000E3O', StrSubstNo(ConfigurationPackageApplyDataFinishMsg, ConfigPackage.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
         // Tag used for analytics
         Session.LogMessage('00009Q9', StrSubstNo(RSApplyDataFinishMsg, ErrorCount, DurationAsInt, RecordCount, FieldCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
         FeatureTelemetry.LogUsage('0000E3B', 'Configuration packages', 'Package applied');
@@ -2537,8 +2537,8 @@ codeunit 8611 "Config. Package Management"
             exit;
 
         Dimensions.Add('Category', RapidStartTxt);
-        Dimensions.Add('PackageCode', Rec.Code);
-        Session.LogMessage('0000E3P', StrSubstNo(ConfigurationPackageDeletedMsg, Rec.Code), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+        Dimensions.Add('PackageCode', Rec.SystemId);
+        Session.LogMessage('0000E3P', StrSubstNo(ConfigurationPackageDeletedMsg, Rec.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
     [IntegrationEvent(false, false)]
@@ -2688,4 +2688,3 @@ codeunit 8611 "Config. Package Management"
     begin
     end;
 }
-

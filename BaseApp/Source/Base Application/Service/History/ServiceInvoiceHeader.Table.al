@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.History;
 
 using Microsoft.Bank.BankAccount;
@@ -35,6 +39,7 @@ using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
+using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
 
@@ -530,6 +535,11 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Payment Reference';
         }
+        field(200; "Work Description"; BLOB)
+        {
+            Caption = 'Work Description';
+            DataClassification = CustomerContent;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -874,6 +884,8 @@ table 5992 "Service Invoice Header"
 
     trigger OnDelete()
     begin
+        OnBeforeOnDelete(Rec);
+
         TestField("No. Printed");
         LockTable();
 
@@ -1038,6 +1050,16 @@ table 5992 "Service Invoice Header"
             ReportSelections.Usage::"SM.Invoice".AsInteger(), ServiceInvoiceHeader, ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Bill-to Customer No.", ShowNotificationAction);
     end;
 
+    procedure GetWorkDescription(): Text
+    var
+        TypeHelper: Codeunit "Type Helper";
+        InStream: InStream;
+    begin
+        CalcFields("Work Description");
+        "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
+        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ServiceInvoiceHeader: Record "Service Invoice Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
     begin
@@ -1060,6 +1082,11 @@ table 5992 "Service Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenStatisticsOnAfterSetStatPageID(var ServiceInvoiceHeader: Record "Service Invoice Header"; var StatPageID: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
     end;
 }

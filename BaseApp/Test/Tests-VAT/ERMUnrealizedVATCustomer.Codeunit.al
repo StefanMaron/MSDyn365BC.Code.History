@@ -19,10 +19,8 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         LibrarySales: Codeunit "Library - Sales";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         isInitialized: Boolean;
-#if not CLEAN23
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -169,9 +167,6 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure UnrealizedLossAfterAdjustRate()
     var
@@ -196,11 +191,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
 
         // 2. Exercise: Modify Exchange Rate with greater value and Run Adjust Exchange Rate Batch report.
         ModifyAmountInExchangeRate(CurrencyExchangeRate, CurrencyUpdateFactor);
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyExchangeRate."Currency Code", WorkDate(), WorkDate());
-#else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyExchangeRate."Currency Code", WorkDate(), WorkDate());
-#endif        
         Amount :=
           Round(CalculateCreditMemoAmount(DocumentNo, SalesLine.Type::Item) * (1 + SalesLine."VAT %" / 100) +
             CalculateCreditMemoAmount(DocumentNo, SalesLine.Type::"G/L Account"));
@@ -213,9 +204,6 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure UnrealizedVATWithExchangeRate()
     var
@@ -239,11 +227,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         DocumentNo := CreateAndPostSalesDocument(SalesLine, VATPostingSetup, CurrencyExchangeRate."Currency Code");
         CurrencyUpdateFactor := LibraryRandom.RandDec(100, 2);  // Use Random because value is not important.
         ModifyAmountInExchangeRate(CurrencyExchangeRate, CurrencyUpdateFactor);
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyExchangeRate."Currency Code", WorkDate(), WorkDate());
-#else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyExchangeRate."Currency Code", WorkDate(), WorkDate());
-#endif        
         Amount :=
           Round(CalculateCreditMemoAmount(DocumentNo, SalesLine.Type::Item) * (1 + SalesLine."VAT %" / 100) +
             CalculateCreditMemoAmount(DocumentNo, SalesLine.Type::"G/L Account"));
@@ -1060,9 +1044,6 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('MessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure FCYInvoiceAppliedWithSameExchRateAfterAdjustment()
     var
@@ -1100,11 +1081,7 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         Amount := Round(AmountInclVAT / (1 + VATPostingSetup."VAT %" / 100));
 
         // [GIVEN] Adjusted exchange rate changed total invoice amount = 715 (1100 * 65 / 100), adjustment amount = 55 (715 - 660)
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());
-#else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
-#endif        
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
         AdjustedAmtInclVAT := -CustLedgerEntry."Amount (LCY)";
 
@@ -1132,6 +1109,183 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         VerifyUnrealizedGainLossesGLEntries(CurrencyCode, PaymentNo, AdjustedAmtInclVAT - AmountInclVAT);
     end;
 
+    [Test]
+    procedure ExpectedGLEntriesWhenPostingUnrealizedVATDeferralHeaderDiscountInvoice()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        DeferralTemplate: Record "Deferral Template";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        GLRegister: Record "G/L Register";
+        GLEntry: Record "G/L Entry";
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+        CustomerNo: Code[20];
+        PostingDate: Date;
+        PriceBeforeTax, Discount, Tax : Decimal;
+    begin
+        // [SCENARIO 548280] An invoice with header level discount and deferred revenue is posted in an unrealized VAT setup
+
+        // [GIVEN] GL Setup using unrealized VAT
+        EnableUnrealizedSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)", false, false);
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.SetDiscountPostingInSalesReceivablesSetup();
+        // [GIVEN] A deferral over 2 periods DEF1
+        LibraryERM.CreateDeferralTemplate(DeferralTemplate, DeferralTemplate."Calc. Method"::"Equal per Period", DeferralTemplate."Start Date"::"Beginning of Next Period", 2);
+        // [GIVEN] A sales invoice with header level discount
+        CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        Item.Get(CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
+        Item."Default Deferral Template Code" := DeferralTemplate."Deferral Code";
+        Item.Modify(true);
+        // [GIVEN] A sales invoice line with deferral code DEF1
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.");
+        PriceBeforeTax := Round(SalesLine."Unit Price" * SalesLine.Quantity);
+        // [GIVEN] A header level discount
+        Discount := Round(0.1 * PriceBeforeTax);
+        SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(Discount, SalesHeader);
+        // [WHEN] Posting the sales invoice
+        PostingDate := SalesHeader."Posting Date";
+        GLRegisterOfPostedDocument(LibrarySales.PostSalesDocument(SalesHeader, false, false), PostingDate, GLRegister);
+        // [THEN] The G/L Accounts affected by the posting with the date of the invoice (not deferred) are affected as expected.
+        Tax := Round((PriceBeforeTax - Discount) * VATPostingSetup."VAT %" / 100);
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        GLEntry.SetRange("Posting Date", PostingDate);
+        AssertBalanceInAccountOfFilteredGLEntries(PriceBeforeTax + Tax - Discount, GetAccountReceivablesGLAccount(CustomerNo), GLEntry, 'The account receivable GL Account should have the total + tax - discount at the posting date');
+        AssertBalanceInAccountOfFilteredGLEntries(Discount, GetHeaderDiscountGLAccount(CustomerNo, Item), GLEntry, 'The discount granted GL account should have the discount at posting date');
+        AssertBalanceInAccountOfFilteredGLEntries(-Discount, GetRevenueGLAccount(CustomerNo, Item), GLEntry, 'The revenue GL account should only have the discount at posting date');
+        AssertBalanceInAccountOfFilteredGLEntries(-(PriceBeforeTax - Discount), GetDeferralGLAccount(DeferralTemplate), GLEntry, 'The deferred revenue GL Account should have the total - discount (no tax) at the posting date');
+        AssertBalanceInAccountOfFilteredGLEntries(-Tax, GetUnrealizedVATGLAccount(VATPostingSetup), GLEntry, 'The unrealized VAT should have the VAT at the posting date (considering discount)');
+        // [THEN] The G/L Accounts affected by the posting including deferrals are affected as expected.
+        GLEntry.SetRange("Posting Date");
+        AssertBalanceInAccountOfFilteredGLEntries(-PriceBeforeTax, GetRevenueGLAccount(CustomerNo, Item), GLEntry, 'Over all time, the revenue GL account should have the total (no tax or discount)');
+        AssertBalanceInAccountOfFilteredGLEntries(0, GetDeferralGLAccount(DeferralTemplate), GLEntry, 'Over all time, the deferral GL Account should be zero', true);
+    end;
+
+    [Test]
+    procedure ExpectedGLEntriesWhenPostingUnrealizedVATDeferralLineDiscountInvoice()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        DeferralTemplate: Record "Deferral Template";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        GLRegister: Record "G/L Register";
+        GLEntry: Record "G/L Entry";
+        CustomerNo: Code[20];
+        PostingDate: Date;
+        PriceBeforeTax, Discount, Tax : Decimal;
+    begin
+        // [SCENARIO 548280] An invoice with line level discount and deferred revenue is posted in an unrealized VAT setup
+
+        // [GIVEN] GL Setup using unrealized VAT
+        EnableUnrealizedSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)", false, false);
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.SetDiscountPostingInSalesReceivablesSetup();
+        // [GIVEN] A deferral over 2 periods DEF1
+        LibraryERM.CreateDeferralTemplate(DeferralTemplate, DeferralTemplate."Calc. Method"::"Equal per Period", DeferralTemplate."Start Date"::"Beginning of Next Period", 2);
+        // [GIVEN] A sales invoice with header level discount
+        CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        Item.Get(CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
+        Item."Default Deferral Template Code" := DeferralTemplate."Deferral Code";
+        Item.Modify(true);
+        // [GIVEN] A sales invoice line with deferral code DEF1
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.");
+        PriceBeforeTax := Round(SalesLine."Unit Price" * SalesLine.Quantity);
+        // [GIVEN] A line level discount
+        Discount := Round(0.1 * PriceBeforeTax);
+        SalesLine.Validate("Line Discount Amount", Discount);
+        SalesLine.Modify();
+        // [WHEN] Posting the sales invoice
+        PostingDate := SalesHeader."Posting Date";
+        GLRegisterOfPostedDocument(LibrarySales.PostSalesDocument(SalesHeader, false, false), PostingDate, GLRegister);
+        // [THEN] The G/L Accounts affected by the posting with the date of the invoice (not deferred) are affected as expected.
+        Tax := Round((PriceBeforeTax - Discount) * VATPostingSetup."VAT %" / 100);
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        GLEntry.SetRange("Posting Date", PostingDate);
+        AssertBalanceInAccountOfFilteredGLEntries(PriceBeforeTax + Tax - Discount, GetAccountReceivablesGLAccount(CustomerNo), GLEntry, 'The account receivable GL Account should have the total + tax - discount at the posting date');
+        AssertBalanceInAccountOfFilteredGLEntries(Discount, GetLineDiscountGLAccount(CustomerNo, Item), GLEntry, 'The discount granted GL account should have the discount at posting date');
+        AssertBalanceInAccountOfFilteredGLEntries(-Discount, GetRevenueGLAccount(CustomerNo, Item), GLEntry, 'The revenue GL account should only have the discount at posting date');
+        AssertBalanceInAccountOfFilteredGLEntries(-(PriceBeforeTax - Discount), GetDeferralGLAccount(DeferralTemplate), GLEntry, 'The deferred revenue GL Account should have the total - discount (no tax) at the posting date');
+        AssertBalanceInAccountOfFilteredGLEntries(-Tax, GetUnrealizedVATGLAccount(VATPostingSetup), GLEntry, 'The unrealized VAT should have the VAT at the posting date (considering discount)');
+        // [THEN] The G/L Accounts affected by the posting including deferrals are affected as expected.
+        GLEntry.SetRange("Posting Date");
+        AssertBalanceInAccountOfFilteredGLEntries(-PriceBeforeTax, GetRevenueGLAccount(CustomerNo, Item), GLEntry, 'Over all time, the revenue GL account should have the total (no tax or discount)');
+        AssertBalanceInAccountOfFilteredGLEntries(0, GetDeferralGLAccount(DeferralTemplate), GLEntry, 'Over all time, the deferral GL Account should be zero', true);
+    end;
+
+    [Test]
+    procedure GLEntriesRevertWithCreditMemoWhenPostingUnrealizedVATDeferralDiscountInvoice()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DeferralTemplate: Record "Deferral Template";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader, CreditMemoSalesHeader : Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        InvoiceGLRegister, CreditMemoGLRegister : Record "G/L Register";
+        GLEntry: Record "G/L Entry";
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        CustomerNo, GLAccountNo : Code[20];
+        PostingDate: Date;
+        Discount: Decimal;
+        GLAccountNos: List of [Code[20]];
+        GLEntriesFilter: Text;
+        BalanceErr: Label 'The balance of %1 account from the past two postings should be zero', Locked = true;
+    begin
+        // [SCENARIO 548280] An invoice with header and line level discount and deferred revenue is posted in an unrealized VAT setup.
+        // A corrective credit memo is then created and posted.
+
+        // [GIVEN] GL Setup using unrealized VAT
+        EnableUnrealizedSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)", false, false);
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.SetDiscountPostingInSalesReceivablesSetup();
+        // [GIVEN] A deferral over 2 periods DEF1
+        LibraryERM.CreateDeferralTemplate(DeferralTemplate, DeferralTemplate."Calc. Method"::"Equal per Period", DeferralTemplate."Start Date"::"Beginning of Next Period", 2);
+        // [GIVEN] A sales invoice with header level discount
+        CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        Item.Get(CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
+        Item."Default Deferral Template Code" := DeferralTemplate."Deferral Code";
+        Item.Modify(true);
+        // [GIVEN] A sales invoice line with deferral code DEF1
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.");
+        // [GIVEN] A line level discount
+        Discount := Round(0.1 * SalesLine."Unit Price" * SalesLine.Quantity);
+        SalesLine.Validate("Line Discount Amount", Discount);
+        // [GIVEN] A header level discount
+        SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(Discount, SalesHeader);
+        // [GIVEN] The sales invoice is posted
+        PostingDate := SalesHeader."Posting Date";
+        GLRegisterOfPostedDocument(LibrarySales.PostSalesDocument(SalesHeader, false, false), PostingDate, InvoiceGLRegister);
+        // [GIVEN] A credit memo is created from the posted sales invoice
+        SalesInvoiceHeader.SetRange("Bill-to Customer No.", CustomerNo);
+        SalesInvoiceHeader.FindLast();
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, CreditMemoSalesHeader);
+        // [WHEN] Posting the credit memo
+        GLRegisterOfPostedDocument(LibrarySales.PostSalesDocument(CreditMemoSalesHeader, false, false), PostingDate, CreditMemoGLRegister);
+        // [THEN] All the balances of every account from the past two postings should be zero
+        GLEntriesFilter := StrSubstNo('%1..%2|%3..%4', InvoiceGLRegister."From Entry No.", InvoiceGLRegister."To Entry No.", CreditMemoGLRegister."From Entry No.", CreditMemoGLRegister."To Entry No.");
+
+        GLEntry.SetFilter("Entry No.", GLEntriesFilter);
+        // [THEN] Balance of purchases accounts should be zero
+        GetGeneralPostingSetup(CustomerNo, Item, GeneralPostingSetup);
+        GLEntry.SetFilter("G/L Account No.", '%1|%2', GeneralPostingSetup."Sales Account", GeneralPostingSetup."Sales Credit Memo Account");
+        GLEntry.CalcSums(Amount);
+        Assert.AreEqual(0, GLEntry.Amount, 'Balances in the sales accounts should be zero.');
+        // [THEN] All the balances of the rest of the accounts from the past two postings should be zero
+        CollectGLAccountNosInGLEntries(GLEntriesFilter, GLAccountNos);
+        foreach GLAccountNo in GLAccountNos do
+            if (GLAccountNo <> GeneralPostingSetup."Sales Account") and (GLAccountNo <> GeneralPostingSetup."Sales Credit Memo Account") then begin
+                GLEntry.SetRange("G/L Account No.", GLAccountNo);
+                GLEntry.CalcSums(Amount);
+                Assert.AreEqual(0, GLEntry.Amount, StrSubstNo(BalanceErr, GLAccountNo));
+            end;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1157,6 +1311,36 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Unrealized VAT Customer");
     end;
 
+    local procedure GLRegisterOfPostedDocument(DocumentNo: Code[20]; PostingDate: Date; var GLRegister: Record "G/L Register")
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Posting Date", PostingDate);
+        GLEntry.FindLast();
+        GLRegister.SetCurrentKey("To Entry No.");
+        GLRegister.SetAscending("To Entry No.", true);
+        GLRegister.SetFilter("To Entry No.", '>=%1', GLEntry."Entry No.");
+        GLRegister.FindFirst();
+    end;
+
+    local procedure AssertBalanceInAccountOfFilteredGLEntries(Expected: Decimal; GLAccountNo: Code[20]; var GLEntry: Record "G/L Entry"; ReasonMsg: Text)
+    begin
+        AssertBalanceInAccountOfFilteredGLEntries(Expected, GLAccountNo, GLEntry, ReasonMsg, false);
+    end;
+
+    local procedure AssertBalanceInAccountOfFilteredGLEntries(Expected: Decimal; GLAccountNo: Code[20]; var GLEntry: Record "G/L Entry"; ReasonMsg: Text; UseAreEqual: Boolean)
+    var
+        AutoFormat: Codeunit "Auto Format";
+    begin
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.CalcSums(Amount);
+        if UseAreEqual then
+            Assert.AreEqual(Expected, GLEntry.Amount, ReasonMsg)
+        else
+            Assert.AreNearlyEqual(Expected, GLEntry.Amount, AutoFormat.ReadRounding(), ReasonMsg);
+    end;
+
     local procedure EnableUnrealizedSetup(var VATPostingSetup: Record "VAT Posting Setup"; UnrealizedVATType: Option; GLSetupAdjustforPaymentDisc: Boolean; VATSetupAdjustforPaymentDisc: Boolean)
     begin
         EnableUnrealVATSetupWithGivenPct(
@@ -1178,6 +1362,75 @@ codeunit 134025 "ERM Unrealized VAT Customer"
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATRate);
         UpdateVATPostingSetup(VATPostingSetup, UnrealizedVATType, VATSetupAdjustforPaymentDisc);
+    end;
+
+    local procedure GetAccountReceivablesGLAccount(CustomerNo: Code[20]): Code[20]
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        Customer.Get(CustomerNo);
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        exit(CustomerPostingGroup."Receivables Account");
+    end;
+
+    local procedure GetHeaderDiscountGLAccount(CustomerNo: Code[20]; Item: Record Item): Code[20]
+    var
+        Customer: Record Customer;
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        Customer.Get(CustomerNo);
+        GeneralPostingSetup.Get(Customer."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+        exit(GeneralPostingSetup."Sales Inv. Disc. Account");
+    end;
+
+    local procedure GetLineDiscountGLAccount(CustomerNo: Code[20]; Item: Record Item): Code[20]
+    var
+        Customer: Record Customer;
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        Customer.Get(CustomerNo);
+        GeneralPostingSetup.Get(Customer."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+        exit(GeneralPostingSetup."Sales Line Disc. Account");
+    end;
+
+    local procedure GetRevenueGLAccount(CustomerNo: Code[20]; Item: Record Item): Code[20]
+    var
+        Customer: Record Customer;
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        Customer.Get(CustomerNo);
+        GeneralPostingSetup.Get(Customer."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+        exit(GeneralPostingSetup."Sales Account");
+    end;
+
+    local procedure GetDeferralGLAccount(DeferralTemplate: Record "Deferral Template"): Code[20]
+    begin
+        exit(DeferralTemplate."Deferral Account");
+    end;
+
+    local procedure GetGeneralPostingSetup(CustomerNo: Code[20]; Item: Record Item; var GeneralPostingSetup: Record "General Posting Setup")
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(CustomerNo);
+        GeneralPostingSetup.Get(Customer."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+    end;
+
+    local procedure GetUnrealizedVATGLAccount(VATPostingSetup: Record "VAT Posting Setup"): Code[20]
+    begin
+        exit(VATPostingSetup."Sales VAT Unreal. Account");
+    end;
+
+    local procedure CollectGLAccountNosInGLEntries(GLEntryFilter: Text; var GLAccountNos: List of [Code[20]])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetFilter("Entry No.", GLEntryFilter);
+        repeat
+            if not GLAccountNos.Contains(GLEntry."G/L Account No.") then
+                GLAccountNos.Add(GLEntry."G/L Account No.");
+        until GLEntry.Next() = 0;
     end;
 
     local procedure PerformScenarioTFS261852(var SalesHeader: Record "Sales Header"; var InvoiceNo: Code[20]; VATPct: Decimal; ExchangeRate: Decimal; InvoiceAmount: Decimal; CrMemoAmount: Decimal; PaymentAmount: Decimal)
@@ -2080,14 +2333,5 @@ codeunit 134025 "ERM Unrealized VAT Customer"
     begin
         // Message Handler.
     end;
-#if not CLEAN23
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-#endif
 }
 

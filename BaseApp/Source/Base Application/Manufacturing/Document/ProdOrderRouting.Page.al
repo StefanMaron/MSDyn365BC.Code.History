@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Foundation.Navigate;
@@ -66,7 +70,6 @@ page 99000817 "Prod. Order Routing"
                 field("Flushing Method"; Rec."Flushing Method")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
                     Visible = false;
                 }
                 field("Starting Date-Time"; Rec."Starting Date-Time")
@@ -215,7 +218,6 @@ page 99000817 "Prod. Order Routing"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a routing link code.';
-                    Visible = false;
                 }
                 field("Scrap Factor %"; Rec."Scrap Factor %")
                 {
@@ -232,7 +234,7 @@ page 99000817 "Prod. Order Routing"
                 field("Concurrent Capacities"; Rec."Concurrent Capacities")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the con capacity of the operation.';
+                    ToolTip = 'Specifies the concurrent capacity of the operation.';
                     Visible = false;
                 }
                 field("Unit Cost per"; Rec."Unit Cost per")
@@ -296,6 +298,26 @@ page 99000817 "Prod. Order Routing"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the corresponding bin at the machine or work center if the location code matches the setup of that machine or work center.';
+                    Visible = false;
+                }
+                field("Posted Output Quantity"; Rec."Posted Output Quantity")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
+                field("Posted Scrap Quantity"; Rec."Posted Scrap Quantity")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
+                field("Posted Run Time"; Rec."Posted Run Time")
+                {
+                    ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
+                field("Posted Setup Time"; Rec."Posted Setup Time")
+                {
+                    ApplicationArea = Manufacturing;
                     Visible = false;
                 }
             }

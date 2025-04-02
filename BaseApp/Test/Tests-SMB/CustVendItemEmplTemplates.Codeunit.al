@@ -634,16 +634,18 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     begin
         // [SCENARIO 363951] Create new item from template with filled "Blocked"
         // [SCENARIO 378441] Add "Service Blocked"
+        // [SCENARIO 382546] Add "Production Blocked"
         Initialize();
         ItemTempl.DeleteAll();
         BindSubscription(CustVendItemEmplTemplates);
         CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
 
-        // [GIVEN] Template with "Blocked" = true, "Sales Blocked" = true, "Service Blocked" = true, "Purchasing Blocked" = true
+        // [GIVEN] Template with "Blocked" = true, "Sales Blocked" = true, "Service Blocked" = true, "Production Blocked" = Output, "Purchasing Blocked" = true
         LibraryTemplates.CreateItemTemplate(ItemTempl);
         ItemTempl.Blocked := true;
         ItemTempl."Sales Blocked" := true;
         ItemTempl."Service Blocked" := true;
+        ItemTempl."Production Blocked" := ItemTempl."Production Blocked"::Output;
         ItemTempl."Purchasing Blocked" := true;
         ItemTempl.Modify(true);
 
@@ -653,10 +655,12 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         // [THEN] Item "Blocked" = true
         // [THEN] Item "Sales Blocked" = true
         // [THEN] Item "Service Blocked" = true
+        // [THEN] Item "Production Blocked" = Output
         // [THEN] Item "Purchasing Blocked" = true
         Assert.IsTrue(Item.Blocked, InsertedItemErr);
         Assert.IsTrue(Item."Sales Blocked", InsertedItemErr);
         Assert.IsTrue(Item."Service Blocked", InsertedItemErr);
+        Assert.AreEqual(ItemTempl."Production Blocked", Item."Production Blocked", InsertedItemErr);
         Assert.IsTrue(Item."Purchasing Blocked", InsertedItemErr);
 
         LibraryVariableStorage.AssertEmpty();
@@ -1019,6 +1023,33 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         // [THEN] Vendor was not created
         Assert.IsFalse(ContBusRel.FindByContact(ContBusRel."Link to Table"::Customer, Contact."No."), 'Customer should not be created');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandler')]
+    procedure VendorTemplCreateVendorFromContactNoTemplatesExistUT()
+    var
+        Contact: Record Contact;
+        VendorTempl: Record "Vendor Templ.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 365727] Create new vendor from company contact when no vendor templates exist
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] No Vendor Templates should exist
+        if not VendorTempl.IsEmpty() then
+            VendorTempl.DeleteAll();
+
+        // [GIVEN] Company contact "C"
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [WHEN] Create new vendor from "C"
+        // [THEN] Vendor was not created and message displays
+        Contact.SetHideValidationDialog(true);
+        Contact.CreateVendor();
     end;
 
     [Test]

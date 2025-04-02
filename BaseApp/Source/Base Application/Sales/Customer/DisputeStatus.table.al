@@ -13,16 +13,19 @@ table 142 "Dispute Status"
             Caption = 'Code';
             NotBlank = true;
             DataClassification = CustomerContent;
+            ToolTip = 'Specifies a dispute status code that you can select.';
         }
         field(5; Description; Text[100])
         {
             Caption = 'Description';
             DataClassification = CustomerContent;
+            ToolTip = 'Specifies an explanation of the dispute status.';
         }
         field(10; "Overwrite on hold"; Boolean)
         {
             Caption = 'Overwrite on hold';
             DataClassification = CustomerContent;
+            ToolTip = 'Specifies if this dispute status should update the on hold value on the corresponding customer ledger entry.';
         }
     }
 

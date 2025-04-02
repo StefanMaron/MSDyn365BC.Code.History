@@ -8,28 +8,6 @@ codeunit 5374 "Create E-Document Setup"
         CreateEDocService();
         CreateWorkflow();
         CreateDocSendingProfile();
-        SetupCompanyInfo();
-    end;
-
-    local procedure SetupCompanyInfo()
-    var
-        CompanyInfo: Record "Company Information";
-        Exists: Boolean;
-    begin
-        if CompanyInfo.Get() then
-            Exists := true;
-
-        if CompanyInfo.Name = '' then
-            CompanyInfo.Name := 'Contoso Coffee';
-        if CompanyInfo.Address = '' then
-            CompanyInfo.Address := '1234 Main St';
-        if CompanyInfo."VAT Registration No." = '' then
-            CompanyInfo."VAT Registration No." := '77777777';
-
-        if Exists then
-            CompanyInfo.Modify()
-        else
-            CompanyInfo.Insert();
     end;
 
     local procedure CreateWorkflow()
@@ -74,7 +52,7 @@ codeunit 5374 "Create E-Document Setup"
         EDocServiceRec.Code := EDocService();
         EDocServiceRec.Description := EDocService();
         EDocServiceRec."Document Format" := EDocServiceRec."Document Format"::"PEPPOL BIS 3.0";
-        EDocServiceRec."Service Integration" := EDocServiceRec."Service Integration"::"No Integration";
+        EDocServiceRec."Service Integration V2" := EDocServiceRec."Service Integration V2"::"No Integration";
         if EDocServiceRec.Insert() then;
     end;
 

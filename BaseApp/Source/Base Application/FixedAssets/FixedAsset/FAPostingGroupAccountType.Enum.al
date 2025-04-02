@@ -1,4 +1,8 @@
-﻿namespace Microsoft.FixedAssets.FixedAsset;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.FixedAssets.FixedAsset;
 
 enum 5606 "FA Posting Group Account Type"
 {

@@ -90,6 +90,7 @@ page 7324 "Whse. Item Journal"
                     trigger OnValidate()
                     begin
                         Rec.GetItem(Rec."Item No.", ItemDescription);
+                        IsVariantMandatory();
                     end;
                 }
                 field("Variant Code"; Rec."Variant Code")
@@ -97,6 +98,12 @@ page 7324 "Whse. Item Journal"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
+
+                    trigger OnValidate()
+                    begin
+                        IsVariantMandatory();
+                    end;
                 }
                 field(Description; Rec.Description)
                 {
@@ -365,9 +372,15 @@ page 7324 "Whse. Item Journal"
         Rec.GetItem(Rec."Item No.", ItemDescription);
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        IsVariantMandatory();
+    end;
+
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec.SetUpNewLine(xRec);
+        VariantCodeMandatory := false;
     end;
 
     trigger OnOpenPage()
@@ -398,12 +411,21 @@ page 7324 "Whse. Item Journal"
         CurrentLocationCode: Code[10];
         ItemDescription: Text[100];
         IsSaaSExcelAddinEnabled: Boolean;
+        VariantCodeMandatory: Boolean;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
         CurrPage.SaveRecord();
         Rec.SetName(CurrentJnlBatchName, CurrentLocationCode, Rec);
         CurrPage.Update(false);
+    end;
+
+    local procedure IsVariantMandatory()
+    var
+        Item: Record Item;
+    begin
+        if Rec."Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(true, Rec."Item No.");
     end;
 }
 

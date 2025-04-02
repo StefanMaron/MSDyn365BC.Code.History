@@ -47,11 +47,7 @@ table 30102 "Shpfy Shop"
                 AuthenticationMgt: Codeunit "Shpfy Authentication Mgt.";
             begin
                 if ("Shopify URL" <> '') then begin
-                    if not "Shopify URL".ToLower().StartsWith('https://') then
-                        "Shopify URL" := CopyStr('https://' + "Shopify URL", 1, MaxStrLen("Shopify URL"));
-
-                    if "Shopify URL".ToLower().StartsWith('https://admin.shopify.com/store/') then
-                        "Shopify URL" := CopyStr('https://' + "Shopify URL".Replace('https://admin.shopify.com/store/', '').Split('/').Get(1) + '.myshopify.com', 1, MaxStrLen("Shopify URL"));
+                    AuthenticationMgt.CorrectShopUrl("Shopify URL");
 
                     if not AuthenticationMgt.IsValidShopUrl("Shopify URL") then
                         Error(InvalidShopUrlErr);
@@ -71,6 +67,8 @@ table 30102 "Shpfy Shop"
                 if Rec."Enabled" then begin
                     Rec.TestField("Shopify URL");
                     Rec."Enabled" := CustomerConsentMgt.ConfirmUserConsent();
+                    if Rec.Enabled then
+                        Session.LogAuditMessage(StrSubstNo(ShopifyConsentProvidedLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
                 end else begin
                     Rec.Enabled := true;
                     Rec.Validate("Order Created Webhooks", false);
@@ -79,19 +77,16 @@ table 30102 "Shpfy Shop"
                 end;
             end;
         }
+#if not CLEANSCHEMA26
         field(5; "Log Enabled"; Boolean)
         {
             Caption = 'Log Enabled';
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Replaced with field "Logging Mode"';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
-            ObsoleteTag = '25.0';
-#endif
+            ObsoleteTag = '26.0';
         }
+#endif
         field(6; "Customer Price Group"; Code[10])
         {
             Caption = 'Customer Price Group';
@@ -135,6 +130,7 @@ table 30102 "Shpfy Shop"
             OptionCaption = ' ,To Shopify,From Shopify';
             OptionMembers = " ","To Shopify","From Shopify";
         }
+#if not CLEANSCHEMA25
         field(11; "Item Template Code"; Code[10])
         {
             Caption = 'Item Template Code';
@@ -145,6 +141,7 @@ table 30102 "Shpfy Shop"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(12; "Sync Item Images"; Option)
         {
             Caption = 'Sync Item Images';
@@ -195,6 +192,7 @@ table 30102 "Shpfy Shop"
             Caption = 'Auto Create Unknown Customers';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA25
         field(24; "Customer Template Code"; Code[10])
         {
             Caption = 'Customer Template Code';
@@ -205,6 +203,7 @@ table 30102 "Shpfy Shop"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(25; "Product Collection"; Option)
         {
             Caption = 'Product Collection';
@@ -223,6 +222,7 @@ table 30102 "Shpfy Shop"
             DataClassification = CustomerContent;
             InitValue = WithOrderImport;
         }
+#if not CLEANSCHEMA27
         field(29; "Export Customer To Shopify"; Boolean)
         {
             Caption = 'Export Customer to Shopify';
@@ -237,6 +237,7 @@ table 30102 "Shpfy Shop"
             ObsoleteTag = '27.0';
 #endif
         }
+#endif
         field(30; "Shopify Can Update Customer"; Boolean)
         {
             Caption = 'Shopify Can Update Customers';
@@ -543,46 +544,6 @@ table 30102 "Shpfy Shop"
                     CheckGLAccount(GLAccount);
             end;
         }
-        field(100; "Collection Last Export Version"; BigInteger)
-        {
-            Caption = 'Collection Last Export Version';
-            DataClassification = SystemMetadata;
-            Editable = false;
-            Access = Internal;
-            ObsoleteReason = 'Not used. Moved to "Shpfy Synchronization Info" table.';
-            ObsoleteTag = '24.0';
-            ObsoleteState = Removed;
-        }
-        field(101; "Collection Last Import Version"; BigInteger)
-        {
-            Caption = 'Collection Last Import Version';
-            DataClassification = SystemMetadata;
-            Editable = false;
-            Access = Internal;
-            ObsoleteReason = 'Not used. Moved to "Shpfy Synchronization Info" table.';
-            ObsoleteTag = '24.0';
-            ObsoleteState = Removed;
-        }
-        field(102; "Product Last Export Version"; BigInteger)
-        {
-            Caption = 'Product Last Export Version';
-            DataClassification = SystemMetadata;
-            Editable = false;
-            Access = Internal;
-            ObsoleteReason = 'Not used. Moved to "Shpfy Synchronization Info" table.';
-            ObsoleteTag = '24.0';
-            ObsoleteState = Removed;
-        }
-        field(103; "Product Last Import Version"; BigInteger)
-        {
-            Caption = 'Product Last Import Version';
-            DataClassification = SystemMetadata;
-            Editable = false;
-            Access = Internal;
-            ObsoleteReason = 'Not used. Moved to "Shpfy Synchronization Info" table.';
-            ObsoleteTag = '24.0';
-            ObsoleteState = Removed;
-        }
 #pragma warning disable AS0004
         field(104; "SKU Mapping"; Enum "Shpfy SKU Mapping")
 #pragma warning restore AS0004
@@ -756,21 +717,20 @@ table 30102 "Shpfy Shop"
             Caption = 'Company Mapping Type';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA27
         field(127; "Replace Order Attribute Value"; Boolean)
         {
             Caption = 'Replace Order Attribute Value';
             DataClassification = SystemMetadata;
             InitValue = true;
             ObsoleteReason = 'This feature will be enabled by default with version 27.0.';
-#if not CLEAN24
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#else
+#if CLEAN24
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#endif
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
 
-#if not CLEAN24
             trigger OnValidate()
             begin
                 if "Replace Order Attribute Value" then
@@ -778,6 +738,7 @@ table 30102 "Shpfy Shop"
             end;
 #endif
         }
+#endif
         field(128; "Return Location Priority"; Enum "Shpfy Return Location Priority")
         {
             Caption = 'Return Location Priority';
@@ -788,10 +749,40 @@ table 30102 "Shpfy Shop"
             Caption = 'Weight Unit';
             DataClassification = CustomerContent;
         }
+        field(130; "Product Metafields To Shopify"; Boolean)
+        {
+            Caption = 'Sync Product/Variant Metafields to Shopify';
+            DataClassification = SystemMetadata;
+            InitValue = true;
+        }
+        field(131; "Customer Metafields To Shopify"; Boolean)
+        {
+            Caption = 'Sync Customer Metafields';
+            DataClassification = SystemMetadata;
+            InitValue = true;
+        }
+        field(132; "Company Metafields To Shopify"; Boolean)
+        {
+            Caption = 'Sync Company Metafields';
+            DataClassification = SystemMetadata;
+            InitValue = true;
+        }
+        field(133; "Order Attributes To Shopify"; Boolean)
+        {
+            Caption = 'Sync Business Central Doc. No. as Attribute';
+            DataClassification = SystemMetadata;
+            InitValue = true;
+        }
+        field(134; "Shpfy Comp. Tax Id Mapping"; Enum "Shpfy Comp. Tax Id Mapping")
+        {
+            Caption = 'Company Tax Id Mapping';
+            DataClassification = CustomerContent;
+        }
         field(200; "Shop Id"; Integer)
         {
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA29
         field(201; "Items Mapped to Products"; Boolean)
         {
             Caption = 'Items Must be Mapped to Products';
@@ -804,6 +795,7 @@ table 30102 "Shpfy Shop"
             ObsoleteTag = '29.0';
 #endif
         }
+#endif
         field(202; "Posted Invoice Sync"; Boolean)
         {
             Caption = 'Posted Invoice Sync';
@@ -836,6 +828,7 @@ table 30102 "Shpfy Shop"
         ExpirationNotificationTxt: Label 'Shopify API version 30 days before expiry notification sent.', Locked = true;
         BlockedNotificationTxt: Label 'Shopify API version expired notification sent.', Locked = true;
         CategoryTok: Label 'Shopify Integration', Locked = true;
+        ShopifyConsentProvidedLbl: Label 'Shopify - consent provided by UserSecurityId %1 for company %2.', Comment = '%1 - User Security ID, %2 - Company name', Locked = true;
 
     [Scope('OnPrem')]
     internal procedure GetAccessToken() Result: SecretText
@@ -1018,12 +1011,14 @@ table 30102 "Shpfy Shop"
         JItem: JsonToken;
     begin
         CommunicationMgt.SetShop(Rec);
-        JResponse := CommunicationMgt.ExecuteGraphQL('{"query":"query { shop { name plan { partnerDevelopment shopifyPlus } } }"}');
+        JResponse := CommunicationMgt.ExecuteGraphQL('{"query":"query { shop { name plan { displayName partnerDevelopment shopifyPlus } } }"}');
         if JResponse.SelectToken('$.data.shop.plan', JItem) then
             if JItem.IsObject then begin
                 if JsonHelper.GetValueAsBoolean(JItem, 'shopifyPlus') then
                     exit(true);
                 if JsonHelper.GetValueAsBoolean(JItem, 'partnerDevelopment') then
+                    exit(true);
+                if JsonHelper.GetValueAsText(JItem, 'displayName') = 'Plus Trial' then
                     exit(true);
             end;
     end;

@@ -168,6 +168,8 @@ codeunit 415 "Release Purchase Document"
                             PurchaseLine.TestField("Location Code");
                     end;
                     PurchaseLine.TestField("Unit of Measure Code");
+                    if PurchaseLine."Document Type" in [PurchaseLine."Document Type"::Order] then
+                        PurchaseLine.TestPurchaseJobFields();
                 end;
                 if Item.Get(PurchaseLine."No.") then
                     if Item.IsVariantMandatory() then

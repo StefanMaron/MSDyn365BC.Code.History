@@ -133,6 +133,8 @@ report 1014 "Jobs per Item"
 
     requestpage
     {
+        AboutTitle = 'About Projects per Item';
+        AboutText = 'Get an overview of how you use items in your projects.';
 
         layout
         {

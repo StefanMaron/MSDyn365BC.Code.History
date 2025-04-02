@@ -760,11 +760,12 @@ codeunit 6224 "XML DOM Management"
     procedure TryFormatXML(XMLText: Text; var FormattedXMLText: Text)
     var
         XDocument: DotNet XDocument;
-        SystemEnvironment: DotNet Environment;
+        SystemEnvironment: DotNet SystemEnvironment;
     begin
+        SystemEnvironment := SystemEnvironment.SystemEnvironment();
         XDocument := XDocument.Parse(XMLText);
         FormattedXMLText :=
-          XDocument.Declaration.ToString() + SystemEnvironment.NewLine + XDocument.ToString();
+          XDocument.Declaration.ToString() + SystemEnvironment.NewLine() + XDocument.ToString();
     end;
 
     procedure RemoveNamespaces(XMLText: Text): Text

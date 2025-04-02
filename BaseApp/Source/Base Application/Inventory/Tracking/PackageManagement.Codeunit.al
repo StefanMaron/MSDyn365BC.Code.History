@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Tracking;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Item;
@@ -6,7 +10,6 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Posting;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Ledger;
@@ -1812,10 +1815,10 @@ codeunit 6516 "Package Management"
                     (ReservEntry2."Source Subtype" <> WarehouseActivityLine."Source Subtype") or
                     (ReservEntry2."Source ID" <> WarehouseActivityLine."Source No.") or
                     (((ReservEntry2."Source Ref. No." <> WarehouseActivityLine."Source Line No.") and
-                        (ReservEntry2."Source Type" <> Database::"Prod. Order Component")) or
+                        (ReservEntry2."Source Type" <> 5407)) or // Database::"Prod. Order Component"
                         (((ReservEntry2."Source Prod. Order Line" <> WarehouseActivityLine."Source Line No.") or
                         (ReservEntry2."Source Ref. No." <> WarehouseActivityLine."Source Subline No.")) and
-                        (ReservEntry2."Source Type" = Database::"Prod. Order Component"))))
+                        (ReservEntry2."Source Type" = 5407)))) // Database::"Prod. Order Component"
                     and (ReservEntry2."Package No." = '') then
                     AvailQtyFromOtherResvLines := AvailQtyFromOtherResvLines + Abs(ReservEntry2."Quantity (Base)");
             until ReservEntry.Next() = 0;
@@ -2090,57 +2093,6 @@ codeunit 6516 "Package Management"
                     ItemJnlLine."Serial No.", ItemJnlLine."Lot No.", ItemJnlLine."Package No.",
                     ItemJnlLine."Item No.", ItemJnlLine."Variant Code");
         end;
-    end;
-
-    // ItemTrackingManagement
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnAfterGetItemTrackingSetup', '', false, false)]
-    local procedure ItemJnlPostLineOnAfterGetItemTrackingSetup(var ItemTrackingCode: Record "Item Tracking Code"; var ItemTrackingSetup: Record "Item Tracking Setup"; EntryType: Enum "Item Ledger Entry Type"; Inbound: Boolean)
-    begin
-        if ItemTrackingCode."Package Specific Tracking" then
-            ItemTrackingSetup."Package No. Required" := true
-        else
-            case EntryType of
-                EntryType::Purchase:
-                    if Inbound then
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Purchase Inb. Tracking"
-                    else
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Purch. Outb. Tracking";
-                EntryType::Sale:
-                    if Inbound then
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Sales Inbound Tracking"
-                    else
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Sales Outb. Tracking";
-                EntryType::"Positive Adjmt.":
-                    if Inbound then
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Pos. Inb. Tracking"
-                    else
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Pos. Outb. Tracking";
-                EntryType::"Negative Adjmt.":
-                    if Inbound then
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Neg. Inb. Tracking"
-                    else
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Neg. Outb. Tracking";
-                EntryType::Transfer:
-                    ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Transfer Tracking";
-                EntryType::Consumption, EntryType::Output:
-                    if Inbound then
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Manuf. Inb. Tracking"
-                    else
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Manuf. Outb. Tracking";
-                EntryType::"Assembly Consumption", EntryType::"Assembly Output":
-                    if Inbound then
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Assembly Inb. Tracking"
-                    else
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Assembly Out. Tracking";
-            end;
-
-        if EntryType = EntryType::Transfer then
-            ItemTrackingSetup."Package No. Info Required" :=
-                ItemTrackingCode."Package Info. Outb. Must Exist" or ItemTrackingCode."Package Info. Inb. Must Exist"
-        else
-            ItemTrackingSetup."Package No. Info Required" :=
-                (Inbound and ItemTrackingCode."Package Info. Inb. Must Exist") or (not Inbound and ItemTrackingCode."Package Info. Outb. Must Exist");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", 'OnAfterIsCopyItemTrkg', '', false, false)]

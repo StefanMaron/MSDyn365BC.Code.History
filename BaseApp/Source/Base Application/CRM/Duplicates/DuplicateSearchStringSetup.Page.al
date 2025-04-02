@@ -1,6 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CRM.Duplicates;
-
-using System.Environment;
 
 page 5138 "Duplicate Search String Setup"
 {
@@ -23,18 +25,8 @@ page 5138 "Duplicate Search String Setup"
                     ToolTip = 'Specifies the field to use to generate the search string.';
 
                     trigger OnAssistEdit()
-                    var
-                        ClientTypeManagement: Codeunit "Client Type Management";
                     begin
-                        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
-                            Rec.LookupFieldName();
-                    end;
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    var
-                        ClientTypeManagement: Codeunit "Client Type Management";
-                    begin
-                        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Windows then
+                        if GuiAllowed() then
                             Rec.LookupFieldName();
                     end;
                 }

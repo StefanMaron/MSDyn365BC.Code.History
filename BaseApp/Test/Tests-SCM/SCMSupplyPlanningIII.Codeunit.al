@@ -48,6 +48,8 @@
         QuantityNotCorrectErr: Label 'Quantity is not correct in Planning Worksheet';
         VersionsWillBeClosedMsg: Label 'All versions attached to the BOM will be closed. Close BOM?';
         CannotPurchaseItemMsg: Label 'You cannot purchase Item %1 because the Purchasing Blocked check box is selected on the Item card.';
+        ProductionBlockedOutputItemErr: Label 'You cannot produce %1 %2 because the %3 is %4 on the %1 card.', Comment = '%1 - Table Caption (Item), %2 - Item No., %3 - Field Caption, %4 - Field Value';
+        ProductionBlockedOutputItemVariantErr: Label 'You cannot produce variant %1 for %2 %3 because it is blocked for production output.', Comment = '%1 - Item Variant Code, %2 - Table Caption (Item), %3 - Item No.';
 
     [Test]
     [HandlerFunctions('MessageHandler,PlanningErrorLogPageHandler')]
@@ -2940,6 +2942,59 @@
         VerifyGrossReqAndScheduledRecOnBOMTree(BOMBuffer, Item."No.", ReceiptQty, Quantities[1] + Quantities[2] + Quantities[3]);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CarryOutActionShouldThrowErrorIfProductionBlockedIsOutputOnItem()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        CarryOutAction: Codeunit "Carry Out Action";
+    begin
+        // [SCENARIO 382546] Verify "Carry Out Action" should throw error if "Production Blocked" is Output on "Item".
+        Initialize();
+
+        // [GIVEN] Create Requisition Line.
+        CreateReqLine(RequisitionLine);
+
+        // [GIVEN] Update "Production Blocked" on Item.
+        Item.Get(RequisitionLine."No.");
+        Item.Validate("Production Blocked", Item."Production Blocked"::Output);
+        Item.Modify(true);
+
+        // [WHEN] Call CarryOutAction.InsertProductionOrder().
+        asserterror CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
+
+        // [VERIFY] Verify error message if "Production Blocked" is Output on Item.
+        Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked"), Item."Production Blocked"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CarryOutActionShouldThrowErrorIfProductionBlockedIsOutputOnItemVariant()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        CarryOutAction: Codeunit "Carry Out Action";
+    begin
+        // [SCENARIO 382546] Verify "Carry Out Action" should throw error if "Production Blocked" is Output on "Item Variant".
+        Initialize();
+
+        // [GIVEN] Create Requisition Line.
+        CreateReqLine(RequisitionLine);
+
+        // [GIVEN] Update "Production Blocked" on "Item Variant".
+        ItemVariant.Get(RequisitionLine."No.", RequisitionLine."Variant Code");
+        ItemVariant.Validate("Production Blocked", ItemVariant."Production Blocked"::Output);
+        ItemVariant.Modify(true);
+
+        // [WHEN] Call CarryOutAction.InsertProductionOrder().
+        asserterror CarryOutAction.InsertProductionOrder(RequisitionLine, "Planning Create Prod. Order"::Planned);
+
+        // [VERIFY] Verify error message if "Production Blocked" is Output on "Item Variant".
+        Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemVariantErr, ItemVariant.Code, Item.TableCaption(), ItemVariant."Item No."));
+    end;
+
     local procedure Initialize()
     var
         UntrackedPlanningElement: Record "Untracked Planning Element";
@@ -3497,7 +3552,7 @@
     begin
         LibraryInventory.ClearItemJournal(OutputItemJournalTemplate, OutputItemJournalBatch);
         LibraryManufacturing.CreateOutputJournal(ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, '', ProductionOrderNo);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
     end;
 
     local procedure CreateStockkeepingUnitWithReorderingPolicy(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ReorderingPolicy: Enum "Reordering Policy")

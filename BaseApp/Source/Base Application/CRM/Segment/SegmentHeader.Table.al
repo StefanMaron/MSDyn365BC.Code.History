@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CRM.Segment;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.Segment;
 
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Campaign;
@@ -77,9 +81,6 @@ table 5076 "Segment Header"
                 Attachment: Record Attachment;
                 InteractionTemplate: Record "Interaction Template";
                 TemplateFound: Boolean;
-#if not CLEAN23
-                ErrorText: Text[80];
-#endif
             begin
                 if InteractionTemplate.Get(Rec."Interaction Template Code") then
                     if InteractionTemplate."Word Template Code" <> '' then
@@ -89,13 +90,6 @@ table 5076 "Segment Header"
 
                 if not TemplateFound then
                     exit;
-#if not CLEAN23
-                ErrorText := Attachment.CheckCorrespondenceType("Correspondence Type (Default)");
-                if ErrorText <> '' then
-                    Error(
-                      Text000 + ErrorText,
-                      FieldCaption("Correspondence Type (Default)"), "Correspondence Type (Default)", TableCaption(), "No.");
-#endif
                 if "Correspondence Type (Default)" <> "Correspondence Type (Default)"::" " then
                     UpdateSegLinesByFieldNo(FieldNo("Correspondence Type (Default)"), CurrFieldNo <> 0);
             end;
@@ -451,13 +445,6 @@ table 5076 "Segment Header"
         SegCriteriaManagement: Codeunit SegCriteriaManagement;
         SegHistMgt: Codeunit SegHistoryManagement;
 
-#if not CLEAN23
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text000: Label '%1 = %2 can not be specified for %3 %4.\';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#endif
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text002: Label 'You have modified %1.\\Do you want to update the segment lines where the Interaction Template Code is %2?';

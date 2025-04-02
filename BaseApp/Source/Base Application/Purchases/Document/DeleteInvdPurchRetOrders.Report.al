@@ -136,9 +136,15 @@ report 6661 "Delete Invd Purch. Ret. Orders"
         }
     }
 
+    trigger OnPostReport()
+    begin
+        Session.LogAuditMessage(StrSubstNo(DeletedInvoicedPurchaseReturnOrdersLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+    end;
+
     var
         ProgressDialog: Dialog;
         ProcessingProgressTxt: Label 'Processing purchase return orders #1##########', Comment = '%1 - Purchase Return Order No.';
+        DeletedInvoicedPurchaseReturnOrdersLbl: Label 'Invoiced purchase return orders deleted by UserSecurityId %1 for company %2.', Comment = '%1 - User Security ID, %2 - Company name', Locked = true;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")

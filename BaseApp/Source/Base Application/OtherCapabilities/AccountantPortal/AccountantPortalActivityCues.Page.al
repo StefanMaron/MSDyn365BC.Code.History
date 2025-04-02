@@ -451,7 +451,7 @@ page 1314 "AccountantPortal Activity Cues"
         OngoingSalesInvoicesAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Ongoing Sales Invoices"), Rec."Ongoing Sales Invoices", OngoingSalesInvoicesStyle);
 
-        Rec."Sales This Month" := ActivitiesMgt.CalcSalesThisMonthAmount(true);
+        Rec."Sales This Month" := ActivitiesMgt.CalcSalesThisMonthAmount(true, false);
         UnlimitedTempString := AcctWebServicesMgt.FormatAmountString(Rec."Sales This Month");
         TempString := CopyStr(UnlimitedTempString, 1, 250);
         SalesThisMonthAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
@@ -463,7 +463,7 @@ page 1314 "AccountantPortal Activity Cues"
         Top10CustomerSalesYTDAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Top 10 Customer Sales YTD"), Rec."Top 10 Customer Sales YTD", Top10CustomerSalesYTDStyle);
 
-        Rec."Average Collection Days" := ActivitiesMgt.CalcAverageCollectionDays();
+        Rec."Average Collection Days" := ActivitiesMgt.CalcAverageCollectionDays(false);
         TempString := Format(Rec."Average Collection Days");
         AverageCollectionDaysAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Average Collection Days"), Rec."Average Collection Days", AverageCollectionDaysStyle);

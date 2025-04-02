@@ -67,7 +67,9 @@ permissionset 2393 "Dynamics CRM - Admin"
                   tabledata "Integration Synch. Job" = RIMD,
                   tabledata "Integration Synch. Job Errors" = RIMD,
                   tabledata "Integration Table Mapping" = RIMD,
+#if not CLEAN24
                   tabledata "Man. Integration Field Mapping" = RIMD,
+#endif
                   tabledata "Man. Integration Table Mapping" = RIMD,
                   tabledata "Temp Integration Field Mapping" = RIMD,
                   tabledata "Man. Int. Field Mapping" = RIMD;

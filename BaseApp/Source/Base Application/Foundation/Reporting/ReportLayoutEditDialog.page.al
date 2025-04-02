@@ -93,6 +93,13 @@ page 9661 "Report Layout Edit Dialog"
                 ToolTip = 'Specifies whether the layout should be available in all companies or just the current company.';
                 Editable = AvailableInAllCompaniesEditable;
             }
+            field(IsObsolete; IsObsolete)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Mark layout as obsolete';
+                ToolTip = 'Specifies whether the layout is obsolete.';
+                Editable = true;
+            }
         }
     }
 
@@ -111,6 +118,7 @@ page 9661 "Report Layout Edit Dialog"
         AvailableInAllCompanies: Boolean;
         AvailableInAllCompaniesEditable: Boolean;
         IsLayoutOwnedByCurrentCompany: Boolean;
+        IsObsolete: Boolean;
 
     internal procedure SelectedLayoutDescription(): Text[250]
     begin
@@ -127,6 +135,11 @@ page 9661 "Report Layout Edit Dialog"
         exit(AvailableInAllCompanies);
     end;
 
+    internal procedure SelectedIsObsolete(): Boolean
+    begin
+        exit(IsObsolete);
+    end;
+
     internal procedure CopyOperationEnabled(): Boolean
     begin
         exit(CreateCopy);
@@ -139,6 +152,7 @@ page 9661 "Report Layout Edit Dialog"
         Description := ReportLayoutList."Description";
         OldLayoutName := ReportLayoutList."Caption";
         NewLayoutName := OldLayoutName;
+        IsObsolete := ReportLayoutList.IsObsolete;
 
         if not ReportLayoutList."User Defined" then begin
             CreateCopy := true;

@@ -8,12 +8,13 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Document;
 
 table 5813 "Inventory Posting Setup"
 {
     Caption = 'Inventory Posting Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Inventory Posting Setup";
+    LookupPageID = "Inventory Posting Setup";
 
     fields
     {
@@ -86,38 +87,6 @@ table 5813 "Inventory Posting Setup"
                       FieldNo("Inventory Account (Interim)"), "Inventory Account (Interim)", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory());
             end;
         }
-        field(99000750; "WIP Account"; Code[20])
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            Caption = 'WIP Account';
-            TableRelation = "G/L Account";
-        }
-        field(99000753; "Material Variance Account"; Code[20])
-        {
-            Caption = 'Material Variance Account';
-            TableRelation = "G/L Account";
-        }
-        field(99000754; "Capacity Variance Account"; Code[20])
-        {
-            Caption = 'Capacity Variance Account';
-            TableRelation = "G/L Account";
-        }
-        field(99000755; "Mfg. Overhead Variance Account"; Code[20])
-        {
-            Caption = 'Mfg. Overhead Variance Account';
-            TableRelation = "G/L Account";
-        }
-        field(99000756; "Cap. Overhead Variance Account"; Code[20])
-        {
-            Caption = 'Cap. Overhead Variance Account';
-            TableRelation = "G/L Account";
-        }
-        field(99000757; "Subcontracted Variance Account"; Code[20])
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            Caption = 'Subcontracted Variance Account';
-            TableRelation = "G/L Account";
-        }
     }
 
     keys
@@ -140,11 +109,13 @@ table 5813 "Inventory Posting Setup"
     var
         GLAccountCategory: Record "G/L Account Category";
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
-        PostingSetupMgt: Codeunit PostingSetupManagement;
         AccountSuggested: Boolean;
 
         YouCannotDeleteErr: Label 'You cannot delete %1 %2.', Comment = '%1 = Location Code; %2 = Posting Group';
         NoAccountSuggestedMsg: Label 'Cannot suggest G/L accounts as there is nothing to base suggestion on.';
+
+    protected var
+        PostingSetupMgt: Codeunit PostingSetupManagement;
 
     local procedure CheckSetupUsage()
     var
@@ -154,22 +125,6 @@ table 5813 "Inventory Posting Setup"
         ValueEntry.SetRange("Inventory Posting Group", "Invt. Posting Group Code");
         if not ValueEntry.IsEmpty() then
             Error(YouCannotDeleteErr, "Location Code", "Invt. Posting Group Code");
-    end;
-
-    procedure GetCapacityVarianceAccount(): Code[20]
-    begin
-        if "Capacity Variance Account" = '' then
-            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Capacity Variance Account"));
-
-        exit("Capacity Variance Account");
-    end;
-
-    procedure GetCapOverheadVarianceAccount(): Code[20]
-    begin
-        if "Cap. Overhead Variance Account" = '' then
-            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Cap. Overhead Variance Account"));
-
-        exit("Cap. Overhead Variance Account");
     end;
 
     procedure GetInventoryAccount(): Code[20]
@@ -188,38 +143,6 @@ table 5813 "Inventory Posting Setup"
         exit("Inventory Account (Interim)");
     end;
 
-    procedure GetMaterialVarianceAccount(): Code[20]
-    begin
-        if "Material Variance Account" = '' then
-            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Material Variance Account"));
-
-        exit("Material Variance Account");
-    end;
-
-    procedure GetMfgOverheadVarianceAccount(): Code[20]
-    begin
-        if "Mfg. Overhead Variance Account" = '' then
-            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Mfg. Overhead Variance Account"));
-
-        exit("Mfg. Overhead Variance Account");
-    end;
-
-    procedure GetSubcontractedVarianceAccount(): Code[20]
-    begin
-        if "Subcontracted Variance Account" = '' then
-            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("Subcontracted Variance Account"));
-
-        exit("Subcontracted Variance Account");
-    end;
-
-    procedure GetWIPAccount(): Code[20]
-    begin
-        if "WIP Account" = '' then
-            PostingSetupMgt.LogInventoryPostingSetupFieldError(Rec, FieldNo("WIP Account"));
-
-        exit("WIP Account");
-    end;
-
     procedure SuggestSetupAccounts()
     var
         RecRef: RecordRef;
@@ -230,18 +153,6 @@ table 5813 "Inventory Posting Setup"
             SuggestAccount(RecRef, FieldNo("Inventory Account"));
         if "Inventory Account" = '' then
             SuggestAccount(RecRef, FieldNo("Inventory Account (Interim)"));
-        if "WIP Account" = '' then
-            SuggestAccount(RecRef, FieldNo("WIP Account"));
-        if "Material Variance Account" = '' then
-            SuggestAccount(RecRef, FieldNo("Material Variance Account"));
-        if "Capacity Variance Account" = '' then
-            SuggestAccount(RecRef, FieldNo("Capacity Variance Account"));
-        if "Mfg. Overhead Variance Account" = '' then
-            SuggestAccount(RecRef, FieldNo("Mfg. Overhead Variance Account"));
-        if "Cap. Overhead Variance Account" = '' then
-            SuggestAccount(RecRef, FieldNo("Cap. Overhead Variance Account"));
-        if "Subcontracted Variance Account" = '' then
-            SuggestAccount(RecRef, FieldNo("Subcontracted Variance Account"));
         OnAfterSuggestSetupAccount(Rec, RecRef);
         if AccountSuggested then
             RecRef.Modify()

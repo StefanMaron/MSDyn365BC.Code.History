@@ -29,7 +29,6 @@ codeunit 137153 "SCM Warehouse - Journal"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryERM: Codeunit "Library - ERM";
         LibraryDimension: Codeunit "Library - Dimension";
         isInitialized: Boolean;
@@ -1414,9 +1413,9 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [GIVEN] Post positive adjustment and negative adjustment on location "L1", and positive adjustment on "L2". So there is inventory left only on "L2".
         LibraryInventory.CreateItem(Item);
         Qty := LibraryRandom.RandDec(100, 2);
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location[1].Code, '', '', Qty, WorkDate(), Item."Unit Cost");
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location[2].Code, '', '', Qty, WorkDate(), Item."Unit Cost");
-        LibraryPatterns.POSTNegativeAdjustment(Item, Location[1].Code, '', '', Qty, WorkDate(), Item."Unit Cost");
+        LibraryInventory.PostPositiveAdjustment(Item, Location[1].Code, '', '', Qty, WorkDate(), Item."Unit Cost");
+        LibraryInventory.PostPositiveAdjustment(Item, Location[2].Code, '', '', Qty, WorkDate(), Item."Unit Cost");
+        LibraryInventory.PostNegativeAdjustment(Item, Location[1].Code, '', '', Qty, WorkDate(), Item."Unit Cost");
 
         // [GIVEN] Delete location "L1"
         Location[1].Delete(true);
@@ -1446,7 +1445,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         // [GIVEN] Item "I" with inventory on hand on blank location
         LibraryInventory.CreateItem(Item);
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 1, WorkDate(), Item."Unit Cost");
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', 1, WorkDate(), Item."Unit Cost");
 
         // [WHEN] Run "Calculate Physical Inventory"
         RunReportCalculateInventory(ItemJournalLine, Item."No.", '', '', true);
@@ -4901,7 +4900,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         for i := 1 to 2 do begin
             LibraryInventory.CreateItem(Item);
-            LibraryManufacturing.CreateBOMComponent(
+            LibraryInventory.CreateBOMComponent(
               BOMComponent, ParentItem."No.", BOMComponent.Type::Item, Item."No.", 1, ParentItem."Base Unit of Measure");
         end;
     end;
