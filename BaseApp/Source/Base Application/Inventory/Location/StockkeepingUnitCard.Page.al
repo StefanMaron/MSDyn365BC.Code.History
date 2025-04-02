@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Location;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Location;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Comment;
@@ -13,6 +17,8 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Warehouse.Structure;
 
 page 5700 "Stockkeeping Unit Card"
@@ -777,6 +783,35 @@ page 5700 "Stockkeeping Unit Card"
                     }
                 }
             }
+            group(Production_Navigation)
+            {
+                Caption = 'Production';
+                Image = Production;
+                action("Production BOM")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Production BOM';
+                    Image = BOM;
+                    ToolTip = 'Open the stockkeeping unit''s production bill of material to view or edit its components. If production bill of material is not defined in the stockkeeping unit, the production bill of material from the item card is used.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.OpenProductionBOMForSKUItem(Rec."Production BOM No.", Rec."Item No.");
+                    end;
+                }
+                action("Prod. Active BOM Version")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Prod. Active BOM Version';
+                    Image = BOMVersions;
+                    ToolTip = 'Open the stockkeeping unit''s active production bill of material to view or edit the components. If production bill of material is not defined in the stockkeeping unit, the production bill of material from the item card is used.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.OpenActiveProductionBOMForSKUItem(Rec."Production BOM No.", Rec."Item No.");
+                    end;
+                }
+            }
             group(Warehouse)
             {
                 Caption = 'Warehouse';
@@ -828,6 +863,21 @@ page 5700 "Stockkeeping Unit Card"
                         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
                     begin
                         PhysInvtCountMgt.UpdateSKUPhysInvtCount(Rec);
+                    end;
+                }
+                action("Calc. Production Std. Cost")
+                {
+                    AccessByPermission = TableData "Production BOM Header" = R;
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Calc. Production Std. Cost';
+                    Image = CalculateCost;
+                    ToolTip = 'Calculate the unit cost of the SKUs by rolling up the unit cost of each component and resource in the item''s production BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
+
+                    trigger OnAction()
+                    var
+                        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+                    begin
+                        CalculateStandardCost.CalcItemSKU(Rec."Item No.", Rec."Location Code", Rec."Variant Code");
                     end;
                 }
             }

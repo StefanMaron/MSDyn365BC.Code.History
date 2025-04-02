@@ -285,7 +285,7 @@ table 368 "Dimension Selection Buffer"
         if AnalysisView.Get(AnalysisViewCode) then begin
             if Dim.Get(AnalysisView."Dimension 1 Code") then begin
                 GetSelectedDim := SelectedDim.Get(UserId, ObjectType, ObjectID, AnalysisViewCode, Dim.Code);
-                if AutoSet and not (SelectedDim.Level <> SelectedDim.Level::" ") then begin
+                if AutoSet and not GetSelectedDim then begin
                     SelectedDimLevel := SelectedDim.Level::"Level 2";
                     GetSelectedDim := true;
                 end else
@@ -316,7 +316,7 @@ table 368 "Dimension Selection Buffer"
                   SelectedDim."Dimension Value Filter", SelectedDim.Level);
 
             GetSelectedDim := SelectedDim.Get(UserId, ObjectType, ObjectID, AnalysisViewCode, AccTableCaption);
-            if AutoSet and not (SelectedDim.Level <> SelectedDim.Level::" ") then
+            if AutoSet and not GetSelectedDim then
                 SelectedDimLevel := SelectedDim.Level::"Level 1"
             else
                 SelectedDimLevel := SelectedDim.Level;

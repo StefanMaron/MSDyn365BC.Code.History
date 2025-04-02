@@ -293,7 +293,7 @@ codeunit 137001 "SCM Online Adjustment"
         // [GIVEN] Routing and BOM assigned to parent item.
         Item.Validate("Routing No.", RoutingHeader."No.");
         Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
-        Item.Validate("Flushing Method", Item."Flushing Method"::Manual);
+        Item.Validate("Flushing Method", Item."Flushing Method"::"Pick + Manual");
         Item.Modify(true);
 
         Item1.CalcFields(Inventory);
@@ -894,7 +894,7 @@ codeunit 137001 "SCM Online Adjustment"
                 begin
                     LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
                     LibraryManufacturing.CreateOutputJournal(ItemJournalLine, ItemJournalTemplate, ItemJournalBatch, '', ProductionOrderNo);
-                    LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+                    LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
                 end;
         end;
 

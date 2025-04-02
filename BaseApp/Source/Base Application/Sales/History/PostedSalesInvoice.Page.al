@@ -41,6 +41,13 @@ page 132 "Posted Sales Invoice"
                     Importance = Promoted;
                     ToolTip = 'Specifies the posted invoice number.';
                 }
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer No.';
+                    Editable = false;
+                    Visible = false;
+                }
                 field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
@@ -520,6 +527,15 @@ page 132 "Posted Sales Invoice"
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer that the items were shipped to.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the the name of the customer that you delivered the items to.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Basic, Suite;
@@ -734,6 +750,7 @@ page 132 "Posted Sales Invoice"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Sales Invoice Header"),
                               "No." = field("No.");

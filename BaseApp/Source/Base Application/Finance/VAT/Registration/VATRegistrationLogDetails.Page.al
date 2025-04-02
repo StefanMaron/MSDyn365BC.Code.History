@@ -21,27 +21,22 @@ page 247 "VAT Registration Log Details"
                 field("Field Name"; Rec."Field Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the field that has been validated by the VAT registration no. validation service.';
                 }
                 field(Requested; Rec.Requested)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the requested value.';
                 }
                 field("Current Value"; Rec."Current Value")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the current value.';
                 }
                 field(Response; Rec.Response)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the value that was returned by the service.';
                 }
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the status of the field validation.';
                 }
             }
         }

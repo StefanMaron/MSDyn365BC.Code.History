@@ -17,11 +17,13 @@ enum 5779 "Whse. Reference Document Type"
     value(9; "Posted T. Receipt") { Caption = 'Posted Transfer Receipt'; }
     value(10; "Posted T. Shipment") { Caption = 'Posted Transfer Shipment'; }
     value(11; "Item Journal") { Caption = 'Item Journal'; }
-    value(12; "Prod.") { Caption = 'Production'; }
+    // Implemented in enum extension Mfg. Whse. Reference Doc Type
+    // value(12; "Prod.") { Caption = 'Production'; }
     value(13; "Put-away") { Caption = 'Put-away'; }
     value(14; Pick) { Caption = 'Pick'; }
     value(15; Movement) { Caption = 'Movement'; }
     value(16; "BOM Journal") { Caption = 'BOM Journal'; }
     value(17; "Job Journal") { Caption = 'Project Journal'; }
-    value(18; "Assembly") { Caption = 'Assembly'; }
+    // Implemented in enum extension Asm. Whse. Reference Doc Type
+    // value(18; "Assembly") { Caption = 'Assembly'; }
 }

@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+#if not CLEANSCHEMA26 
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,14 +9,10 @@ table 10880 "Payment Period Setup"
 {
     Caption = 'Payment Period Setup';
     ObsoleteReason = 'This table is obsolete. Replaced by W1 extension "Payment Practices".';
-#if CLEAN23
     ObsoleteState = Removed;
     ObsoleteTag = '26.0';
-#else
-    ObsoleteState = Pending;
-    ObsoleteTag = '23.0';
-#endif
     DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {
@@ -69,3 +66,5 @@ table 10880 "Payment Period Setup"
     end;
 }
 
+ 
+#endif

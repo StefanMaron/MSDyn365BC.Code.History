@@ -24,7 +24,6 @@ page 108 "Financial Reports"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the unique name (code) of the financial report.';
                     trigger OnDrillDown()
                     var
                         AccScheduleOverview: Page "Acc. Schedule Overview";
@@ -37,13 +36,11 @@ page 108 "Financial Reports"
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the financial report definition. The description is shown as a title on the final report when you run it to get a PDF or to print it.';
                 }
                 field("Financial Report Row Group"; Rec."Financial Report Row Group")
                 {
                     Caption = 'Row Definition';
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the row definition (code) to be used for this financial report.';
                 }
                 field(AnalysisViewRow; AnalysisViewRow)
                 {
@@ -71,7 +68,6 @@ page 108 "Financial Reports"
                 {
                     Caption = 'Column Definition';
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the column definition (code) to be used for this financial report.';
                 }
                 field(AnalysisViewColumn; AnalysisViewColumn)
                 {
@@ -94,6 +90,10 @@ page 108 "Financial Reports"
 
                         ColumnLayoutName.Modify();
                     end;
+                }
+                field("Internal Description"; Rec."Internal Description")
+                {
+                    ApplicationArea = Basic, Suite;
                 }
             }
         }

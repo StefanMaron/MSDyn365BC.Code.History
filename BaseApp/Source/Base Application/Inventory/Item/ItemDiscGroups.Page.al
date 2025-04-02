@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Item;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Item;
 
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;

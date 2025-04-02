@@ -21,6 +21,7 @@ table 7200 "CDS Connection Setup"
     {
         field(1; "Primary Key"; Code[20])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
             DataClassification = SystemMetadata;
         }

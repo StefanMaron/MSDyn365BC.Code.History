@@ -7,20 +7,11 @@ namespace Microsoft.Inventory.Costing;
 using Microsoft.Assembly.History;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
-using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Projects.Resources.Resource;
-using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
@@ -30,10 +21,14 @@ using Microsoft.Sales.Receivables;
 codeunit 5836 "Cost Calculation Management"
 {
     Permissions = TableData "Item Ledger Entry" = r,
-                  TableData "Prod. Order Capacity Need" = r,
                   TableData "Value Entry" = r;
 
     SingleInstance = true;
+
+#if not CLEAN26
+    var
+        MfgCostCalculationMgt: Codeunit "Mfg. Cost Calculation Mgt.";
+#endif
 
     procedure ResourceCostPerUnit(No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal)
     var
@@ -46,602 +41,163 @@ codeunit 5836 "Cost Calculation Management"
         UnitCost := Resource."Unit Cost";
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by procedure CalcRoutingCostPerUnit()', '23.0')]
-    procedure RoutingCostPerUnit(Type: Enum "Capacity Type"; No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit)
-    var
-        UnitCostCalculationTypeEnum: Enum "Unit Cost Calculation Type";
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcRoutingCostPerUnit(Type: Enum Microsoft.Manufacturing.Capacity."Capacity Type"; No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum Microsoft.Foundation.Enums."Unit Cost Calculation Type")
     begin
-        UnitCostCalculationTypeEnum := "Unit Cost Calculation Type".FromInteger(UnitCostCalculation);
-        CalcRoutingCostPerUnit(Type, No, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculationTypeEnum);
-        UnitCostCalculation := UnitCostCalculationTypeEnum.AsInteger();
+        MfgCostCalculationMgt.CalcRoutingCostPerUnit(Type, No, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation);
     end;
 #endif
 
-    procedure CalcRoutingCostPerUnit(Type: Enum "Capacity Type"; No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type")
-    var
-        WorkCenter: Record "Work Center";
-        MachineCenter: Record "Machine Center";
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcRoutingCostPerUnit(Type: Enum Microsoft.Manufacturing.Capacity."Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum Microsoft.Foundation.Enums."Unit Cost Calculation Type"; WorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center"; MachineCenter: Record Microsoft.Manufacturing.MachineCenter."Machine Center")
     begin
-        case Type of
-            Type::"Work Center":
-                WorkCenter.Get(No);
-            Type::"Machine Center":
-                MachineCenter.Get(No);
-        end;
-        CalcRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter);
-    end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by procedure CalcRoutingCostPerUnit()', '23.0')]
-    procedure RoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
-    var
-        UnitCostCalculationTypeEnum: Enum "Unit Cost Calculation Type";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter, IsHandled);
-        if IsHandled then
-            exit;
-
-        UnitCostCalculationTypeEnum := "Unit Cost Calculation Type".FromInteger(UnitCostCalculation);
-        CalcRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculationTypeEnum, WorkCenter, MachineCenter);
-        UnitCostCalculation := UnitCostCalculationTypeEnum.AsInteger();
+        MfgCostCalculationMgt.CalcRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter);
     end;
 #endif
 
-    procedure CalcRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
-    var
-#if not CLEAN23
-        UnitCostCalculationOption: Option;
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcShareOfTotalCapCost(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var ShareOfTotalCapCost: Decimal)
+    begin
+        MfgCostCalculationMgt.CalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
+    end;
 #endif
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCalcRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter, IsHandled);
-        if IsHandled then
-            exit;
 
-        UnitCostCalculation := UnitCostCalculation::Time;
-        case Type of
-            Type::"Work Center":
-                begin
-                    UnitCostCalculation := WorkCenter."Unit Cost Calculation";
-                    IndirCostPct := WorkCenter."Indirect Cost %";
-                    OvhdRate := WorkCenter."Overhead Rate";
-                    if WorkCenter."Specific Unit Cost" then
-                        DirUnitCost := CalcDirUnitCost(UnitCost, OvhdRate, IndirCostPct)
-                    else begin
-                        DirUnitCost := WorkCenter."Direct Unit Cost";
-                        UnitCost := WorkCenter."Unit Cost";
-                    end;
-                end;
-            Type::"Machine Center":
-                begin
-                    MachineCenter.TestField("Work Center No.");
-                    DirUnitCost := MachineCenter."Direct Unit Cost";
-                    OvhdRate := MachineCenter."Overhead Rate";
-                    IndirCostPct := MachineCenter."Indirect Cost %";
-                    UnitCost := MachineCenter."Unit Cost";
-                end;
-        end;
-#if not CLEAN23
-        UnitCostCalculationOption := UnitCostCalculation.AsInteger();
-        OnAfterRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculationOption, WorkCenter, MachineCenter);
-        UnitCostCalculation := "Unit Cost Calculation Type".FromInteger(UnitCostCalculationOption);
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcProdOrderLineStdCost(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; CurrencyFactor: Decimal; RndgPrec: Decimal; var StdMatCost: Decimal; var StdCapDirCost: Decimal; var StdSubDirCost: Decimal; var StdCapOvhdCost: Decimal; var StdMfgOvhdCost: Decimal)
+    begin
+        MfgCostCalculationMgt.CalcProdOrderLineStdCost(ProdOrderLine, CurrencyFactor, RndgPrec, StdMatCost, StdCapDirCost, StdSubDirCost, StdCapOvhdCost, StdMfgOvhdCost);
+    end;
 #endif
-        OnAfterCalcRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter);
-    end;
 
-    procedure CalcShareOfTotalCapCost(ProdOrderLine: Record "Prod. Order Line"; var ShareOfTotalCapCost: Decimal)
-    var
-        Qty: Decimal;
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcProdOrderLineExpCost(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ShareOfTotalCapCost: Decimal; var ExpMatCost: Decimal; var ExpCapDirCost: Decimal; var ExpSubDirCost: Decimal; var ExpCapOvhdCost: Decimal; var ExpMfgOvhdCost: Decimal)
     begin
-        ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.", "Routing No.", "Routing Reference No.");
-        ProdOrderLine.SetRange(Status, ProdOrderLine.Status);
-        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-        ProdOrderLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
-        ProdOrderLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
-        ShareOfTotalCapCost := 0;
-        Qty := ProdOrderLine.Quantity;
-        ProdOrderLine.CalcSums(Quantity);
-        if ProdOrderLine.Quantity <> 0 then
-            ShareOfTotalCapCost := Qty / ProdOrderLine.Quantity;
-
-        OnAfterCalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
+        MfgCostCalculationMgt.CalcProdOrderLineExpCost(ProdOrderLine, ShareOfTotalCapCost, ExpMatCost, ExpCapDirCost, ExpSubDirCost, ExpCapOvhdCost, ExpMfgOvhdCost);
     end;
+#endif
 
-    procedure CalcProdOrderLineStdCost(ProdOrderLine: Record "Prod. Order Line"; CurrencyFactor: Decimal; RndgPrec: Decimal; var StdMatCost: Decimal; var StdCapDirCost: Decimal; var StdSubDirCost: Decimal; var StdCapOvhdCost: Decimal; var StdMfgOvhdCost: Decimal)
-    var
-        Item: Record Item;
-        InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
-        QtyBase: Decimal;
-        IsHandled: Boolean;
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcProdOrderLineActCost(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var ActMatCost: Decimal; var ActCapDirCost: Decimal; var ActSubDirCost: Decimal; var ActCapOvhdCost: Decimal; var ActMfgOvhdCost: Decimal; var ActMatCostCostACY: Decimal; var ActCapDirCostACY: Decimal; var ActSubDirCostACY: Decimal; var ActCapOvhdCostACY: Decimal; var ActMfgOvhdCostACY: Decimal)
     begin
-        if InvtAdjmtEntryOrder.Get(InvtAdjmtEntryOrder."Order Type"::Production, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.") and
-           InvtAdjmtEntryOrder."Completely Invoiced"
-        then begin
-            Item."Single-Level Material Cost" := InvtAdjmtEntryOrder."Single-Level Material Cost";
-            Item."Single-Level Capacity Cost" := InvtAdjmtEntryOrder."Single-Level Capacity Cost";
-            Item."Single-Level Subcontrd. Cost" := InvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
-            Item."Single-Level Cap. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
-            Item."Single-Level Mfg. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
-            OnCalcProdOrderLineStdCostOnAfterCalcSingleLevelCost(Item, InvtAdjmtEntryOrder);
-            QtyBase := ProdOrderLine."Finished Qty. (Base)";
-        end else begin
-            Item.Get(ProdOrderLine."Item No.");
-            QtyBase := ProdOrderLine."Quantity (Base)";
-        end;
-
-        IsHandled := false;
-        OnBeforeCalcProdOrderLineStdCost(
-          ProdOrderLine, QtyBase, CurrencyFactor, RndgPrec,
-          StdMatCost, StdCapDirCost, StdSubDirCost, StdCapOvhdCost, StdMfgOvhdCost, IsHandled);
-        if IsHandled then
-            exit;
-
-        StdMatCost := StdMatCost +
-          Round(QtyBase * Item."Single-Level Material Cost" * CurrencyFactor, RndgPrec);
-        StdCapDirCost := StdCapDirCost +
-          Round(QtyBase * Item."Single-Level Capacity Cost" * CurrencyFactor, RndgPrec);
-        StdSubDirCost := StdSubDirCost +
-          Round(QtyBase * Item."Single-Level Subcontrd. Cost" * CurrencyFactor, RndgPrec);
-        StdCapOvhdCost := StdCapOvhdCost +
-          Round(QtyBase * Item."Single-Level Cap. Ovhd Cost" * CurrencyFactor, RndgPrec);
-        StdMfgOvhdCost := StdMfgOvhdCost +
-          Round(QtyBase * Item."Single-Level Mfg. Ovhd Cost" * CurrencyFactor, RndgPrec);
+        MfgCostCalculationMgt.CalcProdOrderLineActCost(ProdOrderLine, ActMatCost, ActCapDirCost, ActSubDirCost, ActCapOvhdCost, ActMfgOvhdCost, ActMatCostCostACY, ActCapDirCostACY, ActSubDirCostACY, ActCapOvhdCostACY, ActMfgOvhdCostACY);
     end;
+#endif
 
-    procedure CalcProdOrderLineExpCost(ProdOrderLine: Record "Prod. Order Line"; ShareOfTotalCapCost: Decimal; var ExpMatCost: Decimal; var ExpCapDirCost: Decimal; var ExpSubDirCost: Decimal; var ExpCapOvhdCost: Decimal; var ExpMfgOvhdCost: Decimal)
-    var
-        WorkCenter: Record "Work Center";
-        ProdOrderComp: Record "Prod. Order Component";
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
-        ExpOperCost: Decimal;
-        ExpMfgDirCost: Decimal;
-        ExpCapDirCostRtng: Decimal;
-        ExpSubDirCostRtng: Decimal;
-        ExpCapOvhdCostRtng: Decimal;
-        ExpOvhdCost: Decimal;
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcProdOrderExpCapNeed(ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; DrillDown: Boolean): Decimal
     begin
-        ProdOrderComp.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.");
-        ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
-        ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-        ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-        OnCalcProdOrderLineExpCostOnAfterProdOrderCompSetFilters(ProdOrderComp, ProdOrderLine);
-        if ProdOrderComp.Find('-') then
-            repeat
-                ExpMatCost := ExpMatCost + ProdOrderComp."Cost Amount";
-            until ProdOrderComp.Next() = 0;
-
-        ProdOrderRtngLine.SetRange(Status, ProdOrderLine.Status);
-        ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-        ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
-        ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
-        OnCalcProdOrderLineExpCostOnAfterProdOrderRtngLineSetFilters(ProdOrderRtngLine, ProdOrderLine);
-        if ProdOrderRtngLine.Find('-') then
-            repeat
-                ExpOperCost :=
-                  ProdOrderRtngLine."Expected Operation Cost Amt." -
-                  ProdOrderRtngLine."Expected Capacity Ovhd. Cost";
-                OnCalcProdOrderLineExpCostOnExpOperCostCalculated(ExpOperCost, ProdOrderRtngLine);
-                if ProdOrderRtngLine.Type = ProdOrderRtngLine.Type::"Work Center" then begin
-                    if not WorkCenter.Get(ProdOrderRtngLine."No.") then
-                        Clear(WorkCenter);
-                end else
-                    Clear(WorkCenter);
-
-                if WorkCenter."Subcontractor No." <> '' then
-                    ExpSubDirCostRtng := ExpSubDirCostRtng + ExpOperCost
-                else
-                    ExpCapDirCostRtng := ExpCapDirCostRtng + ExpOperCost;
-                ExpCapOvhdCostRtng := ExpCapOvhdCostRtng + ProdOrderRtngLine."Expected Capacity Ovhd. Cost";
-            until ProdOrderRtngLine.Next() = 0;
-
-        ExpCapDirCost := ExpCapDirCost + Round(ExpCapDirCostRtng * ShareOfTotalCapCost);
-        ExpSubDirCost := ExpSubDirCost + Round(ExpSubDirCostRtng * ShareOfTotalCapCost);
-        ExpCapOvhdCost := ExpCapOvhdCost + Round(ExpCapOvhdCostRtng * ShareOfTotalCapCost);
-        ExpMfgDirCost := ExpMatCost + ExpCapDirCost + ExpSubDirCost + ExpCapOvhdCost;
-        ExpOvhdCost := ExpMfgOvhdCost + ProdOrderLine."Overhead Rate" * ProdOrderLine."Quantity (Base)";
-        ExpMfgOvhdCost := ExpOvhdCost +
-          Round(CalcOvhdCost(ExpMfgDirCost, ProdOrderLine."Indirect Cost %", 0, 0));
-
-        OnAfterCalcProdOrderLineExpCost(ProdOrderLine, ShareOfTotalCapCost, ExpMatCost, ExpCapDirCost, ExpSubDirCost, ExpCapOvhdCost, ExpMfgOvhdCost);
+        exit(MfgCostCalculationMgt.CalcProdOrderExpCapNeed(ProdOrder, DrillDown));
     end;
+#endif
 
-    procedure CalcProdOrderLineActCost(ProdOrderLine: Record "Prod. Order Line"; var ActMatCost: Decimal; var ActCapDirCost: Decimal; var ActSubDirCost: Decimal; var ActCapOvhdCost: Decimal; var ActMfgOvhdCost: Decimal; var ActMatCostCostACY: Decimal; var ActCapDirCostACY: Decimal; var ActSubDirCostACY: Decimal; var ActCapOvhdCostACY: Decimal; var ActMfgOvhdCostACY: Decimal)
-    var
-        TempSourceInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)" temporary;
-        CalcInvtAdjmtOrder: Codeunit "Calc. Inventory Adjmt. - Order";
-        OutputQty: Decimal;
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcProdOrderActTimeUsed(ProdOrder: Record Microsoft.Manufacturing.Document."Production Order"; DrillDown: Boolean): Decimal
     begin
-        if ProdOrderLine.IsStatusLessThanReleased() then begin
-            ActMatCost := 0;
-            ActCapDirCost := 0;
-            ActSubDirCost := 0;
-            ActCapOvhdCost := 0;
-            ActMfgOvhdCost := 0;
-            ActMatCostCostACY := 0;
-            ActCapDirCostACY := 0;
-            ActCapOvhdCostACY := 0;
-            ActSubDirCostACY := 0;
-            ActMfgOvhdCostACY := 0;
-            exit;
-        end;
-
-        OnCalcProdOrderLineActCostOnBeforeSetProdOrderLine(ProdOrderLine, ActMatCost, ActCapDirCost, ActSubDirCost, ActCapOvhdCost, ActMfgOvhdCost, ActMatCostCostACY, ActCapDirCostACY, ActSubDirCostACY, ActCapOvhdCostACY, ActMfgOvhdCostACY);
-
-        TempSourceInvtAdjmtEntryOrder.SetProdOrderLine(ProdOrderLine);
-        OutputQty := CalcInvtAdjmtOrder.CalcOutputQty(TempSourceInvtAdjmtEntryOrder, false);
-        CalcInvtAdjmtOrder.CalcActualUsageCosts(TempSourceInvtAdjmtEntryOrder, OutputQty, TempSourceInvtAdjmtEntryOrder);
-
-        ActMatCost += TempSourceInvtAdjmtEntryOrder."Single-Level Material Cost";
-        ActCapDirCost += TempSourceInvtAdjmtEntryOrder."Single-Level Capacity Cost";
-        ActSubDirCost += TempSourceInvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
-        ActCapOvhdCost += TempSourceInvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
-        ActMfgOvhdCost += TempSourceInvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
-        ActMatCostCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Material Cost (ACY)";
-        ActCapDirCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Capacity Cost (ACY)";
-        ActCapOvhdCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Cap. Ovhd Cost(ACY)";
-        ActSubDirCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Subcontrd Cost(ACY)";
-        ActMfgOvhdCostACY += TempSourceInvtAdjmtEntryOrder."Single-Lvl Mfg. Ovhd Cost(ACY)";
+        exit(MfgCostCalculationMgt.CalcProdOrderActTimeUsed(ProdOrder, DrillDown));
     end;
+#endif
 
-    procedure CalcProdOrderExpCapNeed(ProdOrder: Record "Production Order"; DrillDown: Boolean): Decimal
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcOutputQtyBaseOnPurchOrder(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"): Decimal
     var
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
-        ProdOrderCapNeed: Record "Prod. Order Capacity Need";
-        WorkCenter: Record "Work Center";
-        NeededTime: Decimal;
-        ExpectedCapNeed: Decimal;
-    begin
-        OnBeforeCalcProdOrderExpCapNeed(ProdOrder, ProdOrderCapNeed, ProdOrderRtngLine);
-
-        if ProdOrder.Status <> ProdOrder.Status::Finished then begin
-            ProdOrderCapNeed.SetRange(Status, ProdOrder.Status);
-            ProdOrderCapNeed.SetRange("Prod. Order No.", ProdOrder."No.");
-            ProdOrderCapNeed.SetFilter(Type, ProdOrder.GetFilter("Capacity Type Filter"));
-            ProdOrderCapNeed.SetFilter("No.", ProdOrder.GetFilter("Capacity No. Filter"));
-            ProdOrderCapNeed.SetFilter("Work Center No.", ProdOrder.GetFilter("Work Center Filter"));
-            ProdOrderCapNeed.SetFilter(Date, ProdOrder.GetFilter("Date Filter"));
-            ProdOrderCapNeed.SetRange("Requested Only", false);
-            OnCalcProdOrderExpCapNeedOnAfterProdOrderCapNeedSetFilters(ProdOrderCapNeed, ProdOrder);
-            if ProdOrderCapNeed.FindSet() then begin
-                repeat
-                    if ProdOrderCapNeed.Type = ProdOrderCapNeed.Type::"Work Center" then begin
-                        if not WorkCenter.Get(ProdOrderCapNeed."No.") then
-                            Clear(WorkCenter);
-                    end else
-                        Clear(WorkCenter);
-                    if WorkCenter."Subcontractor No." = '' then begin
-                        NeededTime += ProdOrderCapNeed."Needed Time (ms)";
-                        ProdOrderCapNeed.Mark(true);
-                    end;
-                until ProdOrderCapNeed.Next() = 0;
-                ProdOrderCapNeed.MarkedOnly(true);
-            end;
-            if DrillDown then
-                PAGE.Run(0, ProdOrderCapNeed, ProdOrderCapNeed."Needed Time")
-            else
-                exit(NeededTime);
-        end else begin
-            ProdOrderRtngLine.SetRange(Status, ProdOrder.Status);
-            ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrder."No.");
-            if ProdOrderRtngLine.FindSet() then begin
-                repeat
-                    if ProdOrderRtngLine.Type = ProdOrderRtngLine.Type::"Work Center" then begin
-                        if not WorkCenter.Get(ProdOrderRtngLine."No.") then
-                            Clear(WorkCenter);
-                    end else
-                        Clear(WorkCenter);
-                    if WorkCenter."Subcontractor No." = '' then begin
-                        ExpectedCapNeed += ProdOrderRtngLine."Expected Capacity Need";
-                        OnCalcProdOrderExpCapNeedOnBeforeMarkNotFinishedProdOrderRtngLine(ProdOrderRtngLine, WorkCenter, ExpectedCapNeed);
-                        ProdOrderRtngLine.Mark(true);
-                    end;
-                until ProdOrderRtngLine.Next() = 0;
-                ProdOrderRtngLine.MarkedOnly(true);
-            end;
-            if DrillDown then
-                PAGE.Run(0, ProdOrderRtngLine, ProdOrderRtngLine."Expected Capacity Need")
-            else
-                exit(ExpectedCapNeed);
-        end;
-    end;
-
-    procedure CalcProdOrderActTimeUsed(ProdOrder: Record "Production Order"; DrillDown: Boolean): Decimal
-    var
-        CapLedgEntry: Record "Capacity Ledger Entry";
-        WorkCenter: Record "Work Center";
-        CalendarMgt: Codeunit "Shop Calendar Management";
-        Qty: Decimal;
-        IsHandled: Boolean;
-    begin
-        OnBeforeCalcProdOrderActTimeUsed(ProdOrder, CapLedgEntry);
-
-        if ProdOrder.IsStatusLessThanReleased() then
-            exit(0);
-
-        CapLedgEntry.SetCurrentKey("Order Type", "Order No.");
-        CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Production);
-        CapLedgEntry.SetRange("Order No.", ProdOrder."No.");
-        OnCalcProdOrderActTimeUsedOnAfterCapacityLedgerEntrySetFilters(CapLedgEntry, ProdOrder);
-        if CapLedgEntry.FindSet() then begin
-            repeat
-                ClearWorkCenter(CapLedgEntry, WorkCenter);
-                if WorkCenter."Subcontractor No." = '' then begin
-                    if CapLedgEntry."Qty. per Cap. Unit of Measure" = 0 then
-                        GetCapacityUoM(CapLedgEntry);
-
-                    IsHandled := false;
-                    OnCalcProdOrderActTimeUsedOnBeforeCalcQty(CapLedgEntry, Qty, IsHandled);
-                    if not IsHandled then
-                        Qty +=
-                            CapLedgEntry.Quantity /
-                            CapLedgEntry."Qty. per Cap. Unit of Measure" *
-                            CalendarMgt.TimeFactor(CapLedgEntry."Cap. Unit of Measure Code");
-                    CapLedgEntry.Mark(true);
-                end;
-            until CapLedgEntry.Next() = 0;
-            CapLedgEntry.MarkedOnly(true);
-        end;
-
-        if DrillDown then
-            PAGE.Run(0, CapLedgEntry, CapLedgEntry.Quantity)
-        else
-            exit(Qty);
-    end;
-
-    local procedure GetCapacityUoM(var CapacityLedgerEntry: Record "Capacity Ledger Entry")
-    var
-        WorkCenter: Record "Work Center";
-    begin
-        CapacityLedgerEntry."Qty. per Cap. Unit of Measure" := 1;
-        if WorkCenter.Get(CapacityLedgerEntry."Work Center No.") then
-            CapacityLedgerEntry."Cap. Unit of Measure Code" := WorkCenter."Unit of Measure Code";
-    end;
-
-    local procedure ClearWorkCenter(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; var WorkCenter: Record "Work Center")
-    begin
-        if CapacityLedgerEntry.Type = CapacityLedgerEntry.Type::"Work Center" then begin
-            if not WorkCenter.Get(CapacityLedgerEntry."No.") then
-                Clear(WorkCenter);
-        end else
-            Clear(WorkCenter);
-        OnAfterClearWorkCenter(CapacityLedgerEntry, WorkCenter);
-    end;
-
-    procedure CalcOutputQtyBaseOnPurchOrder(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"): Decimal
-    var
-        PurchLine: Record "Purchase Line";
-        Item: Record Item;
+        PurchLine: Record Microsoft.Purchases.Document."Purchase Line";
+        Item: Record Microsoft.Inventory.Item.Item;
         UOMMgt: Codeunit "Unit of Measure Management";
         OutstandingBaseQty: Decimal;
         IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OutstandingBaseQty := 0;
-        OnBeforeCalcOutputQtyBaseOnPurchOrder(ProdOrderLine, ProdOrderRtngLine, OutstandingBaseQty, IsHandled);
-        if IsHandled then
-            exit;
-
-        PurchLine.SetCurrentKey("Document Type", Type, "Prod. Order No.", "Prod. Order Line No.", "Routing No.", "Operation No.");
-        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
-        PurchLine.SetRange(Type, PurchLine.Type::Item);
-        PurchLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-        PurchLine.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-        PurchLine.SetRange("Routing No.", ProdOrderRtngLine."Routing No.");
-        PurchLine.SetRange("Operation No.", ProdOrderRtngLine."Operation No.");
-        if PurchLine.Find('-') then
-            repeat
-                if Item."No." <> PurchLine."No." then
-                    Item.Get(PurchLine."No.");
-                OutstandingBaseQty :=
-                  OutstandingBaseQty +
-                  UOMMgt.GetQtyPerUnitOfMeasure(Item, PurchLine."Unit of Measure Code") * PurchLine."Outstanding Quantity";
-            until PurchLine.Next() = 0;
-        exit(OutstandingBaseQty);
-    end;
-
-    procedure CalcActOutputQtyBase(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"): Decimal
-    var
-        CapLedgEntry: Record "Capacity Ledger Entry";
-    begin
-        if ProdOrderLine.IsStatusLessThanReleased() then
-            exit(0);
-
-        CapLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.");
-        CapLedgEntry.SetFilterByProdOrderRoutingLine(
-          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-          ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
-        CapLedgEntry.SetRange("Operation No.", ProdOrderRtngLine."Operation No.");
-        OnCalcActOutputQtyBaseOnAfterSetFilters(CapLedgEntry, ProdOrderLine, ProdOrderRtngLine);
-        CapLedgEntry.CalcSums("Output Quantity");
-        exit(CapLedgEntry."Output Quantity");
-    end;
-
-    procedure CalcActualOutputQtyWithNoCapacity(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"): Decimal
-    var
-        CapLedgEntry: Record "Capacity Ledger Entry";
-    begin
-        if ProdOrderLine.Status.AsInteger() < ProdOrderLine.Status::Released.AsInteger() then
-            exit(0);
-
-        CapLedgEntry.SetCurrentKey(
-          "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
-        CapLedgEntry.SetFilterByProdOrderRoutingLine(
-          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-          ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
-        CapLedgEntry.SetRange("Last Output Line", true);
-        CapLedgEntry.SetRange(Quantity, 0);
-        CapLedgEntry.CalcSums("Output Quantity", "Scrap Quantity");
-        exit(CapLedgEntry."Output Quantity" + CapLedgEntry."Scrap Quantity");
-    end;
-
-    procedure CalcActQtyBase(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"): Decimal
-    var
-        CapLedgEntry: Record "Capacity Ledger Entry";
-    begin
-        if ProdOrderLine.IsStatusLessThanReleased() then
-            exit(0);
-
-        CapLedgEntry.SetCurrentKey(
-          CapLedgEntry."Order Type", CapLedgEntry."Order No.", CapLedgEntry."Order Line No.", CapLedgEntry."Routing No.", CapLedgEntry."Routing Reference No.", CapLedgEntry."Operation No.", CapLedgEntry."Last Output Line");
-        CapLedgEntry.SetFilterByProdOrderRoutingLine(
-          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-          ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
-        CapLedgEntry.SetRange("Last Output Line", true);
-        CapLedgEntry.CalcSums(CapLedgEntry.Quantity);
-        exit(CapLedgEntry.Quantity / ProdOrderLine."Qty. per Unit of Measure");
-    end;
-
-    procedure CalcActOperOutputAndScrap(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line") OutputQtyBase: Decimal
-    var
-        CapLedgEntry: Record "Capacity Ledger Entry";
-    begin
-        if ProdOrderLine.IsStatusLessThanReleased() then
-            exit(0);
-
-        CapLedgEntry.SetCurrentKey(
-          "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
-        CapLedgEntry.SetFilterByProdOrderRoutingLine(
-          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-          ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
-        CapLedgEntry.SetRange("Last Output Line", true);
-        OnCalcActOperOutputAndScrapOnAfterFilterCapLedgEntry(CapLedgEntry);
-        CapLedgEntry.CalcSums("Output Quantity", "Scrap Quantity");
-        OutputQtyBase := CapLedgEntry."Output Quantity" + CapLedgEntry."Scrap Quantity";
-
-        exit(OutputQtyBase);
-    end;
-
-    procedure CalcActNeededQtyBase(ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; OutputQtyBase: Decimal) Result: Decimal
-    var
-        CompQtyBasePerMfgQtyBase: Decimal;
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCalcActNeededQtyBase(OutputQtyBase, ProdOrderComp, ProdOrderLine, Result, IsHandled);
-        if IsHandled then
-            exit(Result);
-
-        if (ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::"Pick + Backward") and
-            (ProdOrderComp."Calculation Formula" = ProdOrderComp."Calculation Formula"::" ") then
-            CompQtyBasePerMfgQtyBase := (ProdOrderComp."Quantity per" * ProdOrderComp."Qty. per Unit of Measure") / ProdOrderLine."Qty. per Unit of Measure"
-        else
-            CompQtyBasePerMfgQtyBase := (ProdOrderComp."Quantity" * ProdOrderComp."Qty. per Unit of Measure") / ProdOrderLine."Qty. per Unit of Measure";
-
-        if (ProdOrderComp."Calculation Formula" = ProdOrderComp."Calculation Formula"::"Fixed Quantity") and (OutputQtyBase <> 0) then
-            exit(CalcQtyAdjdForBOMScrap(CompQtyBasePerMfgQtyBase, ProdOrderComp."Scrap %"))
-        else
-            exit(CalcQtyAdjdForBOMScrap(OutputQtyBase * CompQtyBasePerMfgQtyBase, ProdOrderComp."Scrap %"));
-    end;
-
-    procedure CalcActTimeAndQtyBase(ProdOrderLine: Record "Prod. Order Line"; OperationNo: Code[10]; var ActRunTime: Decimal; var ActSetupTime: Decimal; var ActOutputQty: Decimal; var ActScrapQty: Decimal)
-    var
-        CapLedgEntry: Record "Capacity Ledger Entry";
-    begin
-        CapLedgEntry.SetCurrentKey(
-            "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
-        CapLedgEntry.SetFilterByProdOrderRoutingLine(
-          ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
-          ProdOrderLine."Routing No.", ProdOrderLine."Routing Reference No.");
-        CapLedgEntry.SetRange("Operation No.", OperationNo);
-        OnCalcActTimeAndQtyBaseOnAfterFilterCapLedgEntry(CapLedgEntry);
-        if CapLedgEntry.Find('-') then
-            repeat
-                ActSetupTime += CapLedgEntry."Setup Time";
-                ActRunTime += CapLedgEntry."Run Time";
-                // Base Units
-                ActOutputQty += CapLedgEntry."Output Quantity";
-                ActScrapQty += CapLedgEntry."Scrap Quantity";
-            until CapLedgEntry.Next() = 0;
-    end;
-
-    procedure CalcCompItemQtyBase(ProdBOMComponent: Record "Production BOM Line"; CalculationDate: Date; MfgItemQtyBase: Decimal; RtngNo: Code[20]; AdjdForRtngScrap: Boolean): Decimal
-    var
-        RtngLine: Record "Routing Line";
-        IsHandled: Boolean;
-    begin
-        OnBeforeCalcCompItemQtyBase(ProdBOMComponent, CalculationDate, MfgItemQtyBase, RtngNo, AdjdForRtngScrap, IsHandled);
-        if IsHandled then
-            exit(MfgItemQtyBase);
-
-        if ProdBOMComponent."Calculation Formula" = ProdBOMComponent."Calculation Formula"::"Fixed Quantity" then
-            MfgItemQtyBase := ProdBOMComponent.Quantity * ProdBOMComponent.GetQtyPerUnitOfMeasure()
-        else begin
-            MfgItemQtyBase := CalcQtyAdjdForBOMScrap(MfgItemQtyBase, ProdBOMComponent."Scrap %");
-            if AdjdForRtngScrap and FindRountingLine(RtngLine, ProdBOMComponent, CalculationDate, RtngNo) then
-                MfgItemQtyBase := CalcQtyAdjdForRoutingScrap(MfgItemQtyBase, RtngLine."Scrap Factor % (Accumulated)", RtngLine."Fixed Scrap Qty. (Accum.)");
-            MfgItemQtyBase := MfgItemQtyBase * ProdBOMComponent.Quantity * ProdBOMComponent.GetQtyPerUnitOfMeasure();
-        end;
-        exit(MfgItemQtyBase);
-    end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by procedure CalculateCostTime()', '23.0')]
-    procedure CalcCostTime(MfgItemQtyBase: Decimal; SetupTime: Decimal; SetupTimeUOMCode: Code[10]; RunTime: Decimal; RunTimeUOMCode: Code[10]; RtngLotSize: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; WorkCenterNo: Code[20]; UnitCostCalculation: Option Time,Unit; CostInclSetup: Boolean; ConcurrentCapacities: Decimal) CostTime: Decimal
-    begin
-        exit(CalculateCostTime(MfgItemQtyBase, SetupTime, SetupTimeUOMCode, RunTime, RunTimeUOMCode, RtngLotSize, ScrapFactorPctAccum, FixedScrapQtyAccum, WorkCenterNo, "Unit Cost Calculation Type".FromInteger(UnitCostCalculation), CostInclSetup, ConcurrentCapacities));
+        exit(MfgCostCalculationMgt.CalcOutputQtyBaseOnPurchOrder(ProdOrderLine, ProdOrderRtngLine));
     end;
 #endif
 
-    procedure CalculateCostTime(MfgItemQtyBase: Decimal; SetupTime: Decimal; SetupTimeUOMCode: Code[10]; RunTime: Decimal; RunTimeUOMCode: Code[10]; RtngLotSize: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; WorkCenterNo: Code[20]; UnitCostCalculation: Enum "Unit Cost Calculation Type"; CostInclSetup: Boolean; ConcurrentCapacities: Decimal) CostTime: Decimal
-    var
-        ShopCalendarManagement: Codeunit "Shop Calendar Management";
-        UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
-        RunTimePer: Decimal;
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcActOutputQtyBase(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"): Decimal
     begin
-        if ConcurrentCapacities = 0 then
-            ConcurrentCapacities := 1;
-
-        case UnitCostCalculation of
-            UnitCostCalculation::Time:
-                begin
-                    if RtngLotSize = 0 then
-                        RtngLotSize := 1;
-                    RunTimePer := RunTime / RtngLotSize;
-                    CostTime :=
-                      CalcQtyAdjdForRoutingScrap(
-                        Round(
-                          RunTimePer * MfgItemQtyBase * ShopCalendarManagement.QtyperTimeUnitofMeasure(WorkCenterNo, RunTimeUOMCode),
-                          UnitOfMeasureManagement.TimeRndPrecision()),
-                        ScrapFactorPctAccum,
-                        Round(
-                          RunTimePer * FixedScrapQtyAccum * ShopCalendarManagement.QtyperTimeUnitofMeasure(WorkCenterNo, RunTimeUOMCode),
-                          UnitOfMeasureManagement.TimeRndPrecision()));
-                    if CostInclSetup then
-                        CostTime :=
-                          CostTime +
-                          Round(
-                            ConcurrentCapacities *
-                            SetupTime * ShopCalendarManagement.QtyperTimeUnitofMeasure(WorkCenterNo, SetupTimeUOMCode),
-                            UnitOfMeasureManagement.TimeRndPrecision());
-                end;
-            UnitCostCalculation::Units:
-                CostTime := CalcQtyAdjdForRoutingScrap(MfgItemQtyBase, ScrapFactorPctAccum, FixedScrapQtyAccum);
-        end;
+        exit(MfgCostCalculationMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRtngLine));
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcActualOutputQtyWithNoCapacity(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"): Decimal
+    begin
+        exit(MfgCostCalculationMgt.CalcActualOutputQtyWithNoCapacity(ProdOrderLine, ProdOrderRtngLine));
+    end;
+#endif
+
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcActQtyBase(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"): Decimal
+    begin
+        exit(MfgCostCalculationMgt.CalcActQtyBase(ProdOrderLine, ProdOrderRtngLine));
+    end;
+#endif
+
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcActOperOutputAndScrap(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line") OutputQtyBase: Decimal
+    begin
+        exit(MfgCostCalculationMgt.CalcActOperOutputAndScrap(ProdOrderLine, ProdOrderRtngLine));
+    end;
+#endif
+
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcActNeededQtyBase(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; OutputQtyBase: Decimal) Result: Decimal
+    begin
+        exit(MfgCostCalculationMgt.CalcActNeededQtyBase(ProdOrderLine, ProdOrderComp, OutputQtyBase));
+    end;
+#endif
+
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcActTimeAndQtyBase(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; OperationNo: Code[10]; var ActRunTime: Decimal; var ActSetupTime: Decimal; var ActOutputQty: Decimal; var ActScrapQty: Decimal)
+    begin
+        MfgCostCalculationMgt.CalcActTimeAndQtyBase(ProdOrderLine, OperationNo, ActRunTime, ActSetupTime, ActOutputQty, ActScrapQty);
+    end;
+#endif
+
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalcCompItemQtyBase(ProdBOMComponent: Record Microsoft.Manufacturing.ProductionBOM."Production BOM Line"; CalculationDate: Date; MfgItemQtyBase: Decimal; RtngNo: Code[20]; AdjdForRtngScrap: Boolean): Decimal
+    begin
+        exit(MfgCostCalculationMgt.CalcCompItemQtyBase(ProdBOMComponent, CalculationDate, MfgItemQtyBase, RtngNo, AdjdForRtngScrap));
+    end;
+#endif
+
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure CalculateCostTime(MfgItemQtyBase: Decimal; SetupTime: Decimal; SetupTimeUOMCode: Code[10]; RunTime: Decimal; RunTimeUOMCode: Code[10]; RtngLotSize: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; WorkCenterNo: Code[20]; UnitCostCalculation: Enum Microsoft.Foundation.Enums."Unit Cost Calculation Type"; CostInclSetup: Boolean; ConcurrentCapacities: Decimal) CostTime: Decimal
+    begin
+        exit(MfgCostCalculationMgt.CalculateCostTime(MfgItemQtyBase, SetupTime, SetupTimeUOMCode, RunTime, RunTimeUOMCode, RtngLotSize, ScrapFactorPctAccum, FixedScrapQtyAccum, WorkCenterNo, UnitCostCalculation, CostInclSetup, ConcurrentCapacities));
+    end;
+#endif
+
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     procedure CalcQtyAdjdForBOMScrap(Qty: Decimal; ScrapPct: Decimal) QtyAdjdForBOMScrap: Decimal
-    var
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeCalcQtyAdjdForBOMScrap(Qty, ScrapPct, QtyAdjdForBomScrap, IsHandled);
-        if not IsHandled then
-            exit(Qty * (1 + ScrapPct / 100));
+        exit(MfgCostCalculationMgt.CalcQtyAdjdForBOMScrap(Qty, ScrapPct));
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     procedure CalcQtyAdjdForRoutingScrap(Qty: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal) QtyAdjdForRoutingScrap: Decimal
-    var
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeCalcQtyAdjdForRoutingScrap(Qty, ScrapFactorPctAccum, FixedScrapQtyAccum, QtyAdjdForRoutingScrap, IsHandled);
-        if not IsHandled then
-            exit(Qty * (1 + ScrapFactorPctAccum) + FixedScrapQtyAccum);
+        exit(MfgCostCalculationMgt.CalcQtyAdjdForRoutingScrap(Qty, ScrapFactorPctAccum, FixedScrapQtyAccum));
     end;
+#endif
 
     procedure CalcDirCost(Cost: Decimal; OvhdCost: Decimal; VarPurchCost: Decimal): Decimal
     begin
@@ -663,29 +219,13 @@ codeunit 5836 "Cost Calculation Management"
         exit(Round(DirCost * (1 + IndirCostPct / 100) + OvhdRate, RndgPrec));
     end;
 
-    procedure FindRountingLine(var RoutingLine: Record "Routing Line"; ProdBOMLine: Record "Production BOM Line"; CalculationDate: Date; RoutingNo: Code[20]) RecFound: Boolean
-    var
-        VersionMgt: Codeunit VersionManagement;
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    procedure FindRountingLine(var RoutingLine: Record Microsoft.Manufacturing.Routing."Routing Line"; ProdBOMLine: Record Microsoft.Manufacturing.ProductionBOM."Production BOM Line"; CalculationDate: Date; RoutingNo: Code[20]) RecFound: Boolean
     begin
-        if RoutingNo = '' then
-            exit(false);
-
-        RecFound := false;
-        RoutingLine.SetRange("Routing No.", RoutingNo);
-        RoutingLine.SetRange("Version Code", VersionMgt.GetRtngVersion(RoutingNo, CalculationDate, true));
-        OnFindRountingLineOnAfterRoutingLineSetFilters(RoutingLine, ProdBOMLine, CalculationDate, RoutingNo);
-        if not RoutingLine.IsEmpty() then begin
-            if ProdBOMLine."Routing Link Code" <> '' then
-                RoutingLine.SetRange("Routing Link Code", ProdBOMLine."Routing Link Code");
-            RecFound := RoutingLine.FindFirst();
-            if not RecFound then begin
-                RoutingLine.SetRange("Routing Link Code");
-                RecFound := RoutingLine.FindFirst();
-            end;
-        end;
-
-        exit(RecFound);
+        MfgCostCalculationMgt.FindRoutingLine(RoutingLine, ProdBOMLine, CalculationDate, RoutingNo);
     end;
+#endif
 
     procedure GetRndgSetup(var GLSetup: Record "General Ledger Setup"; var Currency: Record Currency; var RndgSetupRead: Boolean)
     begin
@@ -1213,141 +753,317 @@ codeunit 5836 "Cost Calculation Management"
             until ItemLedgEntry.Next() = 0;
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcShareOfTotalCapCost(var ProdOrderLine: Record "Prod. Order Line"; var ShareOfTotalCapCost: Decimal);
+#if not CLEAN26
+    internal procedure RunOnAfterCalcShareOfTotalCapCost(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var ShareOfTotalCapCost: Decimal);
     begin
+        OnAfterCalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
     end;
 
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcProdOrderLineExpCost(var ProdOrderLine: Record "Prod. Order Line"; var ShareOfTotalCapCost: Decimal; var ExpMatCost: Decimal; var ExpCapDirCost: Decimal; var ExpSubDirCost: Decimal; var ExpCapOvhdCost: Decimal; var ExpMfgOvhdCost: Decimal)
+    local procedure OnAfterCalcShareOfTotalCapCost(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var ShareOfTotalCapCost: Decimal);
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterClearWorkCenter(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; var WorkCenter: Record "Work Center")
+#if not CLEAN26
+    internal procedure RunOnAfterCalcProdOrderLineExpCost(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var ShareOfTotalCapCost: Decimal; var ExpMatCost: Decimal; var ExpCapDirCost: Decimal; var ExpSubDirCost: Decimal; var ExpCapOvhdCost: Decimal; var ExpMfgOvhdCost: Decimal)
     begin
+        OnAfterCalcProdOrderLineExpCost(ProdOrderLine, ShareOfTotalCapCost, ExpMatCost, ExpCapDirCost, ExpSubDirCost, ExpCapOvhdCost, ExpMfgOvhdCost);
     end;
 
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcActNeededQtyBase(var OutputQtyBase: Decimal; ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; var Result: Decimal; var IsHandled: Boolean)
+    local procedure OnAfterCalcProdOrderLineExpCost(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var ShareOfTotalCapCost: Decimal; var ExpMatCost: Decimal; var ExpCapDirCost: Decimal; var ExpSubDirCost: Decimal; var ExpCapOvhdCost: Decimal; var ExpMfgOvhdCost: Decimal)
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcCompItemQtyBase(ProdBOMComponent: Record "Production BOM Line"; CalculationDate: Date; var MfgItemQtyBase: Decimal; RtngNo: Code[20]; AdjdForRtngScrap: Boolean; var IsHandled: Boolean)
+#if not CLEAN26
+    internal procedure RunOnAfterClearWorkCenter(var CapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"; var WorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center")
     begin
+        OnAfterClearWorkCenter(CapacityLedgerEntry, WorkCenter);
     end;
 
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcProdOrderActTimeUsed(ProductionOrder: Record "Production Order"; var CapacityLedgerEntry: Record "Capacity Ledger Entry")
+    local procedure OnAfterClearWorkCenter(var CapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"; var WorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center")
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcProdOrderLineStdCost(var ProdOrderLine: Record "Prod. Order Line"; QtyBase: Decimal; CurrencyFactor: Decimal; RndgPrec: Decimal; var StdMatCost: Decimal; var StdCapDirCost: Decimal; var StdSubDirCost: Decimal; var StdCapOvhdCost: Decimal; var StdMfgOvhdCost: Decimal; var IsHandled: Boolean)
+#if not CLEAN26
+    internal procedure RunOnBeforeCalcActNeededQtyBase(var OutputQtyBase: Decimal; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var Result: Decimal; var IsHandled: Boolean)
     begin
+        OnBeforeCalcActNeededQtyBase(OutputQtyBase, ProdOrderComponent, ProdOrderLine, Result, IsHandled);
     end;
 
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcActNeededQtyBase(var OutputQtyBase: Decimal; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnBeforeCalcCompItemQtyBase(ProdBOMComponent: Record Microsoft.Manufacturing.ProductionBOM."Production BOM Line"; CalculationDate: Date; var MfgItemQtyBase: Decimal; RtngNo: Code[20]; AdjdForRtngScrap: Boolean; var IsHandled: Boolean)
+    begin
+        OnBeforeCalcCompItemQtyBase(ProdBOMComponent, CalculationDate, MfgItemQtyBase, RtngNo, AdjdForRtngScrap, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcCompItemQtyBase(ProdBOMComponent: Record Microsoft.Manufacturing.ProductionBOM."Production BOM Line"; CalculationDate: Date; var MfgItemQtyBase: Decimal; RtngNo: Code[20]; AdjdForRtngScrap: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnBeforeCalcProdOrderActTimeUsed(ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var CapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry")
+    begin
+        OnBeforeCalcProdOrderActTimeUsed(ProductionOrder, CapacityLedgerEntry);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcProdOrderActTimeUsed(ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var CapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry")
+    begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnBeforeCalcProdOrderLineStdCost(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; QtyBase: Decimal; CurrencyFactor: Decimal; RndgPrec: Decimal; var StdMatCost: Decimal; var StdCapDirCost: Decimal; var StdSubDirCost: Decimal; var StdCapOvhdCost: Decimal; var StdMfgOvhdCost: Decimal; var IsHandled: Boolean)
+    begin
+        OnBeforeCalcProdOrderLineStdCost(ProdOrderLine, QtyBase, CurrencyFactor, RndgPrec, StdMatCost, StdCapDirCost, StdSubDirCost, StdCapOvhdCost, StdMfgOvhdCost, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcProdOrderLineStdCost(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; QtyBase: Decimal; CurrencyFactor: Decimal; RndgPrec: Decimal; var StdMatCost: Decimal; var StdCapDirCost: Decimal; var StdSubDirCost: Decimal; var StdCapOvhdCost: Decimal; var StdMfgOvhdCost: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnBeforeCalcQtyAdjdForBOMScrap(Qty: Decimal; ScrapPct: Decimal; var QtyAdjdForBomScrap: Decimal; var IsHandled: Boolean)
+    begin
+        OnBeforeCalcQtyAdjdForBOMScrap(Qty, ScrapPct, QtyAdjdForBomScrap, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcQtyAdjdForBOMScrap(Qty: Decimal; ScrapPct: Decimal; var QtyAdjdForBomScrap: Decimal; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN26
+    internal procedure RunOnBeforeCalcQtyAdjdForRoutingScrap(Qty: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; var QtyAdjdForRoutingScrap: Decimal; var IsHandled: Boolean)
+    begin
+        OnBeforeCalcQtyAdjdForRoutingScrap(Qty, ScrapFactorPctAccum, FixedScrapQtyAccum, QtyAdjdForRoutingScrap, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcQtyAdjdForRoutingScrap(Qty: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; var QtyAdjdForRoutingScrap: Decimal; var IsHandled: Boolean)
     begin
     end;
+#endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcProdOrderExpCapNeed(ProductionOrder: Record "Production Order"; var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+#if not CLEAN26
+    internal procedure RunOnBeforeCalcProdOrderExpCapNeed(ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var ProdOrderCapacityNeed: Record Microsoft.Manufacturing.Document."Prod. Order Capacity Need"; var ProdOrderRoutingLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line")
     begin
+        OnBeforeCalcProdOrderExpCapNeed(ProductionOrder, ProdOrderCapacityNeed, ProdOrderRoutingLine);
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by event OnBeforeCalcRoutingCostPerUnit()', '23.0')]
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center"; var IsHandled: Boolean)
+    local procedure OnBeforeCalcProdOrderExpCapNeed(ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var ProdOrderCapacityNeed: Record Microsoft.Manufacturing.Document."Prod. Order Capacity Need"; var ProdOrderRoutingLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line")
     begin
     end;
 #endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center"; var IsHandled: Boolean)
+#if not CLEAN26
+    internal procedure RunOnBeforeCalcRoutingCostPerUnit(Type: Enum Microsoft.Manufacturing.Capacity."Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum Microsoft.Foundation.Enums."Unit Cost Calculation Type"; WorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center"; MachineCenter: Record Microsoft.Manufacturing.MachineCenter."Machine Center"; var IsHandled: Boolean)
     begin
+        OnBeforeCalcRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter, IsHandled);
     end;
 
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnCalcActOperOutputAndScrapOnAfterFilterCapLedgEntry(var CapacityLedgerEntry: Record "Capacity Ledger Entry")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcActTimeAndQtyBaseOnAfterFilterCapLedgEntry(var CapacityLedgerEntry: Record "Capacity Ledger Entry")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcProdOrderLineExpCostOnExpOperCostCalculated(var ExpOperCost: Decimal; ProdOrderRtngLine: Record "Prod. Order Routing Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcProdOrderLineStdCostOnAfterCalcSingleLevelCost(var Item: record Item; InvtAdjmtEntryOrder: record "Inventory Adjmt. Entry (Order)")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcProdOrderLineActCostOnBeforeSetProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var ActMatCost: Decimal; var ActCapDirCost: Decimal; var ActSubDirCost: Decimal; var ActCapOvhdCost: Decimal; var ActMfgOvhdCost: Decimal; var ActMatCostCostACY: Decimal; var ActCapDirCostACY: Decimal; var ActSubDirCostACY: Decimal; var ActCapOvhdCostACY: Decimal; var ActMfgOvhdCostACY: Decimal)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCalcActOutputQtyBaseOnAfterSetFilters(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
-    begin
-    end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by event OnAfterCalcRoutingCostPerUnit()', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Option Time,Unit; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
+    local procedure OnBeforeCalcRoutingCostPerUnit(Type: Enum Microsoft.Manufacturing.Capacity."Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum Microsoft.Foundation.Enums."Unit Cost Calculation Type"; WorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center"; MachineCenter: Record Microsoft.Manufacturing.MachineCenter."Machine Center"; var IsHandled: Boolean)
     begin
     end;
 #endif
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcRoutingCostPerUnit(Type: Enum "Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
+#if not CLEAN26
+    internal procedure RunOnCalcActOperOutputAndScrapOnAfterFilterCapLedgEntry(var CapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry")
     begin
+        OnCalcActOperOutputAndScrapOnAfterFilterCapLedgEntry(CapacityLedgerEntry);
     end;
 
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnCalcProdOrderActTimeUsedOnBeforeCalcQty(CapLedgEntry: Record "Capacity Ledger Entry"; var Qty: Decimal; var IsHandled: Boolean)
+    local procedure OnCalcActOperOutputAndScrapOnAfterFilterCapLedgEntry(var CapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry")
     begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnCalcActTimeAndQtyBaseOnAfterFilterCapLedgEntry(var CapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry")
+    begin
+        OnCalcActTimeAndQtyBaseOnAfterFilterCapLedgEntry(CapacityLedgerEntry);
     end;
 
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnCalcProdOrderActTimeUsedOnAfterCapacityLedgerEntrySetFilters(var CapLedgEntry: Record "Capacity Ledger Entry"; ProdOrder: Record "Production Order")
+    local procedure OnCalcActTimeAndQtyBaseOnAfterFilterCapLedgEntry(var CapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry")
     begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnCalcProdOrderLineExpCostOnExpOperCostCalculated(var ExpOperCost: Decimal; ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line")
+    begin
+        OnCalcProdOrderLineExpCostOnExpOperCostCalculated(ExpOperCost, ProdOrderRtngLine);
     end;
 
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnCalcProdOrderExpCapNeedOnAfterProdOrderCapNeedSetFilters(var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; ProdOrder: Record "Production Order")
+    local procedure OnCalcProdOrderLineExpCostOnExpOperCostCalculated(var ExpOperCost: Decimal; ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line")
     begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnCalcProdOrderLineStdCostOnAfterCalcSingleLevelCost(var Item: Record Microsoft.Inventory.Item.Item; InvtAdjmtEntryOrder: record "Inventory Adjmt. Entry (Order)")
+    begin
+        OnCalcProdOrderLineStdCostOnAfterCalcSingleLevelCost(Item, InvtAdjmtEntryOrder);
     end;
 
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnCalcProdOrderExpCapNeedOnBeforeMarkNotFinishedProdOrderRtngLine(ProdOrderRtngLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var ExpectedCapNeed: Decimal)
+    local procedure OnCalcProdOrderLineStdCostOnAfterCalcSingleLevelCost(var Item: Record Microsoft.Inventory.Item.Item; InvtAdjmtEntryOrder: record "Inventory Adjmt. Entry (Order)")
     begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnCalcProdOrderLineActCostOnBeforeSetProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var ActMatCost: Decimal; var ActCapDirCost: Decimal; var ActSubDirCost: Decimal; var ActCapOvhdCost: Decimal; var ActMfgOvhdCost: Decimal; var ActMatCostCostACY: Decimal; var ActCapDirCostACY: Decimal; var ActSubDirCostACY: Decimal; var ActCapOvhdCostACY: Decimal; var ActMfgOvhdCostACY: Decimal)
+    begin
+        OnCalcProdOrderLineActCostOnBeforeSetProdOrderLine(ProdOrderLine, ActMatCost, ActCapDirCost, ActSubDirCost, ActCapOvhdCost, ActMfgOvhdCost, ActMatCostCostACY, ActCapDirCostACY, ActSubDirCostACY, ActCapOvhdCostACY, ActMfgOvhdCostACY);
     end;
 
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnCalcProdOrderLineExpCostOnAfterProdOrderCompSetFilters(var ProdOrderComp: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnCalcProdOrderLineActCostOnBeforeSetProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var ActMatCost: Decimal; var ActCapDirCost: Decimal; var ActSubDirCost: Decimal; var ActCapOvhdCost: Decimal; var ActMfgOvhdCost: Decimal; var ActMatCostCostACY: Decimal; var ActCapDirCostACY: Decimal; var ActSubDirCostACY: Decimal; var ActCapOvhdCostACY: Decimal; var ActMfgOvhdCostACY: Decimal)
     begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnCalcActOutputQtyBaseOnAfterSetFilters(var CapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ProdOrderRoutingLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line")
+    begin
+        OnCalcActOutputQtyBaseOnAfterSetFilters(CapacityLedgerEntry, ProdOrderLine, ProdOrderRoutingLine);
     end;
 
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnCalcProdOrderLineExpCostOnAfterProdOrderRtngLineSetFilters(var ProdOrderRtngLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnCalcActOutputQtyBaseOnAfterSetFilters(var CapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ProdOrderRoutingLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line")
     begin
     end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnAfterCalcRoutingCostPerUnit(Type: Enum Microsoft.Manufacturing.Capacity."Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum Microsoft.Foundation.Enums."Unit Cost Calculation Type"; WorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center"; MachineCenter: Record Microsoft.Manufacturing.MachineCenter."Machine Center")
+    begin
+        OnAfterCalcRoutingCostPerUnit(Type, DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation, WorkCenter, MachineCenter);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcRoutingCostPerUnit(Type: Enum Microsoft.Manufacturing.Capacity."Capacity Type"; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal; var UnitCostCalculation: Enum Microsoft.Foundation.Enums."Unit Cost Calculation Type"; WorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center"; MachineCenter: Record Microsoft.Manufacturing.MachineCenter."Machine Center")
+    begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnCalcProdOrderActTimeUsedOnBeforeCalcQty(CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"; var Qty: Decimal; var IsHandled: Boolean)
+    begin
+        OnCalcProdOrderActTimeUsedOnBeforeCalcQty(CapLedgEntry, Qty, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderActTimeUsedOnBeforeCalcQty(CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"; var Qty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnCalcProdOrderActTimeUsedOnAfterCapacityLedgerEntrySetFilters(var CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order")
+    begin
+        OnCalcProdOrderActTimeUsedOnAfterCapacityLedgerEntrySetFilters(CapLedgEntry, ProdOrder);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderActTimeUsedOnAfterCapacityLedgerEntrySetFilters(var CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order")
+    begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnCalcProdOrderExpCapNeedOnAfterProdOrderCapNeedSetFilters(var ProdOrderCapNeed: Record Microsoft.Manufacturing.Document."Prod. Order Capacity Need"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order")
+    begin
+        OnCalcProdOrderExpCapNeedOnAfterProdOrderCapNeedSetFilters(ProdOrderCapNeed, ProdOrder);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderExpCapNeedOnAfterProdOrderCapNeedSetFilters(var ProdOrderCapNeed: Record Microsoft.Manufacturing.Document."Prod. Order Capacity Need"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order")
+    begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnCalcProdOrderExpCapNeedOnBeforeMarkNotFinishedProdOrderRtngLine(ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"; WorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center"; var ExpectedCapNeed: Decimal)
+    begin
+        OnCalcProdOrderExpCapNeedOnBeforeMarkNotFinishedProdOrderRtngLine(ProdOrderRtngLine, WorkCenter, ExpectedCapNeed);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderExpCapNeedOnBeforeMarkNotFinishedProdOrderRtngLine(ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"; WorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center"; var ExpectedCapNeed: Decimal)
+    begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnCalcProdOrderLineExpCostOnAfterProdOrderCompSetFilters(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+        OnCalcProdOrderLineExpCostOnAfterProdOrderCompSetFilters(ProdOrderComp, ProdOrderLine);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderLineExpCostOnAfterProdOrderCompSetFilters(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+    end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnCalcProdOrderLineExpCostOnAfterProdOrderRtngLineSetFilters(var ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+        OnCalcProdOrderLineExpCostOnAfterProdOrderRtngLineSetFilters(ProdOrderRtngLine, ProdOrderLine);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderLineExpCostOnAfterProdOrderRtngLineSetFilters(var ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcSalesLineCostLCY(SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing; var IsHandled: Boolean; var TotalAdjCostLCY: Decimal)
@@ -1359,15 +1075,31 @@ codeunit 5836 "Cost Calculation Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnFindRountingLineOnAfterRoutingLineSetFilters(var RoutingLine: Record "Routing Line"; ProdBOMLine: Record "Production BOM Line"; CalculationDate: Date; RoutingNo: Code[20])
+#if not CLEAN26
+    internal procedure RunOnFindRountingLineOnAfterRoutingLineSetFilters(var RoutingLine: Record Microsoft.Manufacturing.Routing."Routing Line"; ProdBOMLine: Record Microsoft.Manufacturing.ProductionBOM."Production BOM Line"; CalculationDate: Date; RoutingNo: Code[20])
     begin
+        OnFindRountingLineOnAfterRoutingLineSetFilters(RoutingLine, ProdBOMLine, CalculationDate, RoutingNo);
     end;
 
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcOutputQtyBaseOnPurchOrder(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"; var OutstandingBaseQty: Decimal; var IsHandled: Boolean)
+    local procedure OnFindRountingLineOnAfterRoutingLineSetFilters(var RoutingLine: Record Microsoft.Manufacturing.Routing."Routing Line"; ProdBOMLine: Record Microsoft.Manufacturing.ProductionBOM."Production BOM Line"; CalculationDate: Date; RoutingNo: Code[20])
     begin
     end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnBeforeCalcOutputQtyBaseOnPurchOrder(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"; var OutstandingBaseQty: Decimal; var IsHandled: Boolean)
+    begin
+        OnBeforeCalcOutputQtyBaseOnPurchOrder(ProdOrderLine, ProdOrderRtngLine, OutstandingBaseQty, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Cost Calculation Mgt.', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcOutputQtyBaseOnPurchOrder(ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ProdOrderRtngLine: Record Microsoft.Manufacturing.Document."Prod. Order Routing Line"; var OutstandingBaseQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcCustActualCostLCYOnAfterFilterValueEntry(var Customer: Record Customer; var ValueEntry: Record "Value Entry")

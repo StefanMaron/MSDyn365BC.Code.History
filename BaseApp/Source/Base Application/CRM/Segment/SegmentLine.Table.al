@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CRM.Segment;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.Segment;
 
 using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Contact;
@@ -136,23 +140,6 @@ table 5077 "Segment Line"
         field(6; "Correspondence Type"; Enum "Correspondence Type")
         {
             Caption = 'Correspondence Type';
-#if not CLEAN23
-            trigger OnValidate()
-            var
-                Attachment: Record Attachment;
-                ErrorText: Text[80];
-            begin
-                if not Attachment.Get("Attachment No.") then
-                    exit;
-
-                ErrorText := Attachment.CheckCorrespondenceType("Correspondence Type");
-                if ErrorText <> '' then
-                    Error(
-                      StrSubstNo('%1%2',
-                        StrSubstNo(Text000, FieldCaption("Correspondence Type"), "Correspondence Type", TableCaption(), "Line No."),
-                        ErrorText));
-            end;
-#endif
         }
         field(7; "Interaction Template Code"; Code[10])
         {
@@ -597,13 +584,6 @@ table 5077 "Segment Line"
         ResumedAttachmentNo: Integer;
         InteractionLogEntryNo: Integer;
 
-#if not CLEAN23
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text000: Label '%1 = %2 can not be specified for %3 %4.\';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#endif
         InheritedTxt: Label 'Inherited';
         UniqueTxt: Label 'Unique';
         NoAttachmentErr: Label 'No attachment found. You must either add an attachment or choose a template in the Word Template Code field on the Interaction Template page.';
@@ -614,13 +594,6 @@ table 5077 "Segment Line"
         AttachmentRequiredErr: Label 'The correspondence type for this interaction is Email, which requires an interaction template with an attachment or Word template. To continue, you can either change the correspondence type for the contact, select an interaction template that has a different correspondence type, or select a template that ignores the contact correspondence type.';
         SelectContactErr: Label 'You must select a contact to interact with.';
         PhoneNumberErr: Label 'You must fill in the phone number.';
-#if not CLEAN23
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text024: Label '%1 = %2 cannot be specified.', Comment = '%1=Correspondence Type';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#endif
         WordTemplateUsedErr: Label 'You cannot change the attachment when a Word template has been specified.';
         OneDriveNotEnabledMsg: Label 'Onedrive is not enabled. Please enable it in the OneDrive Setup page.';
         ModifyExistingAttachmentMsg: Label 'Modify existing attachment?';
@@ -1289,6 +1262,7 @@ table 5077 "Segment Line"
                 OnFinishSegLineWizardBeforeLogInteraction(Rec, IsHandled);
                 if not IsHandled then
                     SegManagement.LogInteraction(Rec, TempAttachment, TempInterLogEntryCommentLine, send, not IsFinish);
+
                 if Rec."Line No." <> 0 then
                     InteractionLogEntry.Get(Rec."Line No.")
                 else
@@ -1337,23 +1311,9 @@ table 5077 "Segment Line"
     end;
 
     procedure ValidateCorrespondenceType()
-#if not CLEAN23
-    var
-        ErrorText: Text[80];
-#endif
     begin
         if "Correspondence Type" <> "Correspondence Type"::" " then
-#if not CLEAN23
-            if TempAttachment.FindFirst() then begin
-                ErrorText := TempAttachment.CheckCorrespondenceType("Correspondence Type");
-                if ErrorText <> '' then
-                    Error(
-                      Text024 + ErrorText,
-                      FieldCaption("Correspondence Type"), "Correspondence Type");
-            end;
-#else
             if TempAttachment.FindFirst() then;
-#endif
     end;
 
     internal procedure HandleTrigger()

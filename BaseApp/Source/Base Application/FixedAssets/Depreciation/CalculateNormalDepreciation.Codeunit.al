@@ -1,4 +1,8 @@
-﻿namespace Microsoft.FixedAssets.Depreciation;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.FixedAssets.Depreciation;
 
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Ledger;
@@ -640,7 +644,14 @@ codeunit 5611 "Calculate Normal Depreciation"
     local procedure SetHalfYearConventionMethod(): Boolean
     var
         AccountingPeriod: Record "Accounting Period";
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetHalfYearConventionMethod(FADeprBook, DeprMethod, Year365Days, FirstDeprDate, NewYearDate, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not FADeprBook."Use Half-Year Convention" then
             exit(false);
         if FADeprBook."Depreciation Method" = FADeprBook."Depreciation Method"::Manual then
@@ -1104,6 +1115,11 @@ codeunit 5611 "Calculate Normal Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcSLAmountOnBeforeCheckFixedAmount(FixedAsset: Record "Fixed Asset"; FixedAmount: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; var IsHandled: Boolean; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetHalfYearConventionMethod(FADeprBook: Record "FA Depreciation Book"; DeprMethod: Enum "FA Depr. Method Internal"; Year365Days: Boolean; FirstDeprDate: Date; NewYearDate: Date; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.FixedAsset;
 
 using Microsoft.FixedAssets.Depreciation;
@@ -196,9 +200,9 @@ codeunit 5605 "Calculate Disposal"
             until FALedgEntry.Next() = 0;
         if not OnlyGainLoss then
             for i := 3 to 14 do begin
-                FALedgEntry.SetRange("FA Posting Category", SetFAPostingCategory(i));
+                FALedgEntry.SetRange("FA Posting Category", SetFALedgerPostingCategory(i));
                 FALedgEntry.SetRange("FA Posting Type", SetFAPostingType(i));
-                if FALedgEntry.Find('-') then begin
+                if FALedgEntry.FindFirst() then begin
                     EntryNumbers[i] := FALedgEntry."Entry No.";
                     EntryAmounts[i] := -FALedgEntry.Amount;
                 end;
@@ -240,7 +244,15 @@ codeunit 5605 "Calculate Disposal"
         exit(FALedgEntry."FA Posting Type".AsInteger());
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by procedure SetFALedgerPostingCategory()', '26.0')]
     procedure SetFAPostingCategory(i: Integer): Integer
+    begin
+        exit(SetFALedgerPostingCategory(i).AsInteger());
+    end;
+#endif
+
+    procedure SetFALedgerPostingCategory(i: Integer): Enum "FA Ledger Posting Category"
     var
         FALedgEntry: Record "FA Ledger Entry";
     begin

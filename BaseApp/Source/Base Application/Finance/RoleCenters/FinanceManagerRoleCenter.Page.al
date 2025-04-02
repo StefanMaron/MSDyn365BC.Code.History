@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.RoleCenters;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.RoleCenters;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -73,8 +77,6 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Reconciliation;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -407,18 +409,6 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Export G/L Entries to XML';
                             RunObject = report "Export G/L Entries to XML";
                         }
-#if not CLEAN23
-                        action("Export G/L Entries - Tax Audit")
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Export G/L Entries - Tax Audit';
-                            RunObject = report "Export G/L Entries - Tax Audit";
-                            Visible = false;
-                            ObsoleteReason = 'Use Audit File Export Document with the FEC format selected. The Audit File Export and FEC Audit File extensions must be installed.';
-                            ObsoleteState = Pending;
-                            ObsoleteTag = '23.0';
-                        }
-#endif
                     }
                 }
                 group("Group7")
@@ -1533,17 +1523,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "EC Sales List";
                         Tooltip = 'Run the EC Sales List report.';
                     }
-#if not CLEAN23
-                    action("Payment Reporting Test")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Payment Practices Reporting';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This report is obsolete. Replaced by W1 extension "Payment Practices".';
-                        ObsoleteTag = '23.0';
-                        RunObject = report "Payment Practices Reporting";
-                    }
-#endif
                 }
                 group("Group35")
                 {
@@ -1583,17 +1562,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = page "Finance Charge Terms";
                         Tooltip = 'Open the Finance Charge Terms page.';
                     }
-#if not CLEAN23
-                    action("Payment Period Setup")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Payment Period Setup';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This page is obsolete. Replaced by W1 extension "Payment Practices".';
-                        ObsoleteTag = '23.0';
-                        RunObject = page "Payment Period Setup";
-                    }
-#endif
                 }
             }
             group("Group36")
@@ -1849,17 +1817,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "Vendor/Item Purchases";
                         Tooltip = 'Run the Vendor/Item Purchases report.';
                     }
-#if not CLEAN23
-                    action("Payment Reporting Test1")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Payment Practices Reporting';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This report is obsolete. Replaced by W1 extension "Payment Practices".';
-                        ObsoleteTag = '23.0';
-                        RunObject = report "Payment Practices Reporting";
-                    }
-#endif
                 }
                 group("Group41")
                 {
@@ -1870,17 +1827,6 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Purchases & Payables Setup';
                         RunObject = page "Purchases & Payables Setup";
                     }
-#if not CLEAN23
-                    action("Payment Period Setup1")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Payment Period Setup';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This report is obsolete. Replaced by W1 extension "Payment Practices".';
-                        ObsoleteTag = '23.0';
-                        RunObject = page "Payment Period Setup";
-                    }
-#endif
                 }
             }
             group("Group42")
@@ -2305,13 +2251,6 @@ page 8901 "Finance Manager Role Center"
                         RunObject = report "Adjust Cost - Item Entries";
                         Tooltip = 'Run the Adjust Cost - Item Entries report.';
                     }
-                    action("Update Unit Cost...")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Update Unit Costs...';
-                        RunObject = report "Update Unit Cost";
-                        Tooltip = 'Run the Update Unit Costs report.';
-                    }
                     action("Post Inventory Cost to G/L")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2355,6 +2294,13 @@ page 8901 "Finance Manager Role Center"
                 group("Group53")
                 {
                     Caption = 'Reports';
+                    action("Inventory by Location")
+                    {
+                        ApplicationArea = InventoryAnalysis;
+                        Caption = 'Analyze Inventory by Location';
+                        RunObject = Query "Inventory by Location";
+                        ToolTip = 'Analyze (group, summarize, pivot) your Item Ledger Entries with related Location master data.';
+                    }
                     action("Inventory Valuation")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2410,13 +2356,6 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Status';
                         RunObject = report "Status";
                         Tooltip = 'Run the Status report.';
-                    }
-                    action("Cost Shares Breakdown")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Cost Shares Breakdown';
-                        RunObject = report "Cost Shares Breakdown";
-                        Tooltip = 'Run the Cost Shares Breakdown report.';
                     }
                     action("Item Register - Quantity")
                     {

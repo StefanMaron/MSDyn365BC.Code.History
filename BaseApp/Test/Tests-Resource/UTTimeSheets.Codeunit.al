@@ -486,25 +486,25 @@ codeunit 136500 "UT Time Sheets"
         // [GIVEN] Create an empty time sheet
         Initialize();
         LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
-        VerifyTeamMemberTimeSheetStatuses(TimeSheetHeader, 0, 0, 0, 0, 0);
+        VerifyTeamMemberTimeSheetStatuses(0, 0, 0, 0, 0);
 
         // [WHEN] Add a new line
         LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
 
         // [THEN] Verify Open tile has been updated
-        VerifyTeamMemberTimeSheetStatuses(TimeSheetHeader, 1, 0, 0, 0, 0);
+        VerifyTeamMemberTimeSheetStatuses(1, 0, 0, 0, 0);
 
         // [THEN] Add a new line, submit it and verify Submitted tile is updated
         AddTimeSheetLineWithStatus(TimeSheetHeader, TimeSheetLine.Status::Submitted);
-        VerifyTeamMemberTimeSheetStatuses(TimeSheetHeader, 1, 1, 1, 0, 0);
+        VerifyTeamMemberTimeSheetStatuses(1, 1, 1, 0, 0);
 
         // [THEN] Add a new line, reject it and verify Rejected tile is updated
         AddTimeSheetLineWithStatus(TimeSheetHeader, TimeSheetLine.Status::Rejected);
-        VerifyTeamMemberTimeSheetStatuses(TimeSheetHeader, 1, 1, 1, 1, 0);
+        VerifyTeamMemberTimeSheetStatuses(1, 1, 1, 1, 0);
 
         // [THEN] Add a new line, approve it and verify Approved tile is updated
         AddTimeSheetLineWithStatus(TimeSheetHeader, TimeSheetLine.Status::Approved);
-        VerifyTeamMemberTimeSheetStatuses(TimeSheetHeader, 1, 1, 1, 1, 1);
+        VerifyTeamMemberTimeSheetStatuses(1, 1, 1, 1, 1);
     end;
 
     [Test]
@@ -1448,26 +1448,23 @@ codeunit 136500 "UT Time Sheets"
         exit(Date."Period Start");
     end;
 
-    local procedure VerifyTeamMemberTimeSheetStatuses(TimeSheetHeader: Record "Time Sheet Header"; OpenExists: Integer; SubmittedExists: Integer; TimesheetsToApproveExists: Integer; RejectedExists: Integer; ApprovedExists: Integer)
+    local procedure VerifyTeamMemberTimeSheetStatuses(OpenExists: Integer; SubmittedExists: Integer; TimesheetsToApproveExists: Integer; RejectedExists: Integer; ApprovedExists: Integer)
     var
         TeamMemberCue: Record "Team Member Cue";
+		UserFilterOption: Option Owner,Approver;
     begin
-        TimeSheetHeader.CalcFields("Open Exists", "Submitted Exists", "Rejected Exists", "Approved Exists");
+        TeamMemberCue."User ID Filter" := UserId();
 
-        TeamMemberCue."User ID Filter" := UserId;
-        TeamMemberCue.CalcFields("Open Time Sheets", "Submitted Time Sheets", "Rejected Time Sheets",
-          "Approved Time Sheets", "Time Sheets to Approve");
-
-        Assert.AreEqual(OpenExists, TeamMemberCue."Open Time Sheets",
-          StrSubstNo('Time Sheet field %1 value is incorrect.', TeamMemberCue.FieldCaption("Open Time Sheets")));
-        Assert.AreEqual(SubmittedExists, TeamMemberCue."Submitted Time Sheets",
-          StrSubstNo('Time Sheet field %1 value is incorrect.', TeamMemberCue.FieldCaption("Submitted Time Sheets")));
-        Assert.AreEqual(TimesheetsToApproveExists, TeamMemberCue."Time Sheets to Approve",
-          StrSubstNo('Time Sheet field %1 value is incorrect.', TeamMemberCue.FieldCaption("Time Sheets to Approve")));
-        Assert.AreEqual(RejectedExists, TeamMemberCue."Rejected Time Sheets",
-          StrSubstNo('Time Sheet field %1 value is incorrect.', TeamMemberCue.FieldCaption("Rejected Time Sheets")));
-        Assert.AreEqual(ApprovedExists, TeamMemberCue."Approved Time Sheets",
-          StrSubstNo('Time Sheet field %1 value is incorrect.', TeamMemberCue.FieldCaption("Approved Time Sheets")));
+        Assert.AreEqual(OpenExists, TeamMemberCue.CountTimeSheetsInStatus(UserFilterOption::Owner, "Time Sheet Status"::Open),
+          StrSubstNo('Time Sheet field %1 value is incorrect.', 'Time Sheets In progress'));
+        Assert.AreEqual(SubmittedExists, TeamMemberCue.CountTimeSheetsInStatus(UserFilterOption::Owner, "Time Sheet Status"::Submitted),
+          StrSubstNo('Time Sheet field %1 value is incorrect.', 'Submitted Time Sheets'));
+        Assert.AreEqual(TimesheetsToApproveExists, TeamMemberCue.CountTimeSheetsInStatus(UserFilterOption::Approver, "Time Sheet Status"::Submitted),
+          StrSubstNo('Time Sheet field %1 value is incorrect.', 'Time Sheets to Approve'));
+        Assert.AreEqual(RejectedExists, TeamMemberCue.CountTimeSheetsInStatus(UserFilterOption::Owner, "Time Sheet Status"::Rejected),
+          StrSubstNo('Time Sheet field %1 value is incorrect.', 'Rejected Time Sheets'));
+        Assert.AreEqual(ApprovedExists, TeamMemberCue.CountTimeSheetsInStatus(UserFilterOption::Owner, "Time Sheet Status"::Approved),
+          StrSubstNo('Time Sheet field %1 value is incorrect.', 'Approved Time Sheets'));
     end;
 
     local procedure CreateApprovalEntry(var ApprovalEntry: Record "Approval Entry"; RecId: RecordID; ApproverId: Code[50]; WorkflowInstanceId: Guid)

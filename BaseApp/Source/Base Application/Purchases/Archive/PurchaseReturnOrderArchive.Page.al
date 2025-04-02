@@ -3,6 +3,7 @@ namespace Microsoft.Purchases.Archive;
 using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Purchases.Vendor;
 using System.Security.User;
@@ -57,11 +58,16 @@ page 6644 "Purchase Return Order Archive"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the vendor''s buy-from address.';
                     }
-                    field("Buy-from County"; Rec."Buy-from County")
+                    group(BuyFromCounty)
                     {
-                        ApplicationArea = Advanced;
-                        Caption = 'County';
-                        Importance = Additional;
+                        ShowCaption = false;
+                        Visible = IsBuyFromCountyVisible;
+                        field("Buy-from County"; Rec."Buy-from County")
+                        {
+                            ApplicationArea = Advanced;
+                            Caption = 'County';
+                            Importance = Additional;
+                        }
                     }
                     field("Buy-from Post Code"; Rec."Buy-from Post Code")
                     {
@@ -259,6 +265,14 @@ page 6644 "Purchase Return Order Archive"
                         Importance = Additional;
                         ToolTip = 'Specifies the name of the vendor sending the order.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name for the order address of the vendor.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Suite;
@@ -273,11 +287,16 @@ page 6644 "Purchase Return Order Archive"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the vendor''s buy-from address.';
                     }
-                    field("Ship-to County"; Rec."Ship-to County")
+                    group(ShipToCounty)
                     {
-                        ApplicationArea = Advanced;
-                        Caption = 'County';
-                        Importance = Additional;
+                        ShowCaption = false;
+                        Visible = IsShipToCountyVisible;
+                        field("Ship-to County"; Rec."Ship-to County")
+                        {
+                            ApplicationArea = Advanced;
+                            Caption = 'County';
+                            Importance = Additional;
+                        }
                     }
                     field("Ship-to Post Code"; Rec."Ship-to Post Code")
                     {
@@ -338,11 +357,16 @@ page 6644 "Purchase Return Order Archive"
                         Importance = Additional;
                         ToolTip = 'Specifies an additional part of the vendor''s buy-from address.';
                     }
-                    field("Pay-to County"; Rec."Pay-to County")
+                    group(PayToCounty)
                     {
-                        ApplicationArea = Advanced;
-                        Caption = 'County';
-                        Importance = Additional;
+                        ShowCaption = false;
+                        Visible = IsPayToCountyVisible;
+                        field("Pay-to County"; Rec."Pay-to County")
+                        {
+                            ApplicationArea = Advanced;
+                            Caption = 'County';
+                            Importance = Additional;
+                        }
                     }
                     field("Pay-to Post Code"; Rec."Pay-to Post Code")
                     {
@@ -586,6 +610,7 @@ page 6644 "Purchase Return Order Archive"
     trigger OnAfterGetCurrRecord()
     begin
         SetControlAppearance();
+        ActivateFields();
     end;
 
     trigger OnAfterGetRecord()
@@ -594,11 +619,18 @@ page 6644 "Purchase Return Order Archive"
         PayToContact.GetOrClear(Rec."Pay-to Contact No.");
     end;
 
+    trigger OnOpenPage()
+    begin
+        ActivateFields();
+    end;
+
     var
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
         DocPrint: Codeunit "Document-Print";
+        FormatAddress: Codeunit "Format Address";
         HasIncomingDocument: Boolean;
+        IsBuyFromCountyVisible, IsPayToCountyVisible, IsShipToCountyVisible : Boolean;
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
@@ -608,6 +640,13 @@ page 6644 "Purchase Return Order Archive"
     local procedure SetControlAppearance()
     begin
         HasIncomingDocument := Rec."Incoming Document Entry No." <> 0;
+    end;
+
+    local procedure ActivateFields()
+    begin
+        IsBuyFromCountyVisible := FormatAddress.UseCounty(Rec."Buy-from Country/Region Code");
+        IsPayToCountyVisible := FormatAddress.UseCounty(Rec."Pay-to Country/Region Code");
+        IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
     end;
 }
 

@@ -506,7 +506,6 @@ page 1817 "CRM Connection Setup Wizard"
 
         ImportCRMSolutionEnabled := true;
         PublishItemAvailabilityServiceEnabled := true;
-        EnableBidirectionalSalesOrderIntegration := true;
         EnableBidirectionalSalesOrderIntegrationEnabled := true;
     end;
 
@@ -565,7 +564,7 @@ page 1817 "CRM Connection Setup Wizard"
         if CRMConnectionSetup.Get() then begin
             EnableCRMConnection := true;
             EnableCRMConnectionEnabled := not CRMConnectionSetup."Is Enabled";
-            EnableBidirectionalSalesOrderIntegration := CRMConnectionSetup."Bidirectional Sales Order Int.";
+            EnableBidirectionalSalesOrderIntegration := CRMConnectionSetup."Bidirectional Sales Order Int." or EnableBidirectionalSalesOrderIntegration;
             EnableSalesOrderIntegration := CRMConnectionSetup."Is S.Order Integration Enabled";
             EnableBidirectionalSalesOrderIntegrationEnabled := not CRMConnectionSetup."Bidirectional Sales Order Int." and not CRMConnectionSetup."Is S.Order Integration Enabled";
             EnableSalesOrderIntegrationEnabled := not CRMConnectionSetup."Bidirectional Sales Order Int." and not CRMConnectionSetup."Is S.Order Integration Enabled";

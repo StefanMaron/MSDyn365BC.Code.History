@@ -5,11 +5,15 @@
 namespace Microsoft.Utilities;
 
 using Microsoft.CashFlow.Forecast;
+#if not CLEAN26
 using Microsoft.Finance.FinancialReports;
+#endif
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.RoleCenters;
 using Microsoft.Foundation.Task;
+#if not CLEAN26
 using Microsoft.Integration.Entity;
+#endif
 using Microsoft.Purchases.Document;
 using Microsoft.RoleCenters;
 using Microsoft.Sales.Receivables;
@@ -300,71 +304,100 @@ page 1156 "Company Detail"
                 {
                     Caption = 'Excel Reports';
                     Image = Excel;
-                    action(ExcelTemplatesBalanceSheet)
+#if not CLEAN26
+                    group(Legacy)
                     {
-                        ApplicationArea = All;
-                        Caption = 'Balance Sheet';
+                        Caption = 'Legacy';
                         Image = Excel;
-                        RunObject = Codeunit "Run Template Balance Sheet";
-                        ToolTip = 'Open a spreadsheet that shows your company''s assets, liabilities, and equity.';
-                    }
-                    action(ExcelTemplateIncomeStmt)
-                    {
-                        ApplicationArea = All;
-                        Caption = 'Income Statement';
-                        Image = Excel;
-                        RunObject = Codeunit "Run Template Income Stmt.";
-                        ToolTip = 'Open a spreadsheet that shows your company''s income and expenses.';
-                    }
-                    action(ExcelTemplateCashFlowStmt)
-                    {
-                        ApplicationArea = All;
-                        Caption = 'Cash Flow Statement';
-                        Image = Excel;
-                        RunObject = Codeunit "Run Template CashFlow Stmt.";
-                        ToolTip = 'Open a spreadsheet that shows how changes in balance sheet accounts and income affect the company''s cash holdings.';
-                    }
-                    action(ExcelTemplateRetainedEarn)
-                    {
-                        ApplicationArea = All;
-                        Caption = 'Retained Earnings Statement';
-                        Image = Excel;
-                        RunObject = Codeunit "Run Template Retained Earn.";
-                        ToolTip = 'Open a spreadsheet that shows your company''s changes in retained earnings based on net income from the other financial statements.';
-                    }
+                        ObsoleteReason = 'These reports have been deprecated and will be removed in a future release.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '26.0';
+
+                        action(ExcelTemplatesBalanceSheet)
+                        {
+                            ApplicationArea = All;
+                            Caption = 'Balance Sheet';
+                            Image = Excel;
+                            RunObject = Codeunit "Run Template Balance Sheet";
+                            ToolTip = 'Open a spreadsheet that shows your company''s assets, liabilities, and equity.';
+                            ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '26.0';
+                        }
+                        action(ExcelTemplateIncomeStmt)
+                        {
+                            ApplicationArea = All;
+                            Caption = 'Income Statement';
+                            Image = Excel;
+                            RunObject = Codeunit "Run Template Income Stmt.";
+                            ToolTip = 'Open a spreadsheet that shows your company''s income and expenses.';
+                            ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '26.0';
+                        }
+                        action(ExcelTemplateCashFlowStmt)
+                        {
+                            ApplicationArea = All;
+                            Caption = 'Cash Flow Statement';
+                            Image = Excel;
+                            RunObject = Codeunit "Run Template CashFlow Stmt.";
+                            ToolTip = 'Open a spreadsheet that shows how changes in balance sheet accounts and income affect the company''s cash holdings.';
+                            ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '26.0';
+                        }
+                        action(ExcelTemplateRetainedEarn)
+                        {
+                            ApplicationArea = All;
+                            Caption = 'Retained Earnings Statement';
+                            Image = Excel;
+                            RunObject = Codeunit "Run Template Retained Earn.";
+                            ToolTip = 'Open a spreadsheet that shows your company''s changes in retained earnings based on net income from the other financial statements.';
+                            ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '26.0';
+                        }
 #if not CLEAN25
-                    action(ExcelTemplateTrialBalance)
-                    {
-                        ApplicationArea = All;
-                        Caption = 'Trial Balance';
-                        Image = Excel;
-                        RunObject = Codeunit "Run Template Trial Balance";
-                        ToolTip = 'Open a spreadsheet that shows a summary trial balance by account.';
-                        ObsoleteReason = 'Functionality replaced by "EXR Trial Balance Excel". Extend this report object with Excel layout instead.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '25.0';
-                    }
-                    action(ExcelTemplateAgedAccPay)
-                    {
-                        ApplicationArea = All;
-                        Caption = 'Aged Accounts Payable';
-                        Image = Excel;
-                        RunObject = Codeunit "Run Template Aged Acc. Pay.";
-                        ToolTip = 'Open a spreadsheet that shows a list of aged remaining balances for each vendor by period.';
-                        ObsoleteReason = 'Functionality replaced by "EXR Aged Acc Payable Excel". Extend this report object with Excel layout instead.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '25.0';
-                    }
-                    action(ExcelTemplateAgedAccRec)
-                    {
-                        ApplicationArea = All;
-                        Caption = 'Aged Accounts Receivable';
-                        Image = Excel;
-                        RunObject = Codeunit "Run Template Aged Acc. Rec.";
-                        ToolTip = 'Open a spreadsheet that shows when customer payments are due or overdue by period.';
-                        ObsoleteReason = 'Functionality replaced by "EXR Aged Acc Receivable Excel". Extend this report object with Excel layout instead.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '25.0';
+                        action(ExcelTemplateTrialBalance)
+                        {
+                            ApplicationArea = All;
+                            Caption = 'Trial Balance';
+                            Image = Excel;
+                            RunObject = Codeunit "Run Template Trial Balance";
+                            ToolTip = 'Open a spreadsheet that shows a summary trial balance by account.';
+#pragma warning disable AS0072
+                            ObsoleteReason = 'Functionality replaced by "EXR Trial Balance Excel". Extend this report object with Excel layout instead.';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '25.0';
+#pragma warning restore AS0072
+                        }
+                        action(ExcelTemplateAgedAccPay)
+                        {
+                            ApplicationArea = All;
+                            Caption = 'Aged Accounts Payable';
+                            Image = Excel;
+                            RunObject = Codeunit "Run Template Aged Acc. Pay.";
+                            ToolTip = 'Open a spreadsheet that shows a list of aged remaining balances for each vendor by period.';
+#pragma warning disable AS0072
+                            ObsoleteReason = 'Functionality replaced by "EXR Aged Acc Payable Excel". Extend this report object with Excel layout instead.';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '25.0';
+#pragma warning restore AS0072
+                        }
+                        action(ExcelTemplateAgedAccRec)
+                        {
+                            ApplicationArea = All;
+                            Caption = 'Aged Accounts Receivable';
+                            Image = Excel;
+                            RunObject = Codeunit "Run Template Aged Acc. Rec.";
+                            ToolTip = 'Open a spreadsheet that shows when customer payments are due or overdue by period.';
+#pragma warning disable AS0072
+                            ObsoleteReason = 'Functionality replaced by "EXR Aged Acc Receivable Excel". Extend this report object with Excel layout instead.';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '25.0';
+#pragma warning restore AS0072
+                        }
+#endif
                     }
 #endif
                 }
@@ -397,43 +430,63 @@ page 1156 "Company Detail"
                 {
                 }
             }
+#if not CLEAN26
             group(Category_Report)
             {
                 Caption = 'Reports';
 
                 actionref(ExcelTemplatesBalanceSheet_Promoted; ExcelTemplatesBalanceSheet)
                 {
+                    ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
                 actionref(ExcelTemplateIncomeStmt_Promoted; ExcelTemplateIncomeStmt)
                 {
+                    ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
                 actionref(ExcelTemplateCashFlowStmt_Promoted; ExcelTemplateCashFlowStmt)
                 {
+                    ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
                 actionref(ExcelTemplateRetainedEarn_Promoted; ExcelTemplateRetainedEarn)
                 {
+                    ObsoleteReason = 'This report is deprecated and will be removed in a future release.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
 #if not CLEAN25
                 actionref(ExcelTemplateTrialBalance_Promoted; ExcelTemplateTrialBalance)
                 {
+#pragma warning disable AS0072
                     ObsoleteReason = 'Functionality replaced by "EXR Trial Balance Excel". Extend this report object with Excel layout instead.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
+#pragma warning restore AS0072
                 }
                 actionref(ExcelTemplateAgedAccPay_Promoted; ExcelTemplateAgedAccPay)
                 {
+#pragma warning disable AS0072
                     ObsoleteReason = 'Functionality replaced by "EXR Aged Acc Payable Excel". Extend this report object with Excel layout instead.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
+#pragma warning restore AS0072
                 }
                 actionref(ExcelTemplateAgedAccRec_Promoted; ExcelTemplateAgedAccRec)
                 {
+#pragma warning disable AS0072
                     ObsoleteReason = 'Functionality replaced by "EXR Aged Acc Receivable Excel". Extend this report object with Excel layout instead.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
+#pragma warning restore AS0072
                 }
 #endif
             }
+#endif
         }
     }
 

@@ -219,8 +219,8 @@ codeunit 132208 "Library - Trees"
         Item.Modify(true);
 
         if TopItemReplSystem = Item."Replenishment System"::"Prod. Order" then begin
-            LibraryAssembly.CreateRouting(Item, NoOfRoutingLines);
-            LibraryAssembly.CreateBOM(Item, NoOfComps);
+            LibraryManufacturing.CreateProductionRouting(Item, NoOfRoutingLines);
+            LibraryManufacturing.CreateProductionBOM(Item, NoOfComps);
         end else
             LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, NoOfComps, NoOfComps, NoOfComps, 1, '', '');
 

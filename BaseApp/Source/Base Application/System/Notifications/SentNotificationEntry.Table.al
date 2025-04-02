@@ -87,6 +87,7 @@ table 1514 "Sent Notification Entry"
     {
     }
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Sent Notification Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
@@ -94,17 +95,19 @@ table 1514 "Sent Notification Entry"
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo(ID)))
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Sent Notification Entry", 'r')]
     procedure InsertRecord()
     var
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
         if not Insert(true) then begin
-            SequenceNoMgt.RebaseSeqNo(DATABASE::"Sent Notification Entry");
-            Rec.ID := SequenceNoMgt.GetNextSeqNo(DATABASE::"Sent Notification Entry");
+            SequenceNoMgt.RebaseSeqNo(Database::"Sent Notification Entry");
+            Rec.ID := SequenceNoMgt.GetNextSeqNo(Database::"Sent Notification Entry");
             Insert(true);
         end;
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Sent Notification Entry", 'r')]
     procedure NewRecord(NotificationEntry: Record "Notification Entry"; NotificationContent: Text; NotificationMethod: Option)
     var
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
@@ -113,7 +116,7 @@ table 1514 "Sent Notification Entry"
         Clear(Rec);
         OnNewRecordOnBeforeTransferFields(NotificationEntry);
         TransferFields(NotificationEntry);
-        Rec.ID := SequenceNoMgt.GetNextSeqNo(DATABASE::"Sent Notification Entry");
+        Rec.ID := SequenceNoMgt.GetNextSeqNo(Database::"Sent Notification Entry");
         "Notification Content".CreateOutStream(OutStream);
         OutStream.WriteText(NotificationContent);
         "Notification Method" := "Notification Method Type".FromInteger(NotificationMethod);

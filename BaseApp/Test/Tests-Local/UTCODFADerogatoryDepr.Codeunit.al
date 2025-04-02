@@ -76,7 +76,7 @@ codeunit 144027 "UT COD FA Derogatory Depr."
     begin
         // Purpose of the test is to validate SetFAPostingCategory function of Codeunit ID - 5605 Calculate Disposal.
         // Exercise & verify: Call SetFAPostingCategory function of Codeunit ID - 5605 Calculate Disposal and verify the returned value.
-        Assert.AreEqual(FALedgerEntry."FA Posting Type", CalculateDisposal.SetFAPostingCategory(15), ValueMustEqualMsg);  // 15 for FA Posting Category Derogatory.
+        Assert.AreEqual(FALedgerEntry."FA Posting Type", CalculateDisposal.SetFALedgerPostingCategory(15), ValueMustEqualMsg);  // 15 for FA Posting Category Derogatory.
     end;
 
     [Test]

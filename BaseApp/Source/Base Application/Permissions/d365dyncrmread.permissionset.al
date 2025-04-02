@@ -101,7 +101,9 @@ permissionset 618 "D365 DYN CRM READ"
                   tabledata "Integration Synch. Job Errors" = R,
                   tabledata "Integration Table Mapping" = R,
                   tabledata "Interaction Template" = R,
+#if not CLEAN24
                   tabledata "Man. Integration Field Mapping" = R,
+#endif
                   tabledata "Man. Integration Table Mapping" = R,
                   tabledata "Temp Integration Field Mapping" = R,
                   tabledata "Man. Int. Field Mapping" = R,

@@ -5,12 +5,16 @@ using System.Security.User;
 
 page 9816 "Permission Set by User"
 {
+    ApplicationArea = Basic, Suite;
     Caption = 'Permission Set by User';
+    AboutTitle = 'About Permission Set by User';
+    AboutText = 'Get an overview of how permission sets are assigned to your users within a company. Tip: If you go into analysis mode, you can analyze data in other ways than what you see in the list.';
     DataCaptionExpression = SelectedCompany;
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
     ModifyAllowed = false;
+    UsageCategory = Lists;
     PageType = Worksheet;
     Permissions = TableData "Access Control" = rimd;
     SourceTable = "Aggregate Permission Set";

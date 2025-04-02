@@ -3,6 +3,7 @@ namespace Microsoft.Purchases.Payables;
 query 25 "Vend. Ledg. Entry Remain. Amt."
 {
     Caption = 'Vend. Ledg. Entry Remain. Amt.';
+    DataAccessIntent = ReadOnly;
 
     elements
     {

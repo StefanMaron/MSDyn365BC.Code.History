@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Manufacturing.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Enums;
@@ -303,8 +307,22 @@ table 5409 "Prod. Order Routing Line"
         field(34; "Routing Link Code"; Code[10])
         {
             Caption = 'Routing Link Code';
-            Editable = false;
             TableRelation = "Routing Link";
+
+            trigger OnValidate()
+            var
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode: Record "Prod. Order Routing Line";
+            begin
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode := Rec;
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode.SetRecFilter();
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode.SetRange("Operation No.");
+                ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode.SetRange("Routing Link Code", "Routing Link Code");
+                if not ProdOrderRoutingLineToCheckDuplicateRoutingLinkCode.IsEmpty() then
+                    if not Confirm(DuplicateRoutingLinkCodeLbl, false, FieldCaption("Routing Link Code"), "Routing Link Code") then
+                        Error(CancelledUpdateLbl);
+
+                AdjustProdOrderComponentForRoutingLinkCode(Rec, xRec);
+            end;
         }
         field(35; "Standard Task Code"; Code[10])
         {
@@ -576,6 +594,7 @@ table 5409 "Prod. Order Routing Line"
         field(81; "Flushing Method"; Enum "Flushing Method Routing")
         {
             Caption = 'Flushing Method';
+            ToolTip = 'Specifies the method to use to calculate and handle output at the work or machine center. Manual: Output must be posted manually by using the output journal. Forward: Output is automatically calculated and posted when you change the status of a simulated, planned (or firm planned) production order to Released. You can still post output manually from the output journal. Backward: Output is automatically calculated and posted when you change the status of a released production order to Finished. You can still post output manually from the output journal.';
         }
         field(90; "Expected Operation Cost Amt."; Decimal)
         {
@@ -646,6 +665,54 @@ table 5409 "Prod. Order Routing Line"
             Caption = 'From-Production Bin Code';
             Editable = false;
         }
+        field(7304; "Posted Output Quantity"; Decimal)
+        {
+            Caption = 'Posted Output Quantity';
+            ToolTip = 'Specifies the total output quantity that has been posted to the capacity ledger. Value expressed in base unit of measure.';
+            FieldClass = FlowField;
+            CalcFormula = sum("Capacity Ledger Entry"."Output Quantity" where("Routing No." = field("Routing No."),
+                                                                              "Order No." = field("Prod. Order No."),
+                                                                              "Operation No." = field("Operation No."),
+                                                                              "Order Type" = const(Production),
+                                                                              "Routing Reference No." = field("Routing Reference No.")));
+            Editable = false;
+        }
+        field(7305; "Posted Scrap Quantity"; Decimal)
+        {
+            Caption = 'Posted Scrap Quantity';
+            ToolTip = 'Specifies the total scrap quantity that has been posted to the capacity ledger. Value expressed in base unit of measure.';
+            FieldClass = FlowField;
+            CalcFormula = sum("Capacity Ledger Entry"."Scrap Quantity" where("Routing No." = field("Routing No."),
+                                                                             "Order No." = field("Prod. Order No."),
+                                                                             "Operation No." = field("Operation No."),
+                                                                             "Order Type" = const(Production),
+                                                                             "Routing Reference No." = field("Routing Reference No.")));
+            Editable = false;
+        }
+        field(7306; "Posted Run Time"; Decimal)
+        {
+            Caption = 'Posted Run Time';
+            ToolTip = 'Specifies the total run time that has been posted to the capacity ledger.';
+            FieldClass = FlowField;
+            CalcFormula = sum("Capacity Ledger Entry"."Run Time" where("Routing No." = field("Routing No."),
+                                                                       "Order No." = field("Prod. Order No."),
+                                                                       "Operation No." = field("Operation No."),
+                                                                       "Order Type" = const(Production),
+                                                                       "Routing Reference No." = field("Routing Reference No.")));
+            Editable = false;
+        }
+        field(7307; "Posted Setup Time"; Decimal)
+        {
+            Caption = 'Posted Setup Time';
+            ToolTip = 'Specifies the total set up time that has been posted to the capacity ledger.';
+            FieldClass = FlowField;
+            CalcFormula = sum("Capacity Ledger Entry"."Setup Time" where("Routing No." = field("Routing No."),
+                                                                         "Order No." = field("Prod. Order No."),
+                                                                         "Operation No." = field("Operation No."),
+                                                                         "Order Type" = const(Production),
+                                                                         "Routing Reference No." = field("Routing Reference No.")));
+            Editable = false;
+        }
     }
 
     keys
@@ -684,17 +751,13 @@ table 5409 "Prod. Order Routing Line"
         key(Key9; "Prod. Order No.", Status, "Flushing Method")
         {
         }
-        key(Key10; "No.", Type)
-        {
-            SumIndexFields = "Expected Operation Cost Amt.";
-        }
-        key(Key11; "Starting Date", "Starting Time", "Routing Status")
+        key(Key10; "Starting Date", "Starting Time", "Routing Status")
         {
         }
-        key(Key12; "Ending Date", "Ending Time", "Routing Status")
+        key(Key11; "Ending Date", "Ending Time", "Routing Status")
         {
         }
-        key(Key13; Type, "No.", Status)
+        key(Key12; Type, "No.", Status)
         {
             SumIndexFields = "Expected Operation Cost Amt.";
         }
@@ -788,6 +851,8 @@ table 5409 "Prod. Order Routing Line"
         ProdOrderLineRead: Boolean;
         TimeShiftedOnParentLineMsg: Label 'The production starting date-time of the end item has been moved forward because a subassembly is taking longer than planned.';
         NoTerminationProcessesErr: Label 'On the last operation, the Next Operation No. field must be empty.';
+        DuplicateRoutingLinkCodeLbl: Label '%1 %2 is used more than once on this Routing. Do you want to update it anyway?', Comment = '%1 = Field Caption; %2 = Field Value';
+        CancelledUpdateLbl: Label 'Update cancelled.';
 
     protected var
         Direction: Option Forward,Backward;
@@ -1595,6 +1660,81 @@ table 5409 "Prod. Order Routing Line"
         StartingDate := DT2Date("Starting Date-Time");
         EndingTime := DT2Time("Ending Date-Time");
         EndingDate := DT2Date("Ending Date-Time");
+    end;
+
+    local procedure AdjustProdOrderComponentForRoutingLinkCode(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; xProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        ProdOrderComponent.SetRange(Status, ProdOrderRoutingLine.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
+        ProdOrderComponent.SetFilter("Routing Link Code", '%1|%2', ProdOrderRoutingLine."Routing Link Code", xProdOrderRoutingLine."Routing Link Code");
+        if ProdOrderComponent.FindSet() then
+            repeat
+                UpdateDueDateTimeAndBinCodeInProdOrderComponent(ProdOrderComponent, ProdOrderRoutingLine);
+            until ProdOrderComponent.Next() = 0;
+    end;
+
+    local procedure UpdateDueDateTimeAndBinCodeInProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"): DateTime
+    begin
+        GetProdOrderLine();
+
+        ProdOrderComponent."Due Date" := ProdOrderLine."Starting Date";
+        ProdOrderComponent."Due Time" := ProdOrderLine."Starting Time";
+
+        UpdateProdOrderComponentFromRoutingLine(ProdOrderComponent, ProdOrderRoutingLine);
+
+        if Format(ProdOrderComponent."Lead-Time Offset") <> '' then begin
+            ProdOrderComponent."Due Date" := ProdOrderComponent."Due Date" - (CalcDate(ProdOrderComponent."Lead-Time Offset", WorkDate()) - WorkDate());
+            ProdOrderComponent."Due Time" := 0T;
+        end;
+
+        ProdOrderComponent.Validate("Due Date");
+        ProdOrderComponent.GetDefaultBin();
+        ProdOrderComponent.Modify(true);
+    end;
+
+    local procedure UpdateProdOrderComponentFromRoutingLine(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    var
+        ExistingProdOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        if ProdOrderComponent."Routing Link Code" = '' then
+            exit;
+
+        if ProdOrderLine."Routing No." <> ProdOrderRoutingLine."Routing No." then
+            exit;
+
+        if ProdOrderLine."Routing Reference No." <> ProdOrderRoutingLine."Routing Reference No." then
+            exit;
+
+        if FindEarliestProdOrderRoutingLine(ExistingProdOrderRoutingLine, ProdOrderRoutingLine, ProdOrderComponent) then
+            UpdateProdOrderComponentDueDateTime(ProdOrderComponent, ExistingProdOrderRoutingLine)
+        else
+            if ProdOrderRoutingLine."Routing Link Code" = ProdOrderComponent."Routing Link Code" then
+                if ProdOrderRoutingLine."Routing Link Code" <> '' then
+                    UpdateProdOrderComponentDueDateTime(ProdOrderComponent, ProdOrderRoutingLine);
+    end;
+
+    local procedure FindEarliestProdOrderRoutingLine(var ExistingProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderComponent: Record "Prod. Order Component"): Boolean
+    begin
+        ExistingProdOrderRoutingLine.SetCurrentKey("Starting Date", "Starting Time", "Routing Status");
+        ExistingProdOrderRoutingLine.SetRange(Status, ProdOrderComponent.Status);
+        ExistingProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderComponent."Prod. Order No.");
+        ExistingProdOrderRoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+        ExistingProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+        ExistingProdOrderRoutingLine.SetRange("Routing Link Code", ProdOrderComponent."Routing Link Code");
+        ExistingProdOrderRoutingLine.SetFilter("Operation No.", '<>%1', ProdOrderRoutingLine."Operation No.");
+        if ExistingProdOrderRoutingLine.FindFirst() then
+            if (ProdOrderRoutingLine."Routing Link Code" <> '') and (ProdOrderRoutingLine."Routing Link Code" = ExistingProdOrderRoutingLine."Routing Link Code") then
+                exit(ExistingProdOrderRoutingLine."Starting Date-Time" < ProdOrderRoutingLine."Starting Date-Time")
+            else
+                exit(true);
+    end;
+
+    local procedure UpdateProdOrderComponentDueDateTime(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+        ProdOrderComponent."Due Date" := ProdOrderRoutingLine."Starting Date";
+        ProdOrderComponent."Due Time" := ProdOrderRoutingLine."Starting Time";
     end;
 
     [IntegrationEvent(false, false)]

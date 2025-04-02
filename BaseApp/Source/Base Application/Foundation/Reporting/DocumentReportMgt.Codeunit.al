@@ -6,6 +6,7 @@ namespace Microsoft.Foundation.Reporting;
 
 using System;
 using System.Environment;
+using System.Reflection;
 using System.Utilities;
 using System.Xml;
 
@@ -89,10 +90,15 @@ codeunit 9651 "Document Report Mgt."
     end;
 
     procedure NewExcelLayout(ReportId: Integer; var DocumentStream: OutStream)
+    begin
+        NewExcelLayout(ReportId, "Excel Sheet Configuration"::Default, DocumentStream);
+    end;
+
+    procedure NewExcelLayout(ReportId: Integer; ExcelSheetConfiguration: enum "Excel Sheet Configuration"; var DocumentStream: OutStream)
     var
         ExcelReportManager: DotNet ExcelReportManager;
     begin
-        ExcelReportManager.NewExcelLayout(DocumentStream, ReportId);
+        ExcelReportManager.NewExcelLayout(DocumentStream, ReportId, ExcelSheetConfiguration.AsInteger());
     end;
 
     procedure ConvertWordToPdf(var TempBlob: Codeunit "Temp Blob"; ReportID: Integer)

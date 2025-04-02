@@ -2,7 +2,7 @@
   "id": "e6ba5021-9152-4929-8953-e0007e72db61",
   "name": "OnPrem Permissions (FR)",
   "publisher": "Microsoft",
-  "version": "25.5.30849.31109",
+  "version": "26.0.30643.32481",
   "brief": "This extension includes permission set for on premise systems.",
   "description": "This extension includes permission set for on premise systems.",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -13,12 +13,12 @@
   "logo": "ExtensionLogo.png",
   "dependencies": [],
   "screenshots": [],
-  "platform": "25.2.0.0",
+  "platform": "26.0.0.0",
   "resourceExposurePolicy": {
     "allowDebugging": false,
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
   "target": "OnPrem",
-  "application": "25.5.0.0"
+  "application": "26.0.0.0"
 }

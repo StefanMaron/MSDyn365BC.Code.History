@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Document;
 
 using Microsoft.Inventory.Location;
@@ -11,8 +15,8 @@ codeunit 904 "Whse.-Assembly Release"
     end;
 
     var
-        WhseRqst: Record "Warehouse Request";
-        WhsePickRqst: Record "Whse. Pick Request";
+        WarehouseRequest: Record "Warehouse Request";
+        WhsePickRequest: Record "Whse. Pick Request";
 
     procedure Release(AssemblyHeader: Record "Assembly Header")
     var
@@ -34,47 +38,47 @@ codeunit 904 "Whse.-Assembly Release"
             First := true;
             repeat
                 if First or (AssemblyLine."Location Code" <> OldLocationCode) then
-                    CreateWhseRqst(AssemblyHeader, AssemblyLine);
+                    CreateWarehouseRequest(AssemblyHeader, AssemblyLine);
 
                 First := false;
                 OldLocationCode := AssemblyLine."Location Code";
             until AssemblyLine.Next() = 0;
         end;
 
-        WhseRqst.Reset();
-        WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        WhseRqst.SetRange(Type, WhseRqst.Type);
-        WhseRqst.SetRange("Source Type", DATABASE::"Assembly Line");
-        WhseRqst.SetRange("Source Subtype", AssemblyHeader."Document Type");
-        WhseRqst.SetRange("Source No.", AssemblyHeader."No.");
-        WhseRqst.SetRange("Document Status", AssemblyHeader.Status::Open);
-        WhseRqst.DeleteAll(true);
+        WarehouseRequest.Reset();
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WarehouseRequest.SetRange(Type, WarehouseRequest.Type);
+        WarehouseRequest.SetRange("Source Type", DATABASE::"Assembly Line");
+        WarehouseRequest.SetRange("Source Subtype", AssemblyHeader."Document Type");
+        WarehouseRequest.SetRange("Source No.", AssemblyHeader."No.");
+        WarehouseRequest.SetRange("Document Status", AssemblyHeader.Status::Open);
+        WarehouseRequest.DeleteAll(true);
     end;
 
     procedure Reopen(AssemblyHeader: Record "Assembly Header")
     begin
         if AssemblyHeader."Document Type" = AssemblyHeader."Document Type"::Order then
-            WhseRqst.Type := WhseRqst.Type::Outbound;
+            WarehouseRequest.Type := WarehouseRequest.Type::Outbound;
 
-        WhseRqst.Reset();
-        WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        WhseRqst.SetRange(Type, WhseRqst.Type);
-        WhseRqst.SetRange("Source Type", DATABASE::"Assembly Line");
-        WhseRqst.SetRange("Source Subtype", AssemblyHeader."Document Type");
-        WhseRqst.SetRange("Source No.", AssemblyHeader."No.");
-        WhseRqst.SetRange("Document Status", AssemblyHeader.Status::Released);
-        WhseRqst.LockTable();
-        if not WhseRqst.IsEmpty() then
-            WhseRqst.ModifyAll("Document Status", WhseRqst."Document Status"::Open);
+        WarehouseRequest.Reset();
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WarehouseRequest.SetRange(Type, WarehouseRequest.Type);
+        WarehouseRequest.SetRange("Source Type", DATABASE::"Assembly Line");
+        WarehouseRequest.SetRange("Source Subtype", AssemblyHeader."Document Type");
+        WarehouseRequest.SetRange("Source No.", AssemblyHeader."No.");
+        WarehouseRequest.SetRange("Document Status", AssemblyHeader.Status::Released);
+        WarehouseRequest.LockTable();
+        if not WarehouseRequest.IsEmpty() then
+            WarehouseRequest.ModifyAll("Document Status", WarehouseRequest."Document Status"::Open);
 
-        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Assembly);
-        WhsePickRqst.SetRange("Document No.", AssemblyHeader."No.");
-        WhsePickRqst.SetRange(Status, AssemblyHeader.Status::Released);
-        if not WhsePickRqst.IsEmpty() then
-            WhsePickRqst.ModifyAll(Status, WhsePickRqst.Status::Open);
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Assembly);
+        WhsePickRequest.SetRange("Document No.", AssemblyHeader."No.");
+        WhsePickRequest.SetRange(Status, AssemblyHeader.Status::Released);
+        if not WhsePickRequest.IsEmpty() then
+            WhsePickRequest.ModifyAll(Status, WhsePickRequest.Status::Open);
     end;
 
-    local procedure CreateWhseRqst(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line")
+    local procedure CreateWarehouseRequest(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line")
     var
         AssemblyLine2: Record "Assembly Line";
         Location: Record Location;
@@ -94,37 +98,37 @@ codeunit 904 "Whse.-Assembly Release"
             Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)",
             Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)":
                 begin
-                    WhsePickRqst.Init();
-                    WhsePickRqst."Document Type" := WhsePickRqst."Document Type"::Assembly;
-                    WhsePickRqst."Document Subtype" := AssemblyLine."Document Type".AsInteger();
-                    WhsePickRqst."Document No." := AssemblyLine."Document No.";
-                    WhsePickRqst.Status := WhsePickRqst.Status::Released;
-                    WhsePickRqst."Location Code" := AssemblyLine."Location Code";
-                    WhsePickRqst."Completely Picked" := AssemblyHeader.CompletelyPicked();
-                    if WhsePickRqst."Completely Picked" and (not AssemblyLine.CompletelyPicked()) then
-                        WhsePickRqst."Completely Picked" := false;
-                    if not WhsePickRqst.Insert() then
-                        WhsePickRqst.Modify();
+                    WhsePickRequest.Init();
+                    WhsePickRequest."Document Type" := WhsePickRequest."Document Type"::Assembly;
+                    WhsePickRequest."Document Subtype" := AssemblyLine."Document Type".AsInteger();
+                    WhsePickRequest."Document No." := AssemblyLine."Document No.";
+                    WhsePickRequest.Status := WhsePickRequest.Status::Released;
+                    WhsePickRequest."Location Code" := AssemblyLine."Location Code";
+                    WhsePickRequest."Completely Picked" := AssemblyHeader.CompletelyPicked();
+                    if WhsePickRequest."Completely Picked" and (not AssemblyLine.CompletelyPicked()) then
+                        WhsePickRequest."Completely Picked" := false;
+                    if not WhsePickRequest.Insert() then
+                        WhsePickRequest.Modify();
                 end;
             Enum::"Asm. Consump. Whse. Handling"::"Inventory Movement":
                 begin
-                    WhseRqst.Init();
+                    WarehouseRequest.Init();
                     case AssemblyHeader."Document Type" of
                         AssemblyHeader."Document Type"::Order:
-                            WhseRqst.Type := WhseRqst.Type::Outbound;
+                            WarehouseRequest.Type := WarehouseRequest.Type::Outbound;
                     end;
-                    WhseRqst."Source Document" := WhseRqst."Source Document"::"Assembly Consumption";
-                    WhseRqst."Source Type" := DATABASE::"Assembly Line";
-                    WhseRqst."Source Subtype" := AssemblyLine."Document Type".AsInteger();
-                    WhseRqst."Source No." := AssemblyLine."Document No.";
-                    WhseRqst."Document Status" := WhseRqst."Document Status"::Released;
-                    WhseRqst."Location Code" := AssemblyLine."Location Code";
-                    WhseRqst."Destination Type" := WhseRqst."Destination Type"::Item;
-                    WhseRqst."Destination No." := AssemblyHeader."Item No.";
-                    WhseRqst."Completely Handled" := AssemblyCompletelyHandled(AssemblyHeader, AssemblyLine."Location Code");
-                    OnBeforeWhseRequestInsert(WhseRqst, AssemblyLine, AssemblyHeader);
-                    if not WhseRqst.Insert() then
-                        WhseRqst.Modify();
+                    WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Assembly Consumption";
+                    WarehouseRequest."Source Type" := DATABASE::"Assembly Line";
+                    WarehouseRequest."Source Subtype" := AssemblyLine."Document Type".AsInteger();
+                    WarehouseRequest."Source No." := AssemblyLine."Document No.";
+                    WarehouseRequest."Document Status" := WarehouseRequest."Document Status"::Released;
+                    WarehouseRequest."Location Code" := AssemblyLine."Location Code";
+                    WarehouseRequest."Destination Type" := WarehouseRequest."Destination Type"::Item;
+                    WarehouseRequest."Destination No." := AssemblyHeader."Item No.";
+                    WarehouseRequest."Completely Handled" := AssemblyCompletelyHandled(AssemblyHeader, AssemblyLine."Location Code");
+                    OnBeforeWhseRequestInsert(WarehouseRequest, AssemblyLine, AssemblyHeader);
+                    if not WarehouseRequest.Insert() then
+                        WarehouseRequest.Modify();
                 end;
         end;
     end;
@@ -139,10 +143,10 @@ codeunit 904 "Whse.-Assembly Release"
                 Location.Get(LocationCode);
     end;
 
-    local procedure FilterAssemblyLine(var AssemblyLine: Record "Assembly Line"; DocumentType: Enum "Assembly Document Type"; DocumentNo: Code[20])
+    local procedure FilterAssemblyLine(var AssemblyLine: Record "Assembly Line"; AssemblyDocumentType: Enum "Assembly Document Type"; DocumentNo: Code[20])
     begin
         AssemblyLine.SetCurrentKey("Document Type", "Document No.", Type, "Location Code");
-        AssemblyLine.SetRange("Document Type", DocumentType);
+        AssemblyLine.SetRange("Document Type", AssemblyDocumentType);
         AssemblyLine.SetRange("Document No.", DocumentNo);
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
     end;
@@ -161,12 +165,12 @@ codeunit 904 "Whse.-Assembly Release"
     var
         AssemblyLine2: Record "Assembly Line";
         Location: Record Location;
-        KeepWhseRqst: Boolean;
+        KeepWarehouseRequest: Boolean;
     begin
         if AssemblyLine.Type <> AssemblyLine.Type::Item then
             exit;
 
-        KeepWhseRqst := false;
+        KeepWarehouseRequest := false;
         if Location.Get(AssemblyLine."Location Code") then;
         FilterAssemblyLine(AssemblyLine2, AssemblyLine."Document Type", AssemblyLine."Document No.");
         AssemblyLine2.SetFilter("Line No.", '<>%1', AssemblyLine."Line No.");
@@ -178,51 +182,51 @@ codeunit 904 "Whse.-Assembly Release"
                 if (not AssemblyLine2.CompletelyPicked()) or
                     (Location."Asm. Consump. Whse. Handling" <> Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)")
                 then
-                    KeepWhseRqst := true; // if lines are incompletely picked.
-            until (AssemblyLine2.Next() = 0) or KeepWhseRqst;
+                    KeepWarehouseRequest := true; // if lines are incompletely picked.
+            until (AssemblyLine2.Next() = 0) or KeepWarehouseRequest;
 
-        OnDeleteLineOnBeforeDeleteWhseRqst(AssemblyLine2, KeepWhseRqst);
+        OnDeleteLineOnBeforeDeleteWhseRqst(AssemblyLine2, KeepWarehouseRequest);
 
-        if not KeepWhseRqst then
+        if not KeepWarehouseRequest then
             if Location."Asm. Consump. Whse. Handling" in [Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)", Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)"] then
-                DeleteWhsePickRqst(AssemblyLine, false)
+                DeleteWhsePickRequest(AssemblyLine, false)
             else
-                DeleteWhseRqst(AssemblyLine, false);
+                DeleteWarehouseRequest(AssemblyLine, false);
     end;
 
-    local procedure DeleteWhsePickRqst(AssemblyLine: Record "Assembly Line"; DeleteAllWhsePickRqst: Boolean)
+    local procedure DeleteWhsePickRequest(AssemblyLine: Record "Assembly Line"; DeleteAllWhsePickRequests: Boolean)
     begin
-        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Assembly);
-        WhsePickRqst.SetRange("Document No.", AssemblyLine."Document No.");
-        if not DeleteAllWhsePickRqst then begin
-            WhsePickRqst.SetRange("Document Subtype", AssemblyLine."Document Type");
-            WhsePickRqst.SetRange("Location Code", AssemblyLine."Location Code");
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Assembly);
+        WhsePickRequest.SetRange("Document No.", AssemblyLine."Document No.");
+        if not DeleteAllWhsePickRequests then begin
+            WhsePickRequest.SetRange("Document Subtype", AssemblyLine."Document Type");
+            WhsePickRequest.SetRange("Location Code", AssemblyLine."Location Code");
         end;
-        if not WhsePickRqst.IsEmpty() then
-            WhsePickRqst.DeleteAll(true);
+        if not WhsePickRequest.IsEmpty() then
+            WhsePickRequest.DeleteAll(true);
     end;
 
-    local procedure DeleteWhseRqst(AssemblyLine: Record "Assembly Line"; DeleteAllWhseRqst: Boolean)
+    local procedure DeleteWarehouseRequest(AssemblyLine: Record "Assembly Line"; DeleteAllWhseRqst: Boolean)
     var
-        WhseRqst2: Record "Warehouse Request";
+        WarehouseRequest2: Record "Warehouse Request";
     begin
         if not DeleteAllWhseRqst then
             case true of
                 AssemblyLine."Remaining Quantity" > 0:
-                    WhseRqst2.SetRange(Type, WhseRqst2.Type::Outbound);
+                    WarehouseRequest2.SetRange(Type, WarehouseRequest2.Type::Outbound);
                 AssemblyLine."Remaining Quantity" < 0:
-                    WhseRqst2.SetRange(Type, WhseRqst2.Type::Inbound);
+                    WarehouseRequest2.SetRange(Type, WarehouseRequest2.Type::Inbound);
                 AssemblyLine."Remaining Quantity" = 0:
                     exit;
             end;
-        WhseRqst2.SetRange("Source Type", DATABASE::"Assembly Line");
-        WhseRqst2.SetRange("Source No.", AssemblyLine."Document No.");
+        WarehouseRequest2.SetRange("Source Type", DATABASE::"Assembly Line");
+        WarehouseRequest2.SetRange("Source No.", AssemblyLine."Document No.");
         if not DeleteAllWhseRqst then begin
-            WhseRqst2.SetRange("Source Subtype", AssemblyLine."Document Type");
-            WhseRqst2.SetRange("Location Code", AssemblyLine."Location Code");
+            WarehouseRequest2.SetRange("Source Subtype", AssemblyLine."Document Type");
+            WarehouseRequest2.SetRange("Location Code", AssemblyLine."Location Code");
         end;
-        if not WhseRqst2.IsEmpty() then
-            WhseRqst2.DeleteAll(true);
+        if not WarehouseRequest2.IsEmpty() then
+            WarehouseRequest2.DeleteAll(true);
     end;
 
     [IntegrationEvent(false, false)]

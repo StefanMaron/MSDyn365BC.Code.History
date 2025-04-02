@@ -1518,8 +1518,6 @@ codeunit 134463 "ERM Item Reference Sales"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Item Reference Sales");
-
-        LibraryItemReference.EnableFeature(true);
         Commit();
         IsInitialized := true;
 

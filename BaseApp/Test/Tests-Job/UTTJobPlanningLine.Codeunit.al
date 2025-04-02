@@ -21,7 +21,6 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryService: Codeunit "Library - Service";
 #if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
@@ -2009,7 +2008,7 @@ codeunit 136353 "UT T Job Planning Line"
 
         // [GIVEN] Create Extended Text for the Item
         UpdateAllLanguagesCodeOnExtendedTextHeader(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, ExtendedTextHeader."No.");
         ExtendedTextLine.Modify(true);
 
@@ -2058,7 +2057,7 @@ codeunit 136353 "UT T Job Planning Line"
 
         // [GIVEN] Create Extended Text for the Item
         UpdateAllLanguagesCodeOnExtendedTextHeader(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, ExtendedTextHeader."No.");
         ExtendedTextLine.Modify(true);
 
@@ -2478,7 +2477,7 @@ codeunit 136353 "UT T Job Planning Line"
 
     local procedure UpdateAllLanguagesCodeOnExtendedTextHeader(var ExtendedTextHeader: Record "Extended Text Header"; ItemNo: Code[20])
     begin
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
         ExtendedTextHeader.Validate("All Language Codes", true);
         ExtendedTextHeader.Modify(true);
     end;

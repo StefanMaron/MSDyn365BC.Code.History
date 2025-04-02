@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Ledger;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Ledger;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -6,7 +10,6 @@ using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using System.Globalization;
@@ -484,6 +487,29 @@ page 38 "Item Ledger Entries"
                         ApplicationWorksheet.Run();
                     end;
                 }
+                action("Item Application Entries")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Item Application Entries';
+                    Image = EntriesList;
+                    Visible = AdjustCostActionsVisible;
+                    ToolTip = 'View the item application entries that are created when you post item transactions.';
+
+                    trigger OnAction()
+                    var
+                        ItemApplicationEntry: Record "Item Application Entry";
+                    begin
+                        if Rec.Positive then begin
+                            ItemApplicationEntry.SetCurrentKey("Inbound Item Entry No.");
+                            ItemApplicationEntry.SetRange("Inbound Item Entry No.", Rec."Entry No.");
+                        end else begin
+                            ItemApplicationEntry.SetCurrentKey("Outbound Item Entry No.");
+                            ItemApplicationEntry.SetRange("Outbound Item Entry No.", Rec."Entry No.");
+                        end;
+
+                        Page.Run(0, ItemApplicationEntry);
+                    end;
+                }
                 action("Mark For Adjustment")
                 {
                     Caption = 'Mark for adjustment';
@@ -570,6 +596,9 @@ page 38 "Item Ledger Entries"
                 actionref("Application Worksheet_Promoted"; "Application Worksheet")
                 {
                 }
+                actionref("Item Application Entries_Promoted"; "Item Application Entries")
+                {
+                }
                 actionref("Mark For Adjustment_Promoted"; "Mark For Adjustment")
                 {
                 }
@@ -620,14 +649,13 @@ page 38 "Item Ledger Entries"
         GLSetup: Record "General Ledger Setup";
         ObjTransl: Record "Object Translation";
         Item: Record Item;
-        ProdOrder: Record "Production Order";
         Cust: Record Customer;
         Vend: Record Vendor;
         Dimension: Record Dimension;
         DimValue: Record "Dimension Value";
         SourceTableName: Text;
         SourceFilter: Text;
-        Description: Text[100];
+        SourceDescription: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -635,7 +663,7 @@ page 38 "Item Ledger Entries"
         if IsHandled then
             exit;
 
-        Description := '';
+        SourceDescription := '';
 
         case true of
             Rec.GetFilter("Item No.") <> '':
@@ -644,19 +672,7 @@ page 38 "Item Ledger Entries"
                     SourceFilter := Rec.GetFilter("Item No.");
                     if MaxStrLen(Item."No.") >= StrLen(SourceFilter) then
                         if Item.Get(SourceFilter) then
-                            Description := Item.Description;
-                end;
-            (Rec.GetFilter("Order No.") <> '') and (Rec."Order Type" = Rec."Order Type"::Production):
-                begin
-                    SourceTableName := ObjTransl.TranslateObject(ObjTransl."Object Type"::Table, 5405);
-                    SourceFilter := Rec.GetFilter("Order No.");
-                    if MaxStrLen(ProdOrder."No.") >= StrLen(SourceFilter) then
-                        if ProdOrder.Get(ProdOrder.Status::Released, SourceFilter) or
-                           ProdOrder.Get(ProdOrder.Status::Finished, SourceFilter)
-                        then begin
-                            SourceTableName := StrSubstNo('%1 %2', ProdOrder.Status, SourceTableName);
-                            Description := ProdOrder.Description;
-                        end;
+                            SourceDescription := Item.Description;
                 end;
             Rec.GetFilter("Source No.") <> '':
                 case Rec."Source Type" of
@@ -667,7 +683,7 @@ page 38 "Item Ledger Entries"
                             SourceFilter := Rec.GetFilter("Source No.");
                             if MaxStrLen(Cust."No.") >= StrLen(SourceFilter) then
                                 if Cust.Get(SourceFilter) then
-                                    Description := Cust.Name;
+                                    SourceDescription := Cust.Name;
                         end;
                     Rec."Source Type"::Vendor:
                         begin
@@ -676,7 +692,7 @@ page 38 "Item Ledger Entries"
                             SourceFilter := Rec.GetFilter("Source No.");
                             if MaxStrLen(Vend."No.") >= StrLen(SourceFilter) then
                                 if Vend.Get(SourceFilter) then
-                                    Description := Vend.Name;
+                                    SourceDescription := Vend.Name;
                         end;
                 end;
             Rec.GetFilter("Global Dimension 1 Code") <> '':
@@ -687,7 +703,7 @@ page 38 "Item Ledger Entries"
                     SourceTableName := Dimension.GetMLName(GlobalLanguage);
                     if MaxStrLen(DimValue.Code) >= StrLen(SourceFilter) then
                         if DimValue.Get(GLSetup."Global Dimension 1 Code", SourceFilter) then
-                            Description := DimValue.Name;
+                            SourceDescription := DimValue.Name;
                 end;
             Rec.GetFilter("Global Dimension 2 Code") <> '':
                 begin
@@ -697,16 +713,16 @@ page 38 "Item Ledger Entries"
                     SourceTableName := Dimension.GetMLName(GlobalLanguage);
                     if MaxStrLen(DimValue.Code) >= StrLen(SourceFilter) then
                         if DimValue.Get(GLSetup."Global Dimension 2 Code", SourceFilter) then
-                            Description := DimValue.Name;
+                            SourceDescription := DimValue.Name;
                 end;
             Rec.GetFilter("Document Type") <> '':
                 begin
                     SourceTableName := Rec.GetFilter("Document Type");
                     SourceFilter := Rec.GetFilter("Document No.");
-                    Description := Rec.GetFilter("Document Line No.");
+                    SourceDescription := Rec.GetFilter("Document Line No.");
                 end;
         end;
-        exit(StrSubstNo('%1 %2 %3', SourceTableName, SourceFilter, Description));
+        exit(StrSubstNo('%1 %2 %3', SourceTableName, SourceFilter, SourceDescription));
     end;
 
     local procedure SetAppliedEntriesToAdjust()

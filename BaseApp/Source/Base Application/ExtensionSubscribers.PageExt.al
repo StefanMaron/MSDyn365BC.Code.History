@@ -16,7 +16,7 @@ pageextension 2510 "Extension Subscribers" extends "Extension Management"
                 ApplicationArea = All;
                 Image = SetupList;
                 RunObject = Page "Event Subscriptions";
-                RunPageLink = "Originating App Name" = field("Package ID");
+                RunPageLink = "Originating Package ID" = field("Package ID");
             }
         }
     }

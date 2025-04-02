@@ -428,9 +428,9 @@ codeunit 8614 "Config. XML Exchange"
 
         ExecutionId := CreateGuid();
         Dimensions.Add('Category', RapidStartTxt);
-        Dimensions.Add('PackageCode', ConfigPackage.Code);
+        Dimensions.Add('PackageCode', ConfigPackage.SystemId);
         Dimensions.Add('ExecutionId', Format(ExecutionId, 0, 4));
-        Session.LogMessage('0000E3F', StrSubstNo(PackageExportStartScopeAllMsg, ConfigPackage.Code), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+        Session.LogMessage('0000E3F', StrSubstNo(PackageExportStartScopeAllMsg, ConfigPackage.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
 
         if not ConfigPackage."Exclude Config. Tables" and not ExcelMode then
             ConfigPackageMgt.AddConfigTables(ConfigPackage.Code);
@@ -450,7 +450,7 @@ codeunit 8614 "Config. XML Exchange"
 
         DurationAsInt := CurrentDateTime() - StartTime;
         Dimensions.Add('ExecutionTimeInMs', Format(DurationAsInt));
-        Session.LogMessage('0000E3G', StrSubstNo(PackageExportFinishScopeAllMsg, ConfigPackage.Code), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+        Session.LogMessage('0000E3G', StrSubstNo(PackageExportFinishScopeAllMsg, ConfigPackage.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
 
         // Tag used for analytics
         Session.LogMessage('00009Q5', StrSubstNo(PackageExportFinishMsg, DurationAsInt), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
@@ -689,9 +689,8 @@ codeunit 8614 "Config. XML Exchange"
 
         ExecutionId := CreateGuid();
         Dimensions.Add('Category', RapidStartTxt);
-        Dimensions.Add('PackageCode', PackageCode);
         Dimensions.Add('ExecutionId', Format(ExecutionId, 0, 4));
-        Session.LogMessage('0000E3H', StrSubstNo(PackageImportStartScopeAllMsg, PackageCode), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+        Session.LogMessage('0000E3H', StrSubstNo(PackageImportStartScopeAllMsg, ConfigPackage.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
 
         Commit(); // to enable background processes to reference the ConfigPackage
 
@@ -755,7 +754,7 @@ codeunit 8614 "Config. XML Exchange"
 
         Dimensions.Add('ExecutionTimeInMs', Format(DurationAsInt));
         Dimensions.Add('FileSizeInBytes', Format(FileSize));
-        Session.LogMessage('0000E3I', StrSubstNo(PackageImportFinishScopeAllMsg, PackageCode), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+        Session.LogMessage('0000E3I', StrSubstNo(PackageImportFinishScopeAllMsg, ConfigPackage.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
         Session.LogMessage('00009Q7', StrSubstNo(PackageImportFinishMsg, DurationAsInt, FileSize), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         // autoapply configuration lines
@@ -1739,4 +1738,3 @@ codeunit 8614 "Config. XML Exchange"
     begin
     end;
 }
-

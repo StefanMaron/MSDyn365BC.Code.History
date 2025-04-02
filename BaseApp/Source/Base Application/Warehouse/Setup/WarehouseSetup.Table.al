@@ -11,11 +11,14 @@ table 5769 "Warehouse Setup"
 {
     Caption = 'Warehouse Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Warehouse Setup";
+    LookupPageID = "Warehouse Setup";
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Whse. Receipt Nos."; Code[20])
@@ -107,6 +110,7 @@ table 5769 "Warehouse Setup"
                     ConfirmDiscontinuedFieldBeingSet(Rec.FieldCaption("Require Shipment"), Rec.TableCaption);
             end;
         }
+#if not CLEANSCHEMA28
         field(17; "Last Whse. Posting Ref. No."; Integer)
         {
             Caption = 'Last Whse. Posting Ref. No.';
@@ -120,6 +124,7 @@ table 5769 "Warehouse Setup"
             ObsoleteTag = '19.0';
 #endif
         }
+#endif
         field(18; "Receipt Posting Policy"; Option)
         {
             Caption = 'Receipt Posting Policy';
@@ -203,6 +208,7 @@ table 5769 "Warehouse Setup"
     }
 
     var
+        RecordHasBeenRead: Boolean;
         SetDiscontinuedFieldQst: Label 'The %1 field will be removed from %2 in a future release. Use the %1 field for a specific location instead. \\Do you want to continue?', Comment = '%1 = field name, %2 = table name.';
         SetDiscontinuedFieldTelemetryMsg: Label 'The %1 field was enabled on %2 in company %3.', Comment = '%1 = field name, %2 = table name, %3 = company name';
         TelemetryCategoryLbl: Label 'AL Warehouse Setup', Locked = true;
@@ -266,6 +272,14 @@ table 5769 "Warehouse Setup"
         FeatureKeyManagement: Codeunit "Feature Key Management";
     begin
         exit(not FeatureKeyManagement.IsConcurrentWarehousingPostingEnabled());
+    end;
+
+    internal procedure GetRecordOnce()
+    begin
+        if RecordHasBeenRead then
+            exit;
+        Get();
+        RecordHasBeenRead := true;
     end;
 }
 

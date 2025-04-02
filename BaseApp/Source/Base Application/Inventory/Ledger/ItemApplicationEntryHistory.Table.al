@@ -1,13 +1,20 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Ledger;
 
 using Microsoft.Utilities;
 using System.Security.AccessControl;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Setup;
 
 table 343 "Item Application Entry History"
 {
     Caption = 'Item Application Entry History';
     DrillDownPageID = "Item Application Entry History";
     LookupPageID = "Item Application Entry History";
+    Permissions = TableData "Item Application Entry History" = ri;
     DataClassification = CustomerContent;
 
     fields
@@ -104,6 +111,18 @@ table 343 "Item Application Entry History"
     {
     }
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Application Entry History", 'r')]
+    procedure GetNextEntryNo(): Integer
+    var
+        InventorySetup: Record "Inventory Setup";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        if InventorySetup.UseLegacyPosting() then
+            exit(GetLastEntryNo() + 1);
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Item Application Entry History"));
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Application Entry History", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";

@@ -34,6 +34,13 @@ page 140 "Posted Purchase Credit Memo"
                     Importance = Promoted;
                     ToolTip = 'Specifies the posted credit memo number.';
                 }
+                field("Buy-from Vendor No."; Rec."Buy-from Vendor No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor No.';
+                    Editable = false;
+                    Visible = false;
+                }
                 field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
                 {
                     ApplicationArea = All;
@@ -497,6 +504,7 @@ page 140 "Posted Purchase Credit Memo"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Purch. Cr. Memo Hdr."),
                               "No." = field("No.");

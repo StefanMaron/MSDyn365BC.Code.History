@@ -473,15 +473,6 @@ table 17 "G/L Entry"
             Caption = 'Last Modified DateTime';
             Editable = false;
         }
-        field(10810; "Entry Type"; Option)
-        {
-            Caption = 'Entry Type';
-            ObsoleteReason = 'Discountinued feature';
-            ObsoleteState = Removed;
-            OptionCaption = 'Definitive,Simulation';
-            OptionMembers = Definitive,Simulation;
-            ObsoleteTag = '15.0';
-        }
         field(10811; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';
@@ -579,7 +570,7 @@ table 17 "G/L Entry"
 
     fieldgroups
     {
-        fieldgroup(DropDown; "Entry No.", Description, "G/L Account No.", "Posting Date", "Document Type", "Document No.")
+        fieldgroup(DropDown; "Entry No.", Description, Amount, "G/L Account No.", "Posting Date", "Document Type", "Document No.")
         {
         }
     }
@@ -880,4 +871,3 @@ table 17 "G/L Entry"
     begin
     end;
 }
-

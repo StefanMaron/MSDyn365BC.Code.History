@@ -110,8 +110,13 @@ table 137 "Inc. Doc. Attachment Overview"
         SupportingAttachmentsTxt: Label 'Supporting Attachments';
         NotAvailableAttachmentMsg: Label 'The attachment is no longer available.';
 
+    internal procedure NameDrillDown()
+    begin
+        NameDrillDown(false)
+    end;
+
     [Scope('OnPrem')]
-    procedure NameDrillDown()
+    procedure NameDrillDown(DownloadFilePreset: Boolean)
     var
         IncomingDocument: Record "Incoming Document";
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
@@ -137,8 +142,20 @@ table 137 "Inc. Doc. Attachment Overview"
                     if (Type = Type::Image) and (ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone) then
                         PAGE.Run(PAGE::"O365 Incoming Doc. Att. Pict.", IncomingDocumentAttachment)
                     else
-                        IncomingDocumentAttachment.Export(Name + '.' + "File Extension", true);
+                        if IncomingDocumentAttachment.SupportedByFileViewer() and not DownloadFilePreset then
+                            ViewFile(IncomingDocumentAttachment, Name + '.' + "File Extension")
+                        else
+                            IncomingDocumentAttachment.Export(Name + '.' + "File Extension", true);
         end;
+    end;
+
+    local procedure ViewFile(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; FileName: Text)
+    var
+        FileInStream: InStream;
+    begin
+        IncomingDocumentAttachment.CalcFields(Content);
+        IncomingDocumentAttachment.Content.CreateInStream(FileInStream);
+        File.ViewFromStream(FileInStream, FileName, true);
     end;
 
     procedure GetStyleTxt(): Text

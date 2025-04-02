@@ -17,7 +17,6 @@ page 935 "Alt. Customer Posting Groups"
                 field("Alt. Customer Posting Group"; Rec."Alt. Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer group for posting business transactions to general general ledger accounts.';
                 }
             }
         }

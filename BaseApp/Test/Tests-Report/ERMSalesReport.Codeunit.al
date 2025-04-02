@@ -20,7 +20,6 @@
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryAssembly: Codeunit "Library - Assembly";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportValidation: Codeunit "Library - Report Validation";
@@ -3994,7 +3993,7 @@
         BOMComponent: Record "BOM Component";
     begin
         LibraryAssembly.CreateItem(AssemblyItem, AssemblyItem."Costing Method"::FIFO, AssemblyItem."Replenishment System"::Purchase, '', '');
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ParentItemNo, BOMComponent.Type::Item,
           AssemblyItem."No.", LibraryRandom.RandDec(2, 4), AssemblyItem."Base Unit of Measure");
         BOMComponent.Validate(Description, AssemblyItem."No.");

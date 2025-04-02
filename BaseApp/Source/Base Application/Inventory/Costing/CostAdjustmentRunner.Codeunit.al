@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
 codeunit 5808 "Cost Adjustment Runner"
@@ -11,7 +15,7 @@ codeunit 5808 "Cost Adjustment Runner"
         CostAdjustmentSubscribers: Codeunit "Cost Adjustment Subscribers";
     begin
         BindSubscription(CostAdjustmentSubscribers);
-        OnBeforeRunCostAdjustment();
+        OnBeforeRunCostAdjustment(Rec);
 
         CostAdjItemBucket.Copy(Rec);
         if CostAdjustmentBucketRunner.Run(CostAdjItemBucket) then
@@ -38,7 +42,7 @@ codeunit 5808 "Cost Adjustment Runner"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunCostAdjustment()
+    local procedure OnBeforeRunCostAdjustment(CostAdjItemBucket: Record "Cost Adj. Item Bucket")
     begin
     end;
 

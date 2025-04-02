@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 table 729 "Copy Item Buffer"
@@ -9,6 +13,7 @@ table 729 "Copy Item Buffer"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
             DataClassification = SystemMetadata;
         }
@@ -118,14 +123,6 @@ table 729 "Copy Item Buffer"
             Caption = 'Attributes';
             DataClassification = SystemMetadata;
         }
-        field(27; "Item Cross References"; Boolean)
-        {
-            Caption = 'Item Cross References';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Replaced with parameter Item References';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
         field(28; "Item References"; Boolean)
         {
             Caption = 'Item References';
@@ -145,4 +142,3 @@ table 729 "Copy Item Buffer"
     {
     }
 }
-

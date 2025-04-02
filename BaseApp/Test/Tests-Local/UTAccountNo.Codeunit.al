@@ -65,7 +65,7 @@ codeunit 144003 "UT Account No"
         OnValidateNoGLAccount(Format(LibraryRandom.RandIntInRange(6, 9)), GLAccount."Income/Balance"::"Income Statement");
     end;
 
-    local procedure OnValidateNoGLAccount(GLAccountNo: Code[20]; IncomeBalance: Option)
+    local procedure OnValidateNoGLAccount(GLAccountNo: Code[20]; IncomeBalance: Enum "G/L Account Report Type")
     var
         GLAccount: Record "G/L Account";
     begin

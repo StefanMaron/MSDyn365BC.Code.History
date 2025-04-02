@@ -338,7 +338,7 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
         until TempWarehouseActivityHeader.Next() = 0;
     end;
 
-    local procedure CheckWhseRequest(var WhseRequest: Record "Warehouse Request") SkipRecord: Boolean
+    local procedure CheckWhseRequest(var WarehouseRequest: Record "Warehouse Request") SkipRecord: Boolean
     var
         SalesHeader: Record "Sales Header";
         TransferHeader: Record "Transfer Header";
@@ -346,31 +346,31 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckWhseRequest(WhseRequest, ShowError, SkipRecord, IsHandled);
+        OnBeforeCheckWhseRequest(WarehouseRequest, ShowError, SkipRecord, IsHandled);
         if IsHandled then
             exit(SkipRecord);
 
-        if WhseRequest."Document Status" <> WhseRequest."Document Status"::Released then
+        if WarehouseRequest."Document Status" <> WarehouseRequest."Document Status"::Released then
             SkipRecord := true
         else
-            if (WhseRequest.Type = WhseRequest.Type::Outbound) and
-                (WhseRequest."Shipping Advice" = WhseRequest."Shipping Advice"::Complete)
+            if (WarehouseRequest.Type = WarehouseRequest.Type::Outbound) and
+                (WarehouseRequest."Shipping Advice" = WarehouseRequest."Shipping Advice"::Complete)
             then
-                case WhseRequest."Source Type" of
+                case WarehouseRequest."Source Type" of
                     Database::"Sales Line":
-                        if WhseRequest."Source Subtype" = WhseRequest."Source Subtype"::"1" then begin
-                            SkipRecord := not SalesHeader.Get(SalesHeader."Document Type"::Order, WhseRequest."Source No.");
+                        if WarehouseRequest."Source Subtype" = WarehouseRequest."Source Subtype"::"1" then begin
+                            SkipRecord := not SalesHeader.Get(SalesHeader."Document Type"::Order, WarehouseRequest."Source No.");
                             if not SkipRecord then
                                 SkipRecord := GetSrcDocOutbound.CheckSalesHeader(SalesHeader, ShowError);
                         end;
                     Database::"Transfer Line":
                         begin
-                            SkipRecord := not TransferHeader.Get(WhseRequest."Source No.");
+                            SkipRecord := not TransferHeader.Get(WarehouseRequest."Source No.");
                             if not SkipRecord then
                                 SkipRecord := GetSrcDocOutbound.CheckTransferHeader(TransferHeader, ShowError);
                         end;
                 end;
-        OnAfterCheckWhseRequest(WhseRequest, SkipRecord);
+        OnAfterCheckWhseRequest(WarehouseRequest, SkipRecord);
     end;
 
     procedure InitializeRequest(NewCreateInvtPutAway: Boolean; NewCreateInvtPick: Boolean; NewCreateInvtMovement: Boolean; NewPrintDocument: Boolean; NewShowError: Boolean)

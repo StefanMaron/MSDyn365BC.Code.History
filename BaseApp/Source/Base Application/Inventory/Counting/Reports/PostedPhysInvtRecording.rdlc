@@ -101,6 +101,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header___Order_No__.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -134,6 +135,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header__StatusCaption.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -166,6 +168,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header__Status.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -231,6 +234,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header___Recording_No__Caption.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -263,6 +267,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header___Recording_No__.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -296,6 +301,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header___Person_Responsible_Caption.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -328,6 +334,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header___Person_Responsible_.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -393,6 +400,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header__DescriptionCaption.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -425,6 +433,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header__Description.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -537,6 +546,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header___Date_Recorded_Caption.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -569,6 +579,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header___Date_Recorded_.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                     <Format>d</Format>
                                   </Style>
@@ -627,6 +638,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header___Person_Recorded_Caption.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -659,6 +671,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header___Person_Recorded_.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -724,6 +737,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header___Time_Recorded_Caption.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -756,6 +770,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Header___Time_Recorded_.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                     <Format>t</Format>
                                   </Style>
@@ -1098,6 +1113,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Line__Item_No__.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -1128,6 +1144,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Line__Variant_Code_.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -1158,6 +1175,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Line__Location_Code_.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -1188,6 +1206,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Line__Bin_Code_.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -1218,6 +1237,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Line_Description.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -1247,6 +1267,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Line__Unit_of_Measure_Code_.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
@@ -1276,6 +1297,7 @@
                                 <TextRun>
                                   <Value>=Fields!Posted_Phys__Invt__Rec__Line_Quantity.Value</Value>
                                   <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>7pt</FontSize>
                                     <Format>=Fields!Posted_Phys__Invt__Rec__Line_QuantityFormat.Value</Format>
                                   </Style>

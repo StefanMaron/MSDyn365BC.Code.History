@@ -682,8 +682,9 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := Codeunit::"Notification Entry Dispatcher";
 
-        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime + 60000);
-        JobQueueEntry."Ending Time" := DT2Time(CurrentDateTime + 61000);
+        // [WHEN] The job queue entry's start and end time are set to 1 minute ago
+        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime - 61000);
+        JobQueueEntry."Ending Time" := DT2Time(CurrentDateTime - 60000);
         JobQueueEntry.Modify(true);
         JobQueueLogEntry.DeleteAll();
 
@@ -693,8 +694,10 @@ codeunit 139018 "Job Queue Entry Tests"
         // [THEN] The job queue entry is not run
         Assert.AreEqual(0, JobQueueLogEntry.Count(), 'Job queue entry should not have been run');
 
+        // [WHEN] The job queue is set to run within the start and end time +/- 1hr
         JobQueueEntry.Get(JobQueueEntry.ID);
-        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime - 1000 * 60);
+        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime - 3600000);
+        JobQueueEntry."Ending Time" := DT2Time(CurrentDateTime + 3600000);
         JobQueueEntry.Modify(true);
 
         // [WHEN] The job queue entry is run
@@ -710,13 +713,13 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueLogEntry: Record "Job Queue Log Entry";
     begin
-        // [SCENARIO] The job queue entry runs only if it is within the start and end time
+        // [SCENARIO] The job queue entry runs only if it is within the start and end of day
 
         // [GIVEN] An existing job queue entry
         CreateJobQueueEntry(JobQueueEntry, JobQueueEntry.Status::Ready);
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := Codeunit::"Notification Entry Dispatcher";
-        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime + 60000);
+        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime + 3600000);
         JobQueueEntry.Modify(true);
 
         JobQueueLogEntry.DeleteAll();
@@ -728,7 +731,7 @@ codeunit 139018 "Job Queue Entry Tests"
         Assert.AreEqual(0, JobQueueLogEntry.Count(), 'Job queue entry should not have been run');
 
         JobQueueEntry.Get(JobQueueEntry.ID);
-        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime - 1000);
+        JobQueueEntry."Starting Time" := DT2Time(CurrentDateTime - 3600000);
         JobQueueEntry.Modify(true);
 
         // [WHEN] The job queue entry is run
@@ -750,7 +753,7 @@ codeunit 139018 "Job Queue Entry Tests"
         CreateJobQueueEntry(JobQueueEntry, JobQueueEntry.Status::Ready);
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := Codeunit::"Notification Entry Dispatcher";
-        JobQueueEntry."Ending Time" := DT2Time(CurrentDateTime - 1000);
+        JobQueueEntry."Ending Time" := DT2Time(CurrentDateTime - 3600000);
         JobQueueEntry.Modify(true);
 
         JobQueueLogEntry.DeleteAll();
@@ -762,7 +765,7 @@ codeunit 139018 "Job Queue Entry Tests"
         Assert.AreEqual(0, JobQueueLogEntry.Count(), 'Job queue entry should not have been run');
 
         JobQueueEntry.Get(JobQueueEntry.ID);
-        JobQueueEntry."Ending Time" := DT2Time(CurrentDateTime + 60000);
+        JobQueueEntry."Ending Time" := DT2Time(CurrentDateTime + 3600000);
         JobQueueEntry.Modify(true);
 
         // [WHEN] The job queue entry is run

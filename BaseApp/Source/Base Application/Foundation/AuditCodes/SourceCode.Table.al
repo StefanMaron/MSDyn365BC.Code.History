@@ -25,13 +25,6 @@ table 230 "Source Code"
         {
             Caption = 'Description';
         }
-        field(10810; Simulation; Boolean)
-        {
-            Caption = 'Simulation';
-            ObsoleteReason = 'Discontinued feature';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys
