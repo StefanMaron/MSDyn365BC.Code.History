@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA25 
 table 13400 "Intrastat - File Setup"
 {
     Caption = 'Intrastat - File Setup';
@@ -45,3 +46,5 @@ table 13400 "Intrastat - File Setup"
     {
     }
 }
+ 
+#endif

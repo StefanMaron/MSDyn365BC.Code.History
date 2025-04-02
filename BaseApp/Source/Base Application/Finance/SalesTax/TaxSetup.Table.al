@@ -6,11 +6,14 @@ table 326 "Tax Setup"
 {
     Caption = 'Tax Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Tax Setup";
+    LookupPageID = "Tax Setup";
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Auto. Create Tax Details"; Boolean)

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 using Microsoft.Finance.Dimension;
@@ -107,10 +111,6 @@ codeunit 730 "Copy Item"
 
         TargetItem."Last Date Modified" := Today;
         TargetItem."Created From Nonstock Item" := false;
-#if not CLEAN23
-        TargetItem."Coupled to CRM" := false;
-#endif
-
     end;
 
     procedure CopyItem(CopyCounter: Integer)

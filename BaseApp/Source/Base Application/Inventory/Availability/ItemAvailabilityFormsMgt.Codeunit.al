@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Availability;
 
 using Microsoft.Inventory.Document;
@@ -234,11 +238,12 @@ codeunit 353 "Item Availability Forms Mgt"
         if QtyByUnitOfMeasure <> 0 then
             ItemAvailLineList.SetQtyByUnitOfMeasure(QtyByUnitOfMeasure);
         ItemAvailLineList.Init(What, ItemCopy);
+        OnShowItemAvailLineListOnAfterItemAvailabilityLineListInit(ItemCopy, ItemAvailLineList);
         ItemAvailLineList.RunModal();
     end;
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure ShowItemAvailabiltyFromItem with enum', '25.0')]
+    [Obsolete('Replaced by procedure ShowItemAvailabilityFromItem with enum', '25.0')]
     procedure ShowItemAvailFromItem(var Item: Record Item; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     begin
         ShowItemAvailabilityFromItem(Item, "Item Availability Type".FromInteger(AvailabilityType));
@@ -276,7 +281,7 @@ codeunit 353 "Item Availability Forms Mgt"
     end;
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure in Serv. Availability Mgt.', '25.0')]
+    [Obsolete('Replaced by ShowItemAvailabilityFromSalesLine in Sales Availability Mgt.', '25.0')]
     procedure ShowItemAvailFromSalesLine(var SalesLine: Record Microsoft.Sales.Document."Sales Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         SalesAvailabilityMgt: Codeunit Microsoft.Sales.Document."Sales Availability Mgt.";
@@ -286,7 +291,7 @@ codeunit 353 "Item Availability Forms Mgt"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure in Purch. Availability Mgt.', '25.0')]
+    [Obsolete('Replaced by ShowItemAvailabilityFromPurchLine in Purch. Availability Mgt.', '25.0')]
     procedure ShowItemAvailFromPurchLine(var PurchLine: Record Microsoft.Purchases.Document."Purchase Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         PurchAvailabilityMgt: Codeunit Microsoft.Purchases.Document."Purch. Availability Mgt.";
@@ -296,7 +301,7 @@ codeunit 353 "Item Availability Forms Mgt"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure in Req. Line Availability Mgt.', '25.0')]
+    [Obsolete('Replaced by ShowItemAvailabilityFromReqLine in Req. Line Availability Mgt.', '25.0')]
     procedure ShowItemAvailFromReqLine(var ReqLine: Record Microsoft.Inventory.Requisition."Requisition Line"; AvailabilityType: Enum "Item Availability Type")
     var
         ReqLineAvailabilityMgt: Codeunit Microsoft.Inventory.Requisition."Req. Line Availability Mgt.";
@@ -306,7 +311,7 @@ codeunit 353 "Item Availability Forms Mgt"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure in Prod. Order Availability Mgt.', '25.0')]
+    [Obsolete('Replaced by ShowItemAvailFromProdOrderLine in Prod. Order Availability Mgt.', '25.0')]
     procedure ShowItemAvailFromProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
@@ -316,7 +321,7 @@ codeunit 353 "Item Availability Forms Mgt"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure in Prod. Order Availability Mgt.', '25.0')]
+    [Obsolete('Replaced by ShowItemAvailFromProdOrderComp in Prod. Order Availability Mgt.', '25.0')]
     procedure ShowItemAvailFromProdOrderComp(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         ProdOrderAvailabilityMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Availability Mgt.";
@@ -326,7 +331,7 @@ codeunit 353 "Item Availability Forms Mgt"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure in Prod. Order Availability Mgt.', '25.0')]
+    [Obsolete('Replaced by ShowItemAvailabilityFromTransLine in Transfer Availability Mgt.', '25.0')]
     procedure ShowItemAvailFromTransLine(var TransLine: Record Microsoft.Inventory.Transfer."Transfer Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         TransferAvailabilityMgt: Codeunit Microsoft.Inventory.Transfer."Transfer Availability Mgt.";
@@ -336,7 +341,7 @@ codeunit 353 "Item Availability Forms Mgt"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure in Warehouse Availability Mgt.', '25.0')]
+    [Obsolete('Replaced by ShowItemAvailabilityFromWhseActivLine in Warehouse Availability Mgt.', '25.0')]
     procedure ShowItemAvailFromWhseActivLine(var WhseActivLine: Record Microsoft.Warehouse.Activity."Warehouse Activity Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         WarehouseAvailabilityMgt: Codeunit Microsoft.Warehouse.Availability."Warehouse Availability Mgt.";
@@ -346,7 +351,7 @@ codeunit 353 "Item Availability Forms Mgt"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure in Serv. Availability Mgt.', '25.0')]
+    [Obsolete('Replaced by ShowItemAvailabilityFromServLine in Serv. Availability Mgt.', '25.0')]
     procedure ShowItemAvailFromServLine(var ServLine: Record Microsoft.Service.Document."Service Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         ServAvailabilityMgt: Codeunit Microsoft.Service.Document."Serv. Availability Mgt.";
@@ -356,7 +361,7 @@ codeunit 353 "Item Availability Forms Mgt"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure in Serv. Availability Mgt.', '25.0')]
+    [Obsolete('Replaced by ShowItemAvailFromWhseRcptLine in Warehouse Availability Mgt.', '25.0')]
     procedure ShowItemAvailFromWhseRcptLine(var WhseRcptLine: Record Microsoft.Warehouse.Document."Warehouse Receipt Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         WarehouseAvailabilityMgt: Codeunit Microsoft.Warehouse.Availability."Warehouse Availability Mgt.";
@@ -413,7 +418,7 @@ codeunit 353 "Item Availability Forms Mgt"
     end;
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure in Assembly Availability Mgt.', '25.0')]
+    [Obsolete('Replaced by ShowItemAvailabilityFromAsmHeader in Assembly Availability Mgt.', '25.0')]
     procedure ShowItemAvailFromAsmHeader(var AsmHeader: Record Microsoft.Assembly.Document."Assembly Header"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         AssemblyAvailabilityMgt: Codeunit Microsoft.Assembly.Document."Assembly Availability Mgt.";
@@ -423,7 +428,7 @@ codeunit 353 "Item Availability Forms Mgt"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure in Assembly Availability Mgt.', '25.0')]
+    [Obsolete('Replaced by ShowItemAvailabilityFromAsmLine in Assembly Availability Mgt.', '25.0')]
     procedure ShowItemAvailFromAsmLine(var AsmLine: Record Microsoft.Assembly.Document."Assembly Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         AssemblyAvailabilityMgt: Codeunit Microsoft.Assembly.Document."Assembly Availability Mgt.";
@@ -433,7 +438,7 @@ codeunit 353 "Item Availability Forms Mgt"
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure in Planning Comp. Avail. Mgt.', '25.0')]
+    [Obsolete('Replaced by ShowItemAvailabilityFromPlanningComp in Planning Comp. Avail. Mgt.', '25.0')]
     procedure ShowItemAvailFromPlanningComp(var PlanningComp: Record Microsoft.Inventory.Planning."Planning Component"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         PlanningCompAvailMgt: Codeunit Microsoft.Inventory.Planning."Planning Comp. Avail. Mgt.";
@@ -494,6 +499,8 @@ codeunit 353 "Item Availability Forms Mgt"
                     if ShowItemAvailabilityByBOMLevel(Item, CaptionText, InvtDocLine."Posting Date", NewDate) then
                         InvtDocLine.Validate("Posting Date", NewDate);
                 end;
+            else
+                OnShowItemAvailabilityFromInvtDocLineOnAvailabilityTypeCaseElse(AvailabilityType, Item, InvtDocLine);
         end;
     end;
 
@@ -717,6 +724,8 @@ codeunit 353 "Item Availability Forms Mgt"
 
     local procedure ShowBOMLevelAbleToMake(FieldCaption: Text; OldDate: Date; var NewDate: Date): Boolean
     begin
+        OnBeforeShowBOMLevelAbleToMake(FieldCaption, OldDate, NewDate);
+
         if FieldCaption <> '' then
             ItemAvailByBOMLevel.LookupMode(true);
         if ItemAvailByBOMLevel.RunModal() = ACTION::LookupOK then begin
@@ -1083,6 +1092,21 @@ codeunit 353 "Item Availability Forms Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateNeed(var Item: Record Item; var GrossRequirement: Decimal; var PlannedOrderReceipt: Decimal; var ScheduledReceipt: Decimal; var PlannedOrderReleases: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowItemAvailLineListOnAfterItemAvailabilityLineListInit(var Item: Record Item; var ItemAvailabilityLineList: Page "Item Availability Line List")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowItemAvailabilityFromInvtDocLineOnAvailabilityTypeCaseElse(ItemAvailabilityType: Enum "Item Availability Type"; var Item: Record Item; var InvtDocumentLine: Record "Invt. Document Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowBOMLevelAbleToMake(FieldCaption: Text; OldDate: Date; var NewDate: Date)
     begin
     end;
 }

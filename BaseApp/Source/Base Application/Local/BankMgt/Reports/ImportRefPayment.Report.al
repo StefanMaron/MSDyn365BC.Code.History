@@ -245,7 +245,6 @@ report 32000000 "Import Ref. Payment"
             until BankAccount.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
     procedure ClearReferenceZeros(var ReferenceNum: Text[20])
     begin
         RefCounter := 1;

@@ -43,7 +43,6 @@ codeunit 32000002 "Bank Nos Check"
         ZeroReferenceNoErr: Label 'Reference number cannot contain only zeros.';
         RefStartPos: Integer;
 
-    [Scope('OnPrem')]
     procedure ConvertBankAcc(var BankAccNro: Text[15]; BankAccCode: Code[20])
     begin
         if BankAccNro = '' then
@@ -166,7 +165,6 @@ codeunit 32000002 "Bank Nos Check"
             Error(Text1090006);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateSalesInvReference(PostingNo: Code[20]; BillToCustomer: Code[20]) NewRefNo: Code[20]
     var
         NoSeries: Codeunit "No. Series";

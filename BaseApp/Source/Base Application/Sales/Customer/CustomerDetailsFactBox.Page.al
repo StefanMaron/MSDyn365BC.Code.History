@@ -16,8 +16,6 @@ page 9084 "Customer Details FactBox"
             {
                 ApplicationArea = All;
                 Caption = 'Customer No.';
-                ToolTip = 'Specifies the number of the customer. The field is either filled automatically from a defined number series, or you enter the number manually because you have enabled manual number entry in the number-series setup.';
-
                 trigger OnDrillDown()
                 begin
                     ShowDetails();
@@ -26,29 +24,24 @@ page 9084 "Customer Details FactBox"
             field(Name; Rec.Name)
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the customer''s name.';
             }
             field("Phone No."; Rec."Phone No.")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the customer''s telephone number.';
             }
             field("E-Mail"; Rec."E-Mail")
             {
                 ApplicationArea = Basic, Suite;
                 ExtendedDatatype = EMail;
-                ToolTip = 'Specifies the customer''s email address.';
             }
             field("Fax No."; Rec."Fax No.")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the customer''s fax number.';
             }
             field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 StyleExpr = StyleTxt;
-                ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
             }
             field(AvailableCreditLCY; Rec.CalcAvailableCreditUI())
             {
@@ -64,12 +57,10 @@ page 9084 "Customer Details FactBox"
             field("Payment Terms Code"; Rec."Payment Terms Code")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
             }
             field(Contact; Rec.Contact)
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the name of the person you regularly contact when you do business with this customer.';
             }
         }
     }

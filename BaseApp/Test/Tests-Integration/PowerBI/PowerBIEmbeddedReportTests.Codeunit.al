@@ -473,9 +473,6 @@ codeunit 139088 "PowerBI Embedded Report Tests"
         PowerBIReportUploads: Record "Power BI Report Uploads";
         PowerBIDefaultSelection: Record "Power BI Default Selection";
         PowerBIUserConfiguration: Record "Power BI Context Settings";
-#if not CLEAN23
-        PowerBIReportConfiguration: Record "Power BI Report Configuration";
-#endif
         PowerBIDisplayedElement: Record "Power BI Displayed Element";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         OutStream: OutStream;
@@ -492,9 +489,6 @@ codeunit 139088 "PowerBI Embedded Report Tests"
 
         PowerBIReportUploads.DeleteAll();
         PowerBIUserConfiguration.DeleteAll();
-#if not CLEAN23
-        PowerBIReportConfiguration.DeleteAll();
-#endif
         PowerBIDisplayedElement.DeleteAll();
 
         PowerBIBlob.DeleteAll();

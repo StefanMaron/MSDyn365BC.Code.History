@@ -99,18 +99,6 @@ table 1225 "Data Exch. Field Mapping"
             Caption = 'Target Table Caption';
             FieldClass = FlowField;
         }
-#pragma warning disable AS0086
-        field(13; "Target Field Caption"; Text[80])
-        {
-            CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Target Table ID"),
-                                                              "No." = field("Target Field ID")));
-            Caption = 'Target Field Caption';
-            FieldClass = FlowField;
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'Redesigned to a new field "Target Table Field Calcucation"';
-        }
-#pragma warning restore AS0086
         field(14; "Target Table Field Caption"; Text[80])
         {
             CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Target Table ID"),
@@ -245,4 +233,3 @@ table 1225 "Data Exch. Field Mapping"
     begin
     end;
 }
-

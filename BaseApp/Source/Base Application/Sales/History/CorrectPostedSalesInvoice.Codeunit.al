@@ -799,7 +799,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         exit(TempItemApplicationEntry.FindSet());
     end;
 
-    local procedure ErrorHelperHeader(HeaderErrorType: Enum "Correct Sales Inv. Error Type"; SalesInvoiceHeader: Record "Sales Invoice Header")
+    procedure ErrorHelperHeader(HeaderErrorType: Enum "Correct Sales Inv. Error Type"; SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         Customer: Record Customer;
     begin

@@ -8,7 +8,6 @@ namespace System.Environment.Configuration;
 using System;
 using System.Azure.Identity;
 using System.Environment;
-using System.Feedback;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.User;
@@ -131,7 +130,7 @@ codeunit 9175 "User Settings Impl."
         UserSettingsRec."Locale ID" := UserPersonalization."Locale ID";
         UserSettingsRec."Time Zone" := UserPersonalization."Time Zone";
 
-        if CompanyName() <> '' then
+        if (UserPersonalization.Company = '') and (CompanyName() <> '') then
             UserSettingsRec.Company := CopyStr(CompanyName(), 1, 30)
         else
             UserSettingsRec.Company := UserPersonalization.Company;
@@ -421,22 +420,9 @@ codeunit 9175 "User Settings Impl."
     var
         ApplicationUserSettings: Record "Application User Settings";
     begin
-        ShowLegacyActionBarSurvey();
         GetAppSettings(UserSecurityID, ApplicationUserSettings);
         ApplicationUserSettings."Legacy Action Bar" := true;
         ApplicationUserSettings.Modify();
-    end;
-
-    procedure ShowLegacyActionBarSurvey()
-    var
-        CustomerExperienceSurvey: Codeunit "Customer Experience Survey";
-        FormsProId: Text;
-        FormsProEligibilityId: Text;
-        IsEligible: Boolean;
-    begin
-        if CustomerExperienceSurvey.RegisterEventAndGetEligibility('modernactionbar_event', 'modernactionbar', FormsProId, FormsProEligibilityId, IsEligible) then
-            if IsEligible then
-                CustomerExperienceSurvey.RenderSurvey('modernactionbar', FormsProId, FormsProEligibilityId);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", GetAutoStartTours, '', false, false)]

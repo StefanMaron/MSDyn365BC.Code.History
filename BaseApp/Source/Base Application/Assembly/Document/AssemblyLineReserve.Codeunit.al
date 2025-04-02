@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Document;
 
 using Microsoft.Inventory.Journal;
@@ -23,6 +27,7 @@ codeunit 926 "Assembly Line-Reserve"
         ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
         DeleteItemTracking: Boolean;
 
+        DeleteDocLineWithItemReservQst: Label '%1 %2 has item reservation. Do you want to delete it anyway?', Comment = '%1 = Document Type, %2 = Document No.';
         Text000Err: Label 'Reserved quantity cannot be greater than %1.', Comment = '%1 - quantity';
         Text001Err: Label 'Codeunit is not initialized correctly.';
         Text002Err: Label 'must be filled in when a quantity is reserved', Comment = 'starts with "Due Date"';
@@ -350,7 +355,8 @@ codeunit 926 "Assembly Line-Reserve"
         ItemJournalLine.TestField("Variant Code", AssemblyLine."Variant Code");
         ItemJournalLine.TestField("Location Code", AssemblyLine."Location Code");
 
-        OldReservationEntry.Lock();
+        OldReservationEntry.LockTable();
+        OldReservationEntry.FindLast();
 
         if ReservationEngineMgt.InitRecordSet(OldReservationEntry) then begin
             repeat
@@ -686,11 +692,11 @@ codeunit 926 "Assembly Line-Reserve"
         if not AssemblyLine.ReadPermission then
             exit;
 
+        AssemblyLine.SetAutoCalcFields("Reserved Qty. (Base)");
         AvailabilityFilter := CalcReservationEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         AssemblyLine.FilterLinesForReservation(CalcReservationEntry, DocumentType, AvailabilityFilter, Positive);
         if AssemblyLine.FindSet() then
             repeat
-                AssemblyLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= AssemblyLine."Reserved Qty. (Base)";
                 TotalQuantity += AssemblyLine."Remaining Quantity (Base)";
             until AssemblyLine.Next() = 0;
@@ -766,12 +772,12 @@ codeunit 926 "Assembly Line-Reserve"
         if IsReserved then
             exit;
 
+        AssemblyLine.SetAutoCalcFields("Reserved Qty. (Base)");
         AssemblyLine.FilterLinesForReservation(
             CalcReservEntry, ReservSummEntryNo - Enum::"Reservation Summary Type"::"Assembly Quote Line".AsInteger(),
             sender.GetAvailabilityFilter(AvailabilityDate), Positive);
         if AssemblyLine.Find(Search) then
             repeat
-                AssemblyLine.CalcFields("Reserved Qty. (Base)");
                 QtyThisLine := AssemblyLine."Remaining Quantity";
                 QtyThisLineBase := AssemblyLine."Remaining Quantity (Base)";
                 ReservQty := AssemblyLine."Reserved Qty. (Base)";
@@ -971,6 +977,71 @@ codeunit 926 "Assembly Line-Reserve"
                 OrderTrackingEntry."Starting Date" := AssemblyLine."Due Date";
                 OrderTrackingEntry."Ending Date" := AssemblyLine."Due Date";
             end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::OrderTrackingManagement, 'OnDerivePlanningFilterOnSetToReservationFilter', '', false, false)]
+    local procedure OnDerivePlanningFilterOnSetToReservationFilter(var ToReservEntry: Record "Reservation Entry"; FilterPlanningComponent: Record "Planning Component")
+    begin
+        case FilterPlanningComponent."Ref. Order Type" of
+            FilterPlanningComponent."Ref. Order Type"::Assembly:
+                ToReservEntry.SetSourceFilter(
+                    DATABASE::"Assembly Line", FilterPlanningComponent."Ref. Order Status".AsInteger(),
+                    FilterPlanningComponent."Ref. Order No.", FilterPlanningComponent."Line No.", true);
+        end;
+    end;
+
+    procedure TransferPlanningCompToAsmLine(var OldPlanningComponent: Record "Planning Component"; var NewAssemblyLine: Record "Assembly Line"; TransferQty: Decimal; TransferAll: Boolean)
+    var
+        OldReservationEntry: Record "Reservation Entry";
+        PlngComponentReserve: Codeunit "Plng. Component-Reserve";
+    begin
+        if not PlngComponentReserve.FindReservEntry(OldPlanningComponent, OldReservationEntry) then
+            exit;
+
+        NewAssemblyLine.TestItemFields(
+          OldPlanningComponent."Item No.", OldPlanningComponent."Variant Code", OldPlanningComponent."Location Code");
+
+        PlngComponentReserve.TransferReservations(
+          OldPlanningComponent, OldReservationEntry, TransferAll, TransferQty, NewAssemblyLine."Qty. per Unit of Measure",
+          DATABASE::"Assembly Line", NewAssemblyLine."Document Type".AsInteger(), NewAssemblyLine."Document No.",
+          '', 0, NewAssemblyLine."Line No.");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnSetSourceForAssemblyLine', '', false, false)]
+    local procedure OnSetSourceForAssemblyLine(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
+    var
+        AssemblyLine: Record "Assembly Line";
+    begin
+        if not MatchThisTable(SourceRecRef.Number) then
+            exit;
+
+        SourceRecRef.SetTable(AssemblyLine);
+        AssemblyLine.SetReservationEntry(CalcReservEntry);
+        OnSetAssemblyLineOnBeforeUpdateReservation(CalcReservEntry, AssemblyLine);
+#if not CLEAN26
+        ReservationManagement.RunOnSetAssemblyLineOnBeforeUpdateReservation(CalcReservEntry, AssemblyLine);
+#endif
+        EntryIsPositive := ((CreateReservEntry.SignFactor(CalcReservEntry) * AssemblyLine."Remaining Quantity (Base)") <= 0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAssemblyLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnGetDocumentReservationDeleteQstOnElseCase', '', false, false)]
+    local procedure OnGetDocumentReservationDeleteQstOnElseCase(RecRef: RecordRef; FldRef: FieldRef; DocType: Integer; var DocTypeCaption: Text; DocNo: Code[20]; var IsHandled: Boolean)
+    begin
+        case RecRef.Number of
+            Database::"Assembly Line":
+                case DocType of
+                    Enum::"Assembly Document Type"::Quote.AsInteger(),
+                    Enum::"Assembly Document Type"::"Order".AsInteger():
+                        DocTypeCaption := StrSubstNo(DeleteDocLineWithItemReservQst, SelectStr(DocType + 1, FldRef.OptionCaption), DocNo);
+                    Enum::"Assembly Document Type"::"Blanket Order".AsInteger():
+                        DocTypeCaption := StrSubstNo(DeleteDocLineWithItemReservQst, SelectStr(3, FldRef.OptionCaption), DocNo);
+                end;
+        end;
     end;
 }
 

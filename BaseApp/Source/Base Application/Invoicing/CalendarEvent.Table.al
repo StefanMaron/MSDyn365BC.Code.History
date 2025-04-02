@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA27 
 table 2160 "Calendar Event"
 {
     Caption = 'Calendar Event';
@@ -164,3 +165,5 @@ table 2160 "Calendar Event"
 #endif
 }
 
+ 
+#endif

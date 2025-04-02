@@ -34,6 +34,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemFilterTok: Label '%1|%2|%3';
         isInitialized: Boolean;
         InvCostMustBeZeroErr: Label 'Total cost amount must be 0 after correction.';
+        ReverseCapacityLedgerEntryForSubContractingErr: Label 'Entry cannot be reversed as it is linked to the subcontracting work center.';
 
     local procedure Initialize()
     var
@@ -131,35 +132,35 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         CreateWorkCenter_FixedCost(WorkCenter, 0.07174, 0.00381);
 
         // Create Routing
-        LibraryPatterns.MAKERoutingforWorkCenter(RoutingHeader, ParentItem, WorkCenter."No.");
+        LibraryManufacturing.CreateRoutingforWorkCenter(RoutingHeader, ParentItem, WorkCenter."No.");
 
         // Standard Cost calculate
         CalculateStdCost.CalcItem(ParentItem."No.", false);
 
         // Receive Purchase Order
-        LibraryPatterns.MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, CompItem, '', '', 2600, WorkDate(), 0.47754);
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CompItem, '', '', 2600, WorkDate(), 0.47754);
         PurchaseLine.Validate("Unit of Measure Code", CompSecItemUnitOfMeasure.Code);
         PurchaseLine.Validate("Direct Unit Cost", 0.47754);
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // Create Released Production Order
-        LibraryPatterns.MAKEProductionOrder(
+        LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ParentItem, '', '', 10000, WorkDate());
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst();
 
         // Post Output
-        LibraryPatterns.POSTOutputWithItemTracking(ProdOrderLine, 2400, 2400, WorkDate(), ParentItem."Standard Cost", '', 'A');
-        LibraryPatterns.POSTOutputWithItemTracking(ProdOrderLine, 1200, 1200, WorkDate(), ParentItem."Standard Cost", '', 'A');
-        LibraryPatterns.POSTOutputWithItemTracking(ProdOrderLine, 3600, 3600, WorkDate(), ParentItem."Standard Cost", '', 'B');
-        LibraryPatterns.POSTOutputWithItemTracking(ProdOrderLine, 2600, 2600, WorkDate(), ParentItem."Standard Cost", '', 'C');
-        LibraryPatterns.POSTOutputWithItemTracking(ProdOrderLine, 33, 33, WorkDate(), ParentItem."Standard Cost", '', 'D');
-        LibraryPatterns.POSTOutputWithItemTracking(ProdOrderLine, 69, 69, WorkDate(), ParentItem."Standard Cost", '', 'E');
+        LibraryManufacturing.POSTOutputWithItemTracking(ProdOrderLine, 2400, 2400, WorkDate(), ParentItem."Standard Cost", '', 'A');
+        LibraryManufacturing.POSTOutputWithItemTracking(ProdOrderLine, 1200, 1200, WorkDate(), ParentItem."Standard Cost", '', 'A');
+        LibraryManufacturing.POSTOutputWithItemTracking(ProdOrderLine, 3600, 3600, WorkDate(), ParentItem."Standard Cost", '', 'B');
+        LibraryManufacturing.POSTOutputWithItemTracking(ProdOrderLine, 2600, 2600, WorkDate(), ParentItem."Standard Cost", '', 'C');
+        LibraryManufacturing.POSTOutputWithItemTracking(ProdOrderLine, 33, 33, WorkDate(), ParentItem."Standard Cost", '', 'D');
+        LibraryManufacturing.POSTOutputWithItemTracking(ProdOrderLine, 69, 69, WorkDate(), ParentItem."Standard Cost", '', 'E');
 
         // Post Consumption
-        LibraryPatterns.POSTConsumption(ProdOrderLine, CompItem, '', '', ProductionOrder.Quantity, WorkDate(), CompItem."Unit Cost");
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, CompItem, '', '', ProductionOrder.Quantity, WorkDate(), CompItem."Unit Cost");
 
         // Change Prod. Order status
         LibraryVariableStorage.Enqueue(MissingOutputQst);
@@ -225,25 +226,25 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
         // Prepare reference data.
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, UnitCost);
-        LibraryPatterns.MAKEItemSimple(CompItem, Item."Costing Method"::FIFO, UnitCost);
-        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, Item, CompItem, QtyPer, '');
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::FIFO, UnitCost);
+        LibraryInventory.CreateItemSimple(CompItem, Item."Costing Method"::FIFO, UnitCost);
+        LibraryManufacturing.CreateProductionBOM(ProductionBOMHeader, Item, CompItem, QtyPer, '');
 
         // Add inventory for the component.
-        LibraryPatterns.MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, CompItem, Location.Code, '', OutputQty * QtyPer, WorkDate(), UnitCost);
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CompItem, Location.Code, '', OutputQty * QtyPer, WorkDate(), UnitCost);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // Post multiple batches of output.
-        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item, Location.Code, '', OutputQty, WorkDate());
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item, Location.Code, '', OutputQty, WorkDate());
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst();
-        LibraryPatterns.POSTOutput(ProdOrderLine, OutputQtyToReverse, WorkDate(), Item."Unit Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, OutputQtyToReverse, WorkDate(), Item."Unit Cost");
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
-        LibraryPatterns.POSTOutput(ProdOrderLine, OutputQty - OutputQtyToReverse, WorkDate(), Item."Unit Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, OutputQty - OutputQtyToReverse, WorkDate(), Item."Unit Cost");
 
         // Revert first output using application.
-        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, WorkDate(), -OutputQtyToReverse, Item."Unit Cost");
+        LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, WorkDate(), -OutputQtyToReverse, Item."Unit Cost");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Applies-to Entry", TempItemLedgerEntry."Entry No.");
@@ -251,7 +252,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Finish the production order.
-        LibraryPatterns.POSTConsumption(ProdOrderLine, CompItem, Location.Code, '', (OutputQty - OutputQtyToReverse) * QtyPer,
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, CompItem, Location.Code, '', (OutputQty - OutputQtyToReverse) * QtyPer,
           WorkDate(), CompItem."Unit Cost");
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), false);
 
@@ -584,11 +585,11 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         // Setup: Create Item and post Item Journal Line for Positive and Negative Adjustment.
         Initialize();
         SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item);
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 1, WorkDate(), LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 1, WorkDate() + 7, 0);
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 1, WorkDate() + 4, LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 1, WorkDate() + 2, 0);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Average, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', 1, WorkDate(), LibraryRandom.RandDec(100, 2));
+        LibraryInventory.PostNegativeAdjustment(Item, '', '', '', 1, WorkDate() + 7, 0);
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', 1, WorkDate() + 4, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.PostNegativeAdjustment(Item, '', '', '', 1, WorkDate() + 2, 0);
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
 
         // Exercise: Adjust cost item entries.
@@ -670,20 +671,20 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         Quantity := LibraryRandom.RandInt(10);
         QtyPer := LibraryRandom.RandInt(5);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.MAKEItemSimple(Item2, Item."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.CreateItemSimple(Item2, Item."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2));
         LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, Item."No.", Item2."No.", QtyPer);
 
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', LibraryRandom.RandInt(100), WorkDate(), Quantity * QtyPer);
-        LibraryPatterns.POSTPositiveAdjustment(Item2, Location.Code, '', '', LibraryRandom.RandInt(100), WorkDate(), Quantity * QtyPer);
+        LibraryInventory.PostPositiveAdjustment(Item, Location.Code, '', '', LibraryRandom.RandInt(100), WorkDate(), Quantity * QtyPer);
+        LibraryInventory.PostPositiveAdjustment(Item2, Location.Code, '', '', LibraryRandom.RandInt(100), WorkDate(), Quantity * QtyPer);
 
         // Create Parent item and attach Production BOM.
         LibraryManufacturing.CreateItemManufacturing(
           Item, Item."Costing Method"::FIFO, LibraryRandom.RandDec(10, 2), Item."Reordering Policy"::"Lot-for-Lot",
-          Item."Flushing Method"::Manual, '', ProductionBOMHeader."No.");
+          Item."Flushing Method"::"Pick + Manual", '', ProductionBOMHeader."No.");
 
         // Create Production Order, Refresh and Post Production Journal.
-        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item, Location.Code, '', Quantity, WorkDate());
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item, Location.Code, '', Quantity, WorkDate());
         PostProductionJournal(ProductionOrder);
 
         // Create Output with negative qty, apply to existing item ledger entry for production item, post to make the Output Nil.
@@ -692,7 +693,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst();
 
-        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, WorkDate(), -Quantity, Item."Unit Cost");
+        LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, WorkDate(), -Quantity, Item."Unit Cost");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Applies-to Entry", FirstOutputItemLedgerEntry."Entry No.");
@@ -700,7 +701,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Post Output again with positive quantity, finish the Released Production Order and Adjust Cost.
-        LibraryPatterns.POSTOutput(ProdOrderLine, Quantity, WorkDate(), Item."Unit Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, Quantity, WorkDate(), Item."Unit Cost");
 
         // Exercise: Finish Production Order and run Adjust Cost.
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), false);
@@ -887,17 +888,17 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
         Qty := LibraryRandom.RandDec(100, 2);
-        LibraryPatterns.MAKEItem(
+        LibraryInventory.CreateItem(
           Item, Item."Costing Method"::Average, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(10, 2),
           LibraryRandom.RandInt(10), '');
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', Qty, WorkDate(), LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', Qty, WorkDate() + 4, 0);
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', Qty, WorkDate(), LibraryRandom.RandDec(100, 2));
+        LibraryInventory.PostNegativeAdjustment(Item, '', '', '', Qty, WorkDate() + 4, 0);
 
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', Qty, WorkDate() + 4, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', Qty, WorkDate() + 4, LibraryRandom.RandDec(100, 2));
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
-        LibraryPatterns.MAKERevaluationJournalLine(
+        LibraryInventory.CreateRevaluationJournalLine(
           ItemJournalBatch, Item, WorkDate() + 4, "Inventory Value Calc. Per"::Item, false, false, false, "Inventory Value Calc. Base"::" ");
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
@@ -953,30 +954,30 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(true, SalesReceivablesSetup."Stockout Warning");
 
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 966.26829);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Average, 966.26829);
 
         // Exercise
         PostingDate := WorkDate();
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', 41, PostingDate, 966.26829, true, true);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, '', '', 41, PostingDate, 966.26829, true, true);
 
         PostingDate += 7;
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', 41, PostingDate, 10000, true, true);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, '', '', 41, PostingDate, 10000, true, true);
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.FindLast();
 
-        LibraryPatterns.MAKESalesReturnOrder(SalesHeader, SalesLine, Item, '', '', 41, PostingDate, 966.26829, 10000);
+        LibrarySales.CreateSalesReturnOrder(SalesHeader, SalesLine, Item, '', '', 41, PostingDate, 966.26829, 10000);
         SalesLine.Validate("Appl.-from Item Entry", ItemLedgerEntry."Entry No.");
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         PostingDate += 7;
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', 41, PostingDate, 10000, true, true);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, '', '', 41, PostingDate, 10000, true, true);
 
         PostingDate += 7;
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', 41, PostingDate, 966.26829, true, true);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, '', '', 41, PostingDate, 966.26829, true, true);
 
         PostingDate += 7;
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', 41, PostingDate, 10000, true, true);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, '', '', 41, PostingDate, 10000, true, true);
 
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
@@ -1022,17 +1023,19 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ProdItem.Modify(true);
 
         // [GIVEN] We need at least 2 components available for the production order
-        LibraryPatterns.POSTPurchaseJournal(ComponentItem, '', '', '', 2, WorkDate(), ProdItem."Unit Cost");
+        LibraryInventory.PostItemJournalLine(
+            "Item Journal Template Type"::Item, "Item Ledger Entry Type"::Purchase,
+             ComponentItem, '', '', '', 2, WorkDate(), ProdItem."Unit Cost");
 
         CreateReleaseProdOrderWithLine(ProdOrder, ProdOrderLine, ProdItem, 2);
         ProductionJnlMgt.InitSetupValues();
         ProductionJnlMgt.CreateJnlLines(ProdOrder, ProdOrderLine."Line No.");
 
         // [WHEN] Posting consumption and output in 2 iterations with a one day delay
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, '', '', 1, WorkDate(), ComponentItem."Unit Cost");
-        LibraryPatterns.POSTOutput(ProdOrderLine, 1, WorkDate(), ProdItem."Unit Cost");
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, '', '', 1, CalcDate('<+1D>', WorkDate()), ComponentItem."Unit Cost");
-        LibraryPatterns.POSTOutput(ProdOrderLine, 1, CalcDate('<+1D>', WorkDate()), ProdItem."Unit Cost");
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ComponentItem, '', '', 1, WorkDate(), ComponentItem."Unit Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, 1, WorkDate(), ProdItem."Unit Cost");
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ComponentItem, '', '', 1, CalcDate('<+1D>', WorkDate()), ComponentItem."Unit Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, 1, CalcDate('<+1D>', WorkDate()), ProdItem."Unit Cost");
 
         ProdOrder.Get(ProdOrder.Status, ProdOrder."No.");
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProdOrder."No.");
@@ -1072,7 +1075,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         UpdateItemRoutingNo(ParentItem, RoutingLine."Routing No.");
 
         // Supply child item
-        LibraryPatterns.POSTPositiveAdjustment(ChildItem, Location.Code, '', '',
+        LibraryInventory.PostPositiveAdjustment(ChildItem, Location.Code, '', '',
           LibraryRandom.RandDec(125, 2), WorkDate(), LibraryRandom.RandDec(225, 2));
 
         // Create and refresh Released Production Order. Update new Unit Of Measure on Production Order Line.
@@ -1151,6 +1154,51 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         Assert.AreEqual(0, InventoryCostByItem(ComponentItem."No."), InvCostMustBeZeroErr);
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    procedure VerifyCapacityLedgerEntryMustNotBeReversedWhenSubcontractingIsTrue()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+        CapacityLedgerEntries: TestPage "Capacity Ledger Entries";
+    begin
+        // [SCENARIO 562491] Verify Capacity Ledger Entry must not be reversed When "Subcontracting" is true on Capacity Ledger Entry.
+        Initialize();
+
+        // [GIVEN] Create an item.
+        CreateItem(Item);
+
+        // [GIVEN] Create Routing with Subcontracting.
+        CreateRoutingAndUpdateItemSubcontracted(Item, WorkCenter, true);
+
+        // [GIVEN] Create and refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDec(100, 2), '', '');
+
+        // [GIVEN] Calculate Subcontracting
+        CalculateSubcontractOrder(WorkCenter);
+
+        // [GIVEN] Accept and Carry Out Action Message on Subcontracting Worksheet.   
+        AcceptActionMessage(RequisitionLine, Item."No.");
+        LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
+
+        // [GIVEN] Post Purchase Order.
+        PostPurchaseOrder(Item."No.", true, true);
+
+        // [GIVEN] Find Capacity Ledger Entry.
+        FindCapacityLedgerEntry(CapacityLedgerEntry, ProductionOrder."No.", WorkCenter."No.");
+
+        // [WHEN] Reverse Capacity Ledger Entry.
+        CapacityLedgerEntries.OpenEdit();
+        CapacityLedgerEntries.GoToRecord(CapacityLedgerEntry);
+        asserterror CapacityLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Capacity Ledger Entry must not be reversed When "Subcontracting" is true on Capacity Ledger Entry.
+        Assert.ExpectedError(ReverseCapacityLedgerEntryForSubContractingErr);
+    end;
+
     local procedure AcceptActionMessage(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
         SelectRequisitionLine(RequisitionLine, ItemNo);
@@ -1216,7 +1264,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ProdOrderLine.SetRange("Item No.", TempItemLedgerEntry."Item No.");
         ProdOrderLine.FindFirst();
 
-        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, WorkDate(), -TempItemLedgerEntry.Quantity, 0);
+        LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, WorkDate(), -TempItemLedgerEntry.Quantity, 0);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst();
@@ -1230,7 +1278,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     var
         Item: Record Item;
     begin
-        LibraryPatterns.MAKEItemSimple(Item, CostingMethod, StandardCost);
+        LibraryInventory.CreateItemSimple(Item, CostingMethod, StandardCost);
         Item.Validate("Unit Price", LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Price.
         Item.Validate("Order Tracking Policy", OrderTrackingPolicy);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -1249,7 +1297,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
     [Normal]
     local procedure CreateItemWithAdditionalUOM_FixedVal(var Item: Record Item; var NewItemUOM: Record "Item Unit of Measure"; CostingMethod: Enum "Costing Method"; UnitCost: Decimal; QtyperUoM: Decimal)
     begin
-        LibraryPatterns.MAKEItem(Item, CostingMethod, UnitCost, 0, 0, '');
+        LibraryInventory.CreateItem(Item, CostingMethod, UnitCost, 0, 0, '');
         LibraryInventory.CreateItemUnitOfMeasureCode(NewItemUOM, Item."No.", QtyperUoM);
     end;
 
@@ -1415,7 +1463,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         PurchaseHeader: Record "Purchase Header";
     begin
         Item.Get(No);
-        LibraryPatterns.MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, Item, '', '',
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, '', '',
           LibraryRandom.RandInt(10), WorkDate(), LibraryRandom.RandDec(100, 2));
         UpdateGeneralPostingSetup(PurchaseLine);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1443,7 +1491,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandDec(100, 2), WorkDate(),
+        LibrarySales.CreateSalesOrder(SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandDec(100, 2), WorkDate(),
           LibraryRandom.RandDec(100, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -1465,7 +1513,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
 
     local procedure CreateReleaseProdOrderWithLine(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; ItemQty: Decimal)
     begin
-        LibraryPatterns.MAKEProductionOrder(
+        LibraryManufacturing.CreateProductionOrder(
           ProductionOrder,
           ProductionOrder.Status::Released,
           Item,
@@ -1550,8 +1598,8 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         UpdateLocationCodeForComponentToProdOrder(ProdOrder, LocationCode);
 
         // Posting consumption and output
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, LocationCode, '', Quantity, WorkDate(), ComponentItem."Unit Cost");
-        LibraryPatterns.POSTOutput(ProdOrderLine, Quantity, WorkDate(), ProdItem."Unit Cost");
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ComponentItem, LocationCode, '', Quantity, WorkDate(), ComponentItem."Unit Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, Quantity, WorkDate(), ProdItem."Unit Cost");
 
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProdOrder."No.");
     end;
@@ -1617,19 +1665,19 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         Quantity: Decimal;
         QtyPer: Decimal;
     begin
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2));
         Item.Validate("Flushing Method", Item."Flushing Method"::Backward);
         Item.Modify(true);
 
-        LibraryPatterns.MAKEItemSimple(ChildItem, ChildItem."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.CreateItemSimple(ChildItem, ChildItem."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2));
         ChildItem.Validate("Flushing Method", Item."Flushing Method"::Backward);
         ChildItem.Modify(true);
 
         Quantity := LibraryRandom.RandInt(100);
         QtyPer := LibraryRandom.RandInt(10);
-        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, Item, ChildItem, QtyPer, '');
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, ChildItem, '', '', Quantity * QtyPer, WorkDate(), ChildItem."Unit Cost", true, false);
-        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item, '', '', Quantity, WorkDate());
+        LibraryManufacturing.CreateProductionBOM(ProductionBOMHeader, Item, ChildItem, QtyPer, '');
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, ChildItem, '', '', Quantity * QtyPer, WorkDate(), ChildItem."Unit Cost", true, false);
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item, '', '', Quantity, WorkDate());
 
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
@@ -1967,6 +2015,103 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemApplicationEntry.SetRange("Cost Application", false);
         ItemApplicationEntry.FindFirst();
         ItemApplicationEntry.TestField(Quantity, Quantity);
+    end;
+
+    local procedure CreateRoutingAndUpdateItem(var Item: Record Item; var WorkCenter: Record "Work Center"): Code[10]
+    begin
+        exit(CreateRoutingAndUpdateItemSubcontracted(Item, WorkCenter, false));
+    end;
+
+    local procedure CreateRoutingAndUpdateItemSubcontracted(var Item: Record Item; var WorkCenter: Record "Work Center"; IsSubcontracted: Boolean): Code[10]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        RoutingLink: Record "Routing Link";
+    begin
+        CreateWorkCenter(WorkCenter, IsSubcontracted);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.");
+        RoutingLink.FindFirst();
+        RoutingLine.Validate("Routing Link Code", RoutingLink.Code);
+        RoutingLine.Modify(true);
+
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        exit(RoutingLink.Code);
+    end;
+
+    local procedure CreateWorkCenter(var WorkCenter: Record "Work Center"; IsSubcontracted: Boolean)
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        LibraryERM.FindGenPostingSetupWithDefVAT(GeneralPostingSetup);
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        if IsSubcontracted then
+            WorkCenter.Validate("Subcontractor No.", LibraryPurchase.CreateVendorNo());
+
+        WorkCenter.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        WorkCenter.Modify(true);
+    end;
+
+    local procedure CreateRoutingLine(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; CenterNo: Code[20])
+    var
+        OperationNo: Code[10];
+    begin
+        OperationNo := LibraryManufacturing.FindLastOperationNo(RoutingHeader."No.") + Format(LibraryRandom.RandInt(5));
+        LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, CenterNo, OperationNo, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
+    end;
+
+    local procedure CreateAndRefreshReleasedProductionOrder(var ProductionOrder: Record "Production Order"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
+    begin
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, SourceNo, Quantity, LocationCode, BinCode);
+    end;
+
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, SourceNo, Quantity);
+        ProductionOrder.Validate("Location Code", LocationCode);
+        ProductionOrder.Validate("Bin Code", BinCode);
+        ProductionOrder.Modify(true);
+
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure PostPurchaseOrder(ItemNo: Code[20]; ShipReceive: Boolean; Invoice: Boolean)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        FindPurchaseOrderLine(PurchaseLine, ItemNo);
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+
+        if Invoice and (PurchaseHeader."Vendor Invoice No." = '') then
+            PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, ShipReceive, Invoice);
+    end;
+
+    local procedure FindPurchaseOrderLine(var PurchaseLine: Record "Purchase Line"; No: Code[20])
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", No);
+        PurchaseLine.FindFirst();
+    end;
+
+    local procedure CreateItem(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        Item.Modify(true);
+    end;
+
+    local procedure FindCapacityLedgerEntry(var CapacityLedgerEntry: Record "Capacity Ledger Entry"; ProductionOrderNo: Code[20]; WorkCenterNo: Code[20])
+    begin
+        CapacityLedgerEntry.SetRange("Order No.", ProductionOrderNo);
+        CapacityLedgerEntry.SetRange("Work Center No.", WorkCenterNo);
+        CapacityLedgerEntry.FindFirst();
     end;
 
     [MessageHandler]

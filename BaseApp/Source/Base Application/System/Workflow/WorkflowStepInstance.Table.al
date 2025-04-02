@@ -136,6 +136,9 @@ table 1504 "Workflow Step Instance"
         {
             IncludedFields = Status, Type, "Function Name";
         }
+        key(Key6; Type, Status, "Function Name", "Previous Workflow Step ID")
+        {
+        }
     }
 
     fieldgroups
@@ -350,6 +353,9 @@ table 1504 "Workflow Step Instance"
     var
         SrcWorkflowStepInstance: Record "Workflow Step Instance";
     begin
+        if NewStepId = 0 then
+            Error(WorkflowStepIdErr);
+
         SrcWorkflowStepInstance.SetRange(ID, WorkflowInstanceId);
         SrcWorkflowStepInstance.SetRange("Workflow Step ID", OriginalStepId);
         SrcWorkflowStepInstance.FindFirst();
@@ -360,5 +366,8 @@ table 1504 "Workflow Step Instance"
         TempWorkflowStepInstance."Workflow Step ID" := NewStepId;
         TempWorkflowStepInstance.Insert();
     end;
+
+    var
+        WorkflowStepIdErr: Label 'Workflow Step ID must be set.';
 }
 

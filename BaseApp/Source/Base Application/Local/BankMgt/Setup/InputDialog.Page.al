@@ -111,13 +111,11 @@ page 32000007 "Input Dialog"
         DateControlVisible: Boolean;
         TimeControlVisible: Boolean;
 
-    [Scope('OnPrem')]
     procedure SetCaption(NewCaption: Text[80])
     begin
         Caption := NewCaption;
     end;
 
-    [Scope('OnPrem')]
     procedure InitString(NewString: Text[1024]; NewType: Option ,Boolean,"Integer",Decimal,Text,Date,Time)
     begin
         InputString := NewString;
@@ -146,37 +144,31 @@ page 32000007 "Input Dialog"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetBoolean(): Boolean
     begin
         exit(Bool);
     end;
 
-    [Scope('OnPrem')]
     procedure GetInteger(): Integer
     begin
         exit(Int);
     end;
 
-    [Scope('OnPrem')]
     procedure GetDecimal(): Decimal
     begin
         exit(Dec);
     end;
 
-    [Scope('OnPrem')]
     procedure GetText(): Text[1024]
     begin
         exit(InputString);
     end;
 
-    [Scope('OnPrem')]
     procedure GetDate(): Date
     begin
         exit(DateVar);
     end;
 
-    [Scope('OnPrem')]
     procedure GetTime(): Time
     begin
         exit(TimeVar);

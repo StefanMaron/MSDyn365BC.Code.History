@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 using Microsoft.Inventory.Item.Attribute;
@@ -57,13 +61,6 @@ table 5722 "Item Category"
         {
             Caption = 'Last Modified Date Time';
             Editable = false;
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
         }
     }
 
@@ -199,4 +196,3 @@ table 5722 "Item Category"
             until ItemCategory.Next() = 0;
     end;
 }
-

@@ -179,7 +179,6 @@ report 32000006 "Export Ref. Payment -  LMP"
         Text1090005: Label 'Credit memo %1 ';
         ServerFileName: Text;
 
-    [Scope('OnPrem')]
     procedure CreateHeaderLines()
     var
         NoSeries: Codeunit "No. Series";
@@ -195,7 +194,6 @@ report 32000006 "Export Ref. Payment -  LMP"
           OVTCode + CurrencyCode + SpareHeder + ReservedForBank);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateTransactionlines()
     begin
         if RefPmtExport.FindSet() then
@@ -286,7 +284,6 @@ report 32000006 "Export Ref. Payment -  LMP"
             until RefPmtExport.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
     procedure CreateDetailLines(Rec: Record "Vendor Ledger Entry"; EntryNo: Integer)
     begin
         Rec.Get(EntryNo);
@@ -336,7 +333,6 @@ report 32000006 "Export Ref. Payment -  LMP"
         until Rec.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
     procedure CreateMessageLines(MsgType: Text[1]; InvMsg: Text[250]; InvMsg2: Text[250]; LineType: Text[1])
     var
         Len: Integer;
@@ -413,7 +409,6 @@ report 32000006 "Export Ref. Payment -  LMP"
         AmountSum := 0;
     end;
 
-    [Scope('OnPrem')]
     procedure GetVendAccount(AccountCode: Code[20]; VendNo: Code[20]) VendAccount: Text[14]
     begin
         VendBankAcc.Reset();

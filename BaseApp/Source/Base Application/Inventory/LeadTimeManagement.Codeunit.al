@@ -29,6 +29,7 @@ codeunit 5404 "Lead-Time Management"
         LeadTimeCalcNegativeErr: Label 'The amount of time to replenish the item must not be negative.';
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
         CalendarMgmt: Codeunit "Calendar Management";
+        ManualScheduling: Boolean;
 
     procedure PurchaseLeadTime(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]) Result: Code[20]
     var
@@ -49,9 +50,15 @@ codeunit 5404 "Lead-Time Management"
     begin
         // Returns the leadtime in a date formula
 
+        GetPlanningParameters.SetManualScheduling(ManualScheduling);
         GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
         Result := Format(TempSKU."Lead Time Calculation");
         OnAfterManufacturingLeadTime(TempSKU, Result);
+    end;
+
+    procedure SetManualScheduling(NewManualScheduling: Boolean)
+    begin
+        ManualScheduling := NewManualScheduling;
     end;
 
     procedure WhseOutBoundHandlingTime(LocationCode: Code[10]): Code[10]
@@ -90,6 +97,7 @@ codeunit 5404 "Lead-Time Management"
     begin
         // Returns the safety lead time in a date formula
 
+        GetPlanningParameters.SetManualScheduling(ManualScheduling);
         GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
         Result := Format(TempSKU."Safety Lead Time");
         OnAfterSafetyLeadTime(TempSKU, Result);
@@ -128,6 +136,7 @@ codeunit 5404 "Lead-Time Management"
         if IsHandled then
             exit(Result);
 
+        GetPlanningParameters.SetManualScheduling(ManualScheduling);
         GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
 
         if RefOrderType = RefOrderType::Transfer then begin
@@ -288,6 +297,7 @@ codeunit 5404 "Lead-Time Management"
         if IsHandled then
             exit(Result);
 
+        GetPlanningParameters.SetManualScheduling(ManualScheduling);
         GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
 #if not CLEAN25
         OnPlannedDueDateOnBeforeFormatDateFormula(TempSKU, RefOrderType.AsInteger(), EndingDate, ItemNo, LocationCode);

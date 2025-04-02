@@ -634,7 +634,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         GLAccount."No." := AccountNo;
         GLAccount.Name := AccountName;
         GLAccount."Direct Posting" := DirectPosting;
-        GLAccount."Income/Balance" := IncomeBalance;
+        GLAccount."Income/Balance" := "G/L Account Report Type".FromInteger(IncomeBalance);
         GLAccount.Insert(true);
     end;
 

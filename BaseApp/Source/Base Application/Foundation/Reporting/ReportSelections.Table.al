@@ -37,11 +37,13 @@ table 77 "Report Selections"
         {
             Caption = 'Sequence';
             Numeric = true;
+            ToolTip = 'Specifies a number that indicates where this report is in the printing order.';
         }
         field(3; "Report ID"; Integer)
         {
             Caption = 'Report ID';
             TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Report));
+            ToolTip = 'Specifies the object ID of the report.';
 
             trigger OnValidate()
             begin
@@ -55,6 +57,7 @@ table 77 "Report Selections"
             Caption = 'Report Name';
             Editable = false;
             FieldClass = Flowfield;
+            ToolTip = 'Specifies the display name of the report.';
         }
         field(7; "Custom Report Layout Code"; Code[20])
         {
@@ -66,6 +69,7 @@ table 77 "Report Selections"
         {
             Caption = 'Use for Email Attachment';
             InitValue = true;
+            ToolTip = 'Specifies that the related document will be attached to the email.';
 
             trigger OnValidate()
             begin
@@ -78,6 +82,7 @@ table 77 "Report Selections"
         field(20; "Use for Email Body"; Boolean)
         {
             Caption = 'Use for Email Body';
+            ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
 
             trigger OnValidate()
             begin
@@ -93,6 +98,7 @@ table 77 "Report Selections"
             TableRelation = if ("Email Body Layout Type" = const("Custom Report Layout")) "Custom Report Layout".Code where(Code = field("Email Body Layout Code"), "Report ID" = field("Report ID"), "Built-In" = const(false))
             else
             if ("Email Body Layout Type" = const("HTML Layout")) "O365 HTML Template".Code;
+            ToolTip = 'Specifies the ID of the custom email body layout that is used.';
 
             trigger OnValidate()
             begin
@@ -109,6 +115,7 @@ table 77 "Report Selections"
             Caption = 'Email Body Custom Layout Description';
             Editable = false;
             FieldClass = Flowfield;
+            ToolTip = 'Specifies a description of the custom email body layout that is used.';
 
             trigger OnLookup()
             var
@@ -127,6 +134,7 @@ table 77 "Report Selections"
         {
             Caption = 'Email Body Layout Name';
             TableRelation = "Report Layout List".Name where("Report ID" = field("Report ID"));
+            ToolTip = 'Specifies the name of the email body layout that is used.';
 
             trigger OnLookup()
             var
@@ -174,6 +182,7 @@ table 77 "Report Selections"
             FieldClass = FlowField;
             CalcFormula = lookup("Report Layout List"."Layout Publisher" where("Report ID" = field("Report ID"), Name = field("Email Body Layout Name")));
             Editable = false;
+            ToolTip = 'Specifies the publisher of the email body layout that is used.';
         }
         field(29; "Email Body Layout Caption"; Text[250])
         {
@@ -198,8 +207,8 @@ table 77 "Report Selections"
         field(30; "Report Layout Name"; Text[250])
         {
             Caption = 'Report Layout name';
-            ToolTip = 'Specifies the name of the report layout that is used.';
             TableRelation = "Report Layout List".Name where("Report ID" = field("Report ID"));
+            ToolTip = 'Specifies the name of the report layout that is used.';
 
             trigger OnLookup()
             var

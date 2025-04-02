@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Ledger;
 
 using Microsoft.Bank.BankAccount;
@@ -43,27 +47,33 @@ table 5601 "FA Ledger Entry"
         field(3; "FA No."; Code[20])
         {
             Caption = 'FA No.';
+            ToolTip = 'Specifies the number of the related fixed asset.';
             TableRelation = "Fixed Asset";
         }
         field(4; "FA Posting Date"; Date)
         {
             Caption = 'FA Posting Date';
+            ToolTip = 'Specifies the posting date of the related fixed asset transaction, such as a depreciation.';
         }
         field(5; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the entry''s posting date.';
         }
         field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
+            ToolTip = 'Specifies the entry document type.';
         }
         field(7; "Document Date"; Date)
         {
             Caption = 'Document Date';
+            ToolTip = 'Specifies the entry document date.';
         }
         field(8; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies the document number on the entry.';
         }
         field(9; "External Document No."; Code[35])
         {
@@ -72,26 +82,28 @@ table 5601 "FA Ledger Entry"
         field(10; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the entry.';
         }
         field(11; "Depreciation Book Code"; Code[10])
         {
             Caption = 'Depreciation Book Code';
             TableRelation = "Depreciation Book";
         }
-        field(12; "FA Posting Category"; Option)
+        field(12; "FA Posting Category"; Enum "FA Ledger Posting Category")
         {
             Caption = 'FA Posting Category';
-            OptionCaption = ' ,Disposal,Bal. Disposal';
-            OptionMembers = " ",Disposal,"Bal. Disposal";
+            ToolTip = 'Specifies the posting category assigned to the entry when it was posted.';
         }
         field(13; "FA Posting Type"; Enum "FA Ledger Entry FA Posting Type")
         {
             Caption = 'FA Posting Type';
+            ToolTip = 'Specifies the posting type, if Account Type field contains Fixed Asset.';
         }
         field(14; Amount; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Amount';
+            ToolTip = 'Specifies the entry amount in currency.';
         }
         field(15; "Debit Amount"; Decimal)
         {
@@ -106,6 +118,7 @@ table 5601 "FA Ledger Entry"
         field(17; "Reclassification Entry"; Boolean)
         {
             Caption = 'Reclassification Entry';
+            ToolTip = 'Specifies whether the entry was made to reclassify a fixed asset, for example, to change the dimension the fixed asset is linked to.';
         }
         field(18; "Part of Book Value"; Boolean)
         {
@@ -153,18 +166,21 @@ table 5601 "FA Ledger Entry"
         field(27; "FA Posting Group"; Code[20])
         {
             Caption = 'FA Posting Group';
+            ToolTip = 'Specifies the FA posting group of the related fixed asset transaction.';
             TableRelation = "FA Posting Group";
         }
         field(28; "Global Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
+            ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(29; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
+            ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(30; "Location Code"; Code[10])
@@ -181,10 +197,12 @@ table 5601 "FA Ledger Entry"
         field(33; "Depreciation Method"; Enum "FA Depreciation Method")
         {
             Caption = 'Depreciation Method';
+            ToolTip = 'Specifies how depreciation is calculated for the depreciation book.';
         }
         field(34; "Depreciation Starting Date"; Date)
         {
             Caption = 'Depreciation Starting Date';
+            ToolTip = 'Specifies the date on which depreciation of the fixed asset starts.';
         }
         field(35; "Straight-Line %"; Decimal)
         {
@@ -302,6 +320,7 @@ table 5601 "FA Ledger Entry"
         field(57; "Depreciation Ending Date"; Date)
         {
             Caption = 'Depreciation Ending Date';
+            ToolTip = 'Specifies the date on which depreciation of the fixed asset ends.';
         }
         field(58; "Use FA Ledger Check"; Boolean)
         {
@@ -399,6 +418,7 @@ table 5601 "FA Ledger Entry"
         {
             CaptionClass = '1,2,3';
             Caption = 'Shortcut Dimension 3 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -408,6 +428,7 @@ table 5601 "FA Ledger Entry"
         {
             CaptionClass = '1,2,4';
             Caption = 'Shortcut Dimension 4 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -417,6 +438,7 @@ table 5601 "FA Ledger Entry"
         {
             CaptionClass = '1,2,5';
             Caption = 'Shortcut Dimension 5 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -426,6 +448,7 @@ table 5601 "FA Ledger Entry"
         {
             CaptionClass = '1,2,6';
             Caption = 'Shortcut Dimension 6 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -435,6 +458,7 @@ table 5601 "FA Ledger Entry"
         {
             CaptionClass = '1,2,7';
             Caption = 'Shortcut Dimension 7 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),
@@ -444,6 +468,7 @@ table 5601 "FA Ledger Entry"
         {
             CaptionClass = '1,2,8';
             Caption = 'Shortcut Dimension 8 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 8, which is one of dimension codes that you set up in the General Ledger Setup window.';
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Dimension Set Entry"."Dimension Value Code" where("Dimension Set ID" = field("Dimension Set ID"),

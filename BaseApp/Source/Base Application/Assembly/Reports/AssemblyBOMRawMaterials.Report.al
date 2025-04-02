@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Reports;
 
 using Microsoft.Inventory.Item;
@@ -58,6 +62,8 @@ report 810 "Assembly BOM - Raw Materials"
 
     requestpage
     {
+        AboutTitle = 'About BOM - Raw Materials';
+        AboutText = 'Get an overview of the components in an item''s bill of materials, for both assembly and production.';
 
         layout
         {

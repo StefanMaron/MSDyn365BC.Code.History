@@ -376,13 +376,6 @@ table 303 "Finance Charge Memo Line"
             Caption = 'System-Created Entry';
             Editable = false;
         }
-        field(3010590; "Multiple Interest Rates Entry"; Boolean)
-        {
-            Caption = 'Multiple Interest Rates Entry';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys
@@ -1024,7 +1017,7 @@ table 303 "Finance Charge Memo Line"
     local procedure OnCreateMulitplyInterestRateEntriesOnBeforeBuildDescription(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; UseCalcDate: Date; UseDueDate: Date)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCumulateDetailedEntries(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; ClosedAtDate: Date; var CumAmount: Decimal)
     begin

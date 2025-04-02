@@ -27,7 +27,6 @@
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -350,9 +349,9 @@
 
         // [GIVEN] Create Lot for Lot (Reordering Policy) Item and Stockkeeping Unit for Location Blue.
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
-        Evaluate(Item."Dampener Period", '+CM+5D');
-        Evaluate(Item."Lot Accumulation Period", '+CM+5D');
-        Evaluate(Item."Rescheduling Period", '7Y');
+        Evaluate(Item."Dampener Period", '<CM+5D>');
+        Evaluate(Item."Lot Accumulation Period", '<CM+5D>');
+        Evaluate(Item."Rescheduling Period", '<7Y>');
         Item.Modify();
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationBlue.Code, Item."No.", '');
 
@@ -526,7 +525,7 @@
 
         Initialize();
         // [GIVEN] prepare an item with item tracking (SN), reordering policy = lot-for-lot and 'Include Inventory' = Yes
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
         Item.Validate("Include Inventory", true);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
         Item.Modify(true);
@@ -772,7 +771,7 @@
         MockReservationEntries();
 
         // [GIVEN] Item "I" with Serial No. Item tracking
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
         Item.Validate("Include Inventory", true);
         Item.Modify(true);
         LibraryItemTracking.AddSerialNoTrackingInfo(Item);
@@ -833,7 +832,7 @@
         MockReservationEntries();
 
         // [GIVEN] Item "I" with Serial No. Item tracking
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
         Item.Validate("Include Inventory", true);
         Item.Modify(true);
         LibraryItemTracking.AddSerialNoTrackingInfo(Item);
@@ -841,7 +840,7 @@
 
         // [GIVEN] Create a purchase order with Item "I"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        LibraryPatterns.MAKEPurchaseOrder(
+        LibraryPurchase.CreatePurchaseOrder(
           PurchaseHeader, PurchaseLine, Item, Location.Code, '', 2, WorkDate(), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] From Item tracking lines (Purchase Order), add a SN to the item, then post receipt
@@ -1172,7 +1171,7 @@
         ItemJournalLine: Record "Item Journal Line";
     begin
         CreateOutputJournal(ItemJournalLine, '', ProductionOrderNo);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
     end;
 
     local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; ItemNo: Code[20])
@@ -1565,7 +1564,7 @@
     var
         Purchasing: Record Purchasing;
     begin
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
+        LibrarySales.CreateSalesOrder(SalesHeader, SalesLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
         LibraryPurchase.CreatePurchasingCode(Purchasing);
         Purchasing.Validate("Special Order", true);
         Purchasing.Modify(true);
@@ -1577,7 +1576,7 @@
     [Normal]
     local procedure CreatePurchaseOrderForCustomer(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitPrice: Decimal; CustomerNo: Code[20])
     begin
-        LibraryPatterns.MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitPrice);
         PurchaseHeader.Validate("Sell-to Customer No.", CustomerNo);
         PurchaseHeader.Modify(true);
     end;

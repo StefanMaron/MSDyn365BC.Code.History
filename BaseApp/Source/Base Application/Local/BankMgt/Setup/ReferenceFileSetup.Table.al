@@ -22,27 +22,6 @@ table 32000000 "Reference File Setup"
             Caption = 'No.';
             TableRelation = "Bank Account"."No.";
         }
-        field(2; "Export Reference Payments"; Text[250])
-        {
-            Caption = 'Export Reference Payments';
-            ObsoleteReason = 'This field is obsolete after refactoring.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(3; "Export Foreign Payments"; Text[250])
-        {
-            Caption = 'Export Foreign Payments';
-            ObsoleteReason = 'This field is obsolete after refactoring.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(4; "Import Reference Payments"; Text[250])
-        {
-            Caption = 'Import Reference Payments';
-            ObsoleteReason = 'This field is obsolete after refactoring.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
         field(8; "Exchange Rate Contract No."; Code[14])
         {
             Caption = 'Exchange Rate Contract No.';
@@ -56,13 +35,6 @@ table 32000000 "Reference File Setup"
         field(11; "Batch by Payment Date"; Boolean)
         {
             Caption = 'Batch by Payment Date';
-        }
-        field(13; "Currency Exchange Rate File"; Text[250])
-        {
-            Caption = 'Currency Exchange Rate File';
-            ObsoleteReason = 'This field is obsolete after refactoring.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(14; "Default Payment Method"; Code[1])
         {
@@ -159,4 +131,3 @@ table 32000000 "Reference File Setup"
         FIBankTok: Label 'FI Electronic Banking', Locked = true;
         Text13400: Label 'is not valid with respect to minimal length 8 and maximal length 13.';
 }
-

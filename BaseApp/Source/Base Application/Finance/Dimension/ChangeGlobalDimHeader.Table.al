@@ -15,6 +15,7 @@ table 484 "Change Global Dim. Header"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
             DataClassification = SystemMetadata;
         }

@@ -13,6 +13,7 @@ table 1804 "Approval Workflow Wizard"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Approver ID"; Code[50])

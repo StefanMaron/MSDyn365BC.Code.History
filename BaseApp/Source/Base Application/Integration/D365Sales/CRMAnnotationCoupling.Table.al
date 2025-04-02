@@ -6,6 +6,7 @@ namespace Microsoft.Integration.D365Sales;
 
 using System;
 using System.Environment.Configuration;
+using System.Utilities;
 
 table 5392 "CRM Annotation Coupling"
 {
@@ -101,90 +102,18 @@ table 5392 "CRM Annotation Coupling"
         exit(FindFirst());
     end;
 
-    [Scope('OnPrem')]
     procedure ExtractNoteText(AnnotationText: Text): Text
     var
+        Regex: Codeunit Regex;
         HttpUtility: DotNet HttpUtility;
-        LastIndexOfSlashDiv: Integer;
-        NoteLineStartIndex: Integer;
-        PlainNoteText: Text;
-        NoteLine: Text;
-        CurrentAnnotationText: Text;
         LF: Char;
     begin
         LF := 10;
-        LastIndexOfSlashDiv := AnnotationText.LastIndexOf('</div>');
-        if LastIndexOfSlashDiv = 0 then
-            exit(AnnotationText);
-
-        CurrentAnnotationText := AnnotationText;
-        repeat
-            CurrentAnnotationText := CopyStr(CurrentAnnotationText, 1, LastIndexOfSlashDiv - 1);
-            NoteLineStartIndex := CurrentAnnotationText.LastIndexOf('div>');
-            if NoteLineStartIndex <= 0 then
-                exit(AnnotationText);
-            NoteLineStartIndex += 4;
-            NoteLine := CopyStr(CurrentAnnotationText, NoteLineStartIndex, StrLen(CurrentAnnotationText) - NoteLineStartIndex + 1);
-            NoteLine := HttpUtility.HtmlDecode(NoteLine);
-            RemoveHTMLStyleTagsFromNoteLine(NoteLine);
-            if PlainNoteText = '' then
-                PlainNoteText := NoteLine
-            else
-                PlainNoteText := NoteLine + LF + PlainNoteText;
-            LastIndexOfSlashDiv := CurrentAnnotationText.LastIndexOf('</div>');
-        until LastIndexOfSlashDiv = 0;
-        exit(PlainNoteText)
-    end;
-
-    local procedure RemoveHTMLStyleTagsFromNoteLine(var NoteLine: Text)
-    begin
-        NoteLine := NoteLine.Replace('<br>', '');
-        NoteLine := NoteLine.Replace('<br/>', '');
-        NoteLine := NoteLine.Replace('<br />', '');
-        NoteLine := NoteLine.Replace('<i>', '');
-        NoteLine := NoteLine.Replace('</i>', '');
-        NoteLine := NoteLine.Replace('<b>', '');
-        NoteLine := NoteLine.Replace('</b>', '');
-        NoteLine := NoteLine.Replace('<u>', '');
-        NoteLine := NoteLine.Replace('</u>', '');
-        NoteLine := NoteLine.Replace('<s>', '');
-        NoteLine := NoteLine.Replace('</s>', '');
-        NoteLine := NoteLine.Replace('<strong>', '');
-        NoteLine := NoteLine.Replace('</strong>', '');
-        NoteLine := NoteLine.Replace('<em>', '');
-        NoteLine := NoteLine.Replace('</em>', '');
-        NoteLine := NoteLine.Replace('<small>', '');
-        NoteLine := NoteLine.Replace('</small>', '');
-        NoteLine := NoteLine.Replace('<hr>', '');
-        NoteLine := NoteLine.Replace('<hr/>', '');
-        NoteLine := NoteLine.Replace('<hr />', '');
-        NoteLine := NoteLine.Replace('<p>', '');
-        NoteLine := NoteLine.Replace('</p>', '');
-        NoteLine := NoteLine.Replace('</span>', '');
-        RemoveSpanTags(NoteLine);
-    end;
-
-    local procedure RemoveSpanTags(var NoteLine: Text)
-    var
-        LeftPart: Text;
-        RightPart: Text;
-        IndexOfSpan: Integer;
-        IndexOfSpanEnding: Integer;
-    begin
-        IndexOfSpan := NoteLine.IndexOf('<span');
-        while IndexOfSpan > 0 do begin
-            LeftPart := CopyStr(NoteLine, 1, IndexOfSpan - 1);
-            RightPart := CopyStr(NoteLine, IndexOfSpan);
-            IndexOfSpanEnding := RightPart.IndexOf('>');
-            if IndexOfSpanEnding = 0 then
-                exit;
-            if IndexOfSpanEnding = StrLen(RightPart) then
-                RightPart := ''
-            else
-                RightPart := CopyStr(RightPart, IndexOfSpanEnding + 1);
-            NoteLine := LeftPart + RightPart;
-            IndexOfSpan := NoteLine.IndexOf('<span');
-        end;
+        AnnotationText := Regex.Replace(AnnotationText, '</p>', Format(LF));
+        AnnotationText := Regex.Replace(AnnotationText, '<.*?>', '');
+        AnnotationText := AnnotationText.Trim();
+        AnnotationText := HttpUtility.HtmlDecode(AnnotationText);
+        exit(AnnotationText);
     end;
 }
 

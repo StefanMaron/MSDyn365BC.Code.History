@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Setup;
 
 using Microsoft.Foundation.Reporting;
@@ -33,41 +37,34 @@ page 5932 "Report Selection - Service"
                 field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = Service;
-                    ToolTip = 'Specifies the sequence number for the report.';
                 }
                 field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Service;
                     LookupPageID = Objects;
-                    ToolTip = 'Specifies the object ID of the report.';
                 }
                 field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Service;
                     DrillDown = false;
                     LookupPageID = Objects;
-                    ToolTip = 'Specifies the display name of the report.';
                 }
                 field("Use for Email Body"; Rec."Use for Email Body")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
                 }
                 field("Use for Email Attachment"; Rec."Use for Email Attachment")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that the related document will be attached to the email.';
                 }
                 field(EmailBodyName; Rec."Email Body Layout Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the email body layout that is used.';
                     Visible = false;
                 }
                 field(EmailBodyPublisher; Rec."Email Body Layout Publisher")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the publisher of the email body layout that is used.';
                     Visible = false;
                 }
                 field(ReportLayoutName; Rec."Report Layout Name")
@@ -103,13 +100,11 @@ page 5932 "Report Selection - Service"
                 field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the ID of the custom email body layout that is used.';
                     Visible = false;
                 }
                 field("Email Body Layout Description"; Rec."Email Body Layout Description")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the email body custom layout that is used.';
                     Visible = false;
 
                     trigger OnDrillDown()

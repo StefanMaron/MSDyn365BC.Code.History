@@ -113,9 +113,6 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         else
             GenJnlPostLine.ContinuePosting(GenJournalLine);
 
-#if not CLEAN23
-        OnAfterPostReverse(GenJournalLine);
-#endif
         OnReverseOnAfterStartPosting(GenJournalLine, GenJnlPostLine, GLRegister, GLRegister2);
 
         GenJnlPostLine.SetGLRegReverse(GLRegister);
@@ -896,14 +893,6 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     local procedure OnAfterFilterReversalEntry(var ReversalEntry: Record "Reversal Entry"; RecVar: Variant)
     begin
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by event OnReverseOnAfterStartPosting', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterPostReverse(var GenJournalLine: Record "Gen. Journal Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnReverseOnAfterStartPosting(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var GLRegister: Record "G/L Register"; var GLRegister2: Record "G/L Register")

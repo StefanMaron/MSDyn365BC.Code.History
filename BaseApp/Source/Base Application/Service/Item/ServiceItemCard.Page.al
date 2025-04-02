@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Item;
 
 using Microsoft.Finance.Dimension;
@@ -309,6 +313,15 @@ page 5980 "Service Item Card"
                         DrillDown = false;
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name of the customer at the address that the items are shipped to.';
+                        QuickEntry = false;
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Service;
@@ -469,6 +482,7 @@ page 5980 "Service Item Card"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Item"),
                               "No." = field("No.");
             }

@@ -1607,24 +1607,75 @@ codeunit 137275 "SCM Inventory Journals"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ItemTrackingOnLinesShouldAllowedForTemplateTypeItemOnly()
+    procedure ItemTrackingOnLinesRestrictedToTemplateTypeItemOutputConsumption()
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJnlTemplate: Record "Item Journal Template";
+        ItemJournalTemplateTypeErrorLbl: Label 'can only be Item, Output, or Consumption';
     begin
-        // [SCENARIO 473079] Lot No., Expiration Date and Warranty Date are not available for Physical Inventory Journals after activating Item Tracking on Lines for Physical Inventory Batches
-
+        // [SCENARIO 557139] Item Tracking on Lines can only be enabled for Item Journal Batches with Template Type Item, Output, or Consumption
         Initialize();
 
-        // [GIVEN] Create Item Journal Batch with Template Type "Phys. Inventory"
-        CreateItemJournalBatch(ItemJournalBatch);
+        // [GIVEN] Create Item Journal Batch with Template Type Capacity
+        CreateItemJournalBatchFromTemplateType(ItemJournalBatch, ItemJournalBatch."Template Type"::Capacity);
         ItemJournalBatch.CalcFields("Template Type");
-
-        // [WHEN] Expected Test field error while setting true to "Item Tracking on Lines" field
+        // [WHEN] Enabling Item Tracking on Lines for the Item Journal Batch
         asserterror ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        // [THEN] Field error due to the Item Journal Template Type
+        Assert.ExpectedTestFieldError(ItemJnlTemplate.FieldCaption(Type), ItemJournalTemplateTypeErrorLbl);
 
-        // [VERIFY] Verify: Error: Type must be equal to 'Item' in Item Journal Template.
-        Assert.ExpectedTestFieldError(ItemJnlTemplate.FieldCaption(Type), Format(ItemJournalBatch."Template Type"::Item));
+        // [GIVEN] Create Item Journal Batch with Template Type Physical Inventory
+        CreateItemJournalBatchFromTemplateType(ItemJournalBatch, ItemJournalBatch."Template Type"::"Phys. Inventory");
+        ItemJournalBatch.CalcFields("Template Type");
+        // [WHEN] Enabling Item Tracking on Lines for the Item Journal Batch
+        asserterror ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        // [THEN] Field error due to the Item Journal Template Type
+        Assert.ExpectedTestFieldError(ItemJnlTemplate.FieldCaption(Type), ItemJournalTemplateTypeErrorLbl);
+
+        // [GIVEN] Create Item Journal Batch with Template Type Production Order
+        CreateItemJournalBatchFromTemplateType(ItemJournalBatch, ItemJournalBatch."Template Type"::"Prod. Order");
+        ItemJournalBatch.CalcFields("Template Type");
+        // [WHEN] Enabling Item Tracking on Lines for the Item Journal Batch
+        asserterror ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        // [THEN] Field error due to the Item Journal Template Type
+        Assert.ExpectedTestFieldError(ItemJnlTemplate.FieldCaption(Type), ItemJournalTemplateTypeErrorLbl);
+
+        // [GIVEN] Create Item Journal Batch with Template Type Revaluation
+        CreateItemJournalBatchFromTemplateType(ItemJournalBatch, ItemJournalBatch."Template Type"::Revaluation);
+        ItemJournalBatch.CalcFields("Template Type");
+        // [WHEN] Enabling Item Tracking on Lines for the Item Journal Batch
+        asserterror ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        // [THEN] Field error due to the Item Journal Template Type
+        Assert.ExpectedTestFieldError(ItemJnlTemplate.FieldCaption(Type), ItemJournalTemplateTypeErrorLbl);
+
+        // [GIVEN] Create Item Journal Batch with Template Type Transfer
+        CreateItemJournalBatchFromTemplateType(ItemJournalBatch, ItemJournalBatch."Template Type"::Transfer);
+        ItemJournalBatch.CalcFields("Template Type");
+        // [WHEN] Enabling Item Tracking on Lines for the Item Journal Batch
+        asserterror ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        // [THEN] Field error due to the Item Journal Template Type
+        Assert.ExpectedTestFieldError(ItemJnlTemplate.FieldCaption(Type), ItemJournalTemplateTypeErrorLbl);
+
+        // [GIVEN] Create Item Journal Batch with Template Type Consumption
+        CreateItemJournalBatchFromTemplateType(ItemJournalBatch, ItemJournalBatch."Template Type"::Consumption);
+        ItemJournalBatch.CalcFields("Template Type");
+        // [WHEN] Enabling Item Tracking on Lines for the Item Journal Batch
+        ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        // [THEN] No error
+
+        // [GIVEN] Create Item Journal Batch with Template Type Item
+        CreateItemJournalBatchFromTemplateType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+        ItemJournalBatch.CalcFields("Template Type");
+        // [WHEN] Enabling Item Tracking on Lines for the Item Journal Batch
+        ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        // [THEN] No error
+
+        // [GIVEN] Create Item Journal Batch with Template Type Output
+        CreateItemJournalBatchFromTemplateType(ItemJournalBatch, ItemJournalBatch."Template Type"::Output);
+        ItemJournalBatch.CalcFields("Template Type");
+        // [WHEN] Enabling Item Tracking on Lines for the Item Journal Batch
+        ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        // [THEN] No error
     end;
 
     [Test]
@@ -1872,6 +1923,16 @@ codeunit 137275 "SCM Inventory Journals"
         ItemJournalTemplate: Record "Item Journal Template";
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::"Phys. Inventory");
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
+        ItemJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateItemJournalBatchFromTemplateType(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplateType);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);

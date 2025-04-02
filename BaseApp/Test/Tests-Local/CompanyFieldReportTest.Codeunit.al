@@ -16,7 +16,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-#if not CLEAN23
+#if not CLEAN25
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
 #endif
         TenDigitsTxt: Label '0123456789';
@@ -196,7 +196,7 @@ codeunit 144010 "Company Field Report Test"
                         LibraryReportDataset.GetElementValueInCurrentRow('CompanyInfoBusinessIDCode', CompanyInfoBusinessIdCode);
                         LibraryReportDataset.GetElementValueInCurrentRow('CompanyInfoRegHomeCity', CompanyInfoRegHomeCity);
                     end;
-#if not CLEAN23
+#if not CLEAN25
                 5:
                     begin
                         LibraryReportDataset.GetElementValueInCurrentRow('CompanyRegistrationNumber', CompanyInfoBusinessIdCode);
@@ -239,7 +239,7 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(3);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ResourceReportHandler(var ResourceReport: TestRequestPage "Resource - Price List")
@@ -401,7 +401,7 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(0);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [RequestPageHandler]
     [Scope('OnPrem')]
     [Obsolete('Test is moved to FI Core', '23.0')]
@@ -688,7 +688,7 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(0);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PriceListReportHandler(var PriceListReport: TestRequestPage "Price List")

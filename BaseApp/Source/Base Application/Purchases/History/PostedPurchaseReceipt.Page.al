@@ -32,7 +32,6 @@ page 136 "Posted Purchase Receipt"
                     ApplicationArea = Suite;
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the name of the vendor who delivered the items.';
                 }
                 field("Buy-from Contact No."; Rec."Buy-from Contact No.")
                 {
@@ -217,7 +216,6 @@ page 136 "Posted Purchase Receipt"
                     ApplicationArea = Suite;
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the number of the vendor that you received the invoice from.';
                 }
                 field("Pay-to Contact no."; Rec."Pay-to Contact no.")
                 {
@@ -342,6 +340,15 @@ page 136 "Posted Purchase Receipt"
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer that items on the purchase order were shipped to, as a drop shipment.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name of the customer that items on the purchase order were shipped to, as a drop shipment.';
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.RoleCenters;
 
 using Microsoft.RoleCenters;
@@ -39,7 +43,7 @@ pageextension 6471 "Serv. Administrator RC" extends "Administrator Role Center"
                 ToolTip = 'View or edit the different repair status options that you can assign to service items. You can use repair status to identify the progress of repair and maintenance of service items.';
             }
         }
-        addafter("Report Selection - Prod. &Order")
+        addafter("Report Selection - &Warehouse")
         {
             action("Report Selection - S&ervice")
             {

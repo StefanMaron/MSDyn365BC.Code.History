@@ -49,13 +49,6 @@ table 32000002 "Ref. Payment - Exported"
                 end;
             end;
         }
-        field(3; Description; Text[30])
-        {
-            Caption = 'Description';
-            ObsoleteReason = 'Use "Description 2" field instead.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
         field(4; "Payment Account"; Code[20])
         {
             Caption = 'Payment Account';
@@ -614,4 +607,3 @@ table 32000002 "Ref. Payment - Exported"
         CODEUNIT.Run(BankAccount.GetPaymentExportCodeunitID(), GenJnlLine);
     end;
 }
-

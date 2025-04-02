@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Posting;
 
 using Microsoft.Inventory.Transfer;
@@ -187,7 +191,7 @@ codeunit 5748 "Transfer Whse. Post Shipment"
         WarehouseSetup: Record "Warehouse Setup";
 #if not CLEAN25
         DummyTransferShipmentHeader: Record "Transfer Shipment Header";
-#endif
+#endif        
         IsHandled: Boolean;
     begin
         case WhseShptLine."Source Type" of
@@ -217,7 +221,7 @@ codeunit 5748 "Transfer Whse. Post Shipment"
                         OnPostSourceDocumentOnBeforePrintTransferShipment(TransHeader, IsHandled);
 #if not CLEAN25
                         WhsePostShipment.RunOnPostSourceDocumentOnBeforePrintTransferShipment(DummyTransferShipmentHeader, IsHandled, TransHeader);
-#endif
+#endif                        
                         if not IsHandled then
                             InsertDocumentEntryToPrint(
                                 DocumentEntryToPrint, Database::"Transfer Shipment Header", TransHeader."Last Shipment No.");

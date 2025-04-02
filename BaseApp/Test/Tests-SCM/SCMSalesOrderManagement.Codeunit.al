@@ -591,6 +591,46 @@ codeunit 137050 "SCM Sales Order Management"
         Assert.AreEqual(ShippingAgentServices[2].Code, SalesHeader."Shipping Agent Service Code", StrSubstNo(AgentServiceCodeValidationErr, ShippingAgentServices[2].Code));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderValidateShippingServiceAgentUpdateSalesOrderLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ShippingAgentServices: Record "Shipping Agent Services";
+        ShippingAgentServices2: Record "Shipping Agent Services";
+        ShippingTime: DateFormula;
+    begin
+        // [FEATURE] [Shipping Agent Service]
+        Initialize();
+
+        // [GIVEN] Create two Shipping Agent Services, each with a different Shipping Agent
+        CreateShippingAgentWithService(ShippingAgentServices, ShippingTime, '');
+        CreateShippingAgentWithService(ShippingAgentServices2, ShippingTime, '');
+
+        // [GIVEN] Create a Sales Order using the first Shipping Agent Service
+        CreateSalesOrder(SalesHeader, SalesLine, CreateCustomer(ShippingAgentServices, ''));
+
+        // [GIVEN] Create an additional Sales Line using the second Shipping Agent
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type, SalesLine."No.", LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Shipping Agent Code", ShippingAgentServices2."Shipping Agent Code");
+        SalesLine.Modify(true);
+
+        // [WHEN] Validate the second Shipping Agent Service Code on the Sales Header when the lines do not have the same Shipping Agent Code
+        // Without validation of the Shipping Agent Code to make sure that the lines are not updated
+        SalesHeader."Shipping Agent Code" := ShippingAgentServices2."Shipping Agent Code";
+        SalesHeader.Validate("Shipping Agent Service Code", ShippingAgentServices2.Code);
+
+        // [THEN] Verify the new Shipping Agent and Shipping Agent Service Code on the lines
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
+        repeat
+            SalesLine.TestField("Shipping Agent Code", ShippingAgentServices2."Shipping Agent Code");
+            SalesLine.TestField("Shipping Agent Service Code", ShippingAgentServices2.Code);
+        until SalesLine.Next() = 0;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

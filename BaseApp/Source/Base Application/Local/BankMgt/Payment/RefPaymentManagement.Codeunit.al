@@ -230,7 +230,6 @@ codeunit 32000000 "Ref. Payment Management"
         ApplyVendLedgEntry.SetTableView(VendLedgEntry);
     end;
 
-    [Scope('OnPrem')]
     procedure OEM2ANSI(OEMString: Text[250]): Text[250]
     var
         ToChars: Text[250];
@@ -387,7 +386,6 @@ codeunit 32000000 "Ref. Payment Management"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetRefPmtImportTemp(RefPmtImport: Record "Ref. Payment - Imported")
     begin
         if RefPmtImport.FindSet() then

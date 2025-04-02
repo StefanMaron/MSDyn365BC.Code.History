@@ -92,7 +92,6 @@ table 32000004 "Ref. Payment - Exported Buffer"
     {
     }
 
-    [Scope('OnPrem')]
     procedure AddLine(RefPmtExported: Record "Ref. Payment - Exported"): Integer
     begin
         TransferFields(RefPmtExported);

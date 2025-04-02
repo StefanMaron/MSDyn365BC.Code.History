@@ -27,6 +27,7 @@ xmlport 5801 "Export Item Data"
     TextEncoding = UTF16;
     UseRequestPage = true;
     Direction = Both;
+    FormatEvaluate = Xml;
 
     Permissions = tabledata "Item Ledger Entry" = rimd,
                   tabledata "Item Application Entry" = rimd,

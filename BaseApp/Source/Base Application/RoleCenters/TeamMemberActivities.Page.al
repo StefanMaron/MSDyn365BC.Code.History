@@ -33,9 +33,11 @@ page 9042 "Team Member Activities"
                         Caption = 'Open My Current Time Sheet';
                         Image = TileBrickCalendar;
                         ToolTip = 'Open the time sheet for the current period. Current period is based on work date set in my settings.';
+
                         trigger OnAction()
                         var
                             TimeSheetHeader: Record "Time Sheet Header";
+                            TimeSheetManagement: Codeunit "Time Sheet Management";
                             FeatureTelemetry: Codeunit "Feature Telemetry";
                             TimeSheetCard: Page "Time Sheet Card";
                             TimeSheetList: Page "Time Sheet List";
@@ -66,44 +68,69 @@ page 9042 "Team Member Activities"
                     DrillDownPageID = "Time Sheet List";
                     ToolTip = 'Specifies the number of time sheets that are currently assigned to you, without lines.';
                 }
-                field("Open Time Sheets"; Rec."Open Time Sheets")
+                field("Open Time Sheets"; Rec.CountTimeSheetsInStatus(UserFilterOption::Owner, "Time Sheet Status"::Open))
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDownPageID = "Time Sheet List";
+                    Caption = 'Time Sheets In progress';
                     ToolTip = 'Specifies the number of time sheets that are currently assigned to you, have open lines and not submitted for approval.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownToTimeSheetList(UserFilterOption::Owner, "Time Sheet Status"::Open);
+                    end;
                 }
             }
             cuegroup("Pending Time Sheets")
             {
                 Caption = 'Pending Time Sheets';
-                field("Submitted Time Sheets"; Rec."Submitted Time Sheets")
+                field("Submitted Time Sheets"; Rec.CountTimeSheetsInStatus(UserFilterOption::Owner, "Time Sheet Status"::Submitted))
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDownPageID = "Time Sheet List";
+                    Caption = 'Submitted Time Sheets';
                     ToolTip = 'Specifies the number of time sheets that you have submitted for approval but are not yet approved.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownToTimeSheetList(UserFilterOption::Owner, "Time Sheet Status"::Submitted);
+                    end;
                 }
-                field("Rejected Time Sheets"; Rec."Rejected Time Sheets")
+                field("Rejected Time Sheets"; Rec.CountTimeSheetsInStatus(UserFilterOption::Owner, "Time Sheet Status"::Rejected))
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDownPageID = "Time Sheet List";
+                    Caption = 'Rejected Time Sheets';
                     ToolTip = 'Specifies the number of time sheets that you submitted for approval but were rejected.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownToTimeSheetList(UserFilterOption::Owner, "Time Sheet Status"::Rejected);
+                    end;
                 }
-                field("Approved Time Sheets"; Rec."Approved Time Sheets")
+                field("Approved Time Sheets"; Rec.CountTimeSheetsInStatus(UserFilterOption::Owner, "Time Sheet Status"::Approved))
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDownPageID = "Time Sheet List";
+                    Caption = 'Approved Time Sheets';
                     ToolTip = 'Specifies the number of time sheets that have been approved.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownToTimeSheetList(UserFilterOption::Owner, "Time Sheet Status"::Approved);
+                    end;
                 }
             }
             cuegroup(Approvals)
             {
                 Caption = 'Approvals';
-                field("Time Sheets to Approve"; Rec."Time Sheets to Approve")
+                field("Time Sheets to Approve"; Rec.CountTimeSheetsInStatus(UserFilterOption::Approver, "Time Sheet Status"::Submitted))
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDownPageID = "Manager Time Sheet List";
+                    Caption = 'Time Sheets to Approve';
                     ToolTip = 'Specifies the number of time sheets that need to be approved.';
                     Visible = ShowTimeSheetsToApprove;
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownToTimeSheetList(UserFilterOption::Approver, "Time Sheet Status"::Submitted);
+                    end;
                 }
             }
             usercontrol(SATAsyncLoader; SatisfactionSurveyAsync)
@@ -131,25 +158,13 @@ page 9042 "Team Member Activities"
 
     trigger OnOpenPage()
     var
-        TimeSheetHeader: Record "Time Sheet Header";
         RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
-        Rec.Reset();
-        if not Rec.Get() then begin
-            Rec.Init();
-            Rec.Insert();
-        end;
+        Rec.Initialize();
 
-        TimeSheetHeader.SetRange("Approver User ID", UserId);
-        if TimeSheetHeader.FindFirst() then begin
-            Rec.SetRange("Approve ID Filter", UserId);
-            Rec.SetRange("User ID Filter", UserId);
-            ShowTimeSheetsToApprove := true;
-        end else begin
-            Rec.SetRange("User ID Filter", UserId);
-            ShowTimeSheetsToApprove := false;
-        end;
+        Rec.SetDefaultFilters(ShowTimeSheetsToApprove);
+
         RoleCenterNotificationMgt.ShowNotifications();
         ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent();
 
@@ -160,13 +175,13 @@ page 9042 "Team Member Activities"
     end;
 
     var
-        TimeSheetManagement: Codeunit "Time Sheet Management";
         [RunOnClient]
         [WithEvents]
         PageNotifier: DotNet PageNotifier;
         ShowTimeSheetsToApprove: Boolean;
         IsAddInReady: Boolean;
         IsPageReady: Boolean;
+        UserFilterOption: Option Owner,Approver;
 
     trigger PageNotifier::PageReady()
     begin
@@ -187,6 +202,7 @@ page 9042 "Team Member Activities"
             exit;
         if not SatisfactionSurveyMgt.TryGetCheckUrl(CheckUrl) then
             exit;
+
         CurrPage.SATAsyncLoader.SendRequest(CheckUrl, SatisfactionSurveyMgt.GetRequestTimeoutAsync());
     end;
 }
