@@ -283,6 +283,8 @@ report 209 "Sales Reservation Avail."
 
     requestpage
     {
+        AboutTitle = 'About Sales Reservation Avail.';
+        AboutText = 'Get an overview of the items that are available to fulfill sales orders and ensure that inventory reservations are accurate.';
         SaveValues = true;
 
         layout

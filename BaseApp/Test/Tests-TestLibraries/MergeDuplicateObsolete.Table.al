@@ -23,4 +23,4 @@ table 134400 "Merge Duplicate Obsolete"
         }
     }
 
-}
+} 

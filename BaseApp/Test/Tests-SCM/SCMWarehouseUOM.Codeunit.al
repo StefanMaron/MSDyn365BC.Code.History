@@ -41,7 +41,6 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -153,12 +152,12 @@ codeunit 137150 "SCM Warehouse UOM"
 
         // Post positive adjustment in non-warehouse location.
         LotNo1 := LibraryUtility.GenerateRandomCode(WarehouseActivityLine.FieldNo("Lot No."), DATABASE::"Warehouse Activity Line");
-        LibraryPatterns.POSTPositiveAdjustmentWithItemTracking(Item, LocationBlue.Code, '', ILEQuantity, WorkDate(), '', LotNo1);
-        LibraryPatterns.POSTPositiveAdjustmentWithItemTracking(Item, LocationBlue.Code, '', ILEQuantity, WorkDate(), '', LotNo1);
+        LibraryItemTracking.PostPositiveAdjustmentWithItemTracking(Item, LocationBlue.Code, '', ILEQuantity, WorkDate(), '', LotNo1);
+        LibraryItemTracking.PostPositiveAdjustmentWithItemTracking(Item, LocationBlue.Code, '', ILEQuantity, WorkDate(), '', LotNo1);
 
         LotNo2 := LibraryUtility.GenerateRandomCode(WarehouseActivityLine.FieldNo("Lot No."), DATABASE::"Warehouse Activity Line");
-        LibraryPatterns.POSTPositiveAdjustmentWithItemTracking(Item, LocationBlue.Code, '', ILEQuantity, WorkDate(), '', LotNo2);
-        LibraryPatterns.POSTPositiveAdjustmentWithItemTracking(Item, LocationBlue.Code, '', ILEQuantity, WorkDate(), '', LotNo2);
+        LibraryItemTracking.PostPositiveAdjustmentWithItemTracking(Item, LocationBlue.Code, '', ILEQuantity, WorkDate(), '', LotNo2);
+        LibraryItemTracking.PostPositiveAdjustmentWithItemTracking(Item, LocationBlue.Code, '', ILEQuantity, WorkDate(), '', LotNo2);
 
         // Create transfer order to WHITE, post shipment, create whse. receipt.
         CreateAndReleaseTransferOrder(TransferHeader, LocationBlue.Code, LocationWhite.Code, Item."No.", TransferQty, ItemUnitOfMeasure.Code);
@@ -5004,7 +5003,7 @@ codeunit 137150 "SCM Warehouse UOM"
 
         LibraryInventory.CreateItem(ChildItem);
 
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ParentItem."No.", BOMComponent.Type::Item, ChildItem."No.", 1, ParentItem."Base Unit of Measure");
         BOMComponent.Validate("Quantity per", QtyPer);
         BOMComponent.Modify(true);

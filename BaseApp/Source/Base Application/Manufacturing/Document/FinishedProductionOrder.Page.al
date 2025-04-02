@@ -1,8 +1,16 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Manufacturing.Capacity;
+using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.InventoryDocument;
 using Microsoft.Warehouse.Ledger;
@@ -89,6 +97,17 @@ page 99000867 "Finished Production Order"
                     Editable = false;
                     ToolTip = 'Specifies when the production order card was last modified.';
                 }
+                field(Reopened; Rec."Reopened")
+                {
+                    ApplicationArea = Manufacturing;
+                    Editable = false;
+                    ToolTip = 'Specifies if the production order is reopened.';
+                }
+                field("Manual Scheduling"; Rec."Manual Scheduling")
+                {
+                    ApplicationArea = Manufacturing;
+                    Importance = Additional;
+                }
             }
             part(ProdOrderLines; "Finished Prod. Order Lines")
             {
@@ -155,6 +174,12 @@ page 99000867 "Finished Production Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the location code to which you want to post the finished product from this production order.';
                 }
+                field("Document Put-away Status"; Rec."Document Put-away Status")
+                {
+                    ApplicationArea = Warehouse;
+                    Visible = false;
+                    ToolTip = 'Specifies the status of the warehouse put-away.';
+                }
             }
         }
         area(factboxes)
@@ -168,6 +193,15 @@ page 99000867 "Finished Production Order"
             {
                 ApplicationArea = Notes;
                 Visible = true;
+            }
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::"Production Order"),
+                              "Document Type" = const("Finished Production Order"),
+                              "No." = field("No.");
             }
         }
     }
@@ -267,6 +301,19 @@ page 99000867 "Finished Production Order"
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
+                action("Put-away Lines")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Put-away Lines';
+                    Image = PutawayLines;
+                    RunObject = Page "Warehouse Activity Lines";
+                    RunPageLink = "Source Type" = filter(5406 | 5407),
+                                  "Source Subtype" = const("4"),
+                                  "Source No." = field("No.");
+                    RunPageView = sorting("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", "Unit of Measure Code", "Action Type", "Breakbulk No.", "Original Breakbulk")
+                                  where("Activity Type" = const("Put-away"));
+                    ToolTip = 'View the list of ongoing put-aways for the order.';
+                }
                 action("Registered P&ick Lines")
                 {
                     ApplicationArea = Warehouse;
@@ -291,6 +338,84 @@ page 99000867 "Finished Production Order"
                     RunPageView = sorting("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
                     ToolTip = 'View the list of inventory movements that have been made for the order.';
                 }
+                action("Registered Put-away Lines")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Registered Put-away Lines';
+                    Image = RegisteredDocs;
+                    RunObject = Page "Registered Whse. Act.-Lines";
+                    RunPageLink = "Whse. Document Type" = const(Production),
+                                  "Source Document" = const("Prod. Output"),
+                                  "Whse. Document No." = field("No.");
+                    RunPageView = sorting("Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.")
+                                  where("Activity Type" = const("Put-away"));
+                    ToolTip = 'View the list of completed put-away activities.';
+                }
+                action(DocAttach)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
+            }
+        }
+        area(Processing)
+        {
+            action(PrintLabel)
+            {
+                ApplicationArea = Manufacturing;
+                Image = Print;
+                Caption = 'Print Label';
+                ToolTip = 'Print labels for the items on the order lines.';
+
+                trigger OnAction()
+                var
+                    ItemLedgerEntry: Record "Item Ledger Entry";
+                    ReportSelections: Record "Report Selections";
+                begin
+                    ItemLedgerEntry.SetRange("Order Type", Enum::"Inventory Order Type"::Production);
+                    ItemLedgerEntry.SetRange("Order No.", Rec."No.");
+                    ReportSelections.PrintWithCheckForCust(Enum::"Report Selection Usage"::"Prod. Output Item Label", ItemLedgerEntry, 0);
+                end;
+            }
+            action(ReopenFinishedProdOrder)
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Reopen';
+                Image = ReOpen;
+                ToolTip = 'Reopen the production order to change it after it has been finished.';
+
+                trigger OnAction()
+                var
+                    ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
+                begin
+                    ProdOrderStatusManagement.ReopenFinishedProdOrder(Rec);
+                end;
+            }
+            action("Create Warehouse Put-Away")
+            {
+                ApplicationArea = Warehouse;
+                Caption = 'Create Warehouse Put-Away';
+                Image = CreatePutAway;
+                ToolTip = 'Create warehouse put-away documents for the production order lines.';
+
+                trigger OnAction()
+                var
+                    CreatePutAway: Codeunit "Create Put-away";
+                begin
+                    CreatePutAway.CreateWhsePutAwayForProdOrder(Rec);
+                end;
             }
         }
         area(Promoted)
@@ -306,6 +431,9 @@ page 99000867 "Finished Production Order"
                 {
                 }
                 actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
             }

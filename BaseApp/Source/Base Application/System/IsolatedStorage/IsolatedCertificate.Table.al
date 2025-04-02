@@ -31,14 +31,6 @@ table 1262 "Isolated Certificate"
             OptionMembers = ,Company,User,CompanyAndUser;
             DataClassification = CustomerContent;
         }
-        field(3; Password; Text[50])
-        {
-            Caption = 'Password';
-            ExtendedDatatype = Masked;
-            ObsoleteReason = 'Password should not be stored in a table, use SetCertPassword procedure on Certificate Management codeunit';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
         field(4; "Expiry Date"; DateTime)
         {
             Caption = 'Expiry Date';
@@ -172,4 +164,3 @@ table 1262 "Isolated Certificate"
         exit(IsolatedStorage.Contains(Code, CertificateManagement.GetCertDataScope(Rec)));
     end;
 }
-

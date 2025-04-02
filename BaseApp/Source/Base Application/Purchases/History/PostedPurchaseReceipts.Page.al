@@ -12,6 +12,7 @@ page 145 "Posted Purchase Receipts"
     Editable = false;
     PageType = List;
     QueryCategory = 'Posted Purchase Receipts';
+    RefreshOnActivate = true;
     SourceTable = "Purch. Rcpt. Header";
     SourceTableView = sorting("Posting Date")
                       order(descending);
@@ -32,7 +33,6 @@ page 145 "Posted Purchase Receipts"
                 field("Buy-from Vendor No."; Rec."Buy-from Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the vendor who delivered the items.';
                 }
                 field("Order Address Code"; Rec."Order Address Code")
                 {
@@ -66,7 +66,6 @@ page 145 "Posted Purchase Receipts"
                 field("Pay-to Vendor No."; Rec."Pay-to Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the vendor that you received the invoice from.';
                     Visible = false;
                 }
                 field("Pay-to Name"; Rec."Pay-to Name")

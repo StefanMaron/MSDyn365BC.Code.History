@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Reports;
 
 using Microsoft.Inventory.Item;
@@ -135,6 +139,8 @@ report 813 "Inventory Picking List"
 
     requestpage
     {
+        AboutTitle = 'About Inventory Picking List';
+        AboutText = 'Explore sales orders that are covered when you pick items from inventory.';
         SaveValues = true;
 
         layout

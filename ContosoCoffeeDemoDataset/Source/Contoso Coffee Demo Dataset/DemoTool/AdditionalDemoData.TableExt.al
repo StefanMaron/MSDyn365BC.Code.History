@@ -1,8 +1,10 @@
+#if not CLEANSCHEMA25
 tableextension 4762 "Additional Demo Data" extends "Assisted Company Setup Status"
 {
 #pragma warning disable AS0072, AS0115
     fields
     {
+#if not CLEANSCHEMA25
         field(4760; InstallAdditionalDemoData; Boolean)
         {
             ObsoleteState = Removed;
@@ -10,6 +12,8 @@ tableextension 4762 "Additional Demo Data" extends "Assisted Company Setup Statu
             ObsoleteTag = '25.2';
             DataClassification = SystemMetadata;
         }
+#endif
     }
 #pragma warning restore AS0072, AS0115
 }
+#endif

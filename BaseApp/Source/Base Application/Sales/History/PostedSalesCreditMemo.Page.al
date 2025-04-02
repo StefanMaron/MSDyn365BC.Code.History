@@ -34,6 +34,13 @@ page 134 "Posted Sales Credit Memo"
                     Importance = Promoted;
                     ToolTip = 'Specifies the posted credit memo number.';
                 }
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer No.';
+                    Editable = false;
+                    Visible = false;
+                }
                 field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
@@ -415,6 +422,15 @@ page 134 "Posted Sales Credit Memo"
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer that the items were shipped to.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name of the customer that the items were shipped to.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Basic, Suite;
@@ -629,6 +645,7 @@ page 134 "Posted Sales Credit Memo"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Sales Cr.Memo Header"),
                               "No." = field("No.");

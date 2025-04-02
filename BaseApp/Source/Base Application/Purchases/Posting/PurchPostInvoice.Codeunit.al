@@ -365,7 +365,7 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         InvoicePostingBuffer."Global Dimension 2 Code" := PurchLine."Shortcut Dimension 2 Code";
         InvoicePostingBuffer."Dimension Set ID" := PurchLine."Dimension Set ID";
         InvoicePostingBuffer."Job No." := PurchLine."Job No.";
-        InvoicePostingBuffer."VAT %" := PurchLine."VAT %";
+        InvoicePostingBuffer."VAT %" := PurchLine.GetVATPct();
         NonDeductibleVAT.Copy(InvoicePostingBuffer, PurchLine);
         PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
         InvoicePostingBuffer.Adjustment := PurchHeader.Adjustment;
@@ -427,7 +427,7 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
             PurchSetup."Copy Line Descr. to G/L Entry",
             PurchaseLine."Line No.",
             PurchaseLine.Description,
-            PurchaseHeader."Posting Description", true);
+            PurchaseHeader."Posting Description");
     end;
 
     procedure SetSalesTax(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
@@ -1012,6 +1012,8 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         GenJnlLine."Account No." := PurchHeader."Pay-to Vendor No.";
         GenJnlLine.CopyFromPurchHeader(PurchHeader);
         GenJnlLine.SetCurrencyFactor(PurchHeader."Currency Code", PurchHeader."Currency Factor");
+        GenJnlLine."WHT Business Posting Group" := PurchHeader."WHT Business Posting Group";
+        GenJnlLine."Vendor Exchange Rate (ACY)" := PurchHeader."Vendor Exchange Rate (ACY)";
         GenJnlLine."System-Created Entry" := true;
 
         GenJnlLine.CopyFromPurchHeaderApplyTo(PurchHeader);
@@ -1036,9 +1038,17 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         if IsHandled then
             exit;
 
-        GenJnlLine.Amount := -TotalPurchLine."Amount Including VAT";
-        GenJnlLine."Source Currency Amount" := -TotalPurchLine."Amount Including VAT";
-        GenJnlLine."Amount (LCY)" := -TotalPurchLineLCY."Amount Including VAT";
+        GenJnlLine.Amount := -TotalPurchLine."Amount Including VAT" + PurchHeader."WHT Amount";
+        GenJnlLine."Source Currency Amount" := -TotalPurchLine."Amount Including VAT" + PurchHeader."WHT Amount";
+        if (PurchHeader."WHT Amount" <> 0) and (PurchHeader."Currency Code" <> '') then
+            GenJnlLine."Amount (LCY)" :=
+                -(TotalPurchLineLCY."Amount Including VAT" -
+                  Round(
+                    CurrExchRate.ExchangeAmtFCYToLCY(
+                    PurchHeader."Posting Date", PurchHeader."Currency Code", PurchHeader."WHT Amount", PurchHeader."Currency Factor")))
+        else
+            GenJnlLine."Amount (LCY)" := -TotalPurchLineLCY."Amount Including VAT" + PurchHeader."WHT Amount";
+        GenJnlLine."Amount Including VAT (ACY)" := -TotalPurchLineLCY."Amount Including VAT (ACY)";
         GenJnlLine."Sales/Purch. (LCY)" := -TotalPurchLineLCY.Amount;
         GenJnlLine."Inv. Discount (LCY)" := -TotalPurchLineLCY."Inv. Discount Amount";
         GenJnlLine."Orig. Pmt. Disc. Possible" := -TotalPurchLine."Pmt. Discount Amount";
@@ -1051,6 +1061,8 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
     var
         PurchHeader: Record "Purchase Header";
         GenJnlLine: Record "Gen. Journal Line";
+        GenJnlTemplate: Record "Gen. Journal Template";
+        GenJnlBatch: Record "Gen. Journal Batch";
         VendLedgEntry2: Record "Vendor Ledger Entry";
         EntryFound: Boolean;
         IsHandled: Boolean;
@@ -1073,6 +1085,15 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
             PurchHeader."Posting Date", PurchHeader."Document Date", PurchHeader."VAT Reporting Date", PurchHeader."Posting Description",
             PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code",
             PurchHeader."Dimension Set ID", PurchHeader."Reason Code");
+
+        GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::Purchases);
+        if GenJnlTemplate.FindFirst() then begin
+            GenJnlLine.Validate("Journal Template Name", GenJnlTemplate.Name);
+            GenJnlBatch.SetRange("Journal Template Name", GenJnlTemplate.Name);
+            if GenJnlBatch.FindFirst() then
+                GenJnlLine.Validate("Journal Batch Name", GenJnlBatch.Name);
+        end;
+        GenJnlLine."WHT Business Posting Group" := PurchHeader."WHT Business Posting Group";
 
         PurchPostInvoiceEvents.RunOnPostBalancingEntryOnAfterInitNewLine(GenJnlLine, PurchHeader);
 
@@ -1110,17 +1131,21 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         if IsHandled then
             exit;
 
+        RemainingPmtDiscPossible := VendLedgEntry."Remaining Pmt. Disc. Possible";
         GenJnlLine.Amount := TotalPurchLine."Amount Including VAT" + RemainingPmtDiscPossible;
         GenJnlLine."Source Currency Amount" := GenJnlLine.Amount;
         VendLedgEntry.CalcFields(Amount);
-        if VendLedgEntry.Amount = 0 then
-            GenJnlLine."Amount (LCY)" := TotalPurchLineLCY."Amount Including VAT"
-        else
+        if VendLedgEntry.Amount = 0 then begin
+            GenJnlLine."Amount (LCY)" := TotalPurchLineLCY."Amount Including VAT";
+            GenJnlLine."Amount Including VAT (ACY)" := TotalPurchLineLCY."Amount Including VAT (ACY)"
+        end else begin
             GenJnlLine."Amount (LCY)" :=
               TotalPurchLineLCY."Amount Including VAT" +
-              Round(VendLedgEntry."Remaining Pmt. Disc. Possible" / VendLedgEntry."Adjusted Currency Factor");
-        GenJnlLine."Allow Zero-Amount Posting" := true;
+              Round(RemainingPmtDiscPossible / VendLedgEntry."Adjusted Currency Factor");
+            GenJnlLine."Amount Including VAT (ACY)" := TotalPurchLineLCY."Amount Including VAT (ACY)"
+        end;
 
+        GenJnlLine."Allow Zero-Amount Posting" := true;
         GenJnlLine."Orig. Pmt. Disc. Possible" := TotalPurchLine."Pmt. Discount Amount";
         GenJnlLine."Orig. Pmt. Disc. Possible(LCY)" :=
             CurrExchRate.ExchangeAmtFCYToLCY(
@@ -1154,7 +1179,13 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
     local procedure GetAmountsForDeferral(PurchLine: Record "Purchase Line"; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var DeferralAccount: Code[20])
     var
         DeferralTemplate: Record "Deferral Template";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        PurchPostInvoiceEvents.RunOnBeforeGetAmountsForDeferral(PurchLine, AmtToDefer, AmtToDeferACY, DeferralAccount, IsHandled);
+        if IsHandled then
+            exit;
+
         DeferralTemplate.Get(PurchLine."Deferral Code");
         DeferralTemplate.TestField("Deferral Account");
         DeferralAccount := DeferralTemplate."Deferral Account";

@@ -600,7 +600,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         GenJournalLine.Insert();
     end;
 
-    local procedure CreateGLAccount(IncomeBalance: Option; NewPage: Boolean): Code[20]
+    local procedure CreateGLAccount(IncomeBalance: Enum "G/L Account Report Type"; NewPage: Boolean): Code[20]
     var
         GLAccount: Record "G/L Account";
     begin

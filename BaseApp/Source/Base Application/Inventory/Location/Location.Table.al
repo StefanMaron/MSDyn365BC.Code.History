@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Location;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Location;
 
 using Microsoft.Assembly.Document;
 using Microsoft.EServices.OnlineMap;
@@ -8,9 +12,6 @@ using Microsoft.Foundation.Calendar;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Warehouse.Activity;
@@ -190,8 +191,6 @@ table 14 Location
                     TestField("Require Receive", false);
                     TestField("Require Shipment", false);
                     TestField("Bin Mandatory", false);
-                    TestField("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"No Warehouse Handling");
-                    TestField("Prod. Output Whse. Handling", "Prod. Output Whse. Handling"::"No Warehouse Handling");
                     TestField("Job Consump. Whse. Handling", "Job Consump. Whse. Handling"::"No Warehouse Handling");
                     TestField("Asm. Consump. Whse. Handling", "Asm. Consump. Whse. Handling"::"No Warehouse Handling");
                 end;
@@ -441,8 +440,6 @@ table 14 Location
                     Validate("Check Whse. Class", true);
                     "Pick Bin Policy" := "Pick Bin Policy"::"Bin Ranking";
                     "Put-away Bin Policy" := "Put-away Bin Policy"::"Put-away Template";
-                    "Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
-                    "Prod. Output Whse. Handling" := "Prod. Output Whse. Handling"::"No Warehouse Handling";
                     "Asm. Consump. Whse. Handling" := "Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
                     "Job Consump. Whse. Handling" := "Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
                 end else
@@ -547,16 +544,6 @@ table 14 Location
                 CheckBinCode(Code, "From-Production Bin Code", FieldCaption("From-Production Bin Code"), Code);
             end;
         }
-        field(7316; "Prod. Consump. Whse. Handling"; Enum "Prod. Consump. Whse. Handling")
-        {
-            Caption = 'Prod. Consump. Whse. Handling';
-
-            trigger OnValidate()
-            begin
-                if Rec."Prod. Consump. Whse. Handling" <> xRec."Prod. Consump. Whse. Handling" then
-                    CheckInventoryActivityExists(Rec.Code, Database::"Prod. Order Component", Rec.FieldCaption("Prod. Consump. Whse. Handling"));
-            end;
-        }
         field(7317; "Adjustment Bin Code"; Code[20])
         {
             Caption = 'Adjustment Bin Code';
@@ -575,10 +562,6 @@ table 14 Location
                     CheckWhseAdjmtJnl();
                 end;
             end;
-        }
-        field(7318; "Prod. Output Whse. Handling"; Enum "Prod. Output Whse. Handling")
-        {
-            Caption = 'Prod. Output Whse. Handling';
         }
         field(7319; "Always Create Put-away Line"; Boolean)
         {
@@ -726,7 +709,6 @@ table 14 Location
     var
         TransferRoute: Record "Transfer Route";
         WhseEmployee: Record "Warehouse Employee";
-        WorkCenter: Record "Work Center";
         StockkeepingUnit: Record "Stockkeeping Unit";
         DimensionManagement: Codeunit DimensionManagement;
     begin
@@ -745,13 +727,6 @@ table 14 Location
         WhseEmployee.SetRange("Location Code", Code);
         WhseEmployee.DeleteAll(true);
 
-        WorkCenter.SetRange("Location Code", Code);
-        if WorkCenter.FindSet(true) then
-            repeat
-                WorkCenter.Validate("Location Code", '');
-                WorkCenter.Modify(true);
-            until WorkCenter.Next() = 0;
-
         CalendarManagement.DeleteCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Location, Code);
         DimensionManagement.DeleteDefaultDim(Database::Location, Rec.Code);
     end;
@@ -767,8 +742,8 @@ table 14 Location
     var
         Bin: Record Bin;
         PostCode: Record "Post Code";
-        WhseSetup: Record "Warehouse Setup";
-        InvtSetup: Record "Inventory Setup";
+        WarehouseSetup: Record "Warehouse Setup";
+        InventorySetup: Record "Inventory Setup";
         Location: Record Location;
         CustomizedCalendarChange: Record "Customized Calendar Change";
         CalendarManagement: Codeunit "Calendar Management";
@@ -806,32 +781,32 @@ table 14 Location
     begin
         if Location.Get(LocationCode) then
             exit(Location."Require Shipment");
-        WhseSetup.Get();
-        exit(WhseSetup."Require Shipment");
+        WarehouseSetup.GetRecordOnce();
+        exit(WarehouseSetup."Require Shipment");
     end;
 
     procedure RequirePicking(LocationCode: Code[10]): Boolean
     begin
         if Location.Get(LocationCode) then
             exit(Location."Require Pick");
-        WhseSetup.Get();
-        exit(WhseSetup."Require Pick");
+        WarehouseSetup.GetRecordOnce();
+        exit(WarehouseSetup."Require Pick");
     end;
 
     procedure RequireReceive(LocationCode: Code[10]): Boolean
     begin
         if Location.Get(LocationCode) then
             exit(Location."Require Receive");
-        WhseSetup.Get();
-        exit(WhseSetup."Require Receive");
+        WarehouseSetup.GetRecordOnce();
+        exit(WarehouseSetup."Require Receive");
     end;
 
     procedure RequirePutaway(LocationCode: Code[10]): Boolean
     begin
         if Location.Get(LocationCode) then
             exit(Location."Require Put-away");
-        WhseSetup.Get();
-        exit(WhseSetup."Require Put-away");
+        WarehouseSetup.GetRecordOnce();
+        exit(WarehouseSetup."Require Put-away");
     end;
 
     procedure BinMandatory(LocationCode: Code[10]): Boolean
@@ -844,46 +819,34 @@ table 14 Location
     begin
         if not Get(LocationCode) then begin
             Location2.Init();
-            WhseSetup.Get();
-            InvtSetup.Get();
+            WarehouseSetup.GetRecordOnce();
+            InventorySetup.GetRecordOnce();
             Location2.Code := LocationCode;
             Location2."Use As In-Transit" := false;
-            Location2."Require Put-away" := WhseSetup."Require Put-away";
-            Location2."Require Pick" := WhseSetup."Require Pick";
-            Location2."Outbound Whse. Handling Time" := InvtSetup."Outbound Whse. Handling Time";
-            Location2."Inbound Whse. Handling Time" := InvtSetup."Inbound Whse. Handling Time";
-            Location2."Require Receive" := WhseSetup."Require Receive";
-            Location2."Require Shipment" := WhseSetup."Require Shipment";
+            Location2."Require Put-away" := WarehouseSetup."Require Put-away";
+            Location2."Require Pick" := WarehouseSetup."Require Pick";
+            Location2."Outbound Whse. Handling Time" := InventorySetup."Outbound Whse. Handling Time";
+            Location2."Inbound Whse. Handling Time" := InventorySetup."Inbound Whse. Handling Time";
+            Location2."Require Receive" := WarehouseSetup."Require Receive";
+            Location2."Require Shipment" := WarehouseSetup."Require Shipment";
             // Initialize new settings based on upgrade
             case true of
                 not Location2."Require Pick" and not Location2."Require Shipment",
                 not Location2."Require Pick" and Location2."Require Shipment":
                     begin
-                        Location2."Prod. Consump. Whse. Handling" := Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)";
                         Location2."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)";
                         Location2."Job Consump. Whse. Handling" := Enum::"Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
                     end;
                 Location2."Require Pick" and not Location2."Require Shipment":
                     begin
-                        Location2."Prod. Consump. Whse. Handling" := Enum::"Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
                         Location2."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"Inventory Movement";
                         Location2."Job Consump. Whse. Handling" := Enum::"Job Consump. Whse. Handling"::"Inventory Pick";
                     end;
                 Location2."Require Pick" and Location2."Require Shipment":
                     begin
-                        Location2."Prod. Consump. Whse. Handling" := Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
                         Location2."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
                         Location2."Job Consump. Whse. Handling" := Enum::"Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
                     end;
-            end;
-
-            case true of
-                not Location2."Require Put-away" and not Location2."Require Receive",
-                not Location2."Require Put-away" and Location2."Require Receive",
-                Location2."Require Put-away" and Location2."Require Receive":
-                    Location2."Prod. Output Whse. Handling" := Enum::"Prod. Output Whse. Handling"::"No Warehouse Handling";
-                Location2."Require Put-away" and not Location2."Require Receive":
-                    Location2."Prod. Output Whse. Handling" := Enum::"Prod. Output Whse. Handling"::"Inventory Put-away";
             end;
 
             OnGetLocationSetupOnAfterInitLocation(Rec, Location2);
@@ -1042,6 +1005,11 @@ table 14 Location
           ("Shipment Bin Code" <> '') and (BinCode = "Shipment Bin Code"));
     end;
 
+    procedure IsBinBWProdOutput(BinCode: Code[20]): Boolean
+    begin
+        exit(("To-Production Bin Code" <> '') and (BinCode = "To-Production Bin Code"));
+    end;
+
     procedure IsInTransit(LocationCode: Code[10]): Boolean
     begin
         if Location.Get(LocationCode) then
@@ -1111,7 +1079,7 @@ table 14 Location
             exit(LocationList.GetSelectionFilter());
     end;
 
-    local procedure CheckInventoryActivityExists(LocationCode: Code[10]; SourceType: Integer; FieldCaption: Text)
+    procedure CheckInventoryActivityExists(LocationCode: Code[10]; SourceType: Integer; FieldCaption: Text)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin

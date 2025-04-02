@@ -104,6 +104,7 @@ page 5964 "Service Quote"
                         {
                             ApplicationArea = Service;
                             QuickEntry = false;
+                            ToolTip = 'Specifies the state, province or county of the address.';
                         }
                     }
                     field("Post Code"; Rec."Post Code")
@@ -219,6 +220,23 @@ page 5964 "Service Quote"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
+                group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(WorkDescription; WorkDescription)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Importance = Additional;
+                        MultiLine = true;
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or service being offered';
+
+                        trigger OnValidate()
+                        begin
+                            Rec.SetWorkDescription(WorkDescription);
+                        end;
+                    }
+                }
             }
             part(ServItemLine; "Service Quote Subform")
             {
@@ -278,6 +296,7 @@ page 5964 "Service Quote"
                             ApplicationArea = Service;
                             Caption = 'County';
                             QuickEntry = false;
+                            ToolTip = 'Specifies the state, province or county of the address.';
                         }
                     }
                     field("Bill-to Post Code"; Rec."Bill-to Post Code")
@@ -299,6 +318,7 @@ page 5964 "Service Quote"
                         ApplicationArea = Service;
                         Caption = 'Country/Region';
                         QuickEntry = false;
+                        ToolTip = 'Specifies the country/region in the customer''s address.';
 
                         trigger OnValidate()
                         var
@@ -386,6 +406,16 @@ page 5964 "Service Quote"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
+                field("Tax Area Code"; Rec."Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
+                }
+                field("Tax Liable"; Rec."Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
+                }
             }
             group(Shipping)
             {
@@ -410,6 +440,14 @@ page 5964 "Service Quote"
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Service;
@@ -433,6 +471,7 @@ page 5964 "Service Quote"
                             ApplicationArea = Service;
                             Caption = 'County';
                             QuickEntry = false;
+                            ToolTip = 'Specifies the state, province or county of the address.';
                         }
                     }
                     field("Ship-to Post Code"; Rec."Ship-to Post Code")
@@ -455,6 +494,7 @@ page 5964 "Service Quote"
                         ApplicationArea = Service;
                         Caption = 'Country/Region';
                         QuickEntry = false;
+                        ToolTip = 'Specifies the country/region in the customer''s address.';
 
                         trigger OnValidate()
                         var
@@ -647,6 +687,7 @@ page 5964 "Service Quote"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -952,6 +993,7 @@ page 5964 "Service Quote"
     trigger OnAfterGetCurrRecord()
     begin
         ActivateFields();
+        WorkDescription := Rec.GetWorkDescription();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -984,6 +1026,7 @@ page 5964 "Service Quote"
 
     var
         ChangeExchangeRate: Page "Change Exchange Rate";
+        WorkDescription: Text;
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;

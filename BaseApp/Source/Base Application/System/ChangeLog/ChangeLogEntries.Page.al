@@ -148,7 +148,6 @@ page 595 "Change Log Entries"
                 field("Old Value"; Rec."Old Value")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the value that the field had before a user made changes to the field.';
                 }
                 field("Old Value Local"; Rec.GetLocalOldValue())
                 {
@@ -159,7 +158,6 @@ page 595 "Change Log Entries"
                 field("New Value"; Rec."New Value")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the value that the field had after a user made changes to the field.';
                 }
                 field("New Value Local"; Rec.GetLocalNewValue())
                 {

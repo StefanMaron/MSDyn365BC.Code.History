@@ -20,7 +20,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         isInitialized: Boolean;
         SingleEntryRecNo: Integer;
-#if not CLEAN23
+#if not CLEAN25
         MigrationError: Label 'There are errors in Migration Data Error.';
         NoMigrationError: Label 'There must be errors in Migration Data Error.';
 #endif
@@ -49,7 +49,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Fld. Validate and Apply");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateResource(var Resource: Record Resource; var ResourcePrice: Record "Resource Price")
     var
         LibraryResource: Codeunit "Library - Resource";
@@ -222,7 +222,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         CheckGetOptionNo(Format(SalesCrMemoLine."IC Partner Ref. Type"), OptionNo.AsInteger());
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure TableValidation_ValidateTableWithWrongOrderInPK_PackageErrorGenerated()
@@ -403,7 +403,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         Assert.IsTrue(ConfigPackageError.IsEmpty, PackageValidationError);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure TableValidation_ValidateTableWhenValidatedRecordExists()
@@ -762,7 +762,7 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         Assert.AreEqual(0, ConfigPackageTable."No. of Package Errors", ConfigPackContErr);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure UT_SalesPriceTableProcessingOrder()

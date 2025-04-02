@@ -49,7 +49,6 @@ page 146 "Posted Purchase Invoices"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Vendor No.';
-                    ToolTip = 'Specifies the identifier of the vendor that you bought the items from.';
                 }
                 field("Order Address Code"; Rec."Order Address Code")
                 {
@@ -109,7 +108,6 @@ page 146 "Posted Purchase Invoices"
                 field("Pay-to Vendor No."; Rec."Pay-to Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the vendor that you received the invoice from.';
                     Visible = false;
                 }
                 field("Pay-to Name"; Rec."Pay-to Name")
@@ -282,6 +280,7 @@ page 146 "Posted Purchase Invoices"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Purch. Inv. Header"),
                               "No." = field("No.");

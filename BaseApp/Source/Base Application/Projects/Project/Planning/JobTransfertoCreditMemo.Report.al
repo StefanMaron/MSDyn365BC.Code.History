@@ -163,15 +163,7 @@ report 1092 "Job Transfer to Credit Memo"
         Job: Record Job;
         CreditMemoNo: Code[20];
         NewCreditMemo: Boolean;
-#if not CLEAN23
-    [Obsolete('Replaced by GetCreditMemoNo(var Done2: Boolean; var NewCreditMemo2: Boolean; var PostingDate2: Date; var DocumentDate2: Date; var CreditMemoNo2: Code[20])', '23.0')]
-    procedure GetCreditMemoNo(var Done2: Boolean; var NewCreditMemo2: Boolean; var PostingDate2: Date; var CreditMemoNo2: Code[20])
-    var
-        DocumentDate2: Date;
-    begin
-        GetCreditMemoNo(Done2, NewCreditMemo2, PostingDate2, DocumentDate2, CreditMemoNo2);
-    end;
-#endif
+
     procedure GetCreditMemoNo(var Done2: Boolean; var NewCreditMemo2: Boolean; var PostingDate2: Date; var DocumentDate2: Date; var CreditMemoNo2: Code[20])
     begin
         Done2 := Done;

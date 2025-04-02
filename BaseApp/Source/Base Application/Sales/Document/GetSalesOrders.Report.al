@@ -257,6 +257,11 @@ report 698 "Get Sales Orders"
         GetDim := NewRetrieveDimensionsFrom;
     end;
 
+    procedure SetHideDialog(NewHideDialog: Boolean)
+    begin
+        HideDialog := NewHideDialog;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertReqWkshLine(var ReqLine: Record "Requisition Line"; SalesLine: Record "Sales Line")
     begin

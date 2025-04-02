@@ -425,11 +425,6 @@ enum 30111 "Shpfy GraphQL Type" implements "Shpfy IGraphQL"
         Caption = 'Get Fulfillments';
         Implementation = "Shpfy IGraphQL" = "Shpfy GQL Get Fulfillments";
     }
-    value(85; ProductVariantDelete)
-    {
-        Caption = 'Product Variant Delete';
-        Implementation = "Shpfy IGraphQL" = "Shpfy GQL ProductVariantDelete";
-    }
     value(86; GetProductOptions)
     {
         Caption = 'Get Product Options';
@@ -490,9 +485,144 @@ enum 30111 "Shpfy GraphQL Type" implements "Shpfy IGraphQL"
         Caption = 'Get Product Image';
         Implementation = "Shpfy IGraphQL" = "Shpfy GQL GetProductImage";
     }
+    value(98; CreateCompanyLocationTaxId)
+    {
+        Caption = 'Create Company Location Tax Id';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL CreateCompLocTaxId";
+    }
+    value(99; UpdateCompanyLocationPaymentTerms)
+    {
+        Caption = 'Update Company Location Payment Terms';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL UpdateLocPmtTerms";
+    }
+    value(100; GetCompanyLocations)
+    {
+        Caption = 'Company Locations';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL CompLocations";
+    }
+    value(101; GetSalesChannels)
+    {
+        Caption = 'Get Sales Channels';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL Get SalesChannels";
+    }
+    value(102; GetNextSalesChannels)
+    {
+        Caption = 'Get Next Sales Channels';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL Get Next S. Channels";
+    }
+    value(103; CustomerMetafieldIds)
+    {
+        Caption = 'Customer Metafield Ids';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL CustomerMetafieldIds";
+    }
+    value(104; CompanyMetafieldIds)
+    {
+        Caption = 'Company Metafield Ids';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL CompanyMetafieldIds";
+    }
+    value(105; GetDeliveryProfiles)
+    {
+        Caption = 'Get Delivery Profiles';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL DeliveryProfiles";
+    }
+    value(106; GetNextDeliveryProfiles)
+    {
+        Caption = 'Get Next Delivery Profiles';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextDeliveryProfiles";
+    }
+    value(107; GetLocationGroups)
+    {
+        Caption = 'Get Location Groups';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL LocationGroups";
+    }
+    value(108; GetDeliveryMethods)
+    {
+        Caption = 'Get Delivery Methods';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL DeliveryMethods";
+    }
+    value(109; GetNextDeliveryMethods)
+    {
+        Caption = 'Get Next Delivery Methods';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextDeliveryMethods";
+    }
+    value(110; GetMetafieldDefinitions)
+    {
+        Caption = 'Get Metafield Definitions';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL MetafieldDefinitions";
+    }
     value(111; InventoryActivate)
     {
         Caption = 'Inventory Activate';
         Implementation = "Shpfy IGraphQL" = "Shpfy GQL InventoryActivate";
+    }
+    value(112; GetPaymentTransactions)
+    {
+        Caption = 'Get Payment Transactions';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL PaymentTransactions";
+    }
+    value(113; GetNextPaymentTransactions)
+    {
+        Caption = 'Get Next Payment Transactions';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextPaymTransactions";
+    }
+    value(114; GetDisputes)
+    {
+        Caption = 'Get Disputes';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL Disputes";
+    }
+    value(115; GetNextDisputes)
+    {
+        Caption = 'Get Next Disputes';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextDisputes";
+    }
+    value(116; GetPayouts)
+    {
+        Caption = 'Get Payouts';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL Payouts";
+    }
+    value(117; GetNextPayouts)
+    {
+        Caption = 'Get Next Payouts';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextPayouts";
+    }
+    value(118; GetDisputeById)
+    {
+        Caption = 'Get Dispute By Id';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL DisputeById";
+    }
+    value(119; CreateWebhookSubscription)
+    {
+        Caption = 'Create Webhook Subscription';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL CreateWebhookSub";
+    }
+    value(120; GetWebhookSubscriptions)
+    {
+        Caption = 'Get Webhook Subscriptions';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL GetWebhookSubs";
+    }
+    value(121; DeleteWebhookSubscription)
+    {
+        Caption = 'Delete Webhook Subscription';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL DeleteWebhookSub";
+    }
+    value(122; GetShipToCountries)
+    {
+        Caption = 'Get Ship To Countries';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL ShipToCountries";
+    }
+    value(123; GetRefundShippingLines)
+    {
+        Caption = 'Get Refund Shipping Lines';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL RefundShippingLines";
+    }
+    value(124; GetNextRefundShippingLines)
+    {
+        Caption = 'Get Next Refund Shipping Lines';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextRefundShipLines";
+    }
+    value(125; GetNextCompanyLocations)
+    {
+        Caption = 'Next Get Company Locations';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextCompLocations";
     }
 }

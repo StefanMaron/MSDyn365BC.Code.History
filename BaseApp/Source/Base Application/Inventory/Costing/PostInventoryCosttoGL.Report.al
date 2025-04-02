@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Finance.Analysis;
@@ -9,8 +13,6 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Document;
 using System.Utilities;
 
 report 1002 "Post Inventory Cost to G/L"
@@ -22,10 +24,12 @@ report 1002 "Post Inventory Cost to G/L"
     Caption = 'Post Inventory Cost to G/L';
     Permissions = TableData "Item Ledger Entry" = r,
                   TableData "Invt. Posting Buffer" = r,
-                  TableData "Prod. Order Line" = r,
+#if not CLEAN26
+                  TableData Microsoft.Manufacturing.Document."Prod. Order Line" = r,
+#endif
                   TableData "Value Entry" = rm,
                   TableData "Post Value Entry to G/L" = rd,
-                  TableData "Capacity Ledger Entry" = rm;
+                  TableData Microsoft.Manufacturing.Capacity."Capacity Ledger Entry" = rm;
     UsageCategory = Tasks;
 
     dataset

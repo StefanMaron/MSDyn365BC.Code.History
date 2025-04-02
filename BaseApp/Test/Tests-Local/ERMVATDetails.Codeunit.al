@@ -273,11 +273,6 @@ codeunit 141038 "ERM VAT - Details"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure GetRoundedPercent(Amount: Decimal; ValueProc: Decimal; Precision: Decimal): Decimal
-    begin
-        exit(Round(Amount / 100 * ValueProc, Precision));
-    end;
-
     local procedure GetPercent(Amount: Decimal; ValueProc: Decimal): Decimal
     begin
         exit(Amount / 100 * ValueProc);
@@ -330,7 +325,7 @@ codeunit 141038 "ERM VAT - Details"
         repeat
             VerifyVATEntryACY(
               DocumentNo, -SalesInvLine.Amount,
-              -Round(GetRoundedPercent(SalesInvLine.Amount, SalesInvLine."VAT %", CurrAmountRoundingPrecision) * CurrencyFactor, CurrAmountRoundingPrecision),
+              -Round(GetPercent(SalesInvLine.Amount, SalesInvLine."VAT %") * CurrencyFactor, CurrAmountRoundingPrecision),
               -Round(SalesInvLine.Amount * CurrencyFactor, CurrAmountRoundingPrecision), CustomerNo);
         until SalesInvLine.Next() = 0;
     end;

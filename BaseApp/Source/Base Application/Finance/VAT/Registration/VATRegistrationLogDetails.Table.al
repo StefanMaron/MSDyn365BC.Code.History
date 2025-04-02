@@ -19,6 +19,7 @@ table 227 "VAT Registration Log Details"
         field(2; "Field Name"; Enum "VAT Reg. Log Details Field")
         {
             Caption = 'Field Name';
+            ToolTip = 'Specifies the name of the field that has been validated by the VAT registration no. validation service.';
         }
         field(10; "Account Type"; Enum "VAT Registration Log Account Type")
         {
@@ -31,18 +32,22 @@ table 227 "VAT Registration Log Details"
         field(20; "Requested"; Text[150])
         {
             Caption = 'Requested';
+            ToolTip = 'Specifies the requested value.';
         }
         field(21; "Response"; Text[150])
         {
             Caption = 'Response';
+            ToolTip = 'Specifies the value that was returned by the service.';
         }
         field(22; "Current Value"; Text[150])
         {
             Caption = 'Current Value';
+            ToolTip = 'Specifies the current value.';
         }
         field(23; Status; Enum "VAT Reg. Log Details Field Status")
         {
             Caption = 'Status';
+            ToolTip = 'Specifies the status of the field validation.';
         }
     }
 

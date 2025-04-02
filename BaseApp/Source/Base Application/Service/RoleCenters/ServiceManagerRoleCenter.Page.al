@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.RoleCenters;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.RoleCenters;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Foundation.Navigate;
@@ -21,7 +25,6 @@ using Microsoft.Service.Reports;
 using Microsoft.Service.Resources;
 using Microsoft.Service.Setup;
 using Microsoft.Utilities;
-using System.Text;
 #if not CLEAN25
 using Microsoft.Integration.FieldService;
 using Microsoft.Integration.Dataverse;
@@ -201,18 +204,6 @@ page 8908 "Service Manager Role Center"
                         Caption = 'Service Item Line Labels';
                         RunObject = report "Service Item Line Labels";
                     }
-                    action("BarCode Checking")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'BarCode Checking';
-                        RunObject = Report "BarCode Checking";
-                    }
-                    action("BarCode Batch Job")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'BarCode Batch Job';
-                        RunObject = Report "BarCode Batch Job";
-                    }
                 }
             }
             group("Group3")
@@ -235,7 +226,6 @@ page 8908 "Service Manager Role Center"
                     ApplicationArea = Service;
                     Caption = 'Demand Overview';
                     RunObject = page "Demand Overview";
-                    AccessByPermission = TableData "Service Header" = R;
                 }
                 group("Group4")
                 {

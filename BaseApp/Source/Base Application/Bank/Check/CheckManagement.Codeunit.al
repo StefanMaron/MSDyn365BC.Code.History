@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Bank.Check;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Bank.Check;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Ledger;
@@ -192,7 +196,7 @@ codeunit 367 CheckManagement
         FinancialVoidCheckPreValidation(CheckLedgEntry);
 
         Clear(ConfirmFinancialVoid);
-        
+
         IsHandled := false;
         OnFinancialVoidCheckOnBeforeConfirmFinancialVoid(CheckLedgEntry, IsHandled);
         if not IsHandled then begin

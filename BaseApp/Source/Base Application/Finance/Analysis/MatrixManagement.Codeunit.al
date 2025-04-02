@@ -23,7 +23,8 @@ codeunit 9200 "Matrix Management"
         Text002: Label 'The period could not be found.';
         Text003: Label 'There are no Calendar entries within the filter.';
 #pragma warning restore AA0074
-        RoundingFormatTxt: Label '<Precision,%1><Standard Format,0>', Locked = true;
+        RoundingFormatTxt: Label '<Precision,%1><Standard Format,0>%2', Locked = true;
+        NegativeInParenthesesFormatTxt: Label ';(#,##0.00)', Locked = true;
 
     procedure SetPeriodColumnSet(DateFilter: Text; PeriodType: Enum "Analysis Period Type"; Direction: Option Backward,Forward; var FirstColumn: Date; var LastColumn: Date; NoOfColumns: Integer)
     var
@@ -532,6 +533,11 @@ codeunit 9200 "Matrix Management"
     end;
 
     procedure FormatRoundingFactor(RoundingFactor: Enum "Analysis Rounding Factor"; AddCurrency: Boolean): Text
+    begin
+        exit(FormatRoundingFactor(RoundingFactor, AddCurrency, Enum::"Analysis Negative Format"::"Minus Sign"));
+    end;
+
+    procedure FormatRoundingFactor(RoundingFactor: Enum "Analysis Rounding Factor"; AddCurrency: Boolean; NegativeAmountFormat: Enum "Analysis Negative Format") Result: Text
     var
         AmountDecimal: Text;
     begin
@@ -545,7 +551,14 @@ codeunit 9200 "Matrix Management"
             else
                 OnFormatRoundingFactorOnElse(AmountDecimal, RoundingFactor);
         end;
-        exit(StrSubstNo(RoundingFormatTxt, AmountDecimal));
+        case NegativeAmountFormat of
+            NegativeAmountFormat::"Minus Sign":
+                Result := StrSubstNo(RoundingFormatTxt, AmountDecimal, '');
+            NegativeAmountFormat::"Parentheses":
+                Result := StrSubstNo(RoundingFormatTxt, AmountDecimal, NegativeInParenthesesFormatTxt);
+            else
+                OnFormatRoundingFactorNegativeFormatOnElse(AmountDecimal, NegativeAmountFormat, Result);
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -565,6 +578,11 @@ codeunit 9200 "Matrix Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnFormatRoundingFactorOnElse(var AmountDecimal: Text; RoundingFactor: Enum "Analysis Rounding Factor")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFormatRoundingFactorNegativeFormatOnElse(AmountDecimal: Text; NegativeAmountFormat: Enum "Analysis Negative Format"; var Result: Text)
     begin
     end;
 

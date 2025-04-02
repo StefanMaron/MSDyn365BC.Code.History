@@ -116,9 +116,9 @@ table 1513 "Notification Schedule"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         if Rec.Recurrence = Rec.Recurrence::Instantly then
-            JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyNowLbl, UserId(), OneMinuteFromNow())
+            JobQueueEntry.ReuseExistingJobFromUserCategoryCodeunitAndParamString(UserId(), NotifyNowLbl, CODEUNIT::"Notification Entry Dispatcher", '', OneMinuteFromNow())
         else
-            JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyLaterLbl, UserId(), OneMinuteFromNow());
+            JobQueueEntry.ReuseExistingJobFromUserCategoryCodeunitAndParamString(UserId(), NotifyLaterLbl, CODEUNIT::"Notification Entry Dispatcher", '', OneMinuteFromNow());
     end;
 
     trigger OnModify()
@@ -126,9 +126,9 @@ table 1513 "Notification Schedule"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         if Rec.Recurrence = Rec.Recurrence::Instantly then
-            JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyNowLbl, UserId(), OneMinuteFromNow())
+            JobQueueEntry.ReuseExistingJobFromUserCategoryCodeunitAndParamString(UserId(), NotifyNowLbl, CODEUNIT::"Notification Entry Dispatcher", '', OneMinuteFromNow())
         else
-            JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyLaterLbl, UserId(), OneMinuteFromNow());
+            JobQueueEntry.ReuseExistingJobFromUserCategoryCodeunitAndParamString(UserId(), NotifyLaterLbl, CODEUNIT::"Notification Entry Dispatcher", '', OneMinuteFromNow());
     end;
 
     var
@@ -368,7 +368,7 @@ table 1513 "Notification Schedule"
     begin
         CheckRequiredPermissions();
 
-        if JobQueueEntry.ReuseExistingJobFromCategoryAndUser(NotifyNowLbl, UserId(), OneMinuteFromNow()) then
+        if JobQueueEntry.ReuseExistingJobFromUserCategoryCodeunitAndParamString(UserId(), NotifyNowLbl, CODEUNIT::"Notification Entry Dispatcher", '', OneMinuteFromNow()) then
             exit;
 
         if AzureADGraphUser.IsUserDelegatedAdmin() or AzureADGraphUser.IsUserDelegatedHelpdesk() then // can't use JQ
@@ -404,7 +404,7 @@ table 1513 "Notification Schedule"
         NotificationEntry.SetRange("Recipient User ID", RecipientUserID);
         NotificationEntry.SetRange(Type, "Notification Type");
 
-        if JobQueueEntry.ReuseExistingJobFromUserCategoryAndParamString(UserId(), NotifyLaterLbl, CopyStr(NotificationEntry.GetView(), 1, MaxStrLen(JobQueueEntry."Parameter String")), ExecutionDateTime) then
+        if JobQueueEntry.ReuseExistingJobFromUserCategoryCodeunitAndParamString(UserId(), NotifyLaterLbl, CODEUNIT::"Notification Entry Dispatcher", CopyStr(NotificationEntry.GetView(), 1, MaxStrLen(JobQueueEntry."Parameter String")), ExecutionDateTime) then
             exit;
 
         JobQueueEntry.ScheduleJobQueueEntryForLater(

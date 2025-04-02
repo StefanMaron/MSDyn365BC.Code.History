@@ -1,6 +1,9 @@
-﻿namespace Microsoft.Inventory.Requisition;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Requisition;
 
-using Microsoft.Assembly.Document;
 using Microsoft.CRM.Team;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -16,7 +19,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using System.Utilities;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Forecast;
 using Microsoft.Manufacturing.ProductionBOM;
@@ -33,9 +35,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Structure;
-using System.Reflection;
 using System.Security.AccessControl;
-using System.Security.User;
 
 table 246 "Requisition Line"
 {
@@ -80,8 +80,8 @@ table 246 "Requisition Line"
                     "No." := '';
                     "Variant Code" := '';
                     "Location Code" := '';
-                    "Prod. Order No." := '';
-                    ReserveReqLine.VerifyChange(Rec, xRec);
+                    CleanProdOrderNo();
+                    ReqLineReserve.VerifyChange(Rec, xRec);
                     AddOnIntegrMgt.ResetReqLineFields(Rec);
                     Init();
                     Type := NewType;
@@ -100,7 +100,7 @@ table 246 "Requisition Line"
                 ShouldValidateUnitofMeasureCode: Boolean;
             begin
                 CheckActionMessageNew();
-                ReserveReqLine.VerifyChange(Rec, xRec);
+                ReqLineReserve.VerifyChange(Rec, xRec);
                 DeleteRelations();
 
                 if "No." = '' then begin
@@ -112,7 +112,7 @@ table 246 "Requisition Line"
 
                 if "No." <> xRec."No." then begin
                     "Variant Code" := '';
-                    "Prod. Order No." := '';
+                    CleanProdOrderNo();
                     AddOnIntegrMgt.ResetReqLineFields(Rec);
                 end;
 
@@ -182,7 +182,7 @@ table 246 "Requisition Line"
                                 "Starting Date" := WorkDate();
                             Validate("Starting Time");
                         end;
-                    ReserveReqLine.VerifyQuantity(Rec, xRec);
+                    ReqLineReserve.VerifyQuantity(Rec, xRec);
                 end;
             end;
         }
@@ -223,7 +223,7 @@ table 246 "Requisition Line"
                             if PlanningResiliency then
                                 TempPlanningErrorLog.SetError(
                                   StrSubstNo(Text031, Vend.TableCaption(), Vend."No."),
-                                  Database::Vendor, Vend.GetPosition());
+                                  Database::Vendor, CopyStr(Vend.GetPosition(), 1, 250));
                             Vend.VendPrivacyBlockedErrorMessage(Vend, false);
                         end;
                         CheckVendorBlocked(Vend);
@@ -253,7 +253,7 @@ table 246 "Requisition Line"
                 OnValidateVendorNoOnAfterGetLocationCode(Rec);
                 GetDefaultBinCode();
 
-                if (Type = Type::Item) and ("No." <> '') and ("Prod. Order No." = '') then begin
+                if (Type = Type::Item) and ("No." <> '') and (not IsProdOrder()) then begin
                     if ItemVend.Get("Vendor No.", "No.", "Variant Code") then begin
                         IsHandled := false;
                         OnValidateVendorNoOnBeforeSetVendorItemNoFromItemVend(Rec, IsHandled);
@@ -318,7 +318,7 @@ table 246 "Requisition Line"
 
             trigger OnValidate()
             var
-                UserSelection: Codeunit "User Selection";
+                UserSelection: Codeunit System.Security.User."User Selection";
             begin
                 UserSelection.ValidateUserName("Requester ID");
             end;
@@ -364,7 +364,7 @@ table 246 "Requisition Line"
                 ValidateLocationChange();
                 CheckActionMessageNew();
                 "Bin Code" := '';
-                ReserveReqLine.VerifyChange(Rec, xRec);
+                ReqLineReserve.VerifyChange(Rec, xRec);
 
                 if Type = Type::Item then begin
                     UpdateReplenishmentSystem();
@@ -424,7 +424,7 @@ table 246 "Requisition Line"
 
             trigger OnValidate()
             begin
-                ReserveReqLine.VerifyChange(Rec, xRec);
+                ReqLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(24; "Sales Order Line No."; Integer)
@@ -434,7 +434,7 @@ table 246 "Requisition Line"
 
             trigger OnValidate()
             begin
-                ReserveReqLine.VerifyChange(Rec, xRec);
+                ReqLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(25; "Sell-to Customer No."; Code[20])
@@ -450,7 +450,7 @@ table 246 "Requisition Line"
                 else
                     Rec.Validate("Ship-to Code", '');
 
-                ReserveReqLine.VerifyChange(Rec, xRec);
+                ReqLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(26; "Ship-to Code"; Code[10])
@@ -607,7 +607,7 @@ table 246 "Requisition Line"
                     ErrorIfItemVariantIsBlocked();
                 end;
                 CheckActionMessageNew();
-                ReserveReqLine.VerifyChange(Rec, xRec);
+                ReqLineReserve.VerifyChange(Rec, xRec);
 
                 CalcFields("Reserved Qty. (Base)");
                 TestField("Reserved Qty. (Base)", 0);
@@ -657,7 +657,7 @@ table 246 "Requisition Line"
                     GetBin("Location Code", "Bin Code");
                     TestField("Location Code", Bin."Location Code");
                 end;
-                ReserveReqLine.VerifyChange(Rec, xRec);
+                ReqLineReserve.VerifyChange(Rec, xRec);
             end;
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
@@ -695,10 +695,10 @@ table 246 "Requisition Line"
             trigger OnValidate()
             begin
                 CheckActionMessageNew();
-                if (Type = Type::Item) and ("No." <> '') and ("Prod. Order No." = '') then
+                if (Type = Type::Item) and ("No." <> '') and (not IsProdOrder()) then
                     AssignItemUnitCostAndQuantitiesForUOM()
                 else
-                    if "Prod. Order No." = '' then
+                    if not IsProdOrder() then
                         "Qty. per Unit of Measure" := 1
                     else
                         "Qty. per Unit of Measure" := 0;
@@ -726,7 +726,7 @@ table 246 "Requisition Line"
                 if IsHandled then
                     exit;
 
-                TestField("Prod. Order No.", '');
+                TestProdOrderNo();
                 TestField("Qty. per Unit of Measure", 1);
                 Validate(Quantity, "Quantity (Base)");
             end;
@@ -749,7 +749,7 @@ table 246 "Requisition Line"
         {
             Caption = 'Demand Type';
             Editable = false;
-            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
+            TableRelation = System.Reflection.AllObjWithCaption."Object ID" where("Object Type" = const(Table));
         }
         field(5521; "Demand Subtype"; Option)
         {
@@ -816,16 +816,11 @@ table 246 "Requisition Line"
             Caption = 'Reserve';
 
             trigger OnValidate()
-            var
-                ProdOrderCapNeed: Record "Prod. Order Capacity Need";
             begin
                 GetItem();
                 if Item.Reserve <> Item.Reserve::Optional then
                     TestField(Reserve, Item.Reserve = Item.Reserve::Always);
-                if Reserve and
-                   ("Demand Type" = Database::"Prod. Order Component") and
-                   ("Demand Subtype" = ProdOrderCapNeed.Status::Planned.AsInteger())
-                then
+                if Reserve and IsProdDemand() then
                     Error(Text030);
                 TestField("Planning Level", 0);
                 TestField("Planning Line Origin", "Planning Line Origin"::"Order Planning");
@@ -922,13 +917,6 @@ table 246 "Requisition Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
-        field(5705; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
         field(5706; "Transfer-from Code"; Code[10])
         {
             Caption = 'Transfer-from Code';
@@ -998,7 +986,7 @@ table 246 "Requisition Line"
                     if PlanningResiliency and (RoutingHeader.Status <> RoutingHeader.Status::Certified) then
                         TempPlanningErrorLog.SetError(
                           StrSubstNo(Text033, RoutingHeader.TableCaption(), RoutingHeader.FieldCaption("No."), RoutingHeader."No."),
-                          Database::"Routing Header", RoutingHeader.GetPosition());
+                          Database::"Routing Header", CopyStr(RoutingHeader.GetPosition(), 1, 250));
                     RoutingHeader.TestField(Status, RoutingHeader.Status::Certified);
                     "Routing Type" := RoutingHeader.Type;
                 end;
@@ -1069,7 +1057,7 @@ table 246 "Requisition Line"
             trigger OnValidate()
             begin
                 if "Planning Flexibility" <> xRec."Planning Flexibility" then
-                    ReserveReqLine.UpdatePlanningFlexibility(Rec);
+                    ReqLineReserve.UpdatePlanningFlexibility(Rec);
             end;
         }
         field(99000757; "Routing Reference No."; Integer)
@@ -1112,7 +1100,7 @@ table 246 "Requisition Line"
                         Text034, ProdBOMVersion.TableCaption(),
                         ProdBOMVersion.FieldCaption("Production BOM No."), ProdBOMVersion."Production BOM No.",
                         ProdBOMVersion.FieldCaption("Version Code"), ProdBOMVersion."Version Code"),
-                      Database::"Production BOM Version", ProdBOMVersion.GetPosition());
+                      Database::"Production BOM Version", CopyStr(ProdBOMVersion.GetPosition(), 1, 250));
                 ProdBOMVersion.TestField(Status, ProdBOMVersion.Status::Certified);
                 OnAfterValidateProductionBOMVersionCode(Rec, xRec, ProdBOMVersion);
             end;
@@ -1137,7 +1125,7 @@ table 246 "Requisition Line"
                         Text034, RoutingVersion.TableCaption(),
                         RoutingVersion.FieldCaption("Routing No."), RoutingVersion."Routing No.",
                         RoutingVersion.FieldCaption("Version Code"), RoutingVersion."Version Code"),
-                      Database::"Routing Version", RoutingVersion.GetPosition());
+                      Database::"Routing Version", CopyStr(RoutingVersion.GetPosition(), 1, 250));
                 RoutingVersion.TestField(Status, RoutingVersion.Status::Certified);
                 "Routing Type" := RoutingVersion.Type;
             end;
@@ -1315,7 +1303,7 @@ table 246 "Requisition Line"
                             Text033,
                             ProdBOMHeader.TableCaption(),
                             ProdBOMHeader.FieldCaption("No."), ProdBOMHeader."No."),
-                          Database::"Production BOM Header", ProdBOMHeader.GetPosition());
+                          Database::"Production BOM Header", CopyStr(ProdBOMHeader.GetPosition(), 1, 250));
 
                     ProdBOMHeader.TestField(Status, ProdBOMHeader.Status::Certified);
                 end;
@@ -1405,8 +1393,6 @@ table 246 "Requisition Line"
                         SetReplenishmentSystemFromPurchase(StockkeepingUnit);
                     "Replenishment System"::"Prod. Order":
                         SetReplenishmentSystemFromProdOrder(StockkeepingUnit);
-                    "Replenishment System"::Assembly:
-                        SetReplenishmentSystemFromAssembly();
                     "Replenishment System"::Transfer:
                         SetReplenishmentSystemFromTransfer(StockkeepingUnit);
                     else
@@ -1424,9 +1410,7 @@ table 246 "Requisition Line"
             else
             if ("Ref. Order Type" = const(Purchase)) "Purchase Header"."No." where("Document Type" = const(Order))
             else
-            if ("Ref. Order Type" = const(Transfer)) "Transfer Header"."No." where("No." = field("Ref. Order No."))
-            else
-            if ("Ref. Order Type" = const(Assembly)) "Assembly Header"."No." where("Document Type" = const(Order));
+            if ("Ref. Order Type" = const(Transfer)) "Transfer Header"."No." where("No." = field("Ref. Order No."));
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -1444,7 +1428,7 @@ table 246 "Requisition Line"
             Caption = 'Ref. Order Type';
             Editable = false;
         }
-        field(99000906; "Ref. Order Status"; Enum "Production Order Status")
+        field(99000906; "Ref. Order Status"; Enum Microsoft.Manufacturing.Document."Production Order Status")
         {
             BlankZero = true;
             Caption = 'Ref. Order Status';
@@ -1659,7 +1643,7 @@ table 246 "Requisition Line"
         while (ReqLine.Next() <> 0) and (ReqLine.Level > Level) do
             ReqLine.Delete(true);
 
-        ReserveReqLine.DeleteLine(Rec);
+        ReqLineReserve.DeleteLine(Rec);
 
         CalcFields("Reserved Qty. (Base)");
         TestField("Reserved Qty. (Base)", 0);
@@ -1679,20 +1663,20 @@ table 246 "Requisition Line"
                 "Line No." := Rec2."Line No." + 10000;
         end;
 
-        ReserveReqLine.VerifyQuantity(Rec, xRec);
+        ReqLineReserve.VerifyQuantity(Rec, xRec);
 
-        ReqWkshTmpl.Get("Worksheet Template Name");
+        ReqWkshTemplate.Get("Worksheet Template Name");
         ReqWkshName.Get("Worksheet Template Name", "Journal Batch Name");
 
         Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
 
-        OnAfterOnInsert(Rec, ReqWkshTmpl, ReqWkshName);
+        OnAfterOnInsert(Rec, ReqWkshTemplate, ReqWkshName);
     end;
 
     trigger OnModify()
     begin
-        ReserveReqLine.VerifyChange(Rec, xRec);
+        ReqLineReserve.VerifyChange(Rec, xRec);
     end;
 
     trigger OnRename()
@@ -1701,6 +1685,25 @@ table 246 "Requisition Line"
     end;
 
     var
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        ReqWkshName: Record "Requisition Wksh. Name";
+        ReqLine: Record "Requisition Line";
+        ItemVariant: Record "Item Variant";
+        WorkCenter: Record "Work Center";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Location: Record Location;
+        Bin: Record Bin;
+        ReqLineReserve: Codeunit "Req. Line-Reserve";
+        UOMMgt: Codeunit "Unit of Measure Management";
+        AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
+        DimMgt: Codeunit DimensionManagement;
+        LeadTimeMgt: Codeunit "Lead-Time Management";
+        GetPlanningParameters: Codeunit "Planning-Get Parameters";
+        VersionMgt: Codeunit VersionManagement;
+        WMSManagement: Codeunit "WMS Management";
+        ConfirmManagement: Codeunit System.Utilities."Confirm Management";
+        BlockReservation: Boolean;
+
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text004: Label 'You cannot rename a %1.';
@@ -1710,26 +1713,6 @@ table 246 "Requisition Line"
 #pragma warning restore AA0470
         Text008: Label 'There is no replenishment order for this line.';
 #pragma warning restore AA0074
-        ReqWkshTmpl: Record "Req. Wksh. Template";
-        ReqWkshName: Record "Requisition Wksh. Name";
-        ReqLine: Record "Requisition Line";
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
-        WorkCenter: Record "Work Center";
-        ManufacturingSetup: Record "Manufacturing Setup";
-        Location: Record Location;
-        Bin: Record Bin;
-        ReserveReqLine: Codeunit "Req. Line-Reserve";
-        UOMMgt: Codeunit "Unit of Measure Management";
-        AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
-        DimMgt: Codeunit DimensionManagement;
-        LeadTimeMgt: Codeunit "Lead-Time Management";
-        GetPlanningParameters: Codeunit "Planning-Get Parameters";
-        VersionMgt: Codeunit VersionManagement;
-        PlanningLineMgt: Codeunit "Planning Line Management";
-        WMSManagement: Codeunit "WMS Management";
-        ConfirmManagement: Codeunit "Confirm Management";
-        BlockReservation: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text028: Label 'The %1 on this %2 must match the %1 on the sales order line it is associated with.';
@@ -1738,7 +1721,6 @@ table 246 "Requisition Line"
         Text030: Label 'You cannot reserve components with status Planned.';
 #pragma warning disable AA0470
         Text031: Label '%1 %2 is blocked.';
-        Text032: Label '%1 %2 has no %3 defined.';
         Text033: Label '%1 %2 %3 is not certified.';
         Text034: Label '%1 %2 %3 %4 %5 is not certified.';
         Text037: Label 'The currency exchange rate for the %1 %2 that vendor %3 uses on the order date %4, does not have an %5 specified.';
@@ -1751,10 +1733,13 @@ table 246 "Requisition Line"
         ItemVariantPrimaryKeyLbl: Label '%1, %2', Comment = '%1 - Item No., %2 - Variant Code', Locked = true;
 
     protected var
+        Item: Record Item;
         TempPlanningErrorLog: Record "Planning Error Log" temporary;
+        PlanningLineMgt: Codeunit "Planning Line Management";
         CurrentFieldNo: Integer;
         PlanningResiliency: Boolean;
         Subcontracting: Boolean;
+        MissingFieldValueErr: Label '%1 %2 has no %3 defined.', Comment = '%1 %2 - Item No., %3 - field caption';
 
     local procedure AssignItemUnitCostAndQuantitiesForUOM()
     var
@@ -1809,7 +1794,7 @@ table 246 "Requisition Line"
         if PlanningResiliency and Item.Blocked then
             TempPlanningErrorLog.SetError(
               StrSubstNo(Text031, Item.TableCaption(), Item."No."),
-              Database::Item, Item.GetPosition());
+              Database::Item, CopyStr(Item.GetPosition(), 1, 250));
         CheckBlockedItem();
         "Low-Level Code" := Item."Low-Level Code";
         "Scrap %" := Item."Scrap %";
@@ -1818,9 +1803,9 @@ table 246 "Requisition Line"
         "Gen. Business Posting Group" := '';
         if PlanningResiliency and (Item."Base Unit of Measure" = '') then
             TempPlanningErrorLog.SetError(
-              StrSubstNo(Text032, Item.TableCaption(), Item."No.",
+              StrSubstNo(MissingFieldValueErr, Item.TableCaption(), Item."No.",
                 Item.FieldCaption("Base Unit of Measure")),
-              Database::Item, Item.GetPosition());
+              Database::Item, CopyStr(Item.GetPosition(), 1, 250));
         Item.TestField("Base Unit of Measure");
         "Indirect Cost %" := Item."Indirect Cost %";
         UpdateReplenishmentSystem();
@@ -1955,12 +1940,12 @@ table 246 "Requisition Line"
         end;
     end;
 
-    procedure LookupFromLocation(var Location: Record Location): Boolean
+    procedure LookupFromLocation(var Location2: Record Location): Boolean
     begin
-        Location.Code := "Transfer-from Code";
-        Location.SetRange("Use As In-Transit", false);
-        OnLookupFromLocationOnAfterSetFilters(Rec, Location);
-        exit(PAGE.RunModal(0, Location) = ACTION::LookupOK);
+        Location2.Code := "Transfer-from Code";
+        Location2.SetRange("Use As In-Transit", false);
+        OnLookupFromLocationOnAfterSetFilters(Rec, Location2);
+        exit(PAGE.RunModal(0, Location2) = ACTION::LookupOK);
     end;
 
     procedure UpdateDescription()
@@ -2038,7 +2023,7 @@ table 246 "Requisition Line"
 
     procedure BlockDynamicTracking(SetBlock: Boolean)
     begin
-        ReserveReqLine.Block(SetBlock);
+        ReqLineReserve.Block(SetBlock);
     end;
 
     procedure BlockDynamicTrackingOnComp(SetBlock: Boolean)
@@ -2120,7 +2105,7 @@ table 246 "Requisition Line"
         TestField(Type, Type::Item);
         TestField("No.");
         TestField("Quantity (Base)");
-        ReserveReqLine.CallItemTracking(Rec);
+        ReqLineReserve.CallItemTracking(Rec);
     end;
 
     procedure DeleteRelations()
@@ -2211,7 +2196,7 @@ table 246 "Requisition Line"
         OnDeleteMultiLevelOnAfterSetFilterReqLine2(Rec, ReqLine2);
         if ReqLine2.Find('-') then
             repeat
-                ReserveReqLine.DeleteLine(ReqLine2);
+                ReqLineReserve.DeleteLine(ReqLine2);
                 ReqLine2.CalcFields("Reserved Qty. (Base)");
                 ReqLine2.TestField("Reserved Qty. (Base)", 0);
                 ReqLine2.DeleteRelations();
@@ -2235,8 +2220,8 @@ table 246 "Requisition Line"
                 exit;
 
         repeat
-            if ReserveReqLine.FindReservEntry(RequisitionLine, ReservationEntry) then begin
-                ReserveReqLine.DeleteLine(RequisitionLine);
+            if ReqLineReserve.FindReservEntry(RequisitionLine, ReservationEntry) then begin
+                ReqLineReserve.DeleteLine(RequisitionLine);
                 RequisitionLine.TestField("Reserved Qty. (Base)", 0);
             end;
             ReactivateProdOrderCapacityNeed(RequisitionLine);
@@ -2269,7 +2254,7 @@ table 246 "Requisition Line"
     var
         Vendor: Record Vendor;
     begin
-        ReqWkshTmpl.Get("Worksheet Template Name");
+        ReqWkshTemplate.Get("Worksheet Template Name");
         ReqWkshName.Get("Worksheet Template Name", "Journal Batch Name");
         ReqLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
         ReqLine.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -2295,7 +2280,7 @@ table 246 "Requisition Line"
             exit;
 
         CheckDateConflict.ReqLineCheck(Rec, ShowWarning);
-        ReserveReqLine.VerifyChange(Rec, xRec);
+        ReqLineReserve.VerifyChange(Rec, xRec);
     end;
 
     /// <summary>
@@ -2442,21 +2427,6 @@ table 246 "Requisition Line"
         Item.Get(TransLine."Item No.");
 
         TransferFromTransLine(TransLine);
-    end;
-
-    /// <summary>
-    /// Prepares and transfers relevant field values from provided assembly header to the current requisition line.
-    /// </summary>
-    /// <param name="AsmHeader">Source assembly header record. </param>
-    procedure GetAsmHeader(AsmHeader: Record "Assembly Header")
-    var
-        AsmHeader2: Record "Assembly Header";
-    begin
-        AsmHeader.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
-        AsmHeader2.Get(AsmHeader."Document Type", AsmHeader."No.");
-        Item.Get(AsmHeader."Item No.");
-
-        TransferFromAsmHeader(AsmHeader);
     end;
 
     /// <summary>
@@ -2698,52 +2668,6 @@ table 246 "Requisition Line"
         GetDimFromRefOrderLine(false);
     end;
 
-    procedure TransferFromAsmHeader(var AsmHeader: Record "Assembly Header")
-    begin
-        Item.Get(AsmHeader."Item No.");
-
-        Type := Type::Item;
-        "No." := AsmHeader."Item No.";
-        "Variant Code" := AsmHeader."Variant Code";
-        Description := AsmHeader.Description;
-        "Description 2" := AsmHeader."Description 2";
-        "Location Code" := AsmHeader."Location Code";
-        "Dimension Set ID" := AsmHeader."Dimension Set ID";
-        "Shortcut Dimension 1 Code" := AsmHeader."Shortcut Dimension 1 Code";
-        "Shortcut Dimension 2 Code" := AsmHeader."Shortcut Dimension 2 Code";
-        "Bin Code" := AsmHeader."Bin Code";
-        "Gen. Prod. Posting Group" := AsmHeader."Gen. Prod. Posting Group";
-        "Low-Level Code" := Item."Low-Level Code";
-        "Order Date" := AsmHeader."Due Date";
-        "Starting Date" := "Order Date";
-        "Ending Date" := AsmHeader."Due Date";
-        "Due Date" := AsmHeader."Due Date";
-        Quantity := AsmHeader.Quantity;
-        "Finished Quantity" := AsmHeader."Assembled Quantity";
-        "Remaining Quantity" := AsmHeader."Remaining Quantity";
-        BlockDynamicTracking(true);
-        Validate("Unit Cost", AsmHeader."Unit Cost");
-        BlockDynamicTracking(false);
-        "Indirect Cost %" := AsmHeader."Indirect Cost %";
-        "Overhead Rate" := AsmHeader."Overhead Rate";
-        "Unit of Measure Code" := AsmHeader."Unit of Measure Code";
-        "Qty. per Unit of Measure" := AsmHeader."Qty. per Unit of Measure";
-        "Quantity (Base)" := AsmHeader."Quantity (Base)";
-        "Finished Qty. (Base)" := AsmHeader."Assembled Quantity (Base)";
-        "Remaining Qty. (Base)" := AsmHeader."Remaining Quantity (Base)";
-        "Replenishment System" := "Replenishment System"::Assembly;
-        "MPS Order" := AsmHeader."MPS Order";
-        "Planning Flexibility" := AsmHeader."Planning Flexibility";
-        "Ref. Order Type" := "Ref. Order Type"::Assembly;
-        "Ref. Order Status" := AsmHeader."Document Type";
-        "Ref. Order No." := AsmHeader."No.";
-        "Ref. Line No." := 0;
-
-        OnAfterTransferFromAsmHeader(Rec, AsmHeader);
-
-        GetDimFromRefOrderLine(false);
-    end;
-
     procedure TransferFromTransLine(var TransLine: Record "Transfer Line")
     var
         TransHeader: Record "Transfer Header";
@@ -2790,7 +2714,6 @@ table 246 "Requisition Line"
         PurchLine: Record "Purchase Line";
         ProdOrderLine: Record "Prod. Order Line";
         TransferLine: Record "Transfer Line";
-        AsmHeader: Record "Assembly Header";
         DimSetIDArr: array[10] of Integer;
         i: Integer;
         IsHandled: Boolean;
@@ -2816,9 +2739,8 @@ table 246 "Requisition Line"
                         if TransferLine.Get("Ref. Order No.", "Ref. Line No.") then
                             DimSetIDArr[i] := TransferLine."Dimension Set ID";
                 end;
-            "Ref. Order Type"::Assembly:
-                if AsmHeader.Get(AsmHeader."Document Type"::Order, "Ref. Order No.") then
-                    DimSetIDArr[i] := AsmHeader."Dimension Set ID";
+            else
+                OnGetDimFromRefOrderLineElseCase(Rec, DimSetIDArr, i);
         end;
         "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
@@ -2853,14 +2775,14 @@ table 246 "Requisition Line"
             Database::"Prod. Order Line",
             Database::"Purchase Line",
             Database::"Requisition Line",
-            Database::"Assembly Header":
+            900: // Database::"Assembly Header"
                 "Ending Date" :=
                   LeadTimeMgt.GetPlannedEndingDate(
                     ReservEntry."Item No.", ReservEntry."Location Code", ReservEntry."Variant Code",
                     "Due Date", "Vendor No.", "Ref. Order Type");
         end;
 
-        OnAfterTransferFromActionMessage(Rec, ActionMessageEntry);
+        OnAfterTransferFromActionMessage(Rec, ActionMessageEntry, ReservEntry);
     end;
 
     procedure TransferToTrackingEntry(var TrkgReservEntry: Record "Reservation Entry"; PointerOnly: Boolean)
@@ -2874,7 +2796,7 @@ table 246 "Requisition Line"
         TrkgReservEntry."Location Code" := "Location Code";
         TrkgReservEntry.Description := '';
         TrkgReservEntry."Creation Date" := Today;
-        TrkgReservEntry."Created By" := UserId;
+        TrkgReservEntry."Created By" := CopyStr(UserId(), 1, 50);
         TrkgReservEntry."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
         TrkgReservEntry."Variant Code" := "Variant Code";
         CalcFields("Reserved Quantity");
@@ -3162,8 +3084,6 @@ table 246 "Requisition Line"
     /// </summary>
     /// <param name="DemandDate">Provided demand date.</param>
     procedure SetSupplyDates(DemandDate: Date)
-    var
-        LeadTimeMgt: Codeunit "Lead-Time Management";
     begin
         "Demand Date" := DemandDate;
         "Starting Date" := "Demand Date";
@@ -3242,21 +3162,21 @@ table 246 "Requisition Line"
                   StrSubstNo(
                     Text038,
                     Currency.TableCaption(), Currency.Code, "Vendor No.", "Order Date"),
-                  Database::Currency, Currency.GetPosition());
+                  Database::Currency, CopyStr(Currency.GetPosition(), 1, 250));
             CurrExchRate."Exchange Rate Amount" = 0:
                 TempPlanningErrorLog.SetError(
                   StrSubstNo(
                     Text037,
                     Currency.TableCaption(), Currency.Code, "Vendor No.",
                     "Order Date", CurrExchRate.FieldCaption("Exchange Rate Amount")),
-                  Database::Currency, Currency.GetPosition());
+                  Database::Currency, CopyStr(Currency.GetPosition(), 1, 250));
             CurrExchRate."Relational Exch. Rate Amount" = 0:
                 TempPlanningErrorLog.SetError(
                   StrSubstNo(
                     Text037,
                     Currency.TableCaption(), Currency.Code, "Vendor No.",
                     "Order Date", CurrExchRate.FieldCaption("Relational Exch. Rate Amount")),
-                  Database::Currency, Currency.GetPosition());
+                  Database::Currency, CopyStr(Currency.GetPosition(), 1, 250));
         end;
     end;
 
@@ -3273,7 +3193,7 @@ table 246 "Requisition Line"
             if PlanningResiliency then
                 TempPlanningErrorLog.SetError(
                   StrSubstNo(Text031, Vend.TableCaption(), Vend."No."),
-                  Database::Vendor, Vend.GetPosition());
+                  Database::Vendor, CopyStr(Vend.GetPosition(), 1, 250));
             Vend.VendBlockedErrorMessage(Vend, false);
         end;
     end;
@@ -3282,21 +3202,21 @@ table 246 "Requisition Line"
     /// Filters corresponding fields of the current record based on provided item record.
     /// </summary>
     /// <param name="Item">Provided item record. </param>
-    procedure FilterLinesWithItemToPlan(var Item: Record Item)
+    procedure FilterLinesWithItemToPlan(var Item2: Record Item)
     begin
         Reset();
         SetCurrentKey(Type, "No.");
         SetRange(Type, Type::Item);
-        SetRange("No.", Item."No.");
+        SetRange("No.", Item2."No.");
         SetRange("Sales Order No.", '');
-        SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-        SetFilter("Location Code", Item.GetFilter("Location Filter"));
-        SetFilter("Due Date", Item.GetFilter("Date Filter"));
-        Item.CopyFilter("Global Dimension 1 Filter", "Shortcut Dimension 1 Code");
-        Item.CopyFilter("Global Dimension 2 Filter", "Shortcut Dimension 2 Code");
+        SetFilter("Variant Code", Item2.GetFilter("Variant Filter"));
+        SetFilter("Location Code", Item2.GetFilter("Location Filter"));
+        SetFilter("Due Date", Item2.GetFilter("Date Filter"));
+        Item2.CopyFilter("Global Dimension 1 Filter", "Shortcut Dimension 1 Code");
+        Item2.CopyFilter("Global Dimension 2 Filter", "Shortcut Dimension 2 Code");
         SetRange("Planning Line Origin", "Planning Line Origin"::" ");
         SetFilter("Quantity (Base)", '<>0');
-        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
+        SetFilter("Unit of Measure Code", Item2.GetFilter("Unit of Measure Filter"));
 
         OnAfterFilterLinesWithItemToPlan(Rec, Item);
     end;
@@ -3306,9 +3226,9 @@ table 246 "Requisition Line"
     /// </summary>
     /// <param name="Item">Provided item record.</param>
     /// <returns>Returns 'true' if filtered requisition line is found, otherwise 'false'.</returns>
-    procedure FindLinesWithItemToPlan(var Item: Record Item): Boolean
+    procedure FindLinesWithItemToPlan(var Item2: Record Item): Boolean
     begin
-        FilterLinesWithItemToPlan(Item);
+        FilterLinesWithItemToPlan(Item2);
         exit(Find('-'));
     end;
 
@@ -3510,8 +3430,7 @@ table 246 "Requisition Line"
         PurchHeader: Record "Purchase Header";
         ProdOrder: Record "Production Order";
         TransHeader: Record "Transfer Header";
-        AssemblyHeader: Record "Assembly Header";
-        AssemblyOrder: Page "Assembly Order";
+        IsHandled: Boolean;
     begin
         case "Ref. Order Type" of
             "Ref. Order Type"::Purchase:
@@ -3536,14 +3455,12 @@ table 246 "Requisition Line"
                     PAGE.Run(PAGE::"Transfer Order", TransHeader)
                 else
                     Message(Text007, TransHeader.TableCaption());
-            "Ref. Order Type"::Assembly:
-                if AssemblyHeader.Get("Ref. Order Status", "Ref. Order No.") then begin
-                    AssemblyOrder.SetRecord(AssemblyHeader);
-                    AssemblyOrder.RunModal();
-                end else
-                    Message(Text007, AssemblyHeader.TableCaption());
-            else
-                Message(Text008);
+            else begin
+                IsHandled := false;
+                OnLookupRefOrderNoElseCase(Rec, IsHandled);
+                if not IsHandled then
+                    Message(Text008);
+            end;
         end;
     end;
 
@@ -3573,8 +3490,7 @@ table 246 "Requisition Line"
         Clear("Ref. Order Status");
         "Ref. Order No." := '';
         DeleteRelations();
-        Validate("Production BOM No.", '');
-        Validate("Routing No.", '');
+        CleanProdBOMNo();
         UpdateUnitOfMeasureCodeFromItemPurchUnitOfMeasure();
         Validate("Transfer-from Code", '');
 
@@ -3623,12 +3539,12 @@ table 246 "Requisition Line"
     begin
         OnBeforeSetReplenishmentSystemFromProdOrder(Rec);
 
-        CheckReqWkshTmpl();
+        CheckReqWkshTemplate();
 
         if PlanningResiliency and (Item."Base Unit of Measure" = '') then
             TempPlanningErrorLog.SetError(
-              StrSubstNo(Text032, Item.TableCaption(), Item."No.", Item.FieldCaption("Base Unit of Measure")),
-              Database::Item, Item.GetPosition());
+              StrSubstNo(MissingFieldValueErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Base Unit of Measure")),
+              Database::Item, CopyStr(Item.GetPosition(), 1, 250));
 
         Item.TestField("Base Unit of Measure");
         IsHandled := false;
@@ -3640,9 +3556,9 @@ table 246 "Requisition Line"
                 ManufacturingSetup.Get();
                 if PlanningResiliency and (ManufacturingSetup."Planned Order Nos." = '') then
                     TempPlanningErrorLog.SetError(
-                      StrSubstNo(Text032, ManufacturingSetup.TableCaption(), '',
+                      StrSubstNo(MissingFieldValueErr, ManufacturingSetup.TableCaption(), '',
                         ManufacturingSetup.FieldCaption("Planned Order Nos.")),
-                      Database::"Manufacturing Setup", ManufacturingSetup.GetPosition());
+                      Database::"Manufacturing Setup", CopyStr(ManufacturingSetup.GetPosition(), 1, 250));
                 ManufacturingSetup.TestField("Planned Order Nos.");
                 if PlanningResiliency then
                     NoSeries.PeekNextNo(ManufacturingSetup."Planned Order Nos.", "Due Date");
@@ -3706,7 +3622,7 @@ table 246 "Requisition Line"
         OnAfterSetReplenishmentSystemFromProdOrder(Rec, Item);
     end;
 
-    local procedure CheckReqWkshTmpl()
+    local procedure CheckReqWkshTemplate()
     var
         IsHandled: Boolean;
     begin
@@ -3715,13 +3631,13 @@ table 246 "Requisition Line"
         if IsHandled then
             exit;
 
-        if ReqWkshTmpl.Get("Worksheet Template Name") and
-           (ReqWkshTmpl.Type = ReqWkshTmpl.Type::"Req.") and (ReqWkshTmpl.Name <> '') and not "Drop Shipment"
+        if ReqWkshTemplate.Get("Worksheet Template Name") and
+           (ReqWkshTemplate.Type = ReqWkshTemplate.Type::"Req.") and (ReqWkshTemplate.Name <> '') and not "Drop Shipment"
         then
             Error(ReplenishmentErr);
     end;
 
-    local procedure UpdateUnitOfMeasureCodeFromItemBaseUnitOfMeasure()
+    procedure UpdateUnitOfMeasureCodeFromItemBaseUnitOfMeasure()
     var
         IsHandled: Boolean;
     begin
@@ -3733,33 +3649,6 @@ table 246 "Requisition Line"
         Validate("Unit of Measure Code", Item."Base Unit of Measure");
     end;
 
-    local procedure SetReplenishmentSystemFromAssembly()
-    var
-        AssemblyHeader: Record "Assembly Header";
-    begin
-        if PlanningResiliency and (Item."Base Unit of Measure" = '') then
-            TempPlanningErrorLog.SetError(
-              StrSubstNo(
-                Text032, Item.TableCaption(), Item."No.",
-                Item.FieldCaption("Base Unit of Measure")),
-              Database::Item, Item.GetPosition());
-        Item.TestField("Base Unit of Measure");
-        if "Ref. Order No." = '' then begin
-            "Ref. Order Type" := "Ref. Order Type"::Assembly;
-            "Ref. Order Status" := AssemblyHeader."Document Type"::Order;
-        end;
-        Validate("Vendor No.", '');
-        Validate("Production BOM No.", '');
-        Validate("Routing No.", '');
-        Validate("Transfer-from Code", '');
-        UpdateUnitOfMeasureCodeFromItemBaseUnitOfMeasure();
-
-        if ("Planning Line Origin" = "Planning Line Origin"::"Order Planning") and ValidateFields() then
-            PlanningLineMgt.Calculate(Rec, 1, true, true, 0);
-
-        OnAfterSetReplenishmentSystemFromAssembly(Rec, Item);
-    end;
-
     local procedure SetReplenishmentSystemFromTransfer(StockkeepingUnit: Record "Stockkeeping Unit")
     begin
         OnBeforeSetReplenishmentSystemFromTransfer(Rec, Item, StockkeepingUnit, CurrFieldNo);
@@ -3769,8 +3658,7 @@ table 246 "Requisition Line"
         "Ref. Order No." := '';
         DeleteRelations();
         Validate("Vendor No.", '');
-        Validate("Production BOM No.", '');
-        Validate("Routing No.", '');
+        CleanProdBOMNo();
         Validate("Transfer-from Code", StockkeepingUnit."Transfer-from Code");
         UpdateUnitOfMeasureCodeFromItemBaseUnitOfMeasure();
 
@@ -3860,7 +3748,7 @@ table 246 "Requisition Line"
 
     local procedure GetUserSetupPurchaserCode(): Code[20]
     var
-        UserSetup: Record "User Setup";
+        UserSetup: Record System.Security.User."User Setup";
     begin
         UserSetup.SetLoadFields("Salespers./Purch. Code");
         if not UserSetup.Get(UserId) then
@@ -3925,6 +3813,33 @@ table 246 "Requisition Line"
         "Description 2" := WorkCenterForDescription."Name 2";
 
         exit(true);
+    end;
+
+    procedure CleanProdOrderNo()
+    begin
+        OnCleanProdOrderNo(Rec);
+    end;
+
+    procedure CleanProdBOMNo()
+    begin
+        OnCleanProdBOMNo(Rec);
+    end;
+
+    procedure IsProdOrder() Result: Boolean
+    begin
+        OnIsProdOrder(Rec, Result);
+    end;
+
+    procedure IsProdDemand() Result: Boolean
+    begin
+        exit(
+            ("Demand Type" = Database::Microsoft.Manufacturing.Document."Prod. Order Component") and
+            ("Demand Subtype" = Microsoft.Manufacturing.Document."Production Order Status"::Planned.AsInteger()));
+    end;
+
+    local procedure TestProdOrderNo()
+    begin
+        OnTestProdOrderNo(Rec);
     end;
 
     [IntegrationEvent(false, false)]
@@ -4003,7 +3918,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromActionMessage(var RequisitionLine: Record "Requisition Line"; var ActionMessageEntry: Record "Action Message Entry")
+    local procedure OnAfterTransferFromActionMessage(var RequisitionLine: Record "Requisition Line"; var ActionMessageEntry: Record "Action Message Entry"; var ReservEntry: Record "Reservation Entry")
     begin
     end;
 
@@ -4014,11 +3929,6 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetReplenishmentSystemFromProdOrderOnBeforeSetProdFields(var RequisitionLine: Record "Requisition Line"; Item: Record Item; Subcontracting: Boolean; PlanningResiliency: Boolean; var TempPlanningErrorLog: Record "Planning Error Log")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetReplenishmentSystemFromAssembly(var RequisitionLine: Record "Requisition Line"; Item: Record Item)
     begin
     end;
 
@@ -4044,11 +3954,6 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFromPurchaseLine(var ReqLine: Record "Requisition Line"; PurchLine: Record "Purchase Line")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromAsmHeader(var ReqLine: Record "Requisition Line"; AsmHeader: Record "Assembly Header")
     begin
     end;
 
@@ -4494,6 +4399,36 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowDimensions(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsProdOrder(var RequisitionLine: Record "Requisition Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCleanProdOrderNo(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCleanProdBOMNo(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestProdOrderNo(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDimFromRefOrderLineElseCase(var RequisitionLine: Record "Requisition Line"; DimSetIDArr: array[10] of Integer; i: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupRefOrderNoElseCase(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }

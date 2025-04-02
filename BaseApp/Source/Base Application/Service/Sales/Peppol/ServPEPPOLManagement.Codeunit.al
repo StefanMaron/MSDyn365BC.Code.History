@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Peppol;
 
 using Microsoft.Sales.Document;
@@ -112,6 +116,8 @@ codeunit 6458 "Serv. PEPPOL Management"
     begin
     end;
 
+#if not CLEAN26 
+#pragma warning disable AL0432
     // XML Port "Sales Credit Memo - PEPPOL 2.0"
 
     [EventSubscriber(ObjectType::XmlPort, XmlPort::"Sales Credit Memo - PEPPOL 2.0", 'OnInitialize', '', false, false)]
@@ -153,7 +159,11 @@ codeunit 6458 "Serv. PEPPOL Management"
                 until ServiceCrMemoLine.Next() = 0;
         end;
     end;
+#pragma warning restore AL0432    
+#endif 
 
+#if not CLEAN26 
+#pragma warning disable AL0432
     // XML Port "Sales Credit Memo - PEPPOL 2.1"
 
     [EventSubscriber(ObjectType::XmlPort, XmlPort::"Sales Credit Memo - PEPPOL 2.0", 'OnInitialize', '', false, false)]
@@ -195,6 +205,8 @@ codeunit 6458 "Serv. PEPPOL Management"
                 until ServiceCrMemoLine.Next() = 0;
         end;
     end;
+#pragma warning restore AL0432    
+#endif
 
     // XML Port "Sales Cr.Memo - PEPPOL BIS 3.0"
 
@@ -210,6 +222,7 @@ codeunit 6458 "Serv. PEPPOL Management"
             ServiceCrMemoHeader.SetRecFilter();
             ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
             ServiceCrMemoLine.SetFilter(Type, '<>%1', ServiceCrMemoLine.Type::" ");
+            OnBeforeFindServiceCrMemoLine(ServiceCrMemoLine);
             if ServiceCrMemoLine.FindSet() then
                 repeat
                     PEPPOLManagement.TransferLineToSalesLine(ServiceCrMemoLine, SalesLine);
@@ -254,6 +267,8 @@ codeunit 6458 "Serv. PEPPOL Management"
         end;
     end;
 
+#if not CLEAN26 
+#pragma warning disable AL0432
     // XML Port "Sales Invoice Memo - PEPPOL 2.0"
 
     [EventSubscriber(ObjectType::XmlPort, XmlPort::"Sales Invoice - PEPPOL 2.0", 'OnInitialize', '', false, false)]
@@ -295,7 +310,11 @@ codeunit 6458 "Serv. PEPPOL Management"
                 until ServiceInvoiceLine.Next() = 0;
         end;
     end;
+#pragma warning restore AL0432    
+#endif
 
+#if not CLEAN26 
+#pragma warning disable AL0432
     // XML Port "Sales Invoice Memo - PEPPOL 2.1"
 
     [EventSubscriber(ObjectType::XmlPort, XmlPort::"Sales Invoice - PEPPOL 2.1", 'OnInitialize', '', false, false)]
@@ -337,6 +356,8 @@ codeunit 6458 "Serv. PEPPOL Management"
                 until ServiceInvoiceLine.Next() = 0;
         end;
     end;
+#pragma warning restore AL0432    
+#endif
 
     // XML Port "Sales Invoice - PEPPOL BIS 3.0"
 
@@ -352,6 +373,7 @@ codeunit 6458 "Serv. PEPPOL Management"
             ServiceInvoiceHeader.SetRecFilter();
             ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
             ServiceInvoiceLine.SetFilter(Type, '<>%1', ServiceInvoiceLine.Type::" ");
+            OnBeforeFindServiceInvoiceLine(ServiceInvoiceLine);
             if ServiceInvoiceLine.FindSet() then
                 repeat
                     PEPPOLManagement.TransferLineToSalesLine(ServiceInvoiceLine, SalesLine);
@@ -394,6 +416,16 @@ codeunit 6458 "Serv. PEPPOL Management"
                     PEPPOLManagement.GetTaxCategories(SalesLine, TempVATProductPostingGroup);
                 until ServiceInvoiceLine.Next() = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindServiceInvoiceLine(var SalesInvoiceLine: Record "Service Invoice Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindServiceCrMemoLine(var ServiceCrMemoLine: Record "Service Cr.Memo Line")
+    begin
     end;
 
 }

@@ -13,6 +13,7 @@ table 9070 "Accounting Services Cue"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Requests to Approve"; Integer)

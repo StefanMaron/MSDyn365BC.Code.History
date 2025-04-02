@@ -85,6 +85,7 @@ page 1160 "Sales Documents"
     var
         Customer: Record Customer;
     begin
+        Customer.SetLoadFields("Name");
         Customer.Get(Rec."Customer No.");
         CustomerName := Customer.Name;
         StyleTxt := Rec.SetStyle();

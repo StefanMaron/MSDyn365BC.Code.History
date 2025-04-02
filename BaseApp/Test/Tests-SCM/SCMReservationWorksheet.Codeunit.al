@@ -18,7 +18,6 @@ codeunit 137023 "SCM Reservation Worksheet"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -1156,7 +1155,7 @@ codeunit 137023 "SCM Reservation Worksheet"
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, LocationCode, '', LibraryRandom.RandIntInRange(10, 10), WorkDate(), LibraryRandom.RandIntInRange(100, 200));
+        LibrarySales.CreateSalesOrder(SalesHeader, SalesLine, Item, LocationCode, '', LibraryRandom.RandIntInRange(10, 10), WorkDate(), LibraryRandom.RandIntInRange(100, 200));
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SalesLine, '', LotNo[1], LibraryRandom.RandIntInRange(4, 4));
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SalesLine, '', LotNo[2], LibraryRandom.RandIntInRange(3, 3));
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservEntry, SalesLine, '', LotNo[3], LibraryRandom.RandIntInRange(3, 3));

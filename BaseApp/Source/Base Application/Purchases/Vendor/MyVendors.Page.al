@@ -44,11 +44,14 @@ page 9151 "My Vendors"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balance';
-                    ToolTip = 'Specifies the balance. ';
+                    ToolTip = 'Specifies the balance.';
                     Visible = false;
 
                     trigger OnDrillDown()
+                    var
+                        Vendor: Record Vendor;
                     begin
+                        Vendor.Get(Rec."Vendor No.");
                         Vendor.OpenVendorLedgerEntries(false);
                     end;
                 }
@@ -80,30 +83,22 @@ page 9151 "My Vendors"
         SyncFieldsWithVendor();
     end;
 
-    trigger OnNewRecord(BelowxRec: Boolean)
-    begin
-        Clear(Vendor)
-    end;
-
     trigger OnOpenPage()
     begin
         Rec.SetRange("User ID", UserId);
     end;
 
-    var
-        Vendor: Record Vendor;
-
     local procedure SyncFieldsWithVendor()
     var
-        MyVendor: Record "My Vendor";
+        Vendor: Record Vendor;
     begin
-        Clear(Vendor);
-
+        Vendor.ReadIsolation(IsolationLevel::ReadCommitted);
+        Vendor.SetLoadFields(Name, "Phone No.");
         if Vendor.Get(Rec."Vendor No.") then
             if (Rec.Name <> Vendor.Name) or (Rec."Phone No." <> Vendor."Phone No.") then begin
                 Rec.Name := Vendor.Name;
                 Rec."Phone No." := Vendor."Phone No.";
-                if MyVendor.Get(Rec."User ID", Rec."Vendor No.") then
+                if not IsNullGuid(Rec.SystemId) then
                     Rec.Modify();
             end;
     end;

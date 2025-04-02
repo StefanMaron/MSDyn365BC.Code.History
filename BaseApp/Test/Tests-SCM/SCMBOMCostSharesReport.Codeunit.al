@@ -275,7 +275,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         Item.Modify(true);
 
         // [GIVEN] Create BOM for the item.
-        LibraryAssembly.CreateBOM(Item, 1);
+        LibraryManufacturing.CreateProductionBOM(Item, 1);
 
         // [WHEN] Run BOM Cost Shares page and invoke BOM Cost Shares distribution report from it.
         // [THEN] The page and report are running okay with the item no. "ITEM1>".
@@ -361,7 +361,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         Item.Validate("Unit Cost", LibraryRandom.RandDecInRange(50, 100, 2));
         Item.Modify(true);
 
-        LibraryAssembly.CreateRouting(Item, LibraryRandom.RandInt(2));
+        LibraryManufacturing.CreateProductionRouting(Item, LibraryRandom.RandInt(2));
         UpdateRoutingCostValues(Item."Routing No.");
     end;
 
@@ -673,7 +673,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         LibraryAssembly.CreateItem(InterimItem, InterimItem."Costing Method"::FIFO, InterimItem."Replenishment System"::"Prod. Order", '', '');
         InterimItem.Validate("Unit Cost", LibraryRandom.RandDecInRange(50, 100, 2));
         InterimItem.Modify(true);
-        LibraryAssembly.CreateRouting(InterimItem, LibraryRandom.RandInt(2));
+        LibraryManufacturing.CreateProductionRouting(InterimItem, LibraryRandom.RandInt(2));
         UpdateRoutingCostValues(InterimItem."Routing No.");
 
         LibraryAssembly.CreateItem(FinalItem, FinalItem."Costing Method"::FIFO, FinalItem."Replenishment System"::"Prod. Order", '', '');

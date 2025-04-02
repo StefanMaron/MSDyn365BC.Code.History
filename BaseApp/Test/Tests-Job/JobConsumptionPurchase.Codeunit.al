@@ -11,6 +11,13 @@ codeunit 136302 "Job Consumption Purchase"
 
     var
         DummyJobsSetup: Record "Jobs Setup";
+        LocationReceiveYesPutAwayNoBinsNo: Record Location;
+        LocationReceiveYesPutAwayNoBinsYes: Record Location;
+        LocationReceiveYesPutAwayYesBinsNo: Record Location;
+        LocationReceiveYesPutAwayYesBinsYes: Record Location;
+        LocationDirectedPutAwayAndPick: Record Location;
+        LocationReceiveNoPutAwayYesBinsNo: Record Location;
+        LocationReceiveNoPutAwayYesBinsYes: Record Location;
         LibraryErrorMessage: Codeunit "Library - Error Message";
         LibraryJob: Codeunit "Library - Job";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -39,6 +46,7 @@ codeunit 136302 "Job Consumption Purchase"
         EmptyValueErr: Label '%1 is empty in %2';
         WrongTotalCostAmtErr: Label 'Total cost amount must  be 0 in Posted Purchase Receipt %1.', Comment = '%1 = Document No. (e.g. "Total cost amount must be 0 in Posted Purchase Receipt 107031").';
         JobPlanningLineQuantityErr: Label 'The Project Planning Line Quantity should not change.';
+        MustNotBeChangedErr: Label '%1 must not be changed', Comment = '%1 = Field caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -1722,6 +1730,7 @@ codeunit 136302 "Job Consumption Purchase"
         TotalCost: Decimal;
     begin
         // [SCENARIO] Total Cost and Total Cost LCY after Receiving Purchase Order with Job having currency attached and Invoice it after removing Currency Code from Job.
+        // [545709] Purchase Order neeeds to be open to validate "Job Task No." in line when changing the currency code on the job.
 
         // [GIVEN] Attach Currency on Job, Create Purchase Order with Job, Update General Posting Setup, Post Purchase Order as Receive and Remove Currency from Job.
         Initialize();
@@ -1736,7 +1745,19 @@ codeunit 136302 "Job Consumption Purchase"
         UpdateAdjustmentAccounts(
           PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Post Purchase Order as Receive.
-        UpdateCurrencyOnJob(JobTask."Job No.", '');  // Update the Currency Code as Blank on Job.
+        Commit();
+
+        // [WHEN] Update the Currency Code as Blank on Job.
+        asserterror UpdateCurrencyOnJob(JobTask."Job No.", '');
+
+        // [THEN] Verify error message: "Status must be equal to Open...".
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Open));
+
+        // [GIVEN] Reopen Purchase Order.
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Update the Currency Code as Blank on Job.
+        UpdateCurrencyOnJob(JobTask."Job No.", '');
 
         // [WHEN] Post the Purchase Order as Invoice now.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
@@ -2612,7 +2633,7 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryInventory.SetPreventNegativeInventory(true);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreatePurchaseDocumentWithLocationAndJob(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Location.Code, -1);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Location.Code, -1);
 
         // [WHEN] Post the Purchase Order.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2651,7 +2672,7 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryInventory.SetPreventNegativeInventory(true);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreatePurchaseDocumentWithLocationAndJob(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", Location.Code, 1);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', Location.Code, 1);
 
         // [WHEN] Post the Return Order.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2690,7 +2711,7 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryInventory.SetPreventNegativeInventory(true);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreatePurchaseDocumentWithLocationAndJob(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", Location.Code, -1);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', Location.Code, -1);
 
         // [WHEN] Post the Return Order.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2734,7 +2755,7 @@ codeunit 136302 "Job Consumption Purchase"
         asserterror UndoPurchRcptLine(PurchaseReceiptNo, PurchaseReceiptLineNo);
 
         // [THEN] Error message informs user that there is nothing to Undo
-        Assert.ExpectedError('All lines have been already corrected.');
+        Assert.ExpectedError('There is no lines with quantity to process.');
     end;
 
     [Test]
@@ -3362,8 +3383,965 @@ codeunit 136302 "Job Consumption Purchase"
                 Job."Bill-to Customer No.", ValueEntry.TableCaption()));
     end;
 
+    [Test]
+    procedure SupportWarehousePurchaseOrderForJob_ReceiveYes_PutAwayNo_BinsNo_ReceiveAndInvoice()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [WMS] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
+        // [SCENARIO 545709] Location with "Require Receive" = true, "Require Put-away" = false, "Bin Mandatory" = false, "Directed Put-away and Pick" = false.
+        // [SCENARIO 545709] Receive Purchase Order with Job. Then Invoice the Purchase Order.
+        // [SCENARIO 545709] Cannot change "Job No." and "Job Task No." after Warehouse Receipt is created.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location.
+        CreateDefaultWarehouseEmployee(LocationReceiveYesPutAwayNoBinsNo);
+
+        // [GIVEN] Create Job with Purchase Order with Job.
+        CreatePurchaseDocumentWithLocationAndJob(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', LocationReceiveYesPutAwayNoBinsNo.Code, 1);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Warehouse Receipt from Purchase Order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        Commit();
+
+        // [GIVEN] Create 2nd Job Task for Job.
+        Job.Get(PurchaseLine."Job No.");
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [WHEN] Change "Job Task No." on Purchase Line.
+        asserterror PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+
+        // [THEN] Error: Quantity must not be changed when active Warehouse Activity Line exists.
+        Assert.ExpectedError(StrSubstNo(MustNotBeChangedErr, PurchaseLine.FieldCaption("Job Task No.")));
+
+        // [GIVEN] Create 2nd Job with Task.
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Change "Job No." and "Job Task No." on Purchase Line.
+        asserterror PurchaseLine.Validate("Job No.", JobTask."Job No.");
+
+        // [THEN] Error: Quantity must not be changed when active Warehouse Activity Line exists.
+        Assert.ExpectedError(StrSubstNo(MustNotBeChangedErr, PurchaseLine.FieldCaption("Job No.")));
+
+        // [WHEN] Post the Warehouse Receipt for Purchase Order.
+        PostWarehouseReceipt(PurchaseHeader."No.", PurchaseLine."No.");
+
+        // [THEN] Item Ledger Entry for Job Consumption is posted.
+        FindItemLedgEntry(
+          ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::"Negative Adjmt.",
+          ItemLedgerEntry."Document Type"::"Purchase Receipt", FindPurchaseReceiptNo(PurchaseLine));
+        ItemLedgerEntry.TestField(Quantity, -PurchaseLine.Quantity);
+        ItemLedgerEntry.TestField("Job No.", PurchaseLine."Job No.");
+        ItemLedgerEntry.TestField("Job Task No.", PurchaseLine."Job Task No.");
+
+        // [WHEN] Post the Purchase Invoice.
+        PurchaseHeader.GetBySystemId(PurchaseHeader.SystemId);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] Job Ledger Entry for Job Usage is posted.
+        FindJobLedgerEntry(JobLedgerEntry, DocumentNo, PurchaseLine."Job No.");
+        JobLedgerEntry.TestField("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+        JobLedgerEntry.TestField(Type, JobLedgerEntry.Type::Item);
+        JobLedgerEntry.TestField("No.", PurchaseLine."No.");
+        JobLedgerEntry.TestField("Location Code", PurchaseLine."Location Code");
+        JobLedgerEntry.TestField(Quantity, PurchaseLine.Quantity);
+        JobLedgerEntry.TestField("Bin Code", '');
+    end;
+
+    [Test]
+    procedure SupportWarehousePurchaseOrderForJob_ReceiveYes_PutAwayNo_BinsNo_ReceiveAndUndo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        // [FEATURE] [WMS] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
+        // [SCENARIO 545709] Location with "Require Receive" = true, "Require Put-away" = false, "Bin Mandatory" = false, "Directed Put-away and Pick" = false.
+        // [SCENARIO 545709] Receive Purchase Order with Job. Then Undo the Purchase Receipt.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location.
+        CreateDefaultWarehouseEmployee(LocationReceiveYesPutAwayNoBinsNo);
+
+        // [GIVEN] Create Job with Purchase Order with Job.
+        CreatePurchaseDocumentWithLocationAndJob(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', LocationReceiveYesPutAwayNoBinsNo.Code, 1);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Warehouse Receipt from Purchase Order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [GIVEN] Post the Warehouse Receipt for Purchase Order.
+        PostWarehouseReceipt(PurchaseHeader."No.", PurchaseLine."No.");
+
+        // [WHEN] Undo Purchase Receipt.
+        GetPurchaseLines(PurchaseHeader, PurchaseLine);
+        UndoPurchRcpt(PurchaseLine);
+
+        // [THEN] There are no Item Ledger or Value entries with empty Source Type/Source No.
+        PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
+        PurchRcptLine.SetRange("Order Line No.", PurchaseLine."Line No.");
+        PurchRcptLine.SetLoadFields("Buy-from Vendor No.");
+        PurchRcptLine.FindLast();
+        VerifyUndoLedgerEntrySource(
+          ItemLedgerEntry."Document Type"::"Purchase Receipt", PurchRcptLine."Document No.", PurchRcptLine."Line No.",
+          ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."Buy-from Vendor No.");
+    end;
+
+    [Test]
+    procedure SupportWarehousePurchaseOrderForJob_ReceiveYes_PutAwayNo_BinsYes_ReceiveAndInvoice()
+    var
+        Bin: Record Bin;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        WarehouseEntry: Record "Warehouse Entry";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [WMS] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
+        // [SCENARIO 545709] Location with "Require Receive" = true, "Require Put-away" = false, "Bin Mandatory" = true, "Directed Put-away and Pick" = false.
+        // [SCENARIO 545709] Receive Purchase Order with Job. Then Invoice the Purchase Order.
+        // [SCENARIO 545709] Cannot change "Job No." and "Job Task No." after Warehouse Receipt is created.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location.
+        CreateDefaultWarehouseEmployee(LocationReceiveYesPutAwayNoBinsYes);
+
+        // [GIVEN] Receipt Bin is set for the location.
+        Bin.Get(LocationReceiveYesPutAwayNoBinsYes.Code, LocationReceiveYesPutAwayNoBinsYes."Receipt Bin Code");
+
+        // [GIVEN] Create Job with Purchase Order with Job.
+        CreatePurchaseDocumentWithLocationAndJob(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', LocationReceiveYesPutAwayNoBinsYes.Code, 1);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Warehouse Receipt from Purchase Order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        Commit();
+
+        // [GIVEN] Create 2nd Job Task for Job.
+        Job.Get(PurchaseLine."Job No.");
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [WHEN] Change "Job Task No." on Purchase Line.
+        asserterror PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+
+        // [THEN] Error: Quantity must not be changed when active Warehouse Activity Line exists.
+        Assert.ExpectedError(StrSubstNo(MustNotBeChangedErr, PurchaseLine.FieldCaption("Job Task No.")));
+
+        // [GIVEN] Create 2nd Job with Task.
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Change "Job No." and "Job Task No." on Purchase Line.
+        asserterror PurchaseLine.Validate("Job No.", JobTask."Job No.");
+
+        // [THEN] Error: Quantity must not be changed when active Warehouse Activity Line exists.
+        Assert.ExpectedError(StrSubstNo(MustNotBeChangedErr, PurchaseLine.FieldCaption("Job No.")));
+
+        // [WHEN] Post the Warehouse Receipt for Purchase Order.
+        PostWarehouseReceipt(PurchaseHeader."No.", PurchaseLine."No.");
+
+        // [THEN] Item Ledger Entry for Job Consumption is posted.
+        FindItemLedgEntry(
+          ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::"Negative Adjmt.",
+          ItemLedgerEntry."Document Type"::"Purchase Receipt", FindPurchaseReceiptNo(PurchaseLine));
+        ItemLedgerEntry.TestField(Quantity, -PurchaseLine.Quantity);
+        ItemLedgerEntry.TestField("Job No.", PurchaseLine."Job No.");
+        ItemLedgerEntry.TestField("Job Task No.", PurchaseLine."Job Task No.");
+
+        // [THEN] Warehouse Entries for Receipt and Job Consumption are posted.
+        WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"P. Order");
+        WarehouseEntry.SetRange("Source No.", PurchaseLine."Document No.");
+        WarehouseEntry.SetRange("Source Line No.", PurchaseLine."Line No.");
+        Assert.RecordCount(WarehouseEntry, 2);
+
+        WarehouseEntry.FindFirst();
+        WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
+        WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
+        WarehouseEntry.TestField("Bin Code", Bin.Code);
+        WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Positive Adjmt.");
+        WarehouseEntry.TestField(Quantity, PurchaseLine.Quantity);
+
+        WarehouseEntry.Next();
+        WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
+        WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
+        WarehouseEntry.TestField("Bin Code", Bin.Code);
+        WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Negative Adjmt.");
+        WarehouseEntry.TestField(Quantity, -PurchaseLine.Quantity);
+
+        // [WHEN] Post the Purchase Invoice.
+        PurchaseHeader.GetBySystemId(PurchaseHeader.SystemId);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] Job Ledger Entry for Job Usage is posted.
+        FindJobLedgerEntry(JobLedgerEntry, DocumentNo, PurchaseLine."Job No.");
+        JobLedgerEntry.TestField("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+        JobLedgerEntry.TestField(Type, JobLedgerEntry.Type::Item);
+        JobLedgerEntry.TestField("No.", PurchaseLine."No.");
+        JobLedgerEntry.TestField("Location Code", PurchaseLine."Location Code");
+        JobLedgerEntry.TestField(Quantity, PurchaseLine.Quantity);
+        JobLedgerEntry.TestField("Bin Code", Bin.Code);
+    end;
+
+    [Test]
+    procedure SupportWarehousePurchaseOrderForJob_ReceiveYes_PutAwayNo_BinsYes_ReceiveAndUndo()
+    var
+        Bin: Record Bin;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        // [FEATURE] [WMS] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
+        // [SCENARIO 545709] Location with "Require Receive" = true, "Require Put-away" = false, "Bin Mandatory" = true, "Directed Put-away and Pick" = false.
+        // [SCENARIO 545709] Receive Purchase Order with Job. Then Undo the Purchase Receipt.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location.
+        CreateDefaultWarehouseEmployee(LocationReceiveYesPutAwayNoBinsYes);
+
+        // [GIVEN] Receipt Bin is set for the location.
+        Bin.Get(LocationReceiveYesPutAwayNoBinsYes.Code, LocationReceiveYesPutAwayNoBinsYes."Receipt Bin Code");
+
+        // [GIVEN] Create Job with Purchase Order with Job.
+        CreatePurchaseDocumentWithLocationAndJob(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', LocationReceiveYesPutAwayNoBinsYes.Code, 1);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Warehouse Receipt from Purchase Order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [GIVEN] Post the Warehouse Receipt for Purchase Order.
+        PostWarehouseReceipt(PurchaseHeader."No.", PurchaseLine."No.");
+
+        // [WHEN] Undo Purchase Receipt.
+        GetPurchaseLines(PurchaseHeader, PurchaseLine);
+        UndoPurchRcpt(PurchaseLine);
+
+        // [THEN] There are no Item Ledger or Value entries with empty Source Type/Source No.
+        PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
+        PurchRcptLine.SetRange("Order Line No.", PurchaseLine."Line No.");
+        PurchRcptLine.SetLoadFields("Buy-from Vendor No.");
+        PurchRcptLine.FindLast();
+        VerifyUndoLedgerEntrySource(
+          ItemLedgerEntry."Document Type"::"Purchase Receipt", PurchRcptLine."Document No.", PurchRcptLine."Line No.",
+          ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."Buy-from Vendor No.");
+
+        // [THEN] Warehouse Entries for Receipt and Job Consumption are undone.
+        WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"P. Order");
+        WarehouseEntry.SetRange("Source No.", PurchaseLine."Document No.");
+        WarehouseEntry.SetRange("Source Line No.", PurchaseLine."Line No.");
+        Assert.RecordCount(WarehouseEntry, 4);
+
+        WarehouseEntry.SetRange("Item No.", PurchaseLine."No.");
+        WarehouseEntry.SetRange("Location Code", PurchaseLine."Location Code");
+        WarehouseEntry.SetRange("Bin Code", Bin.Code);
+        WarehouseEntry.CalcSums(Quantity);
+        WarehouseEntry.TestField(Quantity, 0);
+    end;
+
+    [Test]
+    procedure SupportWarehousePurchaseOrderForJob_ReceiveYes_PutAwayYes_BinsNo_OnlyLineWithJob_ReceiveAndInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [WMS] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
+        // [SCENARIO 545709] Location with "Require Receive" = true, "Require Put-away" = true, "Bin Mandatory" = false, "Directed Put-away and Pick" = false.
+        // [SCENARIO 545709] Receive Purchase Order that has one line with Job. 
+        // [SCENARIO 545709] Ensure that Warehouse Put-away not created, as Receipt is auto-completed for the line with Job.
+        // [SCENARIO 545709] Ensure that "Create Put-away" action from Posted Warehouse Receipt still skips the line with Job.
+        // [SCENARIO 545709] Then Invoice the Purchase Order for line with Job.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location.
+        CreateDefaultWarehouseEmployee(LocationReceiveYesPutAwayYesBinsNo);
+
+        // [GIVEN] Create Job with Purchase Order with Job.
+        CreatePurchaseDocumentWithLocationAndJob(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', LocationReceiveYesPutAwayYesBinsNo.Code, 1);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Warehouse Receipt from Purchase Order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [WHEN] Post the Warehouse Receipt for Purchase Order.
+        PostWarehouseReceipt(PurchaseHeader."No.", PurchaseLine."No.");
+
+        // [THEN] Item Ledger Entry for Job Consumption is posted.
+        FindItemLedgEntry(
+          ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::"Negative Adjmt.",
+          ItemLedgerEntry."Document Type"::"Purchase Receipt", FindPurchaseReceiptNo(PurchaseLine));
+        ItemLedgerEntry.TestField(Quantity, -PurchaseLine.Quantity);
+        ItemLedgerEntry.TestField("Job No.", PurchaseLine."Job No.");
+        ItemLedgerEntry.TestField("Job Task No.", PurchaseLine."Job Task No.");
+
+        // [THEN] Ensure that Warehouse Put-away is not created.
+        Assert.AreEqual(false, LibraryWarehouse.FindWhseActivityBySourceDoc(WarehouseActivityHeader, Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", PurchaseLine."Line No."), 'Warehouse Put-away is created for the line with Job.');
+
+        // [WHEN] Create Put-away from the posted warehouse receipt.
+        FindPostedWhseReceiptLine(PostedWhseReceiptLine, PurchaseLine);
+        asserterror CreatePutAwayFromPostedWhseRcpt(WarehouseActivityLine, PostedWhseReceiptLine);
+
+        // [THEN] Error: There is nothing to handle.
+        Assert.ExpectedError('There is nothing to handle.');
+
+        // [THEN] Ensure that Warehouse Put-away is still not created.
+        Assert.AreEqual(false, LibraryWarehouse.FindWhseActivityBySourceDoc(WarehouseActivityHeader, Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", PurchaseLine."Line No."), 'Warehouse Put-away is created for the line with Job.');
+
+        // [WHEN] Post the Purchase Invoice.
+        PurchaseHeader.GetBySystemId(PurchaseHeader.SystemId);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] Job Ledger Entry for Job Usage is posted.
+        FindJobLedgerEntry(JobLedgerEntry, DocumentNo, PurchaseLine."Job No.");
+        JobLedgerEntry.TestField("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+        JobLedgerEntry.TestField(Type, JobLedgerEntry.Type::Item);
+        JobLedgerEntry.TestField("No.", PurchaseLine."No.");
+        JobLedgerEntry.TestField("Location Code", PurchaseLine."Location Code");
+        JobLedgerEntry.TestField(Quantity, PurchaseLine.Quantity);
+        JobLedgerEntry.TestField("Bin Code", '');
+    end;
+
+    [Test]
+    procedure SupportWarehousePurchaseOrderForJob_ReceiveYes_PutAwayYes_BinsNo_MixtureOfLines_ReceiveAndInvoice()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineWithoutJob: Record "Purchase Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [WMS] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
+        // [SCENARIO 545709] Location with "Require Receive" = true, "Require Put-away" = true, "Bin Mandatory" = false, "Directed Put-away and Pick" = false.
+        // [SCENARIO 545709] Receive Purchase Order that has two lines: 1st with Job, 2nd without Job for another Item.
+        // [SCENARIO 545709] Cannot change "Job No." and "Job Task No." after Warehouse Receipt is created.
+        // [SCENARIO 545709] Ensure that Warehouse Put-away is created only for the line without Job.
+        // [SCENARIO 545709] Ensure that "Create Put-away" action from Posted Warehouse Receipt still skips the line with Job.
+        // [SCENARIO 545709] Then Invoice the Purchase Order for line with Job.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location.
+        CreateDefaultWarehouseEmployee(LocationReceiveYesPutAwayYesBinsNo);
+
+        // [GIVEN] Create Job with Purchase Order with Job.
+        CreatePurchaseDocumentWithLocationAndJob(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', LocationReceiveYesPutAwayYesBinsNo.Code, 1);
+
+        // [GIVEN] Create Purchase Order line for another Item and without Job.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLineWithoutJob, PurchaseHeader, PurchaseLineWithoutJob.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
+        PurchaseLineWithoutJob.Validate("Location Code", LocationReceiveYesPutAwayYesBinsNo.Code);
+        PurchaseLineWithoutJob.Modify(true);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Warehouse Receipt from Purchase Order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        Commit();
+
+        // [GIVEN] Create 2nd Job Task for Job.
+        Job.Get(PurchaseLine."Job No.");
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [WHEN] Change "Job Task No." on Purchase Line.
+        asserterror PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+
+        // [THEN] Error: Quantity must not be changed when active Warehouse Activity Line exists.
+        Assert.ExpectedError(StrSubstNo(MustNotBeChangedErr, PurchaseLine.FieldCaption("Job Task No.")));
+
+        // [GIVEN] Create 2nd Job with Task.
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Change "Job No." and "Job Task No." on Purchase Line.
+        asserterror PurchaseLine.Validate("Job No.", JobTask."Job No.");
+
+        // [THEN] Error: Quantity must not be changed when active Warehouse Activity Line exists.
+        Assert.ExpectedError(StrSubstNo(MustNotBeChangedErr, PurchaseLine.FieldCaption("Job No.")));
+
+        // [WHEN] Post the Warehouse Receipt for Purchase Order.
+        PostWarehouseReceipt(PurchaseHeader."No.", PurchaseLine."No.");
+
+        // [THEN] Item Ledger Entry for Job Consumption is posted.
+        FindItemLedgEntry(
+          ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::"Negative Adjmt.",
+          ItemLedgerEntry."Document Type"::"Purchase Receipt", FindPurchaseReceiptNo(PurchaseLine));
+        ItemLedgerEntry.TestField(Quantity, -PurchaseLine.Quantity);
+        ItemLedgerEntry.TestField("Job No.", PurchaseLine."Job No.");
+        ItemLedgerEntry.TestField("Job Task No.", PurchaseLine."Job Task No.");
+
+        // [THEN] Ensure that Warehouse Put-away is created only for the line without Job.
+        FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.TestField("Item No.", PurchaseLineWithoutJob."No.");
+
+        // [GIVEN] Delete existing Warehouse Put-away.
+        LibraryWarehouse.FindWhseActivityBySourceDoc(WarehouseActivityHeader, Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", PurchaseLineWithoutJob."Line No.");
+        WarehouseActivityHeader.Find();
+        WarehouseActivityHeader.Delete(true);
+
+        // [WHEN] Create Put-away from the posted warehouse receipt.
+        FindPostedWhseReceiptLine(PostedWhseReceiptLine, PurchaseLineWithoutJob);
+        CreatePutAwayFromPostedWhseRcpt(WarehouseActivityLine, PostedWhseReceiptLine);
+
+        // [THEN] Ensure that Warehouse Put-away is still created only for the line without Job.
+        FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.TestField("Item No.", PurchaseLineWithoutJob."No.");
+
+        // [WHEN] Post the Purchase Invoice.
+        PurchaseHeader.GetBySystemId(PurchaseHeader.SystemId);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] Job Ledger Entry for Job Usage is posted.
+        FindJobLedgerEntry(JobLedgerEntry, DocumentNo, PurchaseLine."Job No.");
+        JobLedgerEntry.TestField("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+        JobLedgerEntry.TestField(Type, JobLedgerEntry.Type::Item);
+        JobLedgerEntry.TestField("No.", PurchaseLine."No.");
+        JobLedgerEntry.TestField("Location Code", PurchaseLine."Location Code");
+        JobLedgerEntry.TestField(Quantity, PurchaseLine.Quantity);
+        JobLedgerEntry.TestField("Bin Code", '');
+    end;
+
+    [Test]
+    procedure SupportWarehousePurchaseOrderForJob_ReceiveYes_PutAwayYes_BinsNo_OnlyLineWithJob_ReceiveAndUndo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        // [FEATURE] [WMS] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
+        // [SCENARIO 545709] Location with "Require Receive" = true, "Require Put-away" = true, "Bin Mandatory" = false, "Directed Put-away and Pick" = false.
+        // [SCENARIO 545709] Receive Purchase Order that has one line with Job. 
+        // [SCENARIO 545709] Then Undo the Purchase Receipt.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location.
+        CreateDefaultWarehouseEmployee(LocationReceiveYesPutAwayYesBinsNo);
+
+        // [GIVEN] Create Job with Purchase Order with Job.
+        CreatePurchaseDocumentWithLocationAndJob(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', LocationReceiveYesPutAwayYesBinsNo.Code, 1);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Warehouse Receipt from Purchase Order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [WHEN] Post the Warehouse Receipt for Purchase Order.
+        PostWarehouseReceipt(PurchaseHeader."No.", PurchaseLine."No.");
+
+        // [WHEN] Undo Purchase Receipt.
+        GetPurchaseLines(PurchaseHeader, PurchaseLine);
+        UndoPurchRcpt(PurchaseLine);
+
+        // [THEN] There are no Item Ledger or Value entries with empty Source Type/Source No.
+        PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
+        PurchRcptLine.SetRange("Order Line No.", PurchaseLine."Line No.");
+        PurchRcptLine.SetLoadFields("Buy-from Vendor No.");
+        PurchRcptLine.FindLast();
+        VerifyUndoLedgerEntrySource(
+          ItemLedgerEntry."Document Type"::"Purchase Receipt", PurchRcptLine."Document No.", PurchRcptLine."Line No.",
+          ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."Buy-from Vendor No.");
+    end;
+
+    [Test]
+    procedure SupportWarehousePurchaseOrderForJob_ReceiveYes_PutAwayYes_BinsYes_MixtureOfLines_ReceiveAndInvoice()
+    var
+        Bin: Record Bin;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineWithoutJob: Record "Purchase Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        WarehouseEntry: Record "Warehouse Entry";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [WMS] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
+        // [SCENARIO 545709] Location with "Require Receive" = true, "Require Put-away" = true, "Bin Mandatory" = true, "Directed Put-away and Pick" = false.
+        // [SCENARIO 545709] Receive Purchase Order that has two lines: 1st with Job, 2nd without Job for another Item.
+        // [SCENARIO 545709] Cannot change "Job No." and "Job Task No." after Warehouse Receipt is created.
+        // [SCENARIO 545709] Ensure that Warehouse Put-away is created only for the line without Job.
+        // [SCENARIO 545709] Ensure that "Create Put-away" action from Posted Warehouse Receipt still skips the line with Job.
+        // [SCENARIO 545709] Then Invoice the Purchase Order for line with Job.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location.
+        CreateDefaultWarehouseEmployee(LocationReceiveYesPutAwayYesBinsYes);
+
+        // [GIVEN] Receipt Bin is set for the location.
+        Bin.Get(LocationReceiveYesPutAwayYesBinsYes.Code, LocationReceiveYesPutAwayYesBinsYes."Receipt Bin Code");
+
+        // [GIVEN] Create Job with Purchase Order with Job.
+        CreatePurchaseDocumentWithLocationAndJob(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', LocationReceiveYesPutAwayYesBinsYes.Code, 1);
+
+        // [GIVEN] Create Purchase Order line for another Item and without Job.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLineWithoutJob, PurchaseHeader, PurchaseLineWithoutJob.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
+        PurchaseLineWithoutJob.Validate("Location Code", LocationReceiveYesPutAwayYesBinsYes.Code);
+        PurchaseLineWithoutJob.Modify(true);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Warehouse Receipt from Purchase Order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        Commit();
+
+        // [GIVEN] Create 2nd Job Task for Job.
+        Job.Get(PurchaseLine."Job No.");
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [WHEN] Change "Job Task No." on Purchase Line.
+        asserterror PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+
+        // [THEN] Error: Quantity must not be changed when active Warehouse Activity Line exists.
+        Assert.ExpectedError(StrSubstNo(MustNotBeChangedErr, PurchaseLine.FieldCaption("Job Task No.")));
+
+        // [GIVEN] Create 2nd Job with Task.
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Change "Job No." and "Job Task No." on Purchase Line.
+        asserterror PurchaseLine.Validate("Job No.", JobTask."Job No.");
+
+        // [THEN] Error: Quantity must not be changed when active Warehouse Activity Line exists.
+        Assert.ExpectedError(StrSubstNo(MustNotBeChangedErr, PurchaseLine.FieldCaption("Job No.")));
+
+        // [WHEN] Post the Warehouse Receipt for Purchase Order.
+        PostWarehouseReceipt(PurchaseHeader."No.", PurchaseLine."No.");
+
+        // [THEN] Item Ledger Entry for Job Consumption is posted.
+        FindItemLedgEntry(
+          ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::"Negative Adjmt.",
+          ItemLedgerEntry."Document Type"::"Purchase Receipt", FindPurchaseReceiptNo(PurchaseLine));
+        ItemLedgerEntry.TestField(Quantity, -PurchaseLine.Quantity);
+        ItemLedgerEntry.TestField("Job No.", PurchaseLine."Job No.");
+        ItemLedgerEntry.TestField("Job Task No.", PurchaseLine."Job Task No.");
+
+        // [THEN] Warehouse Entries for Receipt and Job Consumption are posted.
+        WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"P. Order");
+        WarehouseEntry.SetRange("Source No.", PurchaseLine."Document No.");
+        WarehouseEntry.SetRange("Source Line No.", PurchaseLine."Line No.");
+        Assert.RecordCount(WarehouseEntry, 2);
+
+        WarehouseEntry.FindFirst();
+        WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
+        WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
+        WarehouseEntry.TestField("Bin Code", Bin.Code);
+        WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Positive Adjmt.");
+        WarehouseEntry.TestField(Quantity, PurchaseLine.Quantity);
+
+        WarehouseEntry.Next();
+        WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
+        WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
+        WarehouseEntry.TestField("Bin Code", Bin.Code);
+        WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Negative Adjmt.");
+        WarehouseEntry.TestField(Quantity, -PurchaseLine.Quantity);
+
+        // [THEN] Ensure that Warehouse Put-away is created only for the line without Job.
+        FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
+        Assert.RecordCount(WarehouseActivityLine, 2);
+        WarehouseActivityLine.SetRange("Item No.", PurchaseLineWithoutJob."No.");
+        Assert.RecordCount(WarehouseActivityLine, 2);
+
+        // [GIVEN] Delete existing Warehouse Put-away.
+        LibraryWarehouse.FindWhseActivityBySourceDoc(WarehouseActivityHeader, Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", PurchaseLineWithoutJob."Line No.");
+        WarehouseActivityHeader.Find();
+        WarehouseActivityHeader.Delete(true);
+
+        // [WHEN] Create Put-away from the posted warehouse receipt.
+        FindPostedWhseReceiptLine(PostedWhseReceiptLine, PurchaseLineWithoutJob);
+        CreatePutAwayFromPostedWhseRcpt(WarehouseActivityLine, PostedWhseReceiptLine);
+
+        // [THEN] Ensure that Warehouse Put-away is still created only for the line without Job.
+        FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
+        Assert.RecordCount(WarehouseActivityLine, 2);
+        WarehouseActivityLine.SetRange("Item No.", PurchaseLineWithoutJob."No.");
+        Assert.RecordCount(WarehouseActivityLine, 2);
+
+        // [WHEN] Post the Purchase Invoice.
+        PurchaseHeader.GetBySystemId(PurchaseHeader.SystemId);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] Job Ledger Entry for Job Usage is posted.
+        FindJobLedgerEntry(JobLedgerEntry, DocumentNo, PurchaseLine."Job No.");
+        JobLedgerEntry.TestField("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+        JobLedgerEntry.TestField(Type, JobLedgerEntry.Type::Item);
+        JobLedgerEntry.TestField("No.", PurchaseLine."No.");
+        JobLedgerEntry.TestField("Location Code", PurchaseLine."Location Code");
+        JobLedgerEntry.TestField(Quantity, PurchaseLine.Quantity);
+        JobLedgerEntry.TestField("Bin Code", Bin.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler2')]
+    procedure SupportWarehousePurchaseOrderForJob_DirectedPutAwayAndPick_MixtureOfLines_ReceiveAndInvoice()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineWithoutJob: Record "Purchase Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        WarehouseEntry: Record "Warehouse Entry";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        LotNo: array[2] of Code[50];
+        LotQuantity: array[2] of Decimal;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [WMS] [Item Tracking] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
+        // [SCENARIO 545709] Location with "Directed Put-away and Pick" = true.
+        // [SCENARIO 545709] Receive Purchase Order that has two lines: 1st with Job and Lot Item Tracking (two lots), 2nd without Job for another Item.
+        // [SCENARIO 545709] Ensure that Warehouse Put-away is created only for the line without Job.
+        // [SCENARIO 545709] Ensure that "Create Put-away" action from Posted Warehouse Receipt still skips the line with Job.
+        // [SCENARIO 545709] Then Invoice the Purchase Order for line with Job.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location.
+        CreateDefaultWarehouseEmployee(LocationDirectedPutAwayAndPick);
+
+        // [GIVEN] Create Item with Lot tracking.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Receipt Bin is set for the location.
+        Bin.Get(LocationDirectedPutAwayAndPick.Code, LocationDirectedPutAwayAndPick."Receipt Bin Code");
+
+        // [GIVEN] Create Job with Purchase Order with Job.
+        CreatePurchaseDocumentWithLocationAndJob(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Item."No.", LocationDirectedPutAwayAndPick.Code, 1);
+
+        // [GIVEN] Create Purchase Order line for another Item and without Job.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLineWithoutJob, PurchaseHeader, PurchaseLineWithoutJob.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
+        PurchaseLineWithoutJob.Validate("Location Code", LocationDirectedPutAwayAndPick.Code);
+        PurchaseLineWithoutJob.Modify(true);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Warehouse Receipt from Purchase Order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [GIVEN] Set Lot No. for the Item with Job in Warehouse Receipt line. Handled in ItemTrackingLinesModalPageHandler2.
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(LotNo[1]);
+        LotQuantity[1] := LibraryRandom.RandDecInDecimalRange(1, 3, 2);
+        LibraryVariableStorage.Enqueue(LotQuantity[1]);
+
+        LotNo[2] := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(LotNo[2]);
+        LotQuantity[2] := PurchaseLine.Quantity - LotQuantity[1];
+        LibraryVariableStorage.Enqueue(LotQuantity[2]);
+
+        WarehouseReceiptLine.SetRange("Source Type", Database::"Purchase Line");
+        WarehouseReceiptLine.SetRange("Source Subtype", PurchaseLine."Document Type");
+        WarehouseReceiptLine.SetRange("Source No.", PurchaseLine."Document No.");
+        WarehouseReceiptLine.SetRange("Source Line No.", PurchaseLine."Line No.");
+        WarehouseReceiptLine.FindFirst();
+
+        WarehouseReceiptLine.OpenItemTrackingLines();
+
+        // [WHEN] Post the Warehouse Receipt for Purchase Order.
+        PostWarehouseReceipt(PurchaseHeader."No.", PurchaseLine."No.");
+
+        // [THEN] Item Ledger Entry for Job Consumption is posted.
+        FindItemLedgEntry(
+          ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::"Negative Adjmt.",
+          ItemLedgerEntry."Document Type"::"Purchase Receipt", FindPurchaseReceiptNo(PurchaseLine));
+        ItemLedgerEntry.TestField(Quantity, -LotQuantity[1]);
+        ItemLedgerEntry.TestField("Job No.", PurchaseLine."Job No.");
+        ItemLedgerEntry.TestField("Job Task No.", PurchaseLine."Job Task No.");
+        ItemLedgerEntry.TestField("Lot No.", LotNo[1]);
+
+        ItemLedgerEntry.Next();
+        ItemLedgerEntry.TestField(Quantity, -LotQuantity[2]);
+        ItemLedgerEntry.TestField("Job No.", PurchaseLine."Job No.");
+        ItemLedgerEntry.TestField("Job Task No.", PurchaseLine."Job Task No.");
+        ItemLedgerEntry.TestField("Lot No.", LotNo[2]);
+
+        // [THEN] Warehouse Entries for Receipt and Job Consumption are posted.
+        WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"P. Order");
+        WarehouseEntry.SetRange("Source No.", PurchaseLine."Document No.");
+        WarehouseEntry.SetRange("Source Line No.", PurchaseLine."Line No.");
+        Assert.RecordCount(WarehouseEntry, 4);
+
+        WarehouseEntry.FindFirst();
+        WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
+        WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
+        WarehouseEntry.TestField("Bin Code", Bin.Code);
+        WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Positive Adjmt.");
+        WarehouseEntry.TestField(Quantity, LotQuantity[1]);
+        WarehouseEntry.TestField("Lot No.", LotNo[1]);
+
+        WarehouseEntry.Next();
+        WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
+        WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
+        WarehouseEntry.TestField("Bin Code", Bin.Code);
+        WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Negative Adjmt.");
+        WarehouseEntry.TestField(Quantity, -LotQuantity[1]);
+        WarehouseEntry.TestField("Lot No.", LotNo[1]);
+
+        WarehouseEntry.Next();
+        WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
+        WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
+        WarehouseEntry.TestField("Bin Code", Bin.Code);
+        WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Positive Adjmt.");
+        WarehouseEntry.TestField(Quantity, LotQuantity[2]);
+        WarehouseEntry.TestField("Lot No.", LotNo[2]);
+
+        WarehouseEntry.Next();
+        WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
+        WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
+        WarehouseEntry.TestField("Bin Code", Bin.Code);
+        WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Negative Adjmt.");
+        WarehouseEntry.TestField(Quantity, -LotQuantity[2]);
+        WarehouseEntry.TestField("Lot No.", LotNo[2]);
+
+        // [THEN] Ensure that Warehouse Put-away is created only for the line without Job.
+        FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
+        Assert.RecordCount(WarehouseActivityLine, 2);
+        WarehouseActivityLine.SetRange("Item No.", PurchaseLineWithoutJob."No.");
+        Assert.RecordCount(WarehouseActivityLine, 2);
+
+        // [WHEN] Post the Purchase Invoice.
+        PurchaseHeader.GetBySystemId(PurchaseHeader.SystemId);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] Job Ledger Entry for Job Usage is posted.
+        FindJobLedgerEntry(JobLedgerEntry, DocumentNo, PurchaseLine."Job No.");
+        JobLedgerEntry.TestField("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+        JobLedgerEntry.TestField(Type, JobLedgerEntry.Type::Item);
+        JobLedgerEntry.TestField("No.", PurchaseLine."No.");
+        JobLedgerEntry.TestField("Location Code", PurchaseLine."Location Code");
+        JobLedgerEntry.TestField(Quantity, LotQuantity[1]);
+        JobLedgerEntry.TestField("Bin Code", Bin.Code);
+        JobLedgerEntry.TestField("Lot No.", LotNo[1]);
+
+        JobLedgerEntry.Next();
+        JobLedgerEntry.TestField("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+        JobLedgerEntry.TestField(Type, JobLedgerEntry.Type::Item);
+        JobLedgerEntry.TestField("No.", PurchaseLine."No.");
+        JobLedgerEntry.TestField("Location Code", PurchaseLine."Location Code");
+        JobLedgerEntry.TestField(Quantity, LotQuantity[2]);
+        JobLedgerEntry.TestField("Bin Code", Bin.Code);
+        JobLedgerEntry.TestField("Lot No.", LotNo[2]);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,CreateInvtPutAwayRequestPageHandler')]
+    procedure SupportWarehousePurchaseOrderForJob_ReceiveNo_PutAwayYes_BinsNo_ReceiveAndInvoice()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [WMS] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
+        // [SCENARIO 545709] Location with "Require Receive" = false, "Require Put-away" = true, "Bin Mandatory" = false.
+        // [SCENARIO 545709] Receive Purchase Order with Job via Inventory Put-away. Then Invoice the Purchase Order.
+        // [SCENARIO 545709] Cannot change "Job No." and "Job Task No." after Inventory Put-away is created.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location.
+        CreateDefaultWarehouseEmployee(LocationReceiveNoPutAwayYesBinsNo);
+
+        // [GIVEN] Create Job with Purchase Order with Job.
+        CreatePurchaseDocumentWithLocationAndJob(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', LocationReceiveNoPutAwayYesBinsNo.Code, 1);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Inventory Put-away from Purchase Order.
+        Commit();
+        PurchaseHeader.CreateInvtPutAwayPick();
+
+        // [GIVEN] Create 2nd Job Task for Job.
+        Job.Get(PurchaseLine."Job No.");
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [WHEN] Change "Job Task No." on Purchase Line.
+        asserterror PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+
+        // [THEN] Error: Quantity must not be changed when active Warehouse Activity Line exists.
+        Assert.ExpectedError(StrSubstNo(MustNotBeChangedErr, PurchaseLine.FieldCaption("Job Task No.")));
+
+        // [GIVEN] Create 2nd Job with Task.
+        CreateJobWithJobTask(JobTask);
+
+        // [WHEN] Change "Job No." and "Job Task No." on Purchase Line.
+        asserterror PurchaseLine.Validate("Job No.", JobTask."Job No.");
+
+        // [THEN] Error: Quantity must not be changed when active Warehouse Activity Line exists.
+        Assert.ExpectedError(StrSubstNo(MustNotBeChangedErr, PurchaseLine.FieldCaption("Job No.")));
+
+        // [WHEN] Post the Inventory Put-away for Purchase Order.
+        LibraryWarehouse.FindWhseActivityBySourceDoc(WarehouseActivityHeader, Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", PurchaseLine."Line No.");
+        WarehouseActivityHeader.Find();
+        FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Invt. Put-away");
+        LibraryWarehouse.SetQtyToHandleWhseActivity(WarehouseActivityHeader, WarehouseActivityLine.Quantity);
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+
+        // [THEN] Item Ledger Entry for Job Consumption is posted.
+        FindItemLedgEntry(
+          ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::"Negative Adjmt.",
+          ItemLedgerEntry."Document Type"::"Purchase Receipt", FindPurchaseReceiptNo(PurchaseLine));
+        ItemLedgerEntry.TestField(Quantity, -PurchaseLine.Quantity);
+        ItemLedgerEntry.TestField("Job No.", PurchaseLine."Job No.");
+        ItemLedgerEntry.TestField("Job Task No.", PurchaseLine."Job Task No.");
+
+        // [WHEN] Post the Purchase Invoice.
+        PurchaseHeader.GetBySystemId(PurchaseHeader.SystemId);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [THEN] Job Ledger Entry for Job Usage is posted.
+        FindJobLedgerEntry(JobLedgerEntry, DocumentNo, PurchaseLine."Job No.");
+        JobLedgerEntry.TestField("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+        JobLedgerEntry.TestField(Type, JobLedgerEntry.Type::Item);
+        JobLedgerEntry.TestField("No.", PurchaseLine."No.");
+        JobLedgerEntry.TestField("Location Code", PurchaseLine."Location Code");
+        JobLedgerEntry.TestField(Quantity, PurchaseLine.Quantity);
+        JobLedgerEntry.TestField("Bin Code", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,CreateInvtPutAwayRequestPageHandler')]
+    procedure SupportWarehousePurchaseOrderForJob_ReceiveNo_PutAwayYes_BinsYes_ReceiveAndInvoice()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        WarehouseEntry: Record "Warehouse Entry";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        LotNo: Code[50];
+        PurchaseReceiptNo: Code[20];
+    begin
+        // [FEATURE] [WMS] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
+        // [SCENARIO 545709] Location with "Require Receive" = false, "Require Put-away" = true, "Bin Mandatory" = true.
+        // [SCENARIO 545709] Receive and Invoice Purchase Order with Job and Lot Item Tracking via Inventory Put-away.
+        Initialize();
+
+        // [GIVEN] Set Warehouse Employee for the location.
+        CreateDefaultWarehouseEmployee(LocationReceiveNoPutAwayYesBinsYes);
+
+        // [GIVEN] Create Item with Lot tracking.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Bin for receiving.
+        LibraryWarehouse.CreateBin(Bin, LocationReceiveNoPutAwayYesBinsYes.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Create Job with Purchase Order with Job.
+        CreatePurchaseDocumentWithLocationAndJob(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Item."No.", LocationReceiveNoPutAwayYesBinsYes.Code, 1);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Inventory Put-away from Purchase Order.
+        Commit();
+        PurchaseHeader.CreateInvtPutAwayPick();
+
+        // [WHEN] Receive and Invoice the Inventory Put-away for Purchase Order.
+        LotNo := LibraryUtility.GenerateGUID();
+
+        LibraryWarehouse.FindWhseActivityBySourceDoc(WarehouseActivityHeader, Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", PurchaseLine."Line No.");
+        WarehouseActivityHeader.Find();
+        FindWarehouseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Invt. Put-away");
+        WarehouseActivityLine.Validate("Bin Code", Bin.Code);
+        WarehouseActivityLine.Validate("Lot No.", LotNo);
+        WarehouseActivityLine.Modify(true);
+        LibraryWarehouse.SetQtyToHandleWhseActivity(WarehouseActivityHeader, WarehouseActivityLine.Quantity);
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
+
+        // [THEN] Item Ledger Entry for Job Consumption is posted.
+        PurchaseReceiptNo := FindPurchaseReceiptNo(PurchaseLine);
+        FindItemLedgEntry(
+          ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::"Negative Adjmt.",
+          ItemLedgerEntry."Document Type"::"Purchase Receipt", PurchaseReceiptNo);
+        ItemLedgerEntry.TestField(Quantity, -PurchaseLine.Quantity);
+        ItemLedgerEntry.TestField("Job No.", PurchaseLine."Job No.");
+        ItemLedgerEntry.TestField("Job Task No.", PurchaseLine."Job Task No.");
+        ItemLedgerEntry.TestField("Lot No.", LotNo);
+
+        // [THEN] Warehouse Entries for Receipt and Job Consumption are posted.
+        WarehouseEntry.SetRange("Reference Document", WarehouseEntry."Reference Document"::"Posted Rcpt.");
+        WarehouseEntry.SetRange("Reference No.", PurchaseReceiptNo);
+        Assert.RecordCount(WarehouseEntry, 2);
+
+        WarehouseEntry.FindFirst();
+        WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
+        WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
+        WarehouseEntry.TestField("Bin Code", Bin.Code);
+        WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Positive Adjmt.");
+        WarehouseEntry.TestField(Quantity, PurchaseLine.Quantity);
+        WarehouseEntry.TestField("Lot No.", LotNo);
+
+        WarehouseEntry.Next();
+        WarehouseEntry.TestField("Item No.", PurchaseLine."No.");
+        WarehouseEntry.TestField("Location Code", PurchaseLine."Location Code");
+        WarehouseEntry.TestField("Bin Code", Bin.Code);
+        WarehouseEntry.TestField("Entry Type", WarehouseEntry."Entry Type"::"Negative Adjmt.");
+        WarehouseEntry.TestField(Quantity, -PurchaseLine.Quantity);
+        WarehouseEntry.TestField("Lot No.", LotNo);
+
+        // [THEN] Job Ledger Entry for Job Usage is posted.
+        PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
+        PurchInvHeader.FindFirst();
+        FindJobLedgerEntry(JobLedgerEntry, PurchInvHeader."No.", PurchaseLine."Job No.");
+        JobLedgerEntry.TestField("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+        JobLedgerEntry.TestField(Type, JobLedgerEntry.Type::Item);
+        JobLedgerEntry.TestField("No.", PurchaseLine."No.");
+        JobLedgerEntry.TestField("Location Code", PurchaseLine."Location Code");
+        JobLedgerEntry.TestField(Quantity, PurchaseLine.Quantity);
+        JobLedgerEntry.TestField("Bin Code", Bin.Code);
+        JobLedgerEntry.TestField("Lot No.", LotNo);
+    end;
+
     local procedure Initialize()
     var
+        WarehouseEmployee: Record "Warehouse Employee";
 #if not CLEAN25
         PurchasePrice: Record "Purchase Price";
         SalesPrice: Record "Sales Price";
@@ -3373,6 +4351,7 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Consumption Purchase");
         LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
+        WarehouseEmployee.DeleteAll();
 
         if Initialized then
             exit;
@@ -3398,9 +4377,45 @@ codeunit 136302 "Job Consumption Purchase"
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup.Modify();
 
+        CreateLocationsWithWarehousing();
+
         Initialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Consumption Purchase");
+    end;
+
+    local procedure CreateLocationsWithWarehousing()
+    var
+        Bin: Record "Bin";
+    begin
+        // Location with "Require Receive" = true, "Require Put-away" = false, "Bin Mandatory" = false.
+        LibraryWarehouse.CreateLocationWMS(LocationReceiveYesPutAwayNoBinsNo, false, false, false, true, false);
+
+        // Location with "Require Receive" = true, "Require Put-away" = false, "Bin Mandatory" = true.
+        LibraryWarehouse.CreateLocationWMS(LocationReceiveYesPutAwayNoBinsYes, true, false, false, true, false);
+        // Create Bin for the location. Set as Receipt Bin.
+        LibraryWarehouse.CreateBin(Bin, LocationReceiveYesPutAwayNoBinsYes.Code, LibraryUtility.GenerateGUID(), '', '');
+        LocationReceiveYesPutAwayNoBinsYes."Receipt Bin Code" := Bin.Code;
+        LocationReceiveYesPutAwayNoBinsYes.Modify(true);
+
+        // Location with "Require Receive" = true, "Require Put-away" = true, "Bin Mandatory" = false.
+        LibraryWarehouse.CreateLocationWMS(LocationReceiveYesPutAwayYesBinsNo, false, true, false, true, false);
+
+        // Location with "Require Receive" = true, "Require Put-away" = true, "Bin Mandatory" = true.
+        LibraryWarehouse.CreateLocationWMS(LocationReceiveYesPutAwayYesBinsYes, true, true, false, true, false);
+        // Create Bin for the location. Set as Receipt Bin.
+        LibraryWarehouse.CreateBin(Bin, LocationReceiveYesPutAwayYesBinsYes.Code, LibraryUtility.GenerateGUID(), '', '');
+        LocationReceiveYesPutAwayYesBinsYes."Receipt Bin Code" := Bin.Code;
+        LocationReceiveYesPutAwayYesBinsYes.Modify(true);
+
+        // Location with "Directed Put-away and Pick" = true.
+        LibraryWarehouse.CreateFullWMSLocation(LocationDirectedPutAwayAndPick, 1);
+
+        // Location with "Require Receive" = false, "Require Put-away" = true, "Bin Mandatory" = false.
+        LibraryWarehouse.CreateLocationWMS(LocationReceiveNoPutAwayYesBinsNo, false, true, false, false, false);
+
+        // Location with "Require Receive" = false, "Require Put-away" = true, "Bin Mandatory" = true.
+        LibraryWarehouse.CreateLocationWMS(LocationReceiveNoPutAwayYesBinsYes, true, true, false, false, false);
     end;
 
     local procedure PostJobPurchaseOrder(JobCurrency: Code[10]; PurchaseOrderCurrency: Code[10])
@@ -3699,7 +4714,7 @@ codeunit 136302 "Job Consumption Purchase"
         // Take Random Quantity.
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseHeader(DocumentType, Vendor."No.", PurchaseHeader);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDecInDecimalRange(5, 10, 2));
         AttachJobToPurchaseDocument(JobTask, PurchaseHeader, 0);
     end;
 
@@ -3823,14 +4838,15 @@ codeunit 136302 "Job Consumption Purchase"
         AttachJobToPurchaseDocument(JobTask, PurchaseHeader, 0);
     end;
 
-    local procedure CreatePurchaseDocumentWithLocationAndJob(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; LocationCode: Code[10];
-                                                                                                                                                                       SignFactor: Integer)
+    local procedure CreatePurchaseDocumentWithLocationAndJob(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; SignFactor: Integer)
     var
         JobTask: Record "Job Task";
     begin
         CreateJobWithJobTask(JobTask);
+        if ItemNo = '' then
+            ItemNo := CreateItem();
         CreatePurchaseDocumentWithJobTask(
-          PurchaseHeader, JobTask, DocumentType, PurchaseLine.Type::Item, CreateItem());
+          PurchaseHeader, JobTask, DocumentType, PurchaseLine.Type::Item, ItemNo);
         GetPurchaseLines(PurchaseHeader, PurchaseLine);
         PurchaseLine.Validate("Location Code", LocationCode);
         PurchaseLine.Validate(Quantity, SignFactor * PurchaseLine.Quantity);
@@ -5660,10 +6676,30 @@ codeunit 136302 "Job Consumption Purchase"
     end;
 
     [ModalPageHandler]
+    procedure ItemTrackingLinesModalPageHandler2(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+
+        ItemTrackingLines.Next();
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
         EnterQuantityToCreate.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure CreateInvtPutAwayRequestPageHandler(var CreateInvtPutawayPickMvmt: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreateInvtPutawayPickMvmt.CreateInventorytPutAway.SetValue(true);
+        CreateInvtPutawayPickMvmt.OK().Invoke();
     end;
 
     local procedure UndoPurchReciptAndAdjustCostItemEntries(var PurchaseLine: Record "Purchase Line"; var Item: Record Item)
@@ -5682,6 +6718,77 @@ codeunit 136302 "Job Consumption Purchase"
         ValueEntry.SetRange("Document Type", ItemLedgerDocumentType::"Purchase Invoice");
         ValueEntry.SetRange("Source Type", ValueEntry."Source Type"::Customer);
         ValueEntry.FindFirst();
+    end;
+
+    local procedure CreateDefaultWarehouseEmployee(var NewDefaultLocation: Record Location)
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        WarehouseEmployee.SetRange(Default, true);
+        if WarehouseEmployee.FindFirst() then begin
+            if WarehouseEmployee."Location Code" <> NewDefaultLocation.Code then begin
+                WarehouseEmployee.Delete(true);
+                LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
+            end;
+        end else
+            LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, NewDefaultLocation.Code, true);
+    end;
+
+    local procedure PostWarehouseReceipt(SourceNo: Code[20]; ItemNo: Code[20])
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        WarehouseReceiptLine.SetRange("Source Document", WarehouseReceiptLine."Source Document"::"Purchase Order");
+        WarehouseReceiptLine.SetRange("Source No.", SourceNo);
+        WarehouseReceiptLine.SetRange("Item No.", ItemNo);
+        WarehouseReceiptLine.SetLoadFields("No.");
+        WarehouseReceiptLine.FindFirst();
+
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+    end;
+
+    local procedure FindPurchaseReceiptNo(PurchaseLine: Record "Purchase Line"): Code[20]
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
+        PurchRcptLine.SetRange("Order Line No.", PurchaseLine."Line No.");
+        PurchRcptLine.SetLoadFields("Document No.");
+        PurchRcptLine.FindLast();
+        exit(PurchRcptLine."Document No.");
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    begin
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindSet();
+    end;
+
+    local procedure CreatePutAwayFromPostedWhseRcpt(var WarehouseActivityLine: Record "Warehouse Activity Line"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
+    var
+        WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
+    begin
+        WhseSourceCreateDocument.SetPostedWhseReceiptLine(PostedWhseReceiptLine, '');
+        WhseSourceCreateDocument.SetHideValidationDialog(true);
+        WhseSourceCreateDocument.UseRequestPage(false);
+        WhseSourceCreateDocument.RunModal();
+
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, PostedWhseReceiptLine."Source Type", PostedWhseReceiptLine."Source Subtype",
+          PostedWhseReceiptLine."Source No.", PostedWhseReceiptLine."Source Line No.");
+    end;
+
+    local procedure FindPostedWhseReceiptLine(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; PurchaseLine: Record "Purchase Line")
+    begin
+        PostedWhseReceiptLine.SetRange("Source Type", DATABASE::"Purchase Line");
+        PostedWhseReceiptLine.SetRange("Source Subtype", PurchaseLine."Document Type");
+        PostedWhseReceiptLine.SetRange("Source No.", PurchaseLine."Document No.");
+        PostedWhseReceiptLine.SetRange("Source Line No.", PurchaseLine."Line No.");
+        PostedWhseReceiptLine.FindFirst();
     end;
 }
 

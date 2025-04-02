@@ -188,9 +188,9 @@ page 401 "Purch. Credit Memo Statistics"
         Vend.CalcFields("Balance (LCY)");
 
         PurchCrMemoLine.CalcVATAmountLines(Rec, TempVATAmountLine);
-        CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
-        CurrPage.SubForm.PAGE.InitGlobals(Rec."Currency Code", false, false, false, false, Rec."VAT Base Discount %");
-        CurrPage.SubForm.PAGE.ShowGSTAmountACY();
+        CurrPage.SubForm.Page.SetTempVATAmountLine(TempVATAmountLine);
+        CurrPage.SubForm.Page.InitGlobals(Rec."Currency Code", false, false, false, false, Rec."VAT Base Discount %");
+        CurrPage.SubForm.Page.ShowGSTAmountACY();
     end;
 
     var
@@ -246,7 +246,7 @@ page 401 "Purch. Credit Memo Statistics"
                     TotalParcels += Round(PurchCrMemoLine.Quantity / PurchCrMemoLine."Units per Parcel", 1, '>');
                 if PurchCrMemoLine."VAT %" <> VATPercentage then
                     if VATPercentage = 0 then
-                        VATPercentage := PurchCrMemoLine."VAT %"
+                        VATPercentage := PurchCrMemoLine.GetVATPct()
                     else
                         VATPercentage := -1;
 

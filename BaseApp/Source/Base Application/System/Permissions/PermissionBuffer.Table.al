@@ -4,15 +4,7 @@ namespace System.Security.AccessControl;
 table 9852 "Permission Buffer"
 {
     Caption = 'Permission Buffer';
-#if not CLEAN23
-    DataPerCompany = false;
-    ReplicateData = false;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Table will be moved to temporary';
-    ObsoleteTag = '23.0';
-#else 
     TableType = Temporary;
-#endif
     DataClassification = CustomerContent;
 
     fields

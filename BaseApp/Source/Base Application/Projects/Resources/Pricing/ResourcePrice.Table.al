@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA28 
 namespace Microsoft.Projects.Resources.Pricing;
 
 using Microsoft.Finance.Currency;
@@ -14,7 +15,7 @@ table 201 "Resource Price"
     ObsoleteTag = '16.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '26.0';
+    ObsoleteTag = '28.0';
 #endif    
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
     DataClassification = CustomerContent;
@@ -78,3 +79,5 @@ table 201 "Resource Price"
 #pragma warning restore AA0074
 }
 
+ 
+#endif

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Reports;
 
 using Microsoft.Foundation.Shipping;
@@ -425,6 +429,8 @@ report 707 "Inventory - Availability Plan"
 
     requestpage
     {
+        AboutTitle = 'About Inventory - Availability Plan';
+        AboutText = 'Get an overview of specific items and stock-keeping units, and their availability.';
         SaveValues = true;
 
         layout

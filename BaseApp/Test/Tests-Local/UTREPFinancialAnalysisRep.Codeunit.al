@@ -114,7 +114,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
           0, LibraryRandom.RandDecInRange(100, 200, 2));    // False for ShowAmountsInAddReportingCurrency, 0 for AdditionalCurrencyAmount and Random Number for AdditionalCurrencyAmount.
     end;
 
-    local procedure ReportTypeWithAndWithoutDimension(GlobalDimension1Code: Code[20]; ShowAmountsInAddReportingCurrency: Boolean; IncomeBalance: Option; ReportType: Option; AdditionalCurrencyAmount: Decimal; Amount: Decimal)
+    local procedure ReportTypeWithAndWithoutDimension(GlobalDimension1Code: Code[20]; ShowAmountsInAddReportingCurrency: Boolean; IncomeBalance: Enum "G/L Account Report Type"; ReportType: Option; AdditionalCurrencyAmount: Decimal; Amount: Decimal)
     var
         GLAccountNo: Code[20];
     begin
@@ -138,7 +138,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         LibraryVariableStorage.Clear();
     end;
 
-    local procedure CreateGLAccountWithEntry(GlobalDimension1Code: Code[20]; AdditionalCurrencyAmount: Decimal; Amount: Decimal; IncomeBalance: Option): Code[20]
+    local procedure CreateGLAccountWithEntry(GlobalDimension1Code: Code[20]; AdditionalCurrencyAmount: Decimal; Amount: Decimal; IncomeBalance: Enum "G/L Account Report Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
     begin

@@ -143,6 +143,7 @@ table 167 Job
                 ATOLink: Record "Assemble-to-Order Link";
                 JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
                 ConfirmManagement: Codeunit "Confirm Management";
+                JobArchiveManagement: Codeunit "Job Archive Management";
                 IsHandled: Boolean;
                 UndidCompleteStatus: Boolean;
                 ShouldDeleteReservationEntries: Boolean;
@@ -321,14 +322,6 @@ table 167 Job
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
-        }
-        field(57; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
         }
         field(58; "Bill-to Name"; Text[100])
         {
@@ -1237,14 +1230,6 @@ table 167 Job
             Caption = 'Completely Picked';
             FieldClass = FlowField;
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
     }
 
     keys
@@ -1279,7 +1264,10 @@ table 167 Job
 
     trigger OnDelete()
     var
-        WhseRequest: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
+        CommentLine: Record "Comment Line";
+        MoveEntries: Codeunit MoveEntries;
+        JobArchiveManagement: Codeunit "Job Archive Management";
     begin
         ConfirmDeletion();
 
@@ -1299,7 +1287,7 @@ table 167 Job
             RemoveFromMyJobs();
 
         // Delete all warehouse requests and warehouse pick requests associated with the Job
-        WhseRequest.DeleteRequest(Database::Job, 0, "No.");
+        WarehouseRequest.DeleteRequest(Database::Job, 0, "No.");
         DeleteWhsePickRelation();
     end;
 
@@ -1344,6 +1332,8 @@ table 167 Job
     end;
 
     trigger OnRename()
+    var
+        CommentLine: Record "Comment Line";
     begin
         UpdateJobNoInReservationEntries();
         DimMgt.RenameDefaultDim(Database::Job, xRec."No.", "No.");
@@ -1355,13 +1345,9 @@ table 167 Job
         JobsSetup: Record "Jobs Setup";
         PostCode: Record "Post Code";
         Job: Record Job;
-        Cust: Record Customer;
         Cont: Record Contact;
         ContBusinessRelation: Record "Contact Business Relation";
-        CommentLine: Record "Comment Line";
         Location: Record Location;
-        MoveEntries: Codeunit MoveEntries;
-        JobArchiveManagement: Codeunit "Job Archive Management";
         HideValidationDialog: Boolean;
 
         AssociatedEntriesExistErr: Label 'You cannot change %1 because one or more entries are associated with this %2.', Comment = '%1 = Name of field used in the error; %2 = The name of the Project table';
@@ -1582,11 +1568,12 @@ table 167 Job
     local procedure GetCustomerContact(CustomerNo: Code[20]; var ContactNo: Code[20]; var Contact: Text[100])
     var
         ContactBusinessRelation: Record "Contact Business Relation";
-        Cust: Record Customer;
+        Customer: Record Customer;
     begin
-        if Cust.Get(CustomerNo) then begin
-            if Cust."Primary Contact No." <> '' then
-                ContactNo := Cust."Primary Contact No."
+        Customer.SetLoadFields("Primary Contact No.", Contact);
+        if Customer.Get(CustomerNo) then begin
+            if Customer."Primary Contact No." <> '' then
+                ContactNo := Customer."Primary Contact No."
             else begin
                 ContactBusinessRelation.SetCurrentKey("Link to Table", "No.");
                 ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
@@ -1595,7 +1582,7 @@ table 167 Job
                 if ContactBusinessRelation.FindFirst() then
                     ContactNo := ContactBusinessRelation."Contact No.";
             end;
-            Contact := Cust.Contact;
+            Contact := Customer.Contact;
         end;
     end;
 
@@ -1641,17 +1628,17 @@ table 167 Job
 
     procedure UpdateBillToCust(ContactNo: Code[20])
     var
-        ContBusinessRelation: Record "Contact Business Relation";
-        Cust: Record Customer;
-        Cont: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        Customer: Record Customer;
+        Contact: Record Contact;
     begin
-        if Cont.Get(ContactNo) then begin
-            "Bill-to Contact No." := Cont."No.";
-            if Cont.Type = Cont.Type::Person then
-                "Bill-to Contact" := Cont.Name
+        if Contact.Get(ContactNo) then begin
+            "Bill-to Contact No." := Contact."No.";
+            if Contact.Type = Contact.Type::Person then
+                "Bill-to Contact" := Contact.Name
             else
-                if Cust.Get("Bill-to Customer No.") then
-                    "Bill-to Contact" := Cust.Contact
+                if Customer.Get("Bill-to Customer No.") then
+                    "Bill-to Contact" := Customer.Contact
                 else
                     "Bill-to Contact" := '';
         end else begin
@@ -1659,11 +1646,11 @@ table 167 Job
             exit;
         end;
 
-        OnUpdateBillToCustOnAfterAssignBillToContact(Rec, Cont);
+        OnUpdateBillToCustOnAfterAssignBillToContact(Rec, Contact);
 
-        if ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.") then begin
+        if ContactBusinessRelation.FindByContact(ContactBusinessRelation."Link to Table"::Customer, Contact."Company No.") then begin
             if "Bill-to Customer No." = '' then
-                Validate("Bill-to Customer No.", ContBusinessRelation."No.")
+                Validate("Bill-to Customer No.", ContactBusinessRelation."No.")
             else
                 CheckContactBillToCustomerBusRelation();
         end else
@@ -1799,16 +1786,16 @@ table 167 Job
 
     local procedure CurrencyUpdatePurchLines()
     var
-        PurchLine: Record "Purchase Line";
+        PurchaseLine: Record "Purchase Line";
     begin
         Modify();
-        PurchLine.SetRange("Job No.", "No.");
-        if PurchLine.FindSet() then
+        PurchaseLine.SetRange("Job No.", "No.");
+        if PurchaseLine.FindSet(true) then
             repeat
-                PurchLine.Validate("Job Currency Code", "Currency Code");
-                PurchLine.Validate("Job Task No.");
-                PurchLine.Modify();
-            until PurchLine.Next() = 0;
+                PurchaseLine.Validate("Job Currency Code", "Currency Code");
+                PurchaseLine.Validate("Job Task No.");
+                PurchaseLine.Modify();
+            until PurchaseLine.Next() = 0;
     end;
 
     local procedure ChangeJobCompletionStatus()
@@ -2155,14 +2142,6 @@ table 167 Job
         end;
     end;
 
-#if not CLEAN23
-    [Obsolete('This method always returns true. Remove this method.', '23.0')]
-    procedure IsJobSimplificationAvailable(): Boolean
-    begin
-        exit(true);
-    end;
-#endif
-
     local procedure AddToMyJobs(ProjectManager: Code[50])
     var
         MyJob: Record "My Job";
@@ -2204,13 +2183,13 @@ table 167 Job
     local procedure DeleteWhsePickRelation()
     var
         WhsePickRequest: Record "Whse. Pick Request";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
     begin
         WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Job);
         WhsePickRequest.SetRange("Document No.", Rec."No.");
         WhsePickRequest.DeleteAll(true);
 
-        ItemTrackingMgt.DeleteWhseItemTrkgLines(Database::Job, 0, Rec."No.", '', 0, 0, '', false);
+        ItemTrackingManagement.DeleteWhseItemTrkgLines(Database::Job, 0, Rec."No.", '', 0, 0, '', false);
     end;
 
     local procedure DeleteRelatedJobTasks()
@@ -2267,11 +2246,11 @@ table 167 Job
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
         ReportSelections: Record "Report Selections";
-        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        ReportDistributionManagement: Codeunit "Report Distribution Management";
     begin
         DocumentSendingProfile.Send(
           ReportSelections.Usage::JQ.AsInteger(), Rec, "No.", "Bill-to Customer No.",
-          ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), FieldNo("No."));
+          ReportDistributionManagement.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
     procedure PrintRecords(ShowRequestForm: Boolean)
@@ -2287,11 +2266,11 @@ table 167 Job
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         ReportSelections: Record "Report Selections";
-        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        ReportDistributionManagement: Codeunit "Report Distribution Management";
     begin
         DocumentSendingProfile.TrySendToEMail(
           ReportSelections.Usage::JQ.AsInteger(), Rec, FieldNo("No."),
-          ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), ShowDialog);
+          ReportDistributionManagement.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), ShowDialog);
     end;
 
     procedure RecalculateJobWIP()
@@ -2354,7 +2333,7 @@ table 167 Job
         TimeSheetDetail: Record "Time Sheet Detail";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        if IsTemporary then
+        if IsTemporary() then
             exit;
 
         if not GraphMgtGeneralTools.IsApiEnabled() then
@@ -2394,11 +2373,13 @@ table 167 Job
     end;
 
     local procedure ContactLookup(CustomerNo: Code[20]; ContactNo: Code[20]): Code[20]
+    var
+        Customer: Record Customer;
     begin
         if (CustomerNo <> '') and Cont.Get(ContactNo) then
             Cont.SetRange("Company No.", Cont."Company No.")
         else
-            if Cust.Get(CustomerNo) then begin
+            if Customer.Get(CustomerNo) then begin
                 if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, CustomerNo) then
                     Cont.SetRange("Company No.", ContBusinessRelation."Contact No.");
             end else
@@ -2743,6 +2724,7 @@ table 167 Job
         if CustomerNo = '' then
             exit(true);
 
+        Customer.SetLoadFields("Disable Search by Name");
         if not Customer.Get(CustomerNo) then
             exit(true);
 
@@ -3358,4 +3340,3 @@ table 167 Job
     begin
     end;
 }
-

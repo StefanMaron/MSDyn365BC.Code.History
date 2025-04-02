@@ -2,11 +2,15 @@ namespace System.Security.AccessControl;
 
 page 9874 "Permission Set By Sec. Group"
 {
+    ApplicationArea = Basic, Suite;
     Caption = 'Permission Set by Security Group';
+    AboutTitle = 'About Permission Set by Security Group';
+    AboutText = 'Get an overview of how permission sets are assigned to your security groups. Tip: If you go into analysis mode, you can analyze data in other ways than what you see in the list.';
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
     ModifyAllowed = false;
+    UsageCategory = Lists;
     PageType = Worksheet;
     SourceTable = "Aggregate Permission Set";
 

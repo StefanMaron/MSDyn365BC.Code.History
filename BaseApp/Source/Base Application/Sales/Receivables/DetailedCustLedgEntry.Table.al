@@ -27,48 +27,58 @@ table 379 "Detailed Cust. Ledg. Entry"
         field(1; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
+            ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
         }
         field(2; "Cust. Ledger Entry No."; Integer)
         {
             Caption = 'Cust. Ledger Entry No.';
             TableRelation = "Cust. Ledger Entry";
+            ToolTip = 'Specifies the entry number of the customer ledger entry that the detailed customer ledger entry line was created for.';
         }
         field(3; "Entry Type"; Enum "Detailed CV Ledger Entry Type")
         {
             Caption = 'Entry Type';
+            ToolTip = 'Specifies the entry type of the detailed customer ledger entry.';
         }
         field(4; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the posting date of the detailed customer ledger entry.';
         }
         field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
+            ToolTip = 'Specifies the document type of the detailed customer ledger entry.';
         }
         field(6; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+            ToolTip = 'Specifies the document number of the transaction that created the entry.';
         }
         field(7; Amount; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
+            ToolTip = 'Specifies the amount of the detailed customer ledger entry.';
         }
         field(8; "Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Amount (LCY)';
+            ToolTip = 'Specifies the amount of the entry in LCY.';
         }
         field(9; "Customer No."; Code[20])
         {
             Caption = 'Customer No.';
             TableRelation = Customer;
+            ToolTip = 'Specifies the customer account number to which the entry is posted.';
         }
         field(10; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+            ToolTip = 'Specifies the code for the currency if the amount is in a foreign currency.';
         }
         field(11; "User ID"; Code[50])
         {
@@ -76,7 +86,7 @@ table 379 "Detailed Cust. Ledg. Entry"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
             ValidateTableRelation = false;
-
+            ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
             trigger OnValidate()
             var
                 UserSelection: Codeunit "User Selection";
@@ -88,6 +98,7 @@ table 379 "Detailed Cust. Ledg. Entry"
         {
             Caption = 'Source Code';
             TableRelation = "Source Code";
+            ToolTip = 'Specifies the source code that specifies where the entry was created.';
         }
         field(13; "Transaction No."; Integer)
         {
@@ -101,6 +112,7 @@ table 379 "Detailed Cust. Ledg. Entry"
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
+            ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
         }
         field(16; "Debit Amount"; Decimal)
         {
@@ -108,6 +120,7 @@ table 379 "Detailed Cust. Ledg. Entry"
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Debit Amount';
+            ToolTip = 'Specifies the total of the ledger entries that represent debits.';
         }
         field(17; "Credit Amount"; Decimal)
         {
@@ -115,32 +128,38 @@ table 379 "Detailed Cust. Ledg. Entry"
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Credit Amount';
+            ToolTip = 'Specifies the total of the ledger entries that represent credits.';
         }
         field(18; "Debit Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Debit Amount (LCY)';
+            ToolTip = 'Specifies the total of the ledger entries that represent debits, expressed in LCY.';
         }
         field(19; "Credit Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Credit Amount (LCY)';
+            ToolTip = 'Specifies the total of the ledger entries that represent credits, expressed in LCY.';
         }
         field(20; "Initial Entry Due Date"; Date)
         {
             Caption = 'Initial Entry Due Date';
+            ToolTip = 'Specifies the date on which the initial entry is due for payment.';
         }
         field(21; "Initial Entry Global Dim. 1"; Code[20])
         {
             Caption = 'Initial Entry Global Dim. 1';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
+            ToolTip = 'Specifies the Global Dimension 1 code of the initial customer ledger entry.';
         }
         field(22; "Initial Entry Global Dim. 2"; Code[20])
         {
             Caption = 'Initial Entry Global Dim. 2';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
+            ToolTip = 'Specifies the Global Dimension 2 code of the initial customer ledger entry.';
         }
         field(24; "Gen. Bus. Posting Group"; Code[20])
         {
@@ -169,6 +188,7 @@ table 379 "Detailed Cust. Ledg. Entry"
         field(35; "Initial Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Initial Document Type';
+            ToolTip = 'Specifies the document type that the initial customer ledger entry was created with.';
         }
         field(36; "Applied Cust. Ledger Entry No."; Integer)
         {
@@ -177,11 +197,13 @@ table 379 "Detailed Cust. Ledg. Entry"
         field(37; Unapplied; Boolean)
         {
             Caption = 'Unapplied';
+            ToolTip = 'Specifies whether the entry has been unapplied (undone) from the Unapply Customer Entries window by the entry no. shown in the Unapplied by Entry No. field.';
         }
         field(38; "Unapplied by Entry No."; Integer)
         {
             Caption = 'Unapplied by Entry No.';
             TableRelation = "Detailed Cust. Ledg. Entry";
+            ToolTip = 'Specifies the number of the correcting entry, if the original entry has been unapplied (undone) from the Unapply Customer Entries window.';
         }
         field(39; "Remaining Pmt. Disc. Possible"; Decimal)
         {
@@ -216,6 +238,7 @@ table 379 "Detailed Cust. Ledg. Entry"
             Caption = 'Customer Posting Group';
             Editable = false;
             TableRelation = "Customer Posting Group";
+            ToolTip = 'Specifies the customer''s market type to link business transactions to.';
         }
         field(45; "Exch. Rate Adjmt. Reg. No."; Integer)
         {

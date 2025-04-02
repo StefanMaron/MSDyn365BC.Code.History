@@ -15,11 +15,11 @@ page 7775 "Copilot AI Capabilities"
     PageType = Document;
     ApplicationArea = All;
     UsageCategory = Administration;
-    Caption = 'Copilot & AI capabilities';
+    Caption = 'Copilot & agent capabilities';
     DataCaptionExpression = '';
     AboutTitle = 'About Copilot';
     AboutText = 'Copilot is the AI-powered assistant that helps people across your organization unlock their creativity and automate tedious tasks.';
-    AdditionalSearchTerms = 'OpenAI,AI,Copilot,Co-pilot,Artificial Intelligence,GPT,GTP,Dynamics 365 Copilot,ChatGPT,Copilot settings,Copilot setup,enable Copilot,Copilot admin,Copilot and';
+    AdditionalSearchTerms = 'OpenAI,AI,Copilot,Co-pilot,Artificial Intelligence,GPT,GTP,Dynamics 365 Copilot,ChatGPT,Copilot settings,Copilot setup,enable Copilot,Copilot admin,Copilot and,agents,agentic capabilities,autonomous agents';
     InsertAllowed = false;
     DeleteAllowed = false;
     Extensible = false;
@@ -200,7 +200,7 @@ page 7775 "Copilot AI Capabilities"
 
             part(PreviewCapabilities; "Copilot Capabilities Preview")
             {
-                Caption = 'Production ready previews';
+                Caption = 'Production-ready previews';
                 ApplicationArea = All;
                 Editable = false;
             }
@@ -209,6 +209,13 @@ page 7775 "Copilot AI Capabilities"
                 Caption = 'Generally available';
                 ApplicationArea = All;
                 Editable = false;
+            }
+            part(EarlyPreviewCapabilities; "Copilot Cap. Early Preview")
+            {
+                Caption = 'Early previews (not for production)';
+                ApplicationArea = All;
+                Editable = false;
+                Visible = HasEarlyPreview;
             }
         }
     }
@@ -241,51 +248,101 @@ page 7775 "Copilot AI Capabilities"
 
     trigger OnOpenPage()
     var
+        CopilotNotifications: Codeunit "Copilot Notifications";
         EnvironmentInformation: Codeunit "Environment Information";
         WithinGeo: Boolean;
         WithinEUDB: Boolean;
+        TaskId: Integer;
     begin
         OnRegisterCopilotCapability();
 
         CopilotCapabilityImpl.CheckGeoAndEUDB(WithinGeo, WithinEUDB);
-
-        case PrivacyNotice.GetPrivacyNoticeApprovalState(CopilotCapabilityImpl.GetAzureOpenAICategory(), false) of
-            Enum::"Privacy Notice Approval State"::Agreed:
-                AllowDataMovement := true;
-            Enum::"Privacy Notice Approval State"::Disagreed:
-                AllowDataMovement := false;
-            else
-                AllowDataMovement := true;
-        end;
+        CopilotCapabilityImpl.GetDataMovementAllowed(AllowDataMovement);
 
         AllowDataMovementEditable := CopilotCapabilityImpl.IsAdmin();
 
         CurrPage.GenerallyAvailableCapabilities.Page.SetDataMovement(AllowDataMovement);
         CurrPage.PreviewCapabilities.Page.SetDataMovement(AllowDataMovement);
+        CurrPage.EarlyPreviewCapabilities.Page.SetDataMovement(AllowDataMovement);
 
         if not EnvironmentInformation.IsSaaSInfrastructure() then
-            CopilotCapabilityImpl.ShowCapabilitiesNotAvailableOnPremNotification();
+            CopilotNotifications.ShowCapabilitiesNotAvailableOnPremNotification();
 
         if (WithinGeo and not WithinEUDB) and (not AllowDataMovement) then
-            CopilotCapabilityImpl.ShowPrivacyNoticeDisagreedNotification();
+            CopilotNotifications.ShowPrivacyNoticeDisagreedNotification();
 
         CopilotCapabilityImpl.UpdateGuidedExperience(AllowDataMovement);
+
+        HasEarlyPreview := HasEarlyPreviewCapabilities();
 
         WithinEUDBArea := WithinEUDB;
         WithinAOAIServicesInRegionArea := WithinGeo and (not WithinEUDB);
         WithinAOAIOutOfRegionArea := (not WithinGeo) and (not WithinEUDB);
+
+        if EnvironmentInformation.IsSaaSInfrastructure() then begin
+            CopilotNotifications.ShowBillingInTheFutureNotification();
+            CurrPage.EnqueueBackgroundTask(TaskId, Codeunit::"Copilot Quota Impl.");
+        end;
+    end;
+
+    trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
+    var
+        CopilotNotifications: Codeunit "Copilot Notifications";
+        Value: Text;
+        CanConsume: Boolean;
+        HasBilling: Boolean;
+        QuotaUsedPercentage: Decimal;
+        CanConsumeLbl: Label 'CanConsume', Locked = true;
+        HasSetupBillingLbl: Label 'HasSetupBilling', Locked = true;
+        QuotaUsedPercentageLbl: Label 'QuotaUsedPercentage', Locked = true;
+    begin
+        if Results.ContainsKey(CanConsumeLbl) then begin
+            Results.Get(CanConsumeLbl, Value);
+            if Evaluate(CanConsume, Value) then;
+            if not CanConsume then begin
+                CopilotNotifications.ShowAIQuotaUsedUpNotification();
+                exit;
+            end;
+        end;
+
+        if Results.ContainsKey(HasSetupBillingLbl) then begin
+            Results.Get(HasSetupBillingLbl, Value);
+            if Evaluate(HasBilling, Value) then;
+            if HasBilling then
+                exit;
+        end;
+
+        if Results.ContainsKey(QuotaUsedPercentageLbl) then begin
+            Results.Get(QuotaUsedPercentageLbl, Value);
+            if Evaluate(QuotaUsedPercentage, Value) then;
+            if QuotaUsedPercentage >= 80.0 then
+                CopilotNotifications.ShowAIQuotaNearlyUsedUpNotification();
+            exit;
+        end;
+    end;
+
+    local procedure HasEarlyPreviewCapabilities(): Boolean
+    var
+        CopilotSettings: Record "Copilot Settings";
+    begin
+        CopilotSettings.SetRange(Availability, Enum::"Copilot Availability"::"Early Preview");
+        CopilotSettings.SetRange("Service Type", Enum::"Azure AI Service Type"::"Azure OpenAI");
+        exit(not CopilotSettings.IsEmpty());
     end;
 
     local procedure UpdateAllowDataMovement()
+    var
+        CopilotTelemetry: Codeunit "Copilot Telemetry";
     begin
         if AllowDataMovement then
-            PrivacyNotice.SetApprovalState(CopilotCapabilityImpl.GetAzureOpenAICategory(), Enum::"Privacy Notice Approval State"::Agreed)
+            PrivacyNotice.SetApprovalState(AzureOpenAIImpl.GetAzureOpenAICategory(), Enum::"Privacy Notice Approval State"::Agreed)
         else
-            PrivacyNotice.SetApprovalState(CopilotCapabilityImpl.GetAzureOpenAICategory(), Enum::"Privacy Notice Approval State"::Disagreed);
+            PrivacyNotice.SetApprovalState(AzureOpenAIImpl.GetAzureOpenAICategory(), Enum::"Privacy Notice Approval State"::Disagreed);
 
         CurrPage.GenerallyAvailableCapabilities.Page.SetDataMovement(AllowDataMovement);
         CurrPage.PreviewCapabilities.Page.SetDataMovement(AllowDataMovement);
         CopilotCapabilityImpl.UpdateGuidedExperience(AllowDataMovement);
+        CopilotTelemetry.SendCopilotDataMovementUpdatedTelemetry(AllowDataMovement);
     end;
 
     [IntegrationEvent(false, false)]
@@ -295,6 +352,7 @@ page 7775 "Copilot AI Capabilities"
     end;
 
     var
+        AzureOpenAIImpl: Codeunit "Azure OpenAI Impl";
         CopilotCapabilityImpl: Codeunit "Copilot Capability Impl";
         PrivacyNotice: Codeunit "Privacy Notice";
         WithinEUDBArea: Boolean;
@@ -302,6 +360,7 @@ page 7775 "Copilot AI Capabilities"
         WithinAOAIOutOfRegionArea: Boolean;
         AllowDataMovement: Boolean;
         AllowDataMovementEditable: Boolean;
+        HasEarlyPreview: Boolean;
         CopilotGovernDataLbl: Label 'How do I govern my Copilot data?';
         FAQForDataSecurityAndPrivacyLbl: Label 'FAQ for data security and privacy';
         DataProcessByAOAILbl: Label 'What data is processed by Azure OpenAI Service?';

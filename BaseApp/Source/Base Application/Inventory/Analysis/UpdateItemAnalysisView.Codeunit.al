@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Analysis;
 
 using Microsoft.Finance.Dimension;
@@ -242,6 +246,7 @@ codeunit 7150 "Update Item Analysis View"
     var
         PostingDate: Date;
         EntryNo: Integer;
+        IsHandled: Boolean;
     begin
         PostingDate := ItemAnalysisViewSource.PostingDate;
         if PostingDate < ItemAnalysisView."Starting Date" then begin
@@ -270,7 +275,9 @@ codeunit 7150 "Update Item Analysis View"
         TempItemAnalysisViewEntry."Dimension 3 Value Code" := DimValue3;
         TempItemAnalysisViewEntry."Entry No." := EntryNo;
 
-        OnAfterInitializeTempItemAnalysisViewEntry(TempItemAnalysisViewEntry, ItemAnalysisView, ItemAnalysisViewSource, ValueEntry);
+        OnAfterInitializeTempItemAnalysisViewEntry(TempItemAnalysisViewEntry, ItemAnalysisView, ItemAnalysisViewSource, ValueEntry, IsHandled);
+        if IsHandled then
+            exit;
 
         if TempItemAnalysisViewEntry.Find() then begin
             if (ItemAnalysisViewSource.EntryType = ItemAnalysisViewSource.EntryType::"Direct Cost") and
@@ -422,7 +429,13 @@ codeunit 7150 "Update Item Analysis View"
     end;
 
     local procedure FlushAnalysisViewBudgetEntry()
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeFlushAnalysisViewBudgetEntry(TempItemAnalysisViewBudgEntry, ShowProgressWindow, IsHandled);
+        if IsHandled then
+            exit;
+
         if ShowProgressWindow then
             Window.Update(6, Text011);
         if TempItemAnalysisViewBudgEntry.FindSet() then
@@ -578,7 +591,7 @@ codeunit 7150 "Update Item Analysis View"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitializeTempItemAnalysisViewEntry(var TempItemAnalysisViewEntry: Record "Item Analysis View Entry" temporary; ItemAnalysisView: Record "Item Analysis View"; var ItemAnalysisViewSource: Query "Item Analysis View Source"; var ValueEntry: Record "Value Entry")
+    local procedure OnAfterInitializeTempItemAnalysisViewEntry(var TempItemAnalysisViewEntry: Record "Item Analysis View Entry" temporary; ItemAnalysisView: Record "Item Analysis View"; var ItemAnalysisViewSource: Query "Item Analysis View Source"; var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -614,6 +627,11 @@ codeunit 7150 "Update Item Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateOne(var NewItemAnalysisView: Record "Item Analysis View"; var ItemAnalysisView: Record "Item Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both; var ShowWindow: Boolean; var LastValueEntryEntryNo: Integer; var LastItemBudgetEntryNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFlushAnalysisViewBudgetEntry(var TempItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry" temporary; ShowProgressWindow: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

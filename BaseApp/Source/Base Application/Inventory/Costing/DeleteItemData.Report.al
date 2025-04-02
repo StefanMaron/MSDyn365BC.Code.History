@@ -1,9 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Foundation.Company;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Document;
 using System.Environment;
 using System.Utilities;
 
@@ -17,9 +19,7 @@ report 5800 "Delete Item Data"
                   tabledata "Value Entry" = d,
                   tabledata "Item Application Entry" = d,
                   tabledata "Avg. Cost Adjmt. Entry Point" = d,
-                  tabledata "Capacity Ledger Entry" = d,
-                  tabledata "Production Order" = d,
-                  tabledata "Prod. Order Line" = d,
+                  tabledata Microsoft.Manufacturing.Capacity."Capacity Ledger Entry" = d,
                   tabledata "Post Value Entry to G/L" = d,
                   tabledata "Inventory Adjmt. Entry (Order)" = d,
                   tabledata "Cost Adj. Item Bucket" = d,
@@ -47,13 +47,12 @@ report 5800 "Delete Item Data"
                 ListOfTables.AppendLine(ValueEntry.TableCaption());
                 ListOfTables.AppendLine(AvgCostAdjmtEntryPoint.TableCaption());
                 ListOfTables.AppendLine(CapacityLedgerEntry.TableCaption());
-                ListOfTables.AppendLine(ProductionOrder.TableCaption());
-                ListOfTables.AppendLine(ProdOrderLine.TableCaption());
                 ListOfTables.AppendLine(PostValueEntrytoGL.TableCaption());
                 ListOfTables.AppendLine(InventoryAdjmtEntryOrder.TableCaption());
                 ListOfTables.AppendLine(CostAdjItemBucket.TableCaption());
                 ListOfTables.AppendLine(CostAdjustmentLog.TableCaption());
                 ListOfTables.AppendLine(CostAdjustmentDetailedLog.TableCaption());
+                OnPreDataItemOnAfterAppendLine(ListOfTables);
 
                 if not Confirm(DeleteCriticalDataQst + ListOfTables.ToText()) then
                     Error(JobCancelledErr);
@@ -66,13 +65,13 @@ report 5800 "Delete Item Data"
                 ValueEntry.DeleteAll();
                 AvgCostAdjmtEntryPoint.DeleteAll();
                 CapacityLedgerEntry.DeleteAll();
-                ProductionOrder.DeleteAll();
-                ProdOrderLine.DeleteAll();
                 PostValueEntrytoGL.DeleteAll();
                 InventoryAdjmtEntryOrder.DeleteAll();
                 CostAdjItemBucket.DeleteAll();
                 CostAdjustmentLog.DeleteAll();
                 CostAdjustmentDetailedLog.DeleteAll();
+
+                OnAfterGetRecordOnAfterDeleteAll()
             end;
 
             trigger OnPostDataItem()
@@ -87,9 +86,7 @@ report 5800 "Delete Item Data"
         ItemApplicationEntry: Record "Item Application Entry";
         ValueEntry: Record "Value Entry";
         AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
-        CapacityLedgerEntry: Record "Capacity Ledger Entry";
-        ProductionOrder: Record "Production Order";
-        ProdOrderLine: Record "Prod. Order Line";
+        CapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
         PostValueEntrytoGL: Record "Post Value Entry to G/L";
         InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         CostAdjItemBucket: Record "Cost Adj. Item Bucket";
@@ -99,4 +96,14 @@ report 5800 "Delete Item Data"
         DeleteCriticalDataQst: Label 'Are you sure you want to continue?\This job will empty the following tables:\';
         JobCancelledErr: Label 'The job has been cancelled.';
         DataWasDeletedMsg: Label 'The data has been deleted.';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterDeleteAll()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreDataItemOnAfterAppendLine(var ListOfTables: TextBuilder)
+    begin
+    end;
 }

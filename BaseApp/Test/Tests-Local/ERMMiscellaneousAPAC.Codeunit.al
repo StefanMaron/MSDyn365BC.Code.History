@@ -615,37 +615,6 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         VerifyGSTPurchaseEntryExists(PostedDocNo, GSTPurchaseEntry."Document Type"::"Credit Memo", 1);
     end;
 
-#if not CLEAN23
-    [Test]
-    [Scope('OnPrem')]
-    procedure InvoicePostBuffer_GetGLAccountGST()
-    var
-        DeferralTemplate: Record "Deferral Template";
-        GLAccount: Record "G/L Account";
-        InvoicePostBuffer: Record "Invoice Post. Buffer";
-        Result: Code[20];
-    begin
-        // [FEATURE] [UT] [GST] [Deferrals]
-        // [SCENARIO 221286] TAB49 GetGLAccountGST returns correct GL Account.
-        Initialize();
-
-        Result := InvoicePostBuffer.GetGLAccountGST('', '');
-        Assert.AreEqual('', Result, 'InvoicePostBuffer.GetGLAccountGST should return empty value');
-
-        LibraryERM.CreateGLAccount(GLAccount);
-        Result := InvoicePostBuffer.GetGLAccountGST('', GLAccount."No.");
-        Assert.AreEqual(GLAccount."No.", Result, 'InvoicePostBuffer.GetGLAccountGST should return GLAccount No.');
-
-        LibraryERM.CreateDeferralTemplate(
-          DeferralTemplate, DeferralTemplate."Calc. Method"::"Straight-Line",
-          DeferralTemplate."Start Date"::"Posting Date", 1);
-        Result := InvoicePostBuffer.GetGLAccountGST(DeferralTemplate."Deferral Code", GLAccount."No.");
-        Assert.AreEqual(
-          DeferralTemplate."Deferral Account", Result,
-          'InvoicePostBuffer.GetGLAccountGST should return DeferralTemplate."Deferral Account"');
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure InvoicePostingBuffer_GetGLAccountGST()
@@ -1648,13 +1617,13 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         NewVATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine."Amount" - LibraryERM.GetAmountRoundingPrecision();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewVATAmount);
-        PurchaseHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Purchase Statistics", PurchaseHeader);
 
         // [THEN] VAT Amount (ACY) is changed and saved when reopening Statistic page
         // [THEN] VAT Difference (ACY) is calculated correctly
         // false means don't update VAT Amount (ACY) after Statistic page reopened.
         LibraryVariableStorage.Enqueue(false);
-        PurchaseHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Purchase Statistics", PurchaseHeader);
 
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         GetPurchaseVATAmountLine(PurchaseHeader, TempVATAmountLine);
@@ -1705,7 +1674,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [WHEN] Change VAT Amount to 11.1 on Purchase Statistics
         NewVATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine."Amount" + MaxVATDifferenceAllowed;
         LibraryVariableStorage.Enqueue(NewVATAmount);
-        PurchaseHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Purchase Statistics", PurchaseHeader);
 
         // [THEN] The error is executed, the VAT amount cannot be changed with the VAT difference bigger than "Max Allowed VAT Difference" * "Vendor Exchange Rate (ACY)"
         Assert.ExpectedError(StrSubstNo(VATDifferenceErr, MaxVATDifferenceAllowed * PurchaseHeader."Vendor Exchange Rate (ACY)"));
@@ -1750,7 +1719,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         NewVATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine."Amount" - LibraryERM.GetAmountRoundingPrecision();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewVATAmount);
-        PurchaseHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Purchase Statistics", PurchaseHeader);
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         // [WHEN] Post purchase invoice
         PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1800,14 +1769,14 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         NewVATAmount := SalesLine."Amount Including VAT" - SalesLine."Amount" - LibraryERM.GetAmountRoundingPrecision();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewVATAmount);
-        SalesHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Sales Statistics", SalesHeader);
 
         // [THEN] VAT Amount (ACY) is updated when VAT amount is changed
         // [THEN] VAT Amount (ACY) is changed and saved when reopening Statistic page
         // [THEN] VAT Difference (ACY) is calculated correctly
         // false means don't update VAT Amount (ACY) after Statistic page reopened.
         LibraryVariableStorage.Enqueue(false);
-        SalesHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Sales Statistics", SalesHeader);
 
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         GetSalesVATAmountLine(SalesHeader, TempVATAmountLine);
@@ -1853,7 +1822,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         NewVATAmount := SalesLine."Amount Including VAT" - SalesLine."Amount" - LibraryERM.GetAmountRoundingPrecision();
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewVATAmount);
-        SalesHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Sales Statistics", SalesHeader);
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         // [WHEN] Post sales invoice
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1911,7 +1880,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewVATAmount);
         LibraryVariableStorage.Enqueue(NewVATAmountACY);
-        SalesHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Sales Statistics", SalesHeader);
 
         // [THEN] VAT Amount (ACY) is updated to 50 when VAT amount is changed
         // [THEN] VAT Amount (ACY) is changed and saved when reopening Statistic page
@@ -1919,7 +1888,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // false means don't update VAT Amount (ACY) after Statistic page reopened.
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(NewVATAmountACY);
-        SalesHeader.OpenDocumentStatistics();
+        Page.RunModal(Page::"Sales Statistics", SalesHeader);
 
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         GetSalesVATAmountLine(SalesHeader, TempVATAmountLine);

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Family;
 
 using Microsoft.Manufacturing.Routing;
@@ -37,6 +41,7 @@ table 99000773 Family
         field(13; Blocked; Boolean)
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies that the family is blocked. This field is for information only and does not affect the posting in transactions.';
         }
         field(14; "Last Date Modified"; Date)
         {

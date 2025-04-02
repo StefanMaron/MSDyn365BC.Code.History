@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Location;
 
 using Microsoft.Inventory.Item;
@@ -220,6 +224,7 @@ report 5706 "Create Stockkeeping Unit"
         StockkeepingUnit."Location Code" := LocationCode;
         StockkeepingUnit."Variant Code" := VariantCode;
         StockkeepingUnit.CopyFromItem(Item2);
+        StockkeepingUnit.TransferManufCostsFromItem(Item2);
         StockkeepingUnit."Last Date Modified" := WorkDate();
         StockkeepingUnit."Special Equipment Code" := Item2."Special Equipment Code";
         StockkeepingUnit."Put-away Template Code" := Item2."Put-away Template Code";

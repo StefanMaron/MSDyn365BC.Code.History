@@ -180,6 +180,7 @@ table 413 "IC Partner"
             ExtendedDatatype = Masked;
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA27
         field(104; "Authority Url Key"; Guid)
         {
             Caption = 'Authority URL Key';
@@ -194,6 +195,7 @@ table 413 "IC Partner"
 #endif
             ObsoleteReason = 'Usage of authority url is moved to token endpoint.';
         }
+#endif
         field(105; "Redirect Url key"; Guid)
         {
             Caption = 'Redirect URL Key';

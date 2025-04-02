@@ -90,6 +90,29 @@ codeunit 4763 "Contoso Manufacturing"
             ProductionBOMHeader.Insert(true);
     end;
 
+    procedure InsertProductionBOMVersion(BOMCode: Code[20]; VersionCode: Code[20]; Description: Text[30]; UnitOfMeasureCode: Text[10])
+    var
+        ProductionBOMVersion: Record "Production BOM Version";
+        Exists: Boolean;
+    begin
+        if ProductionBOMVersion.Get(BOMCode, VersionCode) then begin
+            Exists := true;
+
+            if not OverwriteData then
+                exit;
+        end;
+
+        ProductionBOMVersion.Validate("Production BOM No.", BOMCode);
+        ProductionBOMVersion.Validate("Version Code", VersionCode);
+        ProductionBOMVersion.Validate(Description, Description);
+        ProductionBOMVersion.Validate("Unit of Measure Code", UnitOfMeasureCode);
+
+        if Exists then
+            ProductionBOMVersion.Modify(true)
+        else
+            ProductionBOMVersion.Insert(true);
+    end;
+
     procedure InsertProductionBOMLine(BOMCode: Code[20]; VersionCode: Code[20]; Type: Option " ",Item,"Production BOM"; No: Code[20]; CalcFormula: Enum "Quantity Calculation Formula"; QuantityPer: Decimal; RoutingLinkCode: Code[10])
     var
         ProductionBOMLine: Record "Production BOM Line";
@@ -203,6 +226,17 @@ codeunit 4763 "Contoso Manufacturing"
         if CapUnitOfMeasureCode <> '' then begin
             WorkCenter.Validate("Unit of Measure Code", CapUnitOfMeasureCode);
             WorkCenter.Modify(true);
+        end;
+    end;
+
+    procedure InsertWorkCenter(No: Code[20]; Name: Text[30]; WorkCenterGroupCode: Code[10]; DirectUnitCost: Decimal; CapUnitOfMeasureCode: Text[10]; Capacity: Decimal; ShopCalendarCode: Code[10]; UnitCostCalc: Option Time,Units; GenProdPostGrp: Code[20]; SubcontractorNo: Code[20]; UseSpecificUnitCost: Boolean)
+    var
+        WorkCenter: Record "Work Center";
+    begin
+        InsertWorkCenter(No, Name, WorkCenterGroupCode, DirectUnitCost, CapUnitOfMeasureCode, Capacity, ShopCalendarCode, UnitCostCalc, GenProdPostGrp, SubcontractorNo);
+        if WorkCenter.Get(No) and UseSpecificUnitCost then begin
+            WorkCenter.Validate("Specific Unit Cost", UseSpecificUnitCost);
+            WorkCenter.Modify(true)
         end;
     end;
 

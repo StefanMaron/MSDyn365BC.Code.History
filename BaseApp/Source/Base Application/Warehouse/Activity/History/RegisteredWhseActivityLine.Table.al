@@ -3,10 +3,9 @@
 using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Family;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
@@ -145,8 +144,6 @@ table 5773 "Registered Whse. Activity Line"
             else
             if ("Destination Type" = const(Item)) Item
             else
-            if ("Destination Type" = const(Family)) Family
-            else
             if ("Destination Type" = const("Sales Order")) "Sales Header"."No." where("Document Type" = const(Order));
         }
         field(41; "Whse. Activity No."; Code[20])
@@ -250,8 +247,6 @@ table 5773 "Registered Whse. Activity Line"
             else
             if ("Whse. Document Type" = const("Internal Pick")) "Whse. Internal Pick Header"."No." where("No." = field("Whse. Document No."))
             else
-            if ("Whse. Document Type" = const(Production)) "Production Order"."No." where("No." = field("Whse. Document No."))
-            else
             if ("Whse. Document Type" = const(Assembly)) "Assembly Header"."No." where("Document Type" = const(Order),
                                                                                                            "No." = field("Whse. Document No."));
         }
@@ -271,9 +266,6 @@ table 5773 "Registered Whse. Activity Line"
             else
             if ("Whse. Document Type" = const("Internal Pick")) "Whse. Internal Pick Line"."Line No." where("No." = field("Whse. Document No."),
                                                                                                                                                                                                                                                                                                                                                                                                                                 "Line No." = field("Whse. Document Line No."))
-            else
-            if ("Whse. Document Type" = const(Production)) "Prod. Order Line"."Line No." where("Prod. Order No." = field("No."),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       "Line No." = field("Line No."))
             else
             if ("Whse. Document Type" = const(Assembly)) "Assembly Line"."Line No." where("Document Type" = const(Order),
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          "Document No." = field("Whse. Document No."),
@@ -364,13 +356,11 @@ table 5773 "Registered Whse. Activity Line"
         PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header";
         WhseInternalPickHeader: Record "Whse. Internal Pick Header";
         WhseInternalPutawayHeader: Record "Whse. Internal Put-away Header";
-        ProductionOrder: Record "Production Order";
         AssemblyHeader: Record "Assembly Header";
         WarehouseShipment: Page "Warehouse Shipment";
         PostedWhseReceipt: Page "Posted Whse. Receipt";
         WhseInternalPickCard: Page "Whse. Internal Pick";
         WhseInternalPutawayCard: Page "Whse. Internal Put-away";
-        ReleasedProductionOrder: Page "Released Production Order";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -407,19 +397,14 @@ table 5773 "Registered Whse. Activity Line"
                     WhseInternalPutawayCard.SetTableView(WhseInternalPutawayHeader);
                     WhseInternalPutawayCard.RunModal();
                 end;
-            "Whse. Document Type"::Production:
-                begin
-                    ProductionOrder.SetRange(Status, "Source Subtype");
-                    ProductionOrder.SetRange("No.", "Source No.");
-                    ReleasedProductionOrder.SetTableView(ProductionOrder);
-                    ReleasedProductionOrder.RunModal();
-                end;
             "Whse. Document Type"::Assembly:
                 begin
                     AssemblyHeader.SetRange("Document Type", "Source Subtype");
                     AssemblyHeader.SetRange("No.", "Source No.");
                     PAGE.Run(PAGE::"Assembly Order", AssemblyHeader);
                 end;
+            else
+                OnShowWhseDoc(Rec);
         end;
     end;
 
@@ -483,6 +468,13 @@ table 5773 "Registered Whse. Activity Line"
         OnAfterSetTrackingFilterFromRelation(Rec, WhseItemEntryRelation);
     end;
 
+    procedure SetTrackingFilterFromItemLedgerEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        SetRange("Serial No.", ItemLedgEntry."Serial No.");
+        SetRange("Lot No.", ItemLedgEntry."Lot No.");
+        SetRange("Package No.", ItemLedgEntry."Package No.");
+    end;
+
     procedure SetTrackingFilterFromSpec(TrackingSpecification: Record "Tracking Specification")
     begin
         SetRange("Serial No.", TrackingSpecification."Serial No.");
@@ -539,6 +531,11 @@ table 5773 "Registered Whse. Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSourceFilter(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; SetKey: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowWhseDoc(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line")
     begin
     end;
 }

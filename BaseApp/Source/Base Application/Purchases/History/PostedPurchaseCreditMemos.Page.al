@@ -36,7 +36,6 @@ page 147 "Posted Purchase Credit Memos"
                 field("Buy-from Vendor No."; Rec."Buy-from Vendor No.")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the name of the vendor who delivered the items.';
                 }
                 field("Order Address Code"; Rec."Order Address Code")
                 {
@@ -142,7 +141,6 @@ page 147 "Posted Purchase Credit Memos"
                 field("Pay-to Vendor No."; Rec."Pay-to Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the vendor that you received the invoice from.';
                     Visible = false;
                 }
                 field("Pay-to Name"; Rec."Pay-to Name")
@@ -256,6 +254,7 @@ page 147 "Posted Purchase Credit Memos"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Purch. Cr. Memo Hdr."),
                               "No." = field("No.");

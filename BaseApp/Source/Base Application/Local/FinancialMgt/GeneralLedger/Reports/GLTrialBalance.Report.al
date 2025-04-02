@@ -142,7 +142,7 @@ report 28162 "G/L Trial Balance"
             trigger OnAfterGetRecord()
             begin
                 GLAccount2.Copy("G/L Account");
-                if GLAccount2."Income/Balance" = 0 then begin
+                if GLAccount2."Income/Balance" = GLAccount2."Income/Balance"::"Income Statement" then begin
                     GLAccount2.SetRange("Date Filter", PreviousStartDate, PreviousEndDate);
                     GLAccount2.CalcFields("Debit Amount", "Credit Amount");
                 end else begin

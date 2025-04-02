@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Document;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Foundation.Navigate;
@@ -433,7 +437,8 @@ codeunit 99000842 "Service Line-Reserve"
         if not FindReservEntry(ServiceLine, OldReservationEntry) then
             exit(TransferQty);
 
-        OldReservationEntry.Lock();
+        OldReservationEntry.LockTable();
+        OldReservationEntry.FindLast();
 
         ItemJournalLine.TestItemFields(ServiceLine."No.", ServiceLine."Variant Code", ServiceLine."Location Code");
 
@@ -747,11 +752,11 @@ codeunit 99000842 "Service Line-Reserve"
         if not ServiceLine.ReadPermission then
             exit;
 
+        ServiceLine.SetAutoCalcFields("Reserved Qty. (Base)");
         AvailabilityFilter := CalcReservationEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         ServiceLine.FindLinesForReservation(CalcReservationEntry, AvailabilityFilter, Positive);
         if ServiceLine.FindSet() then
             repeat
-                ServiceLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= ServiceLine."Reserved Qty. (Base)";
                 TotalQuantity += ServiceLine."Outstanding Qty. (Base)";
             until ServiceLine.Next() = 0;
@@ -825,10 +830,10 @@ codeunit 99000842 "Service Line-Reserve"
         if IsReserved then
             exit;
 
+        ServiceLine.SetAutoCalcFields("Reserved Qty. (Base)");
         ServiceLine.FindLinesForReservation(CalcReservEntry, sender.GetAvailabilityFilter(AvailabilityDate), Positive);
         if ServiceLine.Find(Search) then
             repeat
-                ServiceLine.CalcFields("Reserved Qty. (Base)");
                 QtyThisLine := ServiceLine."Outstanding Quantity";
                 QtyThisLineBase := ServiceLine."Outstanding Qty. (Base)";
                 ReservQty := ServiceLine."Reserved Qty. (Base)";
@@ -1193,5 +1198,27 @@ codeunit 99000842 "Service Line-Reserve"
     begin
         ArrayCounter += 1;
         ValueArray[ArrayCounter] := Enum::"Reservation Summary Type"::"Service Order".AsInteger();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnSetSourceForServiceLine', '', false, false)]
+    local procedure OnSetSourceForServiceLine(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        if not MatchThisTable(SourceRecRef.Number) then
+            exit;
+
+        SourceRecRef.SetTable(ServiceLine);
+        ServiceLine.SetReservationEntry(CalcReservEntry);
+        OnSetServLineOnBeforeUpdateReservation(CalcReservEntry, ServiceLine);
+#if not CLEAN26
+        ReservationManagement.RunOnSetServLineOnBeforeUpdateReservation(CalcReservEntry, ServiceLine);
+#endif
+        EntryIsPositive := (CreateReservEntry.SignFactor(CalcReservEntry) * ServiceLine."Outstanding Qty. (Base)") <= 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetServLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ServiceLine: Record Microsoft.Service.Document."Service Line")
+    begin
     end;
 }
