@@ -3,6 +3,7 @@ namespace Microsoft.Intercompany.Inbox;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Intercompany.Partner;
 using Microsoft.Purchases.Document;
+using Microsoft.Intercompany;
 using Microsoft.Purchases.History;
 using System.Utilities;
 
@@ -24,12 +25,10 @@ table 418 "IC Inbox Transaction"
             Editable = false;
             TableRelation = "IC Partner";
         }
-        field(3; "Source Type"; Option)
+        field(3; "Source Type"; enum "IC Transaction Source Type")
         {
             Caption = 'Source Type';
             Editable = false;
-            OptionCaption = 'Journal,Sales Document,Purchase Document';
-            OptionMembers = Journal,"Sales Document","Purchase Document";
         }
         field(5; "Document Type"; Enum "IC Transaction Document Type")
         {
@@ -79,6 +78,7 @@ table 418 "IC Inbox Transaction"
         {
             Caption = 'Original Document No.';
         }
+#if not CLEANSCHEMA25
         field(12; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -86,6 +86,7 @@ table 418 "IC Inbox Transaction"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(13; "Source Line No."; Integer)
         {
             Caption = 'Source Line No.';

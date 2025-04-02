@@ -1,7 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
-using Microsoft.Assembly.Document;
-using Microsoft.Assembly.Setup;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -32,12 +34,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Job;
@@ -59,8 +55,8 @@ using Microsoft.Warehouse.Setup;
 using System.Automation;
 using System.Text;
 using System.Reflection;
-using System.Utilities;
 using System.DateTime;
+using System.Utilities;
 
 table 27 Item
 {
@@ -126,6 +122,8 @@ table 27 Item
                             NonstockItem.Modify();
                         end;
                 end;
+
+                UpdateMyItem(FieldNo(Description));
             end;
         }
         field(4; "Search Description"; Code[100])
@@ -273,6 +271,8 @@ table 27 Item
             trigger OnValidate()
             begin
                 Validate("Price/Profit Calculation");
+
+                UpdateMyItem(FieldNo("Unit Price"));
             end;
         }
         field(19; "Price/Profit Calculation"; Enum "Item Price Profit Calculation")
@@ -301,6 +301,7 @@ table 27 Item
                                 ("Unit Cost" / (1 - "Profit %" / 100)) *
                                 (1 + CalcVAT()),
                                 GLSetup."Unit-Amount Rounding Precision");
+                            UpdateMyItem(FieldNo("Unit Price"));
                         end;
                 end;
             end;
@@ -938,20 +939,16 @@ table 27 Item
 
             trigger OnValidate()
             var
-                ConfirmMgt: Codeunit "Confirm Management";
-                Question: Text;
                 GenProdPostGroupExists: Boolean;
+                ShouldExit: Boolean;
             begin
                 if xRec."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group" then begin
-                    if CurrFieldNo <> 0 then
-                        if ProdOrderExist() then begin
-                            Question := StrSubstNo(Text024 + Text022, FieldCaption("Gen. Prod. Posting Group"));
-                            if not ConfirmMgt.GetResponseOrDefault(Question, true)
-                            then begin
-                                "Gen. Prod. Posting Group" := xRec."Gen. Prod. Posting Group";
-                                exit;
-                            end;
-                        end;
+                    if CurrFieldNo <> 0 then begin
+                        ShouldExit := false;
+                        OnValidateGenProdPostingGroupOnConfirmChange(Rec, xRec."Gen. Prod. Posting Group", ShouldExit);
+                        if ShouldExit then
+                            exit;
+                    end;
 
                     if GenProdPostingGrp.ValidateVatProdPostingGroup(GenProdPostingGrp, "Gen. Prod. Posting Group") then
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
@@ -1201,31 +1198,21 @@ table 27 Item
             OptionCaption = 'Default,No,Yes';
             OptionMembers = Default,No,Yes;
         }
-        field(200; "Cost of Open Production Orders"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Line"."Cost Amount" where(Status = filter(Planned | "Firm Planned" | Released),
-                                                                      "Item No." = field("No.")));
-            Caption = 'Cost of Open Production Orders';
-            FieldClass = FlowField;
-        }
         field(521; "Application Wksh. User ID"; Code[128])
         {
             Caption = 'Application Wksh. User ID';
             DataClassification = EndUserIdentifiableInformation;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -1233,7 +1220,7 @@ table 27 Item
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::Item)));
         }
-        field(910; "Assembly Policy"; Enum "Assembly Policy")
+        field(910; "Assembly Policy"; Enum Microsoft.Assembly.Setup."Assembly Policy")
         {
             AccessByPermission = TableData "BOM Component" = R;
             Caption = 'Assembly Policy';
@@ -1245,67 +1232,6 @@ table 27 Item
                 if IsNonInventoriableType() then
                     TestField("Assembly Policy", "Assembly Policy"::"Assemble-to-Stock");
             end;
-        }
-        field(929; "Res. Qty. on Assembly Order"; Decimal)
-        {
-            AccessByPermission = TableData "BOM Component" = R;
-            CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("No."),
-                                                                           "Source Type" = const(900),
-                                                                           "Source Subtype" = const("1"),
-                                                                           "Reservation Status" = const(Reservation),
-                                                                           "Location Code" = field("Location Filter"),
-                                                                           "Variant Code" = field("Variant Filter"),
-                                                                           "Expected Receipt Date" = field("Date Filter")));
-            Caption = 'Res. Qty. on Assembly Order';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(930; "Res. Qty. on  Asm. Comp."; Decimal)
-        {
-            AccessByPermission = TableData "BOM Component" = R;
-            CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("No."),
-                                                                            "Source Type" = const(901),
-                                                                            "Source Subtype" = const("1"),
-                                                                            "Reservation Status" = const(Reservation),
-                                                                            "Location Code" = field("Location Filter"),
-                                                                            "Variant Code" = field("Variant Filter"),
-                                                                            "Shipment Date" = field("Date Filter")));
-            Caption = 'Res. Qty. on  Asm. Comp.';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(977; "Qty. on Assembly Order"; Decimal)
-        {
-            CalcFormula = sum("Assembly Header"."Remaining Quantity (Base)" where("Document Type" = const(Order),
-                                                                                   "Item No." = field("No."),
-                                                                                   "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                   "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                   "Location Code" = field("Location Filter"),
-                                                                                   "Variant Code" = field("Variant Filter"),
-                                                                                   "Due Date" = field("Date Filter"),
-                                                                                   "Unit of Measure Code" = field("Unit of Measure Filter")));
-            Caption = 'Qty. on Assembly Order';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(978; "Qty. on Asm. Component"; Decimal)
-        {
-            CalcFormula = sum("Assembly Line"."Remaining Quantity (Base)" where("Document Type" = const(Order),
-                                                                                 Type = const(Item),
-                                                                                 "No." = field("No."),
-                                                                                 "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                 "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                 "Location Code" = field("Location Filter"),
-                                                                                 "Variant Code" = field("Variant Filter"),
-                                                                                 "Due Date" = field("Date Filter"),
-                                                                                 "Unit of Measure Code" = field("Unit of Measure Filter")));
-            Caption = 'Qty. on Asm. Component';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
         }
         field(1001; "Qty. on Job Order"; Decimal)
         {
@@ -1354,7 +1280,6 @@ table 27 Item
         }
         field(5401; "Lot Size"; Decimal)
         {
-            AccessByPermission = TableData "Production Order" = R;
             Caption = 'Lot Size';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
@@ -1391,11 +1316,18 @@ table 27 Item
         }
         field(5407; "Scrap %"; Decimal)
         {
-            AccessByPermission = TableData "Production Order" = R;
             Caption = 'Scrap %';
             DecimalPlaces = 0 : 2;
             MaxValue = 100;
             MinValue = 0;
+        }
+        field(5408; "Rolled-up Mat. Non-Invt. Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Rolled-up Material Non-Inventory Cost';
+            ToolTip = 'Specifies the Non-inventory material cost of all items at all levels of the parent item''s BOM.';
+            DecimalPlaces = 2 : 5;
+            Editable = false;
         }
         field(5409; "Inventory Value Zero"; Boolean)
         {
@@ -1444,11 +1376,6 @@ table 27 Item
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Safety Lead Time';
         }
-        field(5417; "Flushing Method"; Enum "Flushing Method")
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            Caption = 'Flushing Method';
-        }
         field(5419; "Replenishment System"; Enum "Replenishment System")
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
@@ -1485,47 +1412,8 @@ table 27 Item
                 end;
             end;
         }
-        field(5420; "Scheduled Receipt (Qty.)"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = filter("Firm Planned" | Released),
-                                                                                "Item No." = field("No."),
-                                                                                "Variant Code" = field("Variant Filter"),
-                                                                                "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                "Location Code" = field("Location Filter"),
-                                                                                "Due Date" = field("Date Filter"),
-                                                                                "Unit of Measure Code" = field("Unit of Measure Filter")));
-            Caption = 'Scheduled Receipt (Qty.)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(5421; "Scheduled Need (Qty.)"; Decimal)
-        {
-            ObsoleteReason = 'Use the field ''Qty. on Component Lines'' instead';
-#if CLEAN25
-            ObsoleteState = Removed;
-            ObsoleteTag = '28.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#endif
-            CalcFormula = sum("Prod. Order Component"."Remaining Qty. (Base)" where(Status = filter(Planned .. Released),
-                                                                                     "Item No." = field("No."),
-                                                                                     "Variant Code" = field("Variant Filter"),
-                                                                                     "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                     "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                     "Location Code" = field("Location Filter"),
-                                                                                     "Due Date" = field("Date Filter"),
-                                                                                     "Unit of Measure Code" = field("Unit of Measure Filter")));
-            Caption = 'Scheduled Need (Qty.)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
         field(5422; "Rounding Precision"; Decimal)
         {
-            AccessByPermission = TableData "Production Order" = R;
             Caption = 'Rounding Precision';
             DecimalPlaces = 0 : 5;
             InitValue = 1;
@@ -1574,36 +1462,6 @@ table 27 Item
                 CalendarMgt.CheckDateFormulaPositive("Time Bucket");
             end;
         }
-        field(5429; "Reserved Qty. on Prod. Order"; Decimal)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("No."),
-                                                                           "Source Type" = const(5406),
-                                                                           "Source Subtype" = filter("1" .. "3"),
-                                                                           "Reservation Status" = const(Reservation),
-                                                                           "Location Code" = field("Location Filter"),
-                                                                           "Variant Code" = field("Variant Filter"),
-                                                                           "Expected Receipt Date" = field("Date Filter")));
-            Caption = 'Reserved Qty. on Prod. Order';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(5430; "Res. Qty. on Prod. Order Comp."; Decimal)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("No."),
-                                                                            "Source Type" = const(5407),
-                                                                            "Source Subtype" = filter("1" .. "3"),
-                                                                            "Reservation Status" = const(Reservation),
-                                                                            "Location Code" = field("Location Filter"),
-                                                                            "Variant Code" = field("Variant Filter"),
-                                                                            "Shipment Date" = field("Date Filter")));
-            Caption = 'Res. Qty. on Prod. Order Comp.';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
         field(5431; "Res. Qty. on Req. Line"; Decimal)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
@@ -1640,7 +1498,7 @@ table 27 Item
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Include Inventory';
         }
-        field(5442; "Manufacturing Policy"; Enum "Manufacturing Policy")
+        field(5442; "Manufacturing Policy"; Enum Microsoft.Manufacturing.Setup."Manufacturing Policy")
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Manufacturing Policy';
@@ -1750,13 +1608,6 @@ table 27 Item
             AccessByPermission = TableData "Nonstock Item" = R;
             Caption = 'Created From Catalog Item';
             Editable = false;
-        }
-        field(5704; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(5706; "Substitutes Exist"; Boolean)
         {
@@ -2090,13 +1941,6 @@ table 27 Item
             Editable = false;
             FieldClass = FlowField;
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(8001; "Unit of Measure Id"; Guid)
         {
             Caption = 'Unit of Measure Id';
@@ -2162,15 +2006,17 @@ table 27 Item
             TableRelation = "Gen. Product Posting Group".SystemId;
             trigger OnValidate()
             var
-                GenProdPostGroup: Record "Gen. Product Posting Group";
+                GenProductPostingGroup: Record "Gen. Product Posting Group";
                 GenProdPostGroupExists: Boolean;
             begin
                 GenProdPostGroupExists := false;
-                if not IsNullGuid("Gen. Prod. Posting Group Id") then
-                    GenProdPostGroupExists := GenProdPostGroup.GetBySystemId("Gen. Prod. Posting Group Id");
+                if not IsNullGuid("Gen. Prod. Posting Group Id") then begin
+                    GenProductPostingGroup.SetLoadFields("Code");
+                    GenProdPostGroupExists := GenProductPostingGroup.GetBySystemId("Gen. Prod. Posting Group Id");
+                end;
 
                 if GenProdPostGroupExists then
-                    Validate("Gen. Prod. Posting Group", GenProdPostGroup."Code")
+                    Validate("Gen. Prod. Posting Group", GenProductPostingGroup."Code")
                 else
                     Validate("Gen. Prod. Posting Group", '')
             end;
@@ -2189,90 +2035,6 @@ table 27 Item
         {
             Caption = 'Reverse Charge Applies';
         }
-        field(99000750; "Routing No."; Code[20])
-        {
-            Caption = 'Routing No.';
-            TableRelation = "Routing Header";
-
-            trigger OnValidate()
-            begin
-                if "Routing No." <> '' then
-                    TestField(Type, Type::Inventory);
-
-                PlanningAssignment.RoutingReplace(Rec, xRec."Routing No.");
-
-                if "Routing No." <> xRec."Routing No." then
-                    ItemCostMgt.UpdateUnitCost(Rec, '', '', 0, 0, false, false, true, FieldNo("Routing No."));
-            end;
-        }
-        field(99000751; "Production BOM No."; Code[20])
-        {
-            Caption = 'Production BOM No.';
-            TableRelation = "Production BOM Header";
-
-            trigger OnValidate()
-            var
-                MfgSetup: Record "Manufacturing Setup";
-                ProdBOMHeader: Record "Production BOM Header";
-                ItemUnitOfMeasure: Record "Item Unit of Measure";
-                IsHandled: Boolean;
-            begin
-                IsHandled := false;
-                OnBeforeValidateProductionBOMNo(Rec, xRec, IsHandled);
-                if not IsHandled then begin
-                    if "Production BOM No." <> '' then
-                        TestField(Type, Type::Inventory);
-
-                    PlanningAssignment.BomReplace(Rec, xRec."Production BOM No.");
-
-                    if "Production BOM No." <> xRec."Production BOM No." then
-                        ItemCostMgt.UpdateUnitCost(Rec, '', '', 0, 0, false, false, true, FieldNo("Production BOM No."));
-
-                    if ("Production BOM No." <> '') and ("Production BOM No." <> xRec."Production BOM No.") then begin
-                        ProdBOMHeader.Get("Production BOM No.");
-                        ItemUnitOfMeasure.Get("No.", ProdBOMHeader."Unit of Measure Code");
-                        if ProdBOMHeader.Status = ProdBOMHeader.Status::Certified then begin
-                            MfgSetup.Get();
-                            if MfgSetup."Dynamic Low-Level Code" then begin
-                                CODEUNIT.Run(CODEUNIT::"Calculate Low-Level Code", Rec);
-                                OnValidateProductionBOMNoOnAfterCodeunitRun(ProdBOMHeader, Rec);
-                            end;
-                            OnValidateProductionBOMNoOnAfterProcessStatusCertified(ProdBOMHeader, Rec);
-                        end;
-                    end;
-                end;
-            end;
-        }
-        field(99000752; "Single-Level Material Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Material Cost';
-            Editable = false;
-        }
-        field(99000753; "Single-Level Capacity Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Capacity Cost';
-            Editable = false;
-        }
-        field(99000754; "Single-Level Subcontrd. Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Subcontrd. Cost';
-            Editable = false;
-        }
-        field(99000755; "Single-Level Cap. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Cap. Ovhd Cost';
-            Editable = false;
-        }
-        field(99000756; "Single-Level Mfg. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Single-Level Mfg. Ovhd Cost';
-            Editable = false;
-        }
         field(99000757; "Overhead Rate"; Decimal)
         {
             AutoFormatType = 2;
@@ -2285,25 +2047,6 @@ table 27 Item
                 if Rec."Overhead Rate" <> xRec."Overhead Rate" then
                     AdjustCostIfRequired(Rec.FieldCaption("Overhead Rate"));
             end;
-        }
-        field(99000758; "Rolled-up Subcontracted Cost"; Decimal)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Subcontracted Cost';
-            Editable = false;
-        }
-        field(99000759; "Rolled-up Mfg. Ovhd Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Mfg. Ovhd Cost';
-            Editable = false;
-        }
-        field(99000760; "Rolled-up Cap. Overhead Cost"; Decimal)
-        {
-            AutoFormatType = 2;
-            Caption = 'Rolled-up Cap. Overhead Cost';
-            Editable = false;
         }
         field(99000761; "Planning Issues (Qty.)"; Decimal)
         {
@@ -2335,51 +2078,6 @@ table 27 Item
             Editable = false;
             FieldClass = FlowField;
         }
-        field(99000765; "Planned Order Receipt (Qty.)"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = const(Planned),
-                                                                                "Item No." = field("No."),
-                                                                                "Variant Code" = field("Variant Filter"),
-                                                                                "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                "Location Code" = field("Location Filter"),
-                                                                                "Due Date" = field("Date Filter"),
-                                                                                "Unit of Measure Code" = field("Unit of Measure Filter")));
-            Caption = 'Planned Order Receipt (Qty.)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(99000766; "FP Order Receipt (Qty.)"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = const("Firm Planned"),
-                                                                                "Item No." = field("No."),
-                                                                                "Variant Code" = field("Variant Filter"),
-                                                                                "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                "Location Code" = field("Location Filter"),
-                                                                                "Due Date" = field("Date Filter"),
-                                                                                "Unit of Measure Code" = field("Unit of Measure Filter")));
-            Caption = 'FP Order Receipt (Qty.)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(99000767; "Rel. Order Receipt (Qty.)"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = const(Released),
-                                                                                "Item No." = field("No."),
-                                                                                "Variant Code" = field("Variant Filter"),
-                                                                                "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                "Location Code" = field("Location Filter"),
-                                                                                "Due Date" = field("Date Filter"),
-                                                                                "Unit of Measure Code" = field("Unit of Measure Filter")));
-            Caption = 'Rel. Order Receipt (Qty.)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
         field(99000768; "Planning Release (Qty.)"; Decimal)
         {
             CalcFormula = sum("Requisition Line"."Quantity (Base)" where(Type = const(Item),
@@ -2391,21 +2089,6 @@ table 27 Item
                                                                           "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
                                                                           "Unit of Measure Code" = field("Unit of Measure Filter")));
             Caption = 'Planning Release (Qty.)';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(99000769; "Planned Order Release (Qty.)"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = const(Planned),
-                                                                                "Item No." = field("No."),
-                                                                                "Variant Code" = field("Variant Filter"),
-                                                                                "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                "Location Code" = field("Location Filter"),
-                                                                                "Starting Date" = field("Date Filter"),
-                                                                                "Unit of Measure Code" = field("Unit of Measure Filter")));
-            Caption = 'Planned Order Release (Qty.)';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
@@ -2489,59 +2172,6 @@ table 27 Item
                 end;
             end;
         }
-        field(99000774; "Prod. Forecast Quantity (Base)"; Decimal)
-        {
-            CalcFormula = sum("Production Forecast Entry"."Forecast Quantity (Base)" where("Item No." = field("No."),
-                                                                                            "Production Forecast Name" = field("Production Forecast Name"),
-                                                                                            "Forecast Date" = field("Date Filter"),
-                                                                                            "Location Code" = field("Location Filter"),
-                                                                                            "Component Forecast" = field("Component Forecast"),
-                                                                                            "Variant Code" = field("Variant Filter")));
-            Caption = 'Prod. Forecast Quantity (Base)';
-            DecimalPlaces = 0 : 5;
-            FieldClass = FlowField;
-        }
-        field(99000775; "Production Forecast Name"; Code[10])
-        {
-            Caption = 'Production Forecast Name';
-            FieldClass = FlowFilter;
-            TableRelation = "Production Forecast Name";
-        }
-        field(99000776; "Component Forecast"; Boolean)
-        {
-            Caption = 'Component Forecast';
-            FieldClass = FlowFilter;
-        }
-        field(99000777; "Qty. on Prod. Order"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Line"."Remaining Qty. (Base)" where(Status = filter(Planned .. Released),
-                                                                                "Item No." = field("No."),
-                                                                                "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                "Location Code" = field("Location Filter"),
-                                                                                "Variant Code" = field("Variant Filter"),
-                                                                                "Due Date" = field("Date Filter"),
-                                                                                "Unit of Measure Code" = field("Unit of Measure Filter")));
-            Caption = 'Qty. on Prod. Order';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(99000778; "Qty. on Component Lines"; Decimal)
-        {
-            CalcFormula = sum("Prod. Order Component"."Remaining Qty. (Base)" where(Status = filter(Planned .. Released),
-                                                                                     "Item No." = field("No."),
-                                                                                     "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                                     "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                     "Location Code" = field("Location Filter"),
-                                                                                     "Variant Code" = field("Variant Filter"),
-                                                                                     "Due Date" = field("Date Filter"),
-                                                                                     "Unit of Measure Code" = field("Unit of Measure Filter")));
-            Caption = 'Qty. on Component Lines';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
         field(99000875; Critical; Boolean)
         {
             Caption = 'Critical';
@@ -2575,12 +2205,7 @@ table 27 Item
         }
         key(Key7; "Low-Level Code")
         {
-        }
-        key(Key8; "Production BOM No.")
-        {
-        }
-        key(Key9; "Routing No.")
-        {
+            IncludedFields = "Cost is Adjusted", "Allow Online Adjustment", "Excluded from Cost Adjustment";
         }
         key(Key10; "Vendor Item No.", "Vendor No.")
         {
@@ -2607,14 +2232,6 @@ table 27 Item
         key(Key18; GTIN)
         {
         }
-#if not CLEAN23
-        key(Key19; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     fieldgroups
@@ -2640,6 +2257,9 @@ table 27 Item
 
         CheckJournalsAndWorksheets(0);
         CheckDocuments(0);
+
+        if not "Cost is Adjusted" then
+            RunCostAdjustment(Rec);
 
         MoveEntries.MoveItemEntries(Rec);
 
@@ -2688,6 +2308,7 @@ table 27 Item
                     "No." := NoSeries.GetNextNo("No. Series");
 #endif
                 "Costing Method" := InventorySetup."Default Costing Method";
+                OnInsertOnAfterAssignNo(Rec, xRec);
             end;
 
             DimMgt.UpdateDefaultDim(
@@ -2764,7 +2385,6 @@ table 27 Item
 #pragma warning disable AA0470
         CannotChangeItemWithExistingDocumentLinesErr: Label 'You cannot change the %1 field on %2 %3 because at least one %4 exists for this item.', Comment = '%1 = Field Caption, %2 = Item Table Name, %3 = Item No., %4 = Table Name';
         CannotDeleteItemWithExistingDocumentLinesErr: Label 'You cannot delete %1 %2 because there is at least one %3 that includes this item.';
-        Text024: Label 'If you change %1 it may affect existing production orders.\';
         Text025: Label '%1 must be an integer because %2 %3 is set up to use %4.';
         Text026: Label '%1 cannot be changed because the %2 has work in process (WIP). Changing the value may offset the WIP account.';
         Text7380: Label 'If you change the %1, the %2 and %3 are calculated.\Do you still want to change the %1?', Comment = 'If you change the Phys Invt Counting Period Code, the Next Counting Start Date and Next Counting End Date are calculated.\Do you still want to change the Phys Invt Counting Period Code?';
@@ -2789,7 +2409,6 @@ table 27 Item
         GenProdPostingGrp: Record "Gen. Product Posting Group";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         ItemJnlLine: Record "Item Journal Line";
-        ProdOrderLine: Record "Prod. Order Line";
         PlanningAssignment: Record "Planning Assignment";
         StockkeepingUnit: Record "Stockkeeping Unit";
         ItemSub: Record "Item Substitution";
@@ -2949,6 +2568,7 @@ table 27 Item
             "No." := NoSeries.GetNextNo("No. Series");
             if xRec."No." = '' then
                 "Costing Method" := InventorySetup."Default Costing Method";
+            OnAssistEditOnAfterAssignNo(Rec, xRec);
             exit(true);
         end;
     end;
@@ -3012,7 +2632,6 @@ table 27 Item
         IsHandled := false;
         OnBeforeTestNoItemLedgEntiesExist(Rec, CurrentFieldName, IsHandled);
         if not IsHandled then begin
-            ItemLedgEntry.SetCurrentKey("Item No.");
             ItemLedgEntry.SetRange("Item No.", "No.");
             if not ItemLedgEntry.IsEmpty() then
                 Error(Text007, CurrentFieldName);
@@ -3140,10 +2759,14 @@ table 27 Item
         OnAfterIsAssemblyItem(Rec, Result);
     end;
 
-    procedure HasBOM(): Boolean
+    procedure HasBOM() Result: Boolean
     begin
         CalcFields("Assembly BOM");
-        exit("Assembly BOM" or ("Production BOM No." <> ''));
+        if "Assembly BOM" then
+            exit(true);
+
+        OnAfterHasBOM(Rec, Result);
+        exit(Result);
     end;
 
     local procedure GetGLSetup()
@@ -3151,17 +2774,6 @@ table 27 Item
         if not GLSetupRead then
             GLSetup.Get();
         GLSetupRead := true;
-    end;
-
-    local procedure ProdOrderExist(): Boolean
-    begin
-        ProdOrderLine.SetCurrentKey(Status, "Item No.");
-        ProdOrderLine.SetFilter(Status, '..%1', ProdOrderLine.Status::Released);
-        ProdOrderLine.SetRange("Item No.", "No.");
-        if not ProdOrderLine.IsEmpty() then
-            exit(true);
-
-        exit(false);
     end;
 
     procedure CheckSerialNoQty(ItemNo: Code[20]; FieldName: Text[30]; Quantity: Decimal)
@@ -3203,8 +2815,6 @@ table 27 Item
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        Clear(ItemLedgEntry);
-        ItemLedgEntry.SetCurrentKey("Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
         ItemLedgEntry.SetRange("Item No.", ItemNo);
         ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
         if not ItemLedgEntry.IsEmpty() then
@@ -3249,7 +2859,7 @@ table 27 Item
 
     local procedure CheckStdCostWksh(CurrentFieldNo: Integer)
     var
-        StandardCostWorksheet: Record "Standard Cost Worksheet";
+        StandardCostWorksheet: Record Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet";
         IsHandled: Boolean;
     begin
         if "No." = '' then
@@ -3347,26 +2957,6 @@ table 27 Item
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure CheckProdOrderLine() in codeunit CheckProdOrderDocument', '25.0')]
-    procedure CheckProdOrderLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
-    var
-        CheckProdOrderDocument: Codeunit "Check Prod. Order Document";
-    begin
-        CheckProdOrderDocument.CheckProdOrderLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
-    end;
-#endif
-
-#if not CLEAN25
-    [Obsolete('Replaced by procedure CheckProdOrderComponent() in codeunit CheckProdOrderDocument', '25.0')]
-    procedure CheckProdOrderCompLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
-    var
-        CheckProdOrderDocument: Codeunit "Check Prod. Order Document";
-    begin
-        CheckProdOrderDocument.CheckProdOrderLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
-    end;
-#endif
-
-#if not CLEAN25
     [Obsolete('Replaced by procedure CheckPlanningCompLine() in codeunit CheckPlanningComponent', '25.0')]
     procedure CheckPlanningCompLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
@@ -3394,42 +2984,12 @@ table 27 Item
 #endif
 
 #if not CLEAN25
-    [Obsolete('Replaced by procedure CheckProdBOMLine() in codeunit CheckProdOrderDocument', '25.0')]
-    procedure CheckProdBOMLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
-    var
-        CheckProdOrderDocument: Codeunit "Check Prod. Order Document";
-    begin
-        CheckProdOrderDocument.CheckProdBOMLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
-    end;
-#endif
-
-#if not CLEAN25
     [Obsolete('Replaced by procedure CheckServiceContractLine() in codeunit CheckServiceDocument', '25.0')]
     procedure CheckServContractLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
         CheckServiceDocument: Codeunit Microsoft.Service.Document."Check Service Document";
     begin
         CheckServiceDocument.CheckServiceContractLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
-    end;
-#endif
-
-#if not CLEAN25
-    [Obsolete('Replaced by procedure CheckAssemblyHeader() in codeunit CheckAssemblyDocument', '25.0')]
-    procedure CheckAsmHeader(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
-    var
-        CheckAssemblyDocument: Codeunit "Check Assembly Document";
-    begin
-        CheckAssemblyDocument.CheckAssemblyHeaders(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
-    end;
-#endif
-
-#if not CLEAN25
-    [Obsolete('Replaced by procedure CheckAssemblyLine() in codeunit CheckAssemblyDocument', '25.0')]
-    procedure CheckAsmLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
-    var
-        CheckAssemblyDocument: Codeunit "Check Assembly Document";
-    begin
-        CheckAssemblyDocument.CheckAssemblyLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
 #endif
 
@@ -3454,12 +3014,11 @@ table 27 Item
         Validate("Inventory Posting Group", '');
         Validate("Item Tracking Code", '');
         Validate("Costing Method", "Costing Method"::FIFO);
-        Validate("Production BOM No.", '');
-        Validate("Routing No.", '');
         Validate("Reordering Policy", "Reordering Policy"::" ");
         Validate("Order Tracking Policy", "Order Tracking Policy"::None);
-        Validate("Overhead Rate", 0);
         Validate("Indirect Cost %", 0);
+
+        OnAfterCheckUpdateFieldsForNonInventoriableItem(Rec);
     end;
 
     procedure PreventNegativeInventory(): Boolean
@@ -3714,6 +3273,36 @@ table 27 Item
         FilterGroup(CurrentFilterGroup);
     end;
 
+    procedure UpdateCostIsAdjusted()
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        NonAdjustedItemLedgEntryExists: Boolean;
+        NonAdjustedAvgCostAdjmtEntryPointExists: Boolean;
+        NonAdjustedInventoryAdjmtEntryOrderExists: Boolean;
+    begin
+        ItemLedgerEntry.SetRange("Item No.", "No.");
+        ItemLedgerEntry.SetRange("Applied Entry to Adjust", true);
+        NonAdjustedItemLedgEntryExists := not ItemLedgerEntry.IsEmpty();
+
+        AvgCostAdjmtEntryPoint.SetRange("Item No.", "No.");
+        AvgCostAdjmtEntryPoint.SetRange("Cost Is Adjusted", false);
+        NonAdjustedAvgCostAdjmtEntryPointExists := not AvgCostAdjmtEntryPoint.IsEmpty();
+
+        InventoryAdjmtEntryOrder.SetRange("Item No.", "No.");
+        InventoryAdjmtEntryOrder.SetRange("Cost Is Adjusted", false);
+        InventoryAdjmtEntryOrder.SetRange("Order Type", InventoryAdjmtEntryOrder."Order Type"::Assembly);
+        NonAdjustedInventoryAdjmtEntryOrderExists := not InventoryAdjmtEntryOrder.IsEmpty();
+
+        InventoryAdjmtEntryOrder.SetRange("Order Type", InventoryAdjmtEntryOrder."Order Type"::Production);
+        InventoryAdjmtEntryOrder.SetRange("Is Finished", true);
+        NonAdjustedInventoryAdjmtEntryOrderExists := NonAdjustedInventoryAdjmtEntryOrderExists or not InventoryAdjmtEntryOrder.IsEmpty();
+
+        "Cost is Adjusted" := not (NonAdjustedItemLedgEntryExists or NonAdjustedAvgCostAdjmtEntryPointExists or NonAdjustedInventoryAdjmtEntryOrderExists);
+        Modify();
+    end;
+
     procedure UpdateReplenishmentSystem() Result: Boolean
     var
         IsHandled: Boolean;
@@ -3748,6 +3337,7 @@ table 27 Item
             exit;
         end;
 
+        UnitOfMeasure.SetLoadFields(SystemId);
         if not UnitOfMeasure.Get("Base Unit of Measure") then
             exit;
 
@@ -3804,6 +3394,7 @@ table 27 Item
             exit;
         end;
 
+        TaxGroup.SetLoadFields(SystemId);
         if not TaxGroup.Get("Tax Group Code") then
             exit;
 
@@ -3814,6 +3405,7 @@ table 27 Item
     var
         UnitOfMeasure: Record "Unit of Measure";
     begin
+        UnitOfMeasure.SetLoadFields("Code");
         if not IsNullGuid("Unit of Measure Id") then
             UnitOfMeasure.GetBySystemId("Unit of Measure Id");
 
@@ -3824,6 +3416,7 @@ table 27 Item
     var
         TaxGroup: Record "Tax Group";
     begin
+        TaxGroup.SetLoadFields("Code");
         if not IsNullGuid("Tax Group Id") then
             TaxGroup.GetBySystemId("Tax Group Id");
 
@@ -3834,6 +3427,7 @@ table 27 Item
     var
         ItemCategory: Record "Item Category";
     begin
+        ItemCategory.SetLoadFields("Code");
         if not IsNullGuid("Item Category Id") then
             ItemCategory.GetBySystemId("Item Category Id");
 
@@ -4176,9 +3770,6 @@ table 27 Item
         if "No." = '' then
             exit;
 
-        ItemLedgEntry.Reset();
-        ItemLedgEntry.SetLoadFields("Item No.");
-        ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", "No.");
         exit(not ItemLedgEntry.IsEmpty);
     end;
@@ -4192,6 +3783,27 @@ table 27 Item
         ItemTrackingCode.Get("Item Tracking Code");
         ItemTrackingCode.SetLoadFields();
         exit(ItemTrackingCode."Use Expiration Dates");
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"My Item", 'rm')]
+    local procedure UpdateMyItem(CallingFieldNo: Integer)
+    var
+        MyItem: Record "My Item";
+    begin
+        case CallingFieldNo of
+            FieldNo(Description):
+                begin
+                    MyItem.SetRange("Item No.", "No.");
+                    if not MyItem.IsEmpty() then
+                        MyItem.ModifyAll(Description, Description);
+                end;
+            FieldNo("Unit Price"):
+                begin
+                    MyItem.SetRange("Item No.", "No.");
+                    if not MyItem.IsEmpty() then
+                        MyItem.ModifyAll("Unit Price", "Unit Price");
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -4220,11 +3832,6 @@ table 27 Item
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateProductionBOMNo(var Item: Record Item; xItem: Record Item; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateItemCategoryCode(var Item: Record Item; xItem: Record Item)
     begin
     end;
@@ -4236,11 +3843,6 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnValidateProductionBOMNoOnAfterCodeunitRun(ProductionBOMHeader: Record "Production BOM Header"; var Item: Record Item)
     begin
     end;
 
@@ -4460,11 +4062,6 @@ table 27 Item
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateProductionBOMNoOnAfterProcessStatusCertified(ProductionBOMHeader: Record "Production BOM Header"; var Item: Record Item)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnBeforeFindItemVend(var Item: Record Item; var ItemVendor: Record "Item Vendor"; LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
@@ -4490,7 +4087,22 @@ table 27 Item
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterHasBOM(var Item: Record Item; var Result: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckUpdateFieldsForNonInventoriableItem(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateItemTrackingCodeOnBeforeTestNoEntriesExist(var Item: Record Item; xItem: Record Item; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateGenProdPostingGroupOnConfirmChange(var Item: Record Item; xItemGenProdPostingGroupCode: Code[20]; var ShouldExit: Boolean)
     begin
     end;
 
@@ -4501,6 +4113,16 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnFindItemVendOnAfterFindItemVend(var ItemVendor: Record "Item Vendor"; Item: Record Item; var StockkeepingUnit: Record "Stockkeeping Unit"; LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnAfterAssignNo(var Item: Record Item; xItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssistEditOnAfterAssignNo(var Item: Record Item; xItem: Record Item)
     begin
     end;
 }

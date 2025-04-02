@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 using Microsoft.Inventory.Ledger;
@@ -69,6 +73,7 @@ table 9152 "My Item"
     var
         Item: Record Item;
     begin
+        Item.SetLoadFields(Description, "Unit Price");
         if Item.Get("Item No.") then begin
             Description := Item.Description;
             "Unit Price" := Item."Unit Price";

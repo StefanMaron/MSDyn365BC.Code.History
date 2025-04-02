@@ -1107,14 +1107,6 @@ table 210 "Job Journal Line"
         {
             Caption = 'Cost Calculation Method';
         }
-        field(10500; "Shipment Method Code"; Code[10])
-        {
-            Caption = 'Shipment Method Code';
-            ObsoleteReason = 'Merge to W1';
-            ObsoleteState = Removed;
-            TableRelation = "Shipment Method";
-            ObsoleteTag = '19.0';
-        }
     }
 
     keys
@@ -1209,6 +1201,8 @@ table 210 "Job Journal Line"
         Text007: Label '%1 %2 is already linked to %3 %4. Hence %5 cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?', Comment = 'Project Journal Line project DEFAULT 30000 is already linked to Project Planning Line  DEERFIELD, 8 WP 1120 10000. Hence Remaining Qty. cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
+        DocNoFilterErr: Label 'The document numbers cannot be renumbered while there is an active filter on the Document No. field.';
+        RenumberDocNoQst: Label 'If you have many documents it can take time to sort them, and %1 might perform slowly during the process. In those cases we suggest that you sort them during non-working hours. Do you want to continue?', Comment = '%1= Business Central';
 
     protected var
         JobJnlTemplate: Record "Job Journal Template";
@@ -2301,6 +2295,127 @@ table 210 "Job Journal Line"
         end;
     end;
 
+    /// <summary>
+    /// Renumbers the document number of the current job journal line based on the number series specified in the 
+    /// associated job journal batch.
+    /// </summary>
+    /// <remarks>
+    /// An error will be raised if there is an active filter on the document number field.
+    /// A commit is used during renumbering.
+    /// </remarks>
+    procedure RenumberDocumentNo()
+    var
+        JobJnlLine2: Record "Job Journal Line";
+        NoSeries: Codeunit "No. Series";
+        DocNo: Code[20];
+        FirstDocNo: Code[20];
+        FirstTempDocNo: Code[20];
+        LastTempDocNo: Code[20];
+    begin
+        if SkipRenumberDocumentNo() then
+            exit;
+
+        JobJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+        if JobJnlBatch."No. Series" = '' then
+            exit;
+        if GetFilter("Document No.") <> '' then
+            Error(DocNoFilterErr);
+        FirstDocNo := NoSeries.PeekNextNo(JobJnlBatch."No. Series", "Posting Date");
+        FirstTempDocNo := GetTempRenumberDocumentNo();
+        // step1 - renumber to non-existing document number
+        DocNo := FirstTempDocNo;
+        JobJnlLine2 := Rec;
+        JobJnlLine2.Reset();
+        RenumberDocNoOnLines(DocNo, JobJnlLine2);
+        LastTempDocNo := DocNo;
+
+        // step2 - renumber to real document number (within Filter)
+        DocNo := FirstDocNo;
+        JobJnlLine2.CopyFilters(Rec);
+        JobJnlLine2 := Rec;
+        RenumberDocNoOnLines(DocNo, JobJnlLine2);
+
+        // step3 - renumber to real document number (outside filter)
+        DocNo := IncStr(DocNo);
+        JobJnlLine2.Reset();
+        JobJnlLine2.SetRange("Document No.", FirstTempDocNo, LastTempDocNo);
+        RenumberDocNoOnLines(DocNo, JobJnlLine2);
+
+        if Get("Journal Template Name", "Journal Batch Name", "Line No.") then;
+    end;
+
+    local procedure RenumberDocNoOnLines(var DocNo: Code[20]; var JobJnlLine2: Record "Job Journal Line")
+    var
+        LastJobJnlLine: Record "Job Journal Line";
+        JobJnlLine3: Record "Job Journal Line";
+        NoSeries: Codeunit "No. Series";
+        PrevDocNo: Code[20];
+        FirstDocNo: Code[20];
+        TempFirstDocNo: Code[20];
+        First: Boolean;
+        IsHandled: Boolean;
+        PrevPostingDate: Date;
+    begin
+        IsHandled := false;
+        OnBeforeRenumberDocNoOnLines(DocNo, JobJnlLine2, IsHandled);
+        if IsHandled then
+            exit;
+
+        FirstDocNo := DocNo;
+        JobJnlLine2.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.");
+        JobJnlLine2.SetRange("Journal Template Name", JobJnlLine2."Journal Template Name");
+        JobJnlLine2.SetRange("Journal Batch Name", JobJnlLine2."Journal Batch Name");
+        LastJobJnlLine.Init();
+        First := true;
+        if JobJnlLine2.FindSet() then
+            repeat
+                if ((FirstDocNo <> GetTempRenumberDocumentNo()) and (JobJnlLine2.GetFilter("Document No.") = '')) then begin
+                    Commit();
+                    JobJnlBatch.Get(JobJnlLine2."Journal Template Name", JobJnlLine2."Journal Batch Name");
+                    TempFirstDocNo := NoSeries.PeekNextNo(JobJnlBatch."No. Series", JobJnlLine2."Posting Date");
+                    if (FirstDocNo <> TempFirstDocNo) and (FirstDocNo <> IncStr(TempFirstDocNo)) then begin
+                        DocNo := TempFirstDocNo;
+                        FirstDocNo := DocNo;
+                        First := true;
+                    end;
+                end;
+                if JobJnlLine2."Document No." = FirstDocNo then
+                    exit;
+                if not First and
+                    ((JobJnlLine2."Posting Date" <> PrevPostingDate) or
+                    (JobJnlLine2."Document No." = '')) and
+                    not LastJobJnlLine.EmptyLine()
+                then
+                    DocNo := IncStr(DocNo);
+                PrevDocNo := JobJnlLine2."Document No.";
+                PrevPostingDate := JobJnlLine2."Posting Date";
+                JobJnlLine3.Get(JobJnlLine2."Journal Template Name", JobJnlLine2."Journal Batch Name", JobJnlLine2."Line No.");
+                JobJnlLine3."Document No." := DocNo;
+                JobJnlLine3.Modify();
+                First := false;
+                LastJobJnlLine := JobJnlLine2;
+            until JobJnlLine2.Next() = 0;
+
+        OnAfterRenumberDocNoOnLines(DocNo, JobJnlLine2);
+    end;
+
+    local procedure SkipRenumberDocumentNo() Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSkipRenumberDocumentNo(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        exit(GuiAllowed() and not Dialog.Confirm(StrSubstNo(RenumberDocNoQst, ProductName.Short()), true));
+    end;
+
+    local procedure GetTempRenumberDocumentNo(): Code[20]
+    begin
+        exit('RENUMBERED-000000001');
+    end;
+
     local procedure CalcBaseQtyForJobPlanningLine(Qty: Decimal; FromFieldName: Text; ToFieldName: Text; JobPlanningLine: Record "Job Planning Line"): Decimal
     begin
         exit(UOMMgt.CalcBaseQty(
@@ -2682,6 +2797,21 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitTableValuePair(var JobJournalLine: Record "Job Journal Line"; var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSkipRenumberDocumentNo(JobJournalLine: Record "Job Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRenumberDocNoOnLines(var DocNo: Code[20]; var JobJnlLine2: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRenumberDocNoOnLines(var DocNo: Code[20]; var JobJnlLine2: Record "Job Journal Line")
     begin
     end;
 }

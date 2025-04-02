@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Setup;
 
 page 5615 "FA Classes"
@@ -20,12 +24,10 @@ page 5615 "FA Classes"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies a code for the class that the fixed asset belongs to.';
                 }
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the name of the fixed asset class.';
                 }
             }
         }

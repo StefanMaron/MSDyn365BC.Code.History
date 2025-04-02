@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Depreciation;
 
 using Microsoft.FixedAssets.FixedAsset;
@@ -26,12 +30,10 @@ page 5610 "Depreciation Book Card"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies a code that identifies the depreciation book.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = FixedAssets;
-                    ToolTip = 'Specifies the purpose of the depreciation book.';
                 }
                 field("Default Final Rounding Amount"; Rec."Default Final Rounding Amount")
                 {

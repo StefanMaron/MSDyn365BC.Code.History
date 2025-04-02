@@ -113,6 +113,12 @@ table 169 "Job Ledger Entry"
             else
             if (Type = const(Resource)) "Resource Unit of Measure".Code where("Resource No." = field("No."));
         }
+        field(19; "Job Register No."; Integer)
+        {
+            Caption = 'Job Register No.';
+            Editable = false;
+            TableRelation = "Job Register";
+        }
         field(20; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
@@ -477,6 +483,7 @@ table 169 "Job Ledger Entry"
             Caption = 'Package No.';
             CaptionClass = '6,1';
         }
+#if not CLEANSCHEMA25
         field(10500; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
@@ -485,6 +492,7 @@ table 169 "Job Ledger Entry"
             TableRelation = "Shipment Method";
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys
@@ -495,7 +503,7 @@ table 169 "Job Ledger Entry"
         }
         key(Key2; "Job No.", "Job Task No.", "Entry Type", "Posting Date")
         {
-            SumIndexFields = "Total Cost (LCY)", "Line Amount (LCY)", "Total Cost", "Line Amount";
+            IncludedFields = "Total Cost (LCY)", "Line Amount (LCY)", "Total Cost", "Line Amount";
         }
         key(Key3; "Document No.", "Posting Date")
         {
@@ -551,6 +559,15 @@ table 169 "Job Ledger Entry"
         Job: Record Job;
         DimMgt: Codeunit DimensionManagement;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Job Ledger Entry", 'r')]
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Job Ledger Entry"));
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Job Ledger Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";

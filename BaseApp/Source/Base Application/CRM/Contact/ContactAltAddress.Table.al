@@ -1,6 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CRM.Contact;
 
 using Microsoft.Foundation.Address;
+using System;
 using System.Email;
 
 table 5051 "Contact Alt. Address"
@@ -105,6 +110,16 @@ table 5051 "Contact Alt. Address"
         {
             Caption = 'Phone No.';
             ExtendedDatatype = PhoneNo;
+
+            trigger OnValidate()
+            var
+                Char: DotNet Char;
+                i: Integer;
+            begin
+                for i := 1 to StrLen("Phone No.") do
+                    if Char.IsLetter("Phone No."[i]) then
+                        FieldError("Phone No.", PhoneNoCannotContainLettersErr);
+            end;
         }
         field(13; "Telex No."; Text[20])
         {
@@ -118,6 +133,16 @@ table 5051 "Contact Alt. Address"
         {
             Caption = 'Mobile Phone No.';
             ExtendedDatatype = PhoneNo;
+
+            trigger OnValidate()
+            var
+                Char: DotNet Char;
+                i: Integer;
+            begin
+                for i := 1 to StrLen("Mobile Phone No.") do
+                    if Char.IsLetter("Mobile Phone No."[i]) then
+                        FieldError("Mobile Phone No.", PhoneNoCannotContainLettersErr);
+            end;
         }
         field(16; Pager; Text[30])
         {
@@ -233,6 +258,7 @@ table 5051 "Contact Alt. Address"
 
     var
         PostCode: Record "Post Code";
+        PhoneNoCannotContainLettersErr: Label 'must not contain letters';
 
     local procedure SetSearchEmail()
     begin

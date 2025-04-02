@@ -30,7 +30,6 @@
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -3407,7 +3406,7 @@
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::Assembly);
         ParentItem.Modify(true);
         LibraryInventory.CreateItem(ChildItem);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ParentItem."No.", BOMComponent.Type::Item, ChildItem."No.", 1, ChildItem."Base Unit of Measure");
         AssemblyItem := ParentItem."No.";
         ComponentItem := ChildItem."No.";

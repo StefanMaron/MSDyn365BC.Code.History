@@ -408,10 +408,21 @@ table 1383 "Vendor Templ."
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
         }
+#if not CLEANSCHEMA26
         field(10501; "Exclude from Pmt. Pract. Rep."; Boolean)
         {
             Caption = 'Exclude from Payment Practices Report';
+#if CLEAN26
+            ObsoleteReason = 'Not supported in the template.';
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteReason = 'Not supported in the template.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#endif
         }
+#endif
     }
 
     keys

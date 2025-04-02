@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.DirectDebit;
 
 using Microsoft.Foundation.NoSeries;
@@ -6,7 +10,7 @@ using Microsoft.Sales.Setup;
 
 table 1230 "SEPA Direct Debit Mandate"
 {
-    Caption = 'SEPA Direct Debit Mandate';
+    Caption = 'Direct Debit Mandate';
     DataCaptionFields = ID, "Customer Bank Account Code";
     DrillDownPageID = "SEPA Direct Debit Mandates";
     LookupPageID = "SEPA Direct Debit Mandates";

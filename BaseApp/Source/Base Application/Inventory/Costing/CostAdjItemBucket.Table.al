@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Inventory.Item;
@@ -52,6 +56,10 @@ table 5801 "Cost Adj. Item Bucket"
         field(8; "Post to G/L"; Boolean)
         {
             Caption = 'Post to G/L';
+        }
+        field(9; Trace; Boolean)
+        {
+            Caption = 'Trace';
         }
         field(11; "Last Error"; Text[2048])
         {

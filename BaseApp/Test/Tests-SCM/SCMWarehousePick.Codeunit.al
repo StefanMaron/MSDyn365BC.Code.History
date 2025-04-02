@@ -545,7 +545,7 @@ codeunit 137055 "SCM Warehouse Pick"
 
         // [GIVEN] Purchased item "C" which is a component of "I".
         LibraryInventory.CreateItem(CompItem);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
 
         // [GIVEN] Post the positive adjustment for "Q" pcs of item "C" on location set up for directed put-away and pick.
@@ -2029,7 +2029,7 @@ codeunit 137055 "SCM Warehouse Pick"
         AsmItem.Validate("Assembly Policy", AsmItem."Assembly Policy"::"Assemble-to-Order");
         AsmItem.Modify(true);
         LibraryInventory.CreateItem(CompItem);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.",
           QuantityPer, CompItem."Base Unit of Measure");
     end;

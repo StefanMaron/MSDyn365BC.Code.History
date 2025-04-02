@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.MachineCenter;
 
 using Microsoft.Manufacturing.Capacity;
@@ -102,7 +106,6 @@ page 99000761 "Machine Center List"
                 field("Flushing Method"; Rec."Flushing Method")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
                     Visible = false;
                 }
             }
@@ -139,7 +142,7 @@ page 99000761 "Machine Center List"
                     RunPageLink = Type = const("Machine Center"),
                                   "No." = field("No."),
                                   "Posting Date" = field("Date Filter");
-                    RunPageView = sorting(Type, "No.", "Work Shift Code", "Item No.", "Posting Date");
+                    RunPageView = sorting(Type, "No.", "Item No.", "Posting Date");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the capacity ledger entries of the involved production order. Capacity is recorded either as time (run time, stop time, or setup time) or as quantity (scrap quantity or output quantity).';
                 }
@@ -227,6 +230,7 @@ page 99000761 "Machine Center List"
         }
         area(reporting)
         {
+#if not CLEAN26
             action("Machine Center List")
             {
                 ApplicationArea = Manufacturing;
@@ -234,7 +238,11 @@ page 99000761 "Machine Center List"
                 Image = "Report";
                 RunObject = Report "Machine Center List";
                 ToolTip = 'View the list of machine centers.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the page Machine Center List and will be removed in a future release.';
+                ObsoleteTag = '26.0';
             }
+#endif
             action("Machine Center Load")
             {
                 ApplicationArea = Manufacturing;
@@ -279,10 +287,14 @@ page 99000761 "Machine Center List"
             group(Category_Report)
             {
                 Caption = 'Reports';
-
+#if not CLEAN26
                 actionref("Machine Center List_Promoted"; "Machine Center List")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been replaced by the page Machine Center List and will be removed in a future release.';
+                    ObsoleteTag = '26.0';
                 }
+#endif
                 actionref("Machine Center Load_Promoted"; "Machine Center Load")
                 {
                 }

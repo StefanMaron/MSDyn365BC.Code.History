@@ -510,8 +510,8 @@ page 5814 "Item Charge Assignment (Sales)"
                     QtyRetReceivedBase := ReturnRcptLine."Quantity (Base)";
                     QtyToShipBase := 0;
                     QtyShippedBase := 0;
-                    GrossWeight := SalesLine."Gross Weight";
-                    UnitVolume := SalesLine."Unit Volume";
+                    GrossWeight := ReturnRcptLine."Gross Weight";
+                    UnitVolume := ReturnRcptLine."Unit Volume";
                 end;
             "Sales Applies-to Document Type"::Shipment:
                 begin
@@ -520,8 +520,8 @@ page 5814 "Item Charge Assignment (Sales)"
                     QtyRetReceivedBase := 0;
                     QtyToShipBase := 0;
                     QtyShippedBase := SalesShptLine."Quantity (Base)";
-                    GrossWeight := SalesLine."Gross Weight";
-                    UnitVolume := SalesLine."Unit Volume";
+                    GrossWeight := SalesShptLine."Gross Weight";
+                    UnitVolume := SalesShptLine."Unit Volume";
                 end;
         end;
 

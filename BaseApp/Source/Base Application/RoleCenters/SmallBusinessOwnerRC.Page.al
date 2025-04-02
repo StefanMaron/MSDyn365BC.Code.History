@@ -27,9 +27,6 @@ using Microsoft.FixedAssets.Journal;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Calendar;
-#if not CLEAN25
-using Microsoft.Foundation.ExtendedText;
-#endif
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.Period;
 using Microsoft.HumanResources.Employee;
@@ -300,7 +297,7 @@ page 9020 "Small Business Owner RC"
             }
             action("VAT Registration No. Chec&k")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'VAT Registration No. Chec&k';
                 Image = "Report";
                 RunObject = Report "VAT Registration No. Check";
@@ -308,7 +305,7 @@ page 9020 "Small Business Owner RC"
             }
             action("VAT E&xceptions")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'VAT E&xceptions';
                 Image = "Report";
                 RunObject = Report "VAT Exceptions";
@@ -316,7 +313,7 @@ page 9020 "Small Business Owner RC"
             }
             action("V&AT Statement")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'V&AT Statement';
                 Image = "Report";
                 RunObject = Report "VAT Statement";
@@ -324,7 +321,7 @@ page 9020 "Small Business Owner RC"
             }
             action("G/L - VAT Reconciliation")
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'G/L - VAT Reconciliation';
                 Image = "Report";
                 RunObject = Report "G/L - VAT Reconciliation";
@@ -742,7 +739,7 @@ page 9020 "Small Business Owner RC"
                     ApplicationArea = Suite;
                     Caption = 'Salespeople/Purchasers';
                     RunObject = Page "Salespersons/Purchasers";
-                    ToolTip = 'View a list of your sales people and your purchasers.';
+                    ToolTip = 'View a list of salespeople and purchasers.';
                 }
                 action("Customer Invoice Discount")
                 {
@@ -883,19 +880,6 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Reason Codes";
                     ToolTip = 'View or set up codes that specify reasons why entries were created, such as Return, to specify why a purchase credit memo was posted.';
                 }
-#if not CLEAN25
-                action("Extended Texts")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Extended Texts';
-                    Image = Text;
-                    RunObject = Page "Extended Text List";
-                    ToolTip = 'View or edit additional text for the descriptions of items. Extended text can be inserted under the Description field on document lines for the item.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Page should not get opened without any filters.';
-                    ObsoleteTag = '23.0';
-                }
-#endif
             }
         }
         area(creation)

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Bank.Reconciliation;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -89,15 +93,6 @@ table 274 "Bank Acc. Reconciliation Line"
             begin
                 Difference := "Statement Amount" - "Applied Amount";
             end;
-        }
-        field(10; Type; Option)
-        {
-            Caption = 'Type';
-            OptionCaption = 'Bank Account Ledger Entry,Check Ledger Entry,Difference';
-            OptionMembers = "Bank Account Ledger Entry","Check Ledger Entry",Difference;
-            ObsoleteReason = 'This field is prone to confusion and is redundant. A type Difference can be manually tracked and a type Check Ledger Entry has a related Bank Account Ledger Entry';
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
         }
         field(11; "Applied Entries"; Integer)
         {

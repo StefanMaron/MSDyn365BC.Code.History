@@ -51,14 +51,14 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         LibraryCosting.AdjustCostItemEntries(FinalItem."No." + '|' + CompItem."No.", '');
 
         // Post output.
-        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, WorkDate(), Qty, 0);
+        LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, WorkDate(), Qty, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // create location
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
 
         // Reclassify into second location.
-        LibraryPatterns.POSTReclassificationJournalLine(FinalItem, WorkDate(), '', ToLocation.Code, '', '', '', Qty);
+        LibraryInventory.PostReclassificationJournalLine(FinalItem, WorkDate(), '', ToLocation.Code, '', '', '', Qty);
 
         // fill inventory with component
         CreateInventory(CompItem, 10, '', 0);
@@ -86,7 +86,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
           OldInventorySetup."Automatic Cost Posting",
           OldInventorySetup."Expected Cost Posting to G/L", OldInventorySetup."Automatic Cost Adjustment");
 
-        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, Item."Costing Method"::Average, 0, 0, 0, '');
 
         // create locations
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
@@ -108,7 +108,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
         // Sales order for item and ToLocation
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, ToLocation.Code, '', 3.9, WorkDate(), 0, true, true);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, ToLocation.Code, '', 3.9, WorkDate(), 0, true, true);
 
         // Adjustment
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -137,7 +137,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         Initialize();
         OldInventorySetup.Get();
         SetInventorySetup(OldInventorySetup, true, false, false, OldInventorySetup."Automatic Cost Adjustment"::Never);
-        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
 
         // create location
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -152,7 +152,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
 
         // Sales order - shipment only
         WorkDate := PostingDate + 2;
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, Location.Code, '', 15, WorkDate(), 0, true, false);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, Location.Code, '', 15, WorkDate(), 0, true, false);
 
         // revaluation remaining quantity
         WorkDate := PostingDate + 3;
@@ -165,7 +165,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         // Sales after revaluation
         WorkDate := PostingDate + 5;
         Clear(SalesHeader);
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, Location.Code, '', 3, WorkDate(), 0, true, true);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, Location.Code, '', 3, WorkDate(), 0, true, true);
 
         // Adjustment
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -204,7 +204,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
 
         // item tracking for item - lot tracking only
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
-        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, ItemTrackingCode.Code);
+        LibraryInventory.CreateItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, ItemTrackingCode.Code);
 
         // create location, customer
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -246,8 +246,8 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         SetPurchaseSetup(PurchasesPayablesSetup, true);
 
         // create 2 items, one location
-        LibraryPatterns.MAKEItem(ItemOne, ItemOne."Costing Method"::FIFO, 0, 0, 0, '');
-        LibraryPatterns.MAKEItem(ItemTwo, ItemTwo."Costing Method"::FIFO, 0, 0, 0, '');
+        LibraryInventory.CreateItem(ItemOne, ItemOne."Costing Method"::FIFO, 0, 0, 0, '');
+        LibraryInventory.CreateItem(ItemTwo, ItemTwo."Costing Method"::FIFO, 0, 0, 0, '');
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
         // Create Purchase Order for 2 items, receive
@@ -310,7 +310,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
 
         // Setup Item: Unit Cost = Last Direct Cost
         UnitCost := 25;
-        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, UnitCost, 0, 0, '');
+        LibraryInventory.CreateItem(Item, Item."Costing Method"::Average, UnitCost, 0, 0, '');
         Item."Last Direct Cost" := UnitCost;
         Item.Modify();
 
@@ -322,14 +322,14 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
 
         // Post output for production with same quantity twice
         FindProdOrderLine(ProdOrderLine, ProductionOrder);
-        LibraryPatterns.MAKEOutputJournalLine(ItemJnlBatch, ProdOrderLine, WorkDate(), Quantity, UnitCost);
+        LibraryManufacturing.CreateOutputJournalLine(ItemJnlBatch, ProdOrderLine, WorkDate(), Quantity, UnitCost);
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
         FirstOutputEntryNo := FindLastItemLedgEntry();
-        LibraryPatterns.MAKEOutputJournalLine(ItemJnlBatch, ProdOrderLine, WorkDate(), Quantity, UnitCost);
+        LibraryManufacturing.CreateOutputJournalLine(ItemJnlBatch, ProdOrderLine, WorkDate(), Quantity, UnitCost);
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
 
         // Post negative output for production - same quantity applied to first output entry
-        LibraryPatterns.MAKEOutputJournalLine(ItemJnlBatch, ProdOrderLine, WorkDate(), -Quantity, UnitCost);
+        LibraryManufacturing.CreateOutputJournalLine(ItemJnlBatch, ProdOrderLine, WorkDate(), -Quantity, UnitCost);
         FindLastJournalLine(ItemJnlBatch, ItemJnlLine);
         ItemJnlLine."Applies-to Entry" := FirstOutputEntryNo;
         ItemJnlLine.Modify();
@@ -339,7 +339,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         AddComponentToProd(ProdOrderLine, Item."No.", 1);
 
         // Post consumption negative quantity applied from entry negative output
-        LibraryPatterns.MAKEConsumptionJournalLine(ItemJnlBatch, ProdOrderLine, Item, WorkDate(), '', '', -Quantity, UnitCost);
+        LibraryManufacturing.CreateConsumptionJournalLine(ItemJnlBatch, ProdOrderLine, Item, WorkDate(), '', '', -Quantity, UnitCost);
         FindLastJournalLine(ItemJnlBatch, ItemJnlLine);
         NegativeOutputEntryNo := FindLastItemLedgEntry();
         ItemJnlLine."Applies-from Entry" := NegativeOutputEntryNo;
@@ -385,7 +385,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         SetupDimensionInInventoryAccount(Location.Code, InvtPostingGroupCode, Dimension, AccountNo);
 
         // create item
-        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
         Item.Validate("Inventory Posting Group", InvtPostingGroupCode);
         Item.Modify();
 
@@ -441,7 +441,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         Initialize();
 
         // create item
-        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
+        LibraryInventory.CreateItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
 
         // create and post 3 inventory entries
         CreateInventory(Item, 1, '', 2);
@@ -507,17 +507,17 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         ProductionBOMHeader: Record "Production BOM Header";
     begin
         // Setup produced and component item.
-        LibraryPatterns.MAKEItem(ParentItem, ParentCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
+        LibraryInventory.CreateItem(ParentItem, ParentCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
         ParentItem.Modify();
 
-        LibraryPatterns.MAKEItem(CompItem, CompCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
+        LibraryInventory.CreateItem(CompItem, CompCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
 
         // Setup BOM and Routing.
-        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ParentItem, CompItem, QtyPer, '');
+        LibraryManufacturing.CreateProductionBOM(ProductionBOMHeader, ParentItem, CompItem, QtyPer, '');
 
         // Released production order.
-        LibraryPatterns.MAKEProductionOrder(
+        LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ParentItem, LocationCode, '', ProducedQty, ProdOrderDate);
         FindProdOrderLine(ProdOrderLine, ProductionOrder);
     end;
@@ -536,7 +536,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
     begin
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
 
-        LibraryPatterns.MAKEItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, '', WorkDate(),
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, '', WorkDate(),
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Quantity, UnitAmount);
 
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
@@ -560,7 +560,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         ConsumptionJournalCalcConsumption(ProductionOrder, ProdOrderComponent, ItemJournalBatch, WorkDate(), 0);
 
         // add a new line with for item manually
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch, FinalItem, Location.Code, '', WorkDate(), ItemJournalLine."Entry Type"::"Negative Adjmt.", 1, 0);
         ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::Consumption);
         ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
@@ -640,13 +640,13 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         InTransitLocation.Validate("Use As In-Transit", true);
         InTransitLocation.Modify();
 
-        LibraryPatterns.POSTTransferOrder(
+        LibraryInventory.CreateAndPostTransferOrder(
           TransferHeader, Item, FromLocation, ToLocation, InTransitLocation, '', Qty, WorkDate(), WorkDate(), true, true);
     end;
 
     local procedure PostNegativePurchase(var PurchaseHeader: Record "Purchase Header"; var Item: Record Item; var Location: Record Location; Qty: Decimal)
     begin
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, Location.Code, '', Qty, WorkDate(), 0, true, false);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, Location.Code, '', Qty, WorkDate(), 0, true, false);
     end;
 
     local procedure PostUndoReceipt(var PurchaseHeader: Record "Purchase Header"; var Item: Record Item)
@@ -779,7 +779,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPatterns.MAKEPurchaseOrder(PurchaseHeader, PurchaseLine, ItemOne, Location.Code, '', QtyOne, WorkDate(), CostOne);
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader, PurchaseLine, ItemOne, Location.Code, '', QtyOne, WorkDate(), CostOne);
 
         // second line
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemTwo."No.", QtyTwo);
@@ -867,9 +867,9 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
 
         // 3 items, the first and seconds are components, the third is final product
-        LibraryPatterns.MAKEItem(Item[1], Item[1]."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2), 0, 0, ItemTrackingCode.Code);
-        LibraryPatterns.MAKEItem(Item[2], Item[2]."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2), 0, 0, ItemTrackingCode.Code);
-        LibraryPatterns.MAKEItem(Item[3], Item[3]."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2), 0, 0, ItemTrackingCode.Code);
+        LibraryInventory.CreateItem(Item[1], Item[1]."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2), 0, 0, ItemTrackingCode.Code);
+        LibraryInventory.CreateItem(Item[2], Item[2]."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2), 0, 0, ItemTrackingCode.Code);
+        LibraryInventory.CreateItem(Item[3], Item[3]."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2), 0, 0, ItemTrackingCode.Code);
 
         // Setup BOM - 2 components
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[3]."Base Unit of Measure");
@@ -894,7 +894,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
     begin
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
 
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch, Item, LocationCode, '', WorkDate(),
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Quantity, 1);
 
@@ -909,7 +909,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         // create and refresh production order
-        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ArrayOfItem[3], '', '', Quantity, WorkDate());
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ArrayOfItem[3], '', '', Quantity, WorkDate());
         FindProdOrderLine(ProdOrderLine, ProductionOrder);
 
         // post consumption of component 1
@@ -1097,7 +1097,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         DimensionValue: Record "Dimension Value";
     begin
         // create Sales order
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, LocationCode, '', 4, WorkDate(), 10);
+        LibrarySales.CreateSalesOrder(SalesHeader, SalesLine, Item, LocationCode, '', 4, WorkDate(), 10);
 
         // add dimension to sales line
         if AddDimensions then begin

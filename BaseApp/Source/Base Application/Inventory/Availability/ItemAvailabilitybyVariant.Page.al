@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Availability;
 
 using Microsoft.Foundation.Enums;
@@ -194,8 +198,6 @@ page 5414 "Item Availability by Variant"
 
     trigger OnOpenPage()
     begin
-        Rec.SetRange("No.");
-        Rec.SetRange("Drop Shipment Filter", false);
         FindPeriod('');
     end;
 

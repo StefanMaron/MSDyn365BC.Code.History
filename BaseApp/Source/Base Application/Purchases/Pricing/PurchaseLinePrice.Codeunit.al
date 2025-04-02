@@ -176,7 +176,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
         PriceCalculationBuffer."Price Calculation Method" := PurchaseLine."Price Calculation Method";
         // Tax
         PriceCalculationBuffer."Prices Including Tax" := PurchaseHeader."Prices Including VAT";
-        PriceCalculationBuffer."Tax %" := PurchaseLine."VAT %";
+        PriceCalculationBuffer."Tax %" := PurchaseLine.GetVATPct();
         PriceCalculationBuffer."VAT Calculation Type" := PurchaseLine."VAT Calculation Type".AsInteger();
         PriceCalculationBuffer."VAT Bus. Posting Group" := PurchaseLine."VAT Bus. Posting Group";
         PriceCalculationBuffer."VAT Prod. Posting Group" := PurchaseLine."VAT Prod. Posting Group";

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Location;
 
 page 5705 "Location Card Part"
@@ -37,6 +41,12 @@ page 5705 "Location Card Part"
                     ApplicationArea = All;
                     Caption = 'Directed Put-away and Pick';
                     ToolTip = 'Specifies if the location requires advanced warehouse functionality, such as calculated bin suggestion.';
+                }
+                field("Allow Breakbulk"; Rec."Allow Breakbulk")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Allow Breakbulk';
+                    ToolTip = 'Specifies that an order can be fulfilled with items stored in alternate units of measure, if an item stored in the requested unit of measure is not found.';
                 }
                 group(Bin)
                 {

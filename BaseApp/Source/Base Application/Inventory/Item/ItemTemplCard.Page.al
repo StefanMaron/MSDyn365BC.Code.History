@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 using Microsoft.Finance.Dimension;
@@ -374,6 +378,14 @@ page 1384 "Item Templ. Card"
                         ToolTip = 'Specifies the default number of units of the item that are processed in one production operation. This affects standard cost calculations and capacity planning. If the item routing includes fixed costs such as setup time, the value in this field is used to calculate the standard cost and distribute the setup costs. During demand planning, this value is used together with the value in the Default Dampener % field to ignore negligible changes in demand and avoid re-planning. Note that if you leave the field blank, it will be threated as 1.';
                         Visible = false;
                     }
+                    field("Allow Whse. Overpick"; Rec."Allow Whse. Overpick")
+                    {
+                        ApplicationArea = Manufacturing;
+                    }
+                    field("Production Blocked"; Rec."Production Blocked")
+                    {
+                        ApplicationArea = Manufacturing;
+                    }
                 }
                 group(Replenishment_Assembly)
                 {
@@ -546,7 +558,7 @@ page 1384 "Item Templ. Card"
                         field("Order Multiple"; Rec."Order Multiple")
                         {
                             ApplicationArea = Planning;
-                            ToolTip = 'Specifies a parameter used by the planning system to modify the quantity of planned supply orders.';
+                            ToolTip = 'Specifies a parameter used by the planning system to round the quantity of planned supply orders to a multiple of this value.';
                             Visible = false;
                             Enabled = OrderMultipleEnable;
                         }
@@ -680,6 +692,7 @@ page 1384 "Item Templ. Card"
             exit;
 
         Rec."Costing Method" := InventorySetup."Default Costing Method";
+        OnAfterOnNewRecord(Rec);
     end;
 
     trigger OnInit()
@@ -764,5 +777,10 @@ page 1384 "Item Templ. Card"
     begin
         InventorySetup.Get();
         ShowVariantMandatoryDefaultYes := InventorySetup."Variant Mandatory if Exists";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnNewRecord(var ItemTempl: Record "Item Templ.")
+    begin
     end;
 }

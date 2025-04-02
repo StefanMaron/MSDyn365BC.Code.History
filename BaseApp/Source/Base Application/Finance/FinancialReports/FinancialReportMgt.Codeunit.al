@@ -1,7 +1,10 @@
 namespace Microsoft.Finance.FinancialReports;
 
+using Microsoft.Finance.GeneralLedger.Account;
 using System.Environment.Configuration;
+using System.Environment;
 using System.IO;
+using System.Telemetry;
 
 codeunit 18 "Financial Report Mgt."
 {
@@ -18,6 +21,12 @@ codeunit 18 "Financial Report Mgt."
         ColumnsEditWarningNotificationMsg: Label 'Changes to this column definition will affect all financial reports using it.';
         ColumnsNotificationIdTok: Label '883e213e-08bd-4154-b929-87f689848f10', Locked = true;
         DontShowAgainMsg: Label 'Don''t show again';
+        TelemetryEventTxt: Label 'Financial Report Definition %1: %2', Comment = '%1 = event type, %2 = report', Locked = true;
+        OpenFinancialReportsLbl: Label 'Open Financial Reports';
+        NotifyUpdateFinancialReportNameTxt: Label 'Notify about updating financial reports.';
+        NotifyUpdateFinancialReportDescTxt: Label 'Notify that financial reports should be updated after someone creates a new G/L account.';
+        UpdateFinancialReportMsg: Label 'You have created one or more G/L accounts and might need to update your financial reports. We recommend that you review your financial reports by choosing the Open Financial Reports action.';
+        UpdateFinancialReportNotificationIdTok: Label 'cc02b894-bef8-4945-8042-f177422f8906', Locked = true;
 
     internal procedure LaunchEditRowsWarningNotification()
     var
@@ -69,6 +78,7 @@ codeunit 18 "Financial Report Mgt."
         AddFinancialReportToConfigPackage(FinancialReport.Name, ConfigPackage);
         Commit();
         ConfigXMLExchange.ExportPackage(ConfigPackage);
+        LogImportExportTelemetry(FinancialReport.Name, 'exported');
     end;
 
     local procedure AddFinancialReportToConfigPackage(FinancialReportName: Code[10]; var ConfigPackage: Record "Config. Package")
@@ -121,15 +131,18 @@ codeunit 18 "Financial Report Mgt."
         ConfigPackage: Record "Config. Package";
         ConfigPackageTable: Record "Config. Package Table";
         ConfigPackageMgt: Codeunit "Config. Package Management";
+        NewName: Code[10];
     begin
         if not ConfigPackage.Get(PackageCode) then
             Error(PackageImportErr);
 
-        if GetPackageFinancialReportName(PackageCode) = '' then
+        NewName := GetPackageFinancialReportName(PackageCode);
+        if NewName = '' then
             Error(PackageImportErr);
 
         ConfigPackageTable.SetRange("Package Code", PackageCode);
         ConfigPackageMgt.ApplyPackage(ConfigPackage, ConfigPackageTable, false);
+        LogImportExportTelemetry(NewName, 'imported');
     end;
 
     local procedure GetPackageFinancialReportName(PackageCode: Code[20]) NewFinancialReportName: Code[10]
@@ -350,6 +363,60 @@ codeunit 18 "Financial Report Mgt."
         FinancialReport.Description := AccScheduleName.Description;
         FinancialReport."Financial Report Row Group" := AccScheduleName.Name;
         FinancialReport.Insert();
+    end;
+
+    internal procedure NotifyUpdateFinancialReport(var GLAccount: Record "G/L Account")
+    var
+        MyNotification: Record "My Notifications";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        UpdateFinancialReportNotification: Notification;
+    begin
+        if not GuiAllowed() then
+            exit;
+        if GLAccount.IsTemporary() then
+            exit;
+        if not MyNotification.IsEnabled(GetUpdateFinancialReportNotificationId()) then
+            exit;
+
+        UpdateFinancialReportNotification.Id := GetUpdateFinancialReportNotificationId();
+        UpdateFinancialReportNotification.Message := UpdateFinancialReportMsg;
+        UpdateFinancialReportNotification.AddAction(
+            OpenFinancialReportsLbl, Codeunit::"Financial Report Mgt.", 'OpenFinancialReports');
+        UpdateFinancialReportNotification.AddAction(
+            DontShowAgainMsg, Codeunit::"Financial Report Mgt.", 'HideUpdateFinancialReportNotification');
+        NotificationLifecycleMgt.SendNotification(UpdateFinancialReportNotification, GLAccount.RecordId);
+    end;
+
+    procedure OpenFinancialReports(UpdateFinancialReportNotification: Notification)
+    begin
+        Page.Run(Page::"Financial Reports");
+    end;
+
+    procedure HideUpdateFinancialReportNotification(UpdateFinancialReportNotification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        if not MyNotifications.Disable(UpdateFinancialReportNotification.Id) then
+            MyNotifications.InsertDefault(UpdateFinancialReportNotification.Id,
+                NotifyUpdateFinancialReportNameTxt, NotifyUpdateFinancialReportDescTxt, false);
+    end;
+
+    local procedure LogImportExportTelemetry(Name: Text; Action: Text)
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        if not EnvironmentInfo.IsSaaS() then
+            exit;
+
+        TelemetryDimensions.Add('ReportDefinitionCode', Name);
+        FeatureTelemetry.LogUsage('0000ONR', 'Financial Report', StrSubstNo(TelemetryEventTxt, Name, Action), TelemetryDimensions);
+    end;
+
+    procedure GetUpdateFinancialReportNotificationId(): Guid
+    begin
+        exit(UpdateFinancialReportNotificationIdTok);
     end;
 
     [IntegrationEvent(false, false)]

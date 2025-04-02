@@ -1,5 +1,6 @@
 namespace Microsoft.Sales.RoleCenters;
 
+using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
@@ -14,6 +15,7 @@ table 9053 "Sales Cue"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Sales Quotes - Open"; Integer)
@@ -24,6 +26,7 @@ table 9053 "Sales Cue"
             Caption = 'Sales Quotes - Open';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the number of sales quotes that are not yet converted to invoices or orders.';
         }
         field(3; "Sales Orders - Open"; Integer)
         {
@@ -34,6 +37,7 @@ table 9053 "Sales Cue"
             Caption = 'Sales Orders - Open';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the number of sales orders that are not fully posted.';
         }
         field(4; "Ready to Ship"; Integer)
         {
@@ -69,6 +73,7 @@ table 9053 "Sales Cue"
             Caption = 'Sales Return Orders - Open';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the number of sales return orders documents that are displayed in the Sales Cue on the Role Center. The documents are filtered by today''s date.';
         }
         field(7; "Sales Credit Memos - Open"; Integer)
         {
@@ -78,6 +83,7 @@ table 9053 "Sales Cue"
             Caption = 'Sales Credit Memos - Open';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the number of sales credit memos that are not yet posted.';
         }
         field(8; "Partially Shipped"; Integer)
         {
@@ -105,6 +111,7 @@ table 9053 "Sales Cue"
             Caption = 'Sales Invoices - Pending Document Exchange';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies sales invoices that await sending to the customer through the document exchange service.';
         }
         field(12; "Sales CrM. - Pending Doc.Exch."; Integer)
         {
@@ -112,6 +119,7 @@ table 9053 "Sales Cue"
             Caption = 'Sales Credit Memos - Pending Document Exchange';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies sales credit memos that await sending to the customer through the document exchange service.';
         }
         field(13; "Avg. Days Delayed Updated On"; DateTime)
         {
@@ -300,15 +308,36 @@ table 9053 "Sales Cue"
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReservationEntry: Record "Reservation Entry";
+        SalesReservFromItemLedger: Query "Sales Reserv. From Item Ledger";
     begin
         Number := 0;
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        SalesHeader.SetLoadFields("Document Type", "No.");
-        if SalesHeader.FindSet() then
-            repeat
-                if SalesHeader.GetQtyReservedFromStockState() = Enum::"Reservation From Stock"::Full then
-                    Number += 1;
-            until SalesHeader.Next() = 0;
+
+        if not ReservationEntry.ReadPermission() then
+            exit;
+
+        ReservationEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
+        ReservationEntry.SetRange(Positive, true);
+        ReservationEntry.SetRange("Source Type", Database::"Item Ledger Entry");
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        if ReservationEntry.IsEmpty() then
+            exit;
+
+        SalesReservFromItemLedger.Open();
+        while SalesReservFromItemLedger.Read() do
+            if SalesReservFromItemLedger.Reserved_Quantity__Base_ <> 0 then begin
+                SalesHeader.SetLoadFields("Document Type", "No.");
+                if SalesHeader.Get(SalesHeader."Document Type"::Order, SalesReservFromItemLedger.SalesHeaderNo) then begin
+                    SalesLine.SetLoadFields("Document Type", "Document No.", Type, "Outstanding Qty. (Base)");
+                    SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
+                    SalesLine.SetRange("Document No.", SalesHeader."No.");
+                    SalesLine.SetRange(Type, SalesLine.Type::Item);
+                    SalesLine.CalcSums("Outstanding Qty. (Base)");
+                    if SalesReservFromItemLedger.Reserved_Quantity__Base_ = SalesLine."Outstanding Qty. (Base)" then
+                        Number += 1;
+                end;
+            end;
     end;
 
     procedure DrillDownNoOfReservedFromStockSalesOrders()

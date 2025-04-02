@@ -1195,6 +1195,15 @@ codeunit 8 AccSchedManagement
                     AccSchedLine2."Row Type"::"Balance at Date":
                         GLAcc.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
                 end;
+            ColumnLayout."Column Type"::"Month to Date":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
+                        GLAcc.SetRange("Date Filter", CalcDate('<-CM>', ToDate), ToDate);
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        GLAcc.SetFilter("Date Filter", '..%1', ClosingDate(CalcDate('<-CM>', ToDate) - 1));
+                    AccSchedLine2."Row Type"::"Balance at Date":
+                        GLAcc.SetRange("Date Filter", 0D, ToDate);
+                end;
         end;
 
         OnAfterSetGLAccColumnFilters(GLAcc, AccSchedLine2, ColumnLayout, StartDate, EndDate);
@@ -1260,6 +1269,15 @@ codeunit 8 AccSchedManagement
                         CFAccount.SetFilter("Date Filter", '..%1', ClosingDate(FiscalStartDate2 - 1));
                     AccSchedLine2."Row Type"::"Balance at Date":
                         CFAccount.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
+                end;
+            ColumnLayout2."Column Type"::"Month to Date":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
+                        CFAccount.SetRange("Date Filter", CalcDate('<-CM>', ToDate), ToDate);
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        CFAccount.SetFilter("Date Filter", '..%1', ClosingDate(CalcDate('<-CM>', ToDate) - 1));
+                    AccSchedLine2."Row Type"::"Balance at Date":
+                        CFAccount.SetRange("Date Filter", 0D, ToDate);
                 end;
         end;
 
@@ -1991,6 +2009,15 @@ codeunit 8 AccSchedManagement
                         CostType.SetFilter("Date Filter", '<%1', FiscalStartDate2);
                     AccSchedLine2."Row Type"::"Balance at Date":
                         CostType.SetRange("Date Filter", 0D, AccountingPeriodMgt.FindEndOfFiscalYear(ToDate));
+                end;
+            ColumnLayout."Column Type"::"Month to Date":
+                case AccSchedLine2."Row Type" of
+                    AccSchedLine2."Row Type"::"Net Change":
+                        CostType.SetRange("Date Filter", CalcDate('<-CM>', ToDate), ToDate);
+                    AccSchedLine2."Row Type"::"Beginning Balance":
+                        CostType.SetFilter("Date Filter", '<%1', ClosingDate(CalcDate('<-CM>', ToDate) - 1));
+                    AccSchedLine2."Row Type"::"Balance at Date":
+                        CostType.SetRange("Date Filter", 0D, ToDate);
                 end;
         end;
 

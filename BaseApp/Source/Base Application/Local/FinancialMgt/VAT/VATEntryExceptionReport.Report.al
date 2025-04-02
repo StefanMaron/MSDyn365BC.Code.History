@@ -41,11 +41,6 @@ report 10511 "VAT Entry Exception Report"
             column(VAT_Entry_Type; Type)
             {
             }
-#if not CLEAN23
-            column(VAT_Entry__Posting_Date_; Format("Posting Date"))
-            {
-            }
-#endif
             column(VAT_Entry__VAT_Reporting_Date_; Format("VAT Reporting Date"))
             {
             }
@@ -107,11 +102,6 @@ report 10511 "VAT Entry Exception Report"
             column(CurrReport_PAGENOCaption; CurrReport_PAGENOCaptionLbl)
             {
             }
-#if not CLEAN23
-            column(VAT_Entry__Posting_Date_Caption; VAT_Entry__Posting_Date_CaptionLbl)
-            {
-            }
-#endif
             column(VAT_Entry__VAT_Reporting_Date_Caption; VAT_Entry__VAT_Reporting_Date_CaptionLbl)
             {
             }
@@ -352,9 +342,6 @@ report 10511 "VAT Entry Exception Report"
         VAT_Entry_Exception_ReportCaptionLbl: Label 'VAT Entry Exception Report';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         VAT_Entry__VAT_Reporting_Date_CaptionLbl: Label 'VAT Reporting Date';
-#if not CLEAN23
-        VAT_Entry__Posting_Date_CaptionLbl: Label 'Posting Date';
-#endif
 
     local procedure AddErrorText(var NewErrorText: Text; ErrorText: Text)
     begin

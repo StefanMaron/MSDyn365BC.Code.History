@@ -36,6 +36,7 @@ table 502 "Reminder Attachment Text"
             Caption = 'File Name';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA28
         field(5; "Beginning Line"; Text[100])
         {
             Caption = 'Beginning Line';
@@ -50,11 +51,13 @@ table 502 "Reminder Attachment Text"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
         field(6; "Inline Fee Description"; Text[100])
         {
             Caption = 'Inline Fee Description';
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA28
         field(7; "Ending Line"; Text[100])
         {
             Caption = 'Ending Line';
@@ -69,6 +72,7 @@ table 502 "Reminder Attachment Text"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
         field(10; "Beginning Lines"; Boolean)
         {
             CalcFormula = exist("Reminder Attachment Text Line"

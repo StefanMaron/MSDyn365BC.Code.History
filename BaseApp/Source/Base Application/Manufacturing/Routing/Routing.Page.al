@@ -1,8 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Routing;
 
+using Microsoft.Foundation.Attachment;
 using Microsoft.Manufacturing.Comment;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Reports;
+using System.Utilities;
 
 page 99000766 Routing
 {
@@ -58,16 +64,21 @@ page 99000766 Routing
                     ApplicationArea = Manufacturing;
                     Caption = 'Active Version';
                     Editable = false;
+                    Style = Strong;
+                    Enabled = ActiveVersionCode <> '';
                     ToolTip = 'Specifies if the routing version is currently being used.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
                     var
-                        RtngVersion: Record "Routing Version";
+                        RoutingVersion: Record "Routing Version";
                     begin
-                        RtngVersion.SetRange("Routing No.", Rec."No.");
-                        RtngVersion.SetRange("Version Code", ActiveVersionCode);
-                        PAGE.RunModal(PAGE::"Routing Version", RtngVersion);
-                        ActiveVersionCode := VersionMgt.GetRtngVersion(Rec."No.", WorkDate(), true);
+                        if ActiveVersionCode = '' then
+                            exit;
+
+                        RoutingVersion.SetRange("Routing No.", Rec."No.");
+                        RoutingVersion.SetRange("Version Code", ActiveVersionCode);
+                        Page.RunModal(Page::"Routing Version", RoutingVersion);
+                        RefreshActiveVersionCode();
                     end;
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
@@ -77,7 +88,7 @@ page 99000766 Routing
 
                     trigger OnValidate()
                     begin
-                        LastDateModifiedOnAfterValidat();
+                        LastDateModifiedOnAfterValidate();
                     end;
                 }
             }
@@ -99,6 +110,14 @@ page 99000766 Routing
             {
                 ApplicationArea = Notes;
                 Visible = true;
+            }
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::"Routing Header"),
+                              "No." = field("No.");
             }
         }
     }
@@ -126,9 +145,16 @@ page 99000766 Routing
                     ApplicationArea = Manufacturing;
                     Caption = '&Versions';
                     Image = RoutingVersions;
-                    RunObject = Page "Routing Version List";
-                    RunPageLink = "Routing No." = field("No.");
-                    ToolTip = 'View or edit other versions of the routing, typically with other operations data. ';
+                    ToolTip = 'View or edit other versions of the routing, typically with other operations data.';
+
+                    trigger OnAction()
+                    var
+                        RoutingVersion: Record "Routing Version";
+                    begin
+                        RoutingVersion.SetRange("Routing No.", Rec."No.");
+                        Page.RunModal(0, RoutingVersion);
+                        RefreshActiveVersionCode();
+                    end;
                 }
                 action("Where-used")
                 {
@@ -139,6 +165,23 @@ page 99000766 Routing
                     RunPageLink = "Routing No." = field("No.");
                     RunPageView = sorting("Routing No.");
                     ToolTip = 'View a list of BOMs in which the item is used.';
+                }
+                action(DocAttach)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
                 }
             }
         }
@@ -158,11 +201,12 @@ page 99000766 Routing
 
                     trigger OnAction()
                     var
-                        FromRtngHeader: Record "Routing Header";
+                        FromRoutingHeader: Record "Routing Header";
+                        RoutingLineCopyLines: Codeunit "Routing Line-Copy Lines";
                     begin
                         Rec.TestField("No.");
-                        if PAGE.RunModal(0, FromRtngHeader) = ACTION::LookupOK then
-                            CopyRouting.CopyRouting(FromRtngHeader."No.", '', Rec, '');
+                        if Page.RunModal(0, FromRoutingHeader) = Action::LookupOK then
+                            RoutingLineCopyLines.CopyRouting(FromRoutingHeader."No.", '', Rec, '');
                     end;
                 }
             }
@@ -195,24 +239,54 @@ page 99000766 Routing
                 actionref("Where-used_Promoted"; "Where-used")
                 {
                 }
+                actionref(DocAttach_Promoted; DocAttach)
+                {
+                }
             }
         }
     }
 
     trigger OnAfterGetRecord()
     begin
-        ActiveVersionCode :=
-          VersionMgt.GetRtngVersion(Rec."No.", WorkDate(), true);
+        RefreshActiveVersionCode();
+    end;
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        if not CurrPage.Editable() then
+            exit(true);
+
+        if IsNullGuid(Rec.SystemId) then
+            exit(true);
+
+        if Rec.Status in [Rec.Status::Certified, Rec.Status::Closed] then
+            exit(true);
+
+        if not Rec.RoutingLinesExist() then
+            exit(true);
+
+        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
+            exit(false);
+
+        exit(true);
     end;
 
     var
-        VersionMgt: Codeunit VersionManagement;
-        CopyRouting: Codeunit "Routing Line-Copy Lines";
         ActiveVersionCode: Code[20];
+        CertifyQst: Label 'The %1 has not been certified. Are you sure you want to exit?', Comment = '%1 = page caption (Production BOM)';
 
-    local procedure LastDateModifiedOnAfterValidat()
+    local procedure LastDateModifiedOnAfterValidate()
     begin
         CurrPage.Update();
+    end;
+
+    local procedure RefreshActiveVersionCode()
+    var
+        VersionManagement: Codeunit VersionManagement;
+    begin
+        ActiveVersionCode := VersionManagement.GetRtngVersion(Rec."No.", WorkDate(), true);
     end;
 }
 

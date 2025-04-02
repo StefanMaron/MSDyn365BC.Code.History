@@ -194,13 +194,6 @@ table 298 "Issued Reminder Line"
             Caption = 'System-Created Entry';
             Editable = false;
         }
-        field(10500; "Multiple Interest Rates Entry"; Boolean)
-        {
-            Caption = 'Multiple Interest Rates Entry';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys
@@ -217,22 +210,6 @@ table 298 "Issued Reminder Line"
         key(Key3; "Reminder No.", "Detailed Interest Rates Entry")
         {
             SumIndexFields = Amount, "VAT Amount", "Remaining Amount";
-        }
-        key(Key4; "Reminder No.", Type, "Line Type", "Multiple Interest Rates Entry")
-        {
-            MaintainSIFTIndex = false;
-            MaintainSQLIndex = false;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            SumIndexFields = Amount, "VAT Amount", "Remaining Amount";
-            ObsoleteTag = '15.0';
-        }
-        key(Key5; "Reminder No.", "Multiple Interest Rates Entry")
-        {
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            SumIndexFields = Amount, "VAT Amount", "Remaining Amount";
-            ObsoleteTag = '15.0';
         }
     }
 
@@ -296,4 +273,3 @@ table 298 "Issued Reminder Line"
     begin
     end;
 }
-

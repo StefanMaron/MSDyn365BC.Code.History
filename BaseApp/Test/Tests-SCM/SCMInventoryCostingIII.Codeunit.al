@@ -32,7 +32,7 @@ codeunit 137288 "SCM Inventory Costing III"
         UndoReturnReceiptMessage: Label 'Do you really want to undo the selected Return Receipt lines?';
         UndoShipmentInvoicedErr: Label 'This shipment has already been invoiced. Undo %1 can be applied only to posted, but not invoiced shipments.';
         UndoShipmentMessage: Label 'Do you really want to undo the selected Shipment lines?';
-        ShipmentAlreadyReversedErr: Label 'This shipment has already been reversed.';
+        ShipmentAlreadyReversedErr: Label 'There are no lines with quantity to reverse.';
         ReturnShipmentAlreadyReversedErr: Label 'This return shipment has already been reversed.';
 
     [Test]

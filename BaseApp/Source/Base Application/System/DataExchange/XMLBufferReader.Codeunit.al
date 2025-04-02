@@ -47,10 +47,10 @@ codeunit 1239 "XML Buffer Reader"
         TempXMLBuffer.SetCurrentKey("Parent Entry No.", Type, "Node Number");
         Header := '<?xml version="1.0" encoding="' + Encoding + '"?>' +
           '<' + TempXMLBuffer.GetElementName() + ' ';
-        DefaultNamespace := TempXMLBuffer.GetAttributeValue('xmlns');
+        DefaultNamespace := TempXMLBuffer.GetAttributeValueAsText('xmlns');
         if TempXMLBuffer.FindAttributes(TempAttributeXMLBuffer) then
             repeat
-                Header += TempAttributeXMLBuffer.Name + '="' + TempAttributeXMLBuffer.Value + '" ';
+                Header += TempAttributeXMLBuffer.Name + '="' + TempAttributeXMLBuffer.GetValue() + '" ';
             until TempAttributeXMLBuffer.Next() = 0;
         Header += '/>';
 
@@ -75,7 +75,7 @@ codeunit 1239 "XML Buffer Reader"
                 if TempElementXMLBuffer.Namespace = '' then
                     NamespaceURI := DefaultNamespace
                 else
-                    NamespaceURI := TempParentElementXMLBuffer.GetNamespaceUriByPrefix(TempElementXMLBuffer.Namespace);
+                    NamespaceURI := TempParentElementXMLBuffer.GetNamespaceUriByPrefixAsText(TempElementXMLBuffer.Namespace);
                 ChildElement := XmlDocument.CreateElement(TempElementXMLBuffer.GetElementName(), NamespaceURI);
                 ElementValue := TempElementXMLBuffer.GetValue();
                 if ElementValue <> '' then
@@ -97,12 +97,12 @@ codeunit 1239 "XML Buffer Reader"
         if TempParentElementXMLBuffer.FindAttributes(TempAttributeXMLBuffer) then
             repeat
                 if TempAttributeXMLBuffer.Namespace <> '' then
-                    NamespaceURI := TempParentElementXMLBuffer.GetNamespaceUriByPrefix(TempAttributeXMLBuffer.Namespace);
+                    NamespaceURI := TempParentElementXMLBuffer.GetNamespaceUriByPrefixAsText(TempAttributeXMLBuffer.Namespace);
                 if NamespaceURI <> '' then
                     Attribute := XmlDocument.CreateAttribute(TempAttributeXMLBuffer.Name, NamespaceURI)
                 else
                     Attribute := XmlDocument.CreateAttribute(TempAttributeXMLBuffer.Name);
-                Attribute.InnerText := TempAttributeXMLBuffer.Value;
+                Attribute.InnerText := TempAttributeXMLBuffer.GetValue();
                 XMLCurrElement.Attributes.SetNamedItem(Attribute);
             until TempAttributeXMLBuffer.Next() = 0;
     end;

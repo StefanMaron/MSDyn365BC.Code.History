@@ -565,7 +565,6 @@ report 408 "Purchase - Receipt"
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
         VendAddr: array[8] of Text[100];
-        CompanyAddr: array[8] of Text[100];
         PurchaserText: Text[50];
         ReferenceText: Text[80];
         MoreLines: Boolean;
@@ -605,6 +604,7 @@ report 408 "Purchase - Receipt"
         CompanyInfo: Record "Company Information";
         FirstLineHasBeenOutput: Boolean;
         ShipToAddr: array[8] of Text[100];
+        CompanyAddr: array[8] of Text[100];
 
     procedure InitializeRequest(NewNoOfCopies: Integer; NewShowInternalInfo: Boolean; NewLogInteraction: Boolean; NewShowCorrectionLines: Boolean)
     begin

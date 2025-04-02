@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Foundation.Company;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Company;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.EServices.OnlineMap;
@@ -332,12 +336,16 @@ page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the company''s ship-to address.';
                 }
-                field("Ship-to County"; Rec."Ship-to County")
+                group(ShipToCounty)
                 {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Ship-to County';
-                    ToolTip = 'Specifies the county of the company''s shipping address.';
-                    Visible = CountyVisible;
+                    ShowCaption = false;
+                    Visible = IsShipToCountyVisible;
+                    field("Ship-to County"; Rec."Ship-to County")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Ship-to County';
+                        ToolTip = 'Specifies the county of the company''s shipping address.';
+                    }
                 }
                 field("Ship-to Post Code"; Rec."Ship-to Post Code")
                 {
@@ -352,6 +360,7 @@ page 1 "Company Information"
                     trigger OnValidate()
                     begin
                         HandleAddressLookupVisibility();
+                        IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                     end;
                 }
                 field("Ship-to Phone No."; Rec."Ship-to Phone No.")
@@ -811,8 +820,7 @@ page 1 "Company Information"
             Rec.Insert();
         end;
 
-        CountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
-
+        ActivateFields();
         ApplicationAreaMgmtFacade.GetExperienceTierCurrentCompany(Experience);
         MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
 
@@ -832,6 +840,7 @@ page 1 "Company Information"
         IsShipToAddressLookupTextEnabled: Boolean;
         BankAcctPostingGroup: Code[20];
         CountyVisible: Boolean;
+        IsShipToCountyVisible: Boolean;
         LookupAddressLbl: Label 'Lookup address from postocde';
         AddressTok: Label 'ADDRESS', Locked = true;
         ShipToTok: Label 'SHIP-TO', Locked = true;
@@ -858,6 +867,12 @@ page 1 "Company Information"
         SystemIndicatorChanged := true;
         UpdateSystemIndicator();
         Session.LogAuditMessage(CompanyBadgeChangedLbl, SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+    end;
+
+    local procedure ActivateFields()
+    begin
+        CountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+        IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
     end;
 
     local procedure SetShowMandatoryConditions()

@@ -99,17 +99,6 @@ page 256 "Payment Journal"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-#if not CLEAN23
-                field("Invoice Receipt Date"; Rec."Invoice Receipt Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by W1 field "Invoice Received Date".';
-                    ObsoleteTag = '23.0';
-                    ToolTip = 'Specifies the date when the document was received.';
-                    Visible = false;
-                }
-#endif
                 field("Invoice Received Date"; Rec."Invoice Received Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -2124,6 +2113,7 @@ page 256 "Payment Journal"
         IsHandled: Boolean;
     begin
         IsHandled := false;
+        CurrPage.SaveRecord();
         OnBeforeCheckAmountMatchedToAppliedLines(Rec, IsHandled);
         if isHandled then
             exit;

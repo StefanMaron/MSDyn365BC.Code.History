@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Reminder;
+namespace Microsoft.Sales.Reminder;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -492,13 +492,6 @@ table 296 "Reminder Line"
             Caption = 'System-Created Entry';
             Editable = false;
         }
-        field(10500; "Multiple Interest Rates Entry"; Boolean)
-        {
-            Caption = 'Multiple Interest Rates Entry';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys
@@ -517,22 +510,6 @@ table 296 "Reminder Line"
         key(Key3; "Reminder No.", "Detailed Interest Rates Entry")
         {
             SumIndexFields = Amount, "VAT Amount", "Remaining Amount";
-        }
-        key(Key4; "Reminder No.", Type, "Multiple Interest Rates Entry", "Line Type")
-        {
-            MaintainSIFTIndex = false;
-            MaintainSQLIndex = false;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            SumIndexFields = Amount, "VAT Amount", "Remaining Amount";
-            ObsoleteTag = '15.0';
-        }
-        key(Key5; "Reminder No.", "Multiple Interest Rates Entry")
-        {
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            SumIndexFields = Amount, "VAT Amount", "Remaining Amount";
-            ObsoleteTag = '15.0';
         }
     }
 
@@ -1129,4 +1106,3 @@ table 296 "Reminder Line"
     begin
     end;    
 }
-

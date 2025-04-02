@@ -1853,7 +1853,6 @@ report 202 "Sales Document - Test"
         ShipReceiveOnNextPostReq: Boolean;
         VATNoError: Boolean;
         ApplNoError: Boolean;
-        ShowDim: Boolean;
         Continue: Boolean;
         ShowCostAssignment: Boolean;
 #pragma warning disable AA0074
@@ -1945,6 +1944,9 @@ report 202 "Sales Document - Test"
         DiscountText: Text[500];
         DisplayPaymentDiscount: Boolean;
         DiscountLbl: Label 'A discount of %1% of the full price applies if payment is made on or before %2. No credit memo will be issued after you have made the payment. Therefore, you must make sure that you only recover the VAT actually paid.';
+
+    protected var
+        ShowDim: Boolean;
 
     local procedure AddError(Text: Text)
     begin

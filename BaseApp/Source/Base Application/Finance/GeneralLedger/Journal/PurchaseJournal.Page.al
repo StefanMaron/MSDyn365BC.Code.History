@@ -97,17 +97,6 @@ page 254 "Purchase Journal"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-#if not CLEAN23
-                field("Invoice Receipt Date"; Rec."Invoice Receipt Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by W1 field "Invoice Received Date".';
-                    ObsoleteTag = '23.0';
-                    ToolTip = 'Specifies the date when the document was received.';
-                    Visible = false;
-                }
-#endif
                 field("Invoice Received Date"; Rec."Invoice Received Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1583,8 +1572,6 @@ page 254 "Purchase Journal"
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ApprovalMgmt: Codeunit "Approvals Mgmt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        AccName: Text[100];
-        BalAccName: Text[100];
         GenJnlBatchApprovalStatus: Text[20];
         GenJnlLineApprovalStatus: Text[20];
         Balance: Decimal;
@@ -1628,6 +1615,8 @@ page 254 "Purchase Journal"
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
+        AccName: Text[100];
+        BalAccName: Text[100];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

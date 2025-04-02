@@ -735,6 +735,7 @@ report 27 "Dimensions - Total"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Date Filter';
+                        ShowMandatory = true;
                         ToolTip = 'Specifies a filter, that will filter entries by date. You can enter a particular date or a time interval.';
 
                         trigger OnValidate()
@@ -793,6 +794,13 @@ report 27 "Dimensions - Total"
             TransferValues();
             UpdateColumnDim();
             GetAccountSource();
+        end;
+
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        begin
+            if CloseAction <> Action::Cancel then
+                if DateFilter = '' then
+                    Error(Text002);
         end;
     }
 

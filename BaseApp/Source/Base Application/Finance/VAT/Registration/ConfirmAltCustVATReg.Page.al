@@ -36,13 +36,11 @@ page 205 "Confirm Alt. Cust. VAT Reg."
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Field';
-                    ToolTip = 'Specifies the field caption of the changed field.';
                 }
                 field(OldValue; Rec."Old Value")
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = Format(OldValueCaption);
-                    ToolTip = 'Specifies the old value.';
                     StyleExpr = true;
                     Style = Strong;
 
@@ -51,7 +49,6 @@ page 205 "Confirm Alt. Cust. VAT Reg."
                 {
                     ApplicationArea = Basic, Suite;
                     CaptionClass = Format(NewValueCaption);
-                    ToolTip = 'Specifies the new value.';
                 }
             }
             field(DontShowAgainField; DontShowAgain)

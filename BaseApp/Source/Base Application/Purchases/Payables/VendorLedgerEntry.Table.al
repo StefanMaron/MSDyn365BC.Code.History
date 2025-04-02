@@ -637,18 +637,15 @@ table 25 "Vendor Ledger Entry"
             Caption = 'Remit-to Code';
             TableRelation = "Remit Address".Code where("Vendor No." = field("Vendor No."));
         }
+#if not CLEANSCHEMA26
         field(10500; "Invoice Receipt Date"; Date)
         {
 
             ObsoleteReason = 'Replaced by W1 field "Invoice Received Date".';
-#if CLEAN23
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#endif
         }
+#endif
     }
 
     keys
@@ -909,9 +906,6 @@ table 25 "Vendor Ledger Entry"
         "Vendor No." := GenJnlLine."Account No.";
         "Posting Date" := GenJnlLine."Posting Date";
         "Document Date" := GenJnlLine."Document Date";
-#if not CLEAN23
-        "Invoice Receipt Date" := GenJnlLine."Invoice Receipt Date";
-#endif
         "Invoice Received Date" := GenJnlLine."Invoice Received Date";
         "Document Type" := GenJnlLine."Document Type";
         "Document No." := GenJnlLine."Document No.";

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CRM.Interaction;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.Interaction;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Segment;
@@ -138,12 +142,7 @@ codeunit 5069 "Word Template Interactions"
 
                 MailToValue := GetMailToAddress(InteractionLogEntry, TempDeliverySorter);
 
-#if not CLEAN23
-                if TempDeliverySorter."Correspondence Type" in [TempDeliverySorter."Correspondence Type"::"Hard Copy",
-                                                                TempDeliverySorter."Correspondence Type"::Fax] then begin
-#else
                 if TempDeliverySorter."Correspondence Type" = TempDeliverySorter."Correspondence Type"::"Hard Copy" then begin
-#endif
                     if TempDeliverySorter."Attachment No." > 0 then begin
                         Attachment.Get(TempDeliverySorter."Attachment No.");
                         Attachment.CalcFields("Attachment File");
@@ -260,10 +259,6 @@ codeunit 5069 "Word Template Interactions"
     begin
         // Specify the recipient of the merged document
         case TempDeliverySorter."Correspondence Type" of
-#if not CLEAN23
-            TempDeliverySorter."Correspondence Type"::Fax:
-                MailToValue := AttachmentManagement.InteractionFax(InteractionLogEntry);
-#endif
             TempDeliverySorter."Correspondence Type"::Email:
                 MailToValue := AttachmentManagement.InteractionEMail(InteractionLogEntry);
             TempDeliverySorter."Correspondence Type"::"Hard Copy":
@@ -295,10 +290,6 @@ codeunit 5069 "Word Template Interactions"
         Attachment."Read Only" := true;
 
         case TempDeliverySorter."Correspondence Type" of
-#if not CLEAN23
-            TempDeliverySorter."Correspondence Type"::Fax:
-                DocumentMailing.EmailFile(MergedDocumentInStream, TempDeliverySorter.Subject + '.pdf', '', TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template");
-#endif
             TempDeliverySorter."Correspondence Type"::Email:
                 begin
                     SourceTableIDs.Add(Database::"Interaction Log Entry");
@@ -373,10 +364,6 @@ codeunit 5069 "Word Template Interactions"
     begin
         EditDoc := (TempDeliverySorter."Wizard Action" = Enum::"Interaction Template Wizard Action"::Open) and (TempDeliverySorter."Word Template Code" <> '');
         case TempDeliverySorter."Correspondence Type" of
-#if not CLEAN23
-            TempDeliverySorter."Correspondence Type"::Fax:
-                MergedDocumentInStream := GetMergedDocument(AttachmentWordTemplateFileName, DataSource, Enum::"Word Templates Save Format"::PDF, EditDoc);
-#endif
             TempDeliverySorter."Correspondence Type"::Email:
                 MergedDocumentInStream := GetMergedDocument(AttachmentWordTemplateFileName, DataSource, Enum::"Word Templates Save Format"::Html, EditDoc);
             TempDeliverySorter."Correspondence Type"::"Hard Copy":
@@ -482,10 +469,6 @@ codeunit 5069 "Word Template Interactions"
             end;
             if InteractLogEntry.Get(EntryNo) then
                 case CorrespondenceType of
-#if not CLEAN23
-                    CorrespondenceType::Fax:
-                        MergeSourceText += '<td>' + AttachmentManagement.InteractionFax(InteractLogEntry) + '</td>';
-#endif
                     CorrespondenceType::Email:
                         MergeSourceText += '<td>' + AttachmentManagement.InteractionEMail(InteractLogEntry) + '</td>';
                     CorrespondenceType::"Hard Copy":

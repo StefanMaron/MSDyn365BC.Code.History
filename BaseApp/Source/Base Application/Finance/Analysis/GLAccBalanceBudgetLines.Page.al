@@ -78,6 +78,7 @@ page 350 "G/L Acc. Balance/Budget Lines"
                     DrillDown = true;
                     Editable = false;
                     ToolTip = 'Specifies the net change in the account balance during the time period in the Date Filter field.';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin
@@ -134,6 +135,7 @@ page 350 "G/L Acc. Balance/Budget Lines"
                     Caption = 'Budgeted Amount';
                     DrillDown = true;
                     ToolTip = 'Specifies the total of the budget entries that have been posted to the account.';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     begin

@@ -390,6 +390,7 @@ codeunit 1751 "Data Classification Eval. Data"
     begin
         SetTableFieldsToNormal(Database::"Financial Report");
         SetTableFieldsToNormal(Database::"Financial Report User Filters");
+        SetTableFieldsToNormal(Database::"Fin. Report Excel Template");
         SetFieldToPersonal(Database::"Financial Report User Filters", FinancialReportUserFilters.FieldNo("User ID"));
     end;
 
@@ -703,7 +704,9 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"CRM Integration Record");
         SetTableFieldsToNormal(DATABASE::"Integration Table Mapping");
         SetTableFieldsToNormal(DATABASE::"Integration Field Mapping");
+#if not CLEAN24
         SetTableFieldsToNormal(DATABASE::"Man. Integration Field Mapping");
+#endif
         SetTableFieldsToNormal(DATABASE::"Man. Integration Table Mapping");
         SetTableFieldsToNormal(DATABASE::"Temp Integration Field Mapping");
         SetTableFieldsToNormal(DATABASE::"Man. Int. Field Mapping");
@@ -925,11 +928,6 @@ codeunit 1751 "Data Classification Eval. Data"
     local procedure ClassifyTablesToNormalPart11()
     begin
         SetTableFieldsToNormal(DATABASE::"CRM Connection Setup");
-#if not CLEAN23
-        SetTableFieldsToNormal(DATABASE::"Power BI User Configuration");
-        SetTableFieldsToNormal(DATABASE::"Power BI Report Configuration");
-        SetTableFieldsToNormal(DATABASE::"Power BI User Status");
-#endif
         SetTableFieldsToNormal(DATABASE::"Power BI Selection Element");
         SetTableFieldsToNormal(DATABASE::"Power BI Displayed Element");
         SetTableFieldsToNormal(DATABASE::"Power BI Report Uploads");
@@ -3773,6 +3771,11 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(4592); // SOA KPI Entry
         SetFieldToPersonal(4592, 5); // Created by User ID
         SetTableFieldsToNormal(4593); // SOA KPI
+        SetTableFieldsToNormal(4585); // SOA Email
+        SetTableFieldsToNormal(4586); // SOA Billing Log
+        SetTableFieldsToNormal(4587); // SOA Billing Task Setup
+        SetFieldToPersonal(4592, 9); // Sender Email
+        SetFieldToPersonal(4592, 10); // Sender Name
     end;
 
     local procedure ClassifyAgents()
@@ -3781,17 +3784,17 @@ codeunit 1751 "Data Classification Eval. Data"
         DummyAgentAccessControl: Record "Agent Access Control";
         DummyAgentTask: Record "Agent Task";
         DummyAgentTaskMessage: Record "Agent Task Message";
-        DummyAgentTaskStep: Record "Agent Task Step";
+        DummyAgentTaskMemoryEntry: Record "Agent Task Memory Entry";
         DummyAgentTaskFile: Record "Agent Task File";
-        DummyAgentTaskTimelineEntry: Record "Agent Task Timeline Entry";
-        DummyAgentTaskTimelineEntryStep: Record "Agent Task Timeline Entry Step";
-        DummyAgentTaskPaneEntry: Record "Agent Task Pane Entry";
+        DummyAgentTaskTimelineStep: Record "Agent Task Timeline Step";
+        DummyAgentTaskTimelineStepDetail: Record "Agent Task Timeline Step Det.";
+        DummyAgentTaskTimeline: Record "Agent Task Timeline";
+        DummyAgentTaskLogEntry: Record "Agent Task Log Entry";
         TableNo: Integer;
     begin
         TableNo := DATABASE::"Agent";
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, DummyAgent.FieldNo("User Security ID"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgent.FieldNo("Instructions"));
 
         TableNo := DATABASE::"Agent Access Control";
         SetTableFieldsToNormal(TableNo);
@@ -3807,10 +3810,11 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(TableNo);
         SetFieldToCompanyConfidential(TableNo, DummyAgentTaskMessage.FieldNo("Content"));
 
-        TableNo := DATABASE::"Agent Task Step";
+        TableNo := DATABASE::"Agent Task Memory Entry";
         SetTableFieldsToNormal(TableNo);
-        SetFieldToPersonal(TableNo, DummyAgentTaskStep.FieldNo("User Security ID"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskStep.FieldNo("Details"));
+        SetFieldToPersonal(TableNo, DummyAgentTaskMemoryEntry.FieldNo("User Security ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskMemoryEntry.FieldNo("Details"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskMemoryEntry.FieldNo("Description"));
 
         TableNo := DATABASE::"Agent Task File";
         SetTableFieldsToNormal(TableNo);
@@ -3819,23 +3823,30 @@ codeunit 1751 "Data Classification Eval. Data"
         TableNo := DATABASE::"Agent Task Message Attachment";
         SetTableFieldsToNormal(TableNo);
 
-        TableNo := DATABASE::"Agent Task Timeline Entry";
+        TableNo := DATABASE::"Agent Task Timeline Step";
         SetTableFieldsToNormal(TableNo);
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineEntry.FieldNo("Title"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineEntry.FieldNo("Description"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineEntry.FieldNo("Primary Page Summary"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineEntry.FieldNo("Primary Page Query"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineStep.FieldNo("Title"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineStep.FieldNo("Description"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineStep.FieldNo("Primary Page Summary"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineStep.FieldNo("Primary Page Query"));
 
-        TableNo := DATABASE::"Agent Task Timeline Entry Step";
+        TableNo := DATABASE::"Agent Task Timeline Step Det.";
         SetTableFieldsToNormal(TableNo);
-        SetFieldToPersonal(TableNo, DummyAgentTaskTimelineEntryStep.FieldNo("User Security ID"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineEntryStep.FieldNo("Client Context"));
+        SetFieldToPersonal(TableNo, DummyAgentTaskTimelineStepDetail.FieldNo("User Security ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimelineStepDetail.FieldNo("Client Context"));
 
-        TableNo := DATABASE::"Agent Task Pane Entry";
+        TableNo := DATABASE::"Agent Task Timeline";
         SetTableFieldsToNormal(TableNo);
-        SetFieldToPersonal(TableNo, DummyAgentTaskPaneEntry.FieldNo("Created By"));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskPaneEntry.FieldNo(Summary));
-        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskPaneEntry.FieldNo(Title));
+        SetFieldToPersonal(TableNo, DummyAgentTaskTimeline.FieldNo("Created By"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimeline.FieldNo(Summary));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskTimeline.FieldNo(Title));
+
+        TableNo := DATABASE::"Agent Task Log Entry";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyAgentTaskLogEntry.FieldNo("User Security ID"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskLogEntry.FieldNo("Details"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskLogEntry.FieldNo("Description"));
+        SetFieldToCompanyConfidential(TableNo, DummyAgentTaskLogEntry.FieldNo("Page Caption"));
 
         // following tables are internal but still require classification
         SetTableFieldsToNormal(2000000258); // Agent Data table
@@ -3853,11 +3864,13 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(2000000268); // Agent Task Message Data table
         SetFieldToCompanyConfidential(2000000268, 5); // Content
 
-        SetTableFieldsToNormal(2000000269); // Agent Task Step Data table
+        SetTableFieldsToNormal(2000000269); // Agent Task Memory Entry Data table
         SetFieldToPersonal(2000000269, 3); // User Security Id
         SetFieldToCompanyConfidential(2000000269, 5); // Details
+        SetFieldToCompanyConfidential(2000000269, 6); // Description
+        SetFieldToCompanyConfidential(2000000269, 8); // Internal Details
 
-        SetTableFieldsToNormal(2000000271); // Agent Task Step Group table
+        SetTableFieldsToNormal(2000000271); // Agent Task Timeline Step Data table
         SetFieldToCompanyConfidential(2000000271, 4); // Description
         SetFieldToCompanyConfidential(2000000271, 6); // Primary Page Bookmark
         SetFieldToCompanyConfidential(2000000271, 7); // Primary Page Summary
@@ -3868,6 +3881,13 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToCompanyConfidential(2000000272, 6); // Content
 
         SetTableFieldsToNormal(2000000273); // Agent Task Msg Attach Data table
+
+        SetTableFieldsToNormal(2000000281); // Agent Task Log Entry Data table
+        SetFieldToPersonal(2000000281, 3); // User Security ID
+        SetFieldToCompanyConfidential(2000000281, 5); // Details
+        SetFieldToCompanyConfidential(2000000281, 6); // Description
+        SetFieldToCompanyConfidential(2000000281, 8); // Page Caption
+        SetFieldToCompanyConfidential(2000000281, 9); // Client Context
     end;
 
     local procedure ClasifyScheduledPerformanceProfiling()

@@ -1,6 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.UOM;
@@ -11,8 +14,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.Document;
@@ -26,8 +27,6 @@ codeunit 99000845 "Reservation Management"
 {
     Permissions = TableData "Item Ledger Entry" = rm,
                   TableData "Reservation Entry" = rimd,
-                  TableData "Prod. Order Line" = rimd,
-                  TableData "Prod. Order Component" = rimd,
                   TableData "Action Message Entry" = rimd;
 
     trigger OnRun()
@@ -43,7 +42,6 @@ codeunit 99000845 "Reservation Management"
         CalcItemLedgEntry: Record "Item Ledger Entry";
         Item: Record Item;
         Location: Record Location;
-        MfgSetup: Record "Manufacturing Setup";
         SKU: Record "Stockkeeping Unit";
         ItemTrackingCode: Record "Item Tracking Code";
         TempTrackingSpecification: Record "Tracking Specification" temporary;
@@ -88,7 +86,6 @@ codeunit 99000845 "Reservation Management"
         QtyReservedOnPickShip: Decimal;
         DeleteDocLineWithItemReservQst: Label '%1 %2 has item reservation. Do you want to delete it anyway?', Comment = '%1 = Document Type, %2 = Document No.';
         DeleteTransLineWithItemReservQst: Label 'Transfer order %1 has item reservation. Do you want to delete it anyway?', Comment = '%1 = Document No.';
-        DeleteProdOrderLineWithItemReservQst: Label '%1 production order %2 has item reservation. Do you want to delete it anyway?', Comment = '%1 = Status, %2 = Prod. Order No.';
         SkipUntrackedSurplus: Boolean;
 
     procedure IsPositive(): Boolean
@@ -157,23 +154,23 @@ codeunit 99000845 "Reservation Management"
                 SetSourceForItemJnlLine();
             Database::"Item Ledger Entry":
                 SetSourceForItemLedgerEntry();
-            Database::"Prod. Order Line":
+            5406: // Database::"Prod. Order Line":
                 SetSourceForProdOrderLine();
-            Database::"Prod. Order Component":
+            5407: // Database::"Prod. Order Component":
                 SetSourceForProdOrderComp();
             Database::"Planning Component":
                 SetSourceForPlanningComp();
             Database::"Transfer Line":
                 SetSourceForTransferLine(Direction);
-            Database::Microsoft.Service.Document."Service Line":
+            5902: // Database::"Service Line":
                 SetSourceForServiceLine();
             Database::Microsoft.Projects.Project.Journal."Job Journal Line":
                 SetSourceForJobJournalLine();
             Database::Microsoft.Projects.Project.Planning."Job Planning Line":
                 SetSourceForJobPlanningLine();
-            Database::"Assembly Header":
+            900: // Database::"Assembly Header":
                 SetSourceForAssemblyHeader();
-            Database::"Assembly Line":
+            901: // Database::"Assembly Line":
                 SetSourceForAssemblyLine();
             Database::Microsoft.Inventory.Document."Invt. Document Line":
                 SetSourceForInvtDocLine();
@@ -184,22 +181,18 @@ codeunit 99000845 "Reservation Management"
 
     local procedure SetSourceForAssemblyHeader()
     var
-        AssemblyHeader: Record "Assembly Header";
+        EntryIsPositive: Boolean;
     begin
-        SourceRecRef.SetTable(AssemblyHeader);
-        AssemblyHeader.SetReservationEntry(CalcReservEntry);
-        OnSetAssemblyHeaderOnBeforeUpdateReservation(CalcReservEntry, AssemblyHeader);
-        UpdateReservation((CreateReservEntry.SignFactor(CalcReservEntry) * AssemblyHeader."Remaining Quantity (Base)") < 0);
+        OnSetSourceForAssemblyHeader(SourceRecRef, CalcReservEntry, EntryIsPositive);
+        UpdateReservation(EntryIsPositive);
     end;
 
     local procedure SetSourceForAssemblyLine()
     var
-        AssemblyLine: Record "Assembly Line";
+        EntryIsPositive: Boolean;
     begin
-        SourceRecRef.SetTable(AssemblyLine);
-        AssemblyLine.SetReservationEntry(CalcReservEntry);
-        OnSetAssemblyLineOnBeforeUpdateReservation(CalcReservEntry, AssemblyLine);
-        UpdateReservation((CreateReservEntry.SignFactor(CalcReservEntry) * AssemblyLine."Remaining Quantity (Base)") <= 0);
+        OnSetSourceForAssemblyLine(SourceRecRef, CalcReservEntry, EntryIsPositive);
+        UpdateReservation(EntryIsPositive);
     end;
 
     local procedure SetSourceForInvtDocLine()
@@ -266,22 +259,18 @@ codeunit 99000845 "Reservation Management"
 
     local procedure SetSourceForProdOrderLine()
     var
-        ProdOrderLine: Record "Prod. Order Line";
+        EntryIsPositive: Boolean;
     begin
-        SourceRecRef.SetTable(ProdOrderLine);
-        ProdOrderLine.SetReservationEntry(CalcReservEntry);
-        OnSetProdOrderLineOnBeforeUpdateReservation(CalcReservEntry, ProdOrderLine);
-        UpdateReservation(ProdOrderLine."Remaining Qty. (Base)" < 0);
+        OnSetSourceForProdOrderLine(SourceRecRef, CalcReservEntry, EntryIsPositive);
+        UpdateReservation(EntryIsPositive);
     end;
 
     local procedure SetSourceForProdOrderComp()
     var
-        ProdOrderComp: Record "Prod. Order Component";
+        EntryIsPositive: Boolean;
     begin
-        SourceRecRef.SetTable(ProdOrderComp);
-        ProdOrderComp.SetReservationEntry(CalcReservEntry);
-        OnSetProdOrderCompOnBeforeUpdateReservation(CalcReservEntry, ProdOrderComp);
-        UpdateReservation(ProdOrderComp."Remaining Qty. (Base)" > 0);
+        OnSetSourceForProdOrderComp(SourceRecRef, CalcReservEntry, EntryIsPositive);
+        UpdateReservation(EntryIsPositive);
     end;
 
     local procedure SetSourceForPlanningComp()
@@ -327,12 +316,10 @@ codeunit 99000845 "Reservation Management"
 
     local procedure SetSourceForServiceLine()
     var
-        ServiceLine: Record Microsoft.Service.Document."Service Line";
+        EntryIsPositive: Boolean;
     begin
-        SourceRecRef.SetTable(ServiceLine);
-        ServiceLine.SetReservationEntry(CalcReservEntry);
-        OnSetServLineOnBeforeUpdateReservation(CalcReservEntry, ServiceLine);
-        UpdateReservation((CreateReservEntry.SignFactor(CalcReservEntry) * ServiceLine."Outstanding Qty. (Base)") <= 0);
+        OnSetSourceForServiceLine(SourceRecRef, CalcReservEntry, EntryIsPositive);
+        UpdateReservation(EntryIsPositive);
     end;
 
     procedure SetExternalDocumentResEntry(ReservEntry: Record "Reservation Entry"; UpdReservation: Boolean)
@@ -760,6 +747,9 @@ codeunit 99000845 "Reservation Management"
     var
         CalcReservEntry4: Record "Reservation Entry";
         ReqLine: Record "Requisition Line";
+#if not CLEAN26
+        MfgSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+#endif
         TrackingMgt: Codeunit OrderTrackingManagement;
         ReservMgt: Codeunit "Reservation Management";
         QtyToReTrack: Decimal;
@@ -767,7 +757,11 @@ codeunit 99000845 "Reservation Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
+        OnBeforeDeleteReservEntries2(CalcReservEntry, CalcReservEntry2, IsHandled, Item, ItemTrackingCode, SKU, Positive, Location, TotalAvailQty, QtyAllocInWhse, QtyReservedOnPickShip);
+#if not CLEAN26
+        MfgSetup.Get();
         OnDeleteReservEntriesOnBeforeDeleteReservEntries(CalcReservEntry, CalcReservEntry2, IsHandled, Item, ItemTrackingCode, SKU, MfgSetup, Positive, Location, TotalAvailQty, QtyAllocInWhse, QtyReservedOnPickShip);
+#endif
         if IsHandled then
             exit;
 
@@ -1419,7 +1413,6 @@ codeunit 99000845 "Reservation Management"
                 ItemTrackingCode.Init();
             PlanningGetParameters.AtSKU(
               SKU, ReservEntry."Item No.", ReservEntry."Variant Code", ReservEntry."Location Code");
-            MfgSetup.Get();
         end;
     end;
 
@@ -1453,12 +1446,13 @@ codeunit 99000845 "Reservation Management"
         ReservEntry3: Record "Reservation Entry";
         ActionMessageEntry: Record "Action Message Entry";
         ActionMessageEntry2: Record "Action Message Entry";
+        DateFormula: DateFormula;
+        DampenerPeriod: DateFormula;
         NextEntryNo: Integer;
         FirstDate: Date;
         Found: Boolean;
         FreeBinding: Boolean;
         NoMoreData: Boolean;
-        DateFormula: DateFormula;
     begin
         SurplusEntry.TestField("Quantity (Base)");
         if SurplusEntry.IsReservationOrTracking() then
@@ -1476,7 +1470,7 @@ codeunit 99000845 "Reservation Management"
         if SurplusEntry."Quantity (Base)" > 0 then begin // Supply: Issue AM directly
             if SurplusEntry."Planning Flexibility" = SurplusEntry."Planning Flexibility"::None then
                 exit;
-            if not (SurplusEntry."Source Type" in [Database::"Prod. Order Line", Database::"Purchase Line"]) then
+            if not (SurplusEntry."Source Type" in [5406, Database::"Purchase Line"]) then // Database::"Prod. Order Line"
                 exit;
 
             ActionMessageEntry.TransferFromReservEntry(SurplusEntry);
@@ -1505,7 +1499,7 @@ codeunit 99000845 "Reservation Management"
                         end;
                         ReservEntry.SetRange(Binding, ReservEntry.Binding::" ");
                         ReservEntry.SetRange("Planning Flexibility", ReservEntry."Planning Flexibility"::Unlimited);
-                        ReservEntry.SetFilter("Source Type", '=%1|=%2', Database::"Purchase Line", Database::"Prod. Order Line");
+                        ReservEntry.SetFilter("Source Type", '=%1|=%2', Database::"Purchase Line", 5406); // Database::"Prod. Order Line"
                     end;
                 SurplusEntry.Binding::"Order-to-Order":
                     begin
@@ -1564,13 +1558,14 @@ codeunit 99000845 "Reservation Management"
             if ReservEntry2.FindFirst() then begin
                 FirstDate := FindDate(ReservEntry2, 0, true);
                 if FirstDate <> 0D then begin
-                    if (Format(MfgSetup."Default Dampener Period") = '') or
+                    DampenerPeriod := GetDefaultDampenerPeriod();
+                    if (Format(DampenerPeriod) = '') or
                        ((ReservEntry2.Binding = ReservEntry2.Binding::"Order-to-Order") and
                         (ReservEntry2."Reservation Status" = ReservEntry2."Reservation Status"::Reservation))
                     then
-                        Evaluate(MfgSetup."Default Dampener Period", '<0D>');
+                        Evaluate(DampenerPeriod, '<0D>');
 
-                    Evaluate(DateFormula, StrSubstNo('%1%2', '-', Format(MfgSetup."Default Dampener Period")));
+                    Evaluate(DateFormula, StrSubstNo('%1%2', '-', Format(DampenerPeriod)));
                     if CalcDate(DateFormula, FirstDate) > ReservEntry2."Expected Receipt Date" then begin
                         ActionMessageEntry2.SetCurrentKey(
                           "Source Type", "Source Subtype", "Source ID", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
@@ -1676,8 +1671,7 @@ codeunit 99000845 "Reservation Management"
         if not FilterReservEntry.FindFirst() then
             exit;
 
-        if CalcReservEntry2."Source Type" in [Database::"Prod. Order Line", Database::"Purchase Line"]
-        then
+        if CalcReservEntry2."Source Type" in [5406, Database::"Purchase Line"] then // Database::"Prod. Order Line"
             ReservEngineMgt.ModifyActionMessageDating(FilterReservEntry)
         else begin
             if FilterReservEntry.Positive then
@@ -2147,19 +2141,15 @@ codeunit 99000845 "Reservation Management"
         ReservEntry.SetCurrentKey(
             "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
             "Source Batch Name", "Source Prod. Order Line", "Reservation Status");
-        if TableID <> Database::"Prod. Order Line" then begin
+        if TableID <> 5406 then begin // Database::"Prod. Order Line"
             ReservEntry.SetRange("Source Type", TableID);
             ReservEntry.SetRange("Source Prod. Order Line", 0);
         end else
-            ReservEntry.SetFilter("Source Type", '%1|%2', Database::"Prod. Order Line", Database::"Prod. Order Component");
+            ReservEntry.SetFilter("Source Type", '%1|%2', 5406, 5407); // Database::"Prod. Order Component"
 
         case TableID of
             Database::"Transfer Line":
                 ReservEntry.SetRange("Source Subtype");
-            Database::"Prod. Order Line":
-                ReservEntry.SetRange("Source Subtype", DocType);
-            Database::"Assembly Line":
-                ReservEntry.SetRange("Source Subtype", DocType);
             else
                 ReservEntry.SetRange("Source Subtype", DocType);
         end;
@@ -2189,7 +2179,7 @@ codeunit 99000845 "Reservation Management"
             until ReservEntry.Next() = 0;
     end;
 
-    local procedure GetDocumentReservationDeleteQst(TableID: Integer; DocType: Option; DocNo: Code[20]): Text
+    local procedure GetDocumentReservationDeleteQst(TableID: Integer; DocType: Option; DocNo: Code[20]) Question: Text
     var
         RecRef: RecordRef;
         FldRef: FieldRef;
@@ -2199,29 +2189,13 @@ codeunit 99000845 "Reservation Management"
         case TableID of
             Database::"Transfer Line":
                 exit(StrSubstNo(DeleteTransLineWithItemReservQst, DocNo));
-            Database::"Prod. Order Line":
-                begin
-                    RecRef.Open(TableID);
-                    FldRef := RecRef.FieldIndex(1);
-                    exit(StrSubstNo(DeleteProdOrderLineWithItemReservQst, SelectStr(DocType + 1, FldRef.OptionCaption), DocNo));
-                end;
-            Database::"Assembly Line":
-                begin
-                    RecRef.Open(TableID);
-                    FldRef := RecRef.FieldIndex(1);
-                    case DocType of
-                        Enum::"Assembly Document Type"::Quote.AsInteger(),
-                        Enum::"Assembly Document Type"::"Order".AsInteger():
-                            exit(StrSubstNo(DeleteDocLineWithItemReservQst, SelectStr(DocType + 1, FldRef.OptionCaption), DocNo));
-                        Enum::"Assembly Document Type"::"Blanket Order".AsInteger():
-                            exit(StrSubstNo(DeleteDocLineWithItemReservQst, SelectStr(3, FldRef.OptionCaption), DocNo));
-                    end;
-                end;
             else begin
                 RecRef.Open(TableID);
                 FldRef := RecRef.FieldIndex(1);
-                OnGetDocumentReservationDeleteQstOnElseCase(RecRef, FldRef, DocType, DocTypeCaption, IsHandled);
-                if not IsHandled then
+                OnGetDocumentReservationDeleteQstOnElseCase(RecRef, FldRef, DocType, DocTypeCaption, IsHandled, DocNo, Question);
+                if IsHandled then
+                    exit(Question)
+                else
                     exit(StrSubstNo(DeleteDocLineWithItemReservQst, SelectStr(DocType + 1, FldRef.OptionCaption), DocNo));
             end;
         end;
@@ -2238,7 +2212,6 @@ codeunit 99000845 "Reservation Management"
         FilterReservEntry: Record "Reservation Entry";
         TempTrackingSpec: Record "Tracking Specification" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        UOMMgt: Codeunit "Unit of Measure Management";
         MaxReservQtyPerLotOrSerial: Decimal;
         MaxReservQtyBasePerLotOrSerial: Decimal;
     begin
@@ -2311,6 +2284,11 @@ codeunit 99000845 "Reservation Management"
         if Value >= 0 then
             exit(1);
         exit(-1);
+    end;
+
+    local procedure GetDefaultDampenerPeriod() DampenerPeriod: DateFormula
+    begin
+        OnGetDefaultDampenerPeriod(DampenerPeriod);
     end;
 
     procedure TestItemType(SourceRecRef: RecordRef)
@@ -2690,7 +2668,7 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetDocumentReservationDeleteQstOnElseCase(RecRef: RecordRef; FldRef: FieldRef; DocType: Integer; var DocTypeCaption: Text; var IsHandled: Boolean)
+    local procedure OnGetDocumentReservationDeleteQstOnElseCase(RecRef: RecordRef; FldRef: FieldRef; DocType: Integer; var DocTypeCaption: Text; var IsHandled: Boolean; DocNo: Code[20]; var Question: Text)
     begin
     end;
 
@@ -2729,15 +2707,31 @@ codeunit 99000845 "Reservation Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnSetAssemblyHeaderOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; AssemblyHeader: Record "Assembly Header")
+#if not CLEAN26
+    internal procedure RunOnSetAssemblyHeaderOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
+        OnSetAssemblyHeaderOnBeforeUpdateReservation(ReservEntry, AssemblyHeader);
     end;
 
+    [Obsolete('Moved to codeunit AssemblyHeaderReserve', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnSetAssemblyLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; AssemblyLine: Record "Assembly Line")
+    local procedure OnSetAssemblyHeaderOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header")
     begin
     end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnSetAssemblyLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
+        OnSetAssemblyLineOnBeforeUpdateReservation(ReservEntry, AssemblyLine);
+    end;
+
+    [Obsolete('Moved to codeunit AssemblyHeaderReserve', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAssemblyLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnSetItemJnlLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line")
@@ -2769,15 +2763,31 @@ codeunit 99000845 "Reservation Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnSetProdOrderLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ProdOrderLine: Record "Prod. Order Line")
+#if not CLEAN26
+    internal procedure RunOnSetProdOrderLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
+        OnSetProdOrderLineOnBeforeUpdateReservation(ReservEntry, ProdOrderLine);
     end;
 
+    [Obsolete('Moved to codeunit ProdOrderLineReserve', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnSetProdOrderCompOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ProdOrderComp: Record "Prod. Order Component")
+    local procedure OnSetProdOrderLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
     end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnSetProdOrderCompOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    begin
+        OnSetProdOrderCompOnBeforeUpdateReservation(ReservEntry, ProdOrderComp);
+    end;
+
+    [Obsolete('Moved to codeunit ProdOrderCompReserve', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnSetProdOrderCompOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnSetPurchLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; PurchLine: Record "Purchase Line")
@@ -2794,10 +2804,18 @@ codeunit 99000845 "Reservation Management"
     begin
     end;
 
+#if not CLEAN26
+    internal procedure RunOnSetServLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ServiceLine: Record Microsoft.Service.Document."Service Line")
+    begin
+        OnSetServLineOnBeforeUpdateReservation(ReservEntry, ServiceLine);
+    end;
+
+    [Obsolete('Moved to codeunit ServiceLineReserve', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnSetServLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnSetTransLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; TransferLine: Record "Transfer Line")
@@ -2849,8 +2867,16 @@ codeunit 99000845 "Reservation Management"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by event OnBeforeDeleteReservEntries2', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnDeleteReservEntriesOnBeforeDeleteReservEntries(CalcReservEntry: Record "Reservation Entry"; var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean; var Item: record Item; var ItemTrackingCode: Record "Item Tracking Code"; var SKU: Record "Stockkeeping Unit"; var MfgSetup: Record "Manufacturing Setup"; var Positive: Boolean; var Location: Record Location; var TotalAvailQty: Decimal; var QtyAllocInWhse: Decimal; var QtyReservedOnPickShip: Decimal)
+    local procedure OnDeleteReservEntriesOnBeforeDeleteReservEntries(CalcReservEntry: Record "Reservation Entry"; var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean; var Item: record Item; var ItemTrackingCode: Record "Item Tracking Code"; var SKU: Record "Stockkeeping Unit"; var MfgSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup"; var Positive: Boolean; var Location: Record Location; var TotalAvailQty: Decimal; var QtyAllocInWhse: Decimal; var QtyReservedOnPickShip: Decimal)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteReservEntries2(CalcReservEntry: Record "Reservation Entry"; var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean; var Item: record Item; var ItemTrackingCode: Record "Item Tracking Code"; var SKU: Record "Stockkeeping Unit"; var Positive: Boolean; var Location: Record Location; var TotalAvailQty: Decimal; var QtyAllocInWhse: Decimal; var QtyReservedOnPickShip: Decimal)
     begin
     end;
 
@@ -2919,6 +2945,36 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetValueArrayForOrderTracking(var ValueArray: array[30] of Integer; var ArrayCounter: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSourceForAssemblyHeader(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSourceForAssemblyLine(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSourceForProdOrderLine(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSourceForProdOrderComp(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSourceForServiceLine(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDefaultDampenerPeriod(var DampenerPeriod: DateFormula)
     begin
     end;
 }

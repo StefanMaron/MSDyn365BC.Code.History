@@ -40,7 +40,7 @@ page 10501 "Postcode Configuration Page"
                                 ServiceKeyText := TempNameValueBuffer.Name;
                         end;
 
-                        trigger OnLookup(var Text: Text): Boolean
+                        trigger OnAssistEdit()
                         var
                             TempNameValueBuffer: Record "Name/Value Buffer" temporary;
                         begin

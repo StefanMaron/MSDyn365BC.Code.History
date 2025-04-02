@@ -4,9 +4,6 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Bank.Ledger;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Finance.VAT.Reporting;
-#if not CLEAN23
-using Microsoft.Finance.Analysis;
-#endif
 using Microsoft.Foundation.Address;
 
 permissionset 1002 "LOCAL READ"
@@ -29,10 +26,6 @@ permissionset 1002 "LOCAL READ"
                   tabledata "MTD-Missing Fraud Prev. Hdr" = R,
                   tabledata "MTD-Session Fraud Prev. Hdr" = R,
                   tabledata "MTD-Default Fraud Prev. Hdr" = R,
-#endif
-#if not CLEAN23
-                  tabledata "Payment Application Buffer" = R,
-                  tabledata "Payment Period Setup" = R,
 #endif
                   tabledata "Postcode Notification Memory" = R;
 }

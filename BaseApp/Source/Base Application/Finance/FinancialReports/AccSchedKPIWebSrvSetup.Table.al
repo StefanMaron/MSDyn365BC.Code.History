@@ -16,6 +16,7 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
 
             trigger OnValidate()

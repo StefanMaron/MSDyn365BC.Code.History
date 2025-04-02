@@ -33,12 +33,17 @@ codeunit 30335 "Shpfy Metafield Owner Variant" implements "Shpfy IMetafield Owne
                         MetafieldIds.Add(Id, UpdatedAt);
                     end;
     end;
-    
+
     procedure GetShopCode(OwnerId: BigInteger): Code[20]
     var
         Variant: Record "Shpfy Variant";
     begin
         Variant.Get(OwnerId);
         exit(Variant."Shop Code");
+    end;
+
+    procedure CanEditMetafields(Shop: Record "Shpfy Shop"): Boolean
+    begin
+        exit((Shop."Sync Item" = Shop."Sync Item"::"To Shopify") and (Shop."Can Update Shopify Products"));
     end;
 }

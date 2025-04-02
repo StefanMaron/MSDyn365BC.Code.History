@@ -51,7 +51,7 @@ codeunit 1485 "Rolecenter Selector Mgt."
     procedure BuildJsonFromPageMetadata(RolecenterId: Integer): Text
     var
         AllObj: Record AllObj;
-        AppObjectMetadata: Record "Application Object Metadata";
+        ApplicationObjectMetadata: Record "Application Object Metadata";
         JSONManagement: Codeunit "JSON Management";
         XMLDOMManagement: Codeunit "XML DOM Management";
         ReturnXmlDocument: DotNet XmlDocument;
@@ -71,9 +71,9 @@ codeunit 1485 "Rolecenter Selector Mgt."
         JSONManagement.GetJsonArray(FeatureBucketsJArray);
 
         AllObj.Get(AllObj."Object Type"::Page, RolecenterId);
-        AppObjectMetadata.Get(AllObj."App Runtime Package ID", AppObjectMetadata."Object Type"::Page, RolecenterId);
-        AppObjectMetadata.CalcFields(Metadata);
-        AppObjectMetadata.Metadata.CreateInStream(Instream);
+        ApplicationObjectMetadata.Get(AllObj."App Runtime Package ID", ApplicationObjectMetadata."Object Type"::Page, RolecenterId);
+        ApplicationObjectMetadata.CalcFields(Metadata);
+        ApplicationObjectMetadata.Metadata.CreateInStream(Instream);
 
         XMLDOMManagement.LoadXMLDocumentFromInStream(Instream, ReturnXmlDocument);
         ReturnedXMLNodeList := ReturnXmlDocument.GetElementsByTagName(ActionContainerXmlElementLbl);

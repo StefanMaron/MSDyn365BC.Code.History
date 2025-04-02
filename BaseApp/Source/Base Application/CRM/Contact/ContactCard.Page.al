@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CRM.Contact;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.Contact;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.BusinessRelation;
@@ -340,6 +344,7 @@ page 5050 "Contact Card"
 
                         trigger OnValidate()
                         begin
+                            IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                             HandleAddressLookupVisibility();
                         end;
                     }
@@ -362,10 +367,15 @@ page 5050 "Contact Card"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the city where the contact is located.';
                     }
-                    field(County; Rec.County)
+                    group(CountyGroup)
                     {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the county for the contact.';
+                        ShowCaption = false;
+                        Visible = IsCountyVisible;
+                        field(County; Rec.County)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            ToolTip = 'Specifies the state, province or county as a part of the address.';
+                        }
                     }
                     field(ShowMap; ShowMapLbl)
                     {
@@ -1461,6 +1471,11 @@ page 5050 "Contact Card"
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+    end;
+
     trigger OnAfterGetCurrRecord()
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
@@ -1529,6 +1544,7 @@ page 5050 "Contact Card"
 
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        FormatAddress: Codeunit "Format Address";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         CompanyDetails: Page "Company Details";
         NameDetails: Page "Name Details";
@@ -1546,6 +1562,7 @@ page 5050 "Contact Card"
         ShowMapLbl: Label 'Show Map';
         IsAddressLookupTextEnabled: Boolean;
         LookupAddressLbl: Label 'Lookup address from postcode';
+        IsCountyVisible: Boolean;
         NoFieldVisible: Boolean;
         RegistrationNumberEnabled: Boolean;
 

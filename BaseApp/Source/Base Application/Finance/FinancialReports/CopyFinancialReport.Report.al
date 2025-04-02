@@ -1,4 +1,5 @@
 namespace Microsoft.Finance.FinancialReports;
+using System.Telemetry;
 
 report 39 "Copy Financial Report"
 {
@@ -89,6 +90,7 @@ report 39 "Copy Financial Report"
         CopySourceFinancialReportName: Code[10];
         CopySourceNameMissingErr: Label 'You must specify a valid name for the source financial report to copy from.';
         MultipleSourcesErr: Label 'You can only copy one financial report at a time.';
+        CopyEventTxt: Label 'Financial Report Definition copied: %1', Comment = '%1 = financial report name', Locked = true;
 
     local procedure AssertNewFinancialReportNotEmpty()
     begin
@@ -115,6 +117,8 @@ report 39 "Copy Financial Report"
         FinancialReport.TransferFields(FinancialReportName);
         FinancialReport.Name := NewName;
         FinancialReport.Insert();
+
+        LogUsageTelemetry(FinancialReportName.Name, NewName);
     end;
 
     local procedure IsEmptyName(ScheduleName: Code[10]) IsEmpty: Boolean
@@ -142,6 +146,19 @@ report 39 "Copy Financial Report"
 
         if FinancialReport.Count > 1 then
             Error(MultipleSourcesErr);
+    end;
+
+    local procedure LogUsageTelemetry(SourceCode: Code[10]; NewCode: Code[10])
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
+        TelemetryDimensions.Add('SourceReportDefinitionCode', SourceCode);
+        TelemetryDimensions.Add('NewReportDefinitionCode', NewCode);
+        FeatureTelemetry.LogUsage('0000OKX', 'Financial Report', StrSubstNo(CopyEventTxt, SourceCode), TelemetryDimensions);
     end;
 }
 
