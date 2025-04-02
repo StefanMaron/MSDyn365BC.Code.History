@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -18,7 +18,6 @@ using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Request;
 using System.Text;
-using Microsoft.eServices.EDocument;
 
 page 9318 "Service Orders"
 {
@@ -228,6 +227,7 @@ page 9318 "Service Orders"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -335,20 +335,6 @@ page 9318 "Service Orders"
                                   Type = const(General);
                     ToolTip = 'View or add comments for the record.';
                 }
-                action(CFDIRelationDocuments)
-                {
-                    ApplicationArea = Service, BasicMX;
-                    Caption = 'CFDI Relation Documents';
-                    Image = Allocations;
-                    RunObject = Page "CFDI Relation Documents";
-                    RunPageLink = "Document Table ID" = const(5900),
-#pragma warning disable AL0603
-                                  "Document Type" = field("Document Type"),
-#pragma warning restore AL0603
-                                  "Document No." = field("No."),
-                                  "Customer No." = field("Bill-to Customer No.");
-                    ToolTip = 'View or add CFDI relation documents for the record.';
-                }
             }
             group(Action17)
             {
@@ -364,7 +350,6 @@ page 9318 "Service Orders"
 
                     trigger OnAction()
                     begin
-                        OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         Rec.OpenOrderStatistics();
                     end;
                 }
@@ -750,10 +735,5 @@ page 9318 "Service Orders"
 
     var
         ServHeader: Record "Service Header";
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
-    begin
-    end;
 }
 

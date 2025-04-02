@@ -3842,7 +3842,7 @@
         TimeZoneOffset: Duration;
         UserOffset: Duration;
     begin
-        // [SCENARIO 540218] Request Stamp for Sales Invoice in Location Time Zone
+        // [SCENARIO 323341] Request Stamp for Sales Invoice in Location Time Zone
         Initialize();
         TableNo := DATABASE::"Sales Invoice Header";
 
@@ -3875,7 +3875,7 @@
         TimeZoneOffset: Duration;
         UserOffset: Duration;
     begin
-        // [SCENARIO 540218] Request Stamp for Sales Credit Memo in Location Time Zone
+        // [SCENARIO 323341] Request Stamp for Sales Credit Memo in Location Time Zone
         Initialize();
         TableNo := DATABASE::"Sales Cr.Memo Header";
 
@@ -3908,7 +3908,7 @@
         TimeZoneOffset: Duration;
         UserOffset: Duration;
     begin
-        // [SCENARIO 540218] Request Stamp for Service Invoice in Location Time Zone
+        // [SCENARIO 323341] Request Stamp for Service Invoice in Location Time Zone
         Initialize();
         TableNo := DATABASE::"Service Invoice Header";
 
@@ -3941,7 +3941,7 @@
         TimeZoneOffset: Duration;
         UserOffset: Duration;
     begin
-        // [SCENARIO 540218] Request Stamp for Service Credit Memo for Location with defined Time Zone
+        // [SCENARIO 323341] Request Stamp for Service Credit Memo for Location with defined Time Zone
         Initialize();
         TableNo := DATABASE::"Service Cr.Memo Header";
 
@@ -4012,7 +4012,7 @@
         TimeZoneOffset: Duration;
         UserOffset: Duration;
     begin
-        // [SCENARIO 540218] Send document for Sales Invoice in Location Time Zone
+        // [SCENARIO 323341] Send document for Sales Invoice in Location Time Zone
         Initialize();
         TableNo := DATABASE::"Sales Invoice Header";
 
@@ -4088,7 +4088,7 @@
         TimeZoneOffset: Duration;
         UserOffset: Duration;
     begin
-        // [SCENARIO 540218] Cancel Sales Invoice in Location Time Zone
+        // [SCENARIO 323341] Cancel Sales Invoice in Location Time Zone
         Initialize();
         TableNo := DATABASE::"Sales Invoice Header";
 

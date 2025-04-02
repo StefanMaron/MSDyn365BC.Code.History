@@ -19,11 +19,13 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Code';
             NotBlank = true;
+            ToolTip = 'Specifies the identifier for the customer posting group. This is what you choose when you assign the group to an entity or document.';
         }
         field(2; "Receivables Account"; Code[20])
         {
             Caption = 'Receivables Account';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account to use when you post receivables from customers in this posting group.';
 
             trigger OnLookup()
             begin
@@ -49,6 +51,7 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Service Charge Acc.';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account to use when you post service charges for customers in this posting group.';
 
             trigger OnLookup()
             begin
@@ -74,6 +77,7 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Payment Disc. Debit Acc.';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account to use when you post payment discounts granted to customers in this posting group.';
 
             trigger OnLookup()
             begin
@@ -97,6 +101,7 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Invoice Rounding Account';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account to use when you post amounts that result from invoice rounding when you post transactions for customers.';
 
             trigger OnLookup()
             begin
@@ -120,6 +125,7 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Additional Fee Account';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account to use when you post additional fees from reminders and finance charge memos for customers in this posting group.';
 
             trigger OnLookup()
             begin
@@ -143,6 +149,7 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Interest Account';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account to use when you post interest from reminders and finance charge memos for customers in this posting group.';
 
             trigger OnLookup()
             begin
@@ -166,6 +173,7 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Debit Curr. Appln. Rndg. Acc.';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account to use when you post rounding differences. These differences can occur when you apply entries in different currencies to one another.';
 
             trigger OnLookup()
             begin
@@ -190,6 +198,7 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Credit Curr. Appln. Rndg. Acc.';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account to use when you post rounding differences. These differences can occur when you apply entries in different currencies to one another.';
 
             trigger OnLookup()
             begin
@@ -214,6 +223,7 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Debit Rounding Account';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account to use when you post rounding differences from a remaining amount.';
 
             trigger OnLookup()
             begin
@@ -238,6 +248,7 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Credit Rounding Account';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account to use when you post rounding differences from a remaining amount.';
 
             trigger OnLookup()
             begin
@@ -260,6 +271,7 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Payment Disc. Credit Acc.';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account to use when you post reductions in payment discounts granted to customers in this posting group.';
 
             trigger OnLookup()
             begin
@@ -283,6 +295,7 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Payment Tolerance Debit Acc.';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account to use when you post payment tolerance and payments for sales. This applies to this particular combination of business group and product group.';
 
             trigger OnLookup()
             begin
@@ -307,6 +320,7 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Payment Tolerance Credit Acc.';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account to use when you post payment tolerance and payments for sales. This applies to this particular combination of business group and product group.';
 
             trigger OnLookup()
             begin
@@ -333,6 +347,7 @@ table 92 "Customer Posting Group"
         {
             Caption = 'Add. Fee per Line Account';
             TableRelation = "G/L Account";
+            ToolTip = 'Specifies the general ledger account that additional fees are posted to.';
 
             trigger OnLookup()
             begin
@@ -355,10 +370,12 @@ table 92 "Customer Posting Group"
         field(20; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the description for the customer posting group.';
         }
         field(21; "View All Accounts on Lookup"; Boolean)
         {
             Caption = 'View All Accounts on Lookup';
+            ToolTip = 'Specifies that all possible accounts are shown when you look up from a field. If the check box is not selected, then only accounts related to the involved account category are shown.';
         }
     }
 

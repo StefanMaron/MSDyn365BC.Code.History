@@ -1,4 +1,4 @@
-codeunit 134600 "Report Layout Test"
+﻿codeunit 134600 "Report Layout Test"
 {
     // SaveAsPDF is not tested for Word scenarios as it currently requires Windows client and an installed Word.
 
@@ -131,13 +131,17 @@ codeunit 134600 "Report Layout Test"
     begin
         Initialize();
         // Verify
+#if not CLEAN25
         Assert.IsFalse(ReportLayoutSelection.IsProcessingOnly(REPORT::"Detail Trial Balance"), '');
         Assert.IsTrue(ReportLayoutSelection.IsProcessingOnly(REPORT::"Copy Sales Document"), '');
+#endif
         Assert.IsFalse(ReportLayoutSelection.HasWordLayout(REPORT::"Detail Trial Balance"), '');
     end;
 
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('HasCustomLayout is moved to codeunit Report Management Helper', '25.0')]
     procedure TestReportLayoutSelectionHasCustomLayout()
     var
         ReportLayoutSelection: Record "Report Layout Selection";
@@ -169,6 +173,7 @@ codeunit 134600 "Report Layout Test"
         Assert.AreEqual(0, ReportLayoutSelection.HasCustomLayout(DetailTrialBalanceReportID()), 'Expected default (no layout found)');
         Assert.AreEqual(0, ReportLayoutSelection.HasCustomLayout(99999), 'Expected default (no such report)');
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -338,42 +343,45 @@ codeunit 134600 "Report Layout Test"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         FileManagement: Codeunit "File Management";
-        XMLDOMManagement: Codeunit "XML DOM Management";
-        XmlDoc: DotNet XmlDocument;
-        XmlNode: DotNet XmlNode;
-        XmlNodeList: DotNet XmlNodeList;
-        FileNameXml: Text;
-        i: Integer;
+        XmlDoc: XmlDocument;
+        XmlNodeVar: XmlNode;
+        XmlElementVar: XmlElement;
+        XmlElementChild: XmlElement;
+        XmlFileName: Text;
+        xmlFile: File;
+        xmlInStream: InStream;
+        Status: Boolean;
     begin
         Initialize();
         if not SalesInvoiceHeader.FindFirst() then
             exit;
         SalesInvoiceHeader.SetRecFilter();
         InitCompanySetup();
-        FileNameXml := FileManagement.ServerTempFileName('xml');
-        REPORT.SaveAsXml(REPORT::"Standard Sales - Invoice", FileNameXml, SalesInvoiceHeader);
+        XmlFileName := FileManagement.ServerTempFileName('xml');
+        REPORT.SaveAsXml(REPORT::"Standard Sales - Invoice", XmlFileName, SalesInvoiceHeader);
+
+        xmlfile.Open(XmlFileName);
+        xmlFile.CreateInStream(xmlInStream);
 
         // Verify
-        XMLDOMManagement.LoadXMLDocumentFromFile(FileNameXml, XmlDoc);
-        XmlNode := XmlDoc.DocumentElement;
-        XmlNode := XmlNode.FirstChild; // DataItems
-        XmlNode := XmlNode.FirstChild; // DataItem Sales_Invoice_Header
-        Assert.AreEqual('Header', GetXmlAttribute('name', XmlNode), '');
+        XmlDocument.ReadFrom(xmlInStream, XmlDoc);
+        status := XmlDoc.SelectSingleNode('ReportDataSet/DataItems/DataItem[@name="Header"]', XmlNodeVar);
+        XmlElementVar := XmlNodeVar.AsXmlElement();
 
-        XmlNodeList := XmlNode.ChildNodes;
-        Assert.AreEqual(2, XmlNodeList.Count, 'Header children.');
-        for i := 0 to XmlNodeList.Count - 1 do begin
-            XmlNode := XmlNodeList.ItemOf(i);
-            case XmlNode.Name of
-                'Columns':
-                    ValidateHeaderColumns(XmlNode);
-                'DataItems':
-                    ValidateDataItems(XmlNode);
+        foreach XmlNodeVar in XmlElementVar.GetChildNodes() do
+            if XmlNodeVar.IsXmlElement then begin
+                XmlElementChild := XmlNodeVar.AsXmlElement();
+                case XmlElementChild.Name of
+                    'Columns':
+                        ValidateHeaderColumns(XmlElementChild);
+                    'DataItems':
+                        ValidateDataItems(XmlElementChild);
+                end;
             end;
-        end;
 
         // Cleanup
-        Erase(FileNameXml);
+        xmlFile.Close();
+        Erase(XmlFileName);
     end;
 
     [Test]
@@ -1240,35 +1248,52 @@ codeunit 134600 "Report Layout Test"
         exit(Format(XMLAttributeNode.InnerText));
     end;
 
-    local procedure ValidateHeaderColumns(var XMLNode: DotNet XmlNode)
+    local procedure ValidateHeaderColumns(var XmlElementParm: XmlElement)
+    var
+        XmlNodeVar: XmlNode;
+        XmlElementChild: XmlElement;
+        XmlAttributeVar: XmlAttribute;
     begin
-        XMLNode := XMLNode.FirstChild; // Column BilltoCustNo
-        Assert.AreEqual('CompanyAddress1', GetXmlAttribute('name', XMLNode), '');
+        foreach XmlNodeVar in XmlElementParm.GetChildNodes() do
+            if XmlNodeVar.IsXmlElement then begin
+                XmlElementChild := XmlNodeVar.AsXmlElement();
+                XmlElementChild.Attributes().Get('name', XmlAttributeVar);
+
+                Assert.AreEqual('CompanyAddress1', XmlAttributeVar.Value, '');
+                exit;
+            end;
+
+        Assert.Fail('CompanyAddress1 not found');
     end;
 
-    local procedure ValidateDataItems(var XMLNode: DotNet XmlNode)
+    local procedure ValidateDataItems(var XmlElementParm: XmlElement)
     var
-        XmlNodeList: DotNet XmlNodeList;
-        XMLNode2: DotNet XmlNode;
+        XmlNodeListVar: XmlNodeList;
+        XmlElementChild: XmlElement;
+        XmlAttributeVar: XmlAttribute;
+        XMLNodeVar: XmlNode;
         i: Integer;
         NodeName: Text;
     begin
-        XmlNodeList := XMLNode.ChildNodes;
-        Assert.IsTrue(0 < XmlNodeList.Count, 'DataItems children.');
-        for i := 0 to XmlNodeList.Count - 1 do begin
-            XMLNode2 := XmlNodeList.ItemOf(i);
-            NodeName := GetXmlAttribute('name', XMLNode2);
-            Assert.IsTrue(
-              NodeName in ['LetterText',
-                           'RightHeader',
-                           'LeftHeader',
-                           'Line',
-                           'VATAmountLine',
-                           'VATClauseLine',
-                           'ReportTotalsLine',
-                           'USReportTotalsLine',
-                           'Totals'],
-              '');
+        XmlNodeListVar := XmlElementParm.GetChildNodes();
+        Assert.IsTrue(0 < XmlNodeListVar.Count, 'DataItems children.');
+        for i := 1 to XmlNodeListVar.Count do begin
+            XmlNodeListVar.Get(i, XMLNodeVar);
+            if XmlNodeVar.IsXmlElement then begin
+                XmlElementChild := XmlNodeVar.AsXmlElement();
+                XmlElementChild.Attributes().Get('name', XmlAttributeVar);
+                NodeName := XmlAttributeVar.Value;
+                Assert.IsTrue(
+                NodeName in ['LetterText',
+                            'RightHeader',
+                            'LeftHeader',
+                            'Line',
+                            'VATAmountLine',
+                            'VATClauseLine',
+                            'ReportTotalsLine',
+                            'Totals'],
+                '');
+            end;
         end;
     end;
 

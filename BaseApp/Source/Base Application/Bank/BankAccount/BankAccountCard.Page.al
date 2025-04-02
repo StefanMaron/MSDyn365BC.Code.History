@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.BankAccount;
 
 using Microsoft.Bank.Check;
@@ -13,6 +17,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Reports;
+using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Comment;
 using Microsoft.Utilities;
 using System.Email;
@@ -240,11 +245,16 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the bank where you have the bank account.';
                 }
-                field(County; Rec.County)
+                group(CountyGroup)
                 {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'State';
-                    ToolTip = 'Specifies the state as a part of the address.';
+                    ShowCaption = false;
+                    Visible = IsCountyVisible;
+                    field(County; Rec.County)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'State';
+                        ToolTip = 'Specifies the state, province or county as a part of the address.';
+                    }
                 }
                 field("Post Code"; Rec."Post Code")
                 {
@@ -255,6 +265,11 @@ page 370 "Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
+
+                    trigger OnValidate()
+                    begin
+                        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+                    end;
                 }
                 field("Phone No."; Rec."Phone No.")
                 {
@@ -1042,6 +1057,7 @@ page 370 "Bank Account Card"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         AfterGetCurrentRecord();
+        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
     end;
 
     trigger OnOpenPage()
@@ -1055,6 +1071,7 @@ page 370 "Bank Account Card"
     end;
 
     var
+        FormatAddress: Codeunit "Format Address";
         BankDepositFeatureEnabled: Boolean;
         "Client No.Enable": Boolean;
         "Client NameEnable": Boolean;
@@ -1068,6 +1085,7 @@ page 370 "Bank Account Card"
         ContactActionVisible: Boolean;
         Linked: Boolean;
         OnlineBankAccountLinkingErr: Label 'You must link the bank account to an online bank account.\\Choose the Link to Online Bank Account action.';
+        IsCountyVisible: Boolean;
         ShowBankLinkingActions: Boolean;
         NoFieldVisible: Boolean;
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";

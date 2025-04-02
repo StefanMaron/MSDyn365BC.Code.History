@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Routing;
 
 using Microsoft.Foundation.NoSeries;
@@ -201,6 +205,15 @@ table 99000786 "Routing Version"
         exit(
           StrSubstNo(
             '%1 %2 %3', RtngHeader."No.", RtngHeader.Description, "Version Code"));
+    end;
+
+    procedure RoutingLinesExist(): Boolean
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        RoutingLine.SetRange("Routing No.", Rec."Routing No.");
+        RoutingLine.SetRange("Version Code", Rec."Version Code");
+        exit(not RoutingLine.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]

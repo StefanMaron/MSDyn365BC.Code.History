@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
 page 6532 "Continuous Item Tracking"
@@ -72,7 +76,7 @@ page 6532 "Continuous Item Tracking"
         CurrentQty: Decimal;
         AvailableQty: Decimal;
 
-    internal procedure GetInput(): Text
+    procedure GetInput(): Text
     begin
         exit(LastInput);
     end;

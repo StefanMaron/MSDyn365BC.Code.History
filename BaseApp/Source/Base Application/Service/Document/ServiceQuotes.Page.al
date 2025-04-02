@@ -191,6 +191,7 @@ page 9317 "Service Quotes"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -276,7 +277,6 @@ page 9317 "Service Quotes"
 
                     trigger OnAction()
                     begin
-                        OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         Rec.OpenStatistics();
                     end;
                 }
@@ -402,11 +402,6 @@ page 9317 "Service Quotes"
         Rec.SetSecurityFilterOnRespCenter();
 
         Rec.CopyCustomerFilter();
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
-    begin
     end;
 }
 

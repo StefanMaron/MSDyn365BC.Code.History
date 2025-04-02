@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.WorkCenter;
 
 using Microsoft.Foundation.Navigate;
@@ -128,7 +132,7 @@ page 99000915 "Work Center Task List"
                 field("Concurrent Capacities"; Rec."Concurrent Capacities")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the con capacity of the operation.';
+                    ToolTip = 'Specifies the concurrent capacity of the operation.';
                 }
                 field("Send-Ahead Quantity"; Rec."Send-Ahead Quantity")
                 {

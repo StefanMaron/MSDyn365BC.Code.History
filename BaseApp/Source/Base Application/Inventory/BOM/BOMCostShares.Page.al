@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.BOM;
 
 using Microsoft.Assembly.Document;
@@ -207,6 +211,11 @@ page 5872 "BOM Cost Shares"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the material cost of all items at all levels of the parent item''s BOM, added to the material cost of the item itself.';
                 }
+                field("Rolled-up Mat. Non-Invt. Cost"; Rec."Rolled-up Mat. Non-Invt. Cost")
+                {
+                    ApplicationArea = Assembly;
+                    ToolTip = 'Specifies the non inventory material cost of all items at all levels of the parent item''s BOM, added to the non inventory material cost of the item itself.';
+                }
                 field("Rolled-up Capacity Cost"; Rec."Rolled-up Capacity Cost")
                 {
                     ApplicationArea = Assembly;
@@ -238,6 +247,14 @@ page 5872 "BOM Cost Shares"
                     BlankZero = true;
                     Editable = false;
                     ToolTip = 'Specifies the total material cost of all components on the parent item''s BOM.';
+                    Visible = false;
+                }
+                field("Single-Lvl Mat. Non-Invt. Cost"; Rec."Single-Lvl Mat. Non-Invt. Cost")
+                {
+                    ApplicationArea = Manufacturing;
+                    BlankZero = true;
+                    Editable = false;
+                    ToolTip = 'Specifies the total non inventory material cost of all components on the parent item''s BOM.';
                     Visible = false;
                 }
                 field("Single-Level Capacity Cost"; Rec."Single-Level Capacity Cost")

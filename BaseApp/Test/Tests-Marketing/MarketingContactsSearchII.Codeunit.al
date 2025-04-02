@@ -219,8 +219,8 @@ codeunit 136212 "Marketing Contacts Search II"
         DuplicateSearchStringSetup.DeleteAll();
         // [WHEN] Run "Duplicate Search String Setup" page
         DuplicateSearchStringSetupPage.OpenNew();
-        // [WHEN] Look up in the "Field Name" field and select any from suggested (FieldListPageHandler)
-        DuplicateSearchStringSetupPage."Field Name".Lookup();
+        // [WHEN] Look up via assist edit in the "Field Name" field and select any from suggested (FieldListPageHandler)
+        DuplicateSearchStringSetupPage."Field Name".AssistEdit();
         DuplicateSearchStringSetupPage.Close();
         // [THEN] Duplicate Search String created with selected field
         DuplicateSearchStringSetup.FindFirst();

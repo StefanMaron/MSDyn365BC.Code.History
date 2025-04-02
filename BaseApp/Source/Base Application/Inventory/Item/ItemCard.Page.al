@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Item;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Item;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -25,8 +29,6 @@ using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -253,16 +255,6 @@ page 30 "Item Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many units of the item are inbound on purchase orders, meaning listed on outstanding purchase order lines.';
                 }
-                field("Qty. on Prod. Order"; Rec."Qty. on Prod. Order")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies how many units of the item are allocated to production orders, meaning listed on outstanding production order lines.';
-                }
-                field("Qty. on Component Lines"; Rec."Qty. on Component Lines")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies how many units of the item are allocated as production order components, meaning listed under outstanding production order lines.';
-                }
                 field("Qty. on Sales Order"; Rec."Qty. on Sales Order")
                 {
                     ApplicationArea = Basic, Suite;
@@ -273,18 +265,6 @@ page 30 "Item Card"
                     ApplicationArea = Jobs;
                     Importance = Additional;
                     ToolTip = 'Specifies how many units of the item are allocated to projects, meaning listed on outstanding project planning lines.';
-                }
-                field("Qty. on Assembly Order"; Rec."Qty. on Assembly Order")
-                {
-                    ApplicationArea = Assembly;
-                    Importance = Additional;
-                    ToolTip = 'Specifies how many units of the item are allocated to assembly orders, which is how many are listed on outstanding assembly order headers.';
-                }
-                field("Qty. on Asm. Component"; Rec."Qty. on Asm. Component")
-                {
-                    ApplicationArea = Assembly;
-                    Importance = Additional;
-                    ToolTip = 'Specifies how many units of the item are allocated as assembly components, which means how many are listed on outstanding assembly order lines.';
                 }
                 field(StockoutWarningDefaultYes; Rec."Stockout Warning")
                 {
@@ -375,6 +355,12 @@ page 30 "Item Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity of the items that remains to be shipped as the difference between the Quantity and the Quantity Shipped fields.';
+                    Visible = false;
+                }
+                field("Qty. in Transit"; Rec."Qty. in Transit")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the quantity of the items that are currently in transit.';
                     Visible = false;
                 }
             }
@@ -788,52 +774,6 @@ page 30 "Item Card"
                         ToolTip = 'Specifies that the item cannot be entered on purchase documents, except return orders and credit memos, and journals.';
                     }
                 }
-                group(Replenishment_Production)
-                {
-                    Caption = 'Production';
-                    field("Manufacturing Policy"; Rec."Manufacturing Policy")
-                    {
-                        ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies if additional orders for any related components are calculated.';
-                    }
-                    field("Routing No."; Rec."Routing No.")
-                    {
-                        ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies the production route that contains the operations needed to manufacture this item.';
-                    }
-                    field("Production BOM No."; Rec."Production BOM No.")
-                    {
-                        ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies the production BOM that is used to manufacture this item.';
-                    }
-                    field("Rounding Precision"; Rec."Rounding Precision")
-                    {
-                        ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies how calculated consumption quantities are rounded when entered on consumption journal lines.';
-                    }
-                    field("Flushing Method"; Rec."Flushing Method")
-                    {
-                        ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
-                    }
-                    field("Overhead Rate"; Rec."Overhead Rate")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Enabled = IsInventoriable;
-                        Importance = Additional;
-                        ToolTip = 'Specifies the item''s indirect cost as an absolute amount.';
-                    }
-                    field("Scrap %"; Rec."Scrap %")
-                    {
-                        ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
-                    }
-                    field("Lot Size"; Rec."Lot Size")
-                    {
-                        ApplicationArea = Manufacturing;
-                        ToolTip = 'Specifies the default number of units of the item that are processed in one production operation. This affects standard cost calculations and capacity planning. If the item routing includes fixed costs such as setup time, the value in this field is used to calculate the standard cost and distribute the setup costs. During demand planning, this value is used together with the value in the Default Dampener % field to ignore negligible changes in demand and avoid re-planning. Note that if you leave the field blank, it will be threated as 1.';
-                    }
-                }
                 group(Replenishment_Assembly)
                 {
                     Caption = 'Assembly';
@@ -1013,7 +953,7 @@ page 30 "Item Card"
                         {
                             ApplicationArea = Planning;
                             Enabled = OrderMultipleEnable;
-                            ToolTip = 'Specifies a parameter used by the planning system to modify the quantity of planned supply orders.';
+                            ToolTip = 'Specifies a parameter used by the planning system to round the quantity of planned supply orders to a multiple of this value.';
                         }
                     }
                 }
@@ -1136,6 +1076,7 @@ page 30 "Item Card"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::Item),
                               "No." = field("No.");
@@ -2468,78 +2409,6 @@ page 30 "Item Card"
                         RunPageView = sorting(Type, "No.");
                         ToolTip = 'View a list of assembly BOMs in which the item is used.';
                     }
-                    action("Calc. Stan&dard Cost")
-                    {
-                        AccessByPermission = TableData "BOM Component" = R;
-                        ApplicationArea = Assembly;
-                        Caption = 'Calc. Assembly Std. Cost';
-                        Image = CalculateCost;
-                        ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s assembly BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
-
-                        trigger OnAction()
-                        begin
-                            Clear(CalculateStdCost);
-                            CalculateStdCost.CalcItem(Rec."No.", true);
-                        end;
-                    }
-                    action("Calc. Unit Price")
-                    {
-                        AccessByPermission = TableData "BOM Component" = R;
-                        ApplicationArea = Assembly;
-                        Caption = 'Calc. Unit Price';
-                        Image = SuggestItemPrice;
-                        ToolTip = 'Calculate the unit price based on the unit cost and the profit percentage.';
-
-                        trigger OnAction()
-                        begin
-                            Clear(CalculateStdCost);
-                            CalculateStdCost.CalcAssemblyItemPrice(Rec."No.")
-                        end;
-                    }
-                }
-                group(Production)
-                {
-                    Caption = 'Production';
-                    Image = Production;
-                    action("Production BOM")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Production BOM';
-                        Image = BOM;
-                        RunObject = Page "Production BOM";
-                        RunPageLink = "No." = field("Production BOM No.");
-                        ToolTip = 'Open the item''s production bill of material to view or edit its components.';
-                    }
-                    action(Action78)
-                    {
-                        AccessByPermission = TableData "Production BOM Header" = R;
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Where-Used';
-                        Image = "Where-Used";
-                        ToolTip = 'View a list of production BOMs in which the item is used.';
-
-                        trigger OnAction()
-                        var
-                            ProdBOMWhereUsed: Page "Prod. BOM Where-Used";
-                        begin
-                            ProdBOMWhereUsed.SetItem(Rec, WorkDate());
-                            ProdBOMWhereUsed.RunModal();
-                        end;
-                    }
-                    action(Action5)
-                    {
-                        AccessByPermission = TableData "Production BOM Header" = R;
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Calc. Production Std. Cost';
-                        Image = CalculateCost;
-                        ToolTip = 'Calculate the unit cost of the item by rolling up the unit cost of each component and resource in the item''s production BOM. The unit cost of a parent item must equal the total of the unit costs of its components, subassemblies, and any resources.';
-
-                        trigger OnAction()
-                        begin
-                            Clear(CalculateStdCost);
-                            CalculateStdCost.CalcItem(Rec."No.", false);
-                        end;
-                    }
                 }
             }
             group(Navigation_Warehouse)
@@ -2897,7 +2766,6 @@ page 30 "Item Card"
 
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        CalculateStdCost: Codeunit "Calculate Standard Cost";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";

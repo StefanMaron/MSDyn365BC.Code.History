@@ -278,7 +278,7 @@ codeunit 133504 "SCM Costing Performance"
         Day1 := WorkDate();
         Loc := '';
         Variant := '';
-        LibraryPatterns.POSTItemJournalLine(
+        LibraryInventory.PostItemJournalLine(
           ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Purchase, Item, '', '', '', PurchaseQty, Day1, 2);
 
         ItemLedgEntry.FindLast();
@@ -286,7 +286,7 @@ codeunit 133504 "SCM Costing Performance"
         for jj := 1 to PurchaseQty - 1 do begin
             LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
 
-            LibraryPatterns.MAKEItemJournalLine(
+            LibraryInventory.CreateItemJournalLine(
               ItemJournalLine, ItemJournalBatch, Item, Loc, Variant, Day1, ItemJournalLine."Entry Type"::Sale, 1, 0.007);
             ItemJournalLine.Modify(true);
 
@@ -314,9 +314,9 @@ codeunit 133504 "SCM Costing Performance"
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalBatch: Record "Item Journal Batch";
     begin
-        LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
+        LibraryWarehouse.CreateStockkeepingUnit(StockkeepingUnit, Item);
         NoOfHits := GetCodeCoverageForObject(CodeCover."Object Type"::Codeunit, 5804, 'GetInvtSetup');
-        LibraryPatterns.POSTItemJournalLine(
+        LibraryInventory.PostItemJournalLine(
           ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::Purchase, Item, '', '', '',
           LibraryRandom.RandDec(100, 2), WorkDate(), LibraryRandom.RandDec(100, 2));
         NoOfHits := GetCodeCoverageForObject(CodeCover."Object Type"::Codeunit, 5804, 'GetInvtSetup') - NoOfHits;
@@ -329,9 +329,9 @@ codeunit 133504 "SCM Costing Performance"
         I: Integer;
     begin
         Item.Get(ProdOrderLine."Item No.");
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', Quantity, WorkDate(), Item."Unit Cost");
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', Quantity, WorkDate(), Item."Unit Cost");
         for I := 1 to NoOfConsumptions do
-            LibraryPatterns.POSTConsumption(
+            LibraryManufacturing.POSTConsumption(
               ProdOrderLine, Item, '', '', Quantity / NoOfConsumptions, WorkDate(), Item."Unit Cost" + LibraryRandom.RandDecInRange(20, 30, 2));
 
         NoOfHits := CodeCoverageMgt.ApplicationHits();
@@ -371,10 +371,10 @@ codeunit 133504 "SCM Costing Performance"
         SetupItemQtyCost(Item, Qty1, Qty2, UnitCost, UnitPrice, CostingMethod);
 
         // Create and Post Sales
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', Qty1, WorkDate(), UnitPrice, true, true);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, '', '', Qty1, WorkDate(), UnitPrice, true, true);
 
         // Create and Post Purchase
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty1 + Qty2, WorkDate(), UnitCost, true, true);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty1 + Qty2, WorkDate(), UnitCost, true, true);
         PurchRcptLine.SetRange("No.", Item."No.");
         PurchRcptLine.FindLast();
         FirstSaleItemApplnEntry.Find('+');
@@ -398,7 +398,7 @@ codeunit 133504 "SCM Costing Performance"
         VerifyApplnEntry(FirstSaleItemApplnEntry, true, CostingMethod = Item."Costing Method"::Average);
 
         // Create and Post Second Sales
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', Qty2, WorkDate(), UnitPrice, true, true);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, '', '', Qty2, WorkDate(), UnitPrice, true, true);
         SecondSaleItemApplnEntry.FindLast();
 
         // Adjust Cost
@@ -428,14 +428,14 @@ codeunit 133504 "SCM Costing Performance"
         SetupItemQtyCost(Item, Qty1, Qty2, UnitCost, UnitPrice, CostingMethod);
 
         // Create and Post Purchase
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty1 + Qty2, WorkDate(), UnitCost, true, true);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty1 + Qty2, WorkDate(), UnitCost, true, true);
         PurchRcptLine.SetRange("No.", Item."No.");
         PurchRcptLine.FindLast();
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.FindLast();
 
         // Create and Post Return Order
-        LibraryPatterns.MAKEPurchaseReturnOrder(ReturnPurchaseHeader, ReturnPurchaseLine, Item, '', '', Qty1, WorkDate(), UnitCost);
+        LibraryPurchase.CreatePurchaseReturnOrder(ReturnPurchaseHeader, ReturnPurchaseLine, Item, '', '', Qty1, WorkDate(), UnitCost);
         ReturnPurchaseLine.SetRange("Document Type", ReturnPurchaseLine."Document Type");
         ReturnPurchaseLine.SetRange("Document No.", ReturnPurchaseLine."Document No.");
         ReturnPurchaseLine.FindFirst();
@@ -513,7 +513,7 @@ codeunit 133504 "SCM Costing Performance"
         SetupItemQtyCost(Item, Qty1, Qty2, UnitCost, UnitPrice, CostingMethod);
 
         // Create and Post Purchase
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty1 + Qty2, WorkDate(), UnitCost, true, true);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty1 + Qty2, WorkDate(), UnitCost, true, true);
         PurchItemLedgerEntry.SetRange("Item No.", Item."No.");
         PurchItemLedgerEntry.FindLast();
         PurchRcptLine.SetRange("No.", Item."No.");
@@ -525,7 +525,7 @@ codeunit 133504 "SCM Costing Performance"
         SalesItemLedgerEntry.FindLast();
 
         // Create and Ship Sales Return Order
-        LibraryPatterns.MAKESalesReturnOrder(ReturnSalesHeader, ReturnSalesLine, Item, '', '', Qty1, WorkDate(), UnitCost, UnitPrice);
+        LibrarySales.CreateSalesReturnOrder(ReturnSalesHeader, ReturnSalesLine, Item, '', '', Qty1, WorkDate(), UnitCost, UnitPrice);
         ReturnSalesLine.SetRange("Document Type", ReturnSalesLine."Document Type");
         ReturnSalesLine.SetRange("Document No.", ReturnSalesLine."Document No.");
         ReturnSalesLine.FindFirst();
@@ -588,7 +588,7 @@ codeunit 133504 "SCM Costing Performance"
         UnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
         UnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
 
-        LibraryPatterns.MAKEItemSimple(Item, CostingMethod, UnitCost);
+        LibraryInventory.CreateItemSimple(Item, CostingMethod, UnitCost);
     end;
 
     local procedure CreateandPostItemCharge(PurchRcptLine: Record "Purch. Rcpt. Line")
@@ -597,7 +597,7 @@ codeunit 133504 "SCM Costing Performance"
     begin
         LibraryPurchase.CreatePurchHeader(
           PurchHeader, PurchHeader."Document Type"::Invoice, PurchRcptLine."Buy-from Vendor No.");
-        LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(
+        LibraryPurchase.AssignPurchChargeToPurchRcptLine(
           PurchHeader, PurchRcptLine, PurchRcptLine.Quantity, LibraryRandom.RandDecInRange(1, 10, 2));
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
     end;
@@ -614,7 +614,7 @@ codeunit 133504 "SCM Costing Performance"
             SalesLine.Modify();
             LibrarySales.PostSalesDocument(SalesHeader, true, true);
         end else
-            LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', Qty, WorkDate(), UnitPrice, true, true);
+            LibrarySales.PostSalesOrder(SalesHeader, Item, '', '', Qty, WorkDate(), UnitPrice, true, true);
     end;
 
     local procedure VerifyApplnEntry(var ItemApplnEntry: Record "Item Application Entry"; ExpectedOutbndUpdatedValue: Boolean; AvgCostNoApplication: Boolean)

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Foundation.Navigate;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Navigate;
 
 using Microsoft.Bank.Check;
 using Microsoft.Bank.Ledger;
@@ -11,8 +15,6 @@ using Microsoft.FixedAssets.Maintenance;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Purchases.History;
@@ -62,19 +64,19 @@ report 35 "Document Entries"
             column(CurrencyCaptionRBC; CurrencyCaptionRBC)
             {
             }
-            column(DocEntriesCaption; Text004)
+            column(DocEntriesCaption; DocEntriesCaptionLbl)
             {
             }
-            column(CurrReportPageNoCaption; Text005)
+            column(CurrReportPageNoCaption; PageNoCaptionLbl)
             {
             }
-            column(NavigateFiltersCaption; Text006)
+            column(NavigateFiltersCaption; NavigateFiltersCaptionLbl)
             {
             }
-            column(DocEntryNofRecordsCaption; Text007)
+            column(DocEntryNofRecordsCaption; DocEntryNoofRecordsCptnLbl)
             {
             }
-            column(DocEntryTableNameCaption; Text008)
+            column(DocEntryTableNameCaption; DocEntryTableNameCaptionLbl)
             {
             }
             dataitem("Sales Shipment Header"; "Sales Shipment Header")
@@ -114,7 +116,7 @@ report 35 "Document Entries"
                 column(CurrencyCode_SalesShipmentHdr; "Currency Code")
                 {
                 }
-                column(SalesShipmentHdrPostingDateCaption; Text012)
+                column(SalesShipmentHdrPostingDateCaption; SalesShptHeaderPostingDtCaptionLbl)
                 {
                 }
 
@@ -179,7 +181,7 @@ report 35 "Document Entries"
                 column(CurrencyCode_SalesInvHdr; "Currency Code")
                 {
                 }
-                column(SalesInvHdrPostingDateCaption; Text013)
+                column(SalesInvHdrPostingDateCaption; SalesInvHeaderPostDateCaptionLbl)
                 {
                 }
 
@@ -240,7 +242,7 @@ report 35 "Document Entries"
                 column(CurrencyCode_ReturnRcptHdr; "Currency Code")
                 {
                 }
-                column(ReturnRcptHdrPostingDateCaption; Text014)
+                column(ReturnRcptHdrPostingDateCaption; ReturnRcptHeaderPostDtCaptionLbl)
                 {
                 }
 
@@ -305,7 +307,7 @@ report 35 "Document Entries"
                 column(CurrencyCode_SalesCrMemoHdr; "Currency Code")
                 {
                 }
-                column(SalesCrMemoHdrPostingDateCaption; Text015)
+                column(SalesCrMemoHdrPostingDateCaption; SalesCrMemoHeaderPostDtCaptionLbl)
                 {
                 }
 
@@ -381,7 +383,7 @@ report 35 "Document Entries"
                 column(VATAmt_IssuedReminderHdrCaption; FieldCaption("VAT Amount"))
                 {
                 }
-                column(IssuedReminderHdrPostingDateCaption; Text016)
+                column(IssuedReminderHdrPostingDateCaption; IssuedReminderHeaderPostDtCaptionLbl)
                 {
                 }
 
@@ -461,7 +463,7 @@ report 35 "Document Entries"
                 column(CurrencyCode_IssuedFinChargeMemoHdr; "Currency Code")
                 {
                 }
-                column(IssuedFinChargeMemoHdrPostingDateCaption; Text017)
+                column(IssuedFinChargeMemoHdrPostingDateCaption; IssuedFinChgMemoHeaderPostDateCaptionLbl)
                 {
                 }
 
@@ -530,7 +532,7 @@ report 35 "Document Entries"
                 column(CurrencyCode_PostedDepositHdr; "Currency Code")
                 {
                 }
-                column(PostedDepositHdrPostingDateCaption; Text018)
+                column(PostedDepositHdrPostingDateCaption; PostedDepositHeaderPostingDateCaptionLbl)
                 {
                 }
 
@@ -590,7 +592,7 @@ report 35 "Document Entries"
                 column(CurrencyCode_PurchRcptHdr; "Currency Code")
                 {
                 }
-                column(PurchRcptHdrPostingDateCaption; Text019)
+                column(PurchRcptHdrPostingDateCaption; PurchRcptHeaderPostDtCaptionLbl)
                 {
                 }
 
@@ -655,7 +657,7 @@ report 35 "Document Entries"
                 column(AmtInclVAT_PurchInvHdrCaption; FieldCaption("Amount Including VAT"))
                 {
                 }
-                column(PurchInvHdrPostingDateCaption; Text020)
+                column(PurchInvHdrPostingDateCaption; PurchInvHeaderPostDtCaptionLbl)
                 {
                 }
 
@@ -716,7 +718,7 @@ report 35 "Document Entries"
                 column(CurrencyCode_ReturnShipmentHdr; "Currency Code")
                 {
                 }
-                column(ReturnShipmentHdrPostingDateCaption; Text021)
+                column(ReturnShipmentHdrPostingDateCaption; ReturnShptHeaderPostDtCaptionLbl)
                 {
                 }
 
@@ -781,7 +783,7 @@ report 35 "Document Entries"
                 column(AmtInclVAT_PurchCrMemoHdrCaption; FieldCaption("Amount Including VAT"))
                 {
                 }
-                column(PurchCrMemoHdrPostingDateCaption; Text022)
+                column(PurchCrMemoHdrPostingDateCaption; PurchCrMemoHdrPostDtCaptionLbl)
                 {
                 }
 
@@ -803,68 +805,6 @@ report 35 "Document Entries"
                     SetCurrentKey("No.");
                     SetFilter("No.", DocNoFilter);
                     SetFilter("Posting Date", PostingDateFilter);
-                end;
-            }
-            dataitem("Production Order"; "Production Order")
-            {
-                DataItemTableView = sorting(Status, "No.");
-                column(No_ProductionOrder; "No.")
-                {
-                    IncludeCaption = false;
-                }
-                column(Status_ProductionOrder; Status)
-                {
-                }
-                column(Description_ProductionOrder; Description)
-                {
-                    IncludeCaption = false;
-                }
-                column(SourceType_ProductionOrder; "Source Type")
-                {
-                    IncludeCaption = false;
-                }
-                column(SourceNo_ProductionOrder; "Source No.")
-                {
-                    IncludeCaption = false;
-                }
-                column(UnitCost_ProductionOrder; "Unit Cost")
-                {
-                    IncludeCaption = false;
-                }
-                column(CostAmt_ProductionOrder; "Cost Amount")
-                {
-                    IncludeCaption = false;
-                }
-                column(ProductionOrderStatusCaption; FieldCaption(Status))
-                {
-                }
-                column(CostAmt_ProductionOrderCaption; FieldCaption("Cost Amount"))
-                {
-                }
-                column(UnitCost_ProductionOrderCaption; FieldCaption("Unit Cost"))
-                {
-                }
-                column(SourceNo_ProductionOrderCaption; FieldCaption("Source No."))
-                {
-                }
-                column(SourceType_ProductionOrderCaption; FieldCaption("Source Type"))
-                {
-                }
-                column(Description_ProductionOrderCaption; FieldCaption(Description))
-                {
-                }
-                column(No_ProductionOrderCaption; FieldCaption("No."))
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    if TempDocumentEntry."Table ID" <> DATABASE::"Production Order" then
-                        CurrReport.Break();
-
-                    SetCurrentKey(Status, "No.");
-                    SetRange(Status, "Production Order".Status::Released, "Production Order".Status::Finished);
-                    SetFilter("No.", DocNoFilter);
                 end;
             }
             dataitem("Transfer Shipment Header"; "Transfer Shipment Header")
@@ -908,7 +848,7 @@ report 35 "Document Entries"
                 column(No_TransferShipmentHdrCaption; FieldCaption("No."))
                 {
                 }
-                column(TransferShipmentHdrPostingDateCaption; Text023)
+                column(TransferShipmentHdrPostingDateCaption; TransShptHeaderPostDtCaptionLbl)
                 {
                 }
 
@@ -963,7 +903,7 @@ report 35 "Document Entries"
                 column(No_TransferRcptHdrCaption; FieldCaption("No."))
                 {
                 }
-                column(TransferRcptHdrPostingDateCaption; Text024)
+                column(TransferRcptHdrPostingDateCaption; TransRcptHeaderPostDtCaptionLbl)
                 {
                 }
 
@@ -1031,7 +971,7 @@ report 35 "Document Entries"
                 column(PostedSourceDoc_PostedWhseShipmentLineCaption; FieldCaption("Posted Source Document"))
                 {
                 }
-                column(PostedWhseShipmentLinePostingDateCaption; Text025)
+                column(PostedWhseShipmentLinePostingDateCaption; PostedWhseShptLinePostDtCaptionLbl)
                 {
                 }
 
@@ -1093,7 +1033,7 @@ report 35 "Document Entries"
                 column(PostedSourceDoc_PostedWhseRcptLineCaption; FieldCaption("Posted Source Document"))
                 {
                 }
-                column(PostedWhseRcptLinePostingDateCaption; Text026)
+                column(PostedWhseRcptLinePostingDateCaption; PostedWhseRcptLinePostDtCaptionLbl)
                 {
                 }
 
@@ -1167,7 +1107,7 @@ report 35 "Document Entries"
                 column(BankAccLedgEntryNo_PostedDepositLineCaption; FieldCaption("Bank Account Ledger Entry No."))
                 {
                 }
-                column(PostedDepositLinePostingDateCaption; Text027)
+                column(PostedDepositLinePostingDateCaption; PostedDepositLinePostingDateCaptionLbl)
                 {
                 }
 
@@ -1252,7 +1192,7 @@ report 35 "Document Entries"
                 column(GLAccNo_GLEntryCaption; FieldCaption("G/L Account No."))
                 {
                 }
-                column(GLEntryPostingDateCaption; Text028)
+                column(GLEntryPostingDateCaption; GLEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -1295,7 +1235,7 @@ report 35 "Document Entries"
                 column(DocNo_VATEntryCaption; FieldCaption("Document No."))
                 {
                 }
-                column(VATEntryPostingDateCaption; Text029)
+                column(VATEntryPostingDateCaption; VATEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -1360,7 +1300,7 @@ report 35 "Document Entries"
                 column(CustNo_CustLedgEntryCaption; FieldCaption("Customer No."))
                 {
                 }
-                column(CustLedgEntryPostingDateCaption; Text030)
+                column(CustLedgEntryPostingDateCaption; CustLedgEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -1424,7 +1364,7 @@ report 35 "Document Entries"
                 column(DocType_DetailedCustLedgEntryCaption; FieldCaption("Document Type"))
                 {
                 }
-                column(DetailedCustLedgEntryPostingDateCaption; Text031)
+                column(DetailedCustLedgEntryPostingDateCaption; DtldCustLedgEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -1474,7 +1414,7 @@ report 35 "Document Entries"
                 column(RemainingAmt_ReminderFinChargeEntryCaption; FieldCaption("Remaining Amount"))
                 {
                 }
-                column(ReminderFinChargeEntryPostingDateCaption; Text032)
+                column(ReminderFinChargeEntryPostingDateCaption; ReminderEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -1533,7 +1473,7 @@ report 35 "Document Entries"
                 column(DocNo_VendLedgEntryCaption; FieldCaption("Document No."))
                 {
                 }
-                column(VendLedgEntryPostingDateCaption; Text033)
+                column(VendLedgEntryPostingDateCaption; VendLedgEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -1597,7 +1537,7 @@ report 35 "Document Entries"
                 column(DocType_DetailedVendLedgEntryCaption; FieldCaption("Document Type"))
                 {
                 }
-                column(DetailedVendLedgEntryPostingDateCaption; Text034)
+                column(DetailedVendLedgEntryPostingDateCaption; DtldVendLedgEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -1650,7 +1590,7 @@ report 35 "Document Entries"
                 column(Open_ItemLedgEntry; Format(Open))
                 {
                 }
-                column(ItemLedgEntryPostingDateCaption; Text035)
+                column(ItemLedgEntryPostingDateCaption; ItemLedgEntryPostDtCaptionLbl)
                 {
                 }
                 column(ItemLedgEntryOpenCaption; CaptionClassTranslate(FieldCaption(Open)))
@@ -1703,7 +1643,7 @@ report 35 "Document Entries"
                 column(DocNo_ValueEntryCaption; FieldCaption("Document No."))
                 {
                 }
-                column(ValueEntryPostingDateCaption; Text036)
+                column(ValueEntryPostingDateCaption; ValueEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -1765,7 +1705,7 @@ report 35 "Document Entries"
                 column(DocNo_PhysInvtLedgEntryCaption; FieldCaption("Document No."))
                 {
                 }
-                column(PhysInventoryLedgEntryPostingDateCaption; Text037)
+                column(PhysInventoryLedgEntryPostingDateCaption; PhysInvtLedgEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -1821,7 +1761,7 @@ report 35 "Document Entries"
                 column(DocNo_ResLedgEntryCaption; FieldCaption("Document No."))
                 {
                 }
-                column(ResLedgEntryPostingDateCaption; Text038)
+                column(ResLedgEntryPostingDateCaption; ResLedgEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -1877,7 +1817,7 @@ report 35 "Document Entries"
                 column(DocNo_JobLedgEntryCaption; FieldCaption("Document No."))
                 {
                 }
-                column(JobLedgEntryPostingDateCaption; Text039)
+                column(JobLedgEntryPostingDateCaption; JobLedgEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -1936,7 +1876,7 @@ report 35 "Document Entries"
                 column(DocNo_BankAccLedgEntryCaption; FieldCaption("Document No."))
                 {
                 }
-                column(BankAccLedgEntryPostingDateCaption; Text040)
+                column(BankAccLedgEntryPostingDateCaption; BankAccLedgEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -2006,10 +1946,10 @@ report 35 "Document Entries"
                 column(CheckLedgerEntryOpenCaption; FieldCaption(Open))
                 {
                 }
-                column(CheckLedgerEntryPostingDateCaption; Text041)
+                column(CheckLedgerEntryPostingDateCaption; CheckLedgEntryPostDtCaptionLbl)
                 {
                 }
-                column(CheckLedgerEntryCheckDateCaption; Text042)
+                column(CheckLedgerEntryCheckDateCaption; CheckLedgEntryCheckDtCaptionLbl)
                 {
                 }
 
@@ -2056,7 +1996,7 @@ report 35 "Document Entries"
                 column(Amt_FALedgEntryCaption; FieldCaption(Amount))
                 {
                 }
-                column(FALedgerEntryPostingDateCaption; Text043)
+                column(FALedgerEntryPostingDateCaption; FALedgEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -2103,7 +2043,7 @@ report 35 "Document Entries"
                 column(Amt_MaintenanceLedgEntryCaption; FieldCaption(Amount))
                 {
                 }
-                column(MaintenanceLedgerEntryPostingDateCaption; Text044)
+                column(MaintenanceLedgerEntryPostingDateCaption; MaintenanceLedgEntryPostDtCaptionLbl)
                 {
                 }
 
@@ -2153,57 +2093,13 @@ report 35 "Document Entries"
                 column(DocNo_InsCoverageLedgEntryCaption; FieldCaption("Document No."))
                 {
                 }
-                column(InsCoverageLedgerEntryPostingDateCaption; Text045)
+                column(InsCoverageLedgerEntryPostingDateCaption; InsCoverageLedgEntryPostDtCaptionLbl)
                 {
                 }
 
                 trigger OnPreDataItem()
                 begin
                     if TempDocumentEntry."Table ID" <> DATABASE::"Ins. Coverage Ledger Entry" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("Document No.", "Posting Date");
-                    SetFilter("Document No.", DocNoFilter);
-                    SetFilter("Posting Date", PostingDateFilter);
-                end;
-            }
-            dataitem("Capacity Ledger Entry"; "Capacity Ledger Entry")
-            {
-                DataItemTableView = sorting("Document No.", "Posting Date");
-                column(EntryNo_CapacityLedgEntry; "Entry No.")
-                {
-                }
-                column(PostingDate_CapacityLedgEntry; Format("Posting Date"))
-                {
-                }
-                column(DocNo_CapacityLedgEntry; "Document No.")
-                {
-                }
-                column(Description_CapacityLedgEntry; Description)
-                {
-                }
-                column(Qty_CapacityLedgEntry; Quantity)
-                {
-                }
-                column(EntryNo_CapacityLedgEntryCaption; FieldCaption("Entry No."))
-                {
-                }
-                column(Qty_CapacityLedgEntryCaption; FieldCaption(Quantity))
-                {
-                }
-                column(Description_CapacityLedgEntryCaption; FieldCaption(Description))
-                {
-                }
-                column(DocNo_CapacityLedgEntryCaption; FieldCaption("Document No."))
-                {
-                }
-                column(CapacityLedgerEntryPostingDateCaption; Text046)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    if TempDocumentEntry."Table ID" <> DATABASE::"Capacity Ledger Entry" then
                         CurrReport.Break();
 
                     SetCurrentKey("Document No.", "Posting Date");
@@ -2253,7 +2149,7 @@ report 35 "Document Entries"
                 column(UOMCode_WhseEntryCaption; FieldCaption("Unit of Measure Code"))
                 {
                 }
-                column(WarehouseEntryRegisteringDateCaption; Text047)
+                column(WarehouseEntryRegisteringDateCaption; WhseEntryRegisteringDateCaptionLbl)
                 {
                 }
 
@@ -2332,47 +2228,46 @@ report 35 "Document Entries"
 #pragma warning restore AA0074
         CurrencyCaptionRBC: Text[30];
         NavigateDeposit: Boolean;
-        Text004: Label 'Document Entries';
-        Text005: Label 'Page';
-        Text006: Label 'Navigate Filters';
-        Text007: Label 'No. of Records';
-        Text008: Label 'Table Name';
-        Text012: Label 'Posting Date';
-        Text013: Label 'Posting Date';
-        Text014: Label 'Posting Date';
-        Text015: Label 'Posting Date';
-        Text016: Label 'Posting Date';
-        Text017: Label 'Posting Date';
-        Text018: Label 'Posting Date';
-        Text019: Label 'Posting Date';
-        Text020: Label 'Posting Date';
-        Text021: Label 'Posting Date';
-        Text022: Label 'Posting Date';
-        Text023: Label 'Posting Date';
-        Text024: Label 'Posting Date';
-        Text025: Label 'Posting Date';
-        Text026: Label 'Posting Date';
-        Text027: Label 'Posting Date';
-        Text028: Label 'Posting Date';
-        Text029: Label 'Posting Date';
-        Text030: Label 'Posting Date';
-        Text031: Label 'Posting Date';
-        Text032: Label 'Posting Date';
-        Text033: Label 'Posting Date';
-        Text034: Label 'Posting Date';
-        Text035: Label 'Posting Date';
-        Text036: Label 'Posting Date';
-        Text037: Label 'Posting Date';
-        Text038: Label 'Posting Date';
-        Text039: Label 'Posting Date';
-        Text040: Label 'Posting Date';
-        Text041: Label 'Posting Date';
-        Text042: Label 'Check Date';
-        Text043: Label 'Posting Date';
-        Text044: Label 'Posting Date';
-        Text045: Label 'Posting Date';
-        Text046: Label 'Posting Date';
-        Text047: Label 'Registering Date';
+        DocEntriesCaptionLbl: Label 'Document Entries';
+        PageNoCaptionLbl: Label 'Page';
+        NavigateFiltersCaptionLbl: Label 'Navigate Filters';
+        DocEntryNoofRecordsCptnLbl: Label 'No. of Records';
+        DocEntryTableNameCaptionLbl: Label 'Table Name';
+        SalesShptHeaderPostingDtCaptionLbl: Label 'Posting Date';
+        SalesInvHeaderPostDateCaptionLbl: Label 'Posting Date';
+        ReturnRcptHeaderPostDtCaptionLbl: Label 'Posting Date';
+        SalesCrMemoHeaderPostDtCaptionLbl: Label 'Posting Date';
+        IssuedReminderHeaderPostDtCaptionLbl: Label 'Posting Date';
+        IssuedFinChgMemoHeaderPostDateCaptionLbl: Label 'Posting Date';
+        PurchRcptHeaderPostDtCaptionLbl: Label 'Posting Date';
+        PurchInvHeaderPostDtCaptionLbl: Label 'Posting Date';
+        ReturnShptHeaderPostDtCaptionLbl: Label 'Posting Date';
+        PurchCrMemoHdrPostDtCaptionLbl: Label 'Posting Date';
+        TransShptHeaderPostDtCaptionLbl: Label 'Posting Date';
+        TransRcptHeaderPostDtCaptionLbl: Label 'Posting Date';
+        PostedWhseShptLinePostDtCaptionLbl: Label 'Posting Date';
+        PostedWhseRcptLinePostDtCaptionLbl: Label 'Posting Date';
+        GLEntryPostDtCaptionLbl: Label 'Posting Date';
+        VATEntryPostDtCaptionLbl: Label 'Posting Date';
+        CustLedgEntryPostDtCaptionLbl: Label 'Posting Date';
+        DtldCustLedgEntryPostDtCaptionLbl: Label 'Posting Date';
+        ReminderEntryPostDtCaptionLbl: Label 'Posting Date';
+        VendLedgEntryPostDtCaptionLbl: Label 'Posting Date';
+        DtldVendLedgEntryPostDtCaptionLbl: Label 'Posting Date';
+        ItemLedgEntryPostDtCaptionLbl: Label 'Posting Date';
+        ValueEntryPostDtCaptionLbl: Label 'Posting Date';
+        PhysInvtLedgEntryPostDtCaptionLbl: Label 'Posting Date';
+        ResLedgEntryPostDtCaptionLbl: Label 'Posting Date';
+        JobLedgEntryPostDtCaptionLbl: Label 'Posting Date';
+        BankAccLedgEntryPostDtCaptionLbl: Label 'Posting Date';
+        CheckLedgEntryPostDtCaptionLbl: Label 'Posting Date';
+        CheckLedgEntryCheckDtCaptionLbl: Label 'Check Date';
+        FALedgEntryPostDtCaptionLbl: Label 'Posting Date';
+        MaintenanceLedgEntryPostDtCaptionLbl: Label 'Posting Date';
+        InsCoverageLedgEntryPostDtCaptionLbl: Label 'Posting Date';
+        WhseEntryRegisteringDateCaptionLbl: Label 'Registering Date';
+        PostedDepositHeaderPostingDateCaptionLbl: Label 'Posting Date';
+        PostedDepositLinePostingDateCaptionLbl: Label 'Posting Date';
 
     protected var
         TempDocumentEntry: Record "Document Entry" temporary;
@@ -2382,7 +2277,7 @@ report 35 "Document Entries"
 
     procedure TransferDocEntries(var NewDocumentEntry: Record "Document Entry")
     var
-        TempDocumentEntry2: Record "Document Entry";
+        TempDocumentEntry2: Record "Document Entry" temporary;
     begin
         TempDocumentEntry2 := NewDocumentEntry;
         NewDocumentEntry.Reset();

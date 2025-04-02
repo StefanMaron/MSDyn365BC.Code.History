@@ -47,7 +47,7 @@ codeunit 134761 "Test Custom Reports"
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryERM: Codeunit "Library - ERM";
         FormatDocument: Codeunit "Format Document";
-        Usage: Option Quote,"Confirmation Order",Invoice,"Credit Memo","Customer Statement";
+        Usage: Enum "Custom Report Selection Sales";
         ReportSelectionUsage: Enum "Report Selection Usage";
         IsInitialized: Boolean;
         ExpectedFilesErr: Label 'Expected files as report output in temporary directory. None found.', Comment = '%1, filename.';
@@ -891,6 +891,10 @@ codeunit 134761 "Test Custom Reports"
         CountReportSelectionEntriesByUsage(CustomReportSelection, CustomReportSelection.Usage::"S.Order", 1);
         CountReportSelectionEntriesByUsage(CustomReportSelection, CustomReportSelection.Usage::"S.Cr.Memo", 2);
         CountReportSelectionEntriesByUsage(CustomReportSelection, CustomReportSelection.Usage::"C.Statement", 1);
+        CountReportSelectionEntriesByUsage(CustomReportSelection, CustomReportSelection.Usage::"SM.Quote", 1);
+        CountReportSelectionEntriesByUsage(CustomReportSelection, CustomReportSelection.Usage::"SM.Order", 1);
+        CountReportSelectionEntriesByUsage(CustomReportSelection, CustomReportSelection.Usage::"SM.Invoice", 1);
+        CountReportSelectionEntriesByUsage(CustomReportSelection, CustomReportSelection.Usage::"SM.Credit Memo", 1);
     end;
 
     [Test]
@@ -2558,14 +2562,14 @@ codeunit 134761 "Test Custom Reports"
         ReportSelections.Insert();
     end;
 
-    local procedure AddNextCustomerReportSelection(var CustomerReportSelections: TestPage "Customer Report Selections"; Usage: Option; ReportId: Integer)
+    local procedure AddNextCustomerReportSelection(var CustomerReportSelections: TestPage "Customer Report Selections"; Usage: Enum "Custom Report Selection Sales"; ReportId: Integer)
     begin
         CustomerReportSelections.Usage2.SetValue(Usage);
         CustomerReportSelections.ReportID.SetValue(ReportId);
         CustomerReportSelections.Next();
     end;
 
-    local procedure AddNewCustomerReportSelection(var CustomerReportSelections: TestPage "Customer Report Selections"; Usage: Option; ReportId: Integer)
+    local procedure AddNewCustomerReportSelection(var CustomerReportSelections: TestPage "Customer Report Selections"; Usage: Enum "Custom Report Selection Sales"; ReportId: Integer)
     begin
         CustomerReportSelections.New();
         CustomerReportSelections.ReportID.SetValue(ReportId);
@@ -2896,7 +2900,7 @@ codeunit 134761 "Test Custom Reports"
         RecRef.SetTable(Document);
         if Email then begin
             ReportSelections.FindEmailAttachmentUsageForCust(ReportUsage, CustomerNo, TempReportSelections);
-            ReportSelections.SendEmailToCust(Usage, Document, '', '', true, CustomerNo);
+            ReportSelections.SendEmailToCust(Usage.AsInteger(), Document, '', '', true, CustomerNo);
         end else begin
             ReportSelections.FindReportUsageForCust(ReportUsage, CustomerNo, TempReportSelections);
             ReportSelections.PrintWithDialogForCust(ReportUsage, Document, ShowRequestPage, CustomerNoFieldNo);
@@ -3313,6 +3317,10 @@ codeunit 134761 "Test Custom Reports"
         CustomerReportSelections.ReportID.SetValue(REPORT::"Detail Trial Balance");
         CustomerReportSelections.Next();
         AddNextCustomerReportSelection(CustomerReportSelections, Usage::"Customer Statement", REPORT::"G/L Register");
+        AddNextCustomerReportSelection(CustomerReportSelections, Usage::"Service Quote", Report::"G/L Register");
+        AddNextCustomerReportSelection(CustomerReportSelections, Usage::"Service Order", Report::"G/L Register");
+        AddNextCustomerReportSelection(CustomerReportSelections, Usage::"Service Invoice", Report::"G/L Register");
+        AddNextCustomerReportSelection(CustomerReportSelections, Usage::"Service Credit Memo", Report::"G/L Register");
     end;
 
     [ModalPageHandler]

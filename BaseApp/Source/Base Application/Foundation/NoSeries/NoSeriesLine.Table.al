@@ -77,6 +77,7 @@ table 309 "No. Series Line"
             Caption = 'Starting Sequence No.';
             Editable = false;
         }
+#if not CLEANSCHEMA27
         field(10000; Series; Code[10]) // NA (MX) Functionality
         {
             Caption = 'Series';
@@ -89,6 +90,8 @@ table 309 "No. Series Line"
             ObsoleteTag = '27.0';
 #endif
         }
+#endif
+#if not CLEANSCHEMA27
         field(10001; "Authorization Code"; Integer) // NA (MX) Functionality
         {
             Caption = 'Authorization Code';
@@ -101,6 +104,8 @@ table 309 "No. Series Line"
             ObsoleteTag = '27.0';
 #endif
         }
+#endif
+#if not CLEANSCHEMA27
         field(10002; "Authorization Year"; Integer) // NA (MX) Functionality
         {
             Caption = 'Authorization Year';
@@ -113,6 +118,7 @@ table 309 "No. Series Line"
             ObsoleteTag = '24.0';
 #endif
         }
+#endif
     }
 
     keys

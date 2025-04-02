@@ -1357,7 +1357,6 @@ report 1306 "Standard Sales - Invoice"
 
     trigger OnInitReport()
     var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
         IsHandled: Boolean;
     begin
         GLSetup.Get();
@@ -1366,19 +1365,11 @@ report 1306 "Standard Sales - Invoice"
         SalesSetup.Get();
         CompanyInfo.VerifyAndSetPaymentInfo();
 
-        if SalesInvoiceHeader.GetLegalStatement() <> '' then
-            LegalStatementLbl := SalesInvoiceHeader.GetLegalStatement();
+        if SalesSetup.GetLegalStatement() <> '' then
+            LegalStatementLbl := SalesSetup.GetLegalStatement();
 
         IsHandled := false;
         OnInitReportForGlobalVariable(IsHandled, LegalOfficeTxt, LegalOfficeLbl, CustomGiroTxt, CustomGiroLbl, LegalStatementLbl);
-#if not CLEAN23
-        if not IsHandled then begin
-            LegalOfficeTxt := CompanyInfo.GetLegalOffice();
-            LegalOfficeLbl := CompanyInfo.GetLegalOfficeLbl();
-            CustomGiroTxt := CompanyInfo.GetCustomGiro();
-            CustomGiroLbl := CompanyInfo.GetCustomGiroLbl();
-        end;
-#endif
     end;
 
     trigger OnPostReport()

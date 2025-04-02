@@ -216,9 +216,12 @@ table 454 "Approval Entry"
     var
         NotificationEntry: Record "Notification Entry";
     begin
+        // Make sure there is a Key on the filters
+        NotificationEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
         NotificationEntry.SetRange(Type, NotificationEntry.Type::Approval);
         NotificationEntry.SetRange("Triggered By Record", RecordId);
-        NotificationEntry.DeleteAll(true);
+        if not NotificationEntry.IsEmpty() then
+            NotificationEntry.DeleteAll(true);
 
         DeleteWorkflowEventQueue();
     end;

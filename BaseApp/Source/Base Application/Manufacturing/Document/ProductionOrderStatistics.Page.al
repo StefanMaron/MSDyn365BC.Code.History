@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -35,6 +39,14 @@ page 99000816 "Production Order Statistics"
                             Caption = 'Material Cost';
                             Editable = false;
                             ToolTip = 'Specifies the material cost related to the production order.';
+                        }
+                        field(NonInventoryMaterialCost_StandardCost; NonInvStdCost)
+                        {
+                            ApplicationArea = Manufacturing;
+                            AutoFormatType = 1;
+                            Caption = 'Non-Inventory Material Cost';
+                            Editable = false;
+                            ToolTip = 'Specifies the non-inventory material cost related to the production order.';
                         }
                         field(CapacityCost_StandardCost; StdCost[2])
                         {
@@ -87,8 +99,8 @@ page 99000816 "Production Order Statistics"
                             var
                                 CalendarMgt: Codeunit "Shop Calendar Management";
                             begin
-                                ExpCapNeed := CostCalcMgt.CalcProdOrderExpCapNeed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
-                                ActTimeUsed := CostCalcMgt.CalcProdOrderActTimeUsed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
+                                ExpCapNeed := MfgCostCalcMgt.CalcProdOrderExpCapNeed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
+                                ActTimeUsed := MfgCostCalcMgt.CalcProdOrderActTimeUsed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
                             end;
                         }
                     }
@@ -96,6 +108,13 @@ page 99000816 "Production Order Statistics"
                     {
                         Caption = 'Expected Cost';
                         field(MaterialCost_ExpectedCost; ExpCost[1])
+                        {
+                            ApplicationArea = Manufacturing;
+                            AutoFormatType = 1;
+                            Editable = false;
+                            ShowCaption = false;
+                        }
+                        field(NonInventoryMaterialCost_ExpectedCost; NonInvExpCost)
                         {
                             ApplicationArea = Manufacturing;
                             AutoFormatType = 1;
@@ -145,7 +164,7 @@ page 99000816 "Production Order Statistics"
 
                             trigger OnDrillDown()
                             begin
-                                CostCalcMgt.CalcProdOrderExpCapNeed(Rec, true);
+                                MfgCostCalcMgt.CalcProdOrderExpCapNeed(Rec, true);
                             end;
                         }
                     }
@@ -153,6 +172,13 @@ page 99000816 "Production Order Statistics"
                     {
                         Caption = 'Actual Cost';
                         field(MaterialCost_ActualCost; ActCost[1])
+                        {
+                            ApplicationArea = Manufacturing;
+                            AutoFormatType = 1;
+                            Editable = false;
+                            ShowCaption = false;
+                        }
+                        field(NonInventoryMaterialCost_ActualCost; NonInvActCost)
                         {
                             ApplicationArea = Manufacturing;
                             AutoFormatType = 1;
@@ -202,7 +228,7 @@ page 99000816 "Production Order Statistics"
 
                             trigger OnDrillDown()
                             begin
-                                CostCalcMgt.CalcProdOrderActTimeUsed(Rec, true);
+                                MfgCostCalcMgt.CalcProdOrderActTimeUsed(Rec, true);
                             end;
                         }
                     }
@@ -210,6 +236,13 @@ page 99000816 "Production Order Statistics"
                     {
                         Caption = 'Dev. %';
                         field("VarPct[1]"; VarPct[1])
+                        {
+                            ApplicationArea = Manufacturing;
+                            DecimalPlaces = 0 : 5;
+                            Editable = false;
+                            ShowCaption = false;
+                        }
+                        field("NonInventoryVarPct"; NonInvVarPct)
                         {
                             ApplicationArea = Manufacturing;
                             DecimalPlaces = 0 : 5;
@@ -263,6 +296,13 @@ page 99000816 "Production Order Statistics"
                     {
                         Caption = 'Variance';
                         field("VarAmt[1]"; VarAmt[1])
+                        {
+                            ApplicationArea = Manufacturing;
+                            AutoFormatType = 1;
+                            Editable = false;
+                            ShowCaption = false;
+                        }
+                        field("NonInventoryVarAmt"; NonInvVarAmt)
                         {
                             ApplicationArea = Manufacturing;
                             AutoFormatType = 1;
@@ -333,34 +373,59 @@ page 99000816 "Production Order Statistics"
         Clear(StdCost);
         Clear(ExpCost);
         Clear(ActCost);
-        Clear(CostCalcMgt);
+        Clear(MfgCostCalcMgt);
+        Clear(NonInvStdCost);
+        Clear(NonInvExpCost);
+        Clear(NonInvActCost);
 
         GLSetup.Get();
 
-        ExpCapNeed := CostCalcMgt.CalcProdOrderExpCapNeed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
-        ActTimeUsed := CostCalcMgt.CalcProdOrderActTimeUsed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
+        ExpCapNeed := MfgCostCalcMgt.CalcProdOrderExpCapNeed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
+        ActTimeUsed := MfgCostCalcMgt.CalcProdOrderActTimeUsed(Rec, false) / CalendarMgt.TimeFactor(CapacityUoM);
         ProdOrderLine.SetRange(Status, Rec.Status);
         ProdOrderLine.SetRange("Prod. Order No.", Rec."No.");
         ProdOrderLine.SetRange("Planning Level Code", 0);
         ProdOrderLine.SetFilter("Item No.", '<>%1', '');
         if ProdOrderLine.Find('-') then
             repeat
-                CostCalcMgt.CalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
-                CostCalcMgt.CalcProdOrderLineStdCost(
-                  ProdOrderLine, 1, GLSetup."Amount Rounding Precision",
-                  StdCost[1], StdCost[2], StdCost[3], StdCost[4], StdCost[5]);
-                CostCalcMgt.CalcProdOrderLineExpCost(
-                  ProdOrderLine, ShareOfTotalCapCost,
-                  ExpCost[1], ExpCost[2], ExpCost[3], ExpCost[4], ExpCost[5]);
-                CostCalcMgt.CalcProdOrderLineActCost(
-                  ProdOrderLine,
-                  ActCost[1], ActCost[2], ActCost[3], ActCost[4], ActCost[5],
-                  DummyVar, DummyVar, DummyVar, DummyVar, DummyVar);
+                MfgCostCalcMgt.CalcShareOfTotalCapCost(ProdOrderLine, ShareOfTotalCapCost);
+
+                if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then begin
+                    MfgCostCalcMgt.CalcProdOrderLineStdCost(
+                      ProdOrderLine, 1, GLSetup."Amount Rounding Precision",
+                      StdCost[1], NonInvStdCost, StdCost[2], StdCost[3], StdCost[4], StdCost[5]);
+                    MfgCostCalcMgt.CalcProdOrderLineExpCost(
+                      ProdOrderLine, ShareOfTotalCapCost,
+                      ExpCost[1], NonInvExpCost, ExpCost[2], ExpCost[3], ExpCost[4], ExpCost[5]);
+                    MfgCostCalcMgt.CalcProdOrderLineActCost(
+                      ProdOrderLine,
+                      ActCost[1], NonInvActCost, ActCost[2], ActCost[3], ActCost[4], ActCost[5],
+                      DummyVar, DummyVar, DummyVar, DummyVar, DummyVar, DummyVar);
+                end else begin
+                    MfgCostCalcMgt.CalcProdOrderLineStdCost(
+                      ProdOrderLine, 1, GLSetup."Amount Rounding Precision",
+                      StdCost[1], StdCost[2], StdCost[3], StdCost[4], StdCost[5]);
+                    MfgCostCalcMgt.CalcProdOrderLineExpCost(
+                      ProdOrderLine, ShareOfTotalCapCost,
+                      ExpCost[1], ExpCost[2], ExpCost[3], ExpCost[4], ExpCost[5]);
+                    MfgCostCalcMgt.CalcProdOrderLineActCost(
+                      ProdOrderLine,
+                      ActCost[1], ActCost[2], ActCost[3], ActCost[4], ActCost[5],
+                      DummyVar, DummyVar, DummyVar, DummyVar, DummyVar);
+                end;
             until ProdOrderLine.Next() = 0;
 
         CalcTotal(StdCost, StdCost[6]);
         CalcTotal(ExpCost, ExpCost[6]);
         CalcTotal(ActCost, ActCost[6]);
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then begin
+            StdCost[6] += NonInvStdCost;
+            ExpCost[6] += NonInvExpCost;
+            ActCost[6] += NonInvActCost;
+            NonInvVarAmt := NonInvActCost - NonInvStdCost;
+            NonInvVarPct := CalcIndicatorPct(NonInvStdCost, NonInvActCost);
+        end;
+
         CalcVariance();
         TimeExpendedPct := CalcIndicatorPct(ExpCapNeed, ActTimeUsed);
     end;
@@ -377,7 +442,7 @@ page 99000816 "Production Order Statistics"
     var
         ProdOrderLine: Record "Prod. Order Line";
         GLSetup: Record "General Ledger Setup";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         DummyVar: Decimal;
         ShareOfTotalCapCost: Decimal;
         TimeExpendedPct: Decimal;
@@ -391,6 +456,11 @@ page 99000816 "Production Order Statistics"
         ActCost: array[6] of Decimal;
         VarAmt: array[6] of Decimal;
         VarPct: array[6] of Decimal;
+        NonInvStdCost: Decimal;
+        NonInvExpCost: Decimal;
+        NonInvActCost: Decimal;
+        NonInvVarAmt: Decimal;
+        NonInvVarPct: Decimal;
 
     local procedure CalcTotal(Operand: array[6] of Decimal; var Total: Decimal)
     var

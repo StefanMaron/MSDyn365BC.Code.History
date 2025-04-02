@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -165,13 +165,6 @@ table 133 "Incoming Document Attachment"
             begin
                 CheckMainAttachment();
             end;
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
         }
     }
 
@@ -699,6 +692,23 @@ table 133 "Incoming Document Attachment"
         RecordRef.SetTable(Rec);
     end;
 
+    internal procedure SupportedByFileViewer(): Boolean
+    begin
+        case Type of
+            Type::PDF:
+                exit(true);
+            Type::" ":
+                begin
+                    if Rec."File Extension" <> '' then
+                        exit(LowerCase(Rec."File Extension") = 'pdf');
+
+                    exit(Lowercase(Rec.Name).EndsWith('pdf'))
+                end;
+            else
+                exit(false);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnBeforeExtractHeaderFields(var TempFieldBuffer: Record "Field Buffer" temporary; var IncomingDocument: Record "Incoming Document")
@@ -735,4 +745,3 @@ table 133 "Incoming Document Attachment"
     begin
     end;
 }
-

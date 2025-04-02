@@ -1,3 +1,7 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Requisition;
 
 using Microsoft.Assembly.Document;
@@ -488,13 +492,13 @@ codeunit 99000833 "Req. Line-Reserve"
            (RequisitionLine."Planning Line Origin" = RequisitionLine."Planning Line Origin"::Planning) and
            (RequisitionLine."Ref. Order Type" = RequisitionLine."Ref. Order Type"::"Prod. Order")
         then begin
+            ProdOrderComponent.SetAutoCalcFields("Reserved Qty. (Base)");
             ProdOrderComponent.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.");
             ProdOrderComponent.SetRange(Status, RequisitionLine."Ref. Order Status");
             ProdOrderComponent.SetRange("Prod. Order No.", RequisitionLine."Ref. Order No.");
             ProdOrderComponent.SetRange("Prod. Order Line No.", RequisitionLine."Ref. Line No.");
             if ProdOrderComponent.FindSet() then
                 repeat
-                    ProdOrderComponent.CalcFields("Reserved Qty. (Base)");
                     QtyTracked := ProdOrderComponent."Reserved Qty. (Base)";
                     ReservationEntry.Reset();
                     ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 page 1356 "Posted Service Inv. - Update"
 {
@@ -62,20 +66,6 @@ page 1356 "Posted Service Inv. - Update"
                     ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
             }
-            group("Electronic Document")
-            {
-                Caption = 'Electronic Document';
-                field("CFDI Cancellation Reason Code"; Rec."CFDI Cancellation Reason Code")
-                {
-                    ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies the reason for the cancellation as a code.';
-                }
-                field("Substitution Document No."; Rec."Substitution Document No.")
-                {
-                    ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies the document number that replaces the canceled one. It is required when the cancellation reason is 01.';
-                }
-            }
         }
     }
 
@@ -102,8 +92,6 @@ page 1356 "Posted Service Inv. - Update"
     begin
         IsChanged := (Rec."Payment Method Code" <> xServiceInvoiceHeader."Payment Method Code") or
           (Rec."Payment Reference" <> xServiceInvoiceHeader."Payment Reference") or
-          (Rec."CFDI Cancellation Reason Code" <> xServiceInvoiceHeader."CFDI Cancellation Reason Code") or
-          (Rec."Substitution Document No." <> xServiceInvoiceHeader."Substitution Document No.") or
           (Rec."Company Bank Account Code" <> xServiceInvoiceHeader."Company Bank Account Code");
 
         OnAfterRecordChanged(Rec, xServiceInvoiceHeader, IsChanged);

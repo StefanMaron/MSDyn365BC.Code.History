@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Inventory.Ledger;
@@ -42,7 +46,7 @@ query 522 "Qty. Reserved From Item Ledger"
         }
     }
 
-    internal procedure SetSourceFilter(ReservationEntry: Record "Reservation Entry")
+    procedure SetSourceFilter(ReservationEntry: Record "Reservation Entry")
     begin
         SetRange(Source_Type, ReservationEntry."Source Type");
         SetRange(Source_Subtype, ReservationEntry."Source Subtype");
@@ -54,14 +58,14 @@ query 522 "Qty. Reserved From Item Ledger"
             SetRange(Source_Prod__Order_Line, ReservationEntry."Source Prod. Order Line");
     end;
 
-    internal procedure SetSKUFilters(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
+    procedure SetSKUFilters(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     begin
         SetRange(Item_No_, ItemNo);
         SetRange(Variant_Code, VariantCode);
         SetRange(Location_Code, LocationCode);
     end;
 
-    internal procedure SetTrackingFilters(ItemTrackingSetup: Record "Item Tracking Setup")
+    procedure SetTrackingFilters(ItemTrackingSetup: Record "Item Tracking Setup")
     begin
         SetRange(Serial_No_, ItemTrackingSetup."Serial No.");
         SetRange(Lot_No_, ItemTrackingSetup."Lot No.");

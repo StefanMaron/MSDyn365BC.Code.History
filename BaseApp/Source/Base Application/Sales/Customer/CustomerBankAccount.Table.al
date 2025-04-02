@@ -28,10 +28,12 @@ table 287 "Customer Bank Account"
         {
             Caption = 'Code';
             NotBlank = true;
+            ToolTip = 'Specifies a code to identify this customer bank account.';
         }
         field(3; Name; Text[100])
         {
             Caption = 'Name';
+            ToolTip = 'Specifies the name of the bank where the customer has the bank account.';
         }
         field(5; "Name 2"; Text[50])
         {
@@ -40,10 +42,12 @@ table 287 "Customer Bank Account"
         field(6; Address; Text[100])
         {
             Caption = 'Address';
+            ToolTip = 'Specifies the address of the bank where the customer has the bank account.';
         }
         field(7; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
+            ToolTip = 'Specifies additional address information.';
         }
         field(8; City; Text[30])
         {
@@ -52,6 +56,7 @@ table 287 "Customer Bank Account"
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the city of the bank where the customer has the bank account.';
 
             trigger OnLookup()
             begin
@@ -75,6 +80,7 @@ table 287 "Customer Bank Account"
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Country/Region Code"));
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the postal code.';
 
             trigger OnLookup()
             begin
@@ -94,11 +100,13 @@ table 287 "Customer Bank Account"
         field(10; Contact; Text[100])
         {
             Caption = 'Contact';
+            ToolTip = 'Specifies the name of the bank employee regularly contacted in connection with this bank account.';
         }
         field(11; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
             ExtendedDatatype = PhoneNo;
+            ToolTip = 'Specifies the telephone number of the bank where the customer has the bank account.';
         }
         field(12; "Telex No."; Text[20])
         {
@@ -107,6 +115,7 @@ table 287 "Customer Bank Account"
         field(13; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+            ToolTip = 'Specifies the number of the bank branch.';
 
             trigger OnValidate()
             begin
@@ -116,6 +125,7 @@ table 287 "Customer Bank Account"
         field(14; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            ToolTip = 'Specifies the number used by the bank for the bank account.';
 
             trigger OnValidate()
             begin
@@ -125,16 +135,19 @@ table 287 "Customer Bank Account"
         field(15; "Transit No."; Text[20])
         {
             Caption = 'Transit No.';
+            ToolTip = 'Specifies a bank identification number of your own choice.';
         }
         field(16; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
             TableRelation = Currency;
+            ToolTip = 'Specifies the relevant currency code for the bank account.';
         }
         field(17; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
+            ToolTip = 'Specifies the country/region of the address.';
 
             trigger OnValidate()
             begin
@@ -145,10 +158,12 @@ table 287 "Customer Bank Account"
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
+            ToolTip = 'Specifies the state, province or county as a part of the address.';
         }
         field(19; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
+            ToolTip = 'Specifies the fax number of the bank where the customer has the bank account.';
         }
         field(20; "Telex Answer Back"; Text[20])
         {
@@ -158,11 +173,13 @@ table 287 "Customer Bank Account"
         {
             Caption = 'Language Code';
             TableRelation = Language;
+            ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
         }
         field(22; "E-Mail"; Text[80])
         {
             Caption = 'Email';
             ExtendedDatatype = EMail;
+            ToolTip = 'Specifies the email address associated with the bank account.';
 
             trigger OnValidate()
             var
@@ -179,6 +196,7 @@ table 287 "Customer Bank Account"
             ObsoleteReason = 'Field length will be increased to 255.';
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
+            ToolTip = 'Specifies the bank web site.';
         }
 #else
 #pragma warning disable AS0086
@@ -186,12 +204,14 @@ table 287 "Customer Bank Account"
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ToolTip = 'Specifies the bank web site.';
         }
 #pragma warning restore AS0086
 #endif
         field(24; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            ToolTip = 'Specifies the bank account''s international bank account number.';
 
             trigger OnValidate()
             var
@@ -211,15 +231,18 @@ table 287 "Customer Bank Account"
             Caption = 'SWIFT Code';
             TableRelation = "SWIFT Code";
             ValidateTableRelation = false;
+            ToolTip = 'Specifies the SWIFT code (international bank identifier code) of the bank where the customer has the account.';
         }
         field(1211; "Bank Clearing Code"; Text[50])
         {
             Caption = 'Bank Clearing Code';
+            ToolTip = 'Specifies the code for bank clearing that is required according to the format standard you selected in the Bank Clearing Standard field.';
         }
         field(1212; "Bank Clearing Standard"; Text[50])
         {
             Caption = 'Bank Clearing Standard';
             TableRelation = "Bank Clearing Standard";
+            ToolTip = 'Specifies the format standard to be used in bank transfers if you use the Bank Clearing Code field to identify you as the sender.';
         }
         field(10000; "Use for Electronic Payments"; Boolean)
         {

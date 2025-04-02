@@ -1090,14 +1090,6 @@ report 1304 "Standard Sales - Quote"
 
         IsHandled := false;
         OnInitReportForGlobalVariable(IsHandled, LegalOfficeTxt, LegalOfficeLbl, CustomGiroTxt, CustomGiroLbl, LegalStatementLbl);
-#if not CLEAN23
-        if not IsHandled then begin
-            LegalOfficeTxt := CompanyInfo.GetLegalOffice();
-            LegalOfficeLbl := CompanyInfo.GetLegalOfficeLbl();
-            CustomGiroTxt := CompanyInfo.GetCustomGiro();
-            CustomGiroLbl := CompanyInfo.GetCustomGiroLbl();
-        end;
-#endif
     end;
 
     trigger OnPostReport()

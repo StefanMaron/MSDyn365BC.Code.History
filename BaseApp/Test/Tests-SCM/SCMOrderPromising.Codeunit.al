@@ -1631,7 +1631,7 @@ codeunit 137044 "SCM Order Promising"
     begin
         // Random values used are important for test.
         LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(50, 2), Item."Reordering Policy", Item."Flushing Method"::Manual, '', '');
+          Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(50, 2), Item."Reordering Policy", Item."Flushing Method"::"Pick + Manual", '', '');
         Item.Validate("Replenishment System", ReplenishmentSystem);
         Item.Modify(true);
     end;
@@ -1644,7 +1644,7 @@ codeunit 137044 "SCM Order Promising"
         CreateItem(AsmItem, AsmItem."Replenishment System"::Assembly);
         AsmItem.Validate("Assembly Policy", AsmItem."Assembly Policy"::"Assemble-to-Order");
         AsmItem.Modify(true);
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
     end;
 

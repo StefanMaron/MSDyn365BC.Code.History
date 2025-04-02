@@ -16,7 +16,6 @@ using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Archive;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -153,13 +152,6 @@ page 9008 "Whse. Basic Role Center"
                 Image = Document;
                 RunObject = Page "Transfer Orders";
                 ToolTip = 'Move inventory items between company locations. With transfer orders, you ship the outbound transfer from one location and receive the inbound transfer at the other location. This allows you to manage the involved warehouse activities and provides more certainty that inventory quantities are updated correctly.';
-            }
-            action(ReleasedProductionOrders)
-            {
-                ApplicationArea = Manufacturing;
-                Caption = 'Released Production Orders';
-                RunObject = Page "Released Production Orders";
-                ToolTip = 'View the list of released production order that are ready for warehouse activities.';
             }
             action(AssemblyOrders)
             {

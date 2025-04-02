@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -84,13 +84,6 @@ table 952 "Time Sheet Detail"
             Caption = 'Dimension Set ID';
             DataClassification = SystemMetadata;
             Editable = false;
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
         }
         field(8001; "Last Modified DateTime"; DateTime)
         {
@@ -182,4 +175,3 @@ table 952 "Time Sheet Detail"
         "Last Modified DateTime" := CurrentDateTime;
     end;
 }
-

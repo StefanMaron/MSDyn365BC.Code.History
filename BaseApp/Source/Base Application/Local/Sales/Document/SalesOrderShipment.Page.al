@@ -636,7 +636,6 @@ page 10026 "Sales Order Shipment"
         ReportPrint: Codeunit "Test Report-Print";
         SalesSetup: Record "Sales & Receivables Setup";
         UserMgt: Codeunit "User Setup Management";
-        FreightAmount: Decimal;
         Text001: Label 'There are non posted Prepayment Amounts on %1 %2.';
         Text002: Label 'There are unpaid Prepayment Invoices related to %1 %2.';
         "Posting DateEditable": Boolean;
@@ -657,6 +656,9 @@ page 10026 "Sales Order Shipment"
         "Shipment Method CodeEditable": Boolean;
         "Package Tracking No.Editable": Boolean;
         "Tax Area CodeEditable": Boolean;
+
+    protected var
+        FreightAmount: Decimal;
 
     procedure UpdateAllowed(): Boolean
     begin

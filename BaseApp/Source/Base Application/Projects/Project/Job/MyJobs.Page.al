@@ -84,23 +84,15 @@ page 9154 "My Jobs"
         GetJob();
     end;
 
-    trigger OnNewRecord(BelowxRec: Boolean)
-    begin
-        Clear(Job);
-    end;
-
     trigger OnOpenPage()
     begin
-        Rec.SetRange("User ID", UserId);
+        Rec.SetRange("User ID", UserId());
     end;
 
+    local procedure GetJob()
     var
         Job: Record Job;
-
-    local procedure GetJob()
     begin
-        Clear(Job);
-
         if Job.Get(Rec."Job No.") then begin
             Rec.Description := Job.Description;
             Rec.Status := Job.Status;

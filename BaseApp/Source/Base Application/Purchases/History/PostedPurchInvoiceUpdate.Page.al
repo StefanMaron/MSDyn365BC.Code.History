@@ -1,5 +1,7 @@
 namespace Microsoft.Purchases.History;
 
+using Microsoft.Finance.GeneralLedger.Setup;
+
 page 1351 "Posted Purch. Invoice - Update"
 {
     Caption = 'Posted Purch. Invoice - Update';
@@ -52,6 +54,7 @@ page 1351 "Posted Purch. Invoice - Update"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Creditor No."; Rec."Creditor No.")
                 {
@@ -87,6 +90,8 @@ page 1351 "Posted Purch. Invoice - Update"
     trigger OnOpenPage()
     begin
         xPurchInvHeader := Rec;
+        GLSetup.Get();
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -98,6 +103,8 @@ page 1351 "Posted Purch. Invoice - Update"
 
     var
         xPurchInvHeader: Record "Purch. Inv. Header";
+        GLSetup: Record "General Ledger Setup";
+        IsPaymentMethodCodeVisible: Boolean;
 
     local procedure RecordChanged() IsChanged: Boolean
     begin

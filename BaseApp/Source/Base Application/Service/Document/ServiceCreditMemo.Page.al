@@ -207,22 +207,27 @@ page 5935 "Service Credit Memo"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("CFDI Purpose"; Rec."CFDI Purpose")
+                field("Your Reference"; Rec."Your Reference")
                 {
-                    ApplicationArea = BasicMX;
-                    QuickEntry = false;
-                    ToolTip = 'Specifies the CFDI purpose required for reporting to the Mexican tax authorities (SAT).';
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the customer''s reference. The content will be printed on the related document.';
                 }
-                field("CFDI Relation"; Rec."CFDI Relation")
+                group("Work Description")
                 {
-                    ApplicationArea = BasicMX;
-                    QuickEntry = false;
-                    ToolTip = 'Specifies the relation of the CFDI document. ';
-                }
-                field("CFDI Export Code"; Rec."CFDI Export Code")
-                {
-                    ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
+                    Caption = 'Work Description';
+                    field(WorkDescription; WorkDescription)
+                    {
+                        ApplicationArea = Service;
+                        Importance = Additional;
+                        MultiLine = true;
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or services being offered.';
+
+                        trigger OnValidate()
+                        begin
+                            Rec.SetWorkDescription(WorkDescription);
+                        end;
+                    }
                 }
             }
             part(ServLines; "Service Credit Memo Subform")
@@ -436,16 +441,6 @@ page 5935 "Service Credit Memo"
                         PricesIncludingVATOnAfterValid();
                     end;
                 }
-                field("Tax Liable"; Rec."Tax Liable")
-                {
-                    ApplicationArea = SalesTax;
-                    ToolTip = 'Specifies that items, resources, or costs on the current credit memo line are liable for sales tax.';
-                }
-                field("Tax Area Code"; Rec."Tax Area Code")
-                {
-                    ApplicationArea = SalesTax;
-                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
-                }
             }
             group(Shipping)
             {
@@ -458,6 +453,14 @@ page 5935 "Service Credit Memo"
                         ApplicationArea = Service;
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
@@ -597,6 +600,7 @@ page 5935 "Service Credit Memo"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -662,7 +666,6 @@ page 5935 "Service Credit Memo"
 
                     trigger OnAction()
                     begin
-                        OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         Rec.OpenStatistics();
                     end;
                 }
@@ -742,20 +745,6 @@ page 5935 "Service Credit Memo"
 
                         PAGE.Run(0, TempServDocLog);
                     end;
-                }
-                action(CFDIRelationDocuments)
-                {
-                    ApplicationArea = BasicMX;
-                    Caption = 'CFDI Relation Documents';
-                    Image = Allocations;
-                    RunObject = Page "CFDI Relation Documents";
-                    RunPageLink = "Document Table ID" = const(5900),
-#pragma warning disable AL0603
-                                  "Document Type" = field("Document Type"),
-#pragma warning restore AL0603
-                                  "Document No." = field("No."),
-                                  "Customer No." = field("Bill-to Customer No.");
-                    ToolTip = 'View or add CFDI relation documents for the record.';
                 }
             }
         }
@@ -1031,6 +1020,7 @@ page 5935 "Service Credit Memo"
 
     trigger OnAfterGetRecord()
     begin
+        WorkDescription := Rec.GetWorkDescription();
         SellToContact.GetOrClear(Rec."Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
 
@@ -1064,6 +1054,7 @@ page 5935 "Service Credit Memo"
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
+        WorkDescription: Text;
         DocumentIsPosted: Boolean;
         OpenPostedServiceCrMemoQst: Label 'The credit memo is posted as number %1 and moved to the Posted Service Credit Memos window.\\Do you want to open the posted credit memo?', Comment = '%1 = posted document number';
         IsBillToCountyVisible: Boolean;
@@ -1189,11 +1180,6 @@ page 5935 "Service Credit Memo"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnAfterGetRecord(var ServiceHeader: Record "Service Header")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
     end;
 }

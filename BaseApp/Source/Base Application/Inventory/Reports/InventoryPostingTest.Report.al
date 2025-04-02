@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Reports;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Reports;
 
 using Microsoft.CRM.Team;
 using Microsoft.Finance.Dimension;

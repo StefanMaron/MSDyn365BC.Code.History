@@ -22,11 +22,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.Journal;
-using Microsoft.Manufacturing.Reports;
-using Microsoft.Manufacturing.StandardCost;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.Analysis;
 using Microsoft.Purchases.Archive;
@@ -36,11 +31,11 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Reports;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.RoleCenters;
 #endif
 using Microsoft.Sales.Document;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Sales.Pricing;
 #endif
 using Microsoft.Utilities;
@@ -115,12 +110,6 @@ page 8905 "Purchasing Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Certificates of Supply';
                     RunObject = page "Certificates of Supply";
-                }
-                action("Subcontracting Worksheet")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Subcontracting Worksheets';
-                    RunObject = page "Subcontracting Worksheet";
                 }
                 action("Purchase Journals")
                 {
@@ -288,7 +277,7 @@ page 8905 "Purchasing Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'List Price Sheet';
-#if not CLEAN23
+#if not CLEAN25
                         RunPageView = where("Object Type" = const(Report), "Object ID" = const(10148)); // "List Price Sheet"
                         RunObject = Page "Role Center Page Dispatcher";
 #else
@@ -352,12 +341,6 @@ page 8905 "Purchasing Manager Role Center"
                     Caption = 'Vendors';
                     RunObject = page "Vendor List";
                 }
-                action("Production Forecasts")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Production Forecasts';
-                    RunObject = page "Demand Forecast Names";
-                }
                 action("Orders1")
                 {
                     ApplicationArea = Suite;
@@ -387,18 +370,6 @@ page 8905 "Purchasing Manager Role Center"
                     ApplicationArea = Jobs;
                     Caption = 'Projects';
                     RunObject = page "Job List";
-                }
-                action("Planned Prod. Orders")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Planned Production Orders';
-                    RunObject = page "Planned Production Orders";
-                }
-                action("Firm Planned Prod. Orders")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Firm Planned Prod. Orders';
-                    RunObject = page "Firm Planned Prod. Orders";
                 }
                 action("Transfer Orders1")
                 {
@@ -444,18 +415,6 @@ page 8905 "Purchasing Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Item/Vendor Catalog';
                         RunObject = Report "Item/Vendor Catalog";
-                    }
-                    action("Prod. Order - Shortage List")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Prod. Order - Shortage List';
-                        RunObject = report "Prod. Order - Shortage List";
-                    }
-                    action("Prod. Order - Mat. Requisition")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Prod. Order - Mat. Requisition';
-                        RunObject = report "Prod. Order - Mat. Requisition";
                     }
                     action("Purchase Statistics")
                     {
@@ -587,7 +546,7 @@ page 8905 "Purchasing Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Standard Costs Worksheet';
-                    RunObject = page "Standard Cost Worksheet";
+                    RunObject = page Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet";
                 }
                 action("Adjust Item Costs/Prices")
                 {

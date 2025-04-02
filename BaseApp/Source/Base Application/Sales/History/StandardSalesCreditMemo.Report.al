@@ -1132,7 +1132,6 @@ report 1307 "Standard Sales - Credit Memo"
 
     trigger OnInitReport()
     var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         IsHandled: Boolean;
     begin
         GLSetup.Get();
@@ -1141,19 +1140,11 @@ report 1307 "Standard Sales - Credit Memo"
         SalesSetup.Get();
         CompanyInfo.VerifyAndSetPaymentInfo();
 
-        if SalesCrMemoHeader.GetLegalStatement() <> '' then
-            LegalStatementLbl := SalesCrMemoHeader.GetLegalStatement();
+        if SalesSetup.GetLegalStatement() <> '' then
+            LegalStatementLbl := SalesSetup.GetLegalStatement();
 
         IsHandled := false;
         OnInitReportForGlobalVariable(IsHandled, LegalOfficeTxt, LegalOfficeLbl, CustomGiroTxt, CustomGiroLbl, LegalStatementLbl);
-#if not CLEAN23
-        if not IsHandled then begin
-            LegalOfficeTxt := CompanyInfo.GetLegalOffice();
-            LegalOfficeLbl := CompanyInfo.GetLegalOfficeLbl();
-            CustomGiroTxt := CompanyInfo.GetCustomGiro();
-            CustomGiroLbl := CompanyInfo.GetCustomGiroLbl();
-        end;
-#endif
     end;
 
     trigger OnPostReport()

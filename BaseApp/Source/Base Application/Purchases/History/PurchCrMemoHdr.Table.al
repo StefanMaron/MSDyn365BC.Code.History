@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -51,6 +51,7 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Buy-from Vendor No.';
             NotBlank = true;
             TableRelation = Vendor;
+            ToolTip = 'Specifies the number of the vendor that you shipped the items on the credit memo to.';
         }
         field(3; "No."; Code[20])
         {
@@ -61,6 +62,7 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'Pay-to Vendor No.';
             NotBlank = true;
             TableRelation = Vendor;
+            ToolTip = 'Specifies the number of the vendor that you received the credit memo from.';
         }
         field(5; "Pay-to Name"; Text[100])
         {
@@ -612,6 +614,7 @@ table 124 "Purch. Cr. Memo Hdr."
             Caption = 'STE Transaction ID';
             Editable = false;
         }
+#if not CLEANSCHEMA28
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
@@ -625,6 +628,7 @@ table 124 "Purch. Cr. Memo Hdr."
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
         field(10042; "Fiscal Invoice Number PAC"; Text[50])
         {
             Caption = 'Fiscal Invoice Number PAC';

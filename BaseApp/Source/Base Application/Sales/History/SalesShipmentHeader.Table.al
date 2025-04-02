@@ -762,19 +762,16 @@ table 110 "Sales Shipment Header"
             Caption = 'Trailer 2';
             TableRelation = "Fixed Asset" where("SAT Trailer Type" = filter(<> ''));
         }
+#if not CLEANSCHEMA26
         field(10055; "Transit-to Location"; Code[10])
         {
             Caption = 'Transit-to Location';
             TableRelation = Location where("Use As In-Transit" = const(false));
             ObsoleteReason = 'Replaced with SAT Address ID.';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif             
         }
+#endif
         field(10056; "Medical Insurer Name"; Text[50])
         {
             Caption = 'Medical Insurer Name';

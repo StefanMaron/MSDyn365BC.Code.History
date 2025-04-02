@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -203,28 +203,6 @@ page 5933 "Service Invoice"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
-                }
-                field("CFDI Purpose"; Rec."CFDI Purpose")
-                {
-                    ApplicationArea = BasicMX;
-                    QuickEntry = false;
-                    ToolTip = 'Specifies the CFDI purpose required for reporting to the Mexican tax authorities (SAT).';
-                }
-                field("CFDI Relation"; Rec."CFDI Relation")
-                {
-                    ApplicationArea = BasicMX;
-                    QuickEntry = false;
-                    ToolTip = 'Specifies the relation of the CFDI document. ';
-                }
-                field("CFDI Export Code"; Rec."CFDI Export Code")
-                {
-                    ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
-                }
-                field("CFDI Period"; Rec."CFDI Period")
-                {
-                    ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies the period to use when reporting for general public customers';
                 }
             }
             part(ServLines; "Service Invoice Subform")
@@ -480,6 +458,14 @@ page 5933 "Service Invoice"
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Service;
@@ -580,31 +566,6 @@ page 5933 "Service Invoice"
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
             }
-            group(ElectronicDocument)
-            {
-                Caption = 'Electronic Document';
-                field("SAT Address ID"; Rec."SAT Address ID")
-                {
-                    ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies the SAT address that the goods or merchandise are moved to.';
-                    BlankZero = true;
-                }
-                field(Control1310005; Rec."Foreign Trade")
-                {
-                    ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies whether the goods or merchandise that are transported enter or leave the national territory.';
-                }
-                field("SAT International Trade Term"; Rec."SAT International Trade Term")
-                {
-                    ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies an international commercial terms code that are used in international sale contracts according to the SAT internatoinal trade terms definition.';
-                }
-                field("Exchange Rate USD"; Rec."Exchange Rate USD")
-                {
-                    ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies the USD to MXN exchange rate that is used to report foreign trade documents to Mexican SAT authorities. This rate must match the rate used by the Mexican National Bank.';
-                }
-            }
         }
         area(factboxes)
         {
@@ -624,6 +585,7 @@ page 5933 "Service Invoice"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -712,7 +674,6 @@ page 5933 "Service Invoice"
 
                     trigger OnAction()
                     begin
-                        OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         Rec.OpenStatistics();
                     end;
                 }
@@ -792,20 +753,6 @@ page 5933 "Service Invoice"
 
                         PAGE.Run(0, TempServDocLog);
                     end;
-                }
-                action(CFDIRelationDocuments)
-                {
-                    ApplicationArea = Service, BasicMX;
-                    Caption = 'CFDI Relation Documents';
-                    Image = Allocations;
-                    RunObject = Page "CFDI Relation Documents";
-                    RunPageLink = "Document Table ID" = const(5900),
-#pragma warning disable AL0603
-                                  "Document Type" = field("Document Type"),
-#pragma warning restore AL0603
-                                  "Document No." = field("No."),
-                                  "Customer No." = field("Bill-to Customer No.");
-                    ToolTip = 'View or add CFDI relation documents for the record.';
                 }
             }
         }
@@ -1208,11 +1155,6 @@ page 5933 "Service Invoice"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnAfterGetRecord(var ServiceHeader: Record "Service Header")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceHeader: Record "Service Header"; ShowDialog: Boolean)
     begin
     end;
 }

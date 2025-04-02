@@ -4,6 +4,7 @@ using System.Apps;
 using System.Security.AccessControl;
 using System.Security.User;
 using System.Utilities;
+using System;
 
 table 9012 "AAD Application"
 {

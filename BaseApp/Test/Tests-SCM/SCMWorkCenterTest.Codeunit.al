@@ -9,6 +9,7 @@ codeunit 137800 "SCM Work Center Test"
     end;
 
     var
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryUtility: Codeunit "Library - Utility";
@@ -16,11 +17,11 @@ codeunit 137800 "SCM Work Center Test"
         LibrarySales: Codeunit "Library - Sales";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        ProdOrderNeedQtyErr: Label 'Wrong "Prod. Order Need (Qty.)" value';
         LibraryRandom: Codeunit "Library - Random";
         ShopCalendarMgt: Codeunit "Shop Calendar Management";
-        ProdOrderRtngLineDateErr: Label 'Wrong "Prod. Order Routing Line" Dates';
         IsInitialized: Boolean;
+        ProdOrderNeedQtyErr: Label 'Wrong "Prod. Order Need (Qty.)" value';
+        ProdOrderRtngLineDateErr: Label 'Wrong "Prod. Order Routing Line" Dates';
         ReqLineDatesErr: Label 'Wrong "Requisition Line" dates';
         ProdOrderCompDatesErr: Label 'Wrong "Prod. Order Component" dates';
         ProdOrderCapNeedRoundErr: Label 'Wrong "Prod Order Capacity Need" roundings';
@@ -543,7 +544,7 @@ codeunit 137800 "SCM Work Center Test"
 
     local procedure CreateItem(var Item: Record Item; RoutingHeaderNo: Code[20]): Code[20]
     begin
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, LibraryPatterns.RandCost(Item));
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::FIFO, LibraryPatterns.RandCost(Item));
         Item.Validate("Routing No.", RoutingHeaderNo);
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
         Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
@@ -586,7 +587,7 @@ codeunit 137800 "SCM Work Center Test"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', Quantity, OrderDate, LibraryRandom.RandDec(1000, 2));
+        LibrarySales.CreateSalesOrder(SalesHeader, SalesLine, Item, '', '', Quantity, OrderDate, LibraryRandom.RandDec(1000, 2));
         SalesHeader.Validate("Shipment Date", OrderDate);
         SalesHeader.Modify();
         LibrarySales.ReleaseSalesDocument(SalesHeader);

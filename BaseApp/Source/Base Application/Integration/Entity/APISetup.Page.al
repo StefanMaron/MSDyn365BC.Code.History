@@ -5,7 +5,6 @@
 namespace Microsoft.Integration.Entity;
 
 using Microsoft.Integration.Graph;
-using System.Environment;
 using System.IO;
 using System.Reflection;
 using Microsoft.API.Upgrade;
@@ -77,87 +76,6 @@ page 5469 "API Setup"
     {
         area(processing)
         {
-#if not CLEAN23
-            action(IntegrateAPIs)
-            {
-                ApplicationArea = All;
-                Caption = 'Integrate APIs';
-                Image = Setup;
-                Visible = SetupActionVisible;
-                ObsoleteReason = 'This functionality will be removed because APIs are refactored in Integration Management to not use integration records.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '17.0';
-                ToolTip = 'Integrates records to the associated integration tables';
-
-                trigger OnAction()
-                begin
-                    if Confirm(ConfirmApiSetupQst) then
-                        CODEUNIT.Run(CODEUNIT::"Graph Mgt - General Tools");
-                end;
-            }
-#endif
-#if not CLEAN23
-            action(FixSalesAndPurchaseApiRecords)
-            {
-                ApplicationArea = All;
-                Caption = 'Fix Sales and Purchase API Records';
-                Image = Setup;
-                ObsoleteReason = 'This action will be removed together with the upgrade code.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '18.0';
-                ToolTip = 'Update records that are used by the salesInvoices, salesOrders, salesCreditMemos, and purchaseInvoices APIs.';
-
-                trigger OnAction()
-                var
-                    SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
-                    GraphMgtSalesOrderBuffer: Codeunit "Graph Mgt - Sales Order Buffer";
-                    PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
-                begin
-                    SalesInvoiceAggregator.FixInvoicesCreatedFromOrders();
-                    PurchInvAggregator.FixInvoicesCreatedFromOrders();
-                    GraphMgtSalesOrderBuffer.DeleteOrphanedRecords();
-                    Message(AllRecordsHaveBeenUpdatedMsg);
-                end;
-            }
-#endif
-#if not CLEAN23
-            action(FixSalesShipmentLine)
-            {
-                ApplicationArea = All;
-                Caption = 'Fix Sales Shipment Line API Records';
-                Image = Setup;
-                ObsoleteReason = 'This action will be removed together with the upgrade code.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '18.0';
-                ToolTip = 'Updates records that are used by the salesShipmentLines API.';
-
-                trigger OnAction()
-                var
-                    GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-                begin
-                    GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Sales Shipment Line");
-                end;
-            }
-#endif
-#if not CLEAN23
-            action(FixPurchRcptLine)
-            {
-                ApplicationArea = All;
-                Caption = 'Fix Purchase Recepit Line API Records';
-                Image = Setup;
-                ObsoleteReason = 'This action will be removed together with the upgrade code.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '18.0';
-                ToolTip = 'Updates records that are used by the purchaseReceiptLines API.';
-
-                trigger OnAction()
-                var
-                    GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-                begin
-                    GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Purch Rcpt Line");
-                end;
-            }
-#endif
             action(FixPurchOrder)
             {
                 ApplicationArea = All;
@@ -174,25 +92,6 @@ page 5469 "API Setup"
                 end;
             }
 
-#if not CLEAN23
-            action(FixSalesInvoiceShortcutDimension)
-            {
-                ApplicationArea = All;
-                Caption = 'Fix document API records Shortcut Dimensions';
-                Image = Setup;
-                ToolTip = 'Updates shortcut dimension codes of the records that are used by the salesInvoices, salesOrders, salesCreditMemos, salesQuotes, purchaseOrders and purchaseInvoices API';
-                ObsoleteReason = 'This action will be removed together with the upgrade code.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '20.0';
-
-                trigger OnAction()
-                var
-                    GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-                begin
-                    GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Document Shortcut Dim.");
-                end;
-            }
-#endif
             action(FixItemCategoryCode)
             {
                 ApplicationArea = All;
@@ -208,22 +107,6 @@ page 5469 "API Setup"
                 end;
             }
         }
-#if not CLEAN23
-        area(Promoted)
-        {
-            group(Category_Process)
-            {
-                Caption = 'Process';
-
-                actionref(IntegrateAPIs_Promoted; IntegrateAPIs)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This functionality will be removed because APIs are refactored in Integration Management to not use integration records.';
-                    ObsoleteTag = '17.0';
-                }
-            }
-        }
-#endif
     }
 
     trigger OnAfterGetCurrRecord()
@@ -237,11 +120,8 @@ page 5469 "API Setup"
     end;
 
     trigger OnOpenPage()
-    var
-        EnvironmentInformation: Codeunit "Environment Information";
     begin
         Rec.SetAutoCalcFields("Selection Criteria");
-        SetupActionVisible := EnvironmentInformation.IsOnPrem();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -252,11 +132,6 @@ page 5469 "API Setup"
     end;
 
     var
-        SetupActionVisible: Boolean;
         ConditionsText: Text;
-#if not CLEAN23
-        ConfirmApiSetupQst: Label 'This action will populate the integration tables for all APIs and may take several minutes to complete. Do you want to continue?';
-        AllRecordsHaveBeenUpdatedMsg: Label 'All records have been sucessfully updated.';
-#endif
 }
 

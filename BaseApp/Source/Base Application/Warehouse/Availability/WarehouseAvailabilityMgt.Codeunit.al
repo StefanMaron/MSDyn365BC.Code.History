@@ -5,7 +5,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Warehouse.Activity;
@@ -40,22 +39,22 @@ codeunit 7314 "Warehouse Availability Mgt."
         ReservEntry2: Record "Reservation Entry";
         ReservQtyonInvt: Decimal;
         PickQty: Decimal;
+        IsHandled: Boolean;
     begin
         // Returns the reserved quantity against ILE for the demand line
         case SourceType of
-            Database::"Prod. Order Component":
-                begin
-                    ReservEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceSubLineNo, true);
-                    ReservEntry.SetSourceFilter('', SourceLineNo);
-                end;
             Database::Job:
                 begin
                     ReservEntry.SetSourceFilter(
                       Database::"Job Planning Line", "Job Planning Line Status"::Order.AsInteger(), SourceNo, SourceLineNo, true);
                     ReservEntry.SetSourceFilter('', 0);
                 end;
-            else
-                ReservEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
+            else begin
+                IsHandled := false;
+                OnCalcLineReservedQtyOnInvtOnSetSourceFilters(ReservEntry, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, IsHandled);
+                if not IsHandled then
+                    ReservEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
+            end;
         end;
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         if ReservEntry.Find('-') then
@@ -162,10 +161,8 @@ codeunit 7314 "Warehouse Availability Mgt."
     begin
         // Returns the reserved part of the sum of outstanding quantity on pick lines and
         // quantity on shipment lines picked but not yet shipped for a given demand line
-        if SourceType = Database::"Prod. Order Component" then
-            PickedNotYetShippedQty := CalcQtyPickedOnProdOrderComponentLine(SourceSubType, SourceID, SourceProdOrderLine, SourceRefNo)
-        else
-            PickedNotYetShippedQty := CalcQtyPickedOnWhseShipmentLine(SourceType, SourceSubType, SourceID, SourceRefNo);
+        PickedNotYetShippedQty := CalcQtyPickedOnWhseShipmentLine(SourceType, SourceSubType, SourceID, SourceRefNo);
+        OnCalcLineReservQtyOnPicksShipsOnAfterCalcPickedNotYetShippedQty(SourceType, SourceSubType, SourceID, SourceProdOrderLine, SourceRefNo, PickedNotYetShippedQty);
 
         OutstandingQtyOnPickLines :=
           CalcQtyOutstandingPick(SourceType, SourceSubType, SourceID, SourceRefNo, SourceProdOrderLine, WarehouseActivityLine);
@@ -510,13 +507,13 @@ codeunit 7314 "Warehouse Availability Mgt."
         WarehouseEntry.SetLoadFields("Bin Code");
         WarehouseEntry.SetCurrentKey("Bin Code");
         WarehouseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, false);
-        WarehouseEntry.SetFilter("Whse. Document Type", '%1|%2|%3|%4',
+        WarehouseEntry.SetFilter("Whse. Document Type", '%1|%2|%3',
             WarehouseEntry."Whse. Document Type"::Shipment,
-            WarehouseEntry."Whse. Document Type"::Production,
             WarehouseEntry."Whse. Document Type"::Assembly,
             WarehouseEntry."Whse. Document Type"::Job);
         WarehouseEntry.SetRange("Reference Document", WarehouseEntry."Reference Document"::Pick);
         WarehouseEntry.SetFilter("Qty. (Base)", '>%1', 0);
+        OnGetOutboundBinsOnBasicWarehouseLocationOnAfterSetWarehouseEntryFilters(WarehouseEntry);
         WarehouseEntry.SetLoadFields("Bin Code");
         if WarehouseEntry.FindSet() then
             repeat
@@ -701,21 +698,6 @@ codeunit 7314 "Warehouse Availability Mgt."
         exit(QtyBlocked);
     end;
 
-    local procedure CalcQtyPickedOnProdOrderComponentLine(SourceSubtype: Option; SourceID: Code[20]; SourceProdOrderLineNo: Integer; SourceRefNo: Integer): Decimal
-    var
-        ProdOrderComponent: Record "Prod. Order Component";
-    begin
-        ProdOrderComponent.SetRange(Status, SourceSubtype);
-        ProdOrderComponent.SetRange("Prod. Order No.", SourceID);
-        ProdOrderComponent.SetRange("Prod. Order Line No.", SourceProdOrderLineNo);
-        ProdOrderComponent.SetRange("Line No.", SourceRefNo);
-        ProdOrderComponent.SetLoadFields("Qty. Picked (Base)");
-        if ProdOrderComponent.FindFirst() then
-            exit(ProdOrderComponent."Qty. Picked (Base)");
-
-        exit(0);
-    end;
-
     local procedure CalcQtyPickedOnJobPlanningLine(SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer): Decimal
     var
         JobPlanningLine: Record "Job Planning Line";
@@ -798,9 +780,14 @@ codeunit 7314 "Warehouse Availability Mgt."
     local procedure CalcQtyRegisteredPick(LocationCode: Code[10]; SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer; SourceProdOrderLine: Integer): Decimal
     var
         Location: Record Location;
+        Quantity: Decimal;
+        IsHandled: Boolean;
     begin
-        if SourceType = Database::"Prod. Order Component" then
-            exit(CalcQtyPickedOnProdOrderComponentLine(SourceSubType, SourceID, SourceProdOrderLine, SourceRefNo));
+        IsHandled := false;
+        Quantity := 0;
+        OnBeforeCalcQtyRegisteredPick(SourceType, SourceSubType, SourceID, SourceProdOrderLine, SourceRefNo, Quantity, IsHandled);
+        if IsHandled then
+            exit(Quantity);
 
         if SourceType = Database::"Assembly Line" then
             exit(CalcQtyPickedOnAssemblyLine(SourceSubType, SourceID, SourceRefNo));
@@ -828,7 +815,7 @@ codeunit 7314 "Warehouse Availability Mgt."
     var
         WarehouseActivityLineForCalc: Record "Warehouse Activity Line";
     begin
-        if SourceType = Database::"Prod. Order Component" then
+        if SourceType = 5407 then // Database::"Prod. Order Component"
             WarehouseActivityLineForCalc.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceProdOrderLine, SourceRefNo, true)
         else
             WarehouseActivityLineForCalc.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceRefNo, -1, true);
@@ -1064,6 +1051,26 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcQtyPickedNotShipped(SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer; var QtyPickedNotShippedBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyRegisteredPick(SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer; SourceProdOrderLine: Integer; var Quantity: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineReservQtyOnPicksShipsOnAfterCalcPickedNotYetShippedQty(SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer; SourceProdOrderLine: Integer; var PickedNotYetShippedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineReservedQtyOnInvtOnSetSourceFilters(var ReservEntry: Record "Reservation Entry"; SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetOutboundBinsOnBasicWarehouseLocationOnAfterSetWarehouseEntryFilters(var WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 

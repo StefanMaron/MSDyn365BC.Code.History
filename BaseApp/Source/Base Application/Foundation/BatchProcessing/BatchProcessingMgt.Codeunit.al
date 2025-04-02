@@ -55,6 +55,7 @@ codeunit 1380 "Batch Processing Mgt."
             Error(NotARecordErr);
 
         RecRef.GetTable(SourceRecord);
+        RecRef.ReadIsolation := IsolationLevel::ReadCommitted;
         if RecRef.Count = 0 then
             exit;
 
@@ -94,6 +95,7 @@ codeunit 1380 "Batch Processing Mgt."
 
         OnBeforeBatchProcess(RecRef);
 
+        RecRef.ReadIsolation := IsolationLevel::ReadCommitted;
         if RecRef.IsEmpty() then
             exit;
 

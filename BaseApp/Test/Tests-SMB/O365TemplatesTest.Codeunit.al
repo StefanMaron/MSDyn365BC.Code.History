@@ -2150,9 +2150,11 @@ codeunit 138012 "O365 Templates Test"
     local procedure ValidateRecRefVsConfigTemplate(RecRef: RecordRef; TemplateRecRef: RecordRef)
     var
         TemplateField: Record Field;
+        InstanceField: Record Field;
         TemplateFieldRef: FieldRef;
         InstanceFieldRef: FieldRef;
         TableId: Integer;
+        SkipCopy: Boolean;
     begin
         TableId := TemplateRecRef.Number;
         TemplateField.SetRange(TableNo, TableId);
@@ -2166,9 +2168,16 @@ codeunit 138012 "O365 Templates Test"
         end;
         TemplateField.FindSet();
         repeat
-            InstanceFieldRef := RecRef.Field(TemplateField."No.");
-            TemplateFieldRef := TemplateRecRef.Field(TemplateField."No.");
-            Assert.AreEqual(Format(InstanceFieldRef), Format(TemplateFieldRef), StrSubstNo('<%1> field was different than in the template.', InstanceFieldRef.Caption));
+            SkipCopy := false;
+            if InstanceField.Get(RecRef.Number, TemplateField."No.") then
+                if InstanceField.ObsoleteState = InstanceField.ObsoleteState::Removed then
+                    SkipCopy := true;
+
+            if not SkipCopy then begin // skip field "Registration No." because it ha sbeen removed from the source table in CH
+                InstanceFieldRef := RecRef.Field(TemplateField."No.");
+                TemplateFieldRef := TemplateRecRef.Field(TemplateField."No.");
+                Assert.AreEqual(Format(InstanceFieldRef), Format(TemplateFieldRef), StrSubstNo('<%1> field was different than in the template.', InstanceFieldRef.Caption));
+            end;
         until TemplateField.Next() = 0;
     end;
 

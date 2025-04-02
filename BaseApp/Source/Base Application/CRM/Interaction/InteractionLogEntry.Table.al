@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CRM.Interaction;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.Interaction;
 
 using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Contact;
@@ -357,6 +361,7 @@ table 5065 "Interaction Log Entry"
         TitleByLbl: Label '%1 - by %2', Comment = '%1 - document description, %2 - name';
         OpenMessageQst: Label 'You are about to open an email message in Outlook Online. Email messages might contain harmful content. Use caution when interacting with the message. Do you want to continue?';
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Interaction Log Entry", 'r')]
     procedure InsertRecord()
     var
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";

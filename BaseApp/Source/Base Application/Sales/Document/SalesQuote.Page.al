@@ -13,7 +13,7 @@ using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Projects.Resources.Resource;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.RoleCenters;
 #endif
 using Microsoft.Sales.Archive;
@@ -609,6 +609,16 @@ page 41 "Sales Quote"
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 ToolTip = 'Specifies the name that products on the sales document will be shipped to.';
                             }
+                            field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'Name 2';
+                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                                Importance = Additional;
+                                ToolTip = 'Specifies an additional part of the name that products on the sales document will be shipped to.';
+                                QuickEntry = false;
+                                Visible = false;
+                            }
                             field("Ship-to Address"; Rec."Ship-to Address")
                             {
                                 ApplicationArea = Basic, Suite;
@@ -930,6 +940,7 @@ page 41 "Sales Quote"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Sales Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -1124,6 +1135,7 @@ page 41 "Sales Quote"
             {
                 Caption = '&Quote';
                 Image = Quote;
+#if not CLEAN26
                 action(Statistics)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1132,6 +1144,9 @@ page 41 "Sales Quote"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
 
                     trigger OnAction()
                     var
@@ -1147,6 +1162,50 @@ page 41 "Sales Quote"
                         Rec.ShowDocumentStatisticsPage();
                         CurrPage.SalesLines.Page.ForceTotalsCalculation();
                     end;
+                }
+#endif
+                action(SalesStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Enabled = Rec."No." <> '';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+#if CLEAN26
+                    Visible = not SalesTaxStatisticsVisible;
+#else
+                    Visible = false;
+#endif
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    RunObject = Page "Sales Statistics";
+                    RunPageOnRec = true;
+                }
+                action(SalesStats)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Enabled = Rec."No." <> '';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+#if CLEAN26
+                    Visible = SalesTaxStatisticsVisible;
+#else
+                    Visible = false;
+#endif                    
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    RunObject = Page "Sales Stats.";
+                    RunPageOnRec = true;
+                }
+                action(CustomerStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Statistics';
+                    Enabled = IsCustomerOrContactNotEmpty;
+                    Image = Statistics;
+                    RunObject = Page "Customer Statistics";
+                    RunPageLink = "No." = field("Sell-to Customer No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the sell-to customer on the sales document.';
                 }
                 action("Co&mments")
                 {
@@ -1599,7 +1658,7 @@ page 41 "Sales Quote"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Sales Promotion';
                 Image = "Report";
-#if not CLEAN23
+#if not CLEAN25
                 RunPageView = where("Object Type" = const(Report), "Object ID" = const(10159)); // "Sales Promotion"
                 RunObject = Page "Role Center Page Dispatcher";
 #else
@@ -1724,9 +1783,21 @@ page 41 "Sales Quote"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN26
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
+#else
+                actionref(SalesStatistics_Promoted; SalesStatistics)
+                {
+                }
+                actionref(SalesStats_Promoted; SalesStats)
+                {
+                }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -1843,6 +1914,8 @@ page 41 "Sales Quote"
         PaymentServiceVisible := PaymentServiceSetup.IsPaymentServiceVisible();
 
         SetEnableSellToCustomerTemplateCode();
+
+        SalesTaxStatisticsVisible := Rec.GetStatisticsPageID() = Page::"Sales Order Stats.";
     end;
 
     var
@@ -1890,6 +1963,7 @@ page 41 "Sales Quote"
         ShipToOptions: Enum "Sales Ship-to Options";
         BillToOptions: Enum "Sales Bill-to Options";
         EnableBillToCustomerNo: Boolean;
+        SalesTaxStatisticsVisible: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1978,11 +2052,19 @@ page 41 "Sales Quote"
         EnableNewSellToCustomerTemplateCode := Rec."Sell-to Customer No." = '';
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateSalesTaxStatistics(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
+    begin
+    end;
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option; var IsHandled: Boolean)
     begin
@@ -1990,11 +2072,6 @@ page 41 "Sales Quote"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateSalesTaxStatistics(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
     end;
 
@@ -2008,4 +2085,3 @@ page 41 "Sales Quote"
     begin
     end;
 }
-

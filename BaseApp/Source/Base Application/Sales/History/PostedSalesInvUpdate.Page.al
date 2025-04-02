@@ -1,4 +1,5 @@
 namespace Microsoft.Sales.History;
+using Microsoft.Finance.GeneralLedger.Setup;
 
 page 1355 "Posted Sales Inv. - Update"
 {
@@ -108,6 +109,7 @@ page 1355 "Posted Sales Inv. - Update"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Payment Method Code';
                     ToolTip = 'Specifies how the customer must pay for products on the sales document, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Payment Reference"; Rec."Payment Reference")
                 {
@@ -120,6 +122,7 @@ page 1355 "Posted Sales Inv. - Update"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Company Bank Account Code';
                     ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                    Visible = IsCompanyBankAccountVisible;
                 }
             }
             group("Electronic Document")
@@ -151,6 +154,9 @@ page 1355 "Posted Sales Inv. - Update"
     trigger OnOpenPage()
     begin
         xSalesInvoiceHeader := Rec;
+        GLSetup.Get();
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+        IsCompanyBankAccountVisible := not GLSetup."Hide Company Bank Account";
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -162,6 +168,9 @@ page 1355 "Posted Sales Inv. - Update"
 
     var
         xSalesInvoiceHeader: Record "Sales Invoice Header";
+        GLSetup: Record "General Ledger Setup";
+        IsPaymentMethodCodeVisible: Boolean;
+        IsCompanyBankAccountVisible: Boolean;
 
     local procedure RecordChanged() IsChanged: Boolean
     begin

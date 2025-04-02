@@ -213,8 +213,10 @@ codeunit 10 "Type Helper"
     end;
 
     procedure FormatDateWithCurrentCulture(DateToFormat: Date): Text
+    var
+        Language: Codeunit Language;
     begin
-        exit(FormatDate(DateToFormat, 'd', GetCultureName()));
+        exit(FormatDate(DateToFormat, 'd', Language.GetCurrentCultureName()));
     end;
 
     procedure GetHMSFromTime(var Hour: Integer; var Minute: Integer; var Second: Integer; TimeSource: Time)
@@ -238,6 +240,8 @@ codeunit 10 "Type Helper"
         exit(DateTime.IsLeapYear(Date2DMY(Date, 3)));
     end;
 
+#if not CLEAN26
+    [Obsolete('Use codeunit 43 Language, procedure GetCultureName instead.', '26.0')]
     procedure LanguageIDToCultureName(LanguageID: Integer): Text
     var
         CultureInfo: DotNet CultureInfo;
@@ -246,12 +250,14 @@ codeunit 10 "Type Helper"
         exit(CultureInfo.Name);
     end;
 
+    [Obsolete('Use codeunit 43 Language, procedure GetCurrentCultureName instead.', '26.0')]
     procedure GetCultureName(): Text
     var
         CultureInfo: DotNet CultureInfo;
     begin
         exit(CultureInfo.CurrentCulture.Name);
     end;
+#endif
 
     procedure GetOptionNo(Value: Text; OptionString: Text): Integer
     var
@@ -667,9 +673,10 @@ codeunit 10 "Type Helper"
 
     procedure NewLine(): Text
     var
-        Environment: DotNet Environment;
+        SystemEnvironment: DotNet SystemEnvironment;
     begin
-        exit(Environment.NewLine);
+        SystemEnvironment := SystemEnvironment.SystemEnvironment();
+        exit(SystemEnvironment.NewLine());
     end;
 
     local procedure MinimumInt3(i1: Integer; i2: Integer; i3: Integer): Integer

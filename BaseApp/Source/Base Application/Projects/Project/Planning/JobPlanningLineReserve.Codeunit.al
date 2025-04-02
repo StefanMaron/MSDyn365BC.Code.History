@@ -8,6 +8,7 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.UOM;
 using Microsoft.Projects.Project.Ledger;
 
 codeunit 1032 "Job Planning Line-Reserve"
@@ -329,12 +330,23 @@ codeunit 1032 "Job Planning Line-Reserve"
         if not FindReservEntry(JobPlanningLine, OldReservationEntry) then
             exit(TransferQty);
 
+        //exclude reservations if negative adjustment from PO posting
+        if (NewItemJournalLine."Document Type" = NewItemJournalLine."Document Type"::"Purchase Receipt")
+           and (NewItemJournalLine."Entry Type" = NewItemJournalLine."Entry Type"::"Negative Adjmt.") then begin
+            UpdateReservationsWhenPostingJobPlaningLineNegativeAdjFromPO(JobPlanningLine, NewItemJournalLine, OldReservationEntry);
+
+            OldReservationEntry.SetFilter("Reservation Status", '<>%1', OldReservationEntry."Reservation Status"::Reservation);
+            if OldReservationEntry.IsEmpty then
+                exit(TransferQty);
+        end;
+
         // Store initial values
         OldReservationEntry.CalcSums("Quantity (Base)");
         TrackedQty := -OldReservationEntry."Quantity (Base)";
         xTransferQty := TransferQty;
 
-        OldReservationEntry.Lock();
+        OldReservationEntry.LockTable();
+        OldReservationEntry.FindLast();
 
         // Handle Item Tracking on job planning line:
         Clear(CreateReservEntry);
@@ -388,6 +400,55 @@ codeunit 1032 "Job Planning Line-Reserve"
             end;
         end;
         exit(TransferQty);
+    end;
+
+    local procedure UpdateReservationsWhenPostingJobPlaningLineNegativeAdjFromPO(var JobPlanningLine: Record "Job Planning Line"; var ItemJournalLine: Record "Item Journal Line"; var ReservationEntry: Record "Reservation Entry")
+    var
+        TempReservationEntry: Record "Reservation Entry" temporary;
+        UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
+        NewReserveQtyBase: Decimal;
+        NewReservationEntryQtyBase: Decimal;
+        NewReservationEntryQty: Decimal;
+    begin
+        if not ((ItemJournalLine."Document Type" = ItemJournalLine."Document Type"::"Purchase Receipt") and (ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::"Negative Adjmt.")) then
+            exit;
+
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        if ReservationEntry.IsEmpty then
+            exit;
+
+        NewReserveQtyBase := JobPlanningLine."Remaining Qty. (Base)";
+        ReservationEntry.FindSet();
+
+        if NewReserveQtyBase <= 0 then begin
+            repeat
+                ReservationEngineMgt.CloseReservEntry(ReservationEntry, false, false);
+            until ReservationEntry.Next() = 0;
+            exit;
+        end;
+
+        repeat
+            TempReservationEntry.Init();
+            TempReservationEntry := ReservationEntry;
+            TempReservationEntry.Insert();
+        until ReservationEntry.Next() = 0;
+
+        TempReservationEntry.Reset();
+        TempReservationEntry.FindSet();
+        repeat
+            if NewReserveQtyBase >= -TempReservationEntry."Quantity (Base)" then
+                NewReserveQtyBase += TempReservationEntry."Quantity (Base)"
+            else
+                if NewReserveQtyBase = 0 then
+                    ReservationEngineMgt.CloseReservEntry(TempReservationEntry, false, false)
+                else begin
+                    NewReservationEntryQtyBase := NewReserveQtyBase;
+                    NewReserveQtyBase := 0;
+                    NewReservationEntryQty := UnitOfMeasureManagement.CalcQtyFromBase(NewReservationEntryQtyBase, TempReservationEntry."Qty. per Unit of Measure");
+                    CreateReservEntry.CreateRemainingReservEntry(TempReservationEntry, NewReservationEntryQty, NewReservationEntryQtyBase);
+                    ReservationEngineMgt.CloseReservEntry(TempReservationEntry, false, false);
+                end;
+        until TempReservationEntry.Next() = 0;
     end;
 
     procedure DeleteLine(var JobPlanningLine: Record "Job Planning Line")
@@ -783,11 +844,11 @@ codeunit 1032 "Job Planning Line-Reserve"
         if IsReserved then
             exit;
 
+        JobPlanningLine.SetAutoCalcFields("Reserved Qty. (Base)");
         JobPlanningLine.FilterLinesForReservation(
           CalcReservEntry, ReservSummEntryNo - 131, sender.GetAvailabilityFilter(AvailabilityDate), Positive);
         if JobPlanningLine.Find(Search) then
             repeat
-                JobPlanningLine.CalcFields("Reserved Qty. (Base)");
                 QtyThisLine := JobPlanningLine."Remaining Qty.";
                 QtyThisLineBase := JobPlanningLine."Remaining Qty. (Base)";
                 ReservQty := JobPlanningLine."Reserved Qty. (Base)";

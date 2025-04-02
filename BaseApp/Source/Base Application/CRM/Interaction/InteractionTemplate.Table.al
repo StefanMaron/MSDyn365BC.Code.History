@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CRM.Interaction;
 
 using Microsoft.CRM.Campaign;
@@ -80,24 +84,9 @@ table 5064 "Interaction Template"
             trigger OnValidate()
             var
                 Attachment: Record Attachment;
-#if not CLEAN23
-                ErrorText: Text[80];
-#endif
             begin
                 if not Attachment.Get("Attachment No.") then
                     exit;
-#if not CLEAN23
-                ErrorText := Attachment.CheckCorrespondenceType("Correspondence Type (Default)");
-                if ErrorText <> '' then
-                    Error(
-                      StrSubstNo('%1%2',
-                        StrSubstNo(Text003,
-                          FieldCaption("Correspondence Type (Default)"),
-                          "Correspondence Type (Default)",
-                          TableCaption,
-                          Code),
-                        ErrorText));
-#endif
             end;
         }
         field(13; "Date Filter"; Date)

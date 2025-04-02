@@ -51,7 +51,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Verify Picking Request is being available on Pick Worksheet for new Component line when  Production Order Component has been consumed, the Remaining Qty for all Lines will be 0.
 
         // Setup
-        Initialize(false);
+        Initialize();
         CreateWarehouseLocation(Bin);
         CreateItemWithInventory(Item, Bin[1]."Location Code", Bin[1].Code);
 
@@ -92,7 +92,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Verify Value Entries for an Item which have zero Inventory after run the Adjust Cost Item Entries.
 
         // Setup: Update Inventory Setup and Sales Receivable Setup.
-        Initialize(false);
+        Initialize();
         InventorySetup.Get();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, InventorySetup."Expected Cost Posting to G/L", InventorySetup."Automatic Cost Adjustment",
@@ -138,7 +138,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Verify Unit Cost(LCY) on Purchase Line when Subcontracting Purchase Order is created with Foreign Currency.
 
         // Setup: Create Work Center, create and refresh Production Order.
-        Initialize(false);
+        Initialize();
         WorkCenter.Get(CreateWorkCenter());
         UpdateRoutingOnItem(Item, WorkCenter."No.");
         CreateAndRefreshProdOrder(ProductionOrder, Item."No.", '', LibraryRandom.RandDec(10, 2));  // Take random Quantity.
@@ -169,7 +169,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Verify Capacity Ledger Entries when Subcontracting Purchase Order is created and posted with Foreign Currency.
 
         // Setup: Create Work Center, create and refresh Production Order and Carry Out Action Message on SubContract Worksheet.
-        Initialize(false);
+        Initialize();
         WorkCenter.Get(CreateWorkCenter());
         UpdateRoutingOnItem(Item, WorkCenter."No.");
         CreateAndRefreshProdOrder(ProductionOrder, Item."No.", '', LibraryRandom.RandDec(10, 2));  // Take random Quantity.
@@ -207,7 +207,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Verify Starting Date on Production Order Routing when Send-Ahead Quantity is updated.
 
         // Setup: Create Item, create and certify Production BOM.
-        Initialize(false);
+        Initialize();
 
         // Setup: Set Doc. No. Is Prod. Order No. to assign Prod. Order. No. to component consumption item ledger entries
         ManufacturingSetup.Get();
@@ -255,7 +255,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Verify Item Journal Line Description is updated after deleting Variant Code.
 
         // Setup: Create Item, create Item Variant.
-        Initialize(false);
+        Initialize();
         Item.Get(CreateItem());
         CreateAndModifyItemVariant(ItemVariant, Item."No.");
         CreateItemJournalLine(ItemJournalLine, ItemVariant."Item No.", ItemVariant.Code, '', '');
@@ -286,7 +286,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // Verify Starting Date on Production Order Routing when Send-Ahead Quantity is updated.
 
         // Setup: Create Item, create and certify Production BOM.
-        Initialize(false);
+        Initialize();
         Item.Get(CreateAndModifyItem('', Item."Flushing Method"::Backward, Item."Replenishment System"::Purchase)); // Component Item
         Item2.Get(CreateAndModifyItem('', Item2."Flushing Method"::Backward, Item2."Replenishment System"::"Prod. Order")); // Component Item
         CreateAndCertifyProductionBOM(ProductionBOMHeader, Item."Base Unit of Measure", Item2."No.", '');
@@ -329,7 +329,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         // [FEATURE] [Item Reference]
         // [SCENARIO 233518] When Item Reference Description is blank then Requisition Line Description is populated from Item Description.
-        Initialize(true);
+        Initialize();
 
         // [GIVEN] Item "I" with Vendor = "V" and Description
         LibraryPurchase.CreateVendor(Vendor);
@@ -369,7 +369,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         // [FEATURE] [Dimension] [Item Charge] [Purchase]
         // [SCENARIO 233999] Dimensions of invoice line for item and for item charge inside one document are posting separetely.
-        Initialize(false);
+        Initialize();
         GlobalDimensionCode := LibraryERM.GetGlobalDimensionCode(2);
 
         // [GIVEN] Purchase invoice "P" with 3 lines "L1" , "L2", "L3". "L1" and "L2" have Type Item and items "I1" and "I2" with Default Dimensions "D1" and "D2" of "Global Dimension 2"
@@ -431,7 +431,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         // [FEATURE] [Purchase] [Unit of Measure]
         // [SCENARIO 256926] "Qty. per Unit of Measure" in purchase line is updated during posting with the value corresponding to "Unit of Measure Code"
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Workcenter "W" with subcontractor "S"
         CreateWorkCenterWithSubcontractor(WorkCenter);
@@ -470,7 +470,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         // [FEATURE] [Item Cross Reference]
         // [SCENARIO 263347] Description field in Item Reference must stay empty when record is created
-        Initialize(true);
+        Initialize();
 
         // [GIVEN] Create an Item
         LibraryInventory.CreateItem(Item);
@@ -504,7 +504,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // [FEATURE] [Purchase] [Pick] [Item Tracking]
         // [SCENARIO 288433] Purchase Order for a Warehouse location should not be posted as Receive
 
-        Initialize(false);
+        Initialize();
 
         LibraryWarehouse.CreateFullWMSLocation(LocationWhite, 2);  // Value used for number of bin per zone.
 
@@ -562,7 +562,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // [FEATURE] [Purchase] [Undo] [Warehouse]
         // [SCENARIO 288903] Posting of Receipt from Purchase order skipping WMS requirements after posted receipt was undone
 
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Location with directed pick and put away - White
         LibraryWarehouse.CreateFullWMSLocation(LocationWhite, 2);  // Value used for number of bin per zone.
@@ -607,7 +607,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 370328] Methods SetItem() and GetItem() work properly
-        Initialize(true);
+        Initialize();
 
         // [GIVEN] Item with No = "Item01"
         LibraryInventory.CreateItem(Item);
@@ -639,7 +639,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // translating non-base UoM to base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [WHEN] Opening item card, accessing UoMs and setting rounding precision to 1.
@@ -678,7 +678,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // that uses the base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] An existing warehouse entry for item with base UoM.
@@ -713,7 +713,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // that uses a non-base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] An existing warehouse entry for item with non-base UoM.
@@ -748,7 +748,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // that uses the base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] A purchase order for the item with base UoM used.
@@ -780,7 +780,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // that uses the non-base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] A purchase order for the item with non-base UoM used.
@@ -812,7 +812,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // that uses the base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] A sales order for the item with base UoM used.
@@ -844,7 +844,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // that uses the non-base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] A sales order for the item with non-base UoM used.
@@ -879,7 +879,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // that uses the base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] A transfer order for the item with base UoM used.
@@ -917,7 +917,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // that uses the non-base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] A transfer order for the item with non-base UoM used.
@@ -952,7 +952,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // that uses the base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] A prod order for the item with base UoM used.
@@ -986,7 +986,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // that uses the non-base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] A prod order for the item with non-base UoM used.
@@ -1022,7 +1022,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // prod order component that uses the base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
         LibraryInventory.CreateItem(ProdOrderItem);
 
@@ -1063,7 +1063,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // prod order component that uses the non-base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
         LibraryInventory.CreateItem(ProdOrderItem);
 
@@ -1102,7 +1102,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // service order that uses the base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] A service order for the item with base UoM used.
@@ -1135,7 +1135,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // service order that uses the non-base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] A service order for the item with non-base UoM used.
@@ -1167,7 +1167,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // assembly header that uses the base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] An assembly header for the item with base UoM used.
@@ -1197,7 +1197,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // assembly header that uses the non-base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
 
         // [GIVEN] An assembly header for the item with non-base UoM used.
@@ -1229,7 +1229,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // assembly line that uses the base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
         LibraryInventory.CreateItem(AssemblyItem);
 
@@ -1262,7 +1262,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         // assembly line that uses the non-base UoM.
 
         // [GIVEN] An item with base UoM and non-base UoM (qty. = 6).
-        Initialize(false);
+        Initialize();
         SetupUoMTest(Item, Uom, NonBaseUOM, ItemUoM, ItemNonBaseUoM);
         LibraryInventory.CreateItem(AssemblyItem);
 
@@ -1288,7 +1288,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         CostingMethod: Enum "Costing Method";
     begin
         // [SCENARIO 401851] Changing Item No. from No Series lookup takes default Costing Method from setup
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Default costing method in inventory setup is Standard
         SetDefaultCostingMethod(CostingMethod::Standard);
@@ -1307,12 +1307,11 @@ codeunit 137297 "SCM Inventory Misc. V"
         ItemCard."Costing Method".AssertEquals(CostingMethod::Standard);
     end;
 
-    local procedure Initialize(Enable: Boolean)
+    local procedure Initialize()
     var
         WarehouseSetup: Record "Warehouse Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Misc. V");
-        LibraryItemReference.EnableFeature(Enable);
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
 
@@ -1354,7 +1353,7 @@ codeunit 137297 "SCM Inventory Misc. V"
 
     local procedure UpdateRoutingOnItem(var Item: Record Item; WorkCenterNo: Code[20])
     begin
-        Item.Get(CreateAndModifyItem('', Item."Flushing Method"::Manual, Item."Replenishment System"::Purchase));
+        Item.Get(CreateAndModifyItem('', Item."Flushing Method"::"Pick + Manual", Item."Replenishment System"::Purchase));
         Item.Validate("Routing No.", CreateRoutingSetup(WorkCenterNo, ''));
         Item.Modify(true);
     end;
@@ -1382,7 +1381,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        Item.Get(CreateAndModifyItem('', Item."Flushing Method"::Manual, Item."Replenishment System"::Purchase));
+        Item.Get(CreateAndModifyItem('', Item."Flushing Method"::"Pick + Manual", Item."Replenishment System"::Purchase));
         UpdateInventoryPostingSetup(LocationCode, Item."Inventory Posting Group");
         CreateItemJournalLine(ItemJournalLine, Item."No.", '', LocationCode, BinCode);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -1881,7 +1880,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         Item: Record Item;
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        Item.Get(CreateAndModifyItem('', Item."Flushing Method"::Manual, Item."Replenishment System"::"Prod. Order"));
+        Item.Get(CreateAndModifyItem('', Item."Flushing Method"::"Pick + Manual", Item."Replenishment System"::"Prod. Order"));
         UpdateInventoryPostingSetup(Bin."Location Code", Item."Inventory Posting Group");
         CreateAndUpdateProductionBOM(Item, ItemNo);
         CreateAndRefreshProdOrder(ProductionOrder, Item."No.", Bin."Location Code", 1);  // Taken 1 for Quantity as value is important.

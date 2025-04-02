@@ -402,7 +402,7 @@ page 1393 "Trial Balance"
                 begin
                     if TrialBalanceSetup.RunModal() <> Action::Cancel then begin
                         IsError := false;
-                        LoadTrialBalanceData(true);
+                        LoadTrialBalanceData(false);
                         CurrPage.Update();
                     end;
                 end;
@@ -435,7 +435,7 @@ page 1393 "Trial Balance"
         PeriodVisible := true;
         NoOfColumns := 2;
 
-        if (ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone) or AccountingPeriod.IsEmpty() then begin
+        if (ClientTypeManagement.GetCurrentClientType() = ClientType::Phone) or AccountingPeriod.IsEmpty() then begin
             NoOfColumns := 1;
             PeriodVisible := false;
         end;
@@ -443,7 +443,7 @@ page 1393 "Trial Balance"
 
     trigger OnOpenPage()
     begin
-        LoadTrialBalanceData(false);
+        LoadTrialBalanceData(true);
     end;
 
     var
@@ -465,9 +465,13 @@ page 1393 "Trial Balance"
         PeriodVisible: Boolean;
         InstructionMsg: Label 'This chart provides a quick overview of the financial performance of your company%1. The chart is a simplified version of the G/L Trial Balance chart. The Total Revenue figure corresponds to the total in your chart of accounts.', Comment = '%1=message about the number of periods displayed, if not running on phone client';
         PeriodsMsg: Label ', displayed in two periods';
+        TrialBalanceTelemetryCategoryTok: Label 'Trial Balance', Locked = true;
+        PBTSuccessTelemetryMsg: Label 'Page Background Task successfully calculated values and saved to cache.', Locked = true;
+        PBTFailed1TelemetryMsg: Label 'Page Background Task failed. Task scheduled to update values.', Locked = true;
         NoOfColumns: Integer;
         IsError: Boolean;
         LoadedFromCache: Boolean;
+        BackgroundTaskId: Integer;
 
     local procedure SetStyles()
     begin
@@ -495,29 +499,82 @@ page 1393 "Trial Balance"
     end;
 
     [TryFunction]
-    local procedure TryLoadTrialBalanceData()
+    local procedure TryLoadTrialBalanceData(UsePBT: Boolean; var DataLoaded: Boolean)
     begin
-        TrialBalanceMgt.LoadData(Descriptions, Values, PeriodCaptionTxt, NoOfColumns);
+        if UsePBT and (NoOfColumns <> 1) then begin
+            SchedulePBT();
+            DataLoaded := false;
+        end else begin
+            TrialBalanceMgt.LoadData(Descriptions, Values, PeriodCaptionTxt, NoOfColumns);
+            DataLoaded := true;
+        end;
     end;
 
-    local procedure LoadTrialBalanceData(SkipCache: Boolean)
+    local procedure SchedulePBT()
+    var
+        CalculateTrialBalance: Codeunit "Calculate Trial Balance";
+        Input: Dictionary of [Text, Text];
+        TimeoutinMs: Integer;
+    begin
+        TimeoutinMs := 2000; // Default timeout;
+        Clear(Input);
+        Input.Add(CalculateTrialBalance.GetNoOfColumnsLabel(), Format(NoOfColumns));
+        CurrPage.EnqueueBackgroundTask(BackgroundTaskId, Codeunit::"Calculate Trial Balance", Input, TimeoutInMs);
+    end;
+
+    trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
+    var
+        CalculateTrialBalance: Codeunit "Calculate Trial Balance";
+    begin
+        // As PBT runs synchronously when running in test, the task is called even before PBTList is updated.
+        // So, we use (TaskIdCalculateCue = TaskId) to check if the task is the one we are interested in.
+        if BackgroundTaskId = TaskId then begin
+            CalculateTrialBalance.TransformDictionaryToValues(Descriptions, Values, PeriodCaptionTxt, NoOfColumns, Results);
+            TrialBalanceCacheMgt.SaveToCache(Descriptions, Values, PeriodCaptionTxt);
+            LoadedFromCache := true;
+            Session.LogMessage('0000ODU', PBTSuccessTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TrialBalanceTelemetryCategoryTok);
+        end
+    end;
+
+    trigger OnPageBackgroundTaskError(TaskId: Integer; ErrorCode: Text; ErrorText: Text; ErrorCallStack: Text; var IsHandled: Boolean)
+    var
+        ScheduledTask: Record "Scheduled Task";
+        DataLoaded: Boolean;
+    begin
+        if BackgroundTaskId = TaskId then
+            if not TaskScheduler.CanCreateTask() then begin // Users like Team Members and Delegated Admins cannot create tasks
+                if TryLoadTrialBalanceData(false, DataLoaded) then
+                    if DataLoaded then
+                        TrialBalanceCacheMgt.SaveToCache(Descriptions, Values, PeriodCaptionTxt);
+            end else begin
+                ScheduledTask.SetRange("Run Codeunit", Codeunit::"Calculate Trial Balance");
+                ScheduledTask.SetRange(Company, CompanyName());
+                ScheduledTask.SetRange("Is Ready", true);
+                if ScheduledTask.IsEmpty() then begin
+                    TaskScheduler.CreateTask(Codeunit::"Calculate Trial Balance", 0, true, CompanyName(), CurrentDateTime());
+                    Session.LogMessage('0000ODV', PBTFailed1TelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TrialBalanceTelemetryCategoryTok);
+                end;
+            end;
+        IsHandled := true;
+    end;
+
+    local procedure LoadTrialBalanceData(LoadFromCache: Boolean)
     var
         DataLoaded: Boolean;
     begin
         if not TrialBalanceMgt.SetupIsInPlace() then
             exit;
 
-        if not SkipCache then
+        if LoadFromCache then
             if (not TrialBalanceCacheMgt.IsCacheStale()) and (NoOfColumns <> 1) then begin
                 DataLoaded := TrialBalanceCacheMgt.LoadFromCache(Descriptions, Values, PeriodCaptionTxt);
                 LoadedFromCache := true;
             end;
 
-        if not DataLoaded then begin
-            DataLoaded := TryLoadTrialBalanceData();
-            if DataLoaded and (NoOfColumns <> 1) then
-                TrialBalanceCacheMgt.SaveToCache(Descriptions, Values, PeriodCaptionTxt);
-        end;
+        if not DataLoaded then
+            if TryLoadTrialBalanceData(LoadFromCache, DataLoaded) then // LoadFromCache is true when called from OnOpenPage
+                if DataLoaded and (NoOfColumns <> 1) then
+                    TrialBalanceCacheMgt.SaveToCache(Descriptions, Values, PeriodCaptionTxt);
 
         if DataLoaded then
             SetStyles()

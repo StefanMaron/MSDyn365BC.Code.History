@@ -41,15 +41,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Invoice EMU Currency - NamedType AmountError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2912783543 - NamedType 873896575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[One or more currency exchange rates have been adjusted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Invoice EMU Currency - NamedType ExchRateWasAdjustedTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3303910711 - NamedType 3420941840" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be calculated correctly on %2.]]></Val>

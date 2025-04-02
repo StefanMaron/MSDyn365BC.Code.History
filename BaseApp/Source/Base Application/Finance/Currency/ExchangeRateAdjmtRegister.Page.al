@@ -4,10 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Currency;
 
-#if not CLEAN23
-using System.Environment.Configuration;
-#endif
-
 page 106 "Exchange Rate Adjmt. Register"
 {
     ApplicationArea = Suite;
@@ -54,31 +50,19 @@ page 106 "Exchange Rate Adjmt. Register"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of customer ledger entries with remaining amount that was adjusted.';
-#if not CLEAN23
-                    Visible = IsNewExchRateAdjmtVisible;
-#else
                     Visible = false;
-#endif
                 }
                 field("Adjusted Vendors"; Rec."Adjusted Vendors")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of vendor ledger entries with remaining amount that was adjusted.';
-#if not CLEAN23
-                    Visible = IsNewExchRateAdjmtVisible;
-#else
                     Visible = false;
-#endif
                 }
                 field("Adjusted Employees"; Rec."Adjusted Employees")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of emplooyee ledger entries with remaining amount that was adjusted.';
-#if not CLEAN23
-                    Visible = IsNewExchRateAdjmtVisible;
-#else
                     Visible = false;
-#endif
                 }
                 field("Adjusted Base"; Rec."Adjusted Base")
                 {
@@ -99,11 +83,7 @@ page 106 "Exchange Rate Adjmt. Register"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the total adjustment amount of exchange rate adjustment ledger entries.';
-#if not CLEAN23
-                    Visible = IsNewExchRateAdjmtVisible;
-#else
                     Visible = false;
-#endif
                 }
                 field("Adjusted Base (Add.-Curr.)"; Rec."Adjusted Base (Add.-Curr.)")
                 {
@@ -151,9 +131,6 @@ page 106 "Exchange Rate Adjmt. Register"
                     RunPageLink = "Register No." = field("No.");
                     Scope = Repeater;
                     ToolTip = 'View adjusted customer or vendor ledger entries for this register.';
-#if not CLEAN23
-                    Visible = IsNewExchRateAdjmtVisible;
-#endif
                 }
             }
         }
@@ -169,16 +146,5 @@ page 106 "Exchange Rate Adjmt. Register"
             }
         }
     }
-
-#if not CLEAN23
-    trigger OnOpenPage()
-    begin
-        IsNewExchRateAdjmtVisible := FeatureKeyManagement.IsExtensibleExchangeRateAdjustmentEnabled();
-    end;
-
-    var
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-        IsNewExchRateAdjmtVisible: Boolean;
-#endif
 }
 

@@ -8,9 +8,6 @@ using Microsoft.Intercompany.Comment;
 using Microsoft.Intercompany.Dimension;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Intercompany.Inbox;
-#if not CLEAN23
-using Microsoft.Intercompany.Outbox;
-#endif
 using Microsoft.Intercompany.Partner;
 using Microsoft.Intercompany.Setup;
 using System.Threading;
@@ -294,9 +291,6 @@ codeunit 532 "IC Data Exchange Database" implements "IC Data Exchange"
     procedure PostICTransactionToICPartnerInbox(ICPartner: Record "IC Partner"; var TempICPartnerICInboxTransaction: Record "IC Inbox Transaction" temporary)
     var
         PartnerInboxTransaction: Record "IC Inbox Transaction";
-#if not CLEAN23
-        MoveICTransToPartnerComp: Report "Move IC Trans. to Partner Comp";
-#endif
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ICMapping: Codeunit "IC Mapping";
         CustomDimensions: Dictionary of [Text, Text];
@@ -313,9 +307,6 @@ codeunit 532 "IC Data Exchange Database" implements "IC Data Exchange"
                 CustomDimensions.Add('Transaction Details', StrSubstNo(SentTransactionTelemetryTxt, ICPartner.Code, TempICPartnerICInboxTransaction."IC Partner Code"));
                 FeatureTelemetry.LogUsage('0000LKS', ICMapping.GetFeatureTelemetryName(), ICDataExchangeDatabaseFeatureTelemetryNameTok, CustomDimensions);
                 PartnerInboxTransaction.TransferFields(TempICPartnerICInboxTransaction, true);
-#if not CLEAN23
-                MoveICTransToPartnerComp.OnTransferToPartnerOnBeforePartnerInboxTransactionInsert(PartnerInboxTransaction, ICPartner);
-#endif
                 if not PartnerInboxTransaction.Insert() then
                     Error(
                       ICTransactionAlreadyExistMsg, PartnerInboxTransaction.FieldCaption("Transaction No."),
@@ -353,9 +344,6 @@ codeunit 532 "IC Data Exchange Database" implements "IC Data Exchange"
     procedure PostICPurchaseHeaderToICPartnerInbox(ICPartner: Record "IC Partner"; var TempICPartnerICInboxPurchaseHeader: Record "IC Inbox Purchase Header" temporary; var RegisteredPartner: Record "IC Partner" temporary)
     var
         PartnerInboxPurchHeader: Record "IC Inbox Purchase Header";
-#if not CLEAN23
-        MoveICTransToPartnerComp: Report "Move IC Trans. to Partner Comp";
-#endif
     begin
         if not PartnerInboxPurchHeader.ChangeCompany(ICPartner."Inbox Details") then
             Error(FailedToChangeCompanyErr, PartnerInboxPurchHeader.TableCaption, ICPartner.Name);
@@ -369,9 +357,6 @@ codeunit 532 "IC Data Exchange Database" implements "IC Data Exchange"
                 PartnerInboxPurchHeader.TransferFields(TempICPartnerICInboxPurchaseHeader, true);
                 PartnerInboxPurchHeader."Buy-from Vendor No." := RegisteredPartner."Vendor No.";
                 PartnerInboxPurchHeader."Pay-to Vendor No." := RegisteredPartner."Vendor No.";
-#if not CLEAN23
-                MoveICTransToPartnerComp.OnBeforePartnerInboxPurchHeaderInsert(PartnerInboxPurchHeader, ICPartner);
-#endif
                 PartnerInboxPurchHeader.Insert();
             until TempICPartnerICInboxPurchaseHeader.Next() = 0;
         end;
@@ -399,9 +384,6 @@ codeunit 532 "IC Data Exchange Database" implements "IC Data Exchange"
     procedure PostICSalesHeaderToICPartnerInbox(ICPartner: Record "IC Partner"; var TempICPartnerICInboxSalesHeader: Record "IC Inbox Sales Header" temporary; var RegisteredPartner: Record "IC Partner" temporary)
     var
         PartnerInboxSalesHeader: Record "IC Inbox Sales Header";
-#if not CLEAN23
-        MoveICTransToPartnerComp: Report "Move IC Trans. to Partner Comp";
-#endif
     begin
         if not PartnerInboxSalesHeader.ChangeCompany(ICPartner."Inbox Details") then
             Error(FailedToChangeCompanyErr, PartnerInboxSalesHeader.TableCaption, ICPartner.Name);
@@ -415,9 +397,6 @@ codeunit 532 "IC Data Exchange Database" implements "IC Data Exchange"
                 PartnerInboxSalesHeader.TransferFields(TempICPartnerICInboxSalesHeader, true);
                 PartnerInboxSalesHeader."Sell-to Customer No." := RegisteredPartner."Customer No.";
                 PartnerInboxSalesHeader."Bill-to Customer No." := RegisteredPartner."Customer No.";
-#if not CLEAN23
-                MoveICTransToPartnerComp.OnBeforePartnerInboxSalesHeaderInsert(PartnerInboxSalesHeader, ICPartner, TempICPartnerICInboxSalesHeader);
-#endif
                 PartnerInboxSalesHeader.Insert();
             until TempICPartnerICInboxSalesHeader.Next() = 0;
         end;

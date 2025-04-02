@@ -2450,7 +2450,7 @@ codeunit 134151 "ERM Intercompany"
         ICOutboxTransaction."IC Partner Code" := CreateICPartner();
         ICOutboxTransaction."Transaction Source" := ICOutboxTransaction."Transaction Source"::"Created by Current Company";
         ICOutboxTransaction."Document Type" := ICOutboxTransaction."Document Type"::Invoice;
-        ICOutboxTransaction."Source Type" := ICOutboxTransaction."Source Type"::"Journal Line";
+        ICOutboxTransaction."IC Source Type" := ICOutboxTransaction."IC Source Type"::Journal;
         ICOutboxTransaction."Document No." := LibraryUtility.GenerateGUID();
         ICOutboxTransaction."Posting Date" := LibraryRandom.RandDate(10);
         ICOutboxTransaction."Document Date" := LibraryRandom.RandDate(10);

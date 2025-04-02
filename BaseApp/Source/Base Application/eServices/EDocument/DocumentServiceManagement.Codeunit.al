@@ -1,4 +1,8 @@
-﻿namespace Microsoft.EServices.EDocument;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
 
 using System;
 using System.Azure.Identity;
@@ -123,39 +127,6 @@ codeunit 9510 "Document Service Management"
         DocumentService.ValidateConnection();
         CheckError();
     end;
-
-#if not CLEAN23
-    [Scope('OnPrem')]
-    [Obsolete('Replaced with an overload that uses "Doc. Sharing Conflict Behavior" enum from System Application.', '23.0')]
-    procedure SaveFile(SourcePath: Text; TargetName: Text; ConflictBehavior: Enum "Doc. Service Conflict Behavior"): Text
-    var
-        SourceFile: File;
-        SourceStream: InStream;
-    begin
-        // Saves a file to the Document Service using the configured location specified in Dynamics NAV.
-        // SourcePath: The path to a physical file on the Dynamics NAV server.
-        // TargetName: The name which will be given to the file saved to the Document Service.
-        // Overwrite: TRUE if the target file should be overwritten.
-        // - An error is shown if Overwrite is FALSE and a file with that name already exists.
-        // Returns: A URI to the file on the Document Service.
-
-        if SourcePath = '' then
-            Error(RequiredSourceNameErr);
-
-        if TargetName = '' then
-            Error(RequiredTargetNameErr);
-
-        if not IsConfigured() then
-            Error(NoConfigErr);
-
-        if not SourceFile.Open(SourcePath) then
-            Error(SourceFileNotFoundErr, SourcePath, GetLastErrorText);
-
-        SourceFile.CreateInStream(SourceStream);
-
-        exit(SaveStream(SourceStream, TargetName, "Doc. Sharing Conflict Behavior".FromInteger(ConflictBehavior.AsInteger())));
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure SaveFile(SourcePath: Text; TargetName: Text; ConflictBehavior: Enum "Doc. Sharing Conflict Behavior"): Text

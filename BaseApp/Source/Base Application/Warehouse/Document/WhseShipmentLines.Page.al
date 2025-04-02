@@ -206,25 +206,6 @@ page 7341 "Whse. Shipment Lines"
             {
                 Caption = '&Line';
                 Image = Line;
-                action("Show &Whse. Document")
-                {
-                    ApplicationArea = Warehouse;
-                    Caption = 'Show &Whse. Document';
-                    Image = ViewOrder;
-                    ShortCutKey = 'Shift+F7';
-                    ToolTip = 'View the related warehouse document.';
-                    ObsoleteReason = 'Replaced by "Show Document" action';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-
-                    trigger OnAction()
-                    var
-                        WhseShptHeader: Record "Warehouse Shipment Header";
-                    begin
-                        WhseShptHeader.Get(Rec."No.");
-                        PAGE.Run(PAGE::"Warehouse Shipment", WhseShptHeader);
-                    end;
-                }
                 action(ShowDocument)
                 {
                     ApplicationArea = Warehouse;

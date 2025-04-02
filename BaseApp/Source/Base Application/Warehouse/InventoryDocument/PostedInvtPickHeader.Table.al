@@ -10,8 +10,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Family;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
@@ -99,10 +97,7 @@ table 7342 "Posted Invt. Pick Header"
             else
             if ("Source Type" = const(5744)) "Transfer Shipment Header" where("No." = field("Source No."))
             else
-            if ("Source Type" = const(5746)) "Transfer Receipt Header" where("No." = field("Source No."))
-            else
-            if ("Source Type" = const(5405)) "Production Order"."No." where(Status = filter(Released | Finished),
-                                                                                                "No." = field("Source No."));
+            if ("Source Type" = const(5746)) "Transfer Receipt Header" where("No." = field("Source No."));
         }
         field(7307; "Source Document"; Enum "Warehouse Activity Source Document")
         {
@@ -134,8 +129,6 @@ table 7342 "Posted Invt. Pick Header"
             if ("Destination Type" = const(Location)) Location
             else
             if ("Destination Type" = const(Item)) Item
-            else
-            if ("Destination Type" = const(Family)) Family
             else
             if ("Destination Type" = const("Sales Order")) "Sales Header"."No." where("Document Type" = const(Order));
         }

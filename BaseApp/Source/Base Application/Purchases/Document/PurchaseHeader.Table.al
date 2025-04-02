@@ -59,7 +59,6 @@ using System.Security.User;
 using System.Threading;
 using System.Utilities;
 using Microsoft.Projects.Project.Job;
-using Microsoft.Manufacturing.WorkCenter;
 #if not CLEAN25
 using Microsoft.Finance.VAT.Reporting;
 #endif
@@ -2570,13 +2569,6 @@ table 38 "Purchase Header"
         {
             Caption = 'Price Calculation Method';
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
@@ -2599,6 +2591,73 @@ table 38 "Purchase Header"
                                                         Status = filter(Open | Created)));
             Caption = 'Pending Approvals';
             FieldClass = FlowField;
+        }
+        field(11301; "Doc. Amount Incl. VAT"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Doc. Amount Incl. VAT';
+            ToolTip = 'Specifies the total amount (including VAT) of the purchase invoice or credit memo.';
+
+            trigger OnValidate()
+            var
+                Currency: Record Currency;
+                TotalPurchaseLine: Record "Purchase Line";
+                DocumentTotals: Codeunit "Document Totals";
+                VATAmount: Decimal;
+            begin
+                if PurchLine."VAT Calculation Type" <> PurchLine."VAT Calculation Type"::"Normal VAT" then
+                    exit;
+                if not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) then
+                    exit;
+                if not FindSuggestedPurchLine(PurchLine) then
+                    exit;
+
+                Currency.Initialize("Currency Code");
+                Currency.TestField("Amount Rounding Precision");
+                DocumentTotals.CalculatePurchaseTotals(TotalPurchaseLine, VATAmount, PurchLine);
+                UpdateDocAmountVAT("Doc. Amount Incl. VAT", VATAmount, TotalPurchaseLine."Amount Including VAT", Currency."Amount Rounding Precision");
+            end;
+        }
+        field(11302; "Doc. Amount VAT"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Doc. Amount VAT';
+            ToolTip = 'Specifies the VAT amount of the purchase invoice or credit memo.';
+
+            trigger OnValidate()
+            var
+                Currency: Record Currency;
+                TotalPurchaseLine: Record "Purchase Line";
+                DocumentTotals: Codeunit "Document Totals";
+                DocAmountVAT: Decimal;
+                VATAmount: Decimal;
+            begin
+                if not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) then
+                    exit;
+
+                if FindSuggestedPurchLine(PurchLine) and (PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Normal VAT") then begin
+                    Currency.Initialize("Currency Code");
+                    Currency.TestField("Amount Rounding Precision");
+                    DocumentTotals.CalculatePurchaseTotals(TotalPurchaseLine, VATAmount, PurchLine);
+                    DocAmountVAT := CalcDocAmountVAT(
+                        "Doc. Amount Incl. VAT", VATAmount, TotalPurchaseLine."Amount Including VAT", Currency."Amount Rounding Precision");
+
+                    if CheckDifferenceInclVAT("Doc. Amount VAT", DocAmountVAT, Currency) then
+                        Error(
+                            ErrorInfo.Create(
+                                    StrSubstNo(WarnDocAmountVatTxt, FieldCaption("Doc. Amount VAT"), Format(DocAmountVAT)),
+                                    true,
+                                    Rec));
+                end else
+                    if "Doc. Amount VAT" > "Doc. Amount Incl. VAT" then
+                        Error(
+                            ErrorInfo.Create(
+                                StrSubstNo(WarnDocAmountVatTxt, FieldCaption("Doc. Amount VAT"), Format("Doc. Amount Incl. VAT")),
+                                true,
+                                Rec));
+            end;
         }
         field(10005; "Ship-to UPS Zone"; Code[2])
         {
@@ -2646,6 +2705,7 @@ table 38 "Purchase Header"
             Caption = 'GST HST Tax Type';
             Editable = false;
         }
+#if not CLEANSCHEMA28
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
@@ -2659,6 +2719,8 @@ table 38 "Purchase Header"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
+#if not CLEANSCHEMA28
         field(10021; "IRS 1099 Amount"; Decimal)
         {
             Caption = 'IRS 1099 Amount';
@@ -2672,6 +2734,7 @@ table 38 "Purchase Header"
 #endif
             Editable = false;
         }
+#endif
         field(10042; "Fiscal Invoice Number PAC"; Text[50])
         {
             Caption = 'Fiscal Invoice Number PAC';
@@ -2695,14 +2758,6 @@ table 38 "Purchase Header"
                     exit;
                 Error(PrepmtIncludeTaxErr, FieldCaption("Prepmt. Include Tax"));
             end;
-        }
-        field(27040; "DIOT-Type of Operation"; Option)
-        {
-            Caption = 'DIOT Type of Operation';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to extension';
-            OptionMembers = " ","Prof. Services","Lease and Rent","Others";
-            ObsoleteTag = '15.0';
         }
     }
 
@@ -2982,7 +3037,11 @@ table 38 "Purchase Header"
         RecreatePurchaseLinesCancelErr: Label 'Change in the existing purchase lines for the field %1 is cancelled by user.', Comment = '%1 - Field Name, Sample:You must delete the existing purchase lines before you can change Currency Code.';
         WarnZeroQuantityPostingTxt: Label 'Warn before posting Purchase lines with 0 quantity';
         WarnZeroQuantityPostingDescriptionTxt: Label 'Warn before posting lines on Purchase documents where quantity is 0.';
+        WarnDocAmountVatTxt: Label '%1 must not be more than %2.', comment = '%1 - Doc. Amount VAT; %2 - DocAmountVAT';
         CalledFromWhseDoc: Boolean;
+#if not CLEAN26
+        SkipStatsPrep: Boolean;
+#endif
 
     protected var
         PurchSetup: Record "Purchases & Payables Setup";
@@ -3442,7 +3501,7 @@ table 38 "Purchase Header"
         end;
     end;
 
-    internal procedure LookupBuyFromContact()
+    procedure LookupBuyFromContact()
     var
         Contact: Record Contact;
     begin
@@ -5253,6 +5312,17 @@ table 38 "Purchase Header"
     end;
 
     /// <summary>
+    /// Retrieves the full document type name based on the purchase header document type.
+    /// </summary>
+    /// <returns>Retrieved document type name.</returns>
+    procedure GetDocTypeTxt() TypeText: Text[50]
+    var
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+    begin
+        TypeText := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+    end;
+
+    /// <summary>
     /// Adds the shipping information from a special order. If lines exist, it compares the current shipping information 
     /// with the information on the special order and throws an error if there's a mismatch.
     /// </summary>
@@ -5364,7 +5434,8 @@ table 38 "Purchase Header"
         DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", SourcePurchaseLine."No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Job, SourcePurchaseLine."Job No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", SourcePurchaseLine."Responsibility Center");
-        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", SourcePurchaseLine."Work Center No.");
+
+        OnAfterInitPurchaseLineDefaultDimSource(Rec, DefaultDimSource, SourcePurchaseLine);
     end;
 
     local procedure CollectParamsInBufferForCreateDimSet(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
@@ -5435,6 +5506,8 @@ table 38 "Purchase Header"
         end;
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Open statistics page for purchase orders.
     /// </summary>
@@ -5453,6 +5526,7 @@ table 38 "Purchase Header"
         OpenDocumentStatisticsInternal();
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Open statistics page for purchase documents.
     /// </summary>
@@ -5463,6 +5537,7 @@ table 38 "Purchase Header"
     begin
         OpenDocumentStatisticsInternal();
     end;
+#endif
 
     /// <summary>
     /// Prepares the opening document statistics for a purchase document. It checks the user's permissions, 
@@ -5487,6 +5562,8 @@ table 38 "Purchase Header"
         Commit();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Opens a purchase document statistics page based on the document type. 
     /// After the page is closed, the recalculate invoice discount field is set to false on all purchase document lines.
@@ -5500,11 +5577,26 @@ table 38 "Purchase Header"
 
         OnGetStatisticsPageID(StatisticsPageId, Rec);
 
+        SkipStatsPrep := true;
         PAGE.RunModal(StatisticsPageId, Rec);
+        ResetSkipStatisticsPreparationFlag();
 
         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
     end;
 
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    procedure SkipStatisticsPreparation(): Boolean
+    begin
+        exit(SkipStatsPrep)
+    end;
+
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    procedure ResetSkipStatisticsPreparationFlag()
+    begin
+        SkipStatsPrep := false;
+    end;
+
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenDocumentStatisticsInternal()
     var
         IsHandled: Boolean;
@@ -5517,20 +5609,14 @@ table 38 "Purchase Header"
         PrepareOpeningDocumentStatistics();
         ShowDocumentStatisticsPage();
     end;
+#endif    
 
     local procedure IsOrderDocument(): Boolean
     begin
-        case "Document Type" of
-            "Document Type"::Order,
-            "Document Type"::"Blanket Order",
-            "Document Type"::"Return Order":
-                exit(true);
-        end;
-
-        exit(false);
+        exit("Document Type" in ["Document Type"::Order, "Document Type"::"Blanket Order", "Document Type"::"Return Order"])
     end;
 
-    local procedure GetStatisticsPageID(): Integer
+    procedure GetStatisticsPageID(): Integer
     begin
         if IsOrderDocument() then begin
             if "Tax Area Code" <> '' then
@@ -6302,7 +6388,7 @@ table 38 "Purchase Header"
         exit(UserSetup."Salespers./Purch. Code");
     end;
 
-    local procedure InitPostingNoSeries()
+    procedure InitPostingNoSeries()
     var
 #if not CLEAN24
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -7618,6 +7704,56 @@ table 38 "Purchase Header"
             Error(PrepaymentInvoicesNotPaidErr, Rec."Document Type", Rec."No.");
     end;
 
+    local procedure FindSuggestedPurchLine(var PurchaseLine: Record "Purchase Line"): Boolean
+    begin
+        PurchaseLine.Reset();
+        PurchaseLine.SetRange("Document Type", "Document Type");
+        PurchaseLine.SetRange("Document No.", "No.");
+        PurchaseLine.SetFilter("VAT %", '<>%1', 0);
+        if PurchaseLine.FindFirst() then
+            exit(true);
+        PurchaseLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
+        exit(PurchaseLine.FindFirst())
+    end;
+
+    /// <summary>
+    /// Calculates the VAT Amount of the Purchase Header that is entered.
+    /// </summary>
+    /// <param name="DocAmountInclVAT">The field "Doc. Amount Incl. VAT of the Purchase Header".</param>
+    /// <param name="TotalPurchLineAmtInclVAT">The total VAT amount of all the purchase lines</param>
+    /// <param name="CurrencyAmtRoundingPrecision">The rounding precision of the Currency of the Purchase Header"</param>
+    /// <returns>VAT Amount of the Purchase Header.</returns>
+    procedure CalcDocAmountVAT(DocAmountInclVAT: Decimal; VATAmount: Decimal; TotalPurchLineAmtInclVAT: Decimal; CurrencyAmtRoundingPrecision: Decimal): Decimal
+    begin
+        if TotalPurchLineAmtInclVAT <> 0 then
+            exit(Round(DocAmountInclVAT * VATAmount / TotalPurchLineAmtInclVAT, CurrencyAmtRoundingPrecision));
+
+        exit(0);
+    end;
+
+    local procedure CheckDifferenceInclVAT(HeaderDocAmountVAT: Decimal; LineDocAmountVAT: Decimal; Currency: Record Currency): Boolean
+    var
+        PurchasePayablesSetup: Record "Purchases & Payables Setup";
+        TotalVATDifference: Decimal;
+    begin
+        PurchasePayablesSetup.Get();
+
+        if HeaderDocAmountVAT = LineDocAmountVAT then
+            exit(false);
+
+        if PurchasePayablesSetup."Allow VAT Difference" then begin
+            TotalVATDifference := Abs(HeaderDocAmountVAT) - Abs(LineDocAmountVAT);
+            if Abs(TotalVATDifference) > Currency."Max. VAT Difference Allowed" then
+                exit(true)
+        end else
+            exit(true);
+    end;
+
+    local procedure UpdateDocAmountVAT(DocAmountInclVAT: Decimal; VATAmount: Decimal; TotalPurchLineAmtInclVAT: Decimal; CurrencyAmtRoundingPrecision: Decimal)
+    begin
+        "Doc. Amount VAT" := CalcDocAmountVAT(DocAmountInclVAT, VATAmount, TotalPurchLineAmtInclVAT, CurrencyAmtRoundingPrecision);
+    end;
+
     procedure SendICPurchaseDoc(var PurchaseHeader: Record "Purchase Header")
     var
         ICInOutboxMgt: Codeunit ICInboxOutboxMgt;
@@ -8109,10 +8245,13 @@ table 38 "Purchase Header"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenPurchaseOrderStatistics(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetShipToCodeEmpty(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
@@ -8389,20 +8528,26 @@ table 38 "Purchase Header"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenDocumentStatistics(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareOpeningDocumentStatistics(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnGetStatisticsPageID(var PageID: Integer; PurchaseHeader: Record "Purchase Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeTestStatusOpen(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; CallingFieldNo: Integer)
@@ -8873,6 +9018,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreatePurchLinesOnBeforePurchLinesExists(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; ChangedFieldName: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitPurchaseLineDefaultDimSource(var PurchaseHeader: Record "Purchase Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourcePurchaseLine: Record "Purchase Line")
     begin
     end;
 

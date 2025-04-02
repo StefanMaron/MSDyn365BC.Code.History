@@ -38,7 +38,6 @@ page 144 "Posted Sales Credit Memos"
                 field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the customer.';
                 }
                 field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
@@ -133,7 +132,6 @@ page 144 "Posted Sales Credit Memos"
                 field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
                     Visible = false;
                 }
                 field("Bill-to Name"; Rec."Bill-to Name")
@@ -294,6 +292,7 @@ page 144 "Posted Sales Credit Memos"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Sales Cr.Memo Header"), "No." = field("No.");
             }

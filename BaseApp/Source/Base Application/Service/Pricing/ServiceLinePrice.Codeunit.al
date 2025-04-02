@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Pricing;
 
 using Microsoft.Inventory.Item;
@@ -139,7 +143,7 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
         PriceCalculationBuffer."Price Calculation Method" := ServiceLine."Price Calculation Method";
         // Tax
         PriceCalculationBuffer."Prices Including Tax" := ServiceHeader."Prices Including VAT";
-        PriceCalculationBuffer."Tax %" := ServiceLine."VAT %";
+        PriceCalculationBuffer."Tax %" := ServiceLine.GetVATPct();
         PriceCalculationBuffer."VAT Calculation Type" := ServiceLine."VAT Calculation Type".AsInteger();
         PriceCalculationBuffer."VAT Bus. Posting Group" := ServiceLine."VAT Bus. Posting Group";
         PriceCalculationBuffer."VAT Prod. Posting Group" := ServiceLine."VAT Prod. Posting Group";

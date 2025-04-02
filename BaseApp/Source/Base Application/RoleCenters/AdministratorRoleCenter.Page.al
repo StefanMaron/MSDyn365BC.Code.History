@@ -28,9 +28,6 @@ using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.Company;
-#if not CLEAN23
-using Microsoft.Foundation.ExtendedText;
-#endif
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.HumanResources.Setup;
@@ -42,7 +39,6 @@ using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Projects.Resources.Setup;
 using Microsoft.Purchases.Analysis;
@@ -265,18 +261,6 @@ page 9018 "Administrator Role Center"
                 RunObject = Page "Reason Codes";
                 ToolTip = 'View or set up codes that specify reasons why entries were created, such as Return, to specify why a purchase credit memo was posted.';
             }
-#if not CLEAN23
-            action("Extended Text")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Extended Text';
-                RunObject = Page "Extended Text List";
-                ToolTip = 'View or edit additional text for the descriptions of items. Extended text can be inserted under the Description field on document lines for the item.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Page should not get opened without any filters.';
-                ObsoleteTag = '23.0';
-            }
-#endif
         }
         area(sections)
         {
@@ -644,14 +628,6 @@ page 9018 "Administrator Role Center"
                     RunObject = Page Miniforms;
                     ToolTip = 'View or edit special pages for users of hand-held devices. ';
                 }
-                action("Man&ufacturing Setup")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Man&ufacturing Setup';
-                    Image = ProductionSetup;
-                    RunObject = Page "Manufacturing Setup";
-                    ToolTip = 'Define company policies for manufacturing, such as the default safety lead time and whether warnings are displayed in the planning worksheet.';
-                }
                 action("Res&ources Setup")
                 {
                     ApplicationArea = Basic, Suite;
@@ -752,14 +728,6 @@ page 9018 "Administrator Role Center"
                     Image = SelectReport;
                     RunObject = Page "Report Selection - Warehouse";
                     ToolTip = 'View or edit the list of reports that can be printed when you work with warehouse.';
-                }
-                action("Report Selection - Prod. &Order")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Report Selection - Prod. &Order';
-                    Image = SelectReport;
-                    RunObject = Page "Report Selection - Prod. Order";
-                    ToolTip = 'View or edit the list of reports that can be printed when you work with manufacturing.';
                 }
                 action("Report Selection - Cash Flow")
                 {

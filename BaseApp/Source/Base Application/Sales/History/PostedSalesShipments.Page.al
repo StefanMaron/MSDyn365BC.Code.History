@@ -33,7 +33,6 @@ page 142 "Posted Sales Shipments"
                 field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of the customer.';
                 }
                 field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
@@ -61,7 +60,6 @@ page 142 "Posted Sales Shipments"
                 field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the county code of the customer''s billing address.';
                     Visible = false;
                 }
                 field("Bill-to Name"; Rec."Bill-to Name")

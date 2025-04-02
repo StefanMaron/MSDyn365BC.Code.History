@@ -33,7 +33,7 @@ codeunit 7237 "Master Data Mgt. Subscribers"
 
     var
         ValueWillBeOverwrittenErr: label 'Record %2 was modified locally since the last synchronization and a different value for field %1 (%3) is synchronizing from the source record.\\Before retrying, open Synchronization Tables, select %4, choose action Fields and either disable the synchronization of %1 or set it up to overwrite local changes. Alternatively, choose to overwrite local changes on synchronization table %4.', Comment = '%1 - a field caption, %2 - a record identifier, %3 - a field value (any value), %4 - table caption';
-        UnsupportedKeyLengthErr: label 'Table %1 has a primary key that consists of %2 fields. By default, synchronization engine doesn''t support renaming with primary key length of more than 10 fields.\\Subscribe to event OnRenameDestination in codeunit "Master Data Management" to implement the rename.', Comment = '%1 - a table caption, %2 - an integer';
+        UnsupportedKeyLengthErr: label 'Table %1 has a primary key that consists of %2 fields. Off-the page, synchronization engine doesn''t support renaming with primary key length of more than 10 fields.\\Subscribe to event OnRenameDestination in codeunit "Master Data Management" to implement the rename.', Comment = '%1 - a table caption, %2 - an integer';
         MappingDoesNotAllowDirectionErr: label 'The only supported direction for the data synchronization is %1.', Comment = '%1 - a text: From Integration Table';
         RunningFullSynchTelemetryTxt: Label 'Running full synch job for table mapping %1', Locked = true;
         SetContactNoFromSourceCompanyTxt: Label 'For %1 %2, initialized company contact No. to be equal the No. of the company contact from the source company %3.', Locked = true;
@@ -233,7 +233,7 @@ codeunit 7237 "Master Data Mgt. Subscribers"
         MasterDataManagement: Codeunit "Master Data Management";
         TypeHelper: Codeunit "Type Helper";
         DestinationRecordRef: RecordRef;
-        OriginalDestinationFieldValue: Variant;
+        OriginalDestinationFieldValue, DestinationFieldValue : Variant;
         EmptyGuid: Guid;
         SourceValue: Text;
         DestinationRecCreatedAt: DateTime;
@@ -264,6 +264,17 @@ codeunit 7237 "Master Data Mgt. Subscribers"
                 NeedsConversion := false;
             end;
         end;
+
+        if SourceFieldRef.Type = SourceFieldRef.Type::Media then
+            if UpdateMedia(SourceFieldRef, DestinationFieldRef, DestinationFieldValue) then begin
+                NewValue := DestinationFieldValue;
+                IsValueFound := true;
+                NeedsConversion := false;
+            end else begin
+                NewValue := OriginalDestinationFieldValue;
+                IsValueFound := true;
+                NeedsConversion := false;
+            end;
 
         if SourceFieldRef.Value() <> DestinationFieldRef.Value() then begin
             DestinationRecordRef := DestinationFieldRef.Record();
@@ -297,6 +308,54 @@ codeunit 7237 "Master Data Mgt. Subscribers"
             if ThrowError then
                 Error(ValueWillBeOverwrittenErr, DestinationFieldRef.Caption(), Format(DestinationFieldRef.Record().RecordId()), Format(SourceFieldRef.Value()), Format(DestinationFieldRef.Record().Caption()));
         end;
+    end;
+
+    local procedure UpdateMedia(var SourceFieldRef: FieldRef; var DestinationFieldRef: FieldRef; var NewValue: Variant): Boolean
+    var
+        SourceTenantMedia, DestinationTenantMedia : Record "Tenant Media";
+        MediaInStream: InStream;
+        MediaOutStream: OutStream;
+        SourceTenantMediaId, DestinationMediaId, EmptyGuid : Guid;
+        SourceMediaLength, DestinationMediaLength : Integer;
+        MediaUpdated: Boolean;
+        SourceMediaName, DestinationMediaName : Text;
+    begin
+        SourceTenantMedia.SetAutoCalcFields(Content);
+        DestinationTenantMedia.SetAutoCalcFields(Content);
+
+        SourceTenantMediaId := SourceFieldRef.Value();
+        DestinationMediaId := DestinationFieldRef.Value();
+        if SourceTenantMedia.Get(SourceTenantMediaId) then begin
+            SourceMediaLength := SourceTenantMedia.Content.Length();
+            SourceMediaName := SourceTenantMedia."File Name";
+            DestinationTenantMedia.SetRange(ID, DestinationMediaId);
+            DestinationTenantMedia.SetRange("Company Name", CompanyName());
+            if DestinationTenantMedia.FindFirst() then begin
+                DestinationMediaLength := DestinationTenantMedia.Content.Length();
+                DestinationMediaName := DestinationTenantMedia."File Name";
+            end;
+            if (SourceMediaLength <> DestinationMediaLength) or (SourceMediaName <> DestinationMediaName) then begin
+                if DestinationMediaId <> EmptyGuid then
+                    if DestinationTenantMedia.FindFirst() then
+                        DestinationTenantMedia.Delete();
+                SourceTenantMedia.Content.CreateInStream(MediaInStream);
+                DestinationTenantMedia.TransferFields(SourceTenantMedia, true);
+                DestinationTenantMedia.ID := CreateGuid();
+                DestinationTenantMedia."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(DestinationTenantMedia."Company Name"));
+                DestinationTenantMedia.Content.CreateOutStream(MediaOutStream);
+                CopyStream(MediaOutStream, MediaInStream);
+                DestinationTenantMedia.Insert();
+                NewValue := DestinationTenantMedia.ID;
+                MediaUpdated := true
+            end
+        end else
+            if DestinationTenantMedia.Get(DestinationMediaId) then begin
+                DestinationTenantMedia.Delete();
+                NewValue := EmptyGuid;
+                MediaUpdated := true
+            end;
+
+        exit(MediaUpdated);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Table Synch.", 'OnDetermineSynchDirection', '', false, false)]
@@ -923,7 +982,7 @@ codeunit 7237 "Master Data Mgt. Subscribers"
         exit('');
     end;
 
-    local procedure ValidateGlobalDimensionCodes(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    local procedure ValidateGlobalDimensionCodes(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef): Boolean
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         SourceGLAccount: Record "G/L Account";

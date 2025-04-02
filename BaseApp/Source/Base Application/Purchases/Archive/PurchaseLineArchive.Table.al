@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Archive;
+namespace Microsoft.Purchases.Archive;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
@@ -21,9 +21,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.Document;
@@ -655,6 +652,7 @@ table 5110 "Purchase Line Archive"
         field(1019; "Job Planning Line No."; Integer)
         {
             AccessByPermission = TableData Job = R;
+            BlankZero = true;
             Caption = 'Project Planning Line No.';
         }
         field(1030; "Job Remaining Qty."; Decimal)
@@ -683,12 +681,6 @@ table 5110 "Purchase Line Archive"
         field(5048; "Doc. No. Occurrence"; Integer)
         {
             Caption = 'Doc. No. Occurrence';
-        }
-        field(5401; "Prod. Order No."; Code[20])
-        {
-            Caption = 'Prod. Order No.';
-            TableRelation = "Production Order"."No." where(Status = filter(Released | Finished));
-            ValidateTableRelation = false;
         }
         field(5402; "Variant Code"; Code[10])
         {
@@ -803,37 +795,6 @@ table 5110 "Purchase Line Archive"
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
-        field(5705; "Cross-Reference No."; Code[20])
-        {
-            Caption = 'Cross-Reference No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
-        {
-            Caption = 'Unit of Measure (Cross Ref.)';
-            TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."));
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5707; "Cross-Reference Type"; Option)
-        {
-            Caption = 'Cross-Reference Type';
-            OptionCaption = ' ,Customer,Vendor,Bar Code';
-            OptionMembers = " ",Customer,Vendor,"Bar Code";
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(5708; "Cross-Reference Type No."; Code[30])
-        {
-            Caption = 'Cross-Reference Type No.';
-            ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
         field(5709; "Item Category Code"; Code[20])
         {
             Caption = 'Item Category Code';
@@ -847,13 +808,6 @@ table 5110 "Purchase Line Archive"
         {
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
-        }
-        field(5712; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(5713; "Special Order"; Boolean)
         {
@@ -1011,33 +965,6 @@ table 5110 "Purchase Line Archive"
         {
             Caption = 'IRS 1099 Liable';
         }
-        field(99000750; "Routing No."; Code[20])
-        {
-            Caption = 'Routing No.';
-            TableRelation = "Routing Header";
-        }
-        field(99000751; "Operation No."; Code[10])
-        {
-            Caption = 'Operation No.';
-            TableRelation = "Prod. Order Routing Line"."Operation No." where(Status = const(Released),
-                                                                              "Prod. Order No." = field("Prod. Order No."),
-                                                                              "Routing No." = field("Routing No."));
-        }
-        field(99000752; "Work Center No."; Code[20])
-        {
-            Caption = 'Work Center No.';
-            TableRelation = "Work Center";
-        }
-        field(99000753; Finished; Boolean)
-        {
-            Caption = 'Finished';
-        }
-        field(99000754; "Prod. Order Line No."; Integer)
-        {
-            Caption = 'Prod. Order Line No.';
-            TableRelation = "Prod. Order Line"."Line No." where(Status = filter(Released ..),
-                                                                 "Prod. Order No." = field("Prod. Order No."));
-        }
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
@@ -1054,10 +981,6 @@ table 5110 "Purchase Line Archive"
         field(99000758; "Safety Lead Time"; DateFormula)
         {
             Caption = 'Safety Lead Time';
-        }
-        field(99000759; "Routing Reference No."; Integer)
-        {
-            Caption = 'Routing Reference No.';
         }
     }
 
@@ -1199,4 +1122,3 @@ table 5110 "Purchase Line Archive"
     begin
     end;
 }
-

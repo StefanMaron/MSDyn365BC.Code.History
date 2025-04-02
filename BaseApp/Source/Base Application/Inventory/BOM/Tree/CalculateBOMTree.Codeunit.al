@@ -30,6 +30,7 @@ codeunit 5870 "Calculate BOM Tree"
         ItemFilter: Record Item;
         TempItem: Record Item temporary;
         AvailableToPromise: Codeunit "Available to Promise";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
         WindowUpdateDateTime: DateTime;
@@ -285,7 +286,6 @@ codeunit 5870 "Calculate BOM Tree"
         ParentBOMBuffer: Record "BOM Buffer";
         UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
-        CostCalculationMgt: Codeunit "Cost Calculation Management";
         LotSize: Decimal;
         BomQtyPerUom: Decimal;
         IsHandled: Boolean;
@@ -356,7 +356,7 @@ codeunit 5870 "Calculate BOM Tree"
                                         BOMBuffer."Qty. per Parent" := ProdBOMLine."Quantity per";
 
                                     BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", ProdBOMLine."Scrap %");
-                                    if CostCalculationMgt.FindRountingLine(RoutingLine, ProdBOMLine, WorkDate(), ParentItem."Routing No.") then
+                                    if MfgCostCalcMgt.FindRoutingLine(RoutingLine, ProdBOMLine, WorkDate(), ParentItem."Routing No.") then
                                         BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", RoutingLine."Scrap Factor % (Accumulated)" * 100);
                                     BOMBuffer."Scrap %" := Round(BOMBuffer."Scrap %", 0.00001);
 
@@ -443,12 +443,17 @@ codeunit 5870 "Calculate BOM Tree"
         end;
     end;
 
-    local procedure GenerateProdOrderLineSubTree(ProdOrderLine: Record "Prod. Order Line"; var BOMBuffer: Record "BOM Buffer"): Boolean
+    local procedure GenerateProdOrderLineSubTree(ProdOrderLine: Record "Prod. Order Line"; var BOMBuffer: Record "BOM Buffer") Result: Boolean
     var
         OldProdOrderLine: Record "Prod. Order Line";
         ProdOrderComp: Record "Prod. Order Component";
         ParentBOMBuffer: Record "BOM Buffer";
+        IsHandled: Boolean;
     begin
+        OnBeforeGenerateProdOrderLineSubTree(ProdOrderLine, BOMBuffer, ParentBOMBuffer, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ParentBOMBuffer := BOMBuffer;
         ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
         ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
@@ -671,6 +676,7 @@ codeunit 5870 "Calculate BOM Tree"
 
                 if BOMBuffer."Is Leaf" then begin
                     ParentBOMBuffer.AddMaterialCost(BOMBuffer."Single-Level Material Cost", BOMBuffer."Rolled-up Material Cost");
+                    ParentBOMBuffer.AddNonInvMaterialCost(BOMBuffer."Single-Lvl Mat. Non-Invt. Cost", BOMBuffer."Rolled-up Mat. Non-Invt. Cost");
                     ParentBOMBuffer.AddCapacityCost(BOMBuffer."Single-Level Capacity Cost", BOMBuffer."Rolled-up Capacity Cost");
                     ParentBOMBuffer.AddSubcontrdCost(BOMBuffer."Single-Level Subcontrd. Cost", BOMBuffer."Rolled-up Subcontracted Cost");
                     ParentBOMBuffer.AddCapOvhdCost(BOMBuffer."Single-Level Cap. Ovhd Cost", BOMBuffer."Rolled-up Capacity Ovhd. Cost");
@@ -679,11 +685,13 @@ codeunit 5870 "Calculate BOM Tree"
                 end else begin
                     ParentBOMBuffer.AddMaterialCost(
                       BOMBuffer."Single-Level Material Cost" +
+                      BOMBuffer."Single-Lvl Mat. Non-Invt. Cost" +
                       BOMBuffer."Single-Level Capacity Cost" +
                       BOMBuffer."Single-Level Subcontrd. Cost" +
                       BOMBuffer."Single-Level Cap. Ovhd Cost" +
                       BOMBuffer."Single-Level Mfg. Ovhd Cost",
                       BOMBuffer."Rolled-up Material Cost");
+                    ParentBOMBuffer.AddNonInvMaterialCost(0, BOMBuffer."Rolled-up Mat. Non-Invt. Cost");
                     ParentBOMBuffer.AddCapacityCost(0, BOMBuffer."Rolled-up Capacity Cost");
                     ParentBOMBuffer.AddSubcontrdCost(0, BOMBuffer."Rolled-up Subcontracted Cost");
                     ParentBOMBuffer.AddCapOvhdCost(0, BOMBuffer."Rolled-up Capacity Ovhd. Cost");
@@ -754,6 +762,7 @@ codeunit 5870 "Calculate BOM Tree"
         ExpectedQty: Decimal;
         AvailQty: Decimal;
         MaxTime: Integer;
+        AvailableVsExpectedCondition: Boolean;
     begin
         if BOMBuffer.Indentation = 0 then begin
             if IsTest then
@@ -782,7 +791,9 @@ codeunit 5870 "Calculate BOM Tree"
                     AvailQty := TempItemAvailByDate."Updated Available Qty";
                 end;
 
-                if AvailQty < ExpectedQty then begin
+                AvailableVsExpectedCondition := AvailQty < ExpectedQty;
+                OnCalcAvailabilityOnBeforeUpdateAvailableQty(BOMBuffer, ExpectedQty, AvailQty, AvailableVsExpectedCondition);
+                if AvailableVsExpectedCondition then begin
                     if BOMBuffer."Is Leaf" then begin
                         if MarkBottleneck then begin
                             BOMBuffer.Bottleneck := true;
@@ -963,7 +974,6 @@ codeunit 5870 "Calculate BOM Tree"
     local procedure CalcRoutingLineCosts(RoutingLine: Record "Routing Line"; LotSize: Decimal; ScrapPct: Decimal; var BOMBuffer: Record "BOM Buffer"; ParentItem: Record Item)
     var
         CalcStdCost: Codeunit "Calculate Standard Cost";
-        CostCalculationMgt: Codeunit "Cost Calculation Management";
         CapCost: Decimal;
         SubcontractedCapCost: Decimal;
         CapOverhead: Decimal;
@@ -972,7 +982,7 @@ codeunit 5870 "Calculate BOM Tree"
 
         CalcStdCost.SetProperties(WorkDate(), false, false, false, '', false);
         CalcStdCost.CalcRtngLineCost(
-          RoutingLine, CostCalculationMgt.CalcQtyAdjdForBOMScrap(LotSize, ScrapPct), CapCost, SubcontractedCapCost, CapOverhead, ParentItem);
+          RoutingLine, MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(LotSize, ScrapPct), CapCost, SubcontractedCapCost, CapOverhead, ParentItem);
 
         OnCalcRoutingLineCostsOnBeforeBOMBufferAdd(RoutingLine, LotSize, ScrapPct, CapCost, SubcontractedCapCost, CapOverhead, BOMBuffer);
 
@@ -1175,6 +1185,16 @@ codeunit 5870 "Calculate BOM Tree"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitBOMBuffer(var BOMBuffer: Record "BOM Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailabilityOnBeforeUpdateAvailableQty(var BOMBuffer: Record "BOM Buffer"; ExpectedQty: Decimal; AvailQty: Decimal; var AvailableVsExpectedCondition: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateProdOrderLineSubTree(ProdOrderLine: Record "Prod. Order Line"; var BOMBuffer: Record "BOM Buffer"; var ParentBOMBuffer: Record "BOM Buffer"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

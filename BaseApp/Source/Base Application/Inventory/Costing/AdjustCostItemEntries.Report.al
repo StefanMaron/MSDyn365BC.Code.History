@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Finance.Analysis;
@@ -80,6 +84,12 @@ report 795 "Adjust Cost - Item Entries"
                                   ObjTransl.TranslateObject(ObjTransl."Object Type"::Report, REPORT::"Post Inventory Cost to G/L"));
                         end;
                     }
+                    field("Item-by-Item Adjustment"; ByItemCommit)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Item-by-Item Adjustment';
+                        ToolTip = 'Specifies if you want to commit the transaction after processing each individual item in the cost adjustment. This ensures that items already adjusted are saved even if the process is interrupted on one of the subsequent items.';
+                    }
                 }
             }
         }
@@ -153,6 +163,7 @@ report 795 "Adjust Cost - Item Entries"
         ItemNoFilter: Text[250];
         ItemCategoryFilter: Text[250];
         PostToGL: Boolean;
+        ByItemCommit: Boolean;
 
     local procedure LockTables(): Boolean
     var
@@ -180,11 +191,13 @@ report 795 "Adjust Cost - Item Entries"
 
     local procedure RunCostAdjustment(var Item: Record Item)
     var
+        CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
         InvtAdjmtHandler.SetFilterItem(Item);
-        InvtAdjmtHandler.MakeInventoryAdjustment(false, PostToGL);
+        SetCostAdjustmentParameters(CostAdjustmentParamsMgt);
+        InvtAdjmtHandler.MakeInventoryAdjustment(CostAdjustmentParamsMgt);
 
         if PostToGL then
             UpdateAnalysisView.UpdateAll(0, true);
@@ -193,6 +206,7 @@ report 795 "Adjust Cost - Item Entries"
 
     local procedure RunCostAdjustmentWithLogging(var Item: Record Item)
     var
+        CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.";
         CostAdjustmentSubscribers: Codeunit "Cost Adjustment Subscribers";
         CostAdjustmentItemRunner: Codeunit "Cost Adjustment Item Runner";
         Success: Boolean;
@@ -201,7 +215,8 @@ report 795 "Adjust Cost - Item Entries"
         BindSubscription(CostAdjustmentSubscribers);
 
         OnBeforeRunCostAdjustment();
-        CostAdjustmentItemRunner.SetPostToGL(PostToGL);
+        SetCostAdjustmentParameters(CostAdjustmentParamsMgt);
+        CostAdjustmentItemRunner.SetParameters(CostAdjustmentParamsMgt);
         Success := CostAdjustmentItemRunner.Run(Item);
         if Success then
             RegisterSuccess()
@@ -225,6 +240,20 @@ report 795 "Adjust Cost - Item Entries"
     procedure SetPostToGL(NewPostToGL: Boolean)
     begin
         PostToGL := NewPostToGL;
+    end;
+
+    local procedure SetCostAdjustmentParameters(var CostAdjustmentParamMgt: Codeunit "Cost Adjustment Params Mgt.");
+    var
+        CostAdjustmentParameter: Record "Cost Adjustment Parameter";
+    begin
+        CostAdjustmentParameter.Init();
+        CostAdjustmentParameter."Online Adjustment" := false;
+        CostAdjustmentParameter."Post to G/L" := PostToGL;
+        CostAdjustmentParameter."Item-By-Item Commit" := ByItemCommit;
+        OnAfterSetCostAdjustmentParameter(CostAdjustmentParameter);
+
+        CostAdjustmentParamMgt.SetParameters(CostAdjustmentParameter);
+        OnAfterSetCostAdjustmentParameterOnAfterSetParameters(CostAdjustmentParamMgt);
     end;
 
     local procedure RegisterSuccess()
@@ -264,6 +293,16 @@ report 795 "Adjust Cost - Item Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnRegisterFailure()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCostAdjustmentParameter(var CostAdjustmentParameter: Record "Cost Adjustment Parameter")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCostAdjustmentParameterOnAfterSetParameters(var CostAdjustmentParamMgt: Codeunit "Cost Adjustment Params Mgt.")
     begin
     end;
 }
