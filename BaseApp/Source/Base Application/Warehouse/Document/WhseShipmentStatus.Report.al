@@ -127,6 +127,8 @@ report 7313 "Whse. Shipment Status"
     requestpage
     {
         Caption = 'Warehouse Shipment Status';
+        AboutTitle = 'Warehouse Shipment Status';
+        AboutText = 'Get an overview of source documents that are open, have items that are shipped, or are due to ship for each location.';
 
         layout
         {

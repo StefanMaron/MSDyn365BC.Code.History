@@ -52,11 +52,6 @@ report 14928 "Unrealized VAT Analysis"
             column(IsInvoice; IsInvoice)
             {
             }
-#if not CLEAN23
-            column(VAT_Entry__Posting_Date_; "Posting Date")
-            {
-            }
-#endif
             column(VAT_Entry__VAT_Reporting_Date_; "VAT Reporting Date")
             {
             }
@@ -147,11 +142,6 @@ report 14928 "Unrealized VAT Analysis"
             column(CurrReport_PAGENOCaption; CurrReport_PAGENOCaptionLbl)
             {
             }
-#if not CLEAN23
-            column(VAT_Entry__Posting_Date_Caption; FieldCaption("Posting Date"))
-            {
-            }
-#endif
             column(VAT_Entry__VAT_Reporting_Date_Caption; FieldCaption("VAT Reporting Date"))
             {
             }

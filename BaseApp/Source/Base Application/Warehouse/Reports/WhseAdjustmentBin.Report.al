@@ -227,6 +227,8 @@ report 7320 "Whse. Adjustment Bin"
 
     requestpage
     {
+        AboutTitle = 'About Warehouse Adjustment Bin';
+        AboutText = 'Get an overview of adjustment bin usage (for advanced warehouse scenarios).';
 
         layout
         {

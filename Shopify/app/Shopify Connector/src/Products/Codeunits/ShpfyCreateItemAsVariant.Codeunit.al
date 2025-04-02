@@ -13,7 +13,7 @@ codeunit 30343 "Shpfy Create Item As Variant"
         CreateProduct: Codeunit "Shpfy Create Product";
         VariantApi: Codeunit "Shpfy Variant API";
         ProductApi: Codeunit "Shpfy Product API";
-        DefaultVariantId: BigInteger;
+        Events: Codeunit "Shpfy Product Events";
         Options: Dictionary of [Text, Text];
 
     trigger OnRun()
@@ -29,8 +29,10 @@ codeunit 30343 "Shpfy Create Item As Variant"
     var
         TempShopifyVariant: Record "Shpfy Variant" temporary;
     begin
+        if Item.SystemId = ShopifyProduct."Item SystemId" then
+            exit;
+
         CreateProduct.CreateTempShopifyVariantFromItem(Item, TempShopifyVariant);
-        TempShopifyVariant."Product Id" := ShopifyProduct."Id";
         TempShopifyVariant.Title := Item."No.";
         if Options.Count = 1 then
             TempShopifyVariant."Option 1 Name" := CopyStr(Options.Values.Get(1), 1, MaxStrLen(TempShopifyVariant."Option 1 Name"))
@@ -38,7 +40,10 @@ codeunit 30343 "Shpfy Create Item As Variant"
             TempShopifyVariant."Option 1 Name" := 'Variant';
         TempShopifyVariant."Option 1 Value" := Item."No.";
 
-        if VariantApi.AddProductVariant(TempShopifyVariant) then begin
+        Events.OnAfterCreateTempShopifyVariant(Item, TempShopifyVariant);
+        TempShopifyVariant.Modify();
+
+        if VariantApi.AddProductVariant(TempShopifyVariant, ShopifyProduct.Id, "Shpfy Variant Create Strategy"::DEFAULT) then begin
             ShopifyProduct."Has Variants" := true;
             ShopifyProduct.Modify(true);
         end;
@@ -62,34 +67,6 @@ codeunit 30343 "Shpfy Create Item As Variant"
 
         if Options.Count > 1 then
             Error(MultipleOptionsErr);
-    end;
-
-    /// <summary>
-    /// Finds the default variant ID for the product if the product has no variants.
-    /// If new variants will be added, the default variant will be removed.
-    /// </summary>
-    internal procedure FindDefaultVariantId()
-    var
-        ProductVariantIds: Dictionary of [BigInteger, DateTime];
-    begin
-        if not ShopifyProduct."Has Variants" then begin
-            VariantApi.RetrieveShopifyProductVariantIds(ShopifyProduct, ProductVariantIds);
-            DefaultVariantId := ProductVariantIds.Keys.Get(1);
-        end;
-    end;
-
-    /// <summary>
-    /// Removes the default variant if new variants were added to the product.
-    /// </summary>
-    internal procedure RemoveDefaultVariant()
-    var
-        ShopifyVariant: Record "Shpfy Variant";
-    begin
-        if (DefaultVariantId <> 0) and ShopifyProduct."Has Variants" then begin
-            VariantApi.DeleteProductVariant(DefaultVariantId);
-            if ShopifyVariant.Get(DefaultVariantId) then
-                ShopifyVariant.Delete(true);
-        end;
     end;
 
     /// <summary>

@@ -24,7 +24,6 @@
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryRandom: Codeunit "Library - Random";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -62,6 +61,7 @@
         QuantityErr: Label '%1 must be %2 in %3', Comment = '%1 = Quantity, %2 = Minimum Order Quanity, %3 = Requisition Line';
         MPSOrderErr: Label '%1 must be true', Comment = '%1 = MPS Order';
         PlanningComponentMustNotBeFoundErr: Label 'Planning Component must not be found.';
+        BOMLineCommnetAndFirmProdOrderBOMLineCommentMustMatchErr: Label 'BOM Line Comment and Firm Prod. Order BOM Line Comment must match.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -2376,7 +2376,7 @@
         Qty := LibraryRandom.RandInt(100);
         CreateItemWithReorderPoint(
           CompItem, CompItem."Reordering Policy"::"Maximum Qty.", CompItem."Replenishment System"::Purchase, Qty, Qty + 1);
-        LibraryPatterns.MAKEItemSimple(ProdItem, ProdItem."Costing Method"::FIFO, 0);
+        LibraryInventory.CreateItemSimple(ProdItem, ProdItem."Costing Method"::FIFO, 0);
 
         CreateReleasedProdOrder(ProdItem, CompItem, Qty);
 
@@ -4784,7 +4784,7 @@
         Item[4].Modify(true);
 
         // [GIVEN] Create a BOM Component for Item[5].
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
             BOMComponent,
             Item[5]."No.",
             BOMComponent.Type::Item,
@@ -4903,6 +4903,72 @@
 
         // [THEN] Quantity of Requisition Line is equal to Order Multiple of Stockkeeping Unit [2].
         Assert.AreEqual(StockkeepingUnit[2]."Order Multiple", RequisitionLine.Quantity, '');
+    end;
+
+    [Test]
+    procedure CommentOnProdBOMCompTransferredToCompLinesForFirmPlannedProdOrderWhenPositionFieldUsed()
+    var
+        CompItem, ProdItem : Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: array[2] of Record "Production BOM Line";
+        ProductionBOMCommentLine: array[2] of Record "Production BOM Comment Line";
+        ProdOrderCompCmtLine: array[2] of Record "Prod. Order Comp. Cmt Line";
+        RequisitionLine: Record "Requisition Line";
+        Salesheader: Record "Sales Header";
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        // [SCENARIO 563855] When Comment store on a production order line that includes the same component in different positions, transferred to the Component Lines 
+        //  for the Firm Planned Production Order via Planning Worksheet.
+        Initialize();
+
+        // [GIVEN] Create Unit of Measure Code.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create Component Items.
+        CreateItemWithReorderPolicy(CompItem, UnitOfMeasure, ItemUnitOfMeasure, CompItem."Replenishment System"::Purchase, CompItem."Reordering Policy"::" ");
+
+        // [GIVEN] Create Production Item.
+        CreateItemWithReorderPolicy(ProdItem, UnitOfMeasure, ItemUnitOfMeasure, ProdItem."Replenishment System"::"Prod. Order", ProdItem."Reordering Policy"::Order);
+
+        // [GIVEN] Create Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItem."Base Unit of Measure");
+
+        // [GIVEN] Create Production BOM Lines.
+        CreateProductionBOMLineInSpecifiedPosition(ProductionBOMHeader, ProductionBOMLine[1], CompItem."No.", LibraryRandom.RandInt(0));
+        CreateProductionBOMLineInSpecifiedPosition(ProductionBOMHeader, ProductionBOMLine[2], CompItem."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Create Production BOM Comment Line for Production BOM Line.
+        LibraryManufacturing.CreateProductionBOMCommentLine(ProductionBOMLine[1]);
+        LibraryManufacturing.CreateProductionBOMCommentLine(ProductionBOMLine[2]);
+
+        // [GIVEN] Update Production BOM Status.
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Validate Production BOM No. in Production Item.
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create and Release Sales Order.
+        CreateSalesOrder(Salesheader, ProdItem);
+        LibrarySales.ReleaseSalesDocument(Salesheader);
+
+        // [GIVEN] Run Calculate Regenerative Plan.
+        RunCalculateRegenerativePlan(ProdItem."No.", '');
+
+        // [GIVEN] Accept Action Message on Requisition Line.
+        AcceptActionMessageOnReqLine(RequisitionLine, ProdItem."No.");
+
+        // [GIVEN] Run Carry Out Action Plan.
+        CarryOutActionPlanForFirmPlannedProdOrder(RequisitionLine);
+
+        // [WHEN] Find Prod. Order Comp. Cmt Line for both Position.
+        GetProductionBOMCommnetLine(ProductionBOMLine[1], ProductionBOMCommentLine[1], ProdOrderCompCmtLine[1]);
+        GetProductionBOMCommnetLine(ProductionBOMLine[2], ProductionBOMCommentLine[2], ProdOrderCompCmtLine[2]);
+
+        // [VERIFY] Comment in Production BOM Comment Line and Prod. Order Comp. Cmt Line is same.
+        Assert.AreEqual(ProductionBOMCommentLine[1].Comment, ProdOrderCompCmtLine[1].Comment, BOMLineCommnetAndFirmProdOrderBOMLineCommentMustMatchErr);
+        Assert.AreEqual(ProductionBOMCommentLine[2].Comment, ProdOrderCompCmtLine[2].Comment, BOMLineCommnetAndFirmProdOrderBOMLineCommentMustMatchErr);
     end;
 
     local procedure Initialize()
@@ -5253,8 +5319,8 @@
         ProdBOMHeader: Record "Production BOM Header";
         ProdOrder: Record "Production Order";
     begin
-        LibraryPatterns.MAKEProductionBOM(ProdBOMHeader, ProdItem, CompItem, 1, '');
-        LibraryPatterns.MAKEProductionOrder(ProdOrder, ProdOrder.Status::Released, ProdItem, '', '', Qty, WorkDate());
+        LibraryManufacturing.CreateProductionBOM(ProdBOMHeader, ProdItem, CompItem, 1, '');
+        LibraryManufacturing.CreateProductionOrder(ProdOrder, ProdOrder.Status::Released, ProdItem, '', '', Qty, WorkDate());
     end;
 
     local procedure UpdateForecastOnManufacturingSetup(CurrentProductionForecast: Code[10])
@@ -5392,7 +5458,7 @@
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibraryPatterns.MAKESalesOrder(
+        LibrarySales.CreateSalesOrder(
           SalesHeader, SalesLine, Item, '', '', Quantity * LibraryRandom.RandDecInDecimalRange(1.5, 2, 2), WorkDate(), Item."Unit Cost");
         AutoReserveForSalesLine(SalesLine);
     end;
@@ -6646,8 +6712,50 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
         StockkeepingUnit.Validate("Reordering Policy", StockkeepingUnit."Reordering Policy"::"Lot-for-Lot");
         StockkeepingUnit.Validate("Manufacturing Policy", StockkeepingUnit."Manufacturing Policy"::"Make-to-Stock");
         StockkeepingUnit.Validate("Assembly Policy", StockkeepingUnit."Assembly Policy"::"Assemble-to-Stock");
-        StockkeepingUnit.Validate("Flushing Method", StockkeepingUnit."Flushing Method"::Manual);
+        StockkeepingUnit.Validate("Flushing Method", StockkeepingUnit."Flushing Method"::"Pick + Manual");
         StockkeepingUnit.Modify(true);
+    end;
+
+    local procedure CreateProductionBOMLineInSpecifiedPosition(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMLine: Record "Production BOM Line"; ItemNo: Code[20]; QuantityPer: Decimal)
+    begin
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo, QuantityPer);
+        ProductionBOMLine.Validate(Position, LibraryUtility.GenerateGUID());
+        ProductionBOMLine.Modify(true);
+    end;
+
+    local procedure CarryOutActionPlanForFirmPlannedProdOrder(var ReqLine: Record "Requisition Line")
+    var
+        MfgUserTemplate: Record "Manufacturing User Template";
+        CarryOutActionMsgPlan: Report "Carry Out Action Msg. - Plan.";
+    begin
+        MfgUserTemplate.Init();
+        MfgUserTemplate.Validate("Create Production Order", MfgUserTemplate."Create Production Order"::"Firm Planned");
+
+        ReqLine.SetRecFilter();
+        CarryOutActionMsgPlan.UseRequestPage(false);
+        CarryOutActionMsgPlan.SetDemandOrder(ReqLine, MfgUserTemplate);
+        CarryOutActionMsgPlan.RunModal();
+    end;
+
+    local procedure GetProductionBOMCommnetLine(ProductionBOMLine: record "Production BOM Line"; var ProductionBOMCommentLine: Record "Production BOM Comment Line"; var ProdOrderCompCmtLine: Record "Prod. Order Comp. Cmt Line")
+    var
+        ProductionOrderComp: Record "Prod. Order Component";
+    begin
+        ProductionOrderComp.SetRange("Status", ProductionOrderComp.Status::"Firm Planned");
+        ProductionOrderComp.SetRange("Item No.", ProductionBOMLine."No.");
+        ProductionOrderComp.SetRange(Position, ProductionBOMLine.Position);
+        ProductionOrderComp.FindFirst();
+
+        ProductionBOMCommentLine.SetRange("Production BOM No.", ProductionBOMLine."Production BOM No.");
+        ProductionBOMCommentLine.SetRange("BOM Line No.", ProductionOrderComp."Line No.");
+        ProductionBOMCommentLine.FindFirst();
+
+        ProdOrderCompCmtLine.SetRange("Status", ProductionOrderComp.Status::"Firm Planned");
+        ProdOrderCompCmtLine.SetRange("Prod. Order No.", ProductionOrderComp."Prod. Order No.");
+        ProdOrderCompCmtLine.SetRange("Prod. Order Line No.", ProductionOrderComp."Prod. Order Line No.");
+        ProdOrderCompCmtLine.SetRange("Prod. Order BOM Line No.", ProductionOrderComp."Line No.");
+        ProdOrderCompCmtLine.FindFirst();
     end;
 
     [RequestPageHandler]

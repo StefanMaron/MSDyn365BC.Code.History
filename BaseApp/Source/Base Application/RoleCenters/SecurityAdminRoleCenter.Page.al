@@ -147,20 +147,6 @@ page 9024 "Security Admin Role Center"
                     RunObject = Page Users;
                     ToolTip = 'View or edit users that will be configured in the database.';
                 }
-                action("Security Groups Section")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Security Groups';
-                    RunObject = Page "Security Groups";
-                    ToolTip = 'Set up or modify security groups as a fast way of giving users access to the functionality that is relevant to their work.';
-                }
-                action(Action28)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Permission Sets';
-                    RunObject = Page "Permission Sets";
-                    ToolTip = 'View or edit which feature objects that users need to access and set up the related permissions in permission sets that you can assign to the users of the database.';
-                }
                 action(Action27)
                 {
                     ApplicationArea = Basic, Suite;
@@ -176,6 +162,39 @@ page 9024 "Security Admin Role Center"
                     RunObject = Page "Activity Log";
                     RunPageView = where("Table No Filter" = filter(9062));
                     ToolTip = 'View a log of users'' activities in the database.';
+                }
+            }
+            group("Permissions Management")
+            {
+                Caption = 'Permissions Management';
+
+                action("Security Groups Section")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Security Groups';
+                    RunObject = Page "Security Groups";
+                    ToolTip = 'Set up or modify security groups as a fast way of giving users access to the functionality that is relevant to their work.';
+                }
+                action(Action28)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Permission Sets';
+                    RunObject = Page "Permission Sets";
+                    ToolTip = 'View or edit which feature objects that users need to access and set up the related permissions in permission sets that you can assign to the users of the database.';
+                }
+                action("Permission Set by User")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Permission Set by User';
+                    RunObject = Page "Permission Set by User";
+                    ToolTip = 'View or edit the available permission sets and apply permission sets to existing users.';
+                }
+                action("Permission Set By Security Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Permission Set by Security Group';
+                    RunObject = Page "Permission Set By Sec. Group";
+                    ToolTip = 'View or edit the available permission sets and apply permission sets to existing security groups.';
                 }
             }
             group("App Management")

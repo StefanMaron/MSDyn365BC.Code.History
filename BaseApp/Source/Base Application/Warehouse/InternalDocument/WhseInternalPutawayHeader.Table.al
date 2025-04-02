@@ -170,12 +170,12 @@ table 7331 "Whse. Internal Put-away Header"
 
             trigger OnValidate()
             var
-                WhsePutAwayRqst: Record "Whse. Put-away Request";
+                WhsePutAwayRequest: Record "Whse. Put-away Request";
             begin
                 if "Document Status" <> xRec."Document Status" then begin
-                    WhsePutAwayRqst.SetRange("Document Type", WhsePutAwayRqst."Document Type"::"Internal Put-away");
-                    WhsePutAwayRqst.SetRange("Document No.", "No.");
-                    WhsePutAwayRqst.ModifyAll(
+                    WhsePutAwayRequest.SetRange("Document Type", WhsePutAwayRequest."Document Type"::"Internal Put-away");
+                    WhsePutAwayRequest.SetRange("Document No.", "No.");
+                    WhsePutAwayRequest.ModifyAll(
                       "Completely Put Away", "Document Status" = "Document Status"::"Completely Put Away");
                 end;
             end;
@@ -329,30 +329,28 @@ table 7331 "Whse. Internal Put-away Header"
         end;
     end;
 
-    procedure GetDocumentStatus(LineNo: Integer): Integer
+    procedure GetDocumentStatus(SkipLineNo: Integer): Integer
     var
         WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line";
     begin
         WhseInternalPutAwayLine.SetRange("No.", "No.");
-        if LineNo <> 0 then
-            WhseInternalPutAwayLine.SetFilter("Line No.", '<>%1', LineNo);
-        if not WhseInternalPutAwayLine.FindFirst() then
-            exit(WhseInternalPutAwayLine.Status::" ");
-
-        WhseInternalPutAwayLine.SetRange(Status, WhseInternalPutAwayLine.Status::"Partially Put Away");
-        if WhseInternalPutAwayLine.FindFirst() then
-            exit(WhseInternalPutAwayLine.Status);
+        if SkipLineNo <> 0 then
+            WhseInternalPutAwayLine.SetFilter("Line No.", '<>%1', SkipLineNo);
 
         WhseInternalPutAwayLine.SetRange(Status, WhseInternalPutAwayLine.Status::"Completely Put Away");
-        if WhseInternalPutAwayLine.FindFirst() then begin
-            WhseInternalPutAwayLine.SetFilter(Status, '<%1', WhseInternalPutAwayLine.Status::"Completely Put Away");
-            if WhseInternalPutAwayLine.FindFirst() then
+        if not WhseInternalPutAwayLine.IsEmpty() then begin
+            WhseInternalPutAwayLine.SetFilter(Status, '<>%1', WhseInternalPutAwayLine.Status::"Completely Put Away");
+            if not WhseInternalPutAwayLine.IsEmpty() then
                 exit(WhseInternalPutAwayLine.Status::"Partially Put Away");
 
-            exit(WhseInternalPutAwayLine.Status);
+            exit(WhseInternalPutAwayLine.Status::"Completely Put Away");
+        end else begin
+            WhseInternalPutAwayLine.SetRange(Status, WhseInternalPutAwayLine.Status::"Partially Put Away");
+            if not WhseInternalPutAwayLine.IsEmpty() then
+                exit(WhseInternalPutAwayLine.Status::"Partially Put Away");
         end;
 
-        exit(WhseInternalPutAwayLine.Status);
+        exit(WhseInternalPutAwayLine.Status::" ");
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -395,15 +393,15 @@ table 7331 "Whse. Internal Put-away Header"
     procedure DeleteRelatedLines()
     var
         WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line";
-        WhsePutAwayRqst: Record "Whse. Put-away Request";
+        WhsePutAwayRequest: Record "Whse. Put-away Request";
         WhseCommentLine: Record "Warehouse Comment Line";
     begin
         WhseInternalPutAwayLine.SetRange("No.", "No.");
         WhseInternalPutAwayLine.DeleteAll();
 
-        WhsePutAwayRqst.SetRange("Document Type", WhsePutAwayRqst."Document Type"::"Internal Put-away");
-        WhsePutAwayRqst.SetRange("Document No.", "No.");
-        WhsePutAwayRqst.DeleteAll();
+        WhsePutAwayRequest.SetRange("Document Type", WhsePutAwayRequest."Document Type"::"Internal Put-away");
+        WhsePutAwayRequest.SetRange("Document No.", "No.");
+        WhsePutAwayRequest.DeleteAll();
 
         WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Internal Put-away");
         WhseCommentLine.SetRange(Type, WhseCommentLine.Type::" ");

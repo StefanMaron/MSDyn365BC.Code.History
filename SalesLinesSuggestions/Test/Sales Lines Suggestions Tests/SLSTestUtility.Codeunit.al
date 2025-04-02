@@ -26,12 +26,37 @@ codeunit 139785 "SLS Test Utility"
             end
     end;
 
+    local procedure GetFunctionArray(AnswerJson: JsonObject) FunctionArray: JsonArray
+    var
+        ToolsArrayToken: JsonToken;
+        ToolType: JsonToken;
+        Tool: JsonToken;
+        Function: JsonToken;
+    begin
+        if AnswerJson.Get('tool_calls', ToolsArrayToken) then
+            foreach Tool in ToolsArrayToken.AsArray() do begin
+                Tool.AsObject().Get('type', ToolType);
+                if ToolType.AsValue().asText() = 'function' then begin
+                    Tool.AsObject().Get('function', Function);
+                    FunctionArray.Add(Function);
+                end;
+            end
+    end;
+
     internal procedure GetFunctionToken(AnswerText: Text) result: JsonToken;
     var
         AnswerJson: JsonObject;
     begin
         AnswerJson.ReadFrom(AnswerText);
         exit(GetFunctionToken(AnswerJson));
+    end;
+
+    internal procedure GetFunctionArray(AnswerText: Text) result: JsonArray;
+    var
+        AnswerJson: JsonObject;
+    begin
+        AnswerJson.ReadFrom(AnswerText);
+        exit(GetFunctionArray(AnswerJson));
     end;
 
     // Completion functions

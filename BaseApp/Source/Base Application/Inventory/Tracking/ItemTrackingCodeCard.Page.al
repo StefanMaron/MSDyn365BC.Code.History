@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
 page 6512 "Item Tracking Code Card"
@@ -74,18 +78,6 @@ page 6512 "Item Tracking Code Card"
                         Caption = 'SN Negative Adjmt. Tracking';
                         ToolTip = 'Specifies that inbound item journal lines of type negative entry require serial numbers.';
                     }
-                    field("SN Assembly Inbound Tracking"; Rec."SN Assembly Inbound Tracking")
-                    {
-                        ApplicationArea = Assembly;
-                        Caption = 'SN Assembly Tracking';
-                        ToolTip = 'Specifies that serial numbers are required with inbound posting from assembly orders.';
-                    }
-                    field("SN Manuf. Inbound Tracking"; Rec."SN Manuf. Inbound Tracking")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'SN Manufacturing Tracking';
-                        ToolTip = 'Specifies that serial numbers are required with inbound posting from production - typically output.';
-                    }
                 }
                 group(Control82)
                 {
@@ -135,18 +127,6 @@ page 6512 "Item Tracking Code Card"
                         ApplicationArea = ItemTracking;
                         Caption = 'SN Negative Adjmt. Tracking';
                         ToolTip = 'Specifies that outbound item journal lines of type negative entry require serial numbers.';
-                    }
-                    field("SN Assembly Outbound Tracking"; Rec."SN Assembly Outbound Tracking")
-                    {
-                        ApplicationArea = Assembly;
-                        Caption = 'SN Assembly Tracking';
-                        ToolTip = 'Specifies that serial numbers are required with outbound posting from assembly orders.';
-                    }
-                    field("SN Manuf. Outbound Tracking"; Rec."SN Manuf. Outbound Tracking")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'SN Manufacturing Tracking';
-                        ToolTip = 'Specifies that serial numbers are required with outbound posting from production - typically consumption.';
                     }
                 }
             }
@@ -200,18 +180,6 @@ page 6512 "Item Tracking Code Card"
                         Caption = 'Lot Negative Adjmt. Tracking';
                         ToolTip = 'Specifies that inbound item journal lines of type negative entry require a lot number.';
                     }
-                    field("Lot Assembly Inbound Tracking"; Rec."Lot Assembly Inbound Tracking")
-                    {
-                        ApplicationArea = Assembly;
-                        Caption = 'Lot Assembly Tracking';
-                        ToolTip = 'Specifies that lot numbers are required with inbound posting from assembly orders.';
-                    }
-                    field("Lot Manuf. Inbound Tracking"; Rec."Lot Manuf. Inbound Tracking")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Lot Manufacturing Tracking';
-                        ToolTip = 'Specifies that lot numbers are required with outbound posting from production - typically output.';
-                    }
                 }
                 group(Control81)
                 {
@@ -262,18 +230,6 @@ page 6512 "Item Tracking Code Card"
                         Caption = 'Lot Negative Adjmt. Tracking';
                         ToolTip = 'Specifies that outbound item journal lines of type negative entry require a lot number.';
                     }
-                    field("Lot Assembly Outbound Tracking"; Rec."Lot Assembly Outbound Tracking")
-                    {
-                        ApplicationArea = Assembly;
-                        Caption = 'Lot Assembly Tracking';
-                        ToolTip = 'Specifies that lot numbers are required with outbound posting from assembly orders.';
-                    }
-                    field("Lot Manuf. Outbound Tracking"; Rec."Lot Manuf. Outbound Tracking")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Lot Manufacturing Tracking';
-                        ToolTip = 'Specifies that lot numbers are required with outbound posting from production - typically consumption.';
-                    }
                 }
             }
             group("Package Tracking")
@@ -321,18 +277,6 @@ page 6512 "Item Tracking Code Card"
                         ApplicationArea = ItemTracking;
                         Caption = 'Package Negative Adjmt. Tracking';
                         ToolTip = 'Specifies that inbound item journal lines of type negative entry require a package number.';
-                    }
-                    field("Package Assembly Inb. Tracking"; Rec."Package Assembly Inb. Tracking")
-                    {
-                        ApplicationArea = Assembly;
-                        Caption = 'Package Assembly Tracking';
-                        ToolTip = 'Specifies that package numbers are required with inbound posting from assembly orders.';
-                    }
-                    field("Package Manuf. Inb. Tracking"; Rec."Package Manuf. Inb. Tracking")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Package Manufacturing Tracking';
-                        ToolTip = 'Specifies that package numbers are required with outbound posting from production - typically output.';
                     }
                 }
                 group(Control85)
@@ -383,18 +327,6 @@ page 6512 "Item Tracking Code Card"
                         ApplicationArea = ItemTracking;
                         Caption = 'Package Negative Adjmt. Tracking';
                         ToolTip = 'Specifies that outbound item journal lines of type negative entry require a package number.';
-                    }
-                    field("Package Assembly Out. Tracking"; Rec."Package Assembly Out. Tracking")
-                    {
-                        ApplicationArea = Assembly;
-                        Caption = 'Package Assembly Tracking';
-                        ToolTip = 'Specifies that package numbers are required with outbound posting from assembly orders.';
-                    }
-                    field("Package Manuf. Outb. Tracking"; Rec."Package Manuf. Outb. Tracking")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Package Manufacturing Tracking';
-                        ToolTip = 'Specifies that package numbers are required with outbound posting from production - typically consumption.';
                     }
                 }
             }

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.FixedAsset;
 
 using Microsoft.Finance.Dimension;
@@ -49,6 +53,7 @@ table 5600 "Fixed Asset"
         field(2; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the fixed asset.';
             OptimizeForTextSearch = true;
 
             trigger OnValidate()
@@ -244,14 +249,6 @@ table 5600 "Fixed Asset"
         field(21; Blocked; Boolean)
         {
             Caption = 'Blocked';
-        }
-        field(22; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
         }
         field(23; "Maintenance Vendor No."; Code[20])
         {
@@ -1413,4 +1410,3 @@ table 5600 "Fixed Asset"
     begin
     end;
 }
-

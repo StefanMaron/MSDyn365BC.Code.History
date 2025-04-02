@@ -269,13 +269,6 @@ table 7319 "Posted Whse. Receipt Line"
             CaptionClass = '6,1';
             Editable = false;
         }
-        field(14900; "CD No."; Code[50])
-        {
-            Caption = 'CD No.';
-            ObsoleteReason = 'Replaced by field Package No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys

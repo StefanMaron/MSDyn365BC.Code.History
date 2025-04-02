@@ -575,6 +575,7 @@ table 12403 "Gen. Journal Line Archive"
             OptionCaption = 'Outgoing,Incoming';
             OptionMembers = Outgoing,Incoming;
         }
+#if not CLEANSCHEMA25
         field(116; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -583,6 +584,7 @@ table 12403 "Gen. Journal Line Archive"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(117; "IC Partner Transaction No."; Integer)
         {
             Caption = 'IC Partner Transaction No.';

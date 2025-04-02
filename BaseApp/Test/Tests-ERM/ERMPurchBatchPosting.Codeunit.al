@@ -137,6 +137,8 @@
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('RequestPageHandlerBatchPostPurchaseInvoices,MessageHandler,PurchaseInvoiceStatisticsUpdateVATAmountModalPageHandler')]
     [Scope('OnPrem')]
@@ -170,6 +172,61 @@
         PurchaseInvoicePage.OpenEdit();
         PurchaseInvoicePage.Filter.SetFilter("No.", PurchaseHeader."No.");
         PurchaseInvoicePage.Statistics.Invoke();
+        PurchaseInvoicePage.Close();
+        Commit();
+
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        TotalAmountWithVATDifference := PurchaseHeader."Amount Including VAT";
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Run Batch Post Purchase Invoice with Replace Document Date := true
+        RunBatchPostPurchase(PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseHeader."Posting Date" + 1, false);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId);
+
+        // [THEN] Verify Document Date is equal to Posting Date
+        PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
+        PurchInvHeader.FindFirst();
+        PurchInvHeader.TestField("Document Date", PurchaseHeader."Posting Date" + 1);
+
+        // [THEN] Verify Amount Including VAT still include VAT Difference after posting
+        PurchInvHeader.CalcFields("Amount Including VAT");
+        Assert.AreEqual(TotalAmountWithVATDifference, PurchInvHeader."Amount Including VAT", 'Total amount is not correct.');
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('RequestPageHandlerBatchPostPurchaseInvoices,MessageHandler,PurchaseInvoiceStatisticsUpdateVATAmountPageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostPurchInvoiceVATDifferenceAndReplacePostingDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseInvoicePage: TestPage "Purchase Invoice";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        MaxAllowedVATDifference: Decimal;
+        TotalAmount: Decimal;
+        TotalAmountWithVATDifference: Decimal;
+    begin
+        // [SCENARIO 204056] Batch Posting of Purchase Invoice with Replace Posting Date and VAT Difference
+        Initialize();
+        LibraryPurchase.SetPostWithJobQueue(true);
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Allow VAT Difference
+        MaxAllowedVATDifference := 1;
+        LibraryERM.SetMaxVATDifferenceAllowed(MaxAllowedVATDifference);
+        LibraryPurchase.SetAllowVATDifference(true);
+
+        // [GIVEN] Released Purchase Invoice with posting nos are already assigned
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, false);
+        TotalAmount := PurchaseHeader."Amount Including VAT";
+
+        // [GIVEN] VAT Amount Increased on Statistics page
+        LibraryVariableStorage.Enqueue(MaxAllowedVATDifference / 3);
+        PurchaseInvoicePage.OpenEdit();
+        PurchaseInvoicePage.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoicePage.PurchaseStatistics.Invoke();
         PurchaseInvoicePage.Close();
         Commit();
 
@@ -1703,9 +1760,21 @@
         end;
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceStatisticsUpdateVATAmountModalPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    begin
+        PurchaseStatistics.SubForm.Last();
+        PurchaseStatistics.SubForm."VAT Amount".SetValue(
+          PurchaseStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceStatisticsUpdateVATAmountPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
     begin
         PurchaseStatistics.SubForm.Last();
         PurchaseStatistics.SubForm."VAT Amount".SetValue(

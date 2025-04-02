@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Transfer;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -851,13 +855,6 @@ table 5741 "Transfer Line"
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
         }
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
         field(5750; "Whse. Inbnd. Otsdg. Qty (Base)"; Decimal)
         {
             BlankZero = true;
@@ -989,6 +986,9 @@ table 5741 "Transfer Line"
         {
         }
         key(Key6; "Transfer-from Code", "Shipment Date", "Item No.", "Variant Code")
+        {
+        }
+        key(Key7; "Document No.", "Item No.", "Transfer-from Code", "Transfer-from Bin Code")
         {
         }
     }
@@ -2564,4 +2564,3 @@ table 5741 "Transfer Line"
     begin
     end;
 }
-

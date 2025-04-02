@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA28 
 namespace Microsoft.Purchases.Pricing;
 
 using Microsoft.Finance.Currency;
@@ -13,7 +14,7 @@ table 7012 "Purchase Price"
     ObsoleteTag = '16.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '26.0';
+    ObsoleteTag = '28.0';
 #endif    
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
     DataClassification = CustomerContent;
@@ -154,3 +155,5 @@ table 7012 "Purchase Price"
 #endif
 }
 
+ 
+#endif

@@ -261,13 +261,6 @@ table 12453 "Item Document Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
         field(5801; "Item Charge No."; Code[20])
         {
             Caption = 'Item Charge No.';
@@ -326,4 +319,3 @@ table 12453 "Item Document Line"
     {
     }
 }
-

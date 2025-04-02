@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Journal;
 
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -11,6 +15,8 @@ table 5605 "FA Journal Setup"
 {
     Caption = 'FA Journal Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "FA Journal Setup";
+    LookupPageID = "FA Journal Setup";
 
     fields
     {

@@ -37,26 +37,24 @@ page 116 "G/L Registers"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger register.';
                 }
-#if not CLEAN35                
+                /// <summary>
+                /// The Creation Date field has been replaced with the SystemCreateAt field but needs to be kept for historical audit purposes.
+                /// </summary>
                 field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the entries in the register were posted.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This field is obsolete. Use the System Created At field instead.';
-                    ObsoleteTag = '24.0';
                     Visible = false;
                 }
+                /// <summary>
+                /// The Creation Time field has been replaced with the SystemCreateAt field but needs to be kept for historical audit purposes.
+                /// </summary>
                 field("Creation Time"; Rec."Creation Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the time when the entries in the register were posted.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This field is obsolete. Use the System Created At field instead.';
-                    ObsoleteTag = '24.0';
                     Visible = false;
                 }
-#endif
                 field(SystemCreatedAt; Rec.SystemCreatedAt)
                 {
                     ApplicationArea = Basic, Suite;

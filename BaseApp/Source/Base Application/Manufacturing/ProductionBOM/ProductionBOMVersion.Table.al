@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.ProductionBOM;
 
 using Microsoft.Foundation.NoSeries;
@@ -201,6 +205,15 @@ table 99000779 "Production BOM Version"
         exit(
           CopyStr(StrSubstNo('%1 %2 %3',
             "Production BOM No.", ProdBOMHeader.Description, "Version Code"), 1, 100));
+    end;
+
+    procedure ProductionBOMLinesExist(): Boolean
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        ProductionBOMLine.SetRange("Production BOM No.", Rec."Production BOM No.");
+        ProductionBOMLine.SetRange("Version Code", Rec."Version Code");
+        exit(not ProductionBOMLine.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]

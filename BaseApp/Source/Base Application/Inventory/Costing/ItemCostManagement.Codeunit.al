@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Costing;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -22,6 +26,7 @@ codeunit 5804 ItemCostManagement
         Currency: Record Currency;
         InvtSetup: Record "Inventory Setup";
         CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         InvoicedQty: Decimal;
         RndgSetupRead: Boolean;
         CalledFromAdjustment: Boolean;
@@ -118,7 +123,7 @@ codeunit 5804 ItemCostManagement
             exit;
 
         if (Item."Unit Cost" = 0) or ((InvoicedQty > 0) and (LastDirectCost <> 0)) then begin
-            Item.CalcFields(Item."Net Invoiced Qty.");
+            Item.CalcFields("Net Invoiced Qty.");
             IsHandled := false;
             OnUpdateUnitCostOnBeforeNetInvoiceQtyCheck(Item, IsHandled);
             if (Item."Net Invoiced Qty." > 0) and (Item."Net Invoiced Qty." <= InvoicedQty) and not IsHandled then
@@ -150,6 +155,8 @@ codeunit 5804 ItemCostManagement
             exit;
 
         Item.Get(FromItem."No.");
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            Item.SetHideNonInventoryValidateOnStdCost(true);
         Item.Validate("Standard Cost", FromItem."Standard Cost");
         Item."Single-Level Material Cost" := FromItem."Single-Level Material Cost";
         Item."Single-Level Capacity Cost" := FromItem."Single-Level Capacity Cost";
@@ -162,8 +169,33 @@ codeunit 5804 ItemCostManagement
         Item."Rolled-up Mfg. Ovhd Cost" := FromItem."Rolled-up Mfg. Ovhd Cost";
         Item."Rolled-up Cap. Overhead Cost" := FromItem."Rolled-up Cap. Overhead Cost";
         Item."Last Unit Cost Calc. Date" := FromItem."Last Unit Cost Calc. Date";
+        Item."Single-Lvl Mat. Non-Invt. Cost" := FromItem."Single-Lvl Mat. Non-Invt. Cost";
+        Item."Rolled-up Mat. Non-Invt. Cost" := FromItem."Rolled-up Mat. Non-Invt. Cost";
         OnUpdateStdCostSharesOnAfterCopyCosts(Item, FromItem);
         Item.Modify();
+    end;
+
+    procedure UpdateStdCostSharesForSKU(FromSKU: Record "Stockkeeping Unit")
+    var
+        SKU: Record "Stockkeeping Unit";
+    begin
+        SKU.Get(FromSKU."Location Code", FromSKU."Item No.", FromSKU."Variant Code");
+        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+            SKU.SetHideNonInventoryValidateOnStdCost(true);
+        SKU.Validate("Standard Cost", FromSKU."Standard Cost");
+        SKU."Single-Level Material Cost" := FromSKU."Single-Level Material Cost";
+        SKU."Single-Level Capacity Cost" := FromSKU."Single-Level Capacity Cost";
+        SKU."Single-Level Subcontrd. Cost" := FromSKU."Single-Level Subcontrd. Cost";
+        SKU."Single-Level Cap. Ovhd Cost" := FromSKU."Single-Level Cap. Ovhd Cost";
+        SKU."Single-Level Mfg. Ovhd Cost" := FromSKU."Single-Level Mfg. Ovhd Cost";
+        SKU."Rolled-up Material Cost" := FromSKU."Rolled-up Material Cost";
+        SKU."Rolled-up Capacity Cost" := FromSKU."Rolled-up Capacity Cost";
+        SKU."Rolled-up Subcontracted Cost" := FromSKU."Rolled-up Subcontracted Cost";
+        SKU."Rolled-up Mfg. Ovhd Cost" := FromSKU."Rolled-up Mfg. Ovhd Cost";
+        SKU."Rolled-up Cap. Overhead Cost" := FromSKU."Rolled-up Cap. Overhead Cost";
+        SKU."Single-Lvl Mat. Non-Invt. Cost" := FromSKU."Single-Lvl Mat. Non-Invt. Cost";
+        SKU."Rolled-up Mat. Non-Invt. Cost" := FromSKU."Rolled-up Mat. Non-Invt. Cost";
+        SKU.Modify();
     end;
 
     procedure UpdateUnitCostSKU(Item: Record Item; var SKU: Record "Stockkeeping Unit"; LastDirectCost: Decimal; NewStdCost: Decimal; MatchSKU: Boolean; CalledByFieldNo: Integer)
@@ -271,6 +303,11 @@ codeunit 5804 ItemCostManagement
         if HasOpenEntries(Item) then
             exit;
 
+        AvgCostCalculated := false;
+        OnCalcLastAdjEntryAvgCostOnBeforeSetFilters(ValueEntry, Item, AverageCost, AverageCostACY, AvgCostCalculated);
+        if AvgCostCalculated then
+            exit;
+
         SetFilters(ValueEntry, Item);
         if ValueEntry.Find('+') then
             repeat
@@ -365,7 +402,7 @@ codeunit 5804 ItemCostManagement
     procedure SetFilters(var ValueEntry: Record "Value Entry"; var Item: Record Item)
     begin
         ValueEntry.Reset();
-        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
+        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code", "Entry No.");
         ValueEntry.SetRange("Item No.", Item."No.");
         ValueEntry.SetFilter("Valuation Date", Item.GetFilter("Date Filter"));
         ValueEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
@@ -422,6 +459,7 @@ codeunit 5804 ItemCostManagement
         OpenOutbndItemLedgEntry: Record "Item Ledger Entry";
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
         ItemApplicationEntry: Record "Item Application Entry";
+        IsHandled: Boolean;
     begin
         // Collect precise (not rounded) remaining cost on:
         // 1. open inbound item ledger entries;
@@ -441,60 +479,65 @@ codeunit 5804 ItemCostManagement
                 TempItemLedgerEntry.Insert();
             until OpenInbndItemLedgEntry.Next() = 0;
 
-        OpenOutbndItemLedgEntry.CopyFilters(OpenInbndItemLedgEntry);
-        OpenOutbndItemLedgEntry.SetRange(Positive, false);
-        if OpenOutbndItemLedgEntry.FindSet() then
-            repeat
-                if ItemApplicationEntry.GetInboundEntriesTheOutbndEntryAppliedTo(OpenOutbndItemLedgEntry."Entry No.") then
-                    repeat
-                        if TempItemLedgerEntry.Get(ItemApplicationEntry."Inbound Item Entry No.") then begin
-                            TempItemLedgerEntry."Remaining Quantity" -= ItemApplicationEntry.Quantity;
-                            TempItemLedgerEntry.Modify();
-                        end else begin
-                            OpenInbndItemLedgEntry.Get(ItemApplicationEntry."Inbound Item Entry No.");
-                            TempItemLedgerEntry := OpenInbndItemLedgEntry;
-                            TempItemLedgerEntry."Remaining Quantity" := -ItemApplicationEntry.Quantity;
-                            TempItemLedgerEntry.Insert();
-                        end;
-                    until ItemApplicationEntry.Next() = 0;
-            until OpenOutbndItemLedgEntry.Next() = 0;
+        IsHandled := false;
+        OnCalculatePreciseCostAmountsOnBeforeProcessOpenOutboundItemLedgerEntry(Item, OpenInbndItemLedgEntry, OpenOutbndItemLedgEntry, TempItemLedgerEntry, IsHandled);
+        if not IsHandled then begin
+            OpenOutbndItemLedgEntry.CopyFilters(OpenInbndItemLedgEntry);
+            OpenOutbndItemLedgEntry.SetRange(Positive, false);
+            if OpenOutbndItemLedgEntry.FindSet() then
+                repeat
+                    if ItemApplicationEntry.GetInboundEntriesTheOutbndEntryAppliedTo(OpenOutbndItemLedgEntry."Entry No.") then
+                        repeat
+                            if TempItemLedgerEntry.Get(ItemApplicationEntry."Inbound Item Entry No.") then begin
+                                TempItemLedgerEntry."Remaining Quantity" -= ItemApplicationEntry.Quantity;
+                                TempItemLedgerEntry.Modify();
+                            end else begin
+                                OpenInbndItemLedgEntry.Get(ItemApplicationEntry."Inbound Item Entry No.");
+                                TempItemLedgerEntry := OpenInbndItemLedgEntry;
+                                TempItemLedgerEntry."Remaining Quantity" := -ItemApplicationEntry.Quantity;
+                                TempItemLedgerEntry.Insert();
+                            end;
+                        until ItemApplicationEntry.Next() = 0;
+                until OpenOutbndItemLedgEntry.Next() = 0;
+        end;
 
-        TempItemLedgerEntry.Reset();
-        if TempItemLedgerEntry.FindSet() then
-            repeat
-                if NeedCalcPreciseAmt then begin
-                    TempItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
-                    PreciseAmt += (TempItemLedgerEntry."Cost Amount (Actual)" + TempItemLedgerEntry."Cost Amount (Expected)") / TempItemLedgerEntry.Quantity * TempItemLedgerEntry."Remaining Quantity";
-                end;
-                if NeedCalcPreciseAmtACY then begin
-                    TempItemLedgerEntry.CalcFields("Cost Amount (Actual) (ACY)", "Cost Amount (Expected) (ACY)");
-                    PreciseAmtACY += (TempItemLedgerEntry."Cost Amount (Actual) (ACY)" + TempItemLedgerEntry."Cost Amount (Expected) (ACY)") / TempItemLedgerEntry.Quantity * TempItemLedgerEntry."Remaining Quantity";
-                end;
-            until TempItemLedgerEntry.Next() = 0;
+        IsHandled := false;
+        OnCalculatePreciseCostAmountsOnOnBeforeProcessTempItemLedgerEntry(TempItemLedgerEntry, PreciseAmt, IsHandled);
+        if not IsHandled then begin
+            TempItemLedgerEntry.Reset();
+            if TempItemLedgerEntry.FindSet() then
+                repeat
+                    if NeedCalcPreciseAmt then begin
+                        TempItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
+                        PreciseAmt += (TempItemLedgerEntry."Cost Amount (Actual)" + TempItemLedgerEntry."Cost Amount (Expected)") / TempItemLedgerEntry.Quantity * TempItemLedgerEntry."Remaining Quantity";
+                    end;
+                    if NeedCalcPreciseAmtACY then begin
+                        TempItemLedgerEntry.CalcFields("Cost Amount (Actual) (ACY)", "Cost Amount (Expected) (ACY)");
+                        PreciseAmtACY += (TempItemLedgerEntry."Cost Amount (Actual) (ACY)" + TempItemLedgerEntry."Cost Amount (Expected) (ACY)") / TempItemLedgerEntry.Quantity * TempItemLedgerEntry."Remaining Quantity";
+                    end;
+                until TempItemLedgerEntry.Next() = 0;
+        end;
     end;
 
     local procedure ExcludeOpenOutbndCosts(var Item: Record Item; var CostAmt: Decimal; var CostAmtACY: Decimal; var Quantity: Decimal)
     var
         OpenItemLedgEntry: Record "Item Ledger Entry";
-        OpenValueEntry: Record "Value Entry";
     begin
+        OpenItemLedgEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
+        OpenItemLedgEntry.SetLoadFields("Entry No.", "Cost Amount (Actual)", "Cost Amount (Expected)", "Cost Amount (Actual) (ACY)", "Cost Amount (Expected) (ACY)", "Item Ledger Entry Quantity");
         OpenItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive);
         OpenItemLedgEntry.SetRange("Item No.", Item."No.");
         OpenItemLedgEntry.SetRange(Open, true);
         OpenItemLedgEntry.SetRange(Positive, false);
         OpenItemLedgEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
         OpenItemLedgEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-        OpenValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        OpenItemLedgEntry.SetAutoCalcFields("Cost Amount (Actual)", "Cost Amount (Expected)", "Cost Amount (Actual) (ACY)", "Cost Amount (Expected) (ACY)", "Item Ledger Entry Quantity");
         OnExcludeOpenOutbndCostsOnAfterOpenItemLedgEntrySetFilters(OpenItemLedgEntry, Item);
-        if OpenItemLedgEntry.Find('-') then
+        if OpenItemLedgEntry.FindSet() then
             repeat
-                OpenValueEntry.SetRange("Item Ledger Entry No.", OpenItemLedgEntry."Entry No.");
-                if OpenValueEntry.Find('-') then
-                    repeat
-                        CostAmt := CostAmt - OpenValueEntry."Cost Amount (Actual)" - OpenValueEntry."Cost Amount (Expected)";
-                        CostAmtACY := CostAmtACY - OpenValueEntry."Cost Amount (Actual) (ACY)" - OpenValueEntry."Cost Amount (Expected) (ACY)";
-                        Quantity := Quantity - OpenValueEntry."Item Ledger Entry Quantity";
-                    until OpenValueEntry.Next() = 0;
+                CostAmt := CostAmt - OpenItemLedgEntry."Cost Amount (Actual)" - OpenItemLedgEntry."Cost Amount (Expected)";
+                CostAmtACY := CostAmtACY - OpenItemLedgEntry."Cost Amount (Actual) (ACY)" - OpenItemLedgEntry."Cost Amount (Expected) (ACY)";
+                Quantity := Quantity - OpenItemLedgEntry."Item Ledger Entry Quantity";
             until OpenItemLedgEntry.Next() = 0;
 
         OnAfterExcludeOpenOutbndCosts(Item, CostAmt, CostAmtACY, Quantity);
@@ -505,6 +548,7 @@ codeunit 5804 ItemCostManagement
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
         ItemLedgEntry.Reset();
+        ItemLedgEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
         ItemLedgEntry.SetCurrentKey(ItemLedgEntry."Item No.", ItemLedgEntry.Open);
         ItemLedgEntry.SetRange(ItemLedgEntry."Item No.", Item."No.");
         ItemLedgEntry.SetRange(ItemLedgEntry.Open, true);
@@ -731,6 +775,21 @@ codeunit 5804 ItemCostManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateUnitCostSKUOnBeforeCheckNegCost(var AverageCost: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLastAdjEntryAvgCostOnBeforeSetFilters(var ValueEntry: Record "Value Entry"; var Item: Record Item; var AverageCost: Decimal; var AverageCostACY: Decimal; var AvgCostCalculated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculatePreciseCostAmountsOnBeforeProcessOpenOutboundItemLedgerEntry(var Item: Record Item; var OpenInboundItemLedgEntry: Record "Item Ledger Entry"; var OpenOutboundItemLedgEntry: Record "Item Ledger Entry"; var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculatePreciseCostAmountsOnOnBeforeProcessTempItemLedgerEntry(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var PreciseAmt: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

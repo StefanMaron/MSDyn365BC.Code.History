@@ -574,7 +574,7 @@ codeunit 144714 "ERM FA Reports Test"
           FALedgEntry, FADeprBook, WorkDate(), FALedgEntry."FA Posting Category"::Disposal);
     end;
 
-    local procedure MockFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FADeprBook: Record "FA Depreciation Book"; PostingDate: Date; FAPostCategory: Option)
+    local procedure MockFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FADeprBook: Record "FA Depreciation Book"; PostingDate: Date; FAPostCategory: Enum "FA Ledger Posting Category")
     begin
         FALedgerEntry.Init();
         FALedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(FALedgerEntry, FALedgerEntry.FieldNo("Entry No."));

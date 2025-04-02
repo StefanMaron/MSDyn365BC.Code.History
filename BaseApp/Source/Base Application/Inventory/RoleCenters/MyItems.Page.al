@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 page 9152 "My Items"
@@ -73,30 +77,22 @@ page 9152 "My Items"
         SyncFieldsWithItem();
     end;
 
-    trigger OnNewRecord(BelowxRec: Boolean)
-    begin
-        Clear(Item)
-    end;
-
     trigger OnOpenPage()
     begin
         Rec.SetRange("User ID", UserId);
     end;
 
-    var
-        Item: Record Item;
-
     local procedure SyncFieldsWithItem()
     var
-        MyItem: Record "My Item";
+        Item: Record Item;
     begin
-        Clear(Item);
-
+        Item.ReadIsolation(IsolationLevel::ReadCommitted);
+        Item.SetLoadFields(Description, "Unit Price");
         if Item.Get(Rec."Item No.") then
             if (Rec.Description <> Item.Description) or (Rec."Unit Price" <> Item."Unit Price") then begin
                 Rec.Description := Item.Description;
                 Rec."Unit Price" := Item."Unit Price";
-                if MyItem.Get(Rec."User ID", Rec."Item No.") then
+                if not IsNullGuid(Rec.SystemId) then
                     Rec.Modify();
             end;
     end;

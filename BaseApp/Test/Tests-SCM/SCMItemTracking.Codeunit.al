@@ -1694,7 +1694,6 @@ codeunit 137405 "SCM Item Tracking"
         LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(LotNo);
         SalesLine.OpenItemTrackingLines();
-
         // [GIVEN] Sales Line quantity to ship is not equal to tracked quantity.
         SalesLine.Find();
         SalesLine.Validate("Qty. to Ship", 2);
@@ -1733,7 +1732,6 @@ codeunit 137405 "SCM Item Tracking"
         LotNo := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(LotNo);
         PurchaseLine.OpenItemTrackingLines();
-
         // [GIVEN] Purchase Line quantity to receive is not equal to tracked quantity.
         PurchaseLine.Find();
         PurchaseLine.Validate("Qty. to Receive", 2);
@@ -5194,7 +5192,7 @@ codeunit 137405 "SCM Item Tracking"
         QtyPurchase := LotQty[1] + LotQty[2] + LotQty[3];
 
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch, Item, LocationCode, '', WorkDate(), ItemJournalLine."Entry Type"::"Positive Adjmt.", QtyPurchase, 0);
         LibraryVariableStorage.Enqueue(LotCount);
         for iLot := 1 to LotCount do begin
@@ -5226,7 +5224,7 @@ codeunit 137405 "SCM Item Tracking"
         if SNSpecificTracking then
             ItemTrackingCode.Validate("SN Warehouse Tracking", not SNSpecificTracking);
         ItemTrackingCode.Modify(true);
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
         Item.Validate(Reserve, Item.Reserve::Always);
         Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
         Item.Modify(true);
@@ -5251,7 +5249,7 @@ codeunit 137405 "SCM Item Tracking"
         ReservMgt: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
     begin
-        LibraryPatterns.MAKESalesOrder(
+        LibrarySales.CreateSalesOrder(
           SalesHeader, SalesLine, Item, LocationCode, '', QtySale, WorkDate(), LibraryRandom.RandDec(1000, 2));
         ReservMgt.SetReservSource(SalesLine);
         ReservMgt.AutoReserve(FullAutoReservation, '', WorkDate(), QtySale, QtySale);
@@ -5369,7 +5367,7 @@ codeunit 137405 "SCM Item Tracking"
     begin
         CreateItem(Item, CreateItemTrackingWithSalesSerialNos(), LibraryUtility.GetGlobalNoSeriesCode(), '');
         ItemInventoryQty := LibraryRandom.RandInt(100);
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', ItemInventoryQty, WorkDate(), Item."Unit Cost");
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', ItemInventoryQty, WorkDate(), Item."Unit Cost");
 
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.");
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", PurchaseLine.Quantity + ItemInventoryQty);
@@ -5452,7 +5450,7 @@ codeunit 137405 "SCM Item Tracking"
         ItemJnlBatch: Record "Item Journal Batch";
     begin
         LibraryInventory.CreateItemJournalBatchByType(ItemJnlBatch, ItemJnlTemplate.Type::Item);
-        LibraryPatterns.MAKEItemJournalLine(ItemJnlLine, ItemJnlBatch, Item, '', '', WorkDate(), EntryType, Qty, UnitAmount);
+        LibraryInventory.CreateItemJournalLine(ItemJnlLine, ItemJnlBatch, Item, '', '', WorkDate(), EntryType, Qty, UnitAmount);
     end;
 
     local procedure CreateItemTrackingCodeLotSerial(): Code[10]
@@ -5745,7 +5743,7 @@ codeunit 137405 "SCM Item Tracking"
         InTransitLocation: Record Location;
     begin
         CreateTransitLocations(FromLocation, ToLocation, InTransitLocation);
-        LibraryPatterns.MAKETransferOrder(
+        LibraryInventory.CreateTransferOrder(
           TransferHeader, TransferLine, Item, FromLocation, ToLocation, InTransitLocation, '', Qty, WorkDate(), WorkDate());
     end;
 

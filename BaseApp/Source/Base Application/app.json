@@ -4,7 +4,7 @@
   "publisher": "Microsoft",
   "description": "Provides business processes that are typical for small and mid-sized companies, such as sales and purchasing, and customer and vendor management, plus complex processes, such as assembly, manufacturing, service, and directed warehouse management. https://go.microsoft.com/fwlink/?LinkId=2205496",
   "brief": "Base Application (RU)",
-  "version": "25.5.30849.31109",
+  "version": "26.0.30643.32481",
   "logo": "ExtensionLogo.png",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -16,13 +16,13 @@
       "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
       "name": "System Application",
       "publisher": "Microsoft",
-      "version": "25.5.0.0"
+      "version": "26.0.0.0"
     },
     {
       "id": "f3552374-a1f2-4356-848e-196002525837",
       "name": "Business Foundation",
       "publisher": "Microsoft",
-      "version": "25.5.0.0"
+      "version": "26.0.0.0"
     }
   ],
   "internalsVisibleTo": [
@@ -127,12 +127,27 @@
       "publisher": "Microsoft"
     },
     {
+      "id": "88f3615c-370c-4f39-bb5f-54e096c984e9",
+      "name": "Tests-SCM-Manufacturing",
+      "publisher": "Microsoft"
+    },
+    {
+      "id": "e737590a-fede-4692-ac4e-d1d4849dd043",
+      "name": "Tests-Service",
+      "publisher": "Microsoft"
+    },
+    {
       "id": "6555cb10-63ea-4ec0-99aa-8e6a4db67c87",
       "name": "Core Localization Pack for Czech Tests",
       "publisher": "Microsoft"
+    },
+    {
+      "id": "0243a4ea-21b3-4fa8-ad70-9915a4400be0",
+      "name": "Tests-Resource",
+      "publisher": "Microsoft"
     }
   ],
-  "platform": "25.2.0.0",
+  "platform": "26.0.0.0",
   "idRanges": [
     {
       "from": 1,
@@ -148,7 +163,23 @@
     },
     {
       "from": 99000700,
-      "to": 99009000
+      "to": 99000701
+    },
+    {
+      "from": 99000750,
+      "to": 99001049
+    },
+    {
+      "from": 99003500,
+      "to": 99004399
+    },
+    {
+      "from": 99004600,
+      "to": 99005899
+    },
+    {
+      "from": 99008500,
+      "to": 99009699
     },
     {
       "from": 5055250,

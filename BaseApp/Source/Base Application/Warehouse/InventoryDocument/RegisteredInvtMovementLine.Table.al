@@ -9,7 +9,6 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Family;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
@@ -143,8 +142,6 @@ table 7345 "Registered Invt. Movement Line"
             else
             if ("Destination Type" = const(Item)) Item
             else
-            if ("Destination Type" = const(Family)) Family
-            else
             if ("Destination Type" = const("Sales Order")) "Sales Header"."No." where("Document Type" = const(Order));
         }
         field(41; "Whse. Activity No."; Code[20])
@@ -229,13 +226,6 @@ table 7345 "Registered Invt. Movement Line"
         {
             Caption = 'Special Equipment Code';
             TableRelation = "Special Equipment";
-        }
-        field(14900; "CD No."; Code[20])
-        {
-            Caption = 'CD No.';
-            ObsoleteReason = 'Replaced by field Package No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
         }
     }
 

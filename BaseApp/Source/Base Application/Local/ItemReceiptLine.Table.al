@@ -202,6 +202,7 @@ table 12452 "Item Receipt Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
+#if not CLEANSCHEMA28
         field(5707; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -214,6 +215,7 @@ table 12452 "Item Receipt Line"
             ObsoleteTag = '17.0';
 #endif
         }
+#endif
         field(5807; "Applies-from Entry"; Integer)
         {
             Caption = 'Applies-from Entry';

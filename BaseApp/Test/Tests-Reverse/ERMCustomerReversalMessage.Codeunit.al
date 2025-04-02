@@ -3,7 +3,6 @@
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
-
     trigger OnRun()
     begin
         // [FEATURE] [Reverse] [Sales]
@@ -21,7 +20,6 @@
         ReversalFromLedgerErr: Label 'You cannot create this type of document when Customer %1 is blocked with type %2';
         ReversalFromRegisterErr: Label 'You cannot reverse register number %1 because it contains customer or vendor or employee ledger entries';
         ReversalFromGLEntryErr: Label 'The transaction cannot be reversed, because the Cust. Ledger Entry has been compressed.';
-        NothingToAdjustTxt: Label 'There is nothing to adjust.';
         ReversalFromLedgerPrivacyBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked for privacy.';
 
     [Test]
@@ -320,7 +318,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,NothingAdjustedMessageHandler')]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure CurrencyAdjustEntryFrmLedger()
     var
@@ -338,13 +336,8 @@
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         UpdateExchangeRate(GenJournalLine."Currency Code");
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRates(
-          GenJournalLine."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), GenJournalLine."Document No.", false);
-#else
         LibraryERM.RunExchRateAdjustment(
           GenJournalLine."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), GenJournalLine."Document No.", false);
-#endif
 
         // Exercise: Reverse Posted Entry from Customer Legder.
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::" ", GenJournalLine."Document No.");
@@ -653,13 +646,6 @@
     begin
         // Handler for confirmation messages, always send positive reply.
         Reply := true;
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure NothingAdjustedMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(NothingToAdjustTxt, Message);
     end;
 }
 

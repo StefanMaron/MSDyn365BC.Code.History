@@ -142,6 +142,7 @@ table 12459 "Direct Transfer Line"
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
         }
+#if not CLEANSCHEMA28
         field(5707; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -154,6 +155,7 @@ table 12459 "Direct Transfer Line"
             ObsoleteTag = '17.0';
 #endif
         }
+#endif
         field(7300; "Transfer-from Bin Code"; Code[20])
         {
             Caption = 'Transfer-from Bin Code';

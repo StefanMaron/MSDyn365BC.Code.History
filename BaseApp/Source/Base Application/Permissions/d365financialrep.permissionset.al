@@ -53,6 +53,7 @@ permissionset 7576 "D365 FINANCIAL REP."
                   tabledata "Allocation Line" = RIMD,
                   tabledata "Financial Report" = RIMD,
                   tabledata "Financial Report User Filters" = RIMD,
+                  tabledata "Fin. Report Excel Template" = RIMD,
                   tabledata "Accounting Period" = RIMD,
                   tabledata "Analysis Column" = RIMD,
                   tabledata "Analysis Column Template" = RIMD,

@@ -885,7 +885,6 @@ codeunit 137161 "SCM Warehouse Orders"
         // [GIVEN] Create Pick Worksheet line, related to Sales Order.
         CreatePartialPickForWhseShipment(
           SalesHeader, WhseWorksheetName, WhseWorksheetLine, LocationWhite.Code);
-
         // [GIVEN] Open Pick Worksheet, set partial Qty. to handle.
         WhseWorksheetLine.Validate("Qty. to Handle", WhseWorksheetLine."Qty. Outstanding" / 2);
         WhseWorksheetLine.Modify(true);
@@ -2958,7 +2957,7 @@ codeunit 137161 "SCM Warehouse Orders"
         ItemNo := LibraryInventory.CreateItem(Item);
         Location.Get(LocationCode);
         LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
-        LibraryPatterns.POSTPositiveAdjustment(
+        LibraryInventory.PostPositiveAdjustment(
           Item, LocationCode, '', Bin.Code, QtyOnInventory, WorkDate(), LibraryRandom.RandDec(9, 2));
     end;
 
@@ -3162,7 +3161,7 @@ codeunit 137161 "SCM Warehouse Orders"
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ParentItem."No.", Qty);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, true, true, true, false);
-        LibraryPatterns.POSTPositiveAdjustment(
+        LibraryInventory.PostPositiveAdjustment(
           CompItem, '', '', '', LibraryRandom.RandDec(10, 2), WorkDate(), LibraryPatterns.RandCost(CompItem));
     end;
 

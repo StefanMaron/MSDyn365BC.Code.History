@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Warehouse.Activity;
+namespace Microsoft.Warehouse.Activity;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Shipping;
@@ -9,8 +9,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Family;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
@@ -203,7 +201,6 @@ table 5767 "Warehouse Activity Line"
         {
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
-            Editable = false;
 
             trigger OnValidate()
             var
@@ -213,6 +210,8 @@ table 5767 "Warehouse Activity Line"
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
                 "Qty. (Base)" := CalcBaseQty(QuantityNotRounded, FieldCaption(Quantity), FieldCaption("Qty. (Base)"));
                 Validate("Qty. Outstanding", (QuantityNotRounded - "Qty. Handled"));
+
+                UpdateQtyOnRelatedPlaceLine(Rec, xRec);
             end;
         }
         field(21; "Qty. (Base)"; Decimal)
@@ -398,8 +397,6 @@ table 5767 "Warehouse Activity Line"
             if ("Destination Type" = const(Location)) Location
             else
             if ("Destination Type" = const(Item)) Item
-            else
-            if ("Destination Type" = const(Family)) Family
             else
             if ("Destination Type" = const("Sales Order")) "Sales Header"."No." where("Document Type" = const(Order));
         }
@@ -739,8 +736,6 @@ table 5767 "Warehouse Activity Line"
             else
             if ("Whse. Document Type" = const("Internal Pick")) "Whse. Internal Pick Header"."No." where("No." = field("Whse. Document No."))
             else
-            if ("Whse. Document Type" = const(Production)) "Production Order"."No." where("No." = field("Whse. Document No."))
-            else
             if ("Whse. Document Type" = const(Assembly)) "Assembly Header"."No." where("Document Type" = const(Order),
                                                                                        "No." = field("Whse. Document No."))
             else
@@ -762,9 +757,6 @@ table 5767 "Warehouse Activity Line"
             else
             if ("Whse. Document Type" = const("Internal Pick")) "Whse. Internal Pick Line"."Line No." where("No." = field("Whse. Document No."),
                                                                                                             "Line No." = field("Whse. Document Line No."))
-            else
-            if ("Whse. Document Type" = const(Production)) "Prod. Order Line"."Line No." where("Prod. Order No." = field("No."),
-                                                                                               "Line No." = field("Line No."))
             else
             if ("Whse. Document Type" = const(Assembly)) "Assembly Line"."Line No." where("Document Type" = const(Order),
                                                                                           "Document No." = field("Whse. Document No."),
@@ -822,6 +814,7 @@ table 5767 "Warehouse Activity Line"
             Caption = 'Dedicated';
             Editable = false;
         }
+#if not CLEANSCHEMA25
         field(14900; "CD No."; Code[50])
         {
             Caption = 'CD No.';
@@ -829,6 +822,7 @@ table 5767 "Warehouse Activity Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(7319; "Over-Receipt Quantity"; Decimal)
         {
             Caption = 'Over-Receipt Quantity';
@@ -895,6 +889,10 @@ table 5767 "Warehouse Activity Line"
         {
             IncludedFields = "Qty. Outstanding", "Qty. Outstanding (Base)";
         }
+        key(Key4; "Activity Type", "No.", "Sorting Sequence No.")
+        {
+            IncludedFields = "Shelf No.";
+        }
 #pragma warning disable AS0009
         key(Key14; "Whse. Document No.", "Whse. Document Type", "Activity Type", "Whse. Document Line No.", "Action Type", "Unit of Measure Code", "Original Breakbulk", "Breakbulk No.", "Lot No.", "Serial No.", "Assemble to Order", "Package No.")
 #pragma warning restore AS0009
@@ -917,6 +915,10 @@ table 5767 "Warehouse Activity Line"
         }
         key(Key18; "Location Code", "Activity Type")
         {
+        }
+        key(Key19; "Source No.", "Source Line No.", "Source Subline No.")
+        {
+            IncludedFields = "Serial No.", "Lot No.", "Package No.";
         }
     }
     fieldgroups
@@ -985,7 +987,7 @@ table 5767 "Warehouse Activity Line"
 #pragma warning restore AA0074
         ValidValuesIfSNDefinedErr: Label 'Field %1 can only have values -1, 0 or 1 when serial no. is defined. Current value is %2.', Comment = '%1 = field name, %2 = field value';
         NotEnoughQtyToPickMsg: Label 'Quantity available to pick is not enough.';
-
+        OutstandingQtyCannotbeLessThanZeroErr: Label 'Outstanding Qty. base cannot be less than 0.';
 
     procedure CalcQty(QtyBase: Decimal): Decimal
     begin
@@ -1138,7 +1140,6 @@ table 5767 "Warehouse Activity Line"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
         WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line";
         WhseInternalPickLine: Record "Whse. Internal Pick Line";
-        ProdOrderComponent: Record "Prod. Order Component";
         AssemblyLine: Record "Assembly Line";
         JobPlanningLine: Record "Job Planning Line";
         WhseDocType2: Enum "Warehouse Activity Document Type";
@@ -1170,14 +1171,6 @@ table 5767 "Warehouse Activity Line"
                             WhseInternalPickLine.Get("Whse. Document No.", "Whse. Document Line No.");
                             TestField("Bin Code", WhseInternalPickLine."To Bin Code");
                         end;
-                    "Whse. Document Type"::Production:
-                        begin
-                            GetLocation("Location Code");
-                            if Location."Directed Put-away and Pick" then begin
-                                ProdOrderComponent.Get("Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
-                                CheckBinCodeFromProdOrderCompLine(ProdOrderComponent);
-                            end;
-                        end;
                     "Whse. Document Type"::Assembly:
                         begin
                             GetLocation("Location Code");
@@ -1197,6 +1190,8 @@ table 5767 "Warehouse Activity Line"
                                     TestField("Bin Code", JobPlanningLine."Bin Code");
                             end;
                         end;
+                    else
+                        CheckWhseDocLineOnCheckSourceDocument(Rec, WhseDocType2);
                 end;
             end;
 
@@ -1220,7 +1215,6 @@ table 5767 "Warehouse Activity Line"
 
     procedure CheckBinInSourceDoc()
     var
-        ProdOrderComponent: Record "Prod. Order Component";
         AssemblyLine: Record "Assembly Line";
         JobPlanningLine: Record "Job Planning Line";
         IsHandled: Boolean;
@@ -1235,12 +1229,6 @@ table 5767 "Warehouse Activity Line"
             exit;
 
         case "Source Type" of
-            Database::"Prod. Order Component":
-                begin
-                    ProdOrderComponent.SetLoadFields("Bin Code");
-                    ProdOrderComponent.Get("Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
-                    TestField("Bin Code", ProdOrderComponent."Bin Code");
-                end;
             Database::"Assembly Line":
                 begin
                     AssemblyLine.SetLoadFields("Bin Code");
@@ -1254,6 +1242,8 @@ table 5767 "Warehouse Activity Line"
                     if JobPlanningLine.FindFirst() then
                         TestField("Bin Code", JobPlanningLine."Bin Code");
                 end;
+            else
+                OnCheckBinInSourceDoc(Rec);
         end;
     end;
 
@@ -1332,7 +1322,7 @@ table 5767 "Warehouse Activity Line"
 
     procedure CheckIncreaseCapacity(DeductLineCapacity: Boolean)
     begin
-        CheckIncreaseCapacity(DeductLineCapacity, false);
+        CheckIncreaseCapacity(DeductLineCapacity, true);
     end;
 
     internal procedure CheckIncreaseCapacity(DeductLineCapacity: Boolean; CalledByPosting: Boolean)
@@ -1398,18 +1388,6 @@ table 5767 "Warehouse Activity Line"
             exit;
 
         TestField("Bin Code", WarehouseShipmentLine."Bin Code");
-    end;
-
-    local procedure CheckBinCodeFromProdOrderCompLine(ProdOrderComponent: Record "Prod. Order Component")
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckBinCodeFromProdOrderCompLine(Rec, ProdOrderComponent, IsHandled);
-        if IsHandled then
-            exit;
-
-        TestField("Bin Code", ProdOrderComponent."Bin Code");
     end;
 
     procedure SplitLine(var WarehouseActivityLine: Record "Warehouse Activity Line")
@@ -1615,7 +1593,6 @@ table 5767 "Warehouse Activity Line"
         PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header";
         WhseInternalPickHeader: Record "Whse. Internal Pick Header";
         WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header";
-        ReleasedProductionOrder: Record "Production Order";
         AssemblyHeader: Record "Assembly Header";
         Job: Record Job;
         WarehouseShipmentCard: Page "Warehouse Shipment";
@@ -1658,12 +1635,6 @@ table 5767 "Warehouse Activity Line"
                     WhseInternalPutawayCard.SetTableView(WhseInternalPutAwayHeader);
                     WhseInternalPutawayCard.RunModal();
                 end;
-            "Whse. Document Type"::Production:
-                begin
-                    ReleasedProductionOrder.SetRange(Status, "Source Subtype");
-                    ReleasedProductionOrder.SetRange("No.", "Source No.");
-                    Page.RunModal(Page::"Released Production Order", ReleasedProductionOrder);
-                end;
             "Whse. Document Type"::Assembly:
                 begin
                     AssemblyHeader.SetRange("Document Type", "Source Subtype");
@@ -1675,6 +1646,8 @@ table 5767 "Warehouse Activity Line"
                     Job.SetRange("No.", "Source No.");
                     Page.RunModal(Page::"Job Card", Job);
                 end;
+            else
+                OnShowWhseDoc(Rec);
         end;
     end;
 
@@ -1834,14 +1807,6 @@ table 5767 "Warehouse Activity Line"
             end;
             if WarehouseActivityLine."Activity Type" = WarehouseActivityLine."Activity Type"::"Invt. Movement" then
                 case WarehouseActivityLine."Source Type" of
-                    Database::"Prod. Order Component":
-                        begin
-                            WhseItemTrackingLine.SetRange("Source Type", Database::"Prod. Order Component");
-                            WhseItemTrackingLine.SetRange("Source Subtype", WarehouseActivityLine."Source Subtype");
-                            WhseItemTrackingLine.SetRange("Source ID", WarehouseActivityLine."Source No.");
-                            WhseItemTrackingLine.SetRange("Source Prod. Order Line", WarehouseActivityLine."Source Line No.");
-                            WhseItemTrackingLine.SetRange("Source Ref. No.", WarehouseActivityLine."Source Subline No.");
-                        end;
                     Database::"Assembly Line":
                         begin
                             WhseItemTrackingLine.SetRange("Source Type", Database::"Assembly Line");
@@ -1849,6 +1814,8 @@ table 5767 "Warehouse Activity Line"
                             WhseItemTrackingLine.SetRange("Source ID", WarehouseActivityLine."Source No.");
                             WhseItemTrackingLine.SetRange("Source Ref. No.", WarehouseActivityLine."Source Line No.");
                         end;
+                    else
+                        OnUpdateRelatedItemTrkgForInvtMovement(WarehouseActivityLine, WhseItemTrackingLine);
                 end;
             if WhseItemTrackingLine.Find('-') then
                 repeat
@@ -1998,12 +1965,17 @@ table 5767 "Warehouse Activity Line"
             (ReservEntry."Source Subtype" <> "Source Subtype") or
             (ReservEntry."Source ID" <> "Source No.") or
             (((ReservEntry."Source Ref. No." <> "Source Line No.") and
-                (ReservEntry."Source Type" <> Database::"Prod. Order Component")) or
+                (ReservEntry."Source Type" <> ProdOrderComponentSourceID())) or
                 (((ReservEntry."Source Prod. Order Line" <> "Source Line No.") or
                 (ReservEntry."Source Ref. No." <> "Source Subline No.")) and
-                (ReservEntry."Source Type" = Database::"Prod. Order Component"))))
+                (ReservEntry."Source Type" = ProdOrderComponentSourceID()))))
         then
             Error(Text014, FieldCaption("Serial No."), ItemTrkgCode);
+    end;
+
+    local procedure ProdOrderComponentSourceID(): Integer
+    begin
+        exit(5407);
     end;
 
     local procedure CheckReservedItemTrkgForLotNo(ItemTrkgCode: Code[50])
@@ -2041,10 +2013,10 @@ table 5767 "Warehouse Activity Line"
                     (ReservEntry2."Source Subtype" <> "Source Subtype") or
                     (ReservEntry2."Source ID" <> "Source No.") or
                     (((ReservEntry2."Source Ref. No." <> "Source Line No.") and
-                        (ReservEntry2."Source Type" <> Database::"Prod. Order Component")) or
+                        (ReservEntry2."Source Type" <> ProdOrderComponentSourceID())) or
                         (((ReservEntry2."Source Prod. Order Line" <> "Source Line No.") or
                         (ReservEntry2."Source Ref. No." <> "Source Subline No.")) and
-                        (ReservEntry2."Source Type" = Database::"Prod. Order Component")))) and
+                        (ReservEntry2."Source Type" = ProdOrderComponentSourceID())))) and
                     (ReservEntry2."Lot No." = '')
                 then
                     AvailQtyFromOtherResvLines := AvailQtyFromOtherResvLines + Abs(ReservEntry2."Quantity (Base)");
@@ -2081,6 +2053,7 @@ table 5767 "Warehouse Activity Line"
         if IsHandled then
             exit;
 
+        BinContent.ReadIsolation(IsolationLevel::ReadCommitted);
         if BinContent.Get("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code") then
             if not BinContent.Fixed and
                (BinContent."Min. Qty." = 0) and (BinContent."Max. Qty." = 0)
@@ -2220,24 +2193,15 @@ table 5767 "Warehouse Activity Line"
         OnAfterTransferFromIntPickLine(Rec, WhseInternalPickLine);
     end;
 
-    procedure TransferFromCompLine(ProdOrderCompLine: Record "Prod. Order Component")
+#if not CLEAN26
+    [Obsolete('Moved to codeunit ProdOrderWarehouseMgt', '26.0')]
+    procedure TransferFromCompLine(ProdOrderCompLine: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    var
+        ProdOrderWarehouseMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Warehouse Mgt.";
     begin
-        "Activity Type" := "Activity Type"::Pick;
-        "Source Type" := Database::"Prod. Order Component";
-        "Source Subtype" := ProdOrderCompLine.Status.AsInteger();
-        "Source No." := ProdOrderCompLine."Prod. Order No.";
-        "Source Line No." := ProdOrderCompLine."Prod. Order Line No.";
-        "Source Subline No." := ProdOrderCompLine."Line No.";
-        "Item No." := ProdOrderCompLine."Item No.";
-        "Variant Code" := ProdOrderCompLine."Variant Code";
-        Description := ProdOrderCompLine.Description;
-        "Due Date" := ProdOrderCompLine."Due Date";
-        "Whse. Document Type" := "Whse. Document Type"::Production;
-        "Whse. Document No." := ProdOrderCompLine."Prod. Order No.";
-        "Whse. Document Line No." := ProdOrderCompLine."Prod. Order Line No.";
-
-        OnAfterTransferFromCompLine(Rec, ProdOrderCompLine);
+        ProdOrderWarehouseMgt.TransferFromCompLine(Rec, ProdOrderCompLine);
     end;
+#endif
 
     procedure TransferFromAssemblyLine(AssemblyLine: Record "Assembly Line")
     begin
@@ -2350,7 +2314,7 @@ table 5767 "Warehouse Activity Line"
     local procedure InitTrackingSpecFromWhseActivLine(var TrackingSpecification: Record "Tracking Specification"; WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
         TrackingSpecification.Init();
-        if WarehouseActivityLine."Source Type" = Database::"Prod. Order Component" then
+        if WarehouseActivityLine."Source Type" = ProdOrderComponentSourceID() then
             TrackingSpecification.SetSource(
               WarehouseActivityLine."Source Type", WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.", WarehouseActivityLine."Source Subline No.", '', WarehouseActivityLine."Source Line No.")
         else
@@ -3134,6 +3098,54 @@ table 5767 "Warehouse Activity Line"
         WarehouseActivityHeader.Modify();
     end;
 
+    local procedure UpdateQtyOnRelatedPlaceLine(FromWhseActivityLine: Record "Warehouse Activity Line"; xWhseActivityLine: Record "Warehouse Activity Line")
+    var
+        Item: Record Item;
+        WhseActivityLine: Record "Warehouse Activity Line";
+    begin
+        if CurrFieldNo = 0 then
+            exit;
+
+        if FromWhseActivityLine."Source Document" <> FromWhseActivityLine."Source Document"::"Prod. Consumption" then
+            exit;
+
+        if FromWhseActivityLine."Activity Type" <> FromWhseActivityLine."Activity Type"::Pick then
+            exit;
+
+        if (xWhseActivityLine.Quantity = 0) and (FromWhseActivityLine.Quantity <> 0) then
+            exit;
+
+        if (xWhseActivityLine.Quantity <> 0) and (FromWhseActivityLine.Quantity = 0) then
+            FromWhseActivityLine.TestField(Quantity);
+
+        if FromWhseActivityLine."Qty. Outstanding (Base)" < 0 then
+            Error(OutstandingQtyCannotbeLessThanZeroErr);
+
+        Item.SetLoadFields("No.", "Allow Whse. Overpick");
+        Item.Get(FromWhseActivityLine."Item No.");
+        Item.TestField("Allow Whse. Overpick");
+
+        WhseActivityLine.SetLoadFields("Activity Type", "No.", "Line No.", "Item No.", "Variant Code", "Location Code", "Action Type", Quantity, "Lot No.", "Serial No.", "Source No.", "Source Line No.", "Source Document");
+        WhseActivityLine.SetRange("Activity Type", FromWhseActivityLine."Activity Type");
+        WhseActivityLine.SetRange("No.", FromWhseActivityLine."No.");
+        WhseActivityLine.SetFilter("Line No.", '<>%1', FromWhseActivityLine."Line No.");
+        WhseActivityLine.SetRange("Item No.", FromWhseActivityLine."Item No.");
+        WhseActivityLine.SetRange("Variant Code", FromWhseActivityLine."Variant Code");
+        WhseActivityLine.SetRange("Location Code", FromWhseActivityLine."Location Code");
+        WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Place);
+        WhseActivityLine.SetRange(Quantity, xWhseActivityLine.Quantity);
+        WhseActivityLine.SetRange("Lot No.", FromWhseActivityLine."Lot No.");
+        WhseActivityLine.SetRange("Serial No.", FromWhseActivityLine."Serial No.");
+        WhseActivityLine.SetRange("Source Document", FromWhseActivityLine."Source Document");
+        WhseActivityLine.SetRange("Source No.", FromWhseActivityLine."Source No.");
+        WhseActivityLine.SetRange("Source Line No.", FromWhseActivityLine."Source Line No.");
+
+        WhseActivityLine.FindFirst();
+
+        WhseActivityLine.Validate(Quantity, FromWhseActivityLine.Quantity);
+        WhseActivityLine.Modify(true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutofillQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
@@ -3284,10 +3296,18 @@ table 5767 "Warehouse Activity Line"
     begin
     end;
 
+#if not CLEAN26
+    internal procedure RunOnAfterTransferFromCompLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    begin
+        OnAfterTransferFromCompLine(WarehouseActivityLine, ProdOrderComponent);
+    end;
+
+    [Obsolete('Moved to codeunit ProdOrderWarehouseMgt', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromCompLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderComponent: Record "Prod. Order Component")
+    local procedure OnAfterTransferFromCompLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFromAssemblyLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; AssemblyLine: Record "Assembly Line")
@@ -3345,6 +3365,11 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckBinInSourceDoc(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReservedItemTrkg(var WarehouseActivityLine: Record "Warehouse Activity Line"; CheckType: Enum "Item Tracking Type"; ItemTrkgCode: Code[50]; var IsHandled: Boolean)
     begin
     end;
@@ -3354,10 +3379,18 @@ table 5767 "Warehouse Activity Line"
     begin
     end;
 
+#if not CLEAN26
+    internal procedure RunOnBeforeCheckBinCodeFromProdOrderCompLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderCompLine: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckBinCodeFromProdOrderCompLine(WarehouseActivityLine, ProdOrderCompLine, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit ProdOrderWarehouseMgt', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckBinCodeFromProdOrderCompLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderCompLine: Record "Prod. Order Component"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckBinCodeFromProdOrderCompLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderCompLine: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBinCodeFromWhseShptLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseShptLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
@@ -3461,6 +3494,11 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowWhseDoc(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowWhseDoc(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 
@@ -3684,6 +3722,16 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckSplitLineOnBeforeTestFieldActionType(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure CheckWhseDocLineOnCheckSourceDocument(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseDocType: Enum "Warehouse Activity Document Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateRelatedItemTrkgForInvtMovement(var WarehouseActivityLine: Record "Warehouse Activity Line"; var WhseItemTrackingLine: Record "Whse. Item Tracking Line")
     begin
     end;
 

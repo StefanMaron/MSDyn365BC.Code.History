@@ -1,6 +1,7 @@
 namespace Microsoft.Intercompany.Inbox;
 
 using Microsoft.Intercompany.Comment;
+using Microsoft.Intercompany;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Intercompany.Partner;
 
@@ -22,12 +23,10 @@ table 420 "Handled IC Inbox Trans."
             Editable = false;
             TableRelation = "IC Partner";
         }
-        field(3; "Source Type"; Option)
+        field(3; "Source Type"; Enum "IC Transaction Source Type")
         {
             Caption = 'Source Type';
             Editable = false;
-            OptionCaption = 'Journal,Sales Document,Purchase Document';
-            OptionMembers = Journal,"Sales Document","Purchase Document";
         }
         field(5; "Document Type"; Enum "IC Transaction Document Type")
         {
@@ -63,6 +62,7 @@ table 420 "Handled IC Inbox Trans."
             OptionCaption = 'Accepted,Posted,,Returned to IC Partner,Cancelled';
             OptionMembers = Accepted,Posted,,"Returned to IC Partner",Cancelled;
         }
+#if not CLEANSCHEMA25
         field(12; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -70,6 +70,7 @@ table 420 "Handled IC Inbox Trans."
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(13; "Source Line No."; Integer)
         {
             Caption = 'Source Line No.';

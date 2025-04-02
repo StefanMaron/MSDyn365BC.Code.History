@@ -127,8 +127,8 @@ codeunit 137120 "Non-inventory Item Costing"
         ProdOrderComponent.Validate("Quantity per", 1);
         ProdOrderComponent.Modify(true);
 
-        LibraryPatterns.POSTConsumption(ProdOrderLine, Item, '', '', 1, WorkDate(), Item."Standard Cost");
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ItemNonInventory, '', '', 1, WorkDate(), ItemNonInventory."Unit Cost");
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, Item, '', '', 1, WorkDate(), Item."Standard Cost");
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ItemNonInventory, '', '', 1, WorkDate(), ItemNonInventory."Unit Cost");
 
         VerifyEntries(Item, ItemNonInventory, 1);
     end;

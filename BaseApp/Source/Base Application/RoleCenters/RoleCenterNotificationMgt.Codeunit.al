@@ -8,17 +8,11 @@ using Microsoft;
 using Microsoft.Utilities;
 using System.DateTime;
 using System.Security.User;
-#if not CLEAN23
-using System.Security.AccessControl;
-#endif
 using System.Environment;
 using System.Environment.Configuration;
 using System.Integration;
 using System.Security.Authentication;
 using System.Reflection;
-#if not CLEAN23
-using System;
-#endif
 
 codeunit 1430 "Role Center Notification Mgt."
 {
@@ -415,9 +409,6 @@ codeunit 1430 "Role Center Notification Mgt."
         ResultTrialExtendedSuspended: Boolean;
         ResultPaidWarning: Boolean;
         ResultPaidSuspended: Boolean;
-#if not CLEAN23
-        ResultWSDeprecationWarning: Boolean;
-#endif
         ResultSandbox: Boolean;
     begin
         OnBeforeShowNotifications();
@@ -429,9 +420,6 @@ codeunit 1430 "Role Center Notification Mgt."
             ResultTrialExtended := ShowTrialExtendedNotification();
             ResultTrialExtendedSuspended := ShowTrialExtendedSuspendedNotification();
         end;
-#if not CLEAN23
-        ResultWSDeprecationWarning := ShowWSDeprecationNotication();
-#endif
         ResultPaidWarning := ShowPaidWarningNotification();
         ResultPaidSuspended := ShowPaidSuspendedNotification();
         ResultSandbox := ShowSandboxNotification();
@@ -459,25 +447,6 @@ codeunit 1430 "Role Center Notification Mgt."
         exit(true);
     end;
 
-#if not CLEAN23
-    [Obsolete('This deprecation warning should no longer be shown with from 23.0', '23.0')]
-    procedure ShowWSDeprecationNotication(): Boolean
-    var
-        User: Record User;
-        IdentityManagement: Codeunit "Identity Management";
-        NavTenantSettingsHelper: DotNet NavTenantSettingsHelper;
-        WebServiceKey: Text[80];
-    begin
-        if not NavTenantSettingsHelper.IsWSKeyAllowed() then
-            exit(false);
-        if not User.ReadPermission then
-            exit(false);
-        WebServiceKey := IdentityManagement.GetWebServicesKey(UserSecurityId());
-        if WebServiceKey = '' then
-            exit(false);
-        exit(true);
-    end;
-#endif
     procedure ShowTrialSuspendedNotification(): Boolean
     begin
         IsRunningPreviewEvent();

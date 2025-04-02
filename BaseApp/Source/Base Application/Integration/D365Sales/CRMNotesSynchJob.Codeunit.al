@@ -255,8 +255,9 @@ codeunit 5355 "CRM Notes Synch Job"
             CRMAnnotation.NoteText.CreateInStream(InStream, TEXTENCODING::UTF16);
         end;
         InStream.Read(AnnotationText);
+        AnnotationText := CRMAnnotationCoupling.ExtractNoteText(AnnotationText);
         if AnnotationText <> RecordLinkManagement.ReadNote(RecordLink) then begin
-            RecordLinkManagement.WriteNote(RecordLink, CRMAnnotationCoupling.ExtractNoteText(AnnotationText));
+            RecordLinkManagement.WriteNote(RecordLink, AnnotationText);
             RecordLink.Modify(true);
             CRMAnnotationCoupling."CRM Modified On" := CRMAnnotation.ModifiedOn;
             CRMAnnotationCoupling."Last Synch. DateTime" := CurrentDateTime;

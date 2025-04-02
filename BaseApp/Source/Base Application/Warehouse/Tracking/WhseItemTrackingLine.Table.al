@@ -276,20 +276,6 @@ table 6550 "Whse. Item Tracking Line"
             Caption = 'New Package No.';
             CaptionClass = '6,2';
         }
-        field(14900; "CD No."; Code[50])
-        {
-            Caption = 'CD No.';
-            ObsoleteReason = 'Replaced by field Package No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-        field(14901; "New CD No."; Code[30])
-        {
-            Caption = 'New CD No.';
-            ObsoleteReason = 'Replaced by field New Package No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys
@@ -736,6 +722,12 @@ table 6550 "Whse. Item Tracking Line"
         OnAfterHasSameTrackingWithItemEntryRelation(Rec, WhseItemEntryRelation, IsSameTracking);
     end;
 
+    procedure HasSameTrackingWithItemLedgerEntry(ItemLedgerEntry: Record "Item Ledger Entry") IsSameTracking: Boolean
+    begin
+        IsSameTracking :=
+            (ItemLedgerEntry."Lot No." = "Lot No.") and (ItemLedgerEntry."Serial No." = "Serial No.") and (ItemLedgerEntry."Package No." = "Package No.");
+    end;
+
     procedure TrackingExists() IsTrackingExist: Boolean
     begin
         IsTrackingExist := ("Lot No." <> '') or ("Serial No." <> '');
@@ -897,4 +889,3 @@ table 6550 "Whse. Item Tracking Line"
     begin
     end;
 }
-

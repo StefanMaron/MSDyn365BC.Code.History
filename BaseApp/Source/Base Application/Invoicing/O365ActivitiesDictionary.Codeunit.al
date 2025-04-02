@@ -15,17 +15,15 @@ codeunit 1310 "O365 Activities Dictionary"
         foreach Input in Inputs.Keys do
             case Input of
                 ActivitiesCue.FieldName("Sales This Month"):
-                    Results.Add(ActivitiesCue.FieldName("Sales This Month"), Format(ActivitiesMgt.CalcSalesThisMonthAmount(false)));
+                    Results.Add(ActivitiesCue.FieldName("Sales This Month"), Format(ActivitiesMgt.CalcSalesThisMonthAmount(false, true)));
                 ActivitiesCue.FieldName("Overdue Sales Invoice Amount"):
                     Results.Add(ActivitiesCue.FieldName("Overdue Sales Invoice Amount"), Format(ActivitiesMgt.OverdueSalesInvoiceAmount(false, true)));
                 ActivitiesCue.FieldName("Overdue Purch. Invoice Amount"):
                     Results.Add(ActivitiesCue.FieldName("Overdue Purch. Invoice Amount"), Format(ActivitiesMgt.OverduePurchaseInvoiceAmount(false, true)));
-                ActivitiesCue.FieldName("Top 10 Customer Sales YTD"):
-                    Results.Add(ActivitiesCue.FieldName("Top 10 Customer Sales YTD"), Format(ActivitiesMgt.CalcTop10CustomerSalesYTD()));
                 ActivitiesCue.FieldName("Average Collection Days"):
-                    Results.Add(ActivitiesCue.FieldName("Average Collection Days"), Format(ActivitiesMgt.CalcAverageCollectionDays()));
+                    Results.Add(ActivitiesCue.FieldName("Average Collection Days"), Format(ActivitiesMgt.CalcAverageCollectionDays(true)));
                 ActivitiesCue.FieldName("S. Ord. - Reserved From Stock"):
-                    Results.Add(ActivitiesCue.FieldName("S. Ord. - Reserved From Stock"), Format(ActivitiesMgt.CalcNoOfReservedFromStockSalesOrders()));
+                    Results.Add(ActivitiesCue.FieldName("S. Ord. - Reserved From Stock"), Format(ActivitiesMgt.CalcNoOfReservedFromStockSalesOrders(true)));
             end;
 
         OnRunOnBeforeSetBackgroundTaskResult(Results, ActivitiesCue);
@@ -43,9 +41,6 @@ codeunit 1310 "O365 Activities Dictionary"
 
         if DataList.ContainsKey(ActivitiesCue.FieldName("Overdue Purch. Invoice Amount")) then
             Evaluate(ActivitiesCue."Overdue Purch. Invoice Amount", DataList.Get(ActivitiesCue.FieldName("Overdue Purch. Invoice Amount")));
-
-        if DataList.ContainsKey(ActivitiesCue.FieldName("Top 10 Customer Sales YTD")) then
-            Evaluate(ActivitiesCue."Top 10 Customer Sales YTD", DataList.Get(ActivitiesCue.FieldName("Top 10 Customer Sales YTD")));
 
         if DataList.ContainsKey(ActivitiesCue.FieldName("Average Collection Days")) then
             Evaluate(ActivitiesCue."Average Collection Days", DataList.Get(ActivitiesCue.FieldName("Average Collection Days")));

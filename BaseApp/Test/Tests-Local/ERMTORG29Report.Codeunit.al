@@ -46,7 +46,7 @@ codeunit 144712 "ERM TORG-29 Report"
           TempValueEntryResid, TempValueEntryRcpt, TempValueEntryShpt);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure ResidOnStartWithPriceAmountType()
@@ -150,7 +150,7 @@ codeunit 144712 "ERM TORG-29 Report"
           StrSubstNo(WrongValueErr, TempRcptValueEntry.FieldCaption("Valued Quantity")));
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure ReceiptsWithPriceAmountType()
@@ -255,7 +255,7 @@ codeunit 144712 "ERM TORG-29 Report"
           StrSubstNo(WrongValueErr, TempShptValueEntry.FieldCaption("Valued Quantity")));
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure ShptsWithPriceAmountType()
@@ -360,7 +360,7 @@ codeunit 144712 "ERM TORG-29 Report"
         exit(PriceListLine."Unit Price");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure MockSalesPrice(ItemNo: Code[20]; PostingDate: Date): Decimal
     var
         SalesPrice: Record "Sales Price";

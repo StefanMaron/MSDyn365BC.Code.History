@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA28 
 table 14917 "CD No. Format"
 {
     Caption = 'CD No. Format';
@@ -37,3 +38,5 @@ table 14917 "CD No. Format"
 
 }
 
+ 
+#endif

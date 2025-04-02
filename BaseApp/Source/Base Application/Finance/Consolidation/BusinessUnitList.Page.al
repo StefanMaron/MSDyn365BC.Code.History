@@ -292,21 +292,6 @@ page 240 "Business Unit List"
                 separator(Action43)
                 {
                 }
-#if not CLEAN23
-                action("Run Consolidation")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Run Consolidation (same environment)';
-                    Ellipsis = true;
-                    Image = ImportDatabase;
-                    RunObject = Report "Import Consolidation from DB";
-                    ToolTip = 'Run consolidation.';
-                    Visible = false;
-                    ObsoleteReason = 'Use the action StartConsolidation in this page or directly Report 90.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 action("I&mport File")
                 {
                     ApplicationArea = Suite;

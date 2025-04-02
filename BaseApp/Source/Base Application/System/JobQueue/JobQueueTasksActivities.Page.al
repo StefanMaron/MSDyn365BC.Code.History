@@ -23,13 +23,14 @@ page 9102 "Job Queue Tasks Activities"
                     DrillDownPageID = "Job Queue Entries";
                     ToolTip = 'Specifies the number of job queue entries that failed.';
                     StyleExpr = FailedTasksExpr;
+
                     trigger OnDrillDown()
                     var
                         JobQueueEntry: Record "Job Queue Entry";
-                        JobQueueMgt: Codeunit "Job Queue Management";
+                        JobQueueManagement: Codeunit "Job Queue Management";
                         JobQueueEntries: Page "Job Queue Entries";
                     begin
-                        if not JobQueueMgt.CheckUserInJobQueueAdminList(UserId()) then
+                        if not JobQueueManagement.CheckUserInJobQueueAdminList(UserId()) then
                             JobQueueEntry.SetRange("User ID", UserId());
 
                         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Error);
@@ -44,14 +45,16 @@ page 9102 "Job Queue Tasks Activities"
                     DrillDownPageID = "Job Queue Entries";
                     ToolTip = 'Specifies the number of job queue entries in process.';
                     StyleExpr = InProcessTasksExpr;
+
                     trigger OnDrillDown()
                     var
                         JobQueueEntry: Record "Job Queue Entry";
-                        JobQueueMgt: Codeunit "Job Queue Management";
+                        JobQueueManagement: Codeunit "Job Queue Management";
                         JobQueueEntries: Page "Job Queue Entries";
                     begin
-                        if not JobQueueMgt.CheckUserInJobQueueAdminList(UserId()) then
+                        if not JobQueueManagement.CheckUserInJobQueueAdminList(UserId()) then
                             JobQueueEntry.SetRange("User ID", UserId());
+
                         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
                         JobQueueEntries.SetTableView(JobQueueEntry);
                         JobQueueEntries.Run();
@@ -64,6 +67,7 @@ page 9102 "Job Queue Tasks Activities"
                     DrillDownPageID = "Job Queue Entries";
                     ToolTip = 'Specifies the number of job queue entries that are not yet processed.';
                     StyleExpr = InQueueTasksExpr;
+
                     trigger OnDrillDown()
                     var
                         JobQueueEntry: Record "Job Queue Entry";
@@ -112,16 +116,18 @@ page 9102 "Job Queue Tasks Activities"
         TempJobQueueRoleCenterCue: Record "Job Queue Role Center Cue" temporary;
         JobQueueEntry: Record "Job Queue Entry";
         CuesAndKpis: Codeunit "Cues And KPIs";
-        JobQueueMgt: Codeunit "Job Queue Management";
+        JobQueueManagement: Codeunit "Job Queue Management";
         FailedTasksExprEnum: Enum "Cues And KPIs Style";
         InProcessTasksExprEnum: Enum "Cues And KPIs Style";
         InQueueTasksExprEnum: Enum "Cues And KPIs Style";
     begin
+        JobQueueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
         JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Ready, JobQueueEntry.Status::Waiting);
         InQueueTasksCount := JobQueueEntry.Count();
         JobQueueEntry.Reset();
 
-        if not JobQueueMgt.CheckUserInJobQueueAdminList(UserId()) then
+        JobQueueEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
+        if not JobQueueManagement.CheckUserInJobQueueAdminList(UserId()) then
             JobQueueEntry.SetRange("User ID", UserId());
 
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Error);

@@ -176,7 +176,7 @@ page 14940 "G/L Corr. Analysis by Dim."
                     Style = Strong;
                     StyleExpr = CodeEmphasize;
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
                     begin
                         LookUpCode(LineDimCode, Rec.Code);
                     end;

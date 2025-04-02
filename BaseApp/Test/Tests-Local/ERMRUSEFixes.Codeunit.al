@@ -201,8 +201,10 @@ codeunit 144004 "ERM RU SE Fixes"
         SourceCodeSetup.TestField("VAT for Vendor Adjustment", SourceCodeVATVendAdj);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [Test]
-    [HandlerFunctions('SalesStatisticsHandler')]
+    [HandlerFunctions('SalesStatisticsModalHandler')]
     [Scope('OnPrem')]
     procedure VSE34697_SalesInvStat()
     var
@@ -235,6 +237,49 @@ codeunit 144004 "ERM RU SE Fixes"
         SalesInvoicePage.OpenView();
         SalesInvoicePage.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesInvoicePage.Statistics.Invoke();
+        // Verify is done in Statistics Page Handler
+
+        // Check Posted Sales Invoice Statistics
+        PostedSalesDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceStatisticsPage.OpenView();
+        SalesInvoiceStatisticsPage.FILTER.SetFilter("No.", PostedSalesDocNo);
+        SalesInvoiceStatisticsPage."CustAmount + InvDiscAmount".AssertEquals(0); // "Amount" field
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure VSE34697_SalesInvSalesStat()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoicePage: TestPage "Sales Invoice";
+        SalesInvoiceStatisticsPage: TestPage "Sales Invoice Statistics";
+        PostedSalesDocNo: Code[20];
+        Qty: Decimal;
+        UnitPrice: Decimal;
+        LineDiscPct: Decimal;
+    begin
+        // Verify Sales Statistics is shown correctly in case of low-cost Item
+        Initialize();
+
+        // use hard-coded values for rounding test
+        Qty := LibraryRandom.RandInt(5);
+        UnitPrice := 1 / (1000 * LibraryRandom.RandInt(5)); // get rand in range 0.0002..0.001
+        LineDiscPct := LibraryRandom.RandIntInRange(10, 20);
+
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), Qty);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Validate("Line Discount %", LineDiscPct);
+        SalesLine.Modify(true);
+
+        // Check Sales Invoice Statistics
+        SalesInvoicePage.OpenView();
+        SalesInvoicePage.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesInvoicePage.SalesStatistics.Invoke();
         // Verify is done in Statistics Page Handler
 
         // Check Posted Sales Invoice Statistics
@@ -1423,7 +1468,16 @@ codeunit 144004 "ERM RU SE Fixes"
         until FALedgerEntry.Next() = 0;
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesStatisticsModalHandler(var SalesStatistics: TestPage "Sales Statistics")
+    begin
+        SalesStatistics.Amount.AssertEquals(0);
+    end;
+#endif
+    [PageHandler]
     [Scope('OnPrem')]
     procedure SalesStatisticsHandler(var SalesStatistics: TestPage "Sales Statistics")
     begin

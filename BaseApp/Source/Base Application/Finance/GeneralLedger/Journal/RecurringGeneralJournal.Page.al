@@ -361,7 +361,7 @@ page 283 "Recurring General Journal"
                     Caption = 'Acc. Schedule Line Description';
                     Editable = false;
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
                     var
                         AccScheduleLines: Page "Acc. Schedule Lines";
                     begin
@@ -396,7 +396,7 @@ page 283 "Recurring General Journal"
                     Caption = 'Column Header';
                     Editable = false;
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
                     var
                         ColumnLayouts: Page "Column Layouts";
                     begin
@@ -1069,7 +1069,7 @@ page 283 "Recurring General Journal"
         UseAllocationAccountNumber: Boolean;
 #pragma warning restore AA0137
         ActionOnlyAllowedForAllocationAccountsErr: Label 'This action is only available for lines that have Allocation Account set as Account Type or Balancing Account Type.';
-		AllocationAccountValidationErr: Label 'Using Allocation Accounts is not allowed for recurring general journal lines.';
+        AllocationAccountValidationErr: Label 'Using Allocation Accounts is not allowed for recurring general journal lines.';
 #endif
 
     protected var

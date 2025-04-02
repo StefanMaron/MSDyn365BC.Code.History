@@ -1,5 +1,7 @@
 namespace Microsoft.Sales.History;
 
+using Microsoft.Foundation.Address;
+
 page 1353 "Posted Return Receipt - Update"
 {
     Caption = 'Posted Return Receipt - Update';
@@ -42,6 +44,16 @@ page 1353 "Posted Return Receipt - Update"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
+                group(BillToCounty)
+                {
+                    ShowCaption = false;
+                    Visible = IsBillToCountyVisible;
+                    field("Bill-to County"; Rec."Bill-to County")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Editable = true;
+                    }
+                }
                 field("Bill-to Country/Region Code"; Rec."Bill-to Country/Region Code")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -72,9 +84,15 @@ page 1353 "Posted Return Receipt - Update"
     {
     }
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        ActivateFields();
+    end;
+
     trigger OnOpenPage()
     begin
         xReturnReceiptHeader := Rec;
+        ActivateFields();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -86,6 +104,8 @@ page 1353 "Posted Return Receipt - Update"
 
     var
         xReturnReceiptHeader: Record "Return Receipt Header";
+        FormatAddress: Codeunit "Format Address";
+        IsBillToCountyVisible: Boolean;
 
     local procedure RecordChanged() IsChanged: Boolean
     begin
@@ -96,6 +116,11 @@ page 1353 "Posted Return Receipt - Update"
             (Rec."Package Tracking No." <> xReturnReceiptHeader."Package Tracking No.");
 
         OnAfterRecordChanged(Rec, xRec, IsChanged, xReturnReceiptHeader);
+    end;
+
+    local procedure ActivateFields()
+    begin
+        IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
     end;
 
     procedure SetRec(ReturnReceiptHeader: Record "Return Receipt Header")

@@ -19,48 +19,6 @@ table 26569 "Statutory Report Setup"
             Caption = 'Report Export Log Nos';
             TableRelation = "No. Series";
         }
-        field(6; "Group End Separator"; Text[10])
-        {
-            Caption = 'Group End Separator';
-            ObsoleteReason = 'Obsolete functionality';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-        field(7; "Fragment End Separator"; Text[10])
-        {
-            Caption = 'Fragment End Separator';
-            ObsoleteReason = 'Obsolete functionality';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-        field(8; "File End Separator"; Text[10])
-        {
-            Caption = 'File End Separator';
-            ObsoleteReason = 'Obsolete functionality';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-        field(9; "Reports Templates Folder Name"; Text[250])
-        {
-            Caption = 'Reports Templates Folder Name';
-            ObsoleteReason = 'Obsolete functionality';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-        field(10; "Excel Reports Folder Name"; Text[250])
-        {
-            Caption = 'Excel Reports Folder Name';
-            ObsoleteReason = 'Obsolete functionality';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-        field(11; "Electronic Files Folder Name"; Text[250])
-        {
-            Caption = 'Electronic Files Folder Name';
-            ObsoleteReason = 'Obsolete functionality';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
         field(12; "Use XML Schema Validation"; Boolean)
         {
             Caption = 'Use XML Schema Validation';
@@ -122,4 +80,3 @@ table 26569 "Statutory Report Setup"
         CompanyAddress: Record "Company Address";
         CompanyAddressList: Page "Company Address List";
 }
-

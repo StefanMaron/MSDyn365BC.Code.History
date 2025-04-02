@@ -9,6 +9,7 @@ table 1015 "Job Entry No."
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
             Editable = false;
         }

@@ -22,7 +22,6 @@ page 151 "Customer Statistics"
                 field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the payment amount that the customer owes for completed sales.';
 
                     trigger OnDrillDown()
                     var
@@ -43,17 +42,14 @@ page 151 "Customer Statistics"
                     field("Outstanding Orders (LCY)"; Rec."Outstanding Orders (LCY)")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies your expected sales income from the customer in LCY based on ongoing sales orders.';
                     }
                     field("Shipped Not Invoiced (LCY)"; Rec."Shipped Not Invoiced (LCY)")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies your expected sales income from the customer based on ongoing sales orders where items have been shipped.';
                     }
                     field("Outstanding Invoices (LCY)"; Rec."Outstanding Invoices (LCY)")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies your expected sales income from the customer in LCY based on unpaid sales invoices.';
                     }
                 }
                 field(GetTotalAmountLCY; Rec.GetTotalAmountLCY())
@@ -69,7 +65,6 @@ page 151 "Customer Statistics"
                 field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
                 }
                 field("Balance Due (LCY)"; Rec.CalcOverdueBalance())
                 {
@@ -103,7 +98,7 @@ page 151 "Customer Statistics"
                     ShowCaption = false;
                     group("This Period")
                     {
-                        Caption = 'This Period';
+                        Caption = 'This Fiscal Period';
                         field("CustDateName[1]"; CustDateName[1])
                         {
                             ApplicationArea = Basic, Suite;
@@ -245,7 +240,7 @@ page 151 "Customer Statistics"
                     }
                     group("This Year")
                     {
-                        Caption = 'This Year';
+                        Caption = 'This Fiscal Year';
                         field(Text001; Text001)
                         {
                             ApplicationArea = Basic, Suite;
@@ -388,7 +383,7 @@ page 151 "Customer Statistics"
                     }
                     group("Last Year")
                     {
-                        Caption = 'Last Year';
+                        Caption = 'Last Fiscal Year';
                         field(Placeholder1; Text001)
                         {
                             ApplicationArea = Basic, Suite;
@@ -731,7 +726,6 @@ page 151 "Customer Statistics"
 
     var
         DateFilterCalc: Codeunit "DateFilter-Calc";
-
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'Overdue Amounts (LCY) as of %1';
@@ -774,4 +768,3 @@ page 151 "Customer Statistics"
     begin
     end;
 }
-

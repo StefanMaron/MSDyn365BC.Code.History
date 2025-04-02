@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA28 
 table 12410 "CD Tracking Setup"
 {
     Caption = 'CD Tracking Setup';
@@ -60,3 +61,5 @@ table 12410 "CD Tracking Setup"
     }
 }
 
+ 
+#endif

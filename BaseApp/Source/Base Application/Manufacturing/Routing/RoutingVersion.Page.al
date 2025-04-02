@@ -1,4 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Routing;
+using System.Utilities;
 
 page 99000810 "Routing Version"
 {
@@ -84,12 +89,15 @@ page 99000810 "Routing Version"
                     ToolTip = 'Copy an existing routing to quickly create a similar BOM.';
 
                     trigger OnAction()
+                    var
+                        RoutingHeader: Record "Routing Header";
+                        RoutingLineCopyLines: Codeunit "Routing Line-Copy Lines";
                     begin
-                        if not Confirm(Text000, false) then
+                        if not Confirm(CopyFromRoutingQst, false) then
                             exit;
 
-                        RtngHeader.Get(Rec."Routing No.");
-                        CopyRouting.CopyRouting(Rec."Routing No.", '', RtngHeader, Rec."Version Code");
+                        RoutingHeader.Get(Rec."Routing No.");
+                        RoutingLineCopyLines.CopyRouting(Rec."Routing No.", '', RoutingHeader, Rec."Version Code");
                     end;
                 }
                 action("Copy Routing &Version")
@@ -101,8 +109,10 @@ page 99000810 "Routing Version"
                     ToolTip = 'Copy an existing routing version to quickly create a similar routing.';
 
                     trigger OnAction()
+                    var
+                        RoutingLineCopyLines: Codeunit "Routing Line-Copy Lines";
                     begin
-                        CopyRouting.SelectCopyFromVersionList(Rec);
+                        RoutingLineCopyLines.SelectCopyFromVersionList(Rec);
                     end;
                 }
             }
@@ -123,12 +133,30 @@ page 99000810 "Routing Version"
         }
     }
 
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-        RtngHeader: Record "Routing Header";
-        CopyRouting: Codeunit "Routing Line-Copy Lines";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        if not CurrPage.Editable() then
+            exit(true);
 
-#pragma warning disable AA0074
-        Text000: Label 'Copy from routing header?';
-#pragma warning restore AA0074
+        if IsNullGuid(Rec.SystemId) then
+            exit(true);
+
+        if Rec.Status in [Rec.Status::Certified, Rec.Status::Closed] then
+            exit(true);
+
+        if not Rec.RoutingLinesExist() then
+            exit(true);
+
+        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
+            exit(false);
+
+        exit(true);
+    end;
+
+    var
+        CopyFromRoutingQst: Label 'Copy from routing header?';
+        CertifyQst: Label 'The %1 has not been certified. Are you sure you want to exit?', Comment = '%1 = page caption (Production BOM)';
 }
 

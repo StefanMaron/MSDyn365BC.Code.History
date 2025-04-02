@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Foundation.Address;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Address;
 
 using Microsoft.Finance.VAT.Registration;
 using Microsoft.Foundation.Company;
@@ -97,13 +101,6 @@ table 9 "Country/Region"
         field(12; "County Name"; Text[30])
         {
             Caption = 'County Name';
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
         }
         field(12400; "Local Name"; Text[30])
         {
@@ -362,4 +359,3 @@ table 9 "Country/Region"
     begin
     end;
 }
-

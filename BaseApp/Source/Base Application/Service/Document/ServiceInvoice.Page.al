@@ -458,6 +458,14 @@ page 5933 "Service Invoice"
                         Caption = 'Name';
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
+                    }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
                         ApplicationArea = Service;
@@ -577,6 +585,7 @@ page 5933 "Service Invoice"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");

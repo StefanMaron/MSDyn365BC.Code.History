@@ -139,7 +139,8 @@ codeunit 136400 "Resource Employee"
         // 2. Exercise:Try to create another Employee with No. of existing Employee.
         Employee.Init();
         Employee.Validate("No.", FirstEmployeeNo);
-        asserterror Employee.Insert(true);
+        Employee.Insert(true);
+        asserterror Commit();
 
         // 3. Verify: Verify that application generates an error message.
         Assert.AssertRecordAlreadyExists();

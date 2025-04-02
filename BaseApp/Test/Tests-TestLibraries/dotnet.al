@@ -10,9 +10,13 @@ dotnet
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
+#pragma warning disable AS0130
+#pragma warning disable PTE0025
         type("Microsoft.Dynamics.Nav.Runtime.PermissionTestHelper"; "PermissionTestHelper")
         {
         }
+#pragma warning restore AS0130
+#pragma warning restore PTE0025
     }
 
     assembly(System.Security.Principal.Windows)

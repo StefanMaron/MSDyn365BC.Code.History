@@ -232,7 +232,7 @@ table 36 "Sales Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
-
+            
             trigger OnValidate()
             var
                 NoSeries: Codeunit "No. Series";
@@ -333,7 +333,7 @@ table 36 "Sales Header"
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
-            TableRelation = Customer.Name;
+                        TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -369,11 +369,11 @@ table 36 "Sales Header"
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
-        }
+                    }
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
-
+            
             trigger OnValidate()
             begin
                 ModifyBillToCustomerAddress();
@@ -382,7 +382,7 @@ table 36 "Sales Header"
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
-
+            
             trigger OnValidate()
             begin
                 ModifyBillToCustomerAddress();
@@ -391,7 +391,7 @@ table 36 "Sales Header"
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
-            TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code".City
+                        TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Bill-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Bill-to Country/Region Code"));
             ValidateTableRelation = false;
@@ -420,7 +420,7 @@ table 36 "Sales Header"
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
-
+            
             trigger OnLookup()
             var
                 Contact: Record Contact;
@@ -440,7 +440,7 @@ table 36 "Sales Header"
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
-        }
+                    }
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
@@ -513,23 +513,23 @@ table 36 "Sales Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
-        }
+                    }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
-        }
+                    }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-        }
+                    }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-        }
+                    }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
-            TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
+                        TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Ship-to Country/Region Code"));
             ValidateTableRelation = false;
@@ -557,7 +557,7 @@ table 36 "Sales Header"
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
-        }
+                    }
         field(19; "Order Date"; Date)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
@@ -577,7 +577,6 @@ table 36 "Sales Header"
 
             trigger OnValidate()
             var
-                SalesReceivablesSetup: Record "Sales & Receivables Setup";
                 IsHandled: Boolean;
                 NeedUpdateCurrencyFactor: Boolean;
             begin
@@ -598,18 +597,9 @@ table 36 "Sales Header"
                   FieldCaption("Prepmt. Cr. Memo No."), FieldCaption("Prepmt. Cr. Memo No. Series"));
 
                 UpdateVATReportingDate(FieldNo("Posting Date"));
+                UpdateDocumentDateFromLinkedPostingDate(true);
 
                 CheckCorrPostingDate();
-
-                IsHandled := false;
-                OnValidatePostingDateOnBeforeAssignDocumentDate(Rec, IsHandled);
-
-                SalesReceivablesSetup.SetLoadFields("Link Doc. Date To Posting Date");
-                SalesReceivablesSetup.GetRecordOnce();
-
-                if not IsHandled then
-                    if ("Incoming Document Entry No." = 0) and SalesReceivablesSetup."Link Doc. Date To Posting Date" then
-                        Validate("Document Date", "Posting Date");
 
                 if ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) and
                    not ("Posting Date" = xRec."Posting Date")
@@ -651,7 +641,7 @@ table 36 "Sales Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
-        }
+                    }
         field(23; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
@@ -1008,7 +998,7 @@ table 36 "Sales Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
-            TableRelation = "Language Selection"."Language Tag";
+                        TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Salesperson Code"; Code[20])
         {
@@ -1227,7 +1217,7 @@ table 36 "Sales Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
-
+            
             trigger OnValidate()
             var
                 Customer: Record Customer;
@@ -1300,7 +1290,7 @@ table 36 "Sales Header"
         field(72; "Registration Number"; Text[50])
         {
             Caption = 'Registration No.';
-            DataClassification = CustomerContent;
+                        DataClassification = CustomerContent;
         }
         field(73; "Reason Code"; Code[10])
         {
@@ -1361,7 +1351,7 @@ table 36 "Sales Header"
         field(79; "Sell-to Customer Name"; Text[100])
         {
             Caption = 'Sell-to Customer Name';
-            TableRelation = Customer.Name;
+                        TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -1410,11 +1400,11 @@ table 36 "Sales Header"
         field(80; "Sell-to Customer Name 2"; Text[50])
         {
             Caption = 'Sell-to Customer Name 2';
-        }
+                    }
         field(81; "Sell-to Address"; Text[100])
         {
             Caption = 'Sell-to Address';
-
+            
             trigger OnValidate()
             begin
                 UpdateShipToAddressFromSellToAddress(FieldNo("Ship-to Address"));
@@ -1424,7 +1414,7 @@ table 36 "Sales Header"
         field(82; "Sell-to Address 2"; Text[50])
         {
             Caption = 'Sell-to Address 2';
-
+            
             trigger OnValidate()
             begin
                 UpdateShipToAddressFromSellToAddress(FieldNo("Ship-to Address 2"));
@@ -1434,7 +1424,7 @@ table 36 "Sales Header"
         field(83; "Sell-to City"; Text[30])
         {
             Caption = 'Sell-to City';
-            TableRelation = if ("Sell-to Country/Region Code" = const('')) "Post Code".City
+                        TableRelation = if ("Sell-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Sell-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Sell-to Country/Region Code"));
             ValidateTableRelation = false;
@@ -1464,7 +1454,7 @@ table 36 "Sales Header"
         field(84; "Sell-to Contact"; Text[100])
         {
             Caption = 'Sell-to Contact';
-
+            
             trigger OnLookup()
             var
                 Contact: Record Contact;
@@ -1524,7 +1514,7 @@ table 36 "Sales Header"
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
-
+            
             trigger OnValidate()
             begin
                 ModifyBillToCustomerAddress();
@@ -1582,7 +1572,7 @@ table 36 "Sales Header"
         {
             CaptionClass = '5,2,' + "Sell-to Country/Region Code";
             Caption = 'Sell-to County';
-
+            
             trigger OnValidate()
             begin
                 UpdateShipToAddressFromSellToAddress(FieldNo("Ship-to County"));
@@ -1637,7 +1627,7 @@ table 36 "Sales Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
-        }
+                    }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
             Caption = 'Ship-to Country/Region Code';
@@ -1694,7 +1684,7 @@ table 36 "Sales Header"
         field(100; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
-
+            
             trigger OnValidate()
             var
                 WhseSalesRelease: Codeunit "Whse.-Sales Release";
@@ -1792,7 +1782,7 @@ table 36 "Sales Header"
         field(106; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
-            ObsoleteReason = 'Field length will be increased to 50.';
+                        ObsoleteReason = 'Field length will be increased to 50.';
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
         }
@@ -1801,7 +1791,7 @@ table 36 "Sales Header"
         field(106; "Package Tracking No."; Text[50])
         {
             Caption = 'Package Tracking No.';
-        }
+                    }
 #pragma warning restore AS0086
 #endif
         field(107; "No. Series"; Code[20])
@@ -2036,7 +2026,7 @@ table 36 "Sales Header"
         field(127; "IC Reference Document No."; Code[20])
         {
             Caption = 'IC Reference Document No.';
-            Editable = false;
+                        Editable = false;
         }
         field(129; "IC Direction"; Enum "IC Direction Type")
         {
@@ -2145,7 +2135,7 @@ table 36 "Sales Header"
         field(135; "Prepmt. Posting Description"; Text[100])
         {
             Caption = 'Prepmt. Posting Description';
-        }
+                    }
         field(138; "Prepmt. Pmt. Discount Date"; Date)
         {
             Caption = 'Prepmt. Pmt. Discount Date';
@@ -2319,7 +2309,7 @@ table 36 "Sales Header"
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
-            ExtendedDatatype = PhoneNo;
+                        ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
             var
@@ -2336,7 +2326,7 @@ table 36 "Sales Header"
         field(172; "Sell-to E-Mail"; Text[80])
         {
             Caption = 'Email';
-            ExtendedDatatype = EMail;
+                        ExtendedDatatype = EMail;
 
             trigger OnValidate()
             var
@@ -2346,14 +2336,6 @@ table 36 "Sales Header"
                     exit;
                 MailManagement.CheckValidEmailAddresses("Sell-to E-Mail");
             end;
-        }
-        field(175; "Payment Instructions Id"; Integer)
-        {
-            Caption = 'Payment Instructions Id';
-            TableRelation = "O365 Payment Instructions";
-            ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
         }
         field(178; "Journal Templ. Name"; Code[10])
         {
@@ -2384,14 +2366,6 @@ table 36 "Sales Header"
                 end;
             end;
         }
-        field(180; "Rcvd-from Country/Region Code"; Code[10])
-        {
-            Caption = 'Received-from Country/Region Code';
-            TableRelation = "Country/Region";
-            ObsoleteReason = 'Use new field on range 181';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
         field(181; "Rcvd.-from Count./Region Code"; Code[10])
         {
             Caption = 'Received-from Country/Region Code';
@@ -2417,7 +2391,7 @@ table 36 "Sales Header"
         field(210; "Ship-to Phone No."; Text[30])
         {
             Caption = 'Ship-to Phone No.';
-            ExtendedDatatype = PhoneNo;
+                        ExtendedDatatype = PhoneNo;
         }
         field(300; "Amt. Ship. Not Inv. (LCY)"; Decimal)
         {
@@ -2455,19 +2429,16 @@ table 36 "Sales Header"
         {
             Caption = 'Payment Service Set ID';
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -2514,13 +2485,6 @@ table 36 "Sales Header"
                 UpdateSalesLinesByFieldNo(FieldNo("Campaign No."), CurrFieldNo <> 0);
                 CreateDimFromDefaultDim(Rec.FieldNo("Campaign No."));
             end;
-        }
-        field(5051; "Sell-to Customer Template Code"; Code[10])
-        {
-            Caption = 'Sell-to Customer Template Code';
-            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code".';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
         }
         field(5052; "Sell-to Contact No."; Code[20])
         {
@@ -2667,13 +2631,6 @@ table 36 "Sales Header"
 
                 UpdateBillToCust("Bill-to Contact No.");
             end;
-        }
-        field(5054; "Bill-to Customer Template Code"; Code[10])
-        {
-            Caption = 'Bill-to Customer Template Code';
-            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Bill-to Customer Templ. Code".';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
         }
         field(5055; "Opportunity No."; Code[20])
         {
@@ -3040,13 +2997,6 @@ table 36 "Sales Header"
             Caption = 'Get Shipment Used';
             Editable = false;
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
@@ -3064,7 +3014,7 @@ table 36 "Sales Header"
         field(12400; "External Document Text"; Text[100])
         {
             Caption = 'External Document Text';
-        }
+                    }
         field(12403; "Prepmt. Diff. Appln. Entry No."; Integer)
         {
             Caption = 'Prepmt. Diff. Appln. Entry No.';
@@ -3129,7 +3079,7 @@ table 36 "Sales Header"
                         SalesLine.SetRange("Document Type", "Document Type");
                         SalesLine.SetRange("Document No.", "No.");
                         if not SalesLine.IsEmpty() then
-                            Error(Text017, FieldCaption("Corrected Doc. Type"));
+                            Error(DeleteExistingLinesErr, FieldCaption("Corrected Doc. Type"));
                     end;
                     Validate("Corrected Doc. No.", '');
                 end;
@@ -3154,7 +3104,7 @@ table 36 "Sales Header"
                         SalesLine.SetRange("Document Type", "Document Type");
                         SalesLine.SetRange("Document No.", "No.");
                         if not SalesLine.IsEmpty() then
-                            Error(Text017, FieldCaption("Corrected Doc. No."));
+                            Error(DeleteExistingLinesErr, FieldCaption("Corrected Doc. No."));
                     end;
                     if "Corrected Doc. No." = '' then begin
                         "Original Doc. Type" := "Original Doc. Type"::" ";
@@ -3246,11 +3196,11 @@ table 36 "Sales Header"
         field(12451; "Act Signed by Name"; Text[30])
         {
             Caption = 'Act Signed by Name';
-        }
+                    }
         field(12452; "Act Signed by Position"; Text[30])
         {
             Caption = 'Act Signed by Position';
-        }
+                    }
         field(12480; "KPP Code"; Code[10])
         {
             Caption = 'KPP Code';
@@ -3426,7 +3376,7 @@ table 36 "Sales Header"
         field(12491; "External Agreement No."; Text[30])
         {
             Caption = 'External Agreement No.';
-        }
+                    }
         field(12498; "Additional VAT Ledger Sheet"; Boolean)
         {
             Caption = 'Additional VAT Ledger Sheet';
@@ -3472,19 +3422,16 @@ table 36 "Sales Header"
         key(Key9; "Incoming Document Entry No.")
         {
         }
-        key(Key10; "Corrective Document", "Corrected Doc. Type", "Corrected Doc. No.", "No.")
+        key(Key10; "Document Date")
         {
         }
-        key(Key11; "Document Date")
+        key(Key11; "Shipment Date", Status, "Location Code", "Responsibility Center")
         {
         }
-        key(Key12; "Shipment Date", Status, "Location Code", "Responsibility Center")
+        key(Key12; "Salesperson Code")
         {
         }
-        key(Key13; "Salesperson Code")
-        {
-        }
-        key(Key14; SystemModifiedAt)
+        key(Key13; SystemModifiedAt)
         {
         }
     }
@@ -3595,40 +3542,16 @@ table 36 "Sales Header"
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text005: Label 'You cannot reset %1 because the document still has one or more lines.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text006: Label 'You cannot change %1 because the order is associated with one or more purchase orders.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text007: Label '%1 cannot be greater than %2 in the %3 table.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text009: Label 'Deleting this document will cause a gap in the number series for shipments. An empty shipment %1 will be created to fill this gap in the number series.\\Do you want to continue?';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text012: Label 'Deleting this document will cause a gap in the number series for posted invoices. An empty posted invoice %1 will be created to fill this gap in the number series.\\Do you want to continue?';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text014: Label 'Deleting this document will cause a gap in the number series for posted credit memos. An empty posted credit memo %1 will be created to fill this gap in the number series.\\Do you want to continue?';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         RecreateSalesLinesMsg: Label 'If you change %1, the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.\\Do you want to continue?', Comment = '%1: FieldCaption';
         ResetItemChargeAssignMsg: Label 'If you change %1, the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.\The amount of the item charge assignment will be reset to 0.\\Do you want to continue?', Comment = '%1: FieldCaption';
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text017: Label 'You must delete the existing sales lines before you can change %1.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
+        DeleteExistingLinesErr: Label 'You must delete the existing sales lines before you can change %1.', Comment = '%1 - field caption';
 #pragma warning disable AA0470
         LinesNotUpdatedMsg: Label 'You have changed %1 on the sales header, but it has not been changed on the existing sales lines.', Comment = 'You have changed Order Date on the sales header, but it has not been changed on the existing sales lines.';
 #pragma warning restore AA0470
@@ -3639,34 +3562,12 @@ table 36 "Sales Header"
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the sales lines.';
 #pragma warning disable AA0074
         Text021: Label 'Do you want to update the exchange rate?';
-#pragma warning restore AA0074
-#pragma warning disable AA0074
 #pragma warning disable AA0470
         Text022: Label 'You cannot delete this document. Your identification is set up to process from %1 %2 only.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text024: Label 'You have modified the %1 field. The recalculation of VAT may cause penny differences, so you must check the amounts afterward. Do you want to update the %2 field on the lines to reflect the new value of %1?';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text027: Label 'Your identification is set up to process from %1 %2 only.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text028: Label 'You cannot change the %1 when the %2 has been filled in.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text030: Label 'Deleting this document will cause a gap in the number series for return receipts. An empty return receipt %1 will be created to fill this gap in the number series.\\Do you want to continue?';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text031: Label 'You have modified %1.\\Do you want to update the lines?', Comment = 'You have modified Shipment Date.\\Do you want to update the lines?';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
@@ -3715,14 +3616,8 @@ table 36 "Sales Header"
         Confirmed: Boolean;
 #pragma warning disable AA0074
         Text035: Label 'You cannot Release Quote or Make Order unless you specify a customer on the quote.\\Do you want to create customer(s) now?';
-#pragma warning restore AA0074
-#pragma warning disable AA0074
 #pragma warning disable AA0470
         Text037: Label 'Contact %1 %2 is not related to customer %3.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text038: Label 'Contact %1 %2 is related to a different company than customer %3.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
@@ -3731,68 +3626,22 @@ table 36 "Sales Header"
 #pragma warning restore AA0470
 #pragma warning disable AA0074
         Text040: Label 'A won opportunity is linked to this order.\It has to be changed to status Lost before the Order can be deleted.\Do you want to change the status for this opportunity now?';
-#pragma warning restore AA0074
-#pragma warning disable AA0074
         Text044: Label 'The status of the opportunity has not been changed. The program has aborted deleting the order.';
-#pragma warning restore AA0074
-#pragma warning disable AA0074
 #pragma warning disable AA0470
         Text045: Label 'You can not change the %1 field because %2 %3 has %4 = %5 and the %6 has already been assigned %7 %8.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text048: Label 'Sales quote %1 has already been assigned to opportunity %2. Would you like to reassign this quote?';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text049: Label 'The %1 field cannot be blank because this quote is linked to an opportunity.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text051: Label 'The sales %1 %2 already exists.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text053: Label 'You must cancel the approval process if you wish to change the %1.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text056: Label 'Deleting this document will cause a gap in the number series for prepayment invoices. An empty prepayment invoice %1 will be created to fill this gap in the number series.\\Do you want to continue?';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text057: Label 'Deleting this document will cause a gap in the number series for prepayment credit memos. An empty prepayment credit memo %1 will be created to fill this gap in the number series.\\Do you want to continue?';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text061: Label '%1 is set up to process from %2 %3 only.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text062: Label 'You cannot change %1 because the corresponding %2 %3 has been assigned to this %4.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
         Text063: Label 'Reservations exist for this order. These reservations will be canceled if a date conflict is caused by this change.\\Do you want to continue?';
-#pragma warning restore AA0074
-#pragma warning disable AA0074
         Text064: Label 'You may have changed a dimension.\\Do you want to update the lines?';
-#pragma warning restore AA0074
-#pragma warning disable AA0074
 #pragma warning disable AA0470
         Text066: Label 'You cannot change %1 to %2 because an open inventory pick on the %3.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text070: Label 'You cannot change %1  to %2 because an open warehouse shipment exists for the %3.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
@@ -3814,20 +3663,8 @@ table 36 "Sales Header"
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text12402: Label 'You can not update %1 while %2 is not blank.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text12403: Label 'Agreement %1 should be no earlier than %2.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text12404: Label 'Agreement %1 should be no later than %2.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text12405: Label 'Posting Date %1 should be no earlier than %2.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
@@ -3859,6 +3696,10 @@ table 36 "Sales Header"
         WarnZeroQuantitySalesPostingTxt: Label 'Warn before posting Sales lines with 0 quantity';
         WarnZeroQuantitySalesPostingDescriptionTxt: Label 'Warn before posting lines on Sales documents where quantity is 0.';
         CalledFromWhseDoc: Boolean;
+        DocumentNotOpenErr: Label 'The document''s status must be Open. To change the status, use the Reopen action.';
+#if not CLEAN26
+        SkipStatsPrep: Boolean;
+#endif
 
     protected var
         Customer: Record Customer;
@@ -3947,7 +3788,9 @@ table 36 "Sales Header"
         NewOrderDate := WorkDate();
         OnInitRecordOnBeforeAssignOrderDate(Rec, NewOrderDate);
         "Order Date" := NewOrderDate;
-        "Document Date" := WorkDate();
+        UpdateDocumentDateFromLinkedPostingDate(false);
+        if Rec."Document Date" = 0D then
+            "Document Date" := WorkDate();
         if "Document Type" = "Document Type"::Quote then
             CalcQuoteValidUntilDate();
 
@@ -4986,8 +4829,11 @@ table 36 "Sales Header"
                         FieldNo("Shipping Agent Code"):
                             SalesLine.Validate("Shipping Agent Code", "Shipping Agent Code");
                         FieldNo("Shipping Agent Service Code"):
-                            if (SalesLine."No." <> '') and (SalesLine."Shipping Agent Code" <> '') then
+                            if (SalesLine."No." <> '') and (SalesLine."Shipping Agent Code" <> '') then begin
+                                if SalesLine."Shipping Agent Code" <> "Shipping Agent Code" then
+                                    SalesLine.Validate("Shipping Agent Code", "Shipping Agent Code");
                                 SalesLine.Validate("Shipping Agent Service Code", "Shipping Agent Service Code");
+                            end;
                         FieldNo("Shipping Time"):
                             if SalesLine."No." <> '' then
                                 SalesLine.Validate("Shipping Time", "Shipping Time");
@@ -7105,6 +6951,8 @@ table 36 "Sales Header"
         TempSalesLine.Insert();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Open statistics page for sales document.
     /// </summary>
@@ -7123,6 +6971,7 @@ table 36 "Sales Header"
         OpenDocumentStatisticsInternal();
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Open statistics page for sales documents.
     /// </summary>
@@ -7133,7 +6982,7 @@ table 36 "Sales Header"
     begin
         OpenDocumentStatisticsInternal();
     end;
-
+#endif
     /// <summary>
     /// Runs checks and prepares data needed to open the document statistics page.
     /// </summary>
@@ -7161,6 +7010,8 @@ table 36 "Sales Header"
         Commit();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     /// <summary>
     /// Opens a sales document statistics page based on the document type.
     /// After the page is closed, the recalculate invoice discount field is set to false on all sales document lines.
@@ -7171,11 +7022,26 @@ table 36 "Sales Header"
 
         OnGetStatisticsPageID(StatisticsPageId, Rec);
 
+        SkipStatsPrep := true;
         PAGE.RunModal(StatisticsPageId, Rec);
+        ResetSkipStatisticsPreparationFlag();
 
         SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
     end;
 
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    procedure SkipStatisticsPreparation(): Boolean
+    begin
+        exit(SkipStatsPrep)
+    end;
+
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    procedure ResetSkipStatisticsPreparationFlag()
+    begin
+        SkipStatsPrep := false;
+    end;
+
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenDocumentStatisticsInternal()
     var
         IsHandled: Boolean;
@@ -7188,19 +7054,14 @@ table 36 "Sales Header"
         PrepareOpeningDocumentStatistics();
         ShowDocumentStatisticsPage();
     end;
-
+#endif
     local procedure IsOrderDocument(): Boolean
     begin
-        case "Document Type" of
-            "Document Type"::Order,
-            "Document Type"::"Blanket Order",
-            "Document Type"::"Return Order":
-                exit(true);
-        end;
-
-        exit(false);
+        exit("Document Type" in ["Document Type"::Order, "Document Type"::"Blanket Order", "Document Type"::"Return Order"])
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure GetStatisticsPageID(): Integer
     begin
         if IsOrderDocument() then
@@ -7208,7 +7069,7 @@ table 36 "Sales Header"
 
         exit(PAGE::"Sales Statistics");
     end;
-
+#endif
     /// <summary>
     /// Determines the available credit limit for the customer associated with the sales header.
     /// </summary>
@@ -7869,9 +7730,9 @@ table 36 "Sales Header"
                 Validate("VAT Bus. Posting Group", SellToCustomer."VAT Bus. Posting Group");
             "Tax Area Code" := SellToCustomer."Tax Area Code";
             "Tax Liable" := SellToCustomer."Tax Liable";
-            "VAT Registration No." := SellToCustomer."VAT Registration No.";
             "Registration Number" := SellToCustomer."Registration Number";
             "VAT Country/Region Code" := SellToCustomer."Country/Region Code";
+            "VAT Registration No." := SellToCustomer.GetVATRegistrationNo();
             "Shipping Advice" := SellToCustomer."Shipping Advice";
             "Salesperson Code" := SellToCustomer."Salesperson Code";
             IsHandled := false;
@@ -8950,6 +8811,7 @@ table 36 "Sales Header"
         exit("Currency Code");
     end;
 
+#if not CLEAN26
     /// <summary>
     /// Updates the salesperson code from either the ship-to addresses or bill-to customer's salesperson.
     /// </summary>
@@ -8957,6 +8819,7 @@ table 36 "Sales Header"
     /// If neither are set, it uses the default salesperson from the user setup.
     /// If salesperson is blocked, it doesn't get assigned.
     /// </remarks>
+    [Obsolete('Use UpdateShipToSalespersonCode(FieldNo: Integer) instead.', '26.0')]
     procedure UpdateShipToSalespersonCode()
     var
         ShipToAddress: Record "Ship-to Address";
@@ -8993,7 +8856,7 @@ table 36 "Sales Header"
                     SetDefaultSalesperson();
         end;
     end;
-
+#endif
     /// <summary>
     /// Updates the salesperson code from either the ship-to addresses or bill-to customer's salesperson.
     /// </summary>
@@ -9226,6 +9089,30 @@ table 36 "Sales Header"
     end;
 
     /// <summary>
+    /// Checks if sales document status is open. If it is not, an error is raised.
+    /// </summary>
+    /// <param name="ThrowErrorIfNot">Determines if an error should be raised if status is not open.</param>
+    /// <returns>True if status is open, otherwise false.</returns>
+    /// <remakrs>
+    /// If global flag StatusCheckSuspended is set to true, the procedure is not executed.
+    /// </remakrs>
+    procedure TestStatusOpen(ThrowErrorIfNot: Boolean): Boolean
+    begin
+        OnBeforeTestStatusOpen(Rec, xRec, CurrFieldNo);
+
+        if StatusCheckSuspended then
+            exit(true);
+
+        if Rec.Status <> Rec.Status::Open then begin
+            if ThrowErrorIfNot then
+                Error(DocumentNotOpenErr);
+            exit(false)
+        end;
+        OnAfterTestStatusOpen(Rec);
+        exit(true)
+    end;
+
+    /// <summary>
     /// Sets the value of the global flag StatusCheckSuspended.
     /// </summary>
     /// <remarks>
@@ -9375,7 +9262,7 @@ table 36 "Sales Header"
             Error(Text028, FieldCaption("Requested Delivery Date"), FieldCaption("Promised Delivery Date"));
     end;
 
-    local procedure SetBillToCustomerNo(var Cust: Record Customer)
+    procedure SetBillToCustomerNo(var Cust: Record Customer)
     var
         IsHandled: Boolean;
     begin
@@ -9719,7 +9606,7 @@ table 36 "Sales Header"
         OnAfterSalesLinesEditable(Rec, IsEditable);
     end;
 
-# if not CLEAN24
+#if not CLEAN24
     [Obsolete('SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
     internal procedure SetTrackInfoForCancellation()
     var
@@ -9776,7 +9663,7 @@ table 36 "Sales Header"
         end;
         exit(Connected);
     end;
-# endif
+#endif
 
     local procedure FindDocumentWithSameExternalDocNo(): Boolean
     var
@@ -9832,7 +9719,7 @@ table 36 "Sales Header"
         exit(InstructionMgt.IsMyNotificationEnabled(GetShowExternalDocAlreadyExistNotificationId()));
     end;
 
-    internal procedure UpdateSalesOrderLineIfExist()
+    procedure UpdateSalesOrderLineIfExist()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
@@ -9929,6 +9816,23 @@ table 36 "Sales Header"
         ContactBusinessRelation.SetRange("Contact No.", ContactNo);
         ContactBusinessRelation.SetRange(ContactBusinessRelation."Link to Table", ContactBusinessRelationLinkType);
         exit(ContactBusinessRelation.IsEmpty());
+    end;
+
+    local procedure UpdateDocumentDateFromLinkedPostingDate(WithValidate: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        OnValidatePostingDateOnBeforeAssignDocumentDate(Rec, IsHandled);
+        if IsHandled then
+            exit;
+        if Rec."Incoming Document Entry No." <> 0 then
+            exit;
+        GetSalesSetup();
+        if SalesSetup."Link Doc. Date To Posting Date" then
+            if WithValidate then
+                Rec.Validate("Document Date", Rec."Posting Date")
+            else
+                Rec."Document Date" := Rec."Posting Date";
     end;
 
     procedure SendICSalesDoc(var SalesHeader: Record "Sales Header")
@@ -10577,11 +10481,13 @@ table 36 "Sales Header"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenSalesOrderStatistics(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeQtyToShipIsZero(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
@@ -10972,21 +10878,25 @@ table 36 "Sales Header"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenDocumentStatistics(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrepareOpeningDocumentStatistics(var SalesHeader: Record "Sales Header")
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnGetStatisticsPageID(var PageID: Integer; SalesHeader: Record "Sales Header")
     begin
     end;
-
+#endif
     [IntegrationEvent(true, false)]
     local procedure OnBeforeTestStatusOpen(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
     begin
@@ -11317,11 +11227,13 @@ table 36 "Sales Header"
     begin
     end;
 
+#if not CLEAN26
     [IntegrationEvent(false, false)]
+    [Obsolete('This event is obsolete. Use OnBeforeUpdateShipToSalespersonCode instead.', '26.0')]
     local procedure OnUpdateShiptoSalespersonCodeNotAssigned(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateShipToAddressFromSellToAddress(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNumber: Integer)
     begin
@@ -11627,13 +11539,13 @@ table 36 "Sales Header"
     begin
     end;
 
-# if not CLEAN24
+#if not CLEAN24
     [IntegrationEvent(false, false)]
     [Obsolete('This event is obsolete. SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
     local procedure OnSetTrackInfoForCancellationOnBeforeInsertCancelledDocument(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: boolean)
     begin
     end;
-# endif
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateSelltoContactNoOnBeforeValidateSalespersonCode(var SalesHeader: Record "Sales Header"; Contact: Record Contact; var IsHandled: Boolean)

@@ -70,6 +70,7 @@ table 9151 "My Vendor"
     var
         Vendor: Record Vendor;
     begin
+        Vendor.SetLoadFields("Name", "Phone No.");
         if Vendor.Get("Vendor No.") then begin
             Name := Vendor.Name;
             "Phone No." := Vendor."Phone No.";

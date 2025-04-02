@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Assembly.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Assembly.Document;
 
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
@@ -296,7 +300,8 @@ codeunit 925 "Assembly Header-Reserve"
 
         ItemJournalLine.TestItemFields(AssemblyHeader."Item No.", AssemblyHeader."Variant Code", AssemblyHeader."Location Code");
 
-        OldReservationEntry.Lock();
+        OldReservationEntry.LockTable();
+        OldReservationEntry.FindLast();
 
         if ReservationEngineMgt.InitRecordSet(OldReservationEntry) then begin
             repeat
@@ -514,11 +519,11 @@ codeunit 925 "Assembly Header-Reserve"
         if not AssemblyHeader.ReadPermission then
             exit;
 
+        AssemblyHeader.SetAutoCalcFields("Reserved Qty. (Base)");
         AvailabilityFilter := CalcReservationEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         AssemblyHeader.FilterLinesForReservation(CalcReservationEntry, DocumentType, AvailabilityFilter, Positive);
         if AssemblyHeader.FindSet() then
             repeat
-                AssemblyHeader.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" += AssemblyHeader."Reserved Qty. (Base)";
                 TotalQuantity += AssemblyHeader."Remaining Quantity (Base)";
             until AssemblyHeader.Next() = 0;
@@ -593,12 +598,12 @@ codeunit 925 "Assembly Header-Reserve"
         if IsReserved then
             exit;
 
+        AssemblyHeader.SetAutoCalcFields("Reserved Qty. (Base)");
         AssemblyHeader.FilterLinesForReservation(
             CalcReservEntry, ReservSummEntryNo - Enum::"Reservation Summary Type"::"Assembly Quote Header".AsInteger(),
             sender.GetAvailabilityFilter(AvailabilityDate), Positive);
         if AssemblyHeader.Find(Search) then
             repeat
-                AssemblyHeader.CalcFields("Reserved Qty. (Base)");
                 QtyThisLine := AssemblyHeader."Remaining Quantity";
                 QtyThisLineBase := AssemblyHeader."Remaining Quantity (Base)";
                 ReservQty := AssemblyHeader."Reserved Qty. (Base)";
@@ -652,12 +657,6 @@ codeunit 925 "Assembly Header-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateReservationOnBeforeCreateReservEntry(var AssemblyHeader: Record "Assembly Header"; var Quantity: Decimal; var QuantityBase: Decimal; var ReservationEntry: Record "Reservation Entry"; var FromTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; ExpectedReceiptDate: Date; Description: Text[100]; ShipmentDate: Date)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit AssemblyLineReserve', '25.0')]
-    local procedure OnSetAssemblyHeaderOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; AssemblyHeader: Record "Assembly Header")
     begin
     end;
 
@@ -779,5 +778,27 @@ codeunit 925 "Assembly Header-Reserve"
                 OrderTrackingEntry."Starting Date" := AssemblyHeader."Due Date";
                 OrderTrackingEntry."Ending Date" := AssemblyHeader."Due Date";
             end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnSetSourceForAssemblyHeader', '', false, false)]
+    local procedure OnSetSourceForAssemblyHeader(SourceRecRef: RecordRef; var CalcReservEntry: Record "Reservation Entry"; var EntryIsPositive: Boolean)
+    var
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        if not MatchThisTable(SourceRecRef.Number) then
+            exit;
+
+        SourceRecRef.SetTable(AssemblyHeader);
+        AssemblyHeader.SetReservationEntry(CalcReservEntry);
+        OnSetAssemblyHeaderOnBeforeUpdateReservation(CalcReservEntry, AssemblyHeader);
+#if not CLEAN26
+        ReservationManagement.RunOnSetAssemblyHeaderOnBeforeUpdateReservation(CalcReservEntry, AssemblyHeader);
+#endif
+        EntryIsPositive := ((CreateReservEntry.SignFactor(CalcReservEntry) * AssemblyHeader."Remaining Quantity (Base)") < 0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAssemblyHeaderOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; AssemblyHeader: Record "Assembly Header")
+    begin
     end;
 }

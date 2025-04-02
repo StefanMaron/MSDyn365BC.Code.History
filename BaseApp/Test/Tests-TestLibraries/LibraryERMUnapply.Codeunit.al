@@ -1,4 +1,4 @@
-﻿codeunit 131301 "Library - ERM Unapply"
+codeunit 131301 "Library - ERM Unapply"
 {
     // Branching extension library for CU131300: Library - ERM
     // 

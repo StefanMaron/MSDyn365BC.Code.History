@@ -33,52 +33,43 @@ page 524 "Report Selection - Reminder"
                 field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies a number that indicates where this report is in the printing order.';
                 }
                 field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Suite;
                     LookupPageID = Objects;
-                    ToolTip = 'Specifies the object ID of the report.';
                 }
                 field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Suite;
                     DrillDown = false;
                     LookupPageID = Objects;
-                    ToolTip = 'Specifies the display name of the report.';
                 }
                 field("Use for Email Body"; Rec."Use for Email Body")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether to insert summarized information, such as invoice number, due date in the body of the email that you send.';
                 }
                 field("Use for Email Attachment"; Rec."Use for Email Attachment")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether to attach the related document to the email.';
                 }
                 field(EmailBodyName; Rec."Email Body Layout Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the email body layout that is used.';
                 }
                 field(EmailBodyPublisher; Rec."Email Body Layout Publisher")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the publisher of the email body layout that is used.';
                     Visible = false;
                 }
                 field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the ID of the email body layout that is used.';
                     Visible = false;
                 }
                 field("Email Body Layout Description"; Rec."Email Body Layout Description")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the email body custom layout that is used.';
                     Visible = CustomLayoutsExist;
 
                     trigger OnDrillDown()

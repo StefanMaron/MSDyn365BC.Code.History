@@ -200,7 +200,7 @@
         RecRef: RecordRef;
     begin
         TextToAccMapping.Init();
-            RecRef.GetTable(TextToAccMapping);
+        RecRef.GetTable(TextToAccMapping);
         TextToAccMapping.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, TextToAccMapping.FieldNo("Line No.")));
         TextToAccMapping.Validate("Mapping Text", MappingText);
         TextToAccMapping.Insert(true);
@@ -208,7 +208,7 @@
 
     procedure CreateAccountMappingCustomer(var TextToAccMapping: Record "Text-to-Account Mapping"; MappingText: Text[250]; SourceNo: Code[20])
     begin
-            CreateAccountMapping(TextToAccMapping, MappingText);
+        CreateAccountMapping(TextToAccMapping, MappingText);
         TextToAccMapping.Validate("Bal. Source Type", TextToAccMapping."Bal. Source Type"::Customer);
         TextToAccMapping.Validate("Bal. Source No.", SourceNo);
         TextToAccMapping.Modify(true);
@@ -216,7 +216,7 @@
 
     procedure CreateAccountMappingGLAccount(var TextToAccMapping: Record "Text-to-Account Mapping"; MappingText: Text[250]; CreditNo: Code[20]; DebitNo: Code[20])
     begin
-            CreateAccountMapping(TextToAccMapping, MappingText);
+        CreateAccountMapping(TextToAccMapping, MappingText);
         TextToAccMapping.Validate("Bal. Source Type", TextToAccMapping."Bal. Source Type"::"G/L Account");
         TextToAccMapping.Validate("Debit Acc. No.", DebitNo);
         TextToAccMapping.Validate("Credit Acc. No.", CreditNo);
@@ -225,7 +225,7 @@
 
     procedure CreateAccountMappingVendor(var TextToAccMapping: Record "Text-to-Account Mapping"; MappingText: Text[250]; SourceNo: Code[20])
     begin
-            CreateAccountMapping(TextToAccMapping, MappingText);
+        CreateAccountMapping(TextToAccMapping, MappingText);
         TextToAccMapping.Validate("Bal. Source Type", TextToAccMapping."Bal. Source Type"::Vendor);
         TextToAccMapping.Validate("Bal. Source No.", SourceNo);
         TextToAccMapping.Modify(true);
@@ -436,7 +436,7 @@
     begin
         Decimals := LibraryRandom.RandInt(5);
         Currency.Get(
-              CreateCurrencyWithExchangeRate(
+            CreateCurrencyWithExchangeRate(
             WorkDate(), LibraryRandom.RandDec(100, Decimals), LibraryRandom.RandDec(100, Decimals)));
         Currency.Validate("Amount Rounding Precision", LibraryRandom.RandPrecision());
         Currency.Modify(true);
@@ -728,7 +728,8 @@
         FAJournalLine.Validate("FA Posting Date", WorkDate());
         FAJournalLine.Validate(Amount, Amount);
         if NoSeries.Get(FAJournalBatch."No. Series") then
-            FAJournalLine.Validate("Document No.", NoSeriesCodeunit.PeekNextNo(FAJournalBatch."No. Series"));  // Unused but required field for posting.
+            FAJournalLine.Validate(
+              "Document No.", NoSeriesCodeunit.PeekNextNo(FAJournalBatch."No. Series"));  // Unused but required field for posting.
         FAJournalLine.Validate("External Document No.", FAJournalLine."Document No.");  // Unused but required for vendor posting.
         FAJournalLine.Modify(true);
     end;
@@ -2312,34 +2313,6 @@
         AdjustAddReportingCurrency.Run();
     end;
 
-#if not CLEAN23
-    // Old Adjust Exchange Rates
-#pragma warning disable AS0072
-    [Obsolete('Not used', '23.0')]
-#pragma warning restore AS0072
-    procedure RunAdjustExchangeRatesSimple(CurrencyCode: Code[10]; EndDate: Date; PostingDate: Date)
-    begin
-        RunAdjustExchangeRates(
-          CurrencyCode, 0D, EndDate, 'Test', PostingDate, LibraryUtility.GenerateGUID(), false);
-    end;
-
-#pragma warning disable AS0072
-    [Obsolete('Not used', '23.0')]
-#pragma warning restore AS0072
-    procedure RunAdjustExchangeRates(CurrencyCode: Code[10]; StartDate: Date; EndDate: Date; PostingDescription: Text[50]; PostingDate: Date; PostingDocNo: Code[20]; AdjGLAcc: Boolean)
-    var
-        Currency: Record Currency;
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
-    begin
-        Currency.SetRange(Code, CurrencyCode);
-        AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(
-            StartDate, EndDate, PostingDescription, PostingDate, PostingDocNo, true, AdjGLAcc);
-        AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run();
-    end;
-#endif
-
     // New Exch. rate adjustment for v.20
     procedure RunExchRateAdjustmentForDocNo(CurrencyCode: Code[10]; DocumentNo: Code[20])
     begin
@@ -3329,6 +3302,12 @@
         if DeletionBlockedAfterDate = 0D then
             exit(WorkDate());
         exit(DeletionBlockedAfterDate);
+    end;
+
+    procedure UpdateDirectCostNonInventoryAppliedAccountInGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
+    begin
+        GeneralPostingSetup.Validate("Direct Cost Non-Inv. App. Acc.", CreateGLAccountNo());
+        GeneralPostingSetup.Modify();
     end;
 
     [IntegrationEvent(false, false)]

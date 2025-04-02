@@ -138,6 +138,7 @@ page 7383 "Invt. Movement Subform"
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the item to be handled, such as received, put-away, or assigned.';
+                    Editable = false;
                 }
                 field("Qty. (Base)"; Rec."Qty. (Base)")
                 {

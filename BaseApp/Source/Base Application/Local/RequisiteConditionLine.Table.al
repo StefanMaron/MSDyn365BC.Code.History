@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA28 
 table 26561 "Requisite Condition Line"
 {
     Caption = 'Requisite Condition Line';
@@ -65,3 +66,5 @@ table 26561 "Requisite Condition Line"
     }
 }
 
+ 
+#endif

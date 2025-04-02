@@ -94,7 +94,7 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
         Item: Record Item;
     begin
         LibraryManufacturing.CreateItemManufacturing(
-          Item, ItemCostingMethod, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot", "Flushing Method"::Manual, '', '');
+          Item, ItemCostingMethod, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot", "Flushing Method"::"Pick + Manual", '', '');
         exit(Item."No.");
     end;
 

@@ -198,34 +198,6 @@ table 5355 "CRM Invoice"
             ExternalName = 'totaltax';
             ExternalType = 'Money';
         }
-        field(23; ShippingMethodCode; Option)
-        {
-            Caption = 'Shipping Method';
-            Description = 'Select a shipping method for deliveries sent to this address.';
-            ExternalName = 'shippingmethodcode';
-            ExternalType = 'Picklist';
-            InitValue = " ";
-            OptionCaption = ' ,Airborne,DHL,FedEx,UPS,Postal Mail,Full Load,Will Call';
-            OptionOrdinalValues = -1, 1, 2, 3, 4, 5, 6, 7;
-            OptionMembers = " ",Airborne,DHL,FedEx,UPS,PostalMail,FullLoad,WillCall;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is replaced by field 97 ShippingMethodCodeEnum';
-            ObsoleteTag = '19.0';
-        }
-        field(24; PaymentTermsCode; Option)
-        {
-            Caption = 'Payment Terms';
-            Description = 'Select the payment terms to indicate when the customer needs to pay the total amount.';
-            ExternalName = 'paymenttermscode';
-            ExternalType = 'Picklist';
-            InitValue = " ";
-            OptionCaption = ' ,Net 30,2% 10; Net 30,Net 45,Net 60';
-            OptionOrdinalValues = -1, 1, 2, 3, 4;
-            OptionMembers = " ",Net30,"2%10Net30",Net45,Net60;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is replaced by field 96 PaymentTermsCodeEnum';
-            ObsoleteTag = '19.0';
-        }
         field(25; CreatedOn; DateTime)
         {
             Caption = 'Created On';
@@ -839,4 +811,3 @@ table 5355 "CRM Invoice"
         }
     }
 }
-

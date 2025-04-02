@@ -3238,7 +3238,7 @@ codeunit 137049 "SCM Reservation"
     begin
         LibraryInventory.ClearItemJournal(OutputItemJournalTemplate, OutputItemJournalBatch);
         LibraryManufacturing.CreateOutputJournal(ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, '', ProductionOrderNo);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
     end;
 
     local procedure SelectOutputJournalLine(var ItemJournalLine: Record "Item Journal Line"; ProductionOrderNo: Code[20])

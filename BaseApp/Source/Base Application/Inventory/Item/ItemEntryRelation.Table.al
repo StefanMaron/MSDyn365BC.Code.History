@@ -72,13 +72,6 @@ table 6507 "Item Entry Relation"
             Caption = 'Package No.';
             CaptionClass = '6,1';
         }
-        field(14900; "CD No."; Code[50])
-        {
-            Caption = 'CD No.';
-            ObsoleteReason = 'Replaced by field Package No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys

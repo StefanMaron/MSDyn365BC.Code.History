@@ -38,6 +38,8 @@ codeunit 1550 "Record Restriction Mgt."
 
         OnRestrictRecordUsageOnBeforeSetFilter(RestrictedRecord, RecRef);
         SetRestrictedRecordFiltersForRecRef(RestrictedRecord, RecRef);
+
+        RestrictedRecord.ReadIsolation := IsolationLevel::ReadCommitted;
         if RestrictedRecord.FindFirst() then begin
             RestrictedRecord.Details := CopyStr(RestrictionDetails, 1, MaxStrLen(RestrictedRecord.Details));
             RestrictedRecord.Modify(true);
@@ -99,6 +101,8 @@ codeunit 1550 "Record Restriction Mgt."
         RecRef.GetTable(RecVar);
         if RecRef.IsTemporary then
             exit;
+
+        RestrictedRecord.ReadIsolation := IsolationLevel::ReadCommitted;
         if RestrictedRecord.IsEmpty() then
             exit;
 
@@ -120,6 +124,7 @@ codeunit 1550 "Record Restriction Mgt."
         if RecRef.IsTemporary then
             exit;
 
+        RestrictedRecord.ReadIsolation := IsolationLevel::ReadCommitted;
         if RestrictedRecord.IsEmpty() then
             exit;
 
@@ -182,6 +187,8 @@ codeunit 1550 "Record Restriction Mgt."
         RecRef.GetTable(RecVar);
         if RecRef.IsTemporary then
             exit;
+
+        RestrictedRecord.ReadIsolation := IsolationLevel::ReadCommitted;
         if RestrictedRecord.IsEmpty() then
             exit;
 

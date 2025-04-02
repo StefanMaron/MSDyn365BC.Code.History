@@ -14,7 +14,6 @@ codeunit 137287 "SCM Inventory Costing II"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
@@ -816,10 +815,10 @@ codeunit 137287 "SCM Inventory Costing II"
 
         case DocumentType of
             PurchaseLine."Document Type"::Order:
-                LibraryPatterns.ASSIGNPurchChargeToPurchaseLine(PurchaseHeader, PurchaseLine,
+                LibraryPurchase.AssignPurchChargeToPurchaseLine(PurchaseHeader, PurchaseLine,
                   LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
             PurchaseLine."Document Type"::"Return Order":
-                LibraryPatterns.ASSIGNPurchChargeToPurchReturnLine(PurchaseHeader, PurchaseLine,
+                LibraryPurchase.AssignPurchChargeToPurchReturnLine(PurchaseHeader, PurchaseLine,
                   LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
         end;
 
@@ -886,10 +885,10 @@ codeunit 137287 "SCM Inventory Costing II"
         // Assign item charge to current document
         case DocumentType of
             SalesLine."Document Type"::Order:
-                LibraryPatterns.ASSIGNSalesChargeToSalesLine(SalesHeader, SalesLine,
+                LibrarySales.AssignSalesChargeToSalesLine(SalesHeader, SalesLine,
                   LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
             SalesLine."Document Type"::"Return Order":
-                LibraryPatterns.ASSIGNSalesChargeToSalesReturnLine(SalesHeader, SalesLine,
+                LibrarySales.AssignSalesChargeToSalesReturnLine(SalesHeader, SalesLine,
                   LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
         end;
 

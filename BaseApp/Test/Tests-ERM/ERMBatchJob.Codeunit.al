@@ -4221,9 +4221,13 @@ codeunit 134900 "ERM Batch Job"
     var
         JobQueueCategory: Record "Job Queue Category";
         JobQueueLogEntry: Record "Job Queue Log Entry";
+        InventorySetup: Record "Inventory Setup";
         i: Integer;
     begin
-        JobQueueCategory.Get(DefaultSalesCategoryCodeLbl);
+        if InventorySetup.UseLegacyPosting() then
+            JobQueueCategory.Get(DefaultSalesCategoryCodeLbl)
+        else
+            JobQueueCategory.Code := ''; // already default, but just to document the intent
 
         for i := 1 to JobQueueEntryId.Count do begin
             JobQueueLogEntry.SetRange(ID, JobQueueEntryId.Get(i));

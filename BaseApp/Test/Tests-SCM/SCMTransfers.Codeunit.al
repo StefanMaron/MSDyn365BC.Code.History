@@ -3222,33 +3222,6 @@
     end;
 
     [Test]
-    procedure TransferOrderPartnerVATID_UI()
-    var
-        TransferOrder: TestPage "Transfer Order";
-        PostedTransferShipment: TestPage "Posted Transfer Shipment";
-        PostedTransferReceipt: TestPage "Posted Transfer Receipt";
-    begin
-        // [FEATURE] [Intrastat] [Partner VAT ID] [UI]
-        // [SCENARIO 417835] Transfer Order, Posted Transfer Shipment, Posted Transfer Receipt have header field "Partner VAT ID"
-        Initialize();
-
-        TransferOrder.OpenNew();
-        Assert.IsTrue(TransferOrder."Partner VAT ID".Visible(), '');
-        Assert.IsTrue(TransferOrder."Partner VAT ID".Editable(), '');
-        TransferOrder.Close();
-
-        PostedTransferShipment.OpenEdit();
-        Assert.IsTrue(PostedTransferShipment."Partner VAT ID".Visible(), '');
-        Assert.IsFalse(PostedTransferShipment."Partner VAT ID".Editable(), '');
-        PostedTransferShipment.Close();
-
-        PostedTransferReceipt.OpenEdit();
-        Assert.IsTrue(PostedTransferReceipt."Partner VAT ID".Visible(), '');
-        Assert.IsFalse(PostedTransferReceipt."Partner VAT ID".Editable(), '');
-        PostedTransferReceipt.Close();
-    end;
-
-    [Test]
     procedure PostingDirectTransferWithItemTracking()
     var
         Item: Record Item;

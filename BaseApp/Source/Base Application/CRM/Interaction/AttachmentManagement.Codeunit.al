@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CRM.Interaction;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.Interaction;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Outlook;
@@ -169,31 +173,6 @@ codeunit 5052 AttachmentManagement
         Contact.Get(InteractionLogEntry."Contact No.");
         exit(Contact."E-Mail");
     end;
-
-#if not CLEAN23
-    [Obsolete('Fax is not supported anymore.', '23.0')]
-    procedure InteractionFax(var InteractLogEntry: Record "Interaction Log Entry") FaxNo: Text[30]
-    var
-        Cont: Record Contact;
-        ContAltAddr: Record "Contact Alt. Address";
-        IsHandled: Boolean;
-    begin
-        OnBeforeInteractionFax(InteractLogEntry, FaxNo, IsHandled);
-        if IsHandled then
-            exit(FaxNo);
-
-        if InteractLogEntry."Contact Alt. Address Code" = '' then begin
-            Cont.Get(InteractLogEntry."Contact No.");
-            exit(Cont."Fax No.");
-        end;
-        ContAltAddr.Get(InteractLogEntry."Contact No.", InteractLogEntry."Contact Alt. Address Code");
-        if ContAltAddr."Fax No." <> '' then
-            exit(ContAltAddr."Fax No.");
-
-        Cont.Get(InteractLogEntry."Contact No.");
-        exit(Cont."Fax No.");
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure GenerateHTMLContent(var Attachment: Record Attachment; SegmentLine: Record "Segment Line"): Boolean
@@ -655,12 +634,7 @@ codeunit 5052 AttachmentManagement
         exit(AttachmentTok + '.' + Attachment."File Extension");
     end;
 
-#if not CLEAN23
-    [Obsolete('Correspondence Type Fax is obsolete and will be removed.', '23.0')]
-    procedure ConvertCorrespondenceType(CorrespondenceType: Option "Same as Entry","Hard Copy",Email,Fax) ReturnType: Enum "Correspondence Type"
-#else
     procedure ConvertCorrespondenceType(CorrespondenceType: Option "Same as Entry","Hard Copy",Email) ReturnType: Enum "Correspondence Type"
-#endif
     var
         IsHandled: Boolean;
     begin
@@ -669,10 +643,6 @@ codeunit 5052 AttachmentManagement
                 exit(Enum::"Correspondence Type"::"Hard Copy");
             CorrespondenceType::Email:
                 exit(Enum::"Correspondence Type"::Email);
-#if not CLEAN23
-            CorrespondenceType::Fax:
-                exit(Enum::"Correspondence Type"::Fax);
-#endif
             else begin
                 OnConvertCorrespondenceTypeElse(CorrespondenceType, ReturnType, IsHandled);
                 if IsHandled then
@@ -700,14 +670,6 @@ codeunit 5052 AttachmentManagement
     local procedure OnBeforeInteractionEMail(var InteractionLogEntry: Record "Interaction Log Entry"; var EMailAddress: Text[80]; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN23
-    [IntegrationEvent(false, false)]
-    [Obsolete('Correspondence Type Fax is obsolete and will be removed.', '23.0')]
-    local procedure OnBeforeInteractionFax(var InteractionLogEntry: Record "Interaction Log Entry"; var FaxNo: Text[30]; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSend(var DeliverySorter: Record "Delivery Sorter"; var IsHandled: Boolean)

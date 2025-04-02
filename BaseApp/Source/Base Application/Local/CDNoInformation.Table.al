@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA28 
 table 12408 "CD No. Information"
 {
     Caption = 'CD No. Information';
@@ -53,6 +54,7 @@ table 12408 "CD No. Information"
         {
             Caption = 'Quantity';
         }
+#if not CLEANSCHEMA28
         field(9; "CD Header No."; Code[30])
         {
             Caption = 'CD Header No.';
@@ -66,6 +68,7 @@ table 12408 "CD No. Information"
             ObsoleteTag = '25.0';
 #endif
         }
+#endif
         field(10; Description; Text[100])
         {
             Caption = 'Description';
@@ -191,3 +194,5 @@ table 12408 "CD No. Information"
         }
     }
 }
+ 
+#endif

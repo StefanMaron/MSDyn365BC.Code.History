@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Manufacturing.Journal;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Journal;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Inventory.Costing;
@@ -18,7 +22,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         ItemJnlLine: Record "Item Journal Line";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
         NextLineNo: Integer;
         LineSpacing: Integer;
@@ -93,11 +97,11 @@ codeunit 5406 "Output Jnl.-Expl. Route"
             if ProdOrderRtngLine.Find('-') then
                 repeat
                     BaseQtyToPost :=
-                      CostCalcMgt.CalcQtyAdjdForRoutingScrap(
+                      MfgCostCalcMgt.CalcQtyAdjdForRoutingScrap(
                         ProdOrderLine."Quantity (Base)",
                         ProdOrderRtngLine."Scrap Factor % (Accumulated)",
                         ProdOrderRtngLine."Fixed Scrap Qty. (Accum.)") -
-                      CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRtngLine);
+                      MfgCostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRtngLine);
                     OnAfterCalcBaseQtyToPost(ProdOrderRtngLine, BaseQtyToPost);
                     if BaseQtyToPost > 0 then begin
                         SkipRecord := false;

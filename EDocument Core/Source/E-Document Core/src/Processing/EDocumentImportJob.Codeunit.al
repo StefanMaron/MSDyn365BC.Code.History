@@ -14,9 +14,9 @@ codeunit 6147 "E-Document Import Job"
     trigger OnRun()
     var
         EDocumentService: Record "E-Document Service";
-        EDocImportManagement: Codeunit "E-Doc. Import";
+        EDocImport: Codeunit "E-Doc. Import";
     begin
         EDocumentService.Get(Rec."Record ID to Process");
-        EDocImportManagement.ReceiveDocument(EDocumentService);
+        EDocImport.ReceiveAndProcessAutomatically(EDocumentService);
     end;
 }

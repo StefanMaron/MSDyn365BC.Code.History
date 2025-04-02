@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,6 +8,7 @@ namespace Microsoft.System.Threading;
 using Microsoft.Integration.Dataverse;
 #endif
 using System.Environment;
+using System.Telemetry;
 using System.Environment.Configuration;
 using System.Threading;
 using System.Utilities;
@@ -332,8 +333,14 @@ page 1179 "Job Queue Notification Wizard"
 
                 trigger OnAction()
                 var
+                    FeatureTelemetry: Codeunit "Feature Telemetry";
                     GuidedExperience: Codeunit "Guided Experience";
                 begin
+                    if Rec.InProductNotification then
+                        FeatureTelemetry.LogUptake('0000OK8', 'JobQueueFailedNotification-InProd ', Enum::"Feature Uptake Status"::"Set up");
+                    if Rec.PowerAutomateFlowNotification then
+                        FeatureTelemetry.LogUptake('0000OK9', 'JobQueueFailedNotification-External ', Enum::"Feature Uptake Status"::"Set up");
+
                     GuidedExperience.CompleteAssistedSetup(ObjectType::Page, Page::"Job Queue Notification Wizard");
                     UpdateJobQueueNotificationSetup();
                     CurrPage.Close();
@@ -468,7 +475,12 @@ page 1179 "Job Queue Notification Wizard"
     end;
 
     trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000OKA', 'JobQueueFailedNotification-InProd ', Enum::"Feature Uptake Status"::Discovered);
+        FeatureTelemetry.LogUptake('0000OKB', 'JobQueueFailedNotification-External ', Enum::"Feature Uptake Status"::Discovered);
+
         if Rec.IsEmpty() then
             Rec.Insert(true);
 

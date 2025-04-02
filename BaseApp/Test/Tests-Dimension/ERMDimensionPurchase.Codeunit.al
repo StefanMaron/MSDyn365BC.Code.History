@@ -1,4 +1,4 @@
-codeunit 134476 "ERM Dimension Purchase"
+﻿codeunit 134476 "ERM Dimension Purchase"
 {
     Permissions = TableData "Vendor Ledger Entry" = rimd;
     Subtype = Test;
@@ -1894,7 +1894,7 @@ codeunit 134476 "ERM Dimension Purchase"
         VendNo: Code[20];
         ExpectedDimID: Integer;
     begin
-        // [SCENARIO 490897] Dimensions are being deleted from Purchase Order headers when changing the “Ship-to” field.
+        // [SCENARIO 490897] Dimensions are being deleted from Purchase Order headers when changing the "Ship-to" field.
         Initialize();
 
         // [GIVEN] Create Multiple Dimensions, it's Dimension Values, and Vendor
@@ -1973,7 +1973,7 @@ codeunit 134476 "ERM Dimension Purchase"
         VendNo: Code[20];
         ExpectedDimID: Integer;
     begin
-        // [SCENARIO 498578] Dimensions are being deleted from Purchase Order headers when changing the “Ship-to” field
+        // [SCENARIO 498578] Dimensions are being deleted from Purchase Order headers when changing the "Ship-to" field
         Initialize();
 
         // [GIVEN] Create Multiple Dimensions, it's Dimension Values, and Vendor
@@ -2364,13 +2364,12 @@ codeunit 134476 "ERM Dimension Purchase"
         DefaultDimension: Record "Default Dimension";
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
-        LibraryService: Codeunit "Library - Service";
     begin
         Item.Get(CreateItemWithDimension(DimensionCode, DefaultDimension."Value Posting"::" "));
         Item.Validate("Automatic Ext. Texts", true);
         Item.Modify(true);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
     end;
 
     local procedure CreateGLAccountWithDimension(DimensionCode: Code[20]; VATProdPostingGroup: Code[20]): Code[20]

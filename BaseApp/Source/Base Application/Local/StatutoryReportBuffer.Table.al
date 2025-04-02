@@ -10,14 +10,6 @@ table 26568 "Statutory Report Buffer"
             Caption = 'Entry No.';
             DataClassification = SystemMetadata;
         }
-        field(2; "Requisites Group Name"; Text[30])
-        {
-            Caption = 'Requisites Group Name';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Obsolete functionality';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
         field(3; "Table Code"; Code[20])
         {
             Caption = 'Table Code';
@@ -133,4 +125,3 @@ table 26568 "Statutory Report Buffer"
     {
     }
 }
-

@@ -1,4 +1,4 @@
-codeunit 134010 "ERM Application Customer"
+﻿codeunit 134010 "ERM Application Customer"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd;
     Subtype = Test;
@@ -22,9 +22,6 @@ codeunit 134010 "ERM Application Customer"
         DeltaAssert: Codeunit "Delta Assert";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
-#if not CLEAN23
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
-#endif
         WrongBalancePerTransNoErr: Label 'Wrong total amount of detailed entries per transaction.';
 
     [Test]
@@ -155,9 +152,6 @@ codeunit 134010 "ERM Application Customer"
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure CustomerUnrealizedGain()
     var
@@ -182,9 +176,6 @@ codeunit 134010 "ERM Application Customer"
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure CustomerUnrealizedLoss()
     var
@@ -209,9 +200,6 @@ codeunit 134010 "ERM Application Customer"
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure FutureCurrAdjTransaction()
     var
@@ -269,13 +257,8 @@ codeunit 134010 "ERM Application Customer"
         LastTransactionNo[1] := GetLastTransactionNo();
 
         // [WHEN] Run the Adjust Exchange Rates Batch job on (WorkDate() + 1)
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(
-          CurrencyCode, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
-#else
         LibraryERM.RunExchRateAdjustmentSimple(
           CurrencyCode, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
-#endif
 
         // [THEN] posted G/L Entries on different dates have different "Transaction No."
         // [THEN] Dtld. Customer Ledger Entries have same "Transaction No." with related G/L Entries
@@ -1240,13 +1223,8 @@ codeunit 134010 "ERM Application Customer"
         Desc := GenerateDocument(GenJournalBatch, Customer, PmtType, InvType, PmtAmount, InvAmount, '<1D>', '', Currency.Code);
 
         // Run the Adjust Exchange Rates Batch job.
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(
-          Currency.Code, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
-#else
         LibraryERM.RunExchRateAdjustmentSimple(
           Currency.Code, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
-#endif
 
         CustomerApplyUnapply(Desc, Stepwise);
 
@@ -1876,15 +1854,6 @@ codeunit 134010 "ERM Application Customer"
         PostApplication.OK().Invoke();
     end;
 
-#if not CLEAN23
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-
-#endif
     [MessageHandler]
     [Scope('OnPrem')]
     procedure SimpleMessageHandler(Message: Text[1024])

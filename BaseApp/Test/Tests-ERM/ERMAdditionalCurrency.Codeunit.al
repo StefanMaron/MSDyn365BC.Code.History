@@ -24,7 +24,6 @@ codeunit 134043 "ERM Additional Currency"
         AmountErr: Label '%1 must be %2 in %3.';
         FiscalPostingDateTok: Label 'C%1', Locked = true;
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
-        AdjustExchRateDefaultDescTxt: Label 'Adjmt. of %1 %2, Ex.Rate Adjust.', Locked = true;
         BankExchRateAdjustedErr: Label 'Bank Exch Rate should be Adjusted for %1', Comment = '%1 = Bank Account No.';
         AmountLCYError: Label 'Amount LCY must be %1.', Comment = '%1 = Amount (LCY)';
 
@@ -918,127 +917,17 @@ codeunit 134043 "ERM Additional Currency"
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('MessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure AddCurrDiffVATPostingSetupDesciptionSales()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        VATPostingSetup: array[2] of Record "VAT Posting Setup";
-        GLEntry: Record "G/L Entry";
-        GenJournalLine: Record "Gen. Journal Line";
-        Currency: Record Currency;
-        CustomerNo: Code[20];
-        VATAmount: array[2] of Decimal;
-        StartingDate: Date;
     begin
-        // [SCENARIO 378407] Adjust Exchange Rate for Additional-Currency VAT Adjustment generates correct G/L Entry Description - Sales
-        Initialize();
-
-        // [GIVEN] Currency FCY with different exchange rates for Dates: "D1", "D2", "D3".
-        CreateCurrencyWithExchangeRates(Currency, 3, StartingDate);
-
-        // [GIVEN] General Ledger Setup "Additional Reporting Currency" = "FCY"
-        LibraryERM.SetAddReportingCurrency(Currency.Code);
-
-        // [GIVEN] General Ledger Setup "VAT Exchange Rate Adjustment" := Adjust Additional-Currency Amount
-        UpdateGenLedgerVATExchRateAdjustment(
-          GeneralLedgerSetup."VAT Exchange Rate Adjustment"::"Adjust Additional-Currency Amount");
-
-        // [GIVEN] Invoice "I1"(VAT Amount "V1") posted at Date "D1", 2nd Invoice "I2"(VAT Amount "V2") posted at Date "D2" with different VAT Posting Setup
-        LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup[1], VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(25));
-        LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup[2], VATPostingSetup[2]."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(25));
-        CustomerNo := LibrarySales.CreateCustomerNo();
-        VATAmount[1] :=
-          CreatePostGenJnlLineWithBalVATSetup(
-            GenJournalLine."Account Type"::Customer, CustomerNo, LibraryRandom.RandInt(500), StartingDate,
-            VATPostingSetup[1], GenJournalLine."Bal. Gen. Posting Type"::Sale);
-        VATAmount[2] :=
-          CreatePostGenJnlLineWithBalVATSetup(
-            GenJournalLine."Account Type"::Customer, CustomerNo, LibraryRandom.RandInt(600), StartingDate + 1,
-            VATPostingSetup[2], GenJournalLine."Bal. Gen. Posting Type"::Sale);
-
-        // [WHEN] Adjust Exchange Rate from Date "D1" to "D3" for Currency "FCY"
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRates(
-          Currency.Code, StartingDate, StartingDate + 2, AdjustExchRateDefaultDescTxt, StartingDate + 2, Currency.Code, true);
-#else
-        LibraryERM.RunExchRateAdjustment(
-          Currency.Code, StartingDate, StartingDate + 2, AdjustExchRateDefaultDescTxt, StartingDate + 2, Currency.Code, true);
-#endif
-
-        // [THEN] Description of G/L Entry for Currency VAT Adjustment of Invoice "I1" contains its VAT Amount "V1"
-        GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
-        GLEntry.SetRange("Document No.", Currency.Code);
-        VerifyCurrAdjGLEntryDescription(GLEntry, VATPostingSetup[1]."Sales VAT Account", VATAmount[1]);
-
-        // [THEN] Description of G/L Entry for Currency VAT Adjustment of Invoice "I2" contains its VAT Amount "V2"
-        VerifyCurrAdjGLEntryDescription(GLEntry, VATPostingSetup[2]."Sales VAT Account", VATAmount[2]);
+        // Cannot run for RU due to specific unrealized VAT setup
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('MessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure AddCurrDiffVATPostingSetupDesciptionPurch()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        VATPostingSetup: array[2] of Record "VAT Posting Setup";
-        GLEntry: Record "G/L Entry";
-        GenJournalLine: Record "Gen. Journal Line";
-        Currency: Record Currency;
-        VendorNo: Code[20];
-        VATAmount: array[2] of Decimal;
-        StartingDate: Date;
     begin
-        // [SCENARIO 378407] Adjust Exchange Rate for Additional-Currency VAT Adjustment generates correct G/L Entry Description - Purchase
-        Initialize();
-
-        // [GIVEN] Currency FCY with different exchange rates for Dates: "D1", "D2", "D3".
-        CreateCurrencyWithExchangeRates(Currency, 3, StartingDate);
-
-        // [GIVEN] General Ledger Setup "Additional Reporting Currency" = "FCY"
-        LibraryERM.SetAddReportingCurrency(Currency.Code);
-
-        // [GIVEN] General Ledger Setup "VAT Exchange Rate Adjustment" := Adjust Additional-Currency Amount
-        UpdateGenLedgerVATExchRateAdjustment(
-          GeneralLedgerSetup."VAT Exchange Rate Adjustment"::"Adjust Additional-Currency Amount");
-
-        // [GIVEN] Invoice "I1" (VAT Amount "V1") posted at Date "D1", 2nd Invoice "I2"(VAT Amount "V2") posted at Date "D2" with different VAT Posting Setup
-        LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup[1], VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(25));
-        LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup[2], VATPostingSetup[2]."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(25));
-        VendorNo := LibraryPurchase.CreateVendorNo();
-        VATAmount[1] :=
-          CreatePostGenJnlLineWithBalVATSetup(
-            GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandInt(500), StartingDate,
-            VATPostingSetup[1], GenJournalLine."Bal. Gen. Posting Type"::Purchase);
-        VATAmount[2] :=
-          CreatePostGenJnlLineWithBalVATSetup(
-            GenJournalLine."Account Type"::Vendor, VendorNo, -LibraryRandom.RandInt(600), StartingDate + 1,
-            VATPostingSetup[2], GenJournalLine."Bal. Gen. Posting Type"::Purchase);
-
-        // [WHEN] Adjust Exchange Rate from Date "D1" to "D3" for Currency "FCY"
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRates(
-          Currency.Code, StartingDate, StartingDate + 2, AdjustExchRateDefaultDescTxt, StartingDate + 2, Currency.Code, true);
-#else
-        LibraryERM.RunExchRateAdjustment(
-          Currency.Code, StartingDate, StartingDate + 2, AdjustExchRateDefaultDescTxt, StartingDate + 2, Currency.Code, true);
-#endif
-
-        // [THEN] Description of G/L Entry for Currency VAT Adjustment of Invoice "I1" contains its VAT Amount "V1"
-        GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
-        GLEntry.SetRange("Document No.", Currency.Code);
-        VerifyCurrAdjGLEntryDescription(GLEntry, VATPostingSetup[1]."Purchase VAT Account", VATAmount[1]);
-
-        // [THEN] Description of G/L Entry for Currency VAT Adjustment of Invoice "I2" contains its VAT Amount "V2"
-        VerifyCurrAdjGLEntryDescription(GLEntry, VATPostingSetup[2]."Purchase VAT Account", VATAmount[2]);
+        // Cannot run for RU due to specific unrealized VAT setup
     end;
 
     [Test]
@@ -1648,22 +1537,9 @@ codeunit 134043 "ERM Additional Currency"
     local procedure RunAdjustExchangeRates(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20])
     var
         Currency: Record Currency;
-#if not CLEAN23
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
-#else
         ExchRateAdjustment: Report "Exch. Rate Adjustment";
-#endif
     begin
         Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
-#if not CLEAN23
-        Clear(AdjustExchangeRates);
-        AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(
-          CurrencyExchangeRate."Starting Date", WorkDate(), 'Test', CurrencyExchangeRate."Starting Date",
-          DocumentNo, true, true);
-        AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run();
-#else
         Clear(ExchRateAdjustment);
         ExchRateAdjustment.SetTableView(Currency);
         ExchRateAdjustment.InitializeRequest2(
@@ -1671,7 +1547,6 @@ codeunit 134043 "ERM Additional Currency"
           DocumentNo, true, true);
         ExchRateAdjustment.UseRequestPage(false);
         ExchRateAdjustment.Run();
-#endif
     end;
 
     local procedure RunCloseIncomeStatementBatchJob(GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date)
@@ -1937,22 +1812,9 @@ codeunit 134043 "ERM Additional Currency"
     local procedure RunAdjustExchangeRatesWithAdjGLAccOnly(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20])
     var
         Currency: Record Currency;
-#if not CLEAN23
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
-#else
         ExchRateAdjustment: Report "Exch. Rate Adjustment";
-#endif
     begin
         Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
-#if not CLEAN23
-        Clear(AdjustExchangeRates);
-        AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(
-            CurrencyExchangeRate."Starting Date", WorkDate(), LibraryRandom.RandText(100),
-            CurrencyExchangeRate."Starting Date", DocumentNo, false, true);
-        AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run();
-#else
         Clear(ExchRateAdjustment);
         ExchRateAdjustment.SetTableView(Currency);
         ExchRateAdjustment.InitializeRequest2(
@@ -1960,7 +1822,6 @@ codeunit 134043 "ERM Additional Currency"
             CurrencyExchangeRate."Starting Date", DocumentNo, false, true);
         ExchRateAdjustment.UseRequestPage(false);
         ExchRateAdjustment.Run();
-#endif
     end;
 
     local procedure CreateAndPostJournalLineForBank(

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.ProductionBOM;
 
 page 99000800 "Prod. BOM Version List"
@@ -25,6 +29,16 @@ page 99000800 "Prod. BOM Version List"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a description for the production BOM version.';
+                }
+                field(Status; Rec.Status)
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the status of the production BOM version.';
+                }
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the manufacturing batch unit of measure.';
                 }
                 field("Starting Date"; Rec."Starting Date")
                 {

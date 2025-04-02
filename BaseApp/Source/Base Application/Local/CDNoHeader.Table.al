@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA28 
 table 12407 "CD No. Header"
 {
     Caption = 'CD No. Header';
@@ -69,3 +70,5 @@ table 12407 "CD No. Header"
     }
 }
 
+ 
+#endif

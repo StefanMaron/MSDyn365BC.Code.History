@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Counting.Journal;
 
 using Microsoft.Inventory.Item;
@@ -63,14 +67,6 @@ table 307 "Inventory Buffer"
             CaptionClass = '6,1';
             DataClassification = SystemMetadata;
         }
-        field(14900; "CD No."; Code[50])
-        {
-            Caption = 'CD No.';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Replaced by field Package No.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys
@@ -89,4 +85,3 @@ table 307 "Inventory Buffer"
     {
     }
 }
-

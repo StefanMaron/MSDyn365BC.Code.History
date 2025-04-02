@@ -323,7 +323,7 @@ codeunit 14949 "TORG-29 Helper"
     var
         PriceListLine: Record "Price List Line";
     begin
-#if not CLEAN23
+#if not CLEAN25
         if CalcAmountFromSalesPriceV15(ErrorBuffer, ErrorsCount, ValueEntry, SalesPriceType, SalesCode, UpdateFlag, Result) then
             exit(Result);
 #endif
@@ -344,7 +344,7 @@ codeunit 14949 "TORG-29 Helper"
         end;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CalcAmountFromSalesPriceV15(var ErrorBuffer: Record "Value Entry"; var ErrorsCount: Integer; ValueEntry: Record "Value Entry"; SalesPriceType: Enum "Sales Price Type"; SalesCode: Code[20]; UpdateFlag: Boolean; var Result: Decimal): Boolean;
     var
         SalesPrice: Record "Sales Price";
@@ -399,7 +399,7 @@ codeunit 14949 "TORG-29 Helper"
             until ValueEntryReceipts.Next() = 0;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure FilterSalesPrice(var SalesPrice: Record "Sales Price"; ValueEntry: Record "Value Entry"; SalesPriceType: Enum "Sales Price Type"; SalesCode: Code[20])
     var
         Item: Record Item;

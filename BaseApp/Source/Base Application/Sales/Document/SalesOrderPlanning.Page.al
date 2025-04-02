@@ -9,10 +9,8 @@ using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 
 page 99000883 "Sales Order Planning"
@@ -253,19 +251,6 @@ page 99000883 "Sales Order Planning"
                         BuildForm();
                     end;
                 }
-                action("&Create Prod. Order")
-                {
-                    AccessByPermission = TableData "Production Order" = R;
-                    ApplicationArea = Manufacturing;
-                    Caption = '&Create Prod. Order';
-                    Image = CreateDocument;
-                    ToolTip = 'Prepare to create a production order to fulfill the sales demand.';
-
-                    trigger OnAction()
-                    begin
-                        CreateProdOrder();
-                    end;
-                }
                 separator(Action32)
                 {
                 }
@@ -297,9 +282,6 @@ page 99000883 "Sales Order Planning"
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
-                actionref("&Create Prod. Order_Promoted"; "&Create Prod. Order")
-                {
-                }
                 actionref("Order &Tracking_Promoted"; "Order &Tracking")
                 {
                 }
@@ -336,12 +318,9 @@ page 99000883 "Sales Order Planning"
         SalesHeader: Record "Sales Header";
         ReservEntry: Record "Reservation Entry";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        NewStatus: Enum "Production Order Status";
-        NewOrderType: Enum "Create Production Order Type";
 
 #pragma warning disable AA0074
         Text000: Label 'All Lines to last Shipment Date,Each line own Shipment Date';
-        Text001: Label 'There is nothing to plan.';
 #pragma warning restore AA0074
 
     procedure SetSalesOrder(SalesOrderNo: Code[20])
@@ -360,7 +339,6 @@ page 99000883 "Sales Order Planning"
     local procedure MakeLines()
     var
         SalesLine: Record "Sales Line";
-        ProdOrderLine: Record "Prod. Order Line";
         PurchLine: Record "Purchase Line";
         ReqLine: Record "Requisition Line";
         ReservEntry2: Record "Reservation Entry";
@@ -408,17 +386,8 @@ page 99000883 "Sales Order Planning"
                                         Rec."Planning Status" := Rec."Planning Status"::"Firm Planned";
                                         Rec."Expected Delivery Date" := PurchLine."Expected Receipt Date";
                                     end;
-                                Database::"Prod. Order Line":
-                                    begin
-                                        ProdOrderLine.Get(
-                                          ReservEntry2."Source Subtype", ReservEntry2."Source ID", ReservEntry2."Source Prod. Order Line");
-                                        if ProdOrderLine."Due Date" > Rec."Expected Delivery Date" then
-                                            Rec."Expected Delivery Date" := ProdOrderLine."Ending Date";
-                                        if ((ProdOrderLine.Status.AsInteger() + 1) < Rec."Planning Status") or
-                                           (Rec."Planning Status" = Rec."Planning Status"::None)
-                                        then
-                                            Rec."Planning Status" := ProdOrderLine.Status.AsInteger() + 1;
-                                    end;
+                                else
+                                    OnMakeLinesOnSetFromSourceLine(Rec, ReservEntry2);
                             end;
                     until ReservEntry.Next() = 0;
                 Rec."Needs Replanning" :=
@@ -478,134 +447,13 @@ page 99000883 "Sales Order Planning"
                 CalcDate(Item."Lead Time Calculation", NextPlanningDate))
     end;
 
-    local procedure CreateOrders() OrdersCreated: Boolean
-    var
-        xSalesPlanLine: Record "Sales Planning Line";
-        Item: Record Item;
-        SalesLine: Record "Sales Line";
-        SKU: Record "Stockkeeping Unit";
-        DoCreateProdOrder: Boolean;
-        EndLoop: Boolean;
-        IsHandled: Boolean;
-        ProcessOrder: Boolean;
-    begin
-        xSalesPlanLine := Rec;
-
-        OrdersCreated := false;
-        OnCreateOrdersOnBeforeFindSet(Rec, IsHandled, OrdersCreated);
-        if IsHandled then
-            exit;
-
-        if not Rec.FindSet() then
-            exit;
-
-        repeat
-            SalesLine.Get(SalesLine."Document Type"::Order, Rec."Sales Order No.", Rec."Sales Order Line No.");
-            SalesLine.TestField("Shipment Date");
-            SalesLine.CalcFields("Reserved Qty. (Base)");
-
-            IsHandled := false;
-            ProcessOrder := true;
-            OnCreateOrdersOnBeforeCreateProdOrder(Rec, SalesLine, IsHandled, ProcessOrder, OrdersCreated, EndLoop);
-            if IsHandled then
-                exit;
-
-            if ProcessOrder then
-                if SalesLine."Outstanding Qty. (Base)" > SalesLine."Reserved Qty. (Base)" then begin
-                    if SKU.Get(SalesLine."Location Code", SalesLine."No.", SalesLine."Variant Code") then
-                        DoCreateProdOrder := SKU."Replenishment System" = SKU."Replenishment System"::"Prod. Order"
-                    else begin
-                        Item.Get(SalesLine."No.");
-                        DoCreateProdOrder := Item."Replenishment System" = Item."Replenishment System"::"Prod. Order";
-                    end;
-
-                    CreateOrder(DoCreateProdOrder, SalesLine, EndLoop, OrdersCreated);
-                end;
-        until (Rec.Next() = 0) or EndLoop;
-
-        Rec := xSalesPlanLine;
-    end;
-
     procedure Caption(): Text
     begin
         exit(StrSubstNo('%1 %2', SalesHeader."No.", SalesHeader."Bill-to Name"));
     end;
 
-    procedure CreateProdOrder()
-    var
-        CreateOrderFromSales: Page "Create Order From Sales";
-        NewOrderTypeOption: Option;
-        ShowCreateOrderForm: Boolean;
-        IsHandled: Boolean;
-    begin
-        ShowCreateOrderForm := true;
-        IsHandled := false;
-        NewOrderTypeOption := NewOrderType.AsInteger();
-        OnBeforeCreateProdOrder(Rec, NewStatus, NewOrderTypeOption, ShowCreateOrderForm, IsHandled);
-        NewOrderType := "Create Production Order Type".FromInteger(NewOrderTypeOption);
-        if IsHandled then
-            exit;
-
-        if ShowCreateOrderForm then begin
-            if CreateOrderFromSales.RunModal() <> ACTION::Yes then
-                exit;
-
-            CreateOrderFromSales.GetParameters(NewStatus, NewOrderType);
-            OnCreateProdOrderOnAfterGetParameters(Rec, NewStatus, NewOrderType);
-            Clear(CreateOrderFromSales);
-        end;
-
-        if not CreateOrders() then
-            Message(Text001);
-
-        Rec.SetRange("Planning Status");
-
-        BuildForm();
-
-        OnAfterCreateProdOrder(Rec);
-
-        CurrPage.Update(false);
-    end;
-
-    local procedure CreateOrder(DoCreateProdOrder: Boolean; var SalesLine: Record "Sales Line"; var EndLoop: Boolean; var OrdersCreated: Boolean)
-    var
-        CreateProdOrderFromSale: Codeunit "Create Prod. Order from Sale";
-        HideValidationDialog: Boolean;
-    begin
-        HideValidationDialog := false;
-        OnBeforeCreateOrder(Rec, SalesLine, DoCreateProdOrder, HideValidationDialog);
-
-        if DoCreateProdOrder then begin
-            OrdersCreated := true;
-            CreateProdOrderFromSale.SetHideValidationDialog(HideValidationDialog);
-            CreateProdOrderFromSale.CreateProductionOrder(SalesLine, NewStatus, NewOrderType);
-            if NewOrderType = NewOrderType::ProjectOrder then
-                EndLoop := true;
-        end;
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateProdOrder(var SalesPlanningLine: Record "Sales Planning Line")
-    begin
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculatePlanAndDelivDates(var Item: Record Item)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateProdOrder(var SalesPlanningLine: Record "Sales Planning Line"; var NewStatus: Enum "Production Order Status"; var NewOrderType: Option ItemOrder,ProjectOrder; var ShowCreateOrderForm: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateProdOrderOnAfterGetParameters(var SalesPlanningLine: Record "Sales Planning Line"; var NewStatus: Enum "Production Order Status"; var NewOrderType: Enum "Create Production Order Type")
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
-    local procedure OnCreateOrdersOnBeforeFindSet(var SalesPlanningLine: Record "Sales Planning Line"; var IsHandled: Boolean; var OrdersCreated: Boolean)
     begin
     end;
 
@@ -620,12 +468,7 @@ page 99000883 "Sales Order Planning"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateOrdersOnBeforeCreateProdOrder(var SalesPlanningLine: Record "Sales Planning Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var ProcessOrder: Boolean; var OrdersCreated: Boolean; var EndLoop: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateOrder(var SalesPlanningLine: Record "Sales Planning Line"; var SalesLine: Record "Sales Line"; var CreateProdOrder: Boolean; var HideValidationDialog: Boolean);
+    local procedure OnMakeLinesOnSetFromSourceLine(var SalesPlanningLine: Record "Sales Planning Line"; ReservEntry: Record "Reservation Entry")
     begin
     end;
 }

@@ -18,15 +18,18 @@ table 248 "VAT Reg. No. Srv Config"
         field(2; Enabled; Boolean)
         {
             Caption = 'Enabled';
+            ToolTip = 'Specifies if the service is enabled.';
         }
         field(3; "Service Endpoint"; Text[250])
         {
             Caption = 'Service Endpoint';
+            ToolTip = 'Specifies the endpoint of the VAT registration number validation service.';
         }
         field(10; "Default Template Code"; Code[20])
         {
             Caption = 'Default Template Code';
             TableRelation = "VAT Reg. No. Srv. Template";
+            ToolTip = 'Specifies the default template for validation of additional company information.';
         }
     }
 

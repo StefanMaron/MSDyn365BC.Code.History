@@ -55,6 +55,7 @@ table 5380 "Man. Integration Table Mapping"
             OptionCaption = 'Bidirectional,ToIntegrationTable,FromIntegrationTable';
             OptionMembers = Bidirectional,ToIntegrationTable,FromIntegrationTable;
         }
+#if not CLEANSCHEMA28
         field(8; "Table Config Template Code"; Code[10])
         {
             Caption = 'Table Config Template Code';
@@ -83,6 +84,7 @@ table 5380 "Man. Integration Table Mapping"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
         field(10; "Table Filter"; BLOB)
         {
             Caption = 'Table Filter';

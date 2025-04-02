@@ -1,4 +1,4 @@
-﻿namespace System.Security.AccessControl;
+namespace System.Security.AccessControl;
 
 using Microsoft.Purchases.Payables;
 using Microsoft.HumanResources.Payables;

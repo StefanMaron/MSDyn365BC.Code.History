@@ -190,15 +190,15 @@ codeunit 137009 "SCM Availability by Event"
         // [SCENARIO 361672] "Reserved Receipt" in Item Availability by Event is equal to Purchase Line qty. when sales order is reserved against purch. order
         Initialize();
         LibraryWarehouse.CreateLocation(Location);
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
 
         // [GIVEN] Purchase order for item "X", quantity = "Q"
-        LibraryPatterns.MAKEPurchaseOrder(
+        LibraryPurchase.CreatePurchaseOrder(
           PurchaseHeader, PurchaseLine, Item, Location.Code, '', LibraryRandom.RandInt(100), WorkDate(), Item."Unit Cost");
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // [GIVEN] Sales order with reservation against purchase order, reserved quantity = "Q"
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, Location.Code, '', PurchaseLine.Quantity, WorkDate(), Item."Unit Price");
+        LibrarySales.CreateSalesOrder(SalesHeader, SalesLine, Item, Location.Code, '', PurchaseLine.Quantity, WorkDate(), Item."Unit Price");
 
         SalesLine.Validate("Shipment Date", PurchaseLine."Expected Receipt Date");
         SalesLine.Modify(true);
@@ -226,14 +226,14 @@ codeunit 137009 "SCM Availability by Event"
         // [SCENARIO 361672] "Reserved Requirement" in Item Availability by Event is equal to negative Purchase Return qty. when return is reserved against inventory
         Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
 
         // [GIVEN] "Q" units of item "X" on inventory
         Quantity := LibraryRandom.RandInt(100);
-        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', Quantity, WorkDate(), Item."Unit Cost");
+        LibraryInventory.PostPositiveAdjustment(Item, Location.Code, '', '', Quantity, WorkDate(), Item."Unit Cost");
 
         // [GIVEN] Purchase return order with "Q" units of item "X" reserved on inventory
-        LibraryPatterns.MAKEPurchaseReturnOrder(PurchaseHeader, PurchaseLine, Item, Location.Code, '', Quantity, WorkDate(), Item."Unit Cost");
+        LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader, PurchaseLine, Item, Location.Code, '', Quantity, WorkDate(), Item."Unit Cost");
         AutoReservePurchaseLine(PurchaseLine);
 
         // [WHEN] Item availability by event is calculated
@@ -267,18 +267,18 @@ codeunit 137009 "SCM Availability by Event"
         CreateLocationsForTransfer(FromLocation, ToLocation, InTransitLocation);
 
         // [GIVEN] "Q" pcs of item "I" is is stock on "L1".
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::Standard, LibraryPatterns.RandCost(Item));
         Qty := LibraryRandom.RandIntInRange(50, 100);
-        LibraryPatterns.POSTPositiveAdjustment(Item, FromLocation.Code, '', '', Qty, WorkDate(), Item."Unit Cost");
+        LibraryInventory.PostPositiveAdjustment(Item, FromLocation.Code, '', '', Qty, WorkDate(), Item."Unit Cost");
 
         // [GIVEN] Transfer Order from "L1" to "L2". Quantity = "Q", "Qty. to Ship" = "q" < "Q".
-        LibraryPatterns.MAKETransferOrder(
+        LibraryInventory.CreateTransferOrder(
           TransferHeader, TransferLine, Item, FromLocation, ToLocation, InTransitLocation, '', Qty, WorkDate(), WorkDate());
         TransferLine.Validate("Qty. to Ship", LibraryRandom.RandInt(20));
         TransferLine.Modify(true);
 
         // [GIVEN] Sales Order for "Q" pcs is reserved from Transfer Order.
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, ToLocation.Code, '', Qty, WorkDate(), Item."Unit Price");
+        LibrarySales.CreateSalesOrder(SalesHeader, SalesLine, Item, ToLocation.Code, '', Qty, WorkDate(), Item."Unit Price");
         SalesLine.Validate("Shipment Date", LibraryRandom.RandDate(10));
         SalesLine.Modify(true);
         AutoReserveSalesLine(SalesLine);
@@ -321,7 +321,7 @@ codeunit 137009 "SCM Availability by Event"
         LibraryWarehouse.CreateLocation(Location);
 
         // [GIVEN] Create a Sales Order with single Sales Line, Location Code left empty
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandInt(5), WorkDate(), LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesOrder(SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandInt(5), WorkDate(), LibraryRandom.RandInt(10));
 
         // [GIVEN] Open created Sales Order on test page
         SalesOrder.OpenEdit();
@@ -358,7 +358,7 @@ codeunit 137009 "SCM Availability by Event"
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
 
         // [GIVEN] Create a Sales Order with single Sales Line, Variant Code left empty
-        LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandInt(5), WorkDate(), LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesOrder(SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandInt(5), WorkDate(), LibraryRandom.RandInt(10));
 
         // [GIVEN] Open created Sales Order on test page
         SalesOrder.OpenEdit();

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Setup;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Setup;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -11,15 +15,17 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Transfer;
+using Microsoft.Upgrade;
 using Microsoft.Warehouse.InternalDocument;
 using Microsoft.Warehouse.InventoryDocument;
-using Microsoft.Upgrade;
-using System.Utilities;
 using System.Globalization;
+using System.Utilities;
 
 table 313 "Inventory Setup"
 {
     Caption = 'Inventory Setup';
+    DrillDownPageID = "Inventory Setup";
+    LookupPageID = "Inventory Setup";
     Permissions = TableData "Inventory Adjmt. Entry (Order)" = m;
     DataClassification = CustomerContent;
 
@@ -27,6 +33,7 @@ table 313 "Inventory Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Automatic Cost Posting"; Boolean)
@@ -160,14 +167,6 @@ table 313 "Inventory Setup"
             Caption = 'Catalog Item Nos.';
             TableRelation = "No. Series";
         }
-        field(5725; "Use Item References"; Boolean)
-        {
-            AccessByPermission = TableData "Item Reference" = R;
-            Caption = 'Use Item References';
-            ObsoleteReason = 'Replaced by default visibility for Item Reference''s fields and actions.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
         field(5790; "Outbound Whse. Handling Time"; DateFormula)
         {
             AccessByPermission = TableData Location = R;
@@ -279,6 +278,7 @@ table 313 "Inventory Setup"
             Caption = 'Posted Phys. Invt. Order Nos.';
             TableRelation = "No. Series";
         }
+#if not CLEANSCHEMA27
         field(5877; "Invt. Orders Package Tracking"; Boolean)
         {
             Caption = 'Invt. Orders Package Tracking';
@@ -291,6 +291,7 @@ table 313 "Inventory Setup"
             ObsoleteTag = '27.0';
 #endif
         }
+#endif
         field(6500; "Package Caption"; Text[30])
         {
             Caption = 'Package Caption';
@@ -342,48 +343,6 @@ table 313 "Inventory Setup"
             Caption = 'Internal Movement Nos.';
             TableRelation = "No. Series";
         }
-        field(12400; "Item Receipt Nos."; Code[20])
-        {
-            Caption = 'Item Receipt Nos.';
-            ObsoleteReason = 'Replaced by Inventory Documents feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-        field(12401; "Posted Item Receipt Nos."; Code[20])
-        {
-            Caption = 'Posted Item Receipt Nos.';
-            ObsoleteReason = 'Replaced by Inventory Documents feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-        field(12402; "Item Shipment Nos."; Code[20])
-        {
-            Caption = 'Item Shipment Nos.';
-            ObsoleteReason = 'Replaced by Inventory Documents feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-        field(12403; "Posted Item Shipment Nos."; Code[20])
-        {
-            Caption = 'Posted Item Shipment Nos.';
-            ObsoleteReason = 'Replaced by Inventory Documents feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-        field(12404; "CD Header Nos."; Code[20])
-        {
-            Caption = 'CD Header Nos.';
-            ObsoleteReason = 'Replaced by "Package Nos." field.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-        field(12405; "Posted Direct Transfer Nos."; Code[20])
-        {
-            Caption = 'Posted Direct Transfer Nos.';
-            ObsoleteReason = 'Replaced by field Posted Direct Trans. Nos. in W1.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
         field(12406; "Copy Comments to Item Doc."; Boolean)
         {
             Caption = 'Copy Comments to Item Doc.';
@@ -430,13 +389,6 @@ table 313 "Inventory Setup"
                     else
                         Error('');
             end;
-        }
-        field(12416; "Check CD No. Format"; Boolean)
-        {
-            Caption = 'Check CD No. Format';
-            ObsoleteReason = 'Moved to RU CD Tracking extension.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
         }
         field(12450; "TORG-13 Template Code"; Code[10])
         {
@@ -512,7 +464,6 @@ table 313 "Inventory Setup"
         Item: Record Item;
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         ObjTransl: Record "Object Translation";
-        RecordHasBeenRead: Boolean;
 
 #pragma warning disable AA0074
         Text000: Label 'Some unadjusted value entries will not be covered with the new setting. You must run the Adjust Cost - Item Entries batch job once to adjust these.';
@@ -528,11 +479,10 @@ table 313 "Inventory Setup"
 #pragma warning restore AA0074
 
     procedure GetRecordOnce()
+    var
+        InventorySetupCodeunit: Codeunit "Inventory Setup";
     begin
-        if RecordHasBeenRead then
-            exit;
-        Get();
-        RecordHasBeenRead := true;
+        InventorySetupCodeunit.GetSetup(Rec);
     end;
 
     local procedure UpdateInvtAdjmtEntryOrder()
@@ -586,5 +536,11 @@ table 313 "Inventory Setup"
     begin
         exit("Automatic Cost Adjustment" <> "Automatic Cost Adjustment"::Never);
     end;
-}
 
+    procedure UseLegacyPosting(): Boolean
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+    begin
+        exit(not FeatureKeyManagement.IsConcurrentInventoryPostingEnabled());
+    end;
+}

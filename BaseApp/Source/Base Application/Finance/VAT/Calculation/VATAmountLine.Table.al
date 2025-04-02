@@ -217,6 +217,7 @@ table 290 "VAT Amount Line"
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         AllowVATDifference: Boolean;
         GlobalsInitialized: Boolean;
+        CalcVATPerLine: Boolean;
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
@@ -291,6 +292,7 @@ table 290 "VAT Amount Line"
             "VAT Base" += VATAmountLine."VAT Base";
             "Amount Including VAT" += VATAmountLine."Amount Including VAT";
             "VAT Difference" += VATAmountLine."VAT Difference";
+            "Pmt. Discount Amount" += VATAmountLine."Pmt. Discount Amount";
             "VAT Amount" := "Amount Including VAT" - "VAT Base";
             "Calculated VAT Amount" += VATAmountLine."Calculated VAT Amount";
             NonDeductibleVAT.Increment(Rec, VATAmountLine);
@@ -305,23 +307,8 @@ table 290 "VAT Amount Line"
         exit(true);
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced with InsertNewLine with NonDeductibleVATPct parameter', '23.0')]
-    procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Enum "Tax Calculation Type"; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean)
-    begin
-        Init();
-        "VAT Identifier" := VATIdentifier;
-        "VAT Calculation Type" := VATCalcType;
-        "Tax Group Code" := TaxGroupCode;
-        "Use Tax" := UseTax;
-        "VAT %" := TaxRate;
-        Modified := true;
-        Positive := IsPositive;
-        "Includes Prepayment" := IsPrepayment;
-        Insert();
-    end;
-#endif
-
+#if not CLEAN26
+    [Obsolete('Replaced by procedures using Source Record.', '26.0')]
     procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Enum "Tax Calculation Type"; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean; NonDeductibleVATPct: Decimal)
     begin
         Rec.Init();
@@ -336,6 +323,7 @@ table 290 "VAT Amount Line"
         Rec."Non-Deductible VAT %" := NonDeductibleVATPct;
         Rec.Insert();
     end;
+#endif
 
     procedure GetLine(Number: Integer)
     begin
@@ -629,6 +617,15 @@ table 290 "VAT Amount Line"
             until Next() = 0;
     end;
 
+    internal procedure ApplyNonDeductibleVAT(NonDeductibleVAT: Decimal)
+    begin
+        "VAT Base" += NonDeductibleVAT;
+        "VAT Amount" -= NonDeductibleVAT;
+        "Line Amount" += NonDeductibleVAT;
+        OnApplyNonDeductibleVATOnBeforeModify(Rec, NonDeductibleVAT);
+        Modify();
+    end;
+
 #if not CLEAN25
     [Obsolete('Replaced by procedures using Source Record.', '25.0')]
     procedure SumLine(LineAmount: Decimal; InvDiscAmount: Decimal; VATDifference: Decimal; AllowInvDisc: Boolean; Prepayment: Boolean)
@@ -644,6 +641,8 @@ table 290 "VAT Amount Line"
     end;
 #endif
 
+#if not CLEAN26
+    [Obsolete('Replaced by W1 version of procedure UpdateLines', '26.0')]
     procedure UpdateLines(var TotalVATAmount: Decimal; Currency: Record Currency; CurrencyFactor: Decimal; PricesIncludingVAT: Boolean; VATBaseDiscountPercHeader: Decimal; TaxAreaCode: Code[20]; TaxLiable: Boolean; PostingDate: Date; CalcVATPerLine: Boolean)
     var
         PrevVATAmountLine: Record "VAT Amount Line";
@@ -656,6 +655,162 @@ table 290 "VAT Amount Line"
         if IsHandled then
             exit;
 
+        if FindSet() then
+            repeat
+                if (PrevVATAmountLine."VAT Identifier" <> "VAT Identifier") or
+                   (PrevVATAmountLine."VAT Calculation Type" <> "VAT Calculation Type") or
+                   (PrevVATAmountLine."Tax Group Code" <> "Tax Group Code") or
+                   (PrevVATAmountLine."Use Tax" <> "Use Tax")
+                then
+                    PrevVATAmountLine.Init();
+                OnUpdateLinesOnAfterInitPrevVATAmountLine(PrevVATAmountLine, Currency, PricesIncludingVAT, VATBaseDiscountPerc, Rec);
+
+                VATBaseDiscountPerc := GetVATBaseDiscountPerc(VATBaseDiscountPercHeader);
+                if PricesIncludingVAT then
+                    case "VAT Calculation Type" of
+                        "VAT Calculation Type"::"Normal VAT",
+                        "VAT Calculation Type"::"Reverse Charge VAT":
+                            begin
+                                if not CalcVATPerLine then begin
+                                    "VAT Base" :=
+                                      Round(
+                                        ("Line Amount" - "Invoice Discount Amount") / (1 + "VAT %" / 100),
+                                        Currency."Amount Rounding Precision") - "VAT Difference";
+                                    OnUpdateLinesOnAfterCalcVATBase(Rec, Currency, PricesIncludingVAT, CalcVATPerLine);
+                                    "VAT Amount" :=
+                                      "VAT Difference" +
+                                      Round(
+                                        PrevVATAmountLine."VAT Amount" +
+                                        ("Line Amount" - "Invoice Discount Amount" - "VAT Base" - "VAT Difference") *
+                                        (1 - VATBaseDiscountPerc / 100),
+                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                end else begin
+                                    "VAT Base" :=
+                                      ("Line Amount" - "Invoice Discount Amount") / (1 + "VAT %" / 100) - "VAT Difference";
+                                    OnUpdateLinesOnAfterCalcVATBase(Rec, Currency, PricesIncludingVAT, CalcVATPerLine);
+                                    "VAT Amount" :=
+                                      "VAT Difference" +
+                                      PrevVATAmountLine."VAT Amount" +
+                                      ("Line Amount" - "Invoice Discount Amount" - "VAT Base" - "VAT Difference") *
+                                      (1 - VATBaseDiscountPerc / 100);
+                                end;
+                                OnUpdateLinesOnAfterCalcVATAmount(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);
+                                "Amount Including VAT" := "VAT Base" + "VAT Amount";
+                                OnUpdateLinesOnAfterCalcAmountIncludingVATNormalVAT(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);
+                                if Positive then
+                                    PrevVATAmountLine.Init()
+                                else begin
+                                    PrevVATAmountLine := Rec;
+                                    PrevVATAmountLine."VAT Amount" :=
+                                      (CalcLineAmount() - "VAT Base" - "VAT Difference") *
+                                      (1 - VATBaseDiscountPerc / 100);
+                                    PrevVATAmountLine."VAT Amount" :=
+                                      PrevVATAmountLine."VAT Amount" -
+                                      Round(PrevVATAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                end;
+                            end;
+                        "VAT Calculation Type"::"Full VAT":
+                            begin
+                                "VAT Base" := 0;
+                                "VAT Amount" := "VAT Difference" + CalcLineAmount();
+                                "Amount Including VAT" := "VAT Amount";
+                            end;
+                        "VAT Calculation Type"::"Sales Tax":
+                            begin
+                                "Amount Including VAT" := CalcLineAmount();
+                                if "Use Tax" then
+                                    "VAT Base" := "Amount Including VAT"
+                                else
+                                    "VAT Base" :=
+                                      Round(
+                                        SalesTaxCalculate.ReverseCalculateTax(
+                                          TaxAreaCode, "Tax Group Code", TaxLiable, PostingDate, "Amount Including VAT", Quantity, CurrencyFactor),
+                                        Currency."Amount Rounding Precision");
+                                OnAfterSalesTaxCalculateReverseCalculateTax(Rec, Currency, TaxAreaCode, TaxLiable, PostingDate, CurrencyFactor);
+                                "VAT Amount" := "VAT Difference" + "Amount Including VAT" - "VAT Base";
+                                if "VAT Base" = 0 then
+                                    "VAT %" := 0
+                                else
+                                    "VAT %" := Round(100 * "VAT Amount" / "VAT Base", 0.00001);
+                            end;
+                    end
+                else
+                    case "VAT Calculation Type" of
+                        "VAT Calculation Type"::"Normal VAT",
+                        "VAT Calculation Type"::"Reverse Charge VAT":
+                            begin
+                                "VAT Base" := CalcLineAmount();
+                                OnUpdateLinesOnAfterCalcVATBase(Rec, Currency, PricesIncludingVAT, CalcVATPerLine);
+                                if not CalcVATPerLine then
+                                    "VAT Amount" :=
+                                      "VAT Difference" +
+                                      Round(
+                                        PrevVATAmountLine."VAT Amount" +
+                                        "VAT Base" * "VAT %" / 100 * (1 - VATBaseDiscountPerc / 100),
+                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection())
+                                else
+                                    "VAT Amount" :=
+                                      "VAT Difference" +
+                                      PrevVATAmountLine."VAT Amount" +
+                                      "VAT Base" * "VAT %" / 100 * (1 - VATBaseDiscountPerc / 100);
+                                OnUpdateLinesOnAfterCalcVATAmount(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);
+                                "Amount Including VAT" := CalcLineAmount() + "VAT Amount";
+                                OnUpdateLinesOnAfterCalcAmountIncludingVATNormalVAT(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);
+                                NonDeductibleVAT.UpdateNonDeductibleAmountsWithDiffInVATAmountLine(Rec, Currency);
+                                if Positive then
+                                    PrevVATAmountLine.Init()
+                                else
+                                    if not "Includes Prepayment" then begin
+                                        PrevVATAmountLine := Rec;
+                                        PrevVATAmountLine."VAT Amount" :=
+                                          "VAT Base" * "VAT %" / 100 * (1 - VATBaseDiscountPerc / 100);
+                                        PrevVATAmountLine."VAT Amount" :=
+                                          PrevVATAmountLine."VAT Amount" -
+                                          Round(PrevVATAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                    end;
+                            end;
+                        "VAT Calculation Type"::"Full VAT":
+                            begin
+                                "VAT Base" := 0;
+                                "VAT Amount" := "VAT Difference" + CalcLineAmount();
+                                "Amount Including VAT" := "VAT Amount";
+                            end;
+                        "VAT Calculation Type"::"Sales Tax":
+                            begin
+                                OnUpdateLinesOnBeforeCalcSalesTaxVatBase(Rec);
+                                "VAT Base" := CalcLineAmount();
+                                OnUpdateLinesOnAfterCalcVATBaseSalesTax(Rec, Currency, PricesIncludingVAT);
+                                if "Use Tax" then
+                                    "VAT Amount" := 0
+                                else
+                                    "VAT Amount" :=
+                                      SalesTaxCalculate.CalculateTax(
+                                        TaxAreaCode, "Tax Group Code", TaxLiable, PostingDate, "VAT Base", Quantity, CurrencyFactor);
+                                OnAfterSalesTaxCalculateCalculateTax(Rec, Currency, TaxAreaCode, TaxLiable, PostingDate, CurrencyFactor);
+                                if "VAT Base" = 0 then
+                                    "VAT %" := 0
+                                else
+                                    "VAT %" := Round(100 * "VAT Amount" / "VAT Base", 0.00001);
+                                "VAT Amount" :=
+                                  "VAT Difference" +
+                                  Round("VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                "Amount Including VAT" := "VAT Base" + "VAT Amount";
+                            end;
+                    end;
+
+                TotalVATAmount -= "VAT Amount";
+                "Calculated VAT Amount" := "VAT Amount" - "VAT Difference";
+                Modify();
+            until Next() = 0;
+    end;
+#endif
+
+    procedure UpdateLines(var TotalVATAmount: Decimal; Currency: Record Currency; CurrencyFactor: Decimal; PricesIncludingVAT: Boolean; VATBaseDiscountPercHeader: Decimal; TaxAreaCode: Code[20]; TaxLiable: Boolean; PostingDate: Date)
+    var
+        PrevVATAmountLine: Record "VAT Amount Line";
+        SalesTaxCalculate: Codeunit "Sales Tax Calculate";
+        VATBaseDiscountPerc: Decimal;
+    begin
         if FindSet() then
             repeat
                 if (PrevVATAmountLine."VAT Identifier" <> "VAT Identifier") or
@@ -831,6 +986,7 @@ table 290 "VAT Amount Line"
         "VAT Amount" := PurchInvLine."Amount Including VAT" - PurchInvLine.Amount;
         "Amount Including VAT" := PurchInvLine."Amount Including VAT";
         "Line Amount" := PurchInvLine."Line Amount";
+        OnCopyFromPurchInvLineOnAfterSetLineAmount(Rec, PurchInvLine);
         if PurchInvLine."Allow Invoice Disc." then
             "Inv. Disc. Base Amount" := PurchInvLine."Line Amount";
         "Invoice Discount Amount" := PurchInvLine."Inv. Discount Amount";
@@ -854,6 +1010,7 @@ table 290 "VAT Amount Line"
         "VAT Amount" := PurchCrMemoLine."Amount Including VAT" - PurchCrMemoLine.Amount;
         "Amount Including VAT" := PurchCrMemoLine."Amount Including VAT";
         "Line Amount" := PurchCrMemoLine."Line Amount";
+        OnCopyFromPurchCrMemoLineOnAfterSetLineAmount(Rec, PurchCrMemoLine);
         if PurchCrMemoLine."Allow Invoice Disc." then
             "Inv. Disc. Base Amount" := PurchCrMemoLine."Line Amount";
         "Invoice Discount Amount" := PurchCrMemoLine."Inv. Discount Amount";
@@ -963,6 +1120,11 @@ table 290 "VAT Amount Line"
         OnBeforeGetVATBaseDiscountPerc(Rec, VATBaseDiscountPerc, NewVATBaseDiscountPerc, IsHandled);
         if not IsHandled then
             NewVATBaseDiscountPerc := VATBaseDiscountPerc;
+    end;
+
+    internal procedure SetCalcVATPerLine(NEwCalcVATPerLine: Boolean)
+    begin
+        CalcVATPerLine := NEwCalcVATPerLine;
     end;
 
     [IntegrationEvent(false, false)]
@@ -1108,6 +1270,21 @@ table 290 "VAT Amount Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateLinesOnAfterInitPrevVATAmountLine(var PrevVATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; PricesIncludingVAT: Boolean; var VATBaseDiscountPerc: Decimal; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyNonDeductibleVATOnBeforeModify(var VATAmountLine: Record "VAT Amount Line"; NonDeductibleVAT: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromPurchInvLineOnAfterSetLineAmount(var VATAmountLine: Record "VAT Amount Line"; var PurchInvLine: Record "Purch. Inv. Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromPurchCrMemoLineOnAfterSetLineAmount(var VATAmountLine: Record "VAT Amount Line"; var PurchCrMemoLine: Record "Purch. Cr. Memo Line");
     begin
     end;
 

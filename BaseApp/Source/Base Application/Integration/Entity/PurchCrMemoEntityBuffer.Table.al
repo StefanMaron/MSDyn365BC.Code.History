@@ -178,6 +178,11 @@ table 5508 "Purch. Cr. Memo Entity Buffer"
             Caption = 'Amount Including VAT';
             DataClassification = CustomerContent;
         }
+        field(69; "Vendor Cr. Memo No."; Code[35])
+        {
+            Caption = 'Vendor Cr. Memo No.';
+            DataClassification = CustomerContent;
+        }
         field(73; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';

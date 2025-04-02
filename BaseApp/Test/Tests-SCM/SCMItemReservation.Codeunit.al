@@ -686,7 +686,7 @@ codeunit 137406 "SCM Item Reservation"
     var
         BOMComponent: Record "BOM Component";
     begin
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, BOMComponent.Type::Item, ComponentNo, QuantityPer, UOM);
+        LibraryInventory.CreateBOMComponent(BOMComponent, ParentItemNo, BOMComponent.Type::Item, ComponentNo, QuantityPer, UOM);
     end;
 
     local procedure CreatePick(LocationCode: Code[10]; DocumentNo: Code[20])

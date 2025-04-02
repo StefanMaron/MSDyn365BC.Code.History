@@ -1,4 +1,4 @@
-﻿codeunit 132210 "Library - Templates"
+codeunit 132210 "Library - Templates"
 {
     EventSubscriberInstance = Manual;
 

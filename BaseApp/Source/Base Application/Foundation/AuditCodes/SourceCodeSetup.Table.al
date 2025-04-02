@@ -479,22 +479,6 @@ table 242 "Source Code Setup"
             Caption = 'VAT Allocation on Cost';
             TableRelation = "Source Code";
         }
-        field(12450; "Item Receipt"; Code[10])
-        {
-            Caption = 'Item Receipt';
-            TableRelation = "Source Code";
-            ObsoleteReason = 'Replaced by Inventory Documents feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
-        field(12451; "Item Shipment"; Code[10])
-        {
-            Caption = 'Item Shipment';
-            TableRelation = "Source Code";
-            ObsoleteReason = 'Replaced by Inventory Documents feature.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
-        }
         field(12470; "FA Release"; Code[10])
         {
             Caption = 'FA Release';
@@ -529,4 +513,3 @@ table 242 "Source Code Setup"
     {
     }
 }
-

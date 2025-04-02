@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.Foundation.Enums;
@@ -13,9 +17,6 @@ using Microsoft.Warehouse.Worksheet;
 codeunit 5993 "Transfer Warehouse Mgt."
 {
     var
-#if not CLEAN23
-        WMSManagement: Codeunit "WMS Management";
-#endif
         WhseManagement: Codeunit "Whse. Management";
         WhseValidateSourceHeader: Codeunit "Whse. Validate Source Header";
         WhseCreateSourceDocument: Codeunit "Whse.-Create Source Document";
@@ -31,9 +32,6 @@ codeunit 5993 "Transfer Warehouse Mgt."
             TransferLine.SetRange("Document No.", SourceNo);
             TransferLine.SetRange("Line No.", SourceLineNo);
             IsHandled := false;
-#if not CLEAN23
-            WMSManagement.RunOnShowSourceDocLineOnBeforeShowTransLines(TransferLine, SourceNo, SourceLineNo, IsHandled);
-#endif
             OnBeforeShowTransferLines(TransferLine, SourceNo, SourceLineNo, IsHandled);
             if not IsHandled then
                 ShowTransferLines(TransferLine);
@@ -157,9 +155,6 @@ codeunit 5993 "Transfer Warehouse Mgt."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnBeforeFromTransLine2ShptLine(TransferLine, Result, IsHandled, WarehouseShipmentHeader);
-#endif
         OnBeforeFromTransLine2ShptLine(TransferLine, Result, IsHandled, WarehouseShipmentHeader);
         if IsHandled then
             exit(Result);
@@ -171,9 +166,6 @@ codeunit 5993 "Transfer Warehouse Mgt."
           TransferLine."Item No.", TransferLine.Description, TransferLine."Description 2", TransferLine."Transfer-from Code",
           TransferLine."Variant Code", TransferLine."Unit of Measure Code", TransferLine."Qty. per Unit of Measure",
           TransferLine."Qty. Rounding Precision", TransferLine."Qty. Rounding Precision (Base)");
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnFromTransLine2ShptLineOnAfterInitNewLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine);
-#endif
         IsHandled := false;
         OnFromTransLine2ShptLineOnAfterInitNewLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, IsHandled);
         if not IsHandled then
@@ -192,14 +184,8 @@ codeunit 5993 "Transfer Warehouse Mgt."
         if WarehouseShipmentLine."Bin Code" = '' then
             WarehouseShipmentLine."Bin Code" := TransferLine."Transfer-from Bin Code";
         WhseCreateSourceDocument.UpdateShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnBeforeCreateShptLineFromTransLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, TransferHeader);
-#endif
         OnBeforeCreateShptLineFromTransLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, TransferHeader);
         WhseCreateSourceDocument.CreateShipmentLine(WarehouseShipmentLine);
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnAfterCreateShptLineFromTransLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, TransferHeader);
-#endif
         OnAfterCreateShptLineFromTransLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, TransferHeader);
         exit(not WarehouseShipmentLine.HasErrorOccured());
     end;
@@ -212,9 +198,6 @@ codeunit 5993 "Transfer Warehouse Mgt."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnBeforeTransLine2ReceiptLine(WarehouseReceiptHeader, TransferLine, Result, IsHandled);
-#endif
         OnBeforeTransLine2ReceiptLine(WarehouseReceiptHeader, TransferLine, Result, IsHandled);
         if IsHandled then
             exit(Result);
@@ -226,9 +209,6 @@ codeunit 5993 "Transfer Warehouse Mgt."
           TransferLine."Item No.", TransferLine.Description, TransferLine."Description 2", TransferLine."Transfer-to Code",
           TransferLine."Variant Code", TransferLine."Unit of Measure Code", TransferLine."Qty. per Unit of Measure",
           TransferLine."Qty. Rounding Precision", TransferLine."Qty. Rounding Precision (Base)");
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnTransLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, TransferLine);
-#endif
         OnTransLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, TransferLine);
         WarehouseReceiptLine.Validate(WarehouseReceiptLine."Qty. Received", TransferLine."Quantity Received");
         TransferLine.CalcFields("Whse. Inbnd. Otsdg. Qty (Base)");
@@ -246,15 +226,9 @@ codeunit 5993 "Transfer Warehouse Mgt."
             WarehouseReceiptLine."Bin Code" := WarehouseReceiptHeader."Bin Code";
         if WarehouseReceiptLine."Bin Code" = '' then
             WarehouseReceiptLine."Bin Code" := TransferLine."Transfer-To Bin Code";
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnBeforeUpdateRcptLineFromTransLine(WarehouseReceiptLine, TransferLine);
-#endif
         OnBeforeUpdateRcptLineFromTransLine(WarehouseReceiptLine, TransferLine);
         WhseCreateSourceDocument.UpdateReceiptLine(WarehouseReceiptLine, WarehouseReceiptHeader);
         WhseCreateSourceDocument.CreateReceiptLine(WarehouseReceiptLine);
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnAfterCreateRcptLineFromTransLine(WarehouseReceiptLine, WarehouseReceiptHeader, TransferLine);
-#endif
         OnAfterCreateRcptLineFromTransLine(WarehouseReceiptLine, WarehouseReceiptHeader, TransferLine);
         exit(not WarehouseReceiptLine.HasErrorOccured());
     end;
@@ -271,9 +245,6 @@ codeunit 5993 "Transfer Warehouse Mgt."
         ReturnValue: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnBeforeCheckIfTransLine2ShipmentLine(TransferLine, IsHandled, ReturnValue);
-#endif
         OnBeforeCheckIfTransLine2ShipmentLine(TransferLine, IsHandled, ReturnValue);
         if IsHandled then
             exit(ReturnValue);
@@ -296,9 +267,6 @@ codeunit 5993 "Transfer Warehouse Mgt."
         ReturnValue: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN23
-        WhseCreateSourceDocument.RunOnBeforeCheckIfTransLine2ReceiptLine(TransferLine, IsHandled, ReturnValue);
-#endif
         OnBeforeCheckIfTransLine2ReceiptLine(TransferLine, IsHandled, ReturnValue);
         if IsHandled then
             exit(ReturnValue);

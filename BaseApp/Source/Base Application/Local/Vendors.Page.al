@@ -425,7 +425,7 @@ page 35603 Vendors
                         PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;

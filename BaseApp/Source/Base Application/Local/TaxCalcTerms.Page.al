@@ -33,7 +33,7 @@ page 17316 "Tax Calc. Terms"
                     Editable = false;
                     ToolTip = 'Specifies the expression of the related XML element.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
                     var
                         TaxCalcTermLine: Record "Tax Calc. Term Formula";
                     begin

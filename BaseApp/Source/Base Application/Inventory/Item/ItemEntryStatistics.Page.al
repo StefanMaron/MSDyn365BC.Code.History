@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 using Microsoft.Inventory.Ledger;
@@ -540,11 +544,11 @@ page 304 "Item Entry Statistics"
         ClearAll();
 
         ItemLedgEntry2.SetCurrentKey(
-          "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
+          "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date", "Entry No.");
 
         ValueEntry2.SetCurrentKey(
           "Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type", "Variance Type",
-          "Item Charge No.", "Location Code", "Variant Code");
+          "Item Charge No.", "Location Code", "Variant Code", "Entry No.");
 
         ItemLedgEntry2.SetRange("Item No.", Rec."No.");
         ValueEntry2.SetRange("Item No.", Rec."No.");

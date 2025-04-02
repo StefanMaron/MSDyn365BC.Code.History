@@ -14,15 +14,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType ErrorStringCom001)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 508968462 - NamedType 1108324090" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[OS number %1 is not handled in the test.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType NotSupportedOS001)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 508968462 - NamedType 1485306685" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[USER001]]></Val>
@@ -39,15 +30,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType UserAdministratorsIsNotAllowedTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 508968462 - NamedType 2544073895" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The account Anonymous is not allowed.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RTCAdmin_User_PermissionSet - NamedType UserAnonymousIsNotAllowedTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 508968462 - NamedType 3128643513" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -14,7 +14,6 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
 using Microsoft.Bank.Payment;
 using Microsoft.Bank.Reconciliation;
-using Microsoft.EServices.EDocument;
 using Microsoft.EServices.OnlineMap;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -22,11 +21,7 @@ using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
-#if not CLEAN23
-using Microsoft.Finance.ReceivablesPayables;
-#endif
 using Microsoft.Finance.VAT.Calculation;
-using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
@@ -46,7 +41,6 @@ using Microsoft.Intercompany.Inbox;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Intercompany.Outbox;
 using Microsoft.Sales.Reminder;
-using Microsoft.Intercompany.Setup;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
@@ -90,17 +84,6 @@ using System.Utilities;
 using Microsoft.Inventory.Document;
 using Microsoft.Inventory.History;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Inventory.Journal;
-using Microsoft.Inventory.Ledger;
-using Microsoft.Projects.Project.Journal;
-using Microsoft.Projects.Project.Ledger;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Warehouse.InventoryDocument;
-using Microsoft.Warehouse.History;
-using Microsoft.Warehouse.Activity.History;
-using Microsoft.Warehouse.Journal;
-using Microsoft.Warehouse.Ledger;
-using Microsoft.Warehouse.Tracking;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Setup;
 using Microsoft.Bank.Setup;
@@ -170,14 +153,9 @@ codeunit 104000 "Upgrade - BaseApp"
         UpdateGenJournalBatchReferencedIds();
         UpdateJobs();
         UpdateItemTrackingCodes();
-        UpgradeJobQueueEntries();
-        UpgradeNotificationEntries();
-        UpgradeVATReportSetup();
         UpgradeStandardCustomerSalesCodes();
         UpgradeStandardVendorPurchaseCode();
         MoveLastUpdateInvoiceEntryNoValue();
-        CopyIncomingDocumentURLsIntoOneFiled();
-        UpgradePowerBiEmbedUrl();
         UpgradePowerBiReportUploads();
         UpgradeSearchEmail();
         UpgradeIntegrationTableMapping();
@@ -191,7 +169,9 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTemplates();
         AddPowerBIWorkspaces();
         UpgradePowerBiDisplayedElements();
+#if not CLEAN26        
         UpgradePurchaseRcptLineOverReceiptCode();
+#endif
         UpgradeContactMobilePhoneNo();
         UpgradeItemDocuments();
         UpgradePostCodeServiceKey();
@@ -214,7 +194,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeDataExchFieldMapping();
         UpgradeJobReportSelection();
         UpgradeJobTaskReportSelection();
-        UpgradeICSetup();
         UpgradeAccountSchedulesToFinancialReports();
         UpgradeCRMUnitGroupMapping();
         UpgradeCRMSDK90ToCRMSDK91();
@@ -247,6 +226,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeCountryVATSchemeDK();
         UpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocation();
         UpgradeIntegrationTableMappingTemplates();
+        UpgradeICOutboxTransactionSourceType();
     end;
 
     local procedure ClearTemporaryTables()
@@ -254,9 +234,6 @@ codeunit 104000 "Upgrade - BaseApp"
         BinContentBuffer: Record "Bin Content Buffer";
         DocumentEntry: Record "Document Entry";
         EntrySummary: Record "Entry Summary";
-#if not CLEAN23
-        InvoicePostBuffer: Record "Invoice Post. Buffer";
-#endif
         ItemTrackingSetup: Record "Item Tracking Setup";
         OptionLookupBuffer: Record "Option Lookup Buffer";
         ParallelSessionEntry: Record "Parallel Session Entry";
@@ -275,10 +252,6 @@ codeunit 104000 "Upgrade - BaseApp"
         EntrySummary.Reset();
         EntrySummary.DeleteAll();
 
-#if not CLEAN23
-        InvoicePostBuffer.Reset();
-        InvoicePostBuffer.DeleteAll();
-#endif
         ItemTrackingSetup.Reset();
         ItemTrackingSetup.DeleteAll();
 
@@ -605,32 +578,12 @@ codeunit 104000 "Upgrade - BaseApp"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetLastUpdateInvoiceEntryNoUpgradeTag()) then
             exit;
 
-        if CRMConnectionSetup.Get() then
-            CRMSynchStatus."Last Update Invoice Entry No." := CRMConnectionSetup."Last Update Invoice Entry No."
-        else
+        if not CRMConnectionSetup.Get() then
             CRMSynchStatus."Last Update Invoice Entry No." := 0;
 
         if CRMSynchStatus.Insert() then;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetLastUpdateInvoiceEntryNoUpgradeTag());
-    end;
-
-    local procedure CopyIncomingDocumentURLsIntoOneFiled()
-    var
-        IncomingDocument: Record "Incoming Document";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIncomingDocumentURLUpgradeTag()) then
-            exit;
-
-        if IncomingDocument.FindSet() then
-            repeat
-                IncomingDocument.URL := IncomingDocument.URL1 + IncomingDocument.URL2 + IncomingDocument.URL3 + IncomingDocument.URL4;
-                IncomingDocument.Modify();
-            until IncomingDocument.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIncomingDocumentURLUpgradeTag());
     end;
 
     local procedure CopyRecordLinkURLsIntoOneField()
@@ -697,6 +650,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeSalesShipmentCustomerId();
         UpgradeFixedAssetLocationId();
         UpgradeFixedAssetResponsibleEmployeeId();
+        UpgradePurchaseCreditMemoVendorCrMemoNo();
     end;
 
     procedure UpgradeItemPostingGroups()
@@ -828,6 +782,38 @@ codeunit 104000 "Upgrade - BaseApp"
         end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetFixedAssetResponsibleEmployeeIdUpgradeTag());
+    end;
+
+    internal procedure UpgradePurchaseCreditMemoVendorCrMemoNo()
+    var
+        PurchCrMemoEntityBuffer: Record "Purch. Cr. Memo Entity Buffer";
+        PurchaseHeader: Record "Purchase Header";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        PurchCrMemoDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaseCreditMemoVendorCrMemoNoUpgradeTag()) then
+            exit;
+
+        PurchCrMemoEntityBuffer.SetFilter("Vendor Cr. Memo No.", '<>%1', '');
+        if PurchCrMemoEntityBuffer.IsEmpty() then begin
+            PurchCrMemoDataTransfer.SetTables(Database::"Purch. Cr. Memo Hdr.", Database::"Purch. Cr. Memo Entity Buffer");
+            PurchCrMemoDataTransfer.AddFieldValue(PurchCrMemoHeader.FieldNo("Vendor Cr. Memo No."), PurchCrMemoEntityBuffer.FieldNo("Vendor Cr. Memo No."));
+            PurchCrMemoDataTransfer.AddJoin(PurchCrMemoHeader.FieldNo("No."), PurchCrMemoEntityBuffer.FieldNo("No."));
+            PurchCrMemoDataTransfer.UpdateAuditFields := false;
+            PurchCrMemoDataTransfer.CopyFields();
+            Clear(PurchCrMemoDataTransfer);
+
+            PurchCrMemoDataTransfer.SetTables(Database::"Purchase Header", Database::"Purch. Cr. Memo Entity Buffer");
+            PurchCrMemoDataTransfer.AddSourceFilter(PurchaseHeader.FieldNo("Document Type"), '%1', PurchaseHeader."Document Type"::"Credit Memo");
+            PurchCrMemoDataTransfer.AddFieldValue(PurchaseHeader.FieldNo("Vendor Cr. Memo No."), PurchCrMemoEntityBuffer.FieldNo("Vendor Cr. Memo No."));
+            PurchCrMemoDataTransfer.AddJoin(PurchaseHeader.FieldNo("No."), PurchCrMemoEntityBuffer.FieldNo("No."));
+            PurchCrMemoDataTransfer.UpdateAuditFields := false;
+            PurchCrMemoDataTransfer.CopyFields();
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaseCreditMemoVendorCrMemoNoUpgradeTag());
     end;
 
     local procedure UpgradeSalesInvoiceEntityAggregate()
@@ -1280,91 +1266,6 @@ codeunit 104000 "Upgrade - BaseApp"
         end;
     end;
 
-    local procedure UpgradeJobQueueEntries()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        JobQueueLogEntry: Record "Job Queue Log Entry";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        OldErrorMsg: Text;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag()) then
-            exit;
-
-        JobQueueEntry.SETFILTER("Error Message 2", '<>%1', '');
-        if JobQueueEntry.FINDSET(true) then
-            repeat
-                JobQueueEntry."Error Message" := JobQueueEntry."Error Message" + JobQueueEntry."Error Message 2" +
-                    JobQueueEntry."Error Message 3" + JobQueueEntry."Error Message 4";
-                JobQueueEntry."Error Message 2" := '';
-                JobQueueEntry."Error Message 3" := '';
-                JobQueueEntry."Error Message 4" := '';
-                JobQueueEntry.Modify();
-            until JobQueueEntry.Next() = 0;
-
-        JobQueueLogEntry.SETFILTER("Error Message 2", '<>%1', '');
-        if JobQueueLogEntry.FINDSET(true) then
-            repeat
-                OldErrorMsg := JobQueueLogEntry."Error Message" + JobQueueLogEntry."Error Message 2" +
-                  JobQueueLogEntry."Error Message 3" + JobQueueLogEntry."Error Message 4";
-                JobQueueLogEntry."Error Message 2" := '';
-                JobQueueLogEntry."Error Message 3" := '';
-                JobQueueLogEntry."Error Message 4" := '';
-                JobQueueLogEntry.Modify();
-            until JobQueueLogEntry.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag());
-    end;
-
-    local procedure UpgradeNotificationEntries()
-    var
-        NotificationEntry: Record "Notification Entry";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNotificationEntryMergeErrorMessageFieldsUpgradeTag()) then
-            exit;
-
-        if NotificationEntry.FindSet(true) then
-            repeat
-                NotificationEntry."Error Message" :=
-                    CopyStr(
-                        NotificationEntry."Error Message" +
-                        NotificationEntry."Error Message 2" +
-                        NotificationEntry."Error Message 3" +
-                        NotificationEntry."Error Message 4",
-                        1, MaxStrLen(NotificationEntry."Error Message"));
-
-                NotificationEntry.Modify();
-            until NotificationEntry.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNotificationEntryMergeErrorMessageFieldsUpgradeTag());
-    end;
-
-    local procedure UpgradeVATReportSetup()
-    var
-        VATReportSetup: Record "VAT Report Setup";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        DateFormulaText: Text;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATRepSetupPeriodRemCalcUpgradeTag()) then
-            exit;
-
-        if not VATReportSetup.Get() then
-            exit;
-        if VATReportSetup.IsPeriodReminderCalculation() or (VATReportSetup."Period Reminder Time" = 0) then
-            exit;
-
-        DateFormulaText := StrSubstNo('<%1D>', VATReportSetup."Period Reminder Time");
-        EVALUATE(VATReportSetup."Period Reminder Calculation", DateFormulaText);
-        VATReportSetup."Period Reminder Time" := 0;
-
-        if VATReportSetup.Modify() then;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATRepSetupPeriodRemCalcUpgradeTag());
-    end;
-
     local procedure UpgradeStandardCustomerSalesCodes()
     var
         StandardSalesCode: Record "Standard Sales Code";
@@ -1423,35 +1324,6 @@ codeunit 104000 "Upgrade - BaseApp"
             PowerBIReportConfiguration.ModifyAll("Workspace Name", PowerBIWorkspaceMgt.GetMyWorkspaceLabel());
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPowerBIWorkspacesUpgradeTag());
-    end;
-
-    local procedure UpgradePowerBiEmbedUrl()
-    var
-        PowerBIReportUploads: Record "Power BI Report Uploads";
-        PowerBIReportConfiguration: Record "Power BI Report Configuration";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPowerBiEmbedUrlTooShortUpgradeTag()) then
-            exit;
-
-        if PowerBIReportUploads.FindSet(true) then
-            repeat
-                if PowerBIReportUploads."Report Embed Url" = '' then begin
-                    PowerBIReportUploads."Report Embed Url" := PowerBIReportUploads."Embed Url";
-                    PowerBIReportUploads.Modify();
-                end;
-            until PowerBIReportUploads.Next() = 0;
-
-        if PowerBIReportConfiguration.FindSet(true) then
-            repeat
-                if PowerBIReportConfiguration.ReportEmbedUrl = '' then begin
-                    PowerBIReportConfiguration.ReportEmbedUrl := PowerBIReportConfiguration.EmbedUrl;
-                    PowerBIReportConfiguration.Modify();
-                end;
-            until PowerBIReportConfiguration.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPowerBiEmbedUrlTooShortUpgradeTag());
     end;
 
     local procedure UpgradePowerBIDisplayedElements()
@@ -1777,23 +1649,10 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-#if not CLEAN23
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag()) then begin
-            if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag()) then
-                exit;
-            AADApplicationSetup.ModifyDescriptionOfDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
-            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag());
-        end else begin
-            AADApplicationSetup.CreateDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
-            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag());
-            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultAADApplicationDescriptionTag());
-        end;
-#else
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag()) then 
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag()) then
             exit;
         AADApplicationSetup.CreateDynamics365BusinessCentralforVirtualEntitiesAAdApplication();
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultAADApplicationTag());
-#endif
     end;
 
     local procedure UpgradeIntegrationTableMapping()
@@ -2125,7 +1984,6 @@ codeunit 104000 "Upgrade - BaseApp"
         ConfigTemplateHeader: Record "Config. Template Header";
         ConfigTemplateLine: Record "Config. Template Line";
         CustomerTempl: Record "Customer Templ.";
-        CustomerTemplate: Record "Customer Template";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
         ConfigValidateManagement: Codeunit "Config. Validate Management";
@@ -2153,12 +2011,6 @@ codeunit 104000 "Upgrade - BaseApp"
                     TemplateRecordRef.Close();
                 end;
             until ConfigTemplateHeader.Next() = 0;
-
-        if CustomerTemplate.FindSet() then
-            repeat
-                if InsertNewCustomerTemplate(CustomerTempl, CustomerTemplate.Code, CustomerTemplate.Description) then
-                    UpdateNewCustomerTemplateFromConversionTemplate(CustomerTempl, CustomerTemplate);
-            until CustomerTemplate.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCustomerTemplatesUpgradeTag());
     end;
@@ -2267,48 +2119,12 @@ codeunit 104000 "Upgrade - BaseApp"
         exit(true);
     end;
 
-    local procedure UpdateNewCustomerTemplateFromConversionTemplate(var CustomerTempl: Record "Customer Templ."; CustomerTemplate: Record "Customer Template")
-    begin
-        CustomerTempl."Territory Code" := CustomerTemplate."Territory Code";
-        CustomerTempl."Global Dimension 1 Code" := CustomerTemplate."Global Dimension 1 Code";
-        CustomerTempl."Global Dimension 2 Code" := CustomerTemplate."Global Dimension 2 Code";
-        CustomerTempl."Customer Posting Group" := CustomerTemplate."Customer Posting Group";
-        CustomerTempl."Currency Code" := CustomerTemplate."Currency Code";
-        CustomerTempl."Customer Price Group" := CustomerTemplate."Customer Price Group";
-        CustomerTempl."Payment Terms Code" := CustomerTemplate."Payment Terms Code";
-        CustomerTempl."Shipment Method Code" := CustomerTemplate."Shipment Method Code";
-        CustomerTempl."Invoice Disc. Code" := CustomerTemplate."Invoice Disc. Code";
-        CustomerTempl."Customer Disc. Group" := CustomerTemplate."Customer Disc. Group";
-        CustomerTempl."Country/Region Code" := CustomerTemplate."Country/Region Code";
-        CustomerTempl."Payment Method Code" := CustomerTemplate."Payment Method Code";
-        CustomerTempl."Prices Including VAT" := CustomerTemplate."Prices Including VAT";
-        CustomerTempl."Gen. Bus. Posting Group" := CustomerTemplate."Gen. Bus. Posting Group";
-        CustomerTempl."VAT Bus. Posting Group" := CustomerTemplate."VAT Bus. Posting Group";
-        CustomerTempl."Contact Type" := CustomerTemplate."Contact Type";
-        CustomerTempl."Allow Line Disc." := CustomerTemplate."Allow Line Disc.";
-        OnUpdateNewCustomerTemplateFromConversionTemplateOnBeforeModify(CustomerTempl, CustomerTemplate);
-        CustomerTempl.Modify();
-    end;
-
+#if not CLEAN26
+    [Obsolete('Field "Over-Receipt Code" has been deleted in version 26.', '26.0')]
     procedure UpgradePurchaseRcptLineOverReceiptCode()
-    var
-        PurchRcptLine: Record "Purch. Rcpt. Line";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.PurchRcptLineOverReceiptCodeUpgradeTag()) then
-            exit;
-
-        PurchRcptLine.SetFilter("Over-Receipt Code", '<>''''');
-        PurchRcptLine.SetRange("Over-Receipt Code 2", '');
-        if PurchRcptLine.FindSet(true) then
-            repeat
-                PurchRcptLine."Over-Receipt Code 2" := PurchRcptLine."Over-Receipt Code";
-                PurchRcptLine.Modify(false);
-            until PurchRcptLine.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.PurchRcptLineOverReceiptCodeUpgradeTag());
     end;
+#endif
 
     local procedure UpgradePurchRcptLineDocumentId()
     var
@@ -2416,28 +2232,11 @@ codeunit 104000 "Upgrade - BaseApp"
         DirectTransferLine: Record "Direct Transfer Line";
         DirectTransHeader: Record "Direct Trans. Header";
         DirectTransLine: Record "Direct Trans. Line";
-        InventorySetup: Record "Inventory Setup";
-        SourceCodeSetup: Record "Source Code Setup";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetItemDocumentsUpgradeTag()) then
             exit;
-
-        if InventorySetup.Get() then begin
-            InventorySetup."Invt. Receipt Nos." := InventorySetup."Item Receipt Nos.";
-            InventorySetup."Invt. Shipment Nos." := InventorySetup."Item Shipment Nos.";
-            InventorySetup."Posted Direct Trans. Nos." := InventorySetup."Posted Direct Transfer Nos.";
-            InventorySetup."Posted Invt. Receipt Nos." := InventorySetup."Posted Item Receipt Nos.";
-            InventorySetup."Posted Invt. Shipment Nos." := InventorySetup."Posted Item Shipment Nos.";
-            InventorySetup.Modify();
-        end;
-
-        if SourceCodeSetup.Get() then begin
-            SourceCodeSetup."Invt. Receipt" := SourceCodeSetup."Item Receipt";
-            SourceCodeSetup."Invt. Shipment" := SourceCodeSetup."Item Shipment";
-            SourceCodeSetup.Modify();
-        end;
 
         if ItemDocumentHeader.FindSet() then
             repeat
@@ -2608,26 +2407,7 @@ codeunit 104000 "Upgrade - BaseApp"
 
     local procedure UpgradeCustomDeclarations()
     var
-        InventoryProfile: Record "Inventory Profile";
-        ItemEntryRelation: Record "Item Entry Relation";
-        ItemJournalLine: Record "Item Journal Line";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        ItemTrackingCode: Record "Item Tracking Code";
-        JobJournalLine: Record "Job Journal Line";
-        JobLedgerEntry: Record "Job Ledger Entry";
-        JobPlanningLine: Record "Job Planning Line";
-        PostedInvtPickLine: Record "Posted Invt. Pick Line";
-        PostedInvtPutawayLine: Record "Posted Invt. Put-away Line";
-        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
-        RegisteredInvtMovementLine: Record "Registered Invt. Movement Line";
-        RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
-        ReservationEntry: Record "Reservation Entry";
-        TrackingSpecification: Record "Tracking Specification";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        WarehouseJournalLine: Record "Warehouse Journal Line";
-        WarehouseEntry: Record "Warehouse Entry";
-        WhseItemEntryRelation: Record "Whse. Item Entry Relation";
-        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
         CDNoInfo: Record "CD No. Information";
         PackageNoInfo: Record "Package No. Information";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
@@ -2636,145 +2416,12 @@ codeunit 104000 "Upgrade - BaseApp"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCustomDeclarationsUpgradeTag()) then
             exit;
 
-        if ItemTrackingCode.FindSet() then
-            repeat
-                ItemTrackingCode."Package Specific Tracking" := ItemTrackingCode."CD Specific Tracking";
-                ItemTrackingCode."Package Warehouse Tracking" := ItemTrackingCode."CD Warehouse Tracking";
-                ItemTrackingCode.Modify();
-            until ItemTrackingCode.Next() = 0;
-
-        InventoryProfile.SetFilter("CD No.", '<>%1', '');
-        if InventoryProfile.FindSet() then
-            repeat
-                InventoryProfile."Package No." := InventoryProfile."CD No.";
-                InventoryProfile.Modify();
-            until InventoryProfile.Next() = 0;
-
-        ItemEntryRelation.SetFilter("CD No.", '<>%1', '');
-        if ItemEntryRelation.FindSet() then
-            repeat
-                ItemEntryRelation."Package No." := ItemEntryRelation."CD No.";
-                ItemEntryRelation.Modify();
-            until ItemEntryRelation.Next() = 0;
-
-        ItemJournalLine.SetFilter("CD No.", '<>%1', '');
-        if ItemJournalLine.FindSet() then
-            repeat
-                ItemJournalLine."Package No." := ItemJournalLine."CD No.";
-                ItemJournalLine.Modify();
-            until ItemJournalLine.Next() = 0;
-
-        ItemLedgerEntry.SetFilter("CD No.", '<>%1', '');
-        if ItemLedgerEntry.FindSet() then
-            repeat
-                ItemLedgerEntry."Package No." := ItemLedgerEntry."CD No.";
-                ItemLedgerEntry.Modify();
-            until ItemLedgerEntry.Next() = 0;
-
-        JobJournalLine.SetFilter("CD No.", '<>%1', '');
-        if JobJournalLine.FindSet() then
-            repeat
-                JobJournalLine."Package No." := JobJournalLine."CD No.";
-                JobJournalLine.Modify();
-            until JobJournalLine.Next() = 0;
-
-        JobLedgerEntry.SetFilter("CD No.", '<>%1', '');
-        if JobLedgerEntry.FindSet() then
-            repeat
-                JobLedgerEntry."Package No." := JobLedgerEntry."CD No.";
-                JobLedgerEntry.Modify();
-            until JobLedgerEntry.Next() = 0;
-
-        JobPlanningLine.SetFilter("CD No.", '<>%1', '');
-        if JobPlanningLine.FindSet() then
-            repeat
-                JobPlanningLine."Package No." := JobPlanningLine."CD No.";
-                JobPlanningLine.Modify();
-            until JobPlanningLine.Next() = 0;
-
-        PostedInvtPickLine.SetFilter("CD No.", '<>%1', '');
-        if PostedInvtPickLine.FindSet() then
-            repeat
-                PostedInvtPickLine."Package No." := PostedInvtPickLine."CD No.";
-                PostedInvtPickLine.Modify();
-            until PostedInvtPickLine.Next() = 0;
-
-        PostedInvtPutawayLine.SetFilter("CD No.", '<>%1', '');
-        if PostedInvtPutawayLine.FindSet() then
-            repeat
-                PostedInvtPutawayLine."Package No." := PostedInvtPutawayLine."CD No.";
-                PostedInvtPutawayLine.Modify();
-            until PostedInvtPutawayLine.Next() = 0;
-
-        PostedWhseReceiptLine.SetFilter("CD No.", '<>%1', '');
-        if PostedWhseReceiptLine.FindSet() then
-            repeat
-                PostedWhseReceiptLine."Package No." := PostedWhseReceiptLine."CD No.";
-                PostedWhseReceiptLine.Modify();
-            until PostedWhseReceiptLine.Next() = 0;
-
-        RegisteredInvtMovementLine.SetFilter("CD No.", '<>%1', '');
-        if RegisteredInvtMovementLine.FindSet() then
-            repeat
-                RegisteredInvtMovementLine."Package No." := RegisteredInvtMovementLine."CD No.";
-                RegisteredInvtMovementLine.Modify();
-            until RegisteredInvtMovementLine.Next() = 0;
-
-        RegisteredWhseActivityLine.SetFilter("CD No.", '<>%1', '');
-        if RegisteredWhseActivityLine.FindSet() then
-            repeat
-                RegisteredWhseActivityLine."Package No." := RegisteredWhseActivityLine."CD No.";
-                RegisteredWhseActivityLine.Modify();
-            until RegisteredWhseActivityLine.Next() = 0;
-
-        ReservationEntry.SetFilter("CD No.", '<>%1', '');
-        if ReservationEntry.FindSet() then
-            repeat
-                ReservationEntry."Package No." := ReservationEntry."CD No.";
-                ReservationEntry.Modify();
-            until ReservationEntry.Next() = 0;
-
-        TrackingSpecification.SetFilter("CD No.", '<>%1', '');
-        if TrackingSpecification.FindSet() then
-            repeat
-                TrackingSpecification."Package No." := TrackingSpecification."CD No.";
-                TrackingSpecification.Modify();
-            until TrackingSpecification.Next() = 0;
-
         WarehouseActivityLine.SetFilter("CD No.", '<>%1', '');
         if WarehouseActivityLine.FindSet() then
             repeat
                 WarehouseActivityLine."Package No." := WarehouseActivityLine."CD No.";
                 WarehouseActivityLine.Modify();
             until WarehouseActivityLine.Next() = 0;
-
-        WarehouseJournalLine.SetFilter("CD No.", '<>%1', '');
-        if WarehouseJournalLine.FindSet() then
-            repeat
-                WarehouseJournalLine."Package No." := WarehouseJournalLine."CD No.";
-                WarehouseJournalLine.Modify();
-            until WarehouseJournalLine.Next() = 0;
-
-        WarehouseEntry.SetFilter("CD No.", '<>%1', '');
-        if WarehouseEntry.FindSet() then
-            repeat
-                WarehouseEntry."Package No." := WarehouseEntry."CD No.";
-                WarehouseEntry.Modify();
-            until WarehouseEntry.Next() = 0;
-
-        WhseItemEntryRelation.SetFilter("CD No.", '<>%1', '');
-        if WhseItemEntryRelation.FindSet() then
-            repeat
-                WhseItemEntryRelation."Package No." := WhseItemEntryRelation."CD No.";
-                WhseItemEntryRelation.Modify();
-            until WhseItemEntryRelation.Next() = 0;
-
-        WhseItemTrackingLine.SetFilter("CD No.", '<>%1', '');
-        if WhseItemTrackingLine.FindSet() then
-            repeat
-                WhseItemTrackingLine."Package No." := WhseItemTrackingLine."CD No.";
-                WhseItemTrackingLine.Modify();
-            until WhseItemTrackingLine.Next() = 0;
 
         if CDNoInfo.FindSet() then
             repeat
@@ -3121,33 +2768,6 @@ codeunit 104000 "Upgrade - BaseApp"
             exit;
         ReportSelectionMgt.InitReportSelection("Report Selection Usage"::"Job Task Quote");
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobTaskReportSelectionUpgradeTag());
-    end;
-
-    local procedure UpgradeICSetup()
-    var
-        CompanyInformation: Record "Company Information";
-        ICSetup: Record "IC Setup";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetICSetupUpgradeTag()) then
-            exit;
-
-        if not CompanyInformation.Get() then
-            exit;
-
-        if not ICSetup.Get() then begin
-            ICSetup.Init();
-            ICSetup.Insert();
-        end;
-
-        ICSetup."IC Partner Code" := CompanyInformation."IC Partner Code";
-        ICSetup."IC Inbox Type" := CompanyInformation."IC Inbox Type";
-        ICSetup."IC Inbox Details" := CompanyInformation."IC Inbox Details";
-        ICSetup."Auto. Send Transactions" := CompanyInformation."Auto. Send Transactions";
-        ICSetup.Modify();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICSetupUpgradeTag());
     end;
 
     local procedure UpgradeCRMUnitGroupMapping()
@@ -4238,9 +3858,21 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingTemplatesUpgradeTag());
     end;
 
-    [Obsolete('This function is obsolete as the "Customer Template" table has been removed in version 23.', '25.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnUpdateNewCustomerTemplateFromConversionTemplateOnBeforeModify(var CustomerTempl: Record "Customer Templ."; CustomerTemplate: Record "Customer Template")
+    local procedure UpgradeICOutboxTransactionSourceType()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        ICOutboxTransactionDataTransfer: DataTransfer;
     begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetICOutboxTransactionSourceTypeUpgradeTag()) then
+            exit;
+
+        ICOutboxTransactionDataTransfer.SetTables(Database::"IC Outbox Transaction", Database::"IC Outbox Transaction");
+        ICOutboxTransactionDataTransfer.AddFieldValue(ICOutboxTransaction.FieldNo("Source Type"), ICOutboxTransaction.FieldNo("IC Source Type"));
+        ICOutboxTransactionDataTransfer.CopyFields();
+        Clear(ICOutboxTransactionDataTransfer);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICOutboxTransactionSourceTypeUpgradeTag());
     end;
 }

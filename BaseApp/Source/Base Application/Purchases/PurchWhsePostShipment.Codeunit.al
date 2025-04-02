@@ -499,7 +499,7 @@ codeunit 5747 "Purch. Whse. Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostSourceDocumentOnBeforePostPurchHeader(var PurchPost: Codeunit Microsoft.Purchases.Posting."Purch.-Post"; var PurchHeader: Record "Purchase Header"; WhsePostParameters: Record "Whse. Post Parameters"; WhseShptHeader: Record "Warehouse Shipment Header"; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
+    local procedure OnPostSourceDocumentOnBeforePostPurchHeader(var PurchPost: Codeunit Microsoft.Purchases.Posting."Purch.-Post"; var PurchHeader: Record "Purchase Header"; var WhsePostParameters: Record "Whse. Post Parameters"; WhseShptHeader: Record "Warehouse Shipment Header"; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
     begin
     end;
 

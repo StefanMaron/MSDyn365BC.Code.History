@@ -1,4 +1,4 @@
-﻿codeunit 131901 "Library - Human Resource"
+codeunit 131901 "Library - Human Resource"
 {
     // Contains all utility functions related to Human Resource.
 
