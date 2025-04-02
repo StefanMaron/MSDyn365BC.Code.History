@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Reports;
 
 using Microsoft.Foundation.Enums;
@@ -129,11 +133,11 @@ report 99000756 "Detailed Calculation"
                 begin
                     ProdUnitCost := "Unit Cost per";
 
-                    CostCalcMgt.CalcRoutingCostPerUnit(
+                    MfgCostCalcMgt.CalcRoutingCostPerUnit(
                       Type, "No.", DirectUnitCost, IndirectCostPct, OverheadRate, ProdUnitCost, UnitCostCalculation);
                     CostTime :=
-                      CostCalcMgt.CalculateCostTime(
-                        CostCalcMgt.CalcQtyAdjdForBOMScrap(Item."Lot Size", Item."Scrap %"),
+                      MfgCostCalcMgt.CalculateCostTime(
+                        MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(Item."Lot Size", Item."Scrap %"),
                         "Setup Time", "Setup Time Unit of Meas. Code",
                         "Run Time", "Run Time Unit of Meas. Code", "Lot Size",
                         "Scrap Factor % (Accumulated)", "Fixed Scrap Qty. (Accum.)",
@@ -242,7 +246,7 @@ report 99000756 "Detailed Calculation"
                         UOMFactor := 1;
 
                     CompItemQtyBase :=
-                      CostCalcMgt.CalcCompItemQtyBase(ProdBOMLine[Level], CalculateDate, Quantity[Level], Item."Routing No.", Level = 1) /
+                      MfgCostCalcMgt.CalcCompItemQtyBase(ProdBOMLine[Level], CalculateDate, Quantity[Level], Item."Routing No.", Level = 1) /
                       UOMFactor;
 
                     case ProdBOMLine[Level].Type of
@@ -291,7 +295,7 @@ report 99000756 "Detailed Calculation"
                     ProdBOMLine[Level].SetFilter("Ending Date", '%1|%2..', 0D, CalculateDate);
                     OnPreDataItemBOMLoopOnProdBOMLineLevelSetFilters(ProdBOMLine, Level);
 
-                    Quantity[Level] := CostCalcMgt.CalcQtyAdjdForBOMScrap(Item."Lot Size", Item."Scrap %");
+                    Quantity[Level] := MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(Item."Lot Size", Item."Scrap %");
 
                     InBOM := true;
                 end;
@@ -415,7 +419,7 @@ report 99000756 "Detailed Calculation"
         MfgSetup: Record "Manufacturing Setup";
         ProdBOMHeader: Record "Production BOM Header";
         UOMMgt: Codeunit "Unit of Measure Management";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         VersionMgt: Codeunit VersionManagement;
         RtngVersionCode: Code[20];
         ItemFilter: Text;

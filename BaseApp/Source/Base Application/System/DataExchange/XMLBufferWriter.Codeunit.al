@@ -20,8 +20,6 @@ codeunit 1235 "XML Buffer Writer"
         StringReader: DotNet StringReader;
         OnlyGenerateStructure: Boolean;
         UnsupportedInputTypeErr: Label 'The supplied variable type is not supported.';
-        ValueStringToLongErr: Label '%1 must not be longer than %2.', Comment = '%1 field Value; %2 the length of the string';
-        rdfaboutTok: Label 'rdf:about', Locked = true;
 
     [Scope('OnPrem')]
     procedure InitializeXMLBufferFrom(var XMLBuffer: Record "XML Buffer"; StreamOrServerFile: Variant)
@@ -236,8 +234,9 @@ codeunit 1235 "XML Buffer Writer"
             if XMLBuffer.FindFirst() then
                 exit;
         end;
-
+#if not CLEAN26
         if CanPassValue(XmlReader.Name, XmlReader.Value) then
+#endif
             InsertAttribute(XMLBuffer, ParentXMLBuffer, AttributeNumber, XmlReader.Depth + 1, XmlReader.Name, XmlReader.Value);
     end;
 
@@ -297,7 +296,7 @@ codeunit 1235 "XML Buffer Writer"
         XMLBuffer.Path := CopyStr(ParentXMLBuffer.Path + '/@' + AttributeName, 1, MaxStrLen(XMLBuffer.Path));
         XMLBuffer."Node Number" := NodeNumber;
         XMLBuffer.Name := AttributeName;
-        XMLBuffer.Value := CopyStr(AttributeValue, 1, MaxStrLen(XMLBuffer.Value));
+        XMLBuffer.SetValueWithoutModifying(AttributeValue);
         XMLBuffer.Depth := NodeDepth;
         XMLBuffer."Data Type" := GetType(XMLBuffer.Value);
         XMLBuffer.Type := XMLBuffer.Type::Attribute;
@@ -328,7 +327,7 @@ codeunit 1235 "XML Buffer Writer"
         XMLBuffer."Node Number" := NodeNumber;
         XMLBuffer.Name := CopyStr(AttributeName, 1, MaxStrLen(XMLBuffer.Name));
         XMLBuffer.Namespace := CopyStr(AttributeNamespace, 1, MaxStrLen(XMLBuffer.Namespace));
-        XMLBuffer.Value := CopyStr(AttributeValue, 1, MaxStrLen(XMLBuffer.Value));
+        XMLBuffer.SetValueWithoutModifying(AttributeValue);
         XMLBuffer.Depth := NodeDepth;
         XMLBuffer."Data Type" := GetType(XMLBuffer.Value);
         XMLBuffer.Type := XMLBuffer.Type::Attribute;
@@ -409,9 +408,9 @@ codeunit 1235 "XML Buffer Writer"
         XmlReader.Read();
     end;
 
+#if not CLEAN26
     local procedure CanPassValue(Name: Text; Value: Text): Boolean
     var
-        XMLBuffer: Record "XML Buffer";
         ReturnValue: Boolean;
         IsHandled: Boolean;
     begin
@@ -419,18 +418,15 @@ codeunit 1235 "XML Buffer Writer"
         OnBeforeCanPassValue(Name, Value, ReturnValue, IsHandled);
         if IsHandled then
             exit(ReturnValue);
-
-        if StrLen(Value) <= MaxStrLen(XMLBuffer.Value) then
-            exit(true);
-        if Name = rdfaboutTok then
-            exit(false);
-        Error(ValueStringToLongErr, XMLBuffer.FieldCaption(Value), MaxStrLen(XMLBuffer.Value))
+        exit(true);
     end;
 
+    [Obsolete('This event is obsolete and will be removed in a future release. There is no replacement.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCanPassValue(Name: Text; var Value: Text; var ReturnValue: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertAttribute(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; NodeNumber: Integer; NodeDepth: Integer; var AttributeName: Text; var AttributeValue: Text; var IsHandled: Boolean)

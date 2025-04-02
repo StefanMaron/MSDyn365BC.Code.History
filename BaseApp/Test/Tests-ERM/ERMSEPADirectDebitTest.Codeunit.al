@@ -486,7 +486,9 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // [GIVEN] Direct Debit Collection Entry with Transfer Date < TODAY.
-        TransferDate := Today() - LibraryRandom.RandIntInRange(10, 20);
+        TransferDate := Today() - 1;
+        if not SameYear(TransferDate, Today()) then
+            exit;
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
 
         // [GIVEN] Error "The earliest possible transfer date is today." is shown in the factbox "File Export Errors".
@@ -541,7 +543,10 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // [GIVEN] Direct Debit Collection Entry with Transfer Date < TODAY and Status = Rejected.
-        TransferDate := Today() - LibraryRandom.RandIntInRange(10, 20);
+        TransferDate := Today() - 1;
+        if not SameYear(TransferDate, Today()) then
+            exit;
+
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
         UpdateStatusOnDDCollectionEntry(DirectDebitCollectionEntry, DirectDebitCollectionEntry.Status::Rejected);
 
@@ -552,6 +557,17 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         DirectDebitCollectionEntry.Get(DirectDebitCollectionEntry."Direct Debit Collection No.", DirectDebitCollectionEntry."Entry No.");
         DirectDebitCollectionEntry.TestField("Transfer Date", TransferDate);
         VerifyTransferDateErrorOnDDEntry(DirectDebitCollectionEntry);
+    end;
+
+    local procedure SameYear(DateOne: Date; DateTwo: Date): Boolean
+    begin
+        if DateOne = 0D then
+            exit(false);
+
+        if DateTwo = 0D then
+            exit(false);
+
+        exit(Date2DMY(DateOne, 3) = Date2DMY(DateTwo, 3));
     end;
 
     [Test]
@@ -566,7 +582,9 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // [GIVEN] Two Direct Debit Collections D1 and D2, each have one DD Collection Entry with Transfer Date < TODAY.
-        TransferDate := Today() - LibraryRandom.RandIntInRange(10, 20);
+        TransferDate := Today() - 1;
+        if not SameYear(TransferDate, Today()) then
+            exit;
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry[1], TransferDate);
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry[2], TransferDate);
 
@@ -599,7 +617,9 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // [GIVEN] Direct Debit Collection Entry with Transfer Date < TODAY and Status = Rejected.
-        TransferDate := Today() - LibraryRandom.RandIntInRange(10, 20);
+        TransferDate := Today() - 1;
+        if not SameYear(TransferDate, Today()) then
+            exit;
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
         UpdateStatusOnDDCollectionEntry(DirectDebitCollectionEntry, DirectDebitCollectionEntry.Status::Rejected);
 
@@ -628,7 +648,9 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // [GIVEN] Direct Debit Collection Entry with Transfer Date < TODAY and Status = File Created.
-        TransferDate := Today() - LibraryRandom.RandIntInRange(10, 20);
+        TransferDate := Today() - 1;
+        if not SameYear(TransferDate, Today()) then
+            exit;
         CreateDDEntryWithTransferDate(DirectDebitCollectionEntry, TransferDate);
         UpdateStatusOnDDCollectionEntry(DirectDebitCollectionEntry, DirectDebitCollectionEntry.Status::"File Created");
 
@@ -660,7 +682,9 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
 
         // [GIVEN] Two Direct Debit Collection Entries "DDE1" and "DDE2" with Transfer Date < TODAY in one DD Collection.
         // [GIVEN] "DDE1" Entry has Status = File Created, "DDE2" Entry has Status = New.
-        TransferDate := Today() - LibraryRandom.RandIntInRange(10, 20);
+        TransferDate := Today() - 1;
+        if not SameYear(TransferDate, Today()) then
+            exit;
         CreateTwoDDEntriesWithTransferDate(DirectDebitCollectionNo, DirectDebitCollectionEntryNo, TransferDate);
         DirectDebitCollectionEntry.Get(DirectDebitCollectionNo, DirectDebitCollectionEntryNo[1]);
         UpdateStatusOnDDCollectionEntry(DirectDebitCollectionEntry, DirectDebitCollectionEntry.Status::"File Created");

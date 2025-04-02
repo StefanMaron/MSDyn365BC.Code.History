@@ -15,6 +15,7 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
         ObsoleteTag = '19.0';
     }
 #endif
+#if not CLEAN24
     value(5409; EnablePlatformBasedReportSelection)
     {
         Implementation = "Feature Data Update" = "Feature - Report Selection";
@@ -22,6 +23,7 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
         ObsoleteReason = 'Feature EnablePlatformBasedReportSelection will be enabled by default in version 24.0.';
         ObsoleteTag = '24.0';
     }
+#endif
 #if not CLEAN24
     value(5877; PhysInvtOrderPackageTracking)
     {
@@ -38,6 +40,15 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
         ObsoleteState = Pending;
         ObsoleteReason = 'Feature G/L Currency REvaluation will be enabled by default in version 27.0.';
         ObsoleteTag = '24.0';
+    }
+#endif
+#if not CLEAN26
+    value(5892; Manufacturing_FlushingMethod_ActivateManualWoPick)
+    {
+        Implementation = "Feature Data Update" = "Feature-ManualFlushingMethod";
+        ObsoleteState = Pending;
+        ObsoleteReason = 'Feature ''Activate Manual Flushing Method without requiring pick'' will be enabled by default in version 29.0.';
+        ObsoleteTag = '26.0';
     }
 #endif
 }

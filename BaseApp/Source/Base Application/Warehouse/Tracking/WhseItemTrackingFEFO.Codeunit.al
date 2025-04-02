@@ -1,8 +1,5 @@
 namespace Microsoft.Warehouse.Tracking;
 
-#if not CLEAN23
-using Microsoft.Inventory.Ledger;
-#endif
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Warehouse.Activity;
@@ -31,23 +28,32 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         LastSummaryEntryNo := 0;
         StrictExpirationPosting := ItemTrackingMgt.StrictExpirationPosting(ItemNo);
 
-        SummarizeInventoryFEFO(Location, ItemNo, VariantCode, UseExpDates);
+        SummarizeInventoryFEFO(Location, ItemNo, VariantCode, '', UseExpDates);
         if UseExpDates then
             SummarizeAdjustmentBinFEFO(Location, ItemNo, VariantCode);
 
         OnAfterCreateEntrySummaryFEFO(TempGlobalEntrySummary);
     end;
 
-    local procedure SummarizeInventoryFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; HasExpirationDate: Boolean)
+    procedure CreateEntrySummaryFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; UseExpDates: Boolean)
+    begin
+        InitEntrySummaryFEFO();
+        LastSummaryEntryNo := 0;
+        StrictExpirationPosting := ItemTrackingMgt.StrictExpirationPosting(ItemNo);
+
+        SummarizeInventoryFEFO(Location, ItemNo, VariantCode, UnitofMeasureCode, UseExpDates);
+        if UseExpDates then
+            SummarizeAdjustmentBinFEFO(Location, ItemNo, VariantCode);
+    end;
+
+    local procedure SummarizeInventoryFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; HasExpirationDate: Boolean)
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
         SummarizedStockByItemTrkg: Query "Summarized Stock By Item Trkg.";
         QtyReservedFromItemLedger: Query "Qty. Reserved From Item Ledger";
         NonReservedQtyLotSN: Decimal;
+        DoInsertEntrySummary: Boolean;
         IsHandled: Boolean;
-#if not CLEAN23        
-        UseLegacyImplementation: Boolean;
-#endif
     begin
         IsHandled := false;
         OnBeforeSummarizeInventoryFEFO(Location, ItemNo, VariantCode, HasExpirationDate, IsHandled,
@@ -55,17 +61,11 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         if IsHandled then
             exit;
 
-#if not CLEAN23
-        UseLegacyImplementation := false;
-        OnSummarizeInventoryFEFOLegacyImplementation(UseLegacyImplementation);
-        if UseLegacyImplementation then begin
-            SummarizeInventoryFEFO_LegacyImplementation(Location, ItemNo, VariantCode, HasExpirationDate);
-            exit;
-        end;
-#endif
         SummarizedStockByItemTrkg.SetSKUFilters(ItemNo, VariantCode, Location.Code);
         SummarizedStockByItemTrkg.SetRange(Open, true);
         SummarizedStockByItemTrkg.SetRange(Positive, true);
+        if UnitofMeasureCode <> '' then
+            SummarizedStockByItemTrkg.SetRange(Unit_of_Measure_Code, UnitofMeasureCode);
         if HasExpirationDate then
             SummarizedStockByItemTrkg.SetFilter(Expiration_Date, '<>%1', 0D)
         else
@@ -83,88 +83,13 @@ codeunit 7326 "Whse. Item Tracking FEFO"
                 if QtyReservedFromItemLedger.Read() then
                     NonReservedQtyLotSN -= QtyReservedFromItemLedger.Quantity__Base_;
 
-                if NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(
-                        ItemNo, VariantCode, Location.Code, ItemTrackingSetup, HasExpirationDate) > 0
-                then
+                DoInsertEntrySummary := NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(ItemNo, VariantCode, Location.Code, ItemTrackingSetup, HasExpirationDate) > 0;
+                OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(Location, ItemNo, VariantCode, HasExpirationDate, NonReservedQtyLotSN, ItemTrackingSetup, SummarizedStockByItemTrkg.Expiration_Date, DoInsertEntrySummary);
+                if DoInsertEntrySummary then
                     InsertEntrySummaryFEFO(ItemTrackingSetup, SummarizedStockByItemTrkg.Expiration_Date);
             end;
         end;
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by the new implementation based on queries.', '23.0')]
-    local procedure SummarizeInventoryFEFO_LegacyImplementation(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; HasExpirationDate: Boolean)
-    var
-        ItemLedgEntry: Record "Item Ledger Entry";
-        ItemTrackingSetup: Record "Item Tracking Setup";
-        IsHandled: Boolean;
-        NonReservedQtyLotSN: Decimal;
-    begin
-        ItemLedgEntry.Reset();
-        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.");
-        ItemLedgEntry.SetRange("Item No.", ItemNo);
-        ItemLedgEntry.SetRange(Open, true);
-        ItemLedgEntry.SetRange("Variant Code", VariantCode);
-        ItemLedgEntry.SetRange(Positive, true);
-        if HasExpirationDate then
-            ItemLedgEntry.SetFilter(ItemLedgEntry."Expiration Date", '<>%1', 0D)
-        else
-            ItemLedgEntry.SetRange("Expiration Date", 0D);
-        ItemLedgEntry.SetRange("Location Code", Location.Code);
-        OnSummarizeInventoryFEFOOnAfterItemLedgEntrySetFilters(ItemLedgEntry, ItemNo, HasExpirationDate);
-        if ItemLedgEntry.IsEmpty() then
-            exit;
-
-        ItemLedgEntry.SetLoadFields(
-            "Item No.", "Variant Code", "Location Code", "Serial No.", "Lot No.", "Package No.", "Remaining Quantity", "Expiration Date");
-        ItemLedgEntry.FindSet();
-        repeat
-            NonReservedQtyLotSN := 0;
-            ItemLedgEntry.SetTrackingFilterFromItemLedgEntry(ItemLedgEntry);
-            ItemTrackingSetup.CopyTrackingFromItemLedgerEntry(ItemLedgEntry);
-            ItemLedgEntry.FindSet();
-            if not IsItemTrackingBlocked(ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code", ItemTrackingSetup) then begin
-                repeat
-                    NonReservedQtyLotSN += ItemLedgEntry."Remaining Quantity";
-                    if not CalledFromMovementWksh then
-                        NonReservedQtyLotSN -= CalcReservedFromILEWithItemTracking(ItemLedgEntry."Entry No.");
-                until ItemLedgEntry.Next() = 0;
-
-                if NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(
-                    ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", ItemTrackingSetup, HasExpirationDate) > 0
-                then begin
-                    OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(TempGlobalEntrySummary, ItemLedgEntry);
-                    InsertEntrySummaryFEFO(ItemTrackingSetup, ItemLedgEntry."Expiration Date");
-                end;
-            end else
-                ItemLedgEntry.FindLast();
-
-            ItemLedgEntry.ClearTrackingFilter();
-        until ItemLedgEntry.Next() = 0;
-    end;
-
-    [Obsolete('Removed as unused in the new implementation of SummarizeInventoryFEFO function.', '23.0')]
-    local procedure CalcReservedFromILEWithItemTracking(ItemLedgerEntryNo: Integer) ReservedQty: Decimal
-    var
-        ReservationEntry: Record "Reservation Entry";
-        OppositeReservationEntry: Record "Reservation Entry";
-        ItemLedgerEntryReserve: Codeunit "Item Ledger Entry-Reserve";
-    begin
-        ReservedQty := 0;
-
-        ItemLedgerEntryReserve.FilterReservFor(ReservationEntry, ItemLedgerEntryNo, true);
-        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
-        ReservationEntry.SetLoadFields("Quantity (Base)");
-        if ReservationEntry.FindSet() then
-            repeat
-                OppositeReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive);
-                if (OppositeReservationEntry."Entry No." <> SourceReservationEntry."Entry No.") and
-                   (OppositeReservationEntry."Item Tracking" <> OppositeReservationEntry."Item Tracking"::None)
-                then
-                    ReservedQty += ReservationEntry."Quantity (Base)";
-            until ReservationEntry.Next() = 0;
-    end;
-#endif    
 
     local procedure CalcNonRegisteredQtyOutstanding(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; HasExpirationDate: Boolean): Decimal
     var
@@ -404,28 +329,13 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     begin
     end;
 
-#if not CLEAN23
-    [Obsolete('Removed as unused in the new implementation of SummarizeInventoryFEFO function.', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(var TempGlobalEntrySummary: Record "Entry Summary" temporary; ItemLedgerEntry: Record "Item Ledger Entry")
-    begin
-    end;
-
-    [Obsolete('Removed as unused in the new implementation of SummarizeInventoryFEFO function.', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnSummarizeInventoryFEFOOnAfterItemLedgEntrySetFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; HasExpirationDate: Boolean)
-    begin
-    end;
-
-    [Obsolete('Removed as unused in the new implementation of SummarizeInventoryFEFO function.', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnSummarizeInventoryFEFOLegacyImplementation(var UseLegacyImplementation: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindNextEntrySummaryFEFO(var EntrySummary: Record "Entry Summary"; var TempGlobalEntrySummary: Record "Entry Summary" temporary; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(var Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; HasExpirationDate: Boolean; NonReservedQtyLotSN: Decimal; var ItemTrackingSetup: Record "Item Tracking Setup"; ExpirationDate: Date; var DoInsertEntrySummary: Boolean)
     begin
     end;
 }

@@ -1,6 +1,10 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.History;
 
-using Microsoft.Manufacturing.StandardCost;
+using Microsoft.Assembly.Costing;
 
 page 923 "Posted Asm. Order Statistics"
 {
@@ -232,10 +236,10 @@ page 923 "Posted Asm. Order Statistics"
 
     trigger OnAfterGetRecord()
     var
-        CalcStdCost: Codeunit "Calculate Standard Cost";
+        CalculateAssemblyCost: Codeunit "Calculate Assembly Cost";
     begin
         Clear(Value);
-        CalcStdCost.CalcPostedAsmOrderStatistics(Rec, Value);
+        CalculateAssemblyCost.CalcPostedAsmOrderStatistics(Rec, Value);
     end;
 
     var

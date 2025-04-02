@@ -6,7 +6,7 @@ namespace Microsoft.Integration.Shopify;
 codeunit 30381 "Shpfy GQL InventoryActivate" implements "Shpfy IGraphQL"
 {
     Access = Internal;
-    
+
     /// <summary>
     /// GetGraphQL.
     /// </summary>
@@ -26,4 +26,3 @@ codeunit 30381 "Shpfy GQL InventoryActivate" implements "Shpfy IGraphQL"
     end;
 
 }
-

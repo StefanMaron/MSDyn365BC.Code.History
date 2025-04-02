@@ -51,26 +51,10 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     var
-#pragma warning disable AA0074
-        Text000: Label 'Please enter a Document No.';
-#pragma warning disable AA0470
-        Text001: Label '%1 %2 cannot be copied onto itself.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-        DeleteLinesQst: Label 'The existing lines for %1 %2 will be deleted.\\Do you want to continue?', Comment = '%1=Document type, e.g. Invoice. %2=Document No., e.g. 001';
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text006: Label 'NOTE: A Payment Discount was Granted by %1 %2.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
         Currency: Record Currency;
-        Item: Record Item;
-        AsmHeader: Record "Assembly Header";
-        PostedAsmHeader: Record "Posted Assembly Header";
         TempAsmHeader: Record "Assembly Header" temporary;
         TempAsmLine: Record "Assembly Line" temporary;
         TempSalesInvLine: Record "Sales Invoice Line" temporary;
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
         GLSetup: Record "General Ledger Setup";
         TranslationHelper: Codeunit "Translation Helper";
         CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
@@ -159,6 +143,18 @@ codeunit 6620 "Copy Document Mgt."
         DirectPostingErr: Label 'G/L account %1 does not allow direct posting.', Comment = '%1 - g/l account no.';
         SalesErrorContextMsg: Label 'Copying sales document %1', Comment = '%1 - document no.';
         PurchErrorContextMsg: Label 'Copying purchase document %1', Comment = '%1 - document no.';
+#pragma warning disable AA0074
+        Text000: Label 'Please enter a Document No.';
+#pragma warning disable AA0470
+        Text001: Label '%1 %2 cannot be copied onto itself.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+        DeleteLinesQst: Label 'The existing lines for %1 %2 will be deleted.\\Do you want to continue?', Comment = '%1=Document type, e.g. Invoice. %2=Document No., e.g. 001';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        Text006: Label 'NOTE: A Payment Discount was Granted by %1 %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetProperties(NewIncludeHeader: Boolean; NewRecalculateLines: Boolean; NewMoveNegLines: Boolean; NewCreateToHeader: Boolean; NewHideDialog: Boolean; NewExactCostRevMandatory: Boolean; NewApplyFully: Boolean)
     begin
@@ -444,6 +440,7 @@ codeunit 6620 "Copy Document Mgt."
 
     procedure CopySalesDocSalesLine(FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
     var
+        AssemblyHeader: Record "Assembly Header";
         ToSalesLine: Record "Sales Line";
         FromSalesLine: Record "Sales Line";
         ItemChargeAssgntNextLineNo: Integer;
@@ -460,12 +457,12 @@ codeunit 6620 "Copy Document Mgt."
         OnCopySalesDocSalesLineOnAfterSetFilters(FromSalesHeader, FromSalesLine, ToSalesHeader, RecalculateLines);
         if FromSalesLine.Find('-') then
             repeat
-                ShouldRunIteration := not ExtTxtAttachedToPosSalesLine(FromSalesHeader, MoveNegLines, FromSalesLine);
+                ShouldRunIteration := not ExtTxtAttachedToPosSalesLine(FromSalesHeader, FromSalesLine);
                 OnCopySalesDocSalesLineOnAfterCalcShouldRunIteration(FromSalesHeader, ToSalesHeader, FromSalesLine, ShouldRunIteration);
                 if ShouldRunIteration then begin
                     InitAsmCopyHandling(true);
                     ToSalesLine."Document Type" := ToSalesHeader."Document Type";
-                    AsmHdrExistsForFromDocLine := FromSalesLine.AsmToOrderExists(AsmHeader);
+                    AsmHdrExistsForFromDocLine := FromSalesLine.AsmToOrderExists(AssemblyHeader);
                     if AsmHdrExistsForFromDocLine then begin
                         case ToSalesLine."Document Type" of
                             ToSalesLine."Document Type"::Order:
@@ -480,7 +477,7 @@ codeunit 6620 "Copy Document Mgt."
                                     QtyToAsmToOrderBase := FromSalesLine."Quantity (Base)";
                                 end;
                         end;
-                        GenerateAsmDataFromNonPosted(AsmHeader);
+                        GenerateAsmDataFromNonPosted(AssemblyHeader);
                     end;
                     if CopySalesDocLine(
                          ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine,
@@ -1072,7 +1069,7 @@ codeunit 6620 "Copy Document Mgt."
         OnCopyPurchDocPurchLineOnAfterSetFilters(FromPurchHeader, FromPurchLine, ToPurchHeader, RecalculateLines);
         if FromPurchLine.Find('-') then
             repeat
-                if not ExtTxtAttachedToPosPurchLine(FromPurchHeader, MoveNegLines, FromPurchLine) then
+                if not ExtTxtAttachedToPosPurchLine(FromPurchHeader, FromPurchLine) then
                     if CopyPurchDocLine(
                          ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, NextLineNo, LinesNotCopied, false,
                          ConvertToPurchaseDocumentTypeFrom(FromPurchHeader."Document Type"),
@@ -1297,8 +1294,18 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     local procedure CopyPurchHeaderFromPostedInvoice(FromPurchInvHeader: Record "Purch. Inv. Header"; var ToPurchHeader: Record "Purchase Header"; var OldPurchHeader: Record "Purchase Header")
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
+        PurchasesPayablesSetup.Get();
+
         ToPurchHeader.Validate("Buy-from Vendor No.", FromPurchInvHeader."Buy-from Vendor No.");
+
+        if PurchasesPayablesSetup."Check Doc. Total Amounts" then begin
+            FromPurchInvHeader.CalcFields("Amount Including VAT", Amount);
+            ToPurchHeader.Validate("Doc. Amount Incl. VAT", FromPurchInvHeader."Amount Including VAT");
+            ToPurchHeader.Validate("Doc. Amount VAT", FromPurchInvHeader."Amount Including VAT" - FromPurchInvHeader.Amount);
+        end;
         OnCopyPurchHeaderFromPostedInvoiceOnBeforeTransferFields(ToPurchHeader, OldPurchHeader, FromPurchInvHeader);
         ToPurchHeader.TransferFields(FromPurchInvHeader, false);
         OnAfterCopyPostedPurchInvoice(ToPurchHeader, OldPurchHeader, FromPurchInvHeader);
@@ -1697,7 +1704,7 @@ codeunit 6620 "Copy Document Mgt."
            not MoveNegLines
         then begin
             if RecalculateAmount then
-                RecalculateSalesLineAmounts(FromSalesLine, ToSalesLine, Currency);
+                RecalculateSalesLineAmounts(FromSalesLine, ToSalesLine);
             ToSalesLine.Validate("Appl.-from Item Entry", FromSalesLine."Appl.-from Item Entry");
             if not CreateToHeader then
                 if ToSalesLine."Shipment Date" = 0D then
@@ -1705,7 +1712,7 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
-    local procedure RecalculateSalesLineAmounts(FromSalesLine: Record "Sales Line"; var ToSalesLine: Record "Sales Line"; Currency: Record Currency)
+    local procedure RecalculateSalesLineAmounts(FromSalesLine: Record "Sales Line"; var ToSalesLine: Record "Sales Line")
     var
         IsHandled: Boolean;
     begin
@@ -1764,8 +1771,9 @@ codeunit 6620 "Copy Document Mgt."
         SalesHeader."Last Return Receipt No." := '';
     end;
 
-    local procedure UpdateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromSalesDocType: Enum "Sales Document Type From"; var CopyPostedDeferral: Boolean)
+    local procedure UpdateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromSalesDocType: Enum "Sales Document Type From"; var DoCopyPostedDeferral: Boolean)
     var
+        SalesItem: Record Item;
         VATPostingSetup: Record "VAT Posting Setup";
         FromSalesCommentDocTypeInt: Integer;
         ShouldGetUnitCost: Boolean;
@@ -1774,10 +1782,10 @@ codeunit 6620 "Copy Document Mgt."
     begin
         OnBeforeUpdateSalesLine(
           ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine,
-          CopyThisLine, RecalculateAmount, FromSalesDocType.AsInteger(), CopyPostedDeferral);
+          CopyThisLine, RecalculateAmount, FromSalesDocType.AsInteger(), DoCopyPostedDeferral);
 
         FromSalesCommentDocTypeInt := DeferralTypeForSalesDoc(FromSalesDocType.AsInteger());
-        CopyPostedDeferral := false;
+        DoCopyPostedDeferral := false;
         ShouldRecalculateSalesLine := RecalculateLines and not FromSalesLine."System-Created Entry";
         OnUpdateSalesLineOnBeforeValidateToSalesLine(ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine, ShouldRecalculateSalesLine);
         if ShouldRecalculateSalesLine then begin
@@ -1794,7 +1802,7 @@ codeunit 6620 "Copy Document Mgt."
                 "Deferral Document Type"::Sales, ToSalesLine."Document Type".AsInteger(), FromSalesCommentDocTypeInt)
             then
                 if IsDeferralPosted("Deferral Document Type"::Sales, FromSalesCommentDocTypeInt) then
-                    CopyPostedDeferral := true
+                    DoCopyPostedDeferral := true
                 else
                     ToSalesLine."Returns Deferral Start Date" :=
                       CopyDeferrals("Deferral Document Type"::Sales, FromSalesLine."Document Type".AsInteger(), FromSalesLine."Document No.",
@@ -1827,16 +1835,16 @@ codeunit 6620 "Copy Document Mgt."
 
             ToSalesLine.UpdateWithWarehouseShip();
             if (ToSalesLine.Type = ToSalesLine.Type::Item) and (ToSalesLine."No." <> '') then begin
-                GetItem(ToSalesLine."No.");
-                ShouldGetUnitCost := (Item."Costing Method" = Item."Costing Method"::Standard) and not ToSalesLine.IsShipment() and not IsCreatedFromJob(FromSalesLine);
-                OnUpdateSalesLineOnAfterCalcShouldGetUnitCost(Item, ShouldGetUnitCost);
+                SalesItem.Get(ToSalesLine."No.");
+                ShouldGetUnitCost := (SalesItem."Costing Method" = SalesItem."Costing Method"::Standard) and not ToSalesLine.IsShipment() and not IsCreatedFromJob(FromSalesLine);
+                OnUpdateSalesLineOnAfterCalcShouldGetUnitCost(SalesItem, ShouldGetUnitCost);
                 if ShouldGetUnitCost then
                     ToSalesLine.GetUnitCost();
 
-                if Item.Reserve = Item.Reserve::Optional then
+                if SalesItem.Reserve = SalesItem.Reserve::Optional then
                     ToSalesLine.Reserve := ToSalesHeader.Reserve
                 else
-                    ToSalesLine.Reserve := Item.Reserve;
+                    ToSalesLine.Reserve := SalesItem.Reserve;
                 OnUpdateSalesLineOnAfterSetReserve(ToSalesLine, FromSalesLine, FromSalesDocType);
                 if ToSalesLine.Reserve = ToSalesLine.Reserve::Always then
                     InitShipmentDateInLine(ToSalesHeader, ToSalesLine);
@@ -1846,7 +1854,7 @@ codeunit 6620 "Copy Document Mgt."
 
         OnAfterUpdateSalesLine(
           ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine,
-          CopyThisLine, RecalculateAmount, FromSalesDocType.AsInteger(), CopyPostedDeferral,
+          CopyThisLine, RecalculateAmount, FromSalesDocType.AsInteger(), DoCopyPostedDeferral,
           ExactCostRevMandatory, MoveNegLines, RecalculateLines);
     end;
 
@@ -1926,7 +1934,7 @@ codeunit 6620 "Copy Document Mgt."
 
     procedure HandleAsmAttachedToSalesLine(var ToSalesLine: Record "Sales Line")
     var
-        Item: Record Item;
+        AssemblyItem: Record Item;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1945,9 +1953,9 @@ codeunit 6620 "Copy Document Mgt."
             CopyAsmOrderToAsmOrder(
                 TempAsmHeader, TempAsmLine, ToSalesLine, GetAsmOrderType(ToSalesLine."Document Type"), '', true);
         end else begin
-            Item.Get(ToSalesLine."No.");
-            if (Item."Assembly Policy" = Item."Assembly Policy"::"Assemble-to-Order") and
-               (Item."Replenishment System" = Item."Replenishment System"::Assembly) and
+            AssemblyItem.Get(ToSalesLine."No.");
+            if (AssemblyItem."Assembly Policy" = AssemblyItem."Assembly Policy"::"Assemble-to-Order") and
+               (AssemblyItem."Replenishment System" = AssemblyItem."Replenishment System"::Assembly) and
                ToSalesLine.IsAsmToOrderAllowed()
             then begin
                 ToSalesLine.Validate("Qty. to Assemble to Order", ToSalesLine.Quantity);
@@ -2163,17 +2171,17 @@ codeunit 6620 "Copy Document Mgt."
         PurchaseHeader."Last Return Shipment No." := '';
     end;
 
-    local procedure UpdatePurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; var CopyPostedDeferral: Boolean)
+    local procedure UpdatePurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; var DoCopyPostedDeferral: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         FromPurchCommentDocTypeInt: Integer;
     begin
         OnBeforeUpdatePurchLine(
           ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine,
-          CopyThisLine, RecalculateAmount, FromPurchDocType.AsInteger(), CopyPostedDeferral);
+          CopyThisLine, RecalculateAmount, FromPurchDocType.AsInteger(), DoCopyPostedDeferral);
 
         FromPurchCommentDocTypeInt := DeferralTypeForPurchDoc(FromPurchDocType.AsInteger());
-        CopyPostedDeferral := false;
+        DoCopyPostedDeferral := false;
         if RecalculateLines and not FromPurchLine."System-Created Entry" then begin
             RecalculatePurchLine(ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, CopyThisLine);
             if IsDeferralToBeCopied("Deferral Document Type"::Purchase, ToPurchLine."Document Type".AsInteger(), FromPurchCommentDocTypeInt) then
@@ -2182,7 +2190,7 @@ codeunit 6620 "Copy Document Mgt."
             SetDefaultValuesToPurchLine(ToPurchLine, ToPurchHeader, FromPurchLine."VAT Difference");
             if IsDeferralToBeCopied("Deferral Document Type"::Purchase, ToPurchLine."Document Type".AsInteger(), FromPurchCommentDocTypeInt) then
                 if IsDeferralPosted("Deferral Document Type"::Purchase, FromPurchCommentDocTypeInt) then
-                    CopyPostedDeferral := true
+                    DoCopyPostedDeferral := true
                 else
                     ToPurchLine."Returns Deferral Start Date" :=
                       CopyDeferrals("Deferral Document Type"::Purchase, FromPurchLine."Document Type".AsInteger(), FromPurchLine."Document No.",
@@ -2211,7 +2219,7 @@ codeunit 6620 "Copy Document Mgt."
 
         OnAfterUpdatePurchLine(
           ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine,
-          CopyThisLine, RecalculateAmount, FromPurchDocType.AsInteger(), CopyPostedDeferral, RecalculateLines);
+          CopyThisLine, RecalculateAmount, FromPurchDocType.AsInteger(), DoCopyPostedDeferral, RecalculateLines);
     end;
 
     local procedure RecalculatePurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var CopyThisLine: Boolean)
@@ -2395,8 +2403,8 @@ codeunit 6620 "Copy Document Mgt."
         ToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
         ValueEntry: Record "Value Entry";
         ItemLedgerEntry: Record "Item Ledger Entry";
-        Item: Record Item;
-        Currency: Record Currency;
+        PurchaseItem: Record Item;
+        PurchaseCurrency: Record Currency;
         ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
         CurrencyFactor: Decimal;
         QtyToAssign: Decimal;
@@ -2421,12 +2429,12 @@ codeunit 6620 "Copy Document Mgt."
             repeat
                 if ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.") then
                     if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Purchase Receipt" then begin
-                        Item.Get(ItemLedgerEntry."Item No.");
+                        PurchaseItem.Get(ItemLedgerEntry."Item No.");
                         CurrencyFactor := FromPurchHeader."Currency Factor";
 
-                        if not Currency.Get(FromPurchHeader."Currency Code") then begin
+                        if not PurchaseCurrency.Get(FromPurchHeader."Currency Code") then begin
                             CurrencyFactor := 1;
-                            Currency.InitRoundingPrecision();
+                            PurchaseCurrency.InitRoundingPrecision();
                         end;
 
                         if ToPurchLine."Unit Cost" = 0 then
@@ -2438,7 +2446,7 @@ codeunit 6620 "Copy Document Mgt."
 
                         ItemChargeAssgntPurch.InsertItemChargeAssignmentWithValuesTo(
                             ToItemChargeAssignmentPurch, ToItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt,
-                            ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.", ItemLedgerEntry."Item No.", Item.Description,
+                            ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.", ItemLedgerEntry."Item No.", PurchaseItem.Description,
                             QtyToAssign, 0, ItemChargeAssgntNextLineNo, TempToItemChargeAssignmentPurch);
                     end;
                 OnCopyFromPurchLineItemChargeAssignOnAfterValueEntryLoop(
@@ -2469,11 +2477,11 @@ codeunit 6620 "Copy Document Mgt."
     local procedure CopyFromSalesLineItemChargeAssign(FromSalesLine: Record "Sales Line"; ToSalesLine: Record "Sales Line"; FromSalesHeader: Record "Sales Header"; var ItemChargeAssgntNextLineNo: Integer)
     var
         ValueEntry: Record "Value Entry";
-        Currency: Record Currency;
+        SalesCurrency: Record Currency;
         TempToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary;
         ToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
         ItemLedgerEntry: Record "Item Ledger Entry";
-        Item: Record Item;
+        SalesItem: Record Item;
         ItemChargeAssgntSales: Codeunit "Item Charge Assgnt. (Sales)";
         CurrencyFactor: Decimal;
         QtyToAssign: Decimal;
@@ -2504,12 +2512,12 @@ codeunit 6620 "Copy Document Mgt."
             repeat
                 if ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.") then
                     if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Sales Shipment" then begin
-                        Item.Get(ItemLedgerEntry."Item No.");
+                        SalesItem.Get(ItemLedgerEntry."Item No.");
                         CurrencyFactor := FromSalesHeader."Currency Factor";
 
-                        if not Currency.Get(FromSalesHeader."Currency Code") then begin
+                        if not SalesCurrency.Get(FromSalesHeader."Currency Code") then begin
                             CurrencyFactor := 1;
-                            Currency.InitRoundingPrecision();
+                            SalesCurrency.InitRoundingPrecision();
                         end;
 
                         QtyToAssign :=
@@ -2518,7 +2526,7 @@ codeunit 6620 "Copy Document Mgt."
 
                         ItemChargeAssgntSales.InsertItemChargeAssignmentWithValuesTo(
                           ToItemChargeAssignmentSales, ToItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
-                          ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.", ItemLedgerEntry."Item No.", Item.Description,
+                          ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.", ItemLedgerEntry."Item No.", SalesItem.Description,
                           QtyToAssign, 0, ItemChargeAssgntNextLineNo, TempToItemChargeAssignmentSales);
                     end;
                 OnCopyFromSalesLineItemChargeAssignOnAfterValueEntryLoop(
@@ -2876,36 +2884,36 @@ codeunit 6620 "Copy Document Mgt."
     local procedure CheckATOItemAvailable(var FromSalesLine: Record "Sales Line"; ToSalesLine: Record "Sales Line")
     var
         ATOLink: Record "Assemble-to-Order Link";
-        AsmHeader: Record "Assembly Header";
-        TempAsmHeader: Record "Assembly Header" temporary;
-        TempAsmLine: Record "Assembly Line" temporary;
+        AssemblyHeader: Record "Assembly Header";
+        TempAssemblyHeader: Record "Assembly Header" temporary;
+        TempAssemblyLine: Record "Assembly Line" temporary;
     begin
         if HideDialog then
             exit;
 
         if ATOLink.ATOCopyCheckAvailShowWarning(
-             AsmHeader, ToSalesLine, TempAsmHeader, TempAsmLine,
-             not FromSalesLine.AsmToOrderExists(AsmHeader))
+             AssemblyHeader, ToSalesLine, TempAssemblyHeader, TempAssemblyLine,
+             not FromSalesLine.AsmToOrderExists(AssemblyHeader))
         then
-            if ItemCheckAvail.ShowAsmWarningYesNo(TempAsmHeader, TempAsmLine) then
+            if ItemCheckAvail.ShowAsmWarningYesNo(TempAssemblyHeader, TempAssemblyLine) then
                 ItemCheckAvail.RaiseUpdateInterruptedError();
     end;
 
     local procedure CheckPostedATOItemAvailable(var FromSalesShptLine: Record "Sales Shipment Line"; ToSalesLine: Record "Sales Line")
     var
         ATOLink: Record "Assemble-to-Order Link";
-        PostedAsmHeader: Record "Posted Assembly Header";
-        TempAsmHeader: Record "Assembly Header" temporary;
-        TempAsmLine: Record "Assembly Line" temporary;
+        PostedAssemblyHeader: Record "Posted Assembly Header";
+        TempAssemblyHeader: Record "Assembly Header" temporary;
+        TempAssemblyLine: Record "Assembly Line" temporary;
     begin
         if HideDialog then
             exit;
 
         if ATOLink.PstdATOCopyCheckAvailShowWarn(
-             PostedAsmHeader, ToSalesLine, TempAsmHeader, TempAsmLine,
-             not FromSalesShptLine.AsmToShipmentExists(PostedAsmHeader))
+             PostedAssemblyHeader, ToSalesLine, TempAssemblyHeader, TempAssemblyLine,
+             not FromSalesShptLine.AsmToShipmentExists(PostedAssemblyHeader))
         then
-            if ItemCheckAvail.ShowAsmWarningYesNo(TempAsmHeader, TempAsmLine) then
+            if ItemCheckAvail.ShowAsmWarningYesNo(TempAssemblyHeader, TempAssemblyLine) then
                 ItemCheckAvail.RaiseUpdateInterruptedError();
     end;
 
@@ -2913,7 +2921,7 @@ codeunit 6620 "Copy Document Mgt."
     [Obsolete('Replaced by same procedure in codeunit CopyServiceContractMgt.', '24.0')]
     procedure CopyServContractLines(ToServContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; FromDocType: Option; FromDocNo: Code[20]; var FromServContractLine: Record Microsoft.Service.Contract."Service Contract Line") AllLinesCopied: Boolean
     var
-        CopyServiceContractMgt: Codeunit "Copy Service Contract Mgt.";
+        CopyServiceContractMgt: Codeunit Microsoft.Service.Contract."Copy Service Contract Mgt.";
     begin
         exit(CopyServiceContractMgt.CopyServiceContractLines(ToServContractHeader, Microsoft.Service.Contract."Service Contract Type From".FromInteger(FromDocType), FromDocNo, FromServContractLine));
     end;
@@ -2946,6 +2954,7 @@ codeunit 6620 "Copy Document Mgt."
         FromSalesShptHeader: Record "Sales Shipment Header";
         TempItemTrkgEntry: Record "Reservation Entry" temporary;
         TempDocSalesLine: Record "Sales Line" temporary;
+        PostedAssemblyHeader: Record "Posted Assembly Header";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         OldDocNo: Code[20];
         NextLineNo: Integer;
@@ -3021,12 +3030,12 @@ codeunit 6620 "Copy Document Mgt."
                 if CopyLine then begin
                     NextLineNo := GetLastToSalesLineNo(ToSalesHeader);
                     OnCopySalesShptLinesToDocOnAfterCalcNextLineNo(ToSalesHeader, FromSalesShptLine, FromSalesHeader, NextLineNo, InsertDocNoLine, FromLineCounter, TempFromSalesLineBuf);
-                    AsmHdrExistsForFromDocLine := FromSalesShptLine.AsmToShipmentExists(PostedAsmHeader);
+                    AsmHdrExistsForFromDocLine := FromSalesShptLine.AsmToShipmentExists(PostedAssemblyHeader);
                     InitAsmCopyHandling(true);
                     if AsmHdrExistsForFromDocLine then begin
                         QtyToAsmToOrder := FromSalesShptLine.Quantity;
                         QtyToAsmToOrderBase := FromSalesShptLine."Quantity (Base)";
-                        GenerateAsmDataFromPosted(PostedAsmHeader, ToSalesHeader."Document Type");
+                        GenerateAsmDataFromPosted(PostedAssemblyHeader, ToSalesHeader."Document Type");
                     end;
                     if InsertDocNoLine then begin
                         InsertOldSalesDocNoLine(ToSalesHeader, FromSalesShptLine."Document No.", 1, NextLineNo);
@@ -3214,6 +3223,8 @@ codeunit 6620 "Copy Document Mgt."
             OnCopySalesInvLinesToDocOnBeforeGetNextLineNo(ToSalesHeader, TempSalesLineBuf, ShouldGetNextLineNo, NextLineNo);
             if ShouldGetNextLineNo then
                 NextLineNo := GetLastToSalesLineNo(ToSalesHeader);
+            Clear(OldInvDocNo);
+            Clear(OldBufDocNo);
             repeat
                 ToLineCounter := ToLineCounter + 1;
                 if IsTimeForUpdate() then
@@ -3396,6 +3407,8 @@ codeunit 6620 "Copy Document Mgt."
             OnCopySalesCrMemoLinesToDocOnBeforeGetNextLineNo(ToSalesHeader, TempFromSalesLineBuf, ShouldGetNextLineNo, NextLineNo);
             if ShouldGetNextLineNo then
                 NextLineNo := GetLastToSalesLineNo(ToSalesHeader);
+            Clear(OldCrMemoDocNo);
+            Clear(OldBufDocNo);
             repeat
                 ToLineCounter := ToLineCounter + 1;
                 if IsTimeForUpdate() then
@@ -4117,6 +4130,7 @@ codeunit 6620 "Copy Document Mgt."
         TempFromPurchLineBuf.SetCurrentKey("Line No.");
         if TempFromPurchLineBuf.FindSet() then begin
             NextLineNo := GetLastToPurchLineNo(ToPurchHeader);
+            Clear(OldBufDocNo);
             repeat
                 ToLineCounter := ToLineCounter + 1;
                 if IsTimeForUpdate() then
@@ -4296,6 +4310,8 @@ codeunit 6620 "Copy Document Mgt."
         TempFromPurchLineBuf.SetCurrentKey("Document Type", "Document No.", "Line No.");
         if TempFromPurchLineBuf.FindSet() then begin
             NextLineNo := GetLastToPurchLineNo(ToPurchHeader);
+            Clear(OldBufDocNo);
+            Clear(OldCrMemoDocNo);
             repeat
                 ToLineCounter := ToLineCounter + 1;
                 if IsTimeForUpdate() then
@@ -4565,7 +4581,7 @@ codeunit 6620 "Copy Document Mgt."
 
     local procedure SplitPstdPurchLinesPerILE(ToPurchHeader: Record "Purchase Header"; FromPurchHeader: Record "Purchase Header"; var ItemLedgEntry: Record "Item Ledger Entry"; var FromPurchLineBuf: Record "Purchase Line"; FromPurchLine: Record "Purchase Line"; var TempDocPurchaseLine: Record "Purchase Line" temporary; var NextLineNo: Integer; var CopyItemTrkg: Boolean; var MissingExCostRevLink: Boolean; FillExactCostRevLink: Boolean; FromShptOrRcpt: Boolean) Result: Boolean
     var
-        Item: Record Item;
+        PurchaseItem: Record Item;
         ApplyRec: Record "Item Application Entry";
         OrgQtyBase: Decimal;
         OneRecord: Boolean;
@@ -4583,8 +4599,8 @@ codeunit 6620 "Copy Document Mgt."
         then
             exit(false);
 
-        Item.Get(FromPurchLine."No.");
-        if Item.IsNonInventoriableType() then
+        PurchaseItem.Get(FromPurchLine."No.");
+        if PurchaseItem.IsNonInventoriableType() then
             exit(false);
 
         if IsCopyItemTrkg(ItemLedgEntry, CopyItemTrkg, FillExactCostRevLink) or
@@ -4828,14 +4844,6 @@ codeunit 6620 "Copy Document Mgt."
         exit(TempItemTrkgEntry."Quantity (Base)");
     end;
 
-#if not CLEAN23
-    [Scope('OnPrem')]
-    [Obsolete('Use the new implementation of IsEntityBlocked, which adds support for Item Variants', '23.0')]
-    procedure IsEntityBlocked(TableNo: Integer; CreditDocType: Boolean; Type: Option; EntityNo: Code[20]) EntityIsBlocked: Boolean
-    begin
-        exit(IsEntityBlocked(TableNo, CreditDocType, Type, EntityNo, ''));
-    end;
-#endif
     [Scope('OnPrem')]
     procedure IsEntityBlocked(TableNo: Integer; CreditDocType: Boolean; Type: Option; EntityNo: Code[20]; EntityCode: Code[10]) EntityIsBlocked: Boolean
     var
@@ -5274,13 +5282,6 @@ codeunit 6620 "Copy Document Mgt."
             ItemLedgEntry."Document Type"::"Purchase Return Shipment":
                 exit("Purchase Document Type"::"Return Order");
         end;
-    end;
-
-    local procedure GetItem(ItemNo: Code[20])
-    begin
-        if ItemNo <> Item."No." then
-            if not Item.Get(ItemNo) then
-                Item.Init();
     end;
 
     local procedure CalcVAT(var Value: Decimal; VATPercentage: Decimal; FromPricesInclVAT: Boolean; ToPricesInclVAT: Boolean; RndgPrecision: Decimal)
@@ -5790,16 +5791,16 @@ codeunit 6620 "Copy Document Mgt."
             until AsmLine.Next() = 0;
     end;
 
-    local procedure GenerateAsmDataFromPosted(PostedAsmHeader: Record "Posted Assembly Header"; DocType: Enum "Assembly Document Type")
+    local procedure GenerateAsmDataFromPosted(PostedAssemblyHeader: Record "Posted Assembly Header"; DocType: Enum "Assembly Document Type")
     var
         PostedAsmLine: Record "Posted Assembly Line";
     begin
         InitAsmCopyHandling(false);
-        TempAsmHeader.TransferFields(PostedAsmHeader);
-        OnAfterTransferTempAsmHeader(TempAsmHeader, PostedAsmHeader);
+        TempAsmHeader.TransferFields(PostedAssemblyHeader);
+        OnAfterTransferTempAsmHeader(TempAsmHeader, PostedAssemblyHeader);
         TempAsmHeader."Document Type" := DocType;
         TempAsmHeader.Insert();
-        PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
+        PostedAsmLine.SetRange("Document No.", PostedAssemblyHeader."No.");
         if PostedAsmLine.FindSet() then
             repeat
                 TempAsmLine.TransferFields(PostedAsmLine);
@@ -5816,8 +5817,8 @@ codeunit 6620 "Copy Document Mgt."
         ItemLedgerEntry: Record "Item Ledger Entry";
         ItemLedgerEntry2: Record "Item Ledger Entry";
         SalesShipmentLine: Record "Sales Shipment Line";
+        PostedAssemblyHeader: Record "Posted Assembly Header";
     begin
-        Clear(PostedAsmHeader);
         if TempSalesInvLine.Type <> TempSalesInvLine.Type::Item then
             exit(false);
         ValueEntry.SetCurrentKey("Document No.");
@@ -5831,7 +5832,7 @@ codeunit 6620 "Copy Document Mgt."
         if ItemLedgerEntry."Document Type" <> ItemLedgerEntry."Document Type"::"Sales Shipment" then
             exit(false);
         SalesShipmentLine.Get(ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.");
-        if not SalesShipmentLine.AsmToShipmentExists(PostedAsmHeader) then
+        if not SalesShipmentLine.AsmToShipmentExists(PostedAssemblyHeader) then
             exit(false);
         if ValueEntry.Count > 1 then begin
             ValueEntry2.Copy(ValueEntry);
@@ -5846,7 +5847,7 @@ codeunit 6620 "Copy Document Mgt."
                         Error(Text032, TempSalesInvLine."Document No.");
                 until ValueEntry2.Next() = 0;
         end;
-        GenerateAsmDataFromPosted(PostedAsmHeader, DocType);
+        GenerateAsmDataFromPosted(PostedAssemblyHeader, DocType);
         exit(true);
     end;
 
@@ -5933,7 +5934,6 @@ codeunit 6620 "Copy Document Mgt."
     local procedure CreateToAsmLines(ToAsmHeader: Record "Assembly Header"; var FromAsmLine: Record "Assembly Line"; var ToAssemblyLine: Record "Assembly Line"; ToSalesLine: Record "Sales Line"; BasicAsmOrderCopy: Boolean; AvailabilityCheck: Boolean)
     var
         AssemblyLineMgt: Codeunit "Assembly Line Management";
-        UOMMgt: Codeunit "Unit of Measure Management";
     begin
         if FromAsmLine.FindSet() then
             repeat
@@ -6004,7 +6004,6 @@ codeunit 6620 "Copy Document Mgt."
         TempToAsmLine: Record "Assembly Line" temporary;
         AsmLineOnDestinationOrder: Record "Assembly Line";
         AssemblyLineMgt: Codeunit "Assembly Line Management";
-        ItemCheckAvail: Codeunit "Item-Check Avail.";
         LineNo: Integer;
     begin
         TempToAsmHeader := ToAsmHeader;
@@ -6111,6 +6110,7 @@ codeunit 6620 "Copy Document Mgt."
 
     procedure CopyArchSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeaderArchive: Record "Sales Header Archive"; var FromSalesLineArchive: Record "Sales Line Archive"; var NextLineNo: Integer; var LinesNotCopied: Integer; RecalculateAmount: Boolean): Boolean
     var
+        SalesItem: Record Item;
         LastInsertedSalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
         FromSalesHeader: Record "Sales Header";
@@ -6180,8 +6180,8 @@ codeunit 6620 "Copy Document Mgt."
 
             ToSalesLine.UpdateWithWarehouseShip();
             if (ToSalesLine.Type = ToSalesLine.Type::Item) and (ToSalesLine."No." <> '') then begin
-                GetItem(ToSalesLine."No.");
-                if (Item."Costing Method" = Item."Costing Method"::Standard) and not ToSalesLine.IsShipment() then
+                SalesItem.Get(ToSalesLine."No.");
+                if (SalesItem."Costing Method" = SalesItem."Costing Method"::Standard) and not ToSalesLine.IsShipment() then
                     ToSalesLine.GetUnitCost();
             end;
         end;
@@ -6404,17 +6404,17 @@ codeunit 6620 "Copy Document Mgt."
             CustCheckCreditLimit.SalesHeaderCheck(ToSalesHeader);
     end;
 
-    local procedure CheckUnappliedLines(SkippedLine: Boolean; var MissingExCostRevLink: Boolean)
+    local procedure CheckUnappliedLines(IsSkippedLine: Boolean; var MissingExCostRevLink: Boolean)
     var
         IsHandled: Boolean;
 
     begin
         IsHandled := false;
-        OnBeforeCheckUnappliedLines(SkippedLine, MissingExCostRevLink, WarningDone, IsHandled);
+        OnBeforeCheckUnappliedLines(IsSkippedLine, MissingExCostRevLink, WarningDone, IsHandled);
         if IsHandled then
             exit;
 
-        if SkippedLine and MissingExCostRevLink then begin
+        if IsSkippedLine and MissingExCostRevLink then begin
             if not WarningDone then
                 Message(Text030);
             MissingExCostRevLink := false;
@@ -7360,7 +7360,7 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
-    local procedure ExtTxtAttachedToPosSalesLine(SalesHeader: Record "Sales Header"; MoveNegLines: Boolean; SalesLine: Record "Sales Line"): Boolean
+    local procedure ExtTxtAttachedToPosSalesLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"): Boolean
     var
         AttachedToSalesLine: Record "Sales Line";
     begin
@@ -7373,7 +7373,7 @@ codeunit 6620 "Copy Document Mgt."
         exit(false);
     end;
 
-    local procedure ExtTxtAttachedToPosPurchLine(PurchHeader: Record "Purchase Header"; MoveNegLines: Boolean; PurchLine: Record "Purchase Line"): Boolean
+    local procedure ExtTxtAttachedToPosPurchLine(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"): Boolean
     var
         AttachedToPurchLine: Record "Purchase Line";
     begin
@@ -7826,7 +7826,9 @@ codeunit 6620 "Copy Document Mgt."
 
         ToSalesLine."Job No." := FromSalesLine."Job No.";
         ToSalesLine."Job Task No." := FromSalesLine."Job Task No.";
-        if ToSalesHeader."Document Type" = ToSalesHeader."Document Type"::Invoice then
+        if (ToSalesHeader."Document Type" = ToSalesHeader."Document Type"::Invoice) and
+           (FromSalesLine."Job Contract Entry No." <> 0)
+        then
             ToSalesLine."Job Contract Entry No." :=
               CreateJobPlanningLine(ToSalesHeader, ToSalesLine, FromSalesLine."Job Contract Entry No.")
         else
@@ -7996,6 +7998,8 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     local procedure SetSalespersonPurchaserCode(var SalespersonPurchaserCode: Code[20])
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
         if SalespersonPurchaserCode <> '' then
             if SalespersonPurchaser.Get(SalespersonPurchaserCode) then
@@ -8053,6 +8057,25 @@ codeunit 6620 "Copy Document Mgt."
         CopyExtText := CopyExtendedText;
     end;
 
+    /// <summary>
+    /// Event triggered before starting the sales document copy process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// before the document copy operation begins. This can be useful for implementing validations,
+    /// pre-processing logic, or altering the behavior of the copy operation.
+    /// </summary>
+    /// <param name="FromDocumentType">
+    /// The type of the sales document being copied, represented as an integer.
+    /// </param>
+    /// <param name="FromDocumentNo">
+    /// The document number of the sales document being copied.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the data is being copied.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default copy behavior should be bypassed.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCopySalesDocument(FromDocumentType: Option; FromDocumentNo: Code[20]; var ToSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
@@ -8063,21 +8086,68 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before assigning descriptions from a sales line to a purchase line.
+    /// This allows developers to modify or override the default behavior of the description assignment.
+    /// </summary>
+    /// <param name="PurchaseLine">
+    /// The purchase line record to which descriptions are being assigned.
+    /// </param>
+    /// <param name="SalesLine">
+    /// The sales line record from which descriptions are being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAssignDescriptionsFromSalesLine(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before copying a sales line.
+    /// This allows developers to modify or override the behavior of copying sales lines.
+    /// </summary>
+    /// <param name="ToSalesHeader">The target sales header to which the sales line will be copied.</param>
+    /// <param name="FromSalesHeader">The source sales header from which the sales line will be copied.</param>
+    /// <param name="FromSalesLine">The source sales line to be copied.</param>
+    /// <param name="RecalculateAmount">A boolean variable indicating whether lines need to be recalculated during the copy operation.</param>
+    /// <param name="CopyThisLine">A boolean flag indicating whether the current line should be copied. Can be overridden.</param>
+    /// <param name="MoveNegLines">A boolean variable indicating whether negative lines should be moved instead of copied.</param>
+    /// <param name="Result">The result of the copy operation. Can be overridden.</param>
+    /// <param name="IsHandled">A boolean variable that allows developers to handle the logic themselves and skip the default copying process if set to true.</param>
+    /// <param name="DocLineNo">The line number of the document line being processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopySalesLine(var ToSalesHeader: Record "Sales Header"; FromSalesHeader: Record "Sales Header"; FromSalesLine: Record "Sales Line"; RecalculateAmount: Boolean; var CopyThisLine: Boolean; MoveNegLines: Boolean; var Result: Boolean; var IsHandled: Boolean; DocLineNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before starting the process of copying archived sales lines from the source sales document archive to the target sales document.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// before the archived sales lines are copied. This can be useful for implementing additional logic,
+    /// setting up preconditions, or filtering data during the copy process.
+    /// </summary>
+    /// <param name="FromSalesHeaderArchive">
+    /// The source sales header archive record being copied.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the archived sales lines are being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopySalesDocSalesLineArchive(FromSalesHeaderArchive: Record "Sales Header Archive"; var ToSalesHeader: Record "Sales Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before starting the process of copying sales lines from the source sales document to the target sales document.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// before the sales lines are copied. This can be useful for implementing additional logic,
+    /// setting up preconditions, or filtering data during the copy process.
+    /// </summary>
+    /// <param name="FromSalesHeader">
+    /// The source sales header record being copied.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the sales lines are being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopySalesDocSalesLine(FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header")
     begin
@@ -8088,14 +8158,52 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before starting the process of copying a purchase document.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// before the purchase document copy process has begun. This can be useful for implementing custom logic,
+    /// applying validations, or altering parameters during the copy operation.
+    /// </summary>
+    /// <param name="FromDocumentType">
+    /// The type of the source purchase document being copied.
+    /// </param>
+    /// <param name="FromDocumentNo">
+    /// The document number of the source purchase document being copied.
+    /// </param>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record to which the document is being copied.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default copy behavior should be bypassed.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCopyPurchaseDocument(FromDocumentType: Option; FromDocumentNo: Code[20]; var ToPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before copying a purchase line. Allows overriding or skipping the default logic for copying the purchase line.
+    /// </summary>
+    /// <param name="ToPurchHeader">The purchase header of the target document.</param>
+    /// <param name="FromPurchHeader">The purchase header of the source document.</param>
+    /// <param name="FromPurchLine">The purchase line from the source document being processed.</param>
+    /// <param name="RecalculateAmount">A boolean variable indicating if the lines should be recalculated.</param>
+    /// <param name="CopyThisLine">A boolean variable indicating whether the current line should be copied. Can be modified by subscribers.</param>
+    /// <param name="ToPurchLine">The purchase line of the target document.</param>
+    /// <param name="MoveNegLines">A boolean variable indicating if negative lines should be moved.</param>
+    /// <param name="RoundingLineInserted">A boolean variable indicating if a rounding line was inserted.</param>
+    /// <param name="Result">The result of the operation, can be overridden by subscribers.</param>
+    /// <param name="IsHandled">A boolean variable indicating if the event is handled. If set to true, the default logic will be skipped.</param>
+    /// <param name="FromPurchDocType">The type of the source purchase document.</param>
+    /// <param name="DocLineNo">The line number of the source document line.</param>
+    /// <param name="RecalculateLines">A boolean variable indicating if recalculation of lines is required.</param>
+    /// <param name="LinesNotCopied">Tracks the number of lines that were not copied.</param>
+    /// <param name="CopyPostedDeferral">A boolean variable indicating if posted deferrals should be copied.</param>
+    /// <param name="NextLineNo">The next line number for the target document.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyPurchLine(var ToPurchHeader: Record "Purchase Header"; FromPurchHeader: Record "Purchase Header"; FromPurchLine: Record "Purchase Line"; RecalculateAmount: Boolean; var CopyThisLine: Boolean; ToPurchLine: Record "Purchase Line"; MoveNegLines: Boolean; var RoundingLineInserted: Boolean; var Result: Boolean; var IsHandled: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; DocLineNo: Integer;
-                                                                                                                                                                                                                                                                                                                                                                                                  RecalculateLines: Boolean; var LinesNotCopied: Integer; var CopyPostedDeferral: Boolean; var NextLineNo: Integer)
+                                                                                                                                                                                                                                                                                                                                                                                                 RecalculateLines: Boolean; var LinesNotCopied: Integer; var CopyPostedDeferral: Boolean; var NextLineNo: Integer)
     begin
     end;
 
@@ -8213,7 +8321,11 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     local procedure GetItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; ItemNo: Code[20]): Boolean
+    var
+        Item: Record Item;
     begin
+        Item.SetLoadFields("Item Tracking Code");
+
         if not Item.Get(ItemNo) then
             exit(false);
 
@@ -8316,6 +8428,28 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before handling zero-amount posted invoices during the sales document copy process.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when processing invoices with zero total amount. This can be useful for implementing custom logic
+    /// or skipping the default handling operation.
+    /// </summary>
+    /// <param name="FromSalesInvoiceHeader">
+    /// The source sales invoice header record being processed.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The target sales header record to which the data is being copied.
+    /// </param>
+    /// <param name="FromDocType">
+    /// The type of the source sales document.
+    /// </param>
+    /// <param name="FromDocNo">
+    /// The document number of the source sales document.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default handling behavior should be bypassed.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleZeroAmountPostedInvoices(var FromSalesInvoiceHeader: Record "Sales Invoice Header"; var ToSalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From"; FromDocNo: Code[20]; var IsHandled: Boolean)
     begin
@@ -8391,6 +8525,16 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before copying data from a sales line to a purchase line.
+    /// This allows developers to modify or override the default behavior when transferring fields between the sales and purchase lines.
+    /// </summary>
+    /// <param name="ToPurchLine">
+    /// The purchase line record representing the target line being created.
+    /// </param>
+    /// <param name="FromSalesLine">
+    /// The sales line record from which data is being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopySalesToPurchDoc(var ToPurchLine: Record "Purchase Line"; var FromSalesLine: Record "Sales Line")
     begin
@@ -8411,26 +8555,96 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before copying a sales document for invoice cancellation.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// prior to the document copy operation. This can be useful for implementing custom logic,
+    /// validations, or pre-processing related to the invoice cancellation process.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the data is being copied.
+    /// </param>
+    /// <param name="FromDocNo">
+    /// The document number of the sales document being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopySalesDocForInvoiceCancelling(var ToSalesHeader: Record "Sales Header"; FromDocNo: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before copying a sales document for credit memo cancellation.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// prior to the document copy operation. This can be useful for implementing custom logic,
+    /// validations, or pre-processing related to the credit memo cancellation process.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the data is being copied.
+    /// </param>
+    /// <param name="FromDocNo">
+    /// The document number of the sales document being copied.
+    /// </param>
+    /// <param name="CopyJobData">
+    /// A boolean value indicating whether job data is included during the copy operation, which can be modified by the subscriber.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopySalesDocForCrMemoCancelling(var ToSalesHeader: Record "Sales Header"; FromDocNo: Code[20]; var CopyJobData: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before starting the process of copying a purchase document for invoice cancellation.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// before the purchase document has been copied. This can be useful for implementing additional logic,
+    /// applying custom validations, or altering parameters during the copy process.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record to which the document is being copied.
+    /// </param>
+    /// <param name="FromDocNo">
+    /// The document number of the source purchase document being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyPurchaseDocForInvoiceCancelling(var ToPurchaseHeader: Record "Purchase Header"; FromDocNo: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before starting the process of copying a purchase document for credit memo cancellation.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// before the purchase document has been copied. This can be useful for implementing additional logic,
+    /// applying custom validations, or altering parameters during the copy process.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record to which the document is being copied.
+    /// </param>
+    /// <param name="FromDocNo">
+    /// The document number of the source purchase document being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyPurchaseDocForCrMemoCancelling(var ToPurchaseHeader: Record "Purchase Header"; FromDocNo: Code[20])
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before copying data from the source purchase header to the target purchase header.
+    /// Subscribing to this event allows developers to override or extend the default behavior.
+    /// </summary>
+    /// <param name="FromDocType">
+    /// The document type of the source purchase document.
+    /// </param>
+    /// <param name="FromPurchHeader">
+    /// The source purchase header record being copied.
+    /// </param>
+    /// <param name="OldPurchHeader">
+    /// The target purchase header's state before the copying process.
+    /// </param>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record where the data will be copied.
+    /// </param>
+    /// <param name="IsHandled">
+    /// Set to true to skip the default copying logic.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyPurchHeaderFromPurchHeader(FromDocType: Enum "Purchase Document Type From"; FromPurchHeader: Record "Purchase Header";
                                                                             OldPurchHeader: Record "Purchase Header"; var ToPurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
@@ -8474,31 +8688,120 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before transferring fields from a sales line to a purchase line during the copying process.
+    /// This allows developers to modify or override the default behavior of the field transfer.
+    /// </summary>
+    /// <param name="FromSalesLine">
+    /// The sales line record from which fields are being transferred.
+    /// </param>
+    /// <param name="ToPurchaseLine">
+    /// The purchase line record to which fields are being transferred.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean flag indicating whether the event has been handled by a subscriber.
+    /// If set to true, the default behavior will be skipped.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransfldsFromSalesToPurchLine(var FromSalesLine: Record "Sales Line"; var ToPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before the sales line has been updated during the copy process. This allows custom logic to intervene or override the default behavior.
+    /// </summary>
+    /// <param name="ToSalesHeader">The target sales header record being updated.</param>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesHeader">The source sales header record being copied from.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
+    /// <param name="CopyThisLine">A boolean variable indicating whether the line should be copied.</param>
+    /// <param name="RecalculateAmount">A boolean variable indicating if the amounts need to be recalculated.</param>
+    /// <param name="FromSalesDocType">The document type of the source sales document.</param>
+    /// <param name="CopyPostedDeferral">A boolean variable indicating if posted deferrals should be copied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromSalesDocType: Option; var CopyPostedDeferral: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before modifying the target purchase header.
+    /// Subscribing to this event allows developers to intervene in the modification process.
+    /// </summary>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record being modified.
+    /// </param>
+    /// <param name="FromDocType">
+    /// The document type of the source purchase document.
+    /// </param>
+    /// <param name="FromDocNo">
+    /// The document number of the source purchase document.
+    /// </param>
+    /// <param name="IncludeHeader">
+    /// Indicates whether the header is included in the process.
+    /// </param>
+    /// <param name="FromDocOccurenceNo">
+    /// The occurrence number of the source document, if applicable.
+    /// </param>
+    /// <param name="FromDocVersionNo">
+    /// The version number of the source document, if applicable.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// Indicates whether lines need to be recalculated.
+    /// </param>
+    /// <param name="FromPurchaseHeader">
+    /// The source purchase header record.
+    /// </param>
+    /// <param name="FromPurchInvHeader">
+    /// The source purchase invoice header, if applicable.
+    /// </param>
+    /// <param name="FromPurchCrMemoHeader">
+    /// The source purchase credit memo header, if applicable.
+    /// </param>
+    /// <param name="OldPurchaseHeader">
+    /// The previous state of the target purchase header.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyPurchHeader(var ToPurchHeader: Record "Purchase Header"; FromDocType: Option; FromDocNo: Code[20]; IncludeHeader: Boolean; FromDocOccurenceNo: Integer; FromDocVersionNo: Integer; RecalculateLines: Boolean; FromPurchaseHeader: Record "Purchase Header"; FromPurchInvHeader: Record "Purch. Inv. Header"; FromPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; OldPurchaseHeader: Record "Purchase Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before recalculating the sales line. This allows custom logic to intervene or override the default behavior.
+    /// </summary>
+    /// <param name="ToSalesHeader">The target sales header record being updated.</param>
+    /// <param name="ToSalesLine">The target sales line record being recalculated.</param>
+    /// <param name="FromSalesHeader">The source sales header record being copied from.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
+    /// <param name="CopyThisLine">A boolean variable indicating whether the line should be copied.</param>
+    /// <param name="IsHandled">A boolean variable indicating whether the default recalculation logic should be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRecalculateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before updating a purchase line during the document copy process. Allows custom logic or intervention.
+    /// </summary>
+    /// <param name="ToPurchHeader">The target purchase header record where the line is being copied to.</param>
+    /// <param name="ToPurchLine">The target purchase line record being updated.</param>
+    /// <param name="FromPurchHeader">The source purchase header record where the line is being copied from.</param>
+    /// <param name="FromPurchLine">The source purchase line record being copied.</param>
+    /// <param name="CopyThisLine">A boolean variable indicating if the current line should be copied.</param>
+    /// <param name="RecalculateAmount">A boolean variable indicating if amounts should be recalculated during the update.</param>
+    /// <param name="FromPurchDocType">The type of the source purchase document.</param>
+    /// <param name="CopyPostedDeferral">A boolean variable indicating if posted deferrals should be copied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromPurchDocType: Option; var CopyPostedDeferral: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before updating the purchase header during a copy operation. Allows overriding or customizing the update process.
+    /// </summary>
+    /// <param name="PurchaseHeader">The target purchase header being updated.</param>
+    /// <param name="OriginalPurchaseHeader">The original purchase header being copied from.</param>
+    /// <param name="FromDocType">The document type of the source purchase document.</param>
+    /// <param name="IsHandled">A boolean variable indicating if the event is handled. If set to true, the default logic will be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePurchHeaderWhenCopyFromPurchHeader(var PurchaseHeader: Record "Purchase Header"; OriginalPurchaseHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; var IsHandled: Boolean)
     begin
@@ -8509,6 +8812,15 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating purchase line discount fields. Allows overriding or customizing the validation process.
+    /// </summary>
+    /// <param name="FromPurchHeader">The purchase header of the source document.</param>
+    /// <param name="ToPurchHeader">The purchase header of the target document.</param>
+    /// <param name="ToPurchLine">The purchase line of the target document.</param>
+    /// <param name="InvDiscountAmount">The invoice discount amount being validated.</param>
+    /// <param name="IsHandled">A boolean variable indicating if the event is handled. If set to true, the default logic will be skipped.</param>
+    /// <param name="RecalculateLines">A boolean variable indicating if the lines are being recalculated.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePurchLineDiscountFields(FromPurchHeader: Record "Purchase Header"; ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var InvDiscountAmount: Decimal; var IsHandled: Boolean; RecalculateLines: Boolean)
     begin
@@ -8564,11 +8876,89 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying a sales document for invoice cancellation.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the document copy operation. This can be useful for implementing post-processing logic,
+    /// validations, or custom workflows related to the invoice cancellation process.
+    /// </summary>
+    /// <param name="FromDocNo">
+    /// The document number of the sales document that was copied.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the data was copied.
+    /// </param>
+    /// <param name="IncludeHeader">
+    /// A boolean value indicating whether the header was included in the copy operation.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines were recalculated during the copy operation.
+    /// </param>
+    /// <param name="MoveNegLines">
+    /// A boolean value indicating whether negative lines were moved during the copy operation.
+    /// </param>
+    /// <param name="CreateToHeader">
+    /// A boolean value indicating whether a new header was created during the copy operation.
+    /// </param>
+    /// <param name="HideDialog">
+    /// A boolean value indicating whether dialogs were hidden during the copy operation.
+    /// </param>
+    /// <param name="ExactCostRevMandatory">
+    /// A boolean value indicating whether exact cost reversal was mandatory during the copy operation.
+    /// </param>
+    /// <param name="ApplyFully">
+    /// A boolean value indicating whether the "apply fully" option was used during the copy operation.
+    /// </param>
+    /// <param name="SkipTestCreditLimit">
+    /// A boolean value indicating whether the credit limit test was skipped during the copy operation.
+    /// </param>
+    /// <param name="SkipCopyFromDescription">
+    /// A boolean value indicating whether the description was skipped during the copy operation.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesDocForInvoiceCancelling(FromDocNo: Code[20]; var ToSalesHeader: Record "Sales Header"; IncludeHeader: Boolean; RecalculateLines: Boolean; MoveNegLines: Boolean; CreateToHeader: Boolean; HideDialog: Boolean; ExactCostRevMandatory: Boolean; ApplyFully: Boolean; SkipTestCreditLimit: Boolean; SkipCopyFromDescription: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying a sales document for credit memo cancellation.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the document copy operation. This can be useful for implementing post-processing logic,
+    /// validations, or custom workflows related to the credit memo cancellation process.
+    /// </summary>
+    /// <param name="FromDocNo">
+    /// The document number of the sales document that was copied.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the data was copied.
+    /// </param>
+    /// <param name="IncludeHeader">
+    /// A boolean value indicating whether the header was included in the copy operation.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines were recalculated during the copy operation.
+    /// </param>
+    /// <param name="MoveNegLines">
+    /// A boolean value indicating whether negative lines were moved during the copy operation.
+    /// </param>
+    /// <param name="CreateToHeader">
+    /// A boolean value indicating whether a new header was created during the copy operation.
+    /// </param>
+    /// <param name="HideDialog">
+    /// A boolean value indicating whether dialogs were hidden during the copy operation.
+    /// </param>
+    /// <param name="ExactCostRevMandatory">
+    /// A boolean value indicating whether exact cost reversal was mandatory during the copy operation.
+    /// </param>
+    /// <param name="ApplyFully">
+    /// A boolean value indicating whether the "apply fully" option was used during the copy operation.
+    /// </param>
+    /// <param name="SkipTestCreditLimit">
+    /// A boolean value indicating whether the credit limit test was skipped during the copy operation.
+    /// </param>
+    /// <param name="SkipCopyFromDescription">
+    /// A boolean value indicating whether the description was skipped during the copy operation.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesDocForCrMemoCancelling(FromDocNo: Code[20]; var ToSalesHeader: Record "Sales Header"; IncludeHeader: Boolean; RecalculateLines: Boolean; MoveNegLines: Boolean; CreateToHeader: Boolean; HideDialog: Boolean; ExactCostRevMandatory: Boolean; ApplyFully: Boolean; SkipTestCreditLimit: Boolean; SkipCopyFromDescription: Boolean)
     begin
@@ -8599,6 +8989,21 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after completing the sales invoice line copy process for the sales document.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after all sales invoice lines have been copied. This can be useful for implementing post-processing logic,
+    /// validations, or handling specific workflows related to the copied sales invoice lines.
+    /// </summary>
+    /// <param name="FromSalesInvoiceHeader">
+    /// The source sales invoice header record being copied.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the sales invoice lines were copied.
+    /// </param>
+    /// <param name="FromSalesInvoiceLine">
+    /// The source sales invoice line record that was copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesDocInvLine(FromSalesInvoiceHeader: Record "Sales Invoice Header"; ToSalesHeader: Record "Sales Header"; var FromSalesInvoiceLine: Record "Sales Invoice Line")
     begin
@@ -8624,6 +9029,24 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after completing the archived sales line copy process for the sales document.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after all archived sales lines have been copied. This can be useful for implementing post-processing logic,
+    /// validations, or handling specific workflows related to the copied archived sales lines.
+    /// </summary>
+    /// <param name="FromSalesHeaderArchive">
+    /// The source sales header archive record being copied.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the archived sales lines were copied.
+    /// </param>
+    /// <param name="ToSalesLine">
+    /// The target sales line record to which the archived sales lines were copied.
+    /// </param>
+    /// <param name="TransferOldExtLines">
+    /// An object codeunit "Transfer Old Ext. Text Lines" handling the transfer of old extended lines, if applicable.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesDocSalesLineArchive(FromSalesHeaderArchive: Record "Sales Header Archive"; var ToSalesHeader: Record "Sales Header"; ToSalesLine: Record "Sales Line"; var TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines")
     begin
@@ -8639,11 +9062,52 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after completing the copy of a single archived sales line during the sales document copy process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after each archived sales line has been copied. This can be useful for implementing post-processing logic,
+    /// validations, or handling specific workflows related to individual archived sales lines.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the archived sales line was copied.
+    /// </param>
+    /// <param name="ToSalesLine">
+    /// The target sales line record to which the archived sales line was copied.
+    /// </param>
+    /// <param name="FromSalesLineArchive">
+    /// The source sales line archive record that was copied.
+    /// </param>
+    /// <param name="IncludeHeader">
+    /// A boolean value indicating whether the header was included in the copy operation.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines were recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyArchSalesLine(ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; FromSalesLineArchive: Record "Sales Line Archive"; IncludeHeader: Boolean; RecalculateLines: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after a purchase line has been copied from the archived source to the target purchase document.
+    /// Subscribing to this event allows developers to implement additional logic, validations,
+    /// or workflows after copying each archived purchase line. This can be useful for custom handling or integrations.
+    /// </summary>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record to which the line was copied.
+    /// </param>
+    /// <param name="ToPurchaseLine">
+    /// The target purchase line record that was created.
+    /// </param>
+    /// <param name="FromPurchaseLineArchive">
+    /// The source purchase line archive record that was copied.
+    /// </param>
+    /// <param name="IncludeHeader">
+    /// A boolean value indicating whether the source header data was included.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines were recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyArchPurchLine(ToPurchHeader: Record "Purchase Header"; var ToPurchaseLine: Record "Purchase Line"; FromPurchaseLineArchive: Record "Purchase Line Archive"; IncludeHeader: Boolean; RecalculateLines: Boolean)
     begin
@@ -8654,51 +9118,241 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from a posted purchase receipt header to a purchase header.
+    /// Allows developers to perform additional logic or modifications after the copying process.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record to which data was copied.
+    /// </param>
+    /// <param name="OldPurchaseHeader">
+    /// The original purchase header record before copying.
+    /// </param>
+    /// <param name="FromPurchRcptHeader">
+    /// The source posted purchase receipt header record.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPostedReceipt(var ToPurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; FromPurchRcptHeader: Record "Purch. Rcpt. Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after completing the copy of a sales shipment header to the target sales header during the copy process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the fields have been transferred. This can be useful for implementing additional logic,
+    /// validations, or workflows based on the copied shipment data.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the fields were copied.
+    /// </param>
+    /// <param name="OldSalesHeader">
+    /// The existing state of the target sales header prior to the field transfer.
+    /// </param>
+    /// <param name="FromSalesShipmentHeader">
+    /// The source sales shipment header record that was copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPostedShipment(var ToSalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header"; FromSalesShipmentHeader: Record "Sales Shipment Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from a posted purchase invoice header to a purchase header.
+    /// Allows developers to perform additional logic or modifications after the copying process.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record to which data was copied.
+    /// </param>
+    /// <param name="OldPurchaseHeader">
+    /// The original purchase header record before copying.
+    /// </param>
+    /// <param name="FromPurchInvHeader">
+    /// The source posted purchase invoice header record.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPostedPurchInvoice(var ToPurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; FromPurchInvHeader: Record "Purch. Inv. Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after completing the transfer of fields from the source return receipt header to the target sales header during the copy process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the fields have been transferred. This can be useful for implementing additional logic,
+    /// validations, or workflows based on the copied return receipt data.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the fields were copied.
+    /// </param>
+    /// <param name="OldSalesHeader">
+    /// The existing state of the target sales header prior to the field transfer.
+    /// </param>
+    /// <param name="ReturnReceiptHeader">
+    /// The source return receipt header record that was copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPostedReturnReceipt(var ToSalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header"; ReturnReceiptHeader: Record "Return Receipt Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from a posted return shipment header to a purchase header.
+    /// Allows developers to perform additional logic or modifications after the copying process.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record to which data was copied.
+    /// </param>
+    /// <param name="OldPurchaseHeader">
+    /// The original purchase header record before copying.
+    /// </param>
+    /// <param name="FromReturnShipmentHeader">
+    /// The source posted return shipment header record.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPostedReturnShipment(var ToPurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; FromReturnShipmentHeader: Record "Return Shipment Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after completing the sales document copy process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the document copy operation is completed. This can be useful for implementing post-processing logic,
+    /// validations, or handling specific workflows related to the copy process.
+    /// </summary>
+    /// <param name="FromDocumentType">
+    /// The type of the sales document being copied, represented as an integer.
+    /// </param>
+    /// <param name="FromDocumentNo">
+    /// The document number of the sales document being copied.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the data was copied.
+    /// </param>
+    /// <param name="FromDocOccurenceNo">
+    /// The occurrence number of the source document, if applicable.
+    /// </param>
+    /// <param name="FromDocVersionNo">
+    /// The version number of the source document, if applicable.
+    /// </param>
+    /// <param name="IncludeHeader">
+    /// A boolean value indicating whether the header was included in the copy operation.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines were recalculated during the copy operation.
+    /// </param>
+    /// <param name="MoveNegLines">
+    /// A boolean value indicating whether negative lines were moved during the copy operation.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesDocument(FromDocumentType: Option; FromDocumentNo: Code[20]; var ToSalesHeader: Record "Sales Header"; FromDocOccurenceNo: Integer; FromDocVersionNo: Integer; IncludeHeader: Boolean; RecalculateLines: Boolean; MoveNegLines: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after completing the transfer of fields from the source sales header archive to the target sales header.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the archive header has been fully copied. This can be useful for additional processing,
+    /// validations, or workflows related to archived sales headers.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the fields were copied.
+    /// </param>
+    /// <param name="OldSalesHeader">
+    /// The existing state of the target sales header prior to the field transfer.
+    /// </param>
+    /// <param name="FromSalesHeaderArchive">
+    /// The source sales header archive record that was copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesHeaderArchive(var ToSalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header"; FromSalesHeaderArchive: Record "Sales Header Archive")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the sales header has been processed during the sales document update process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the header fields have been copied. This can be useful for post-processing logic,
+    /// additional validations, or implementing specific workflows.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the data is being copied.
+    /// </param>
+    /// <param name="OldSalesHeader">
+    /// The existing state of the target sales header prior to the update.
+    /// </param>
+    /// <param name="FromSalesHeader">
+    /// The source sales header record being copied.
+    /// </param>
+    /// <param name="FromSalesShipmentHeader">
+    /// The source sales shipment header, if applicable.
+    /// </param>
+    /// <param name="FromSalesInvoiceHeader">
+    /// The source sales invoice header, if applicable.
+    /// </param>
+    /// <param name="FromReturnReceiptHeader">
+    /// The source return receipt header, if applicable.
+    /// </param>
+    /// <param name="FromSalesCrMemoHeader">
+    /// The source sales credit memo header, if applicable.
+    /// </param>
+    /// <param name="FromSalesCrMemoHeader">
+    /// The source sales header archive, if applicable.
+    /// </param>
+    /// <param name="FromDocType">
+    /// The type of the source sales document.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesHeaderDone(var ToSalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header"; FromSalesHeader: Record "Sales Header"; FromSalesShipmentHeader: Record "Sales Shipment Header"; FromSalesInvoiceHeader: Record "Sales Invoice Header"; FromReturnReceiptHeader: Record "Return Receipt Header"; FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; FromSalesHeaderArchive: Record "Sales Header Archive"; FromDocType: Enum "Sales Document Type From")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after sales lines with negative quantities have been deleted or validated during a test.
+    /// This allows developers to perform additional logic after the deletion or validation process.
+    /// </summary>
+    /// <param name="FromSalesLine">
+    /// The sales line record that was processed during the deletion or validation.
+    /// </param>
+    /// <param name="OnlyTest">
+    /// A boolean flag indicating whether the operation was a test or a real deletion.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteSalesLinesWithNegQty(FromSalesLine: Record "Sales Line"; OnlyTest: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before the sales header is processed during the sales document update process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// before the header fields have been copied. This can be useful for pre-processing logic
+    /// or validating specific conditions prior to the header update.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the data is being copied.
+    /// </param>
+    /// <param name="FromSalesHeader">
+    /// The source sales header record being copied.
+    /// </param>
+    /// <param name="FromDocType">
+    /// The type of the source sales document.
+    /// </param>
+    /// <param name="OldSalesHeader">
+    /// The existing state of the target sales header prior to the update.
+    /// </param>
+    /// <param name="FromSalesShipmentHeader">
+    /// The source sales shipment header, if applicable.
+    /// </param>
+    /// <param name="FromSalesInvoiceHeader">
+    /// The source sales invoice header, if applicable.
+    /// </param>
+    /// <param name="FromReturnReceiptHeader">
+    /// The source return receipt header, if applicable.
+    /// </param>
+    /// <param name="FromSalesCrMemoHeader">
+    /// The source sales credit memo header, if applicable.
+    /// </param>
+    /// <param name="FromSalesHeaderArchive">
+    /// The source sales header archive, if applicable.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopySalesHeaderDone(var ToSalesHeader: Record "Sales Header"; FromSalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From"; OldSalesHeader: Record "Sales Header";
                                                                                                                                                    FromSalesShipmentHeader: Record "Sales Shipment Header";
@@ -8709,6 +9363,22 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before starting the process of copying fields from the source sales invoice header to the target sales header.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// before the fields have been copied. This can be useful for implementing custom logic,
+    /// skipping the default copy behavior, or applying additional validations.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the fields are being copied.
+    /// </param>
+    /// <param name="SalesInvoiceHeader">
+    /// The source sales invoice header record being copied.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default copy behavior should be bypassed.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopySalesHeaderFromPostedInvoice(var ToSalesHeader: Record "Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean);
     begin
@@ -8747,26 +9417,142 @@ codeunit 6620 "Copy Document Mgt."
     end;
 #endif
 
+    /// <summary>
+    /// Event triggered after copying data from a posted purchase credit memo header to a purchase header.
+    /// Allows developers to perform additional logic or modifications after the copying process.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record to which data was copied.
+    /// </param>
+    /// <param name="OldPurchaseHeader">
+    /// The original purchase header record before copying.
+    /// </param>
+    /// <param name="FromPurchCrMemoHeader">
+    /// The source posted purchase credit memo header record.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPurchHeaderFromPostedCreditMemo(var ToPurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; FromPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the entire purchase document copy process has been completed.
+    /// Subscribing to this event allows developers to implement additional logic,
+    /// custom validations, or workflows after the purchase document has been fully copied.
+    /// This can be useful for finalizing the operation or integrating with other processes.
+    /// </summary>
+    /// <param name="FromDocumentType">
+    /// The type of the source purchase document.
+    /// </param>
+    /// <param name="FromDocumentNo">
+    /// The document number of the source purchase document.
+    /// </param>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record to which the document was copied.
+    /// </param>
+    /// <param name="FromDocOccurenceNo">
+    /// The occurrence number of the source document (if applicable).
+    /// </param>
+    /// <param name="FromDocVersionNo">
+    /// The version number of the source document (if applicable).
+    /// </param>
+    /// <param name="IncludeHeader">
+    /// A boolean value indicating whether the source header data was included.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines were recalculated during the copy process.
+    /// </param>
+    /// <param name="MoveNegLines">
+    /// A boolean value indicating whether negative lines were moved during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPurchaseDocument(FromDocumentType: Option; FromDocumentNo: Code[20]; var ToPurchaseHeader: Record "Purchase Header"; FromDocOccurenceNo: Integer; FromDocVersionNo: Integer; IncludeHeader: Boolean; RecalculateLines: Boolean; MoveNegLines: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from a purchase header archive to a purchase header.
+    /// Allows developers to perform additional logic or modifications after the copying process.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record to which data was copied.
+    /// </param>
+    /// <param name="OldPurchaseHeader">
+    /// The original purchase header record before copying.
+    /// </param>
+    /// <param name="FromPurchaseHeaderArchive">
+    /// The source purchase header archive record.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPurchHeaderArchive(var ToPurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; FromPurchaseHeaderArchive: Record "Purchase Header Archive")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the purchase header has been copied from the source to the target purchase document.
+    /// Subscribing to this event allows developers to extend or customize the copying logic of purchase headers,
+    /// such as adding additional fields or implementing validations.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record where the header information has been copied.
+    /// </param>
+    /// <param name="OldPurchaseHeader">
+    /// The previous state of the target purchase header before the copying process.
+    /// </param>
+    /// <param name="FromPurchaseHeader">
+    /// The source purchase header record from which the information was copied.
+    /// </param>
+    /// <param name="FromPurchRcptHeader">
+    /// The source purchase receipt header, if applicable, for additional data transfer.
+    /// </param>
+    /// <param name="FromPurchInvHeader">
+    /// The source purchase invoice header, if applicable, for additional data transfer.
+    /// </param>
+    /// <param name="ReturnShipmentHeader">
+    /// The source return shipment header, if applicable, for additional data transfer.
+    /// </param>
+    /// <param name="FromPurchCrMemoHdr">
+    /// The source purchase credit memo header, if applicable, for additional data transfer.
+    /// </param>
+    /// <param name="FromPurchaseHeaderArchive">
+    /// The source purchase header archive record, if applicable, for additional data transfer.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPurchHeaderDone(var ToPurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; FromPurchaseHeader: Record "Purchase Header"; FromPurchRcptHeader: Record "Purch. Rcpt. Header"; FromPurchInvHeader: Record "Purch. Inv. Header"; ReturnShipmentHeader: Record "Return Shipment Header"; FromPurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; FromPurchaseHeaderArchive: Record "Purchase Header Archive")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before finalizing the header copying process.
+    /// Subscribing to this event allows developers to modify or add logic during initialization or pre-processing.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record where the header information will be copied.
+    /// </param>
+    /// <param name="FromPurchaseHeader">
+    /// The source purchase header record being copied.
+    /// </param>
+    /// <param name="FromDocType">
+    /// The document type of the source purchase document.
+    /// </param>
+    /// <param name="OldPurchaseHeader">
+    /// The target purchase header's state before the copying process.
+    /// </param>
+    /// <param name="FromPurchRcptHeader">
+    /// The source purchase receipt header, if applicable.
+    /// </param>
+    /// <param name="FromPurchInvHeader">
+    /// The source purchase invoice header, if applicable.
+    /// </param>
+    /// <param name="FromReturnShipmentHeader">
+    /// The source return shipment header, if applicable.
+    /// </param>
+    /// <param name="FromPurchCrMemoHdr">
+    /// The source purchase credit memo header, if applicable.
+    /// </param>
+    /// <param name="FromPurchaseHeaderArchive">
+    /// The source purchase header archive, if applicable.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyPurchHeaderDone(var ToPurchaseHeader: Record "Purchase Header"; FromPurchaseHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; OldPurchaseHeader: Record "Purchase Header";
                                                                                                                                                                FromPurchRcptHeader: Record "Purch. Rcpt. Header";
@@ -8822,6 +9608,10 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after handling the assembly attached to a sales line. This allows additional modifications or actions after the handling process has been completed.
+    /// </summary>
+    /// <param name="ToSalesLine">The sales line record that has been processed.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterHandleAsmAttachedToSalesLine(var ToSalesLine: Record "Sales Line");
     begin
@@ -8850,6 +9640,14 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after recalculating the sales line. This allows additional modifications or checks after the recalculation process.
+    /// </summary>
+    /// <param name="ToSalesHeader">The target sales header record being updated.</param>
+    /// <param name="ToSalesLine">The target sales line record being recalculated.</param>
+    /// <param name="FromSalesHeader">The source sales header record being copied from.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
+    /// <param name="CopyThisLine">A boolean variable indicating whether the line was copied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterRecalculateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean)
     begin
@@ -8880,6 +9678,20 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the sales line update process has been completed. This allows additional modifications or checks after all updates have been executed.
+    /// </summary>
+    /// <param name="ToSalesHeader">The target sales header record being updated.</param>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesHeader">The source sales header record being copied from.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
+    /// <param name="CopyThisLine">A boolean variable indicating whether the line was copied.</param>
+    /// <param name="RecalculateAmount">A boolean variable indicating if the amounts were recalculated.</param>
+    /// <param name="FromSalesDocType">The document type of the source sales document.</param>
+    /// <param name="CopyPostedDeferral">A boolean variable indicating if posted deferrals were copied.</param>
+    /// <param name="ExactCostRevMandatory">A boolean variable indicating if exact cost reversal is mandatory.</param>
+    /// <param name="MoveNegLines">A boolean variable indicating if negative lines were moved.</param>
+    /// <param name="RecalculateLines">A boolean variable indicating if lines were recalculated.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromSalesDocType: Option; var CopyPostedDeferral: Boolean; ExactCostRevMandatory: Boolean; MoveNegLines: Boolean; RecalculateLines: Boolean)
     begin
@@ -8890,6 +9702,18 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after updating a purchase line during the document copy process. Allows additional processing or validation.
+    /// </summary>
+    /// <param name="ToPurchHeader">The target purchase header record where the line was copied to.</param>
+    /// <param name="ToPurchLine">The target purchase line record that was updated.</param>
+    /// <param name="FromPurchHeader">The source purchase header record where the line was copied from.</param>
+    /// <param name="FromPurchLine">The source purchase line record that was copied.</param>
+    /// <param name="CopyThisLine">A boolean variable indicating if the current line was copied.</param>
+    /// <param name="RecalculateAmount">A boolean variable indicating if amounts were recalculated during the update.</param>
+    /// <param name="FromPurchDocType">The type of the source purchase document.</param>
+    /// <param name="CopyPostedDeferral">A boolean variable indicating if posted deferrals were copied.</param>
+    /// <param name="RecalculateLines">A boolean variable indicating if lines were recalculated.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdatePurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromPurchDocType: Option; var CopyPostedDeferral: Boolean; RecalculateLines: Boolean)
     begin
@@ -8910,6 +9734,12 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting the reserve property for the sales line. This allows additional customizations of the reserve logic.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
+    /// <param name="FromSalesDocType">The document type of the source sales document.</param>
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineOnAfterSetReserve(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line"; FromSalesDocType: Enum "Sales Document Type From")
     begin
@@ -8920,6 +9750,11 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after determining whether to fetch the unit cost for the sales line. This allows custom logic based on the fetched unit cost.
+    /// </summary>
+    /// <param name="Item">The item record associated with the sales line.</param>
+    /// <param name="ShouldGetUnitCost">A boolean variable indicating whether the unit cost should be fetched.</param>
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineOnAfterCalcShouldGetUnitCost(var Item: Record Item; var ShouldGetUnitCost: Boolean)
     begin
@@ -8945,11 +9780,40 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered when the header is being processed for copying in a purchase document.
+    /// Allows developers to implement advanced processing during header inclusion.
+    /// </summary>
+    /// <param name="FromDocType">
+    /// The document type of the source purchase document.
+    /// </param>
+    /// <param name="FromDocNo">
+    /// The document number of the source purchase document.
+    /// </param>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record being processed.
+    /// </param>
+    /// <param name="FromDocOccurenceNo">
+    /// The occurrence number of the source document, if applicable.
+    /// </param>
+    /// <param name="FromDocVersionNo">
+    /// The version number of the source document, if applicable.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocWithHeader(FromDocType: Option; FromDocNo: Code[20]; var ToPurchHeader: Record "Purchase Header"; FromDocOccurenceNo: Integer; FromDocVersionNo: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after transferring fields from a sales line to a purchase line.
+    /// This allows developers to apply additional logic or modifications after the field transfer process has been completed.
+    /// </summary>
+    /// <param name="FromSalesLine">
+    /// The sales line record from which fields were transferred.
+    /// </param>
+    /// <param name="ToPurchaseLine">
+    /// The purchase line record to which fields were transferred.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransfldsFromSalesToPurchLine(var FromSalesLine: Record "Sales Line"; var ToPurchaseLine: Record "Purchase Line")
     begin
@@ -8990,6 +9854,19 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before inserting the copied sales line into the target sales document.
+    /// This allows developers to modify the sales line prior to insertion.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line being inserted.</param>
+    /// <param name="FromSalesLine">The source sales line being copied.</param>
+    /// <param name="FromDocType">The document type of the source sales document.</param>
+    /// <param name="RecalcLines">A boolean variable indicating whether lines need to be recalculated during the copy operation.</param>
+    /// <param name="ToSalesHeader">The target sales header to which the sales line will be copied.</param>
+    /// <param name="DocLineNo">The line number of the document line being processed.</param>
+    /// <param name="NextLineNo">The next line number to be assigned to the target sales line.</param>
+    /// <param name="RecalculateAmount">A boolean variable indicating whether the amounts need to be recalculated for the copied sales line.</param>
+    /// <param name="IsHandled">A boolean variable that allows developers to handle the logic themselves and skip the default insertion process if set to true.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertToSalesLine(var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line"; FromDocType: Option; RecalcLines: Boolean; var ToSalesHeader: Record "Sales Header"; DocLineNo: Integer; var NextLineNo: Integer; RecalculateAmount: Boolean; var IsHandled: Boolean)
     begin
@@ -9030,6 +9907,16 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before inserting the purchase line into the target document. This allows modifications to the line before insertion.
+    /// </summary>
+    /// <param name="ToPurchLine">The purchase line of the target document.</param>
+    /// <param name="FromPurchLine">The purchase line from the source document being processed.</param>
+    /// <param name="FromDocType">The type of the source purchase document.</param>
+    /// <param name="RecalcLines">A boolean variable indicating if the lines should be recalculated.</param>
+    /// <param name="ToPurchHeader">The purchase header of the target document.</param>
+    /// <param name="DocLineNo">The line number of the source document line.</param>
+    /// <param name="NexLineNo">The next line number for the target document.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertToPurchLine(var ToPurchLine: Record "Purchase Line"; FromPurchLine: Record "Purchase Line"; FromDocType: Option; RecalcLines: Boolean; var ToPurchHeader: Record "Purchase Header"; DocLineNo: Integer; var NexLineNo: Integer)
     begin
@@ -9045,11 +9932,33 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before displaying a purchase document.
+    /// This allows developers to modify or override the default behavior when showing a purchase document.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The purchase header record representing the document to be displayed.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A variable indicating whether the default behavior should be skipped.
+    /// Setting this variable to true will skip the default display logic.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowPurchDoc(var ToPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before displaying a sales document.
+    /// This allows developers to modify or override the default behavior when showing a sales document.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record representing the document to be displayed.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A variable indicating whether the default behavior should be skipped.
+    /// Setting this variable to true will skip the default display logic.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowSalesDoc(var ToSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
@@ -9065,21 +9974,72 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after inserting the copied sales line into the target sales document.
+    /// This allows developers to perform final adjustments or actions.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line that was inserted.</param>
+    /// <param name="FromSalesLine">The source sales line that was copied.</param>
+    /// <param name="RecalculateLines">A boolean variable indicating whether lines were recalculated during the copy operation.</param>
+    /// <param name="DocLineNo">The line number of the document line being processed.</param>
+    /// <param name="FromSalesDocType">The document type of the source sales document.</param>
+    /// <param name="FromSalesHeader">The source sales header from which the sales line was copied.</param>
+    /// <param name="NextLineNo">The next line number assigned to the target sales line.</param>
+    /// <param name="ToSalesHeader">The target sales header to which the sales line was copied.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertToSalesLine(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line"; RecalculateLines: Boolean; DocLineNo: Integer; FromSalesDocType: Enum "Sales Document Type From"; FromSalesHeader: Record "Sales Header"; var NextLineNo: Integer; var ToSalesHeader: Record "Sales Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying a sales line to a purchase line during the copying process from a sales document to a purchase document.
+    /// This allows developers to apply additional logic or modifications after the line has been copied.
+    /// </summary>
+    /// <param name="ToPurchLine">
+    /// The purchase line record representing the line that was created.
+    /// </param>
+    /// <param name="FromSalesLine">
+    /// The sales line record from which data was copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesToPurchDoc(var ToPurchLine: Record "Purchase Line"; var FromSalesLine: Record "Sales Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after inserting a purchase line into the target document. Allows further processing or validation after the insertion.
+    /// </summary>
+    /// <param name="ToPurchLine">The purchase line of the target document.</param>
+    /// <param name="FromPurchLine">The purchase line from the source document being processed.</param>
+    /// <param name="RecalculateLines">A boolean variable indicating if the lines should be recalculated.</param>
+    /// <param name="DocLineNo">The line number of the source document line.</param>
+    /// <param name="FromPurchDocType">The type of the source purchase document.</param>
+    /// <param name="ToPurchHeader">The purchase header of the target document.</param>
+    /// <param name="MoveNegLines">A boolean variable indicating if negative lines should be moved.</param>
+    /// <param name="FromPurchaseHeader">The purchase header of the source document.</param>
     [IntegrationEvent(true, false)]
     local procedure OnAfterInsertToPurchLine(var ToPurchLine: Record "Purchase Line"; var FromPurchLine: Record "Purchase Line"; RecalculateLines: Boolean; DocLineNo: Integer; FromPurchDocType: Enum "Purchase Document Type From"; var ToPurchHeader: Record "Purchase Header"; MoveNegLines: Boolean; FromPurchaseHeader: Record "Purchase Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the sales header fields have been transferred from the source sales header to the target sales header during the copy process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the fields have transferred. This can be useful for implementing additional logic,
+    /// validations, or workflows based on the copied data.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the fields were copied.
+    /// </param>
+    /// <param name="OldSalesHeader">
+    /// The existing state of the target sales header prior to the field transfer.
+    /// </param>
+    /// <param name="FromSalesHeader">
+    /// The source sales header record from which the fields were copied.
+    /// </param>
+    /// <param name="FromDocType">
+    /// The type of the source sales document.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesHeader(var ToSalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header"; FromSalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From")
     begin
@@ -9090,6 +10050,19 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after copying data from the source purchase header to the target purchase header.
+    /// Subscribing to this event allows developers to validate or extend the copied data.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record after data has been copied.
+    /// </param>
+    /// <param name="OldPurchaseHeader">
+    /// The target purchase header's state before the copying process.
+    /// </param>
+    /// <param name="FromPurchHeader">
+    /// The source purchase header record being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPurchaseHeader(var ToPurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; FromPurchHeader: Record "Purchase Header")
     begin
@@ -9140,6 +10113,30 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after fields have been copied from the old sales header to the updated sales header during the update process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the fields have been copied. This can be useful for implementing additional logic or workflows
+    /// based on the updated data.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record being updated.
+    /// </param>
+    /// <param name="OldSalesHeader">
+    /// The existing state of the target sales header prior to the update.
+    /// </param>
+    /// <param name="MoveNegLines">
+    /// A boolean value indicating whether negative lines should be moved during the copy process.
+    /// </param>
+    /// <param name="IncludeHeader">
+    /// A boolean value indicating whether the header was included in the copy operation.
+    /// </param>
+    /// <param name="FromDocType">
+    /// The type of the source sales document.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines should be recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFieldsFromOldSalesHeader(var ToSalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header"; MoveNegLines: Boolean; IncludeHeader: Boolean; FromDocType: Enum "Sales Document Type From"; RecalculateLines: Boolean)
     begin
@@ -9150,6 +10147,16 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after completing the copying process from a sales document to a purchase document.
+    /// This allows developers to apply additional logic or modifications after the entire process has been completed.
+    /// </summary>
+    /// <param name="FromSalesHeader">
+    /// The sales header record from which data was copied.
+    /// </param>
+    /// <param name="ToPurchaseHeader">
+    /// The purchase header record representing the document that was created.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromSalesToPurchDoc(FromSalesHeader: Record "Sales Header"; var ToPurchaseHeader: Record "Purchase Header")
     begin
@@ -9195,11 +10202,28 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before clearing the "Last No." fields in the purchase header. Allows overriding or customizing the clearing process.
+    /// </summary>
+    /// <param name="PurchaseHeader">The purchase header record whose "Last No." fields are being cleared.</param>
+    /// <param name="IsHandled">A boolean variable indicating if the event is handled. If set to true, the default logic will be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeClearPurchLastNoSFields(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before clearing the "Invoice" and "Ship" fields in the target sales header during the sales document update process.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when clearing these fields. This can be useful for applying custom logic or skipping the default clearing operation.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record where the "Invoice" and "Ship" fields are to be cleared.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default clearing behavior should be bypassed.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeClearInvoiceAndShip(var ToSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
@@ -9242,16 +10266,49 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before recalculating the sales line amounts.
+    /// This allows developers to customize or skip the recalculation logic for sales line amounts.
+    /// </summary>
+    /// <param name="FromSalesLine">The source sales line from which data is being copied.</param>
+    /// <param name="ToSalesLine">The target sales line to be recalculated.</param>
+    /// <param name="Currency">The currency record used for recalculating amounts.</param>
+    /// <param name="IsHandled">A boolean variable that allows developers to handle the recalculation logic themselves and skip the default processing if set to true.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRecalculateSalesLineAmounts(FromSalesLine: Record "Sales Line"; var ToSalesLine: Record "Sales Line"; Currency: Record Currency; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before recalculating and applying sales line changes.
+    /// This allows developers to customize or skip the recalculation logic.
+    /// </summary>
+    /// <param name="ToSalesHeader">The target sales header associated with the sales line.</param>
+    /// <param name="ToSalesLine">The target sales line to be recalculated and applied.</param>
+    /// <param name="FromSalesLine">The source sales line from which data is being copied.</param>
+    /// <param name="Currency">The currency record used for recalculating amounts.</param>
+    /// <param name="ExactCostRevMandatory">A boolean variable indicating whether exact cost reversal is mandatory for the operation.</param>
+    /// <param name="RecalculateAmount">A boolean variable indicating whether amounts should be recalculated during the operation.</param>
+    /// <param name="CreateToHeader">A boolean variable indicating whether a new header is being created during the copy operation.</param>
+    /// <param name="MoveNegLines">A boolean variable indicating whether negative lines should be moved instead of copied.</param>
+    /// <param name="IsHandled">A boolean variable that allows developers to handle the recalculation logic themselves and skip the default processing if set to true.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRecalculateAndApplySalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line"; Currency: Record Currency; var ExactCostRevMandatory: Boolean; var RecalculateAmount: Boolean; var CreateToHeader: Boolean; MoveNegLines: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before recalculating and applying purchase line data. Allows overriding or customizing the recalculation process.
+    /// </summary>
+    /// <param name="ToPurchHeader">The purchase header of the target document.</param>
+    /// <param name="ToPurchLine">The purchase line of the target document.</param>
+    /// <param name="FromPurchLine">The purchase line from the source document being processed.</param>
+    /// <param name="Currency">The currency record used for rounding calculations.</param>
+    /// <param name="RecalculateAmount">A boolean variable indicating if the amounts should be recalculated.</param>
+    /// <param name="ExactCostRevMandatory">A boolean variable indicating if exact cost reversal is mandatory.</param>
+    /// <param name="CreateToHeader">A boolean variable indicating if a new target header should be created.</param>
+    /// <param name="MoveNegLines">A boolean variable indicating if negative lines should be moved.</param>
+    /// <param name="IsHandled">A boolean variable indicating if the event is handled. If set to true, the default logic will be skipped.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRecalculateAndApplyPurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchLine: Record "Purchase Line"; Currency: Record Currency; var ExactCostRevMandatory: Boolean; var RecalculateAmount: Boolean; var CreateToHeader: Boolean; MoveNegLines: Boolean; var IsHandled: Boolean)
     begin
@@ -9262,6 +10319,14 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before updating the sales header during a copy operation from another sales header.
+    /// This allows developers to override or extend the default logic when copying sales header data.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header being updated.</param>
+    /// <param name="OriginalSalesHeader">The original sales header from which data is being copied.</param>
+    /// <param name="FromDocType">The document type of the original sales header.</param>
+    /// <param name="IsHandled">A boolean variable that, when set to true, skips the default update logic.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSalesHeaderWhenCopyFromSalesHeader(var SalesHeader: Record "Sales Header"; OriginalSalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From"; var IsHandled: Boolean)
     begin
@@ -9377,21 +10442,64 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after calculating whether item tracking entries should be copied from a sales line to a purchase line.
+    /// This allows developers to modify the logic determining whether item tracking entries should be included.
+    /// </summary>
+    /// <param name="ToPurchLine">
+    /// The purchase line record representing the target line being created.
+    /// </param>
+    /// <param name="ShouldCopyItemTracking">
+    /// A variable indicating whether item tracking entries should be copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromSalesToPurchDocOnAfterCalcShouldCopyItemTracking(ToPurchLine: Record "Purchase Line"; var ShouldCopyItemTracking: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the sales lines during the copying process from a sales document to a purchase document.
+    /// This allows developers to add or modify the filters applied to the sales lines being processed.
+    /// </summary>
+    /// <param name="FromSalesLine">
+    /// The sales line record being filtered.
+    /// </param>
+    /// <param name="FromSalesHeader">
+    /// The sales header record from which data is being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromSalesToPurchDocOnAfterSetFilters(var FromSalesLine: Record "Sales Line"; FromSalesHeader: Record "Sales Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before modifying a purchase header during the copying process from a sales document to a purchase document.
+    /// This allows developers to apply additional modifications to the purchase header prior to saving.
+    /// </summary>
+    /// <param name="ToPurchHeader">
+    /// The purchase header record representing the document being modified.
+    /// </param>
+    /// <param name="FromSalesHeader">
+    /// The sales header record from which data is being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromSalesToPurchDocOnBeforeToPurchHeaderModify(var ToPurchHeader: Record "Purchase Header"; FromSalesHeader: Record "Sales Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before inserting a purchase header during the copying process from a sales document to a purchase document.
+    /// This allows developers to modify or override the default behavior during the purchase header creation.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The purchase header record representing the document being created.
+    /// </param>
+    /// <param name="FromSalesHeader">
+    /// The sales header record from which data is being copied.
+    /// </param>
+    /// <param name="VendorNo">
+    /// The vendor number associated with the purchase document.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromSalesToPurchDocOnBeforePurchaseHeaderInsert(var ToPurchaseHeader: Record "Purchase Header"; FromSalesHeader: Record "Sales Header"; VendorNo: Code[20])
     begin
@@ -9442,6 +10550,19 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before deleting sales lines with negative quantities.
+    /// This allows developers to modify or override the behavior of the deletion process.
+    /// </summary>
+    /// <param name="FromSalesHeader">
+    /// The sales header record associated with the sales lines to be deleted.
+    /// </param>
+    /// <param name="OnlyTest">
+    /// A boolean flag indicating whether the operation is a test (no actual deletion occurs) or a real deletion.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean flag that allows developers to handle the logic themselves and skip the default deletion process if set to true.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteSalesLinesWithNegQty(FromSalesHeader: Record "Sales Header"; OnlyTest: Boolean; var IsHandled: Boolean)
     begin
@@ -9462,6 +10583,30 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the purchase document lines have been copied during the document copy process.
+    /// Subscribing to this event allows developers to implement additional logic or workflows
+    /// once the lines have been copied. This can be useful for extending functionality,
+    /// performing validations, or integrating with other processes.
+    /// </summary>
+    /// <param name="FromDocType">
+    /// The type of the source purchase document.
+    /// </param>
+    /// <param name="FromDocNo">
+    /// The document number of the source purchase document.
+    /// </param>
+    /// <param name="FromPurchaseHeader">
+    /// The source purchase header record from which the lines were copied.
+    /// </param>
+    /// <param name="IncludeHeader">
+    /// A boolean value indicating whether the source header data was included.
+    /// </param>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record to which the lines were copied.
+    /// </param>
+    /// <param name="MoveNegLines">
+    /// A boolean value indicating whether negative lines should be moved during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocOnAfterCopyPurchDocLines(FromDocType: Option; FromDocNo: Code[20]; FromPurchaseHeader: Record "Purchase Header"; IncludeHeader: Boolean; var ToPurchHeader: Record "Purchase Header"; MoveNegLines: Boolean; var ReleaseDocument: Boolean; var IsHandled: Boolean)
     begin
@@ -9497,6 +10642,19 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before updating vendor ledger entries.
+    /// Subscribing to this event allows developers to perform validations or data transformations.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record being processed.
+    /// </param>
+    /// <param name="FromDocType">
+    /// The document type of the source purchase document.
+    /// </param>
+    /// <param name="FromDocNo">
+    /// The document number of the source purchase document.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocUpdateHeaderOnBeforeUpdateVendLedgerEntry(var ToPurchaseHeader: Record "Purchase Header"; FromDocType: Option; FromDocNo: Code[20])
     begin
@@ -9507,6 +10665,25 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before copying lines of the sales document during the copy process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// before the lines are copied. This can be useful for filtering, altering the data,
+    /// or implementing additional validations during the copy process.
+    /// </summary>
+    /// <param name="FromSalesHeader">
+    /// The source sales header record being copied.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the data is being copied.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default line copy behavior should be bypassed.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
+    /// <param name="FromDocType">
+    /// The type of the sales document being copied.
+    /// </param>
     [IntegrationEvent(true, false)]
     local procedure OnCopySalesDocOnBeforeCopyLines(FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var IsHandled: Boolean; FromDocType: Enum "Sales Document Type From")
     begin
@@ -9547,6 +10724,18 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before transferring fields from the source sales shipment header to the target sales header during the copy process.
+    /// Subscribing to this event allows developers to modify or extend the behavior
+    /// before the fields have been transferred. This can be useful for implementing custom logic,
+    /// validations, or filtering data during the copy operation.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the fields are being copied.
+    /// </param>
+    /// <param name="SalesShipmentHeader">
+    /// The source sales shipment header record being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocOnBeforeTransferPostedShipmentFields(var ToSalesHeader: Record "Sales Header"; SalesShipmentHeader: Record "Sales Shipment Header")
     begin
@@ -9557,21 +10746,75 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after completing the transfer of fields from the source sales invoice header to the target sales header during the copy process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the fields have been transferred. This can be useful for implementing additional logic,
+    /// validations, or workflows based on the copied invoice data.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the fields were copied.
+    /// </param>
+    /// <param name="SalesInvoiceHeader">
+    /// The source sales invoice header record that was copied.
+    /// </param>
+    /// <param name="OldSalesHeader">
+    /// The existing state of the target sales header prior to the field transfer.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocOnAfterTransferPostedInvoiceFields(var ToSalesHeader: Record "Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header"; OldSalesHeader: Record "Sales Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after transferring fields from the source sales header archive to the target sales header during the copy process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the fields have been transferred. This can be useful for implementing additional logic,
+    /// validations, or workflows based on the copied archived sales header data.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the fields were copied.
+    /// </param>
+    /// <param name="FromSalesHeaderArchive">
+    /// The source sales header archive record being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocOnAfterTransferArchSalesHeaderFields(var ToSalesHeader: Record "Sales Header"; FromSalesHeaderArchive: Record "Sales Header Archive")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before transferring fields from the source sales invoice header to the target sales header during the copy process.
+    /// Subscribing to this event allows developers to modify or extend the behavior
+    /// before the fields have been transferred. This can be useful for applying custom logic,
+    /// validations, or altering the data during the transfer operation.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the fields are being copied.
+    /// </param>
+    /// <param name="SalesInvoiceHeader">
+    /// The source sales invoice header record being copied.
+    /// </param>
+    /// <param name="CopyJobData">
+    /// A boolean value indicating whether job-related data should be copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocOnBeforeTransferPostedInvoiceFields(var ToSalesHeader: Record "Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header"; var CopyJobData: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before transferring fields from the source return receipt header to the target sales header during the copy process.
+    /// Subscribing to this event allows developers to modify or extend the behavior
+    /// before the fields have been transferred. This can be useful for implementing custom logic,
+    /// validations, or altering the data during the transfer operation.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the fields are being copied.
+    /// </param>
+    /// <param name="ReturnReceiptHeader">
+    /// The source return receipt header record being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocOnBeforeTransferPostedReturnReceiptFields(var ToSalesHeader: Record "Sales Header"; ReturnReceiptHeader: Record "Return Receipt Header")
     begin
@@ -9582,71 +10825,329 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after applying filters to the sales invoice lines during the sales document copy process.
+    /// Subscribing to this event allows developers to modify or extend the filtering logic
+    /// before the sales invoice lines have been processed further. This can be useful for ensuring specific conditions
+    /// are met or additional filters are applied during the copy operation.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the sales invoice lines are being copied.
+    /// </param>
+    /// <param name="FromSalesInvoiceHeader">
+    /// The source sales invoice header record being copied.
+    /// </param>
+    /// <param name="FromSalesInvoiceLine">
+    /// The source sales invoice line record with applied filters.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines should be recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocInvLineOnAfterSetFilters(var ToSalesHeader: Record "Sales Header"; var FromSalesInvoiceHeader: Record "Sales Invoice Header"; var FromSalesInvoiceLine: Record "Sales Invoice Line"; var RecalculateLines: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after applying filters to the sales credit memo lines during the sales document copy process.
+    /// Subscribing to this event allows developers to modify or extend the filtering logic
+    /// before the sales credit memo lines have been processed further. This can be useful for ensuring specific conditions
+    /// are met or additional filters are applied during the copy operation.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the sales credit memo lines are being copied.
+    /// </param>
+    /// <param name="FromSalesCrMemoHeader">
+    /// The source sales credit memo header record being copied.
+    /// </param>
+    /// <param name="FromSalesCrMemoLine">
+    /// The source sales credit memo line record with applied filters.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines should be recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocCrMemoLineOnAfterSetFilters(var ToSalesHeader: Record "Sales Header"; var FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; var FromSalesCrMemoLine: Record "Sales Cr.Memo Line"; var RecalculateLines: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after applying filters to the sales shipment lines during the sales document copy process.
+    /// Subscribing to this event allows developers to modify or extend the filtering logic
+    /// before the sales shipment lines have been processed further. This can be useful for ensuring specific conditions
+    /// are met or additional filters are applied during the copy operation.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the sales shipment lines are being copied.
+    /// </param>
+    /// <param name="FromSalesShipmentHeader">
+    /// The source sales shipment header record being copied.
+    /// </param>
+    /// <param name="FromSalesShipmentLine">
+    /// The source sales shipment line record with applied filters.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines should be recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocShptLineOnAfterSetFilters(var ToSalesHeader: Record "Sales Header"; var FromSalesShipmentHeader: Record "Sales Shipment Header"; var FromSalesShipmentLine: Record "Sales Shipment Line"; var RecalculateLines: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the source purchase receipt lines during the purchase document copy process.
+    /// Subscribing to this event allows developers to extend or modify the filtering logic
+    /// applied to the source receipt lines. This can be useful for custom filtering or additional checks.
+    /// </summary>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record to which the lines are being copied.
+    /// </param>
+    /// <param name="FromPurchRcptHeader">
+    /// The source purchase receipt header record being processed.
+    /// </param>
+    /// <param name="FromPurchRcptLine">
+    /// The source purchase receipt line record being filtered.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines should be recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocRcptLineOnAfterSetFilters(var ToPurchHeader: Record "Purchase Header"; var FromPurchRcptHeader: Record "Purch. Rcpt. Header"; var FromPurchRcptLine: Record "Purch. Rcpt. Line"; var RecalculateLines: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the source purchase invoice lines during the purchase document copy process.
+    /// Subscribing to this event allows developers to extend or modify the filtering logic
+    /// applied to the source invoice lines. This can be useful for custom filtering or additional checks.
+    /// </summary>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record to which the lines are being copied.
+    /// </param>
+    /// <param name="FromPurchInvLine">
+    /// The source purchase invoice line record being filtered.
+    /// </param>
+    /// <param name="LinesNotCopied">
+    /// An integer representing the number of lines not copied during the process.
+    /// </param>
+    /// <param name="MissingExCostRevLink">
+    /// A boolean value indicating whether any external cost or revenue links are missing.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines should be recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocInvLineOnAfterSetFilters(var ToPurchHeader: Record "Purchase Header"; var FromPurchInvLine: Record "Purch. Inv. Line"; var LinesNotCopied: Integer; var MissingExCostRevLink: Boolean; RecalculateLines: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the source purchase credit memo lines during the purchase document copy process.
+    /// Subscribing to this event allows developers to extend or modify the filtering logic
+    /// applied to the source credit memo lines. This can be useful for custom filtering or additional checks.
+    /// </summary>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record to which the lines are being copied.
+    /// </param>
+    /// <param name="FromPurchCrMemoLine">
+    /// The source purchase credit memo line record being filtered.
+    /// </param>
+    /// <param name="LinesNotCopied">
+    /// An integer representing the number of lines not copied during the process.
+    /// </param>
+    /// <param name="MissingExCostRevLink">
+    /// A boolean value indicating whether any external cost or revenue links are missing.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines should be recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocCrMemoLineOnAfterSetFilters(var ToPurchHeader: Record "Purchase Header"; var FromPurchCrMemoLine: Record "Purch. Cr. Memo Line"; var LinesNotCopied: Integer; var MissingExCostRevLink: Boolean; RecalculateLines: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the source purchase return shipment lines during the purchase document copy process.
+    /// Subscribing to this event allows developers to extend or modify the filtering logic
+    /// applied to the source return shipment lines. This can be useful for custom filtering or additional checks.
+    /// </summary>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record to which the lines are being copied.
+    /// </param>
+    /// <param name="FromReturnShptLine">
+    /// The source purchase return shipment line record being filtered.
+    /// </param>
+    /// <param name="LinesNotCopied">
+    /// An integer representing the number of lines not copied during the process.
+    /// </param>
+    /// <param name="MissingExCostRevLink">
+    /// A boolean value indicating whether any external cost or revenue links are missing.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocReturnShptLineOnAfterSetFilters(var ToPurchHeader: Record "Purchase Header"; var FromReturnShptLine: Record "Return Shipment Line"; var LinesNotCopied: Integer; var MissingExCostRevLink: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the source purchase line archive during the purchase document copy process.
+    /// Subscribing to this event allows developers to extend or modify the filtering logic
+    /// applied to the source archived purchase lines. This can be useful for custom filtering or additional checks.
+    /// </summary>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record to which the lines are being copied.
+    /// </param>
+    /// <param name="ToPurchLine">
+    /// The target purchase line record that will be created.
+    /// </param>
+    /// <param name="FromPurchHeaderArchive">
+    /// The source purchase header archive record being processed.
+    /// </param>
+    /// <param name="FromPurchLineArchive">
+    /// The source purchase line archive record being filtered.
+    /// </param>
+    /// <param name="NextLineNo">
+    /// The next available line number in the target purchase document.
+    /// </param>
+    /// <param name="LinesNotCopied">
+    /// An integer representing the number of lines not copied during the process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocPurchLineArchiveOnAfterSetFilters(var ToPurchHeader: Record "Purchase Header"; ToPurchLine: Record "Purchase Line"; FromPurchHeaderArchive: Record "Purchase Header Archive"; var FromPurchLineArchive: Record "Purchase Line Archive"; var NextLineNo: Integer; var LinesNotCopied: Integer)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after applying filters to the return receipt lines during the sales document copy process.
+    /// Subscribing to this event allows developers to modify or extend the filtering logic
+    /// before the return receipt lines have been processed further. This can be useful for ensuring specific conditions
+    /// are met or additional filters are applied during the copy operation.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the return receipt lines are being copied.
+    /// </param>
+    /// <param name="FromReturnReceiptHeader">
+    /// The source return receipt header record being copied.
+    /// </param>
+    /// <param name="FromReturnReceiptLine">
+    /// The source return receipt line record with applied filters.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocReturnRcptLineOnAfterSetFilters(var ToSalesHeader: Record "Sales Header"; var FromReturnReceiptHeader: Record "Return Receipt Header"; var FromReturnReceiptLine: Record "Return Receipt Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after applying filters to the source sales lines during the sales document copy process.
+    /// Subscribing to this event allows developers to modify or extend the filtering logic
+    /// before the sales lines have been processed further. This can be useful for ensuring specific conditions
+    /// are met or additional filters are applied during the copy operation.
+    /// </summary>
+    /// <param name="FromSalesHeader">
+    /// The source sales header record being copied.
+    /// </param>
+    /// <param name="FromSalesLine">
+    /// The source sales line record with applied filters.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the sales lines are being copied.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines should be recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocSalesLineOnAfterSetFilters(FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var ToSalesHeader: Record "Sales Header"; var RecalculateLines: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after determining whether a specific sales line iteration should run during the copy process.
+    /// Subscribing to this event allows developers to extend or customize the iteration logic
+    /// based on the current state of the sales line and headers. This can be useful for implementing
+    /// additional conditions or skipping specific sales lines.
+    /// </summary>
+    /// <param name="FromSalesHeader">
+    /// The source sales header record being copied.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the sales lines are being copied.
+    /// </param>
+    /// <param name="FromSalesLine">
+    /// The current sales line record being processed.
+    /// </param>
+    /// <param name="ShouldRunIteration">
+    /// A boolean variable indicating whether the iteration should proceed for the current sales line.
+    /// This can be modified by the subscriber.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocSalesLineOnAfterCalcShouldRunIteration(FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; FromSalesLine: Record "Sales Line"; var ShouldRunIteration: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters on the source purchase lines during the purchase document copy process.
+    /// Subscribing to this event allows developers to extend or modify the filtering logic
+    /// applied to the source purchase lines. This can be useful for custom filtering or additional checks.
+    /// </summary>
+    /// <param name="FromPurchHeader">
+    /// The source purchase header record being processed.
+    /// </param>
+    /// <param name="FromPurchLine">
+    /// The source purchase line record being filtered.
+    /// </param>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record to which the lines are being copied.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines should be recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocPurchLineOnAfterSetFilters(FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var ToPurchHeader: Record "Purchase Header"; var RecalculateLines: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after a purchase line has been successfully copied from the source to the target during the document copy process.
+    /// Subscribing to this event allows developers to implement additional logic,
+    /// validations, or workflows after each line has been copied. This can be useful for custom handling or integrations.
+    /// </summary>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record to which the line was copied.
+    /// </param>
+    /// <param name="ToPurchLine">
+    /// The target purchase line record that was created.
+    /// </param>
+    /// <param name="FromPurchHeader">
+    /// The source purchase header record from which the line was copied.
+    /// </param>
+    /// <param name="FromPurchLine">
+    /// The source purchase line record that was copied.
+    /// </param>
+    /// <param name="IncludeHeader">
+    /// A boolean value indicating whether the source header data was included.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines were recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocPurchLineOnAfterCopyPurchLine(ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; IncludeHeader: Boolean; RecalculateLines: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after applying filters to the archived sales lines during the sales document copy process.
+    /// Subscribing to this event allows developers to modify or extend the filtering logic
+    /// before the archived sales lines have been processed further. This can be useful for ensuring specific conditions
+    /// are met or additional filters are applied during the copy operation.
+    /// </summary>
+    /// <param name="FromSalesHeaderArchive">
+    /// The source sales header archive record being copied.
+    /// </param>
+    /// <param name="FromSalesLineArchive">
+    /// The source sales line archive record with applied filters.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the archived sales lines are being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocSalesLineArchiveOnAfterSetFilters(FromSalesHeaderArchive: Record "Sales Header Archive"; var FromSalesLineArchive: Record "Sales Line Archive"; var ToSalesHeader: Record "Sales Header")
     begin
@@ -9657,11 +11158,38 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the location code in the target sales header during the update process.
+    /// Subscribing to this event allows developers to override or extend the default behavior
+    /// when validating location codes. This can be useful for skipping validation or applying custom logic.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record being updated.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default validation behavior should be bypassed.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocUpdateHeaderOnBeforeValidateLocationCode(var ToSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the sales document header status is set to "Open" during the update process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the status has been updated. This can be useful for implementing additional logic
+    /// or validations based on the updated status.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record being updated.
+    /// </param>
+    /// <param name="OldSalesHeader">
+    /// The existing state of the target sales header prior to the update.
+    /// </param>
+    /// <param name="ShouldValidateDimensionsAndLocation">
+    /// A boolean value indicating whether dimensions and location codes should be validated.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocUpdateHeaderOnAfterSetStatusOpen(var ToSalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header"; var ShouldValidateDimensionsAndLocation: Boolean)
     begin
@@ -9672,6 +11200,21 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after the sales document header has been updated during the copy process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the document header has been updated. This can be useful for implementing additional logic
+    /// or handling specific workflows after the header update.
+    /// </summary>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the data was copied.
+    /// </param>
+    /// <param name="FromSalesInvHeader">
+    /// The source sales invoice header record being copied.
+    /// </param>
+    /// <param name="FromDocType">
+    /// The type of the sales document being copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocOnAfterCopySalesDocUpdateHeader(var ToSalesHeader: Record "Sales Header"; var FromSalesInvHeader: Record "Sales Invoice Header"; FromDocType: Enum "Sales Document Type From")
     begin
@@ -9842,16 +11385,48 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered when the provided purchase document type does not match any predefined cases during conversion.
+    /// Subscribing to this event allows developers to handle custom or unsupported purchase document types
+    /// during the conversion process. This can be useful for extending functionality to accommodate specific business needs.
+    /// </summary>
+    /// <param name="FromDocType">
+    /// The original purchase document type being converted.
+    /// </param>
+    /// <param name="ToDocType">
+    /// The resulting purchase document type after the conversion, which can be modified by the subscriber.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnGetPurchaseDocumentTypeCaseElse(FromDocType: Enum "Purchase Document Type From"; var ToDocType: Enum "Purchase Document Type")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered when the provided sales document type does not match any predefined cases during conversion.
+    /// Subscribing to this event allows developers to handle custom or unsupported sales document types
+    /// during the conversion process. This can be useful for extending functionality to accommodate specific business needs.
+    /// </summary>
+    /// <param name="FromDocType">
+    /// The original sales document type being converted.
+    /// </param>
+    /// <param name="ToDocType">
+    /// The resulting sales document type after the conversion, which can be modified by the subscriber.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnGetSalesDocumentTypeCaseElse(FromDocType: Enum "Sales Document Type From"; var ToDocType: Enum "Sales Document Type")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting filters for sales lines with negative quantities.
+    /// This allows developers to adjust filters or perform additional logic after the filters have been applied.
+    /// </summary>
+    /// <param name="FromSalesLine">
+    /// The sales line record with the applied filters for negative quantities.
+    /// </param>
+    /// <param name="OnlyTest">
+    /// A boolean flag indicating whether the operation is a test (no actual deletion occurs) or a real deletion.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnDeleteSalesLinesWithNegQtyOnAfterSetFilters(var FromSalesLine: Record "Sales Line"; OnlyTest: Boolean)
     begin
@@ -9887,21 +11462,46 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the quantity field during the field transfer process from a sales line to a purchase line.
+    /// This allows developers to modify or intervene in the validation process for the quantity field.
+    /// </summary>
+    /// <param name="FromSalesLine">
+    /// The sales line record from which the quantity is being transferred.
+    /// </param>
+    /// <param name="ToPurchaseLine">
+    /// The purchase line record to which the quantity is being transferred.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnTransfldsFromSalesToPurchLineOnBeforeValidateQuantity(FromSalesLine: Record "Sales Line"; var ToPurchaseLine: Record "Purchase Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after recalculating the sales line. This allows additional modifications or checks after the recalculation process.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineOnAfterRecalculateSalesLine(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before recalculating the sales line. This allows custom logic to intervene or modify the recalculation process.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineOnBeforeRecalculateSalesLine(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before clearing drop shipment and special order flags on the sales line. This allows custom handling of these flags during the update process.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineOnBeforeClearDropShipmentAndSpecialOrder(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line")
     begin
@@ -9952,11 +11552,21 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after validating the "Quantity" field on the sales line. This allows additional modifications or checks after the validation process.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
     [IntegrationEvent(false, false)]
     local procedure OnRecalculateSalesLineOnAfterValidateQuantity(var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after validating the "Line Discount Amount" field on the sales line. This allows additional adjustments or logic after the validation process.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
     [IntegrationEvent(false, false)]
     local procedure OnRecalculateSalesLineOnAfterValidateLineDiscountAmount(var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line")
     begin
@@ -10027,6 +11637,16 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after calculating whether to copy the current sales line.
+    /// This allows developers to modify the decision to copy the line.
+    /// </summary>
+    /// <param name="ToSalesHeader">The target sales header to which the sales line will be copied.</param>
+    /// <param name="FromSalesHeader">The source sales header from which the sales line will be copied.</param>
+    /// <param name="ToSalesLine">The source sales line to be copied.</param>
+    /// <param name="RoundingLineInserted">A boolean variable indicating whether a rounding line was inserted during the process.</param>
+    /// <param name="CopyThisLine">A boolean flag indicating whether the current line should be copied. Can be modified.</param>
+    /// <param name="RecalculateLines">A boolean variable indicating whether lines should be recalculated during the copy operation.</param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocLineOnAfterCalcCopyThisLine(var ToSalesHeader: Record "Sales Header"; var FromSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; RoundingLineInserted: Boolean; var CopyThisLine: Boolean; RecalculateLines: Boolean)
     begin
@@ -10042,6 +11662,11 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Ship-to Code" field when copying a return order to a sales header.
+    /// This allows developers to intervene or add custom logic before the "Ship-to Code" has been validated.
+    /// </summary>
+    /// <param name="SalesHeader">The sales header being updated.</param>
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesHeaderWhenCopyFromSalesHeaderOnBeforeValidateShipToCode(var SalesHeader: Record "Sales Header")
     begin
@@ -10067,11 +11692,56 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after completing the sales line copy process for the sales document.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after all sales lines have been copied. This can be useful for implementing post-processing logic,
+    /// validations, or handling specific workflows related to the copied sales lines.
+    /// </summary>
+    /// <param name="ToSalesLine">
+    /// The target sales line record to which the sales lines were copied.
+    /// </param>
+    /// <param name="TransferOldExtLines">
+    /// An object codeunit "Transfer Old Ext. Text Lines" handling the transfer of old extended lines, if applicable.
+    /// </param>
+    /// <param name="FromSalesHeader">
+    /// The source sales header record being copied.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the sales lines were copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesDocSalesLine(var ToSalesLine: Record "Sales Line"; var TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines"; FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting properties for a process or operation in the general journal.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after the properties have been initialized. This can be useful for implementing additional logic,
+    /// validations, or handling specific business rules related to the configured properties.
+    /// </summary>
+    /// <param name="IncludeHeader">
+    /// A boolean value indicating whether the header should be included.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines should be recalculated.
+    /// </param>
+    /// <param name="MoveNegLines">
+    /// A boolean value indicating whether negative lines should be moved.
+    /// </param>
+    /// <param name="CreateToHeader">
+    /// A boolean value indicating whether to create to the header.
+    /// </param>
+    /// <param name="HideDialog">
+    /// A boolean value indicating whether dialogs should be hidden.
+    /// </param>
+    /// <param name="ExactCostRevMandatory">
+    /// A boolean value indicating whether exact cost reversal is mandatory.
+    /// </param>
+    /// <param name="ApplyFully">
+    /// A boolean value indicating whether to apply fully.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetProperties(var IncludeHeader: Boolean; var RecalculateLines: Boolean; var MoveNegLines: Boolean; var CreateToHeader: Boolean; var HideDialog: Boolean; var ExactCostRevMandatory: Boolean; var ApplyFully: Boolean)
     begin
@@ -10147,6 +11817,12 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after setting the next line number for the target purchase line. This allows further adjustments to the line or its data.
+    /// </summary>
+    /// <param name="ToPurchLine">The purchase line of the target document.</param>
+    /// <param name="FromPurchLine">The purchase line from the source document being processed.</param>
+    /// <param name="NextLineNo">The next line number for the target document.</param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocLineOnAfterSetNextLineNo(var ToPurchLine: Record "Purchase Line"; var FromPurchLine: Record "Purchase Line"; var NextLineNo: Integer)
     begin
@@ -10197,6 +11873,11 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Location Code" field on the sales line. This allows custom handling or skipping the validation process.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="IsHandled">A boolean variable to skip the default validation logic if set to true.</param>
     [IntegrationEvent(false, false)]
     local procedure OnRecalculateSalesLineOnBeforeValidateLocationCode(var ToSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
@@ -10277,6 +11958,27 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before finalizing a sales line during the sales document copy process.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after a sales line has been copied but before the next iteration or completion of the process.
+    /// This can be useful for implementing additional logic, validations, or post-processing for each line.
+    /// </summary>
+    /// <param name="FromSalesHeader">
+    /// The source sales header record being copied.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the sales lines are being copied.
+    /// </param>
+    /// <param name="ToSalesLine">
+    /// The target sales line record being finalized.
+    /// </param>
+    /// <param name="FromSalesLine">
+    /// The source sales line record being processed.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines should be recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocSalesLineOnBeforeFinishSalesDocSalesLine(FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line"; RecalculateLines: Boolean)
     begin
@@ -10287,11 +11989,31 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after completing the sales credit memo line copy process for the sales document.
+    /// Subscribing to this event allows developers to extend or customize the behavior
+    /// after all sales credit memo lines have been copied. This can be useful for implementing post-processing logic,
+    /// validations, or handling specific workflows related to the copied sales credit memo lines.
+    /// </summary>
+    /// <param name="FromSalesCrMemoHeader">
+    /// The source sales credit memo header record being copied.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The sales header record to which the sales credit memo lines were copied.
+    /// </param>
+    /// <param name="FromSalesCrMemoLine">
+    /// The source sales credit memo line record that was copied.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesDocCrMemoLine(var FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ToSalesHeader: Record "Sales Header"; var FromSalesCrMemoLine: Record "Sales Cr.Memo Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before handling the assembly attached to a sales line. This allows custom logic to override or skip the default handling.
+    /// </summary>
+    /// <param name="ToSalesLine">The sales line record being processed.</param>
+    /// <param name="IsHandled">A boolean variable to skip the default logic if set to true.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleAsmAttachedToSalesLine(var ToSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
@@ -10317,16 +12039,42 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before deleting purchase lines with negative quantities.
+    /// This allows developers to modify or override the behavior of the deletion process.
+    /// </summary>
+    /// <param name="FromPurchHeader">
+    /// The purchase header record associated with the purchase lines to be deleted.
+    /// </param>
+    /// <param name="OnlyTest">
+    /// A boolean flag indicating whether the operation is a test (no actual deletion occurs) or a real deletion.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean flag that allows developers to handle the logic themselves and skip the default deletion process if set to true.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeletePurchLinesWithNegQty(FromPurchHeader: Record "Purchase Header"; OnlyTest: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after inserting the copied sales line into the target sales document.
+    /// This allows developers to perform additional actions after the insertion.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line that was inserted.</param>
+    /// <param name="FromSalesLine">The source sales line that was copied.</param>
+    /// <param name="FromSalesDocType">The document type of the source sales document.</param>
+    /// <param name="MoveNegLines">A boolean variable indicating whether negative lines were moved instead of copied.</param>
     [IntegrationEvent(true, false)]
     local procedure OnCopySalesDocLineOnAfterInsertToSalesLine(var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line"; FromSalesDocType: Enum "Sales Document Type From"; MoveNegLines: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Work Type Code" field on the sales line. This allows custom logic or skipping the validation process.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
     [IntegrationEvent(false, false)]
     local procedure OnRecalculateSalesLineOnBeforeValidateWorkTypeCode(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line")
     begin
@@ -10357,6 +12105,21 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the customer in the sales document copy process.
+    /// Subscribing to this event allows developers to override or extend the default customer validation logic.
+    /// This can be useful for applying custom rules, skipping validation, or introducing additional checks.
+    /// </summary>
+    /// <param name="FromSalesHeader">
+    /// The source sales header record being validated.
+    /// </param>
+    /// <param name="ToSalesHeader">
+    /// The target sales header record to which the customer validation is being applied.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default validation behavior should be bypassed.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCustomer(var FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
@@ -10407,21 +12170,73 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before transferring fields from a posted purchase receipt header to a purchase header.
+    /// Allows developers to customize or modify the data before it has been transferred.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record to which data will be transferred.
+    /// </param>
+    /// <param name="OldPurchaseHeader">
+    /// The original purchase header record before copying.
+    /// </param>
+    /// <param name="FromPurchRcptHeader">
+    /// The source posted purchase receipt header record.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchHeaderFromPostedReceiptOnBeforeTransferFields(var ToPurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; FromPurchRcptHeader: Record "Purch. Rcpt. Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before transferring fields from a posted purchase invoice header to a purchase header.
+    /// Allows developers to customize or modify the data before it has been transferred.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record to which data will be transferred.
+    /// </param>
+    /// <param name="OldPurchaseHeader">
+    /// The original purchase header record before copying.
+    /// </param>
+    /// <param name="FromPurchInvHeader">
+    /// The source posted purchase invoice header record.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchHeaderFromPostedInvoiceOnBeforeTransferFields(var ToPurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; FromPurchInvHeader: Record "Purch. Inv. Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before transferring fields from a posted return shipment header to a purchase header.
+    /// Allows developers to customize or modify the data before it has been transferred.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record to which data will be transferred.
+    /// </param>
+    /// <param name="OldPurchaseHeader">
+    /// The original purchase header record before copying.
+    /// </param>
+    /// <param name="FromReturnShipmentHeader">
+    /// The source posted return shipment header record.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchHeaderFromPostedReturnShipmentOnBeforeTransferFields(var ToPurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; FromReturnShipmentHeader: Record "Return Shipment Header")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before transferring fields from a posted purchase credit memo header to a purchase header.
+    /// Allows developers to customize or modify the data before it has been transferred.
+    /// </summary>
+    /// <param name="ToPurchaseHeader">
+    /// The target purchase header record to which data will be transferred.
+    /// </param>
+    /// <param name="OldPurchaseHeader">
+    /// The original purchase header record before copying.
+    /// </param>
+    /// <param name="FromPurchCrMemoHeader">
+    /// The source posted purchase credit memo header record.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchHeaderFromPostedCreditMemoOnBeforeTransferFields(var ToPurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; FromPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
     begin
@@ -10432,11 +12247,53 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before inserting or updating the purchase header during the document copy process.
+    /// Subscribing to this event allows developers to modify or extend the behavior
+    /// before the header has been created or updated. This can be useful for applying additional logic,
+    /// customizations, or altering the workflow during header processing.
+    /// </summary>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record being created or updated.
+    /// </param>
+    /// <param name="ToPurchLine">
+    /// The purchase line record associated with the target purchase document.
+    /// </param>
+    /// <param name="CreateToHeader">
+    /// A boolean value indicating whether the header will be created.
+    /// </param>
+    /// <param name="IncludeHeader">
+    /// A boolean value indicating whether the source header data should be included.
+    /// </param>
+    /// <param name="DoExit">
+    /// A boolean variable indicating whether the operation should exit early.
+    /// </param>
+    /// <param name="IsHandled">
+    /// A boolean variable indicating whether the default header creation or inclusion behavior should be bypassed.
+    /// Setting this variable to true will skip the default behavior.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocOnBeforeCreateOrIncludeHeader(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; CreateToHeader: Boolean; IncludeHeader: Boolean; var DoExit: Boolean; var IsHandled: Boolean);
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after processing each purchase line in the loop during the purchase document copy process.
+    /// Subscribing to this event allows developers to implement additional logic
+    /// or workflows after processing each line. This can be useful for tracking progress or applying custom operations.
+    /// </summary>
+    /// <param name="ToPurchHeader">
+    /// The target purchase header record to which the lines are being copied.
+    /// </param>
+    /// <param name="ToPurchLine">
+    /// The current purchase line record in the target document.
+    /// </param>
+    /// <param name="FromPurchLine">
+    /// The current purchase line record in the source document being processed.
+    /// </param>
+    /// <param name="RecalculateLines">
+    /// A boolean value indicating whether the lines should be recalculated during the copy process.
+    /// </param>
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocPurchLineOnAfterProcessFromPurchLineInLoop(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; FromPurchLine: Record "Purchase Line"; RecalculateLines: Boolean);
     begin
@@ -10447,6 +12304,11 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before recalculating the amount on the sales line. This allows custom adjustments before the amount has been recalculated.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineBeforeRecalculateAmount(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line");
     begin
@@ -10462,11 +12324,24 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the "Unit Cost (LCY)" field on the sales line. This allows custom logic before the validation has been executed.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
+    /// <param name="IsHandled">A boolean variable to override the default validation if set to true.</param>
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineOnBeforeToSalesLineValidateUnitCostLcy(var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after updating the warehouse shipment information for the sales line. This allows custom adjustments or checks after the update.
+    /// </summary>
+    /// <param name="ToSalesHeader">The target sales header record being updated.</param>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesHeader">The source sales header record being copied from.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineOnAfterUpdateWithWarehouseShip(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line")
     begin
@@ -10482,11 +12357,21 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before determining if the sales line should be copied when the type is "G/L Account".
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
     [IntegrationEvent(false, false)]
     local procedure OnRecalculateSalesLineOnBeforeCopyThisLine(ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line")
     begin
     end;
 
+    /// <summary>
+    /// Event triggered after validating the "No." field on the sales line. This allows additional logic or checks after the validation process.
+    /// </summary>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
     [IntegrationEvent(false, false)]
     local procedure OnRecalculateSalesLineOnAfterValidateNo(var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line")
     begin
@@ -10532,6 +12417,14 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
+    /// <summary>
+    /// Event triggered before validating the target sales line during the update process. This allows additional checks or modifications before validation.
+    /// </summary>
+    /// <param name="ToSalesHeader">The target sales header record being updated.</param>
+    /// <param name="ToSalesLine">The target sales line record being updated.</param>
+    /// <param name="FromSalesHeader">The source sales header record being copied from.</param>
+    /// <param name="FromSalesLine">The source sales line record being copied from.</param>
+    /// <param name="ShouldRecalculateSalesLine">A boolean variable indicating if the sales line should be recalculated.</param>
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineOnBeforeValidateToSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var ShouldRecalculateSalesLine: Boolean)
     begin

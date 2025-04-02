@@ -167,15 +167,7 @@ report 1094 "Job Transfer to Sales Invoice"
         Job: Record Job;
         InvoiceNo: Code[20];
         NewInvoice: Boolean;
-#if not CLEAN23
-    [Obsolete('Replaced by GetInvoiceNo(var Done2: Boolean; var NewInvoice2: Boolean; var PostingDate2: Date; var DocumentDate2: Date; var InvoiceNo2: Code[20])', '23.0')]
-    procedure GetInvoiceNo(var Done2: Boolean; var NewInvoice2: Boolean; var PostingDate2: Date; var InvoiceNo2: Code[20])
-    var
-        DocumentDate2: date;
-    begin
-        GetInvoiceNo(Done2, NewInvoice2, PostingDate2, DocumentDate2, InvoiceNo2);
-    end;
-#endif
+
     procedure GetInvoiceNo(var Done2: Boolean; var NewInvoice2: Boolean; var PostingDate2: Date; var DocumentDate2: Date; var InvoiceNo2: Code[20])
     begin
         Done2 := Done;

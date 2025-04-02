@@ -180,17 +180,17 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         Day1 := WorkDate();
         Qty := LibraryRandom.RandIntInRange(3, 100);
         QtyPer := LibraryRandom.RandIntInRange(3, 10);
-        LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.MAKEAdditionalItemUOM(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(2, 10));
+        LibraryInventory.CreateItemSimple(Item, CostingMethod, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(2, 10));
 
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 2 * Qty * QtyPer, Day1, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', 2 * Qty * QtyPer, Day1, LibraryRandom.RandDec(100, 2));
 
-        LibraryPatterns.POSTSalesOrderPartially(SalesHeader1, Item, '', '', Qty * QtyPer, Day1 + 1, 0, true,
+        LibrarySales.PostSalesOrderPartially(SalesHeader1, Item, '', '', Qty * QtyPer, Day1 + 1, 0, true,
           Qty * (QtyPer - ShipDelta), Invoice, Qty * (QtyPer - InvoiceDelta));
         LibraryPatterns.InsertTempILEFromLast(TempItemLedgerEntry);
         SalesShptLine1.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
 
-        LibraryPatterns.MAKESalesOrder(SalesHeader2, SalesLine, Item, '', '', Qty, Day1 + 2, LibraryRandom.RandDec(100, 2));
+        LibrarySales.CreateSalesOrder(SalesHeader2, SalesLine, Item, '', '', Qty, Day1 + 2, LibraryRandom.RandDec(100, 2));
         SalesLine.Validate("Qty. to Ship", Qty - ShipDelta);
         SalesLine.Validate("Qty. to Invoice", Qty - InvoiceDelta);
         SalesLine."Unit of Measure Code" := ItemUnitOfMeasure.Code;
@@ -207,7 +207,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         SalesHeader.Modify(true);
 
         if SplitChargeLine then begin
-            LibraryPatterns.MAKEItemChargeSalesLine(SalesLine, ItemCharge, SalesHeader, 2 * Qty, LibraryRandom.RandDec(100, 2));
+            LibrarySales.CreateItemChargeSalesLine(SalesLine, ItemCharge, SalesHeader, 2 * Qty, LibraryRandom.RandDec(100, 2));
             LibrarySales.CreateItemChargeAssignment(ItemChargeAssignmentSales, SalesLine, ItemCharge,
               ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
               SalesShptLine1."Document No.", SalesShptLine1."Line No.",
@@ -220,8 +220,8 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
               SalesShptLine2."No.", Qty, LibraryRandom.RandDec(100, 2));
             ItemChargeAssignmentSales.Insert();
         end else begin
-            LibraryPatterns.ASSIGNSalesChargeToSalesShptLine(SalesHeader, SalesShptLine1, Qty, LibraryRandom.RandDec(100, 2));
-            LibraryPatterns.ASSIGNSalesChargeToSalesShptLine(SalesHeader, SalesShptLine2, Qty, LibraryRandom.RandDec(100, 2));
+            LibrarySales.AssignSalesChargeToSalesShptLine(SalesHeader, SalesShptLine1, Qty, LibraryRandom.RandDec(100, 2));
+            LibrarySales.AssignSalesChargeToSalesShptLine(SalesHeader, SalesShptLine2, Qty, LibraryRandom.RandDec(100, 2));
         end;
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -336,34 +336,34 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         // Setup: purchase invoice/order with and without variant.
         Day1 := WorkDate();
         Qty := LibraryRandom.RandIntInRange(3, 100);
-        LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.CreateItemSimple(Item, CostingMethod, LibraryRandom.RandDec(100, 2));
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(InTransitLocation);
         InTransitLocation."Use As In-Transit" := true;
         InTransitLocation.Modify();
-        LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
+        LibraryWarehouse.CreateStockkeepingUnit(StockkeepingUnit, Item);
 
-        LibraryPatterns.MAKEPurchaseDoc(PurchaseHeader, PurchaseLine, PurchDocType, Item,
+        LibraryPurchase.CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchDocType, Item,
           StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", 2 * Qty, Day1, LibraryRandom.RandDec(100, 2));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
-        LibraryPatterns.MAKEPurchaseDoc(PurchaseHeader, PurchaseLine, PurchDocType, Item,
+        LibraryPurchase.CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchDocType, Item,
           StockkeepingUnit."Location Code", '', 2 * Qty, Day1, LibraryRandom.RandDec(100, 2));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Transfer with and without variant.
         FromLocation.Get(StockkeepingUnit."Location Code");
-        LibraryPatterns.POSTTransferOrder(TransferHeader, Item, FromLocation,
+        LibraryInventory.CreateAndPostTransferOrder(TransferHeader, Item, FromLocation,
           ToLocation, InTransitLocation, StockkeepingUnit."Variant Code", Qty, Day1 + 4, Day1 + 4, true, true);
-        LibraryPatterns.POSTTransferOrder(TransferHeader, Item, FromLocation,
+        LibraryInventory.CreateAndPostTransferOrder(TransferHeader, Item, FromLocation,
           ToLocation, InTransitLocation, '', Qty, Day1 + 4, Day1 + 4, true, true);
 
         // Sell with and without variant.
-        LibraryPatterns.MAKESalesInvoice(SalesHeader, SalesLine, Item, FromLocation.Code, StockkeepingUnit."Variant Code", Qty, Day1 + 5,
+        LibrarySales.CreateSalesInvoice(SalesHeader, SalesLine, Item, FromLocation.Code, StockkeepingUnit."Variant Code", Qty, Day1 + 5,
           LibraryRandom.RandDec(100, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        LibraryPatterns.MAKESalesInvoice(SalesHeader, SalesLine, Item, FromLocation.Code, '', Qty, Day1 + 5,
+        LibrarySales.CreateSalesInvoice(SalesHeader, SalesLine, Item, FromLocation.Code, '', Qty, Day1 + 5,
           LibraryRandom.RandDec(100, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -511,17 +511,17 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         // Setup: purchase invoice with and without variant.
         Day1 := WorkDate();
         Qty := LibraryRandom.RandIntInRange(3, 100);
-        LibraryPatterns.MAKEItemSimple(Item, CostingMethod, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.CreateItemSimple(Item, CostingMethod, LibraryRandom.RandDec(100, 2));
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(InTransitLocation);
         InTransitLocation."Use As In-Transit" := true;
         InTransitLocation.Modify();
-        LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
+        LibraryWarehouse.CreateStockkeepingUnit(StockkeepingUnit, Item);
 
-        LibraryPatterns.MAKEPurchaseDoc(PurchaseHeader1, PurchaseLine, PurchDocType, Item, StockkeepingUnit."Location Code",
+        LibraryPurchase.CreatePurchaseDocument(PurchaseHeader1, PurchaseLine, PurchDocType, Item, StockkeepingUnit."Location Code",
           StockkeepingUnit."Variant Code", 2 * Qty, Day1, LibraryRandom.RandDec(100, 2));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader1, true, Invoice);
-        LibraryPatterns.MAKEPurchaseDoc(PurchaseHeader2, PurchaseLine, PurchDocType, Item, StockkeepingUnit."Location Code",
+        LibraryPurchase.CreatePurchaseDocument(PurchaseHeader2, PurchaseLine, PurchDocType, Item, StockkeepingUnit."Location Code",
           '', 2 * Qty, Day1, LibraryRandom.RandDec(100, 2));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, Invoice);
 
@@ -538,7 +538,7 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
                     PurchInvLine.SetRange("No.", Item."No.");
                     PurchInvLine.FindFirst();
 
-                    LibraryPatterns.ASSIGNPurchChargeToPurchInvoiceLine(PurchaseHeader, PurchInvLine, Qty,
+                    LibraryPurchase.AssignPurchChargeToPurchInvoiceLine(PurchaseHeader, PurchInvLine, Qty,
                       LibraryRandom.RandDec(100, 2));
                 end;
             PurchaseHeader."Document Type"::Order:
@@ -546,30 +546,30 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
                     PurchRcptLine.SetRange("Order No.", PurchaseHeader1."No.");
                     PurchRcptLine.FindFirst();
 
-                    LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(PurchaseHeader, PurchRcptLine, Qty,
+                    LibraryPurchase.AssignPurchChargeToPurchRcptLine(PurchaseHeader, PurchRcptLine, Qty,
                       LibraryRandom.RandDec(100, 2));
                     LibraryPurchase.PostPurchaseDocument(PurchaseHeader1, true, true);
                     LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
                 end;
         end;
 
-        LibraryPatterns.MAKEItemChargePurchaseLine(PurchaseLine, ItemCharge, PurchaseHeader, Qty,
+        LibraryPurchase.CreateItemChargePurchaseLine(PurchaseLine, ItemCharge, PurchaseHeader, Qty,
           LibraryRandom.RandDec(100, 2));
         PurchaseLine."Qty. to Invoice" := 0;
         PurchaseLine.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Sales credit memo with and without variant.
-        LibraryPatterns.MAKESalesDoc(SalesHeader1, SalesLine, SalesDocType, Item, StockkeepingUnit."Location Code",
+        LibrarySales.CreateSalesDocument(SalesHeader1, SalesLine, SalesDocType, Item, StockkeepingUnit."Location Code",
           StockkeepingUnit."Variant Code", Qty, Day1 + 5, LibraryRandom.RandDec(100, 2));
         LibrarySales.PostSalesDocument(SalesHeader1, true, Invoice);
-        LibraryPatterns.MAKESalesDoc(SalesHeader2, SalesLine, SalesDocType, Item, StockkeepingUnit."Location Code",
+        LibrarySales.CreateSalesDocument(SalesHeader2, SalesLine, SalesDocType, Item, StockkeepingUnit."Location Code",
           '', Qty, Day1 + 5, LibraryRandom.RandDec(100, 2));
         LibrarySales.PostSalesDocument(SalesHeader2, true, Invoice);
 
         // Revalue inventory.
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
-        LibraryPatterns.MAKERevaluationJournalLine(ItemJournalBatch, Item, Day1 + 2,
+        LibraryInventory.CreateRevaluationJournalLine(ItemJournalBatch, Item, Day1 + 2,
           "Inventory Value Calc. Per"::Item, false, false, true, "Inventory Value Calc. Base"::" ");
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
@@ -579,21 +579,21 @@ codeunit 137609 "SCM CETAF Add. Cost Sales"
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Sales invoice with and without variant.
-        LibraryPatterns.MAKESalesInvoice(SalesHeader, SalesLine, Item, StockkeepingUnit."Location Code",
+        LibrarySales.CreateSalesInvoice(SalesHeader, SalesLine, Item, StockkeepingUnit."Location Code",
           StockkeepingUnit."Variant Code", Qty, Day1 + 10, LibraryRandom.RandDec(100, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        LibraryPatterns.MAKESalesInvoice(SalesHeader, SalesLine, Item, StockkeepingUnit."Location Code",
+        LibrarySales.CreateSalesInvoice(SalesHeader, SalesLine, Item, StockkeepingUnit."Location Code",
           '', Qty, Day1 + 10, LibraryRandom.RandDec(100, 2));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Purchase credit memo with and without variant.
-        LibraryPatterns.MAKEPurchaseDoc(PurchaseHeader1, PurchaseLine, PurchReturnDocType, Item,
+        LibraryPurchase.CreatePurchaseDocument(PurchaseHeader1, PurchaseLine, PurchReturnDocType, Item,
           StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, Day1 + 11,
           LibraryRandom.RandDec(100, 2));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader1, true, Invoice);
 
-        LibraryPatterns.MAKEPurchaseDoc(PurchaseHeader2, PurchaseLine, PurchReturnDocType, Item,
+        LibraryPurchase.CreatePurchaseDocument(PurchaseHeader2, PurchaseLine, PurchReturnDocType, Item,
           StockkeepingUnit."Location Code", '', Qty, Day1 + 11, LibraryRandom.RandDec(100, 2));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, Invoice);
 

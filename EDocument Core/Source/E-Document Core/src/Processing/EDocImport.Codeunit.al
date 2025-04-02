@@ -8,7 +8,14 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
 using Microsoft.eServices.EDocument.OrderMatch;
+using Microsoft.eServices.EDocument.Integration.Receive;
+using Microsoft.eServices.EDocument.Processing.Import;
+#if not CLEAN26
+using Microsoft.eServices.EDocument.Integration;
+#endif
+using System.IO;
 using System.Utilities;
+using Microsoft.eServices.EDocument.Processing.Interfaces;
 
 codeunit 6140 "E-Doc. Import"
 {
@@ -16,13 +23,138 @@ codeunit 6140 "E-Doc. Import"
         tabledata "E-Document" = im,
         tabledata "E-Doc. Imported Line" = imd;
 
+    procedure ReceiveAndProcessAutomatically(EDocumentService: Record "E-Document Service"): Boolean
+    var
+        EDocumentServiceStatus: Record "E-Document Service Status";
+        EDocImportParameters: Record "E-Doc. Import Parameters";
+        EDocument: Record "E-Document";
+        EDocIntegrationMgt: Codeunit "E-Doc. Integration Management";
+        ReceiveContext: Codeunit ReceiveContext;
+        AllEDocumentsProcessed: Boolean;
+    begin
+#if not CLEAN26
+        if EDocumentService."Service Integration V2" = "Service Integration"::"No Integration" then
+            exit(EDocIntegrationMgt.ReceiveDocument(EDocumentService, EDocumentService."Service Integration"));
+#endif
+        EDocIntegrationMgt.ReceiveDocuments(EDocumentService, ReceiveContext);
+
+        EDocImportParameters := EDocumentService.GetDefaultImportParameters();
+
+        AllEDocumentsProcessed := true;
+        EDocumentServiceStatus.SetRange("E-Document Service Code", EDocumentService.Code);
+        EDocumentServiceStatus.SetRange(Status, "E-Document Service Status"::Imported);
+        EDocumentServiceStatus.SetFilter("Import Processing Status", '<> %1', "Import E-Doc. Proc. Status"::Processed);
+        if EDocumentServiceStatus.FindSet() then
+            repeat
+                EDocument.Get(EDocumentServiceStatus."E-Document Entry No");
+                AllEDocumentsProcessed := AllEDocumentsProcessed and ProcessIncomingEDocument(EDocument, EDocumentService, EDocImportParameters);
+            until EDocumentServiceStatus.Next() = 0;
+        exit(AllEDocumentsProcessed);
+    end;
+
+    procedure ProcessAutomaticallyIncomingEDocument(EDocument: Record "E-Document"): Boolean
+    var
+        EDocumentService: Record "E-Document Service";
+    begin
+        EDocumentService := EDocument.GetEDocumentService();
+        exit(ProcessIncomingEDocument(EDocument, EDocumentService, EDocumentService.GetDefaultImportParameters()));
+    end;
+
+    procedure ProcessIncomingEDocument(EDocument: Record "E-Document"; EDocImportParameters: Record "E-Doc. Import Parameters"): Boolean
+    begin
+        exit(ProcessIncomingEDocument(EDocument, EDocument.GetEDocumentService(), EDocImportParameters));
+    end;
+
+    internal procedure ProcessIncomingEDocument(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; EDocImportParameters: Record "E-Doc. Import Parameters"): Boolean
+    var
+        ImportEDocumentProcess: Codeunit "Import E-Document Process";
+        PreviousStatus, CurrentStatus, DesiredStatus : Enum "Import E-Doc. Proc. Status";
+        StepToDo, StepToUndo : Enum "Import E-Document Steps";
+        StatusIndex: Integer;
+    begin
+        EDocument.TestField("Entry No");
+        Clear(EDocumentLog);
+        EDocumentLog.SetFields(EDocument, EDocumentService);
+
+        CurrentStatus := EDocument.GetEDocumentImportProcessingStatus();
+        DesiredStatus := ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false);
+
+        // We undo all the steps that have been done, if CurrentStatus = DesiredStatus we undo the last step to redo it
+        for StatusIndex := ImportEDocumentProcess.StatusStepIndex(CurrentStatus) downto ImportEDocumentProcess.StatusStepIndex(DesiredStatus) do
+            if StatusIndex > 0 then begin
+                PreviousStatus := ImportEDocumentProcess.IndexToStatus(StatusIndex - 1);
+                StepToUndo := ImportEDocumentProcess.GetNextStep(PreviousStatus);
+                ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToUndo, EDocImportParameters, true);
+                if not RunConfiguredImportStep(ImportEDocumentProcess, EDocument) then
+                    exit(false);
+            end;
+
+        CurrentStatus := EDocument.GetEDocumentImportProcessingStatus();
+        // We run all the steps that need to be done to reach the desired state
+        for StatusIndex := ImportEDocumentProcess.StatusStepIndex(CurrentStatus) to ImportEDocumentProcess.StatusStepIndex(DesiredStatus) - 1 do
+            if StatusIndex < ImportEDocumentProcess.StatusStepIndex("Import E-Doc. Proc. Status"::Processed) then begin
+                StepToDo := ImportEDocumentProcess.GetNextStep(ImportEDocumentProcess.IndexToStatus(StatusIndex));
+                ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToDo, EDocImportParameters, false);
+                if not RunConfiguredImportStep(ImportEDocumentProcess, EDocument) then
+                    exit(false)
+            end;
+        exit(true);
+    end;
+
+    local procedure RunConfiguredImportStep(var ImportEDocumentProcess: Codeunit "Import E-Document Process"; EDocument: Record "E-Document"): Boolean
+    var
+        EDocumentErrorHelper: Codeunit "E-Document Error Helper";
+    begin
+        EDocumentErrorHelper.ClearErrorMessages(EDocument);
+        Commit();
+        if not ImportEDocumentProcess.Run() then begin
+
+            EDocument.SetRecFilter();
+            EDocument.FindFirst();
+
+            EDocErrorHelper.LogSimpleErrorMessage(EDocument, GetLastErrorText());
+            EDocumentLog.InsertLog(Enum::"E-Document Service Status"::"Imported Document Processing Error", EDocument.GetEDocumentImportProcessingStatus());
+            EDocumentProcessing.ModifyServiceStatus(EDocument, EDocument.GetEDocumentService(), Enum::"E-Document Service Status"::"Imported Document Processing Error");
+            EDocumentProcessing.ModifyEDocumentStatus(EDocument);
+            exit(false);
+        end;
+        exit(true);
+    end;
+
+    internal procedure CreateFromType(var EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; Type: Enum "E-Doc. Data Storage Blob Type"; Filename: Text; InStr: InStream)
+    var
+        EDocLog: Record "E-Document Log";
+        IBlobType: Interface IBlobType;
+    begin
+        IBlobType := Type;
+        EDocument.Direction := EDocument.Direction::Incoming;
+        EDocument."Document Type" := Enum::"E-Document Type"::None;
+        EDocument.Service := EDocumentService.Code;
+
+        EDocument."File Name" := CopyStr(FileName, 1, 256);
+        EDocument."File Type" := Type;
+        EDocument.Insert(true);
+
+        EDocumentLog.SetFields(EDocument, EDocumentService);
+        EDocumentLog.SetBlob(CopyStr(FileName, 1, 256), Type, InStr);
+
+        EDocLog := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Unprocessed);
+        EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, Enum::"E-Document Service Status"::Imported);
+
+        EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
+        EDocument.Modify();
+    end;
+
     internal procedure UploadDocument(var EDocument: Record "E-Document")
     var
         EDocumentService: Record "E-Document Service";
+        EDocLog: Record "E-Document Log";
         TempBlob: Codeunit "Temp Blob";
         OutStr: OutStream;
         InStr: InStream;
         FileName: Text;
+        EDocumentServiceStatus: Enum "E-Document Service Status";
+        BlobType: Enum "E-Doc. Data Storage Blob Type";
     begin
         if Page.RunModal(Page::"E-Document Services", EDocumentService) <> Action::LookupOK then
             exit;
@@ -30,25 +162,35 @@ codeunit 6140 "E-Doc. Import"
         if not UploadIntoStream('', '', '', FileName, InStr) then
             exit;
 
-        TempBlob.CreateOutStream(OutStr);
-        CopyStream(OutStr, InStr);
+        BlobType := GetFileType(FileName);
+        if BlobType = Enum::"E-Doc. Data Storage Blob Type"::Unspecified then
+            Error(FileTypeNotSupportedErr);
 
         EDocument.Direction := EDocument.Direction::Incoming;
         EDocument."Document Type" := Enum::"E-Document Type"::None;
+        EDocument.Service := EDocumentService.Code;
+        EDocumentServiceStatus := "E-Document Service Status"::Imported;
+
+        OutStr := TempBlob.CreateOutStream();
+        CopyStream(OutStr, InStr);
+
+        EDocument."File Name" := CopyStr(FileName, 1, 256);
+        EDocument."File Type" := BlobType;
 
         if EDocument."Entry No" = 0 then begin
             EDocument.Insert(true);
-            EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, Enum::"E-Document Service Status"::Imported);
+            EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, EDocumentServiceStatus);
         end else begin
             EDocument.Modify(true);
-            EDocumentProcessing.ModifyServiceStatus(EDocument, EDocumentService, Enum::"E-Document Service Status"::Imported);
+            EDocumentProcessing.ModifyServiceStatus(EDocument, EDocumentService, EDocumentServiceStatus);
         end;
 
-        EDocumentLog.InsertLog(EDocument, EDocumentService, TempBlob, Enum::"E-Document Service Status"::Imported);
-        EDocumentProcessing.ModifyEDocumentStatus(EDocument, Enum::"E-Document Service Status"::Imported);
+        EDocLog := EDocumentLog.InsertLog(EDocument, EDocumentService, TempBlob, EDocumentServiceStatus);
+        EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";
+        EDocument.Modify();
     end;
 
-    internal procedure GetBasicInfo(var EDocument: Record "E-Document")
+    internal procedure V1_GetBasicInfo(var EDocument: Record "E-Document")
     var
         EDocService: Record "E-Document Service";
         TempBlob: Codeunit "Temp Blob";
@@ -72,21 +214,21 @@ codeunit 6140 "E-Doc. Import"
             EDocAttachmentProcessor.DeleteAll(EDocument, RecordRef);
     end;
 
-    internal procedure ProcessDocument(var EDocument: Record "E-Document"; CreateJnlLine: Boolean)
+    internal procedure V1_ProcessEDocument(var EDocument: Record "E-Document"; CreateJnlLine: Boolean)
     var
         EDocService: Record "E-Document Service";
         TempBlob: Codeunit "Temp Blob";
     begin
-        if EDocument.Status = EDocument.Status::Processed then // TODO: Change to test field
+        if EDocument.Status = EDocument.Status::Processed then
             exit;
 
         DeleteAttachments(EDocument);
 
         EDocErrorHelper.ClearErrorMessages(EDocument);
-        EDocService := EDocumentLog.GetLastServiceFromLog(EDocument);
+        EDocService := EDocument.GetEDocumentService();
         EDocumentLog.GetDocumentBlobFromLog(EDocument, EDocService, TempBlob, Enum::"E-Document Service Status"::Imported);
 
-        ProcessImportedDocument(EDocument, EDocService, TempBlob, CreateJnlLine);
+        V1_ProcessImportedDocument(EDocument, EDocService, TempBlob, CreateJnlLine);
     end;
 
     local procedure GetDocumentBasicInfo(var EDocument: Record "E-Document"; EDocService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob")
@@ -116,76 +258,6 @@ codeunit 6140 "E-Doc. Import"
         EDocument.Modify(true);
     end;
 
-    internal procedure ReceiveDocument(EDocService: Record "E-Document Service")
-    var
-        EDocument, EDocument2 : Record "E-Document";
-        EDocLog: Record "E-Document Log";
-        TempBlob: Codeunit "Temp Blob";
-        EDocIntegration: Interface "E-Document Integration";
-        EDocumentServiceStatus: Enum "E-Document Service Status";
-        HttpResponse: HttpResponseMessage;
-        HttpRequest: HttpRequestMessage;
-        I, EDocBatchDataStorageEntryNo, EDocCount : Integer;
-        HasErrors, IsCreated, IsProcessed : Boolean;
-    begin
-        EDocIntegration := EDocService."Service Integration";
-        EDocIntegration.ReceiveDocument(TempBlob, HttpRequest, HttpResponse);
-
-        if not TempBlob.HasValue() then
-            exit;
-
-        EDocCount := EDocIntegration.GetDocumentCountInBatch(TempBlob);
-        if EDocCount = 0 then
-            exit;
-
-        if EDocCount > 1 then
-            EDocumentServiceStatus := Enum::"E-Document Service Status"::"Batch Imported"
-        else
-            EDocumentServiceStatus := Enum::"E-Document Service Status"::Imported;
-
-        HasErrors := false;
-        for I := 1 to EDocCount do begin
-            IsCreated := false;
-            IsProcessed := false;
-            EDocument.Init();
-            EDocument."Index In Batch" := I;
-            OnBeforeInsertImportedEdocument(EDocument, EDocService, TempBlob, EDocCount, HttpRequest, HttpResponse, IsCreated, IsProcessed);
-
-            if not IsCreated then begin
-                EDocument."Entry No" := 0;
-                EDocument.Status := EDocument.Status::"In Progress";
-                EDocument.Direction := EDocument.Direction::Incoming;
-                EDocument.Insert();
-
-                if I = 1 then begin
-                    EDocLog := EDocumentLog.InsertLog(EDocument, EDocService, TempBlob, EDocumentServiceStatus);
-                    EDocBatchDataStorageEntryNo := EDocLog."E-Doc. Data Storage Entry No.";
-                end else begin
-                    EDocLog := EDocumentLog.InsertLog(EDocument, EDocService, EDocumentServiceStatus);
-                    EDocumentLog.ModifyDataStorageEntryNo(EDocLog, EDocBatchDataStorageEntryNo);
-                end;
-
-                EDocumentLog.InsertIntegrationLog(EDocument, EDocService, HttpRequest, HttpResponse);
-                EDocumentProcessing.InsertServiceStatus(EDocument, EDocService, EDocumentServiceStatus);
-                EDocumentProcessing.ModifyEDocumentStatus(EDocument, EDocumentServiceStatus);
-
-                OnAfterInsertImportedEdocument(EDocument, EDocService, TempBlob, EDocCount, HttpRequest, HttpResponse);
-            end;
-
-            if not IsProcessed then
-                ProcessImportedDocument(EDocument, EDocService, TempBlob, EDocService."Create Journal Lines");
-
-            if EDocErrorHelper.HasErrors(EDocument) then begin
-                EDocument2 := EDocument;
-                HasErrors := true;
-            end;
-        end;
-
-        if HasErrors and GuiAllowed() then
-            if Confirm(DocNotCreatedQst, true, EDocument2."Document Type") then
-                Page.Run(Page::"E-Document", EDocument2);
-
-    end;
 
     internal procedure UpdatePurchaseOrderLink(var EDocument: Record "E-Document")
     var
@@ -213,7 +285,7 @@ codeunit 6140 "E-Doc. Import"
         EDocument."Document Type" := EDocument."Document Type"::None;
         EDocument.Modify();
 
-        ProcessDocument(EDocument, false);
+        V1_ProcessEDocument(EDocument, false);
     end;
 
     local procedure ProcessExistingOrder(var EDocument: Record "E-Document"; EDocService: Record "E-Document Service"; var SourceDocumentLine: RecordRef; var DocumentHeader: RecordRef; var EDocServiceStatus: Enum "E-Document Service Status")
@@ -261,7 +333,7 @@ codeunit 6140 "E-Doc. Import"
                 end;
 
                 // Save Temp EDocument Import Line for matching to purchase order
-                TempEDocImportedLine.Insert(EDocument, SourceDocumentLine, TempEDocImportedLine);
+                TempEDocImportedLine.Insert(EDocument, SourceDocumentLine, TempEDocImportedLine, ItemFound);
             until SourceDocumentLine.Next() = 0;
 
         // Clear any error messages created while trying to resolve and reinsert stored.
@@ -373,7 +445,8 @@ codeunit 6140 "E-Doc. Import"
         UpdateEDocumentRecordId(EDocument, EDocument."Document Type", DocNo, RecordId);
     end;
 
-    local procedure UpdateEDocumentRecordId(var EDocument: Record "E-Document"; EDocType: enum "E-Document Type"; DocNo: Code[20]; RecordId: RecordId)
+    local procedure UpdateEDocumentRecordId(var EDocument: Record "E-Document"; EDocType: enum "E-Document Type"; DocNo: Code[20];
+                                                                                              RecordId: RecordId)
     begin
         EDocument."Document Type" := EDocType;
         EDocument."Document No." := DocNo;
@@ -381,7 +454,7 @@ codeunit 6140 "E-Doc. Import"
         EDocument.Modify();
     end;
 
-    local procedure ProcessImportedDocument(var EDocument: Record "E-Document"; var EDocService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob"; CreateJnlLine: Boolean)
+    internal procedure V1_ProcessImportedDocument(var EDocument: Record "E-Document"; var EDocService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob"; CreateJnlLine: Boolean)
     var
         EDocLog: Record "E-Document Log";
         TempEDocMapping: Record "E-Doc. Mapping" temporary;
@@ -403,7 +476,12 @@ codeunit 6140 "E-Doc. Import"
             EDocServiceStatus := Enum::"E-Document Service Status"::"Imported document processing error";
             EDocumentLog.InsertLog(EDocument, EDocService, EDocServiceStatus);
             EDocumentProcessing.ModifyServiceStatus(EDocument, EDocService, EDocServiceStatus);
-            EDocumentProcessing.ModifyEDocumentStatus(EDocument, EDocServiceStatus);
+            EDocumentProcessing.ModifyEDocumentStatus(EDocument);
+            exit;
+        end;
+
+        if EDocument.IsDuplicate() then begin
+            EDocument.Delete(true);
             exit;
         end;
 
@@ -412,7 +490,7 @@ codeunit 6140 "E-Doc. Import"
             EDocServiceStatus := Enum::"E-Document Service Status"::"Imported document processing error";
             EDocumentLog.InsertLog(EDocument, EDocService, EDocServiceStatus);
             EDocumentProcessing.ModifyServiceStatus(EDocument, EDocService, EDocServiceStatus);
-            EDocumentProcessing.ModifyEDocumentStatus(EDocument, EDocServiceStatus);
+            EDocumentProcessing.ModifyEDocumentStatus(EDocument);
             exit;
         end;
 
@@ -423,7 +501,7 @@ codeunit 6140 "E-Doc. Import"
             if ValidateEDocumentIsForPurchaseOrder(EDocument, Vendor) then
                 ReceiveEDocumentToPurchaseOrder(EDocument, EDocService, SourceDocumentHeader, SourceDocumentLine, EDocServiceStatus, Vendor, Window)
             else
-                ReceiveEDocumentToPurchaseDoc(EDocument, EDocService, SourceDocumentHeader, SourceDocumentLine, EDocServiceStatus, CreateJnlLine, Window)
+                ReceiveEDocumentToPurchaseDoc(EDocument, EDocService, SourceDocumentHeader, SourceDocumentLine, EDocServiceStatus, Window, CreateJnlLine)
         else
             EDocErrorHelper.LogErrorMessage(EDocument, Vendor, Vendor.FieldNo("No."), FailedToFindVendorErr);
 
@@ -433,7 +511,7 @@ codeunit 6140 "E-Doc. Import"
         EDocLog := EDocumentLog.InsertLog(EDocument, EDocService, EDocServiceStatus);
         EDocumentLog.InsertMappingLog(EDocLog, TempEDocMapping);
         EDocumentProcessing.ModifyServiceStatus(EDocument, EDocService, EDocServiceStatus);
-        EDocumentProcessing.ModifyEDocumentStatus(EDocument, EDocServiceStatus);
+        EDocumentProcessing.ModifyEDocumentStatus(EDocument);
 
         OnAfterProcessImportedDocument(EDocument, DocumentHeader);
     end;
@@ -445,7 +523,6 @@ codeunit 6140 "E-Doc. Import"
         exit(Vendor."Receive E-Document To" = Enum::"E-Document Type"::"Purchase Order");
     end;
 
-#pragma warning disable AS0022
     local procedure ReceiveEDocumentToPurchaseOrder(var EDocument: Record "E-Document"; var EDocService: Record "E-Document Service"; var SourceDocumentHeader: RecordRef; var SourceDocumentLine: RecordRef; var EDocServiceStatus: Enum "E-Document Service Status"; Vendor: Record Vendor; var WindowInstance: Dialog)
     var
         DocumentHeader: RecordRef;
@@ -471,9 +548,8 @@ codeunit 6140 "E-Doc. Import"
         end else
             EDocServiceStatus := Enum::"E-Document Service Status"::Pending;
     end;
-#pragma warning restore AS0022
 
-    internal procedure ProcessEDocPendingOrderMatch(var EDocument: Record "E-Document")
+    internal procedure V1_ProcessEDocPendingOrderMatch(var EDocument: Record "E-Document")
     var
         EDocService: Record "E-Document Service";
         EDocServiceStatus: Record "E-Document Service Status";
@@ -491,7 +567,7 @@ codeunit 6140 "E-Doc. Import"
         if not IsPendingEDocReadyToProcess(EDocument) then
             exit;
 
-        ProcessDocument(EDocument, EDocService."Create Journal Lines");
+        V1_ProcessEDocument(EDocument, EDocService."Create Journal Lines");
     end;
 
     local procedure IsPendingEDocReadyToProcess(EDocument: Record "E-Document"): Boolean
@@ -536,7 +612,7 @@ codeunit 6140 "E-Doc. Import"
         end;
     end;
 
-    local procedure ReceiveEDocumentToPurchaseDoc(var EDocument: Record "E-Document"; var EDocService: Record "E-Document Service"; var SourceDocumentHeader: RecordRef; var SourceDocumentLine: RecordRef; var EDocServiceStatus: Enum "E-Document Service Status"; CreateJnlLine: Boolean; var WindowInstance: Dialog)
+    local procedure ReceiveEDocumentToPurchaseDoc(var EDocument: Record "E-Document"; var EDocService: Record "E-Document Service"; var SourceDocumentHeader: RecordRef; var SourceDocumentLine: RecordRef; var EDocServiceStatus: Enum "E-Document Service Status"; var WindowInstance: Dialog; CreateJnlLine: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseDocumentType: Enum "Purchase Document Type";
@@ -678,17 +754,46 @@ codeunit 6140 "E-Doc. Import"
         HideDialogs := Hide;
     end;
 
+    local procedure GetFileType(FileName: Text): Enum "E-Doc. Data Storage Blob Type"
+    var
+        FileMgt: Codeunit "File Management";
+    begin
+        case UpperCase(FileMgt.GetExtension(FileName)) of
+            'XML':
+                exit(Enum::"E-Doc. Data Storage Blob Type"::XML);
+            'PDF':
+                exit(Enum::"E-Doc. Data Storage Blob Type"::PDF);
+            'JSON':
+                exit(Enum::"E-Doc. Data Storage Blob Type"::JSON);
+            else
+                exit(Enum::"E-Doc. Data Storage Blob Type"::Unspecified);
+        end;
+    end;
+
+
+#if not CLEAN26
+    internal procedure V1_AfterInsertImportedEdocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob"; EDocCount: Integer; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
+    begin
+        OnAfterInsertImportedEdocument(EDocument, EDocumentService, TempBlob, EDocCount, HttpRequest, HttpResponse);
+    end;
+
+    internal procedure V1_BeforeInsertImportedEdocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob"; EDocCount: Integer; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage; var IsCreated: Boolean; var IsProcessed: Boolean)
+    begin
+        OnBeforeInsertImportedEdocument(EDocument, EDocumentService, TempBlob, EDocCount, HttpRequest, HttpResponse, IsCreated, IsProcessed);
+    end;
+#endif
+
     var
         EDocumentLog: Codeunit "E-Document Log";
         EDocImportHelper: Codeunit "E-Document Import Helper";
         EDocErrorHelper: Codeunit "E-Document Error Helper";
         EDocumentProcessing: Codeunit "E-Document Processing";
         HideDialogs: Boolean;
+        FileTypeNotSupportedErr: Label 'File type not supported';
         JnlLineCreateMsg: Label 'Creating Journal Line';
         DocCreateMsg: Label 'Creating Purchase %1', Comment = '%1 - Document type';
         DocLinkMsg: Label 'Linking to existing order';
         DocCreatePOMsg: Label 'Creating Purchase Order';
-        DocNotCreatedQst: Label 'Failed to create new Purchase %1 from E-Document. Do you want to open E-Document to see reported errors?', Comment = '%1 - Purchase Document Type';
         DocAlreadyExistsMsg: Label 'The document already exists.';
         DocTypeIsNotSupportedErr: Label 'Document type %1 is not supported.', Comment = '%1 - Document Type';
         FailedToFindVendorErr: Label 'No vendor is set for Edocument';
@@ -739,13 +844,19 @@ codeunit 6140 "E-Doc. Import"
     begin
     end;
 
+#if not CLEAN26
     [IntegrationEvent(false, false)]
+    [Obsolete('This event is removed. Use new IDocumentReceiver interface instead', '26.0')]
     local procedure OnAfterInsertImportedEdocument(var EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob"; EDocCount: Integer; HttpRequest: HttpRequestMessage; HttpResponse: HttpResponseMessage)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('This event is removed. Use new IDocumentReceiver interface instead', '26.0')]
     local procedure OnBeforeInsertImportedEdocument(var EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob"; EDocCount: Integer; HttpRequest: HttpRequestMessage; HttpResponse: HttpResponseMessage; var IsCreated: Boolean; var IsProcessed: Boolean)
     begin
     end;
+
+
+#endif
 }

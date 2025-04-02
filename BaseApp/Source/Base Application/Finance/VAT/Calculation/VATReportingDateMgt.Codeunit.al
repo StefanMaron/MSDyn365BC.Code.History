@@ -96,9 +96,6 @@ codeunit 799 "VAT Reporting Date Mgt"
     var
         IsHandled: Boolean;
     begin
-#if not CLEAN23
-        OnBeforeIsVATDateEnabled(IsEnabled, IsHandled);
-#endif
         if not IsHandled then
             OnBeforeIsVATDateEnabledForUse(IsEnabled, IsHandled);
         if IsHandled then
@@ -396,16 +393,6 @@ codeunit 799 "VAT Reporting Date Mgt"
     local procedure OnBeforeIsVATDateEnabledForUse(var IsEnabled: Boolean; var IsHandled: Boolean);
     begin
     end;
-
-#if not CLEAN23
-#pragma warning disable AS0025
-    [Obsolete('Replaced by OnBeforeIsVATDateEnabledForUse with correct parameter name', '23.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeIsVATDateEnabled(var IsModifiable: Boolean; var IsHandled: Boolean);
-    begin
-    end;
-#pragma warning restore AS0025
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateLinkedEntries(VATEntry: Record "VAT Entry"; var IsHandled: Boolean);

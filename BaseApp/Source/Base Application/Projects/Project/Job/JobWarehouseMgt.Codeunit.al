@@ -108,6 +108,11 @@ codeunit 5998 "Job Warehouse Mgt."
                     SourceDocument := "Warehouse Journal Source Document"::"Job Usage";
                     IsHandled := true;
                 end;
+            Database::"Job Planning Line":
+                begin
+                    SourceDocument := "Warehouse Journal Source Document"::"Job Usage";
+                    IsHandled := true;
+                end;
         end;
     end;
 

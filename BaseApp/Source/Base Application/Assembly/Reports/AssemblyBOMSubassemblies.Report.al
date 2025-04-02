@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Reports;
 
 using Microsoft.Inventory.BOM;
@@ -72,6 +76,8 @@ report 811 "Assembly BOM - Subassemblies"
 
     requestpage
     {
+        AboutTitle = 'About BOM - Sub-Assemblies';
+        AboutText = 'Get an overview of the components in a sub-assembly bill of materials, for both assembly and production.';
 
         layout
         {

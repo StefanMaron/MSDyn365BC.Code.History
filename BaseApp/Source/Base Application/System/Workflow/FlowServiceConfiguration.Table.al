@@ -13,6 +13,7 @@ table 1543 "Flow Service Configuration"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Flow Service"; Option)

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.MachineCenter;
 
 using Microsoft.Foundation.Period;
@@ -526,23 +530,21 @@ page 99000762 "Machine Center Statistics"
               "Capacity (Effective)",
               "Prod. Order Need (Qty.)");
 
-            CapLedgEntry.SetCurrentKey(Type, "No.", "Work Shift Code", "Item No.", "Posting Date");
             CapLedgEntry.SetRange(Type, CapLedgEntry.Type::"Machine Center");
             CapLedgEntry.SetRange("No.", Rec."No.");
             CapLedgEntry.SetFilter("Work Shift Code", Rec."Work Shift Filter");
             CapLedgEntry.SetFilter("Item No.", Rec."Item Filter");
             CapLedgEntry.SetFilter("Posting Date", WorkCtrDateFilter[i]);
+            CapLedgEntry.CalcSums("Setup Time", "Run Time", "Stop Time", "Output Quantity", "Scrap Quantity");
+            WorkCtrActNeed[i] := CapLedgEntry."Setup Time" + CapLedgEntry."Run Time" + CapLedgEntry."Stop Time";
+            WorkCtrStopTime[i] := CapLedgEntry."Stop Time";
+            WorkCtrRunTime[i] := CapLedgEntry."Setup Time" + CapLedgEntry."Run Time";
+            WorkCtrOutputQty[i] := CapLedgEntry."Output Quantity";
+            WorkCtrScrapQty[i] := CapLedgEntry."Scrap Quantity";
+            CapLedgEntry.SetAutoCalcFields("Direct Cost", "Overhead Cost");
             if CapLedgEntry.Find('-') then
                 repeat
-                    CapLedgEntry.CalcFields("Direct Cost", "Overhead Cost");
-                    WorkCtrActNeed[i] :=
-                      WorkCtrActNeed[i] +
-                      CapLedgEntry."Setup Time" + CapLedgEntry."Run Time" + CapLedgEntry."Stop Time";
                     WorkCtrActCost[i] := WorkCtrActCost[i] + CapLedgEntry."Direct Cost" + CapLedgEntry."Overhead Cost";
-                    WorkCtrOutputQty[i] := WorkCtrOutputQty[i] + CapLedgEntry."Output Quantity";
-                    WorkCtrScrapQty[i] := WorkCtrScrapQty[i] + CapLedgEntry."Scrap Quantity";
-                    WorkCtrStopTime[i] := WorkCtrStopTime[i] + CapLedgEntry."Stop Time";
-                    WorkCtrRunTime[i] := WorkCtrRunTime[i] + CapLedgEntry."Setup Time" + CapLedgEntry."Run Time";
                 until CapLedgEntry.Next() = 0;
 
             WorkCtrCapacity[i] := MachineCenter2."Capacity (Total)";

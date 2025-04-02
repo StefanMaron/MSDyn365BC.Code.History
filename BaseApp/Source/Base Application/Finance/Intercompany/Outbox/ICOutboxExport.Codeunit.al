@@ -350,7 +350,7 @@ codeunit 431 "IC Outbox Export"
     begin
         if ICOutboxTransaction.FindSet() then
             repeat
-                if ICOutboxTransaction."Source Type" = ICOutboxTransaction."Source Type"::"Purchase Document" then
+                if ICOutboxTransaction."IC Source Type" = ICOutboxTransaction."IC Source Type"::"Purchase Document" then
                     case ICOutboxTransaction."Document Type" of
                         ICOutboxTransaction."Document Type"::Order:
                             if PurchHeader.Get(PurchHeader."Document Type"::Order, ICOutboxTransaction."Document No.") then begin
@@ -364,7 +364,7 @@ codeunit 431 "IC Outbox Export"
                             end;
                     end
                 else
-                    if ICOutboxTransaction."Source Type" = ICOutboxTransaction."Source Type"::"Sales Document" then
+                    if ICOutboxTransaction."IC Source Type" = ICOutboxTransaction."IC Source Type"::"Sales Document" then
                         case ICOutboxTransaction."Document Type" of
                             ICOutboxTransaction."Document Type"::Order:
                                 if SalesHeader.Get(SalesHeader."Document Type"::Order, ICOutboxTransaction."Document No.") then begin

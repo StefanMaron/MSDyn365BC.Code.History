@@ -23,6 +23,7 @@ table 9054 "Finance Cue"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Overdue Sales Documents"; Integer)

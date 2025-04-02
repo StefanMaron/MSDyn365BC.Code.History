@@ -1,24 +1,32 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.NoSeries;
-
-using Microsoft.CRM.Interaction;
 
 codeunit 9500 "Sequence No. Mgt."
 {
     SingleInstance = true;
     InherentPermissions = X;
-    Permissions = TableData "Interaction Log Entry" = r, Tabledata Attachment = r;
 
     var
         GlobalPreviewMode: Boolean;
         GlobalPreviewModeTag: Text;
+        LastSeqNoChecked: List of [Integer];
         SeqNameLbl: Label 'TableSeq%1', Comment = '%1 - Table No.', Locked = true;
         PreviewSeqNameLbl: Label 'PreviewTableSeq%1', Comment = '%1 - Table No.', Locked = true;
 
+    /// <summary>
+    /// Returns the next NumberSequence value for a given table ID.
+    /// if the sequence does not exist, it will be created.
+    /// </summary>
+    /// <param name="TableNo">The ID of the table being checked</param>
     procedure GetNextSeqNo(TableNo: Integer): Integer
     var
         NewSeqNo: Integer;
         PreviewMode: Boolean;
     begin
+        ValidateSeqNo(TableNo);
         PreviewMode := IsPreviewMode();  // Only call once to minimize sql calls during preview.
         if TryGetNextNo(PreviewMode, TableNo, NewSeqNo) then
             exit(NewSeqNo);
@@ -28,12 +36,71 @@ codeunit 9500 "Sequence No. Mgt."
         exit(NewSeqNo);
     end;
 
+    /// <summary>
+    /// Returns the current NumberSequence value for a given table ID.
+    /// if the sequence does not exist, it will be created.
+    /// </summary>
+    /// <param name="TableNo">The ID of the table being checked</param>
+    procedure GetCurrentSeqNo(TableNo: Integer): Integer
+    var
+        CurrSeqNo: Integer;
+        PreviewMode: Boolean;
+    begin
+        PreviewMode := IsPreviewMode();  // Only call once to minimize sql calls during preview.
+        if TryGetCurrentNo(PreviewMode, TableNo, CurrSeqNo) then
+            exit(CurrSeqNo);
+        ClearLastError();
+        CreateNewTableSequence(PreviewMode, TableNo);
+        TryGetCurrentNo(PreviewMode, TableNo, CurrSeqNo);
+        exit(CurrSeqNo);
+    end;
+
+    /// <summary>
+    /// Ensures that the NumberSequence is not behind the last entry in the table.
+    /// if the sequence does not exist, it will be created.
+    /// The result will be cached for the current transaction. The cache can be cleared by calling ClearSequenceNoCheck.
+    /// </summary>
+    /// <param name="TableNo">The ID of the table being checked</param>
+    procedure ValidateSeqNo(TableNo: Integer)
+    var
+        LastEntryNo: Integer;
+    begin
+        if IsPreviewMode() then
+            exit;
+        if LastSeqNoChecked.Contains(TableNo) then
+            exit;
+
+        LastEntryNo := GetLastEntryNoFromTable(TableNo, false);
+        if GetCurrentSeqNo(TableNo) < LastEntryNo then
+            RebaseSeqNo(TableNo);
+
+        LastSeqNoChecked.Add(TableNo);
+    end;
+
+    /// <summary>
+    /// Clears the cache that is used by procedure ValidateSeqNo(TableNo).
+    /// </summary>
+    procedure ClearSequenceNoCheck()
+    begin
+        Clear(LastSeqNoChecked);
+    end;
+
     [TryFunction]
     local procedure TryGetNextNo(PreviewMode: Boolean; TableNo: Integer; var NewSeqNo: Integer)
     begin
         NewSeqNo := NumberSequence.Next(GetTableSequenceName(PreviewMode, TableNo));
     end;
 
+    [TryFunction]
+    local procedure TryGetCurrentNo(PreviewMode: Boolean; TableNo: Integer; var CurrSeqNo: Integer)
+    begin
+        CurrSeqNo := NumberSequence.Current(GetTableSequenceName(PreviewMode, TableNo));
+    end;
+
+    /// <summary>
+    /// Restarts or recreates the NumberSequence for the specified Table ID.
+    /// </summary>
+    /// <param name="TableNo">The ID of the table being checked</param>
     procedure RebaseSeqNo(TableNo: Integer)
     begin
         CreateNewTableSequence(IsPreviewMode(), TableNo);
@@ -48,7 +115,7 @@ codeunit 9500 "Sequence No. Mgt."
         if PreviewMode and IsPreviewable then
             StartSeqNo := -2000000000
         else
-            StartSeqNo := GetLastEntryNoFromTable(TableNo) + 1;
+            StartSeqNo := GetLastEntryNoFromTable(TableNo, true) + 1;
 
         CreateSequence(GetTableSequenceName(PreviewMode and IsPreviewable, TableNo), StartSeqNo);
 
@@ -67,7 +134,7 @@ codeunit 9500 "Sequence No. Mgt."
             NumberSequence.Insert(SequenceName, StartSeqNo, 1, true);
     end;
 
-    local procedure GetLastEntryNoFromTable(TableNo: Integer): BigInteger
+    local procedure GetLastEntryNoFromTable(TableNo: Integer; WithLock: Boolean): BigInteger
     var
         [SecurityFiltering(SecurityFilter::Ignored)]
         RecRef: RecordRef;
@@ -76,9 +143,12 @@ codeunit 9500 "Sequence No. Mgt."
         LastEntryNo: BigInteger;
     begin
         RecRef.Open(TableNo);
+        if WithLock then
+            RecRef.ReadIsolation(IsolationLevel::UpdLock)
+        else
+            RecRef.ReadIsolation(IsolationLevel::ReadUncommitted);
         KeyRef := RecRef.KeyIndex(1);
         RecRef.SetLoadFields(KeyRef.FieldIndex(KeyRef.FieldCount).Number);
-        RecRef.LockTable();
         if RecRef.FindLast() then begin
             FldRef := KeyRef.FieldIndex(KeyRef.FieldCount);
             LastEntryNo := FldRef.Value
@@ -87,11 +157,20 @@ codeunit 9500 "Sequence No. Mgt."
         exit(LastEntryNo);
     end;
 
+    /// <summary>
+    /// Returns the name of the NumberSequence for the specified Table ID.
+    /// </summary>
+    /// <param name="TableNo">The ID of the table being checked</param>
     procedure GetTableSequenceName(TableNo: Integer): Text
     begin
         exit(GetTableSequenceName(IsPreviewMode(), TableNo));
     end;
 
+    /// <summary>
+    /// Returns the name of the NumberSequence for the specified Table ID. We have one sequence for preview and one for non-preview.
+    /// </summary>
+    /// <param name="PreviewMode">Is true for posting preview</param>
+    /// <param name="TableNo">The ID of the table being checked</param>
     procedure GetTableSequenceName(PreviewMode: Boolean; TableNo: Integer): Text
     var
         IsPreviewable: Boolean;
@@ -120,7 +199,7 @@ codeunit 9500 "Sequence No. Mgt."
         if GlobalPreviewMode then // missing cleanup from previous preview?
             StopPreviewMode();
         GlobalPreviewMode := true;
-        GlobalPreviewModeTag := 'Preview_' + DelChr(Format(CreateGuid()), '=', '{}-');
+        GlobalPreviewModeTag := 'Preview_' + Format(CreateGuid(), 20, 3);
         CreateSequence(GlobalPreviewModeTag, 1); // Preview is in a transaction that does not allow commits and will be rolled back.
     end;
 

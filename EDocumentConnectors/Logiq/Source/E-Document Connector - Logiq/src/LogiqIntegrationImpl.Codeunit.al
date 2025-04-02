@@ -5,52 +5,46 @@
 namespace Microsoft.EServices.EDocumentConnector.Logiq;
 
 using Microsoft.eServices.EDocument;
+using Microsoft.eServices.EDocument.Integration.Interfaces;
+using Microsoft.eServices.EDocument.Integration.Send;
+using Microsoft.eServices.EDocument.Integration.Receive;
 using System.Utilities;
 
-codeunit 6431 "Logiq Integration Impl." implements "E-Document Integration"
+codeunit 6431 "Logiq Integration Impl." implements IDocumentSender, IDocumentReceiver, IDocumentResponseHandler
 {
     Access = Internal;
 
-    procedure Send(var EDocument: Record "E-Document"; var TempBlob: Codeunit "Temp Blob"; var IsAsync: Boolean; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
+    procedure Send(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; SendContext: Codeunit SendContext);
     begin
-        this.LogiqEDocumentManagement.Send(EDocument, TempBlob, IsAsync, HttpRequest, HttpResponse);
+        this.LogiqEDocumentManagement.Send(EDocument, EDocumentService, SendContext);
     end;
 
-    procedure SendBatch(var EDocuments: Record "E-Document"; var TempBlob: Codeunit "Temp Blob"; var IsAsync: Boolean; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
+    procedure GetResponse(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; SendContext: Codeunit SendContext): Boolean
     begin
-        IsAsync := false;
-        Error('Batch sending is not supported');
+        exit(this.LogiqEDocumentManagement.GetResponse(EDocument, EDocumentService, SendContext));
     end;
 
-    procedure GetResponse(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage): Boolean
+    procedure ReceiveDocuments(var EDocumentService: Record "E-Document Service"; DocumentsMetadata: Codeunit "Temp Blob List"; ReceiveContext: Codeunit ReceiveContext)
     begin
-        exit(this.LogiqEDocumentManagement.GetResponse(EDocument, HttpRequest, HttpResponse));
+        this.LogiqEDocumentManagement.ReceiveDocuments(EDocumentService, DocumentsMetadata, ReceiveContext);
     end;
 
-    procedure GetApproval(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage): Boolean
+    procedure DownloadDocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; DocumentMetadata: Codeunit "Temp Blob"; ReceiveContext: Codeunit ReceiveContext)
     begin
-        Error('Approval is not supported');
+        this.LogiqEDocumentManagement.DownloadDocument(EDocument, EDocumentService, DocumentMetadata, ReceiveContext);
     end;
 
-    procedure Cancel(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage): Boolean
-    begin
-        Error('Cancelling sent document is not supported');
-    end;
 
-    procedure ReceiveDocument(var TempBlob: Codeunit "Temp Blob"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
+    [EventSubscriber(ObjectType::Page, Page::"E-Document Service", OnBeforeOpenServiceIntegrationSetupPage, '', false, false)]
+    local procedure OpenLogiqConnectionSetup(EDocumentService: Record "E-Document Service"; var IsServiceIntegrationSetupRun: Boolean)
+    var
+        ConnectionSetup: Page "Logiq Connection Setup";
     begin
-        this.LogiqEDocumentManagement.DownloadDocuments(TempBlob, HttpRequest, HttpResponse);
-    end;
+        if EDocumentService."Service Integration V2" <> EDocumentService."Service Integration V2"::Logiq then
+            exit;
 
-    procedure GetDocumentCountInBatch(var TempBlob: Codeunit "Temp Blob"): Integer
-    begin
-        exit(this.LogiqEDocumentManagement.GetDocumentCountInBatch(TempBlob));
-    end;
-
-    procedure GetIntegrationSetup(var SetupPage: Integer; var SetupTable: Integer)
-    begin
-        SetupPage := Page::"Logiq Connection Setup";
-        SetupTable := Database::"Logiq Connection Setup";
+        IsServiceIntegrationSetupRun := true;
+        ConnectionSetup.RunModal();
     end;
 
     var

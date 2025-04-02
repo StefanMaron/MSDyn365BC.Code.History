@@ -104,10 +104,10 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // 2.2 Execute : Create, Calculate and Post Consumption Journal.
         // Create, Explode Routing, Update and Post Output Journal.
-        LibraryInventory.CreateItemJournal(
+        LibraryManufacturing.CreateProdItemJournal(
           ItemJournalBatch, ItemNos[1], ItemJournalBatch."Template Type"::Consumption, ReleasedProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNos[3], ItemJournalBatch."Template Type"::Output, ReleasedProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNos[3], ItemJournalBatch."Template Type"::Output, ReleasedProductionOrderNo);
         UpdateLessQtyOutputJournal(ReleasedProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
@@ -196,7 +196,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         // 2.1 Execute : Change Status of Production Order from Planned to Released.
         // Create, Explode Routing, Update and Post Output Journal.
         ProductionOrderNo := ChangeStatusPlannedToReleased(ProductionOrder."No.");
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNos[3], ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, ItemNos[3], ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         UpdateLessQtyOutputJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
@@ -260,13 +260,13 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // Create Items with Flushing method - Manual with the third Item containing Routing No. and Production BOM No.
         // Update Routing link Code on required BOM component Lines.
-        ItemNos[1] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Manual);
-        ItemNos[2] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Manual);
+        ItemNos[1] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::"Pick + Manual");
+        ItemNos[2] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::"Pick + Manual");
         ProductionBOMNo := LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ItemNos[1], ItemNos[2], 1);
         UpdateBOMHeader(ProductionBOMNo, ItemNos[2], RoutingLinkCode);
 
         ItemNos[3] := CreateItemManufacturing(
-            Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Manual, RoutingNo, ProductionBOMNo);
+            Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::"Pick + Manual", RoutingNo, ProductionBOMNo);
 
         // Calculate Standard Cost for third Item.
         // Calculate Calendar for Work Center with dates having a difference of 5 weeks.
@@ -285,7 +285,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         // 2. Execute : Change Status of Production Order from Planned to Released.
         // Create, Calculate and Post Consumption Journal,Explode Routing and Post Output Journal.
         ReleasedProductionOrderNo := ChangeStatusPlannedToReleased(ProductionOrder."No.");
-        LibraryInventory.CreateItemJournal(
+        LibraryManufacturing.CreateProdItemJournal(
           ItemJournalBatch, ItemNos[1], ItemJournalBatch."Template Type"::Consumption, ReleasedProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 

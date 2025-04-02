@@ -341,7 +341,8 @@ codeunit 7321 "Create Inventory Put-away"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Drop Shipment", false);
-        PurchaseLine.SetRange("Job No.", '');
+        if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Return Order" then
+            PurchaseLine.SetRange("Job No.", '');
         if not CheckLineExist then
             PurchaseLine.SetRange("Location Code", CurrWarehouseActivityHeader."Location Code");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
@@ -833,12 +834,21 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     local procedure SetFilterProdCompLine(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrder: Record "Production Order"): Boolean
+#if not CLEAN26
+    var
+        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+#endif
     begin
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
         if not CheckLineExist then
             ProdOrderComponent.SetRange("Location Code", CurrWarehouseActivityHeader."Location Code");
-        ProdOrderComponent.SetRange("Flushing Method", ProdOrderComponent."Flushing Method"::Manual);
+#if not CLEAN26
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+            ProdOrderComponent.SetFilter(ProdOrderComponent."Flushing Method", '%1|%2', ProdOrderComponent."Flushing Method"::Manual, ProdOrderComponent."Flushing Method"::"Pick + Manual")
+        else
+#endif        
+            ProdOrderComponent.SetRange("Flushing Method", ProdOrderComponent."Flushing Method"::"Pick + Manual");
         ProdOrderComponent.SetRange("Planning Level Code", 0);
         ProdOrderComponent.SetFilter("Remaining Quantity", '<0');
 
@@ -1239,15 +1249,6 @@ codeunit 7321 "Create Inventory Put-away"
             NextLineNo := 10000;
     end;
 
-#if not CLEAN23
-    [Obsolete('WhseItemTrackingSetup is a global variable, so there is no need to pass it as an argument', '23.0')]
-    procedure FindReservationEntry(SourceType: Integer; DocType: Integer; DocNo: Code[20]; DocLineNo: Integer; NewWhseItemTrackingSetup: Record "Item Tracking Setup"): Boolean
-    begin
-        WhseItemTrackingSetup := NewWhseItemTrackingSetup;
-        FindReservationEntry(SourceType, DocType, DocNo, DocLineNo);
-    end;
-#endif
-
     local procedure FindReservationEntry(SourceType: Integer; DocType: Integer; DocNo: Code[20]; DocLineNo: Integer): Boolean
     var
         ReservationEntry: Record "Reservation Entry";
@@ -1276,15 +1277,6 @@ codeunit 7321 "Create Inventory Put-away"
         NewWarehouseActivityLine."Line No." := NextLineNo;
         InsertWhseActivLine(NewWarehouseActivityLine, 1);
     end;
-
-#if not CLEAN23
-    [Obsolete('WhseItemTrackingSetup is a global variable, so there is no need to pass it as an argument', '23.0')]
-    procedure InsertWhseActivLine(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; PutAwayQty: Decimal; NewWhseItemTrackingSetup: Record "Item Tracking Setup")
-    begin
-        WhseItemTrackingSetup := NewWhseItemTrackingSetup;
-        InsertWhseActivLine(NewWarehouseActivityLine, PutAwayQty);
-    end;
-#endif
 
     procedure InsertWhseActivLine(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; PutAwayQty: Decimal)
     var

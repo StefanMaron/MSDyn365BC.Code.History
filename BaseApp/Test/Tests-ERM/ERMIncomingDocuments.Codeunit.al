@@ -14,6 +14,7 @@ codeunit 134400 "ERM Incoming Documents"
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
         LibraryIncomingDocuments: Codeunit "Library - Incoming Documents";
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -2495,6 +2496,71 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.ExpectedError(TotalsMismatchErr);
     end;
 
+    [Test]
+    [HandlerFunctions('GLPostingPreviewPageHandler,GetSpecificLineFromTemplateListHandler')]
+    [Scope('OnPrem')]
+    procedure NoErrorOnPostingWhenAttachTheIncomingDoc()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        IncomingDocument: Record "Incoming Document";
+        TestGenJnlPostPreview: Codeunit "Test Gen. Jnl. Post Preview";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [SCENARIO 560363] The changes to the Gen. Journal Line record can be saved if you try to Preview Posting a Payment journal with a Incoming Attachment on line
+        BindSubscription(TestGenJnlPostPreview);
+
+        // [GIVEN] Initialize the Incoming Document
+        LibraryIncomingDocuments.InitIncomingDocuments();
+
+        // [GIVEN] Update Incoming document
+        UpdateIncomingDocumentsSetup();
+
+        // [GIVEN] Create Incoming document with attachment
+        LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
+
+        // [GIVEN] Create General Journal Line of Vendor
+        LibraryJournals.CreateGenJournalLineWithBatch(
+                 GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
+                 LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDecInRange(10, 10000, 2));
+
+        // [GIVEN] Set Payment Template on Gen. Journal Template
+        SetPaymentTypeJournalTemplate(GenJournalLine);
+
+        // [GIVEN] Update Incoming document Entry No. on Gen. Journal Line
+        GenJournalLine.Validate("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Commit all the change before open the Payment Journal page
+        Commit();
+
+        // [GIVEN] Enqueue the Gen. Journal Template
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+
+        // [WHEN] Open the payment Journal page and go to created record
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.Value := GenJournalLine."Journal Batch Name";
+        PaymentJournal.GoToRecord(GenJournalLine);
+
+        // [WHEN] Preview the Payment journal
+        PaymentJournal.Preview.Invoke();
+
+        // [THEN] Close the Posting preview page without any issue
+        PaymentJournal.Close();
+
+        //[THEN]  Variable storage should be empty.
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    local procedure SetPaymentTypeJournalTemplate(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.Get(GenJournalLine."Journal Template Name");
+        GenJournalTemplate."Page ID" := PAGE::"Payment Journal";
+        GenJournalTemplate.Type := GenJournalTemplate.Type::Payments;
+        GenJournalTemplate.Modify();
+    end;
+
     local procedure InsertIncomingDocumentAttachment(IncomingDocument: Record "Incoming Document"): Integer
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
@@ -2611,6 +2677,22 @@ codeunit 134400 "ERM Incoming Documents"
     [Scope('OnPrem')]
     procedure HyperlinkHandler(MessageTxt: Text)
     begin
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure GLPostingPreviewPageHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
+    begin
+        GLPostingPreview.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetSpecificLineFromTemplateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.Filter.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.Last();
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     local procedure CreateIncomingDocument(var IncomingDocument: Record "Incoming Document"; Description: Text[50]; ProcessedState: Boolean)

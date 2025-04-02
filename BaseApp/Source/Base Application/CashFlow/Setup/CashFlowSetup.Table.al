@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CashFlow.Setup;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CashFlow.Setup;
 
 using Microsoft.CashFlow.Account;
 using Microsoft.CashFlow.Forecast;
@@ -19,11 +23,14 @@ table 843 "Cash Flow Setup"
 {
     Caption = 'Cash Flow Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Cash Flow Setup";
+    LookupPageID = "Cash Flow Setup";
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
             DataClassification = SystemMetadata;
         }
@@ -234,22 +241,6 @@ table 843 "Cash Flow Setup"
         {
             Caption = 'Service Pass API Key ID';
             Description = 'The Key for retrieving the API Key from Isolated Storage.';
-        }
-        field(31; "Cortana Intelligence Enabled"; Boolean)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Renamed to Azure AI Enabled';
-            Caption = 'Cortana Intelligence Enabled';
-            InitValue = false;
-            ObsoleteTag = '15.0';
-        }
-        field(32; "Show Cortana Notification"; Boolean)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Renamed to Show AzureAI Notification';
-            Caption = 'Show AzureAI Notification';
-            InitValue = true;
-            ObsoleteTag = '15.0';
         }
         field(33; "Time Series Model"; Option)
         {
@@ -599,4 +590,3 @@ table 843 "Cash Flow Setup"
         exit(not (IsNullGuid("Service Pass API Key ID") or ("API URL" = '')));
     end;
 }
-

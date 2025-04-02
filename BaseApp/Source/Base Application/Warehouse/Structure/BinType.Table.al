@@ -172,19 +172,27 @@ table 7303 "Bin Type"
     begin
         case Type of
             Type::Receive:
-                CreateBinTypeFilter(BinTypeFilter2, FieldNo(Receive));
+                MakeBinTypeFilter(BinTypeFilter2, FieldNo(Receive));
             Type::Ship:
-                CreateBinTypeFilter(BinTypeFilter2, FieldNo(Ship));
+                MakeBinTypeFilter(BinTypeFilter2, FieldNo(Ship));
             Type::"Put-away":
-                CreateBinTypeFilter(BinTypeFilter2, FieldNo("Put Away"));
+                MakeBinTypeFilter(BinTypeFilter2, FieldNo("Put Away"));
             Type::Pick:
-                CreateBinTypeFilter(BinTypeFilter2, FieldNo(Pick));
+                MakeBinTypeFilter(BinTypeFilter2, FieldNo(Pick));
         end;
         BinTypeFilter := CopyStr(BinTypeFilter2, 1, MaxStrLen(BinTypeFilter));
     end;
 #endif
 
+#if not CLEAN26
+    [Obsolete('Replaced by procedure MakeBinTypeFilter(var BinTypeFilter: Text; BinTypeFieldNo: Integer)', '26.0')]
     procedure CreateBinTypeFilter(var BinTypeFilter: Text; BinTypeFieldNo: Integer)
+    begin
+        MakeBinTypeFilter(BinTypeFilter, BinTypeFieldNo);
+    end;
+#endif
+
+    procedure MakeBinTypeFilter(var BinTypeFilter: Text; BinTypeFieldNo: Integer)
     var
         BinType: Record "Bin Type";
     begin

@@ -613,7 +613,7 @@ codeunit 5746 "Sales Whse. Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostSourceDocumentOnBeforePostSalesHeader(var SalesPost: Codeunit "Sales-Post"; var SalesHeader: Record "Sales Header"; WhseShptHeader: Record "Warehouse Shipment Header"; var CounterSourceDocOK: Integer; WhsePostParameters: Record "Whse. Post Parameters"; var IsHandled: Boolean)
+    local procedure OnPostSourceDocumentOnBeforePostSalesHeader(var SalesPost: Codeunit "Sales-Post"; var SalesHeader: Record "Sales Header"; WhseShptHeader: Record "Warehouse Shipment Header"; var CounterSourceDocOK: Integer; var WhsePostParameters: Record "Whse. Post Parameters"; var IsHandled: Boolean)
     begin
     end;
 

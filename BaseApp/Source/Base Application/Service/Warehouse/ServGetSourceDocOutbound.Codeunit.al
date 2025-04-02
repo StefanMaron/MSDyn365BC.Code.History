@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Request;
 
 using Microsoft.Service.Document;
@@ -15,27 +19,27 @@ codeunit 6491 "Serv. Get Source Doc. Outbound"
 
     procedure CreateFromServiceOrderHideDialog(ServiceHeader: Record Microsoft.Service.Document."Service Header"): Boolean
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
     begin
-        FindWarehouseRequestForServiceOrder(WhseRqst, ServiceHeader);
-        exit(GetSourceDocOutbound.CreateWhseShipmentHeaderFromWhseRequest(WhseRqst));
+        FindWarehouseRequestForServiceOrder(WarehouseRequest, ServiceHeader);
+        exit(GetSourceDocOutbound.CreateWhseShipmentHeaderFromWhseRequest(WarehouseRequest));
     end;
 
-    local procedure FindWarehouseRequestForServiceOrder(var WhseRqst: Record "Warehouse Request"; ServiceHeader: Record "Service Header")
+    local procedure FindWarehouseRequestForServiceOrder(var WarehouseRequest: Record "Warehouse Request"; ServiceHeader: Record "Service Header")
     begin
         ServiceHeader.TestField("Release Status", ServiceHeader."Release Status"::"Released to Ship");
-        WhseRqst.SetRange(Type, WhseRqst.Type::Outbound);
-        WhseRqst.SetSourceFilter(Database::"Service Line", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.");
-        WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
-        OnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(WhseRqst, ServiceHeader);
+        WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Outbound);
+        WarehouseRequest.SetSourceFilter(Database::"Service Line", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.");
+        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Released);
+        OnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(WarehouseRequest, ServiceHeader);
 #if not CLEAN25
-        GetSourceDocOutbound.RunOnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(WhseRqst, ServiceHeader);
+        GetSourceDocOutbound.RunOnFindWarehouseRequestForServiceOrderOnAfterSetWhseRqstFilters(WarehouseRequest, ServiceHeader);
 #endif
-        GetSourceDocOutbound.GetRequireShipRqst(WhseRqst);
+        GetSourceDocOutbound.GetRequireShipRqst(WarehouseRequest);
 
-        OnAfterFindWarehouseRequestForServiceOrder(WhseRqst, ServiceHeader);
+        OnAfterFindWarehouseRequestForServiceOrder(WarehouseRequest, ServiceHeader);
 #if not CLEAN25
-        GetSourceDocOutbound.RunOnAfterFindWarehouseRequestForServiceOrder(WhseRqst, ServiceHeader);
+        GetSourceDocOutbound.RunOnAfterFindWarehouseRequestForServiceOrder(WarehouseRequest, ServiceHeader);
 #endif
     end;
 

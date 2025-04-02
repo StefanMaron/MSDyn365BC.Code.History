@@ -31,7 +31,7 @@ codeunit 437 "IC Navigation"
     begin
         if ICOutboxTransaction.IsEmpty() then
             exit;
-        NavigateToDocument(ICOutboxTransaction."Document No.", Enum::"IC Direction Type"::Outgoing, ICOutboxTransaction."IC Partner Code", ICOutboxTransaction."Document Type", ICOutboxTransaction."Source Type");
+        NavigateToDocument(ICOutboxTransaction."Document No.", Enum::"IC Direction Type"::Outgoing, ICOutboxTransaction."IC Partner Code", ICOutboxTransaction."Document Type", ICOutboxTransaction."IC Source Type");
     end;
 
     procedure NavigateToDocument(HandledICOutboxTrans: Record "Handled IC Outbox Trans.")
@@ -240,7 +240,7 @@ codeunit 437 "IC Navigation"
         exit(false);
     end;
 
-    local procedure NavigateToDocument(DocumentNo: Code[20]; ICDirectionType: Enum "IC Direction Type"; ICPartnerCode: Code[20]; DocumentType: Enum "IC Transaction Document Type"; SourceType: Option "Journal Line","Sales Document","Purchase Document")
+    local procedure NavigateToDocument(DocumentNo: Code[20]; ICDirectionType: Enum "IC Direction Type"; ICPartnerCode: Code[20]; DocumentType: Enum "IC Transaction Document Type"; SourceType: enum "IC Transaction Source Type")
     var
         Succeeded: Boolean;
     begin

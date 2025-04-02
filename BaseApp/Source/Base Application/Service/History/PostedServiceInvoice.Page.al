@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
@@ -213,6 +217,19 @@ page 5978 "Posted Service Invoice"
                     Editable = false;
                     ToolTip = 'Specifies how many times the document has been printed.';
                 }
+                group("Work Description")
+                {
+                    Caption = 'Work Description';
+                    field(GetWorkDescription; Rec.GetWorkDescription())
+                    {
+                        ApplicationArea = Service;
+                        Editable = false;
+                        Importance = Additional;
+                        MultiLine = true;
+                        ShowCaption = false;
+                        ToolTip = 'Specifies the products or services being offered.';
+                    }
+                }
             }
             part(ServInvLines; "Posted Service Invoice Subform")
             {
@@ -330,6 +347,7 @@ page 5978 "Posted Service Invoice"
                 field("Your Reference"; Rec."Your Reference")
                 {
                     ApplicationArea = Service;
+                    Editable = false;
                     ToolTip = 'Specifies a customer reference, which will be used when printing service documents.';
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
@@ -358,6 +376,18 @@ page 5978 "Posted Service Invoice"
                     Importance = Promoted;
                     ToolTip = 'Specifies when the related invoice must be paid.';
                 }
+                field("Tax Liable"; Rec."Tax Liable")
+                {
+                    ApplicationArea = SalesTax;
+                    Editable = false;
+                    ToolTip = 'Specifies if the customer is liable for sales tax.';
+                }
+                field("Tax Area Code"; Rec."Tax Area Code")
+                {
+                    ApplicationArea = SalesTax;
+                    Editable = false;
+                    ToolTip = 'Specifies the code of the tax area where the customer is located.';
+                }
             }
             group(Shipping)
             {
@@ -378,6 +408,15 @@ page 5978 "Posted Service Invoice"
                         Caption = 'Name';
                         Editable = false;
                         ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of thethe name of the customer at the address that the items are shipped to.';
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
@@ -521,6 +560,7 @@ page 5978 "Posted Service Invoice"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Invoice Header"),
                               "No." = field("No.");
             }

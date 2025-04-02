@@ -98,7 +98,9 @@ permissionset 617 "D365 DYN CRM MGT"
                   tabledata "Integration Synch. Job Errors" = IMD,
                   tabledata "Integration Table Mapping" = IMD,
                   tabledata "Interaction Template" = imd,
+#if not CLEAN24
                   tabledata "Man. Integration Field Mapping" = IMD,
+#endif
                   tabledata "Man. Integration Table Mapping" = IMD,
                   tabledata "Temp Integration Field Mapping" = IMD,
                   tabledata "Man. Int. Field Mapping" = IMD,

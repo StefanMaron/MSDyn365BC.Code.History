@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.FixedAsset;
 
 using Microsoft.Finance.Dimension;
@@ -54,7 +58,6 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets;
                     Importance = Promoted;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies a description of the fixed asset.';
 
                     trigger OnValidate()
                     begin
@@ -412,6 +415,7 @@ page 5600 "Fixed Asset Card"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Fixed Asset"),
                               "No." = field("No.");

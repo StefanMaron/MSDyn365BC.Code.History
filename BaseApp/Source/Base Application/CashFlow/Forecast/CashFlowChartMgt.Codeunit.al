@@ -1,8 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CashFlow.Forecast;
 
 using Microsoft.CashFlow.Account;
 using Microsoft.CashFlow.Setup;
-using Microsoft.CashFlow.Worksheet;
 using System.Visualization;
 
 codeunit 869 "Cash Flow Chart Mgt."
@@ -197,10 +200,10 @@ codeunit 869 "Cash Flow Chart Mgt."
     procedure CollectSourceTypes(CashFlowForecast: Record "Cash Flow Forecast"; var BusChartBuf: Record "Business Chart Buffer"): Integer
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
-        CashFlowWorksheetLine: Record "Cash Flow Worksheet Line";
+        SourceType: Enum "Cash Flow Source Type";
+        SkipSourceType: Boolean;
         FromDate: Date;
         ToDate: Date;
-        SourceType: Option;
         Which: Option First,Last;
         Index: Integer;
     begin
@@ -209,10 +212,17 @@ codeunit 869 "Cash Flow Chart Mgt."
         ToDate := CashFlowForecast.GetEntryDate(Which::Last);
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
         CFForecastEntry.SetRange("Cash Flow Date", FromDate, ToDate);
-        for SourceType := 1 to CashFlowWorksheetLine.GetNumberOfSourceTypes() do begin
-            CFForecastEntry.SetRange("Source Type", SourceType);
-            if not CFForecastEntry.IsEmpty() then begin
-                CashFlowForecast."Source Type Filter" := "Cash Flow Source Type".FromInteger(SourceType);
+        foreach SourceType in "Cash Flow Source Type".Ordinals() do begin
+            SkipSourceType := SourceType = "Cash Flow Source Type"::" ";
+            if not SkipSourceType then begin
+                CFForecastEntry.SetRange("Source Type", SourceType);
+                SkipSourceType := CFForecastEntry.IsEmpty();
+            end;
+
+            OnCollectSourceTypesBeforeSkipSourceType(CashFlowChartSetup, CashFlowForecast, SourceType, SkipSourceType);
+
+            if not SkipSourceType then begin
+                CashFlowForecast."Source Type Filter" := SourceType;
                 Index += 1;
                 BusChartBuf.AddDecimalMeasure(
                   Format(CashFlowForecast."Source Type Filter"),
@@ -289,6 +299,11 @@ codeunit 869 "Cash Flow Chart Mgt."
         if ToDate <> 0D then
             BusChartBuf.AddPeriods(FromDate, ToDate);
         exit(ToDate <> 0D);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectSourceTypesBeforeSkipSourceType(CashFlowChartSetup: Record "Cash Flow Chart Setup"; CashFlowForecast: Record "Cash Flow Forecast"; SourceType: Enum "Cash Flow Source Type"; var SkipSourceType: Boolean)
+    begin
     end;
 }
 

@@ -1,9 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Setup;
 
 using Microsoft.Inventory.Analysis;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Inventory.BOM;
+using Microsoft.Inventory.Costing.ActionMessage;
 using Microsoft.Inventory.Comment;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Counting.Comment;
@@ -58,6 +63,9 @@ codeunit 1764 "Inventory-Data Classification"
         ClassifyItemTracingBuffer();
         ClassifyItem();
         ClassifyManufacturingUserTemplate();
+#if CLEAN26
+        ClassifyCapacityLedgerEntry();
+#endif
         ClassifyPhysInventoryLedgerEntry();
         ClassifyRequisitionLine();
         ClassifyReservationEntry();
@@ -117,6 +125,7 @@ codeunit 1764 "Inventory-Data Classification"
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Availability Calc. Overview");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Inventory Report Header");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Average Cost Calc. Overview");
+        DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"BOM Buffer");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Memoized Result");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Item Availability by Date");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"BOM Warning Log");
@@ -187,8 +196,10 @@ codeunit 1764 "Inventory-Data Classification"
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Inventory Report Entry");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Inventory Adjmt. Entry (Order)");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adj. Item Bucket");
+        DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adjmt. Action Message");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adjustment Detailed Log");
         DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adjustment Log");
+        DataClassificationMgt.SetTableFieldsToNormal(Database::"Cost Adjustment Trace Log");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Item Entry Relation");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Value Entry Relation");
         DataClassificationMgt.SetTableFieldsToNormal(DATABASE::"Action Message Entry");
@@ -687,5 +698,55 @@ codeunit 1764 "Inventory-Data Classification"
         DataClassificationMgt.SetFieldToPersonal(TableNo, DummyManufacturingUserTemplate.FieldNo("User ID"));
     end;
 
-
+#if CLEAN26
+    local procedure ClassifyCapacityLedgerEntry()
+    var
+        DummyCapacityLedgerEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
+        DataClassificationMgt.SetTableFieldsToNormal(TableNo);
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Order No."));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo(Subcontracting));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Work Shift Code"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Work Center Group Code"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Scrap Code"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Stop Code"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("External Document No."));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Document Date"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Qty. per Unit of Measure"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Unit of Measure Code"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Variant Code"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Item No."));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Order Type"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Routing Reference No."));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Routing No."));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Ending Time"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Starting Time"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Completely Invoiced"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Last Output Line"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Dimension Set ID"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Global Dimension 2 Code"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Global Dimension 1 Code"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Qty. per Cap. Unit of Measure"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Cap. Unit of Measure Code"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Order Line No."));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Concurrent Capacity"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Scrap Quantity"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Output Quantity"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Invoiced Quantity"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Stop Time"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Run Time"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Setup Time"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo(Quantity));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Work Center No."));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Operation No."));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo(Description));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Document No."));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo(Type));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Posting Date"));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("No."));
+        DataClassificationMgt.SetFieldToCompanyConfidential(TableNo, DummyCapacityLedgerEntry.FieldNo("Entry No."));
+    end;
+#endif
 }

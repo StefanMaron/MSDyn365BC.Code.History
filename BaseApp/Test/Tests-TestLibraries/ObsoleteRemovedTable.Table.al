@@ -25,4 +25,3 @@ table 136604 "Obsolete Removed Table"
     {
     }
 }
-

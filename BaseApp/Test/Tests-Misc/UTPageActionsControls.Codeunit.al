@@ -28,7 +28,6 @@ codeunit 134341 "UT Page Actions & Controls"
         CountOrdersNotInvoicedErr: Label 'Wrong result of PurchaseCue.CountOrders("Not Invoiced") ';
         CountOrdersPartiallyInvoicedErr: Label 'Wrong result of PurchaseCue.CountOrders("Partially Invoiced") ';
         PageFieldVisibleErr: Label '%1 must be visible.';
-        LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibraryTemplates: Codeunit "Library - Templates";
@@ -3733,7 +3732,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Automatic Ext. Texts", true);
         Item.Modify();
-        ExtendedText := LibraryService.CreateExtendedTextForItem(Item."No.");
+        ExtendedText := LibraryInventory.CreateExtendedTextForItem(Item."No.");
 
         // [GIVEN] Sales Document "Y"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
@@ -3767,7 +3766,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Automatic Ext. Texts", true);
         Item.Modify();
-        ExtendedText := LibraryService.CreateExtendedTextForItem(Item."No.");
+        ExtendedText := LibraryInventory.CreateExtendedTextForItem(Item."No.");
 
         // [GIVEN] Purchase Document "Y"
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);

@@ -6034,7 +6034,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
         Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Stock");
-        Item.Validate("Flushing Method", Item."Flushing Method"::Manual);
+        Item.Validate("Flushing Method", Item."Flushing Method"::"Pick + Manual");
         Item.Validate("Routing No.", RoutingHeader."No.");
         Item.Modify(true);
     end;

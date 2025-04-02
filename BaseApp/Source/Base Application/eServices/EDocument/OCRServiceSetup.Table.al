@@ -20,6 +20,7 @@ table 1270 "OCR Service Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "User Name"; Text[50])
@@ -124,6 +125,7 @@ table 1270 "OCR Service Setup"
                     Rec."Enabled" := CustomerConsentMgt.ConfirmUserConsent();
 
                 if Rec.Enabled then begin
+                    Session.LogAuditMessage(StrSubstNo(OCRServiceConsentProvidedLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
                     OCRServiceMgt.SetupConnection(Rec);
                     if "Default OCR Doc. Template" = '' then
                         if CompanyInformation.Get() then
@@ -201,15 +203,16 @@ table 1270 "OCR Service Setup"
     end;
 
     var
+        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
         MustBeEnabledErr: Label 'The OCR service is not enabled.\\In the OCR Service Setup window, select the Enabled check box.', Comment = 'OCR = Optical Character Recognition';
         JobQEntriesCreatedQst: Label 'Job queue entries for sending and receiving electronic documents have been created.\\Do you want to open the Job Queue Entries window?';
         OCRServiceCreatedTxt: Label 'The user started setting up OCR service.', Locked = true;
         OCRServiceEnabledTxt: Label 'The user enabled OCR service.', Locked = true;
         OCRServiceDisabledTxt: Label 'The user disabled OCR service.', Locked = true;
         TelemetryCategoryTok: Label 'AL OCR Service', Locked = true;
-        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
-#if not CLEAN25
+        OCRServiceConsentProvidedLbl: Label 'OCR Service - consent provided by UserSecurityId %1 for company %2.', Comment = '%1 - User Security ID, %2 - Company name', Locked = true;
 
+#if not CLEAN25
     [Scope('OnPrem')]
     [Obsolete('Replaced by SavePassword(var PasswordKey: Guid; PasswordText: SecretText)', '25.0')]
     [NonDebuggable]

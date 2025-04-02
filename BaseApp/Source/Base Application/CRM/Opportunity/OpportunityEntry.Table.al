@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CRM.Opportunity;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CRM.Opportunity;
 
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Campaign;
@@ -556,7 +560,6 @@ table 5093 "Opportunity Entry"
                 Error(Text012);
     end;
 
-    [Scope('OnPrem')]
     procedure FinishWizard()
     var
         OpportunityEntryToInsert: Record "Opportunity Entry";
@@ -633,7 +636,6 @@ table 5093 "Opportunity Entry"
         CheckEstimatedValues();
     end;
 
-    [Scope('OnPrem')]
     procedure FinishWizard2()
     var
         CreateNewTask: Boolean;

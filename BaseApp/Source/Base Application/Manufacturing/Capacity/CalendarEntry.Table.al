@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Manufacturing.Capacity;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Capacity;
 
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.Setup;

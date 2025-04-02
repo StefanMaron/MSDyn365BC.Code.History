@@ -1,4 +1,8 @@
-﻿namespace Microsoft.EServices.EDocument;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
 
 using Microsoft.Foundation.Company;
 using Microsoft.CRM.BusinessRelation;

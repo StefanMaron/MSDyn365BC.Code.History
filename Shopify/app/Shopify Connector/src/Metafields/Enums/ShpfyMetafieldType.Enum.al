@@ -19,7 +19,7 @@ enum 30159 "Shpfy Metafield Type" implements "Shpfy IMetafield Type"
         Caption = 'Legacy Integer';
         Implementation = "Shpfy IMetafield Type" = "Shpfy Mtfld Type Integer";
     }
-    
+
     value(2; json)
     {
         Caption = 'JSON';
@@ -155,5 +155,16 @@ enum 30159 "Shpfy Metafield Type" implements "Shpfy IMetafield Type"
     {
         Caption = 'Variant';
         Implementation = "Shpfy IMetafield Type" = "Shpfy Mtfld Type Variant Ref";
+    }
+    value(25; customer_reference)
+    {
+        Caption = 'Customer';
+        Implementation = "Shpfy IMetafield Type" = "Shpfy Mtfld Type Customer Ref";
+    }
+
+    value(26; company_reference)
+    {
+        Caption = 'Company';
+        Implementation = "Shpfy IMetafield Type" = "Shpfy Mtfld Type Company Ref";
     }
 }

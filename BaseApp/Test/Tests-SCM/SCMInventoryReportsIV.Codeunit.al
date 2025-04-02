@@ -1,7 +1,7 @@
 codeunit 137351 "SCM Inventory Reports - IV"
 {
     Subtype = Test;
-    TestPermissions = NonRestrictive;
+    TestPermissions = Disabled;
 
     trigger OnRun()
     begin

@@ -71,7 +71,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         // creating items - one final and two components, each is linked to one operation via Routing Link Code
         CreateAllItemsWithBOM(
           ItemFinal, ItemComp1, ItemComp2,
-          ItemComp1."Flushing Method"::Manual,
+          ItemComp1."Flushing Method"::"Pick + Manual",
           CopyStr(WorkCenter1."No.", 1, 10),
           CopyStr(WorkCenter2."No.", 1, 10),
           RoutingHeader."No.");
@@ -450,7 +450,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         // creating items - one final and two components, each is linked to one operation via Routing Link Code
         CreateAllItemsWithBOM(
           ItemFinal, ItemComp1, ItemComp2,
-          ItemComp1."Flushing Method"::Manual,
+          ItemComp1."Flushing Method"::"Pick + Manual",
           CopyStr(WorkCenter1."No.", 1, 10),
           CopyStr(WorkCenter2."No.", 1, 10),
           RoutingHeader."No.");

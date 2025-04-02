@@ -123,7 +123,7 @@ page 537 "Dimension Values"
                     Image = Indent;
                     RunObject = page "Default Dimension Where-Used";
                     RunPageLink = "Dimension Code" = field("Dimension Code"), "Dimension Value Code" = field(Code);
-                    ToolTip = 'View all the records where the dimension value is used as a default dimension. Note that default dimensions can only be assigned to record types, such as item, customer, and other master data cards and to selected other records, such as salespersons and fixed assets. Default dimensions cannot be assigned to documents or journal lines.';
+                    ToolTip = 'View all the records where the dimension value is used as a default dimension. Note that default dimensions can only be assigned to record types, such as item, customer, and other master data cards and to selected other records, such as salespeople and fixed assets. Default dimensions cannot be assigned to documents or journal lines.';
 
                 }
             }
