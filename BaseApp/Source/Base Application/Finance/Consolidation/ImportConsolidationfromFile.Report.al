@@ -88,7 +88,6 @@ report 92 "Import Consolidation from File"
                     {
                         ApplicationArea = Suite;
                         Caption = 'File Format';
-                        OptionCaption = 'Version 4.00 or Later (.xml),Version 3.70 or Earlier (.txt)';
                         ToolTip = 'Specifies the format of the file that you want to use for consolidation.';
                     }
                     field(FileNameControl; FileName)
@@ -236,7 +235,7 @@ report 92 "Import Consolidation from File"
         GLEntryFile: File;
         FileName: Text;
         FilePath: Text;
-        FileFormat: Option "Version 4.00 or Later (.xml)","Version 3.70 or Earlier (.txt)";
+        FileFormat: Enum "Business Unit File Format";
         TextLine: Text[250];
         GLDocNo: Code[20];
         ConsolidStartDate: Date;
@@ -273,7 +272,7 @@ report 92 "Import Consolidation from File"
 #pragma warning restore AA0074
         FileFormatQst: Label 'The entered %1, %2, does not equal the %1 on this %3, %4.\Do you want to continue?', Comment = '%1 - field caption, %2 - field value, %3 - table captoin, %4 - field value';
 
-    procedure InitializeRequest(NewFileFormat: Option; NewFilePath: Text; NewGLDocNo: Code[20])
+    procedure SetParameters(NewFileFormat: Enum "Business Unit File Format"; NewFilePath: Text; NewGLDocNo: Code[20])
     begin
         FileFormat := NewFileFormat;
         FilePath := NewFilePath;
@@ -281,15 +280,14 @@ report 92 "Import Consolidation from File"
         GLDocNo := NewGLDocNo;
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced with InitializeRequest with 3 parameters', '23.0')]
-    procedure InitializeRequest(NewFileFormat: Option; NewFilePath: Text; NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10])
+#if not CLEAN26
+    [Obsolete('Replaced by procedure SetParameters()', '26.0')]
+    procedure InitializeRequest(NewFileFormat: Option; NewFilePath: Text; NewGLDocNo: Code[20])
     begin
-        FileFormat := NewFileFormat;
+        FileFormat := "Business Unit File Format".FromInteger(NewFileFormat);
         FilePath := NewFilePath;
         FileName := GetFileName(FilePath);
-        GenJnlBatch."Journal Template Name" := NewJnlTemplName;
-        GenJnlBatch.Name := NewJnlBatchName;
+        GLDocNo := NewGLDocNo;
     end;
 #endif
 

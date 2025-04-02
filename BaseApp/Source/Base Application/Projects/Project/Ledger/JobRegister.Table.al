@@ -1,7 +1,9 @@
 namespace Microsoft.Projects.Project.Ledger;
 
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
 using System.Security.AccessControl;
+using Microsoft.Utilities;
 
 table 241 "Job Register"
 {
@@ -68,5 +70,29 @@ table 241 "Job Register"
     fieldgroups
     {
     }
+
+    procedure GetNextEntryNo(UseLegacyPosting: Boolean): Integer
+    begin
+        if not UseLegacyPosting then
+            exit(GetNextEntryNo());
+        Rec.LockTable();
+        exit(GetLastEntryNo() + 1);
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Job Register", 'r')]
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Job Register"));
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Job Register", 'r')]
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("No.")))
+    end;
 }
 

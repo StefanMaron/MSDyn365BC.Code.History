@@ -37,7 +37,7 @@ page 9203 "Budget Matrix"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the code of the record.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
                     begin
                         LookUpCode(LineDimType, LineDimCode, Rec.Code);
                     end;

@@ -645,7 +645,9 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         // Finish Order 2
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder2, ProductionOrder2.Status::Finished, StartDate + 25, false);
         // Sell ProducedItem2
-        LibraryPatterns.POSTSaleJournal(ProducedItem2, '', '', '', SaleProdItem2Qty, StartDate + 30, 0);
+        LibraryInventory.PostItemJournalLine(
+            "Item Journal Template Type"::Item, "Item Ledger Entry Type"::Sale,
+            ProducedItem2, '', '', '', SaleProdItem2Qty, StartDate + 30, 0);
         // AdjustCost
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2|%3', ComponentItem."No.", ProducedItem1."No.", ProducedItem2."No."), '');
 
@@ -727,7 +729,9 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder2, ProductionOrder2.Status::Finished, StartDate + 20, false);
 
         // Sell ProducedItem2
-        LibraryPatterns.POSTSaleJournal(ProducedItem2, '', '', '', SaleProdItem2Qty, StartDate + 30, 0);
+        LibraryInventory.PostItemJournalLine(
+             "Item Journal Template Type"::Item, "Item Ledger Entry Type"::Sale,
+              ProducedItem2, '', '', '', SaleProdItem2Qty, StartDate + 30, 0);
 
         // AdjustCost
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2|%3', ComponentItem."No.", ProducedItem1."No.", ProducedItem2."No."), '');
@@ -793,7 +797,9 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         // Finish Order 2
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder2, ProductionOrder2.Status::Finished, StartDate + 30, false);
         // Sell ProducedItem2
-        LibraryPatterns.POSTSaleJournal(ProducedItem2, '', '', '', SaleProdItem2Qty, StartDate + 30, 0);
+        LibraryInventory.PostItemJournalLine(
+             "Item Journal Template Type"::Item, "Item Ledger Entry Type"::Sale,
+              ProducedItem2, '', '', '', SaleProdItem2Qty, StartDate + 30, 0);
         // AdjustCost
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2|%3', ComponentItem."No.", ProducedItem1."No.", ProducedItem2."No."), '');
 
@@ -843,7 +849,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ProdOrderQty := LibraryRandom.RandDecInDecimalRange(100, 200, 2);
 
         SetupItems1Comp1ProdItem(ComponentItem, ProducedItem, ComponentCostingMethod, ProducedItemCostingMethod, QtyCompInProdItem);
-        LibraryPatterns.MAKEProductionOrder(
+        LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProducedItem, '', '', ProdOrderQty, StartDate + 30);
 
         QtyCompInProdOrder := Round(QtyCompInProdItem * ProdOrderQty, ComponentItem."Rounding Precision", '>');
@@ -855,15 +861,15 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst();
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, '', '', ConsumptionQty, StartDate + 4, ComponentItem."Unit Cost");
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ComponentItem, '', '', ConsumptionQty, StartDate + 4, ComponentItem."Unit Cost");
 
-        LibraryPatterns.POSTOutput(ProdOrderLine, ProdOrderQty, StartDate + 4, ProducedItem."Unit Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, ProdOrderQty, StartDate + 4, ProducedItem."Unit Cost");
 
         // Post negative consumption for the excess consumption posted previously
         ItemLedgerEntry.SetRange("Item No.", ComponentItem."No.");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
         ItemLedgerEntry.FindLast();
-        LibraryPatterns.MAKEConsumptionJournalLine(
+        LibraryManufacturing.CreateConsumptionJournalLine(
           ConsumptionItemJournalBatch, ProdOrderLine, ComponentItem, StartDate + 4, '', '', -(ConsumptionQty - QtyCompInProdOrder),
           ComponentItem."Unit Cost");
         ConsumptionItemJournalLine.SetRange("Journal Template Name", ConsumptionItemJournalBatch."Journal Template Name");
@@ -927,7 +933,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ProdOrderQty := LibraryRandom.RandDecInDecimalRange(100, 200, 2);
 
         SetupItems1Comp1ProdItem(ComponentItem, ProducedItem, ComponentCostingMethod, ProducedItemCostingMethod, QtyCompInProdItem);
-        LibraryPatterns.MAKEProductionOrder(
+        LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProducedItem, '', '', ProdOrderQty, StartDate + 30);
 
         QtyCompInProdOrder := Round(QtyCompInProdItem * ProdOrderQty, ComponentItem."Rounding Precision", '>');
@@ -943,11 +949,11 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst();
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, '', '', ConsumptionQty1, StartDate + 4, ComponentItem."Unit Cost");
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, '', '', ConsumptionQty2, StartDate + 6, ComponentItem."Unit Cost");
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, '', '', ConsumptionQty3, StartDate + 8, ComponentItem."Unit Cost");
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ComponentItem, '', '', ConsumptionQty1, StartDate + 4, ComponentItem."Unit Cost");
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ComponentItem, '', '', ConsumptionQty2, StartDate + 6, ComponentItem."Unit Cost");
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ComponentItem, '', '', ConsumptionQty3, StartDate + 8, ComponentItem."Unit Cost");
 
-        LibraryPatterns.POSTOutput(ProdOrderLine, ProdOrderQty, StartDate + 10, ProducedItem."Unit Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, ProdOrderQty, StartDate + 10, ProducedItem."Unit Cost");
 
         // Finish Order
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, StartDate + 11, false);
@@ -992,7 +998,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         SetupItems1Comp1ProdItem(
           ComponentItem, ProducedItem, ComponentItem."Costing Method"::Average, ProducedItemCostingMethod, QtyCompInProdItem);
 
-        LibraryPatterns.MAKEProductionOrder(
+        LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProducedItem, '', '', ProdOrderQty, StartDate + 30);
 
         QtyCompInProdOrder := Round(QtyCompInProdItem * ProdOrderQty, ComponentItem."Rounding Precision", '>');
@@ -1005,22 +1011,22 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Cost3 := LibraryPatterns.RandCost(ComponentItem);
 
         LibraryInventory.CreateItemJournalBatchByType(ItemJnlBatch, ItemJnlBatch."Template Type"::Item);
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlBatch, ComponentItem, '', '', StartDate, ItemJnlLine."Entry Type"::Purchase, PurchaseQty1, Cost1);
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlBatch, ComponentItem, '', '', StartDate + 1, ItemJnlLine."Entry Type"::Purchase, PurchaseQty2, Cost2);
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
 
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst();
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, '', '', QtyCompInProdOrder, StartDate + 2, ComponentItem."Unit Cost");
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ComponentItem, '', '', QtyCompInProdOrder, StartDate + 2, ComponentItem."Unit Cost");
 
         LibraryInventory.CreateItemJournalBatchByType(ItemJnlBatch, ItemJnlBatch."Template Type"::Item);
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlBatch, ComponentItem, '', '', StartDate + 2, ItemJnlLine."Entry Type"::Purchase, PurchaseQty2, Cost3);
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
 
-        LibraryPatterns.POSTOutput(ProdOrderLine, ProdOrderQty, StartDate + 9, ProducedItem."Unit Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, ProdOrderQty, StartDate + 9, ProducedItem."Unit Cost");
 
         // Finish
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, StartDate + 10, false);
@@ -1050,18 +1056,18 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         // Setup.
         SetupItems1Comp1ProdItem(CompItem, ParentItem, CompItem."Costing Method"::Average, ProducedItemCostingMethod, QtyPer);
 
-        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ParentItem, '', '', Qty, StartDate);
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ParentItem, '', '', Qty, StartDate);
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst();
 
         // Purchase component item.
-        LibraryPatterns.POSTPositiveAdjustment(CompItem, '', '', '', Qty * QtyPer / 2, StartDate, LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.POSTPositiveAdjustment(CompItem, '', '', '', (Qty * QtyPer) / 2 + 1,
+        LibraryInventory.PostPositiveAdjustment(CompItem, '', '', '', Qty * QtyPer / 2, StartDate, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.PostPositiveAdjustment(CompItem, '', '', '', (Qty * QtyPer) / 2 + 1,
           StartDate + 1, LibraryRandom.RandDec(100, 2));
 
         // Post consumption.
-        LibraryPatterns.MAKEConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, CompItem, StartDate + 5, '', '', Qty * QtyPer, 0);
+        LibraryManufacturing.CreateConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, CompItem, StartDate + 5, '', '', Qty * QtyPer, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Adjust.
@@ -1073,7 +1079,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         LibraryPatterns.ModifyPostRevaluation(ItemJournalBatch, LibraryRandom.RandDecInRange(1, 3, 2));
 
         // Post output.
-        LibraryPatterns.MAKEOutputJournalLine(ItemJournalBatch, ProdOrderLine, StartDate + 6, Qty, 0);
+        LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, StartDate + 6, Qty, 0);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Adjust.
@@ -1202,7 +1208,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         UnitAmount := 0.2;
 
         // Repro steps
-        LibraryPatterns.POSTPositiveAdjustment(CompItem, '', '', '', TotalQty, StartDate, UnitAmount);
+        LibraryInventory.PostPositiveAdjustment(CompItem, '', '', '', TotalQty, StartDate, UnitAmount);
 
         CreateAndPostProdOrder1Comp(ProductionOrder[1], CompItem, ProdItem, StartDate, ProdQty, 0, false);
         // ProdItem is consumed & CompItem is output - later date
@@ -1270,12 +1276,12 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         Cost2 := LibraryRandom.RandDecInDecimalRange(1, 10, 2);
         Cost3 := LibraryRandom.RandDecInDecimalRange(1, 10, 2);
 
-        LibraryPatterns.MAKEItemSimple(ComponentItem, ComponentCostingMethod, Cost1);
-        LibraryPatterns.MAKEItemSimple(ProducedItem1, ProducedItemCostingMethod, Cost2);
-        LibraryPatterns.MAKEItemSimple(ProducedItem2, ProducedItemCostingMethod, Cost3);
+        LibraryInventory.CreateItemSimple(ComponentItem, ComponentCostingMethod, Cost1);
+        LibraryInventory.CreateItemSimple(ProducedItem1, ProducedItemCostingMethod, Cost2);
+        LibraryInventory.CreateItemSimple(ProducedItem2, ProducedItemCostingMethod, Cost3);
 
         // Make Production BOM 1
-        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ProducedItem1, ComponentItem, QtyCompInProd1, '');
+        LibraryManufacturing.CreateProductionBOM(ProductionBOMHeader, ProducedItem1, ComponentItem, QtyCompInProd1, '');
 
         // Make Production BOM 2
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProducedItem2."Base Unit of Measure");
@@ -1299,23 +1305,23 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         CostCompItem := LibraryPatterns.RandCost(ComponentItem);
         CostProdItem := LibraryPatterns.RandCost(ProducedItem);
 
-        LibraryPatterns.MAKEItemSimple(ComponentItem, ComponentCostingMethod, CostCompItem);
-        LibraryPatterns.MAKEItemSimple(ProducedItem, ProducedItemCostingMethod, CostProdItem);
+        LibraryInventory.CreateItemSimple(ComponentItem, ComponentCostingMethod, CostCompItem);
+        LibraryInventory.CreateItemSimple(ProducedItem, ProducedItemCostingMethod, CostProdItem);
 
         // Make Production BOM
-        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ProducedItem, ComponentItem, QtyCompInProdItem, '');
+        LibraryManufacturing.CreateProductionBOM(ProductionBOMHeader, ProducedItem, ComponentItem, QtyCompInProdItem, '');
     end;
 
     local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
-        LibraryPatterns.MAKEItemSimple(Item, CostingMethod, 0);
+        LibraryInventory.CreateItemSimple(Item, CostingMethod, 0);
         Item.Description := Format(Item."Costing Method");
         Item.Modify();
     end;
 
     local procedure CreateAndPostProdOrder1Comp(var ProductionOrder: Record "Production Order"; ComponentItem: Record Item; ProducedItem: Record Item; PostingDate: Date; ProdQty: Decimal; ApplyToEntry: Integer; ReservComp: Boolean)
     begin
-        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProducedItem, '', '', ProdQty, PostingDate);
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProducedItem, '', '', ProdQty, PostingDate);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, false, false, false);
 
         if ReservComp then begin
@@ -1329,10 +1335,10 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
     local procedure SetupProdOrders(var ProductionOrder1: Record "Production Order"; var ProductionOrder2: Record "Production Order"; ProducedItem1: Record Item; ProducedItem2: Record Item; ProdOrder1Qty: Decimal; ProdOrder2Qty: Decimal; DueDate: Date)
     begin
         // Create production order 1
-        LibraryPatterns.MAKEProductionOrder(
+        LibraryManufacturing.CreateProductionOrder(
           ProductionOrder1, ProductionOrder1.Status::Released, ProducedItem1, '', '', ProdOrder1Qty, DueDate);
         // Create production order 2
-        LibraryPatterns.MAKEProductionOrder(
+        LibraryManufacturing.CreateProductionOrder(
           ProductionOrder2, ProductionOrder1.Status::Released, ProducedItem2, '', '', ProdOrder2Qty, DueDate);
     end;
 
@@ -1363,15 +1369,15 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
 
         LibraryInventory.CreateItemJournalBatchByType(ItemJnlBatch, ItemJnlBatch."Template Type"::Item);
 
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlBatch, ComponentItem, '', '', PostingDate, ItemJnlLine."Entry Type"::Purchase, PurchaseQty1, UnitCost);
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlBatch, ComponentItem, '', '', PostingDate, ItemJnlLine."Entry Type"::Purchase, PurchaseQty2, UnitCost);
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlBatch, ComponentItem, '', '', PostingDate, ItemJnlLine."Entry Type"::Purchase, PurchaseQty3, UnitCost);
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlBatch, ComponentItem, '', '', PostingDate, ItemJnlLine."Entry Type"::Purchase, PurchaseQty4, UnitCost);
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlBatch, ComponentItem, '', '', PostingDate, ItemJnlLine."Entry Type"::Purchase, PurchaseQty5, UnitCost);
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
     end;
@@ -1390,9 +1396,9 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
 
         LibraryInventory.CreateItemJournalBatchByType(ItemJnlBatch, ItemJnlBatch."Template Type"::Item);
 
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlBatch, ComponentItem, '', '', PostingDate, ItemJnlLine."Entry Type"::Purchase, PurchaseQty1, UnitCost);
-        LibraryPatterns.MAKEItemJournalLine(
+        LibraryInventory.CreateItemJournalLine(
           ItemJnlLine, ItemJnlBatch, ComponentItem, '', '', PostingDate, ItemJnlLine."Entry Type"::Purchase, PurchaseQty2, UnitCost);
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
 
@@ -1411,9 +1417,9 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ProdOrderLine.FindFirst();
 
         if ApplyToEntry = 0 then
-            LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, '', '', QtyCompInProdOrder1, PostingDate, ComponentItem."Unit Cost")
+            LibraryManufacturing.POSTConsumption(ProdOrderLine, ComponentItem, '', '', QtyCompInProdOrder1, PostingDate, ComponentItem."Unit Cost")
         else begin // Make fixed application before posting consumption
-            LibraryPatterns.MAKEConsumptionJournalLine(
+            LibraryManufacturing.CreateConsumptionJournalLine(
               ItemJournalBatch, ProdOrderLine, ComponentItem, PostingDate, '', '', QtyCompInProdOrder1, ComponentItem."Unit Cost");
             ItemJnlLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
             ItemJnlLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
@@ -1425,7 +1431,7 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
             ItemJnlLine.Modify();
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
         end;
-        LibraryPatterns.POSTOutput(ProdOrderLine, ProdOrder1Qty, PostingDate, ProducedItem1."Unit Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, ProdOrder1Qty, PostingDate, ProducedItem1."Unit Cost");
     end;
 
     local procedure PostProdOrder2(ProductionOrder2: Record "Production Order"; ComponentItem: Record Item; ProducedItem1: Record Item; ProducedItem2: Record Item; PostingDate: Date; QtyCompInProdOrder2: Decimal; QtyProdItem1InProdOrder2: Decimal; ProdOrder2Qty: Decimal)
@@ -1435,10 +1441,10 @@ codeunit 137606 "SCM CETAF Costing Reval. WIP"
         ProdOrderLine.SetRange(Status, ProductionOrder2.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder2."No.");
         ProdOrderLine.FindFirst();
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ComponentItem, '', '', QtyCompInProdOrder2, PostingDate, ComponentItem."Unit Cost");
-        LibraryPatterns.POSTConsumption(
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ComponentItem, '', '', QtyCompInProdOrder2, PostingDate, ComponentItem."Unit Cost");
+        LibraryManufacturing.POSTConsumption(
           ProdOrderLine, ProducedItem1, '', '', QtyProdItem1InProdOrder2, PostingDate, ProducedItem1."Unit Cost");
-        LibraryPatterns.POSTOutput(ProdOrderLine, ProdOrder2Qty, PostingDate, ProducedItem2."Unit Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, ProdOrder2Qty, PostingDate, ProducedItem2."Unit Cost");
     end;
 
     local procedure ExecuteRevalueExistingInventory(var Item: Record Item; var ItemJnlBatch: Record "Item Journal Batch"; PostingDate: Date; CalculatePer: Enum "Inventory Value Calc. Per"; ByLocation: Boolean; ByVariant: Boolean; UpdStdCost: Boolean; CalcBase: Enum "Inventory Value Calc. Base"; LocationFilter: Code[20]; VariantFilter: Code[20])

@@ -30,26 +30,16 @@ table 10 "Shipment Method"
             Caption = 'Last Modified Date Time';
             Editable = false;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dataverse';
             Editable = false;
             ObsoleteReason = 'Replaced by page control Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
+        }
 #endif
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(11300; "Incoterm in Intrastat Decl."; Code[10])
         {
             Caption = 'Incoterm in Intrastat Decl.';
@@ -111,4 +101,3 @@ table 10 "Shipment Method"
         "Last Modified Date Time" := CurrentDateTime;
     end;
 }
-

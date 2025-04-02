@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Counting.Document;
 
 using Microsoft.Inventory.Counting.Tracking;
@@ -265,7 +269,7 @@ report 5880 "Calc. Phys. Invt. Order Lines"
     begin
         Clear(ItemLedgEntry);
         ItemLedgEntry.SetCurrentKey(
-          "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
+          "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date", "Entry No.");
         ItemLedgEntry.SetRange("Item No.", Item."No.");
         if Item.GetFilter("Variant Filter") <> '' then
             Item.CopyFilter("Variant Filter", ItemLedgEntry."Variant Code");

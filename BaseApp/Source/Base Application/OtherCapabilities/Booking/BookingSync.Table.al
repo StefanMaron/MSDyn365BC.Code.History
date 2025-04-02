@@ -14,6 +14,7 @@ table 6702 "Booking Sync"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Booking Mailbox Address"; Text[80])
@@ -52,13 +53,6 @@ table 6702 "Booking Sync"
         field(9; "Customer Filter"; BLOB)
         {
             Caption = 'Customer Filter';
-        }
-        field(10; "Customer Template Code"; Code[10])
-        {
-            Caption = 'Customer Template Code';
-            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. replaced by "Customer Templ. Code".';
-            ObsoleteState = Removed;
-            ObsoleteTag = '21.0';
         }
         field(12; "Sync Services"; Boolean)
         {
@@ -143,4 +137,3 @@ table 6702 "Booking Sync"
             exit(Get() and ("Last Service Sync" <> 0DT));
     end;
 }
-

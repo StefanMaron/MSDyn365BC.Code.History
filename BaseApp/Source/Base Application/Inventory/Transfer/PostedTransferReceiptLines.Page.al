@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.Finance.Dimension;
@@ -80,27 +84,6 @@ page 5759 "Posted Transfer Receipt Lines"
             {
                 Caption = '&Line';
                 Image = Line;
-#if not CLEAN23
-                action("Show Document")
-                {
-                    ApplicationArea = Location;
-                    Caption = 'Card';
-                    Image = View;
-                    ShortCutKey = 'Shift+F7';
-                    ToolTip = 'Open the document that the selected line exists on.';
-                    ObsoleteReason = 'Replaced by "Show Document" action';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-
-                    trigger OnAction()
-                    var
-                        TransRcptHeader: Record "Transfer Receipt Header";
-                    begin
-                        TransRcptHeader.Get(Rec."Document No.");
-                        PAGE.Run(PAGE::"Posted Transfer Receipt", TransRcptHeader);
-                    end;
-                }
-#endif
                 action(ShowDocument)
                 {
                     ApplicationArea = Location;

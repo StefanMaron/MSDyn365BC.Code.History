@@ -1,6 +1,10 @@
+#if not CLEAN26
 codeunit 104152 "Copy Line Descr. To G/L Entry"
 {
     Subtype = Upgrade;
+    ObsoleteReason = 'It is before 15.0 change, upgrade already happened.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '26.0';
 
     trigger OnRun()
     begin
@@ -27,4 +31,4 @@ codeunit 104152 "Copy Line Descr. To G/L Entry"
         end;
     end;
 }
-
+#endif

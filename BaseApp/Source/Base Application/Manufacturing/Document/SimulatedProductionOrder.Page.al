@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
@@ -93,6 +97,11 @@ page 99000912 "Simulated Production Order"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies when the production order card was last modified.';
+                }
+                field("Manual Scheduling"; Rec."Manual Scheduling")
+                {
+                    ApplicationArea = Manufacturing;
+                    Importance = Additional;
                 }
             }
             part(ProdOrderLines; "Simulated Prod. Order Lines")

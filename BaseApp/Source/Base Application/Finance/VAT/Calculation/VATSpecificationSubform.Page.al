@@ -75,14 +75,6 @@ page 576 "VAT Specification Subform"
                     AutoFormatExpression = CurrencyCode;
                     AutoFormatType = 1;
                     ToolTip = 'Specifies the total net amount (amount excluding VAT) for sales or purchase lines with a specific VAT Identifier.';
-                    Visible = false;
-                }
-                field("VAT Base (Lowered)"; Rec."VAT Base (Lowered)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    AutoFormatExpression = CurrencyCode;
-                    AutoFormatType = 1;
-                    ToolTip = 'Specifies the actual VAT base amount (lowered). It is calculated as follows: VAT Base = Line Amount - Invoice Discount Amount. VAT Base (Lowered) = VAT Base - Inv. Disc. Base Amount.';
                 }
                 field("VAT Amount"; Rec."VAT Amount")
                 {
@@ -209,7 +201,6 @@ page 576 "VAT Specification Subform"
         Currency: Record Currency;
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         SourceHeader: Variant;
-        CurrencyCode: Code[10];
         AllowVATDifference: Boolean;
         AllowVATDifferenceOnThisTab: Boolean;
         PricesIncludingVAT: Boolean;
@@ -230,6 +221,7 @@ page 576 "VAT Specification Subform"
 
     protected var
         AllowInvDisc, InvoiceDiscountAmountEditable : Boolean;
+        CurrencyCode: Code[10];
 
     procedure SetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin

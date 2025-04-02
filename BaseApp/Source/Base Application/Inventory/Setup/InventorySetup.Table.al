@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Setup;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Setup;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -10,15 +14,17 @@ using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Transfer;
+using Microsoft.Upgrade;
 using Microsoft.Warehouse.InternalDocument;
 using Microsoft.Warehouse.InventoryDocument;
-using Microsoft.Upgrade;
-using System.Utilities;
 using System.Globalization;
+using System.Utilities;
 
 table 313 "Inventory Setup"
 {
     Caption = 'Inventory Setup';
+    DrillDownPageID = "Inventory Setup";
+    LookupPageID = "Inventory Setup";
     Permissions = TableData "Inventory Adjmt. Entry (Order)" = m;
     DataClassification = CustomerContent;
 
@@ -26,6 +32,7 @@ table 313 "Inventory Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Automatic Cost Posting"; Boolean)
@@ -159,14 +166,6 @@ table 313 "Inventory Setup"
             Caption = 'Catalog Item Nos.';
             TableRelation = "No. Series";
         }
-        field(5725; "Use Item References"; Boolean)
-        {
-            AccessByPermission = TableData "Item Reference" = R;
-            Caption = 'Use Item References';
-            ObsoleteReason = 'Replaced by default visibility for Item Reference''s fields and actions.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
         field(5790; "Outbound Whse. Handling Time"; DateFormula)
         {
             AccessByPermission = TableData Location = R;
@@ -278,6 +277,7 @@ table 313 "Inventory Setup"
             Caption = 'Posted Phys. Invt. Order Nos.';
             TableRelation = "No. Series";
         }
+#if not CLEANSCHEMA27
         field(5877; "Invt. Orders Package Tracking"; Boolean)
         {
             Caption = 'Invt. Orders Package Tracking';
@@ -290,6 +290,7 @@ table 313 "Inventory Setup"
             ObsoleteTag = '27.0';
 #endif
         }
+#endif
         field(6500; "Package Caption"; Text[30])
         {
             Caption = 'Package Caption';
@@ -341,20 +342,6 @@ table 313 "Inventory Setup"
             Caption = 'Internal Movement Nos.';
             TableRelation = "No. Series";
         }
-        field(11300; "Jnl. Templ. Name Cost Posting"; Code[10])
-        {
-            Caption = 'Jnl. Templ. Name Cost Posting';
-            ObsoleteReason = 'Replaced by field Invt. Cost Jnl. Template Name.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11306; "Jnl. Batch Name Cost Posting"; Code[10])
-        {
-            Caption = 'Jnl. Batch Name Cost Posting';
-            ObsoleteReason = 'Replaced by field Invt. Cost Jnl. Batch Name.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
     }
 
     keys
@@ -374,7 +361,6 @@ table 313 "Inventory Setup"
         Item: Record Item;
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         ObjTransl: Record "Object Translation";
-        RecordHasBeenRead: Boolean;
 
 #pragma warning disable AA0074
         Text000: Label 'Some unadjusted value entries will not be covered with the new setting. You must run the Adjust Cost - Item Entries batch job once to adjust these.';
@@ -386,11 +372,10 @@ table 313 "Inventory Setup"
         ItemEntriesAdjustQst: Label 'If you change the %1, the program must adjust all item entries.The adjustment of all entries can take several hours.\Do you really want to change the %1?', Comment = '%1 - field caption';
 
     procedure GetRecordOnce()
+    var
+        InventorySetupCodeunit: Codeunit "Inventory Setup";
     begin
-        if RecordHasBeenRead then
-            exit;
-        Get();
-        RecordHasBeenRead := true;
+        InventorySetupCodeunit.GetSetup(Rec);
     end;
 
     local procedure UpdateInvtAdjmtEntryOrder()
@@ -444,5 +429,11 @@ table 313 "Inventory Setup"
     begin
         exit("Automatic Cost Adjustment" <> "Automatic Cost Adjustment"::Never);
     end;
-}
 
+    procedure UseLegacyPosting(): Boolean
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+    begin
+        exit(not FeatureKeyManagement.IsConcurrentInventoryPostingEnabled());
+    end;
+}

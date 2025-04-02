@@ -124,6 +124,11 @@ codeunit 131305 "Library - ERM Country Data"
         PurchSetup.Modify(true);
     end;
 
+    procedure SetDiscountPostingInPurchasePayablesSetup()
+    begin
+        exit;
+    end;
+
     procedure UpdateSalesReceivablesSetup()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -138,6 +143,11 @@ codeunit 131305 "Library - ERM Country Data"
         SalesSetup.Validate("S. Cr. Memo Template Name", GenJournalTemplate.Name);
         SalesSetup."Discount Posting" := SalesSetup."Discount Posting"::"All Discounts";
         SalesSetup.Modify(true);
+    end;
+
+    procedure SetDiscountPostingInSalesReceivablesSetup()
+    begin
+        exit;
     end;
 
     procedure UpdateGenProdPostingGroup()

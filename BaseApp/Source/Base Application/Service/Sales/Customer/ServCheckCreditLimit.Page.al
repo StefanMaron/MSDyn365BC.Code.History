@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Customer;
 
 using Microsoft.Finance.Currency;
@@ -290,6 +294,7 @@ page 6489 "Serv. Check Credit Limit"
         Rec.SetRange("No.", Rec."No.");
         Cust2.Copy(Rec);
 
+        SalesSetup.Get();
         if (SalesSetup."Credit Warnings" in
             [SalesSetup."Credit Warnings"::"Both Warnings",
              SalesSetup."Credit Warnings"::"Credit Limit"]) and

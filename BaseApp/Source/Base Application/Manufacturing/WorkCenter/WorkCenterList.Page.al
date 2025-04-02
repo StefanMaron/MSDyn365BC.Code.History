@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.WorkCenter;
 
 using Microsoft.Finance.Dimension;
@@ -132,7 +136,6 @@ page 99000755 "Work Center List"
                 field("Flushing Method"; Rec."Flushing Method")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies how consumption of the item (component) is calculated and handled in production processes. Manual: Enter and post consumption in the consumption journal manually. Forward: Automatically posts consumption according to the production order component lines when the first operation starts. Backward: Automatically calculates and posts consumption according to the production order component lines when the production order is finished. Pick + Forward / Pick + Backward: Variations with warehousing.';
                     Visible = false;
                 }
                 field("Subcontractor No."; Rec."Subcontractor No.")
@@ -296,6 +299,7 @@ page 99000755 "Work Center List"
         }
         area(reporting)
         {
+#if not CLEAN26
             action("Work Center List")
             {
                 ApplicationArea = Manufacturing;
@@ -303,7 +307,11 @@ page 99000755 "Work Center List"
                 Image = "Report";
                 RunObject = Report "Work Center List";
                 ToolTip = 'View or edit the list of work centers.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This report has been replaced by the page Work Center List and will be removed in a future release.';
+                ObsoleteTag = '26.0';
             }
+#endif
             action("Work Center Load")
             {
                 ApplicationArea = Manufacturing;
@@ -345,10 +353,14 @@ page 99000755 "Work Center List"
             group(Category_Report)
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
-
+#if not CLEAN26
                 actionref("Work Center List_Promoted"; "Work Center List")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This report has been replaced by the page Work Center List and will be removed in a future release.';
+                    ObsoleteTag = '26.0';
                 }
+#endif
                 actionref("Work Center Load_Promoted"; "Work Center Load")
                 {
                 }

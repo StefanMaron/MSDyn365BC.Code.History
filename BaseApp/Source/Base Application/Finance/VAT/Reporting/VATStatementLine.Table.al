@@ -147,11 +147,9 @@ table 256 "VAT Statement Line"
         {
             Caption = 'Box No.';
         }
-        field(11308; "Document Type"; Option)
+        field(11308; "Document Type"; Enum "VAT Stmt. Line Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,All except Credit Memo';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,"All except Credit Memo";
         }
         field(11309; "Print on Official VAT Form"; Boolean)
         {

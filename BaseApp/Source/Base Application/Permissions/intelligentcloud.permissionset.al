@@ -355,6 +355,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Acc. Schedule Name" = R,
                   tabledata "Financial Report" = R,
                   tabledata "Financial Report User Filters" = RIMD,
+                  tabledata "Fin. Report Excel Template" = R,
                   tabledata "Account Schedules Chart Setup" = RIMD,
                   tabledata "Account Use Buffer" = R,
                   tabledata "Accounting Period" = R,
@@ -753,9 +754,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Document Entry" = R,
                   tabledata "Document Search Result" = R,
                   tabledata "Document Sending Profile" = R,
-#if not CLEAN23
-                  tabledata "Document Service Cache" = R,
-#endif
                   tabledata "Drop Shpt. Post. Buffer" = R,
                   tabledata "Dtld. Price Calculation Setup" = R,
                   tabledata "Duplicate Price Line" = R,
@@ -956,9 +954,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Inventory Report Entry" = R,
                   tabledata "Inventory Report Header" = R,
                   tabledata "Inventory Setup" = R,
-#if not CLEAN23
-                  tabledata "Invoice Post. Buffer" = R,
-#endif
                   tabledata "Invoice Posting Buffer" = R,
                   tabledata "Invoiced Booking Item" = R,
                   tabledata "Invt. Document Header" = R,
@@ -1078,7 +1073,9 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata Maintenance = R,
                   tabledata "Maintenance Ledger Entry" = R,
                   tabledata "Maintenance Registration" = R,
+#if not CLEAN24
                   tabledata "Man. Integration Field Mapping" = R,
+#endif
                   tabledata "Man. Integration Table Mapping" = R,
                   tabledata "Man. Int. Field Mapping" = R,
                   tabledata Manufacturer = R,
@@ -1222,11 +1219,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Posted Whse. Receipt Line" = R,
                   tabledata "Posted Whse. Shipment Header" = R,
                   tabledata "Posted Whse. Shipment Line" = R,
-#if not CLEAN23
-                  tabledata "Power BI User Configuration" = RIMD,
-                  tabledata "Power BI Report Configuration" = RIMD,
-                  tabledata "Power BI User Status" = RIMD,
-#endif
                   tabledata "Power BI Chart Buffer" = RIMD,
                   tabledata "Power BI Context Settings" = RIMD,
                   tabledata "Power BI Customer Reports" = R,

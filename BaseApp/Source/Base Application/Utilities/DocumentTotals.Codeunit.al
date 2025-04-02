@@ -1237,14 +1237,13 @@ codeunit 57 "Document Totals"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchaseUpdateTotals(var PurchaseHeader: Record "Purchase Header"; var PreviousTotalPurchaseHeader: Record "Purchase Header"; CurrentPurchaseLine: Record "Purchase Line"; var TotalsPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; Force: Boolean; var IsHandled: Boolean; var Result: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnAfterSalesCalculateTotalsWithInvoiceRounding(var SalesHeader: Record "Sales Header")
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseUpdateTotals(var PurchaseHeader: Record "Purchase Header"; var PreviousTotalPurchaseHeader: Record "Purchase Header"; CurrentPurchaseLine: Record "Purchase Line"; var TotalsPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; Force: Boolean; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
 }
 

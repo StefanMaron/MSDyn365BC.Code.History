@@ -21,6 +21,7 @@ table 9051 "Warehouse WMS Cue"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Released Sales Orders - Today"; Integer)

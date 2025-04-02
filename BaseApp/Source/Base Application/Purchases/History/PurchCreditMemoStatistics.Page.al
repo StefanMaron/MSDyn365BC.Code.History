@@ -222,7 +222,7 @@ page 401 "Purch. Credit Memo Statistics"
                 else
                     AmountInclVAT += PurchCrMemoLine."Amount Including VAT";
                 if Rec."Prices Including VAT" then
-                    InvDiscAmount += PurchCrMemoLine."Inv. Discount Amount" / (1 + GetVATPct(PurchCrMemoLine) / 100)
+                    InvDiscAmount += PurchCrMemoLine."Inv. Discount Amount" / (1 + PurchCrMemoLine.GetVATPct() / 100)
                 else
                     InvDiscAmount += PurchCrMemoLine."Inv. Discount Amount";
                 LineQty += PurchCrMemoLine.Quantity;
@@ -231,9 +231,9 @@ page 401 "Purch. Credit Memo Statistics"
                 TotalVolume += PurchCrMemoLine.Quantity * PurchCrMemoLine."Unit Volume";
                 if PurchCrMemoLine."Units per Parcel" > 0 then
                     TotalParcels += Round(PurchCrMemoLine.Quantity / PurchCrMemoLine."Units per Parcel", 1, '>');
-                if GetVATPct(PurchCrMemoLine) <> VATPercentage then
+                if PurchCrMemoLine."VAT %" <> VATPercentage then
                     if VATPercentage = 0 then
-                        VATPercentage := GetVATPct(PurchCrMemoLine)
+                        VATPercentage := PurchCrMemoLine.GetVATPct()
                     else
                         VATPercentage := -1;
 

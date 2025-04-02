@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Currency;
@@ -180,7 +184,7 @@ page 6034 "Service Credit Memo Statistics"
                     ApplicationArea = Service;
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
-                    ToolTip = 'Specifies information about the customer''s credit limit.';
+                    ToolTip = 'Specifies the credit limit of the customer on the service document. The value 0 represents unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
@@ -223,7 +227,7 @@ page 6034 "Service Credit Memo Statistics"
                 CustAmount := CustAmount + ServCrMemoLine.Amount;
                 AmountInclVAT := AmountInclVAT + ServCrMemoLine."Amount Including VAT";
                 if Rec."Prices Including VAT" then
-                    InvDiscAmount := InvDiscAmount + ServCrMemoLine."Inv. Discount Amount" / (1 + ServCrMemoLine."VAT %" / 100)
+                    InvDiscAmount := InvDiscAmount + ServCrMemoLine."Inv. Discount Amount" / (1 + ServCrMemoLine.GetVATPct() / 100)
                 else
                     InvDiscAmount := InvDiscAmount + ServCrMemoLine."Inv. Discount Amount";
                 CostLCY := CostLCY + (ServCrMemoLine.Quantity * ServCrMemoLine."Unit Cost (LCY)");
@@ -235,7 +239,7 @@ page 6034 "Service Credit Memo Statistics"
                     TotalParcels := TotalParcels + Round(ServCrMemoLine.Quantity / ServCrMemoLine."Units per Parcel", 1, '>');
                 if ServCrMemoLine."VAT %" <> VATpercentage then
                     if VATpercentage = 0 then
-                        VATpercentage := ServCrMemoLine."VAT %"
+                        VATpercentage := ServCrMemoLine.GetVATPct()
                     else
                         VATpercentage := -1;
                 TotalAdjCostLCY := TotalAdjCostLCY + ServCostCalculationMgt.CalcServCrMemoLineCostLCY(ServCrMemoLine);
@@ -336,4 +340,3 @@ page 6034 "Service Credit Memo Statistics"
     begin
     end;
 }
-

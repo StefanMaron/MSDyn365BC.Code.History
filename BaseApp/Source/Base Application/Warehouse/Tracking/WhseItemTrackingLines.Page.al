@@ -3,7 +3,6 @@
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.InternalDocument;
@@ -740,13 +739,6 @@ page 6550 "Whse. Item Tracking Lines"
                     WhseItemTrackingLine2.SetRange("Source ID", WhseWorksheetLine."Whse. Document No.");
                     WhseItemTrackingLine2.SetRange("Source Ref. No.", WhseWorksheetLine."Whse. Document Line No.");
                 end;
-            Database::"Prod. Order Component":
-                begin
-                    WhseItemTrackingLine2.SetRange("Source Subtype", WhseWorksheetLine."Source Subtype");
-                    WhseItemTrackingLine2.SetRange("Source ID", WhseWorksheetLine."Source No.");
-                    WhseItemTrackingLine2.SetRange("Source Prod. Order Line", WhseWorksheetLine."Source Line No.");
-                    WhseItemTrackingLine2.SetRange("Source Ref. No.", WhseWorksheetLine."Source Subline No.");
-                end;
             Database::"Whse. Worksheet Line",
             Database::"Warehouse Journal Line":
                 begin
@@ -754,6 +746,8 @@ page 6550 "Whse. Item Tracking Lines"
                     WhseItemTrackingLine2.SetRange("Source ID", WhseWorksheetLine.Name);
                     WhseItemTrackingLine2.SetRange("Source Ref. No.", WhseWorksheetLine."Line No.");
                 end;
+            else
+                OnSetSourceFilters(WhseItemTrackingLine2, WhseWorksheetLine, SourceType);
         end;
         WhseItemTrackingLine2.FilterGroup := 0;
     end;
@@ -858,10 +852,10 @@ page 6550 "Whse. Item Tracking Lines"
         WhseItemTrackingLine2: Record "Whse. Item Tracking Line";
         TempSourceWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary;
         WhseShptLine: Record "Warehouse Shipment Line";
-        ProdOrderComp: Record "Prod. Order Component";
         QuantityBase: Decimal;
         DueDate: Date;
         Updated: Boolean;
+        IsHandled: Boolean;
     begin
         SetFilters(WhseItemTrackingLine2, FormSourceType);
 
@@ -874,20 +868,6 @@ page 6550 "Whse. Item Tracking Lines"
                 exit(true);
 
         case FormSourceType of
-            Database::"Prod. Order Component":
-                begin
-                    ProdOrderComp.Get(TempSourceWhseItemTrackingLine."Source Subtype", TempSourceWhseItemTrackingLine."Source ID",
-                      TempSourceWhseItemTrackingLine."Source Prod. Order Line", TempSourceWhseItemTrackingLine."Source Ref. No.");
-                    QuantityBase := ProdOrderComp."Expected Qty. (Base)";
-                    DueDate := ProdOrderComp."Due Date";
-                    Updated := UpdateReservEntry(
-                        TempSourceWhseItemTrackingLine."Source Type",
-                        TempSourceWhseItemTrackingLine."Source Subtype",
-                        TempSourceWhseItemTrackingLine."Source ID",
-                        TempSourceWhseItemTrackingLine."Source Prod. Order Line",
-                        TempSourceWhseItemTrackingLine."Source Ref. No.",
-                        TempSourceWhseItemTrackingLine, QuantityBase, DueDate);
-                end;
             Database::"Warehouse Shipment Line":
                 begin
                     WhseShptLine.Get(TempSourceWhseItemTrackingLine."Source ID", TempSourceWhseItemTrackingLine."Source Ref. No.");
@@ -901,40 +881,43 @@ page 6550 "Whse. Item Tracking Lines"
                         WhseShptLine."Source Line No.",
                         TempSourceWhseItemTrackingLine, QuantityBase, DueDate);
                 end;
-            else
+            else begin
+                IsHandled := false;
+                OnCopyToReservEntryOnUpdate(TempSourceWhseItemTrackingLine, QuantityBase, DueDate, Updated, FormSourceType, IsHandled);
                 exit(true);
+            end;
         end;
         exit(Updated)
     end;
 
-    local procedure UpdateReservEntry(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceProdOrderLine: Integer; SourceRefNo: Integer; TempSourceWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; QuantityBase: Decimal; DueDate: Date): Boolean
+    procedure UpdateReservEntry(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceProdOrderLine: Integer; SourceRefNo: Integer; TempSourceWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; QuantityBase: Decimal; DueDate: Date): Boolean
     var
-        TempTrkgSpec: Record "Tracking Specification" temporary;
-        SourceSpecification: Record "Tracking Specification";
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        SourceTrackingSpecification: Record "Tracking Specification";
         WhseItemTrackingLine2: Record "Whse. Item Tracking Line";
         LastEntryNo: Integer;
     begin
         LastEntryNo := 0;
         if TempInitialTrkgLine.Find('-') then
             repeat
-                TempTrkgSpec.TransferFields(TempInitialTrkgLine);
-                TempTrkgSpec."Quantity (Base)" *= -1;
-                TempTrkgSpec."Entry No." := LastEntryNo + 1;
-                TempTrkgSpec.Insert();
-                LastEntryNo := TempTrkgSpec."Entry No.";
+                TempTrackingSpecification.TransferFields(TempInitialTrkgLine);
+                TempTrackingSpecification."Quantity (Base)" *= -1;
+                TempTrackingSpecification."Entry No." := LastEntryNo + 1;
+                TempTrackingSpecification.Insert();
+                LastEntryNo := TempTrackingSpecification."Entry No.";
             until TempInitialTrkgLine.Next() = 0;
 
         SetFilters(WhseItemTrackingLine2, FormSourceType);
         if WhseItemTrackingLine2.Find('-') then
             repeat
-                TempTrkgSpec.TransferFields(WhseItemTrackingLine2);
-                TempTrkgSpec."Entry No." := LastEntryNo + 1;
-                TempTrkgSpec.Insert();
-                LastEntryNo := TempTrkgSpec."Entry No.";
+                TempTrackingSpecification.TransferFields(WhseItemTrackingLine2);
+                TempTrackingSpecification."Entry No." := LastEntryNo + 1;
+                TempTrackingSpecification.Insert();
+                LastEntryNo := TempTrackingSpecification."Entry No.";
             until WhseItemTrackingLine2.Next() = 0;
 
-        SetSourceSpecification(SourceSpecification, TempSourceWhseItemTrackingLine, SourceType, SourceSubtype, SourceID, SourceProdOrderLine, SourceRefNo, QuantityBase);
-        ItemTrackingMgt.SetGlobalParameters(SourceSpecification, TempTrkgSpec, DueDate);
+        SetSourceSpecification(SourceTrackingSpecification, TempSourceWhseItemTrackingLine, SourceType, SourceSubtype, SourceID, SourceProdOrderLine, SourceRefNo, QuantityBase);
+        ItemTrackingMgt.SetGlobalParameters(SourceTrackingSpecification, TempTrackingSpecification, DueDate);
         exit(ItemTrackingMgt.Run());
     end;
 
@@ -1023,12 +1006,12 @@ page 6550 "Whse. Item Tracking Lines"
     end;
 
 #if not CLEAN24
-# pragma warning disable AA0228
+#pragma warning disable AA0228
     local procedure SetPackageTrackingVisibility()
     begin
         PackageTrackingVisible := true;
     end;
-# pragma warning restore AA0228
+#pragma warning restore AA0228
 #endif
 
     local procedure CountLinesWithQtyZero(): Integer
@@ -1072,6 +1055,16 @@ page 6550 "Whse. Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateExpDateColor(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSourceFilters(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var WhseWorksheetLine: Record "Whse. Worksheet Line"; SourceType: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCopyToReservEntryOnUpdate(var TempSourceWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; var QuantityBase: Decimal; var DueDate: Date; var Updated: Boolean; FormSourceType: Integer; var IsHandled: Boolean)
     begin
     end;
 }

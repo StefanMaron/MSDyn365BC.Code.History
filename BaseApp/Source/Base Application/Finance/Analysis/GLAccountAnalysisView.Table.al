@@ -56,11 +56,9 @@ table 376 "G/L Account (Analysis View)"
             Caption = 'Global Dimension 2 Code';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
-        field(9; "Income/Balance"; Option)
+        field(9; "Income/Balance"; Enum "G/L Account Report Type")
         {
             Caption = 'Income/Balance';
-            OptionCaption = 'Income Statement,Balance Sheet';
-            OptionMembers = "Income Statement","Balance Sheet";
         }
         field(10; "Debit/Credit"; Option)
         {

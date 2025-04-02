@@ -22,13 +22,11 @@ page 575 "VAT Registration No. Formats"
                 field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
                 field(Format; Rec.Format)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a format for a country''s/region''s VAT registration number.';
                 }
             }
         }

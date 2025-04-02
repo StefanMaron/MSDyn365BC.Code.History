@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Routing;
 
 using Microsoft.Foundation.NoSeries;
@@ -202,6 +206,15 @@ table 99000763 "Routing Header"
             Rec := RoutingHeader;
             exit(true);
         end;
+    end;
+
+    procedure RoutingLinesExist(): Boolean
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        RoutingLine.SetRange("Routing No.", Rec."No.");
+        RoutingLine.SetRange("Version Code", '');
+        exit(not RoutingLine.IsEmpty());
     end;
 }
 

@@ -25,6 +25,7 @@ codeunit 132222 "Library - Notification Mgt."
     procedure DisableAllNotifications()
     begin
         DisableImageAnalyzerNotifications();
+        DisableUpdateFinancialReportNotifications();
     end;
 
     local procedure DisableImageAnalyzerNotifications()
@@ -36,6 +37,13 @@ codeunit 132222 "Library - Notification Mgt."
             DisableNotification('e54eb2c9-ebc2-4934-91d9-97af900e89b2',
               'Image Analysis notification name',
               'Image Analysis notification description');
+    end;
+
+    local procedure DisableUpdateFinancialReportNotifications()
+    begin
+        DisableNotification('cc02b894-bef8-4945-8042-f177422f8906',
+          'Update Financial Report Notification name',
+          'Update Financial Report Notification description');
     end;
 
     local procedure DisableNotification(NotificationGuid: Guid; NotificationName: Text[128]; NotificationDescription: Text)

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CashFlow.Worksheet;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CashFlow.Worksheet;
 
 using Microsoft.CashFlow.Account;
 using Microsoft.CashFlow.Forecast;
@@ -409,17 +413,21 @@ table 846 "Cash Flow Worksheet Line"
         CFManagement.ShowSource(Rec);
     end;
 
+#if not CLEAN26
+    [Obsolete('GetNumberOfSourceTypes() replaced with Enum::"Cash Flow Source Type".Ordinals().Count()', '26.0')]
     procedure GetNumberOfSourceTypes() Result: Integer
     begin
-        Result := 16;
+        Result := Enum::"Cash Flow Source Type".Ordinals().Count();
 
         OnAfterGetNumberOfSourceTypes(Rec, Result);
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('GetNumberOfSourceTypes() replaced with Enum::"Cash Flow Source Type".Ordinals().Count()', '26.0')]
     local procedure OnAfterGetNumberOfSourceTypes(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var Result: Integer)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMoveDefualtDimToJnlLineDim(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var DimensionSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])

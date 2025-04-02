@@ -1,10 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Ledger;
 using Microsoft.Bank.Statement;
 using Microsoft.Finance.Dimension;
-using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using System.IO;
@@ -227,20 +230,6 @@ table 273 "Bank Acc. Reconciliation"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(27; "Total Applied Amount Payments"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            ObsoleteReason = 'Type is not used to determine if the bank rec. line is associated to a CLE, instead find explicitly CLEs with their corresponding BLE No. . See BankAccReconTest codeunit TotalOutstandingPayments for an example';
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-            CalcFormula = sum("Bank Acc. Reconciliation Line"."Applied Amount" where("Statement Type" = field("Statement Type"),
-                                                                               "Bank Account No." = field("Bank Account No."),
-                                                                               "Statement No." = field("Statement No."),
-                                                                               Type = const("Check Ledger Entry")));
-            Caption = 'Total Applied Amount Payments';
-            Editable = false;
-            FieldClass = FlowField;
-        }
         field(28; "Bank Account Balance (LCY)"; Decimal)
         {
             CalcFormula = sum("Bank Account Ledger Entry"."Amount (LCY)" where("Bank Account No." = field("Bank Account No.")));
@@ -269,36 +258,6 @@ table 273 "Bank Acc. Reconciliation"
                                                                                       "Account Type" = filter(<> "Bank Account"),
                                                                                       "Statement Amount" = filter(< 0)));
             Caption = 'Total Negative Adjustments';
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(31; "Total Positive Difference"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            ObsoleteReason = 'Difference is now tracked manually instead. Type field was redundant and error prone.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-            CalcFormula = sum("Bank Acc. Reconciliation Line"."Applied Amount" where("Statement Type" = field("Statement Type"),
-                                                                                      "Bank Account No." = field("Bank Account No."),
-                                                                                      "Statement No." = field("Statement No."),
-                                                                                      Type = const(Difference),
-                                                                                      "Applied Amount" = filter(> 0)));
-            Caption = 'Total Positive Difference';
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(32; "Total Negative Difference"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            ObsoleteReason = 'Difference is now tracked manually instead. Type field was redundant and error prone.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-            CalcFormula = sum("Bank Acc. Reconciliation Line"."Applied Amount" where("Statement Type" = field("Statement Type"),
-                                                                                      "Bank Account No." = field("Bank Account No."),
-                                                                                      "Statement No." = field("Statement No."),
-                                                                                      Type = const(Difference),
-                                                                                      "Applied Amount" = filter(< 0)));
-            Caption = 'Total Negative Difference';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -331,14 +290,6 @@ table 273 "Bank Acc. Reconciliation"
             begin
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
-        }
-        field(11314; "Journal Template Name"; Code[10])
-        {
-            Caption = 'Journal Template Name';
-            TableRelation = "Gen. Journal Template";
-            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
         }
     }
 
@@ -943,4 +894,3 @@ table 273 "Bank Acc. Reconciliation"
     begin
     end;
 }
-

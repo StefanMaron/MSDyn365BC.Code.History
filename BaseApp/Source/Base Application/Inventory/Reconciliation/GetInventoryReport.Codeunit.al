@@ -270,6 +270,8 @@ codeunit 5845 "Get Inventory Report"
                 TempGenPostingSetup := GenPostingSetup;
                 TempGenPostingSetup.Insert();
             until GenPostingSetup.Next() = 0;
+
+        OnAfterCalcGenPostingSetup(InventoryReportLine);
     end;
 
     local procedure InsertGLInvtReportEntry(var InventoryReportLine: Record "Inventory Report Entry"; GLAccNo: Code[20]; var CostAmount: Decimal)
@@ -1645,6 +1647,11 @@ codeunit 5845 "Get Inventory Report"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDirectPostings(var InventoryReportLine: Record "Inventory Report Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcGenPostingSetup(var InventoryReportEntry: Record "Inventory Report Entry")
     begin
     end;
 }

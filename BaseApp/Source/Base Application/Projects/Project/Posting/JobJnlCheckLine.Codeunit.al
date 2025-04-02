@@ -25,6 +25,7 @@ codeunit 1011 "Job Jnl.-Check Line"
         DimMgt: Codeunit DimensionManagement;
         TimeSheetMgt: Codeunit "Time Sheet Management";
         CalledFromInvtPutawayPick: Boolean;
+        CalledFromPurchase: Boolean;
 
 #pragma warning disable AA0074
         Text000: Label 'cannot be a closing date.';
@@ -69,6 +70,11 @@ codeunit 1011 "Job Jnl.-Check Line"
     internal procedure SetCalledFromInvtPutawayPick(NewCalledFromInvtPutawayPick: Boolean)
     begin
         CalledFromInvtPutawayPick := NewCalledFromInvtPutawayPick;
+    end;
+
+    internal procedure SetCalledFromPurchase(NewCalledFromPurchase: Boolean)
+    begin
+        CalledFromPurchase := NewCalledFromPurchase;
     end;
 
     local procedure CheckItemQuantityAndBinCode(var JobJournalLine: Record "Job Journal Line")
@@ -226,6 +232,7 @@ codeunit 1011 "Job Jnl.-Check Line"
     var
         JobPlanningLine: Record "Job Planning Line";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
+        ShouldCheckWhseQtyPicked: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -233,10 +240,17 @@ codeunit 1011 "Job Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        if WhseValidateSourceLine.IsWhsePickRequiredForJobJnlLine(JobJournalLine) or WhseValidateSourceLine.IsInventoryPickRequiredForJobJnlLine(JobJournalLine) then
-            if not CalledFromInvtPutawayPick then
-                if JobPlanningLine.Get(JobJournalLine."Job No.", JobJournalLine."Job Task No.", JobJournalLine."Job Planning Line No.") and (JobPlanningLine."Qty. Picked" - JobPlanningLine."Qty. Posted" < JobJournalLine.Quantity - JobPlanningLine."Qty. to Assemble") then
-                    JobPlanningLine.FieldError("Qty. Picked", ErrorInfo.Create(StrSubstNo(WhseRemainQtyPickedErr, JobPlanningLine."Job No.", JobPlanningLine."Line No.", JobJournalLine.Quantity + JobPlanningLine."Qty. Posted" - JobPlanningLine."Qty. Picked" - JobPlanningLine."Qty. to Assemble"), true));
+        if CalledFromInvtPutawayPick or CalledFromPurchase then
+            exit;
+
+        ShouldCheckWhseQtyPicked := WhseValidateSourceLine.IsWhsePickRequiredForJobJnlLine(JobJournalLine);
+        if not ShouldCheckWhseQtyPicked then
+            ShouldCheckWhseQtyPicked := WhseValidateSourceLine.IsInventoryPickRequiredForJobJnlLine(JobJournalLine);
+        if ShouldCheckWhseQtyPicked then begin
+            JobPlanningLine.SetLoadFields(Quantity, "Qty. Picked", "Qty. Posted", "Qty. to Assemble");
+            if JobPlanningLine.Get(JobJournalLine."Job No.", JobJournalLine."Job Task No.", JobJournalLine."Job Planning Line No.") and (JobPlanningLine."Qty. Picked" - JobPlanningLine."Qty. Posted" < JobJournalLine.Quantity - JobPlanningLine."Qty. to Assemble") then
+                JobPlanningLine.FieldError("Qty. Picked", ErrorInfo.Create(StrSubstNo(WhseRemainQtyPickedErr, JobPlanningLine."Job No.", JobPlanningLine."Line No.", JobJournalLine.Quantity + JobPlanningLine."Qty. Posted" - JobPlanningLine."Qty. Picked" - JobPlanningLine."Qty. to Assemble"), true));
+        end;
     end;
 
     local procedure TestJobJnlLine(JobJournalLine: Record "Job Journal Line")

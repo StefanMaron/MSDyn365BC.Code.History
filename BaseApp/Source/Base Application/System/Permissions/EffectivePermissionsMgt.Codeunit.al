@@ -6,6 +6,7 @@ using System.Environment.Configuration;
 using System.IO;
 using System.Reflection;
 using System.Security.User;
+using System;
 
 codeunit 9852 "Effective Permissions Mgt."
 {
@@ -295,9 +296,6 @@ codeunit 9852 "Effective Permissions Mgt."
         EffectivePermission: Record Permission;
         ExpandedPermission: Record "Expanded Permission";
         PermissionSetBuffer: Record "Permission Set Buffer";
-        EnvironmentInfo: Codeunit "Environment Information";
-        PermissionCommaStr: Text;
-        Read, Insert, Modify, Delete, Execute : Integer;
         AssignedRead, AssignedInsert, AssignedModify, AssignedDelete, AssignedExecute : Integer;
     begin
         PermissionBuffer.Reset();
@@ -343,6 +341,15 @@ codeunit 9852 "Effective Permissions Mgt."
         PopulatePermissionBufferWithInherentPermission(AssignedRead, AssignedInsert, AssignedModify, AssignedDelete, AssignedExecute, EffectivePermission, PermissionBuffer);
 
         // find entitlement permission
+        PopulatePermissionBufferWithEntitlementPermissionsForObject(PermissionBuffer, PassedUserID, PassedObjectType, PassedObjectId);
+    end;
+
+    procedure PopulatePermissionBufferWithEntitlementPermissionsForObject(var PermissionBuffer: Record "Permission Buffer"; PassedUserID: Guid; PassedObjectType: Option; PassedObjectId: Integer)
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
+        PermissionCommaStr: Text;
+        Read, Insert, Modify, Delete, Execute : Integer;
+    begin
         if not EnvironmentInfo.IsSaaS() then
             exit;
         PermissionBuffer.Init();

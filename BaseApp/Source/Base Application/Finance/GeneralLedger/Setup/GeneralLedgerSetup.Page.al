@@ -264,6 +264,12 @@ page 118 "General Ledger Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies if payment method code is shown in sales and purchase documents.';
                 }
+                field("Hide Company Bank Account"; Rec."Hide Company Bank Account")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether or not the Company Bank Account can be updated on posted documents.';
+                }
                 field(PostingPreviewType; Rec."Posting Preview Type")
                 {
                     ApplicationArea = Basic, Suite;

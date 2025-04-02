@@ -46,6 +46,7 @@ table 120 "Purch. Rcpt. Header"
             Caption = 'Buy-from Vendor No.';
             NotBlank = true;
             TableRelation = Vendor;
+            ToolTip = 'Specifies the name of the vendor who delivered the items.';
         }
         field(3; "No."; Code[20])
         {
@@ -56,6 +57,7 @@ table 120 "Purch. Rcpt. Header"
             Caption = 'Pay-to Vendor No.';
             NotBlank = true;
             TableRelation = Vendor;
+            ToolTip = 'Specifies the number of the vendor that you receiv or received the invoice from.';
         }
         field(5; "Pay-to Name"; Text[100])
         {

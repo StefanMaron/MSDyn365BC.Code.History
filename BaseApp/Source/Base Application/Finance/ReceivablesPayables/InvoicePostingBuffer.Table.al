@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.ReceivablesPayables;
+namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
@@ -327,14 +327,6 @@ table 55 "Invoice Posting Buffer"
             Caption = 'Non Ded. VAT Amt. (ACY)';
             DataClassification = SystemMetadata;
         }
-        field(11305; "Journal Template Name"; Code[10])
-        {
-            Caption = 'Journal Template Name';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
     }
 
     keys
@@ -643,16 +635,22 @@ table 55 "Invoice Posting Buffer"
         TotalVATBaseACY := TotalVATBaseACY - "VAT Base Amount (ACY)"
     end;
 
+    procedure UpdateEntryDescription(CopyLineDescrToGLEntry: Boolean; LineNo: Integer; LineDescription: text[100]; HeaderDescription: Text[100])
+    begin
+        if CopyLineDescrToGLEntry and (Type = type::"G/L Account") then begin
+            "Entry Description" := LineDescription;
+            "Fixed Asset Line No." := LineNo;
+        end else
+            "Entry Description" := HeaderDescription;
+    end;
+
+#if not CLEAN26
+    [Obsolete('Replaced by earlier implementation without parameter SetLineNo', '26.0')]
     procedure UpdateEntryDescription(CopyLineDescrToGLEntry: Boolean; LineNo: Integer; LineDescription: text[100]; HeaderDescription: Text[100]; SetLineNo: Boolean)
     begin
-        "Entry Description" := HeaderDescription;
-        if Type in [Type::"G/L Account", Type::"Fixed Asset"] then begin
-            if CopyLineDescrToGLEntry then
-                "Entry Description" := LineDescription;
-            if SetLineNo then
-                "Fixed Asset Line No." := LineNo;
-        end;
+        UpdateEntryDescription(CopyLineDescrToGLEntry, LineNo, LineDescription, HeaderDescription);
     end;
+#endif
 
     local procedure AdjustRoundingForUpdate()
     begin

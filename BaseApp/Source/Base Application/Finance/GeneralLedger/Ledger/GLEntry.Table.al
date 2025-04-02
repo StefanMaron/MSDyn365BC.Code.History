@@ -473,14 +473,6 @@ table 17 "G/L Entry"
             Caption = 'Last Modified DateTime';
             Editable = false;
         }
-        field(11300; "Journal Template Name"; Code[10])
-        {
-            Caption = 'Template Name (obsolete)';
-            TableRelation = "Gen. Journal Template";
-            ObsoleteReason = 'Replaced by W1 field Journal Templ. Name';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
         field(11301; Open; Boolean)
         {
             Caption = 'Open';
@@ -576,7 +568,7 @@ table 17 "G/L Entry"
 
     fieldgroups
     {
-        fieldgroup(DropDown; "Entry No.", Description, "G/L Account No.", "Posting Date", "Document Type", "Document No.")
+        fieldgroup(DropDown; "Entry No.", Description, Amount, "G/L Account No.", "Posting Date", "Document Type", "Document No.")
         {
         }
     }
@@ -877,4 +869,3 @@ table 17 "G/L Entry"
     begin
     end;
 }
-

@@ -33,13 +33,10 @@ page 248 "VAT Registration Config"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = not Rec.Enabled;
-                    ToolTip = 'Specifies the endpoint of the VAT registration number validation service.';
                 }
                 field(Enabled; Rec.Enabled)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the service is enabled.';
-
                     trigger OnValidate()
                     var
                         CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
@@ -78,7 +75,6 @@ page 248 "VAT Registration Config"
                 {
                     ApplicationArea = Basic, Suite;
                     Enabled = Rec.Enabled;
-                    ToolTip = 'Specifies the default template for validation of additional company information.';
                 }
             }
         }

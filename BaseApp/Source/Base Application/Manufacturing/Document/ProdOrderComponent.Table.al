@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
@@ -19,7 +23,6 @@ using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Journal;
-using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
 
@@ -330,6 +333,10 @@ table 5407 "Prod. Order Component"
             var
                 ItemLedgEntry: Record "Item Ledger Entry";
                 PickWhseWorksheetLine: Record "Whse. Worksheet Line";
+#if not CLEAN26
+                ManufacturingSetup: Record "Manufacturing Setup";
+#endif
+                PickQtyCheckNeeded, WhseWorksheetLineExistCheckNeeded : Boolean;
             begin
                 if ("Flushing Method" = "Flushing Method"::Backward) and (Status = Status::Released) then begin
                     ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
@@ -343,12 +350,32 @@ table 5407 "Prod. Order Component"
                         Error(Text99000002, "Flushing Method", ItemLedgEntry.TableCaption());
                 end;
 
-                if ("Flushing Method" <> xRec."Flushing Method") and
-                   (xRec."Flushing Method" in
-                    [xRec."Flushing Method"::Manual,
-                     xRec."Flushing Method"::"Pick + Forward",
-                     xRec."Flushing Method"::"Pick + Backward"])
-                then begin
+#if not CLEAN26
+                if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then begin
+                    PickQtyCheckNeeded :=
+                        ("Flushing Method" <> xRec."Flushing Method") and
+                        (xRec."Flushing Method" in
+                            [xRec."Flushing Method"::Manual, xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]);
+                    WhseWorksheetLineExistCheckNeeded :=
+                        (xRec."Flushing Method" in
+                            [xRec."Flushing Method"::Manual, xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]) and
+                        ("Flushing Method" in
+                            ["Flushing Method"::Forward, "Flushing Method"::Backward]);
+                end else begin
+#endif
+                    PickQtyCheckNeeded :=
+                        ("Flushing Method" <> xRec."Flushing Method") and
+                        (xRec."Flushing Method" in
+                            [xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]);
+                    WhseWorksheetLineExistCheckNeeded :=
+                        (xRec."Flushing Method" in
+                            [xRec."Flushing Method"::"Pick + Manual", xRec."Flushing Method"::"Pick + Forward", xRec."Flushing Method"::"Pick + Backward"]) and
+                        ("Flushing Method" in
+                            ["Flushing Method"::Manual, "Flushing Method"::Forward, "Flushing Method"::Backward]);
+#if not CLEAN26
+                end;
+#endif
+                if PickQtyCheckNeeded then begin
                     CalcFields("Pick Qty.");
                     if "Pick Qty." <> 0 then
                         Error(Text99000007, "Flushing Method", "Item No.");
@@ -356,12 +383,7 @@ table 5407 "Prod. Order Component"
                     if "Qty. Picked" <> 0 then
                         Error(Text99000008, "Flushing Method", "Item No.");
 
-                    if (xRec."Flushing Method" in
-                        [xRec."Flushing Method"::Manual,
-                         xRec."Flushing Method"::"Pick + Forward",
-                         xRec."Flushing Method"::"Pick + Backward"]) and
-                       ("Flushing Method" in ["Flushing Method"::Forward, "Flushing Method"::Backward])
-                    then begin
+                    if WhseWorksheetLineExistCheckNeeded then begin
                         PickWhseWorksheetLine.SetRange("Source Type", Database::"Prod. Order Component");
                         PickWhseWorksheetLine.SetRange("Source No.", "Prod. Order No.");
                         PickWhseWorksheetLine.SetRange("Source Line No.", "Prod. Order Line No.");
@@ -921,8 +943,6 @@ table 5407 "Prod. Order Component"
         if Status = Status::Finished then
             Error(Text000);
         if Status = Status::Released then begin
-            ConfirmDeletion();
-
             ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
             ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
             ItemLedgEntry.SetRange("Order No.", "Prod. Order No.");
@@ -931,6 +951,8 @@ table 5407 "Prod. Order Component"
             ItemLedgEntry.SetRange("Prod. Order Comp. Line No.", "Line No.");
             if not ItemLedgEntry.IsEmpty() then
                 Error(Text99000000, "Item No.", "Line No.");
+
+            ConfirmDeletion();
         end;
 
         ProdOrderWarehouseMgt.ProdComponentDelete(Rec);
@@ -1019,7 +1041,6 @@ table 5407 "Prod. Order Component"
         UOMMgt: Codeunit "Unit of Measure Management";
         DimMgt: Codeunit DimensionManagement;
         WhseProdRelease: Codeunit "Whse.-Production Release";
-        ItemSubstitutionMgt: Codeunit "Item Subst.";
         Reservation: Page Reservation;
         Blocked: Boolean;
         GLSetupRead: Boolean;
@@ -1030,7 +1051,7 @@ table 5407 "Prod. Order Component"
 #pragma warning restore AA0470
         Text99000009: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
 #pragma warning restore AA0074
-        ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = Qty. Posted, %4 = ("Expected Quantity" - "Remaining Quantity"), %5 = TableCaption';
+        ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Any related item tracking information defined during the pick process will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = Qty. Posted, %4 = ("Expected Quantity" - "Remaining Quantity"), %5 = TableCaption';
         IgnoreErrors: Boolean;
         ErrorOccured: Boolean;
         WarningRaised: Boolean;
@@ -1091,7 +1112,7 @@ table 5407 "Prod. Order Component"
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         CapLedgEntry: Record "Capacity Ledger Entry";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         OutputQtyBase: Decimal;
         CompQtyBase: Decimal;
         NeededQty: Decimal;
@@ -1134,7 +1155,7 @@ table 5407 "Prod. Order Component"
                     until CapLedgEntry.Next() = 0;
             end;
 
-            CompQtyBase := CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, Rec, OutputQtyBase);
+            CompQtyBase := MfgCostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, Rec, OutputQtyBase);
             OnGetNeededQtyAfterCalcCompQtyBase(Rec, CompQtyBase, OutputQtyBase);
 
             NeededQty := UOMMgt.RoundToItemRndPrecision(CompQtyBase / "Qty. per Unit of Measure", RoundingPrecision);
@@ -1243,7 +1264,6 @@ table 5407 "Prod. Order Component"
 
     procedure AdjustQtyToQtyPicked(var QtyToPost: Decimal)
     var
-        WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         AdjustedQty: Decimal;
         IsHandled: Boolean;
     begin
@@ -1253,7 +1273,7 @@ table 5407 "Prod. Order Component"
             exit;
 
         AdjustedQty :=
-          "Qty. Picked" + WhseValidateSourceLine.CalcNextLevelProdOutput(Rec) -
+          "Qty. Picked" + ProdOrderWarehouseMgt.CalcNextLevelProdOutput(Rec) -
           ("Expected Quantity" - "Remaining Quantity");
 
         if QtyToPost > AdjustedQty then
@@ -1333,6 +1353,75 @@ table 5407 "Prod. Order Component"
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
+    end;
+
+    /// <summary>
+    /// Opens a page for selecting multiple items to add to the document.
+    /// Selected items are added to the document.
+    /// </summary>
+    procedure SelectMultipleItems()
+    var
+        ItemListPage: Page "Item List";
+        SelectionFilter: Text;
+    begin
+        SelectionFilter := ItemListPage.SelectActiveItems();
+
+        if SelectionFilter <> '' then
+            AddItems(SelectionFilter);
+    end;
+
+    /// <summary>
+    /// Adds items to the document based on the provided selection filter.
+    /// </summary>
+    /// <param name="SelectionFilter">The filter to use for selecting items.</param>
+    procedure AddItems(SelectionFilter: Text)
+    var
+        Item: Record Item;
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        InitNewLine(ProdOrderComponent);
+        Item.SetLoadFields("No.");
+        Item.SetFilter("No.", SelectionFilter);
+        if Item.FindSet() then
+            repeat
+                AddItem(ProdOrderComponent, Item."No.");
+            until Item.Next() = 0;
+    end;
+
+    /// <summary>
+    /// Adds an item to the document.
+    /// </summary>
+    /// <remarks>
+    /// After the line is added, assembly order is automatically created if required.
+    /// If the item has extended text, the text is added as a line.
+    /// </remarks>
+    /// <param name="ProdOrderComponent">Return value: The added Prod. Order Component. Prod. Order Component must have the number set.</param>
+    /// <param name="ItemNo">Return value: The number of the item to add.</param>
+    procedure AddItem(var ProdOrderComponent: Record "Prod. Order Component"; ItemNo: Code[20])
+    begin
+        ProdOrderComponent.Init();
+        ProdOrderComponent."Line No." += 10000;
+        ProdOrderComponent.Validate("Item No.", ItemNo);
+        ProdOrderComponent.Insert(true);
+    end;
+
+    /// <summary>
+    /// Initializes a new Prod. Order Component based on the current Prod. Order Component.
+    /// </summary>
+    /// <param name="NewProdOrderComponent">Return value: The new Prod. Order Component.</param>
+    procedure InitNewLine(var NewProdOrderComponent: Record "Prod. Order Component")
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        NewProdOrderComponent.Copy(Rec);
+        ProdOrderComponent.SetLoadFields("Line No.");
+        ProdOrderComponent.SetRange(Status, NewProdOrderComponent.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", NewProdOrderComponent."Prod. Order No.");
+        ProdOrderComponent.SetRange("Prod. Order Line No.", NewProdOrderComponent."Prod. Order Line No.");
+        if ProdOrderComponent.FindLast() then
+            NewProdOrderComponent."Line No." := ProdOrderComponent."Line No."
+        else
+            NewProdOrderComponent."Line No." := 0;
     end;
 
     local procedure GetUpdateFromSKU()
@@ -1489,30 +1578,69 @@ table 5407 "Prod. Order Component"
     end;
 
     local procedure GetBinCodeFromRtngLine(ProdOrderRtngLine: Record "Prod. Order Routing Line") BinCode: Code[20]
+#if not CLEAN26
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+#endif
     begin
-        case "Flushing Method" of
-            "Flushing Method"::Manual,
-          "Flushing Method"::"Pick + Forward",
-          "Flushing Method"::"Pick + Backward":
-                BinCode := ProdOrderRtngLine."To-Production Bin Code";
-            "Flushing Method"::Forward,
-          "Flushing Method"::Backward:
-                BinCode := ProdOrderRtngLine."Open Shop Floor Bin Code";
-        end;
+#if not CLEAN26
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+            case "Flushing Method" of
+                "Flushing Method"::Manual,
+                "Flushing Method"::"Pick + Manual",
+                "Flushing Method"::"Pick + Forward",
+                "Flushing Method"::"Pick + Backward":
+                    BinCode := ProdOrderRtngLine."To-Production Bin Code";
+                "Flushing Method"::Forward,
+                "Flushing Method"::Backward:
+                    BinCode := ProdOrderRtngLine."Open Shop Floor Bin Code";
+            end
+        else
+#endif
+            case "Flushing Method" of
+                "Flushing Method"::"Pick + Manual",
+                "Flushing Method"::"Pick + Forward",
+                "Flushing Method"::"Pick + Backward":
+                    BinCode := ProdOrderRtngLine."To-Production Bin Code";
+                "Flushing Method"::Manual,
+                "Flushing Method"::Forward,
+                "Flushing Method"::Backward:
+                    BinCode := ProdOrderRtngLine."Open Shop Floor Bin Code";
+            end;
     end;
 
     local procedure GetBinCodeFromLocation(LocationCode: Code[10]) BinCode: Code[20]
+#if not CLEAN26
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+#endif
     begin
         GetLocation(LocationCode);
-        case "Flushing Method" of
-            "Flushing Method"::Manual,
-          "Flushing Method"::"Pick + Forward",
-          "Flushing Method"::"Pick + Backward":
-                BinCode := Location."To-Production Bin Code";
-            "Flushing Method"::Forward,
-          "Flushing Method"::Backward:
-                BinCode := Location."Open Shop Floor Bin Code";
-        end;
+#if not CLEAN26
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+            case "Flushing Method" of
+                "Flushing Method"::Manual,
+                "Flushing Method"::"Pick + Manual",
+                "Flushing Method"::"Pick + Forward",
+                "Flushing Method"::"Pick + Backward":
+                    BinCode := Location."To-Production Bin Code";
+                "Flushing Method"::Forward,
+                "Flushing Method"::Backward:
+                    BinCode := Location."Open Shop Floor Bin Code";
+            end
+        else
+#endif
+            case "Flushing Method" of
+                "Flushing Method"::"Pick + Manual",
+                "Flushing Method"::"Pick + Forward",
+                "Flushing Method"::"Pick + Backward":
+                    BinCode := Location."To-Production Bin Code";
+                "Flushing Method"::Manual,
+                "Flushing Method"::Forward,
+                "Flushing Method"::Backward:
+                    BinCode := Location."Open Shop Floor Bin Code";
+            end;
+
         OnAfterGetBinCodeFromLocation(Rec, Location, BinCode);
     end;
 
@@ -1672,6 +1800,7 @@ table 5407 "Prod. Order Component"
 
     procedure ShowItemSub()
     var
+        MfgItemSubstitution: Codeunit "Mfg. Item Substitution";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1679,7 +1808,7 @@ table 5407 "Prod. Order Component"
         if IsHandled then
             exit;
 
-        ItemSubstitutionMgt.GetCompSubst(Rec);
+        MfgItemSubstitution.GetProdOrderCompSubst(Rec);
     end;
 
     local procedure GetSKU() Result: Boolean
@@ -1837,6 +1966,7 @@ table 5407 "Prod. Order Component"
         if Rec."Variant Code" = '' then
             Description := Item.Description
         else begin
+            ItemVariant.SetLoadFields(Description, Blocked);
             ItemVariant.Get("Item No.", "Variant Code");
             ItemVariant.TestField(Blocked, false);
             Description := ItemVariant.Description;
@@ -1961,7 +2091,13 @@ table 5407 "Prod. Order Component"
         if CalledFromHeader then
             exit;
 
-        if ("Expected Quantity" - "Remaining Quantity") < "Qty. Picked" then
+        if ("Expected Quantity" - "Remaining Quantity") < "Qty. Picked" then begin
+            if "Location Code" <> '' then begin
+                GetLocation("Location Code");
+                if Location."Prod. Output Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"No Warehouse Handling" then
+                    exit;
+            end;
+
             if not Confirm(
                 StrSubstNo(
                     ConfirmDeleteQst,
@@ -1973,6 +2109,7 @@ table 5407 "Prod. Order Component"
                 false)
             then
                 Error('');
+        end;
     end;
 
     procedure SuspendDeletionCheck(Suspend: Boolean)

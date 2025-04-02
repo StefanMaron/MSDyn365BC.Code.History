@@ -3614,6 +3614,31 @@
 
     [Test]
     [Scope('OnPrem')]
+    procedure CombineGLEntriesForTheSameAccountIfCopyDocumentLineDescrToGLEntryIsFalse()
+    var
+        SalesHeader: Record "Sales Header";
+        AccountNo: Code[20];
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [G/L Entry] [Description]
+        // [SCENARIO 300843] G/L account type lines combined  to single G/L entry when SalesSetup."Copy Line Descr. to G/L Entry" = "No"
+        Initialize();
+
+        // [GIVEN] Set SalesSetup."Copy Line Descr. to G/L Entry" = "No"
+        SetSalesSetupCopyLineDescrToGLEntry(false);
+
+        // [GIVEN] Create sales order with sereval "G/L Account" type sales with same G/L Account No.
+        AccountNo := CreateSalesOrderWithSameAccountLines(SalesHeader, "Sales Line Type"::"G/L Account", 3);
+
+        // [WHEN] Sales order is being posted
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] One combined G/L entry created
+        VerifyCombinedGLEntries(InvoiceNo, AccountNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ExtendCopyDocumentLineDescriptionToGLEntry()
     var
         SalesHeader: Record "Sales Header";
@@ -4308,7 +4333,6 @@
     [Test]
     procedure PostingDateModifiesDocumentDate()
     var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesOrder: Record "Sales Header";
         SalesReturnOrder: Record "Sales Header";
         SalesInvoice: Record "Sales Header";
@@ -4318,9 +4342,7 @@
         // [SCENARIO] Checks that the SalesReceivablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on sales documents when set to true
 
         // [GIVEN] Change the setting to true
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
-        SalesReceivablesSetup.Modify(true);
+        SetLinkDocDateToPostingDate(true);
 
         // [GIVEN] Create sales documents and set the document date
         DocDate := 20000101D;
@@ -4348,9 +4370,58 @@
     end;
 
     [Test]
+    procedure PostingDateModifiesDocumentDateOnInsert()
+    var
+        SalesHeader: Record "Sales Header";
+        PostingDate: Date;
+    begin
+        // [SCENARIO] Checks that the SalesReceivablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on sales documents when set to true when the document is created
+
+        // [GIVEN] Link Doc. Date To Posting Date is true
+        SetLinkDocDateToPostingDate(true);
+
+        // [WHEN] Sales Header is created with posting date
+        PostingDate := 30000101D;
+        SalesHeader.Init();
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Insert(true);
+
+        // [THEN] The document date is equal to posting date
+        Assert.AreEqual(SalesHeader."Document Date", PostingDate, SalesHeader.FieldCaption("Document Date"));
+    end;
+
+    [Test]
+    procedure PostingDateModifiesDocumentDateOnCustomerSelection()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        PostingDate: Date;
+    begin
+        // [SCENARIO] Checks that the SalesReceivablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on sales documents when set to true when the customer is populated
+
+        // [GIVEN] Link Doc. Date To Posting Date is true
+        SetLinkDocDateToPostingDate(true);
+
+        // [GIVEN] Customer C exists
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Sales Header is created with posting date 
+        PostingDate := 30000101D;
+        SalesHeader.Init();
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Insert(true);
+
+        // [WHEN] Sales Header sell-to customer is updated
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Modify(true);
+
+        // [THEN] The document date is equal to posting date
+        Assert.AreEqual(SalesHeader."Document Date", PostingDate, SalesHeader.FieldCaption("Document Date"));
+    end;
+
+    [Test]
     procedure PostingDateDoesNotModifiesDocumentDate()
     var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesOrder: Record "Sales Header";
         SalesReturnOrder: Record "Sales Header";
         SalesInvoice: Record "Sales Header";
@@ -4360,9 +4431,7 @@
         // [SCENARIO] Checks that the SalesReceivablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on sales documents when set to false
 
         // [GIVEN] Change the setting to false
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", false);
-        SalesReceivablesSetup.Modify(true);
+        SetLinkDocDateToPostingDate(false);
 
         // [GIVEN] Create sales documents and set the document date
         DocDate := 20000101D;
@@ -4387,6 +4456,27 @@
         SalesReturnOrder.TestField("Document Date", DocDate);
         SalesInvoice.TestField("Document Date", DocDate);
         SalesCreditMemo.TestField("Document Date", DocDate);
+    end;
+
+    [Test]
+    procedure PostingDateDoesNotModifiesDocumentDateOnInsert()
+    var
+        SalesHeader: Record "Sales Header";
+        PostingDate: Date;
+    begin
+        // [SCENARIO] Checks that the SalesReceivablesSetup."Link Doc. Date To Posting Date" setting has the correct effect on sales documents when set to false when the document is created
+
+        // [GIVEN] Link Doc. Date To Posting Date is false
+        SetLinkDocDateToPostingDate(false);
+
+        // [WHEN] Sales Header is created with posting date
+        PostingDate := 30000101D;
+        SalesHeader.Init();
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Insert(true);
+
+        // [THEN] The document date is equal to WorkDate() not to the posting date
+        Assert.AreEqual(SalesHeader."Document Date", WorkDate(), SalesHeader.FieldCaption("Document Date"));
     end;
 
     [Test]
@@ -4489,7 +4579,7 @@
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
         UpdateCustomerRegistrationNumber(Customer);
 
-        // [WHEN]: Create sales invoice for that customer.
+        // [WHEN]: Create sales cr. memo for that customer.        
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
 
         // [THEN]: Verify Registration number on sales cr. memo.
@@ -4532,8 +4622,8 @@
         // [GIVEN]: Create Customer with Registration number and create sales credit memo.
         Initialize();
 
-        // [WHEN]: Create sales invoice for that customer.
-        // [WHEN] Post the sales invoice.
+        // [WHEN]: Create sales invoice for that customer.        
+        // [WHEN] Post the sales credit memo.
         CreateSalesDocWithRegistrationNo(SalesHeader, Customer, SalesHeader."Document Type"::"Credit Memo");
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -5269,6 +5359,23 @@
         end;
     end;
 
+    local procedure CreateSalesOrderWithSameAccountLines(var SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; LineCount: Integer): Code[20]
+    var
+        SalesLine: Record "Sales Line";
+        AccountNo: Code[20];
+        i: Integer;
+    begin
+        AccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        for i := 1 to LineCount do
+            case Type of
+                SalesLine.Type::"G/L Account":
+                    LibrarySales.CreateSalesLine(
+                      SalesLine, SalesHeader, SalesLine.Type::"G/L Account", AccountNo, 1);
+            end;
+        exit(AccountNo);
+    end;
+
     local procedure CreateVATPostingSetupWithVATClauseCode(var VATPostingSetup: Record "VAT Posting Setup"; VATClauseCode: Code[20])
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -5340,7 +5447,7 @@
         SalesLine.TestField(Type, SalesLine.Type::" ");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure SalesLinesWithLineDiscount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; SalesLineDiscount: Record "Sales Line Discount")
     var
         Counter: Integer;
@@ -5815,18 +5922,6 @@
         SalesLine.Type := SalesLine.GetDefaultLineType();
     end;
 
-#if not CLEAN23
-    [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPrepareSales', '', false, false)]
-    local procedure OnAfterInvPostBufferPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        // Example of extending feature "Copy document line description to G/L entries" for lines with type = "Item"
-        if InvoicePostBuffer.Type = InvoicePostBuffer.Type::Item then begin
-            InvoicePostBuffer."Fixed Asset Line No." := SalesLine."Line No.";
-            InvoicePostBuffer."Entry Description" := SalesLine.Description;
-        end;
-    end;
-#endif
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Post Invoice Events", 'OnAfterPrepareInvoicePostingBuffer', '', false, false)]
     local procedure OnAfterPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
@@ -6090,6 +6185,15 @@
         until TempSalesLine.Next() = 0;
     end;
 
+    local procedure VerifyCombinedGLEntries(InvoiceNo: Code[20]; AccountNo: Code[20])
+    var
+        GLEntry: Record "g/l Entry";
+    begin
+        GLEntry.SETRANGE("Document No.", InvoiceNo);
+        GLEntry.SETRANGE("G/L Account No.", AccountNo);
+        Assert.IsTrue(GLEntry.Count() = 1, 'One G/L Entry should be posted');
+    end;
+
     local procedure VerifyVATEntryForCreditMemo(DocumentNo: Code[20]; Amount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -6342,6 +6446,15 @@
         LibraryDimension.CreateDimensionValue(DimensionValues[2], Dimension.Code);
     end;
 
+    local procedure SetLinkDocDateToPostingDate(NewValue: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", NewValue);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -6573,14 +6686,6 @@
         ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
         ItemTrackingLines.OK().Invoke();
     end;
-
-#if not CLEAN23
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterFillInvoicePostBuffer', '', false, false)]
-    local procedure AddGroupOnFillInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesLine: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; CommitIsSuppressed: Boolean)
-    begin
-        InvoicePostBuffer."Additional Grouping Identifier" := Format(SalesLine."Line No.");
-    end;
-#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Post Invoice Events", 'OnPrepareLineOnAfterFillInvoicePostingBuffer', '', false, false)]
     local procedure AddGroupOnFillInvPostingBuffer(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; SalesLine: Record "Sales Line")

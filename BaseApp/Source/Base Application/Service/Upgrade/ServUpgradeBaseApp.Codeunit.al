@@ -41,7 +41,6 @@ codeunit 104059 "Serv. Upgrade BaseApp"
         UpdateServiceLineOrderNo();
         CopyItemSalesBlockedToServiceBlocked();
         UpgradeServiceItemWorksheetReportSelection();
-        UpgradeServiceHeaderJournalTemplateName();
         EnableDeleteFiledContractsWithRelatedMainContract();
     end;
 
@@ -141,29 +140,6 @@ codeunit 104059 "Serv. Upgrade BaseApp"
             exit;
         ReportSelectionMgt.InitReportSelection(Enum::"Report Selection Usage"::"SM.Item WorkSheet");
         UpgradeTag.SetUpgradeTag(GetServiceItemWorksheetSelectionUpgradeTag());
-    end;
-
-    local procedure UpgradeServiceHeaderJournalTemplateName()
-    var
-        ServiceHeader: Record "Service Header";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        ServiceHeaderDataTransfer: DataTransfer;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetServiceHeaderJournalTemplateNameUpgradeTag()) then
-            exit;
-
-        ServiceHeader.SetRange("Journal Templ. Name", '<>%1', '');
-        if not ServiceHeader.IsEmpty() then
-            exit;
-
-        ServiceHeaderDataTransfer.SetTables(Database::"Service Header", Database::"Service Header");
-        ServiceHeaderDataTransfer.AddSourceFilter(ServiceHeader.FieldNo("Journal Template Name"), '<>%1', '');
-        ServiceHeaderDataTransfer.AddFieldValue(ServiceHeader.FieldNo("Journal Template Name"), ServiceHeader.FieldNo("Journal Templ. Name"));
-        ServiceHeaderDataTransfer.UpdateAuditFields := false;
-        ServiceHeaderDataTransfer.CopyFields();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetServiceHeaderJournalTemplateNameUpgradeTag());
     end;
 
     local procedure EnableDeleteFiledContractsWithRelatedMainContract()

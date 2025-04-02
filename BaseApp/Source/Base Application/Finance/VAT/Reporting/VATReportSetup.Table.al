@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,6 +17,7 @@ table 743 "VAT Report Setup"
     {
         field(1; "Primary key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary key';
         }
         field(2; "No. Series"; Code[20])
@@ -42,14 +43,6 @@ table 743 "VAT Report Setup"
         {
             Caption = 'Report Version';
             TableRelation = "VAT Reports Configuration"."VAT Report Version" where("VAT Report Type" = const("VAT Return"));
-        }
-        field(22; "Period Reminder Time"; Integer)
-        {
-            Caption = 'Period Reminder Time';
-            MinValue = 0;
-            ObsoleteReason = 'Redesigned to a new field "Period Reminder Calculation"';
-            ObsoleteState = Removed;
-            ObsoleteTag = '20.0';
         }
         field(23; "Update Period Job Frequency"; Option)
         {
@@ -128,117 +121,6 @@ table 743 "VAT Report Setup"
         {
             Caption = 'Report VAT Note';
         }
-        field(4800; "VATGroup Role"; Option)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4700 VAT Group Role';
-            ObsoleteTag = '18.0';
-            OptionMembers = ,Representative,Member;
-        }
-        field(4801; ApprovedMembers; Integer)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4701 Approved Members';
-            ObsoleteTag = '18.0';
-        }
-        field(4802; "GroupMember ID"; Guid)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4702 Group Member ID';
-            ObsoleteTag = '18.0';
-        }
-        field(4803; "GroupRepresentative API URL"; Text[250])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4703 Group Representative API URL';
-            ObsoleteTag = '18.0';
-        }
-        field(4804; AuthenticationType; Option)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4704 Authentication Type';
-            ObsoleteTag = '18.0';
-            OptionMembers = WebServiceAccessKey,OAuth2,WindowsAuthentication;
-        }
-        field(4805; "UserName Key"; Guid)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4705 User Name Key';
-            ObsoleteTag = '18.0';
-        }
-        field(4806; "WebService Access Key Key"; Guid)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4706 Web Service Access Key Key';
-            ObsoleteTag = '18.0';
-        }
-        field(4807; "GroupRepresentative Company"; Text[30])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4707 Group Representative Company';
-            ObsoleteTag = '18.0';
-        }
-        field(4808; "ClientID Key"; Guid)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4708 Client ID Key';
-            ObsoleteTag = '18.0';
-        }
-        field(4809; "ClientSecret Key"; Guid)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4709 Client Secret Key';
-            ObsoleteTag = '18.0';
-        }
-        field(4810; AuthorityURL; Text[250])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4710 Authority URL';
-            ObsoleteTag = '18.0';
-        }
-        field(4811; ResourceURL; Text[250])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4711 Resource URL';
-            ObsoleteTag = '18.0';
-        }
-        field(4812; RedirectURL; Text[250])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4712 Redirect URL';
-            ObsoleteTag = '18.0';
-        }
-        field(4814; "GroupSettlement Account"; Code[20])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4714 Group Settlement Account';
-            ObsoleteTag = '18.0';
-        }
-        field(4815; "VATSettlement Account"; Code[20])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4715 VAT Settlement Account';
-            ObsoleteTag = '18.0';
-        }
-        field(4816; "VATDue Box No."; Text[30])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4716 VAT Due Box No.';
-            ObsoleteTag = '18.0';
-        }
-        field(4817; "GroupSettle. Gen. Jnl. Templ."; Code[10])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4717 Redirect Group Settle. Gen. Jnl. Templ.';
-            ObsoleteTag = '18.0';
-        }
-        field(4818; "VATGroup BC Version"; Option)
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to VAT Group Management extension field 4718 VAT Group BC Version';
-            ObsoleteTag = '18.0';
-            OptionMembers = BC,NAV2018,NAV2017;
-        }
     }
 
     keys
@@ -271,4 +153,3 @@ table 743 "VAT Report Setup"
         exit(CalcDate("Period Reminder Calculation", WorkDate()) - WorkDate() >= 0);
     end;
 }
-

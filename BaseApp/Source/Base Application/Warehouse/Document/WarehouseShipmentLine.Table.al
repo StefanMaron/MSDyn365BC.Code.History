@@ -128,7 +128,7 @@ table 7321 "Warehouse Shipment Line"
 
             trigger OnValidate()
             var
-                OrderStatus: Integer;
+                OrderStatus: Enum "Warehouse Shipment Status";
                 IsHandled: Boolean;
             begin
                 if Quantity <= 0 then
@@ -152,10 +152,10 @@ table 7321 "Warehouse Shipment Line"
                 IsHandled := false;
                 OnValidateQuantityStatusUpdate(Rec, xRec, IsHandled);
                 if not IsHandled then begin
-                    Status := CalcStatusShptLine();
+                    Status := GetShipmentLineStatus();
                     if (Status <> xRec.Status) and (not IsTemporary) then begin
                         GetWhseShptHeader("No.");
-                        OrderStatus := WhseShptHeader.GetDocumentStatus(0);
+                        OrderStatus := WhseShptHeader.GetShipmentStatus(0);
                         if OrderStatus <> WhseShptHeader."Document Status" then begin
                             WhseShptHeader.Validate("Document Status", OrderStatus);
                             WhseShptHeader.Modify();
@@ -369,12 +369,10 @@ table 7321 "Warehouse Shipment Line"
             Caption = 'Description 2';
             Editable = false;
         }
-        field(34; Status; Option)
+        field(34; Status; Enum "Warehouse Shipment Status")
         {
             Caption = 'Status';
             Editable = false;
-            OptionCaption = ' ,Partially Picked,Partially Shipped,Completely Picked,Completely Shipped';
-            OptionMembers = " ","Partially Picked","Partially Shipped","Completely Picked","Completely Shipped";
         }
         field(35; "Sorting Sequence No."; Integer)
         {
@@ -570,7 +568,7 @@ table 7321 "Warehouse Shipment Line"
         Text003: Label 'must be greater than zero';
         Text005: Label 'The picked quantity is not enough to ship all lines.';
 #pragma warning disable AA0470
-        Text007: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the shipping area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = 'Qty. Picked = 2 is greater than Qty. Shipped = 0. If you delete the Warehouse Shipment Line, the items will remain in the shipping area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the Warehouse Shipment Line?';
+        Text007: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the shipping area until you put them away.\Any related item tracking information defined during the pick process will be deleted.\Do you still want to delete the %5?', Comment = 'Qty. Picked = 2 is greater than Qty. Shipped = 0. If you delete the Warehouse Shipment Line, the items will remain in the shipping area until you put them away.\Any related item tracking information defined during the pick process will be deleted.\Do you still want to delete the Warehouse Shipment Line?';
         Text008: Label 'You cannot rename a %1.';
         Text009: Label '%1 is set to %2. %3 should be %4.\\';
 #pragma warning restore AA0470
@@ -631,7 +629,7 @@ table 7321 "Warehouse Shipment Line"
 
     local procedure UpdateDocumentStatus()
     var
-        OrderStatus: Option;
+        OrderStatus: Enum "Warehouse Shipment Status";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -639,7 +637,7 @@ table 7321 "Warehouse Shipment Line"
         if IsHandled then
             exit;
 
-        OrderStatus := WhseShptHeader.GetDocumentStatus("Line No.");
+        OrderStatus := WhseShptHeader.GetShipmentStatus("Line No.");
         if OrderStatus <> WhseShptHeader."Document Status" then begin
             WhseShptHeader.Validate("Document Status", OrderStatus);
             WhseShptHeader.Modify();
@@ -782,13 +780,29 @@ table 7321 "Warehouse Shipment Line"
                 FieldError(Quantity, StrSubstNo(Text002, FieldCaption("Qty. Outstanding")));
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by procedure GetShipmentLineStatus', '26.0')]
     procedure CalcStatusShptLine(): Integer
+    begin
+        exit(GetShipmentLineStatus().AsInteger());
+    end;
+#endif
+
+    procedure GetShipmentLineStatus(): Enum "Warehouse Shipment Status"
     var
-        NewStatus: Integer;
+        NewStatus: Enum "Warehouse Shipment Status";
+#if not CLEAN26
+        NewStatusInt: Integer;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcStatusShptLine(Rec, NewStatus, IsHandled);
+#if not CLEAN26
+        OnBeforeCalcStatusShptLine(Rec, NewStatusInt, IsHandled);
+        if IsHandled then
+            exit("Warehouse Shipment Status".FromInteger(NewStatusInt));
+#endif
+        OnBeforeGetShipmentLineStatus(Rec, NewStatus, IsHandled);
         if IsHandled then
             exit(NewStatus);
 
@@ -885,15 +899,15 @@ table 7321 "Warehouse Shipment Line"
                 Message(Text011);
     end;
 
-    local procedure CreatePickDocFromWhseShpt(var WhseShptLine: Record "Warehouse Shipment Line"; WhseShptHeader: Record "Warehouse Shipment Header"; HideValidationDialog: Boolean)
+    local procedure CreatePickDocFromWhseShpt(var WhseShptLine: Record "Warehouse Shipment Line"; WhseShptHeader2: Record "Warehouse Shipment Header"; HideValidationDialog: Boolean)
     var
         WhseShipmentCreatePick: Report "Whse.-Shipment - Create Pick";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreatePickDoc(WhseShptLine, WhseShptHeader, HideValidationDialog, IsHandled);
+        OnBeforeCreatePickDoc(WhseShptLine, WhseShptHeader2, HideValidationDialog, IsHandled);
         if not IsHandled then begin
-            WhseShipmentCreatePick.SetWhseShipmentLine(WhseShptLine, WhseShptHeader);
+            WhseShipmentCreatePick.SetWhseShipmentLine(WhseShptLine, WhseShptHeader2);
             WhseShipmentCreatePick.SetHideValidationDialog(HideValidationDialog);
             WhseShipmentCreatePick.UseRequestPage(not HideValidationDialog);
             OnCreatePickDocFromWhseShptOnBeforeRunWhseShipmentCreatePick(WhseShipmentCreatePick);
@@ -901,7 +915,7 @@ table 7321 "Warehouse Shipment Line"
             WhseShipmentCreatePick.GetResultMessage();
             Clear(WhseShipmentCreatePick);
         end;
-        OnAfterCreatePickDoc(WhseShptHeader, WhseShptLine);
+        OnAfterCreatePickDoc(WhseShptHeader2, WhseShptLine);
     end;
 
     local procedure GetItem()
@@ -1223,8 +1237,16 @@ table 7321 "Warehouse Shipment Line"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by event OnBeforeGetShipmentLineStatus', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcStatusShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var NewStatus: Integer; var IsHandled: Boolean);
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetShipmentLineStatus(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var NewStatus: Enum "Warehouse Shipment Status"; var IsHandled: Boolean);
     begin
     end;
 

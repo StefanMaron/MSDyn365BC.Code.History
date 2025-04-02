@@ -13,6 +13,7 @@ table 780 "Certificate of Supply"
 {
     Caption = 'Certificate of Supply';
     DataClassification = CustomerContent;
+    LookupPageId = "Certificates of Supply";
 
     fields
     {

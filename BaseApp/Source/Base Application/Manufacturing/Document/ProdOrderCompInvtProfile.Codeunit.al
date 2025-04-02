@@ -1,6 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 
@@ -166,5 +171,50 @@ codeunit 99000868 "Prod. Order Comp. Invt.Profile"
     [IntegrationEvent(false, false)]
     local procedure OnTransProdOrderCompToProfileOnBeforeInvProfileInsert(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var LineNo: Integer)
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Plng. Component Invt. Profile", 'OnTransferInventoryProfileFromPlamComponentByRefOrderType', '', false, false)]
+    local procedure OnTransferInventoryProfileFromPlamComponentByRefOrderType(var InventoryProfile: Record "Inventory Profile"; PlanningComponent: Record "Planning Component")
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+        ReservationEntry: Record "Reservation Entry";
+        ReservedQty: Decimal;
+    begin
+        case PlanningComponent."Ref. Order Type" of
+            PlanningComponent."Ref. Order Type"::"Prod. Order":
+                if ProdOrderComponent.Get(
+                     PlanningComponent."Ref. Order Status",
+                     PlanningComponent."Ref. Order No.",
+                     PlanningComponent."Ref. Order Line No.",
+                     PlanningComponent."Line No.")
+                then begin
+                    InventoryProfile."Original Quantity" := ProdOrderComponent."Expected Quantity";
+                    ProdOrderComponent.CalcFields("Reserved Qty. (Base)");
+                    if ProdOrderComponent."Reserved Qty. (Base)" > 0 then begin
+                        ReservedQty := ProdOrderComponent."Reserved Qty. (Base)";
+                        ProdOrderComponent.SetReservationFilters(ReservationEntry);
+                        InventoryProfile.CalcReservedQty(ReservationEntry, ReservedQty);
+                        if ReservedQty > InventoryProfile."Untracked Quantity" then
+                            InventoryProfile."Untracked Quantity" := 0
+                        else
+                            InventoryProfile."Untracked Quantity" := InventoryProfile."Untracked Quantity" - ReservedQty;
+                    end;
+                end else begin
+                    InventoryProfile."Primary Order Type" := Database::"Planning Component";
+                    InventoryProfile."Primary Order Status" := PlanningComponent."Ref. Order Status".AsInteger();
+                    InventoryProfile."Primary Order No." := PlanningComponent."Ref. Order No.";
+                end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Plng. Component Invt. Profile", 'OnTransferToTrackingEntrySourceTypeElseCaseOnSetSource', '', false, false)]
+    local procedure OnTransferToTrackingEntrySourceTypeElseCaseOnSetSource(var InventoryProfile: Record "Inventory Profile"; var ReservationEntry: Record "Reservation Entry"; var RequisitionLine: Record "Requisition Line")
+    begin
+        case RequisitionLine."Ref. Order Type" of
+            RequisitionLine."Ref. Order Type"::"Prod. Order":
+                ReservationEntry.SetSource(
+                    Database::"Prod. Order Component", RequisitionLine."Ref. Order Status".AsInteger(),
+                    InventoryProfile."Ref. Order No.", InventoryProfile."Source Ref. No.", '', InventoryProfile."Ref. Line No.");
+        end;
     end;
 }

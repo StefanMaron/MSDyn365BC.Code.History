@@ -1,6 +1,7 @@
 namespace Microsoft.Intercompany.DataExchange;
 
 using Microsoft.Intercompany.Journal;
+using Microsoft.Intercompany;
 
 table 610 "Buffer IC Inbox Transaction"
 {
@@ -19,12 +20,10 @@ table 610 "Buffer IC Inbox Transaction"
             Caption = 'IC Partner Code';
             Editable = false;
         }
-        field(3; "Source Type"; Option)
+        field(3; "Source Type"; Enum "IC Transaction Source Type")
         {
             Caption = 'Source Type';
             Editable = false;
-            OptionCaption = 'Journal,Sales Document,Purchase Document';
-            OptionMembers = Journal,"Sales Document","Purchase Document";
         }
         field(5; "Document Type"; Enum "IC Transaction Document Type")
         {

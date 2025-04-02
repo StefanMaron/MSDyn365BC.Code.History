@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.RoleCenters;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.RoleCenters;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Foundation.Navigate;
@@ -222,7 +226,6 @@ page 8908 "Service Manager Role Center"
                     ApplicationArea = Service;
                     Caption = 'Demand Overview';
                     RunObject = page "Demand Overview";
-                    AccessByPermission = TableData "Service Header" = R;
                 }
                 group("Group4")
                 {

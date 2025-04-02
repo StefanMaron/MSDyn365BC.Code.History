@@ -411,7 +411,7 @@ table 207 "Res. Journal Line"
         DimMgt: Codeunit DimensionManagement;
         GLSetupRead: Boolean;
 
-    local procedure FindResUnitCost(CalledByFieldNo: Integer)
+    procedure FindResUnitCost(CalledByFieldNo: Integer)
     var
         PriceType: Enum "Price Type";
     begin
@@ -419,7 +419,7 @@ table 207 "Res. Journal Line"
         Validate("Unit Cost");
     end;
 
-    local procedure FindResPrice(CalledByFieldNo: Integer)
+    procedure FindResPrice(CalledByFieldNo: Integer)
     var
         PriceType: Enum "Price Type";
     begin

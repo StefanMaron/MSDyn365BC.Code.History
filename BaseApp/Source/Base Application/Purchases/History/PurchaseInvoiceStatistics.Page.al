@@ -276,7 +276,7 @@ page 400 "Purchase Invoice Statistics"
                 end;
 
                 if Rec."Prices Including VAT" then
-                    InvDiscAmount += PurchInvLine."Inv. Discount Amount" / (1 + GetVATPct(PurchInvLine) / 100)
+                    InvDiscAmount += PurchInvLine."Inv. Discount Amount" / (1 + PurchInvLine.GetVATPct() / 100)
                 else
                     InvDiscAmount += PurchInvLine."Inv. Discount Amount";
                 LineQty += PurchInvLine.Quantity;
@@ -285,9 +285,9 @@ page 400 "Purchase Invoice Statistics"
                 TotalVolume += PurchInvLine.Quantity * PurchInvLine."Unit Volume";
                 if PurchInvLine."Units per Parcel" > 0 then
                     TotalParcels += Round(PurchInvLine.Quantity / PurchInvLine."Units per Parcel", 1, '>');
-                if GetVATPct(PurchInvLine) <> VATPercentage then
+                if PurchInvLine."VAT %" <> VATPercentage then
                     if VATPercentage = 0 then
-                        VATPercentage := GetVATPct(PurchInvLine)
+                        VATPercentage := PurchInvLine.GetVATPct()
                     else
                         VATPercentage := -1;
 

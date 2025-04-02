@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Foundation.Address;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Address;
 
 using Microsoft.Finance.VAT.Registration;
 using Microsoft.Foundation.Company;
@@ -98,13 +102,7 @@ table 9 "Country/Region"
         {
             Caption = 'County Name';
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
+#if not CLEANSCHEMA25
         field(2000000; "ISO Country/Region Code"; Code[2])
         {
             Caption = 'ISO Country/Region Code';
@@ -112,6 +110,7 @@ table 9 "Country/Region"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(2000001; "IBAN Country/Region"; Boolean)
         {
             Caption = 'IBAN Country/Region';
@@ -322,7 +321,7 @@ table 9 "Country/Region"
                 end;
         end;
         CreateAddressFormat(Rec.Code, 7, CompanyInformation.FieldNo("Country/Region Code"));
-        
+
         if LineNo <> 0 then begin
             CustomAddressFormat.Get(Code, LineNo);
             CustomAddressFormat.BuildAddressFormat();
@@ -349,4 +348,3 @@ table 9 "Country/Region"
     begin
     end;
 }
-

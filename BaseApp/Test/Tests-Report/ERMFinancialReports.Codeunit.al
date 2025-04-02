@@ -886,7 +886,7 @@ codeunit 134982 "ERM Financial Reports"
         LibraryERM.FindGenJnlTemplateAndBatch(JnlTemplName, JnlBatchName);
         GenJournalBatch.Get(JnlTemplName, JnlBatchName);
         ImportConsolidationFromFile.SetGenJnlBatch(GenJournalBatch);
-        ImportConsolidationFromFile.InitializeRequest(1, FilePathTxt, '10000');
+        ImportConsolidationFromFile.SetParameters("Business Unit File Format"::"Version 3.70 or Earlier (.txt)", FilePathTxt, '10000');
         ImportConsolidationFromFile.Run();
     end;
 

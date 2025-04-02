@@ -216,6 +216,7 @@ page 7252 "Trans. To GL Acc. AI Proposal"
     trigger OnOpenPage()
     begin
         SummaryStyleTxt := 'Ambiguous';
+        CurrPage.ProposalDetails.Page.SetProposalFieldCaption(PostToGLAccountTxt);
     end;
 
     local procedure InitializeJournalBatch()
@@ -431,6 +432,7 @@ page 7252 "Trans. To GL Acc. AI Proposal"
         AllLinesMatchedTxt: label 'All lines (100%) are matched. Review match proposals.';
         SubsetOfLinesMatchedTxt: label '%1% of lines are matched. Review match proposals.', Comment = '%1 - a decimal between 0 and 100';
         InputWithReservedWordsRemovedTxt: label 'Statement line descriptions or G/L Account names with reserved AI chat completion prompt words were detected. For security reasons, they were excluded from the auto-matching process. You must match these statement lines or G/L Accounts manually.';
+        PostToGLAccountTxt: label 'Post to G/L account';
         StatementDate: Date;
         StatementEndingBalance: Decimal;
         BankAccNo: Code[20];

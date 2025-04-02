@@ -33,7 +33,7 @@ codeunit 132501 "Sales Document Posting Errors"
         SalesInvHeaderConflictErr: Label 'Cannot post the sales invoice because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Posting No.';
         SetupBlockedErr: Label 'Setup is blocked in %1 for %2 %3 and %4 %5.', Comment = '%1 - General/VAT Posting Setup, %2 %3 %4 %5 - posting groups.';
         CampaignNoErr: Label 'Camaign No. must be not gerenate error on update.';
-   
+
     [Test]
     [Scope('OnPrem')]
     procedure T001_PostingDateIsInNotAllowedPeriodInGLSetup()
@@ -369,7 +369,7 @@ codeunit 132501 "Sales Document Posting Errors"
         TempErrorMessage.TestField("Context Field Number", SalesHeader.FieldNo("Posting Date"));
         // [THEN]  "Source" is 'Gen. Journal Template', "Field Name" is 'Allow Posting From'
         TempErrorMessage.TestField("Record ID", GenJournalTemplate.RecordId);
-        TempErrorMessage.TestField("Field Number", GenJournalTemplate.FieldNo("Allow Posting Date From"));
+        TempErrorMessage.TestField("Field Number", 0); // "Allow Posting From" field does not exist anymore, so 0.
         // [WHEN] DrillDown on "Source"
         GeneralJournalTemplates.Trap();
         LibraryErrorMessage.DrillDownOnSource();
@@ -891,9 +891,9 @@ codeunit 132501 "Sales Document Posting Errors"
 
         // [THEN] Verify Campaign No. is udpated.
         Assert.AreEqual(
-            Campaign."No.", 
-            SalesOrder."Campaign No.".Value(), 
-            CampaignNoErr);    
+            Campaign."No.",
+            SalesOrder."Campaign No.".Value(),
+            CampaignNoErr);
     end;
 
     local procedure Initialize()

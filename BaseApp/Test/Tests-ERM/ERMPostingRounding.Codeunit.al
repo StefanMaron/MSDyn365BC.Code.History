@@ -110,70 +110,6 @@ codeunit 134157 "ERM Posting Rounding"
         VerifyGLEntry(DocumentNo, GetCustomerReceivablesAccountNo(SalesHeader."Customer Posting Group"), 35148.68);
     end;
 
-#if not CLEAN23
-    [Test]
-    [Scope('OnPrem')]
-    procedure NOVATFCYSalesInvoiceWithPositiveAndNegativeLineAmounts2()
-    var
-        SalesHeader: Record "Sales Header";
-        GLEntry: Record "G/L Entry";
-        GLAccountNo: array[4] of Code[20];
-        DocumentNo: Code[20];
-    begin
-        // [FEATURE] [Sales]
-        // [SCENARIO 396183] Posting of a sales invoice with NO VAT, currency, several G/L Accounts with positive and negative lines
-        // [SCENARIO 396183] in case of non balanced invoice posting buffer groups rounding
-        Initialize();
-
-        // [GIVEN] Sales invoice with NO VAT, currency, several G/L Accounts with positive and negative lines
-        CreateSalesInvoice_TFS268735_2(SalesHeader, GLAccountNo);
-
-        // [WHEN] Post the document
-        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [THEN] The document has been posted
-        GLEntry.SetRange("Document No.", DocumentNo);
-        Assert.RecordCount(GLEntry, 5);
-
-        VerifyGLEntry(DocumentNo, GLAccountNo[1], -19645.32);
-        VerifyGLEntry(DocumentNo, GLAccountNo[2], -10025.89);
-        VerifyGLEntry(DocumentNo, GLAccountNo[3], -5477.46);
-        VerifyGLEntry(DocumentNo, GLAccountNo[4], -5477.48);
-        VerifyGLEntry(DocumentNo, GetCustomerReceivablesAccountNo(SalesHeader."Customer Posting Group"), 40626.15);
-    end;
-#endif
-
-#if not CLEAN23
-    [Test]
-    [Scope('OnPrem')]
-    procedure InvoicePostBuffer_Update_ZeroRounding()
-    var
-        TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary;
-        TempInvoicePostBuffer2: Record "Invoice Post. Buffer" temporary;
-        InvDefLineNo: Integer;
-        DeferralLineNo: Integer;
-    begin
-        // [FEATURE] [UT] [Invoice Post. Buffer]
-        // [SCENARIO 268735] TAB 49 "Invoice Post. Buffer".Update() in case of zero rounding for the paired field (i.e. "Amount" = 0, "Amount (ACY)" <> 0)
-        MockTempInvoicePostBuffer(TempInvoicePostBuffer, 0, 0, 0, 0, 0, 0);
-
-        MockTempInvoicePostBuffer(TempInvoicePostBuffer2, 1, 0, 1, 0, 1, 0);
-        TempInvoicePostBuffer.Update(TempInvoicePostBuffer2, InvDefLineNo, DeferralLineNo);
-        VerifyInvoicePostBufferAmounts(TempInvoicePostBuffer, 0, 0, 0, 0, 0, 0);
-
-        TempInvoicePostBuffer2.Delete();
-        MockTempInvoicePostBuffer(TempInvoicePostBuffer2, 1, 1, 1, 1, 1, 1);
-        TempInvoicePostBuffer.Update(TempInvoicePostBuffer2, InvDefLineNo, DeferralLineNo);
-        VerifyInvoicePostBufferAmounts(TempInvoicePostBuffer, 1, 1, 1, 1, 1, 1);
-
-        TempInvoicePostBuffer.ApplyRoundingForFinalPosting();
-        VerifyInvoicePostBufferAmounts(TempInvoicePostBuffer, 2, 1, 2, 1, 2, 1);
-
-        TempInvoicePostBuffer.ApplyRoundingForFinalPosting();
-        VerifyInvoicePostBufferAmounts(TempInvoicePostBuffer, 2, 1, 2, 1, 2, 1);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure InvoicePostBuffer_Update_ZeroRounding_V19()
@@ -496,20 +432,6 @@ codeunit 134157 "ERM Posting Rounding"
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN23
-    local procedure MockTempInvoicePostBuffer(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; NewAmount: Decimal; NewAmountACY: Decimal; NewVATAmount: Decimal; NewVATAmountACY: Decimal; NewVATBaseAmount: Decimal; NewVATBaseAmountACY: Decimal)
-    begin
-        TempInvoicePostBuffer.Init();
-        TempInvoicePostBuffer.Amount := NewAmount;
-        TempInvoicePostBuffer."Amount (ACY)" := NewAmountACY;
-        TempInvoicePostBuffer."VAT Amount" := NewVATAmount;
-        TempInvoicePostBuffer."VAT Amount (ACY)" := NewVATAmountACY;
-        TempInvoicePostBuffer."VAT Base Amount" := NewVATBaseAmount;
-        TempInvoicePostBuffer."VAT Base Amount (ACY)" := NewVATBaseAmountACY;
-        TempInvoicePostBuffer.Insert();
-    end;
-#endif
-
     local procedure MockTempInvoicePostingBuffer(var TempInvoicePostingBuffer: Record "Invoice Posting Buffer" temporary; NewAmount: Decimal; NewAmountACY: Decimal; NewVATAmount: Decimal; NewVATAmountACY: Decimal; NewVATBaseAmount: Decimal; NewVATBaseAmountACY: Decimal)
     begin
         TempInvoicePostingBuffer.Init();
@@ -548,18 +470,6 @@ codeunit 134157 "ERM Posting Rounding"
         GLEntry.CalcSums(Amount);
         GLEntry.TestField(Amount, ExpectedAmount);
     end;
-
-#if not CLEAN23
-    local procedure VerifyInvoicePostBufferAmounts(InvoicePostBuffer: Record "Invoice Post. Buffer"; ExpAmount: Decimal; ExpAmountACY: Decimal; ExpVATAmount: Decimal; ExpVATAmountACY: Decimal; ExpVATBaseAmount: Decimal; ExpVATBaseAmountACY: Decimal)
-    begin
-        InvoicePostBuffer.TestField(Amount, ExpAmount);
-        InvoicePostBuffer.TestField("Amount (ACY)", ExpAmountACY);
-        InvoicePostBuffer.TestField("VAT Amount", ExpVATAmount);
-        InvoicePostBuffer.TestField("VAT Amount (ACY)", ExpVATAmountACY);
-        InvoicePostBuffer.TestField("VAT Base Amount", ExpVATBaseAmount);
-        InvoicePostBuffer.TestField("VAT Base Amount (ACY)", ExpVATBaseAmountACY);
-    end;
-#endif
 
     local procedure VerifyVATEntryAmounts(VATEntryType: Enum "General Posting Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedBase: Decimal; ExpectedAmount: Decimal)
     var

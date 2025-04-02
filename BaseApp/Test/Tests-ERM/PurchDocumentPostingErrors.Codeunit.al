@@ -368,7 +368,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         TempErrorMessage.TestField("Context Field Number", PurchHeader.FieldNo("Posting Date"));
         // [THEN]  "Source" is 'Gen. Journal Template', "Field Name" is 'Allow Posting From'
         TempErrorMessage.TestField("Record ID", GenJournalTemplate.RecordId);
-        TempErrorMessage.TestField("Field Number", GenJournalTemplate.FieldNo("Allow Posting Date From"));
+        TempErrorMessage.TestField("Field Number", 0); // "Allow Posting From" field does not exist anymore, so 0.
         // [WHEN] DrillDown on "Source"
         GeneralJournalTemplates.Trap();
         LibraryErrorMessage.DrillDownOnSource();

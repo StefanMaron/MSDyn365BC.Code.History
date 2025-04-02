@@ -200,22 +200,6 @@ table 461 "Prepayment Inv. Line Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Job Task";
         }
-        field(11300; "Original Pmt. Disc. Possible"; Decimal)
-        {
-            Caption = 'Original Pmt. Disc. Possible';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(11301; "Base Before Pmt. Disc. (Old)"; Decimal)
-        {
-            Caption = 'Base Before Pmt. Disc. (Old)';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys
@@ -440,6 +424,11 @@ table 461 "Prepayment Inv. Line Buffer"
         "VAT Amount" := Round(Amount * VATPostingSetup."VAT %" / 100);
         "VAT Amount (ACY)" := Round("Amount (ACY)" * VATPostingSetup."VAT %" / 100, Currency."Amount Rounding Precision");
         OnAfterUpdateVATAmounts(Rec, Currency);
+    end;
+
+    internal procedure GetVATPct() VATPct: Decimal
+    begin
+        VATPct := "VAT %";
     end;
 
     [IntegrationEvent(false, false)]

@@ -177,6 +177,7 @@ report 7305 "Whse.-Source - Create Document"
             trigger OnAfterGetRecord()
             var
                 PostedWhseRcptLine: Record "Posted Whse. Receipt Line";
+                ProdOrderLine: Record "Prod. Order Line";
                 TempWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
                 QtyHandledBase: Decimal;
                 SourceType: Integer;
@@ -184,11 +185,18 @@ report 7305 "Whse.-Source - Create Document"
                 LockTable();
 
                 CheckBin("Location Code", "From Bin Code", false);
+                if "Whse. Document Type" <> "Whse. Document Type"::Production then
+                    InitPostedWhseReceiptLineFromPutAway(PostedWhseRcptLine, "Whse. Put-away Worksheet Line", SourceType)
+                else
+                    CheckAndUpdateFinishedQtyOnProdOrderLineFromPutAway(ProdOrderLine, "Whse. Put-away Worksheet Line", SourceType);
 
-                InitPostedWhseReceiptLineFromPutAway(PostedWhseRcptLine, "Whse. Put-away Worksheet Line", SourceType);
+                if "Whse. Document Type" <> "Whse. Document Type"::Production then
+                    CreatePutAway.SetCrossDockValues(PostedWhseRcptLine."Qty. Cross-Docked" <> 0);
 
-                CreatePutAway.SetCrossDockValues(PostedWhseRcptLine."Qty. Cross-Docked" <> 0);
-                CreatePutAwayFromDiffSource(PostedWhseRcptLine, SourceType);
+                if "Whse. Document Type" <> "Whse. Document Type"::Production then
+                    CreatePutAwayFromDiffSource(PostedWhseRcptLine, SourceType)
+                else
+                    CreatePutAwayFromProdOutput(ProdOrderLine);
 
                 if "Qty. to Handle" <> "Qty. Outstanding" then
                     EverythingHandled := false;
@@ -196,7 +204,10 @@ report 7305 "Whse.-Source - Create Document"
                 if EverythingHandled then
                     EverythingHandled := CreatePutAway.EverythingIsHandled();
 
-                QtyHandledBase := CreatePutAway.GetQtyHandledBase(TempWhseItemTrkgLine);
+                if "Whse. Document Type" <> "Whse. Document Type"::Production then
+                    QtyHandledBase := CreatePutAway.GetQtyHandledBase(TempWhseItemTrkgLine)
+                else
+                    QtyHandledBase := ProdOrderLine."Finished Qty. (Base)";
 
                 if QtyHandledBase > 0 then begin
                     // update/delete line
@@ -407,6 +418,10 @@ report 7305 "Whse.-Source - Create Document"
             end;
 
             trigger OnPreDataItem()
+#if not CLEAN26
+            var
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+#endif
             begin
                 if WhseDoc <> WhseDoc::Production then
                     CurrReport.Break();
@@ -429,11 +444,21 @@ report 7305 "Whse.-Source - Create Document"
 
                 SetRange("Prod. Order No.", ProdOrderHeader."No.");
                 SetRange(Status, Status::Released);
-                SetFilter(
-                  "Flushing Method", '%1|%2|%3',
-                  "Flushing Method"::Manual,
-                  "Flushing Method"::"Pick + Forward",
-                  "Flushing Method"::"Pick + Backward");
+#if not CLEAN26
+                if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+                    SetFilter(
+                      "Flushing Method", '%1|%2|%3|%4',
+                      "Flushing Method"::Manual,
+                      "Flushing Method"::"Pick + Manual",
+                      "Flushing Method"::"Pick + Forward",
+                      "Flushing Method"::"Pick + Backward")
+                else
+#endif
+                    SetFilter(
+                      "Flushing Method", '%1|%2|%3',
+                      "Flushing Method"::"Pick + Manual",
+                      "Flushing Method"::"Pick + Forward",
+                      "Flushing Method"::"Pick + Backward");
                 SetRange("Planning Level Code", 0);
                 SetFilter("Expected Qty. (Base)", '>0');
 
@@ -625,6 +650,7 @@ report 7305 "Whse.-Source - Create Document"
                 CreatePickParameters."Whse. Document" := CreatePickParameters."Whse. Document"::Job;
                 CreatePickParameters."Whse. Document Type" := CreatePickParameters."Whse. Document Type"::Pick;
                 CreatePick.SetParameters(CreatePickParameters);
+                CreatePick.SetSaveSummary(ShowSummary);
 
                 SetRange("Job No.", JobHeader."No.");
                 SetFilter(Quantity, '>0');
@@ -717,7 +743,7 @@ report 7305 "Whse.-Source - Create Document"
                         ApplicationArea = Warehouse;
                         Caption = 'Show Summary (Directed Put-away and Pick)';
                         ToolTip = 'Specifies if you want the summary window to be shown after creating pick lines.';
-                        Visible = (WhseDoc = WhseDoc::Assembly) or (WhseDoc = WhseDoc::Production);
+                        Visible = (WhseDoc = WhseDoc::Assembly) or (WhseDoc = WhseDoc::Production) or (WhseDoc = WhseDoc::Job);
                     }
                 }
             }
@@ -789,7 +815,7 @@ report 7305 "Whse.-Source - Create Document"
             if PrintDoc then
                 PrintWarehouseDocument(WhseActivHeader);
         end else
-            if WhseDoc in [WhseDoc::Production, WhseDoc::Assembly] then begin
+            if WhseDoc in [WhseDoc::Production, WhseDoc::Assembly, WhseDoc::Job] then begin
                 CreatePick.SetSummaryPageMessage(Text003, false);
                 if not CreatePick.ShowCalculationSummary() then
                     if not HideNothingToHandleErr then
@@ -855,6 +881,7 @@ report 7305 "Whse.-Source - Create Document"
         TotalPendingMovQtyExceedsBinAvailErr: Label 'Item tracking defined for line %1, lot number %2, serial number %3, package number %4 cannot be applied.', Comment = '%1=Line No.,%2=Lot No.,%3=Serial No.,%4=Package No.';
         ProdAsmJobWhseHandlingTelemetryCategoryTok: Label 'Prod/Asm/Project Whse. Handling', Locked = true;
         ProdAsmJobWhseHandlingTelemetryTok: Label 'Prod/Asm/Project Whse. Handling in used for warehouse pick.', Locked = true;
+        CannotHandleMoreThanProdOrderLineQtyErr: Label 'You cannot handle more than %1 quantity in Production Order No. %2, Line No. %3', Comment = '%1 = Quantity, %2 - Production Order No., %3 - Production Order Line No.';
 
     protected var
         DoNotFillQtytoHandleReq: Boolean;
@@ -882,7 +909,8 @@ report 7305 "Whse.-Source - Create Document"
         WhseWkshLine.Copy(WhseWkshLine2);
         case WhseWkshLine."Whse. Document Type" of
             WhseWkshLine."Whse. Document Type"::Receipt,
-          WhseWkshLine."Whse. Document Type"::"Internal Put-away":
+          WhseWkshLine."Whse. Document Type"::"Internal Put-away",
+          WhseWkshLine."Whse. Document Type"::Production:
                 WhseDoc := WhseDoc::"Put-away Worksheet";
             WhseWkshLine."Whse. Document Type"::" ":
                 WhseDoc := WhseDoc::"Whse. Mov.-Worksheet";
@@ -988,7 +1016,7 @@ report 7305 "Whse.-Source - Create Document"
                 else
                     MessageTxt := StrSubstNo(Text001, Format(WhseActivHeader.Type), FirstActivityNo, LastActivityNo);
 
-            if (WhseDoc in [WhseDoc::Production, WhseDoc::Assembly]) then begin
+            if (WhseDoc in [WhseDoc::Production, WhseDoc::Assembly, WhseDoc::Job]) then begin
                 CreatePick.SetSummaryPageMessage(MessageTxt, false);
                 if not CreatePick.ShowCalculationSummary() then
                     Message(MessageTxt);
@@ -1053,6 +1081,18 @@ report 7305 "Whse.-Source - Create Document"
         PostedWhseReceiptLine."Qty. (Base)" := WhseWorksheetLine."Qty. to Handle (Base)";
 
         OnAfterInitPostedWhseReceiptLineFromPutAway(PostedWhseReceiptLine, WhseWorksheetLine);
+    end;
+
+    local procedure CheckAndUpdateFinishedQtyOnProdOrderLineFromPutAway(var ProdOrderLine: Record "Prod. Order Line"; WhseWorksheetLine: Record "Whse. Worksheet Line"; var SourceType: Integer)
+    begin
+        ProdOrderLine.Get(WhseWorksheetLine."Source Subtype", WhseWorksheetLine."Whse. Document No.", WhseWorksheetLine."Whse. Document Line No.");
+        if ProdOrderLine.GetRemainingPutAwayQty() < WhseWorksheetLine."Qty. to Handle" then
+            Error(CannotHandleMoreThanProdOrderLineQtyErr, ProdOrderLine.GetRemainingPutAwayQty(), ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+
+        ProdOrderLine.TestField(ProdOrderLine."Qty. per Unit of Measure");
+        ProdOrderLine."Finished Quantity" := WhseWorksheetLine."Qty. to Handle";
+        ProdOrderLine."Finished Qty. (Base)" := WhseWorksheetLine."Qty. to Handle (Base)";
+        SourceType := Database::"Prod. Order Line";
     end;
 
     local procedure InitPostedWhseReceiptLineFromInternalPutAway(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line"; QtyToPutAway: Decimal)
@@ -1331,6 +1371,15 @@ report 7305 "Whse.-Source - Create Document"
                     CreatePutAway.UpdateTempWhseItemTrkgLines(TempPostedWhseRcptLine2, SourceType);
                 end;
             until TempPostedWhseRcptLine.Next() = 0;
+    end;
+
+    local procedure CreatePutAwayFromProdOutput(ProdOrderLine: Record "Prod. Order Line")
+    begin
+        if ProdOrderLine."Finished Qty. (Base)" <= 0 then
+            exit;
+        CreatePutAway.SetCalledFromPutAwayWorksheet(true);
+        CreatePutAway.CreateWhsePutAwayForProdOrderOutputLine(ProdOrderLine);
+        CreatePutAway.SetCalledFromPutAwayWorksheet(false);
     end;
 
     procedure FEFOLocation(LocCode: Code[10]): Boolean

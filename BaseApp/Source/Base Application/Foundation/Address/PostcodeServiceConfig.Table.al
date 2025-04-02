@@ -14,6 +14,7 @@ table 9091 "Postcode Service Config"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; ServiceKey; Text[250])

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -204,14 +204,6 @@ table 290 "VAT Amount Line"
             Caption = 'VAT Base (Lowered)';
             Editable = false;
         }
-        field(11302; "Pmt. Discount Amount (Old)"; Decimal)
-        {
-            Caption = 'Pmt. Discount Amount (Old)';
-            Editable = false;
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys
@@ -308,7 +300,6 @@ table 290 "VAT Amount Line"
             "Pmt. Discount Amount" += VATAmountLine."Pmt. Discount Amount";
             "VAT Amount" := "Amount Including VAT" - "VAT Base";
             "Calculated VAT Amount" += VATAmountLine."Calculated VAT Amount";
-            "VAT Base (Lowered)" += VATAmountLine."VAT Base (Lowered)";
             NonDeductibleVAT.Increment(Rec, VATAmountLine);
             OnInsertLineOnBeforeModify(Rec, VATAmountLine);
             Modify();
@@ -321,23 +312,8 @@ table 290 "VAT Amount Line"
         exit(true);
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced with InsertNewLine with NonDeductibleVATPct parameter', '23.0')]
-    procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Enum "Tax Calculation Type"; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean)
-    begin
-        Init();
-        "VAT Identifier" := VATIdentifier;
-        "VAT Calculation Type" := VATCalcType;
-        "Tax Group Code" := TaxGroupCode;
-        "Use Tax" := UseTax;
-        "VAT %" := TaxRate;
-        Modified := true;
-        Positive := IsPositive;
-        "Includes Prepayment" := IsPrepayment;
-        Insert();
-    end;
-#endif
-
+#if not CLEAN26
+    [Obsolete('Replaced by procedures using Source Record.', '26.0')]
     procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Enum "Tax Calculation Type"; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean; NonDeductibleVATPct: Decimal)
     begin
         Rec.Init();
@@ -352,6 +328,7 @@ table 290 "VAT Amount Line"
         Rec."Non-Deductible VAT %" := NonDeductibleVATPct;
         Rec.Insert();
     end;
+#endif
 
     procedure GetLine(Number: Integer)
     begin
@@ -645,13 +622,12 @@ table 290 "VAT Amount Line"
             until Next() = 0;
     end;
 
-    [Scope('OnPrem')]
-    procedure ApplyNonDeductibleVAT(NonDeductibleVAT: Decimal)
+    internal procedure ApplyNonDeductibleVAT(NonDeductibleVAT: Decimal)
     begin
         "VAT Base" += NonDeductibleVAT;
         "VAT Amount" -= NonDeductibleVAT;
         "Line Amount" += NonDeductibleVAT;
-        "VAT Base (Lowered)" += NonDeductibleVAT;
+        OnApplyNonDeductibleVATOnBeforeModify(Rec, NonDeductibleVAT);
         Modify();
     end;
 
@@ -828,8 +804,6 @@ table 290 "VAT Amount Line"
     end;
 
     procedure CopyFromPurchInvLine(PurchInvLine: Record "Purch. Inv. Line")
-    var
-        PurchInvHeader: Record "Purch. Inv. Header";
     begin
         "VAT Identifier" := PurchInvLine."VAT Identifier";
         "VAT Calculation Type" := PurchInvLine."VAT Calculation Type";
@@ -840,11 +814,7 @@ table 290 "VAT Amount Line"
         "VAT Amount" := PurchInvLine."Amount Including VAT" - PurchInvLine.Amount;
         "Amount Including VAT" := PurchInvLine."Amount Including VAT";
         "Line Amount" := PurchInvLine."Line Amount";
-        if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
-            "VAT %" := 0;
-            "VAT Amount" := 0;
-            "Amount Including VAT" := PurchInvLine.Amount;
-        end;
+        OnCopyFromPurchInvLineOnAfterSetLineAmount(Rec, PurchInvLine);
         if PurchInvLine."Allow Invoice Disc." then
             "Inv. Disc. Base Amount" := PurchInvLine."Line Amount";
         "Invoice Discount Amount" := PurchInvLine."Inv. Discount Amount";
@@ -852,20 +822,12 @@ table 290 "VAT Amount Line"
         "Calculated VAT Amount" :=
           PurchInvLine."Amount Including VAT" - PurchInvLine.Amount - PurchInvLine."VAT Difference";
         "VAT Difference" := PurchInvLine."VAT Difference";
-        "VAT Base (Lowered)" := PurchInvLine."VAT Base Amount";
-        if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
-            if PurchInvHeader.Get(PurchInvLine."Document No.") then;
-            if PurchInvHeader."VAT Base Discount %" <> 0 then
-                "VAT Base (Lowered)" := "VAT Base (Lowered)" * (1 - PurchInvHeader."VAT Base Discount %" / 100);
-        end;
         NonDeductibleVAT.CopyNonDedVATFromPurchInvLineToVATAmountLine(Rec, PurchInvLine);
 
         OnAfterCopyFromPurchInvLine(Rec, PurchInvLine);
     end;
 
     procedure CopyFromPurchCrMemoLine(PurchCrMemoLine: Record "Purch. Cr. Memo Line")
-    var
-        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         "VAT Identifier" := PurchCrMemoLine."VAT Identifier";
         "VAT Calculation Type" := PurchCrMemoLine."VAT Calculation Type";
@@ -876,11 +838,7 @@ table 290 "VAT Amount Line"
         "VAT Amount" := PurchCrMemoLine."Amount Including VAT" - PurchCrMemoLine.Amount;
         "Amount Including VAT" := PurchCrMemoLine."Amount Including VAT";
         "Line Amount" := PurchCrMemoLine."Line Amount";
-        if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
-            "VAT %" := 0;
-            "VAT Amount" := 0;
-            "Amount Including VAT" := PurchCrMemoLine.Amount;
-        end;
+        OnCopyFromPurchCrMemoLineOnAfterSetLineAmount(Rec, PurchCrMemoLine);
         if PurchCrMemoLine."Allow Invoice Disc." then
             "Inv. Disc. Base Amount" := PurchCrMemoLine."Line Amount";
         "Invoice Discount Amount" := PurchCrMemoLine."Inv. Discount Amount";
@@ -888,12 +846,6 @@ table 290 "VAT Amount Line"
         "Calculated VAT Amount" :=
           PurchCrMemoLine."Amount Including VAT" - PurchCrMemoLine.Amount - PurchCrMemoLine."VAT Difference";
         "VAT Difference" := PurchCrMemoLine."VAT Difference";
-        "VAT Base (Lowered)" := PurchCrMemoLine."VAT Base Amount";
-        if "VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT" then begin
-            if PurchCrMemoHdr.Get(PurchCrMemoLine."Document No.") then;
-            if PurchCrMemoHdr."VAT Base Discount %" <> 0 then
-                "VAT Base (Lowered)" := "VAT Base (Lowered)" * (1 - PurchCrMemoHdr."VAT Base Discount %" / 100);
-        end;
         NonDeductibleVAT.CopyNonDedVATFromPurchCrMemoLineToVATAmountLine(Rec, PurchCrMemoLine);
 
         OnAfterCopyFromPurchCrMemoLine(Rec, PurchCrMemoLine);
@@ -916,7 +868,6 @@ table 290 "VAT Amount Line"
         "Calculated VAT Amount" :=
           SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount - SalesInvoiceLine."VAT Difference";
         "VAT Difference" := SalesInvoiceLine."VAT Difference";
-        "VAT Base (Lowered)" := SalesInvoiceLine."VAT Base Amount";
 
         OnAfterCopyFromSalesInvLine(Rec, SalesInvoiceLine);
     end;
@@ -937,7 +888,6 @@ table 290 "VAT Amount Line"
         Quantity := SalesCrMemoLine."Quantity (Base)";
         "Calculated VAT Amount" := SalesCrMemoLine."Amount Including VAT" - SalesCrMemoLine.Amount - SalesCrMemoLine."VAT Difference";
         "VAT Difference" := SalesCrMemoLine."VAT Difference";
-        "VAT Base (Lowered)" := SalesCrMemoLine."VAT Base Amount";
 
         OnAfterCopyFromSalesCrMemoLine(Rec, SalesCrMemoLine);
     end;
@@ -1147,8 +1097,22 @@ table 290 "VAT Amount Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyNonDeductibleVATOnBeforeModify(var VATAmountLine: Record "VAT Amount Line"; NonDeductibleVAT: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromPurchInvLineOnAfterSetLineAmount(var VATAmountLine: Record "VAT Amount Line"; var PurchInvLine: Record "Purch. Inv. Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromPurchCrMemoLineOnAfterSetLineAmount(var VATAmountLine: Record "VAT Amount Line"; var PurchCrMemoLine: Record "Purch. Cr. Memo Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     procedure OnBeforeUpdateLines(var VATAmountLine: Record "VAT Amount Line"; var TotalVATAmount: Decimal; Currency: Record Currency; CurrencyFactor: Decimal; PricesIncludingVAT: Boolean; VATBaseDiscountPercHeader: Decimal; TaxAreaCode: Code[20]; TaxLiable: Boolean; PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 }
-

@@ -1,9 +1,12 @@
-﻿namespace Microsoft.Finance.Dimension;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Dimension;
 
 using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Team;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
@@ -125,8 +128,6 @@ codeunit 481 "Check Dimensions"
         NumberArr[1] := PurchaseLine."No.";
         TableIDArr[2] := Database::Job;
         NumberArr[2] := PurchaseLine."Job No.";
-        TableIDArr[3] := Database::"Work Center";
-        NumberArr[3] := PurchaseLine."Work Center No.";
         TableIDArr[4] := Database::Location;
         NumberArr[4] := PurchaseLine."Location Code";
         OnCheckDimValuePostingOnAfterCreateDimTableIDs(PurchaseLine, TableIDArr, NumberArr);

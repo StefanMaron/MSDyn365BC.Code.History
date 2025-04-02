@@ -328,6 +328,22 @@ page 7351 "Movement Worksheet"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
+                action("Return Over-Picked Quantity")
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Return Over-Picked Quantity';
+                    Image = AutofillQtyToHandle;
+                    ToolTip = 'Insert the Items in the Movement worksheet which are surplus in the "To Production Bin Code"';
+
+                    trigger OnAction()
+                    var
+                        ReturnOverPickedQuantity: Page "Return Overpicked Quantity";
+                    begin
+                        ReturnOverPickedQuantity.SetContext(Rec."Worksheet Template Name", Rec.Name, Rec."Location Code");
+                        Commit();
+                        ReturnOverPickedQuantity.RunModal();
+                    end;
+                }
                 action("Autofill Qty. to Handle")
                 {
                     ApplicationArea = Warehouse;

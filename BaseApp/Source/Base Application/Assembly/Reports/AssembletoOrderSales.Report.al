@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Reports;
 
 using Microsoft.Assembly.Document;
@@ -169,6 +173,8 @@ report 915 "Assemble to Order - Sales"
 
     requestpage
     {
+        AboutTitle = 'About Assemble to Order - Sales';
+        AboutText = 'Analyze the quantity, cost, sales, and profit figures of assembly components. For example, decide whether to price a kit differently or stop or start using an item in assemblies.';
 
         layout
         {

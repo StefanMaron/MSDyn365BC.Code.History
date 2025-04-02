@@ -5,11 +5,13 @@
 namespace Microsoft.EServices.EDocumentConnector.Logiq;
 
 using Microsoft.eServices.EDocument;
+using Microsoft.eServices.EDocument.Integration;
 using Microsoft.Foundation.Company;
 using Microsoft.Sales.Customer;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
 using System.Threading;
+using Microsoft.eServices.EDocument.Service;
 
 codeunit 139780 "Integration Tests"
 {
@@ -122,11 +124,10 @@ codeunit 139780 "Integration Tests"
         EDocumentPage.OpenView();
         EDocumentPage.GoToRecord(EDocument);
 
-        //[Then] Check if e-document status is processed and e-document service status is sent
+        //[Then] Check if e-document status is processed and e-document service status is "Pending Response"
         this.Assert.AreEqual(Format(EDocument.Status::"In Progress"), EDocumentPage."Electronic Document Status".Value(), 'E-Document status is not correct');
-        this.Assert.AreEqual(Format(Enum::"E-Document Service Status"::"Pending Response"), EDocumentPage.EdocoumentServiceStatus.Status.Value(), 'E-Document service status is not correct');
-        this.Assert.AreEqual('2', EDocumentPage.EdocoumentServiceStatus.Logs.Value(), this.IncorrectValueErr);
-        this.Assert.AreEqual('1', EDocumentPage.EdocoumentServiceStatus.HttpLogs.Value(), this.IncorrectValueErr);
+        VerifyOutboundFactboxValuesForSingleService(EDocument, Enum::"E-Document Service Status"::"Pending Response", 2);
+        this.Assert.AreEqual('1', EDocumentPage."Outbound E-Doc. Factbox".HttpLog.Value(), this.IncorrectValueErr);
 
         EDocumentPage.Close();
         //[When] Get the document status
@@ -140,9 +141,8 @@ codeunit 139780 "Integration Tests"
 
         //[Then] Check if status is updated correctly
         this.Assert.AreEqual(Format(EDocument.Status::Processed), EDocumentPage."Electronic Document Status".Value(), 'E-Document status is not correct');
-        this.Assert.AreEqual(Format(Enum::"E-Document Service Status"::Sent), EDocumentPage.EdocoumentServiceStatus.Status.Value(), 'E-Document service status is not correct');
-        this.Assert.AreEqual('3', EDocumentPage.EdocoumentServiceStatus.Logs.Value(), this.IncorrectValueErr);
-        this.Assert.AreEqual('2', EDocumentPage.EdocoumentServiceStatus.HttpLogs.Value(), this.IncorrectValueErr);
+        VerifyOutboundFactboxValuesForSingleService(EDocument, Enum::"E-Document Service Status"::Sent, 3);
+        this.Assert.AreEqual('2', EDocumentPage."Outbound E-Doc. Factbox".HttpLog.Value(), this.IncorrectValueErr);
 
         // [Then] Check if E-Document Errors and Warnings has correct status
         this.Assert.AreEqual('', EDocumentPage.ErrorMessagesPart."Message Type".Value(), this.IncorrectValueErr);
@@ -181,9 +181,8 @@ codeunit 139780 "Integration Tests"
 
         //[Then] Check if e-document status is in progress and e-document service status is pending response
         this.Assert.AreEqual(Format(EDocument.Status::"In Progress"), EDocumentPage."Electronic Document Status".Value(), 'E-Document status is not correct');
-        this.Assert.AreEqual(Format(Enum::"E-Document Service Status"::"Pending Response"), EDocumentPage.EdocoumentServiceStatus.Status.Value(), 'E-Document service status is not correct');
-        this.Assert.AreEqual('2', EDocumentPage.EdocoumentServiceStatus.Logs.Value(), this.IncorrectValueErr);
-        this.Assert.AreEqual('1', EDocumentPage.EdocoumentServiceStatus.HttpLogs.Value(), this.IncorrectValueErr);
+        VerifyOutboundFactboxValuesForSingleService(EDocument, Enum::"E-Document Service Status"::"Pending Response", 2);
+        this.Assert.AreEqual('1', EDocumentPage."Outbound E-Doc. Factbox".HttpLog.Value(), this.IncorrectValueErr);
         EDocumentPage.Close();
 
         //[When] Get the failed document status
@@ -197,9 +196,8 @@ codeunit 139780 "Integration Tests"
 
         //[Then] Check if status is updated correctly
         this.Assert.AreEqual(Format(EDocument.Status::"In Progress"), EDocumentPage."Electronic Document Status".Value(), 'E-Document status is not correct');
-        this.Assert.AreEqual(Format(Enum::"E-Document Service Status"::"Pending Response"), EDocumentPage.EdocoumentServiceStatus.Status.Value(), 'E-Document service status is not correct');
-        this.Assert.AreEqual('3', EDocumentPage.EdocoumentServiceStatus.Logs.Value(), this.IncorrectValueErr);
-        this.Assert.AreEqual('2', EDocumentPage.EdocoumentServiceStatus.HttpLogs.Value(), this.IncorrectValueErr);
+        VerifyOutboundFactboxValuesForSingleService(EDocument, Enum::"E-Document Service Status"::"Pending Response", 3);
+        this.Assert.AreEqual('2', EDocumentPage."Outbound E-Doc. Factbox".HttpLog.Value(), this.IncorrectValueErr);
 
         // Tear down
         EDocumentServiceStatus.Get(EDocument."Entry No", EDocumentService.Code);
@@ -236,9 +234,8 @@ codeunit 139780 "Integration Tests"
 
         //[Then] Check if e-document status is in progress and e-document service status is pending response
         this.Assert.AreEqual(Format(EDocument.Status::"In Progress"), EDocumentPage."Electronic Document Status".Value(), 'E-Document status is not correct');
-        this.Assert.AreEqual(Format(Enum::"E-Document Service Status"::"Pending Response"), EDocumentPage.EdocoumentServiceStatus.Status.Value(), 'E-Document service status is not correct');
-        this.Assert.AreEqual('2', EDocumentPage.EdocoumentServiceStatus.Logs.Value(), this.IncorrectValueErr);
-        this.Assert.AreEqual('1', EDocumentPage.EdocoumentServiceStatus.HttpLogs.Value(), this.IncorrectValueErr);
+        VerifyOutboundFactboxValuesForSingleService(EDocument, Enum::"E-Document Service Status"::"Pending Response", 2);
+        this.Assert.AreEqual('1', EDocumentPage."Outbound E-Doc. Factbox".HttpLog.Value(), this.IncorrectValueErr);
         EDocumentPage.Close();
 
         //[When] Get the failed document status
@@ -253,9 +250,8 @@ codeunit 139780 "Integration Tests"
 
         //[Then] Check if status is updated correctly
         this.Assert.AreEqual(Format(EDocument.Status::Error), EDocumentPage."Electronic Document Status".Value(), 'E-Document status is not correct');
-        this.Assert.AreEqual(Format(Enum::"E-Document Service Status"::"Sending Error"), EDocumentPage.EdocoumentServiceStatus.Status.Value(), 'E-Document service status is not correct');
-        this.Assert.AreEqual('3', EDocumentPage.EdocoumentServiceStatus.Logs.Value(), this.IncorrectValueErr);
-        this.Assert.AreEqual('2', EDocumentPage.EdocoumentServiceStatus.HttpLogs.Value(), this.IncorrectValueErr);
+        VerifyOutboundFactboxValuesForSingleService(EDocument, Enum::"E-Document Service Status"::"Sending Error", 3);
+        this.Assert.AreEqual('2', EDocumentPage."Outbound E-Doc. Factbox".HttpLog.Value(), this.IncorrectValueErr);
 
         // [Then] Check if E-Document Errors and Warnings has correct status
         this.Assert.AreEqual('Error', EDocumentPage.ErrorMessagesPart."Message Type".Value(), this.IncorrectValueErr);
@@ -292,9 +288,8 @@ codeunit 139780 "Integration Tests"
 
         //[Then] Check if e-document status is error and e-document service status is sending error
         this.Assert.AreEqual(Format(EDocument.Status::Error), EDocumentPage."Electronic Document Status".Value(), 'E-Document status is not correct');
-        this.Assert.AreEqual(Format(Enum::"E-Document Service Status"::"Sending Error"), EDocumentPage.EdocoumentServiceStatus.Status.Value(), 'E-Document service status is not correct');
-        this.Assert.AreEqual('2', EDocumentPage.EdocoumentServiceStatus.Logs.Value(), this.IncorrectValueErr);
-        this.Assert.AreEqual('1', EDocumentPage.EdocoumentServiceStatus.HttpLogs.Value(), this.IncorrectValueErr);
+        VerifyOutboundFactboxValuesForSingleService(EDocument, Enum::"E-Document Service Status"::"Sending Error", 2);
+        this.Assert.AreEqual('1', EDocumentPage."Outbound E-Doc. Factbox".HttpLog.Value(), this.IncorrectValueErr);
 
         //[Then] Check if correct error is shown in E-Document page
         this.Assert.AreEqual('Error', EDocumentPage.ErrorMessagesPart."Message Type".Value(), 'Error message type is not correct');
@@ -363,6 +358,24 @@ codeunit 139780 "Integration Tests"
         until EDocument.Next() = 0;
     end;
 
+    local procedure VerifyOutboundFactboxValuesForSingleService(EDocument: Record "E-Document"; Status: Enum "E-Document Service Status"; Logs: Integer);
+    var
+        EDocumentServiceStatus: Record "E-Document Service Status";
+        Factbox: TestPage "Outbound E-Doc. Factbox";
+    begin
+        EDocumentServiceStatus.SetRange("E-Document Entry No", EDocument."Entry No");
+        EDocumentServiceStatus.FindSet();
+        // This function is for single service, so we expect only one record
+        Assert.RecordCount(EDocumentServiceStatus, 1);
+
+        Factbox.OpenView();
+        Factbox.GoToRecord(EDocumentServiceStatus);
+
+        Assert.AreEqual(EDocumentService.Code, Factbox."E-Document Service".Value(), IncorrectValueErr);
+        Assert.AreEqual(Format(Status), Factbox.SingleStatus.Value(), IncorrectValueErr);
+        Assert.AreEqual(Format(Logs), Factbox.Log.Value(), IncorrectValueErr);
+    end;
+
     //Setup mock values
     local procedure Initialize(CreateUserCredentials: Boolean)
     begin
@@ -377,8 +390,8 @@ codeunit 139780 "Integration Tests"
             exit;
 
         this.LibraryEDocument.SetupStandardVAT();
-        this.LibraryEDocument.SetupStandardSalesScenario(this.Customer, this.EDocumentService, Enum::"E-Document Format"::"PEPPOL BIS 3.0", Enum::"E-Document Integration"::Logiq);
-        this.LibraryEDocument.SetupStandardPurchaseScenario(this.Vendor, this.EDocumentService, Enum::"E-Document Format"::"PEPPOL BIS 3.0", Enum::"E-Document Integration"::Logiq);
+        this.LibraryEDocument.SetupStandardSalesScenario(this.Customer, this.EDocumentService, Enum::"E-Document Format"::"PEPPOL BIS 3.0", Enum::"Service Integration"::Logiq);
+        this.LibraryEDocument.SetupStandardPurchaseScenario(this.Vendor, this.EDocumentService, Enum::"E-Document Format"::"PEPPOL BIS 3.0", Enum::"Service Integration"::Logiq);
 
         this.Vendor."VAT Registration No." := 'NO 777 777 777';
         this.Vendor."Receive E-Document To" := Enum::"E-Document Type"::"Purchase Invoice";
@@ -460,7 +473,7 @@ codeunit 139780 "Integration Tests"
         EDocument: Record "E-Document";
     begin
         if EDocument.FindSet() then
-            EDocument.DeleteAll(true);
+            EDocument.DeleteAll();
     end;
 
     local procedure EnterUserCredentials()
