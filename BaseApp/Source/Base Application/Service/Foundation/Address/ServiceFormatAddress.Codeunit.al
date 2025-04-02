@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Address;
 
 using Microsoft.Service.Document;
@@ -25,6 +29,8 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
             AddrArray, ServHeader.Name, ServHeader."Name 2", ServHeader."Contact Name", ServHeader.Address, ServHeader."Address 2",
             ServHeader.City, ServHeader."Post Code", ServHeader.County, ServHeader."Country/Region Code");
+
+        OnAfterServiceOrderSellto(AddrArray, ServHeader);
     end;
 
     procedure ServiceOrderShipto(var AddrArray: array[8] of Text[100]; ServHeader: Record "Service Header")
@@ -43,6 +49,8 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
             AddrArray, ServHeader."Ship-to Name", ServHeader."Ship-to Name 2", ServHeader."Ship-to Contact", ServHeader."Ship-to Address", ServHeader."Ship-to Address 2",
             ServHeader."Ship-to City", ServHeader."Ship-to Post Code", ServHeader."Ship-to County", ServHeader."Ship-to Country/Region Code");
+
+        OnAfterServiceOrderShipto(AddrArray, ServHeader);
     end;
 
     procedure ServContractSellto(var AddrArray: array[8] of Text[100]; ServContract: Record "Service Contract Header")
@@ -62,6 +70,8 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
           AddrArray, ServContract.Name, ServContract."Name 2", ServContract."Contact Name", ServContract.Address, ServContract."Address 2",
           ServContract.City, ServContract."Post Code", ServContract.County, ServContract."Country/Region Code");
+
+        OnAfterServContractSellto(AddrArray, ServContract);
     end;
 
     procedure ServContractShipto(var AddrArray: array[8] of Text[100]; ServiceContractHeader: Record "Service Contract Header")
@@ -84,6 +94,8 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
           AddrArray, ServiceContractHeader."Ship-to Name", ServiceContractHeader."Ship-to Name 2", ServiceContractHeader."Contact Name", ServiceContractHeader."Ship-to Address", ServiceContractHeader."Ship-to Address 2",
           ServiceContractHeader."Ship-to City", ServiceContractHeader."Ship-to Post Code", ServiceContractHeader."Ship-to County", ServiceContractHeader."Ship-to Country/Region Code");
+
+        OnAfterServContractShipTo(AddrArray, ServiceContractHeader);
     end;
 
     procedure ServiceInvBillTo(var AddrArray: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header")
@@ -102,6 +114,8 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
             AddrArray, ServiceInvHeader."Bill-to Name", ServiceInvHeader."Bill-to Name 2", ServiceInvHeader."Bill-to Contact", ServiceInvHeader."Bill-to Address", ServiceInvHeader."Bill-to Address 2",
             ServiceInvHeader."Bill-to City", ServiceInvHeader."Bill-to Post Code", ServiceInvHeader."Bill-to County", ServiceInvHeader."Bill-to Country/Region Code");
+
+        OnAfterServiceInvBillTo(AddrArray, ServiceInvHeader);
     end;
 
     procedure ServiceInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header") Result: Boolean
@@ -121,6 +135,9 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
             AddrArray, ServiceInvHeader."Ship-to Name", ServiceInvHeader."Ship-to Name 2", ServiceInvHeader."Ship-to Contact", ServiceInvHeader."Ship-to Address", ServiceInvHeader."Ship-to Address 2",
             ServiceInvHeader."Ship-to City", ServiceInvHeader."Ship-to Post Code", ServiceInvHeader."Ship-to County", ServiceInvHeader."Ship-to Country/Region Code");
+
+        OnAfterServiceInvShipTo(AddrArray, CustAddr, ServiceInvHeader);
+
         if ServiceInvHeader."Customer No." <> ServiceInvHeader."Bill-to Customer No." then
             exit(true);
         for i := 1 to ArrayLen(AddrArray) do
@@ -145,6 +162,8 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
             AddrArray, ServiceShptHeader."Ship-to Name", ServiceShptHeader."Ship-to Name 2", ServiceShptHeader."Ship-to Contact", ServiceShptHeader."Ship-to Address", ServiceShptHeader."Ship-to Address 2",
             ServiceShptHeader."Ship-to City", ServiceShptHeader."Ship-to Post Code", ServiceShptHeader."Ship-to County", ServiceShptHeader."Ship-to Country/Region Code");
+
+        OnAfterServiceShptShipTo(AddrArray, ServiceShptHeader);
     end;
 
     procedure ServiceShptSellTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header")
@@ -163,6 +182,8 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
             AddrArray, ServiceShptHeader.Name, ServiceShptHeader."Name 2", ServiceShptHeader."Contact Name", ServiceShptHeader.Address, ServiceShptHeader."Address 2",
             ServiceShptHeader.City, ServiceShptHeader."Post Code", ServiceShptHeader.County, ServiceShptHeader."Country/Region Code");
+
+        OnAfterServiceShptSellTo(AddrArray, ServiceShptHeader);
     end;
 
     procedure ServiceShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header") Result: Boolean
@@ -182,6 +203,9 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
             AddrArray, ServiceShptHeader."Bill-to Name", ServiceShptHeader."Bill-to Name 2", ServiceShptHeader."Bill-to Contact", ServiceShptHeader."Bill-to Address", ServiceShptHeader."Bill-to Address 2",
             ServiceShptHeader."Bill-to City", ServiceShptHeader."Bill-to Post Code", ServiceShptHeader."Bill-to County", ServiceShptHeader."Bill-to Country/Region Code");
+
+        OnAfterServiceShptBillTo(AddrArray, ShipToAddr, ServiceShptHeader);
+
         if ServiceShptHeader."Bill-to Customer No." <> ServiceShptHeader."Customer No." then
             exit(true);
         for i := 1 to ArrayLen(AddrArray) do
@@ -206,6 +230,8 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
             AddrArray, ServiceCrMemoHeader."Bill-to Name", ServiceCrMemoHeader."Bill-to Name 2", ServiceCrMemoHeader."Bill-to Contact", ServiceCrMemoHeader."Bill-to Address", ServiceCrMemoHeader."Bill-to Address 2",
             ServiceCrMemoHeader."Bill-to City", ServiceCrMemoHeader."Bill-to Post Code", ServiceCrMemoHeader."Bill-to County", ServiceCrMemoHeader."Bill-to Country/Region Code");
+
+        OnAfterServiceCrMemoBillTo(AddrArray, ServiceCrMemoHeader);
     end;
 
     procedure ServiceCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header") Result: Boolean
@@ -225,6 +251,9 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
             AddrArray, ServiceCrMemoHeader."Ship-to Name", ServiceCrMemoHeader."Ship-to Name 2", ServiceCrMemoHeader."Ship-to Contact", ServiceCrMemoHeader."Ship-to Address", ServiceCrMemoHeader."Ship-to Address 2",
             ServiceCrMemoHeader."Ship-to City", ServiceCrMemoHeader."Ship-to Post Code", ServiceCrMemoHeader."Ship-to County", ServiceCrMemoHeader."Ship-to Country/Region Code");
+
+        OnAfterServiceCrMemoShipTo(AddrArray, CustAddr, ServiceCrMemoHeader);
+
         if ServiceCrMemoHeader."Customer No." <> ServiceCrMemoHeader."Bill-to Customer No." then
             exit(true);
         for i := 1 to ArrayLen(AddrArray) do
@@ -249,6 +278,8 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
             AddrArray, ServiceHeader.Name, ServiceHeader."Name 2", ServiceHeader."Contact Name", ServiceHeader.Address, ServiceHeader."Address 2",
             ServiceHeader.City, ServiceHeader."Post Code", ServiceHeader.County, ServiceHeader."Country/Region Code");
+
+        OnAfterServiceHeaderSellTo(AddrArray, ServiceHeader);
     end;
 
     procedure ServiceHeaderBillTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header")
@@ -267,6 +298,8 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
             AddrArray, ServiceHeader."Bill-to Name", ServiceHeader."Bill-to Name 2", ServiceHeader."Bill-to Contact", ServiceHeader."Bill-to Address", ServiceHeader."Bill-to Address 2",
             ServiceHeader."Bill-to City", ServiceHeader."Bill-to Post Code", ServiceHeader."Bill-to County", ServiceHeader."Bill-to Country/Region Code");
+
+        OnAfterServiceHeaderBillTo(AddrArray, ServiceHeader);
     end;
 
     procedure ServiceHeaderShipTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header")
@@ -285,10 +318,22 @@ codeunit 6001 "Service Format Address"
         FormatAddress.FormatAddr(
             AddrArray, ServiceHeader."Ship-to Name", ServiceHeader."Ship-to Name 2", ServiceHeader."Ship-to Contact", ServiceHeader."Ship-to Address", ServiceHeader."Ship-to Address 2",
             ServiceHeader."Ship-to City", ServiceHeader."Ship-to Post Code", ServiceHeader."Ship-to County", ServiceHeader."Ship-to Country/Region Code");
+
+        OnAfterServiceHeaderShipTo(AddrArray, ServiceHeader);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceOrderSellto(var AddrArray: array[8] of Text[100]; var ServHeader: Record "Service Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceOrderSellto(var AddrArray: array[8] of Text[100]; var ServHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceOrderShipto(var AddrArray: array[8] of Text[100]; var ServHeader: Record "Service Header")
     begin
     end;
 
@@ -298,7 +343,17 @@ codeunit 6001 "Service Format Address"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterServContractSellto(var AddrArray: array[8] of Text[100]; var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeServContractSellto(var AddrArray: array[8] of Text[100]; var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterServContractShipTo(var AddrArray: array[8] of Text[100]; var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
 
@@ -308,7 +363,17 @@ codeunit 6001 "Service Format Address"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceInvBillTo(var AddrArray: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceInvBillTo(var AddrArray: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceInvHeader: Record "Service Invoice Header")
     begin
     end;
 
@@ -318,7 +383,17 @@ codeunit 6001 "Service Format Address"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceShptShipTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceShptShipTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceShptSellTo(var AddrArray: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header")
     begin
     end;
 
@@ -328,7 +403,17 @@ codeunit 6001 "Service Format Address"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ServiceShptHeader: Record "Service Shipment Header"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceCrMemoBillTo(var AddrArray: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
     end;
 
@@ -338,7 +423,17 @@ codeunit 6001 "Service Format Address"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceHeaderSellTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header")
     begin
     end;
 
@@ -348,7 +443,17 @@ codeunit 6001 "Service Format Address"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceHeaderBillTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceHeaderBillTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceHeaderShipTo(var AddrArray: array[8] of Text[100]; var ServiceHeader: Record "Service Header")
     begin
     end;
 

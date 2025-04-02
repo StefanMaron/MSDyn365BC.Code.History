@@ -12,6 +12,7 @@ table 1366 "Field Monitoring Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             DataClassification = SystemMetadata;
         }
         field(2; "Monitor Status"; Boolean)

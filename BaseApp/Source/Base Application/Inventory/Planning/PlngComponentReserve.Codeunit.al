@@ -1,12 +1,15 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Planning;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
+using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 
 codeunit 99000840 "Plng. Component-Reserve"
 {
@@ -214,39 +217,28 @@ codeunit 99000840 "Plng. Component-Reserve"
         AssignForPlanning(NewPlanningComponent);
     end;
 
-    procedure TransferPlanningCompToPOComp(var OldPlanningComponent: Record "Planning Component"; var NewProdOrderComponent: Record "Prod. Order Component"; TransferQty: Decimal; TransferAll: Boolean)
+#if not CLEAN26
+    [Obsolete('Moved to codeunit ProdOrderCompReserve', '26.0')]
+    procedure TransferPlanningCompToPOComp(var OldPlanningComponent: Record "Planning Component"; var NewProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; TransferQty: Decimal; TransferAll: Boolean)
     var
-        OldReservationEntry: Record "Reservation Entry";
+        ProdOrderCompReserve: Codeunit Microsoft.Manufacturing.Document."Prod. Order Comp.-Reserve";
     begin
-        if not FindReservEntry(OldPlanningComponent, OldReservationEntry) then
-            exit;
-
-        NewProdOrderComponent.TestItemFields(
-          OldPlanningComponent."Item No.", OldPlanningComponent."Variant Code", OldPlanningComponent."Location Code");
-
-        TransferReservations(
-          OldPlanningComponent, OldReservationEntry, TransferAll, TransferQty, NewProdOrderComponent."Qty. per Unit of Measure",
-          DATABASE::"Prod. Order Component", NewProdOrderComponent.Status.AsInteger(), NewProdOrderComponent."Prod. Order No.",
-          '', NewProdOrderComponent."Prod. Order Line No.", NewProdOrderComponent."Line No.");
+        ProdOrderCompReserve.TransferPlanningCompToPOComp(OldPlanningComponent, NewProdOrderComponent, TransferQty, TransferAll);
     end;
+#endif
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit AssemblyLineReserve', '26.0')]
     procedure TransferPlanningCompToAsmLine(var OldPlanningComponent: Record "Planning Component"; var NewAssemblyLine: Record "Assembly Line"; TransferQty: Decimal; TransferAll: Boolean)
     var
         OldReservationEntry: Record "Reservation Entry";
+        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
     begin
-        if not FindReservEntry(OldPlanningComponent, OldReservationEntry) then
-            exit;
-
-        NewAssemblyLine.TestItemFields(
-          OldPlanningComponent."Item No.", OldPlanningComponent."Variant Code", OldPlanningComponent."Location Code");
-
-        TransferReservations(
-          OldPlanningComponent, OldReservationEntry, TransferAll, TransferQty, NewAssemblyLine."Qty. per Unit of Measure",
-          DATABASE::"Assembly Line", NewAssemblyLine."Document Type".AsInteger(), NewAssemblyLine."Document No.",
-          '', 0, NewAssemblyLine."Line No.");
+        AssemblyLineReserve.TransferPlanningCompToAsmLine(OldPlanningComponent, NewAssemblyLine, TransferQty, TransferAll);
     end;
+#endif
 
-    local procedure TransferReservations(var OldPlanningComponent: Record "Planning Component"; var OldReservationEntry: Record "Reservation Entry"; TransferAll: Boolean; TransferQty: Decimal; QtyPerUOM: Decimal; SrcType: Integer; SrcSubtype: Option; SrcID: Code[20]; SrcBatchName: Code[10]; SrcProdOrderLine: Integer; SrcRefNo: Integer)
+    procedure TransferReservations(var OldPlanningComponent: Record "Planning Component"; var OldReservationEntry: Record "Reservation Entry"; TransferAll: Boolean; TransferQty: Decimal; QtyPerUOM: Decimal; SrcType: Integer; SrcSubtype: Option; SrcID: Code[20]; SrcBatchName: Code[10]; SrcProdOrderLine: Integer; SrcRefNo: Integer)
     var
         NewReservationEntry: Record "Reservation Entry";
         ReservStatus: Enum "Reservation Status";
@@ -304,16 +296,13 @@ codeunit 99000840 "Plng. Component-Reserve"
 
         ReservationEntry.SetFilter("Shipment Date", '<>%1', PlanningComponent."Due Date");
         case PlanningComponent."Ref. Order Type" of
-            PlanningComponent."Ref. Order Type"::"Prod. Order":
-                ReservationEntry.SetSourceFilter(
-                    DATABASE::"Prod. Order Component", PlanningComponent."Ref. Order Status".AsInteger(),
-                    PlanningComponent."Ref. Order No.", PlanningComponent."Line No.", false);
             PlanningComponent."Ref. Order Type"::Assembly:
                 ReservationEntry.SetSourceFilter(
                     DATABASE::"Assembly Line", PlanningComponent."Ref. Order Status".AsInteger(),
                     PlanningComponent."Ref. Order No.", PlanningComponent."Line No.", false);
         end;
         ReservationEntry.SetRange("Source Prod. Order Line", PlanningComponent."Ref. Order Line No.");
+        OnUpdateDerivedTrackingOnAfterSetReservationEntryFilters(ReservationEntry, PlanningComponent);
         if ReservationEntry.FindSet() then
             repeat
                 ReservationEntry2 := ReservationEntry;
@@ -638,7 +627,6 @@ codeunit 99000840 "Plng. Component-Reserve"
     local procedure ReservationEntryOnUpdateSourceCost(ReservationEntry: Record "Reservation Entry"; UnitCost: Decimal)
     var
         PlanningComponent: Record "Planning Component";
-        QtyReserved: Decimal;
     begin
         if MatchThisTable(ReservationEntry."Source Type") then begin
             PlanningComponent.Get(
@@ -649,7 +637,7 @@ codeunit 99000840 "Plng. Component-Reserve"
             if PlanningComponent."Expected Quantity (Base)" <> 0 then
                 PlanningComponent."Unit Cost" :=
                     Round(
-                        (PlanningComponent."Unit Cost" * (PlanningComponent."Expected Quantity (Base)" - QtyReserved) + UnitCost * QtyReserved) /
+                        (PlanningComponent."Unit Cost" * (PlanningComponent."Expected Quantity (Base)")) /
                          PlanningComponent."Expected Quantity (Base)", 0.00001);
             if PlanningComponent."Qty. per Unit of Measure" <> 0 then
                 PlanningComponent."Unit Cost" :=
@@ -661,6 +649,11 @@ codeunit 99000840 "Plng. Component-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateReservationOnBeforeCreateReservEntry(var PlanningComponent: Record "Planning Component"; var Quantity: Decimal; var QuantityBase: Decimal; var ReservationEntry: Record "Reservation Entry"; var FromTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; ExpectedReceiptDate: Date; Description: Text[100]; ShipmentDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateDerivedTrackingOnAfterSetReservationEntryFilters(var ReservationEntry: Record "Reservation Entry"; PlanningComponent: Record "Planning Component")
     begin
     end;
 }

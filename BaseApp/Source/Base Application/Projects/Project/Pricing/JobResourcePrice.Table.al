@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA28 
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -19,7 +20,7 @@ table 1012 "Job Resource Price"
     ObsoleteTag = '16.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '26.0';
+    ObsoleteTag = '28.0';
 #endif    
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
     DataClassification = CustomerContent;
@@ -206,3 +207,5 @@ table 1012 "Job Resource Price"
     end;
 }
 
+ 
+#endif

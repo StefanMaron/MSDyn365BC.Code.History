@@ -634,7 +634,6 @@ report 1309 "Standard Sales - Return Rcpt."
 
     trigger OnInitReport()
     var
-        ReturnReceiptHeader: Record "Return Receipt Header";
         IsHandled: Boolean;
     begin
         GLSetup.Get();
@@ -642,19 +641,11 @@ report 1309 "Standard Sales - Return Rcpt."
         CompanyInfo.Get();
         SalesSetup.Get();
 
-        if ReturnReceiptHeader.GetLegalStatement() <> '' then
-            LegalStatementLbl := ReturnReceiptHeader.GetLegalStatement();
+        if SalesSetup.GetLegalStatement() <> '' then
+            LegalStatementLbl := SalesSetup.GetLegalStatement();
 
         IsHandled := false;
         OnInitReportForGlobalVariable(IsHandled, LegalOfficeTxt, LegalOfficeLbl, CustomGiroTxt, CustomGiroLbl, LegalStatementLbl);
-#if not CLEAN23
-        if not IsHandled then begin
-            LegalOfficeTxt := CompanyInfo.GetLegalOffice();
-            LegalOfficeLbl := CompanyInfo.GetLegalOfficeLbl();
-            CustomGiroTxt := CompanyInfo.GetCustomGiro();
-            CustomGiroLbl := CompanyInfo.GetCustomGiroLbl();
-        end;
-#endif
     end;
 
     trigger OnPostReport()
@@ -699,7 +690,6 @@ report 1309 "Standard Sales - Return Rcpt."
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
         CustAddr: array[8] of Text[100];
-        CompanyAddr: array[8] of Text[100];
         SalesPersonText: Text[50];
         FormattedQuantity: Text;
         MoreLines: Boolean;
@@ -748,6 +738,7 @@ report 1309 "Standard Sales - Return Rcpt."
     protected var
         CompanyInfo: Record "Company Information";
         ShipToAddr: array[8] of Text[100];
+        CompanyAddr: array[8] of Text[100];
         HideLinesWithZeroQuantity: Boolean;
 
     local procedure InitLogInteraction()

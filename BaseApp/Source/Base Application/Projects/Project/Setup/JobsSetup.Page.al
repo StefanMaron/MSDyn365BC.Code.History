@@ -112,7 +112,7 @@ page 463 "Jobs Setup"
                 field("Archive Orders"; Rec."Archive Jobs")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies if you want to automatically archive projects.';
+                    ToolTip = 'Specifies if you want to automatically archive projects when: deleted, status changed, when project or project task quote sent to customer or related sales invoice posted.';
                 }
             }
         }

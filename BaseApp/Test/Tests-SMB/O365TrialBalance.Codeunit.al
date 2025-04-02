@@ -27,6 +27,7 @@ codeunit 138029 "O365 Trial Balance"
         TrialBalanceCacheInfo: Record "Trial Balance Cache Info";
         TrialBalanceCache: Record "Trial Balance Cache";
         TrialBalanceMgt: Codeunit "Trial Balance Mgt.";
+        TrialBalanceCacheMgt: Codeunit "Trial Balance Cache Mgt.";
         TrialBalance: TestPage "Trial Balance";
         Descriptions: array[9] of Text[80];
         Values: array[9, 2] of Decimal;
@@ -41,6 +42,8 @@ codeunit 138029 "O365 Trial Balance"
         TrialBalanceCache.DeleteAll();
 
         // [WHEN] Opening the Trial Balance page
+        TrialBalanceMgt.LoadData(Descriptions, Values, PeriodCaptionTxt, 2);
+        TrialBalanceCacheMgt.SaveToCache(Descriptions, Values, PeriodCaptionTxt);
         TrialBalance.OpenEdit();
 
         // [THEN] the Trial Balance opens with no errors and shows a single column
@@ -113,9 +116,16 @@ codeunit 138029 "O365 Trial Balance"
     [Scope('OnPrem')]
     procedure TestDrillDownOnGLAccounts()
     var
+        TrialBalanceMgt: Codeunit "Trial Balance Mgt.";
+        TrialBalanceCacheMgt: Codeunit "Trial Balance Cache Mgt.";
         TrialBalance: TestPage "Trial Balance";
+        Descriptions: array[9] of Text[80];
+        Values: array[9, 2] of Decimal;
+        PeriodCaptionTxt: array[2] of Text;
     begin
         Initialize();
+        TrialBalanceMgt.LoadData(Descriptions, Values, PeriodCaptionTxt, 2);
+        TrialBalanceCacheMgt.SaveToCache(Descriptions, Values, PeriodCaptionTxt);
         TrialBalance.OpenEdit();
 
         // Test drill down on GL Accounts
@@ -160,9 +170,16 @@ codeunit 138029 "O365 Trial Balance"
     [Scope('OnPrem')]
     procedure TestDrillDownOnFormulas()
     var
+        TrialBalanceMgt: Codeunit "Trial Balance Mgt.";
+        TrialBalanceCacheMgt: Codeunit "Trial Balance Cache Mgt.";
         TrialBalance: TestPage "Trial Balance";
+        Descriptions: array[9] of Text[80];
+        Values: array[9, 2] of Decimal;
+        PeriodCaptionTxt: array[2] of Text;
     begin
         Initialize();
+        TrialBalanceMgt.LoadData(Descriptions, Values, PeriodCaptionTxt, 2);
+        TrialBalanceCacheMgt.SaveToCache(Descriptions, Values, PeriodCaptionTxt);
         TrialBalance.OpenEdit();
 
         // Test drill down on Formulas
@@ -208,12 +225,19 @@ codeunit 138029 "O365 Trial Balance"
     procedure TestNoErrorsOnEmptyAccountingPeriod()
     var
         AccountingPeriod: Record "Accounting Period";
+        TrialBalanceMgt: Codeunit "Trial Balance Mgt.";
+        TrialBalanceCacheMgt: Codeunit "Trial Balance Cache Mgt.";
         TrialBalance: TestPage "Trial Balance";
+        Descriptions: array[9] of Text[80];
+        Values: array[9, 2] of Decimal;
+        PeriodCaptionTxt: array[2] of Text;
     begin
         // [SCENARIO] Trial Balance handles lack of accounting periods gracefully.
         Initialize();
 
         // [GIVEN] No Accounting periods
+        TrialBalanceMgt.LoadData(Descriptions, Values, PeriodCaptionTxt, 2);
+        TrialBalanceCacheMgt.SaveToCache(Descriptions, Values, PeriodCaptionTxt);
         AccountingPeriod.DeleteAll();
 
         // [WHEN] Opening the Trial Balance page

@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA25 
 namespace Microsoft.Purchases.Payables;
 
 using Microsoft.Finance.Currency;
@@ -124,14 +125,6 @@ table 372 "Payment Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Remit Address".Code where("Vendor No." = field("Vendor No."));
         }
-        field(13650; "Giro Acc. No."; Code[8])
-        {
-            Caption = 'Giro Acc. No.';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Moved to Payment and Reconciliation Formats (DK) extension to field name: GiroAccNo';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys
@@ -189,3 +182,5 @@ table 372 "Payment Buffer"
     end;
 }
 
+ 
+#endif

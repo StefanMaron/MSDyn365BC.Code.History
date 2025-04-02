@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA26 
 namespace System.Integration.PowerBI;
 
 /// <summary>
@@ -8,13 +9,8 @@ table 6301 "Power BI Report Configuration"
     Caption = 'Power BI Report Configuration';
     ReplicateData = false;
     ObsoleteReason = 'Use table Power BI Selected Elements instead. The new table supports multiple types of embedded elements.';
-#if not CLEAN23
-    ObsoleteState = Pending;
-    ObsoleteTag = '23.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '26.0';
-#endif
     DataClassification = CustomerContent;
 
     fields
@@ -34,15 +30,6 @@ table 6301 "Power BI Report Configuration"
             Caption = 'Context';
             Description = 'Identifies the page, role center, or other host container the report is selected for.';
             DataClassification = CustomerContent;
-        }
-        field(4; EmbedUrl; Text[250])
-        {
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The field has been extended to a bigger field. Use ReportEmbedUrl field instead.';
-            Caption = 'EmbedUrl';
-            DataClassification = CustomerContent;
-            Description = 'Cached display URL.';
-            ObsoleteTag = '19.0';
         }
         field(5; ReportName; Text[200])
         {
@@ -88,66 +75,6 @@ table 6301 "Power BI Report Configuration"
     fieldgroups
     {
     }
-
-#if not CLEAN23
-    trigger OnInsert()
-    var
-        PowerBIDisplayedElement: Record "Power BI Displayed Element";
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        if PowerBIDisplayedElement.Get(Rec."User Security ID", Rec."Report ID", Rec.Context) then
-            exit;
-
-        PowerBIDisplayedElement.Init();
-        PowerBIDisplayedElement.UserSID := Rec."User Security ID";
-        PowerBIDisplayedElement.Context := Rec.Context;
-        PowerBIDisplayedElement.ElementId := Format(Rec."Report ID");
-        PowerBIDisplayedElement.ElementType := PowerBIDisplayedElement.ElementType::Report;
-        PowerBIDisplayedElement.ElementEmbedUrl := Rec.ReportEmbedUrl;
-        PowerBIDisplayedElement.ElementName := Rec.ReportName;
-        PowerBIDisplayedElement.WorkspaceID := Rec."Workspace ID";
-        PowerBIDisplayedElement.WorkspaceName := Rec."Workspace Name";
-        PowerBIDisplayedElement.ReportPage := Rec."Report Page";
-        PowerBIDisplayedElement.ShowPanesInExpandedMode := Rec."Show Panes";
-        PowerBIDisplayedElement.ShowPanesInNormalMode := Rec."Show Panes";
-        PowerBIDisplayedElement.Insert();
-    end;
-
-    trigger OnModify()
-    var
-        PowerBIDisplayedElement: Record "Power BI Displayed Element";
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        if not PowerBIDisplayedElement.Get(Rec."User Security ID", Rec.Context, Format(Rec."Report ID"), Enum::"Power BI Element Type"::Report) then
-            exit;
-
-        PowerBIDisplayedElement.UserSID := Rec."User Security ID";
-        PowerBIDisplayedElement.Context := Rec.Context;
-        PowerBIDisplayedElement.ElementId := Format(Rec."Report ID");
-        PowerBIDisplayedElement.ElementType := PowerBIDisplayedElement.ElementType::Report;
-        PowerBIDisplayedElement.ElementEmbedUrl := Rec.ReportEmbedUrl;
-        PowerBIDisplayedElement.ElementName := Rec.ReportName;
-        PowerBIDisplayedElement.WorkspaceID := Rec."Workspace ID";
-        PowerBIDisplayedElement.WorkspaceName := Rec."Workspace Name";
-        PowerBIDisplayedElement.ReportPage := Rec."Report Page";
-        PowerBIDisplayedElement.ShowPanesInExpandedMode := Rec."Show Panes";
-        PowerBIDisplayedElement.ShowPanesInNormalMode := Rec."Show Panes";
-        PowerBIDisplayedElement.Modify();
-    end;
-
-    trigger OnDelete()
-    var
-        PowerBIDisplayedElement: Record "Power BI Displayed Element";
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        if PowerBIDisplayedElement.Get(Rec."User Security ID", Rec.Context, Format(Rec."Report ID"), Enum::"Power BI Element Type"::Report) then
-            PowerBIDisplayedElement.Delete();
-    end;
-#endif
 }
+
+#endif

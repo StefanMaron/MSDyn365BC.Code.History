@@ -132,9 +132,6 @@ permissionset 8322 "Service Documents - Post"
                   tabledata "Interaction Tmpl. Language" = R,
                   tabledata "Inventory Posting Group" = r,
                   tabledata "Inventory Posting Setup" = R,
-#if not CLEAN23
-                  tabledata "Invoice Post. Buffer" = RIMD,
-#endif
                   tabledata "Invoice Posting Buffer" = RIMD,
                   tabledata Item = Rm,
                   tabledata "Item Analysis View" = rIM,

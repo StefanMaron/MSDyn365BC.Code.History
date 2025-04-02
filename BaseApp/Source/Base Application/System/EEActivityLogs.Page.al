@@ -31,6 +31,12 @@ page 3302 "EE Activity Logs"
                     Caption = 'Creeated at';
                     ToolTip = 'Specifies creation time';
                 }
+                field(CompanyName; Rec."Company Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Company Name';
+                    ToolTip = 'Specifies Company Name';
+                }
                 field(ActivityMessage; Rec."Activity Message")
                 {
                     ApplicationArea = Basic, Suite;

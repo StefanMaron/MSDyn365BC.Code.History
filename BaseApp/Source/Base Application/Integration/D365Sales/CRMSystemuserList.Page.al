@@ -351,10 +351,10 @@ page 5340 "CRM Systemuser List"
         TeamMember: Option No,Yes;
         Coupled: Option Yes,No,Current;
         FirstColumnStyle: Text;
-        AddScheduledCoupledUsersToTeamQst: Label 'New salespersons are scheduled to be coupled.\\Do you want to add the users they are coupled with in Dataverse to the default owning team so that they can access the synchronized data?';
-        AddRecentlyCoupledUsersToTeamQst: Label 'Users in Dataverse were linked to salespersons.\\ Do you want to add them to the default owning team so that they can access the synchronized data?';
+        AddScheduledCoupledUsersToTeamQst: Label 'New salespeople are scheduled to be coupled.\\Do you want to add the users they are coupled with in Dataverse to the default owning team so that they can access the synchronized data?';
+        AddRecentlyCoupledUsersToTeamQst: Label 'Users in Dataverse were linked to salespeople.\\ Do you want to add them to the default owning team so that they can access the synchronized data?';
         ClosePageCoupledUserNotInTeamTxt: Label 'Some coupled users are not added to the default owning team in Dataverse and might not have access to synchronized data.\\Do you want to add them now?';
-        ClosePageUncoupledUserTxt: Label 'No Salespersons were scheduled for coupling.\\Are you sure you would like to exit?';
+        ClosePageUncoupledUserTxt: Label 'No Salespeople were scheduled for coupling.\\Are you sure you want to exit?';
         NoSelectedUserErr: Label 'No record has been selected for uncoupling.';
         UserIsNotCoupledErr: Label 'The user/s %1is/are not coupled. The uncoupling action for those users will be skipped.', Comment = '%1- A list of CRMSystemuser full names';
         ShowCouplingControls: Boolean;

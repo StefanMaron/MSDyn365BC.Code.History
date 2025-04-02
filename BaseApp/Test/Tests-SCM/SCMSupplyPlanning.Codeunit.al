@@ -6316,7 +6316,7 @@ codeunit 137054 "SCM Supply Planning"
     var
         BOMComponent: Record "BOM Component";
     begin
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, BOMComponent.Type::Item, ChildItemNo, QuantityPer, '');
+        LibraryInventory.CreateBOMComponent(BOMComponent, ParentItemNo, BOMComponent.Type::Item, ChildItemNo, QuantityPer, '');
     end;
 
     local procedure CreateProdOrderComponent(ProductionOrder: Record "Production Order"; ItemNo: Code[20])

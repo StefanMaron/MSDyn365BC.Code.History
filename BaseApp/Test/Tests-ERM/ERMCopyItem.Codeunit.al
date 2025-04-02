@@ -18,7 +18,6 @@ codeunit 134462 "ERM Copy Item"
         LibraryERM: Codeunit "Library - ERM";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryResource: Codeunit "Library - Resource";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -1655,7 +1654,7 @@ codeunit 134462 "ERM Copy Item"
     var
         BOMComponent: Record "BOM Component";
     begin
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ParentItemNo, BOMComponent.Type::Item, Item."No.", QuantityPer, Item."Base Unit of Measure");
     end;
 
@@ -1685,8 +1684,8 @@ codeunit 134462 "ERM Copy Item"
     var
         ExtendedTextHeader: Record "Extended Text Header";
     begin
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
     end;
 
     local procedure CreateItemAttributeMappedToItem(ItemNo: Code[20])
@@ -1923,7 +1922,7 @@ codeunit 134462 "ERM Copy Item"
           ExtendedTextLine."Line No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifyPurchasePrice(PurchasePrice: Record "Purchase Price"; ItemNo: Code[20])
     var
         PurchasePrice2: Record "Purchase Price";

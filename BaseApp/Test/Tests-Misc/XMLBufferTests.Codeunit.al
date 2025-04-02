@@ -250,6 +250,32 @@ codeunit 139200 "XML Buffer Tests"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CreateAttributeValueWithLengthOver250Characters()
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        LibraryRandom: Codeunit "Library - Random";
+        RootNodeName: Text[250];
+        AttributeName: Text[250];
+        AttributeValue: Text;
+        NamespacePrefix: array[2] of Text[250];
+        NamespacePath: array[2] of Text[250];
+    begin
+        // [GIVEN] An XML Buffer root element
+        CreateRootNode(TempXMLBuffer, 2, false, RootNodeName, NamespacePrefix, NamespacePath);
+        // [WHEN] Adding an XML element with value longer than 250 characters
+        AttributeName := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(10, 0), 1, 250);
+        AttributeValue := LibraryRandom.RandText(300);
+        TempXMLBuffer.AddAttribute(AttributeName, AttributeValue);
+
+        // [THEN] The XML Buffer root node has one child with the same name and value
+        Assert.AreEqual(3, TempXMLBuffer.CountAttributes(), 'Incorrect number of child nodes');
+
+        // Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'Child name mismatch.');
+        Assert.AreEqual(AttributeValue, TempXMLBuffer.GetAttributeValueAsText(AttributeName), 'Attribute value mismatch.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CreateElementProcessingInstructionValueWithLengthOver250Characters()
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
@@ -617,7 +643,7 @@ codeunit 139200 "XML Buffer Tests"
 
         // [THEN] The xml text elements and attributes have been inserted into proper XML Buffer records
         Assert.AreEqual('RootElement', XMLBuffer.Name, '');
-        Assert.AreEqual('namespaceURI', XMLBuffer.GetAttributeValue('xmlns'), '');
+        Assert.AreEqual('namespaceURI', XMLBuffer.GetAttributeValueAsText('xmlns'), '');
         Assert.AreEqual(1, XMLBuffer.CountChildElements(), 'There should be exactly one child element.');
     end;
 
@@ -756,7 +782,7 @@ codeunit 139200 "XML Buffer Tests"
         Namespace: Text[250];
     begin
         // [FEATURE] [UT]
-        // [SCENARIO 374587] The "XML Buffer".GetNamespaceUriByPrefix must return the uri independs of "Parent Entry No."
+        // [SCENARIO 374587] The "XML Buffer".GetNamespaceUriByPrefixAsText must return the uri independs of "Parent Entry No."
 
         // [GIVEN] Namespace with prefix 'namespace1' and uri = 'uri1'
         XMLBuffer.AddNamespace('namespace1', 'uri1');
@@ -764,8 +790,8 @@ codeunit 139200 "XML Buffer Tests"
         // [GIVEN] Set filter on XMLBuffer by "Parent Entry No."
         XMLBuffer.SetRange("Parent Entry No.", LibraryRandom.RandIntInRange(3, 5));
 
-        // [WHEN] Invoke GetNamespaceUriByPrefix for 'namespace1'
-        Namespace := XMLBuffer.GetNamespaceUriByPrefix('namespace1');
+        // [WHEN] Invoke GetNamespaceUriByPrefixAsText for 'namespace1'
+        Namespace := XMLBuffer.GetNamespaceUriByPrefixAsText('namespace1');
 
         // [THEN] Result must be equal 'uri1'
         Assert.AreEqual('uri1', Namespace, WrongNamespaceUriErr);
@@ -875,7 +901,7 @@ codeunit 139200 "XML Buffer Tests"
                 TempChildrenXMLBuffer.Next();
                 Assert.AreEqual('xmlns:' + NamespacePrefix[2], TempChildrenXMLBuffer.Name, '');
                 Assert.AreEqual(NamespacePath[2], TempChildrenXMLBuffer.Value, '');
-                Assert.AreEqual(NamespacePath[2], TempXMLBuffer.GetAttributeValue('xmlns:' + NamespacePrefix[2]), '');
+                Assert.AreEqual(NamespacePath[2], TempXMLBuffer.GetAttributeValueAsText('xmlns:' + NamespacePrefix[2]), '');
             end;
         end;
     end;

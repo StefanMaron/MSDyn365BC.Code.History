@@ -444,9 +444,9 @@ page 5330 "CRM Connection Setup"
             action(CoupleUsers)
             {
                 ApplicationArea = Suite;
-                Caption = 'Couple Salespersons';
+                Caption = 'Couple Salespeople';
                 Image = CoupledUsers;
-                ToolTip = 'Open the list of users in Dynamics 365 Sales for manual coupling to salespersons in Business Central.';
+                ToolTip = 'Open the list of users in Dynamics 365 Sales to manually couple them to salespeople in Business Central.';
 
                 trigger OnAction()
                 var

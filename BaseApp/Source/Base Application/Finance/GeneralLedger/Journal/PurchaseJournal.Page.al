@@ -1572,8 +1572,6 @@ page 254 "Purchase Journal"
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ApprovalMgmt: Codeunit "Approvals Mgmt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        AccName: Text[100];
-        BalAccName: Text[100];
         GenJnlBatchApprovalStatus: Text[20];
         GenJnlLineApprovalStatus: Text[20];
         Balance: Decimal;
@@ -1617,6 +1615,8 @@ page 254 "Purchase Journal"
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
+        AccName: Text[100];
+        BalAccName: Text[100];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

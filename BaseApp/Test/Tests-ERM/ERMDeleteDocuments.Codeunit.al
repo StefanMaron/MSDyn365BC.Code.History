@@ -28,9 +28,9 @@ codeunit 134417 "ERM Delete Documents"
         SalesDocDeletionErr: Label 'You cannot delete posted sales documents that are posted after %1.';
         PurchDocDeletionErr: Label 'You cannot delete posted purchase documents that are posted after %1.';
         DocumentStillExistsErr: Label 'The document still exists', Locked = true;
-        TestFieldErr: Label '%1 must have a value in %2';
-        TestFieldCodeErr: Label 'TestField';
         CannotDeleteSalesOrderLineErr: Label 'You cannot delete the order line because it is associated with purchase order %1 line %2';
+        AllowSalesDocumentDeletionBeforeBlankErr: Label 'The date %1 must be set on the page %2 before deleting sales documents.', Comment = '%1 = Field name, %2 = Page name';
+        AllowPurchaseDocumentDeletionBeforeBlankErr: Label 'The date %1 must be set on the page %2 before deleting purchase documents.', Comment = '%1 = Field name, %2 = Page name';
 
     [Test]
     [Scope('OnPrem')]
@@ -527,9 +527,8 @@ codeunit 134417 "ERM Delete Documents"
         asserterror SalesInvoiceHeader.Delete(true);
         // [THEN] Error "Allow Document Deletion Before must have a value in Sales & Receivables Setup"
         Assert.ExpectedError(
-          StrSubstNo(TestFieldErr, SalesReceivablesSetup.FieldCaption("Allow Document Deletion Before"),
+          StrSubstNo(AllowSalesDocumentDeletionBeforeBlankErr, SalesReceivablesSetup.FieldCaption("Allow Document Deletion Before"),
             SalesReceivablesSetup.TableCaption()));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
     end;
 
     [Test]
@@ -594,9 +593,8 @@ codeunit 134417 "ERM Delete Documents"
         asserterror SalesCrMemoHeader.Delete(true);
         // [THEN] Error "Allow Document Deletion Before must have a value in Sales & Receivables Setup"
         Assert.ExpectedError(
-          StrSubstNo(TestFieldErr, SalesReceivablesSetup.FieldCaption("Allow Document Deletion Before"),
+          StrSubstNo(AllowSalesDocumentDeletionBeforeBlankErr, SalesReceivablesSetup.FieldCaption("Allow Document Deletion Before"),
             SalesReceivablesSetup.TableCaption()));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
     end;
 
     [Test]
@@ -661,9 +659,8 @@ codeunit 134417 "ERM Delete Documents"
         asserterror PurchInvHeader.Delete(true);
         // [THEN] Error "Allow Document Deletion Before must have a value in Purchases & Payables Setup"
         Assert.ExpectedError(
-          StrSubstNo(TestFieldErr, PurchasesPayablesSetup.FieldCaption("Allow Document Deletion Before"),
+          StrSubstNo(AllowPurchaseDocumentDeletionBeforeBlankErr, PurchasesPayablesSetup.FieldCaption("Allow Document Deletion Before"),
             PurchasesPayablesSetup.TableCaption()));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
     end;
 
     [Test]
@@ -728,9 +725,8 @@ codeunit 134417 "ERM Delete Documents"
         asserterror PurchCrMemoHdr.Delete(true);
         // [THEN] Error "Allow Document Deletion Before must have a value in Purchases & Payables Setup"
         Assert.ExpectedError(
-          StrSubstNo(TestFieldErr, PurchasesPayablesSetup.FieldCaption("Allow Document Deletion Before"),
+          StrSubstNo(AllowPurchaseDocumentDeletionBeforeBlankErr, PurchasesPayablesSetup.FieldCaption("Allow Document Deletion Before"),
             PurchasesPayablesSetup.TableCaption()));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
     end;
 
     [Test]
@@ -802,8 +798,7 @@ codeunit 134417 "ERM Delete Documents"
         asserterror PurchRcptHeader[2].Delete(true);
 
         // [THEN] Error "Allow Document Deletion Before must have a value in Purchases & Payables Setup"
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, PurchaseSetup.FieldCaption("Allow Document Deletion Before"), PurchaseSetup.TableCaption()));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedError(StrSubstNo(AllowPurchaseDocumentDeletionBeforeBlankErr, PurchaseSetup.FieldCaption("Allow Document Deletion Before"), PurchaseSetup.TableCaption()));
     end;
 
     [Test]
@@ -868,8 +863,7 @@ codeunit 134417 "ERM Delete Documents"
         asserterror ReturnShipmentHeader[2].Delete(true);
 
         // [THEN] Error "Allow Document Deletion Before must have a value in Purchases & Payables Setup"
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, PurchaseSetup.FieldCaption("Allow Document Deletion Before"), PurchaseSetup.TableCaption()));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedError(StrSubstNo(AllowPurchaseDocumentDeletionBeforeBlankErr, PurchaseSetup.FieldCaption("Allow Document Deletion Before"), PurchaseSetup.TableCaption()));
     end;
 
     [Test]
@@ -934,8 +928,7 @@ codeunit 134417 "ERM Delete Documents"
         asserterror SalesShipmentHeader[2].Delete(true);
 
         // [THEN] Error "Allow Document Deletion Before must have a value in Sales & Receivables Setup"
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, SalesSetup.FieldCaption("Allow Document Deletion Before"), SalesSetup.TableCaption()));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedError(StrSubstNo(AllowSalesDocumentDeletionBeforeBlankErr, SalesSetup.FieldCaption("Allow Document Deletion Before"), SalesSetup.TableCaption()));
     end;
 
     [Test]
@@ -1006,8 +999,7 @@ codeunit 134417 "ERM Delete Documents"
         asserterror ReturnReceiptHeader[2].Delete(true);
 
         // [THEN] Error "Allow Document Deletion Before must have a value in Sales & Receivables Setup"
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, SalesSetup.FieldCaption("Allow Document Deletion Before"), SalesSetup.TableCaption()));
-        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedError(StrSubstNo(AllowSalesDocumentDeletionBeforeBlankErr, SalesSetup.FieldCaption("Allow Document Deletion Before"), SalesSetup.TableCaption()));
     end;
 
     [Test]

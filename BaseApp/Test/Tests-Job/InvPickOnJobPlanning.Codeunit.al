@@ -323,7 +323,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         JobCard."Put-away/Pick Lines/Movement Lines".Invoke();
 
         LibraryVariableStorage.Enqueue(QtyToUse); // Qty. to Handle
-        WarehouseActivityLines.Card.Invoke();
+        WarehouseActivityLines.ShowDocument.Invoke();
 
         WarehouseActivityLines.Close();
 

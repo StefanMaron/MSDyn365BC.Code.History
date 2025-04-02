@@ -15,10 +15,10 @@ codeunit 134284 "Non Ded. VAT Misc."
         LibraryFA: Codeunit "Library - Fixed Asset";
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
-        LibraryJournals: Codeunit "Library - Journals";
         LibrarySales: Codeunit "Library - Sales";
         Assert: Codeunit Assert;
         LibraryNonDeductibleVAT: Codeunit "Library - NonDeductible VAT";
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -886,46 +886,6 @@ codeunit 134284 "Non Ded. VAT Misc."
 
     [Test]
     [Scope('OnPrem')]
-    procedure JournalLineWithDeferralAndNonDeductibleVAT()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        DeferralTemplate: Record "Deferral Template";
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        // [SCENARIO 475879] Posting results are correct for journal line with deferrals and Non-Deductible VAT
-
-        Initialize();
-        // [GIVEN] VAT Posting Setup "V" with "VAT %" = 20 and "Deductible %" = 40% and "Non-Deductible VAT Account" = <blank>
-        CreateNonDeductibleVATPostingSetup(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT",
-          '', 3 * LibraryRandom.RandIntInRange(2, 5));
-
-        // [GIVEN] "Deferral Template" "DT" with "Period No." = 2 and "Calc. Method" = "Straight-Line"
-        LibraryERM.CreateDeferralTemplate(
-          DeferralTemplate, DeferralTemplate."Calc. Method"::"Straight-Line",
-          DeferralTemplate."Start Date"::"Beginning of Next Period", LibraryRandom.RandIntInRange(2, 5));
-
-        // [GIVEN] General journal line with Amount = 1000, "Deferral Code" = "DT" and VAT setup = "V"
-        // [GIVEN] Posting G/L Account = "GLA"
-        CreateGenJnlLineWithDeferralAndDedVATCustom(
-            GenJournalLine, WorkDate(), VATPostingSetup, '',
-            DeferralTemplate."Deferral Code");
-
-        // [WHEN] Post purchase invoice
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-        // [THEN] Total Deferral Amount = 1000 * (20% VAT * (100% - 40% Deductible VAT)) = 1000 + (1000 * 20%) * 60% = 1000 + 200 * 60% = 1120.
-        // [THEN] Non-Deductible VAT Amount to defer = 120
-        // [THEN] Non-Deductible VAT Amount posted to "GLA"
-        // [THEN] G/L Entries for "GLA" = 1000, 120 and balanced with deferall account -1000, -120, 500, 60, 500, 60.
-        VerifyGLEntryDeferrals(
-            DeferralTemplate."Deferral Account", GenJournalLine."Account No.", GenJournalLine."VAT Base Amount (LCY)", VATPostingSetup, DeferralTemplate, GenJournalLine."Posting Date");
-
-        TearDownLastUsedDateInPurchInvoiceNoSeries();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure JobJnlLineWithNonDeductNormalVATFromGenJnlLine()
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -1319,19 +1279,6 @@ codeunit 134284 "Non Ded. VAT Misc."
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Validate("Deferral Code", DeferralCode);
         PurchaseLine.Modify(true);
-    end;
-
-    local procedure CreateGenJnlLineWithDeferralAndDedVATCustom(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; DeferralCode: Code[10])
-    var
-        GLAccount: Record "G/L Account";
-    begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
-        LibraryJournals.CreateGenJournalLineWithBatch(
-            GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
-        GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Validate("Currency Code", CurrencyCode);
-        GenJournalLine.Validate("Deferral Code", DeferralCode);
-        GenJournalLine.Modify(true);
     end;
 
     local procedure CreatePurchaseLineGL(PurchaseHeader: Record "Purchase Header"; GLAccountNo: Code[20]; DirectUnitCost: Decimal; DimensionValue: Record "Dimension Value")

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Costing;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -57,6 +61,7 @@ codeunit 5802 "Inventory Posting To G/L"
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         DimMgt: Codeunit DimensionManagement;
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         COGSAmt: Decimal;
         InvtAdjmtAmt: Decimal;
         DirCostAmt: Decimal;
@@ -199,6 +204,13 @@ codeunit 5802 "Inventory Posting To G/L"
         if UpdateGlobalInvtPostBuf(ValueEntry."Entry No.") then
             exit(true);
         exit(CalledFromTestReport);
+    end;
+
+    procedure AdjustPostedWIPForProduction(ValueEntry: Record "Value Entry"): Boolean
+    begin
+        AdjustWIPForProduction(ValueEntry, ValueEntry."Cost Posted to G/L", ValueEntry."Cost Posted to G/L (ACY)");
+        if UpdateGlobalInvtPostBuf(ValueEntry."Entry No.") then
+            exit(true);
     end;
 
     local procedure BufferPurchPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal; ExpCostToPost: Decimal; ExpCostToPostACY: Decimal)
@@ -344,6 +356,14 @@ codeunit 5802 "Inventory Posting To G/L"
                           TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
                           CostToPost, CostToPostACY, false);
                 end;
+            ValueEntry."Entry Type"::"Direct Cost - Non Inventory":
+                if (CostToPost <> 0) or (CostToPostACY <> 0) then
+                    if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Non-Inventory Applied",
+                          CostToPost, CostToPostACY, false);
             ValueEntry."Entry Type"::"Indirect Cost":
                 InitInvtPostBuf(
                   ValueEntry,
@@ -358,6 +378,13 @@ codeunit 5802 "Inventory Posting To G/L"
                           TempGlobalInvtPostingBuffer."Account Type"::Inventory,
                           TempGlobalInvtPostingBuffer."Account Type"::"Material Variance",
                           CostToPost, CostToPostACY, false);
+                    ValueEntry."Variance Type"::"Material - Non Inventory":
+                        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                            InitInvtPostBuf(
+                              ValueEntry,
+                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                              TempGlobalInvtPostingBuffer."Account Type"::"Material - Non Inventory Variance",
+                              CostToPost, CostToPostACY, false);
                     ValueEntry."Variance Type"::Capacity:
                         InitInvtPostBuf(
                           ValueEntry,
@@ -424,11 +451,15 @@ codeunit 5802 "Inventory Posting To G/L"
 
         case ValueEntry."Entry Type" of
             ValueEntry."Entry Type"::"Direct Cost":
-                InitInvtPostBuf(
-                  ValueEntry,
-                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                  TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
-                  CostToPost, CostToPostACY, false);
+                begin
+                    InitInvtPostBuf(
+                      ValueEntry,
+                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                      TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                      CostToPost, CostToPostACY, false);
+
+                    AdjustWIPForProduction(ValueEntry, CostToPost, CostToPostACY);
+                end;
             ValueEntry."Entry Type"::Revaluation,
               ValueEntry."Entry Type"::Rounding:
                 InitInvtPostBuf(
@@ -441,6 +472,31 @@ codeunit 5802 "Inventory Posting To G/L"
         end;
 
         OnAfterBufferConsumpPosting(TempInvtPostBuf, ValueEntry, PostBufDimNo, CostToPost, CostToPostACY);
+    end;
+
+    local procedure AdjustWIPForProduction(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAdjustWIPForProduction(ValueEntry, TempGlobalInvtPostingBuffer, CostToPost, CostToPostACY, IsHandled);
+        if IsHandled then
+            exit;
+
+        case ValueEntry."Item Ledger Entry Type" of
+            ValueEntry."Item Ledger Entry Type"::Consumption:
+                InitInvtPostBuf(
+                    ValueEntry,
+                    TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                    TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                    CostToPost, CostToPostACY, false);
+            ValueEntry."Item Ledger Entry Type"::" ":
+                InitInvtPostBuf(
+                    ValueEntry,
+                    TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                    TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                    CostToPost, CostToPostACY, false);
+        end;
     end;
 
     local procedure BufferCapacityPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
@@ -470,11 +526,15 @@ codeunit 5802 "Inventory Posting To G/L"
             else
                 case ValueEntry."Entry Type" of
                     ValueEntry."Entry Type"::"Direct Cost":
-                        InitInvtPostBuf(
-                          ValueEntry,
-                          TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
-                          TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
-                          CostToPost, CostToPostACY, false);
+                        begin
+                            InitInvtPostBuf(
+                              ValueEntry,
+                              TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                              TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
+                              CostToPost, CostToPostACY, false);
+
+                            AdjustWIPForProduction(ValueEntry, CostToPost, CostToPostACY);
+                        end;
                     ValueEntry."Entry Type"::"Indirect Cost":
                         InitInvtPostBuf(
                           ValueEntry,
@@ -774,6 +834,11 @@ codeunit 5802 "Inventory Posting To G/L"
                         InvtPostBuf."Account No." := InvtPostingSetup.GetMaterialVarianceAccount()
                     else
                         InvtPostBuf."Account No." := InvtPostingSetup."Material Variance Account";
+                InvtPostBuf."Account Type"::"Material - Non Inventory Variance":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := InvtPostingSetup.GetMaterialNonInventoryVarianceAccount()
+                    else
+                        InvtPostBuf."Account No." := InvtPostingSetup."Mat. Non-Inv. Variance Acc.";
                 InvtPostBuf."Account Type"::"Capacity Variance":
                     if CalledFromItemPosting then
                         InvtPostBuf."Account No." := InvtPostingSetup.GetCapacityVarianceAccount()
@@ -804,6 +869,11 @@ codeunit 5802 "Inventory Posting To G/L"
                         InvtPostBuf."Account No." := GenPostingSetup.GetDirectCostAppliedAccount()
                     else
                         InvtPostBuf."Account No." := GenPostingSetup."Direct Cost Applied Account";
+                InvtPostBuf."Account Type"::"Direct Cost Non-Inventory Applied":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := GenPostingSetup.GetDirectCostNonInvtAppliedAccount()
+                    else
+                        InvtPostBuf."Account No." := GenPostingSetup."Direct Cost Non-Inv. App. Acc.";
                 InvtPostBuf."Account Type"::"Overhead Applied":
                     if CalledFromItemPosting then
                         InvtPostBuf."Account No." := GenPostingSetup.GetOverheadAppliedAccount()
@@ -845,11 +915,16 @@ codeunit 5802 "Inventory Posting To G/L"
         InvtPostBuf."Amount (ACY)" := CostToPostACY;
     end;
 
-    local procedure UpdateGlobalInvtPostBuf(ValueEntryNo: Integer): Boolean
+    local procedure UpdateGlobalInvtPostBuf(ValueEntryNo: Integer) Result: Boolean
     var
         i: Integer;
         ShouldInsertTempGLItemLedgRelation: Boolean;
+        IsHandled: Boolean;
     begin
+        OnBeforeUpdateGlobalInvtPostBuf(ValueEntryNo, TempInvtPostBuf, RunOnlyCheck, CalledFromTestReport, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not CalledFromTestReport then
             for i := 1 to PostBufDimNo do
                 if TempInvtPostBuf[i]."Account No." = '' then begin
@@ -1566,5 +1641,15 @@ codeunit 5802 "Inventory Posting To G/L"
     local procedure OnBeforeCreateGLItemLedgerRelationEntry(var GLRegister: Record "G/L Register"; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeAdjustWIPForProduction(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary; CostToPost: Decimal; CostToPostACY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateGlobalInvtPostBuf(ValueEntryNo: Integer; var TempInvtPostBuf: array[20] of Record "Invt. Posting Buffer" temporary; RunOnlyCheck: Boolean; CalledFromTestReport: Boolean; Result: Boolean; IsHandled: Boolean)
+    begin
+    end;    
 }
 

@@ -1,6 +1,7 @@
 namespace Microsoft.Projects.Resources.Ledger;
 
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
 using Microsoft.Utilities;
 using System.Security.AccessControl;
 
@@ -70,6 +71,23 @@ table 240 "Resource Register"
     {
     }
 
+    procedure GetNextEntryNo(UseLegacyPosting: Boolean): Integer
+    begin
+        if not UseLegacyPosting then
+            exit(GetNextEntryNo());
+        Rec.LockTable();
+        exit(GetLastEntryNo() + 1);
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Resource Register", 'r')]
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Resource Register"));
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Resource Register", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";

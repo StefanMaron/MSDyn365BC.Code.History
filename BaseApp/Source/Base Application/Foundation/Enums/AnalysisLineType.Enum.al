@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.Enums;
 
 enum 7114 "Analysis Line Type"
@@ -27,7 +31,7 @@ enum 7114 "Analysis Line Type"
     }
     value(5; "Sales/Purchase Person")
     {
-        Caption = 'Sales/Purchase Person';
+        Caption = 'Salesperson/Purchaser';
     }
     value(6; Formula)
     {

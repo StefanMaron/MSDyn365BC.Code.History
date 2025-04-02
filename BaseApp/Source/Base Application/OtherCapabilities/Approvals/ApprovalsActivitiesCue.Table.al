@@ -19,6 +19,7 @@ table 9144 "Approvals Activities Cue"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "User ID Filter"; Code[50])

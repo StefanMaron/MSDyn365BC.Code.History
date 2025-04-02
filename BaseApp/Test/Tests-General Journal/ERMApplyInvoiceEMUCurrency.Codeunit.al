@@ -16,9 +16,6 @@
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         AmountError: Label '%1 must be %2 in \\%3 %4=%5.';
-#if not CLEAN23
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -61,9 +58,6 @@
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('StatisticsMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure ApplyInvoiceEMUCurrAdjExchRate()
     var
@@ -84,11 +78,7 @@
 
         PostedDocumentNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency());
         ModifyExchangeRate(SalesHeader."Currency Code");
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRates(SalesHeader."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), PostedDocumentNo, false);
-#else
         LibraryERM.RunExchRateAdjustment(SalesHeader."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), PostedDocumentNo, false);
-#endif
         FindSalesInvoiceHeaderAmt(SalesInvoiceHeader, PostedDocumentNo);
         Amount := LibraryERM.ConvertCurrency(SalesInvoiceHeader."Amount Including VAT", SalesHeader."Currency Code", '', WorkDate());
 
@@ -225,14 +215,5 @@
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption(),
             GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
-#if not CLEAN23
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-#endif
 }
 

@@ -30,49 +30,58 @@ table 1571 "VAT Entry Posting Preview"
             Caption = 'Gen. Bus. Posting Group';
             Editable = false;
             TableRelation = "Gen. Business Posting Group";
+            ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
         }
         field(3; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
             Editable = false;
             TableRelation = "Gen. Product Posting Group";
+            ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
         }
         field(4; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
             Editable = false;
+            ToolTip = 'Specifies the VAT entry''s posting date.';
         }
         field(5; "Document No."; Code[20])
         {
             Caption = 'Document No.';
             Editable = false;
+            ToolTip = 'Specifies the document number on the VAT entry.';
         }
         field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
+            ToolTip = 'Specifies the document type that the VAT entry belongs to.';
         }
         field(7; Type; Enum "General Posting Type")
         {
             Caption = 'Type';
             Editable = false;
+            ToolTip = 'Specifies the type of the VAT entry.';
         }
         field(8; Base; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Base';
             Editable = false;
+            ToolTip = 'Specifies the amount that the VAT amount (the amount shown in the Amount field) is calculated from.';
         }
         field(9; Amount; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Amount';
             Editable = false;
+            ToolTip = 'Specifies the amount of the VAT entry in LCY.';
         }
         field(10; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
+            ToolTip = 'Specifies how VAT will be calculated for purchases or sales of items with this particular combination of VAT business posting group and VAT product posting group.';
         }
         field(12; "Bill-to/Pay-to No."; Code[20])
         {
@@ -80,10 +89,12 @@ table 1571 "VAT Entry Posting Preview"
             TableRelation = if (Type = const(Purchase)) Vendor
             else
             if (Type = const(Sale)) Customer;
+            ToolTip = 'Specifies the number of the bill-to customer or pay-to vendor that the entry is linked to.';
         }
         field(13; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
+            ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
         }
         field(14; "User ID"; Code[50])
         {
@@ -107,21 +118,25 @@ table 1571 "VAT Entry Posting Preview"
             Caption = 'Closed by Entry No.';
             Editable = false;
             TableRelation = "VAT Entry";
+            ToolTip = 'Specifies the number of the VAT entry that has closed the entry, if the VAT entry was closed with the Calc. and Post VAT Settlement batch job.';
         }
         field(18; Closed; Boolean)
         {
             Caption = 'Closed';
             Editable = false;
+            ToolTip = 'Specifies whether the VAT entry has been closed by the Calc. and Post VAT Settlement batch job.';
         }
         field(19; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
+            ToolTip = 'Specifies the country/region of the address.';
         }
         field(20; "Internal Ref. No."; Text[30])
         {
             Caption = 'Internal Ref. No.';
             Editable = false;
+            ToolTip = 'Specifies the internal reference number for the line.';
         }
         field(21; "Transaction No."; Integer)
         {
@@ -225,12 +240,14 @@ table 1571 "VAT Entry Posting Preview"
             Caption = 'VAT Bus. Posting Group';
             Editable = false;
             TableRelation = "VAT Business Posting Group";
+            ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
         }
         field(40; "VAT Prod. Posting Group"; Code[20])
         {
             Caption = 'VAT Prod. Posting Group';
             Editable = false;
             TableRelation = "VAT Product Posting Group";
+            ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
         }
         field(43; "Additional-Currency Amount"; Decimal)
         {
@@ -239,6 +256,7 @@ table 1571 "VAT Entry Posting Preview"
             AutoFormatType = 1;
             Caption = 'Additional-Currency Amount';
             Editable = false;
+            ToolTip = 'Specifies the amount of the VAT entry. The amount is in the additional reporting currency.';
         }
         field(44; "Additional-Currency Base"; Decimal)
         {
@@ -247,6 +265,7 @@ table 1571 "VAT Entry Posting Preview"
             AutoFormatType = 1;
             Caption = 'Additional-Currency Base';
             Editable = false;
+            ToolTip = 'Specifies the amount that the VAT amount is calculated from if you post in an additional reporting currency.';
         }
         field(45; "Add.-Currency Unrealized Amt."; Decimal)
         {
@@ -289,6 +308,7 @@ table 1571 "VAT Entry Posting Preview"
             AutoFormatType = 1;
             Caption = 'VAT Difference';
             Editable = false;
+            ToolTip = 'Specifies the difference between the calculated VAT amount and a VAT amount that you have entered manually.';
         }
         field(52; "Add.-Curr. VAT Difference"; Decimal)
         {
@@ -297,6 +317,7 @@ table 1571 "VAT Entry Posting Preview"
             AutoFormatType = 1;
             Caption = 'Add.-Curr. VAT Difference';
             Editable = false;
+            ToolTip = 'Specifies, in the additional reporting currency, the VAT difference that arises when you make a correction to a VAT amount on a sales or purchase document.';
         }
         field(53; "Ship-to/Order Address Code"; Code[10])
         {
@@ -304,36 +325,43 @@ table 1571 "VAT Entry Posting Preview"
             TableRelation = if (Type = const(Purchase)) "Order Address".Code where("Vendor No." = field("Bill-to/Pay-to No."))
             else
             if (Type = const(Sale)) "Ship-to Address".Code where("Customer No." = field("Bill-to/Pay-to No."));
+            ToolTip = 'Specifies the address code of the ship-to customer or order-from vendor that the entry is linked to.';
         }
         field(54; "Document Date"; Date)
         {
             Caption = 'Document Date';
             Editable = false;
+            ToolTip = 'Specifies the date when the related document was created.';
         }
         field(55; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+            ToolTip = 'Specifies the VAT registration number of the customer or vendor that the entry is linked to.';
         }
         field(56; Reversed; Boolean)
         {
             Caption = 'Reversed';
+            ToolTip = 'Specifies if the entry has been part of a reverse transaction.';
         }
         field(57; "Reversed by Entry No."; Integer)
         {
             BlankZero = true;
             Caption = 'Reversed by Entry No.';
             TableRelation = "VAT Entry";
+            ToolTip = 'Specifies the number of the correcting entry. If the field Specifies a number, the entry cannot be reversed again.';
         }
         field(58; "Reversed Entry No."; Integer)
         {
             BlankZero = true;
             Caption = 'Reversed Entry No.';
             TableRelation = "VAT Entry";
+            ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
         }
         field(59; "EU Service"; Boolean)
         {
             Caption = 'EU Service';
             Editable = false;
+            ToolTip = 'Specifies if this VAT entry is to be reported as a service in the periodic VAT reports.';
         }
         field(60; "Base Before Pmt. Disc."; Decimal)
         {

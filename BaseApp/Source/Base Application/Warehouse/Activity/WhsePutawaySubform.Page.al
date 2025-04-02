@@ -123,6 +123,7 @@ page 5771 "Whse. Put-away Subform"
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of the item to be handled, such as received, put-away, or assigned.';
+                    Editable = false;
                 }
                 field("Qty. (Base)"; Rec."Qty. (Base)")
                 {

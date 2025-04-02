@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Manufacturing.Reports;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Reports;
 
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.WorkCenter;

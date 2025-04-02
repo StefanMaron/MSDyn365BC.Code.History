@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Routing;
 
 page 99000808 "Routing Version List"
@@ -41,7 +45,6 @@ page 99000808 "Routing Version List"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the status of this routing version.';
-                    Visible = false;
                 }
             }
         }

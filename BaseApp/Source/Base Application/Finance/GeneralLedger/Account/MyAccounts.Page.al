@@ -1,6 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Account;
-
-using Microsoft.Finance.GeneralLedger.Ledger;
 
 page 9153 "My Accounts"
 {
@@ -31,27 +33,12 @@ page 9153 "My Accounts"
                     Caption = 'Name';
                     DrillDown = false;
                     Lookup = false;
-                    ToolTip = 'Specifies the name of the cash account.';
+                    ToolTip = 'Specifies the name of the G/L account.';
                 }
-                field(Balance; Rec."Account Balance")
+                field(Balance; Rec."Acc. Balance")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Balance';
-                    ToolTip = 'Specifies the balance on the bank account.';
-
-                    trigger OnDrillDown()
-                    var
-                        [SecurityFiltering(SecurityFilter::Filtered)]
-                        GLEntry: Record "G/L Entry";
-                        GLAccountsFilterText: Text;
-                    begin
-                        SyncFieldsWithGLAccount();
-                        GLAccountsFilterText := GLAccount."No.";
-                        if GLAccount.IsTotaling() then
-                            GLAccountsFilterText := GLAccount.Totaling;
-                        GLEntry.SetFilter("G/L Account No.", GLAccountsFilterText);
-                        PAGE.Run(0, GLEntry);
-                    end;
+                    ToolTip = 'Specifies the balance of the G/L account.';
                 }
             }
         }
@@ -81,23 +68,16 @@ page 9153 "My Accounts"
         SyncFieldsWithGLAccount();
     end;
 
-    trigger OnNewRecord(BelowxRec: Boolean)
-    begin
-        Clear(GLAccount);
-    end;
-
     trigger OnOpenPage()
     begin
-        Rec.SetRange("User ID", UserId);
+        Rec.SetRange("User ID", UserId());
     end;
-
-    var
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        GLAccount: Record "G/L Account";
 
     local procedure SyncFieldsWithGLAccount()
     var
-        MyAccount: Record "My Account";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        GLAccount: Record "G/L Account";
+        SyncFieldsUpdatedInGLAccount: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -105,17 +85,25 @@ page 9153 "My Accounts"
         if IsHandled then
             exit;
 
-        Clear(GLAccount);
+        GLAccount.ReadIsolation(IsolationLevel::ReadCommitted);
+        GLAccount.SetLoadFields("Name", Totaling);
         if GLAccount.Get(Rec."Account No.") then begin
-            GLAccount.CalcFields(Balance);
-            OnSyncFieldsWithGLAccountOnAfterCalcFields(GLAccount);
-            if (Rec."Account Balance" <> GLAccount.Balance) or (Rec.Name <> GLAccount.Name) then begin
-                Rec."Account Balance" := GLAccount.Balance;
+            SyncFieldsUpdatedInGLAccount := CalcSyncFieldsUpdatedInGLAccount(GLAccount);
+            OnSyncFieldsWithGLAccountOnAfterCalcFields(GLAccount, SyncFieldsUpdatedInGLAccount);
+            if SyncFieldsUpdatedInGLAccount then begin
                 Rec.Name := GLAccount.Name;
-                if MyAccount.Get(Rec."User ID", Rec."Account No.") then
+                Rec.Totaling := GLAccount.Totaling;
+                if not IsNullGuid(Rec.SystemId) then begin
                     Rec.Modify();
+                    Rec.CalcFields("Acc. Balance");
+                end;
             end;
         end;
+    end;
+
+    local procedure CalcSyncFieldsUpdatedInGLAccount(var GLAccount: Record "G/L Account"): Boolean
+    begin
+        exit((Rec.Name <> GLAccount.Name) or (Rec.Totaling <> GLAccount.Totaling));
     end;
 
     [IntegrationEvent(false, false)]
@@ -124,7 +112,7 @@ page 9153 "My Accounts"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSyncFieldsWithGLAccountOnAfterCalcFields(var GLAccount: Record "G/L Account")
+    local procedure OnSyncFieldsWithGLAccountOnAfterCalcFields(var GLAccount: Record "G/L Account"; var SyncFieldsUpdatedInGLAccount: Boolean)
     begin
     end;
 }

@@ -23,7 +23,6 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryPatterns: Codeunit "Library - Patterns";
         isInitialized: Boolean;
         ChangeBillToCustomerNo: Label 'Do you want to change';
         EndingDateError: Label 'Enter the ending date';
@@ -795,7 +794,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [GIVEN] Item "I1" with quantity on inventory = "Q1"
         LibraryInventory.CreateItem(Item[1]);
         Qty[1] := LibraryRandom.RandDec(10, 2);
-        LibraryPatterns.POSTPositiveAdjustment(Item[1], '', '', '', Qty[1], WorkDate(), LibraryRandom.RandDec(10, 2));
+        LibraryInventory.PostPositiveAdjustment(Item[1], '', '', '', Qty[1], WorkDate(), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Items "I2" and "I3" with zero inventory
         LibraryInventory.CreateItem(Item[2]);
@@ -1418,7 +1417,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         CreateLocationWithBin(Bin[1], true);
         CreateLocationWithBin(Bin[2], false);
         // [GIVEN] Transaction with Item on L1
-        LibraryPatterns.POSTPositiveAdjustment(Item, Bin[1]."Location Code", '', Bin[1].Code, Qty, WorkDate(), LibraryRandom.RandDec(10, 2));
+        LibraryInventory.PostPositiveAdjustment(Item, Bin[1]."Location Code", '', Bin[1].Code, Qty, WorkDate(), LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Run "Calculate Inventory" Report with "Include Item without Transactions" and "Items Not on Inventory" option
         Item.SetRange("No.", ItemNo);

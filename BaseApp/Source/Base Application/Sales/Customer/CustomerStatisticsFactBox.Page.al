@@ -23,8 +23,6 @@ page 9082 "Customer Statistics FactBox"
             {
                 ApplicationArea = All;
                 Caption = 'Customer No.';
-                ToolTip = 'Specifies the number of the customer. The field is either filled automatically from a defined number series, or you enter the number manually because you have enabled manual number entry in the number-series setup.';
-
                 trigger OnDrillDown()
                 begin
                     ShowDetails();
@@ -33,8 +31,6 @@ page 9082 "Customer Statistics FactBox"
             field("Balance (LCY)"; Rec."Balance (LCY)")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the payment amount that the customer owes for completed sales. This value is also known as the customer''s balance.';
-
                 trigger OnDrillDown()
                 var
                     DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -75,18 +71,14 @@ page 9082 "Customer Statistics FactBox"
                 field("Outstanding Orders (LCY)"; Rec."Outstanding Orders (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies your expected sales income from the customer in LCY based on ongoing sales orders.';
                 }
                 field("Shipped Not Invoiced (LCY)"; Rec."Shipped Not Invoiced (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Shipped Not Invd. (LCY)';
-                    ToolTip = 'Specifies your expected sales income from the customer in LCY based on ongoing sales orders where items have been shipped.';
                 }
                 field("Outstanding Invoices (LCY)"; Rec."Outstanding Invoices (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies your expected sales income from the customer in LCY based on unpaid sales invoices.';
                 }
             }
             group(Payments)
@@ -95,7 +87,6 @@ page 9082 "Customer Statistics FactBox"
                 field("Payments (LCY)"; Rec."Payments (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the sum of payments received from the customer.';
                     trigger OnDrillDown()
                     var
                         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -112,7 +103,6 @@ page 9082 "Customer Statistics FactBox"
                 field("Refunds (LCY)"; Rec."Refunds (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the sum of refunds received from the customer.';
                     trigger OnDrillDown()
                     var
                         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -161,7 +151,6 @@ page 9082 "Customer Statistics FactBox"
             field("Credit Limit (LCY)"; Rec."Credit Limit (LCY)")
             {
                 ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
             }
             field("Balance Due (LCY)"; OverdueBalance)
             {

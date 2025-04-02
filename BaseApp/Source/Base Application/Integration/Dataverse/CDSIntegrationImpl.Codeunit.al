@@ -3444,7 +3444,7 @@ codeunit 7201 "CDS Integration Impl."
         [NonDebuggable]
         FirstPartyAppId: Text;
         [NonDebuggable]
-        FirstPartyAppCertificate: Text;
+        FirstPartyAppCertificate: SecretText;
         RedirectUrl: Text;
         AuthCodeError: Text;
     begin
@@ -3454,13 +3454,13 @@ codeunit 7201 "CDS Integration Impl."
         FirstPartyAppId := GetCDSConnectionFirstPartyAppId();
         FirstPartyAppCertificate := GetCDSConnectionFirstPartyAppCertificate();
 
-        if (FirstPartyAppId = '') or (FirstPartyAppCertificate = '') then
+        if (FirstPartyAppId = '') or (FirstPartyAppCertificate.IsEmpty()) then
             if (ClientId = '') or (ClientSecret.IsEmpty()) then
                 Error(GetMissingClientIdOrSecretErr());
 
         RedirectUrl := GetRedirectURL();
         if GetTokenFromCache then
-            if (FirstPartyAppId <> '') and (FirstPartyAppCertificate <> '') then begin
+            if (FirstPartyAppId <> '') and (not FirstPartyAppCertificate.IsEmpty()) then begin
                 Session.LogMessage('0000EI9', AttemptingAuthCodeTokenFromCacheWithCertTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 OAuth2.AcquireAuthorizationCodeTokenFromCacheWithCertificate(FirstPartyAppId, FirstPartyAppCertificate, RedirectUrl, OAuthAuthorityUrlTxt, ResourceURL, AccessToken)
             end else begin
@@ -3473,7 +3473,7 @@ codeunit 7201 "CDS Integration Impl."
                 exit;
             end;
 
-            if (FirstPartyAppId <> '') and (FirstPartyAppCertificate <> '') then begin
+            if (FirstPartyAppId <> '') and (not FirstPartyAppCertificate.IsEmpty()) then begin
                 Session.LogMessage('0000EIB', AttemptingAuthCodeTokenWithCertTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 OAuth2.AcquireTokenByAuthorizationCodeWithCertificate(
                     FirstPartyAppId,
@@ -3517,7 +3517,7 @@ codeunit 7201 "CDS Integration Impl."
         [NonDebuggable]
         FirstPartyAppId: Text;
         [NonDebuggable]
-        FirstPartyAppCertificate: Text;
+        FirstPartyAppCertificate: SecretText;
         RedirectUrl: Text;
         AuthCodeError: Text;
         IdToken: Text;
@@ -3528,13 +3528,13 @@ codeunit 7201 "CDS Integration Impl."
         FirstPartyAppId := GetCDSConnectionFirstPartyAppId();
         FirstPartyAppCertificate := GetCDSConnectionFirstPartyAppCertificate();
 
-        if (FirstPartyAppId = '') or (FirstPartyAppCertificate = '') then
+        if (FirstPartyAppId = '') or (FirstPartyAppCertificate.IsEmpty()) then
             if (ClientId = '') or (ClientSecret.IsEmpty()) then
                 Error(GetMissingClientIdOrSecretErr());
 
         RedirectUrl := GetRedirectURL();
         if GetTokenFromCache then
-            if (FirstPartyAppId <> '') and (FirstPartyAppCertificate <> '') then begin
+            if (FirstPartyAppId <> '') and (not FirstPartyAppCertificate.IsEmpty()) then begin
                 Session.LogMessage('0000GIG', AttemptingClientCredentialsTokenFromCacheWithCertTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 OAuth2.AcquireTokensFromCacheWithCertificate(FirstPartyAppId, FirstPartyAppCertificate, RedirectUrl, ClientCredentialsTokenAuthorityUrlTxt, Scopes, AccessToken, IdToken);
             end else begin
@@ -3543,7 +3543,7 @@ codeunit 7201 "CDS Integration Impl."
             end;
 
         if AccessToken.IsEmpty() then
-            if (FirstPartyAppId <> '') and (FirstPartyAppCertificate <> '') then begin
+            if (FirstPartyAppId <> '') and (not FirstPartyAppCertificate.IsEmpty()) then begin
                 Session.LogMessage('0000GII', AttemptingClientCredentialsTokenWithCertTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 OAuth2.AcquireTokensWithCertificate(FirstPartyAppId, FirstPartyAppCertificate, RedirectUrl, ClientCredentialsTokenAuthorityUrlTxt, Scopes, AccessToken, IdToken);
             end else begin

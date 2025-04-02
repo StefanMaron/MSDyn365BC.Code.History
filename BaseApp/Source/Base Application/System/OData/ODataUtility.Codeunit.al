@@ -6,6 +6,7 @@ using System.Azure.Identity;
 using System.Environment;
 using System.Integration.Excel;
 using System.IO;
+using System.Globalization;
 using System.Reflection;
 using System.Utilities;
 
@@ -22,7 +23,7 @@ codeunit 6710 ODataUtility
 
     var
         EnvironmentInfo: Codeunit "Environment Information";
-        TypeHelper: Codeunit "Type Helper";
+        Language: Codeunit Language;
         WorksheetWriter: DotNet WorksheetWriter;
         WorkbookWriter: DotNet WorkbookWriter;
         ODataProtocolVersion: Option V3,V4;
@@ -331,6 +332,7 @@ codeunit 6710 ODataUtility
         EditinExcel.EditPageInExcel(PageCaption, ObjectId, EditinExcelFilters);
     end;
 
+#if not CLEAN26
     [Obsolete('Replaced by EditinExcelHandler.EditPageInExcel(PageCaption: Text[240]; ObjectId: Integer; CodeUnit "Filters")', '23.0')]
     procedure EditWorksheetInExcel(PageCaption: Text[240]; PageId: Text; "Filter": Text)
     var
@@ -340,6 +342,7 @@ codeunit 6710 ODataUtility
         Evaluate(ObjectId, CopyStr(PageId, 5));
         EditinExcel.EditPageInExcel(PageCaption, ObjectId);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure GenerateExcelTemplateWorkBook(ObjectTypeParm: Option ,,,,,"Codeunit",,,"Page","Query"; ServiceNameParm: Text[50]; ShowDialogParm: Boolean; StatementType: Option BalanceSheet,SummaryTrialBalance,CashFlowStatement,StatementOfRetainedEarnings,AgedAccountsReceivable,AgedAccountsPayable,IncomeStatement)
@@ -408,7 +411,7 @@ codeunit 6710 ODataUtility
         WorkbookSettingsManager.SetAppInfo(OfficeAppInfo);
         WorkbookSettingsManager.SetHostName(HostName);
         WorkbookSettingsManager.SetAuthenticationTenant(AzureADTenant.GetAadTenantId());
-        WorkbookSettingsManager.SetLanguage(TypeHelper.LanguageIDToCultureName(WindowsLanguage));
+        WorkbookSettingsManager.SetLanguage(Language.GetCultureName(WindowsLanguage));
         WorkbookWriter.Close();
 
         FileName := TenantWebService."Service Name" + '.xltm';

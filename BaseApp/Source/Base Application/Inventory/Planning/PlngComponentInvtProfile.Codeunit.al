@@ -1,10 +1,12 @@
-﻿namespace Microsoft.Inventory.Planning;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Planning;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 
 codeunit 99000860 "Plng. Component Invt. Profile"
 {
@@ -12,10 +14,7 @@ codeunit 99000860 "Plng. Component Invt. Profile"
 
     procedure TransferInventoryProfileFromPlanComponent(var InventoryProfile: Record "Inventory Profile"; var PlanningComponent: Record "Planning Component"; var TrackingReservationEntry: Record "Reservation Entry")
     var
-        ProdOrderComponent: Record "Prod. Order Component";
-        AssemblyLine: Record "Assembly Line";
         ReservationEntry: Record "Reservation Entry";
-        ReservedQty: Decimal;
         AutoReservedQty: Decimal;
     begin
         InventoryProfile.SetSource(
@@ -37,53 +36,7 @@ codeunit 99000860 "Plng. Component Invt. Profile"
         PlanningComponent.CalcFields("Reserved Qty. (Base)");
         InventoryProfile."Untracked Quantity" :=
           PlanningComponent."Expected Quantity (Base)" - PlanningComponent."Reserved Qty. (Base)" + AutoReservedQty;
-        case PlanningComponent."Ref. Order Type" of
-            PlanningComponent."Ref. Order Type"::"Prod. Order":
-                if ProdOrderComponent.Get(
-                     PlanningComponent."Ref. Order Status",
-                     PlanningComponent."Ref. Order No.",
-                     PlanningComponent."Ref. Order Line No.",
-                     PlanningComponent."Line No.")
-                then begin
-                    InventoryProfile."Original Quantity" := ProdOrderComponent."Expected Quantity";
-                    ProdOrderComponent.CalcFields("Reserved Qty. (Base)");
-                    if ProdOrderComponent."Reserved Qty. (Base)" > 0 then begin
-                        ReservedQty := ProdOrderComponent."Reserved Qty. (Base)";
-                        ProdOrderComponent.SetReservationFilters(ReservationEntry);
-                        InventoryProfile.CalcReservedQty(ReservationEntry, ReservedQty);
-                        if ReservedQty > InventoryProfile."Untracked Quantity" then
-                            InventoryProfile."Untracked Quantity" := 0
-                        else
-                            InventoryProfile."Untracked Quantity" := InventoryProfile."Untracked Quantity" - ReservedQty;
-                    end;
-                end else begin
-                    InventoryProfile."Primary Order Type" := Database::"Planning Component";
-                    InventoryProfile."Primary Order Status" := PlanningComponent."Ref. Order Status".AsInteger();
-                    InventoryProfile."Primary Order No." := PlanningComponent."Ref. Order No.";
-                end;
-            PlanningComponent."Ref. Order Type"::Assembly:
-                if AssemblyLine.Get(
-                     PlanningComponent."Ref. Order Status",
-                     PlanningComponent."Ref. Order No.",
-                     PlanningComponent."Ref. Order Line No.")
-                then begin
-                    InventoryProfile."Original Quantity" := AssemblyLine.Quantity;
-                    AssemblyLine.CalcFields("Reserved Qty. (Base)");
-                    if AssemblyLine."Reserved Qty. (Base)" > 0 then begin
-                        ReservedQty := AssemblyLine."Reserved Qty. (Base)";
-                        AssemblyLine.SetReservationFilters(ReservationEntry);
-                        InventoryProfile.CalcReservedQty(ReservationEntry, ReservedQty);
-                        if ReservedQty > InventoryProfile."Untracked Quantity" then
-                            InventoryProfile."Untracked Quantity" := 0
-                        else
-                            InventoryProfile."Untracked Quantity" := InventoryProfile."Untracked Quantity" - ReservedQty;
-                    end;
-                end else begin
-                    InventoryProfile."Primary Order Type" := Database::"Planning Component";
-                    InventoryProfile."Primary Order Status" := PlanningComponent."Ref. Order Status".AsInteger();
-                    InventoryProfile."Primary Order No." := PlanningComponent."Ref. Order No.";
-                end;
-        end;
+        OnTransferInventoryProfileFromPlamComponentByRefOrderType(InventoryProfile, PlanningComponent);
         InventoryProfile.Quantity := PlanningComponent."Expected Quantity";
         InventoryProfile."Remaining Quantity" := PlanningComponent."Expected Quantity";
         InventoryProfile."Finished Quantity" := 0;
@@ -112,16 +65,7 @@ codeunit 99000860 "Plng. Component Invt. Profile"
         if InventoryProfile."Source Type" = Database::"Planning Component" then begin
             if UseSecondaryFields then begin
                 RequisitionLine.Get(InventoryProfile."Source ID", InventoryProfile."Source Batch Name", InventoryProfile."Source Prod. Order Line");
-                case RequisitionLine."Ref. Order Type" of
-                    RequisitionLine."Ref. Order Type"::"Prod. Order":
-                        ReservationEntry.SetSource(
-                            Database::"Prod. Order Component", RequisitionLine."Ref. Order Status".AsInteger(),
-                            InventoryProfile."Ref. Order No.", InventoryProfile."Source Ref. No.", '', InventoryProfile."Ref. Line No.");
-                    RequisitionLine."Ref. Order Type"::Assembly:
-                        ReservationEntry.SetSource(
-                            Database::"Assembly Line", InventoryProfile."Source Order Status", InventoryProfile."Ref. Order No.",
-                            InventoryProfile."Source Ref. No.", '', InventoryProfile."Ref. Line No.");
-                end;
+                OnTransferToTrackingEntrySourceTypeElseCaseOnSetSource(InventoryProfile, ReservationEntry, RequisitionLine);
             end else
                 ReservationEntry.SetSource(
                     Database::"Planning Component", 0, InventoryProfile."Source ID", InventoryProfile."Source Ref. No.",
@@ -195,4 +139,13 @@ codeunit 99000860 "Plng. Component Invt. Profile"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferInventoryProfileFromPlamComponentByRefOrderType(var InventoryProfile: Record "Inventory Profile"; PlanningComponent: Record "Planning Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferToTrackingEntrySourceTypeElseCaseOnSetSource(var InventoryProfile: Record "Inventory Profile"; var ReservationEntry: Record "Reservation Entry"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
 }
