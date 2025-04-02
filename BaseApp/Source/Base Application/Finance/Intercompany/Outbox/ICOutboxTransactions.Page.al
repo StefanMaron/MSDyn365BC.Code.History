@@ -100,7 +100,7 @@ page 611 "IC Outbox Transactions"
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
                 }
-                field("Source Type"; Rec."Source Type")
+                field("Source Type"; Rec."IC Source Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies whether the transaction was created in a journal, a sales document or a purchase document.';

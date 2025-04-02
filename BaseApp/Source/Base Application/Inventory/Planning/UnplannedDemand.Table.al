@@ -1,8 +1,10 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Planning;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Structure;
@@ -11,12 +13,7 @@ table 5520 "Unplanned Demand"
 {
     Caption = 'Unplanned Demand';
     Permissions = TableData "Sales Header" = r,
-#if not CLEAN25
-                  TableData Microsoft.Service.Document."Service Header" = r,
-#endif
-                  TableData Job = r,
-                  TableData "Assembly Header" = r,
-                  TableData "Production Order" = r;
+                  TableData Job = r;
     DataClassification = CustomerContent;
 
     fields

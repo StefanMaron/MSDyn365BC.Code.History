@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -58,6 +58,7 @@ table 11404 "Audit File Buffer"
             Caption = 'RecordID';
             DataClassification = SystemMetadata;
         }
+#if not CLEANSCHEMA28
         field(45; AccountID; Text[15])
         {
             Caption = 'AccountID';
@@ -71,6 +72,8 @@ table 11404 "Audit File Buffer"
             ObsoleteTag = '17.0';
 #endif
         }
+#endif
+#if not CLEANSCHEMA28
         field(50; CustSupID; Text[15])
         {
             Caption = 'CustSupID';
@@ -84,6 +87,8 @@ table 11404 "Audit File Buffer"
             ObsoleteTag = '17.0';
 #endif
         }
+#endif
+#if not CLEANSCHEMA28
         field(55; DocumentID; Text[15])
         {
             Caption = 'DocumentID';
@@ -97,6 +102,7 @@ table 11404 "Audit File Buffer"
             ObsoleteTag = '17.0';
 #endif
         }
+#endif
         field(60; EffectiveDate; Date)
         {
             Caption = 'EffectiveDate';

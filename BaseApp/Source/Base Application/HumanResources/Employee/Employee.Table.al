@@ -1,4 +1,4 @@
-﻿namespace Microsoft.HumanResources.Employee;
+namespace Microsoft.HumanResources.Employee;
 
 using Microsoft.Bank.Payment;
 using Microsoft.Bank.Setup;
@@ -174,14 +174,6 @@ table 5200 Employee
         field(18; "Alt. Address End Date"; Date)
         {
             Caption = 'Alt. Address End Date';
-        }
-        field(19; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
         }
         field(20; "Birth Date"; Date)
         {
@@ -499,13 +491,6 @@ table 5200 Employee
         {
             Caption = 'Cost Object Code';
             TableRelation = "Cost Object";
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
         }
         field(11000000; "Transaction Mode Code"; Code[20])
         {
@@ -857,4 +842,3 @@ table 5200 Employee
     begin
     end;
 }
-

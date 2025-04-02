@@ -509,15 +509,6 @@
       <Cmt Name="Dev"><![CDATA[%1 = Recipant Bank %2=Table Name]D;]A;(LookupHint=Codeunit ERM Purchase Doc. Amounts - NamedType RecipientBankErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1956804364 - NamedType 2146008245" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Total amount (%1) is not equal to total of lines (%2)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Doc. Amounts - NamedType TotalAmountErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1956804364 - NamedType 2418320107" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Value must be equal]]></Val>

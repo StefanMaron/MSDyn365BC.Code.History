@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Requisition;
 
 using Microsoft.Assembly.Document;
@@ -68,7 +72,7 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     var
-        TempProductionOrder: Record "Production Order" temporary;
+        TempProductionOrder, TempProductionOrderToPrint : Record "Production Order" temporary;
         LastTransferHeader: Record "Transfer Header";
         TempTransferHeaderToPrint: Record "Transfer Header" temporary;
         ReservationEntry: Record "Reservation Entry";
@@ -294,6 +298,7 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
         ProdOrderComponent: Record "Prod. Order Component";
         ProductionOrder: Record "Production Order";
+        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
     begin
         RequisitionLine.TestField(RequisitionLine."Ref. Order Type", RequisitionLine."Ref. Order Type"::"Prod. Order");
         ProdOrderLine.LockTable();
@@ -325,7 +330,7 @@ codeunit 99000813 "Carry Out Action"
                     if ProdOrderComponent.Get(
                             ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", PlanningComponent."Line No.")
                     then begin
-                        PlngComponentReserve.TransferPlanningCompToPOComp(PlanningComponent, ProdOrderComponent, 0, true);
+                        ProdOrderCompReserve.TransferPlanningCompToPOComp(PlanningComponent, ProdOrderComponent, 0, true);
                         PlngComponentReserve.UpdateDerivedTracking(PlanningComponent);
                         ReservationManagement.SetReservSource(ProdOrderComponent);
                         ReservationManagement.DeleteReservEntries(false, ProdOrderComponent."Remaining Qty. (Base)");
@@ -420,6 +425,7 @@ codeunit 99000813 "Carry Out Action"
         AssemblyHeader: Record "Assembly Header";
         PlanningComponent: Record "Planning Component";
         AssemblyLine: Record "Assembly Line";
+        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
     begin
         RequisitionLine.TestField("Ref. Order Type", RequisitionLine."Ref. Order Type"::Assembly);
         AssemblyHeader.LockTable();
@@ -443,7 +449,7 @@ codeunit 99000813 "Carry Out Action"
             if PlanningComponent.Find('-') then
                 repeat
                     if AssemblyLine.Get(AssemblyHeader."Document Type", AssemblyHeader."No.", PlanningComponent."Line No.") then begin
-                        PlngComponentReserve.TransferPlanningCompToAsmLine(PlanningComponent, AssemblyLine, 0, true);
+                        AssemblyLineReserve.TransferPlanningCompToAsmLine(PlanningComponent, AssemblyLine, 0, true);
                         PlngComponentReserve.UpdateDerivedTracking(PlanningComponent);
                         ReservationManagement.SetReservSource(AssemblyLine);
                         ReservationManagement.DeleteReservEntries(false, AssemblyLine."Remaining Quantity (Base)");
@@ -601,6 +607,8 @@ codeunit 99000813 "Carry Out Action"
             end;
 
             OnInsertProdOrderOnBeforeProdOrderInit(RequisitionLine);
+
+            Item.CheckItemAndVariantForProdBlocked(RequisitionLine."No.", RequisitionLine."Variant Code", Item."Production Blocked"::Output);
             ProductionOrder.Init();
             if ProdOrderChoice = ProdOrderChoice::"Firm Planned & Print" then
                 ProductionOrder.Status := ProductionOrder.Status::"Firm Planned"
@@ -655,6 +663,8 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderLine: Record "Prod. Order Line";
         NextLineNo: Integer;
     begin
+        Item.CheckItemAndVariantForProdBlocked(RequisitionLine."No.", RequisitionLine."Variant Code", Item."Production Blocked"::Output);
+
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.LockTable();
@@ -725,8 +735,6 @@ codeunit 99000813 "Carry Out Action"
             UpdateComponentLink(ProdOrderLine);
 
         OnAfterInsertProdOrderLine(RequisitionLine, ProductionOrder, ProdOrderLine, Item);
-
-        FinalizeOrderHeader(ProductionOrder);
     end;
 
     local procedure SetProdOrderLineBinCodeFromPlanningRtngLines(ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; RequisitionLine: Record "Requisition Line"; Item: Record Item)
@@ -852,6 +860,7 @@ codeunit 99000813 "Carry Out Action"
     var
         AssemblyLine: Record "Assembly Line";
         PlanningComponent: Record "Planning Component";
+        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
     begin
         PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
         PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
@@ -899,7 +908,7 @@ codeunit 99000813 "Carry Out Action"
 
                 AssemblyLine.Insert();
 
-                PlngComponentReserve.TransferPlanningCompToAsmLine(PlanningComponent, AssemblyLine, 0, true);
+                AssemblyLineReserve.TransferPlanningCompToAsmLine(PlanningComponent, AssemblyLine, 0, true);
                 AssemblyLine.AutoReserve();
                 ReservationManagement.SetReservSource(AssemblyLine);
                 ReservationManagement.AutoTrack(AssemblyLine."Remaining Quantity (Base)");
@@ -1168,6 +1177,37 @@ codeunit 99000813 "Carry Out Action"
             end;
     end;
 
+    internal procedure PrintProductionOrders()
+    var
+        ProductionOrder: Record "Production Order";
+        ReportSelections: Record "Report Selections";
+        TempProductionOrderToPrint2: Record "Production Order" temporary;
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        RecordRefToPrint: RecordRef;
+        RecordRefToHeader: RecordRef;
+    begin
+        CarryOutAction.GetAllProductionOrdersForPrinting(TempProductionOrderToPrint2);
+        if not TempProductionOrderToPrint2.IsEmpty() then begin
+            RecordRefToPrint.GetTable(TempProductionOrderToPrint2);
+            RecordRefToHeader.GetTable(ProductionOrder);
+            ProductionOrder.SetFilter("No.", SelectionFilterManagement.CreateFilterFromTempTable(RecordRefToPrint, RecordRefToHeader, ProductionOrder.FieldNo("No.")));
+            ProductionOrder.SetFilter(Status, '%1|%2', ProductionOrder.Status::Planned, ProductionOrder.Status::"Firm Planned");
+            ReportSelections.PrintWithDialogWithCheckForCust(ReportSelections.Usage::"Prod.Order", ProductionOrder, false, 0);
+            TempProductionOrderToPrint2.DeleteAll();
+        end;
+    end;
+
+    internal procedure GetAllProductionOrdersForPrinting(var TempProductionOrder: Record "Production Order" temporary)
+    begin
+        if TempProductionOrderToPrint.FindSet() then begin
+            repeat
+                TempProductionOrder := TempProductionOrderToPrint;
+                if TempProductionOrder.Insert(false) then;
+            until TempProductionOrderToPrint.Next() = 0;
+            TempProductionOrderToPrint.DeleteAll();
+        end;
+    end;
+
     local procedure FinalizeOrderHeader(ProductionOrder: Record "Production Order")
     var
         ReportSelections: Record "Report Selections";
@@ -1249,6 +1289,7 @@ codeunit 99000813 "Carry Out Action"
     var
         PlanningComponent: Record "Planning Component";
         ProdOrderComponent2: Record "Prod. Order Component";
+        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1272,7 +1313,7 @@ codeunit 99000813 "Carry Out Action"
                 ProdOrderComponent2.Insert();
                 CopyProdBOMComments(ProdOrderComponent2);
                 OnTransferBOMOnAfterCopyProdBOMComments(PlanningComponent, ProdOrderComponent2);
-                PlngComponentReserve.TransferPlanningCompToPOComp(PlanningComponent, ProdOrderComponent2, 0, true);
+                ProdOrderCompReserve.TransferPlanningCompToPOComp(PlanningComponent, ProdOrderComponent2, 0, true);
                 if ProdOrderComponent2.Status in [ProdOrderComponent2.Status::"Firm Planned", ProdOrderComponent2.Status::Released] then
                     ProdOrderComponent2.AutoReserve();
 
@@ -1356,6 +1397,13 @@ codeunit 99000813 "Carry Out Action"
             TempProductionOrder."Planned Order No." := RequisitionLine."Ref. Order No.";
             TempProductionOrder.Insert();
         end;
+
+        if PrintOrder then
+            if RequisitionLine."Ref. Order Status" in [RequisitionLine."Ref. Order Status"::Planned, RequisitionLine."Ref. Order Status"::"Firm Planned"] then begin
+                TempProductionOrderToPrint.Status := NewProductionOrder.Status;
+                TempProductionOrderToPrint."No." := NewProductionOrder."No.";
+                TempProductionOrderToPrint.Insert();
+            end;
     end;
 
     local procedure FindTempProdOrder(var RequisitionLine: Record "Requisition Line"): Boolean
@@ -1493,6 +1541,7 @@ codeunit 99000813 "Carry Out Action"
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
         ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
         ProductionBOMLine.SetRange("No.", ProdOrderComponent."Item No.");
+        ProductionBOMLine.SetRange(Position, ProdOrderComponent.Position);
         if ProductionBOMLine.FindSet() then
             repeat
                 ProductionBOMCommentLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");

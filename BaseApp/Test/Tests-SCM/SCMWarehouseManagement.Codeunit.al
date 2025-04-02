@@ -31,7 +31,6 @@ codeunit 137064 "SCM Warehouse Management"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryRandom: Codeunit "Library - Random";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         WhseShipmentRelease: Codeunit "Whse.-Shipment Release";
         Initialized: Boolean;
@@ -3022,8 +3021,8 @@ codeunit 137064 "SCM Warehouse Management"
         CreateBinAndBinContent(Bin[2], LocationOrange.Code, Item."No.", Item."Base Unit of Measure", IsDefault[2]);
 
         StockQuantity := Quantity + LibraryRandom.RandInt(Quantity);
-        LibraryPatterns.POSTPositiveAdjustment(Item, LocationOrange.Code, '', Bin[1].Code, StockQuantity, WorkDate(), 0);
-        LibraryPatterns.POSTPositiveAdjustment(Item, LocationOrange.Code, '', Bin[2].Code, StockQuantity, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item, LocationOrange.Code, '', Bin[1].Code, StockQuantity, WorkDate(), 0);
+        LibraryInventory.PostPositiveAdjustment(Item, LocationOrange.Code, '', Bin[2].Code, StockQuantity, WorkDate(), 0);
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         CreateSalesLine(SalesHeader, SalesLine, Item."No.", LocationOrange.Code, Quantity);

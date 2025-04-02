@@ -165,22 +165,13 @@ codeunit 418 "User Management"
     end;
 
     var
-        Text001Qst: Label 'You are renaming an existing user. This will also update all related records. Are you sure that you want to rename the user?';
-        Text002Err: Label 'The account %1 already exists.', Comment = '%1 username';
         Text003Err: Label 'You do not have permissions for this action on the table %1.', Comment = '%1 table name';
-#if not CLEAN23
-        BasicAuthDescriptionNameTok: Label 'Web Service Access Key';
-        BasicAuthUsedNameTok: Label 'Web Service Access Key Warning';
-        BasicAuthDepricationTok: Label 'Web Service Access Key is no longer supported in Business Central online. Integrations using this technology will stop working. Please use OAuth instead.';
-        BasicAuthUsedTok: Label 'One or more users have still enabled a Web Service Access Key. This is deprecated in Business Central online and integrations using this technology will stop working soon. Please use OAuth instead';
-        DontShowAgainTok: Label 'Don''t show me again';
-        ShowMoreLinkTok: Label 'Show more';
-#endif
+#if not CLEAN26
 #pragma warning disable AA0470
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
 #pragma warning restore AA0470
+#endif
         UnsupportedLicenseTypeOnSaasErr: Label 'Only users of type %1, %2, %3, %4 and %5 are supported in the online environment.', Comment = '%1,%2,%3,%4,%5 = license type';
-        DisableUserMsg: Label 'To permanently disable a user, go to your Microsoft 365 admin center. Disabling the user in Business Central will only be effective until the next user synchonization with Microsoft 365.';
         WindowsSecurityIdNotEditableOnSaaSErr: Label 'Windows security identifier is not supported in online environments.';
 
     procedure DisplayUserInformation(Username: Text)
@@ -216,41 +207,23 @@ codeunit 418 "User Management"
         UserLookup.RunModal();
     end;
 
+#if not CLEAN26
+    [Obsolete('ValidateUserName has been moved to the User Codeunit', '26.0')]
     procedure ValidateUserName(NewUser: Record User; OldUser: Record User; WindowsUserName: Text)
     var
-        User: Record User;
-        ConfirmManagement: Codeunit "Confirm Management";
-        CheckForWindowsUserName: Boolean;
+        User: Codeunit User;
     begin
-        if NewUser."User Name" <> OldUser."User Name" then begin
-            User.SetRange("User Name", NewUser."User Name");
-            User.SetFilter("User Security ID", '<>%1', OldUser."User Security ID");
-            if User.FindFirst() then
-                Error(Text002Err, NewUser."User Name");
-
-            CheckForWindowsUserName := NewUser."Windows Security ID" <> '';
-            OnValidateUserNameOnAfterCalcCheckForWindowsUserName(NewUser, WindowsUserName, CheckForWindowsUserName);
-            if CheckForWindowsUserName then
-                NewUser.TestField("User Name", WindowsUserName);
-
-            if OldUser."User Name" <> '' then
-                if ConfirmManagement.GetResponseOrDefault(Text001Qst, false) then
-                    RenameUser(OldUser."User Name", NewUser."User Name")
-                else
-                    Error('');
-        end;
+        User.ValidateUserName(NewUser, OldUser, WindowsUserName);
     end;
 
+    [Obsolete('ValidateState has been moved to the User Codeunit', '26.0')]
     procedure ValidateState(var Rec: Record User; var xRec: Record User);
     var
-        EnvironmentInformation: Codeunit "Environment Information";
+        User: Codeunit User;
     begin
-        if not EnvironmentInformation.IsSaaS() then
-            exit;
-
-        if (xRec.State <> Rec.State) and (Rec.State = Rec.State::Disabled) then
-            Message(DisableUserMsg);
+        User.ValidateState(Rec, xRec);
     end;
+#endif
 
     local procedure IsPrimaryKeyField(TableID: Integer; FieldID: Integer; var NumberOfPrimaryKeyFields: Integer): Boolean
     var
@@ -265,6 +238,15 @@ codeunit 418 "User Management"
     end;
 
     local procedure RenameRecord(var RecRef: RecordRef; TableNo: Integer; NumberOfPrimaryKeyFields: Integer; UserName: Code[50]; Company: Text[30])
+    begin
+        if NumberOfPrimaryKeyFields = 1 then
+            RecRef.Rename(UserName)
+        else
+            RenameRecordWithMultipleKeys(RecRef, TableNo, UserName, Company);
+        OnAfterRenameRecord(RecRef, TableNo, NumberOfPrimaryKeyFields, UserName, Company);
+    end;
+
+    local procedure RenameRecordWithMultipleKeys(var RecRef: RecordRef; TableNo: Integer; UserName: Code[50]; Company: Text[30])
     var
         UserTimeRegister: Record "User Time Register";
         PrinterSelection: Record "Printer Selection";
@@ -282,185 +264,98 @@ codeunit 418 "User Management"
         CuesAndKpis: Codeunit "Cues and KPIs";
         Checklist: Codeunit Checklist;
     begin
-        if NumberOfPrimaryKeyFields = 1 then
-            RecRef.Rename(UserName)
-        else
-            case TableNo of
-                DATABASE::"User Time Register":
-                    begin
-                        UserTimeRegister.ChangeCompany(Company);
-                        RecRef.SetTable(UserTimeRegister);
-                        UserTimeRegister.Rename(UserName, UserTimeRegister.Date);
-                    end;
-                DATABASE::"Printer Selection":
-                    begin
-                        RecRef.SetTable(PrinterSelection);
-                        PrinterSelection.Rename(UserName, PrinterSelection."Report ID");
-                    end;
-                DATABASE::"Selected Dimension":
-                    begin
-                        SelectedDimension.ChangeCompany(Company);
-                        RecRef.SetTable(SelectedDimension);
-                        SelectedDimension.Rename(UserName, SelectedDimension."Object Type", SelectedDimension."Object ID",
-                          SelectedDimension."Analysis View Code", SelectedDimension."Dimension Code");
-                    end;
-                DATABASE::"FA Journal Setup":
-                    begin
-                        FAJournalSetup.ChangeCompany(Company);
-                        RecRef.SetTable(FAJournalSetup);
-                        FAJournalSetup.Rename(FAJournalSetup."Depreciation Book Code", UserName);
-                    end;
-                DATABASE::"Analysis Selected Dimension":
-                    begin
-                        AnalysisSelectedDimension.ChangeCompany(Company);
-                        RecRef.SetTable(AnalysisSelectedDimension);
-                        AnalysisSelectedDimension.Rename(UserName, AnalysisSelectedDimension."Object Type", AnalysisSelectedDimension."Object ID",
-                          AnalysisSelectedDimension."Analysis Area", AnalysisSelectedDimension."Analysis View Code",
-                          AnalysisSelectedDimension."Dimension Code");
-                    end;
-                9701: // Cue Setup
-                    CuesAndKpis.ChangeUserForSetupEntry(RecRef, Company, UserName);
-                DATABASE::"Warehouse Employee":
-                    begin
-                        WarehouseEmployee.ChangeCompany(Company);
-                        RecRef.SetTable(WarehouseEmployee);
-                        WarehouseEmployee.Rename(UserName, WarehouseEmployee."Location Code");
-                    end;
-                DATABASE::"My Customer":
-                    begin
-                        MyCustomer.ChangeCompany(Company);
-                        RecRef.SetTable(MyCustomer);
-                        MyCustomer.Rename(UserName, MyCustomer."Customer No.");
-                    end;
-                DATABASE::"My Vendor":
-                    begin
-                        MyVendor.ChangeCompany(Company);
-                        RecRef.SetTable(MyVendor);
-                        MyVendor.Rename(UserName, MyVendor."Vendor No.");
-                    end;
-                DATABASE::"My Item":
-                    begin
-                        MyItem.ChangeCompany(Company);
-                        RecRef.SetTable(MyItem);
-                        MyItem.Rename(UserName, MyItem."Item No.");
-                    end;
-                DATABASE::"My Account":
-                    begin
-                        MyAccount.ChangeCompany(Company);
-                        RecRef.SetTable(MyAccount);
-                        MyAccount.Rename(UserName, MyAccount."Account No.");
-                    end;
-                DATABASE::"Application Area Setup":
-                    begin
-                        ApplicationAreaSetup.ChangeCompany(Company);
-                        RecRef.SetTable(ApplicationAreaSetup);
-                        ApplicationAreaSetup.Rename('', '', UserName);
-                    end;
-                DATABASE::"My Job":
-                    begin
-                        MyJob.ChangeCompany(Company);
-                        RecRef.SetTable(MyJob);
-                        MyJob.Rename(UserName, MyJob."Job No.");
-                    end;
-                DATABASE::"My Time Sheets":
-                    begin
-                        MyTimeSheets.ChangeCompany(Company);
-                        RecRef.SetTable(MyTimeSheets);
-                        MyTimeSheets.Rename(UserName, MyTimeSheets."Time Sheet No.");
-                    end;
-                1993: //Checklist Item User
-                    Checklist.UpdateUserName(RecRef, Company, UserName, 1993);
-                1994: //User Checklist Status
-                    Checklist.UpdateUserName(RecRef, Company, UserName, 1994);
-            end;
-        OnAfterRenameRecord(RecRef, TableNo, NumberOfPrimaryKeyFields, UserName, Company);
+        case TableNo of
+            DATABASE::"User Time Register":
+                begin
+                    UserTimeRegister.ChangeCompany(Company);
+                    RecRef.SetTable(UserTimeRegister);
+                    UserTimeRegister.Rename(UserName, UserTimeRegister.Date);
+                end;
+            DATABASE::"Printer Selection":
+                begin
+                    RecRef.SetTable(PrinterSelection);
+                    PrinterSelection.Rename(UserName, PrinterSelection."Report ID");
+                end;
+            DATABASE::"Selected Dimension":
+                begin
+                    SelectedDimension.ChangeCompany(Company);
+                    RecRef.SetTable(SelectedDimension);
+                    SelectedDimension.Rename(UserName, SelectedDimension."Object Type", SelectedDimension."Object ID",
+                      SelectedDimension."Analysis View Code", SelectedDimension."Dimension Code");
+                end;
+            DATABASE::"FA Journal Setup":
+                begin
+                    FAJournalSetup.ChangeCompany(Company);
+                    RecRef.SetTable(FAJournalSetup);
+                    FAJournalSetup.Rename(FAJournalSetup."Depreciation Book Code", UserName);
+                end;
+            DATABASE::"Analysis Selected Dimension":
+                begin
+                    AnalysisSelectedDimension.ChangeCompany(Company);
+                    RecRef.SetTable(AnalysisSelectedDimension);
+                    AnalysisSelectedDimension.Rename(UserName, AnalysisSelectedDimension."Object Type", AnalysisSelectedDimension."Object ID",
+                      AnalysisSelectedDimension."Analysis Area", AnalysisSelectedDimension."Analysis View Code",
+                      AnalysisSelectedDimension."Dimension Code");
+                end;
+            9701: // Cue Setup
+                CuesAndKpis.ChangeUserForSetupEntry(RecRef, Company, UserName);
+            DATABASE::"Warehouse Employee":
+                begin
+                    WarehouseEmployee.ChangeCompany(Company);
+                    RecRef.SetTable(WarehouseEmployee);
+                    WarehouseEmployee.Rename(UserName, WarehouseEmployee."Location Code");
+                end;
+            DATABASE::"My Customer":
+                begin
+                    MyCustomer.ChangeCompany(Company);
+                    RecRef.SetTable(MyCustomer);
+                    MyCustomer.Rename(UserName, MyCustomer."Customer No.");
+                end;
+            DATABASE::"My Vendor":
+                begin
+                    MyVendor.ChangeCompany(Company);
+                    RecRef.SetTable(MyVendor);
+                    MyVendor.Rename(UserName, MyVendor."Vendor No.");
+                end;
+            DATABASE::"My Item":
+                begin
+                    MyItem.ChangeCompany(Company);
+                    RecRef.SetTable(MyItem);
+                    MyItem.Rename(UserName, MyItem."Item No.");
+                end;
+            DATABASE::"My Account":
+                begin
+                    MyAccount.ChangeCompany(Company);
+                    RecRef.SetTable(MyAccount);
+                    MyAccount.Rename(UserName, MyAccount."Account No.");
+                end;
+            DATABASE::"Application Area Setup":
+                begin
+                    ApplicationAreaSetup.ChangeCompany(Company);
+                    RecRef.SetTable(ApplicationAreaSetup);
+                    ApplicationAreaSetup.Rename('', '', UserName);
+                end;
+            DATABASE::"My Job":
+                begin
+                    MyJob.ChangeCompany(Company);
+                    RecRef.SetTable(MyJob);
+                    MyJob.Rename(UserName, MyJob."Job No.");
+                end;
+            DATABASE::"My Time Sheets":
+                begin
+                    MyTimeSheets.ChangeCompany(Company);
+                    RecRef.SetTable(MyTimeSheets);
+                    MyTimeSheets.Rename(UserName, MyTimeSheets."Time Sheet No.");
+                end;
+            1993: //Checklist Item User
+                Checklist.UpdateUserName(RecRef, Company, UserName, 1993);
+            1994: //User Checklist Status
+                Checklist.UpdateUserName(RecRef, Company, UserName, 1994);
+        end;
     end;
 
-#if not CLEAN23
-    [Obsolete('Basic Authentication deprecation warning should no longer be shown with from 23.0', '23.0')]
-    [Scope('OnPrem')]
-    procedure BasicAuthDepricationNotificationId(): Guid
-    begin
-        exit('8f5a1371-94e3-42b6-84df-6ed215bc374a');
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Basic Authentication deprecation warning should no longer be shown with from 23.0', '23.0')]
-    [Scope('OnPrem')]
-    procedure BasicAuthUsedNotificationId(): Guid
-    begin
-        exit('b21a58f5-23fe-4954-bd74-6f0202c2c019');
-    end;
-#endif
-#if not CLEAN23
-    [Obsolete('Basic Authentication deprecation warning should no longer be shown with from 23.0', '23.0')]
-    [Scope('OnPrem')]
-    procedure BasicAuthDepricationNotificationDefault(Enabled: Boolean)
-    var
-        MyNotifications: Record "My Notifications";
-    begin
-        MyNotifications.InsertDefault(
-          BasicAuthDepricationNotificationId(), BasicAuthDescriptionNameTok, BasicAuthDepricationTok, Enabled);
-    end;
-#endif
-#if not CLEAN23
-    [Obsolete('Basic Authentication deprecation warning should no longer be shown with from 23.0', '23.0')]
-    [Scope('OnPrem')]
-    procedure BasicAuthUsedNotificationDefault(Enabled: Boolean)
-    var
-        MyNotifications: Record "My Notifications";
-    begin
-        MyNotifications.InsertDefault(
-          BasicAuthDepricationNotificationId(), BasicAuthUsedNameTok, BasicAuthUsedTok, Enabled);
-    end;
-#endif
-#if not CLEAN23
-    [Obsolete('Basic Authentication deprecation warning should no longer be shown with from 23.0', '23.0')]
-    [Scope('OnPrem')]
-    procedure BasicAuthDepricationNotificationShow(BasicAuthDepricationNotification: Notification)
-    begin
-        BasicAuthDepricationNotification.Id := BasicAuthDepricationNotificationId();
-        BasicAuthDepricationNotification.Recall();
-        BasicAuthDepricationNotification.Message(BasicAuthDepricationTok);
-        BasicAuthDepricationNotification.AddAction(DontShowAgainTok, CODEUNIT::"User Management", 'DisableNotifications');
-        BasicAuthDepricationNotification.AddAction(ShowMoreLinkTok, CODEUNIT::"User Management", 'BasicAuthDepricationNotificationShowMore');
-        BasicAuthDepricationNotification.Scope(NotificationScope::LocalScope);
-        BasicAuthDepricationNotification.Send();
-    end;
-#endif
-#if not CLEAN23
-    [Obsolete('Basic Authentication deprecation warning should no longer be shown with from 23.0', '23.0')]
-    [Scope('OnPrem')]
-    procedure BasicAuthUsedNotificationShow(BasicAuthUsedNotification: Notification)
-    begin
-        BasicAuthUsedNotification.Id := BasicAuthUsedNotificationId();
-        BasicAuthUsedNotification.Recall();
-        BasicAuthUsedNotification.Message(BasicAuthUsedTok);
-        BasicAuthUsedNotification.AddAction(DontShowAgainTok, CODEUNIT::"User Management", 'DisableNotifications');
-        BasicAuthUsedNotification.AddAction(ShowMoreLinkTok, CODEUNIT::"User Management", 'BasicAuthDepricationNotificationShowMore');
-        BasicAuthUsedNotification.Scope(NotificationScope::LocalScope);
-        BasicAuthUsedNotification.Send();
-    end;
-#endif
-#if not CLEAN23
-    [Scope('OnPrem')]
-    procedure DisableNotifications(Notification: Notification)
-    var
-        MyNotifications: Record "My Notifications";
-    begin
-        MyNotifications.Disable(Notification.Id);
-    end;
-#endif
-#if not CLEAN23
-    [Obsolete('Basic Authentication deprecation warning should no longer be shown with from 23.0', '23.0')]
-    [Scope('OnPrem')]
-    procedure BasicAuthDepricationNotificationShowMore(Notification: Notification)
-    begin
-        Hyperlink('https://go.microsoft.com/fwlink/?linkid=2207805');
-    end;
-#endif
-
+#if not CLEAN26
+    [Obsolete('RenameUser has been moved to the User Codeunit', '26.0')]
     procedure RenameUser(OldUserName: Code[50]; NewUserName: Code[50])
     var
         User: Record User;
@@ -510,7 +405,9 @@ codeunit 418 "User Management"
                             TableInformation.SetRange("Table No.", Field.TableNo);
                             if TableInformation.FindFirst() then
                                 if TableInformation."No. of Records" > 0 then
+#pragma warning disable AA0448
                                     Error(Text003Err, Field.TableName);
+#pragma warning restore AA0448
                         end;
                         RecRef.Close();
                     end;
@@ -524,6 +421,41 @@ codeunit 418 "User Management"
 
         OnAfterRenameUser(OldUserName, NewUserName);
     end;
+#endif
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::User, OnAfterRenameRecord, '', false, false)]
+    local procedure RenameRecordWithUser(var RecRef: RecordRef; TableNo: Integer; NumberOfPrimaryKeyFields: Integer; UserName: Code[50]; Company: Text[30])
+    begin
+        if NumberOfPrimaryKeyFields > 1 then
+            RenameRecordWithMultipleKeys(RecRef, TableNo, UserName, Company);
+        OnAfterRenameRecord(RecRef, TableNo, NumberOfPrimaryKeyFields, UserName, Company);
+    end;
+
+#if not CLEAN26
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::User, OnValidateUserNameOnAfterCalcCheckForWindowsUserName, '', false, false)]
+    local procedure ReRaiseOnValidateUserNameOnAfterCalcCheckForWindowsUserName(NewUser: Record User; WindowsUserName: Text; var CheckForWindowsUserName: Boolean)
+    begin
+        OnValidateUserNameOnAfterCalcCheckForWindowsUserName(NewUser, WindowsUserName, CheckForWindowsUserName);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::User, OnAfterRenameUser, '', false, false)]
+    local procedure ReRaiseOnAfterRenameUser(OldUserName: Code[50]; NewUserName: Code[50])
+    begin
+        OnAfterRenameUser(OldUserName, NewUserName);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::User, OnBeforeRenameUser, '', false, false)]
+    local procedure ReRaiseOnBeforeRenameUser(OldUserName: Code[50]; NewUserName: Code[50])
+    begin
+        OnBeforeRenameUser(OldUserName, NewUserName);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::User, OnRenameUserOnBeforeProcessField, '', false, false)]
+    local procedure ReRaiseOnRenameUserOnBeforeProcessField(TableID: Integer; FieldID: Integer; OldUserName: Code[50]; NewUserName: Code[50]; var IsHandled: Boolean)
+    begin
+        OnRenameUserOnBeforeProcessField(TableID, FieldID, OldUserName, NewUserName, IsHandled);
+    end;
+#endif
 
     [EventSubscriber(ObjectType::Table, Database::User, 'OnBeforeModifyEvent', '', false, false)]
     local procedure OnBeforeModifyUserValidateWindowsSecurityIdOnSaaS(RunTrigger: Boolean; var Rec: Record User; var xRec: Record User)
@@ -571,29 +503,177 @@ codeunit 418 "User Management"
                 Error(UnsupportedLicenseTypeOnSaasErr, User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application, User."License Type"::"AAD Group", User."License Type"::Agent);
     end;
 
+    local procedure RenameField(TableID: Integer; FieldID: Integer; OldUserName: Code[50]; NewUserName: Code[50]; CompanyName: Text[30])
+    var
+        Field: Record Field;
+        TableInformation: Record "Table Information";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        FieldRef2: FieldRef;
+        NumberOfPrimaryKeyFields: Integer;
+    begin
+        if not Field.Get(TableID, FieldID) then
+            exit;
+
+        RecRef.Open(TableID, false, CompanyName);
+        if RecRef.ReadPermission then begin
+            FieldRef := RecRef.Field(FieldID);
+            FieldRef.SetRange(CopyStr(OldUserName, 1, Field.Len));
+            if RecRef.FindSet(true) then
+                repeat
+                    if IsPrimaryKeyField(TableID, FieldID, NumberOfPrimaryKeyFields) then
+                        RenameRecord(RecRef, TableID, NumberOfPrimaryKeyFields, NewUserName, CompanyName)
+                    else begin
+                        FieldRef2 := RecRef.Field(FieldID);
+                        FieldRef2.Value := CopyStr(NewUserName, 1, Field.Len);
+                        RecRef.Modify();
+                    end;
+                until RecRef.Next() = 0;
+        end else begin
+            TableInformation.SetFilter("Company Name", '%1|%2', '', CompanyName);
+            TableInformation.SetRange("Table No.", TableID);
+            if TableInformation.FindFirst() then
+                if TableInformation."No. of Records" > 0 then
+#pragma warning disable AA0448
+                    Error(Text003Err, Field.TableName);
+#pragma warning restore AA0448
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::User, OnRenameUserOnBeforeProcessField, '', false, false)]
+    local procedure RenameBaseAppSpecificFields(TableID: Integer; FieldID: Integer; OldUserName: Code[50]; NewUserName: Code[50]; CompanyName: Text[30]; var IsHandled: Boolean)
+    begin
+        // Handle BaseApp specific fields with indirect permissions
+        case TableID of
+            Database::"G/L Entry",
+            Database::"Cust. Ledger Entry",
+            Database::"Vendor Ledger Entry",
+            Database::"G/L Register",
+            Database::"Item Register",
+            Database::"G/L Budget Entry",
+            Database::"Sales Shipment Header",
+            Database::"Sales Invoice Header",
+            Database::"Sales Cr.Memo Header",
+            Database::"Purch. Rcpt. Header",
+            Database::"Purch. Inv. Header",
+            Database::"Purch. Cr. Memo Hdr.",
+            Database::"Job Ledger Entry",
+            Database::"Res. Ledger Entry",
+            Database::"Resource Register",
+            Database::"Job Register",
+            Database::"VAT Entry",
+            Database::"Bank Account Ledger Entry",
+            Database::"Check Ledger Entry",
+            Database::"Phys. Inventory Ledger Entry",
+            Database::"Issued Reminder Header",
+            Database::"Reminder/Fin. Charge Entry",
+            Database::"Issued Fin. Charge Memo Header",
+            Database::"Reservation Entry",
+            Database::"Item Application Entry",
+            Database::"Detailed Cust. Ledg. Entry",
+            Database::"Detailed Vendor Ledg. Entry",
+            Database::"Change Log Entry",
+            Database::"Approval Entry",
+            Database::"Approval Comment Line",
+            Database::"Posted Approval Entry",
+            Database::"Posted Approval Comment Line",
+            Database::"Posted Assembly Header",
+            Database::"Cost Entry",
+            Database::"Cost Register",
+            Database::"Cost Budget Entry",
+            Database::"Cost Budget Register",
+            Database::"Interaction Log Entry",
+            Database::"Campaign Entry",
+            Database::"FA Ledger Entry",
+            Database::"FA Register",
+            Database::"Maintenance Ledger Entry",
+            Database::"Ins. Coverage Ledger Entry",
+            Database::"Insurance Register",
+            Database::"Value Entry",
+#if not CLEAN25
+            Database::Microsoft.Service.Ledger."Service Ledger Entry",
+            Database::Microsoft.Service.Ledger."Service Register",
+            Database::Microsoft.Service.Contract."Contract Gain/Loss Entry",
+            Database::Microsoft.Service.Contract."Filed Service Contract Header",
+            Database::Microsoft.Service.History."Service Shipment Header",
+            Database::Microsoft.Service.History."Service Invoice Header",
+            Database::Microsoft.Service.History."Service Cr.Memo Header",
+#endif
+            Database::"Return Shipment Header",
+            Database::"Return Receipt Header",
+            Database::"Item Budget Entry",
+            Database::"Warehouse Entry",
+            Database::"Warehouse Register",
+            Database::"Workflow Step Instance Archive",
+            Database::"Date Compr. Register",
+            Database::"Requisition Line",
+            Database::"Overdue Approval Entry",
+            Database::"Job Queue Entry",
+            Database::"Job Queue Log Entry",
+            Database::"Error Message Register",
+            Database::"Activity Log",
+            Database::"Workflow Step Instance",
+            Database::"Notification Entry",
+            Database::"Sent Notification Entry",
+            Database::"User Setup",
+            Database::"VAT Registration Log",
+            Database::"Item Application Entry History",
+            Database::"CV Ledger Entry Buffer",
+            Database::"Detailed CV Ledg. Entry Buffer",
+            Database::"VAT Report Archive",
+            Database::"Cash Flow Forecast Entry",
+            Database::"Job Planning Line",
+            Database::"Cost Type",
+            Database::"Cost Allocation Source",
+            Database::"Cost Allocation Target",
+            Database::"Cost Center",
+            Database::"Credit Transfer Register",
+            Database::"Direct Debit Collection",
+            Database::"Isolated Certificate",
+            Database::"Logged Segment",
+            Database::"Saved Segment Criteria",
+            Database::"Sales Header Archive",
+            Database::"Purchase Header Archive",
+            Database::"Employee Ledger Entry",
+            Database::"Detailed Employee Ledger Entry",
+            Database::"Manufacturing User Template",
+            Database::"Field Monitoring Setup":
+                begin
+                    RenameField(TableID, FieldID, OldUserName, NewUserName, CompanyName);
+                    IsHandled := true;
+                end;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     procedure OnAfterRenameRecord(var RecRef: RecordRef; TableNo: Integer; NumberOfPrimaryKeyFields: Integer; UserName: Code[50]; Company: Text[30])
     begin
     end;
 
+#if not CLEAN26
     [IntegrationEvent(false, false)]
+    [Obsolete('RenameUser has been moved to the User Codeunit', '26.0')]
     local procedure OnAfterRenameUser(OldUserName: Code[50]; NewUserName: Code[50])
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('RenameUser has been moved to the User Codeunit', '26.0')]
     local procedure OnBeforeRenameUser(OldUserName: Code[50]; NewUserName: Code[50])
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('RenameUser has been moved to the User Codeunit', '26.0')]
     local procedure OnRenameUserOnBeforeProcessField(TableID: Integer; FieldID: Integer; OldUserName: Code[50]; NewUserName: Code[50]; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('ValidateUserName has been moved to the User Codeunit', '26.0')]
     local procedure OnValidateUserNameOnAfterCalcCheckForWindowsUserName(NewUser: Record User; WindowsUserName: Text; var CheckForWindowsUserName: Boolean)
     begin
     end;
+#endif
 }
 

@@ -596,6 +596,18 @@ page 201 "Job Journal"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
+                action("Renumber Document Numbers")
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Renumber Document Numbers';
+                    Image = EditLines;
+                    ToolTip = 'Resort the numbers in the Document No. column to avoid posting errors because the document numbers are not in sequence. Entry applications and line groupings are preserved.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.RenumberDocumentNo();
+                    end;
+                }
                 action(CalcRemainingUsage)
                 {
                     ApplicationArea = Jobs;
@@ -878,6 +890,9 @@ page 201 "Job Journal"
                 actionref(Reconcile_Promoted; Reconcile)
                 {
                 }
+                actionref("Renumber Document Numbers_Promoted"; "Renumber Document Numbers")
+                {
+                }
             }
             group(Category_Category5)
             {
@@ -921,7 +936,7 @@ page 201 "Job Journal"
                     actionref(UnitOfMeasure_Promoted; UnitOfMeasure)
                     {
                     }
-                   actionref(Location_Promoted; Location)
+                    actionref(Location_Promoted; Location)
                     {
                     }
                     actionref(Lot_Promoted; Lot)
@@ -929,7 +944,7 @@ page 201 "Job Journal"
                     }
                     actionref("BOM Level_Promoted"; "BOM Level")
                     {
-                    }                    
+                    }
                 }
             }
             group(Category_Category4)

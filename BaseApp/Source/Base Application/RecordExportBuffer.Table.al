@@ -22,14 +22,6 @@ table 62 "Record Export Buffer"
             Caption = 'RecordID';
             DataClassification = CustomerContent;
         }
-        field(3; ServerFilePath; Text[250])
-        {
-            Caption = 'ServerFilePath';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Replaced by usage of the File Content field.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
         field(4; ClientFileName; Text[250])
         {
             Caption = 'ClientFileName';
@@ -86,4 +78,3 @@ table 62 "Record Export Buffer"
         RecordRef.SetTable(Rec);
     end;
 }
-

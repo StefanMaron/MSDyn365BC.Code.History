@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA26 
 namespace System.Integration.PowerBI;
 
 /// <summary>
@@ -8,13 +9,8 @@ table 6304 "Power BI User Configuration"
     Caption = 'Power BI User Configuration';
     ReplicateData = false;
     ObsoleteReason = 'Use table Power BI Context Settings instead. The new table does not require Profile ID, and supports multiple types of embedded elements.';
-#if not CLEAN23
-    ObsoleteState = Pending;
-    ObsoleteTag = '23.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '26.0';
-#endif
     DataClassification = CustomerContent;
 
     fields
@@ -33,14 +29,6 @@ table 6304 "Power BI User Configuration"
         {
             Caption = 'Profile ID';
             DataClassification = CustomerContent;
-        }
-        field(4; "Report Visibility"; Boolean)
-        {
-            Caption = 'Report Visibility';
-            ObsoleteReason = 'The report part visibility is now handled by the standard personalization experience. Hide the page using Personalization instead of using this value.';
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
         }
         field(5; "Selected Report ID"; Guid)
         {
@@ -95,55 +83,6 @@ table 6304 "Power BI User Configuration"
     local procedure OnBeforeCreateOrReadUserConfigEntry(var PowerBIUserConfiguration: Record "Power BI User Configuration"; PageID: Text; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN23
-    trigger OnInsert()
-    var
-        PowerBIContextSettings: Record "Power BI Context Settings";
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        if PowerBIContextSettings.Get(Rec."User Security ID", Rec."Page ID") then
-            PowerBIContextSettings.Delete();
-
-        PowerBIContextSettings.Init();
-        PowerBIContextSettings.UserSID := Rec."User Security ID";
-        PowerBIContextSettings.Context := Rec."Page ID";
-        PowerBIContextSettings.SelectedElementId := Format(Rec."Selected Report ID");
-        PowerBIContextSettings.SelectedElementType := Enum::"Power BI Element Type"::Report;
-        PowerBIContextSettings.LockToSelectedElement := Rec."Lock to first visual";
-        PowerBIContextSettings.Insert();
-    end;
-
-    trigger OnModify()
-    var
-        PowerBIContextSettings: Record "Power BI Context Settings";
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        if PowerBIContextSettings.Get(Rec."User Security ID", Rec."Page ID") then
-            PowerBIContextSettings.Delete();
-
-        PowerBIContextSettings.Init();
-        PowerBIContextSettings.UserSID := Rec."User Security ID";
-        PowerBIContextSettings.Context := Rec."Page ID";
-        PowerBIContextSettings.SelectedElementId := Format(Rec."Selected Report ID");
-        PowerBIContextSettings.SelectedElementType := Enum::"Power BI Element Type"::Report;
-        PowerBIContextSettings.LockToSelectedElement := Rec."Lock to first visual";
-        PowerBIContextSettings.Insert();
-    end;
-
-    trigger OnDelete()
-    var
-        PowerBIContextSettings: Record "Power BI Context Settings";
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        if PowerBIContextSettings.Get(Rec."User Security ID", Rec."Page ID") then
-            PowerBIContextSettings.Delete();
-    end;
-#endif
 }
+
+#endif

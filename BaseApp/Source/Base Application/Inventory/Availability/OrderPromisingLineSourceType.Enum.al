@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Availability;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Availability;
 
 #pragma warning disable AL0659
 enum 99000880 "Order Promising Line Source Type"

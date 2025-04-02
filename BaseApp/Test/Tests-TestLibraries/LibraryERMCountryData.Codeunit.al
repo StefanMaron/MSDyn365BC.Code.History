@@ -120,7 +120,17 @@ codeunit 131305 "Library - ERM Country Data"
         PurchasesPayablesSetup.Modify();
     end;
 
+    procedure SetDiscountPostingInPurchasePayablesSetup()
+    begin
+        exit;
+    end;
+
     procedure UpdateSalesReceivablesSetup()
+    begin
+        exit;
+    end;
+
+    procedure SetDiscountPostingInSalesReceivablesSetup()
     begin
         exit;
     end;

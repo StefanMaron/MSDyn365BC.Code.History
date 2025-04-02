@@ -18,7 +18,6 @@ codeunit 131904 "Library - Time Sheet"
         LibraryService: Codeunit "Library - Service";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryAssembly: Codeunit "Library - Assembly";
         TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
         Initialized: Boolean;
@@ -412,7 +411,7 @@ codeunit 131904 "Library - Time Sheet"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // create complicated item
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, Item[1]."No.", BOMComponent.Type::Item, Item[2]."No.", 2, '');
+        LibraryInventory.CreateBOMComponent(BOMComponent, Item[1]."No.", BOMComponent.Type::Item, Item[2]."No.", 2, '');
 
         // create assembly order with lines
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalcDate('<+7D>', Date), Item[1]."No.", Location.Code, 2, '');

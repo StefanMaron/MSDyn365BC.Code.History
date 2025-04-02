@@ -10,6 +10,7 @@ enum 7310 "Warehouse Destination Type"
     value(2; "Vendor") { Caption = 'Vendor'; }
     value(3; "Location") { Caption = 'Location'; }
     value(4; "Item") { Caption = 'Item'; }
-    value(5; "Family") { Caption = 'Family'; }
+    // Implemented in enum extension Mfg. Warehouse Destination Type
+    // value(5; "Family") { Caption = 'Family'; }
     value(6; "Sales Order") { Caption = 'Sales Order'; }
 }

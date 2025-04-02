@@ -17,7 +17,6 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
         LibraryJournals: Codeunit "Library - Journals";
-        TotalAmountErr: Label 'Total amount (%1) is not equal to total of lines (%2)';
         LibraryRandom: Codeunit "Library - Random";
         ValueMustNotEqualMsg: Label 'Value must not be equal';
         ValueMustEqualMsg: Label 'Value must be equal';
@@ -67,43 +66,6 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
 
         // [THEN] Verify Purchase Credit Memo posted successfully.
         VerifyPurchaseCreditMemoLine(PurchCrMemoHdrNo, PurchaseHeader."Doc. Amount Incl. VAT");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostPurchInvoiceWithDocAmountInclVATError()
-    begin
-        // [SCENARIO] Post Purchase Invoice with wrong Document Amount Including VAT.
-        Initialize();
-        PostPurchDocWithWrongDocAmountInclVAT("Purchase Document Type"::Invoice);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostPurchCrMemoWithDocAmountInclVATError()
-    begin
-        // [SCENARIO] Post Purchase Credit Memo with wrong Document Amount Including VAT.
-        Initialize();
-        PostPurchDocWithWrongDocAmountInclVAT("Purchase Document Type"::"Credit Memo");
-    end;
-
-    local procedure PostPurchDocWithWrongDocAmountInclVAT(DocumentType: Enum "Purchase Document Type")
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        SetCheckDocTotalAmounts(true);
-        // [GIVEN] Create Purchase Document with wrong Document Amount Including VAT.
-        CreatePurchaseDocument(PurchaseLine, DocumentType);
-
-        // [WHEN] Update Doc. Amount Incl. VAT and post Purchase Document.
-        asserterror UpdateAndPostPurchaseDocument(PurchaseHeader, PurchaseLine, LibraryRandom.RandDec(10, 2));  // Taking Random value for Doc. Amount Incl. VAT other than calculated value from Purchase Line.
-
-        // [THEN] Verify Posting is not allowed with wrong Document Amount Including VAT.
-        Assert.ExpectedError(
-          StrSubstNo(
-            TotalAmountErr, PurchaseHeader."Doc. Amount Incl. VAT",
-            (PurchaseLine."Line Amount" + PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100)));
     end;
 
     [Test]

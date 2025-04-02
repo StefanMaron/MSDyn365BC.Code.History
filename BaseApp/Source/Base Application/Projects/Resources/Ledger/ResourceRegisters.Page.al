@@ -9,6 +9,7 @@ page 274 "Resource Registers"
     Editable = false;
     PageType = List;
     SourceTable = "Resource Register";
+    SourceTableView = sorting("No.") order(descending);
     UsageCategory = History;
 
     layout

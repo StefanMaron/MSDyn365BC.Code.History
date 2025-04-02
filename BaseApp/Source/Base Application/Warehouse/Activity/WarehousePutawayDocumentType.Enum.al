@@ -14,4 +14,5 @@ enum 7352 "Warehouse Putaway Document Type"
     value(0; " ") { Caption = ' '; }
     value(1; "Receipt") { Caption = 'Receipt'; }
     value(3; "Internal Put-away") { Caption = 'Internal Put-away'; }
+    value(5; "Production") { Caption = 'Production'; }
 }

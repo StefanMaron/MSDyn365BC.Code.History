@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Manufacturing.Journal;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.Journal;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Costing;
@@ -204,6 +208,9 @@ codeunit 5510 "Production Journal Mgt"
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         Location: Record Location;
+#if not CLEAN26
+        ManufacturingSetup: Record "Manufacturing Setup";
+#endif
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         NeededQty: Decimal;
         OriginalNeededQty: Decimal;
@@ -231,14 +238,20 @@ codeunit 5510 "Production Journal Mgt"
         if IsHandled then
             exit;
 
-        if ProdOrderComp."Flushing Method" <> ProdOrderComp."Flushing Method"::Manual then
+        if not (ProdOrderComp."Flushing Method" in [ProdOrderComp."Flushing Method"::Manual, ProdOrderComp."Flushing Method"::"Pick + Manual"]) then
             NeededQty := 0
         else
             NeededQty := ProdOrderComp.GetNeededQty(CalcBasedOn, true);
 
         OriginalNeededQty := NeededQty;
 
-        if ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::Manual then begin
+#if not CLEAN26
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+            ShouldAdjustQty := ProdOrderComp."Flushing Method" in [ProdOrderComp."Flushing Method"::Manual, ProdOrderComp."Flushing Method"::"Pick + Manual"]
+        else
+#endif
+            ShouldAdjustQty := ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::"Pick + Manual";
+        if ShouldAdjustQty then begin
             if ProdOrderComp."Location Code" <> Location.Code then
                 if not Location.GetLocationSetup(ProdOrderComp."Location Code", Location) then
                     Clear(Location);
@@ -428,14 +441,14 @@ codeunit 5510 "Production Journal Mgt"
 
     local procedure CalculateQtyToPostForProdOrder(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var QtyToPost: Decimal)
     var
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
     begin
         QtyToPost :=
-            CostCalcMgt.CalcQtyAdjdForRoutingScrap(
+            MfgCostCalcMgt.CalcQtyAdjdForRoutingScrap(
                 ProdOrderLine."Quantity (Base)",
                 ProdOrderRoutingLine."Scrap Factor % (Accumulated)",
                 ProdOrderRoutingLine."Fixed Scrap Qty. (Accum.)") -
-            CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRoutingLine);
+            MfgCostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRoutingLine);
         QtyToPost := QtyToPost / ProdOrderLine."Qty. per Unit of Measure";
 
         OnAfterCalculateQtyToPostForProdOrder(ProdOrderLine, ProdOrderRoutingLine, QtyToPost);

@@ -1,4 +1,4 @@
-codeunit 134327 "ERM Purchase Order"
+﻿codeunit 134327 "ERM Purchase Order"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -20,7 +20,6 @@ codeunit 134327 "ERM Purchase Order"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryService: Codeunit "Library - Service";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
@@ -31,7 +30,6 @@ codeunit 134327 "ERM Purchase Order"
         LibraryJob: Codeunit "Library - Job";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPlanning: Codeunit "Library - Planning";
 #if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
@@ -3208,6 +3206,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // [WHEN] Run "Get Receipt Lines" and select Posted Receipt Line
         PurchRcptLine.InsertInvLineFromRcptLine(PurchLine);
+
         // [THEN] Invoice "Invoice Discount Value" = "Y"
         PurchHeader.Find();
         PurchHeader.CalcFields("Invoice Discount Amount");
@@ -4527,6 +4526,8 @@ codeunit 134327 "ERM Purchase Order"
         Assert.AreEqual(248158881, PurchLine.GetLineAmountToHandle(37), PurchLineGetLineAmountToHandleErr);
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsUpdateTotalVATHandler,VATAmountLinesHandler')]
     [Scope('OnPrem')]
@@ -4554,6 +4555,43 @@ codeunit 134327 "ERM Purchase Order"
 
         // [WHEN] Add "VAT Difference" = 1 in SalesStatisticHandler
         UpdateVATAmountOnPurchaseOrderStatistics(PurchaseHeader, PurchaseOrder);
+
+        // [THEN] "VAT Difference" and "Amount Including VAT" fields contain VAT difference amount in purchase line
+        // [THEN] "VAT Difference" = 1 in purchase line
+        // [THEN] "Amount Including VAT" = 5001 in purchase line
+        PurchaseLine.Find();
+        PurchaseLine.TestField("VAT Difference", VATDifference);
+        PurchaseLine.TestField("Amount Including VAT", AmountInclVATBefore + VATDifference);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsUpdateTotalVATPageHandler,VATAmountLinesHandler')]
+    [Scope('OnPrem')]
+    procedure AmtInclVATContainsVATDifferenceInOpenSalesOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        MaxVATDifference: Decimal;
+        VATDifference: Decimal;
+        AmountInclVATBefore: Decimal;
+    begin
+        // [FEATURE] [Statistics] [VAT Difference]
+        // [SCENARIO 224140] "Amount Incl. VAT" contains VAT Difference in open Purchase Order
+        Initialize();
+
+        // [GIVEN] VAT Difference is allowed
+        MaxVATDifference := EnableVATDiffAmount();
+        VATDifference := LibraryRandom.RandDecInDecimalRange(0.01, MaxVATDifference, 2);
+        LibraryVariableStorage.Enqueue(VATDifference);
+
+        // [GIVEN] Purchase Order with Amount = 4000, Amount Incl. VAT = 5000
+        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, LibraryPurchase.CreateVendorNo(), PurchaseHeader."Document Type"::Order);
+        AmountInclVATBefore := PurchaseLine."Amount Including VAT";
+
+        // [WHEN] Add "VAT Difference" = 1 in SalesStatisticHandler
+        UpdateVATAmountOnPurchaseOrderStats(PurchaseHeader, PurchaseOrder);
 
         // [THEN] "VAT Difference" and "Amount Including VAT" fields contain VAT difference amount in purchase line
         // [THEN] "VAT Difference" = 1 in purchase line
@@ -6166,6 +6204,31 @@ codeunit 134327 "ERM Purchase Order"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CombineGLEntriesForTheSameAccountIfCopyDocumentLineDescrToGLEntryIsFalse()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        AccountNo: Code[20];
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [G/L Entry] [Description]
+        // [SCENARIO 300843] G/L account type lines combined  to single G/L entry when PurchasSetup."Copy Line Descr. to G/L Entry" = "No"
+        Initialize();
+
+        // [GIVEN] Set PurchaseSetup."Copy Line Descr. to G/L Entry" = "No"
+        SetPurchSetupCopyLineDescrToGLEntry(false);
+
+        // [GIVEN] Create purchase order with sereval "G/L Account" type purchase lines with unique descriptions "Descr1" - "Descr5"
+        AccountNo := CreatePurchOrderWithSameAccountLines(PurchaseHeader, "Purchase Line Type"::"G/L Account", 3);
+
+        // [WHEN] Purchase order is being posted
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] One G/L entry created for combined lines
+        VerifyCombinedGLEntries(InvoiceNo, AccountNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ExtendCopyDocumentLineDescriptionToGLEntry()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -6801,14 +6864,13 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         BOMComponent: Record "BOM Component";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
         // [FEATURE] [Resource] [BOM]
         // [SCENARIO 341999] Explode BOM with resource component
         Initialize();
 
         // [GIVEN] Item with resource BOM component
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItemNo(), BOMComponent.Type::Resource, LibraryResource.CreateResourceNo(), 1, '');
+        LibraryInventory.CreateBOMComponent(BOMComponent, LibraryInventory.CreateItemNo(), BOMComponent.Type::Resource, LibraryResource.CreateResourceNo(), 1, '');
 
         // [GIVEN] Purchase order with item
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
@@ -8576,7 +8638,7 @@ codeunit 134327 "ERM Purchase Order"
                 SourceCurrencyErr,
                 GLEntry.FieldCaption("Source Currency Amount")));
     end;
-    
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -8828,7 +8890,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         Item.Validate("Automatic Ext. Texts", true);
         Item.Modify(true);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
         ExtendedTextHeader.Validate("Purchase Order", true);
         ExtendedTextHeader.Modify(true);
         CreateExtendedTextLine(ExtendedTextHeader);
@@ -8839,7 +8901,7 @@ codeunit 134327 "ERM Purchase Order"
     var
         ExtendedTextLine: Record "Extended Text Line";
     begin
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID());
         ExtendedTextLine.Modify(true);
     end;
@@ -9015,6 +9077,23 @@ codeunit 134327 "ERM Purchase Order"
             TempPurchaseLine := PurchaseLine;
             TempPurchaseLine.Insert();
         end;
+    end;
+
+    local procedure CreatePurchOrderWithSameAccountLines(var PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; LineCount: Integer): Code[20]
+    var
+        PurchaseLine: Record "Purchase Line";
+        AccountNo: Code[20];
+        i: Integer;
+    begin
+        AccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        for i := 1 to LineCount do
+            case Type of
+                PurchaseLine.Type::"G/L Account":
+                    LibraryPurchase.CreatePurchaseLine(
+                      PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", AccountNo, 1);
+            end;
+        exit(AccountNo);
     end;
 
     local procedure FindPurchRcptHeader(var PurchRcptHeader: Record "Purch. Rcpt. Header"; OrderNo: Code[20])
@@ -9195,11 +9274,10 @@ codeunit 134327 "ERM Purchase Order"
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryService: Codeunit "Library - Service";
     begin
         LibraryInventory.CreateItem(Item);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         UpdateTextInExtendedTextLine(ExtendedTextLine, Item."No.");
         exit(ExtendedTextLine.Text);
     end;
@@ -9286,8 +9364,8 @@ codeunit 134327 "ERM Purchase Order"
         Item.Validate("Automatic Ext. Texts", true);
         Item.Validate("Last Direct Cost", LibraryRandom.RandDec(100, 2));
         Item.Modify(true);
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         UpdateTextInExtendedTextLine(ExtendedTextLine, Item."No.");
         exit(Item."No.");
     end;
@@ -10273,11 +10351,22 @@ codeunit 134327 "ERM Purchase Order"
         VendorLedgerEntries.OK().Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure UpdateVATAmountOnPurchaseOrderStatistics(var PurchaseHeader: Record "Purchase Header"; var PurchaseOrder: TestPage "Purchase Order")
     begin
         PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseOrder.Statistics.Invoke();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+    end;
+#endif
+
+    local procedure UpdateVATAmountOnPurchaseOrderStats(var PurchaseHeader: Record "Purchase Header"; var PurchaseOrder: TestPage "Purchase Order")
+    begin
+        PurchaseOrder.OpenView();
+        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder.PurchaseOrderStatistics.Invoke();
         PurchaseOrder.GotoRecord(PurchaseHeader);
     end;
 
@@ -10585,18 +10674,6 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN23
-    [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPreparePurchase', '', false, false)]
-    local procedure OnAfterInvPostBufferPreparePurchase(var PurchaseLine: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
-    begin
-        // Example of extending feature "Copy document line description to G/L entries" for lines with type = "Item"
-        if InvoicePostBuffer.Type = InvoicePostBuffer.Type::Item then begin
-            InvoicePostBuffer."Fixed Asset Line No." := PurchaseLine."Line No.";
-            InvoicePostBuffer."Entry Description" := PurchaseLine.Description;
-        end;
-    end;
-#endif
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch. Post Invoice Events", 'OnAfterPrepareInvoicePostingBuffer', '', false, false)]
     local procedure OnAfterPreparePurchase(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
@@ -10742,6 +10819,15 @@ codeunit 134327 "ERM Purchase Order"
             GLEntry.SETRANGE(Description, TempPurchaseLine.Description);
             Assert.RecordIsNotEmpty(GLEntry);
         until TempPurchaseLine.Next() = 0;
+    end;
+
+    local procedure VerifyCombinedGLEntries(InvoiceNo: Code[20]; AccountNo: Code[20])
+    var
+        GLEntry: Record "G/l Entry";
+    begin
+        GLEntry.SETRANGE("Document No.", InvoiceNo);
+        GLEntry.SETRANGE("G/L Account No.", AccountNo);
+        Assert.IsTrue(GLEntry.Count() = 1, 'One G/L Entry should be posted');
     end;
 
     local procedure VerifyJobLedgerEntryZeroUnitCost(DocumentNo: Code[20]; JobNo: Code[20])
@@ -11492,7 +11578,7 @@ codeunit 134327 "ERM Purchase Order"
         LibraryUtility.FindRecord(RecRef);
         RecRef.SetTable(ItemUnitOfMeasure);
 
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ParentItemNo, BOMComponent.Type::Item, ItemNo, LibraryRandom.RandInt(10), ItemUnitOfMeasure.Code);
     end;
 
@@ -12288,9 +12374,20 @@ codeunit 134327 "ERM Purchase Order"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsUpdateTotalVATHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    begin
+        PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
+        PurchaseOrderStatistics.OK().Invoke();
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsUpdateTotalVATPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
         PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
         PurchaseOrderStatistics.OK().Invoke();

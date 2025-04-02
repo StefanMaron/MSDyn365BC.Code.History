@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.ProductionBOM;
 
 using Microsoft.Inventory.Item;
@@ -164,6 +168,9 @@ report 99001043 "Exchange Production BOM Item"
                                     if ShouldInsertNewProductionBOMLine then
                                         ProductionBOMLine2.Insert();
                                 end;
+                            if (ToProductionBOMNo = '') and FirstVersion then
+                                if not CreateNewVersion then
+                                    ProductionBOMLine.Delete(true);
                         end;
                     until ProductionBOMLine.Next(-1) = 0;
             end;
@@ -316,7 +323,8 @@ report 99001043 "Exchange Production BOM Item"
 
                                 case ToProductionBOMLineType of
                                     ToProductionBOMLineType::Item:
-                                        Item.Get(ToProductionBOMNo);
+                                        if ToProductionBOMNo <> '' then
+                                            Item.Get(ToProductionBOMNo);
                                     ToProductionBOMLineType::"Production BOM":
                                         ProductionBOMHeader.Get(ToProductionBOMNo);
                                 end;

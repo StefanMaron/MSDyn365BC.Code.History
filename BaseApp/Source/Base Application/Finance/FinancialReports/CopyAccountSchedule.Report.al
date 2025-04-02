@@ -1,4 +1,5 @@
 namespace Microsoft.Finance.FinancialReports;
+using System.Telemetry;
 
 report 26 "Copy Account Schedule"
 {
@@ -96,6 +97,7 @@ report 26 "Copy Account Schedule"
         CopySourceAccScheduleName: Code[10];
         CopySourceNameMissingErr: Label 'You must specify a valid name for the source rows definition to copy from.';
         MultipleSourcesErr: Label 'You can only copy one rows definition at a time.';
+        CopyEventTxt: Label 'Financial Report Row Definition copied: %1', Comment = '%1 = rows definition name', Locked = true;
 
     procedure GetNewAccountScheduleName(): Code[10]
     begin
@@ -127,6 +129,8 @@ report 26 "Copy Account Schedule"
         AccScheduleName.TransferFields(FromAccScheduleName);
         AccScheduleName.Name := NewName;
         AccScheduleName.Insert();
+
+        LogUsageTelemetry(FromAccScheduleName.Name, NewName);
     end;
 
     local procedure CreateNewAccountScheduleLine(NewName: Code[10]; FromAccScheduleLine: Record "Acc. Schedule Line")
@@ -167,6 +171,19 @@ report 26 "Copy Account Schedule"
 
         if AccScheduleName.Count > 1 then
             Error(MultipleSourcesErr);
+    end;
+
+    local procedure LogUsageTelemetry(SourceCode: Code[10]; NewCode: Code[10])
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
+        TelemetryDimensions.Add('SourceRowDefinitionCode', SourceCode);
+        TelemetryDimensions.Add('NewRowDefinitionCode', NewCode);
+        FeatureTelemetry.LogUsage('0000OKV', 'Financial Report', StrSubstNo(CopyEventTxt, SourceCode), TelemetryDimensions);
     end;
 }
 

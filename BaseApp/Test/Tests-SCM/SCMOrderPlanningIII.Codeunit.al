@@ -1766,7 +1766,7 @@ codeunit 137088 "SCM Order Planning - III"
         Item.Modify(true);
 
         // [GIVEN] Make item "I" a component of a parent item "P" and create assembly order for "P".
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, LibraryInventory.CreateItemNo(), BOMComponent.Type::Item, Item."No.", 1, Item."Base Unit of Measure");
         LibraryAssembly.CreateAssemblyHeader(
           AssemblyHeader, WorkDate() + 10, BOMComponent."Parent Item No.", '', LibraryRandom.RandInt(10), '');
@@ -2868,6 +2868,94 @@ codeunit 137088 "SCM Order Planning - III"
     end;
 
     [Test]
+    [HandlerFunctions('InvokeSelectMultiItemsFromPlanningComponentPageHandler,SelectMultiItemsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PlanningComponentSelectMultipleItems()
+    var
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+        OrderPlanning: TestPage "Order Planning";
+    begin
+        // [SCENARIO 347825] Run Action "Select items" on Planning Component Page adds selected items.
+        Initialize();
+
+        // [GIVEN] Create Manufacturing Setup.
+        CreateManufacturingSetup(ParentItem, ChildItem, true, ChildItem."Order Tracking Policy"::None);
+
+        // [GIVEN] Create And Refresh Production Osrder.
+        CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationRed.Code, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Calcuulate Order Plan.
+        LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
+
+        // [GIVEN] Open Order Planning Page.
+        OpenOrderPlanningPage(OrderPlanning, ProductionOrder."No.", ChildItem."No.");
+
+        // [GIVEN] Filter Requisition Line.
+        RequisitionLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionLine."Journal Batch Name");
+        RequisitionLine.SetRange("Demand Order No.", ProductionOrder."No.");
+        RequisitionLine.SetRange("No.", ChildItem."No.");
+        RequisitionLine.FindFirst();
+
+        // [WHEN] Open and Run Action "Select Items" from the Planning Component Page through Handler. 
+        OrderPlanning.Components.Invoke();
+
+        // [THEN] Verify the count of planning component lines as one line is added.
+        PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
+        PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        Assert.RecordCount(PlanningComponent, 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('InvokeSelectMultiItemsFromPlanningComponentPageHandler,SelectCancelMultiItemsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PlanningComponentCancelSelectMultipleItems()
+    var
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+        OrderPlanning: TestPage "Order Planning";
+    begin
+        // [SCENARIO 347825] Run Action "Select items" on Planning Component Page not add selected items.
+        Initialize();
+
+        // [GIVEN] Create Manufacturing Setup.
+        CreateManufacturingSetup(ParentItem, ChildItem, true, ChildItem."Order Tracking Policy"::None);
+
+        // [GIVEN] Create And Refresh Production Osrder.
+        CreateAndRefreshProdOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationRed.Code, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Calcuulate Order Plan.
+        LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
+
+        // [GIVEN] Open Order Planning Page.
+        OpenOrderPlanningPage(OrderPlanning, ProductionOrder."No.", ChildItem."No.");
+
+        // [GIVEN] Filter Requisition Line.
+        RequisitionLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionLine."Journal Batch Name");
+        RequisitionLine.SetRange("Demand Order No.", ProductionOrder."No.");
+        RequisitionLine.SetRange("No.", ChildItem."No.");
+        RequisitionLine.FindFirst();
+
+        // [WHEN] Open and Run Action "Select Items" from the Planning Component Page through Handler. 
+        OrderPlanning.Components.Invoke();
+
+        // [THEN] Verify the count of planning component lines as line is not added.
+        PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
+        PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        Assert.RecordCount(PlanningComponent, 1);
+    end;
+
+    [Test]
     [HandlerFunctions('MakeSupplyOrdersPageHandler')]
     [Scope('OnPrem')]
     procedure StartingTimeShouldNotBlankOnFirmPlannedProductionOrder()
@@ -3773,6 +3861,13 @@ codeunit 137088 "SCM Order Planning - III"
         PlanningRouting.Type.AssertEquals(RoutingLine.Type);
     end;
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure InvokeSelectMultiItemsFromPlanningComponentPageHandler(var PlanningComponents: TestPage "Planning Components")
+    begin
+        PlanningComponents.SelectMultiItems.Invoke();
+    end;
+
     [ModalPageHandler]
     procedure PurchOrderFromSalesOrderWithVendorNoModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
     begin
@@ -3792,6 +3887,22 @@ codeunit 137088 "SCM Order Planning - III"
     begin
         ItemVendorCatalog.FILTER.SetFilter("Vendor No.", LibraryVariableStorage.DequeueText());
         ItemVendorCatalog.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectMultiItemsModalPageHandler(var ItemList: TestPage "Item List")
+    begin
+        ItemList.Next();
+        ItemList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectCancelMultiItemsModalPageHandler(var ItemList: TestPage "Item List")
+    begin
+        ItemList.Next();
+        ItemList.Cancel().Invoke();
     end;
 
     [ConfirmHandler]

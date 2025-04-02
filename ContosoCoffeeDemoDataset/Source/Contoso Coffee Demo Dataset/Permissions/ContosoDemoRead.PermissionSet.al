@@ -21,9 +21,5 @@ permissionset 4766 "Contoso Demo - Read"
                   tabledata "Warehouse Module Setup" = R,
                   tabledata "Contoso Coffee Demo Data Setup" = R,
                   tabledata "Contoso Demo Data Module" = R,
-#if not CLEAN23
-                  tabledata "Manufacturing Demo Data Setup" = R,
-                  tabledata "Whse Demo Data Setup" = R,
-#endif
                   tabledata "Contoso Module Dependency" = R;
 }

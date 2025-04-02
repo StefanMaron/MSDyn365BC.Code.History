@@ -200,6 +200,10 @@ page 314 "General Posting Setup"
                     ApplicationArea = Assembly, Manufacturing;
                     ToolTip = 'Specifies the general ledger account number to post the direct cost applied with this particular combination of business posting group and product posting group.';
                 }
+                field("Direct Cost Non-Inv. App. Acc."; Rec."Direct Cost Non-Inv. App. Acc.")
+                {
+                    ApplicationArea = Manufacturing;
+                }
                 field("Overhead Applied Account"; Rec."Overhead Applied Account")
                 {
                     ApplicationArea = Assembly, Manufacturing;

@@ -58,12 +58,10 @@ table 570 "G/L Account Category"
                 UpdatePresentationOrder();
             end;
         }
-        field(8; "Income/Balance"; Option)
+        field(8; "Income/Balance"; Enum "G/L Account Report Type")
         {
             Caption = 'Income/Balance';
             Editable = false;
-            OptionCaption = 'Income Statement,Balance Sheet';
-            OptionMembers = "Income Statement","Balance Sheet";
 
             trigger OnValidate()
             begin
@@ -341,7 +339,7 @@ table 570 "G/L Account Category"
         ShowNotificationAccSchedUpdateNeeded();
     end;
 
-    local procedure ClearGLAccountSubcategoryEntryNo("Filter": Text; IncomeBalance: Integer)
+    local procedure ClearGLAccountSubcategoryEntryNo("Filter": Text; IncomeBalance: Enum "G/L Account Report Type")
     var
         GLAccount: Record "G/L Account";
     begin

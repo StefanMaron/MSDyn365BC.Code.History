@@ -48,7 +48,7 @@ codeunit 7203 "CDS Environment"
         if Token.IsEmpty() then
             exit(false);
 
-        EnvironmentCount := GetCDSEnvironments(TempCDSEnvironment, Token, '');
+        EnvironmentCount := GetCDSEnvironmentCount(TempCDSEnvironment, Token, '');
 
         if EnvironmentCount = 0 then begin
             if GuiAllowed then
@@ -75,8 +75,8 @@ codeunit 7203 "CDS Environment"
         end;
         exit(false);
     end;
-#if not CLEAN25
 
+#if not CLEAN25
     [Scope('OnPrem')]
     [NonDebuggable]
     [Obsolete('Replaced by GetGlobalDiscoverabilityOnBehalfTokenAsSecretText', '25.0')]
@@ -110,7 +110,7 @@ codeunit 7203 "CDS Environment"
         ConsumerKey: Text;
         ConsumerSecret: SecretText;
         FirstPartyAppId: Text;
-        FirstPartyAppCertificate: Text;
+        FirstPartyAppCertificate: SecretText;
         RedirectUrl: Text;
         Token: SecretText;
         Err: Text;
@@ -125,7 +125,7 @@ codeunit 7203 "CDS Environment"
         FirstPartyAppId := CDSIntegrationImpl.GetCDSConnectionFirstPartyAppId();
         FirstPartyAppCertificate := CDSIntegrationImpl.GetCDSConnectionFirstPartyAppCertificate();
         RedirectUrl := CDSIntegrationImpl.GetRedirectURL();
-        if (FirstPartyappId <> '') and (FirstPartyAppCertificate <> '') then begin
+        if (FirstPartyappId <> '') and (not (FirstPartyAppCertificate.IsEmpty())) then begin
             Session.LogMessage('0000EI6', AcquiringAuthCodeTokenWithCertificateTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
             OAuth2.AcquireAuthorizationCodeTokenFromCacheWithCertificate(FirstPartyappId, FirstPartyAppCertificate, RedirectUrl, OAuthAuthorityUrlAuthCodeTxt, Scopes, Token);
             if Token.IsEmpty() then
@@ -157,7 +157,7 @@ codeunit 7203 "CDS Environment"
         exit(Token);
     end;
 
-    local procedure GetCDSEnvironments(var TempCDSEnvironment: Record "CDS Environment" temporary; Token: SecretText; FilterTxt: Text): Integer
+    local procedure GetCDSEnvironmentCount(var TempCDSEnvironment: Record "CDS Environment" temporary; Token: SecretText; FilterTxt: Text): Integer
     var
         EnvironmentInformation: Codeunit "Environment Information";
         TempBlob: Codeunit "Temp Blob";
@@ -265,6 +265,7 @@ codeunit 7203 "CDS Environment"
                     EnvironmentCount += 1;
         end;
 
+        Session.LogMessage('0000NWX', StrSubstNo('Found %1 environments.', EnvironmentCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(EnvironmentCount);
     end;
 
@@ -277,9 +278,27 @@ codeunit 7203 "CDS Environment"
         if Token.IsEmpty() then
             exit;
 
-        if GetCDSEnvironments(TempCDSEnvironment, Token, StrSubstNo(EnvironmentIdFilterTok, EnvironmentInformation.GetLinkedPowerPlatformEnvironmentId())) = 1 then begin
+        if GetCDSEnvironmentCount(TempCDSEnvironment, Token, StrSubstNo(EnvironmentIdFilterTok, EnvironmentInformation.GetLinkedPowerPlatformEnvironmentId())) = 1 then begin
             TempCDSEnvironment.FindFirst();
             CDSConnectionSetup."Server Address" := TempCDSEnvironment.Url;
         end;
+    end;
+
+    [Scope('OnPrem')]
+    internal procedure CheckIfEnvironmentInDifferentTenant(EnvironmentUrl: Text; Token: SecretText): Boolean
+    var
+        TempCDSEnvironment: Record "CDS Environment" temporary;
+        EnvironmentCount: Integer;
+    begin
+        if Token.IsEmpty() then
+            exit(false);
+
+        EnvironmentCount := GetCDSEnvironmentCount(TempCDSEnvironment, Token, '');
+
+        if EnvironmentCount = 0 then
+            exit(true);
+
+        TempCDSEnvironment.SetRange(Url, EnvironmentUrl);
+        exit(TempCDSEnvironment.IsEmpty());
     end;
 }

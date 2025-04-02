@@ -167,7 +167,7 @@ codeunit 139006 "Test My Settings"
         // [FEATURE] [My Notifications] [User] [UT]
         // [SCENARIO 382390] Page 1518 "My Notifications" is filtered with USERID value
         MyNotifications.OpenView();
-        Assert.AreEqual(UserId, MyNotifications.FILTER.GetFilter("User Id"), '');
+        Assert.AreEqual(UserId(), MyNotifications.FILTER.GetFilter("User Id"), '');
     end;
 
     [Test]
@@ -275,6 +275,7 @@ codeunit 139006 "Test My Settings"
         // [WHEN] "ACT" is added on the "My Accounts" page.
         MyAccountsTestPage.New();
         MyAccountsTestPage."Account No.".SetValue := TotalingGLAccount."No.";
+        MyAccountsTestPage.Balance.Activate();
 
         // [THEN] "ACT" Balance is 300.
         MyAccountsTestPage.Balance.AssertEquals(TotalingBalance);
@@ -405,8 +406,8 @@ codeunit 139006 "Test My Settings"
     local procedure CreateMyAccountRecord(var MyAccount: Record "My Account"; GLAccountNo: Code[20])
     begin
         MyAccount.Init();
-        MyAccount."User ID" := UserId;
-        MyAccount."Account No." := GLAccountNo;
+        MyAccount."User ID" := CopyStr(UserId(), 1, MaxStrLen(MyAccount."User ID"));
+        MyAccount.Validate("Account No.", GLAccountNo);
         MyAccount.Insert();
     end;
 

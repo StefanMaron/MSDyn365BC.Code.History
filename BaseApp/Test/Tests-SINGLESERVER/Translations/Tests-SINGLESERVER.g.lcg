@@ -869,6 +869,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Reports III - NamedType WrongExchRateErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 70028884 - NamedType 623427625" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Value of %1 must not be deleted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Data Templates - NamedType BaseUnitOfMeasureErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 70028884 - NamedType 2578765670" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Create Record %1 Failed]]></Val>
@@ -1636,7 +1645,7 @@
   </Item>
   <Item ItemId=";Codeunit 1438280909 - NamedType 2827353832" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[To permanently disable a user, go to your Microsoft 365 admin center. Disabling the user in Business Central will only be effective until the next user synchonization with Microsoft 365.]]></Val>
+      <Val><![CDATA[To permanently disable a user, go to your Microsoft 365 admin center. Disabling the user in Business Central will only be effective until the next user synchronization with Microsoft 365.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

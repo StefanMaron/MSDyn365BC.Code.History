@@ -337,35 +337,6 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, Ship, Invoice);
     end;
 
-#if not CLEAN23
-    [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRateWithVendor()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-        VendorNo: Code[20];
-    begin
-        // Check that after Modify Relational Exch. Rate Amount and run Adjust Exchange rate batch job, GL entry and
-        // Detailed Vendor Ledger Entry created with Correct Amount.
-
-        // 1. Setup: Create and Post General Journal Line for Vendor, make Currency with Exchange Rate and modify.
-        Initialize();
-        VendorNo := CreateVendorUpdateCurrency(CurrencyExchangeRate);
-        CreateAndPostGenJournalLine(GenJournalLine, VendorNo, CurrencyExchangeRate);
-        UpdateExchangeRate(CurrencyExchangeRate);
-
-        // 2. Exercise: Run Adjust Exchange Rate batch job.
-        RunAdjustExchangeRates(CurrencyExchangeRate);
-
-        // 3. Verify: Verify G/L Entry and Detailed Vendor Ledger Entry made for correct Amount after running
-        // Adjust Exchange Rate Batch Job
-        VerifyGLEntryAdjustExchange(GenJournalLine, CurrencyExchangeRate);
-        VerifyDetailedVendorLedgEntry(GenJournalLine, CurrencyExchangeRate);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
@@ -708,24 +679,6 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySetupStorage.SavePurchasesSetup();
     end;
-
-#if not CLEAN23
-    local procedure RunAdjustExchangeRates(CurrencyExchangeRate: Record "Currency Exchange Rate")
-    var
-        Currency: Record Currency;
-        AdjustExchangeRates: Report "Adjust Exchange Rates";
-    begin
-        // Using Random Number Generator for Document No.
-        Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
-        Clear(AdjustExchangeRates);
-        AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(
-          CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date", 'Test', CurrencyExchangeRate."Starting Date",
-          CurrencyExchangeRate."Currency Code", true, false);
-        AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run();
-    end;
-#endif
 
     local procedure RunExchRateAdjustment(CurrencyExchangeRate: Record "Currency Exchange Rate")
     var

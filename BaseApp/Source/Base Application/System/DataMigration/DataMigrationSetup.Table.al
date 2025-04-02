@@ -11,6 +11,7 @@ table 1806 "Data Migration Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Default Customer Template"; Code[10])

@@ -24,6 +24,7 @@ table 381 "VAT Registration No. Format"
             Editable = false;
             NotBlank = true;
             TableRelation = "Country/Region";
+            ToolTip = 'Specifies the country/region of the address.';
         }
         field(2; "Line No."; Integer)
         {
@@ -32,6 +33,7 @@ table 381 "VAT Registration No. Format"
         field(3; Format; Text[20])
         {
             Caption = 'Format';
+            ToolTip = 'Specifies a format for a country''s/region''s VAT registration number.';
         }
     }
 

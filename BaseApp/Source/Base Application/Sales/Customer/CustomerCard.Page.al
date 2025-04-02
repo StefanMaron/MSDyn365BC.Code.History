@@ -60,7 +60,6 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = All;
                     Importance = Standard;
-                    ToolTip = 'Specifies the number of the customer. The field is either filled automatically from a defined number series, or you enter the number manually because you have enabled manual number entry in the number-series setup.';
                     Visible = NoFieldVisible;
 
                     trigger OnAssistEdit()
@@ -74,8 +73,6 @@ page 21 "Customer Card"
                     ApplicationArea = All;
                     Importance = Promoted;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the customer''s name. This name will appear on all sales documents for the customer.';
-
                     trigger OnValidate()
                     begin
                         CurrPage.Update(true);
@@ -85,27 +82,22 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = All;
                     Importance = Additional;
-                    ToolTip = 'Specifies an additional part of the name.';
                     Visible = false;
                 }
                 field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = All;
                     Importance = Additional;
-                    ToolTip = 'Specifies an alternate name that you can use to search for a customer.';
                     Visible = false;
                 }
                 field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
-                    ToolTip = 'Specifies the customer''s intercompany partner code.';
                 }
                 field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the payment amount that the customer owes for completed sales. This value is also known as the customer''s balance.';
-
                     trigger OnDrillDown()
                     begin
                         Rec.OpenCustomerLedgerEntries(false);
@@ -136,8 +128,6 @@ page 21 "Customer Card"
                 field("Balance Due (LCY)"; Rec."Balance Due (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies payments from the customer that are overdue per today''s date.';
-
                     trigger OnDrillDown()
                     begin
                         Rec.OpenCustomerLedgerEntries(true);
@@ -147,8 +137,6 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
-                    ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
-
                     trigger OnValidate()
                     begin
                         SetCreditLimitStyle();
@@ -157,31 +145,26 @@ page 21 "Customer Card"
                 field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies which transactions with the customer that cannot be processed, for example, because the customer is insolvent.';
                 }
                 field("Privacy Blocked"; Rec."Privacy Blocked")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies whether to limit access to data for the data subject during daily operations. This is useful, for example, when protecting data from changes while it is under privacy review.';
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies a code for the salesperson who normally handles this customer''s account.';
                 }
                 field("Responsibility Center"; Rec."Responsibility Center")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the code for the responsibility center that will administer this customer by default.';
                 }
                 field("Document Sending Profile"; Rec."Document Sending Profile")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the preferred method of sending documents to this customer, so that you do not have to select a sending option every time that you post and send a document to the customer. Sales documents to this customer will be sent using the specified sending profile and will override the default document sending profile.';
                 }
                 field(TotalSales2; CustSalesLCY)
                 {
@@ -226,20 +209,17 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies when the customer card was last modified.';
                 }
                 field("Disable Search by Name"; Rec."Disable Search by Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies that you can change the customer name on open sales documents. The change applies only to the documents.';
                 }
                 field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     Visible = false;
-                    ToolTip = 'Specifies a number that corresponds to the priority you give the customer. The higher the number, the higher the priority.';
                 }
             }
             group("Address & Contact")
@@ -251,18 +231,14 @@ page 21 "Customer Card"
                     field(Address; Rec.Address)
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the customer''s address. This address will appear on all sales documents for the customer.';
                     }
                     field("Address 2"; Rec."Address 2")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies additional address information.';
                     }
                     field("Country/Region Code"; Rec."Country/Region Code")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the country/region of the address.';
-
                         trigger OnValidate()
                         begin
                             IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
@@ -271,7 +247,6 @@ page 21 "Customer Card"
                     field(City; Rec.City)
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the customer''s city.';
                     }
                     group(Control10)
                     {
@@ -280,14 +255,12 @@ page 21 "Customer Card"
                         field(County; Rec.County)
                         {
                             ApplicationArea = Basic, Suite;
-                            ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
                     }
                     field("Post Code"; Rec."Post Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
-                        ToolTip = 'Specifies the postal code.';
                     }
                     field(ShowMap; ShowMapLbl)
                     {
@@ -308,44 +281,36 @@ page 21 "Customer Card"
                 field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer''s telephone number.';
                 }
                 field(MobilePhoneNo; Rec."Mobile Phone No.")
                 {
-                    Caption = 'Mobile Phone No.';
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = PhoneNo;
-                    ToolTip = 'Specifies the customer''s mobile telephone number.';
                 }
                 field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = EMail;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the customer''s email address.';
                 }
                 field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the customer''s fax number.';
                 }
                 field("Home Page"; Rec."Home Page")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer''s home page address.';
                 }
                 field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the language to be used on printouts for this customer.';
                 }
                 field("Format Region"; Rec."Format Region")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the Format Region to be used on printouts for this customer.';
                 }
                 group(ContactDetails)
                 {
@@ -355,7 +320,6 @@ page 21 "Customer Card"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Contact Code';
                         Importance = Additional;
-                        ToolTip = 'Specifies the contact number for the customer.';
                     }
                     field(ContactName; Rec.Contact)
                     {
@@ -363,8 +327,6 @@ page 21 "Customer Card"
                         Caption = 'Contact Name';
                         Editable = ContactEditable;
                         Importance = Promoted;
-                        ToolTip = 'Specifies the name of the person you regularly contact when you do business with this customer.';
-
                         trigger OnValidate()
                         begin
                             ContactOnAfterValidate();
@@ -383,13 +345,10 @@ page 21 "Customer Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bill-to Customer';
                     Importance = Additional;
-                    ToolTip = 'Specifies a different customer who will be invoiced for products that you sell to the customer in the Name field on the customer card.';
                 }
                 field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = VAT;
-                    ToolTip = 'Specifies the customer''s VAT registration number for customers in EU countries/regions.';
-
                     trigger OnDrillDown()
                     var
                         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
@@ -400,39 +359,32 @@ page 21 "Customer Card"
                 field("EORI Number"; Rec."EORI Number")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
                 }
                 field(GLN; Rec.GLN)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the customer in connection with electronic document sending.';
                 }
                 field("Use GLN in Electronic Document"; Rec."Use GLN in Electronic Document")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the GLN is used in electronic documents as a party identification number.';
                 }
                 field("Copy Sell-to Addr. to Qte From"; Rec."Copy Sell-to Addr. to Qte From")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies which customer address is inserted on sales quotes that you create for the customer.';
                 }
                 field("Tax Liable"; Rec."Tax Liable")
                 {
                     ApplicationArea = SalesTax;
-                    ToolTip = 'Specifies if the customer or vendor is liable for sales tax.';
                 }
                 field("Tax Area Code"; Rec."Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
-                    ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
                 }
                 field("Registration Number"; Rec."Registration Number")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the registration number of the customer. You can enter a maximum of 20 characters, both numbers and letters.';
                 }
                 group(PostingDetails)
                 {
@@ -442,26 +394,22 @@ page 21 "Customer Card"
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
                         ShowMandatory = true;
-                        ToolTip = 'Specifies the customer''s trade type to link transactions made for this customer with the appropriate general ledger account according to the general posting setup.';
                     }
                     field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
-                        ToolTip = 'Specifies the customer''s VAT specification to link transactions made for this customer to.';
                     }
                     field("Customer Posting Group"; Rec."Customer Posting Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
                         ShowMandatory = true;
-                        ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                     }
                     field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
-                        ToolTip = 'Specifies if multiple posting groups can be used for posting business transactions for this customer.';
                         Visible = IsAllowMultiplePostingGroupsVisible;
                     }
                 }
@@ -472,45 +420,38 @@ page 21 "Customer Card"
                     {
                         ApplicationArea = Suite;
                         Importance = Additional;
-                        ToolTip = 'Specifies the default currency for the customer.';
                     }
                     field("Price Calculation Method"; Rec."Price Calculation Method")
                     {
                         Visible = ExtendedPriceEnabled;
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
-                        ToolTip = 'Specifies the default price calculation method.';
                     }
                     field("Customer Price Group"; Rec."Customer Price Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
-                        ToolTip = 'Specifies the customer price group code, which you can use to set up special sales prices in the Sales Prices window.';
                     }
                     field("Customer Disc. Group"; Rec."Customer Disc. Group")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Promoted;
-                        ToolTip = 'Specifies the customer discount group code, which you can use as a criterion to set up special discounts in the Sales Line Discounts window.';
                     }
                     field("Allow Line Disc."; Rec."Allow Line Disc.")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
-                        ToolTip = 'Specifies if a sales line discount is calculated when a special sales price is offered according to setup in the Sales Prices window.';
                     }
                     field("Invoice Disc. Code"; Rec."Invoice Disc. Code")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
                         NotBlank = true;
-                        ToolTip = 'Specifies a code for the invoice discount terms that you have defined for the customer.';
                     }
                     field("Prices Including VAT"; Rec."Prices Including VAT")
                     {
                         ApplicationArea = VAT;
                         Importance = Additional;
-                        ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
                     }
                 }
             }
@@ -524,74 +465,62 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Prepayments;
                     Importance = Additional;
-                    ToolTip = 'Specifies a prepayment percentage that applies to all orders for this customer, regardless of the items or services on the order lines.';
                 }
                 field("Application Method"; Rec."Application Method")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies how to apply payments to entries for this customer.';
                 }
                 field("Partner Type"; Rec."Partner Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies for direct debit collections if the customer that the payment is collected from is a person or a company.';
                 }
                 field("Intrastat Partner Type"; Rec."Intrastat Partner Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies for Intrastat reporting if the customer is a person or a company.';
                 }
                 field("Payment Terms Code"; Rec."Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies a code that indicates the payment terms that you require of the customer.';
                 }
                 field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies how the customer usually submits payment, such as bank transfer or check.';
                 }
                 field("Reminder Terms Code"; Rec."Reminder Terms Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies how reminders about late payments are handled for this customer.';
                 }
                 field("Fin. Charge Terms Code"; Rec."Fin. Charge Terms Code")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies finance charges are calculated for the customer.';
                 }
                 field("Cash Flow Payment Terms Code"; Rec."Cash Flow Payment Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies a payment term that will be used to calculate cash flow for the customer.';
                 }
                 field("Print Statements"; Rec."Print Statements")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies whether to include this customer when you print the Statement report.';
                 }
                 field("Last Statement No."; Rec."Last Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the number of the last statement that was printed for this customer.';
                 }
                 field("Block Payment Tolerance"; Rec."Block Payment Tolerance")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies that the customer is not allowed a payment tolerance.';
                 }
                 field("Transaction Mode Code"; Rec."Transaction Mode Code")
                 {
@@ -602,13 +531,11 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the customer''s bank account that will be used by default when you process refunds to the customer and direct debit collections.';
                 }
                 field("Exclude from Pmt. Practices"; Rec."Exclude from Pmt. Practices")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies that the customer must be excluded from Payment Practices calculations.';
                 }
             }
             group(Shipping)
@@ -617,29 +544,24 @@ page 21 "Customer Card"
                 field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code for another shipment address than the customer''s own address, which is entered by default.';
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Importance = Promoted;
-                    ToolTip = 'Specifies from which location sales to this customer will be processed by default.';
                 }
                 field("Combine Shipments"; Rec."Combine Shipments")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if several orders delivered to the customer can appear on the same sales invoice.';
                 }
                 field(Reserve; Rec.Reserve)
                 {
                     ApplicationArea = Reservation;
-                    ToolTip = 'Specifies whether items will never, automatically (Always), or optionally be reserved for this customer.';
                 }
                 field("Shipping Advice"; Rec."Shipping Advice")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies if the customer accepts partial shipment of orders.';
                 }
                 group("Shipment Method")
                 {
@@ -649,34 +571,29 @@ page 21 "Customer Card"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Code';
                         Importance = Promoted;
-                        ToolTip = 'Specifies which shipment method to use when you ship items to the customer.';
                     }
                     field("Shipping Agent Code"; Rec."Shipping Agent Code")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Agent';
                         Importance = Additional;
-                        ToolTip = 'Specifies which shipping company is used when you ship items to the customer.';
                     }
                     field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Agent Service';
                         Importance = Additional;
-                        ToolTip = 'Specifies the code for the shipping agent service to use for this customer.';
                     }
                 }
                 field("Shipping Time"; Rec."Shipping Time")
                 {
                     ApplicationArea = Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
                 }
                 field("Base Calendar Code"; Rec."Base Calendar Code")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
-                    ToolTip = 'Specifies a customizable calendar for shipment planning that holds the customer''s working days and holidays.';
                 }
                 field("Customized Calendar"; Format(HasCustomBaseCalendar()))
                 {
@@ -705,8 +622,6 @@ page 21 "Customer Card"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Money Owed - Current';
-                        ToolTip = 'Specifies the payment amount that the customer owes for completed sales. This value is also known as the customer''s balance.';
-
                         trigger OnDrillDown()
                         begin
                             Rec.OpenCustomerLedgerEntries(false);
@@ -737,7 +652,6 @@ page 21 "Customer Card"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Credit Limit';
-                        ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
                     }
                     field(CalcCreditLimitLCYExpendedPct; Rec.CalcCreditLimitLCYExpendedPct())
                     {
@@ -886,6 +800,7 @@ page 21 "Customer Card"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::Customer),
                               "No." = field("No.");
@@ -2345,7 +2260,7 @@ page 21 "Customer Card"
         if GuiAllowed() then
             OnAfterGetCurrRecordFunc()
         else
-            OnAfterGetCurrRecordFuncBackground();
+            StartBackgroundCalculations();
     end;
 
     local procedure OnAfterGetCurrRecordFunc()
@@ -2377,14 +2292,7 @@ page 21 "Customer Card"
             OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(Rec.RecordId);
             if OpenApprovalEntriesExist then
                 OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(Rec.RecordId);
-
         end;
-    end;
-
-    local procedure OnAfterGetCurrRecordFuncBackground()
-    begin
-        Rec.CalcFields("Sales (LCY)", "Profit (LCY)", "Inv. Discounts (LCY)", "Payments (LCY)");
-        CustomerMgt.CalculateStatisticsWithCurrentCustomerValues(Rec, AdjmtCostLCY, AdjCustProfit, AdjProfitPct, CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY, CustProfit);
     end;
 
     trigger OnInit()
@@ -2511,7 +2419,7 @@ page 21 "Customer Card"
 
         CurrPage.EnqueueBackgroundTask(BackgroundTaskId, Codeunit::"Customer Card Calculations", Args);
 
-        Session.LogMessage('0000D4Q', StrSubstNo(PageBckGrndTaskStartedTxt, Rec."No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CustomerCardServiceCategoryTxt);
+        Session.LogMessage('0000D4Q', StrSubstNo(PageBckGrndTaskStartedTxt, Rec.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CustomerCardServiceCategoryTxt);
     end;
 
 
@@ -2840,4 +2748,3 @@ page 21 "Customer Card"
     begin
     end;
 }
-

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item.Catalog;
 
 using Microsoft.Foundation.Comment;
@@ -6,7 +10,6 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Setup;
 using Microsoft.Purchases.Vendor;
-using System.IO;
 
 table 5718 "Nonstock Item"
 {
@@ -155,22 +158,6 @@ table 5718 "Nonstock Item"
             begin
                 ValidateField(Rec.FieldNo("Net Weight"));
             end;
-        }
-        field(12; "Item Template Code"; Code[10])
-        {
-            Caption = 'Item Template Code';
-            TableRelation = "Config. Template Header".Code where("Table ID" = const(27));
-            ObsoleteReason = 'This field will be removed with other functionality related to "old" templates. Use "Item Templ. Code" field instead.';
-            ObsoleteState = Removed;
-            ;
-            ObsoleteTag = '21.0';
-        }
-        field(13; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(14; "Last Date Modified"; Date)
         {
@@ -490,4 +477,3 @@ table 5718 "Nonstock Item"
     begin
     end;
 }
-

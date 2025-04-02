@@ -1,4 +1,5 @@
-﻿namespace Microsoft.Sales.Pricing;
+#if not CLEANSCHEMA28 
+namespace Microsoft.Sales.Pricing;
 
 #if not CLEAN25
 using Microsoft.CRM.Campaign;
@@ -20,7 +21,7 @@ table 7002 "Sales Price"
     ObsoleteTag = '16.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '26.0';
+    ObsoleteTag = '28.0';
 #endif    
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
     DataClassification = CustomerContent;
@@ -181,19 +182,16 @@ table 7002 "Sales Price"
                         Error(Text002, "Sales Type");
             end;
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -230,14 +228,6 @@ table 7002 "Sales Price"
         key(Key3; SystemModifiedAt)
         {
         }
-#if not CLEAN23
-        key(Key4; "Coupled to CRM")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
-        }
-#endif
     }
 
     fieldgroups
@@ -330,3 +320,5 @@ table 7002 "Sales Price"
 #endif
 }
 
+
+#endif

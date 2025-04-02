@@ -1599,9 +1599,9 @@ codeunit 134154 "ERM Intercompany III"
         // [GIVEN] Two transactions in IC Outbox for the same Purchase Invoice "PI".
         DocumentNo := LibraryUtility.GenerateGUID();
         VendorNo := LibraryPurchase.CreateVendorNo();
-        MockICOutboxTransaction(ICOutboxTransaction[1], ICPartnerCode, ICOutboxTransaction[1]."Source Type"::"Purchase Document", ICTransactionDocType::Invoice, DocumentNo);
+        MockICOutboxTransaction(ICOutboxTransaction[1], ICPartnerCode, ICOutboxTransaction[1]."IC Source Type"::"Purchase Document", ICTransactionDocType::Invoice, DocumentNo);
         MockICOutboxPurchaseDocument(ICOutboxPurchaseHeader, ICOutboxTransaction[1], VendorNo, 10, 100);
-        MockICOutboxTransaction(ICOutboxTransaction[2], ICPartnerCode, ICOutboxTransaction[2]."Source Type"::"Purchase Document", ICTransactionDocType::Invoice, DocumentNo);
+        MockICOutboxTransaction(ICOutboxTransaction[2], ICPartnerCode, ICOutboxTransaction[2]."IC Source Type"::"Purchase Document", ICTransactionDocType::Invoice, DocumentNo);
         MockICOutboxPurchaseDocument(ICOutboxPurchaseHeader, ICOutboxTransaction[2], VendorNo, 10, 100);
 
         // [GIVEN] One of the transactions is sent.
@@ -1652,9 +1652,9 @@ codeunit 134154 "ERM Intercompany III"
         // [GIVEN] Two transactions in IC Outbox for the same Purchase Invoice "PI".
         DocumentNo := LibraryUtility.GenerateGUID();
         VendorNo := LibraryPurchase.CreateVendorNo();
-        MockICOutboxTransaction(ICOutboxTransaction[1], ICPartnerCode, ICOutboxTransaction[1]."Source Type"::"Purchase Document", ICTransactionDocType::Invoice, DocumentNo);
+        MockICOutboxTransaction(ICOutboxTransaction[1], ICPartnerCode, ICOutboxTransaction[1]."IC Source Type"::"Purchase Document", ICTransactionDocType::Invoice, DocumentNo);
         MockICOutboxPurchaseDocument(ICOutboxPurchaseHeader, ICOutboxTransaction[1], VendorNo, 10, 100);
-        MockICOutboxTransaction(ICOutboxTransaction[2], ICPartnerCode, ICOutboxTransaction[2]."Source Type"::"Purchase Document", ICTransactionDocType::Invoice, DocumentNo);
+        MockICOutboxTransaction(ICOutboxTransaction[2], ICPartnerCode, ICOutboxTransaction[2]."IC Source Type"::"Purchase Document", ICTransactionDocType::Invoice, DocumentNo);
         MockICOutboxPurchaseDocument(ICOutboxPurchaseHeader, ICOutboxTransaction[2], VendorNo, 10, 100);
 
         // [GIVEN] One of the transactions is sent.
@@ -1880,7 +1880,7 @@ codeunit 134154 "ERM Intercompany III"
 
         // [THEN] Transaction for Sales Order is created in IC Outbox. It has two lines with Quantity 10 and 30 respectively.
         FindICOutboxTransaction(
-            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICOutboxTransaction, ICOutboxTransaction."IC Source Type"::"Sales Document",
             ICTransactionDocType::Order, SalesHeader."No.", ICPartnerCode);
         Assert.RecordIsNotEmpty(ICOutboxTransaction);
         VerifyICOutboxSalesLineCount(ICOutboxTransaction, 2);
@@ -1890,7 +1890,7 @@ codeunit 134154 "ERM Intercompany III"
         // [THEN] Transaction for Sales Invoice is created in IC Outbox. It has one line for "SL1" with Quantity = 10.
         PostedInvoiceNo := FindLastSalesInvoiceHeaderNo(SalesHeader."No.");
         FindICOutboxTransaction(
-            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICOutboxTransaction, ICOutboxTransaction."IC Source Type"::"Sales Document",
             ICTransactionDocType::Invoice, PostedInvoiceNo, ICPartnerCode);
         Assert.RecordIsNotEmpty(ICOutboxTransaction);
         VerifyICOutboxSalesLineCount(ICOutboxTransaction, 1);
@@ -1903,7 +1903,7 @@ codeunit 134154 "ERM Intercompany III"
         // [THEN] Transaction for Sales Invoice is created in IC Outbox. It has one line for "SL2" with Quantity = 30.
         PostedInvoiceNo := FindLastSalesInvoiceHeaderNo(SalesHeader."No.");
         FindICOutboxTransaction(
-            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICOutboxTransaction, ICOutboxTransaction."IC Source Type"::"Sales Document",
             ICTransactionDocType::Invoice, PostedInvoiceNo, ICPartnerCode);
         Assert.RecordIsNotEmpty(ICOutboxTransaction);
         VerifyICOutboxSalesLineCount(ICOutboxTransaction, 1);
@@ -1944,7 +1944,7 @@ codeunit 134154 "ERM Intercompany III"
 
         // [THEN] Transaction for Sales Return Order is created in IC Outbox. It has two lines with Quantity 10 and 30 respectively.
         FindICOutboxTransaction(
-            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICOutboxTransaction, ICOutboxTransaction."IC Source Type"::"Sales Document",
             ICTransactionDocType::"Return Order", SalesHeader."No.", ICPartnerCode);
         Assert.RecordIsNotEmpty(ICOutboxTransaction);
         VerifyICOutboxSalesLineCount(ICOutboxTransaction, 2);
@@ -1954,7 +1954,7 @@ codeunit 134154 "ERM Intercompany III"
         // [THEN] Transaction for Sales Credit Memo is created in IC Outbox. It has one line for "SL1" with Quantity = 10.
         PostedCrMemoNo := FindLastSalesCrMemoHeaderNo(SalesHeader."No.");
         FindICOutboxTransaction(
-            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICOutboxTransaction, ICOutboxTransaction."IC Source Type"::"Sales Document",
             ICTransactionDocType::"Credit Memo", PostedCrMemoNo, ICPartnerCode);
         Assert.RecordIsNotEmpty(ICOutboxTransaction);
         VerifyICOutboxSalesLineCount(ICOutboxTransaction, 1);
@@ -1967,7 +1967,7 @@ codeunit 134154 "ERM Intercompany III"
         // [THEN] Transaction for Sales Credit Memo is created in IC Outbox. It has one line for "SL2" with Quantity = 30.
         PostedCrMemoNo := FindLastSalesCrMemoHeaderNo(SalesHeader."No.");
         FindICOutboxTransaction(
-            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICOutboxTransaction, ICOutboxTransaction."IC Source Type"::"Sales Document",
             ICTransactionDocType::"Credit Memo", PostedCrMemoNo, ICPartnerCode);
         Assert.RecordIsNotEmpty(ICOutboxTransaction);
         VerifyICOutboxSalesLineCount(ICOutboxTransaction, 1);
@@ -2035,14 +2035,14 @@ codeunit 134154 "ERM Intercompany III"
 
         // [THEN] Transaction for Sales Order is created in IC Outbox.
         FindICOutboxTransaction(
-            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICOutboxTransaction, ICOutboxTransaction."IC Source Type"::"Sales Document",
             ICTransactionDocType::Order, SalesHeader."No.", ICPartnerCode);
         Assert.RecordIsNotEmpty(ICOutboxTransaction);
 
         // [THEN] Transaction for Sales Invoice is created in IC Outbox.
         PostedInvoiceNo := FindLastSalesInvoiceHeaderNo(SalesHeader."No.");
         FindICOutboxTransaction(
-            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICOutboxTransaction, ICOutboxTransaction."IC Source Type"::"Sales Document",
             ICTransactionDocType::Invoice, PostedInvoiceNo, ICPartnerCode);
         Assert.RecordIsNotEmpty(ICOutboxTransaction);
     end;
@@ -2140,14 +2140,14 @@ codeunit 134154 "ERM Intercompany III"
 
         // [THEN] Transaction for Sales Return Order is created in IC Outbox.
         FindICOutboxTransaction(
-            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICOutboxTransaction, ICOutboxTransaction."IC Source Type"::"Sales Document",
             ICTransactionDocType::"Return Order", SalesHeader."No.", ICPartnerCode);
         Assert.RecordIsNotEmpty(ICOutboxTransaction);
 
         // [THEN] Transaction for Sales Credit Memo is created in IC Outbox.
         PostedCrMemoNo := FindLastSalesCrMemoHeaderNo(SalesHeader."No.");
         FindICOutboxTransaction(
-            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICOutboxTransaction, ICOutboxTransaction."IC Source Type"::"Sales Document",
             ICTransactionDocType::"Credit Memo", PostedCrMemoNo, ICPartnerCode);
         Assert.RecordIsNotEmpty(ICOutboxTransaction);
     end;
@@ -2631,7 +2631,7 @@ codeunit 134154 "ERM Intercompany III"
 
         // [THEN] Transaction for Sales Invoice is created in IC Outbox. It has three lines - first and third with blank Type, second with Item Type.
         FindICOutboxTransaction(
-            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document", ICTransactionDocType::Invoice, PostedInvoiceNo, ICPartnerCode);
+            ICOutboxTransaction, ICOutboxTransaction."IC Source Type"::"Sales Document", ICTransactionDocType::Invoice, PostedInvoiceNo, ICPartnerCode);
         Assert.RecordIsNotEmpty(ICOutboxTransaction);
         VerifyICOutboxSalesLineCount(ICOutboxTransaction, 3);
         VerifyICOutboxSalesLineTypeAndNoByLineNo(ICOutboxTransaction, SalesLine[1]."Line No.", ICPartnerRefType::" ", '', Description[1]);
@@ -2681,7 +2681,7 @@ codeunit 134154 "ERM Intercompany III"
 
         // [THEN] Transaction for Sales Credit Memo is created in IC Outbox. It has three lines - first and third with blank Type, second with Item Type.
         FindICOutboxTransaction(
-            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document", ICTransactionDocType::"Credit Memo", PostedInvoiceNo, ICPartnerCode);
+            ICOutboxTransaction, ICOutboxTransaction."IC Source Type"::"Sales Document", ICTransactionDocType::"Credit Memo", PostedInvoiceNo, ICPartnerCode);
         Assert.RecordIsNotEmpty(ICOutboxTransaction);
         VerifyICOutboxSalesLineCount(ICOutboxTransaction, 3);
         VerifyICOutboxSalesLineTypeAndNoByLineNo(ICOutboxTransaction, SalesLine[1]."Line No.", ICPartnerRefType::" ", '', Description[1]);
@@ -3259,7 +3259,7 @@ codeunit 134154 "ERM Intercompany III"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         // [THEN] The sales invoice is sent back to the originating company
         ICOutboxTransaction.SetRange("Document Type", ICOutboxTransaction."Document Type"::Invoice);
-        ICOutboxTransaction.SetRange("Source Type", ICOutboxTransaction."Source Type"::"Sales Document");
+        ICOutboxTransaction.SetRange("IC Source Type", ICOutboxTransaction."IC Source Type"::"Sales Document");
         Assert.IsTrue(ICOutboxTransaction.FindFirst(), 'When a sales order received from intercompany is posted it should be sent back as an invoice to the originating company');
         ICOutboxTransaction.DeleteAll();
         ICInboxTransaction.DeleteAll();
@@ -3680,17 +3680,17 @@ codeunit 134154 "ERM Intercompany III"
         exit(SalesCrMemoHeader."No.");
     end;
 
-    local procedure FindICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; SourceType: Option; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; ICPartnerCode: Code[20])
+    local procedure FindICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; SourceType: Enum "IC Transaction Source Type"; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; ICPartnerCode: Code[20])
     begin
         ICOutboxTransaction.Reset();
-        ICOutboxTransaction.SetRange("Source Type", SourceType);
+        ICOutboxTransaction.SetRange("IC Source Type", SourceType);
         ICOutboxTransaction.SetRange("Document Type", DocumentType);
         ICOutboxTransaction.SetRange("Document No.", DocumentNo);
         ICOutboxTransaction.SetRange("IC Partner Code", ICPartnerCode);
         ICOutboxTransaction.FindFirst();
     end;
 
-    local procedure FindHandledICOutboxTransaction(var HandledICOutboxTrans: Record "Handled IC Outbox Trans."; SourceType: Option; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; ICPartnerCode: Code[20])
+    local procedure FindHandledICOutboxTransaction(var HandledICOutboxTrans: Record "Handled IC Outbox Trans."; SourceType: Enum "IC Transaction Source Type"; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; ICPartnerCode: Code[20])
     begin
         HandledICOutboxTrans.Reset();
         HandledICOutboxTrans.SetRange("Source Type", SourceType);
@@ -3910,7 +3910,7 @@ codeunit 134154 "ERM Intercompany III"
         ICOutboxTransaction."IC Partner Code" := CreateICPartnerCode();
         ICOutboxTransaction."Transaction Source" := ICOutboxTransaction."Transaction Source"::"Created by Current Company";
         ICOutboxTransaction."Document Type" := ICOutboxTransaction."Document Type"::Invoice;
-        ICOutboxTransaction."Source Type" := ICOutboxTransaction."Source Type"::"Journal Line";
+        ICOutboxTransaction."IC Source Type" := ICOutboxTransaction."IC Source Type"::Journal;
         ICOutboxTransaction."Document No." := LibraryUtility.GenerateGUID();
         ICOutboxTransaction."Posting Date" := LibraryRandom.RandDate(10);
         ICOutboxTransaction."Document Date" := LibraryRandom.RandDate(10);
@@ -3920,11 +3920,11 @@ codeunit 134154 "ERM Intercompany III"
         ICOutboxTransaction.Insert();
     end;
 
-    local procedure MockICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; ICPartnerCode: Code[20]; SourceType: Option; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20])
+    local procedure MockICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; ICPartnerCode: Code[20]; SourceType: Enum "IC Transaction Source Type"; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20])
     begin
         ICOutboxTransaction.Init();
         ICOutboxTransaction."IC Partner Code" := ICPartnerCode;
-        ICOutboxTransaction."Source Type" := SourceType;
+        ICOutboxTransaction."IC Source Type" := SourceType;
         ICOutboxTransaction."Document Type" := DocumentType;
         ICOutboxTransaction."Document No." := DocumentNo;
         ICOutboxTransaction."Posting Date" := WorkDate();
@@ -3994,7 +3994,7 @@ codeunit 134154 "ERM Intercompany III"
         ICOutboxPurchaseLine.Insert();
     end;
 
-    local procedure MockICInboxTransaction(var ICInboxTransaction: Record "IC Inbox Transaction"; ICPartnerCode: Code[20]; SourceType: Option; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20])
+    local procedure MockICInboxTransaction(var ICInboxTransaction: Record "IC Inbox Transaction"; ICPartnerCode: Code[20]; SourceType: enum "IC Transaction Source Type"; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20])
     begin
         ICInboxTransaction.Init();
         ICInboxTransaction."IC Partner Code" := ICPartnerCode;
@@ -4348,7 +4348,7 @@ codeunit 134154 "ERM Intercompany III"
         Assert.AreEqual(ExpectedReservedQuantity, SalesLine."Reserved Quantity", '');
     end;
 
-    local procedure VerifyHandledICOutboxTransCount(SourceType: Option; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; ICPartnerCode: Code[20]; ExpectedCount: Integer)
+    local procedure VerifyHandledICOutboxTransCount(SourceType: Enum "IC Transaction Source Type"; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; ICPartnerCode: Code[20]; ExpectedCount: Integer)
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
     begin
@@ -4359,7 +4359,7 @@ codeunit 134154 "ERM Intercompany III"
         Assert.RecordCount(HandledICOutboxTrans, ExpectedCount);
     end;
 
-    local procedure VerifyHandledICInboxTransCount(SourceType: Option; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; ICPartnerCode: Code[20]; ExpectedCount: Integer)
+    local procedure VerifyHandledICInboxTransCount(SourceType: enum "IC Transaction Source Type"; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; ICPartnerCode: Code[20]; ExpectedCount: Integer)
     var
         HandledICInboxTrans: Record "Handled IC Inbox Trans.";
     begin

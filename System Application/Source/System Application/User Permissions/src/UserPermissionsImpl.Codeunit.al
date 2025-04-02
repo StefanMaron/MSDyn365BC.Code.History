@@ -219,20 +219,6 @@ codeunit 153 "User Permissions Impl."
         exit(HasUserPermissionSetAssigned(UserSID, CompanyName(), SECURITYPermissionSetTxt, DummyAccessControl.Scope::System, NullGuid));
     end;
 
-#if not CLEAN22
-    procedure HasUserCustomPermissions(UserSecId: Guid): Boolean
-    var
-        AccessControl: Record "Access Control";
-        BlankGuid: Guid;
-    begin
-        // Check if the user is assigned any custom permission sets
-        AccessControl.SetRange("User Security ID", UserSecId);
-        AccessControl.SetRange(Scope, AccessControl.Scope::Tenant);
-        AccessControl.SetRange("App ID", BlankGuid);
-        if not AccessControl.IsEmpty() then
-            exit(true);
-    end;
-#endif
 
     procedure HasUserPermissionSetAssigned(UserSecurityId: Guid; Company: Text; RoleId: Code[20]; ItemScope: Option; AppId: Guid): Boolean
     var
@@ -316,6 +302,7 @@ codeunit 153 "User Permissions Impl."
 #pragma warning restore AA0139
         AccessControl.Insert();
     end;
+
     /// <summary>
     /// An event that indicates that subscribers should set the result that should be returned when the CanManageUsersOnTenant is called.
     /// </summary>

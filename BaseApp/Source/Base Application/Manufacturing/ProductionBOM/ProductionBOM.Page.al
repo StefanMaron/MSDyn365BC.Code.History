@@ -1,6 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.ProductionBOM;
 
+using Microsoft.Foundation.Attachment;
 using Microsoft.Manufacturing.Comment;
+using System.Utilities;
 
 page 99000786 "Production BOM"
 {
@@ -63,16 +69,21 @@ page 99000786 "Production BOM"
                     ApplicationArea = Manufacturing;
                     Caption = 'Active Version';
                     Editable = false;
+                    Style = Strong;
+                    Enabled = ActiveVersionCode <> '';
                     ToolTip = 'Specifies which version of the production BOM is valid.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnAssistEdit()
                     var
-                        ProdBOMVersion: Record "Production BOM Version";
+                        ProductionBOMVersion: Record "Production BOM Version";
                     begin
-                        ProdBOMVersion.SetRange("Production BOM No.", Rec."No.");
-                        ProdBOMVersion.SetRange("Version Code", ActiveVersionCode);
-                        PAGE.RunModal(PAGE::"Production BOM Version", ProdBOMVersion);
-                        ActiveVersionCode := VersionMgt.GetBOMVersion(Rec."No.", WorkDate(), true);
+                        if ActiveVersionCode = '' then
+                            exit;
+
+                        ProductionBOMVersion.SetRange("Production BOM No.", Rec."No.");
+                        ProductionBOMVersion.SetRange("Version Code", ActiveVersionCode);
+                        Page.RunModal(Page::"Production BOM Version", ProductionBOMVersion);
+                        RefreshActiveVersionCode();
                     end;
                 }
                 field("Last Date Modified"; Rec."Last Date Modified")
@@ -101,6 +112,14 @@ page 99000786 "Production BOM"
                 ApplicationArea = Notes;
                 Visible = true;
             }
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::"Production BOM Header"),
+                              "No." = field("No.");
+            }
         }
     }
 
@@ -127,25 +146,53 @@ page 99000786 "Production BOM"
                     ApplicationArea = Manufacturing;
                     Caption = 'Versions';
                     Image = BOMVersions;
-                    RunObject = Page "Prod. BOM Version List";
-                    RunPageLink = "Production BOM No." = field("No.");
                     ToolTip = 'View any alternate versions of the production BOM.';
+
+                    trigger OnAction()
+                    var
+                        ProductionBOMVersion: Record "Production BOM Version";
+                    begin
+                        ProductionBOMVersion.SetRange("Production BOM No.", Rec."No.");
+                        Page.RunModal(0, ProductionBOMVersion);
+                        RefreshActiveVersionCode();
+                    end;
                 }
+#if not CLEAN26
                 action("Ma&trix per Version")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Ma&trix per Version';
                     Image = ProdBOMMatrixPerVersion;
+                    ObsoleteReason = 'Replaced by "Prod. BOM Version Comparison"';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+                    Visible = false;
                     ToolTip = 'View a list of all versions and items and the used quantity per item of a production BOM. You can use the matrix to compare different production BOM versions concerning the used items per version.';
 
                     trigger OnAction()
                     var
-                        BOMMatrixForm: Page "Prod. BOM Matrix per Version";
+                        ProdBOMMatrixPerVersion: Page "Prod. BOM Matrix per Version";
                     begin
-                        BOMMatrixForm.Set(Rec);
+                        ProdBOMMatrixPerVersion.Set(Rec);
+                        ProdBOMMatrixPerVersion.RunModal();
+                        Clear(ProdBOMMatrixPerVersion);
+                    end;
+                }
+#endif
+                action("Prod. BOM Version Comparison")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Production BOM Version Comparison';
+                    Image = ProdBOMMatrixPerVersion;
+                    ToolTip = 'View a list of all versions and items and the used quantity per item of a production BOM. You can use the matrix to compare different production BOM versions concerning the used items per version.';
 
-                        BOMMatrixForm.RunModal();
-                        Clear(BOMMatrixForm);
+                    trigger OnAction()
+                    var
+                        ProdBOMVersionComparison: Page "Prod. BOM Version Comparison";
+                    begin
+                        ProdBOMVersionComparison.Set(Rec);
+
+                        ProdBOMVersionComparison.RunModal();
                     end;
                 }
                 action("Where-used")
@@ -156,10 +203,29 @@ page 99000786 "Production BOM"
                     ToolTip = 'View a list of BOMs in which the item is used.';
 
                     trigger OnAction()
+                    var
+                        ProdBOMWhereUsed: Page "Prod. BOM Where-Used";
                     begin
                         ProdBOMWhereUsed.SetProdBOM(Rec, WorkDate());
                         ProdBOMWhereUsed.RunModal();
                         Clear(ProdBOMWhereUsed);
+                    end;
+                }
+                action(DocAttach)
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -179,11 +245,14 @@ page 99000786 "Production BOM"
                     ToolTip = 'Copy an existing production BOM to quickly create a similar BOM.';
 
                     trigger OnAction()
+                    var
+                        ProductionBOMHeader: Record "Production BOM Header";
+                        ProductionBOMCopy: Codeunit "Production BOM-Copy";
                     begin
                         Rec.TestField("No.");
-                        OnCopyBOMOnBeforeLookup(Rec, ProdBOMHeader);
-                        if PAGE.RunModal(0, ProdBOMHeader) = ACTION::LookupOK then
-                            ProductionBOMCopy.CopyBOM(ProdBOMHeader."No.", '', Rec, '');
+                        OnCopyBOMOnBeforeLookup(Rec, ProductionBOMHeader);
+                        if Page.RunModal(0, ProductionBOMHeader) = Action::LookupOK then
+                            ProductionBOMCopy.CopyBOM(ProductionBOMHeader."No.", '', Rec, '');
                     end;
                 }
             }
@@ -197,7 +266,16 @@ page 99000786 "Production BOM"
                 actionref("Copy &BOM_Promoted"; "Copy &BOM")
                 {
                 }
+#if not CLEAN26
                 actionref("Ma&trix per Version_Promoted"; "Ma&trix per Version")
+                {
+                    ObsoleteReason = 'Replaced by "Prod. BOM Version Comparison"';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
+                    Visible = false;
+                }
+#endif
+                actionref("Prod. BOM Version Comparison_Promoted"; "Prod. BOM Version Comparison")
                 {
                 }
                 actionref("Co&mments_Promoted"; "Co&mments")
@@ -207,6 +285,9 @@ page 99000786 "Production BOM"
                 {
                 }
                 actionref("Where-used_Promoted"; "Where-used")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
             }
@@ -224,15 +305,43 @@ page 99000786 "Production BOM"
 
     trigger OnAfterGetRecord()
     begin
-        ActiveVersionCode := VersionMgt.GetBOMVersion(Rec."No.", WorkDate(), true);
+        RefreshActiveVersionCode();
+    end;
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    begin
+        if not CurrPage.Editable() then
+            exit(true);
+
+        if IsNullGuid(Rec.SystemId) then
+            exit(true);
+
+        if Rec.Status in [Rec.Status::Certified, Rec.Status::Closed] then
+            exit(true);
+
+        if Rec."Unit of Measure Code" = '' then
+            exit(true);
+
+        if not Rec.ProductionBOMLinesExist() then
+            exit(true);
+
+        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
+            exit(false);
+
+        exit(true);
     end;
 
     var
-        ProdBOMHeader: Record "Production BOM Header";
-        ProductionBOMCopy: Codeunit "Production BOM-Copy";
-        VersionMgt: Codeunit VersionManagement;
-        ProdBOMWhereUsed: Page "Prod. BOM Where-Used";
+        ConfirmManagement: Codeunit "Confirm Management";
         ActiveVersionCode: Code[20];
+        CertifyQst: Label 'The %1 has not been certified. Are you sure you want to exit?', Comment = '%1 = page caption (Production BOM)';
+
+    local procedure RefreshActiveVersionCode()
+    var
+        VersionManagement: Codeunit VersionManagement;
+    begin
+        ActiveVersionCode := VersionManagement.GetBOMVersion(Rec."No.", WorkDate(), true);
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyBOMOnBeforeLookup(var ToProductionBOMHeader: Record "Production BOM Header"; var FromProductionBOMHeader: Record "Production BOM Header")

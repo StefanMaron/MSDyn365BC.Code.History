@@ -18,7 +18,6 @@ codeunit 134152 "ERM Intercompany II"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
@@ -444,7 +443,7 @@ codeunit 134152 "ERM Intercompany II"
         // Verify: Verify Sales Line in IC Outbox Transactions. Verification done in Page Handler.
         FindICOutboxTransaction(
           ICOutboxTransaction, SalesHeader."No.", ICOutboxTransaction."Document Type"::Order,
-          ICOutboxTransaction."Source Type"::"Sales Document");
+          ICOutboxTransaction."IC Source Type"::"Sales Document");
         ICOutboxTransaction.ShowDetails();
     end;
 
@@ -550,34 +549,6 @@ codeunit 134152 "ERM Intercompany II"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure ICJournalLineErrorWithBlockedICGLAccount()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        ICGLAccount: Record "IC G/L Account";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalTemplate: Record "Gen. Journal Template";
-    begin
-        // Check error while creating IC General Journal Line for Blocked IC G/L Account.
-
-        // Setup: Create and block IC G/L Account and create IC Journal Batch.
-        Initialize();
-        CreateICGLAccount(ICGLAccount);
-        BlockICGLAccount(ICGLAccount."No.");
-        CreateICJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Intercompany);
-
-        LibraryLowerPermissions.SetIntercompanyPostingsSetup();
-        LibraryLowerPermissions.AddO365Setup();
-        // Exercise.
-        asserterror CreateGeneralJournalLine(
-            GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"IC Partner", CreateICPartner(),
-            GenJournalLine."Bal. Account Type"::"G/L Account", ICGLAccount."Map-to G/L Acc. No.", ICGLAccount."No.", 1);  // Taking 1 for sign factor.
-
-        // Verify: Verify IC G/L Account Blocked error message.
-        Assert.ExpectedTestFieldError(ICGLAccount.FieldCaption(Blocked), Format(false));
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure SalesRetOrderMovedInICOutbox()
@@ -633,7 +604,7 @@ codeunit 134152 "ERM Intercompany II"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // Verify: Verify Sales Document in IC Outbox Transactions.
-        FindICOutboxTransaction(ICOutboxTransaction, SalesHeader."No.", DocumentType2, ICOutboxTransaction."Source Type"::"Sales Document");
+        FindICOutboxTransaction(ICOutboxTransaction, SalesHeader."No.", DocumentType2, ICOutboxTransaction."IC Source Type"::"Sales Document");
         ICOutboxTransaction.TestField("IC Partner Code", ICPartnerCode);
     end;
 
@@ -846,7 +817,7 @@ codeunit 134152 "ERM Intercompany II"
         // Verify: Verify Purchase Return Order in IC Outbox Transactions.
         FindICOutboxTransaction(
           ICOutboxTransaction, PurchaseHeader."No.", ICOutboxTransaction."Document Type"::"Return Order",
-          ICOutboxTransaction."Source Type"::"Purchase Document");
+          ICOutboxTransaction."IC Source Type"::"Purchase Document");
         ICOutboxTransaction.TestField("IC Partner Code", ICPartnerCode);
     end;
 
@@ -1041,7 +1012,7 @@ codeunit 134152 "ERM Intercompany II"
         // Verify: Verify Sales Order IC Outbox Transactions after post Sales Order with partial Quantity.
         FindICOutboxTransaction(
           ICOutboxTransaction, SalesHeader."No.", ICOutboxTransaction."Document Type"::Order,
-          ICOutboxTransaction."Source Type"::"Sales Document");
+          ICOutboxTransaction."IC Source Type"::"Sales Document");
         ICOutboxTransaction.TestField("IC Partner Code", ICPartnerCode);
     end;
 
@@ -1198,7 +1169,7 @@ codeunit 134152 "ERM Intercompany II"
         // [THEN] There's no rounding line in IC Outbox Sales Invoice
         FindICOutboxTransaction(
           ICOutboxTransaction, DocumentNo, ICOutboxTransaction."Document Type"::Invoice,
-          ICOutboxTransaction."Source Type"::"Sales Document");
+          ICOutboxTransaction."IC Source Type"::"Sales Document");
         FindICOutboxSalesLine(
           ICOutboxSalesLine,
           ICOutboxTransaction."Transaction No.", DocumentNo, ICOutboxSalesLine."Document Type"::Invoice);
@@ -1236,7 +1207,7 @@ codeunit 134152 "ERM Intercompany II"
         // [THEN] There's no rounding line in IC Outbox Sales Credit Memo
         FindICOutboxTransaction(
           ICOutboxTransaction, DocumentNo, ICOutboxTransaction."Document Type"::"Credit Memo",
-          ICOutboxTransaction."Source Type"::"Sales Document");
+          ICOutboxTransaction."IC Source Type"::"Sales Document");
         FindICOutboxSalesLine(
           ICOutboxSalesLine,
           ICOutboxTransaction."Transaction No.", DocumentNo, ICOutboxSalesLine."Document Type"::"Credit Memo");
@@ -4373,7 +4344,7 @@ codeunit 134152 "ERM Intercompany II"
 
         FindICOutboxTransaction(
           ICOutboxTransaction, SalesHeader."No.", ICOutboxTransaction."Document Type",
-          ICOutboxTransaction."Source Type"::"Sales Document");
+          ICOutboxTransaction."IC Source Type"::"Sales Document");
         FindICOutboxSalesHeader(
           ICOutboxSalesHeader, ICOutboxTransaction."Transaction No.",
           SalesHeader."No.", ICOutboxSalesHeader."Document Type");
@@ -4448,7 +4419,7 @@ codeunit 134152 "ERM Intercompany II"
 
         FindICOutboxTransaction(
           ICOutboxTransaction, PurchaseHeader."No.", ICOutboxTransaction."Document Type",
-          ICOutboxTransaction."Source Type"::"Purchase Document");
+          ICOutboxTransaction."IC Source Type"::"Purchase Document");
         FindICOutboxPurchaseHeader(
           ICOutboxPurchaseHeader, ICOutboxTransaction."Transaction No.",
           PurchaseHeader."No.", ICOutboxPurchaseHeader."Document Type");
@@ -4607,7 +4578,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        LibraryItemReference.EnableFeature(true);
+
         IsInitialized := true;
         Commit();
 
@@ -5570,7 +5541,7 @@ codeunit 134152 "ERM Intercompany II"
         ICOutboxSalesLine: Record "IC Outbox Sales Line";
     begin
         FindICOutboxTransaction(
-          ICOutboxTransaction, PostedDocNo, ICOutboxTransDocType, ICOutboxTransaction."Source Type"::"Sales Document");
+          ICOutboxTransaction, PostedDocNo, ICOutboxTransDocType, ICOutboxTransaction."IC Source Type"::"Sales Document");
         FindICOutboxSalesLine(
           ICOutboxSalesLine, ICOutboxTransaction."Transaction No.", PostedDocNo, ICOutboxSalesDocType);
 
@@ -5686,7 +5657,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         FindICOutboxTransaction(
           ICOutboxTransaction, SalesDocumentNo, ICOutboxTransaction."Document Type",
-          ICOutboxTransaction."Source Type"::"Sales Document");
+          ICOutboxTransaction."IC Source Type"::"Sales Document");
         FindICOutboxSalesHeader(
           ICOutboxSalesHeader, ICOutboxTransaction."Transaction No.",
           SalesDocumentNo, ICOutboxSalesHeader."Document Type");
@@ -5806,7 +5777,7 @@ codeunit 134152 "ERM Intercompany II"
         ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
         FindICOutboxTransaction(
           ICOutboxTransaction, PurchaseHeader."No.", ConvertDocTypeToICOutboxTransaction(PurchaseHeader."Document Type"),
-          ICOutboxTransaction."Source Type"::"Purchase Document");
+          ICOutboxTransaction."IC Source Type"::"Purchase Document");
         FindICOutboxPurchaseHeader(
           ICOutboxPurchaseHeader, ICOutboxTransaction."Transaction No.",
           PurchaseHeader."No.", ConvertPurchDocTypeToICOutboxPurchHeader(PurchaseHeader."Document Type"));
@@ -5875,11 +5846,11 @@ codeunit 134152 "ERM Intercompany II"
         ICOutboxJnlLine.FindFirst();
     end;
 
-    local procedure FindICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; DocumentNo: Code[20]; DocumentType: Enum "IC Transaction Document Type"; SourceType: Option)
+    local procedure FindICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; DocumentNo: Code[20]; DocumentType: Enum "IC Transaction Document Type"; SourceType: Enum "IC Transaction Source Type")
     begin
         ICOutboxTransaction.SetRange("Document No.", DocumentNo);
         ICOutboxTransaction.SetRange("Document Type", DocumentType);
-        ICOutboxTransaction.SetRange("Source Type", SourceType);
+        ICOutboxTransaction.SetRange("IC Source Type", SourceType);
         ICOutboxTransaction.FindFirst();
     end;
 
@@ -6598,7 +6569,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         FindICOutboxTransaction(
           ICOutboxTransaction, DocumentNo, ICOutboxTransactionDocumentType,
-          ICOutboxTransaction."Source Type"::"Sales Document");
+          ICOutboxTransaction."IC Source Type"::"Sales Document");
         FindICOutboxSalesLine(
           ICOutboxSalesLine,
           ICOutboxTransaction."Transaction No.", DocumentNo, ICOutboxSalesLineDocumentType);
@@ -6624,7 +6595,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         FindICOutboxTransaction(
           ICOutboxTransaction, DocumentNo, ICOutboxTransaction."Document Type"::Order,
-          ICOutboxTransaction."Source Type"::"Sales Document");
+          ICOutboxTransaction."IC Source Type"::"Sales Document");
         FindICOutboxSalesLine(
           ICOutboxSalesLine, ICOutboxTransaction."Transaction No.",
           ICOutboxTransaction."Document No.", ICOutboxSalesLine."Document Type"::Order);
@@ -6639,7 +6610,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         FindICOutboxTransaction(
           ICOutboxTransaction, DocumentNo, ICOutboxTransaction."Document Type"::Order,
-          ICOutboxTransaction."Source Type"::"Purchase Document");
+          ICOutboxTransaction."IC Source Type"::"Purchase Document");
         FindICOutboxPurchaseLine(
           ICOutboxPurchaseLine, ICOutboxTransaction."Transaction No.",
           ICOutboxTransaction."Document No.", ICOutboxPurchaseLine."Document Type"::Order);
@@ -6692,7 +6663,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         FindICOutboxTransaction(
           ICOutboxTransaction, PurchaseHeader."No.", ICOutboxTransaction."Document Type"::Order,
-          ICOutboxTransaction."Source Type"::"Purchase Document");
+          ICOutboxTransaction."IC Source Type"::"Purchase Document");
 
         ICOutboxPurchaseLine.SetRange("IC Transaction No.", ICOutboxTransaction."Transaction No.");
         ICOutboxPurchaseLine.SetRange("IC Partner Code", ICOutboxTransaction."IC Partner Code");
@@ -6967,7 +6938,7 @@ codeunit 134152 "ERM Intercompany II"
             ICOutboxTransaction,
             ICOutboxTransaction."Document Type"::Order,
             PurchaseHeaderUI.GetFilter("No."),
-            ICOutboxTransaction."Source Type"::"Purchase Document",
+            ICOutboxTransaction."IC Source Type"::"Purchase Document",
             PurchaseHeaderUI.Count,
             ICPartnerCode);
     end;
@@ -7010,7 +6981,7 @@ codeunit 134152 "ERM Intercompany II"
             ICOutboxTransaction,
             ICOutboxTransaction."Document Type"::Order,
             SalesHeaderUI.GetFilter("No."),
-            ICOutboxTransaction."Source Type"::"Sales Document",
+            ICOutboxTransaction."IC Source Type"::"Sales Document",
             SalesHeaderUI.Count,
             ICPartnerCode);
     end;
@@ -7199,13 +7170,13 @@ codeunit 134152 "ERM Intercompany II"
         var ICOutboxTransaction: Record "IC Outbox Transaction";
         DocumentType: Enum "IC Transaction Document Type";
         DocumentNo: Text;
-        SourceType: Option;
+        SourceType: Enum "IC Transaction Source Type";
         ExpectedCount: Integer;
         ICPartnerCode: Code[20])
     begin
         ICOutboxTransaction.SetFilter("Document No.", DocumentNo);
         ICOutboxTransaction.SetRange("Document Type", DocumentType);
-        ICOutboxTransaction.SetRange("Source Type", SourceType);
+        ICOutboxTransaction.SetRange("IC Source Type", SourceType);
         ICOutboxTransaction.SetRange("IC Partner Code", ICPartnerCode);
         Assert.RecordCount(ICOutboxTransaction, ExpectedCount);
     end;

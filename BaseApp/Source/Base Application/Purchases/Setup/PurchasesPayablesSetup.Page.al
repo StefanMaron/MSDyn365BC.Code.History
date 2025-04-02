@@ -142,11 +142,6 @@ page 460 "Purchases & Payables Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies the default value for the Qty. to Receive field on purchase order lines and the Return Qty. to Ship field on purchase return order lines. If you choose Blank, the quantity to invoice is not automatically calculated.';
                 }
-                field("Check Doc. Total Amounts"; Rec."Check Doc. Total Amounts")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you want the Doc. Amount Incl. VAT field in purchase documents to be compared to the sum of the Doc. Amount VAT fields in the purchase lines. If the amounts are not the same, you will be notified.';
-                }
                 field("Auto Post Non-Invt. via Whse."; Rec."Auto Post Non-Invt. via Whse.")
                 {
                     ApplicationArea = Warehouse;
@@ -203,6 +198,10 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the document date changes when the posting date is modified.';
                     Importance = Additional;
+                }
+                field("Check Doc. Total Amounts"; Rec."Check Doc. Total Amounts")
+                {
+                    ApplicationArea = Basic, Suite;
                 }
             }
             group(Prices)
@@ -345,22 +344,22 @@ page 460 "Purchases & Payables Setup"
                 field("Archive Quotes"; Rec."Archive Quotes")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you want to archive purchase quotes when they are deleted.';
+                    ToolTip = 'Specifies if you want to automatically archive purchase quotes when: deleted, processed or printed.';
                 }
                 field("Archive Orders"; Rec."Archive Orders")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you want to archive purchase orders when they are deleted.';
+                    ToolTip = 'Specifies if you want to automatically archive purchase orders when: deleted, posted or printed.';
                 }
                 field("Archive Blanket Orders"; Rec."Archive Blanket Orders")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you want to archive purchase blanket orders when they are deleted.';
+                    ToolTip = 'Specifies if you want to automatically archive purchase blanket orders when: deleted, processed or printed.';
                 }
                 field("Archive Return Orders"; Rec."Archive Return Orders")
                 {
                     ApplicationArea = PurchReturnOrder;
-                    ToolTip = 'Specifies if you want to archive purchase return orders when they are deleted.';
+                    ToolTip = 'Specifies if you want to automatically archive purchase return orders when deleted or posted.';
                 }
             }
             group("Journal Templates")

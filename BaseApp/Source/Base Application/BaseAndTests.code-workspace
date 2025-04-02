@@ -103,6 +103,9 @@
 			"path": "..\\Tests\\SCM"
 		},
 		{
+			"path": "..\\Tests\\Service"
+		},
+		{
 			"path": "..\\Tests\\SINGLESERVER"
 		},
 		{

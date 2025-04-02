@@ -26,9 +26,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
 using System.Security.User;
 using System.Utilities;
-#if not CLEAN23
-using Microsoft.Finance.GeneralLedger.Review;
-#endif
 
 table 179 "Reversal Entry"
 {
@@ -184,12 +181,10 @@ table 179 "Reversal Entry"
             else
             if ("Bal. Account Type" = const("Fixed Asset")) "Fixed Asset";
         }
-        field(27; "FA Posting Category"; Option)
+        field(27; "FA Posting Category"; Enum "FA Ledger Posting Category")
         {
             AccessByPermission = TableData "Fixed Asset" = R;
             Caption = 'FA Posting Category';
-            OptionCaption = ' ,Disposal,Bal. Disposal';
-            OptionMembers = " ",Disposal,"Bal. Disposal";
         }
         field(28; "FA Posting Type"; Enum "Reversal Entry FA Posting Type")
         {
@@ -320,11 +315,6 @@ table 179 "Reversal Entry"
             exit;
 
         InsertReversalEntry(Number, RevType);
-#if not CLEAN23
-        if UnapplyGLEntries() then
-            Commit();
-#endif
-
         OnReverseEntriesOnAfterInsertReversalEntry(TempReversalEntry, Number, RevType);
         TempReversalEntry.SetCurrentKey("Document No.", "Posting Date", "Entry Type", "Entry No.");
         if not HideDialog then begin
@@ -1542,27 +1532,6 @@ table 179 "Reversal Entry"
             until DetailedEmployeeLedgerEntry.Next() = 0;
         DetailedEmployeeLedgerEntry.SetRange(Unapplied);
     end;
-
-#if not CLEAN23
-    local procedure UnapplyGLEntries() Unapplied: Boolean
-    begin
-        if GlobalGLEntry.FindSet() then
-            repeat
-                Unapplied := Unapplied or UndoGLEntry(GlobalGLEntry);
-            until GlobalGLEntry.Next() = 0;
-    end;
-
-    local procedure UndoGLEntry(GLEntry: Record "G/L Entry"): Boolean
-    var
-        TempGLEntryApplicationBuffer: Record "G/L Entry Application Buffer" temporary;
-    begin
-        TempGLEntryApplicationBuffer.GetAppliedEntries(TempGLEntryApplicationBuffer, GLEntry);
-        if not TempGLEntryApplicationBuffer.IsEmpty() then begin
-            TempGLEntryApplicationBuffer.Undo(TempGLEntryApplicationBuffer);
-            exit(true);
-        end;
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCaption(ReversalEntry: Record "Reversal Entry"; var NewCaption: Text)

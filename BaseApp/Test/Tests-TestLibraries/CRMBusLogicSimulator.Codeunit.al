@@ -76,9 +76,14 @@ codeunit 139192 "CRM Bus. Logic Simulator"
     local procedure ValidateSalesOrderOnModify(var Rec: Record "CRM Salesorder"; var xRec: Record "CRM Salesorder"; RunTrigger: Boolean)
     var
         xCRMSalesorder: Record "CRM Salesorder";
+        CRMConnectionSetup: Record "CRM Connection Setup";
     begin
         if Rec.IsTemporary then
             exit;
+
+        if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+            exit;
+
         xCRMSalesorder := Rec;
         xCRMSalesorder.Find();
         if (Rec.StateCode = Rec.StateCode::Submitted) and (xCRMSalesorder.StateCode = Rec.StateCode::Submitted) and RunTrigger then
@@ -145,6 +150,18 @@ codeunit 139192 "CRM Bus. Logic Simulator"
             exit;
         Rec.ModifiedOn := CurrentCRMDateTime();
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Synch. Helper", 'OnBeforeFulfillSalesOrder', '', false, false)]
+    local procedure HandleOnBeforeFulfillSalesOrder(var SalesOrderId: Guid)
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+    begin
+        if CRMSalesorder.Get(SalesOrderId) then begin
+            CRMSalesorder.StateCode := CRMSalesorder.StateCode::Fulfilled;
+            CRMSalesorder.Modify();
+        end;
+    end;
+
 
     local procedure RecalculateSalesOrder(var CRMSalesorder: Record "CRM Salesorder")
     var

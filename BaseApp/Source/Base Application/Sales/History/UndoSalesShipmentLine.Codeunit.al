@@ -78,6 +78,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         Text059: Label '%1 %2 %3', Comment = '%1 = SalesShipmentLine."Document No.". %2 = SalesShipmentLine.FIELDCAPTION("Line No."). %3 = SalesShipmentLine."Line No.". This is used in a progress window.';
 #pragma warning restore AA0074
         AlreadyReversedErr: Label 'This shipment has already been reversed.';
+        NoLinesToReverseErr: Label 'There are no lines with quantity to reverse.';
 
     procedure SetHideDialog(NewHideDialog: Boolean)
     begin
@@ -106,7 +107,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         SalesShipmentLine.SetRange(Correction, false);
         OnCodeOnAfterSalesShptLineSetFilters(SalesShipmentLine, UndoSalesShptLineParams."Hide Dialog");
         if SalesShipmentLine.IsEmpty() then
-            Error(AlreadyReversedErr);
+            Error(NoLinesToReverseErr);
         SalesShipmentLine.FindFirst();
         repeat
             if not UndoSalesShptLineParams."Hide Dialog" then
