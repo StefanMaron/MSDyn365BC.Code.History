@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 page 9091 "Item Planning FactBox"
@@ -84,7 +88,7 @@ page 9091 "Item Planning FactBox"
             field("Order Multiple"; Rec."Order Multiple")
             {
                 ApplicationArea = Planning;
-                ToolTip = 'Specifies a parameter used by the planning system to modify the quantity of planned supply orders.';
+                ToolTip = 'Specifies a parameter used by the planning system to round the quantity of planned supply orders to a multiple of this value.';
             }
             field("Dampener Period"; Rec."Dampener Period")
             {

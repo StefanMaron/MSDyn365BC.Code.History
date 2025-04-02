@@ -426,6 +426,11 @@ table 461 "Prepayment Inv. Line Buffer"
         OnAfterUpdateVATAmounts(Rec, Currency);
     end;
 
+    internal procedure GetVATPct() VATPct: Decimal
+    begin
+        VATPct := "VAT %";
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromPurchLine(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; PurchaseLine: Record "Purchase Line")
     begin

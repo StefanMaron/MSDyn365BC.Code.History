@@ -1,4 +1,4 @@
-﻿namespace System.Environment.Configuration;
+namespace System.Environment.Configuration;
 
 using System.Automation;
 using System.Reflection;
@@ -61,27 +61,6 @@ table 1511 "Notification Entry"
             Editable = false;
             TableRelation = User."User Name";
         }
-        field(15; "Error Message 2"; Text[250])
-        {
-            Caption = 'Error Message 2';
-            ObsoleteReason = 'Error Message field size has been increased ';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(16; "Error Message 3"; Text[250])
-        {
-            Caption = 'Error Message 3';
-            ObsoleteReason = 'Error Message field size has been increased ';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(17; "Error Message 4"; Text[250])
-        {
-            Caption = 'Error Message 4';
-            ObsoleteReason = 'Error Message field size has been increased ';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
         field(18; "Sender User ID"; Code[50])
         {
             Caption = 'Sender User ID';
@@ -97,6 +76,9 @@ table 1511 "Notification Entry"
             Clustered = true;
         }
         key(Key2; "Created Date-Time")
+        {
+        }
+        key(Key3; "Triggered By Record", Type)
         {
         }
     }

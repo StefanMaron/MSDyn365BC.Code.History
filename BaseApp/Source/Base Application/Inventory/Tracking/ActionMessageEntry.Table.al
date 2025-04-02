@@ -1,8 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Structure;
 
@@ -128,9 +131,6 @@ table 99000849 "Action Message Entry"
     procedure SumUp(var ActionMessageEntry: Record "Action Message Entry")
     var
         ActionMessageEntry2: Record "Action Message Entry";
-        ReservEntry: Record "Reservation Entry";
-        ReservEntry2: Record "Reservation Entry";
-        ProdOrderComp: Record "Prod. Order Component";
         TypeArray: array[5] of Boolean;
     begin
         ActionMessageEntry2 := ActionMessageEntry;
@@ -178,30 +178,7 @@ table 99000849 "Action Message Entry"
         ActionMessageEntry2.Type := ActionMessageEntry.Type;
         ActionMessageEntry := ActionMessageEntry2;
 
-        ComponentBinding := false;
-        if ActionMessageEntry."Source Type" = Database::"Prod. Order Line" then begin
-            FirstDate := DMY2Date(31, 12, 9999);
-            ActionMessageEntry.FilterToReservEntry(ReservEntry);
-            ReservEntry.SetRange(Binding, ReservEntry.Binding::"Order-to-Order");
-            if ReservEntry.FindSet() then
-                repeat
-                    if ReservEntry2.Get(ReservEntry."Entry No.", false) then
-                        if (ReservEntry2."Source Type" = Database::"Prod. Order Component") and
-                           (ReservEntry2."Source Subtype" = ReservEntry."Source Subtype") and
-                           (ReservEntry2."Source ID" = ReservEntry."Source ID")
-                        then
-                            if ProdOrderComp.Get(
-                                 ReservEntry2."Source Subtype", ReservEntry2."Source ID",
-                                 ReservEntry2."Source Prod. Order Line", ReservEntry2."Source Ref. No.")
-                            then begin
-                                ComponentBinding := true;
-                                if ProdOrderComp."Due Date" < FirstDate then begin
-                                    FirstDate := ProdOrderComp."Due Date";
-                                    FirstTime := ProdOrderComp."Due Time";
-                                end;
-                            end;
-                until ReservEntry.Next() = 0;
-        end;
+        OnAfterSumUp(ActionMessageEntry, ComponentBinding, FirstDate, FirstTime);
     end;
 
     procedure TransferFromReservEntry(var ReservEntry: Record "Reservation Entry")
@@ -330,6 +307,11 @@ table 99000849 "Action Message Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignEntryType(var ActionMessageEntry: Record "Action Message Entry"; var ActionMessageEntry2: Record "Action Message Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSumUp(var ActionMessageEntry: Record "Action Message Entry"; var ComponentBinding: Boolean; var FirstDate: Date; var FirstTime: Time)
     begin
     end;
 }

@@ -110,6 +110,15 @@ page 6652 "Posted Return Shipments"
                     ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
                     Visible = false;
                 }
+                field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                {
+                    ApplicationArea = PurchReturnOrder;
+                    Caption = 'Name 2';
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the name of the company at the address to which the items in the purchase return order were shipped.';
+                    Visible = false;
+                }
                 field("Ship-to Post Code"; Rec."Ship-to Post Code")
                 {
                     ApplicationArea = PurchReturnOrder;

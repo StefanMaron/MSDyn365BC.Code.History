@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.Finance.Dimension;
@@ -180,13 +184,6 @@ table 5745 "Transfer Shipment Line"
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
         }
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
         field(5817; "Correction Line"; Boolean)
         {
             Caption = 'Correction';
@@ -277,4 +274,3 @@ table 5745 "Transfer Shipment Line"
     begin
     end;
 }
-

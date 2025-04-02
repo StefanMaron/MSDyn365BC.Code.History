@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Setup;
 
 using Microsoft.FixedAssets.Depreciation;
@@ -9,11 +13,14 @@ table 5603 "FA Setup"
     Caption = 'FA Setup';
     Permissions = TableData "Ins. Coverage Ledger Entry" = r;
     DataClassification = CustomerContent;
+    DrillDownPageID = "Fixed Asset Setup";
+    LookupPageID = "Fixed Asset Setup";
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(3; "Allow Posting to Main Assets"; Boolean)

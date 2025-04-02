@@ -19,7 +19,6 @@ table 349 "Dimension Value"
         field(1; "Dimension Code"; Code[20])
         {
             Caption = 'Dimension Code';
-            OptimizeForTextSearch = true;
             NotBlank = true;
             TableRelation = Dimension;
 
@@ -31,6 +30,7 @@ table 349 "Dimension Value"
         field(2; "Code"; Code[20])
         {
             Caption = 'Code';
+            OptimizeForTextSearch = true;
             NotBlank = true;
 
             trigger OnValidate()
@@ -118,13 +118,6 @@ table 349 "Dimension Value"
             begin
                 Error(Text006, FieldCaption("Dimension Value ID"));
             end;
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
         }
         field(8001; "Last Modified Date Time"; DateTime)
         {

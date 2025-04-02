@@ -104,7 +104,7 @@ codeunit 5810 "Change Average Cost Setting"
         AvgCostEntryPointHandler.DeleteBuffer(Item."No.", StartingValuationDate);
 
         ValueEntry.Reset();
-        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
+        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code", "Entry No.");
 
         ValueEntry.SetRange("Item No.", Item."No.");
         ValueEntry.SetFilter("Valuation Date", '>=%1', StartingValuationDate);

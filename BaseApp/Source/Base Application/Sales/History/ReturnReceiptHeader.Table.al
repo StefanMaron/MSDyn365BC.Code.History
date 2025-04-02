@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.History;
+namespace Microsoft.Sales.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -47,6 +47,7 @@ table 6660 "Return Receipt Header"
             Caption = 'Sell-to Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+            ToolTip = 'Specifies the number of the customer who returned the products.';
         }
         field(3; "No."; Code[20])
         {
@@ -57,6 +58,7 @@ table 6660 "Return Receipt Header"
             Caption = 'Bill-to Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+            ToolTip = 'Specifies the number of the customer that you send or sent the credit memo to.';
         }
         field(5; "Bill-to Name"; Text[100])
         {
@@ -486,14 +488,6 @@ table 6660 "Return Receipt Header"
             MaxValue = 100;
             MinValue = 0;
         }
-        field(180; "Rcvd-from Country/Region Code"; Code[10])
-        {
-            Caption = 'Received-from Country/Region Code';
-            TableRelation = "Country/Region";
-            ObsoleteReason = 'Use new field on range 181';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
         field(181; "Rcvd.-from Count./Region Code"; Code[10])
         {
             Caption = 'Received-from Country/Region Code';
@@ -780,4 +774,3 @@ table 6660 "Return Receipt Header"
     begin
     end;
 }
-

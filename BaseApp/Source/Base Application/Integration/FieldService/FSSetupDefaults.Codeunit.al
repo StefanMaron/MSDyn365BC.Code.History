@@ -565,23 +565,6 @@ codeunit 6404 "FS Setup Defaults"
             handled := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Setup Defaults", 'OnAddEntityTableMapping', '', false, false)]
-    local procedure AddProxyTablesOnAddEntityTableMapping(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
-    var
-        CDSConnectionSetup: Record "CDS Connection Setup";
-    begin
-        if not CDSConnectionSetup.Get() then
-            exit;
-
-        if not CDSConnectionSetup."Is Enabled" then
-            exit;
-
-        TempNameValueBuffer.ID := TempNameValueBuffer.Count() + 1;
-        TempNameValueBuffer.Name := 'account';
-        TempNameValueBuffer.Value := Format(Database::Vendor);
-        TempNameValueBuffer.Insert();
-    end;
-
     procedure GetDefaultDirection(NAVTableID: Integer): Integer
     var
         IntegrationTableMapping: Record "Integration Table Mapping";

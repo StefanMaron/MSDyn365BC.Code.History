@@ -1,6 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Reports;
@@ -34,6 +41,12 @@ page 9327 "Finished Production Orders"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the description of the production order.';
+                }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Source No."; Rec."Source No.")
                 {
@@ -120,6 +133,15 @@ page 9327 "Finished Production Orders"
         }
         area(factboxes)
         {
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::"Production Order"),
+                              "Document Type" = const("Finished Production Order"),
+                              "No." = field("No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -257,8 +279,15 @@ page 9327 "Finished Production Orders"
                 ApplicationArea = Manufacturing;
                 Caption = 'Production Order - Comp. and Routing';
                 Image = "Report";
-                RunObject = Report "Prod. Order Comp. and Routing";
                 ToolTip = 'View information about components and operations in production orders. For released production orders, the report shows the remaining quantity if parts of the quantity have been posted as output.';
+
+                trigger OnAction()
+                var
+                    ProductionOrder: Record "Production Order";
+                begin
+                    CurrPage.SetSelectionFilter(ProductionOrder);
+                    Report.RunModal(Report::"Prod. Order Comp. and Routing", true, false, ProductionOrder);
+                end;
             }
             action(ProdOrderJobCard)
             {
@@ -323,6 +352,26 @@ page 9327 "Finished Production Orders"
                 Image = "Report";
                 RunObject = Report "Production Order Statistics";
                 ToolTip = 'View statistical information about the production order''s direct material and capacity costs and overhead as well as its capacity need in the time unit of measure.';
+            }
+        }
+        area(Processing)
+        {
+            action(PrintLabel)
+            {
+                ApplicationArea = Manufacturing;
+                Image = Print;
+                Caption = 'Print Label';
+                ToolTip = 'Print labels for the items on the order lines.';
+
+                trigger OnAction()
+                var
+                    ItemLedgerEntry: Record "Item Ledger Entry";
+                    ReportSelections: Record "Report Selections";
+                begin
+                    ItemLedgerEntry.SetRange("Order Type", Enum::"Inventory Order Type"::Production);
+                    ItemLedgerEntry.SetRange("Order No.", Rec."No.");
+                    ReportSelections.PrintWithCheckForCust(Enum::"Report Selection Usage"::"Prod. Output Item Label", ItemLedgerEntry, 0);
+                end;
             }
         }
         area(Promoted)

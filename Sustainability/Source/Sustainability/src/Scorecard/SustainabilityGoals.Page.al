@@ -175,6 +175,28 @@ page 6234 "Sustainability Goals"
                         Rec.DrillDownSustLedgerEntriesForBaseline(Rec);
                     end;
                 }
+                field("Baseline for Water Intensity"; Rec."Baseline for Water Intensity")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value of the Baseline for Water Intensity field.';
+                    DrillDown = true;
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownSustLedgerEntriesForBaseline(Rec);
+                    end;
+                }
+                field("Baseline for Waste Intensity"; Rec."Baseline for Waste Intensity")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value of the Baseline for Waste Intensity field.';
+                    DrillDown = true;
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownSustLedgerEntriesForBaseline(Rec);
+                    end;
+                }
                 field("Current Value for CO2"; Rec."Current Value for CO2")
                 {
                     ApplicationArea = Basic, Suite;
@@ -204,6 +226,28 @@ page 6234 "Sustainability Goals"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Current Value for N2O';
                     ToolTip = 'Specifies the N2O emission amount of the for the current period. This value is automatically calculated based on Start and End Date and Country/Region Code and Responsibility Center. If the Country/Region Code and Responsibility Center fields are empty, field will show all entries.';
+                    DrillDown = true;
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownSustLedgerEntries(Rec);
+                    end;
+                }
+                field("Current Value for Water Int."; Rec."Current Value for Water Int.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value of the Current Value for Water Intensity field.';
+                    DrillDown = true;
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownSustLedgerEntries(Rec);
+                    end;
+                }
+                field("Current Value for Waste Int."; Rec."Current Value for Waste Int.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value of the Current Value for Waste Intensity field.';
                     DrillDown = true;
 
                     trigger OnDrillDown()
@@ -252,6 +296,28 @@ page 6234 "Sustainability Goals"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Target Value for N2O';
                     ToolTip = 'Specifies the value of the Target Value for N2O field.';
+
+                    trigger OnValidate()
+                    begin
+                        FormatLine();
+                        CurrPage.Update(true);
+                    end;
+                }
+                field("Target Value for Water Int."; Rec."Target Value for Water Int.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value of the Target Value for Water Intensity field.';
+
+                    trigger OnValidate()
+                    begin
+                        FormatLine();
+                        CurrPage.Update(true);
+                    end;
+                }
+                field("Target Value for Waste Int."; Rec."Target Value for Waste Int.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value of the Target Value for Waste Intensity field.';
 
                     trigger OnValidate()
                     begin

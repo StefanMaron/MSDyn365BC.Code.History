@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Account;
 
 using Microsoft.Bank.BankAccount;
@@ -49,6 +53,8 @@ table 15 "G/L Account"
             begin
                 if ("Search Name" = UpperCase(xRec.Name)) or ("Search Name" = '') then
                     "Search Name" := Name;
+
+                UpdateMyAccount(FieldNo(Name));
             end;
         }
         field(3; "Search Name"; Code[100])
@@ -92,6 +98,7 @@ table 15 "G/L Account"
                           FieldCaption("Account Type"));
                 end;
                 Totaling := '';
+                UpdateMyAccount(FieldNo(Totaling));
                 if "Account Type" = "Account Type"::Posting then begin
                     if "Account Type" <> xRec."Account Type" then
                         "Direct Posting" := true;
@@ -143,11 +150,9 @@ table 15 "G/L Account"
                 UpdateAccountCategoryOfSubAccounts();
             end;
         }
-        field(9; "Income/Balance"; Option)
+        field(9; "Income/Balance"; Enum "G/L Account Report Type")
         {
             Caption = 'Income/Balance';
-            OptionCaption = 'Income Statement,Balance Sheet';
-            OptionMembers = "Income Statement","Balance Sheet";
 
             trigger OnValidate()
             var
@@ -338,6 +343,8 @@ table 15 "G/L Account"
                 if not IsTotaling() then
                     FieldError("Account Type");
                 CalcFields(Balance);
+
+                UpdateMyAccount(FieldNo(Totaling));
             end;
         }
         field(35; "Budget Filter"; Code[10])
@@ -759,18 +766,12 @@ table 15 "G/L Account"
             Caption = 'Default Deferral Template Code';
             TableRelation = "Deferral Template"."Deferral Code";
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(9000; "API Account Type"; Enum "G/L Account Type")
         {
             Caption = 'API Account Type';
             Editable = false;
         }
+#if not CLEANSCHEMA27
         field(10900; "IRS Number"; Code[10])
         {
             Caption = 'IRS Number';
@@ -784,6 +785,7 @@ table 15 "G/L Account"
             ObsoleteTag = '24.0';
 #endif
         }
+#endif
     }
 
     keys
@@ -1173,6 +1175,27 @@ table 15 "G/L Account"
         exit("Account Type" in ["Account Type"::Total, "Account Type"::"End-Total"]);
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"My Account", 'rm')]
+    local procedure UpdateMyAccount(CallingFieldNo: Integer)
+    var
+        MyAccount: Record "My Account";
+    begin
+        case CallingFieldNo of
+            FieldNo(Name):
+                begin
+                    MyAccount.SetRange("Account No.", "No.");
+                    if not MyAccount.IsEmpty() then
+                        MyAccount.ModifyAll(Name, Name);
+                end;
+            FieldNo(Totaling):
+                begin
+                    MyAccount.SetRange("Account No.", "No.");
+                    if not MyAccount.IsEmpty() then
+                        MyAccount.ModifyAll(Totaling, Totaling);
+                end;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckGLAcc(var GLAccount: Record "G/L Account")
     begin
@@ -1208,4 +1231,3 @@ table 15 "G/L Account"
     begin
     end;
 }
-

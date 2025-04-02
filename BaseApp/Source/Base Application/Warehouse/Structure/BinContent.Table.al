@@ -917,33 +917,31 @@ table 7302 "Bin Content"
                [Location."Bin Capacity Policy"::"Allow More Than Max. Capacity",
                 Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap."]
             then begin
+                GetBin("Location Code", "Bin Code");
                 if "Max. Qty." <> 0 then begin
                     QtyAvailToPutAwayBase := CalcQtyAvailToPutAway(DeductQtyBase);
                     WMSMgt.CheckPutAwayAvailability(
                         "Bin Code", WhseActivLine.FieldCaption("Qty. (Base)"), TableCaption(), QtyBase, Math.Min(QtyAvailToPutAwayBase, "Max. Qty."),
                         (Location."Bin Capacity Policy" = Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
                 end;
-                if Location."Bin Capacity Policy" in [Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.", Location."Bin Capacity Policy"::"Allow More Than Max. Capacity"] then begin
-                    GetBin("Location Code", "Bin Code");
-                    if (Bin."Maximum Cubage" <> 0) or (Bin."Maximum Weight" <> 0) then begin
-                        Bin.CalcCubageAndWeight(AvailableCubage, AvailableWeight, CalledbyPosting);
-                        if not CalledbyPosting then begin
-                            AvailableCubage := AvailableCubage + DeductCubage;
-                            AvailableWeight := AvailableWeight + DeductWeight;
-                        end;
-
-                        if (Bin."Maximum Cubage" <> 0) and (PutawayCubage > AvailableCubage) then
-                            WMSMgt.CheckPutAwayAvailability(
-                              "Bin Code", WhseActivLine.FieldCaption(Cubage), Bin.TableCaption(), PutawayCubage, AvailableCubage,
-                              (Location."Bin Capacity Policy" =
-                               Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
-
-                        if (Bin."Maximum Weight" <> 0) and (PutawayWeight > AvailableWeight) then
-                            WMSMgt.CheckPutAwayAvailability(
-                              "Bin Code", WhseActivLine.FieldCaption(Weight), Bin.TableCaption(), PutawayWeight, AvailableWeight,
-                              (Location."Bin Capacity Policy" =
-                               Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
+                if (Bin."Maximum Cubage" <> 0) or (Bin."Maximum Weight" <> 0) then begin
+                    Bin.CalcCubageAndWeight(AvailableCubage, AvailableWeight, CalledbyPosting);
+                    if not CalledbyPosting then begin
+                        AvailableCubage := AvailableCubage + DeductCubage;
+                        AvailableWeight := AvailableWeight + DeductWeight;
                     end;
+
+                    if (Bin."Maximum Cubage" <> 0) and (PutawayCubage > AvailableCubage) then
+                        WMSMgt.CheckPutAwayAvailability(
+                          "Bin Code", WhseActivLine.FieldCaption(Cubage), Bin.TableCaption(), PutawayCubage, AvailableCubage,
+                          (Location."Bin Capacity Policy" =
+                           Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
+
+                    if (Bin."Maximum Weight" <> 0) and (PutawayWeight > AvailableWeight) then
+                        WMSMgt.CheckPutAwayAvailability(
+                          "Bin Code", WhseActivLine.FieldCaption(Weight), Bin.TableCaption(), PutawayWeight, AvailableWeight,
+                          (Location."Bin Capacity Policy" =
+                           Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
                 end;
             end;
         exit(true);

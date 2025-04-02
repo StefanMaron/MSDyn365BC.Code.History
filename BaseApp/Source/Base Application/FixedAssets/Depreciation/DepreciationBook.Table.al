@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.Depreciation;
 
 using Microsoft.Finance.Currency;
@@ -21,11 +25,13 @@ table 5611 "Depreciation Book"
         field(1; "Code"; Code[10])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies a code that identifies the depreciation book.';
             NotBlank = true;
         }
         field(2; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the purpose of the depreciation book.';
         }
         field(3; "G/L Integration - Acq. Cost"; Boolean)
         {
@@ -261,6 +267,7 @@ table 5611 "Depreciation Book"
                     until FADeprBook.Next() = 0;
             end;
         }
+#if not CLEANSCHEMA27
         field(10900; "Revalue in Year Purch."; Boolean)
         {
             Caption = 'Revalue in Year Purch.';
@@ -273,6 +280,8 @@ table 5611 "Depreciation Book"
             ObsoleteTag = '24.0';
 #endif
         }
+#endif
+#if not CLEANSCHEMA27
         field(10901; "Residual Value %"; Decimal)
         {
             Caption = 'Residual Value %';
@@ -286,6 +295,7 @@ table 5611 "Depreciation Book"
             ObsoleteTag = '24.0';
 #endif
         }
+#endif
     }
 
     keys

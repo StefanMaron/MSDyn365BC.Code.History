@@ -414,34 +414,10 @@ report 513 "Move IC Trans. to Partner Comp"
     begin
     end;
 
-#if not CLEAN23
-    [Obsolete('It is no longer applicable due to the implementation of cross-environment intercompany capabilities using APIs.', '23.0')]
-    [IntegrationEvent(false, false)]
-    internal procedure OnBeforePartnerInboxPurchHeaderInsert(var ICInboxPurchaseHeader: Record "IC Inbox Purchase Header"; ICPartner: Record "IC Partner")
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('It is no longer applicable due to the implementation of cross-environment intercompany capabilities using APIs.', '23.0')]
-    [IntegrationEvent(false, false)]
-    internal procedure OnBeforePartnerInboxSalesHeaderInsert(var ICInboxSalesHeader: Record "IC Inbox Sales Header"; ICPartner: Record "IC Partner"; TempICInboxSalesHeader: Record "IC Inbox Sales Header" temporary)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnICInboxTransactionCreated(var ICInboxTransaction: Record "IC Inbox Transaction"; PartnerCompanyName: Text)
     begin
     end;
-
-#if not CLEAN23
-    [Obsolete('It is no longer applicable due to the implementation of cross-environment intercompany capabilities using APIs.', '23.0')]
-    [IntegrationEvent(false, false)]
-    internal procedure OnTransferToPartnerOnBeforePartnerInboxTransactionInsert(var PartnerInboxTransaction: Record "IC Inbox Transaction"; CurrentICPartner: Record "IC Partner")
-    begin
-    end;
-#endif
 }
 

@@ -427,6 +427,27 @@ table 252 "General Posting Setup"
                 CheckGLAcc("COGS Account (Interim)");
             end;
         }
+        field(6000; "Direct Cost Non-Inv. App. Acc."; Code[20])
+        {
+            Caption = 'Direct Cost Non-Inventory Applied Account';
+            ToolTip = 'Specifies the general ledger account number to post the direct cost non-inventory applied with this particular combination of business posting group and product posting group.';
+            TableRelation = "G/L Account";
+
+            trigger OnLookup()
+            begin
+                if "View All Accounts on Lookup" then
+                    GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Direct Cost Non-Inv. App. Acc.")
+                else
+                    LookupGLAccount(
+                      "Direct Cost Non-Inv. App. Acc.", GLAccountCategory."Account Category"::"Cost of Goods Sold",
+                      StrSubstNo(TwoSubCategoriesTxt, GLAccountCategoryMgt.GetCOGSMaterials(), GLAccountCategoryMgt.GetCOGSLabor()));
+            end;
+
+            trigger OnValidate()
+            begin
+                CheckGLAcc("Direct Cost Non-Inv. App. Acc.");
+            end;
+        }
         field(99000752; "Direct Cost Applied Account"; Code[20])
         {
             Caption = 'Direct Cost Applied Account';
@@ -942,6 +963,14 @@ table 252 "General Posting Setup"
             PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Direct Cost Applied Account"));
 
         exit("Direct Cost Applied Account");
+    end;
+
+    procedure GetDirectCostNonInvtAppliedAccount() AccountNo: Code[20]
+    begin
+        if "Direct Cost Non-Inv. App. Acc." = '' then
+            PostingSetupMgt.LogGenPostingSetupFieldError(Rec, FieldNo("Direct Cost Non-Inv. App. Acc."));
+
+        exit("Direct Cost Non-Inv. App. Acc.");
     end;
 
     procedure GetOverheadAppliedAccount() AccountNo: Code[20]

@@ -1000,7 +1000,7 @@ codeunit 1720 "Deferral Utilities"
         GenJournalTemplate: Record "Gen. Journal Template";
         RequiredSourceCode: Code[10];
         ErrorInfo: ErrorInfo;
-        SameSourceCodeErr: Label 'Journal Source Code %1 is same as Source Code set for Purcase/Sales documents. This is not allowed when using deferrals. If you want to use this journal for deferrals, please update Source Codes on Gen Journal Template and generate line again.', Comment = '%1->Source Code';
+        SameSourceCodeErr: Label 'Journal Source Code %1 is same as Source Code set for Purchase/Sales documents. This is not allowed when using deferrals. If you want to use this journal for deferrals, please update Source Codes on Gen Journal Template and generate line again.', Comment = '%1->Source Code';
         RequiredSourceCodeErr: Label 'Journal Source Code %1 is not same as default Source Code set for Gen. Journal Template with type %2. Deferrals can only be used when the journal line has the same source code as the source code defined for the journal in source code Setup. Please update this Gen. Journal Template or change the setup in Source Code Setup.', Comment = '%1->Source Code, %2->Gen. Journal Template Type';
         OpenSourceCodeSetupTxt: Label 'Open Source Code Setup';
         OpenSourceCodeSetupDescTxt: Label 'Open Source Code Setup page to check Source code setup.';

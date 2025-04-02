@@ -2,11 +2,6 @@
 
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
-#if not CLEAN25
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.WorkCenter;
-#endif
 using Microsoft.Warehouse.Document;
 
 codeunit 7317 "Whse. Integration Management"
@@ -207,14 +202,14 @@ codeunit 7317 "Whse. Integration Management"
     [Obsolete('Not used anymore, code separated between table Location and Work Center', '25.0')]
     procedure CheckLocationCode(Location: Record Location; SourceTable: Integer; Number: Code[20])
     var
-        WorkCenter: Record "Work Center";
-        MachineCenter: Record "Machine Center";
+        WorkCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center";
+        MachineCenter: Record Microsoft.Manufacturing.MachineCenter."Machine Center";
         CaptionText: Text;
     begin
         case SourceTable of
-            Database::"Work Center":
+            Database::Microsoft.Manufacturing.WorkCenter."Work Center":
                 CaptionText := WorkCenter.TableCaption();
-            Database::"Machine Center":
+            Database::Microsoft.Manufacturing.MachineCenter."Machine Center":
                 CaptionText := MachineCenter.TableCaption();
             Database::Location:
                 CaptionText := Location.TableCaption();
@@ -240,7 +235,7 @@ codeunit 7317 "Whse. Integration Management"
     [Obsolete('Moved to codeunit ProdOrderWarehouseMgt', '25.0')]
     procedure CheckLocationOnManufBins(Location: Record Location)
     var
-        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
+        ProdOrderWarehouseMgt: Codeunit Microsoft.Manufacturing.Document."Prod. Order Warehouse Mgt.";
     begin
         ProdOrderWarehouseMgt.CheckLocationOnBins(Location);
     end;

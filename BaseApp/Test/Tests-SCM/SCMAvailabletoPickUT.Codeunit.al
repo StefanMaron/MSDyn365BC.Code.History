@@ -31,6 +31,7 @@ codeunit 137501 "SCM Available to Pick UT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         OverStockErr: Label 'item no. %1 is not available';
+        NoActiveProductionBOMVersionFoundErr: Label 'There is no active Production BOM for the item %1.', Comment = '%1 - Item No.';
         BlockMovementGlobal: Option " ",Inbound,Outbound,All;
         BinCodeDictionary: Dictionary of [Text, List of [Code[20]]];
 
@@ -654,7 +655,7 @@ codeunit 137501 "SCM Available to Pick UT"
         // [GIVEN] Production BOM item available in pick bin
         SetupLocationWithBins(Location, 1);
         Quantity := 1;
-        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::Manual, Quantity, Location);
+        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::"Pick + Manual", Quantity, Location);
 
         // [GIVEN] Released production order with qty. available in pick bin for ProdParent
         LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, ProdParent."No.", Quantity);
@@ -707,7 +708,7 @@ codeunit 137501 "SCM Available to Pick UT"
         // [GIVEN] Item available in pick bin
         Quantity := 1;
         SetupLocationWithBins(Location, 1);
-        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::Manual, Quantity, Location);
+        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::"Pick + Manual", Quantity, Location);
 
         // [GIVEN] Released production order with qty. available in pick bin for ProdParent
         LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, ProdParent."No.", 1);
@@ -777,7 +778,7 @@ codeunit 137501 "SCM Available to Pick UT"
         SetupLocationWithBins(Location, 1);
         LibraryInventory.CreateItem(ProdChild);
         LibraryManufacturing.CreateCertifiedProductionBOM(ProdBOMHeader, ProdChild."No.", Quantity);
-        LibraryManufacturing.CreateItemManufacturing(ProdParent, Enum::"Costing Method"::Standard, 1000, Enum::"Reordering Policy"::" ", Enum::"Flushing Method"::Manual, '', ProdBOMHeader."No.");
+        LibraryManufacturing.CreateItemManufacturing(ProdParent, Enum::"Costing Method"::Standard, 1000, Enum::"Reordering Policy"::" ", Enum::"Flushing Method"::"Pick + Manual", '', ProdBOMHeader."No.");
 
         // [GIVEN] Released production order
         LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, ProdParent."No.", 1);
@@ -1929,7 +1930,7 @@ codeunit 137501 "SCM Available to Pick UT"
         // [GIVEN] Production BOM item available in pick bin
         SetupLocationWithBins(Location, 1);
         Quantity := 1;
-        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::Manual, Quantity, Location);
+        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::"Pick + Manual", Quantity, Location);
 
         // [GIVEN] Warehouse shipment for the released production order with qty. available in pick bin for ProdParent
         LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, ProdParent."No.", 1);
@@ -2253,6 +2254,92 @@ codeunit 137501 "SCM Available to Pick UT"
         CheckWarehouseSummaryLineDetails(WarehousePickSummaryTestPage, Enum::"Warehouse Activity Source Document"::"Sales Order", SalesHeader."No.", SalesLine2."Line No.", ItemToBeSNBlocked."No.", Quantity, 0);
         CheckWhseSummaryFactBoxValues(WarehousePickSummaryTestPage, false, true, false, 0, 0, Quantity, Quantity, 0, 0, Quantity, 0, 0, 0, 0);
 
+        WarehousePickSummaryTestPage.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickFromWhseShowCalcSummaryShptReqHandler')]
+    procedure DirectedPutAwayPickSimpleScenarioNotAllowBreakbulkSummaryPage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WhseReceiptLine: Record "Warehouse Receipt Line";
+        WhseActivityLine: Record "Warehouse Activity Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        Location: Record Location;
+        WhseReceiptHeader: Record "Warehouse Receipt Header";
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+        WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary";
+        NothingToHandleMsg: Label 'Nothing to handle. Check "Allow Breakbulk" on Location Card.';
+        BaseQty: Decimal;
+        UoMQty: Decimal;
+        QtyPerUoM: Decimal;
+        Quantities: List of [Decimal];
+        EmptyBinCode: List of [Code[20]];
+    begin
+        // [SCENARIO 545255] Directed Put-away and Pick warehouse pick with different unit of measure 
+        Initialize();
+
+        // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled, Breakbulk disabled
+        SetupLocationWithBins(Location, 1);
+        if Location."Allow Breakbulk" then begin
+            Location.Validate("Allow Breakbulk", false);
+            Location.Modify();
+        end;
+
+        // [GIVEN] Item with additional UoM - Box. 1 Box = 12 PCS.
+        LibraryInventory.CreateItem(Item);
+        QtyPerUoM := 12;
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUOM, Item."No.", QtyPerUoM);
+
+        // [GIVEN] Item available on the location in base unit of measure
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        BaseQty := LibraryRandom.RandIntInRange(100, 200);
+        Quantities.Add(BaseQty);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", BaseQty);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        WhseReceiptLine.SetRange("Source Document", WhseReceiptLine."Source Document"::"Purchase Order");
+        WhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        WhseReceiptLine.FindFirst();
+
+        WhseReceiptHeader.Get(WhseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
+
+        SetEmptyBinCodeList(EmptyBinCode, 1);
+        RegisterWhseActivity(WhseActivityLine."Activity Type"::"Put-away", 39, WhseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.", Quantities, EmptyBinCode, EmptyBinCode);
+
+        // [GIVEN] Released Sales order for item with different UoM (3 Boxes)
+        UoMQty := LibraryRandom.RandInt(5);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", UoMQty);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Unit of Measure Code", ItemUOM.Code);
+        SalesLine.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Warehouse shipment for the Sales order
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
+        WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WhseShipmentLine.FindFirst();
+
+        // [WHEN] Create warehouse pick
+        WhseShipmentHeader.Get(WhseShipmentLine."No.");
+        CreateWhsePickAndTrapSummary(WhseShipmentHeader, WarehousePickSummaryTestPage); //CreatePickFromWhseShowCalcSummaryShptReqHandler will show calculation summary page.
+
+        // [THEN] Warehouse pick summary page is shown, there is nothing to handle due to the location settings - Allow Breakbulk = false
+        WarehousePickSummaryTestPage.First();
+        CheckWarehouseSummaryLineDetails(WarehousePickSummaryTestPage, Enum::"Warehouse Activity Source Document"::"Sales Order", SalesHeader."No.", SalesLine."Line No.", Item."No.", UoMQty * QtyPerUoM, 0);
+        CheckWhseSummaryFactBoxValues(WarehousePickSummaryTestPage, false, false, false, BaseQty, BaseQty, BaseQty, 0, 0, 0, 0, 0, 0, 0, 0);
+        Assert.AreEqual(NothingToHandleMsg, WarehousePickSummaryTestPage.Message.Value, 'Message is not correct');
         WarehousePickSummaryTestPage.Close();
     end;
 
@@ -2867,6 +2954,152 @@ codeunit 137501 "SCM Available to Pick UT"
 
         // [THEN] Error: 'item no. "Item[1]" is not available'
         Assert.ExpectedError(StrSubstNo(OverStockErr, TempItemVariant."Item No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionBOMPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyProductionBOMFromItemCard()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemCard: TestPage "Item Card";
+    begin
+        // [SCENARIO 346526] Verify Production BOM page should open when there is no active version of production BOM and should be certified from Item Card page.
+        Initialize();
+
+        // [GIVEN] Create a Component Item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Production BOM with Component Item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+
+        // [GIVEN] Create a Production Item.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem."Replenishment System" := ProdItem."Replenishment System"::"Prod. Order";
+        ProdItem."Manufacturing Policy" := ProdItem."Manufacturing Policy"::"Make-to-Order";
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Open Production BOM page from Item Card.
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        ItemCard.OpenEdit();
+        ItemCard.GotoRecord(ProdItem);
+        ItemCard."Prod. Active BOM Version".Invoke();
+
+        // [Verify] Verify Production BOM through "ProductionBOMPageHandler".
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionBOMPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyProductionBOMFromItemList()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemList: TestPage "Item List";
+    begin
+        // [SCENARIO 346526] Verify Production BOM page should open when there is no active version of production BOM and should be certified from Item List page.
+        Initialize();
+
+        // [GIVEN] Create a Component Item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Production BOM with Component Item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+
+        // [GIVEN] Create a Production Item.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem."Replenishment System" := ProdItem."Replenishment System"::"Prod. Order";
+        ProdItem."Manufacturing Policy" := ProdItem."Manufacturing Policy"::"Make-to-Order";
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Open Production BOM page from Item List.
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        ItemList.OpenEdit();
+        ItemList.GotoRecord(ProdItem);
+        ItemList."Prod. Active BOM Version".Invoke();
+
+        // [Verify] Verify Production BOM through "ProductionBOMPageHandler".
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyProductionBOMShouldNotOpenFromItemCard()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemCard: TestPage "Item Card";
+    begin
+        // [SCENARIO 346526] Verify Production BOM page should not open when there is no active version of production BOM and should not be certified from Item Card page.
+        Initialize();
+
+        // [GIVEN] Create a Component Item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Production BOM with Component Item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+
+        // [GIVEN] Update Production BOM Status.
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::New);
+
+        // [GIVEN] Create a Production Item.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem."Replenishment System" := ProdItem."Replenishment System"::"Prod. Order";
+        ProdItem."Manufacturing Policy" := ProdItem."Manufacturing Policy"::"Make-to-Order";
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Open Production BOM page from Item Card.
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        ItemCard.OpenEdit();
+        ItemCard.GotoRecord(ProdItem);
+        asserterror ItemCard."Prod. Active BOM Version".Invoke();
+
+        // [Verify] Verify expected error while opening Production BOM page.
+        Assert.ExpectedError(StrSubstNo(NoActiveProductionBOMVersionFoundErr, ProdItem."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyProductionBOMShouldNotOpenFromItemList()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemList: TestPage "Item List";
+    begin
+        // [SCENARIO 346526] Verify Production BOM page should not open when there is no active version of production BOM and should not be certified from Item List page.
+        Initialize();
+
+        // [GIVEN] Create a Component Item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create Production BOM with Component Item.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+
+        // [GIVEN] Update Production BOM Status.
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::New);
+
+        // [GIVEN] Create a Production Item.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem."Replenishment System" := ProdItem."Replenishment System"::"Prod. Order";
+        ProdItem."Manufacturing Policy" := ProdItem."Manufacturing Policy"::"Make-to-Order";
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Open Production BOM page from Item List.
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        ItemList.OpenEdit();
+        ItemList.GotoRecord(ProdItem);
+        asserterror ItemList."Prod. Active BOM Version".Invoke();
+
+        // [Verify] Verify expected error while opening Production BOM page.
+        Assert.ExpectedError(StrSubstNo(NoActiveProductionBOMVersionFoundErr, ProdItem."No."));
     end;
 
     local procedure SetupWhseActivityLineForShowItemAvailability(var WarehouseActivityLine: Record "Warehouse Activity Line")
@@ -3538,6 +3771,13 @@ codeunit 137501 "SCM Available to Pick UT"
     procedure VerifyMessageHandler(Message: Text)
     begin
         Assert.AreEqual(LibraryVariableStorage.DequeueText(), Message, 'Message is not correct');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionBOMPageHandler(var ProductionBOM: TestPage "Production BOM")
+    begin
+        ProductionBOM."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 }
 

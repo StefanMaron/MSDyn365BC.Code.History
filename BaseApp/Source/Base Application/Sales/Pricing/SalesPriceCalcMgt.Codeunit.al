@@ -71,7 +71,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
             exit;
 
         SetCurrency(SalesHeader."Currency Code", SalesHeader."Currency Factor", SalesHeaderExchDate(SalesHeader));
-        SetVAT(SalesHeader."Prices Including VAT", SalesLine."VAT %", SalesLine."VAT Calculation Type".AsInteger(), SalesLine."VAT Bus. Posting Group");
+        SetVAT(SalesHeader."Prices Including VAT", SalesLine.GetVATPct(), SalesLine."VAT Calculation Type".AsInteger(), SalesLine."VAT Bus. Posting Group");
         SetUoM(Abs(SalesLine.Quantity), SalesLine."Qty. per Unit of Measure");
         SetLineDisc(SalesLine."Line Discount %", SalesLine."Allow Line Disc.", SalesLine."Allow Invoice Disc.");
         OnFindSalesLinePriceOnAfterSetLineDisc(SalesLine);

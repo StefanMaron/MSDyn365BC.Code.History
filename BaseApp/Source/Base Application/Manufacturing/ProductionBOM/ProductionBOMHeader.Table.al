@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Manufacturing.ProductionBOM;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Manufacturing.ProductionBOM;
 
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.UOM;
@@ -275,6 +279,15 @@ table 99000771 "Production BOM Header"
 
         if Item.IsVariantMandatory(ProductionBOMLine.Type = ProductionBOMLine.Type::Item, ProductionBOMLine."No.") then
             ProductionBOMLine.TestField("Variant Code");
+    end;
+
+    procedure ProductionBOMLinesExist(): Boolean
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        ProductionBOMLine.SetRange("Production BOM No.", Rec."No.");
+        ProductionBOMLine.SetRange("Version Code", '');
+        exit(not ProductionBOMLine.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]

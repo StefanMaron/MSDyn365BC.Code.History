@@ -1,3 +1,4 @@
+#if not CLEAN26
 namespace Microsoft.Sales.Peppol;
 
 using Microsoft.Sales.History;
@@ -5,6 +6,9 @@ using System.IO;
 
 codeunit 1600 "Export Sales Inv. - PEPPOL 2.1"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'PEPPOL 2.1 is no longer supported.';
+    ObsoleteTag = '26.0';
     TableNo = "Record Export Buffer";
 
     trigger OnRun()
@@ -32,4 +36,4 @@ codeunit 1600 "Export Sales Inv. - PEPPOL 2.1"
         SalesInvoicePEPPOL.Export();
     end;
 }
-
+#endif

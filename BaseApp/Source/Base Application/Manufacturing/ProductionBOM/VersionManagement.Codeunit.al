@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.ProductionBOM;
 
 using Microsoft.Manufacturing.Routing;
@@ -12,7 +16,7 @@ codeunit 99000756 VersionManagement
 
     procedure GetBOMVersion(BOMHeaderNo: Code[20]; Date: Date; OnlyCertified: Boolean) VersionCode: Code[20]
     var
-        ProdBOMVersion: Record "Production BOM Version";
+        ProductionBOMVersion: Record "Production BOM Version";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -20,24 +24,25 @@ codeunit 99000756 VersionManagement
         if IsHandled then
             exit(VersionCode);
 
-        ProdBOMVersion.SetCurrentKey("Production BOM No.", "Starting Date");
-        ProdBOMVersion.SetRange("Production BOM No.", BOMHeaderNo);
-        ProdBOMVersion.SetFilter("Starting Date", '%1|..%2', 0D, Date);
+        ProductionBOMVersion.SetCurrentKey("Production BOM No.", "Starting Date");
+        ProductionBOMVersion.SetRange("Production BOM No.", BOMHeaderNo);
+        ProductionBOMVersion.SetFilter("Starting Date", '%1|..%2', 0D, Date);
         if OnlyCertified then
-            ProdBOMVersion.SetRange(Status, ProdBOMVersion.Status::Certified)
+            ProductionBOMVersion.SetRange(Status, ProductionBOMVersion.Status::Certified)
         else
-            ProdBOMVersion.SetFilter(Status, '<>%1', ProdBOMVersion.Status::Closed);
-        OnGetBOMVersionOnBeforeProdBOMVersionFindLast(ProdBOMVersion, BOMHeaderNo, Date, OnlyCertified);
-        if not ProdBOMVersion.FindLast() then
-            Clear(ProdBOMVersion);
+            ProductionBOMVersion.SetFilter(Status, '<>%1', ProductionBOMVersion.Status::Closed);
+        ProductionBOMVersion.SetLoadFields("Version Code");
+        OnGetBOMVersionOnBeforeProdBOMVersionFindLast(ProductionBOMVersion, BOMHeaderNo, Date, OnlyCertified);
+        if not ProductionBOMVersion.FindLast() then
+            exit('');
 
-        exit(ProdBOMVersion."Version Code");
+        exit(ProductionBOMVersion."Version Code");
     end;
 
     procedure GetBOMUnitOfMeasure(BOMHeaderNo: Code[20]; VersionCode: Code[20]) UoMCode: Code[10]
     var
-        ProdBOMHeader: Record "Production BOM Header";
-        ProdBOMVersion: Record "Production BOM Version";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMVersion: Record "Production BOM Version";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -49,17 +54,19 @@ codeunit 99000756 VersionManagement
             exit('');
 
         if VersionCode = '' then begin
-            ProdBOMHeader.Get(BOMHeaderNo);
-            exit(ProdBOMHeader."Unit of Measure Code");
+            ProductionBOMHeader.SetLoadFields("Unit of Measure Code");
+            ProductionBOMHeader.Get(BOMHeaderNo);
+            exit(ProductionBOMHeader."Unit of Measure Code");
         end;
 
-        ProdBOMVersion.Get(BOMHeaderNo, VersionCode);
-        exit(ProdBOMVersion."Unit of Measure Code");
+        ProductionBOMVersion.SetLoadFields("Unit of Measure Code");
+        ProductionBOMVersion.Get(BOMHeaderNo, VersionCode);
+        exit(ProductionBOMVersion."Unit of Measure Code");
     end;
 
     procedure GetRtngVersion(RoutingNo: Code[20]; Date: Date; OnlyCertified: Boolean) VersionCode: Code[20]
     var
-        RtngVersion: Record "Routing Version";
+        RoutingVersion: Record "Routing Version";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -67,18 +74,19 @@ codeunit 99000756 VersionManagement
         if IsHandled then
             exit(VersionCode);
 
-        RtngVersion.SetCurrentKey("Routing No.", "Starting Date");
-        RtngVersion.SetRange("Routing No.", RoutingNo);
-        RtngVersion.SetFilter("Starting Date", '%1|..%2', 0D, Date);
+        RoutingVersion.SetCurrentKey("Routing No.", "Starting Date");
+        RoutingVersion.SetRange("Routing No.", RoutingNo);
+        RoutingVersion.SetFilter("Starting Date", '%1|..%2', 0D, Date);
         if OnlyCertified then
-            RtngVersion.SetRange(Status, RtngVersion.Status::Certified)
+            RoutingVersion.SetRange(Status, RoutingVersion.Status::Certified)
         else
-            RtngVersion.SetFilter(Status, '<>%1', RtngVersion.Status::Closed);
+            RoutingVersion.SetFilter(Status, '<>%1', RoutingVersion.Status::Closed);
+        RoutingVersion.SetLoadFields("Version Code");
 
-        if not RtngVersion.FindLast() then
-            Clear(RtngVersion);
+        if not RoutingVersion.FindLast() then
+            exit('');
 
-        exit(RtngVersion."Version Code");
+        exit(RoutingVersion."Version Code");
     end;
 
     [IntegrationEvent(false, false)]

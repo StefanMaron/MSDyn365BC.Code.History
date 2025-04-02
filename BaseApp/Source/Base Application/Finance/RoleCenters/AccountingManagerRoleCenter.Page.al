@@ -326,7 +326,7 @@ page 9001 "Accounting Manager Role Center"
                 RunObject = Report "G/L - VAT Reconciliation";
                 ToolTip = 'Verify that the VAT amounts on the VAT statements match the amounts from the G/L entries.';
             }
-#if not RELEASE24
+#if not CLEAN24
             action("VAT Balancing A")
             {
                 ApplicationArea = VAT;

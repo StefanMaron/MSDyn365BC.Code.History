@@ -415,7 +415,7 @@ report 302 "Get Demand To Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnJobPlanningLineOnAfterGetRecordOnBeforeSetTempJobPlanningLine(var JobPlanningLine: Record Microsoft.Projects.Project.Planning."Job Planning Line"; var IsHandled: Boolean)
+    local procedure OnJobPlanningLineOnAfterGetRecordOnBeforeSetTempJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 }

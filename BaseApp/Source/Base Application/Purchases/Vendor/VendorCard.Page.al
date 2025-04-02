@@ -581,6 +581,7 @@ page 26 "Vendor Card"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::Vendor),
                               "No." = field("No.");
@@ -1808,7 +1809,9 @@ page 26 "Vendor Card"
     trigger OnAfterGetCurrRecord()
     begin
         if GuiAllowed() then
-            OnAfterGetCurrRecordFunc();
+            OnAfterGetCurrRecordFunc()
+        else
+            StartBackgroundCalculations();
     end;
 
     local procedure OnAfterGetCurrRecordFunc()
@@ -1900,7 +1903,7 @@ page 26 "Vendor Card"
 
         CurrPage.EnqueueBackgroundTask(BackgroundTaskId, Codeunit::"Vendor Card Calculations", Args);
 
-        Session.LogMessage('0000GC4', StrSubstNo(PageBckGrndTaskStartedTxt, Rec."No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VendorCardServiceCategoryTxt);
+        Session.LogMessage('0000GC4', StrSubstNo(PageBckGrndTaskStartedTxt, Rec.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VendorCardServiceCategoryTxt);
     end;
 
     trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
@@ -2104,4 +2107,3 @@ page 26 "Vendor Card"
     begin
     end;
 }
-

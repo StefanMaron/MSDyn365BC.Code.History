@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 table 728 "Copy Item Parameters"
@@ -113,14 +117,6 @@ table 728 "Copy Item Parameters"
             Caption = 'Attributes';
             DataClassification = SystemMetadata;
         }
-        field(27; "Item Cross References"; Boolean)
-        {
-            Caption = 'Item Cross References';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Replaced with parameter Item References';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
         field(28; "Item References"; Boolean)
         {
             Caption = 'Item References';
@@ -145,4 +141,3 @@ table 728 "Copy Item Parameters"
     {
     }
 }
-

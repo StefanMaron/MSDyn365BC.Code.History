@@ -1,17 +1,23 @@
-﻿namespace Microsoft.Inventory.Ledger;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Ledger;
 
 using Microsoft.Inventory.Costing;
 using Microsoft.Utilities;
 using System.Security.AccessControl;
 using System.Utilities;
 using System.Globalization;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Setup;
 
 table 339 "Item Application Entry"
 {
     Caption = 'Item Application Entry';
     DrillDownPageID = "Item Application Entries";
     LookupPageID = "Item Application Entries";
-    Permissions = TableData "Item Application Entry" = rm,
+    Permissions = TableData "Item Application Entry" = rim,
                   TableData "Item Application Entry History" = ri;
     DataClassification = CustomerContent;
 
@@ -40,6 +46,12 @@ table 339 "Item Application Entry"
         {
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
+        }
+        field(20; "Item Register No."; Integer)
+        {
+            Caption = 'Item Register No.';
+            Editable = false;
+            TableRelation = "Item Register";
         }
         field(21; "Posting Date"; Date)
         {
@@ -70,6 +82,34 @@ table 339 "Item Application Entry"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
         }
+        field(101; "Item No."; Code[20])
+        {
+            CalcFormula = lookup("Item Ledger Entry"."Item No." where("Entry No." = field("Item Ledger Entry No.")));
+            Caption = 'Item No.';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(102; "Location Code"; Code[10])
+        {
+            CalcFormula = lookup("Item Ledger Entry"."Location Code" where("Entry No." = field("Item Ledger Entry No.")));
+            Caption = 'Location Code';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(103; "Variant Code"; Code[10])
+        {
+            CalcFormula = lookup("Item Ledger Entry"."Variant Code" where("Entry No." = field("Item Ledger Entry No.")));
+            Caption = 'Variant Code';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(111; "Latest Valuation Date"; Date)
+        {
+            CalcFormula = max("Value Entry"."Valuation Date" where("Item Ledger Entry No." = field("Item Ledger Entry No.")));
+            Caption = 'Latest Valuation Date';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(5800; "Cost Application"; Boolean)
         {
             Caption = 'Cost Application';
@@ -93,28 +133,31 @@ table 339 "Item Application Entry"
         }
         key(Key2; "Posting Date", "Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.", "Cost Application")
         {
-            IncludedFields = Quantity;
+            IncludedFields = Quantity, "Transferred-from Entry No.", "Output Completely Invd. Date", "Outbound Entry is Updated";
         }
         key(Key3; "Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application", "Transferred-from Entry No.")
         {
-            IncludedFields = "Inbound Item Entry No.", "Outbound Entry is Updated";
+            IncludedFields = "Posting Date", Quantity, "Inbound Item Entry No.", "Output Completely Invd. Date", "Outbound Entry is Updated";
         }
         key(Key4; "Transferred-from Entry No.", "Cost Application")
         {
+            IncludedFields = "Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.", Quantity, "Posting Date", "Output Completely Invd. Date", "Outbound Entry is Updated";
         }
         key(Key5; "Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application")
         {
+            IncludedFields = "Item Ledger Entry No.", Quantity, "Posting Date", "Transferred-from Entry No.", "Output Completely Invd. Date", "Outbound Entry is Updated";
         }
         key(Key6; "Item Ledger Entry No.", "Output Completely Invd. Date")
         {
+            IncludedFields = "Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application", Quantity, "Posting Date", "Transferred-from Entry No.", "Outbound Entry is Updated";
         }
         key(Key9; "Inbound Item Entry No.", "Transferred-from Entry No.", "Item Ledger Entry No.")
         {
-            IncludedFields = "Outbound Item Entry No.", "Posting Date", Quantity;
+            IncludedFields = "Outbound Item Entry No.", "Cost Application", Quantity, "Posting Date", "Output Completely Invd. Date", "Outbound Entry is Updated";
         }
         key(Key10; "Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.", "Cost Application")
         {
-            IncludedFields = "Outbound Entry is Updated";
+            IncludedFields = Quantity, "Posting Date", "Transferred-from Entry No.", "Output Completely Invd. Date", "Outbound Entry is Updated";
         }
     }
 
@@ -125,10 +168,28 @@ table 339 "Item Application Entry"
     var
         TempVisitedItemApplicationEntry: Record "Item Application Entry" temporary;
         TempItemLedgerEntryInChainNo: Record "Integer" temporary;
+#if not CLEAN27
         SearchedItemLedgerEntry: Record "Item Ledger Entry";
+#endif
         TrackChain: Boolean;
         MaxValuationDate: Date;
         AppliedFromEntryToAdjustErr: Label 'You have to run the %1 batch job, before you can revalue %2 %3.', Comment = '%1 = Report::"Adjust Cost - Item Entries", %2 = Item Ledger Entry table caption, %3 = Inbound Item Ledger Entry No.';
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Application Entry", 'r')]
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Item Application Entry"));
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Item Application Entry", 'r')]
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 
     procedure AppliedOutbndEntryExists(InbndItemLedgEntryNo: Integer; IsCostApplication: Boolean; FilterOnOnlyCostNotAdjusted: Boolean): Boolean
     begin
@@ -148,11 +209,15 @@ table 339 "Item Application Entry"
     end;
 
     procedure AppliedInbndTransEntryExists(InbndItemLedgEntryNo: Integer; IsCostApplication: Boolean): Boolean
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        Reset();
-        SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.");
-        SetRange("Inbound Item Entry No.", InbndItemLedgEntryNo);
-        if IsEmpty() then
+        ItemLedgerEntry.SetLoadFields(Positive, "Item No.");
+        if not ItemLedgerEntry.Get(InbndItemLedgEntryNo) then
+            exit(false);
+        if not ItemLedgerEntry.Positive then
+            exit(false);
+        if not IsItemEntryTypeEverPosted(ItemLedgerEntry."Item No.", "Item Ledger Entry Type"::Transfer) then
             exit(false);
 
         Reset();
@@ -264,17 +329,21 @@ table 339 "Item Application Entry"
     procedure InsertHistory(): Integer
     var
         ItemApplicationEntryHistory: Record "Item Application Entry History";
+        InventorySetup: Record "Inventory Setup";
         EntryNo: Integer;
     begin
-        ItemApplicationEntryHistory.SetCurrentKey("Primary Entry No.");
-        if not ItemApplicationEntryHistory.FindLast() then
-            EntryNo := 1;
-        EntryNo := ItemApplicationEntryHistory."Primary Entry No.";
+        if InventorySetup.UseLegacyPosting() then begin
+            ItemApplicationEntryHistory.SetCurrentKey("Primary Entry No.");
+            if ItemApplicationEntryHistory.FindLast() then
+                EntryNo := ItemApplicationEntryHistory."Primary Entry No.";
+            EntryNo += 1;
+        end else
+            EntryNo := ItemApplicationEntryHistory.GetNextEntryNo();
         ItemApplicationEntryHistory.TransferFields(Rec, true);
         ItemApplicationEntryHistory."Deleted Date" := CurrentDateTime();
         ItemApplicationEntryHistory."Deleted By User" := CopyStr(UserId(), 1, MaxStrLen(ItemApplicationEntryHistory."Deleted By User"));
-        ItemApplicationEntryHistory."Primary Entry No." := EntryNo + 1;
-        ItemApplicationEntryHistory.Insert();
+        ItemApplicationEntryHistory."Primary Entry No." := EntryNo;
+        ItemApplicationEntryHistory.Insert(true);
         exit(ItemApplicationEntryHistory."Primary Entry No.");
     end;
 
@@ -323,7 +392,7 @@ table 339 "Item Application Entry"
         if IsHandled then
             exit(Result);
 
-        if not IsItemEverOutput(ItemLedgerEntry."Item No.") then
+        if not IsItemEntryTypeEverPosted(ItemLedgerEntry."Item No.", "Item Ledger Entry Type"::Output) then
             exit(false);
 
         if ItemLedgerEntry."Order Type" <> ItemLedgerEntry."Order Type"::Production then
@@ -348,7 +417,19 @@ table 339 "Item Application Entry"
     end;
 
     local procedure CheckCyclicAsmCyclicalLoop(CheckItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
+    var
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+        Result := false;
+        IsHandled := false;
+        OnBeforeCheckCyclicAsmCyclicalLoop(Rec, CheckItemLedgerEntry, ItemLedgerEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if not IsItemEntryTypeEverPosted(ItemLedgerEntry."Item No.", "Item Ledger Entry Type"::"Assembly Output") then
+            exit(false);
+
         if ItemLedgerEntry."Order Type" <> ItemLedgerEntry."Order Type"::Assembly then
             exit(false);
         if ItemLedgerEntry."Entry Type" = ItemLedgerEntry."Entry Type"::"Assembly Output" then
@@ -378,9 +459,6 @@ table 339 "Item Application Entry"
                 if TrackChain then begin
                     TempItemLedgerEntryInChainNo.Number := ItemLedgerEntry."Entry No.";
                     if TempItemLedgerEntryInChainNo.Insert() then;
-
-                    if SearchedItemLedgerEntryFound(ItemLedgerEntry) then
-                        exit(true);
                 end;
 
                 if ItemLedgerEntry."Entry No." = CheckItemLedgerEntry."Entry No." then
@@ -502,13 +580,6 @@ table 339 "Item Application Entry"
         exit(false);
     end;
 
-    procedure GetLastEntryNo(): Integer;
-    var
-        FindRecordManagement: Codeunit "Find Record Management";
-    begin
-        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
-    end;
-
     procedure GetVisitedEntries(FromItemLedgEntry: Record "Item Ledger Entry"; var ItemLedgEntryInChain: Record "Item Ledger Entry"; WithinValuationDate: Boolean)
     var
         ToItemLedgerEntry: Record "Item Ledger Entry";
@@ -625,13 +696,13 @@ table 339 "Item Application Entry"
         exit(not ItemApplicationEntry.IsEmpty());
     end;
 
-    local procedure IsItemEverOutput(ItemNo: Code[20]): Boolean
+    local procedure IsItemEntryTypeEverPosted(ItemNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Entry Type"): Boolean
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetCurrentKey("Item No.", "Entry Type");
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntryType);
         exit(not ItemLedgerEntry.IsEmpty());
     end;
 
@@ -645,10 +716,13 @@ table 339 "Item Application Entry"
         if ItemLedgEntry.Quantity < 0 then
             exit;
 
+        ItemApplicationEntry.ReadIsolation(IsolationLevel::ReadCommitted);
         ItemApplicationEntry.SetCurrentKey("Inbound Item Entry No.");
         ItemApplicationEntry.SetRange("Inbound Item Entry No.", ItemLedgEntry."Entry No.");
         OnSetOutboundsNotUpdatedOnAfterSetFilters(ItemApplicationEntry);
-        ItemApplicationEntry.ModifyAll("Outbound Entry is Updated", false);
+        ItemApplicationEntry.SetRange("Outbound Entry is Updated", true);
+        if not ItemApplicationEntry.IsEmpty() then
+            ItemApplicationEntry.ModifyAll("Outbound Entry is Updated", false);
     end;
 
     procedure SetInboundToUpdated(ItemLedgEntry: Record "Item Ledger Entry")
@@ -702,23 +776,13 @@ table 339 "Item Application Entry"
         exit(ValueEntry."Valuation Date" <= MaxDate);
     end;
 
+#if not CLEAN27
+    [Obsolete('The optimization that used this function was obsoleted.', '27.0')]
     procedure SetSearchedItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
         SearchedItemLedgerEntry.Copy(ItemLedgerEntry);
     end;
-
-    local procedure SearchedItemLedgerEntryFound(ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
-    var
-        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
-    begin
-        if SearchedItemLedgerEntry.GetFilters() = '' then
-            exit(false);
-
-        TempItemLedgerEntry := ItemLedgerEntry;
-        TempItemLedgerEntry.Insert();
-        TempItemLedgerEntry.CopyFilters(SearchedItemLedgerEntry);
-        exit(not TempItemLedgerEntry.IsEmpty())
-    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFixed(ItemApplicationEntry: Record "Item Application Entry"; var Result: Boolean; var IsHandled: Boolean)
@@ -732,6 +796,11 @@ table 339 "Item Application Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCyclicProdCyclicalLoop(var ItemApplicationEntry: Record "Item Application Entry"; CheckItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCyclicAsmCyclicalLoop(var ItemApplicationEntry: Record "Item Application Entry"; CheckItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
