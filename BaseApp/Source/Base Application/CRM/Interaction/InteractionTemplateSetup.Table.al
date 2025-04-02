@@ -1,15 +1,22 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CRM.Interaction;
 
 table 5122 "Interaction Template Setup"
 {
     Caption = 'Interaction Template Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Interaction Template Setup";
+    LookupPageID = "Interaction Template Setup";    
     ReplicateData = true;
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Sales Invoices"; Code[10])

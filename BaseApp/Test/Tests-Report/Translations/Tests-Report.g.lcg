@@ -284,15 +284,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Layouts Test - NamedType SampleTextTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 712495749 - Method 4253398365 - NamedType 1619972113" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No sales promotions were found]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Sales Promotion Test - Method MessageHandler - NamedType InfoMsg)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3241257733 - NamedType 2272461218" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Object Options inserted.]]></Val>

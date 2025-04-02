@@ -276,6 +276,8 @@ report 1011 "Job Suggested Billing"
 
     requestpage
     {
+        AboutTitle = 'About Project Suggested Billing';
+        AboutText = 'Get an overview of your projects, with focus on invoiced amounts and remaining amounts to invoice for each customer.\\Note: In the US, Canada, and Mexico, this report is not available. Instead, use the Project Cost Suggested Billing (10219) report.';
         SaveValues = true;
 
         layout

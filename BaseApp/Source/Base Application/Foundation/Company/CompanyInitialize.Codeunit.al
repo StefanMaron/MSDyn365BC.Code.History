@@ -43,8 +43,6 @@ using Microsoft.Inventory.Document;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Journal;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Project.WIP;
@@ -213,10 +211,7 @@ codeunit 2 "Company-Initialize"
         Text064: Label 'Transfer';
         Text065: Label 'RECLASSJNL';
         Text066: Label 'REVALJNL';
-        Text067: Label 'CONSUMPJNL';
         Text068: Label 'INVTADJMT';
-        Text069: Label 'POINOUTJNL';
-        Text070: Label 'CAPACITJNL';
         Text071: Label 'WHITEM';
         Text072: Label 'WHPHYSINVT';
         Text073: Label 'WHRCLSSJNL';
@@ -240,7 +235,6 @@ codeunit 2 "Company-Initialize"
         Text089: Label 'Unapplied Purchase Entry Application';
         Text090: Label 'REVERSAL';
         Text091: Label 'Reversal Entry ';
-        Text092: Label 'PRODORDER';
         Text99000004: Label 'FLUSHING';
         Text99000005: Label 'Flushing';
         Text096: Label 'PROJGLJNL';
@@ -458,11 +452,7 @@ codeunit 2 "Company-Initialize"
             InsertSourceCode(SourceCodeSetup.Purchases, Text003, Text004);
             InsertSourceCode(SourceCodeSetup."Deleted Document", Text005, DocumentCreatedToAvoidGapInNoSeriesTxt);
             InsertSourceCode(SourceCodeSetup."Inventory Post Cost", Text006, ReportName(REPORT::"Post Inventory Cost to G/L"));
-#if not CLEAN23
-            InsertSourceCode(SourceCodeSetup."Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Adjust Exchange Rates"));
-#else
             InsertSourceCode(SourceCodeSetup."Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Exch. Rate Adjustment"));
-#endif
             InsertSourceCode(SourceCodeSetup."G/L Currency Revaluation", Text008, ReportName(REPORT::"G/L Currency Revaluation"));
             InsertSourceCode(SourceCodeSetup."Close Income Statement", Text010, ReportName(REPORT::"Close Income Statement"));
             InsertSourceCode(SourceCodeSetup.Consolidation, Text011, Text012);
@@ -477,10 +467,6 @@ codeunit 2 "Company-Initialize"
             InsertSourceCode(SourceCodeSetup."Item Reclass. Journal", Text065, PageName(PAGE::"Item Reclass. Journal"));
             InsertSourceCode(SourceCodeSetup."Phys. Inventory Journal", Text020, PageName(PAGE::"Phys. Inventory Journal"));
             InsertSourceCode(SourceCodeSetup."Revaluation Journal", Text066, PageName(PAGE::"Revaluation Journal"));
-            InsertSourceCode(SourceCodeSetup."Consumption Journal", Text067, PageName(PAGE::"Consumption Journal"));
-            InsertSourceCode(SourceCodeSetup."Output Journal", Text069, PageName(PAGE::"Output Journal"));
-            InsertSourceCode(SourceCodeSetup."Production Journal", Text092, PageName(PAGE::"Production Journal"));
-            InsertSourceCode(SourceCodeSetup."Capacity Journal", Text070, PageName(PAGE::"Capacity Journal"));
             InsertSourceCode(SourceCodeSetup."Resource Journal", Text022, PageName(PAGE::"Resource Journal"));
             InsertSourceCode(SourceCodeSetup."Job Journal", Text023, PageName(PAGE::"Job Journal"));
             InsertSourceCode(SourceCodeSetup."Job G/L Journal", Text096, PageName(PAGE::"Job G/L Journal"));
@@ -684,7 +670,7 @@ codeunit 2 "Company-Initialize"
         StandardText.Insert();
     end;
 
-    local procedure PageName(PageID: Integer): Text[100]
+    procedure PageName(PageID: Integer): Text[100]
     var
         ObjectTranslation: Record "Object Translation";
     begin

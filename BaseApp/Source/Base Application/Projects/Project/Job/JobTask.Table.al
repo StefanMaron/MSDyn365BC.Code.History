@@ -906,6 +906,7 @@ table 1001 "Job Task"
             TableRelation = Currency;
             DataClassification = CustomerContent;
         }
+#if not CLEANSCHEMA28
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -921,6 +922,7 @@ table 1001 "Job Task"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
     }
 
     keys

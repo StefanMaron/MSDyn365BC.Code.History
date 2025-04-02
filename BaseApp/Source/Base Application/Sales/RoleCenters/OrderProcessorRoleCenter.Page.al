@@ -13,7 +13,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Pricing.Worksheet;
 #endif
 using Microsoft.Purchases.Document;
@@ -26,7 +26,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Sales.Pricing;
 #endif
 using Microsoft.Sales.Reminder;
@@ -679,7 +679,7 @@ page 9006 "Order Processor Role Center"
                     RunObject = Page "Sales Journal";
                     ToolTip = 'Open a sales journal where you can batch post sales transactions to G/L, bank, customer, vendor and fixed assets accounts.';
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action("Sales Price &Worksheet")
                 {
                     ApplicationArea = Basic, Suite;
@@ -706,7 +706,7 @@ page 9006 "Order Processor Role Center"
             group(Action42)
             {
                 Caption = 'Sales';
-#if not CLEAN23
+#if not CLEAN25
                 action("&Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -815,7 +815,7 @@ page 9006 "Order Processor Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'List Price Sheet';
                         Image = "Report";
-#if not CLEAN23
+#if not CLEAN25
                         RunPageView = where("Object Type" = const(Report), "Object ID" = const(10148)); // "List Price Sheet"
                         RunObject = Page "Role Center Page Dispatcher";
 #else

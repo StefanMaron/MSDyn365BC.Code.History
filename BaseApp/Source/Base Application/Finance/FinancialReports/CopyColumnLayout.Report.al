@@ -1,4 +1,5 @@
 namespace Microsoft.Finance.FinancialReports;
+using System.Telemetry;
 
 report 960 "Copy Column Layout"
 {
@@ -88,6 +89,7 @@ report 960 "Copy Column Layout"
         CopySourceColumnLayoutName: Code[10];
         CopySourceNameMissingErr: Label 'You must specify a valid name for the column layout that you want to copy.';
         MultipleSourcesErr: Label 'You can only copy one column layout at a time.';
+        CopyEventTxt: Label 'Financial Report Column Definition copied: %1', Comment = '%1 = column layout name', Locked = true;
 
     procedure GetNewColumnLayoutName(): Code[10]
     begin
@@ -119,6 +121,8 @@ report 960 "Copy Column Layout"
         ColumnLayoutName.TransferFields(FromColumnLayoutName);
         ColumnLayoutName.Name := NewName;
         ColumnLayoutName.Insert();
+
+        LogUsageTelemetry(FromColumnLayoutName.Name, NewName);
     end;
 
     local procedure CreateNewColumnLayout(NewName: Code[10]; FromColumnLayout: Record "Column Layout")
@@ -159,5 +163,18 @@ report 960 "Copy Column Layout"
 
         if ColumnLayoutName.Count > 1 then
             Error(MultipleSourcesErr);
+    end;
+
+    local procedure LogUsageTelemetry(SourceCode: Code[10]; NewCode: Code[10])
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
+        TelemetryDimensions.Add('SourceColDefinitionCode', SourceCode);
+        TelemetryDimensions.Add('NewColDefinitionCode', NewCode);
+        FeatureTelemetry.LogUsage('0000OKW', 'Financial Report', StrSubstNo(CopyEventTxt, SourceCode), TelemetryDimensions);
     end;
 }

@@ -816,6 +816,7 @@ table 5109 "Purchase Header Archive"
             Caption = 'STE Transaction ID';
             Editable = false;
         }
+#if not CLEANSCHEMA28
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
@@ -829,6 +830,7 @@ table 5109 "Purchase Header Archive"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
     }
 
     keys

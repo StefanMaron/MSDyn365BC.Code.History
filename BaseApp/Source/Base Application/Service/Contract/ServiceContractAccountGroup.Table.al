@@ -1,7 +1,10 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Contract;
 
 using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.GeneralLedger.Setup;
 
 table 5973 "Service Contract Account Group"
 {
@@ -30,8 +33,7 @@ table 5973 "Service Contract Account Group"
             begin
                 if "Non-Prepaid Contract Acc." <> '' then begin
                     GLAcc.Get("Non-Prepaid Contract Acc.");
-                    GLSetup.Get();
-                    if GLSetup."VAT in Use" then begin
+                    if CheckProdPostingGroups() then begin
                         GLAcc.TestField("Gen. Prod. Posting Group");
                         GLAcc.TestField("VAT Prod. Posting Group");
                     end else
@@ -48,8 +50,7 @@ table 5973 "Service Contract Account Group"
             begin
                 if "Prepaid Contract Acc." <> '' then begin
                     GLAcc.Get("Prepaid Contract Acc.");
-                    GLSetup.Get();
-                    if GLSetup."VAT in Use" then begin
+                    if CheckProdPostingGroups() then begin
                         GLAcc.TestField("Gen. Prod. Posting Group");
                         GLAcc.TestField("VAT Prod. Posting Group");
                     end else
@@ -73,6 +74,24 @@ table 5973 "Service Contract Account Group"
 
     var
         GLAcc: Record "G/L Account";
-        GLSetup: Record "General Ledger Setup";
+
+    procedure CheckProdPostingGroups(): Boolean
+    var
+        ApplicationAreaMgmt: Codeunit System.Environment.Configuration."Application Area Mgmt.";
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckProdPostingGroups(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        exit(not ApplicationAreaMgmt.IsSalesTaxEnabled());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckProdPostingGroups(var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
 }
 

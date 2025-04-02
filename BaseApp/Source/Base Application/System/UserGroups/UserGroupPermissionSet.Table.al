@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA25 
 namespace System.Security.AccessControl;
 
 using System.Apps;
@@ -67,3 +68,5 @@ table 9003 "User Group Permission Set"
     }
 }
 
+ 
+#endif

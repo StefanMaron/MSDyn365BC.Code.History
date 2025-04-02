@@ -1,5 +1,7 @@
 namespace Microsoft.Purchases.Vendor;
 
+using Microsoft.Foundation.Address;
+
 page 425 "Vendor Bank Account Card"
 {
     Caption = 'Vendor Bank Account Card';
@@ -38,11 +40,16 @@ page 425 "Vendor Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the bank where the vendor has the bank account.';
                 }
-                field(County; Rec.County)
+                group(CountyGroup)
                 {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'State';
-                    ToolTip = 'Specifies the state as a part of the address.';
+                    ShowCaption = false;
+                    Visible = IsCountyVisible;
+                    field(County; Rec.County)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'State';
+                        ToolTip = 'Specifies the state, province or county as a part of the address.';
+                    }
                 }
                 field("Post Code"; Rec."Post Code")
                 {
@@ -53,6 +60,11 @@ page 425 "Vendor Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
+
+                    trigger OnValidate()
+                    begin
+                        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+                    end;
                 }
                 field("Phone No."; Rec."Phone No.")
                 {
@@ -161,5 +173,14 @@ page 425 "Vendor Bank Account Card"
     actions
     {
     }
+
+    trigger OnAfterGetRecord()
+    begin
+        IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+    end;
+
+    var
+        FormatAddress: Codeunit "Format Address";
+        IsCountyVisible: Boolean;
 }
 

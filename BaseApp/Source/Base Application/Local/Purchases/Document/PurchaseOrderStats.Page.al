@@ -719,6 +719,13 @@ page 10039 "Purchase Order Stats."
 
     trigger OnOpenPage()
     begin
+#if not CLEAN26
+        if not Rec.SkipStatisticsPreparation() then
+            Rec.PrepareOpeningDocumentStatistics();
+        Rec.ResetSkipStatisticsPreparationFlag();
+#else
+        Rec.PrepareOpeningDocumentStatistics();
+#endif
         PurchSetup.Get();
         NullTab := -1;
         AllowInvDisc :=
@@ -729,6 +736,13 @@ page 10039 "Purchase Order Stats."
         VATLinesFormIsEditable := AllowVATDifference or AllowInvDisc or (Rec."Tax Area Code" <> '');
         CurrPage.Editable := VATLinesFormIsEditable;
         TaxArea.Get(Rec."Tax Area Code");
+    end;
+
+    trigger OnClosePage()
+    var
+        PurchCalcDiscountByType: Codeunit "Purch - Calc Disc. By Type";
+    begin
+        PurchCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

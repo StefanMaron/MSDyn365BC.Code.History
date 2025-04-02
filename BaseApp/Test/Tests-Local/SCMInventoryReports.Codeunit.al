@@ -1,4 +1,4 @@
-codeunit 144018 "SCM Inventory Reports"
+﻿codeunit 144018 "SCM Inventory Reports"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -17,7 +17,6 @@ codeunit 144018 "SCM Inventory Reports"
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibrarySales: Codeunit "Library - Sales";
         LibraryAssembly: Codeunit "Library - Assembly";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryResource: Codeunit "Library - Resource";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
@@ -490,10 +489,10 @@ codeunit 144018 "SCM Inventory Reports"
 
         LibraryInventory.CreateItem(ItemBOMComponent);
         LibraryResource.CreateResource(ResourceBOMComponent, Customer."VAT Bus. Posting Group");
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent[1], ItemAssembly."No.", BOMComponent[1].Type::Item, ItemBOMComponent."No.",
           LibraryRandom.RandIntInRange(2, 10), ItemBOMComponent."Base Unit of Measure");
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent[2], ItemAssembly."No.", BOMComponent[2].Type::Resource, ResourceBOMComponent."No.",
           LibraryRandom.RandIntInRange(2, 10), ResourceBOMComponent."Base Unit of Measure");
     end;

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.FixedAssets.FixedAsset;
 
 using Microsoft.Finance.Dimension;
@@ -46,6 +50,7 @@ table 5600 "Fixed Asset"
         field(2; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies a description of the fixed asset.';
             OptimizeForTextSearch = true;
 
             trigger OnValidate()
@@ -232,14 +237,6 @@ table 5600 "Fixed Asset"
         {
             Caption = 'Blocked';
         }
-        field(22; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
         field(23; "Maintenance Vendor No."; Code[20])
         {
             Caption = 'Maintenance Vendor No.';
@@ -352,18 +349,15 @@ table 5600 "Fixed Asset"
             Caption = 'SCT Permission Type';
             TableRelation = "SAT Permission Type";
         }
+#if not CLEANSCHEMA26
         field(10007; "SCT Permission Number"; Code[20])
         {
             Caption = 'SCT Permission Number';
             ObsoleteReason = 'Replaced by field SCT Permission No.';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif            
         }
+#endif
         field(10008; "SCT Permission No."; Text[50])
         {
             Caption = 'SCT Permission No.';
@@ -757,4 +751,3 @@ table 5600 "Fixed Asset"
     begin
     end;
 }
-

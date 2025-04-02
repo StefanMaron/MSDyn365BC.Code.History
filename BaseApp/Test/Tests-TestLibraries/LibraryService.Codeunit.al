@@ -5,7 +5,6 @@ using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Calendar;
-using Microsoft.Foundation.ExtendedText;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Inventory.Location;
 using Microsoft.Sales.Customer;
@@ -83,39 +82,29 @@ codeunit 131902 "Library - Service"
         ContractServiceDiscount.Insert(true);
     end;
 
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
     procedure CreateExtendedTextForItem(ItemNo: Code[20]): Text
-    var
-        ExtendedTextHeader: Record "Extended Text Header";
-        ExtendedTextLine: Record "Extended Text Line";
     begin
-        CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
-        CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
-        ExtendedTextLine.Validate(Text, LibraryUtility.GenerateGUID());
-        ExtendedTextLine.Modify();
-        exit(ExtendedTextLine.Text);
+        exit(LibraryInventory.CreateExtendedTextForItem(ItemNo));
     end;
+#endif
 
-    procedure CreateExtendedTextHeaderItem(var ExtendedTextHeader: Record "Extended Text Header"; ItemNo: Code[20])
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
+    procedure CreateExtendedTextHeaderItem(var ExtendedTextHeader: Record Microsoft.Foundation.ExtendedText."Extended Text Header"; ItemNo: Code[20])
     begin
-        ExtendedTextHeader.Init();
-        ExtendedTextHeader.Validate("Table Name", ExtendedTextHeader."Table Name"::Item);
-        ExtendedTextHeader.Validate("No.", ItemNo);
-        ExtendedTextHeader.Insert(true);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
     end;
+#endif
 
-    procedure CreateExtendedTextLineItem(var ExtendedTextLine: Record "Extended Text Line"; ExtendedTextHeader: Record "Extended Text Header")
-    var
-        RecRef: RecordRef;
+#if not CLEAN26
+    [Obsolete('Moved to codeunit Library Inventory', '26.0')]
+    procedure CreateExtendedTextLineItem(var ExtendedTextLine: Record Microsoft.Foundation.ExtendedText."Extended Text Line"; ExtendedTextHeader: Record Microsoft.Foundation.ExtendedText."Extended Text Header")
     begin
-        ExtendedTextLine.Init();
-        ExtendedTextLine.Validate("Table Name", ExtendedTextHeader."Table Name");
-        ExtendedTextLine.Validate("No.", ExtendedTextHeader."No.");
-        ExtendedTextLine.Validate("Language Code", ExtendedTextHeader."Language Code");
-        ExtendedTextLine.Validate("Text No.", ExtendedTextHeader."Text No.");
-        RecRef.GetTable(ExtendedTextLine);
-        ExtendedTextLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, ExtendedTextLine.FieldNo("Line No.")));
-        ExtendedTextLine.Insert(true);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
     end;
+#endif
 
     procedure CreateFaultArea(var FaultArea: Record "Fault Area")
     begin
@@ -1019,6 +1008,32 @@ codeunit 131902 "Library - Service"
         ServiceLine.SetRange("Tax Group Code", '');
         TaxGroup.FindFirst();
         ServiceLine.ModifyAll("Tax Group Code", TaxGroup.Code);
+    end;
+
+    procedure CombineShipments(var ServiceHeader: Record "Service Header"; var ServiceShipmentHeader: Record "Service Shipment Header"; PostingDate: Date; DocumentDate: Date; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
+    var
+        TmpServiceHeader: Record "Service Header";
+        TmpServiceShipmentHeader: Record "Service Shipment Header";
+        CombineShipmentsReport: Report "Combine Service Shipments";
+    begin
+        CombineShipmentsReport.InitializeRequest(PostingDate, DocumentDate, CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);
+        if ServiceHeader.HasFilter then
+            TmpServiceHeader.CopyFilters(ServiceHeader)
+        else begin
+            ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No.");
+            TmpServiceHeader.SetRange("Document Type", ServiceHeader."Document Type");
+            TmpServiceHeader.SetRange("No.", ServiceHeader."No.");
+        end;
+        CombineShipmentsReport.SetTableView(TmpServiceHeader);
+        if ServiceShipmentHeader.HasFilter then
+            TmpServiceShipmentHeader.CopyFilters(ServiceShipmentHeader)
+        else begin
+            ServiceShipmentHeader.Get(ServiceShipmentHeader."No.");
+            TmpServiceShipmentHeader.SetRange("No.", ServiceShipmentHeader."No.");
+        end;
+        CombineShipmentsReport.SetTableView(TmpServiceShipmentHeader);
+        CombineShipmentsReport.UseRequestPage(false);
+        CombineShipmentsReport.RunModal();
     end;
 
     [IntegrationEvent(false, false)]

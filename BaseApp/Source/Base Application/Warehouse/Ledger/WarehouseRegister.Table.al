@@ -10,7 +10,8 @@ table 7313 "Warehouse Register"
 {
     Caption = 'Warehouse Register';
     LookupPageID = "Warehouse Registers";
-    Permissions = TableData "Warehouse Register" = ri;
+    InherentPermissions = r;
+    Permissions = TableData "Warehouse Register" = i;
     DataClassification = CustomerContent;
 
     fields
@@ -78,13 +79,14 @@ table 7313 "Warehouse Register"
             InsertRecord();
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Warehouse Register", 'r')]
     procedure InsertRecord()
     var
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
         if not Rec.Insert() then begin
-            SequenceNoMgt.RebaseSeqNo(DATABASE::"Warehouse Register");
-            "No." := SequenceNoMgt.GetNextSeqNo(DATABASE::"Warehouse Register");
+            SequenceNoMgt.RebaseSeqNo(Database::"Warehouse Register");
+            "No." := SequenceNoMgt.GetNextSeqNo(Database::"Warehouse Register");
             Rec.Insert();
         end;
     end;
@@ -97,11 +99,12 @@ table 7313 "Warehouse Register"
         exit(GetLastEntryNo() + 1);
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Warehouse Register", 'r')]
     procedure GetNextEntryNo(): Integer
     var
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
-        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Warehouse Register"));
+        exit(SequenceNoMgt.GetNextSeqNo(Database::"Warehouse Register"));
     end;
 
     procedure GetLastEntryNo(): Integer;

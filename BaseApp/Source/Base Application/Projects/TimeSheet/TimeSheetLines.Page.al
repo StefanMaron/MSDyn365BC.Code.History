@@ -358,7 +358,6 @@ page 949 "Time Sheet Lines"
 
     var
         GlobalTimeSheetHeader: Record "Time Sheet Header";
-        TempTimeSheetHeader: Record "Time Sheet Header" temporary;
         TempTimeSheetLine: Record "Time Sheet Line" temporary;
         TimeSheetManagement: Codeunit "Time Sheet Management";
         CellData: array[32] of Decimal;
@@ -371,6 +370,7 @@ page 949 "Time Sheet Lines"
         LastStartDate: Date;
 
     protected var
+        TempTimeSheetHeader: Record "Time Sheet Header" temporary;
         ServiceOrderNoVisible: Boolean;
 
     local procedure UpdateValuesPerDays()

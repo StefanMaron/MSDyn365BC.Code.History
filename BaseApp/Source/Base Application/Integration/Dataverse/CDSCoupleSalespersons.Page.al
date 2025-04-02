@@ -11,7 +11,7 @@ using System;
 
 page 7209 "CDS Couple Salespersons"
 {
-    Caption = 'Couple Dataverse Users with Salespersons', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+    Caption = 'Couple Dataverse Users with Salespeople', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
@@ -153,7 +153,7 @@ page 7209 "CDS Couple Salespersons"
                     Caption = 'Match-Based Coupling';
                     Enabled = HasPermissions;
                     Image = LinkAccount;
-                    ToolTip = 'Couple salespersons to users in Dataverse based on criteria.';
+                    ToolTip = 'Couple salespeople to users in Dataverse based on criteria.';
 
                     trigger OnAction()
                     var
@@ -288,7 +288,7 @@ page 7209 "CDS Couple Salespersons"
         ClosePageUncoupledUserTxt: Label '%1 out of %2 users are coupled. To prevent issues in initial synchronization Business Central will create salespeople for uncoupled users, couple them and add them to default team. Would you like to continue?', Comment = '%1=No. of users that were coupled, %2=Total no. of users.';
         AllCoupledTxt: Label 'All users are coupled.';
         HasPermissions: Boolean;
-        StartMatchBasedCouplingQst: Label 'You are about to couple Business Central salespersons to Dataverse users based on criteria that you define.\Refresh this page to update the status of the couplings.\\Do you want to continue?';
+        StartMatchBasedCouplingQst: Label 'You are about to couple Business Central salespeople to Dataverse users based on criteria that you define.\Refresh this page to update the status of the couplings.\\Do you want to continue?';
 
     procedure SetCurrentlyCoupledCRMSystemuser(CRMSystemuser: Record "CRM Systemuser")
     begin

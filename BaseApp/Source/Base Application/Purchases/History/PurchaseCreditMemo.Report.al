@@ -906,7 +906,6 @@ report 407 "Purchase - Credit Memo"
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
         VendAddr: array[8] of Text[100];
-        CompanyAddr: array[8] of Text[100];
         ReturnOrderNoText: Text[80];
         PurchaserText: Text[50];
         VATNoText: Text[80];
@@ -994,6 +993,7 @@ report 407 "Purchase - Credit Memo"
         CompanyInfo: Record "Company Information";
         FirstLineHasBeenOutput: Boolean;
         ShipToAddr: array[8] of Text[100];
+        CompanyAddr: array[8] of Text[100];
 
     procedure InitLogInteraction()
     begin

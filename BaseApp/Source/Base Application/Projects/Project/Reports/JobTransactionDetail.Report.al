@@ -334,6 +334,8 @@ report 1007 "Job - Transaction Detail"
 
     requestpage
     {
+        AboutTitle = 'About Project Task - Transaction Detail';
+        AboutText = 'Get an overview of posted project tasks, such as resources and items.';
 
         layout
         {

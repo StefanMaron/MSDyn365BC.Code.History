@@ -1102,6 +1102,7 @@ codeunit 7204 "CDS Setup Defaults"
     local procedure AddProxyTablesOnAddEntityTableMapping(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
     begin
         if not CDSConnectionSetup.Get() then
             exit;
@@ -1109,10 +1110,7 @@ codeunit 7204 "CDS Setup Defaults"
         if not CDSConnectionSetup."Is Enabled" then
             exit;
 
-        TempNameValueBuffer.ID := TempNameValueBuffer.Count() + 1;
-        TempNameValueBuffer.Name := 'account';
-        TempNameValueBuffer.Value := Format(Database::Vendor);
-        TempNameValueBuffer.Insert();
+        CRMSetupDefaults.AddEntityTableMapping('account', Database::Vendor, TempNameValueBuffer);
     end;
 
     procedure GetDefaultDirection(NAVTableID: Integer): Integer

@@ -59,6 +59,7 @@ table 112 "Sales Invoice Header"
             Caption = 'Sell-to Customer No.';
             NotBlank = true;
             TableRelation = Customer;
+            ToolTip = 'Specifies the number of the customer that you shipped the items on the invoice to.';
         }
         field(3; "No."; Code[20])
         {
@@ -67,6 +68,7 @@ table 112 "Sales Invoice Header"
         field(4; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
+            ToolTip = 'Specifies the number of the customer that you send or sent the invoice to.';
             NotBlank = true;
             TableRelation = Customer;
         }
@@ -588,21 +590,6 @@ table 112 "Sales Invoice Header"
             Caption = 'Email';
             ExtendedDatatype = EMail;
         }
-        field(176; "Payment Instructions"; BLOB)
-        {
-            Caption = 'Payment Instructions';
-            ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
-        field(177; "Payment Instructions Name"; Text[20])
-        {
-            Caption = 'Payment Instructions Name';
-            DataClassification = CustomerContent;
-            ObsoleteReason = 'Microsoft Invoicing is not supported in Business Central';
-            ObsoleteState = Removed;
-            ObsoleteTag = '22.0';
-        }
         field(179; "VAT Reporting Date"; Date)
         {
             Caption = 'VAT Date';
@@ -661,19 +648,16 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'Doc. Exch. Original Identifier';
         }
+#if not CLEANSCHEMA26
         field(720; "Coupled to CRM"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';
             Editable = false;
             ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
         field(721; "Coupled to Dataverse"; Boolean)
         {
             FieldClass = FlowField;
@@ -796,13 +780,6 @@ table 112 "Sales Invoice Header"
         field(7200; "Get Shipment Used"; Boolean)
         {
             Caption = 'Get Shipment Used';
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
         }
         field(8001; "Draft Invoice SystemId"; Guid)
         {
@@ -930,19 +907,16 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'Foreign Trade';
         }
+#if not CLEANSCHEMA26
         field(10055; "Transit-to Location"; Code[10])
         {
             Caption = 'Transit-to Location';
             TableRelation = Location where("Use As In-Transit" = const(false));
             ObsoleteReason = 'Replaced with SAT Address ID.';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif             
         }
+#endif
         field(10059; "SAT International Trade Term"; Code[10])
         {
             Caption = 'SAT International Trade Term';
@@ -1617,4 +1591,3 @@ table 112 "Sales Invoice Header"
     begin
     end;
 }
-

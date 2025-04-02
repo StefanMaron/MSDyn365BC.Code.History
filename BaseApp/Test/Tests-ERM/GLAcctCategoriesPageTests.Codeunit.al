@@ -564,7 +564,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         CategGenerateAccSchedules.HideAccSchedUpdateNeededNotificationForCurrentUser(Notification);
     end;
 
-    local procedure SetAccountCategoryAndValidateIncomeBalanceField(GLAccountCategory: Record "G/L Account Category"; AccountCategory: Option; IncomeBalance: Option)
+    local procedure SetAccountCategoryAndValidateIncomeBalanceField(GLAccountCategory: Record "G/L Account Category"; AccountCategory: Option; IncomeBalance: Enum "G/L Account Report Type")
     begin
         GLAccountCategory.Validate("Account Category", AccountCategory);
         GLAccountCategory.TestField("Income/Balance", IncomeBalance);

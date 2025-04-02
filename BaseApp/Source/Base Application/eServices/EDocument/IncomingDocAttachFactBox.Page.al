@@ -179,6 +179,20 @@ page 193 "Incoming Doc. Attach. FactBox"
                     DocumentServiceMgt.ShareWithOneDrive(FileName, FileExtension, InStream);
                 end;
             }
+            action(OpenInFileViewer)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'View';
+                Image = View;
+                Enabled = ViewEnabled;
+                Scope = Repeater;
+                ToolTip = 'View the file. You will be able to download the file from the viewer control. Works only on limited number of file types.';
+
+                trigger OnAction()
+                begin
+                    Rec.NameDrillDown();
+                end;
+            }
             action(Export)
             {
                 ApplicationArea = Basic, Suite;
@@ -190,7 +204,7 @@ page 193 "Incoming Doc. Attach. FactBox"
 
                 trigger OnAction()
                 begin
-                    Rec.NameDrillDown();
+                    Rec.NameDrillDown(true);
                 end;
             }
         }
@@ -205,6 +219,7 @@ page 193 "Incoming Doc. Attach. FactBox"
 
         ShareOptionsEnabled := (not Rec.IsGroupOrLink()) and (IncomingDocumentAttachment.Get(Rec."Incoming Document Entry No.", Rec."Line No.")) and (DocumentSharing.ShareEnabled());
         DownloadEnabled := (not Rec.IsGroupOrLink()) and (IncomingDocumentAttachment.Get(Rec."Incoming Document Entry No.", Rec."Line No."));
+        ViewEnabled := DownloadEnabled and IncomingDocumentAttachment.SupportedByFileViewer();
         HasMainAttachment := Rec.Count() > 0;
     end;
 
@@ -234,6 +249,7 @@ page 193 "Incoming Doc. Attach. FactBox"
         HasAttachments: Boolean;
         ShareOptionsEnabled: Boolean;
         DownloadEnabled: Boolean;
+        ViewEnabled: Boolean;
         PreviousViewFilter: text;
         GlobalDocumentNo: text;
         GlobalPostingDate: Date;

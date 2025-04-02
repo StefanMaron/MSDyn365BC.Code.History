@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+#if not CLEANSCHEMA28 
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -46,6 +47,7 @@ table 10010 "IRS 1099 Form-Box"
             Editable = false;
             FieldClass = FlowField;
         }
+#if not CLEANSCHEMA28
         field(8000; Id; Guid)
         {
             Caption = 'Id';
@@ -58,6 +60,7 @@ table 10010 "IRS 1099 Form-Box"
             ObsoleteTag = '17.0';
 #endif
         }
+#endif
     }
 
     keys
@@ -175,4 +178,5 @@ table 10010 "IRS 1099 Form-Box"
         IRS1099FormBox."Minimum Reportable" := NewMinimum;
         IRS1099FormBox.Insert();
     end;
-}
+} 
+#endif

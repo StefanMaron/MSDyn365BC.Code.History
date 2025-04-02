@@ -437,6 +437,7 @@ table 1383 "Vendor Templ."
             OptionCaption = ' ,-,.,/';
             OptionMembers = " ","-",".","/";
         }
+#if not CLEANSCHEMA28
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
@@ -450,6 +451,7 @@ table 1383 "Vendor Templ."
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
         field(10023; "RFC No."; Code[13])
         {
             Caption = 'RFC No.';

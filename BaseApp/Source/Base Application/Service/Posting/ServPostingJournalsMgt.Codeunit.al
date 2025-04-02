@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Posting;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Posting;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -21,7 +25,7 @@ using Microsoft.Projects.Project.Posting;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.Sales.Customer;
-#if not CLEAN23
+#if not CLEAN24
 using Microsoft.Sales.Receivables;
 #endif
 using Microsoft.Sales.Setup;
@@ -34,10 +38,6 @@ using Microsoft.Warehouse.Request;
 
 codeunit 5987 "Serv-Posting Journals Mgt."
 {
-#if not CLEAN23
-    Permissions = TableData "Invoice Post. Buffer" = rimd;
-#endif
-
     trigger OnRun()
     begin
     end;
@@ -61,7 +61,9 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         Consume: Boolean;
         Invoice: Boolean;
         ItemJnlRollRndg: Boolean;
+#if not CLEAN26
         ServiceLinePostingDate: Date;
+#endif
 
     procedure Initialize(var TempServHeader: Record "Service Header"; TmpConsume: Boolean; TmpInvoice: Boolean)
     var
@@ -372,134 +374,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         InvoicePostingInterface.PostBalancingEntry(ServiceHeader, GenJnlPostLine);
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    procedure PostInvoicePostBufferLine(var InvoicePostBuffer: Record "Invoice Post. Buffer"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        GLEntryNo: Integer;
-    begin
-        GenJnlLine.InitNewLine(
-            ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", InvoicePostBuffer."Entry Description",
-            InvoicePostBuffer."Global Dimension 1 Code", InvoicePostBuffer."Global Dimension 2 Code",
-            InvoicePostBuffer."Dimension Set ID", ServiceHeader."Reason Code");
-
-        GenJnlLine.CopyDocumentFields(Enum::"Gen. Journal Document Type".FromInteger(DocType), DocNo, ExtDocNo, SrcCode, '');
-
-        GenJnlLine.CopyFromServiceHeader(ServiceHeader);
-        InvoicePostBuffer.CopyToGenJnlLine(GenJnlLine);
-        GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Sale;
-
-        OnBeforePostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GenJnlPostLine);
-        GLEntryNo := GenJnlPostLine.RunWithCheck(GenJnlLine);
-        OnAfterPostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GLEntryNo, GenJnlPostLine);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    procedure PostCustomerEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-    begin
-        GenJnlLine.InitNewLine(
-            ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
-            ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
-            ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
-
-        GenJnlLine.CopyDocumentFields(Enum::"Gen. Journal Document Type".FromInteger(DocType), DocNo, ExtDocNo, SrcCode, '');
-
-        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
-        GenJnlLine."Account No." := ServiceHeader."Bill-to Customer No.";
-        GenJnlLine.CopyFromServiceHeader(ServiceHeader);
-        GenJnlLine.SetCurrencyFactor(ServiceHeader."Currency Code", ServiceHeader."Currency Factor");
-
-        GenJnlLine.CopyFromServiceHeaderApplyTo(ServiceHeader);
-        GenJnlLine.CopyFromServiceHeaderPayment(ServiceHeader);
-
-        GenJnlLine.Amount := -TotalServiceLine."Amount Including VAT";
-        GenJnlLine."Source Currency Amount" := -TotalServiceLine."Amount Including VAT";
-        GenJnlLine."Amount (LCY)" := -TotalServiceLineLCY."Amount Including VAT";
-        GenJnlLine."Sales/Purch. (LCY)" := -TotalServiceLineLCY.Amount;
-        GenJnlLine."Profit (LCY)" := -(TotalServiceLineLCY.Amount - TotalServiceLineLCY."Unit Cost (LCY)");
-        GenJnlLine."Inv. Discount (LCY)" := -TotalServiceLineLCY."Inv. Discount Amount";
-        GenJnlLine."System-Created Entry" := true;
-        GenJnlLine."Orig. Pmt. Disc. Possible" := -TotalServiceLine."Pmt. Discount Amount";
-        GenJnlLine."Orig. Pmt. Disc. Possible(LCY)" :=
-          CurrExchRate.ExchangeAmtFCYToLCY(
-            ServiceHeader."Posting Date", ServiceHeader."Currency Code", -TotalServiceLine."Pmt. Discount Amount", ServiceHeader."Currency Factor");
-
-        OnBeforePostCustomerEntry(GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, GenJnlPostLine, GenJnlLineDocNo);
-        GenJnlPostLine.RunWithCheck(GenJnlLine);
-        OnAfterPostCustomerEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    procedure PostBalancingEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
-    var
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        GenJnlLine: Record "Gen. Journal Line";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnPostBalancingEntryOnBeforeFindCustLedgerEntry(ServiceHeader, CustLedgEntry, IsHandled);
-        if not IsHandled then
-            FindCustLedgEntry(Enum::"Gen. Journal Document Type".FromInteger(DocType), DocNo, CustLedgEntry);
-
-        GenJnlLine.InitNewLine(
-            ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
-            ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
-            ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
-
-        if ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo" then
-            GenJnlLine.CopyDocumentFields(GenJnlLine."Document Type"::Refund, DocNo, ExtDocNo, SrcCode, '')
-        else
-            GenJnlLine.CopyDocumentFields(GenJnlLine."Document Type"::Payment, DocNo, ExtDocNo, SrcCode, '');
-
-        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
-        GenJnlLine."Account No." := ServiceHeader."Bill-to Customer No.";
-        GenJnlLine.CopyFromServiceHeader(ServiceHeader);
-        GenJnlLine.SetCurrencyFactor(ServiceHeader."Currency Code", ServiceHeader."Currency Factor");
-
-        SetApplyToDocNo(ServiceHeader, GenJnlLine, Enum::"Gen. Journal Document Type".FromInteger(DocType), DocNo);
-
-        GenJnlLine.Amount := TotalServiceLine."Amount Including VAT" + CustLedgEntry."Remaining Pmt. Disc. Possible";
-        GenJnlLine."Source Currency Amount" := GenJnlLine.Amount;
-        CustLedgEntry.CalcFields(Amount);
-        if CustLedgEntry.Amount = 0 then
-            GenJnlLine."Amount (LCY)" := TotalServiceLineLCY."Amount Including VAT"
-        else
-            GenJnlLine."Amount (LCY)" :=
-              TotalServiceLineLCY."Amount Including VAT" +
-              Round(CustLedgEntry."Remaining Pmt. Disc. Possible" / CustLedgEntry."Adjusted Currency Factor");
-        GenJnlLine."Allow Zero-Amount Posting" := true;
-
-        OnBeforePostBalancingEntry(GenJnlLine, ServiceHeader, TotalServiceLine);
-        GenJnlPostLine.RunWithCheck(GenJnlLine);
-        OnAfterPostBalancingEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
-    end;
-
-    local procedure FindCustLedgEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; var CustLedgerEntry: Record "Cust. Ledger Entry")
-    begin
-        CustLedgerEntry.SetRange("Document Type", DocType);
-        CustLedgerEntry.SetRange("Document No.", DocNo);
-        CustLedgerEntry.FindLast();
-    end;
-#endif
-
-#if not CLEAN23
-    local procedure SetApplyToDocNo(ServiceHeader: Record "Service Header"; var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
-    begin
-        if ServiceHeader."Bal. Account Type" = ServiceHeader."Bal. Account Type"::"Bank Account" then
-            GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"Bank Account";
-        GenJnlLine."Bal. Account No." := ServiceHeader."Bal. Account No.";
-        GenJnlLine."Applies-to Doc. Type" := DocType;
-        GenJnlLine."Applies-to Doc. No." := DocNo;
-    end;
-#endif
-
     procedure PostResJnlLineShip(var ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         ResJnlLine: Record "Res. Journal Line";
@@ -773,10 +647,13 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         exit(true);
     end;
 
+#if not CLEAN26
+    [Obsolete('The variable ServiceLinePostingDate is initialized but not used.', '26.0')]
     procedure SetPostingDate(PostingDate: Date)
     begin
         ServiceLinePostingDate := PostingDate;
     end;
+#endif
 
     internal procedure PostSalesTaxToGL(var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary; var TotalServiceLineLCY: Record "Service Line"; GenJnlLineDocType: Enum "Gen. Journal Document Type"; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; SalesTaxCountry: Option US,CA,,,,,,,,,,,,NoTax)
     var
@@ -900,7 +777,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             until TempSalesTaxAmtLine.Next() = 0;
     end;
 
-#if not CLEAN23
+#if not CLEAN24
     [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; var ServiceHeader: Record "Service Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
@@ -925,7 +802,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN24
     [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; GenJnlLineDocNo: Code[20])
@@ -980,18 +857,18 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnPostSalesTaxToGLOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary)
-    begin
-    end;
-
-#if not CLEAN23
+#if not CLEAN24
     [IntegrationEvent(false, false)]
     [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '23.0')]
     local procedure OnPostBalancingEntryOnBeforeFindCustLedgerEntry(var ServiceHeader: Record "Service Header"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSalesTaxToGLOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostItemJnlLine(ServiceHeader: Record "Service Header"; var ItemJournalLine: Record "Item Journal Line"; var TempHandlingTrackingSpecification: Record "Tracking Specification")

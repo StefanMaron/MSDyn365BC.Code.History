@@ -1131,5 +1131,19 @@ codeunit 130502 "Library - Item Tracking"
     begin
         ItemTrackingDocMgt.CopyDocTrkgFromReservation(DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", HideDialog);
     end;
+
+    procedure PostPositiveAdjustmentWithItemTracking(Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; SerialNo: Code[50]; LotNo: Code[50])
+    var
+        ReservEntry: Record "Reservation Entry";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Item);
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, VariantCode, PostingDate,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Qty, 0);
+        CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, SerialNo, LotNo, Qty);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
 }
 

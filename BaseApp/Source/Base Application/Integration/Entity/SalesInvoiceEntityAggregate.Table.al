@@ -391,15 +391,6 @@ table 5475 "Sales Invoice Entity Aggregate"
             Caption = 'Invoice Discount Value';
             DataClassification = CustomerContent;
         }
-        field(167; "Last Email Sent Status"; Option)
-        {
-            Caption = 'Last Email Sent Status';
-            ObsoleteReason = 'Do not store the sent status in the entity but calculate it on a fly to avoid etag change after invoice sending.';
-            ObsoleteState = Removed;
-            OptionCaption = 'Not Sent,In Process,Finished,Error', Locked = true;
-            OptionMembers = "Not Sent","In Process",Finished,Error;
-            ObsoleteTag = '15.0';
-        }
         field(170; IsTest; Boolean)
         {
             Caption = 'IsTest';
@@ -929,4 +920,3 @@ table 5475 "Sales Invoice Entity Aggregate"
         exit(MainRecordFound);
     end;
 }
-

@@ -26,6 +26,7 @@ table 6752 "Reminder Action Log"
         field(5; "Total Records Processed"; Integer)
         {
         }
+#if not CLEANSCHEMA28
         field(6; "Total Errors"; Integer)
         {
 #if not CLEAN25
@@ -38,7 +39,7 @@ table 6752 "Reminder Action Log"
             ObsoleteTag = '28.0';
 #endif
         }
-
+#endif
         field(7; "Last Record Processed"; RecordId)
         {
         }

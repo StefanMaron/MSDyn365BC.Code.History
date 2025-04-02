@@ -514,6 +514,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Dimension Filter Scenario Test");
 
         NewGLAccountNo := CreateAndPostGenJnlLinesWithDimData();
+        SetShowAmountsOnly();
 
         IsInitialized := true;
         Commit();
@@ -691,6 +692,15 @@ codeunit 134828 "Dimension Filter Scenario Test"
     begin
         Assert.AreNotEqual(0, StrPos(Notification.Message, NotificationMsg), 'expected a different notification message');
         exit(true);
+    end;
+
+    local procedure SetShowAmountsOnly()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Show Amounts", GeneralLedgerSetup."Show Amounts"::"Amount Only");
+        GeneralLedgerSetup.Modify();
     end;
 }
 

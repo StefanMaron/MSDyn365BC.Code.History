@@ -44137,6 +44137,206 @@ IIF(Fields!PrintAmtsInLCY.Value,Fields!CreditAmtLCY_BankAccLedgEntry.Value,Field
       </Page>
     </ReportSection>
   </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="EntryNo_CapLedgEntryCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EntryNo_CapLedgEntryCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EntryNo_CapLedgEntryCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocNo_CapLedgEntryCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocNo_CapLedgEntryCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocNo_CapLedgEntryCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Desc_CapLedgEntryCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Desc_CapLedgEntryCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Desc_CapLedgEntryCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Qty_CapLedgEntryCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Qty_CapLedgEntryCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Qty_CapLedgEntryCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="No_ProdOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>No_ProdOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>No_ProdOrderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Status_ProdOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Status_ProdOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Status_ProdOrderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Desc_ProdOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Desc_ProdOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Desc_ProdOrderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SourceType_ProdOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SourceType_ProdOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SourceType_ProdOrderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SourceNo_ProdOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SourceNo_ProdOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SourceNo_ProdOrderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UnitCost_ProdOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UnitCost_ProdOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UnitCost_ProdOrderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CostAmt_ProdOrderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CostAmt_ProdOrderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CostAmt_ProdOrderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocNo_ServLedgEntryCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocNo_ServLedgEntryCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocNo_ServLedgEntryCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Desc_ServLedgEntryCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Desc_ServLedgEntryCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Desc_ServLedgEntryCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="AmtLCY_ServLedgEntryCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AmtLCY_ServLedgEntryCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AmtLCY_ServLedgEntryCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EntryNo_ServLedgEntryCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EntryNo_ServLedgEntryCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EntryNo_ServLedgEntryCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ServCntrtNo_ServLedgEntryCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ServCntrtNo_ServLedgEntryCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ServCntrtNo_ServLedgEntryCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EntryNo_WarrantyLedgEntryCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EntryNo_WarrantyLedgEntryCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EntryNo_WarrantyLedgEntryCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocNo_WarrantyLedgEntryCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocNo_WarrantyLedgEntryCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocNo_WarrantyLedgEntryCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Desc_WarrantyLedgEntryCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Desc_WarrantyLedgEntryCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Desc_WarrantyLedgEntryCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Amt_WarrantyLedgEntryCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Amt_WarrantyLedgEntryCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Amt_WarrantyLedgEntryCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="No_ServShptHeaderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>No_ServShptHeaderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>No_ServShptHeaderCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Desc_ServShptHeaderCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Desc_ServShptHeaderCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Desc_ServShptHeaderCaption</Prompt>
+    </ReportParameter>
+  </ReportParameters>
   <Code>Public Function BlankZero(ByVal Value As Decimal)
     if Value = 0 then
         Return ""
@@ -44217,99 +44417,6 @@ End Function
         </Field>
         <Field Name="DocEntryTableNameCaption">
           <DataField>DocEntryTableNameCaption</DataField>
-        </Field>
-        <Field Name="PostDate_ServiceLedgEntry">
-          <DataField>PostDate_ServiceLedgEntry</DataField>
-        </Field>
-        <Field Name="DocNo_ServLedgEntry">
-          <DataField>DocNo_ServLedgEntry</DataField>
-        </Field>
-        <Field Name="Dec_ServLedgEntry">
-          <DataField>Dec_ServLedgEntry</DataField>
-        </Field>
-        <Field Name="AmtLCY_ServLedgEntry">
-          <DataField>AmtLCY_ServLedgEntry</DataField>
-        </Field>
-        <Field Name="AmtLCY_ServLedgEntryFormat">
-          <DataField>AmtLCY_ServLedgEntryFormat</DataField>
-        </Field>
-        <Field Name="EntryNo_ServLedgEntry">
-          <DataField>EntryNo_ServLedgEntry</DataField>
-        </Field>
-        <Field Name="ServCntrtNo_ServLedgEntry">
-          <DataField>ServCntrtNo_ServLedgEntry</DataField>
-        </Field>
-        <Field Name="DocNo_ServLedgEntryCaption">
-          <DataField>DocNo_ServLedgEntryCaption</DataField>
-        </Field>
-        <Field Name="EntryNo_ServLedgEntryCaption">
-          <DataField>EntryNo_ServLedgEntryCaption</DataField>
-        </Field>
-        <Field Name="ServContractNo_ServLedgEntryCaption">
-          <DataField>ServContractNo_ServLedgEntryCaption</DataField>
-        </Field>
-        <Field Name="AmtLCY_ServLedgEntryCaption">
-          <DataField>AmtLCY_ServLedgEntryCaption</DataField>
-        </Field>
-        <Field Name="Decription_ServLedgEntryCaption">
-          <DataField>Decription_ServLedgEntryCaption</DataField>
-        </Field>
-        <Field Name="ServLedgEntryPostingDateCaption">
-          <DataField>ServLedgEntryPostingDateCaption</DataField>
-        </Field>
-        <Field Name="EntryNo_WarrantyLedgEntry">
-          <DataField>EntryNo_WarrantyLedgEntry</DataField>
-        </Field>
-        <Field Name="PostingDt_WarrantyLedgEntry">
-          <DataField>PostingDt_WarrantyLedgEntry</DataField>
-        </Field>
-        <Field Name="DocNo_WarrantyLedgEntry">
-          <DataField>DocNo_WarrantyLedgEntry</DataField>
-        </Field>
-        <Field Name="Description_WarrantyLedgEntry">
-          <DataField>Description_WarrantyLedgEntry</DataField>
-        </Field>
-        <Field Name="Amt_WarrantyLedgEntry">
-          <DataField>Amt_WarrantyLedgEntry</DataField>
-        </Field>
-        <Field Name="Amt_WarrantyLedgEntryFormat">
-          <DataField>Amt_WarrantyLedgEntryFormat</DataField>
-        </Field>
-        <Field Name="EntryNo_WarrantyLedgEntryCaption">
-          <DataField>EntryNo_WarrantyLedgEntryCaption</DataField>
-        </Field>
-        <Field Name="Amt_WarrantyLedgEntryCaption">
-          <DataField>Amt_WarrantyLedgEntryCaption</DataField>
-        </Field>
-        <Field Name="Description_WarrantyLedgEntryCaption">
-          <DataField>Description_WarrantyLedgEntryCaption</DataField>
-        </Field>
-        <Field Name="DocNo_WarrantyLedgEntryCaption">
-          <DataField>DocNo_WarrantyLedgEntryCaption</DataField>
-        </Field>
-        <Field Name="WarrantyLedgEntryPostingDateCaption">
-          <DataField>WarrantyLedgEntryPostingDateCaption</DataField>
-        </Field>
-        <Field Name="CurrencyCaption">
-          <DataField>CurrencyCaption</DataField>
-        </Field>
-        <Field Name="PostDate_ServShipmentHdr">
-          <DataField>PostDate_ServShipmentHdr</DataField>
-        </Field>
-        <Field Name="No_ServShipmentHeader">
-          <DataField>No_ServShipmentHeader</DataField>
-        </Field>
-        <Field Name="No_ServShipmentHdrCaption">
-          <DataField>No_ServShipmentHdrCaption</DataField>
-        </Field>
-        <Field Name="Desc_ServShptHeader">
-          <DataField>Desc_ServShptHeader</DataField>
-        </Field>
-        <Field Name="CurrencyCode_ServShptHeader">
-          <DataField>CurrencyCode_ServShptHeader</DataField>
-        </Field>
-        <Field Name="ServShptHeaderPostDateCaption">
-          <DataField>ServShptHeaderPostDateCaption</DataField>
         </Field>
         <Field Name="PostingDate_SalesShipmentHdr">
           <DataField>PostingDate_SalesShipmentHdr</DataField>
@@ -44799,54 +44906,6 @@ End Function
         </Field>
         <Field Name="PurchCrMemoHdrPostingDateCaption">
           <DataField>PurchCrMemoHdrPostingDateCaption</DataField>
-        </Field>
-        <Field Name="No_ProductionOrder">
-          <DataField>No_ProductionOrder</DataField>
-        </Field>
-        <Field Name="Status_ProductionOrder">
-          <DataField>Status_ProductionOrder</DataField>
-        </Field>
-        <Field Name="Description_ProductionOrder">
-          <DataField>Description_ProductionOrder</DataField>
-        </Field>
-        <Field Name="SourceType_ProductionOrder">
-          <DataField>SourceType_ProductionOrder</DataField>
-        </Field>
-        <Field Name="SourceNo_ProductionOrder">
-          <DataField>SourceNo_ProductionOrder</DataField>
-        </Field>
-        <Field Name="UnitCost_ProductionOrder">
-          <DataField>UnitCost_ProductionOrder</DataField>
-        </Field>
-        <Field Name="UnitCost_ProductionOrderFormat">
-          <DataField>UnitCost_ProductionOrderFormat</DataField>
-        </Field>
-        <Field Name="CostAmt_ProductionOrder">
-          <DataField>CostAmt_ProductionOrder</DataField>
-        </Field>
-        <Field Name="CostAmt_ProductionOrderFormat">
-          <DataField>CostAmt_ProductionOrderFormat</DataField>
-        </Field>
-        <Field Name="ProductionOrderStatusCaption">
-          <DataField>ProductionOrderStatusCaption</DataField>
-        </Field>
-        <Field Name="CostAmt_ProductionOrderCaption">
-          <DataField>CostAmt_ProductionOrderCaption</DataField>
-        </Field>
-        <Field Name="UnitCost_ProductionOrderCaption">
-          <DataField>UnitCost_ProductionOrderCaption</DataField>
-        </Field>
-        <Field Name="SourceNo_ProductionOrderCaption">
-          <DataField>SourceNo_ProductionOrderCaption</DataField>
-        </Field>
-        <Field Name="SourceType_ProductionOrderCaption">
-          <DataField>SourceType_ProductionOrderCaption</DataField>
-        </Field>
-        <Field Name="Description_ProductionOrderCaption">
-          <DataField>Description_ProductionOrderCaption</DataField>
-        </Field>
-        <Field Name="No_ProductionOrderCaption">
-          <DataField>No_ProductionOrderCaption</DataField>
         </Field>
         <Field Name="PostingDate_TransferShipmentHdr">
           <DataField>PostingDate_TransferShipmentHdr</DataField>
@@ -45937,39 +45996,6 @@ End Function
         <Field Name="InsCoverageLedgerEntryPostingDateCaption">
           <DataField>InsCoverageLedgerEntryPostingDateCaption</DataField>
         </Field>
-        <Field Name="EntryNo_CapacityLedgEntry">
-          <DataField>EntryNo_CapacityLedgEntry</DataField>
-        </Field>
-        <Field Name="PostingDate_CapacityLedgEntry">
-          <DataField>PostingDate_CapacityLedgEntry</DataField>
-        </Field>
-        <Field Name="DocNo_CapacityLedgEntry">
-          <DataField>DocNo_CapacityLedgEntry</DataField>
-        </Field>
-        <Field Name="Description_CapacityLedgEntry">
-          <DataField>Description_CapacityLedgEntry</DataField>
-        </Field>
-        <Field Name="Qty_CapacityLedgEntry">
-          <DataField>Qty_CapacityLedgEntry</DataField>
-        </Field>
-        <Field Name="Qty_CapacityLedgEntryFormat">
-          <DataField>Qty_CapacityLedgEntryFormat</DataField>
-        </Field>
-        <Field Name="EntryNo_CapacityLedgEntryCaption">
-          <DataField>EntryNo_CapacityLedgEntryCaption</DataField>
-        </Field>
-        <Field Name="Qty_CapacityLedgEntryCaption">
-          <DataField>Qty_CapacityLedgEntryCaption</DataField>
-        </Field>
-        <Field Name="Description_CapacityLedgEntryCaption">
-          <DataField>Description_CapacityLedgEntryCaption</DataField>
-        </Field>
-        <Field Name="DocNo_CapacityLedgEntryCaption">
-          <DataField>DocNo_CapacityLedgEntryCaption</DataField>
-        </Field>
-        <Field Name="CapacityLedgerEntryPostingDateCaption">
-          <DataField>CapacityLedgerEntryPostingDateCaption</DataField>
-        </Field>
         <Field Name="EntryNo_WhseEntry">
           <DataField>EntryNo_WhseEntry</DataField>
         </Field>
@@ -46014,6 +46040,120 @@ End Function
         </Field>
         <Field Name="WarehouseEntryRegisteringDateCaption">
           <DataField>WarehouseEntryRegisteringDateCaption</DataField>
+        </Field>
+        <Field Name="EntryNo_CapLedgEntry">
+          <DataField>EntryNo_CapLedgEntry</DataField>
+        </Field>
+        <Field Name="PstDate_CapLedgEntry">
+          <DataField>PstDate_CapLedgEntry</DataField>
+        </Field>
+        <Field Name="DocNo_CapLedgEntry">
+          <DataField>DocNo_CapLedgEntry</DataField>
+        </Field>
+        <Field Name="Desc_CapLedgEntry">
+          <DataField>Desc_CapLedgEntry</DataField>
+        </Field>
+        <Field Name="Qty_CapLedgEntry">
+          <DataField>Qty_CapLedgEntry</DataField>
+        </Field>
+        <Field Name="Qty_CapLedgEntryFormat">
+          <DataField>Qty_CapLedgEntryFormat</DataField>
+        </Field>
+        <Field Name="CapLedgEntryPostDtCaption">
+          <DataField>CapLedgEntryPostDtCaption</DataField>
+        </Field>
+        <Field Name="No_ProdOrder">
+          <DataField>No_ProdOrder</DataField>
+        </Field>
+        <Field Name="Status_ProdOrder">
+          <DataField>Status_ProdOrder</DataField>
+        </Field>
+        <Field Name="StatusCaption_ProdOrder">
+          <DataField>StatusCaption_ProdOrder</DataField>
+        </Field>
+        <Field Name="Desc_ProdOrder">
+          <DataField>Desc_ProdOrder</DataField>
+        </Field>
+        <Field Name="SourceType_ProdOrder">
+          <DataField>SourceType_ProdOrder</DataField>
+        </Field>
+        <Field Name="SourceNo_ProdOrder">
+          <DataField>SourceNo_ProdOrder</DataField>
+        </Field>
+        <Field Name="UnitCost_ProdOrder">
+          <DataField>UnitCost_ProdOrder</DataField>
+        </Field>
+        <Field Name="UnitCost_ProdOrderFormat">
+          <DataField>UnitCost_ProdOrderFormat</DataField>
+        </Field>
+        <Field Name="CostAmt_ProdOrder">
+          <DataField>CostAmt_ProdOrder</DataField>
+        </Field>
+        <Field Name="CostAmt_ProdOrderFormat">
+          <DataField>CostAmt_ProdOrderFormat</DataField>
+        </Field>
+        <Field Name="PostDate_ServiceLedgEntry">
+          <DataField>PostDate_ServiceLedgEntry</DataField>
+        </Field>
+        <Field Name="DocNo_ServLedgEntry">
+          <DataField>DocNo_ServLedgEntry</DataField>
+        </Field>
+        <Field Name="Desc_ServLedgEntry">
+          <DataField>Desc_ServLedgEntry</DataField>
+        </Field>
+        <Field Name="AmtLCY_ServLedgEntry">
+          <DataField>AmtLCY_ServLedgEntry</DataField>
+        </Field>
+        <Field Name="AmtLCY_ServLedgEntryFormat">
+          <DataField>AmtLCY_ServLedgEntryFormat</DataField>
+        </Field>
+        <Field Name="EntryNo_ServLedgEntry">
+          <DataField>EntryNo_ServLedgEntry</DataField>
+        </Field>
+        <Field Name="ServCntrtNo_ServLedgEntry">
+          <DataField>ServCntrtNo_ServLedgEntry</DataField>
+        </Field>
+        <Field Name="ServLedgEntryPostDtCaption">
+          <DataField>ServLedgEntryPostDtCaption</DataField>
+        </Field>
+        <Field Name="EntryNo_WarrantyLedgEntry">
+          <DataField>EntryNo_WarrantyLedgEntry</DataField>
+        </Field>
+        <Field Name="PostDt_WarrantyLedgEntry">
+          <DataField>PostDt_WarrantyLedgEntry</DataField>
+        </Field>
+        <Field Name="DocNo_WarrantyLedgEntry">
+          <DataField>DocNo_WarrantyLedgEntry</DataField>
+        </Field>
+        <Field Name="Desc_WarrantyLedgEntry">
+          <DataField>Desc_WarrantyLedgEntry</DataField>
+        </Field>
+        <Field Name="Amt_WarrantyLedgEntry">
+          <DataField>Amt_WarrantyLedgEntry</DataField>
+        </Field>
+        <Field Name="Amt_WarrantyLedgEntryFormat">
+          <DataField>Amt_WarrantyLedgEntryFormat</DataField>
+        </Field>
+        <Field Name="WarrantyLedgEntryPostDtCaption">
+          <DataField>WarrantyLedgEntryPostDtCaption</DataField>
+        </Field>
+        <Field Name="CurrencyCaption">
+          <DataField>CurrencyCaption</DataField>
+        </Field>
+        <Field Name="PostDate_ServShptHeader">
+          <DataField>PostDate_ServShptHeader</DataField>
+        </Field>
+        <Field Name="No_ServShptHeader">
+          <DataField>No_ServShptHeader</DataField>
+        </Field>
+        <Field Name="Desc_ServShptHeader">
+          <DataField>Desc_ServShptHeader</DataField>
+        </Field>
+        <Field Name="CurrencyCode_ServShptHeader">
+          <DataField>CurrencyCode_ServShptHeader</DataField>
+        </Field>
+        <Field Name="ServShptHeaderPostDateCaption">
+          <DataField>ServShptHeaderPostDateCaption</DataField>
         </Field>
       </Fields>
       <Query>

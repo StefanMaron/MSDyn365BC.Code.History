@@ -2,21 +2,21 @@
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.Navigate;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Pricing.Worksheet;
 #endif
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.TimeSheet;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Purchases.Pricing;
 #endif
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.RoleCenters;
 #endif
 using Microsoft.Sales.Customer;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Sales.Pricing;
 #endif
 using Microsoft.Utilities;
@@ -281,7 +281,7 @@ page 9014 "Job Resource Manager RC"
             {
                 Caption = 'Administration';
                 Image = Administration;
-#if not CLEAN23
+#if not CLEAN25
                 action("Resource Costs")
                 {
                     ApplicationArea = Jobs;
@@ -355,7 +355,7 @@ page 9014 "Job Resource Manager RC"
                 RunObject = Report "Adjust Resource Costs/Prices";
                 ToolTip = 'Adjust one or more fields on the resource card. For example, you can change the direct unit cost by 10 percent on all resources from a specific resource group. The changes are processed immediately after the batch job is started. The fields on the resource card that are dependent on the adjusted field are also changed.';
             }
-#if not CLEAN23
+#if not CLEAN25
             action("Resource P&rice Changes")
             {
                 ApplicationArea = Jobs;

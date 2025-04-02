@@ -2102,9 +2102,6 @@ End Function
         <Field Name="VATReportingDateCaption">
           <DataField>VATReportingDateCaption</DataField>
         </Field>
-        <Field Name="PostingDateCaption">
-          <DataField>PostingDateCaption</DataField>
-        </Field>
         <Field Name="DocumentTypeCaption">
           <DataField>DocumentTypeCaption</DataField>
         </Field>
@@ -2125,9 +2122,6 @@ End Function
         </Field>
         <Field Name="GLRegisterNoCaption">
           <DataField>GLRegisterNoCaption</DataField>
-        </Field>
-        <Field Name="PostingDate_VatEntry">
-          <DataField>PostingDate_VatEntry</DataField>
         </Field>
         <Field Name="VATDate_VatEntry">
           <DataField>VATDate_VatEntry</DataField>

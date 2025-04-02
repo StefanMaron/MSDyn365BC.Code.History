@@ -23,7 +23,6 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
-        LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         isInitialized: Boolean;
@@ -1200,7 +1199,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         Item.VALIDATE("VAT Prod. Posting Group", VATProdPostingGroup[1].Code);
         Item.Validate("Automatic Ext. Texts", true);
         Item.Modify(true);
-        LibraryService.CreateExtendedTextForItem(Item."No.");
+        LibraryInventory.CreateExtendedTextForItem(Item."No.");
 
         // [GIVEN] Blanket Sales Order with line of type Item, Qty = 10 and one Ext. Text line
         // VAT Prod. Posting Group of Sales Line = 'VPPG1'

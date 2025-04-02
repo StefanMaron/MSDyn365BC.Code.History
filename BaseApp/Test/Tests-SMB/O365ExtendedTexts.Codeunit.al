@@ -12,7 +12,7 @@ codeunit 138005 "O365 ExtendedTexts"
     var
         LibraryRandom: Codeunit "Library - Random";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
-        LibraryService: Codeunit "Library - Service";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryResource: Codeunit "Library - Resource";
         LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
@@ -182,7 +182,7 @@ codeunit 138005 "O365 ExtendedTexts"
         I: Integer;
     begin
         for I := 1 to NumberOfLines do begin
-            LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+            LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
             ExtendedTextLine.Text := ExtendedLineTextTxt + Format(I);
             ExtendedTextLine.Modify();
         end;

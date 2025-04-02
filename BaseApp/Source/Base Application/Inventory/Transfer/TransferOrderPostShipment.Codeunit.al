@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Transfer;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Dimension;
@@ -11,6 +15,7 @@ using Microsoft.Inventory.Comment;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
@@ -30,6 +35,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 tabledata "Transfer Shipment Header" = ri,
                 tabledata "Transfer Shipment Line" = rim;
     TableNo = "Transfer Header";
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -95,7 +101,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TransHeader.CheckInvtPostingSetup();
             OnAfterCheckInvtPostingSetup(TransHeader, TempWhseShptHeader, SourceCode);
 
-            LockTables(InvtSetup."Automatic Cost Posting");
+            LockTables(InvtSetup.UseLegacyPosting() and InvtSetup."Automatic Cost Posting");
             // Insert shipment header
             PostedWhseShptHeader.LockTable();
             TransShptHeader.LockTable();
@@ -123,6 +129,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TransLine.SetRange(Quantity);
             TransLine.SetRange("Qty. to Ship");
             OnRunOnAfterTransLineSetFiltersForShptLines(TransLine, TransHeader, Location, WhseShip);
+
+            Clear(PostponedValueEntries);
+            BindSubscription(this); // Start collecting value entries for GLPosting
+            if not InvtSetup.UseLegacyPosting() then
+                TransLine.SetCurrentKey("Document No.", "Item No.", "Transfer-from Code", "Transfer-from Bin Code", "Line No.");
             if TransLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
@@ -143,6 +154,9 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
                     InsertTransShptLine(TransShptHeader);
                 until TransLine.Next() = 0;
+            TransLine.SetCurrentKey("Document No.", "Line No.");
+            UnBindSubscription(this);  // Stop collecting value entries for GLPosting
+            ItemJnlPostLine.PostDeferredValueEntriesToGL(PostponedValueEntries);
 
             MakeInventoryAdjustment();
 
@@ -238,6 +252,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         WhsePostShpt: Codeunit "Whse.-Post Shipment";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
+        PostponedValueEntries: List of [Integer];
         SourceCode: Code[10];
         WhseShip: Boolean;
         WhsePosting: Boolean;
@@ -836,6 +851,15 @@ codeunit 5704 "TransferOrder-Post Shipment"
     procedure SetPreviewMode(NewPreviewMode: Boolean)
     begin
         PreviewMode := NewPreviewMode;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
+    local procedure OnBeforePostValueEntryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    begin
+        if InvtSetup.UseLegacyPosting() then
+            exit;
+        PostponedValueEntries.Add(ValueEntry."Entry No.");
+        IsHandled := true;
     end;
 
     [IntegrationEvent(false, false)]

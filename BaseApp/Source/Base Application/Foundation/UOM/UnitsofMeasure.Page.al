@@ -47,17 +47,6 @@ page 209 "Units of Measure"
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the unit of measure applicable to the quantity expressed in the merchandise at customs according to the SAT customs unit definition.';
                 }
-#if not CLEAN23
-                field("Coupled to CRM"; Rec."Coupled to CRM")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies that the unit of measure is coupled to a unit group in Dynamics 365 Sales.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;

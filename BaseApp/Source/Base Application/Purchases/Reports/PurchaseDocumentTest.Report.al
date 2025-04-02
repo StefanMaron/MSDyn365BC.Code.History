@@ -14,7 +14,6 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
@@ -1092,8 +1091,6 @@ report 402 "Purchase Document - Test"
                                 No[1] := "Purchase Line"."No.";
                                 TableID[2] := Database::Job;
                                 No[2] := "Purchase Line"."Job No.";
-                                TableID[3] := Database::"Work Center";
-                                No[3] := "Purchase Line"."Work Center No.";
                                 OnBeforeCheckDimValuePostingLine("Purchase Line", TableID, No);
                                 if not DimMgt.CheckDimValuePosting(TableID, No, "Purchase Line"."Dimension Set ID") then
                                     AddError(DimMgt.GetDimValuePostingErr());
@@ -2140,7 +2137,6 @@ report 402 "Purchase Document - Test"
         OrigMaxLineNo: Integer;
         InvOnNextPostReq: Boolean;
         ReceiveShipOnNextPostReq: Boolean;
-        ShowDim: Boolean;
         Continue: Boolean;
         ShowItemChargeAssgnt: Boolean;
 #pragma warning disable AA0074
@@ -2256,6 +2252,9 @@ report 402 "Purchase Document - Test"
         ContinuedCaption_Control197Lbl: Label 'Continued';
         TotalCaption_Control194Lbl: Label 'Total';
         ContinuedCaption_Control192Lbl: Label 'Continued';
+
+    protected var
+        ShowDim: Boolean;
 
     local procedure AddError(Text: Text)
     begin

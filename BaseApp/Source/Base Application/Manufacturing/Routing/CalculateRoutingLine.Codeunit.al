@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Routing;
 
 using Microsoft.Foundation.Enums;
@@ -1218,7 +1222,7 @@ codeunit 99000774 "Calculate Routing Line"
     procedure CalculateRoutingLine(var ProdOrderRoutingLine2: Record "Prod. Order Routing Line"; Direction: Option Forward,Backward; CalcStartEndDate: Boolean)
     var
         ProdOrderCapNeed: Record "Prod. Order Capacity Need";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         ExpectedOperOutput: Decimal;
         ActualOperOutput: Decimal;
         TotalQtyPerOperation: Decimal;
@@ -1292,7 +1296,7 @@ codeunit 99000774 "Calculate Routing Line"
                     ExpectedOperOutput := ExpectedOperOutput + ProdOrderLine."Quantity (Base)";
                 TotalScrap := TotalScrap + ProdOrderLine."Scrap %";
             until ProdOrderLine.Next() = 0;
-            ActualOperOutput := CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRoutingLine);
+            ActualOperOutput := MfgCostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRoutingLine);
             ProdOrderQty := ExpectedOperOutput - ActualOperOutput;
             if ProdOrderQty < 0 then
                 ProdOrderQty := 0;
@@ -2035,18 +2039,21 @@ codeunit 99000774 "Calculate Routing Line"
     var
         CapacityLedgerEntry: Record "Capacity Ledger Entry";
     begin
-        CapacityLedgerEntry.SetCurrentKey(
-            "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
-        CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
-        CapacityLedgerEntry.SetRange("Order No.", ProdOrderRoutingLine."Prod. Order No.");
-        CapacityLedgerEntry.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
-        CapacityLedgerEntry.SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
-        CapacityLedgerEntry.SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
-        CapacityLedgerEntry.CalcSums("Setup Time", CapacityLedgerEntry."Run Time");
-        if TimeType = TimeType::"Setup Time" then
-            exit(CapacityLedgerEntry."Setup Time");
-        if TimeType = TimeType::"Run Time" then
-            exit(CapacityLedgerEntry."Run Time");
+        if TimeType in [TimeType::"Setup Time", TimeType::"Run Time"] then begin
+            CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
+            CapacityLedgerEntry.SetRange("Order No.", ProdOrderRoutingLine."Prod. Order No.");
+            CapacityLedgerEntry.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+            CapacityLedgerEntry.SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+            CapacityLedgerEntry.SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+            if TimeType = TimeType::"Setup Time" then begin
+                CapacityLedgerEntry.CalcSums("Setup Time");
+                exit(CapacityLedgerEntry."Setup Time");
+            end;
+            if TimeType = TimeType::"Run Time" then begin
+                CapacityLedgerEntry.CalcSums("Run Time");
+                exit(CapacityLedgerEntry."Run Time");
+            end;
+        end;
         exit(0);
     end;
 

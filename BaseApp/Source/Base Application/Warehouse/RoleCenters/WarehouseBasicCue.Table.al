@@ -16,6 +16,7 @@ table 9050 "Warehouse Basic Cue"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Rlsd. Sales Orders Until Today"; Integer)

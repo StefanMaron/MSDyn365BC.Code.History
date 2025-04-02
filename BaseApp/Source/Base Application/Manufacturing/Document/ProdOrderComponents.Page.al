@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
@@ -285,13 +289,11 @@ page 99000818 "Prod. Order Components"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the routing link code when you calculate the production order.';
-                    Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location where the component is stored. Copies the location code from the corresponding field on the production order line.';
-                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -369,6 +371,16 @@ page 99000818 "Prod. Order Components"
             {
                 ApplicationArea = Notes;
                 Visible = false;
+            }
+            part(Control44; "Prod. Order Comp. Item FactBox")
+            {
+                ApplicationArea = Manufacturing;
+                SubPageLink = Status = field(Status),
+                              "Prod. Order No." = field("Prod. Order No."),
+                              "Prod. Order Line No." = field("Prod. Order Line No."),
+                              "Line No." = field("Line No."),
+                              "Item No." = field("Item No.");
+                UpdatePropagation = Both;
             }
         }
     }
@@ -590,6 +602,20 @@ page 99000818 "Prod. Order Components"
                         Rec.ShowOrderTracking();
                     end;
                 }
+            }
+            action(SelectMultiItems)
+            {
+                AccessByPermission = TableData Item = R;
+                ApplicationArea = Manufacturing;
+                Caption = 'Select items';
+                Ellipsis = true;
+                Image = NewItem;
+                ToolTip = 'Add two or more items from the list of your inventory items.';
+
+                trigger OnAction()
+                begin
+                    Rec.SelectMultipleItems();
+                end;
             }
             action("&Print")
             {

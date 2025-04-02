@@ -3,6 +3,7 @@ namespace Microsoft.Sustainability.Setup;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.UOM;
 using Microsoft.Utilities;
+using System.Utilities;
 
 table 6217 "Sustainability Setup"
 {
@@ -105,6 +106,53 @@ table 6217 "Sustainability Setup"
         {
             Caption = 'Use Emissions In Purchase Documents';
         }
+        field(17; "Waste Unit of Measure Code"; Code[10])
+        {
+            Caption = 'Waste Unit of Measure Code';
+            TableRelation = "Unit of Measure";
+        }
+        field(18; "Water Unit of Measure Code"; Code[10])
+        {
+            Caption = 'Water Unit of Measure Code';
+            TableRelation = "Unit of Measure";
+        }
+        field(19; "Disch. Into Water Unit of Meas"; Code[10])
+        {
+            Caption = 'Discharged Into Water Unit of Measure Code';
+            TableRelation = "Unit of Measure";
+        }
+        field(20; "G/L Account Emissions"; Boolean)
+        {
+            Caption = 'G/L Account Emissions';
+        }
+        field(21; "Item Emissions"; Boolean)
+        {
+            Caption = 'Item Emissions';
+        }
+        field(22; "Item Charge Emissions"; Boolean)
+        {
+            Caption = 'Item Charge Emissions';
+            Editable = false;
+        }
+        field(23; "Resource Emissions"; Boolean)
+        {
+            Caption = 'Resource Emissions';
+        }
+        field(24; "Work/Machine Center Emissions"; Boolean)
+        {
+            Caption = 'Work/Machine Center Emissions';
+        }
+        field(25; "Enable Value Chain Tracking"; Boolean)
+        {
+            Caption = 'Enable Value Chain Tracking';
+
+            trigger OnValidate()
+            begin
+                if Rec."Enable Value Chain Tracking" then
+                    if not ConfirmManagement.GetResponseOrDefault(ConfirmEnableValueChainTrackingQst, false) then
+                        Error('');
+            end;
+        }
     }
 
     keys
@@ -118,8 +166,27 @@ table 6217 "Sustainability Setup"
     var
         GLSetup: Record "General Ledger Setup";
         SustainabilitySetup: Record "Sustainability Setup";
+        ConfirmManagement: Codeunit "Confirm Management";
         SustainabilitySetupRetrieved: Boolean;
+        RecordHasBeenRead: Boolean;
         AutoFormatExprLbl: Label '<Precision,%1><Standard Format,0>', Locked = true;
+        ConfirmEnableValueChainTrackingQst: Label 'Value Chain Tracking feature is currently in preview. We strongly recommend that you first enable and test this feature on a sandbox environment that has a copy of production data before doing this on a production environment.\\Are you sure you want to enable this feature?';
+
+    procedure GetRecordOnce()
+    begin
+        if RecordHasBeenRead then
+            exit;
+        Get();
+        RecordHasBeenRead := true;
+    end;
+
+    procedure IsValueChainTrackingEnabled(): Boolean
+    begin
+        SetLoadFields("Enable Value Chain Tracking");
+        GetRecordOnce();
+
+        exit("Enable Value Chain Tracking");
+    end;
 
     internal procedure GetFormat(FieldNo: Integer): Text
     begin

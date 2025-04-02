@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Bank.Payment;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Bank.Payment;
 
 page 1228 "Payment Journal Errors Part"
 {

@@ -14,7 +14,6 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
@@ -263,13 +262,6 @@ page 9000 "Whse. WMS Role Center"
                 Caption = 'Physical Inventory Recordings';
                 RunObject = Page "Phys. Inventory Recording List";
                 ToolTip = 'Prepare to count inventory by creating a recording document to capture the quantities.';
-            }
-            action(ReleasedProductionOrders)
-            {
-                ApplicationArea = Manufacturing;
-                Caption = 'Released Production Orders';
-                RunObject = Page "Released Production Orders";
-                ToolTip = 'View the list of released production order that are ready for warehouse activities.';
             }
             action(AssemblyOrders)
             {

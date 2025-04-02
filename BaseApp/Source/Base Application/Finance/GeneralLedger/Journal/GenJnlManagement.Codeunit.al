@@ -542,7 +542,7 @@ codeunit 230 GenJnlManagement
                         if TemplateType = GenJnlTemplate.Type::Assets then
                             GenJnlTemplate.Description := Text000
                         else
-                                GenJnlTemplate.Description := StrSubstNo(Text001, GenJnlTemplate.Type);
+                            GenJnlTemplate.Description := StrSubstNo(Text001, GenJnlTemplate.Type);
                     end else begin
                         GenJnlTemplate.Name := Text002;
                         GenJnlTemplate.Description := Text003;

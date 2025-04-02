@@ -294,7 +294,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         GLAccount.FindFirst();
     end;
 
-    local procedure SetAccountCategoryAndValidateIncomeBalanceField(GLAccount: Record "G/L Account"; AccountCategory: Enum "G/L Account Category"; IncomeBalance: Option)
+    local procedure SetAccountCategoryAndValidateIncomeBalanceField(GLAccount: Record "G/L Account"; AccountCategory: Enum "G/L Account Category"; IncomeBalance: Enum "G/L Account Report Type")
     begin
         GLAccount.Validate("Account Category", AccountCategory);
         GLAccount.TestField("Income/Balance", IncomeBalance);

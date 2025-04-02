@@ -109,6 +109,7 @@ codeunit 6041 "Service Document Archive Mgmt."
             exit;
 
         ServiceHeaderArchive.Init();
+        ServiceHeader.CalcFields("Work Description");
         ServiceHeaderArchive.TransferFields(ServiceHeader);
         ServiceHeaderArchive."Archived By" := CopyStr(UserId(), 1, MaxStrLen(ServiceHeaderArchive."Archived By"));
         ServiceHeaderArchive."Date Archived" := Today();
@@ -233,6 +234,7 @@ codeunit 6041 "Service Document Archive Mgmt."
             OnBeforeServiceHeaderInsert(ServiceHeader, ServiceHeaderArchive);
             ServiceHeader.Insert(true);
             OnRestoreServiceDocumentOnAfterServiceHeaderInsert(ServiceHeader, ServiceHeaderArchive);
+            ServiceHeaderArchive.CalcFields("Work Description");
             ServiceHeader.TransferFields(ServiceHeaderArchive);
             ServiceHeader.Status := ServiceHeader.Status::Pending;
             OnRestoreServiceDocumentOnBeforeServiceHeaderValidateFields(ServiceHeader, ServiceHeaderArchive);

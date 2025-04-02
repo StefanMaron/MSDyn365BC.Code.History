@@ -14,7 +14,7 @@ codeunit 142060 "ERM Misc. Report"
 
     var
         Assert: Codeunit Assert;
-#if not CLEAN23
+#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
 #endif
         LibraryERM: Codeunit "Library - ERM";
@@ -40,7 +40,7 @@ codeunit 142060 "ERM Misc. Report"
         CompanyNameLbl: Label 'CompanyAddress1';
         CustomerNoLbl: Label 'Customer__No__';
         CustNameLbl: Label 'Cust_Name';
-#if not CLEAN23
+#if not CLEAN25
         CustNoLbl: Label 'CustNo';
 #endif
         DescPurchCrMemoLineLbl: Label 'Desc_PurchCrMemoLine';
@@ -97,7 +97,7 @@ codeunit 142060 "ERM Misc. Report"
         SalesLineOutstandingQuantityLbl: Label 'Sales_Line__Outstanding_Quantity_';
         SalesLineOutstandingAmountLbl: Label 'Sales_Line__Outstanding_Amount_';
         SalesLineVariantCodeLbl: Label 'Sales_Line__Variant_Code_';
-#if not CLEAN23
+#if not CLEAN25
         SalesPriceSalesCodeLbl: Label 'Sales_Price__Sales_Code_';
         SalesPriceUnitPriceLbl: Label 'Sales_Price__Unit_Price_';
 #endif
@@ -406,7 +406,7 @@ codeunit 142060 "ERM Misc. Report"
           StockkeepingUnit."Variant Code");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('SalesPromotionRequestPageHandler')]
     [Scope('OnPrem')]
@@ -501,7 +501,7 @@ codeunit 142060 "ERM Misc. Report"
         VerifyValuesOnReport(SalesLine."No.", ItemNoCapLbl, ItemTaxGroupCodeLbl, SalesLine."Tax Group Code");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('ListPriceSheetRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1775,7 +1775,7 @@ codeunit 142060 "ERM Misc. Report"
           (PurchaseLine."Buy-from Vendor No.", VendorLedgerEntry."Entry No.") - PurchaseLine."Amount Including VAT");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('ListPriceSheetRequestPageHandler')]
     [Scope('OnPrem')]
@@ -2534,11 +2534,11 @@ codeunit 142060 "ERM Misc. Report"
 
     local procedure CreateAndUpdateBOMComponent(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; ItemNo: Code[20])
     begin
-        LibraryManufacturing.CreateBOMComponent(
+        LibraryInventory.CreateBOMComponent(
           BOMComponent, ParentItemNo, BOMComponent.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2), '');
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateAndModifySalesPrice(var SalesPrice: Record "Sales Price"; Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CurrencyCode: Code[10])
     begin
         LibraryCosting.CreateSalesPrice(
@@ -3322,7 +3322,7 @@ codeunit 142060 "ERM Misc. Report"
         ItemsbySalesTaxGroup.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ListPriceSheetRequestPageHandler(var ListPriceSheet: TestRequestPage "List Price Sheet")
@@ -3520,7 +3520,7 @@ codeunit 142060 "ERM Misc. Report"
         SalesHistory.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesPromotionRequestPageHandler(var SalesPromotion: TestRequestPage "Sales Promotion")

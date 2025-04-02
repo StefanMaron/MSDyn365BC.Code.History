@@ -2,7 +2,7 @@
 
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.UOM;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Pricing.Reports;
 using Microsoft.Pricing.Worksheet;
 #endif
@@ -12,13 +12,13 @@ using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Setup;
 using Microsoft.Projects.TimeSheet;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Purchases.Pricing;
 #endif
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.RoleCenters;
 #endif
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Sales.Pricing;
 #endif
 using Microsoft.Utilities;
@@ -47,7 +47,7 @@ page 8906 "Resource Manager Role Center"
                     Caption = 'Resource Groups';
                     RunObject = page "Resource Groups";
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action("Resource Price Changes")
                 {
                     ApplicationArea = Jobs;
@@ -171,7 +171,7 @@ page 8906 "Resource Manager Role Center"
                         Caption = 'Resource List';
                         RunObject = Report "Resource List";
                     }
-#if not CLEAN23
+#if not CLEAN25
                     action("Resource - Price List")
                     {
                         ApplicationArea = Jobs;
@@ -213,7 +213,7 @@ page 8906 "Resource Manager Role Center"
                         Caption = 'Units of Measure';
                         RunObject = page "Units of Measure";
                     }
-#if not CLEAN23
+#if not CLEAN25
                     action("Costs")
                     {
                         ApplicationArea = Basic, Suite;

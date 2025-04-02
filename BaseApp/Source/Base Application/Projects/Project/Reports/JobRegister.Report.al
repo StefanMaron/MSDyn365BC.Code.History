@@ -191,6 +191,8 @@ report 10217 "Job Register"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Project Register';
+        AboutText = 'Document a project register''s contents for internal or external audits.';
 
         layout
         {

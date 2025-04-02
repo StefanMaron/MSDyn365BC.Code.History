@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Reports;
 
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -173,6 +177,8 @@ report 716 "Inventory Cost and Price List"
 
     requestpage
     {
+        AboutTitle = 'About Inventory Cost and Price List';
+        AboutText = 'Analyze and manage your inventory costs and pricing strategies.';
         SaveValues = true;
 
         layout

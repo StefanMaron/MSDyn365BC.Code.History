@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CRM.Outlook;
 
 using Microsoft.Inventory.Item;
@@ -157,14 +161,13 @@ codeunit 1639 "Office Line Generation"
     local procedure CreateLineItemsOnCloseSuggestedLineItems(var TempOfficeSuggestedLineItem: Record "Office Suggested Line Item" temporary; var HeaderRecRef: RecordRef; PageCloseAction: Action)
     var
         OfficeMgt: Codeunit "Office Management";
-        LastLineNo: Integer;
         AddedCount: Integer;
     begin
         if PageCloseAction in [ACTION::OK, ACTION::LookupOK] then
             if TempOfficeSuggestedLineItem.FindSet() then
                 repeat
                     if TempOfficeSuggestedLineItem.Add then begin
-                        InsertLineItem(LastLineNo, HeaderRecRef, TempOfficeSuggestedLineItem."Item No.", TempOfficeSuggestedLineItem.Quantity);
+                        InsertLineItem(HeaderRecRef, TempOfficeSuggestedLineItem."Item No.", TempOfficeSuggestedLineItem.Quantity);
                         AddedCount += 1;
                     end;
                 until TempOfficeSuggestedLineItem.Next() = 0;
@@ -363,55 +366,67 @@ codeunit 1639 "Office Line Generation"
         TempOfficeSuggestedLineItem.SetRange("Item Description");
     end;
 
-    local procedure InsertLineItem(var LastLineNo: Integer; var HeaderRecRef: RecordRef; ItemNo: Text[50]; Quantity: Integer)
+    local procedure InsertLineItem(var HeaderRecRef: RecordRef; ItemNo: Text[50]; Quantity: Integer)
     var
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
     begin
-        LastLineNo += 10000;
-
         case HeaderRecRef.Number of
             DATABASE::"Sales Header":
                 begin
                     HeaderRecRef.SetTable(SalesHeader);
-                    InsertSalesLine(SalesHeader, LastLineNo, ItemNo, Quantity);
+                    InsertSalesLine(SalesHeader, ItemNo, Quantity);
                 end;
             DATABASE::"Purchase Header":
                 begin
                     HeaderRecRef.SetTable(PurchaseHeader);
-                    InsertPurchaseLine(PurchaseHeader, LastLineNo, ItemNo, Quantity);
+                    InsertPurchaseLine(PurchaseHeader, ItemNo, Quantity);
                 end;
         end;
     end;
 
-    local procedure InsertSalesLine(var SalesHeader: Record "Sales Header"; LineNo: Integer; ItemNo: Text[50]; Quantity: Integer)
+    local procedure InsertSalesLine(var SalesHeader: Record "Sales Header"; ItemNo: Text[50]; Quantity: Integer)
     var
         SalesLine: Record "Sales Line";
+        LineNo: Integer;
     begin
+        LineNo := 10000;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindLast() then
+            LineNo := SalesLine."Line No." + 10000;
+
         SalesLine.Init();
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
+        SalesLine.Validate("Line No.", LineNo);
         SalesLine.Validate("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesLine.Validate(Type, SalesLine.Type::Item);
         SalesLine.Validate("No.", CopyStr(ItemNo, 1, 20));
         SalesLine.Validate(Quantity, Quantity);
-        SalesLine.Validate("Line No.", LineNo);
         SalesLine.Insert(true);
         Commit();
     end;
 
-    local procedure InsertPurchaseLine(var PurchaseHeader: Record "Purchase Header"; LineNo: Integer; ItemNo: Text[50]; Quantity: Integer)
+    local procedure InsertPurchaseLine(var PurchaseHeader: Record "Purchase Header"; ItemNo: Text[50]; Quantity: Integer)
     var
         PurchaseLine: Record "Purchase Line";
+        LineNo: Integer;
     begin
+        LineNo := 10000;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        if PurchaseLine.FindLast() then
+            LineNo := PurchaseLine."Line No." + 10000;
+
         PurchaseLine.Init();
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
+        PurchaseLine.Validate("Line No.", LineNo);
         PurchaseLine.Validate("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
         PurchaseLine.Validate("No.", CopyStr(ItemNo, 1, 20));
         PurchaseLine.Validate(Quantity, Quantity);
-        PurchaseLine.Validate("Line No.", LineNo);
         PurchaseLine.Insert(true);
         Commit();
     end;

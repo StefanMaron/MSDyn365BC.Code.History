@@ -79,7 +79,7 @@ page 441 "Issued Reminder Statistics"
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
                     Caption = 'Credit Limit (LCY)';
-                    ToolTip = 'Specifies the credit limit in LCY on the customer''s account.';
+                    ToolTip = 'Specifies the credit limit in local currency for the customer''s account. The value 0 represents unlimited credit.';
                 }
                 field(CreditLimitLCYExpendedPct; CreditLimitLCYExpendedPct)
                 {
@@ -148,4 +148,3 @@ page 441 "Issued Reminder Statistics"
     begin
     end;
 }
-

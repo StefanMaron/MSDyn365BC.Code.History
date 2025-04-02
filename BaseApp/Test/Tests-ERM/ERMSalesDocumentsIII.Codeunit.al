@@ -3835,6 +3835,35 @@ codeunit 134387 "ERM Sales Documents III"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestSalesArchiveWorkDescription()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        ArchiveManagement: Codeunit ArchiveManagement;
+        WorkDescription: Text;
+    begin
+        // [FEATURE] [Sales] [Archive] [Work Description]
+        // [SCENARIO] Sales Archive has field "Work Description" mirroring Sales Header when document is archived
+
+        // [GIVEN] Sales Order with non-empty "Work Description"
+        WorkDescription := LibraryRandom.RandText(10);
+        CreateSalesDocumentWithItem(SalesHeader, SalesHeader."Document Type"::Order);
+        SalesHeader.SetWorkDescription(WorkDescription);
+        Assert.AreEqual(WorkDescription, SalesHeader.GetWorkDescription(), '');
+
+        // [WHEN] Archive Sales Order
+        ArchiveManagement.ArchSalesDocumentNoConfirm(SalesHeader);
+
+        SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
+        SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
+        SalesHeaderArchive.FindLast();
+
+        // [THEN] Sales Archive Header has correct "Work Description"
+        Assert.AreEqual(SalesHeader.GetWorkDescription(), SalesHeaderArchive.GetWorkDescription(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TestPostedSalesShipmentHeaderWorkDescription()
     var
         SalesHeader: Record "Sales Header";
@@ -4493,7 +4522,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] The Confirm and Error message was shown
         //Assert.ExpectedError(ConfirmZeroQuantityPostingMsg);
 
-        // [THEN] CreditMemo is not posted 
+        // [THEN] CreditMemo is not posted
         SalesHeader.SetRecFilter();
         Assert.RecordIsNotEmpty(SalesHeader);
 
@@ -4528,7 +4557,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] The Confirm and Error message was shown
         //Assert.ExpectedError(ConfirmZeroQuantityPostingMsg);
 
-        // [THEN] Sales Invoice is not posted 
+        // [THEN] Sales Invoice is not posted
         SalesHeader.SetRecFilter();
         Assert.RecordIsNotEmpty(SalesHeader);
 
@@ -4563,7 +4592,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] The Confirm and Error message was shown
         //Assert.ExpectedError(ConfirmZeroQuantityPostingMsg);
 
-        // [THEN] CreditMemo is not posted 
+        // [THEN] CreditMemo is not posted
         SalesHeader.SetRecFilter();
         Assert.RecordIsNotEmpty(SalesHeader);
 
@@ -4698,7 +4727,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         MockSalesLineWithGLAccount(SalesLine, SalesHeader, VATPostingSetup);
 
-        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Validate "VAT Prod. Posting Group"
         // [GIVEN] Memorize "Direct Unit Cost" as "D"
         // [GIVEN] Memorize "Line Amount" as "L"
         SalesLine.Validate("VAT Prod. Posting Group");
@@ -4740,7 +4769,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesHeader.Modify(true);
         MockSalesLineWithGLAccount(SalesLine, SalesHeader, VATPostingSetup);
 
-        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Validate "VAT Prod. Posting Group"
         // [GIVEN] Memorize "Direct Unit Cost" as "D"
         // [GIVEN] Memorize "Line Amount" as "L"
         SalesLine.Validate("VAT Prod. Posting Group");
@@ -4780,7 +4809,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         MockSalesLineWithGLAccount(SalesLine, SalesHeader, VATPostingSetup);
 
-        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Validate "VAT Prod. Posting Group"
         // [GIVEN] Memorize "Direct Unit Cost" as "D"
         // [GIVEN] Memorize "Line Amount" as "L"
         SalesLine.Validate("VAT Prod. Posting Group");
@@ -4826,7 +4855,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesHeader.Modify(true);
         MockSalesLineWithGLAccount(SalesLine, SalesHeader, VATPostingSetup);
 
-        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Validate "VAT Prod. Posting Group"
         // [GIVEN] Memorize "Direct Unit Cost" as "D"
         // [GIVEN] Memorize "Line Amount" as "L"
         SalesLine.Validate("VAT Prod. Posting Group");
@@ -5434,7 +5463,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine: Record "Sales Line";
         Item: Record Item;
     begin
-        // [FEATURE] 
+        // [FEATURE]
         // [SCENARIO 414831] The sales line with "No." = '' and Type <> 'Item' must be recreated when Customer No. is changed
         Initialize();
 
@@ -5865,7 +5894,7 @@ codeunit 134387 "ERM Sales Documents III"
         CityTxt: array[2] of Text[30];
         CountyTxt: Text[30];
     begin
-        // [FEATURE] 
+        // [FEATURE]
         // [SCENARIO] Verify that the city that is already set on the customer is not changed when the Post Code is validated
         Initialize();
 
@@ -6365,8 +6394,8 @@ codeunit 134387 "ERM Sales Documents III"
         ExtendedTextLine: Record "Extended Text Line";
         Item: Record Item;
     begin
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, LibraryInventory.CreateItemNo());
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, LibraryInventory.CreateItemNo());
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, ExtendedTextHeader."No.");
         ExtendedTextLine.Modify(true);
         Item.Get(ExtendedTextHeader."No.");

@@ -250,6 +250,8 @@ codeunit 142053 "ERM Sales/Purchase Document"
         VerifyErrorOnSalesCommentLine(SalesCommentLine."Document Type"::"Posted Credit Memo", DocumentNo, SalesCommentLine."Line No.");
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
     [HandlerFunctions('SalesOrderStatsPageHandler')]
     [Scope('OnPrem')]
@@ -271,6 +273,31 @@ codeunit 142053 "ERM Sales/Purchase Document"
         SalesInvoiceList.OpenEdit();
         SalesInvoiceList.FILTER.SetFilter("No.", SalesLine."Document No.");
         SalesInvoiceList.Statistics.Invoke();
+
+        // Verify: Verification is done in SalesOrderStatsHandler method.
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('SalesOrderStatsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure SalesStatisticsWithCalcInvDiscountAsTrueNM()
+    var
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesInvoiceList: TestPage "Sales Invoice List";
+    begin
+        // [FEATURE] [Sales] [Statistics]
+        // Verify InvDiscountAmount field is not editable on Sales Statistics with CalcInvDiscount as true on Sales & Receivable Setup.
+
+        // Setup: Update CalcInvDiscount on Sales & Receivable Setup. Create Sales Order.
+        Initialize();
+        UpdateSalesReceivablesSetup(SalesReceivablesSetup.FieldNo("Calc. Inv. Discount"), false);
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::Invoice);
+
+        // Exercise: Open Sales Statistics page from Sales Invoice page.
+        SalesInvoiceList.OpenEdit();
+        SalesInvoiceList.FILTER.SetFilter("No.", SalesLine."Document No.");
+        SalesInvoiceList.SalesOrderStats.Invoke();
 
         // Verify: Verification is done in SalesOrderStatsHandler method.
     end;
@@ -3254,9 +3281,18 @@ codeunit 142053 "ERM Sales/Purchase Document"
         GetReturnShipmentLines.OK().Invoke();
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatsPageHandler(var SalesOrderStats: TestPage "Sales Order Stats.")
+    begin
+        Assert.IsFalse(SalesOrderStats."TotalSalesLine[1].""Inv. Discount Amount""".Editable(), StrSubstNo(EditableErr, 'Inv. Discount Amount'));
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatsPageHandlerNM(var SalesOrderStats: TestPage "Sales Order Stats.")
     begin
         Assert.IsFalse(SalesOrderStats."TotalSalesLine[1].""Inv. Discount Amount""".Editable(), StrSubstNo(EditableErr, 'Inv. Discount Amount'));
     end;
@@ -3343,4 +3379,3 @@ codeunit 142053 "ERM Sales/Purchase Document"
         SalesBlanketOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

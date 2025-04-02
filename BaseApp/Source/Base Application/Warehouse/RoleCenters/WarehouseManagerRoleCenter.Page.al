@@ -18,8 +18,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
@@ -101,12 +99,6 @@ page 8909 "Warehouse Manager Role Center"
                     ApplicationArea = Assembly;
                     Caption = 'Assembly Orders';
                     RunObject = page "Assembly Orders";
-                }
-                action("Released Prod. Orders")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Released Prod. Orders';
-                    RunObject = page "Released Production Orders";
                 }
                 group("Group1")
                 {
@@ -258,12 +250,6 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Assembly;
                         Caption = 'Assembly Orders';
                         RunObject = page "Assembly Orders";
-                    }
-                    action("Released Prod. Orders1")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Released Prod. Orders';
-                        RunObject = page "Released Production Orders";
                     }
                 }
                 group("Group5")
@@ -438,29 +424,11 @@ page 8909 "Warehouse Manager Role Center"
                         Caption = 'Whse. Shipment Status';
                         RunObject = report "Whse. Shipment Status";
                     }
-                    action("Prod. Order - Mat. Requisition")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Prod. Order - Mat. Requisition';
-                        RunObject = report "Prod. Order - Mat. Requisition";
-                    }
-                    action("Prod. Order - Picking List")
-                    {
-                        ApplicationArea = Warehouse, Manufacturing;
-                        Caption = 'Prod. Order Picking List';
-                        RunObject = report "Prod. Order - Picking List";
-                    }
                     action("Customer - List")
                     {
                         ApplicationArea = Basic, Suite, Warehouse;
                         Caption = 'Customer Listing';
                         RunObject = Report "Customer Listing";
-                    }
-                    action("Subcontractor - Dispatch List")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Subcontractor Dispatch List';
-                        RunObject = report "Subcontractor - Dispatch List";
                     }
                     action("Inventory Picking List")
                     {
@@ -608,12 +576,6 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Basic, Suite, Warehouse;
                         Caption = 'Customer Listing';
                         RunObject = report "Customer Listing";
-                    }
-                    action("Prod. Order - Picking List1")
-                    {
-                        ApplicationArea = Warehouse, Manufacturing;
-                        Caption = 'Prod. Order Picking List';
-                        RunObject = report "Prod. Order - Picking List";
                     }
                     action("Customer - Labels")
                     {

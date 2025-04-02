@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Reports;
 
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -195,7 +199,7 @@ report 99000754 "Rolled-up Cost Shares"
                     OnOnAfterGetRecordOnBOMLoopOnBeforeCalcCompItemQtyBase(Item, ProdBOMLine[Index], CalculateDate);
 
                     CompItemQtyBase :=
-                      CostCalcMgt.CalcCompItemQtyBase(
+                      MfgCostCalcMgt.CalcCompItemQtyBase(
                         ProdBOMLine[Index], CalculateDate, MfgItemQtyBase[Index], MfgItem."Routing No.",
                         NoListType[Index] = NoListType[Index] ::Item);
 
@@ -338,7 +342,7 @@ report 99000754 "Rolled-up Cost Shares"
         CompItem: Record Item;
         UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
         ItemFilter: Text;
         BOMCompQtyBase: Decimal;
         MaterialCost: Decimal;
@@ -390,7 +394,7 @@ report 99000754 "Rolled-up Cost Shares"
     local procedure CalcMfgItemQtyBase(Item: Record Item; VersionCode: Code[20]; LotSize: Decimal): Decimal
     begin
         exit(
-          CostCalcMgt.CalcQtyAdjdForBOMScrap(LotSize, Item."Scrap %") /
+          MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(LotSize, Item."Scrap %") /
           UOMMgt.GetQtyPerUnitOfMeasure(Item, VersionMgt.GetBOMUnitOfMeasure(Item."Production BOM No.", VersionCode)));
     end;
 

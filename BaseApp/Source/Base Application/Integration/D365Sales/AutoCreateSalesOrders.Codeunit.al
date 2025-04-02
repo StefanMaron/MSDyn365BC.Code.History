@@ -22,8 +22,8 @@ codeunit 5349 "Auto Create Sales Orders"
     var
         CRMProductName: Codeunit "CRM Product Name";
         CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
-        StartingToCreateSalesOrderTelemetryMsg: Label 'Job queue entry starting to create sales order from %1 order %2 (order number %3).', Locked = true;
-        CommittingAfterCreateSalesOrderTelemetryMsg: Label 'Job queue entry committing after processing %1 order %2 (order number %3).', Locked = true;
+        StartingToCreateSalesOrderTelemetryMsg: Label 'Job queue entry starting to create sales order from %1 order %2.', Locked = true;
+        CommittingAfterCreateSalesOrderTelemetryMsg: Label 'Job queue entry committing after processing %1 order %2.', Locked = true;
 
     local procedure CreateNAVSalesOrdersFromSubmittedCRMSalesorders()
     var
@@ -43,9 +43,9 @@ codeunit 5349 "Auto Create Sales Orders"
         OnCreateNAVSalesOrdersFromSubmittedCRMSalesordersOnAfterCRMSalesorderSetFilters(CRMSalesorder);
         if CRMSalesorder.FindSet(true) then
             repeat
-                Session.LogMessage('0000DET', StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId, CRMSalesOrder.OrderNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+                Session.LogMessage('0000DET', StrSubstNo(StartingToCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
                 if CODEUNIT.Run(CODEUNIT::"CRM Sales Order to Sales Order", CRMSalesorder) then begin
-                    Session.LogMessage('0000DEU', StrSubstNo(CommittingAfterCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId, CRMSalesOrder.OrderNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+                    Session.LogMessage('0000DEU', StrSubstNo(CommittingAfterCreateSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
                     Commit();
                 end;
             until CRMSalesorder.Next() = 0;
@@ -61,4 +61,3 @@ codeunit 5349 "Auto Create Sales Orders"
     begin
     end;
 }
-

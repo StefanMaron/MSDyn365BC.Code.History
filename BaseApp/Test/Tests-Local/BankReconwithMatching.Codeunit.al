@@ -8,7 +8,7 @@ codeunit 141050 "Bank Recon. with Matching"
         // [FEATURE] [Bank Account] [Bank Account Reconciliation]
     end;
 
-#IF CLEAN24
+#if CLEAN24
     var
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";

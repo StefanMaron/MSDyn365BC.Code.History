@@ -15,6 +15,7 @@ table 9065 "Job Queue Role Center Cue"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "User ID"; Text[65])

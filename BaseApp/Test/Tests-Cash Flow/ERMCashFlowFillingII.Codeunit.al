@@ -221,6 +221,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Customer.Validate("Payment Terms Code", PaymentTerms.Code);
         Customer.Modify(true);
         // Payment should be done before pmt dsct tol date
+        Evaluate(PmtDiscountGracePeriod, '-' + Format(PmtDiscountGracePeriod));
         LibraryCashFlowHelper.CreateAndApplySalesInvPayment(GenJournalLine, Customer."No.", Amount, -DiscountedAmount,
           PaymentTerms."Discount Date Calculation", PmtDiscountGracePeriod, MinusOneDayFormula);
 
@@ -228,7 +229,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // forecast is done on pmt dsct tol date
         ConsiderSource[SourceType::Receivables.AsInteger()] := true;
         LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
-          PmtDiscountGracePeriod, EmptyDateFormula);
+           PmtDiscountGracePeriod, EmptyDateFormula);
 
         // Verify
         // No CF lines expected
@@ -538,6 +539,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
         Vendor.Modify(true);
         // Payment should be done before pmt dsct tol date
+        Evaluate(PmtDiscountGracePeriod, '-' + Format(PmtDiscountGracePeriod));
         LibraryCashFlowHelper.CreateAndApplyVendorInvPmt(GenJournalLine, Vendor."No.", -Amount, DiscountedAmount,
           PaymentTerms."Discount Date Calculation", PmtDiscountGracePeriod, MinusOneDayFormula);
 

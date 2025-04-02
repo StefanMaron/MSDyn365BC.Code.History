@@ -51,6 +51,7 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'Buy-from Vendor No.';
             NotBlank = true;
+            ToolTip = 'Specifies the identifier of the vendor that you bought the items from.';
             TableRelation = Vendor;
         }
         field(3; "No."; Code[20])
@@ -62,6 +63,7 @@ table 122 "Purch. Inv. Header"
             Caption = 'Pay-to Vendor No.';
             NotBlank = true;
             TableRelation = Vendor;
+            ToolTip = 'Specifies the number of the vendor that you received the invoice from.';
         }
         field(5; "Pay-to Name"; Text[100])
         {
@@ -619,13 +621,6 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'Price Calculation Method';
         }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
         field(8001; "Draft Invoice SystemId"; Guid)
         {
             Caption = 'Draft Invoice SystemId';
@@ -649,6 +644,7 @@ table 122 "Purch. Inv. Header"
             Caption = 'STE Transaction ID';
             Editable = false;
         }
+#if not CLEANSCHEMA28
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
@@ -662,18 +658,11 @@ table 122 "Purch. Inv. Header"
             ObsoleteTag = '28.0';
 #endif
         }
+#endif
         field(10042; "Fiscal Invoice Number PAC"; Text[50])
         {
             Caption = 'Fiscal Invoice Number PAC';
             Editable = false;
-        }
-        field(27040; "DIOT-Type of Operation"; Option)
-        {
-            Caption = 'DIOT Type of Operation';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to extension';
-            OptionMembers = " ","Prof. Services","Lease and Rent","Others";
-            ObsoleteTag = '15.0';
         }
     }
 
@@ -903,4 +892,3 @@ table 122 "Purch. Inv. Header"
     begin
     end;
 }
-

@@ -660,6 +660,16 @@ page 88 "Job Card"
                             Editable = ShipToOptions = ShipToOptions::"Custom Address";
                             ToolTip = 'Specifies the name that products on the sales document will be shipped to.';
                         }
+                        field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                        {
+                            ApplicationArea = Jobs;
+                            Caption = 'Name 2';
+                            Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                            Importance = Additional;
+                            ToolTip = 'Specifies an additional part of the name that products on the sales document will be shipped to.';
+                            QuickEntry = false;
+                            Visible = false;
+                        }
                         field("Ship-to Address"; Rec."Ship-to Address")
                         {
                             ApplicationArea = Jobs;
@@ -952,6 +962,7 @@ page 88 "Job Card"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::Job),
                               "No." = field("No.");

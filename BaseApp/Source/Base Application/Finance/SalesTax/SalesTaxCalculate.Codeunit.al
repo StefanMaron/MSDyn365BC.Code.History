@@ -66,18 +66,30 @@ codeunit 398 "Sales Tax Calculate"
         Text004: Label 'The calculated sales tax amount is %5, but was supposed to be %6.';
         Text1020000: Label 'Tax country/region %1 is being used.  You must use %2.';
         Text1020001: Label 'Note to Programmers: The function "CopyTaxDifferences" must not be called unless the function "EndSalesTaxCalculation", or the function "PutSalesTaxAmountLineTable", is called first.';
-        Text1020003: Label 'Invalid function call. Function reserved for external tax engines only.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
+        ExternalTaxEngine: Interface "External Tax Engine";
+        ExternalTaxEngineInitialized: Boolean;
+
+    procedure InitializeExternalTaxEngine()
+    begin
+        ExternalTaxEngine := "External Tax Engine"::Default;
+        ExternalTaxEngineInitialized := true;
+        OnAfterInitializeExternalTaxEngine(ExternalTaxEngine);
+    end;
 
     procedure CallExternalTaxEngineForDoc(DocTable: Integer; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]) STETransactionID: Text[20]
     begin
-        Error(Text1020003);
+        if not ExternalTaxEngineInitialized then
+            InitializeExternalTaxEngine();
+        STETransactionID := ExternalTaxEngine.CallExternalTaxEngineForDoc(DocTable, DocType, DocNo);
     end;
 
     procedure CallExternalTaxEngineForJnl(var GenJnlLine: Record "Gen. Journal Line"; CalculationType: Option Normal,Reverse,Expense): Decimal
     begin
-        Error(Text1020003);
+        if not ExternalTaxEngineInitialized then
+            InitializeExternalTaxEngine();
+        exit(ExternalTaxEngine.CallExternalTaxEngineForJnl(GenJnlLine, CalculationType));
     end;
 
     procedure CallExternalTaxEngineForSales(var SalesHeader: Record "Sales Header"; UpdateRecIfChanged: Boolean) STETransactionIDChanged: Boolean
@@ -115,12 +127,16 @@ codeunit 398 "Sales Tax Calculate"
 
     procedure FinalizeExternalTaxCalcForDoc(DocTable: Integer; DocNo: Code[20])
     begin
-        Error(Text1020003);
+        if not ExternalTaxEngineInitialized then
+            InitializeExternalTaxEngine();
+        ExternalTaxEngine.FinalizeExternalTaxCalcForDoc(DocTable, DocNo);
     end;
 
     procedure FinalizeExternalTaxCalcForJnl(var GLEntry: Record "G/L Entry")
     begin
-        Error(Text1020003);
+        if not ExternalTaxEngineInitialized then
+            InitializeExternalTaxEngine();
+        ExternalTaxEngine.FinalizeExternalTaxCalcForJnl(GLEntry);
     end;
 
     procedure CalculateTax(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Date: Date; Amount: Decimal; Quantity: Decimal; ExchangeRate: Decimal) TaxAmount: Decimal
@@ -2351,5 +2367,11 @@ codeunit 398 "Sales Tax Calculate"
     local procedure OnDistTaxOverSalesLinesOnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line"; var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary);
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializeExternalTaxEngine(var ExternalTaxEngineImplementation: Interface "External Tax Engine")
+    begin
+    end;
+
 }
 

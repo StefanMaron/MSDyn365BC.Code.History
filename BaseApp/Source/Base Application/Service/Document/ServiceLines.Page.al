@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
@@ -105,7 +109,7 @@ page 5905 "Service Lines"
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Service, ItemReferences;
                     QuickEntry = false;
-                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a sales or purchase document.';
+                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a service document.';
                     Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -621,11 +625,11 @@ page 5905 "Service Lines"
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                Visible = false;
                 SubPageLink = "Table ID" = const(Database::"Service Line"),
                               "No." = field("Document No."),
                               "Document Type" = field("Document Type"),
                               "Line No." = field("Line No.");
-                Visible = false;
             }
 #endif
             part("Attached Documents List"; "Doc. Attachment List Factbox")
@@ -913,7 +917,7 @@ page 5905 "Service Lines"
                         Rec.ShowItemSub();
                         CurrPage.Update(true);
                         if (Rec.Reserve = Rec.Reserve::Always) and (Rec."No." <> xRec."No.") then begin
-                            Rec.AutoReserve(true);
+                            Rec.AutoReserve();
                             CurrPage.Update(false);
                         end;
                     end;
@@ -1532,7 +1536,7 @@ page 5905 "Service Lines"
            (Rec."No." <> xRec."No.")
         then begin
             CurrPage.SaveRecord();
-            Rec.AutoReserve(true);
+            Rec.AutoReserve();
             CurrPage.Update(false);
         end;
     end;
@@ -1544,7 +1548,7 @@ page 5905 "Service Lines"
            (Rec."Location Code" <> xRec."Location Code")
         then begin
             CurrPage.SaveRecord();
-            Rec.AutoReserve(true);
+            Rec.AutoReserve();
         end;
         CurrPage.Update(true);
     end;
@@ -1558,7 +1562,7 @@ page 5905 "Service Lines"
                 Rec.Reserve::Always:
                     begin
                         CurrPage.SaveRecord();
-                        Rec.AutoReserve(true);
+                        Rec.AutoReserve();
                         CurrPage.Update(false);
                         UpdateIsDone := true;
                     end;
@@ -1584,7 +1588,7 @@ page 5905 "Service Lines"
            (Rec."Posting Date" <> xRec."Posting Date")
         then begin
             CurrPage.SaveRecord();
-            Rec.AutoReserve(true);
+            Rec.AutoReserve();
             CurrPage.Update(false);
         end;
     end;

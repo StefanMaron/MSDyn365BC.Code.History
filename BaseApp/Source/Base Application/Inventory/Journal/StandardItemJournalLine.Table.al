@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Journal;
 
 using Microsoft.CRM.Team;
@@ -13,7 +17,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Purchases.Setup;
@@ -665,13 +668,6 @@ table 753 "Standard Item Journal Line"
             Caption = 'Purchasing Code';
             TableRelation = Purchasing;
         }
-        field(5707; "Product Group Code"; Code[10])
-        {
-            Caption = 'Product Group Code';
-            ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
         field(5800; "Value Entry Type"; Enum "Cost Entry Type")
         {
             Caption = 'Value Entry Type';
@@ -684,12 +680,6 @@ table 753 "Standard Item Journal Line"
         field(5817; Correction; Boolean)
         {
             Caption = 'Correction';
-        }
-        field(5839; "Work Center No."; Code[20])
-        {
-            Caption = 'Work Center No.';
-            Editable = false;
-            TableRelation = "Work Center";
         }
         field(6600; "Return Reason Code"; Code[10])
         {
@@ -979,7 +969,6 @@ table 753 "Standard Item Journal Line"
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.", FieldNo = Rec.FieldNo("Item No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FieldNo = Rec.FieldNo("Salespers./Purch. Code"));
-        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", Rec."Work Center No.", FieldNo = Rec.FieldNo("Work Center No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
@@ -1045,4 +1034,3 @@ table 753 "Standard Item Journal Line"
     begin
     end;
 }
-

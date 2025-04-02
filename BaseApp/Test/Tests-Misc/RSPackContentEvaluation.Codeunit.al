@@ -200,7 +200,7 @@
             ApplicationPath, '../../App/Demotool/Pictures/MachineLearning/itemsales.xml'));
 
         Item.SetRange("Assembly BOM", false);
-        Evaluate(Periods, TempXMLBuffer.GetAttributeValue('Periods'));
+        Evaluate(Periods, TempXMLBuffer.GetAttributeValueAsText('Periods'));
         TempXMLBuffer.FindChildElements(TempXMLBuffer);
         TempXMLBuffer.FindSet();
         Assert.RecordCount(TempXMLBuffer, Item.Count);
@@ -208,7 +208,7 @@
             TempXMLBuffer.FindChildElements(TempXMLBufferPeriods);
             Assert.AreEqual(Periods, TempXMLBufferPeriods.Count,
               StrSubstNo('Item %1 does not have %2 periods',
-                TempXMLBuffer.GetAttributeValue('item'),
+                TempXMLBuffer.GetAttributeValueAsText('item'),
                 Format(Periods)));
         until TempXMLBuffer.Next() = 0;
     end;

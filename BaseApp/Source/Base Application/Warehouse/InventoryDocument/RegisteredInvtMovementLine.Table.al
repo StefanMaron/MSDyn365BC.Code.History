@@ -9,7 +9,6 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Family;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
@@ -142,8 +141,6 @@ table 7345 "Registered Invt. Movement Line"
             if ("Destination Type" = const(Location)) Location
             else
             if ("Destination Type" = const(Item)) Item
-            else
-            if ("Destination Type" = const(Family)) Family
             else
             if ("Destination Type" = const("Sales Order")) "Sales Header"."No." where("Document Type" = const(Order));
         }

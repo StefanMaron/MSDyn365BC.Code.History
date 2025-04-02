@@ -1,4 +1,8 @@
-﻿namespace Microsoft.CashFlow.Forecast;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.CashFlow.Forecast;
 
 using Microsoft.CashFlow.Setup;
 using Microsoft.Finance.VAT.Ledger;

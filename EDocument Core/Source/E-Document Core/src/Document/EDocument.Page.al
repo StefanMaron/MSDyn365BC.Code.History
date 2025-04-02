@@ -4,11 +4,16 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
 
+using System.Telemetry;
+using System.Utilities;
+using Microsoft.eServices.EDocument.Integration.Send;
+using Microsoft.eServices.EDocument.Integration.Receive;
+using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.eServices.EDocument.OrderMatch;
 using Microsoft.eServices.EDocument.OrderMatch.Copilot;
-using System.Telemetry;
-using System.Utilities;
+using Microsoft.eServices.EDocument.Service;
+using Microsoft.Foundation.Attachment;
 
 page 6121 "E-Document"
 {
@@ -16,7 +21,6 @@ page 6121 "E-Document"
     PageType = Card;
     SourceTable = "E-Document";
     InsertAllowed = false;
-    DeleteAllowed = false;
     ModifyAllowed = false;
     RefreshOnActivate = true;
 
@@ -155,8 +159,10 @@ page 6121 "E-Document"
                 Caption = 'Service Status';
                 SubPageLink = "E-Document Entry No" = field("Entry No");
                 ShowFilter = false;
+                Visible = false;
+                Enabled = false;
             }
-#if NOT CLEAN24
+#if not CLEAN24
             group(EDocServiceStatus)
             {
                 Visible = false;
@@ -172,7 +178,7 @@ page 6121 "E-Document"
                 ShowFilter = false;
                 UpdatePropagation = Both;
             }
-#if NOT CLEAN24
+#if not CLEAN24
             group("Errors and Warnings")
             {
                 Visible = false;
@@ -182,6 +188,33 @@ page 6121 "E-Document"
                 ObsoleteState = Pending;
             }
 #endif
+        }
+        area(FactBoxes)
+        {
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
+                SubPageLink = "E-Document Entry No." = field("Entry No"),
+                              "E-Document Attachment" = const(true);
+            }
+            part(InboundEDocFactbox; "Inbound E-Doc. Factbox")
+            {
+                Caption = 'Details';
+                SubPageLink = "E-Document Entry No" = field("Entry No");
+                ShowFilter = false;
+                Enabled = Rec.Direction = Rec.Direction::Incoming;
+                Visible = Rec.Direction = Rec.Direction::Incoming;
+            }
+            part("Outbound E-Doc. Factbox"; "Outbound E-Doc. Factbox")
+            {
+                Caption = 'Details';
+                SubPageLink = "E-Document Entry No" = field("Entry No");
+                ShowFilter = false;
+                Enabled = Rec.Direction = Rec.Direction::Outgoing;
+                Visible = Rec.Direction = Rec.Direction::Outgoing;
+            }
         }
     }
     actions
@@ -235,13 +268,14 @@ page 6121 "E-Document"
                     trigger OnAction()
                     var
                         EDocService: Record "E-Document Service";
+                        ActionContext: Codeunit ActionContext;
                         EDocServices: Page "E-Document Services";
                     begin
                         EDocServices.LookupMode := true;
                         if EDocServices.RunModal() = Action::LookupOK then begin
                             EDocServices.GetRecord(EDocService);
                             EDocumentErrorHelper.ClearErrorMessages(Rec);
-                            EDocIntegrationManagement.GetApproval(Rec, EDocService);
+                            EDocIntegrationManagement.GetApprovalStatus(Rec, EDocService, ActionContext);
                         end
                     end;
                 }
@@ -255,14 +289,28 @@ page 6121 "E-Document"
                     trigger OnAction()
                     var
                         EDocService: Record "E-Document Service";
+                        ActionContext: Codeunit ActionContext;
                         EDocServices: Page "E-Document Services";
                     begin
                         EDocServices.LookupMode := true;
                         if EDocServices.RunModal() = Action::LookupOK then begin
                             EDocServices.GetRecord(EDocService);
                             EDocumentErrorHelper.ClearErrorMessages(Rec);
-                            EDocIntegrationManagement.Cancel(Rec, EDocService);
+                            EDocIntegrationManagement.GetCancellationStatus(Rec, EDocService, ActionContext);
                         end
+                    end;
+                }
+                action(ViewFile)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'View file';
+                    ToolTip = 'View the source file.';
+                    Image = ViewDetails;
+                    Visible = NewEDocumentExperienceActive;
+
+                    trigger OnAction()
+                    begin
+                        Rec.ViewSourceFile();
                     end;
                 }
             }
@@ -278,7 +326,7 @@ page 6121 "E-Document"
 
                     trigger OnAction()
                     begin
-                        EDocImport.GetBasicInfo(Rec);
+                        EDocImport.V1_GetBasicInfo(Rec);
                     end;
                 }
                 action(CreateDocument)
@@ -289,8 +337,12 @@ page 6121 "E-Document"
                     Visible = IsIncomingDoc and (not IsProcessed);
 
                     trigger OnAction()
+                    var
+                        EDocImportParameters: Record "E-Doc. Import Parameters";
                     begin
-                        EDocImport.ProcessDocument(Rec, false);
+                        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
+                        EDocImportParameters."Purch. Journal V1 Behavior" := EDocImportParameters."Purch. Journal V1 Behavior"::"Create purchase document";
+                        EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
                         if EDocumentErrorHelper.HasErrors(Rec) then
                             Message(DocNotCreatedMsg, Rec."Document Type");
                     end;
@@ -303,8 +355,12 @@ page 6121 "E-Document"
                     Visible = IsIncomingDoc and (not IsProcessed);
 
                     trigger OnAction()
+                    var
+                        EDocImportParameters: Record "E-Doc. Import Parameters";
                     begin
-                        EDocImport.ProcessDocument(Rec, true);
+                        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
+                        EDocImportParameters."Purch. Journal V1 Behavior" := EDocImportParameters."Purch. Journal V1 Behavior"::"Create journal line";
+                        EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
                         if EDocumentErrorHelper.HasErrors(Rec) then
                             Message(DocNotCreatedMsg, Rec."Document Type");
                     end;
@@ -407,6 +463,7 @@ page 6121 "E-Document"
                 actionref(Recreate_Promoted; Recreate) { }
                 actionref(Cancel_promoteed; Cancel) { }
                 actionref(Approval_promoteed; GetApproval) { }
+                actionref(Preview_promoteed; ViewFile) { }
 
             }
             group(Category_Troubleshoot)
@@ -459,7 +516,7 @@ page 6121 "E-Document"
         {
             action(MatchToOrderCopilotEnabled)
             {
-                Caption = 'Match Purchase Order With Copilot';
+                Caption = 'Match Purchase Order';
                 ToolTip = 'Match E-document lines to Purchase Order.';
                 Image = SparkleFilled;
                 Visible = ShowMapToOrder and CopilotVisible;
@@ -476,6 +533,7 @@ page 6121 "E-Document"
 
     trigger OnOpenPage()
     var
+        EDocumentsSetup: Record "E-Documents Setup";
         EDocPOMatching: Codeunit "E-Doc. PO Copilot Matching";
     begin
         ShowMapToOrder := false;
@@ -483,6 +541,7 @@ page 6121 "E-Document"
         HasErrors := false;
         IsProcessed := false;
         CopilotVisible := EDocPOMatching.IsCopilotVisible();
+        NewEDocumentExperienceActive := EDocumentsSetup.IsNewEDocumentExperienceActive();
     end;
 
     trigger OnAfterGetRecord()
@@ -494,13 +553,15 @@ page 6121 "E-Document"
         HasErrorsOrWarnings := (EDocumentErrorHelper.ErrorMessageCount(Rec) + EDocumentErrorHelper.WarningMessageCount(Rec)) > 0;
         HasErrors := EDocumentErrorHelper.ErrorMessageCount(Rec) > 0;
         if HasErrorsOrWarnings then
-            ShowErrorsAndWarnings();
+            ShowErrorsAndWarnings()
+        else
+            ClearErrorsAndWarnings();
 
         SetStyle();
         ResetActionVisiability();
         SetIncomingDocActions();
 
-        EDocImport.ProcessEDocPendingOrderMatch(Rec);
+        EDocImport.V1_ProcessEDocPendingOrderMatch(Rec);
     end;
 
     local procedure SetStyle()
@@ -529,19 +590,30 @@ page 6121 "E-Document"
         ErrorsAndWarningsNotification.Send();
     end;
 
+    local procedure ClearErrorsAndWarnings()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+    begin
+        CurrPage.ErrorMessagesPart.Page.SetRecords(TempErrorMessage);
+        CurrPage.ErrorMessagesPart.Page.Update(false);
+    end;
+
     local procedure SendEDocument()
     var
         EDocService: Record "E-Document Service";
+        SendContext: Codeunit SendContext;
         EDocServices: Page "E-Document Services";
         IsAsync: Boolean;
     begin
         EDocServices.LookupMode(true);
         if EDocServices.RunModal() <> Action::LookupOK then
             exit;
+
         EDocServices.GetRecord(EDocService);
         EDocumentErrorHelper.ClearErrorMessages(Rec);
-        if not EDocIntegrationManagement.Send(Rec, EDocService, IsAsync) then
+        if not EDocIntegrationManagement.Send(Rec, EDocService, SendContext, IsAsync) then
             exit;
+
         if IsAsync then
             EDocumentBackgroundjobs.ScheduleGetResponseJob();
     end;
@@ -579,6 +651,7 @@ page 6121 "E-Document"
         EDocumentErrorHelper: Codeunit "E-Document Error Helper";
         EDocumentHelper: Codeunit "E-Document Processing";
         ErrorsAndWarningsNotification: Notification;
+        NewEDocumentExperienceActive: Boolean;
         RecordLinkTxt, StyleStatusTxt : Text;
         ShowRelink, ShowMapToOrder, HasErrorsOrWarnings, HasErrors, IsIncomingDoc, IsProcessed, CopilotVisible : Boolean;
         EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';

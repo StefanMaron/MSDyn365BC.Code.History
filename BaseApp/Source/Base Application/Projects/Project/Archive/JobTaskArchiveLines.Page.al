@@ -9,6 +9,8 @@ page 5178 "Job Task Archive Lines"
     PageType = List;
     Editable = false;
     SourceTable = "Job Task Archive";
+	ApplicationArea = Jobs;
+    UsageCategory = Lists;
 
     layout
     {

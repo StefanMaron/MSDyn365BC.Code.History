@@ -67,23 +67,16 @@ page 9155 "My Time Sheets"
         GetTimeSheet();
     end;
 
-    trigger OnNewRecord(BelowxRec: Boolean)
-    begin
-        Clear(TimeSheetHeader);
-    end;
-
     trigger OnOpenPage()
     begin
-        Rec.SetRange("User ID", UserId);
+        Rec.SetRange("User ID", UserId());
     end;
 
+    local procedure GetTimeSheet()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-
-    local procedure GetTimeSheet()
     begin
-        Clear(TimeSheetHeader);
-
+        TimeSheetHeader.SetLoadFields("Starting Date", "Ending Date", Comment);
         if TimeSheetHeader.Get(Rec."Time Sheet No.") then begin
             Rec."Time Sheet No." := TimeSheetHeader."No.";
             Rec."Start Date" := TimeSheetHeader."Starting Date";
@@ -93,6 +86,8 @@ page 9155 "My Time Sheets"
     end;
 
     local procedure EditTimeSheet()
+    var
+        TimeSheetHeader: Record "Time Sheet Header";
     begin
         TimeSheetHeader.Get(Rec."Time Sheet No.");
         Page.Run(Page::"Time Sheet Card", TimeSheetHeader);

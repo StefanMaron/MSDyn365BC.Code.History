@@ -1,5 +1,6 @@
 namespace Microsoft.Warehouse.Activity;
 
+using Microsoft.Foundation.Address;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
@@ -66,11 +67,16 @@ page 9128 "Invt. Doc Ship. Detail Factbox"
                 ApplicationArea = Warehouse;
                 ToolTip = 'Specifies the city of the address.';
             }
-            field(County; County)
+            group(CountyGroup)
             {
-                Caption = 'County';
-                ApplicationArea = Warehouse;
-                ToolTip = 'Specifies the state, province or county of the address.';
+                ShowCaption = false;
+                Visible = IsCountyVisible;
+                field(County; County)
+                {
+                    Caption = 'County';
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the state, province or county of the address.';
+                }
             }
             field(PostCode; PostCode)
             {
@@ -97,6 +103,8 @@ page 9128 "Invt. Doc Ship. Detail Factbox"
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
         TransferHeader: Record "Transfer Header";
+        FormatAddress: Codeunit "Format Address";
+        IsCountyVisible: Boolean;
         Number: Text;
         Name: Text;
         Name2: Text;
@@ -107,6 +115,16 @@ page 9128 "Invt. Doc Ship. Detail Factbox"
         PostCode: Text;
         CountryRegion: Text;
         Contact: Text;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        ActivateFields();
+    end;
+
+    trigger OnOpenPage()
+    begin
+        ActivateFields();
+    end;
 
     trigger OnAfterGetRecord()
     begin
@@ -154,6 +172,11 @@ page 9128 "Invt. Doc Ship. Detail Factbox"
                     Contact := TransferHeader."Transfer-to Contact";
                 end;
         end;
+    end;
+
+    local procedure ActivateFields()
+    begin
+        IsCountyVisible := FormatAddress.UseCounty(CountryRegion);
     end;
 
     local procedure GetSalesHeader()

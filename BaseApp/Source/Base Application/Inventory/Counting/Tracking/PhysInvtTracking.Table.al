@@ -1,3 +1,8 @@
+#if not CLEANSCHEMA27 
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Counting.Tracking;
 
 table 5885 "Phys. Invt. Tracking"
@@ -75,3 +80,5 @@ table 5885 "Phys. Invt. Tracking"
     }
 }
 
+ 
+#endif

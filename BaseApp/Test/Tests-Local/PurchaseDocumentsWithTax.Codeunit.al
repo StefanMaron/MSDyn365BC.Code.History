@@ -22,6 +22,8 @@ codeunit 144012 "Purchase Documents With Tax"
         CalcSumErr: Label 'CALCSUM for Additional Currency fields must be evaluated';
         FieldDifferenceErr: Label 'Fields %1 and %2 must have equal values';
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalPageHandler')]
     [Scope('OnPrem')]
@@ -37,7 +39,26 @@ codeunit 144012 "Purchase Documents With Tax"
         LibraryERM.CreateTaxGroup(TaxGroup);
         PurchaseOrderWithType(PurchaseLine.Type::"G/L Account", CreateGLAccount(), TaxGroup.Code);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchOrderWithTypeGLAccount()
+    var
+        PurchaseLine: Record "Purchase Line";
+        TaxGroup: Record "Tax Group";
+    begin
+        // Verify Tax Amount on Statistics Page, Purchase Order with Type - G/L Account.
+
+        // Setup: Create Purchase Order with Type - G/L Account.
+        Initialize();
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        PurchOrderWithType(PurchaseLine.Type::"G/L Account", CreateGLAccount(), TaxGroup.Code);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalPageHandler')]
     [Scope('OnPrem')]
@@ -53,7 +74,26 @@ codeunit 144012 "Purchase Documents With Tax"
         LibraryERM.CreateTaxGroup(TaxGroup);
         PurchaseOrderWithType(PurchaseLine.Type::Item, CreateItem(TaxGroup.Code), TaxGroup.Code);
     end;
+#endif
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchOrderWithTypeItem()
+    var
+        PurchaseLine: Record "Purchase Line";
+        TaxGroup: Record "Tax Group";
+    begin
+        // Verify Tax Amount on Statistics Page, Purchase Order with Type - Item.
+
+        // Setup: Create Purchase Order with Type - Item.
+        Initialize();
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        PurchOrderWithType(PurchaseLine.Type::Item, CreateItem(TaxGroup.Code), TaxGroup.Code);
+    end;
+
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure PurchaseOrderWithType(Type: Enum "Purchase Line Type"; No: Code[20]; TaxGroupCode: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
@@ -71,6 +111,27 @@ codeunit 144012 "Purchase Documents With Tax"
         PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseLine."Document No.");
         PurchaseOrder.Statistics.Invoke();
+        PurchaseOrder.Close();
+    end;
+#endif
+
+    local procedure PurchOrderWithType(Type: Enum "Purchase Line Type"; No: Code[20]; TaxGroupCode: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+        TaxAreaLine: Record "Tax Area Line";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // Create Tax Group, Tax Area Line, Tax Detail and Purchase Order.
+        CreateTaxAreaLine(TaxAreaLine);
+        CreateTaxDetail(TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode);
+        CreatePurchaseDocument(PurchaseLine, TaxAreaLine."Tax Area", Type, No, TaxGroupCode, CreateVendor());
+        LibraryVariableStorage.Enqueue(
+          Round((PurchaseLine."VAT %" * PurchaseLine."Line Amount") / 100, LibraryERM.GetAmountRoundingPrecision()));  // Enqueue value required in PurchaseOrderStatisticsPageHandler.
+
+        // Exercise And Verify: Open Purchase Order Statistics page. Verify VAT Amount on PurchaseOrderStatsPageHandler.
+        PurchaseOrder.OpenView();
+        PurchaseOrder.FILTER.SetFilter("No.", PurchaseLine."Document No.");
+        PurchaseOrder.PurchaseOrderStats.Invoke();
         PurchaseOrder.Close();
     end;
 
@@ -549,9 +610,23 @@ codeunit 144012 "Purchase Documents With Tax"
             GLEntry.FieldCaption("Add.-Currency Credit Amount")));
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsModalPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
+    var
+        VATAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(VATAmount);
+        PurchaseOrderStats."VATAmount[2]".AssertEquals(VATAmount);
+        PurchaseOrderStats.OK().Invoke();
+    end;
+#endif
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
     var
         VATAmount: Variant;
     begin

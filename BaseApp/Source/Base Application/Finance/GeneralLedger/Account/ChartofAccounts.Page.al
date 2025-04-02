@@ -831,6 +831,13 @@ page 16 "Chart of Accounts"
         SetControlVisibility();
     end;
 
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
+    begin
+        FinancialReportMgt.NotifyUpdateFinancialReport(Rec);
+    end;
+
     var
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
         NoEmphasize: Boolean;
