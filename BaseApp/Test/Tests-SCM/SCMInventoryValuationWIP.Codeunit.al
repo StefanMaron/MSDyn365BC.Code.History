@@ -51,7 +51,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         SetupInventoryForReport(ParentItem, ChildItem, PurchaseHeader, ProductionOrder, ProdOrderLine, ParentItem."Costing Method"::FIFO,
           ChildItem."Costing Method"::FIFO, true, Qty, QtyPer, WorkDate());
 
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ChildItem, '', '', Qty * QtyPer, WorkDate(), 0);
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ChildItem, '', '', Qty * QtyPer, WorkDate(), 0);
         PostExplodedOutput(ProdOrderLine, WorkDate(), ProdOrderLine.Quantity, 0);
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
 
@@ -60,7 +60,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         PurchRcptLine.FindFirst();
         Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
         LibraryPurchase.CreatePurchHeader(PurchaseHeaderInv, PurchaseHeaderInv."Document Type"::Invoice, Vendor."No.");
-        LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(PurchaseHeaderInv, PurchRcptLine, 1, LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.AssignPurchChargeToPurchRcptLine(PurchaseHeaderInv, PurchRcptLine, 1, LibraryRandom.RandDec(10, 2));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInv, true, true);
 
         // Exercise. Adjust and run Inventory Valuation - WIP report.
@@ -97,7 +97,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
           ParentItem, ChildItem, ProductionOrder, ProdOrderLine, ParentItem."Costing Method"::FIFO,
           ChildItem."Costing Method"::FIFO, false, Qty, QtyPer, WorkDate());
 
-        LibraryPatterns.POSTOutput(ProdOrderLine, LibraryRandom.RandDecInDecimalRange(1, Qty, 2), WorkDate(), 0);
+        LibraryManufacturing.POSTOutput(ProdOrderLine, LibraryRandom.RandDecInDecimalRange(1, Qty, 2), WorkDate(), 0);
         PostExplodedOutput(ProdOrderLine, EndingDate, ProdOrderLine.Quantity, 0);
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
 
@@ -138,7 +138,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
           ChildItem."Costing Method"::FIFO, false, Qty, QtyPer, WorkDate());
         CalcStandardCost.CalcItem(ParentItem."No.", false);
 
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ChildItem, '', '', Qty * QtyPer, WorkDate(), 0);
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ChildItem, '', '', Qty * QtyPer, WorkDate(), 0);
         PostExplodedOutput(ProdOrderLine, OutputDate, ProdOrderLine.Quantity, 0);
 
         // Invoice the purchase with a different cost.
@@ -197,17 +197,17 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         // Post output 3M from WORKDATE.
         FirstOutputQty := LibraryRandom.RandDec(Round(Qty, 1), 2);
         FirstOutputDate := CalcDate('<3M>', WorkDate()); // Value Not important for test(Period 1).
-        LibraryPatterns.POSTOutput(ProdOrderLine, FirstOutputQty, FirstOutputDate, ParentItem."Standard Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, FirstOutputQty, FirstOutputDate, ParentItem."Standard Cost");
 
         // Post consumption 3M+3D from WORKDATE.
         ConsumptionDate := CalcDate('<3M+3D>', WorkDate()); // Value Not important for test - but need to the same period of FirstOutPutDate(Period 1).
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ChildItem, '', '', Qty * QtyPer, ConsumptionDate, ChildItem."Unit Cost");
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ChildItem, '', '', Qty * QtyPer, ConsumptionDate, ChildItem."Unit Cost");
 
         // Move workdate to 2M after consumption posting.
         WorkDate := CalcDate('<2M>', ConsumptionDate); // Value Not important for test - but need to the different period of FirstOutPutDate(Period 3).
 
         // Post remaining output in Period 3.
-        LibraryPatterns.POSTOutput(ProdOrderLine, Qty - FirstOutputQty, WorkDate(), ParentItem."Standard Cost");
+        LibraryManufacturing.POSTOutput(ProdOrderLine, Qty - FirstOutputQty, WorkDate(), ParentItem."Standard Cost");
 
         // Finish the released production order
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
@@ -258,7 +258,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         SetupInventoryForReportWithoutPurchOrder(
           ParentItem, ChildItem, ProductionOrder, ProdOrderLine, ParentItem."Costing Method"::FIFO,
           ChildItem."Costing Method"::FIFO, true, Qty, 1, WorkDate());
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ChildItem, '', '', Qty, WorkDate(), 0);
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ChildItem, '', '', Qty, WorkDate(), 0);
         PostExplodedOutput(ProdOrderLine, WorkDate(), ProdOrderLine.Quantity, 0);
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), true);
 
@@ -293,7 +293,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
           ChildItem."Costing Method"::FIFO, true, Qty, 1, WorkDate());
 
         // [GIVEN] Post consumption of "Y" items from "PO", posting date is 25.01
-        LibraryPatterns.POSTConsumption(ProdOrderLine, ChildItem, '', '', Qty, WorkDate(), 0);
+        LibraryManufacturing.POSTConsumption(ProdOrderLine, ChildItem, '', '', Qty, WorkDate(), 0);
         // [GIVEN] Post output from "PO", posting date is 27.01
         PostProdOrderOutput(ProductionOrder, ParentItem."No.", WorkDate() + 2);
 
@@ -534,18 +534,18 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         ProductionBOMHeader: Record "Production BOM Header";
     begin
         // Make BOM structure.
-        LibraryPatterns.MAKEItemSimple(ParentItem, ParentCostingMethod, LibraryRandom.RandDec(100, 2));
+        LibraryInventory.CreateItemSimple(ParentItem, ParentCostingMethod, LibraryRandom.RandDec(100, 2));
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
         ParentItem.Modify();
-        LibraryPatterns.MAKEItemSimple(ChildItem, ChildCostingMethod, LibraryRandom.RandDec(100, 2));
-        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, ParentItem, ChildItem, QtyPer, '');
+        LibraryInventory.CreateItemSimple(ChildItem, ChildCostingMethod, LibraryRandom.RandDec(100, 2));
+        LibraryManufacturing.CreateProductionBOM(ProductionBOMHeader, ParentItem, ChildItem, QtyPer, '');
 
         // Receive and invoice component.
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, ChildItem, '', '', Round(Qty * QtyPer, 1, '>'), ReceiptDate,
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, ChildItem, '', '', Round(Qty * QtyPer, 1, '>'), ReceiptDate,
           LibraryRandom.RandDec(100, 2), true, Invoice);
 
         // Make prod order.
-        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ParentItem, '', '',
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ParentItem, '', '',
           Qty, ReceiptDate);
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");

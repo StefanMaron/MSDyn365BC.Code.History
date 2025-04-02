@@ -17,6 +17,7 @@ table 131 "Incoming Documents Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "General Journal Template Name"; Code[10])

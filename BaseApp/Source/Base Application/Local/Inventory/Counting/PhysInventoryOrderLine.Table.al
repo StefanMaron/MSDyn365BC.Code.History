@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+#if not CLEANSCHEMA27 
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -90,6 +91,7 @@ table 5005351 "Phys. Inventory Order Line"
             Caption = 'Qty. Exp. Calculated';
             Editable = false;
         }
+#if not CLEANSCHEMA27
         field(52; "Qty. Exp. Track. Lines (Base)"; Decimal)
         {
             CalcFormula = sum("Expect. Phys. Inv. Track. Line"."Quantity (Base)" where("Order No" = field("Document No."),
@@ -107,6 +109,7 @@ table 5005351 "Phys. Inventory Order Line"
             ObsoleteTag = '27.0';
 #endif
         }
+#endif
         field(53; "Use Tracking Lines"; Boolean)
         {
             Caption = 'Use Tracking Lines';
@@ -216,6 +219,7 @@ table 5005351 "Phys. Inventory Order Line"
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
         }
+#if not CLEANSCHEMA25
         field(5707; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -223,6 +227,7 @@ table 5005351 "Phys. Inventory Order Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(7380; "Phys Invt Counting Period Code"; Code[10])
         {
             Caption = 'Phys Invt Counting Period Code';
@@ -260,3 +265,5 @@ table 5005351 "Phys. Inventory Order Line"
     }
 }
 
+ 
+#endif

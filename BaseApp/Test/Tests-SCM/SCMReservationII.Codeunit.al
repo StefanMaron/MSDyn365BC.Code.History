@@ -1886,7 +1886,9 @@ codeunit 137065 "SCM Reservation II"
         VerifyItemLedgerEntriesForCostAmountActual(Item."No.");
     end;
 
+#if not CLEAN26
     [Test]
+    [Obsolete('Matrix per Version is removed', '26.0')]
     [HandlerFunctions('ProdBOMMatrixPerVersionHandler,ShowMatrixHandler')]
     [Scope('OnPrem')]
     procedure ShowMatrixWithMaxLengthOfDescription()
@@ -1908,6 +1910,7 @@ codeunit 137065 "SCM Reservation II"
 
         // Verify: Verify the Item No. through ShowMatrixHandler.
     end;
+#endif
 
     [Test]
     [HandlerFunctions('WhereUsedHandler')]
@@ -2480,6 +2483,7 @@ codeunit 137065 "SCM Reservation II"
 
         // [GIVEN] Validate Put-away Worksheet and Prod. Output Whse. Handling in Location.
         LocationWhite.Validate("Use Put-away Worksheet", true);
+        LocationWhite.Validate("Prod. Output Whse. Handling", LocationWhite."Prod. Output Whse. Handling"::"Warehouse Put-away");
         LocationWhite.Modify();
 
         // [GIVEN] Create a Zone.
@@ -3294,7 +3298,7 @@ codeunit 137065 "SCM Reservation II"
     begin
         LibraryInventory.ClearItemJournal(OutputItemJournalTemplate, OutputItemJournalBatch);
         LibraryManufacturing.CreateOutputJournal(ItemJournalLine, OutputItemJournalTemplate, OutputItemJournalBatch, '', ProductionOrderNo);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
     end;
 
     local procedure CreatePickWorksheetLineFromProdOrder(var WhseWorksheetLine: Record "Whse. Worksheet Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; LocationCode: Code[10])
@@ -4221,13 +4225,11 @@ codeunit 137065 "SCM Reservation II"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Source No.", SourceNo);
-        ItemLedgerEntry.FindSet();
 
-        ItemLedgerEntry.TestField(Quantity, Quantity1);
-        ItemLedgerEntry.Next();
-        ItemLedgerEntry.TestField(Quantity, Quantity1);
-        ItemLedgerEntry.Next();
-        ItemLedgerEntry.TestField(Quantity, Quantity2);
+        ItemLedgerEntry.SetRange(Quantity, Quantity1);
+        Assert.AreEqual(2, ItemLedgerEntry.Count(), 'Expected 2 entries with first Quantity');
+        ItemLedgerEntry.SetRange(Quantity, Quantity2);
+        Assert.AreEqual(1, ItemLedgerEntry.Count(), 'Expected 1 entry with second Quantity');
     end;
 
     local procedure VerifyItemLedgerEntriesForCostAmountActual(ItemNo: Code[20])

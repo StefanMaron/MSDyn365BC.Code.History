@@ -26,15 +26,18 @@ table 249 "VAT Registration Log"
         {
             AutoIncrement = true;
             Caption = 'Entry No.';
+            ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
         }
         field(2; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
             NotBlank = true;
+            ToolTip = 'Specifies the VAT registration number that you entered in the VAT Registration No. field on a customer, vendor, or contact card.';
         }
         field(3; "Account Type"; Enum "VAT Registration Log Account Type")
         {
             Caption = 'Account Type';
+            ToolTip = 'Specifies the account type of the customer or vendor whose VAT registration number is verified.';
         }
         field(4; "Account No."; Code[20])
         {
@@ -42,56 +45,68 @@ table 249 "VAT Registration Log"
             TableRelation = if ("Account Type" = const(Customer)) Customer
             else
             if ("Account Type" = const(Vendor)) Vendor;
+            ToolTip = 'Specifies the account number of the customer or vendor whose VAT registration number is verified.';
         }
         field(5; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
             NotBlank = true;
             TableRelation = "Country/Region".Code;
+            ToolTip = 'Specifies the country/region of the address.';
         }
         field(6; "User ID"; Code[50])
         {
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
+            ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
         }
         field(10; Status; Option)
         {
             Caption = 'Status';
             OptionCaption = 'Not Verified,Valid,Invalid';
             OptionMembers = "Not Verified",Valid,Invalid;
+            ToolTip = 'Specifies the status of the verification action.';
         }
         field(11; "Verified Name"; Text[150])
         {
             Caption = 'Verified Name';
+            ToolTip = 'Specifies the name of the customer, vendor, or contact whose VAT registration number was verified.';
         }
         field(12; "Verified Address"; Text[150])
         {
             Caption = 'Verified Address';
+            ToolTip = 'Specifies the address of the customer, vendor, or contact whose VAT registration number was verified.';
         }
         field(13; "Verified Date"; DateTime)
         {
             Caption = 'Verified Date';
+            ToolTip = 'Specifies when the VAT registration number was verified.';
         }
         field(14; "Request Identifier"; Text[200])
         {
             Caption = 'Request Identifier';
+            ToolTip = 'Specifies the request identifier of the VAT registration number validation service.';
         }
         field(15; "Verified Street"; Text[50])
         {
             Caption = 'Verified Street';
+            ToolTip = 'Specifies the street of the customer, vendor, or contact whose VAT registration number was verified. ';
         }
         field(16; "Verified Postcode"; Text[20])
         {
             Caption = 'Verified Postcode';
+            ToolTip = 'Specifies the postcode of the customer, vendor, or contact whose VAT registration number was verified. ';
         }
         field(17; "Verified City"; Text[30])
         {
             Caption = 'Verified City';
+            ToolTip = 'Specifies the city of the customer, vendor, or contact whose VAT registration number was verified. ';
         }
         field(18; "Details Status"; Enum "VAT Reg. Log Details Status")
         {
             Caption = 'Details Status';
+            ToolTip = 'Specifies the status of the details validation.';
         }
         field(19; "Template"; Code[20])
         {

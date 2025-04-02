@@ -1,3 +1,8 @@
+#if not CLEAN26
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Reports;
 
 using Microsoft.Manufacturing.WorkCenter;
@@ -9,6 +14,9 @@ report 99000759 "Work Center List"
     ApplicationArea = Manufacturing;
     Caption = 'Work Center List';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report has been replaced by the page Work Center List and will be removed in a future release.';
+    ObsoleteTag = '26.0';
 
     dataset
     {
@@ -118,3 +126,4 @@ report 99000759 "Work Center List"
         CurrReport_PAGENOCaptionLbl: Label 'Page';
 }
 
+#endif

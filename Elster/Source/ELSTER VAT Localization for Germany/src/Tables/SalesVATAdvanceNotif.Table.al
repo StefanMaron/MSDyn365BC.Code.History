@@ -68,21 +68,6 @@ table 11021 "Sales VAT Advance Notif."
             Editable = false;
             TableRelation = "No. Series";
         }
-        field(9; "XSL-Filename"; Text[250])
-        {
-            DataClassification = CustomerContent;
-            ObsoleteTag = '23.0';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality is not in use and not supported';
-        }
-        field(10; "XSD-Filename"; Text[250])
-        {
-            DataClassification = CustomerContent;
-            ObsoleteTag = '23.0';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality is not in use and not supported';
-        }
-
         field(11; "Statement Template Name"; Code[10])
         {
             DataClassification = CustomerContent;
@@ -569,6 +554,7 @@ table 11021 "Sales VAT Advance Notif."
                             GLAcc.CalcFields("Net Change", "Additional-Currency Net Change");
                             Amount := ConditionalAdd(Amount, GLAcc."Net Change", GLAcc."Additional-Currency Net Change");
                         until GLAcc.Next() = 0;
+                        OnCalcLineTotalOnBeforeCalcTotalAmountAccountTotaling(Rec, VATStmtLine2, GLAcc, Amount);
                         CalcTotalAmount(VATStmtLine2);
                     end;
                 end;
@@ -637,7 +623,7 @@ table 11021 "Sales VAT Advance Notif."
                         else
                             VATStmtLine2.TestField("Amount Type");
                     end;
-                    OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine2, VATEntry, Amount);
+                    OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(Rec, VATStmtLine2, VATEntry, Amount);
                     CalcTotalAmount(VATStmtLine2);
                 end;
             VATStmtLine2.Type::"Row Totaling":
@@ -725,7 +711,7 @@ table 11021 "Sales VAT Advance Notif."
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal)
+    local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(var SalesVATAdvanceNotif: Record "Sales VAT Advance Notif."; VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal)
     begin
     end;
 
@@ -733,5 +719,9 @@ table 11021 "Sales VAT Advance Notif."
     local procedure OnCheckVATNoOnBeforeShowWrongPlaceError(CompanyInfo: Record "Company Information"; var VATNo: Text[30]; var NumberTaxOffice: Integer; var NumberArea: Integer; var NumberDistinction: Integer; var ShouldSkipWrongPlaceError: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalOnBeforeCalcTotalAmountAccountTotaling(var SalesVATAdvanceNotif: Record "Sales VAT Advance Notif."; VATStmtLine: Record "VAT Statement Line"; var GLAcc: Record "G/L Account"; var Amount: Decimal)
+    begin
+    end;
+}

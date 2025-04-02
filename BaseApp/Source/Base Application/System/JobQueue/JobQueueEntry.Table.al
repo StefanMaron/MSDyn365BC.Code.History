@@ -1,4 +1,4 @@
-﻿namespace System.Threading;
+namespace System.Threading;
 
 using Microsoft.Foundation.Reporting;
 using System.DateTime;
@@ -214,14 +214,6 @@ table 472 "Job Queue Entry"
             OptionCaption = 'Ready,In Process,Error,On Hold,Finished,On Hold with Inactivity Timeout,Waiting';
             OptionMembers = Ready,"In Process",Error,"On Hold",Finished,"On Hold with Inactivity Timeout",Waiting;
         }
-        field(14; Priority; Integer)
-        {
-            Caption = 'Priority';
-            InitValue = 1000;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'No longer supported.';
-            ObsoleteTag = '15.0';
-        }
         field(15; "Record ID to Process"; RecordID)
         {
             Caption = 'Record ID to Process';
@@ -387,27 +379,6 @@ table 472 "Job Queue Entry"
         {
             Caption = 'Error Message';
         }
-        field(35; "Error Message 2"; Text[250])
-        {
-            Caption = 'Error Message 2';
-            ObsoleteReason = 'Error Message field size has been increased.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(36; "Error Message 3"; Text[250])
-        {
-            Caption = 'Error Message 3';
-            ObsoleteReason = 'Error Message field size has been increased.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
-        field(37; "Error Message 4"; Text[250])
-        {
-            Caption = 'Error Message 4';
-            ObsoleteReason = 'Error Message field size has been increased.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
         field(40; "User Service Instance ID"; Integer)
         {
             Caption = 'User Service Instance ID';
@@ -417,14 +388,6 @@ table 472 "Job Queue Entry"
         {
             Caption = 'User Session Started';
             Editable = false;
-        }
-        field(42; "Timeout (sec.)"; Integer)
-        {
-            Caption = 'Timeout (sec.)';
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'No longer supported.';
-            ObsoleteTag = '15.0';
         }
         field(43; "Notify On Success"; Boolean)
         {
@@ -495,13 +458,6 @@ table 472 "Job Queue Entry"
         {
             Caption = 'Manual Recurrence';
         }
-        field(51; "On Hold Due to Inactivity"; Boolean)
-        {
-            Caption = 'On Hold Due to Inactivity';
-            ObsoleteReason = 'Functionality moved into new job queue status';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
         field(52; "Inactivity Timeout Period"; Integer)
         {
             Caption = 'Inactivity Timeout Period';
@@ -518,15 +474,6 @@ table 472 "Job Queue Entry"
         {
             Caption = 'Job Timeout';
             DataClassification = SystemMetadata;
-        }
-        field(55; "Recovery Task Id"; Guid)
-        {
-            Caption = 'Recovery Task Id';
-            Editable = false;
-            DataClassification = SystemMetadata;
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'The recovery job is no longer needed.';
         }
         field(56; "Entry No."; BigInteger)
         {
@@ -1031,6 +978,20 @@ table 472 "Job Queue Entry"
         exit(false);
     end;
 
+    internal procedure ReuseExistingJobFromUserCategoryCodeunitAndParamString(UserId: Text; JobQueueCategoryCode: Code[10]; Codeunit: Integer; ParamString: Text[250]; ExecutionDateTime: DateTime): Boolean
+    begin
+        Rec.SetRange("User ID", CopyStr(UserId, 1, MaxStrLen(Rec."User ID")));
+        Rec.SetRange("Job Queue Category Code", JobQueueCategoryCode);
+        Rec.SetRange("Object ID to Run", Codeunit);
+        Rec.SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
+        if ParamString <> '' then
+            Rec.SetRange("Parameter String", ParamString);
+        if Rec.FindFirst() then
+            exit(ReuseExistingJobFromID(Rec.ID, ExecutionDateTime));
+
+        exit(false);
+    end;
+
     local procedure AreRunParametersChanged(): Boolean
     begin
         exit(
@@ -1206,6 +1167,8 @@ table 472 "Job Queue Entry"
         end;
         Status := NewStatus;
         Modify();
+
+        OnAfterSetStatusValue(Rec, xRec)
     end;
 
     procedure ShowStatusMsg(JQID: Guid)
@@ -1343,7 +1306,7 @@ table 472 "Job Queue Entry"
         OldParams := GetReportParameters();
         Params := REPORT.RunRequestPage("Object ID to Run", OldParams);
 
-        if(Params <> '') and (Params <> OldParams) then begin
+        if (Params <> '') and (Params <> OldParams) then begin
             "User ID" := UserId();
             SetReportParameters(Params);
         end;
@@ -1804,5 +1767,9 @@ table 472 "Job Queue Entry"
     local procedure OnValidateReportOutputTypeOnBeforeShowPrintNotAllowedInSaaS(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetStatusValue(var JobQueueEntry: Record "Job Queue Entry"; var xJobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+}

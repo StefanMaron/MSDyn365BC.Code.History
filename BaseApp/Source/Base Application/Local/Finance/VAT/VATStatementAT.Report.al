@@ -7,9 +7,6 @@ namespace Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Company;
-#if not CLEAN23
-using Microsoft.Foundation.Enums;
-#endif
 using System.Globalization;
 using System.IO;
 using System.Utilities;
@@ -146,18 +143,6 @@ report 11110 "VAT Statement AT"
                 group(Options)
                 {
                     Caption = 'Options';
-#if not CLEAN23
-                    field(VATDate; VATDateType)
-                    {
-                        ApplicationArea = VAT;
-                        Caption = 'Period Date Type';
-                        ToolTip = 'Specifies the type of date used for the period for VAT statement lines in the report.';
-                        Visible = false;
-                        ObsoleteReason = 'Selected VAT Date type no longer supported.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '23.0';
-                    }
-#endif
                     field(StartingDate; Startingdate)
                     {
                         ApplicationArea = Basic, Suite;
@@ -373,9 +358,6 @@ report 11110 "VAT Statement AT"
         FDFFile: File;
         Selection: Enum "VAT Statement Report Selection";
         PeriodSelection: Enum "VAT Statement Report Period Selection";
-#if not CLEAN23
-        VATDateType: Enum "VAT Date Type";
-#endif
         PeriodType: Option quarter,month,"defined period";
         PrintInWholeNumbers: Boolean;
         Amount: Decimal;

@@ -1,10 +1,12 @@
-﻿namespace Microsoft.Inventory.Tracking;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.History;
 using Microsoft.Warehouse.Ledger;
@@ -90,10 +92,7 @@ table 6502 "Item Tracking Code"
                     "SN Neg. Adjmt. Inb. Tracking" := true;
                     "SN Neg. Adjmt. Outb. Tracking" := true;
                     "SN Transfer Tracking" := true;
-                    "SN Manuf. Inbound Tracking" := true;
-                    "SN Manuf. Outbound Tracking" := true;
-                    "SN Assembly Inbound Tracking" := true;
-                    "SN Assembly Outbound Tracking" := true;
+                    OnValidateSNSpecificTrackingOnAfterSet(Rec);
                 end else begin
                     TestRemoveSpecificSN(FieldCaption("SN Specific Tracking"));
                     "SN Warehouse Tracking" := false;
@@ -210,46 +209,6 @@ table 6502 "Item Tracking Code"
                 TestField("SN Specific Tracking", false);
             end;
         }
-        field(30; "SN Manuf. Inbound Tracking"; Boolean)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            Caption = 'SN Manuf. Inbound Tracking';
-
-            trigger OnValidate()
-            begin
-                TestField("SN Specific Tracking", false);
-            end;
-        }
-        field(31; "SN Manuf. Outbound Tracking"; Boolean)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            Caption = 'SN Manuf. Outbound Tracking';
-
-            trigger OnValidate()
-            begin
-                TestField("SN Specific Tracking", false);
-            end;
-        }
-        field(32; "SN Assembly Inbound Tracking"; Boolean)
-        {
-            AccessByPermission = TableData "BOM Component" = R;
-            Caption = 'SN Assembly Inbound Tracking';
-
-            trigger OnValidate()
-            begin
-                TestField("SN Specific Tracking", false);
-            end;
-        }
-        field(33; "SN Assembly Outbound Tracking"; Boolean)
-        {
-            AccessByPermission = TableData "BOM Component" = R;
-            Caption = 'SN Assembly Outbound Tracking';
-
-            trigger OnValidate()
-            begin
-                TestField("SN Specific Tracking", false);
-            end;
-        }
         field(34; "Create SN Info on Posting"; Boolean)
         {
             Caption = 'Create SN Info. on posting';
@@ -275,10 +234,7 @@ table 6502 "Item Tracking Code"
                     "Lot Neg. Adjmt. Inb. Tracking" := true;
                     "Lot Neg. Adjmt. Outb. Tracking" := true;
                     "Lot Transfer Tracking" := true;
-                    "Lot Manuf. Inbound Tracking" := true;
-                    "Lot Manuf. Outbound Tracking" := true;
-                    "Lot Assembly Inbound Tracking" := true;
-                    "Lot Assembly Outbound Tracking" := true;
+                    OnValidateLotSpecificTrackingOnAfterSet(Rec)
                 end else begin
                     TestRemoveSpecific(FieldCaption("Lot Specific Tracking"));
                     "Lot Warehouse Tracking" := false;
@@ -393,46 +349,6 @@ table 6502 "Item Tracking Code"
                 TestField("Lot Specific Tracking", false);
             end;
         }
-        field(60; "Lot Manuf. Inbound Tracking"; Boolean)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            Caption = 'Lot Manuf. Inbound Tracking';
-
-            trigger OnValidate()
-            begin
-                TestField("Lot Specific Tracking", false);
-            end;
-        }
-        field(61; "Lot Manuf. Outbound Tracking"; Boolean)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            Caption = 'Lot Manuf. Outbound Tracking';
-
-            trigger OnValidate()
-            begin
-                TestField("Lot Specific Tracking", false);
-            end;
-        }
-        field(62; "Lot Assembly Inbound Tracking"; Boolean)
-        {
-            AccessByPermission = TableData "BOM Component" = R;
-            Caption = 'Lot Assembly Inbound Tracking';
-
-            trigger OnValidate()
-            begin
-                TestField("Lot Specific Tracking", false);
-            end;
-        }
-        field(63; "Lot Assembly Outbound Tracking"; Boolean)
-        {
-            AccessByPermission = TableData "BOM Component" = R;
-            Caption = 'Lot Assembly Outbound Tracking';
-
-            trigger OnValidate()
-            begin
-                TestField("Lot Specific Tracking", false);
-            end;
-        }
         field(64; "Create Lot No. Info on posting"; Boolean)
         {
             Caption = 'Create Lot No. Info. on posting';
@@ -459,10 +375,7 @@ table 6502 "Item Tracking Code"
                     "Package Neg. Inb. Tracking" := true;
                     "Package Neg. Outb. Tracking" := true;
                     "Package Transfer Tracking" := true;
-                    "Package Manuf. Inb. Tracking" := true;
-                    "Package Manuf. Outb. Tracking" := true;
-                    "Package Assembly Inb. Tracking" := true;
-                    "Package Assembly Out. Tracking" := true;
+                    OnValidatePackageSpecificTrackingOnAfterSet(Rec);
                 end else begin
                     TestRemoveSpecific(FieldCaption("Package Specific Tracking"));
                     "Package Warehouse Tracking" := false;
@@ -583,50 +496,6 @@ table 6502 "Item Tracking Code"
         {
             Caption = 'Package Transfer Tracking';
             CaptionClass = '6,83';
-
-            trigger OnValidate()
-            begin
-                TestField("Package Specific Tracking", false);
-            end;
-        }
-        field(84; "Package Manuf. Inb. Tracking"; Boolean)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            Caption = 'Package Manuf. Inbound Tracking';
-            CaptionClass = '6,84';
-
-            trigger OnValidate()
-            begin
-                TestField("Package Specific Tracking", false);
-            end;
-        }
-        field(85; "Package Manuf. Outb. Tracking"; Boolean)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            Caption = 'Package Manuf. Outbound Tracking';
-            CaptionClass = '6,85';
-
-            trigger OnValidate()
-            begin
-                TestField("Package Specific Tracking", false);
-            end;
-        }
-        field(86; "Package Assembly Inb. Tracking"; Boolean)
-        {
-            AccessByPermission = TableData "BOM Component" = R;
-            Caption = 'Package Assembly Inbound Tracking';
-            CaptionClass = '6,86';
-
-            trigger OnValidate()
-            begin
-                TestField("Package Specific Tracking", false);
-            end;
-        }
-        field(87; "Package Assembly Out. Tracking"; Boolean)
-        {
-            AccessByPermission = TableData "BOM Component" = R;
-            Caption = 'Package Assembly Outbound Tracking';
-            CaptionClass = '6,87';
 
             trigger OnValidate()
             begin
@@ -835,6 +704,21 @@ table 6502 "Item Tracking Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsWarehouseTrackingChanged(ItemTrackingCode: Record "Item Tracking Code"; ItemTrackingCode2: Record "Item Tracking Code"; var TrackingChanged: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSNSpecificTrackingOnAfterSet(var ItemTrackingCode: Record "Item Tracking Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLotSpecificTrackingOnAfterSet(var ItemTrackingCode: Record "Item Tracking Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePackageSpecificTrackingOnAfterSet(var ItemTrackingCode: Record "Item Tracking Code")
     begin
     end;
 }

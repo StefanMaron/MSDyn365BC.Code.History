@@ -1175,33 +1175,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP GERREPORTS - II - NamedType PeriodCreditAmountCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1357907179 - NamedType 2504440163" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Field must be enabled]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP LOWVAL - NamedType FieldMustEnabledMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1357907179 - NamedType 3235670077" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to adjust.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP LOWVAL - NamedType NothingToAdjustTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1357907179 - NamedType 1278011672" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[One or more currency exchange rates have been adjusted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP LOWVAL - NamedType RatesAdjustedMsg)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2505604788 - NamedType 3958324047" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[StartLineNo]]></Val>

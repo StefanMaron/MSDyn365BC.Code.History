@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -32,6 +32,7 @@ table 257 "VAT Statement Name"
             Caption = 'Date Filter';
             FieldClass = FlowFilter;
         }
+#if not CLEANSCHEMA25
         field(11000; "Sales VAT Adv. Notification"; Boolean)
         {
             Caption = 'Sales VAT Adv. Notification';
@@ -39,6 +40,7 @@ table 257 "VAT Statement Name"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
     }
 
     keys

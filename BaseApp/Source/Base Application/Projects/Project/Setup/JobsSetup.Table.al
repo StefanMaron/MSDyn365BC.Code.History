@@ -18,11 +18,14 @@ table 315 "Jobs Setup"
 {
     Caption = 'Projects Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Jobs Setup";
+    LookupPageID = "Jobs Setup";
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Job Nos."; Code[20])
@@ -160,5 +163,12 @@ table 315 "Jobs Setup"
     fieldgroups
     {
     }
+
+    procedure UseLegacyPosting(): Boolean
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+    begin
+        exit(not FeatureKeyManagement.IsConcurrentJobPostingEnabled());
+    end;
 }
 

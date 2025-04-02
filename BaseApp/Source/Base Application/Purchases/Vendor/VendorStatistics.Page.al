@@ -90,7 +90,7 @@ page 152 "Vendor Statistics"
                     ShowCaption = false;
                     group("This Period")
                     {
-                        Caption = 'This Period';
+                        Caption = 'This Fiscal Period';
                         field("VendDateName[1]"; VendDateName[1])
                         {
                             ApplicationArea = Basic, Suite;
@@ -183,7 +183,7 @@ page 152 "Vendor Statistics"
                     }
                     group("This Year")
                     {
-                        Caption = 'This Year';
+                        Caption = 'This Fiscal Year';
                         field(Text001; Text001)
                         {
                             ApplicationArea = Basic, Suite;
@@ -277,7 +277,7 @@ page 152 "Vendor Statistics"
                     }
                     group("Last Year")
                     {
-                        Caption = 'Last Year';
+                        Caption = 'Last Fiscal Year';
                         field(Control81; Text001)
                         {
                             ApplicationArea = Basic, Suite;
@@ -508,7 +508,6 @@ page 152 "Vendor Statistics"
 
     var
         DateFilterCalc: Codeunit "DateFilter-Calc";
-
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'Overdue Amounts (LCY) as of %1';
@@ -546,4 +545,3 @@ page 152 "Vendor Statistics"
     begin
     end;
 }
-

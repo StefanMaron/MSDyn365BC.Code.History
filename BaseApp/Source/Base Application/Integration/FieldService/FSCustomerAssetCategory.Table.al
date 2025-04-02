@@ -1,4 +1,5 @@
-﻿namespace Microsoft.Integration.FieldService;
+#if not CLEANSCHEMA28 
+namespace Microsoft.Integration.FieldService;
 
 using Microsoft.Integration.D365Sales;
 
@@ -215,4 +216,5 @@ table 6422 "FS Customer Asset Category"
         {
         }
     }
-}
+} 
+#endif

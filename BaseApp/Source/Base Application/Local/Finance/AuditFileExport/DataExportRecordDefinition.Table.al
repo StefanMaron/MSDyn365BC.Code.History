@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -41,13 +41,6 @@ table 11003 "Data Export Record Definition"
         field(3; Description; Text[50])
         {
             Caption = 'Description';
-        }
-        field(4; "Export Path"; Text[250])
-        {
-            Caption = 'Export Path';
-            ObsoleteReason = 'This field is obsolete after refactoring.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
         }
         field(5; "DTD File Name"; Text[50])
         {
@@ -315,4 +308,3 @@ table 11003 "Data Export Record Definition"
     begin
     end;
 }
-

@@ -27,7 +27,7 @@ codeunit 7310 "Whse.-Shipment Release"
     var
         Location: Record Location;
         Location2: Record Location;
-        WhsePickRqst: Record "Whse. Pick Request";
+        WhsePickRequest: Record "Whse. Pick Request";
         WhseShptLine: Record "Warehouse Shipment Line";
         ATOLink: Record "Assemble-to-Order Link";
         AsmLine: Record "Assembly Line";
@@ -85,11 +85,11 @@ codeunit 7310 "Whse.-Shipment Release"
 
         CreateWhsePickRequest(WhseShptHeader);
 
-        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
-        WhsePickRqst.SetRange("Document No.", WhseShptHeader."No.");
-        WhsePickRqst.SetRange(Status, WhseShptHeader.Status::Open);
-        if not WhsePickRqst.IsEmpty() then
-            WhsePickRqst.DeleteAll(true);
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
+        WhsePickRequest.SetRange("Document No.", WhseShptHeader."No.");
+        WhsePickRequest.SetRange(Status, WhseShptHeader.Status::Open);
+        if not WhsePickRequest.IsEmpty() then
+            WhsePickRequest.DeleteAll(true);
         if not SuppressCommit then
             Commit();
 
@@ -98,7 +98,7 @@ codeunit 7310 "Whse.-Shipment Release"
 
     procedure Reopen(var WhseShptHeader: Record "Warehouse Shipment Header")
     var
-        WhsePickRqst: Record "Whse. Pick Request";
+        WhsePickRequest: Record "Whse. Pick Request";
         PickWkshLine: Record "Whse. Worksheet Line";
         WhseActivLine: Record "Warehouse Activity Line";
         IsHandled: Boolean;
@@ -124,11 +124,11 @@ codeunit 7310 "Whse.-Shipment Release"
         if not WhseActivLine.IsEmpty() then
             Error(Text002);
 
-        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
-        WhsePickRqst.SetRange("Document No.", WhseShptHeader."No.");
-        WhsePickRqst.SetRange(Status, WhseShptHeader.Status::Released);
-        if not WhsePickRqst.IsEmpty() then
-            WhsePickRqst.ModifyAll(Status, WhsePickRqst.Status::Open);
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
+        WhsePickRequest.SetRange("Document No.", WhseShptHeader."No.");
+        WhsePickRequest.SetRange(Status, WhseShptHeader.Status::Released);
+        if not WhsePickRequest.IsEmpty() then
+            WhsePickRequest.ModifyAll(Status, WhsePickRequest.Status::Open);
 
         WhseShptHeader.Status := WhseShptHeader.Status::Open;
         WhseShptHeader.Modify();

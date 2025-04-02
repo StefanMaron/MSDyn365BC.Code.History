@@ -10,6 +10,7 @@ page 278 "Job Registers"
     Editable = false;
     PageType = List;
     SourceTable = "Job Register";
+    SourceTableView = sorting("No.") order(descending);
     UsageCategory = History;
 
     layout

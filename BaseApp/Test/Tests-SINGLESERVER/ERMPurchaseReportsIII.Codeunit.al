@@ -1344,7 +1344,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // [THEN] Line2: "Description" = "HC HV, L2C L2V"
         // [THEN] Total: "Amount" = 300
         VerifyPurchOrderRepPrepmtSecTwoLinesWithSingleDims(
-          PrepmtGLAccount, LinePrepmtAmountValue, HeaderDimensionValue, Line1DimensionValue, Line2DimensionValue, 11);
+          PrepmtGLAccount, LinePrepmtAmountValue, HeaderDimensionValue, Line1DimensionValue, Line2DimensionValue, 7);
     end;
 
     [Test]
@@ -1387,7 +1387,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // [THEN] Line6: "Description" = "L2C3 L2V3, L2C4 L2V4"
         // [THEN] Total: "Amount" = 300
         VerifyPurchOrderRepPrepmtSecTwoLinesWithMultipleDims(
-          PrepmtGLAccount, LinePrepmtAmountValue, HeaderDimensionValue, Line1DimensionValue, Line2DimensionValue, 15);
+          PrepmtGLAccount, LinePrepmtAmountValue, HeaderDimensionValue, Line1DimensionValue, Line2DimensionValue, 11);
     end;
 
     [Test]

@@ -12,7 +12,7 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
     var
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryPatterns: Codeunit "Library - Patterns";
+        LibraryInventory: Codeunit "Library - Inventory";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
@@ -37,13 +37,13 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
           OldInventorySetup."Automatic Cost Adjustment"::Always);
 
         // make item
-        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
+        LibraryInventory.CreateItemSimple(Item, Item."Costing Method"::FIFO, 0);
 
         // purchase
-        LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty, WorkDate(), 10, true, false);
+        LibraryPurchase.POSTPurchaseOrder(PurchaseHeader, Item, '', '', Qty, WorkDate(), 10, true, false);
 
         // Sales order - shipment only
-        LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', Qty, WorkDate(), 0, true, false);
+        LibrarySales.PostSalesOrder(SalesHeader, Item, '', '', Qty, WorkDate(), 0, true, false);
 
         // Now invoice of sales order
         PartialInvoiceOfSales(SalesHeader, Qty / 4);
@@ -138,7 +138,7 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
         LibraryPurchase.CreatePurchHeader(PurchaseHeaderItemCharge, PurchaseHeader."Document Type", Vendor."No.");
 
         // Line for Item Charge
-        LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(PurchaseHeaderItemCharge, PurchRcptLine, 1, DirectUnitCost);
+        LibraryPurchase.ASSIGNPurchChargeToPurchRcptLine(PurchaseHeaderItemCharge, PurchRcptLine, 1, DirectUnitCost);
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeaderItemCharge, true, true);
     end;

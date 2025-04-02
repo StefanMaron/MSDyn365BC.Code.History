@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+#if not CLEANSCHEMA27 
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -214,6 +215,7 @@ table 5005355 "Posted Phys. Invt. Order Line"
             Caption = 'Item Category Code';
             TableRelation = "Item Category";
         }
+#if not CLEANSCHEMA25
         field(5707; "Product Group Code"; Code[10])
         {
             Caption = 'Product Group Code';
@@ -221,6 +223,7 @@ table 5005355 "Posted Phys. Invt. Order Line"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(7380; "Phys Invt Counting Period Code"; Code[10])
         {
             Caption = 'Phys Invt Counting Period Code';
@@ -252,3 +255,5 @@ table 5005355 "Posted Phys. Invt. Order Line"
     }
 }
 
+ 
+#endif

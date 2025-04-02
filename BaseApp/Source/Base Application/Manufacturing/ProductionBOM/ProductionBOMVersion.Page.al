@@ -1,4 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.ProductionBOM;
+using System.Utilities;
 
 page 99000809 "Production BOM Version"
 {
@@ -92,11 +97,11 @@ page 99000809 "Production BOM Version"
 
                     trigger OnAction()
                     var
-                        ProdBOMHeader: Record "Production BOM Header";
+                        ProductionBOMHeader: Record "Production BOM Header";
                         ProdBOMWhereUsed: Page "Prod. BOM Where-Used";
                     begin
-                        ProdBOMHeader.Get(Rec."Production BOM No.");
-                        ProdBOMWhereUsed.SetProdBOM(ProdBOMHeader, Rec."Starting Date");
+                        ProductionBOMHeader.Get(Rec."Production BOM No.");
+                        ProdBOMWhereUsed.SetProdBOM(ProductionBOMHeader, Rec."Starting Date");
                         ProdBOMWhereUsed.Run();
                     end;
                 }
@@ -116,12 +121,15 @@ page 99000809 "Production BOM Version"
                     ToolTip = 'Copy an existing production BOM to quickly create a similar BOM.';
 
                     trigger OnAction()
+                    var
+                        ProductionBOMHeader: Record "Production BOM Header";
+                        ProductionBOMCopy: Codeunit "Production BOM-Copy";
                     begin
-                        if not Confirm(Text000, false) then
+                        if not Confirm(CopyFromProductionBOMQst, false) then
                             exit;
 
-                        ProdBOMHeader.Get(Rec."Production BOM No.");
-                        ProductionBOMCopy.CopyBOM(Rec."Production BOM No.", '', ProdBOMHeader, Rec."Version Code");
+                        ProductionBOMHeader.Get(Rec."Production BOM No.");
+                        ProductionBOMCopy.CopyBOM(Rec."Production BOM No.", '', ProductionBOMHeader, Rec."Version Code");
                     end;
                 }
                 action("Copy BOM &Version")
@@ -133,6 +141,8 @@ page 99000809 "Production BOM Version"
                     ToolTip = 'Copy an existing production BOM version to quickly create a similar BOM.';
 
                     trigger OnAction()
+                    var
+                        ProductionBOMCopy: Codeunit "Production BOM-Copy";
                     begin
                         ProductionBOMCopy.CopyFromVersion(Rec);
                     end;
@@ -155,11 +165,33 @@ page 99000809 "Production BOM Version"
         }
     }
 
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-#pragma warning disable AA0074
-        Text000: Label 'Copy from Production BOM?';
-#pragma warning restore AA0074
-        ProdBOMHeader: Record "Production BOM Header";
-        ProductionBOMCopy: Codeunit "Production BOM-Copy";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        if not CurrPage.Editable() then
+            exit(true);
+
+        if IsNullGuid(Rec.SystemId) then
+            exit(true);
+
+        if Rec.Status in [Rec.Status::Certified, Rec.Status::Closed] then
+            exit(true);
+
+        if Rec."Unit of Measure Code" = '' then
+            exit(true);
+
+        if not Rec.ProductionBOMLinesExist() then
+            exit(true);
+
+        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(CertifyQst, CurrPage.Caption), false) then
+            exit(false);
+
+        exit(true);
+    end;
+
+    var
+        CopyFromProductionBOMQst: Label 'Copy from Production BOM?';
+        CertifyQst: Label 'The %1 has not been certified. Are you sure you want to exit?', Comment = '%1 = page caption (Production BOM)';
 }
 

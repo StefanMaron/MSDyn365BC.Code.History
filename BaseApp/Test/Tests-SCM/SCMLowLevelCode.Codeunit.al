@@ -428,7 +428,7 @@ codeunit 137053 "SCM Low-Level Code"
 
     local procedure CreateItem(var Item: Record Item)
     begin
-        LibraryManufacturing.CreateItemManufacturing(Item, "Costing Method"::Standard, 0, "Reordering Policy"::" ", "Flushing Method"::Manual, '', '');
+        LibraryManufacturing.CreateItemManufacturing(Item, "Costing Method"::Standard, 0, "Reordering Policy"::" ", "Flushing Method"::"Pick + Manual", '', '');
     end;
 
     local procedure CreateBOM(var ParentItem: Record Item; var ChildItem: Record Item): Code[20]

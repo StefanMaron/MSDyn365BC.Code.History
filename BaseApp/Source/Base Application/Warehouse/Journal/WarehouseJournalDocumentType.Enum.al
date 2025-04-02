@@ -12,7 +12,8 @@ enum 5773 "Warehouse Journal Document Type"
     value(2; "Shipment") { Caption = 'Shipment'; }
     value(3; "Internal Put-away") { Caption = 'Internal Put-away'; }
     value(4; "Internal Pick") { Caption = 'Internal Pick'; }
-    value(5; "Production") { Caption = 'Production'; }
+    // Implemented in enum extension Mfg. Whse. Jnl. Document Type
+    // value(5; "Production") { Caption = 'Production'; }
     value(6; "Whse. Phys. Inventory") { Caption = 'Whse. Phys. Inventory'; }
     value(7; " ") { Caption = ' '; }
     value(8; "Assembly") { Caption = 'Assembly'; }

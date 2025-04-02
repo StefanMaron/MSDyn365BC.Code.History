@@ -12,8 +12,6 @@ using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Inventory.Counting.Reports;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Projects.Project.Reports;
 using Microsoft.Purchases.Archive;
 using Microsoft.Purchases.Document;
@@ -94,7 +92,6 @@ codeunit 1901 "Report Selection Mgt."
         InitReportSelection("Report Selection Usage"::Inv2);
         InitReportSelection("Report Selection Usage"::Inv3);
         InitReportSelection("Report Selection Usage"::"Invt.Period Test");
-        InitReportSelection("Report Selection Usage"::"Prod.Order");
         InitReportSelection("Report Selection Usage"::"Phys.Invt.Order Test");
         InitReportSelection("Report Selection Usage"::"Phys.Invt.Order");
         InitReportSelection("Report Selection Usage"::"P.Phys.Invt.Order");
@@ -141,10 +138,6 @@ codeunit 1901 "Report Selection Mgt."
     procedure InitReportSelectionProd()
     begin
         OnBeforeInitReportSelectionProd();
-
-        InitReportSelection("Report Selection Usage"::M1);
-        InitReportSelection("Report Selection Usage"::M2);
-        InitReportSelection("Report Selection Usage"::M3);
 
         OnAfterInitReportSelectionProd();
     end;
@@ -242,8 +235,6 @@ codeunit 1901 "Report Selection Mgt."
                 InsertRepSelection("Report Selection Usage"::Inv3, '1', REPORT::"Transfer Receipt");
             "Report Selection Usage"::"Invt.Period Test":
                 InsertRepSelection("Report Selection Usage"::"Invt.Period Test", '1', REPORT::"Close Inventory Period - Test");
-            "Report Selection Usage"::"Prod.Order":
-                InsertRepSelection("Report Selection Usage"::"Prod.Order", '1', REPORT::"Prod. Order - Job Card");
             "Report Selection Usage"::"Phys.Invt.Order Test":
                 InsertRepSelection("Report Selection Usage"::"Phys.Invt.Order Test", '1', REPORT::"Phys. Invt. Order - Test");
             "Report Selection Usage"::"Phys.Invt.Order":
@@ -254,12 +245,6 @@ codeunit 1901 "Report Selection Mgt."
                 InsertRepSelection("Report Selection Usage"::"Phys.Invt.Rec.", '1', REPORT::"Phys. Invt. Recording");
             "Report Selection Usage"::"P.Phys.Invt.Rec.":
                 InsertRepSelection("Report Selection Usage"::"P.Phys.Invt.Rec.", '1', REPORT::"Posted Phys. Invt. Recording");
-            "Report Selection Usage"::M1:
-                InsertRepSelection("Report Selection Usage"::M1, '1', REPORT::"Prod. Order - Job Card");
-            "Report Selection Usage"::M2:
-                InsertRepSelection("Report Selection Usage"::M2, '1', REPORT::"Prod. Order - Mat. Requisition");
-            "Report Selection Usage"::M3:
-                InsertRepSelection("Report Selection Usage"::M3, '1', REPORT::"Prod. Order - Shortage List");
             "Report Selection Usage"::"Asm.Order":
                 InsertRepSelection("Report Selection Usage"::"Asm.Order", '1', REPORT::"Assembly Order");
             "Report Selection Usage"::"P.Asm.Order":

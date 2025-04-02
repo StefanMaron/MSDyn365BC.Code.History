@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Foundation.ExtendedText;
 
 using Microsoft.Utilities;
@@ -48,9 +52,9 @@ codeunit 379 "Transfer Old Ext. Text Lines"
         exit(0);
     end;
 
-    procedure GetLineNoBuffer(var TempLineNumberBuffer: Record "Line Number Buffer" temporary)
+    procedure GetLineNoBuffer(var OutTempLineNumberBuffer: Record "Line Number Buffer" temporary)
     begin
-        TempLineNumberBuffer.Copy(TempLineNumberBuffer, true);
+        OutTempLineNumberBuffer.Copy(TempLineNumberBuffer, true);
     end;
 
     [IntegrationEvent(false, false)]

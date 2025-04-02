@@ -48,7 +48,6 @@ codeunit 136350 "UT T Job"
         PlanningLinesNotUpdatedMsg: Label 'You have changed %1 on the project task, but it has not been changed on the existing project planning lines.', Comment = '%1 = a Field Caption like Location Code';
         UpdatePlanningLinesManuallyMsg: Label 'You must update the existing project planning lines manually.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.', Locked = true;
-        DPPLocationErr: Label 'You cannot create purchase orders for items that are set up for directed put-away and pick. You can activate and select Reserve field from personalization in order to finish this task.';
         StatusErr: Label '%1 must be %2 in %3', Comment = '%1 = Status, %2 = Completed, %3 = Job';
 
     [Test]
@@ -1792,15 +1791,16 @@ codeunit 136350 "UT T Job"
 
     [Test]
     [HandlerFunctions('PurchOrderFromJobModalPageHandlerWithDPPLocation')]
-    procedure VerifyErrorOnCreatePurchaseOrderFromJobForDPPLocation()
+    procedure VerifyCreatePurchaseOrderFromJobForDPPLocation()
     var
         Vendor: Record Vendor;
         Item: Record Item;
         Location: Record Location;
+        PurchaseLine: Record "Purchase Line";
         PurchaseOrder: TestPage "Purchase Order";
         JobCard: TestPage "Job Card";
     begin
-        // [SCENARIO 549866] Verify error on create Purchase Order from Job for DPP Location
+        // [SCENARIO 549866] [545709] Verify create Purchase Order from Job for DPP Location
         Initialize();
 
         // [GIVEN] Create Vendor
@@ -1825,10 +1825,14 @@ codeunit 136350 "UT T Job"
         PurchaseOrder.Trap();
         JobCard.OpenEdit();
         JobCard.GotoRecord(Job);
-        asserterror JobCard.CreatePurchaseOrder.Invoke();
+        JobCard.CreatePurchaseOrder.Invoke();
 
-        // [THEN] Verify error
-        Assert.ExpectedError(DPPLocationErr);
+        // [THEN] Verify Purchase Order is created
+        PurchaseLine.SetRange("Job No.", Job."No.");
+        PurchaseLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        PurchaseLine.SetRange(Quantity, JobPlanningLine.Quantity);
+        Assert.IsFalse(PurchaseLine.IsEmpty(), 'Purchase Line not created for Job Task' + JobTask."Job Task No.");
     end;
 
     [Test]
@@ -1911,7 +1915,7 @@ codeunit 136350 "UT T Job"
         CreateJobPlanningLineWithItem(JobPlanningLine."Line Type"::"Both Budget and Billable", Item."No.", 1);
 
         // [WHEN] Create Purchase Order from Job Planning Lines for Job X with Reservation
-        CreatePurchaseOrderFromJobWithReservation(Vendor."No.");
+        CreatePurchaseOrderFromJobPlanningLine(Vendor."No.", true, 0);
 
         // [THEN] Purchase line created but not linked
         PurchaseLine.SetRange("Job No.", Job."No.");
@@ -1927,6 +1931,128 @@ codeunit 136350 "UT T Job"
         // [THEN] Purchase Order Line reservation entry created
         ReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive);
         ReservationEntry.TestField("Source Type", Database::"Purchase Line");
+    end;
+
+    [Test]
+    procedure CreateAndPostPurchaseOrderFromJobPlanningLineWhenExistAnotherPOWithReservation()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        ReservationEntry: Record "Reservation Entry";
+        QtyToOrder: Decimal;
+
+    begin
+        // [SCENARIO 549386] Verify system will create and post PO created from Job Planning Lines even there isanother which is set to be reserved 
+        Initialize();
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Job X with Job Task and Job Planning Line
+        QtyToOrder := LibraryRandom.RandInt(10);
+        CreateJobAndJobTask();
+        CreateJobPlanningLineWithItem(JobPlanningLine."Line Type"::"Both Budget and Billable", Item."No.", 2 * QtyToOrder);
+
+        // [WHEN] Create Purchase Order from Job Planning Lines for Job X with Reservation
+        CreatePurchaseOrderFromJobPlanningLine(Vendor."No.", true, QtyToOrder);
+
+        // [THEN] Reservation Entry created
+        ReservationEntry.SetSourceFilter(Database::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", true);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        Assert.IsTrue(not ReservationEntry.IsEmpty(), 'Reservation Entry not created for Job Planning Line');
+
+        // [THEN] Purchase line created but not linked
+        PurchaseLine.SetRange("Job No.", Job."No.");
+        PurchaseLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        Assert.IsTrue(PurchaseLine.IsEmpty, 'Purchase Line linked with Job Task' + JobTask."Job Task No.");
+
+        // [WHEN] Create Purchase Order from Job Planning Lines for Job X without Reservation
+        CreatePurchaseOrderFromJobPlanningLine(Vendor."No.", false, 0);
+
+        // [THEN] Purchase line created and linked
+        PurchaseLine.SetRange("Job No.", Job."No.");
+        PurchaseLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.TestField(Quantity, QtyToOrder);
+
+        // [THEN] Purchase Order can be posted
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        if PurchaseHeader."Vendor Invoice No." = '' then
+            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Reservation Entry stays intact
+        ReservationEntry.FindFirst();
+        Assert.IsTrue(Abs(ReservationEntry.Quantity) = QtyToOrder, 'Reservation Entry updated');
+    end;
+
+    [Test]
+    [HandlerFunctions('ReservationPageHandler')]
+    procedure CreateAndPostPurchaseOrderFromJobPlanningLineWhenExistReservationOnILE()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        ReservationEntry: Record "Reservation Entry";
+        JobPlanningLines: TestPage "Job Planning Lines";
+        QtyToOrder: Decimal;
+
+    begin
+        // [SCENARIO 549386] Verify system will create and post PO created from Job Planning Lines even there isanother which is set to be reserved 
+        Initialize();
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Job X with Job Task and Job Planning Line
+        QtyToOrder := LibraryRandom.RandInt(10);
+        CreateJobAndJobTask();
+        CreateJobPlanningLineWithItem(JobPlanningLine."Line Type"::"Both Budget and Billable", Item."No.", 2 * QtyToOrder);
+
+        // [WHEN] Put on the stock Item for Job Planning Lines for Job X and make reservation
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', QtyToOrder);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        JobPlanningLines.OpenEdit();
+        JobPlanningLines.GoToRecord(JobPlanningLine);
+        JobPlanningLines.Reserve.Invoke();
+        JobPlanningLines.Close();
+
+        // [THEN] Reservation Entry created
+        ReservationEntry.SetSourceFilter(Database::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", true);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        Assert.IsTrue(not ReservationEntry.IsEmpty(), 'Reservation Entry not created for Job Planning Line');
+
+        // [WHEN] Create Purchase Order from Job Planning Lines for Job X without Reservation
+        CreatePurchaseOrderFromJobPlanningLine(Vendor."No.", false, 0);
+
+        // [THEN] Purchase line created and linked
+        PurchaseLine.SetRange("Job No.", Job."No.");
+        PurchaseLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.TestField(Quantity, QtyToOrder);
+
+        // [THEN] Purchase Order can be posted
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        if PurchaseHeader."Vendor Invoice No." = '' then
+            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Reservation Entry stays intact
+        ReservationEntry.FindFirst();
+        Assert.IsTrue(Abs(ReservationEntry.Quantity) = QtyToOrder, 'Reservation Entry updated');
     end;
 
     [Test]
@@ -2303,7 +2429,7 @@ codeunit 136350 "UT T Job"
         JobLedgEntry.Insert();
     end;
 
-    local procedure CreatePurchaseOrderFromJobWithReservation(VendorNo: Code[20])
+    local procedure CreatePurchaseOrderFromJobPlanningLine(VendorNo: Code[20]; WithReservation: Boolean; QtyToSet: Decimal)
     var
         TempManufacturingUserTemplate: Record "Manufacturing User Template" temporary;
         TempDocumentEntry: Record "Document Entry" temporary;
@@ -2318,7 +2444,10 @@ codeunit 136350 "UT T Job"
         RequisitionLine.SetFilter(Quantity, '>%1', 0);
         RequisitionLine.FindFirst();
         RequisitionLine.Validate("Vendor No.", VendorNo);
-        RequisitionLine.Validate(Reserve, true);
+        if WithReservation then
+            RequisitionLine.Validate(Reserve, true);
+        if QtyToSet <> 0 then
+            RequisitionLine.Validate(Quantity, QtyToSet);
         RequisitionLine.Modify();
 
         MakeSupplyOrders(TempManufacturingUserTemplate, TempDocumentEntry, RequisitionLine);
@@ -2514,18 +2643,26 @@ codeunit 136350 "UT T Job"
     end;
 
     [ModalPageHandler]
-    procedure PurchOrderFromJobModalPageHandlerWithDPPLocation(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
-    begin
-        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
-        PurchOrderFromSalesOrder.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
     procedure PurchaseLinesFromJobModalPageHandler(var PurchaseLines: TestPage "Purchase Lines")
     begin
         Assert.AreEqual(PurchaseLines."Document No.".Value, LibraryVariableStorage.DequeueText(), 'Purchase Lines are not linked with Project');
         Assert.AreEqual(PurchaseLines."No.".Value, LibraryVariableStorage.DequeueText(), 'Purchase Lines are not linked with Project');
         Assert.AreEqual(PurchaseLines."Buy-from Vendor No.".Value, LibraryVariableStorage.DequeueText(), 'Purchase Lines are not linked with Project');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReservationPageHandler(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PurchOrderFromJobModalPageHandlerWithDPPLocation(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
+        PurchOrderFromSalesOrder.OK().Invoke();
     end;
 
     [MessageHandler]

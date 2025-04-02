@@ -268,7 +268,7 @@ table 7312 "Warehouse Entry"
         {
             IncludedFields = "Qty. (Base)";
         }
-        key(Key5; "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type", Dedicated, "Package No.", "SIFT Bucket No.")
+        key(Key5; "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type", Dedicated, "Package No.", "Bin Type Code", "SIFT Bucket No.")
         {
             SumIndexFields = "Qty. (Base)", Cubage, Weight, Quantity;
         }
@@ -304,6 +304,7 @@ table 7312 "Warehouse Entry"
             InsertRecord();
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Warehouse Entry", 'r')]
     procedure InsertRecord()
     var
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
@@ -316,6 +317,7 @@ table 7312 "Warehouse Entry"
         end;
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Warehouse Entry", 'r')]
     procedure GetNextEntryNo(): Integer
     var
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
@@ -323,13 +325,14 @@ table 7312 "Warehouse Entry"
         exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Warehouse Entry"));
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Warehouse Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
     begin
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
-    
+
     procedure ClearTrackingFilter()
     begin
         SetRange("Serial No.");

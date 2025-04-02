@@ -5,6 +5,8 @@
 namespace Microsoft.EServices.EDocumentConnector.Logiq;
 
 using Microsoft.eServices.EDocument;
+using Microsoft.eServices.EDocument.Integration.Send;
+using Microsoft.eServices.EDocument.Integration.Receive;
 using System.Utilities;
 using System.Xml;
 
@@ -13,7 +15,7 @@ codeunit 6432 "Logiq Integration Management"
     Access = Internal;
     Permissions = tabledata "E-Document" = m;
 
-    internal procedure Send(var EDocument: Record "E-Document"; var TempBlob: Codeunit "Temp Blob"; var IsAsync: Boolean; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
+    internal procedure Send(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; SendContext: Codeunit SendContext)
     var
         ConnectionUserSetup: Record "Logiq Connection User Setup";
         LogiqAuth: Codeunit "Logiq Auth";
@@ -21,12 +23,13 @@ codeunit 6432 "Logiq Integration Management"
         Headers: HttpHeaders;
         Content: HttpContent;
         ContentHeaders: HttpHeaders;
+        HttpRequest: HttpRequestMessage;
+        HttpResponse: HttpResponseMessage;
         BodyText: Text;
         FileNameText: Text;
         Boundary: Text;
     begin
         HttpRequest.Method('POST');
-        IsAsync := true;
 
         LogiqAuth.CheckUserSetup(ConnectionUserSetup);
         LogiqAuth.CheckUpdateTokens();
@@ -39,7 +42,7 @@ codeunit 6432 "Logiq Integration Management"
         FileNameText := StrSubstNo(this.FileNameTok, EDocument."Document No.");
         Boundary := DelChr(Format(CreateGuid()), '<>=', '{}&[]*()!@#$%^+=;:"''<>,.?/|\\~`');
 
-        BodyText := this.GetFileContentAsMultipart(TempBlob, FileNameText, Boundary);
+        BodyText := this.GetFileContentAsMultipart(SendContext.GetTempBlob(), FileNameText, Boundary);
         Content.WriteFrom(BodyText);
 
         Content.GetHeaders(ContentHeaders);
@@ -56,10 +59,15 @@ codeunit 6432 "Logiq Integration Management"
             EDocument.Modify();
         end else
             this.LogSendingError(EDocument, HttpResponse);
+
+        SendContext.Http().SetHttpRequestMessage(HttpRequest);
+        SendContext.Http().SetHttpResponseMessage(HttpResponse);
     end;
 
-    internal procedure GetResponse(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage): Boolean
+    internal procedure GetResponse(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; SendContext: Codeunit SendContext): Boolean
     var
+        HttpRequest: HttpRequestMessage;
+        HttpResponse: HttpResponseMessage;
         InStr: InStream;
         JsonObj: JsonObject;
         JsonTok: JsonToken;
@@ -70,6 +78,9 @@ codeunit 6432 "Logiq Integration Management"
             this.EDocumentErrorHelper.LogSimpleErrorMessage(EDocument, StrSubstNo(this.FailedHttpCallMsg, EDocument."Document No.", HttpResponse.HttpStatusCode, HttpResponse.ReasonPhrase));
             exit(false);
         end;
+
+        SendContext.Http().SetHttpRequestMessage(HttpRequest);
+        SendContext.Http().SetHttpResponseMessage(HttpResponse);
 
         HttpResponse.Content.ReadAs(InStr);
         if not JsonObj.ReadFrom(InStr) then
@@ -112,67 +123,89 @@ codeunit 6432 "Logiq Integration Management"
         exit(HttpResponse.IsSuccessStatusCode());
     end;
 
-    internal procedure DownloadDocuments(var TempBlob: Codeunit "Temp Blob"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
+    internal procedure DownloadDocuments(var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
     var
-        LogiqConnectionUserSetup: Record "Logiq Connection User Setup";
-        LogiqConnectionSetup: Record "Logiq Connection Setup";
+        ConnectionUserSetup: Record "Logiq Connection User Setup";
+        ConnectionSetup: Record "Logiq Connection Setup";
         LogiqAuth: Codeunit "Logiq Auth";
         Client: HttpClient;
         Headers: HttpHeaders;
-        InStr: InStream;
-        OutStr: OutStream;
     begin
         HttpRequest.Method('GET');
 
-        LogiqAuth.CheckSetup(LogiqConnectionSetup);
-        LogiqAuth.CheckUserSetup(LogiqConnectionUserSetup);
+        LogiqAuth.CheckSetup(ConnectionSetup);
+        LogiqAuth.CheckUserSetup(ConnectionUserSetup);
         LogiqAuth.CheckUpdateTokens();
 
-        HttpRequest.SetRequestUri(this.JoinUrlParts(LogiqConnectionSetup."Base URL", LogiqConnectionSetup."File List Endpoint"));
-
+        HttpRequest.SetRequestUri(this.JoinUrlParts(ConnectionSetup."Base URL", ConnectionSetup."File List Endpoint"));
         HttpRequest.GetHeaders(Headers);
-        SetAuthorizationHeader(Headers, LogiqAuth, LogiqConnectionUserSetup);
+        SetAuthorizationHeader(Headers, LogiqAuth, ConnectionUserSetup);
 
         Client.Send(HttpRequest, HttpResponse);
 
-        if HttpResponse.IsSuccessStatusCode() then begin
-            HttpResponse.Content.ReadAs(InStr);
-            TempBlob.CreateOutStream(OutStr, TextEncoding::UTF8);
-            CopyStream(OutStr, InStr);
-        end else
+        if not HttpResponse.IsSuccessStatusCode() then
             Error(this.DownloadDocumentsErr, HttpResponse.HttpStatusCode, HttpResponse.ReasonPhrase);
     end;
 
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"E-Doc. Import", OnAfterInsertImportedEdocument, '', false, false)]
-    local procedure OnAfterInsertEdocument(var EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; var TempBlob: Codeunit "Temp Blob"; EDocCount: Integer; HttpRequest: HttpRequestMessage; HttpResponse: HttpResponseMessage)
+    internal procedure ReceiveDocuments(var EDocumentService: Record "E-Document Service"; Documents: Codeunit "Temp Blob List"; ReceiveContext: Codeunit ReceiveContext)
     var
-        LocalHttpRequest: HttpRequestMessage;
-        LocalHttpResponse: HttpResponseMessage;
-        DocumentOutStream: OutStream;
-        ContentData, FileName : Text;
+        ConnectionUserSetup: Record "Logiq Connection User Setup";
+        ConnectionSetup: Record "Logiq Connection Setup";
+        LogiqAuth: Codeunit "Logiq Auth";
+        TempBlob: Codeunit "Temp Blob";
+        HttpRequest: HttpRequestMessage;
+        HttpResponse: HttpResponseMessage;
+        DocumentsArray: JsonArray;
+        InStr: InStream;
+        OutStr: OutStream;
+        i: Integer;
     begin
-        if EDocumentService."Service Integration" <> EDocumentService."Service Integration"::Logiq then
-            exit;
+        HttpRequest.Method('GET');
 
-        HttpResponse.Content.ReadAs(ContentData);
-        if not this.ParseReceivedFileName(ContentData, EDocument."Index In Batch", FileName) then begin
+        LogiqAuth.CheckSetup(ConnectionSetup);
+        LogiqAuth.CheckUserSetup(ConnectionUserSetup);
+        LogiqAuth.CheckUpdateTokens();
+
+        this.DownloadDocuments(HttpRequest, HttpResponse);
+
+        HttpResponse.Content.ReadAs(InStr);
+        DocumentsArray.ReadFrom(InStr);
+        for i := 0 to DocumentsArray.Count() - 1 do begin
+            Clear(TempBlob);
+            TempBlob.CreateOutStream(OutStr, TextEncoding::UTF8);
+            DocumentsArray.GetObject(i).WriteTo(OutStr);
+            Documents.Add(TempBlob);
+        end;
+
+        ReceiveContext.Http().SetHttpRequestMessage(HttpRequest);
+        ReceiveContext.Http().SetHttpResponseMessage(HttpResponse);
+    end;
+
+    internal procedure DownloadDocument(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; Document: Codeunit "Temp Blob"; ReceiveContext: Codeunit ReceiveContext)
+    var
+        HttpRequest: HttpRequestMessage;
+        HttpResponse: HttpResponseMessage;
+        InStr: InStream;
+        OutStr: OutStream;
+        DocumentData, FileName : Text;
+    begin
+        Document.CreateInStream(InStr, TextEncoding::UTF8);
+        InStr.ReadText(DocumentData);
+        if not this.ParseReceivedFileName(DocumentData, FileName) then begin
             this.EDocumentErrorHelper.LogSimpleErrorMessage(EDocument, this.FileNameNotFoundErr);
             exit;
         end;
 
-        this.DownloadFile(FileName, LocalHttpRequest, LocalHttpResponse);
-        this.EDocumentLogHelper.InsertIntegrationLog(EDocument, EDocumentService, LocalHttpRequest, LocalHttpResponse);
-
-        LocalHttpResponse.Content.ReadAs(ContentData);
-        if ContentData = '' then
+        this.DownloadFile(FileName, HttpRequest, HttpResponse);
+        HttpResponse.Content.ReadAs(DocumentData);
+        if DocumentData = '' then
             this.EDocumentErrorHelper.LogSimpleErrorMessage(EDocument, StrSubstNo(this.FileNotFoundErr, FileName));
 
-        Clear(TempBlob);
-        TempBlob.CreateOutStream(DocumentOutStream, TextEncoding::UTF8);
-        DocumentOutStream.WriteText(ContentData);
+        ReceiveContext.GetTempBlob().CreateOutStream(OutStr, TextEncoding::UTF8);
+        OutStr.WriteText(DocumentData);
 
-        this.EDocumentLogHelper.InsertLog(EDocument, EDocumentService, TempBlob, "E-Document Service Status"::Imported);
+        ReceiveContext.Http().SetHttpRequestMessage(HttpRequest);
+        ReceiveContext.Http().SetHttpResponseMessage(HttpResponse);
     end;
 
     internal procedure DownloadFile(FileName: Text; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
@@ -194,19 +227,6 @@ codeunit 6432 "Logiq Integration Management"
         SetAuthorizationHeader(Headers, LogiqAuth, ConnectionUserSetup);
 
         Client.Send(HttpRequest, HttpResponse);
-    end;
-
-    internal procedure GetDocumentCountInBatch(var TempBlob: Codeunit "Temp Blob"): Integer
-    var
-        JsonArray: JsonArray;
-        InStr: InStream;
-    begin
-        TempBlob.CreateInStream(InStr, TextEncoding::UTF8);
-
-        if not JsonArray.ReadFrom(InStr) then
-            exit(0);
-
-        exit(JsonArray.Count());
     end;
 
     local procedure SetAuthorizationHeader(var Headers: HttpHeaders; var LogiqAuth: Codeunit "Logiq Auth"; var LogiqConnectionUserSetup: Record "Logiq Connection User Setup")
@@ -297,26 +317,14 @@ codeunit 6432 "Logiq Integration Management"
             EDocumentsErrorHelper.LogSimpleErrorMessage(EDocument, StrSubstNo(this.SendingFailedErr, ResponseMessage.HttpStatusCode(), ResponseMessage.ReasonPhrase()));
     end;
 
-    local procedure ParseReceivedFileName(ContentTxt: Text; Index: Integer; var FileName: Text): Boolean
+    local procedure ParseReceivedFileName(ContentTxt: Text; var FileName: Text): Boolean
     var
-        JsonArray: JsonArray;
         JsonObj: JsonObject;
         JsonTok: JsonToken;
     begin
-        if not JsonArray.ReadFrom(ContentTxt) then
+        if not JsonObj.ReadFrom(ContentTxt) then
             exit(false);
 
-        if Index > JsonArray.Count() then
-            exit(false);
-
-        if Index = 0 then
-            JsonArray.Get(Index, JsonTok)
-        else
-            JsonArray.Get(Index - 1, JsonTok);
-        if not JsonTok.IsObject() then
-            exit(false);
-
-        JsonObj := JsonTok.AsObject();
         if not JsonObj.Get('fileName', JsonTok) then
             exit(false);
 
@@ -330,7 +338,6 @@ codeunit 6432 "Logiq Integration Management"
 
     var
         EDocumentErrorHelper: Codeunit "E-Document Error Helper";
-        EDocumentLogHelper: Codeunit "E-Document Log Helper";
         BlockedByEnvErr: Label 'Logiq E-Document API is blocked by environment';
         ContentTok: Label 'Content-Disposition: form-data; name="bizDoc"; filename="%1"', Locked = true;
         ContentTypeMultipartTok: Label 'Content-Type: text/xml', Locked = true;

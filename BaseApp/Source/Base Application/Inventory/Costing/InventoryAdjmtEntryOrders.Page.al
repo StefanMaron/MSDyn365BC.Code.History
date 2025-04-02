@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Costing;
 
 page 5816 "Inventory Adjmt. Entry Orders"
@@ -50,6 +54,31 @@ page 5816 "Inventory Adjmt. Entry Orders"
                     ToolTip = 'Specifies whether the cost of the order has been adjusted.';
                 }
             }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(Run)
+            {
+                Caption = 'Adjust cost for selected orders';
+                Image = Start;
+                ToolTip = 'Run the cost adjustment for the selected production and assembly orders.';
+
+                trigger OnAction()
+                var
+                    InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+                begin
+                    CurrPage.SetSelectionFilter(InventoryAdjmtEntryOrder);
+                    Rec.RunCostAdjustment(InventoryAdjmtEntryOrder);
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            actionref("Run_Promoted"; Run) { }
         }
     }
 }

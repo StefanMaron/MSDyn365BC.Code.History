@@ -45,29 +45,6 @@ table 5400 "Unit Group"
             else
             "Resource"."No.";
         }
-        field(4; "Code"; Code[50])
-        {
-            DataClassification = SystemMetadata;
-            Caption = 'Code';
-            Editable = false;
-            NotBlank = true;
-            ObsoleteReason = 'This field is not used. Please use GetCode procedure instead.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-        }
-        field(5; "Source Name"; Text[100])
-        {
-            DataClassification = SystemMetadata;
-            Caption = 'Source Name';
-            Editable = false;
-
-            TableRelation = if ("Source Type" = const(Item)) Item.Description
-            else
-            "Resource".Name;
-            ObsoleteReason = 'This field is not used. Please use GetSourceName procedure instead.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
-        }
         field(721; "Coupled to Dataverse"; Boolean)
         {
             Caption = 'Coupled to Dynamics 365 Sales';

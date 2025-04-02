@@ -1,3 +1,4 @@
+#if not CLEANSCHEMA25 
 namespace System.Security.AccessControl;
 
 using System.Environment;
@@ -68,3 +69,5 @@ table 9002 "User Group Access Control"
     }
 }
 
+ 
+#endif

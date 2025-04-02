@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Reports;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Reports;
 
 using Microsoft.CRM.Team;
 using Microsoft.Finance.Dimension;
@@ -300,6 +304,8 @@ report 5812 "Revaluation Posting - Test"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Revaluation Posting - Test';
+        AboutText = 'The Revaluation Posting - Test report is used to simulate the revaluation of inventory items without actually posting the changes. This report helps you review the potential impact of revaluation on your inventory values before committing to the changes. It provides a detailed preview of the adjustments that would be made to the inventory valuation, allowing you to verify and ensure accuracy.';
 
         layout
         {

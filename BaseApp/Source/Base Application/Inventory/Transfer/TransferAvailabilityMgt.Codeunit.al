@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Transfer;
 
 using Microsoft.Inventory.Availability;
@@ -43,7 +47,7 @@ codeunit 99000876 "Transfer Availability Mgt."
                   TransLine."Shipment Date", TransLine."Transfer-from Code", TransLine."Variant Code");
 
                 TransLine.FindLast();
-                TransLine.SetFilter("Transfer-to Code", Item.GetFilter("Location Filter"));
+                TransLine.SetFilter("Transfer-from Code", Item.GetFilter("Location Filter"));
                 TransLine.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                 TransLine.SetFilter("Shipment Date", Item.GetFilter("Date Filter"));
             until TransLine.Next() = 0;

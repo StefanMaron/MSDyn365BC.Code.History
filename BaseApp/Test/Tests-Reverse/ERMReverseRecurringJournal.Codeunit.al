@@ -423,7 +423,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateGLAccount(IncomeBalance: Option): Code[20]
+    local procedure CreateGLAccount(IncomeBalance: Enum "G/L Account Report Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
     begin

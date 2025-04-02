@@ -11,14 +11,6 @@ table 1307 "O365 Device Setup Instructions"
         {
             Caption = 'Key';
         }
-        field(10; "Setup URL"; Text[250])
-        {
-            Caption = 'Setup URL';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'This field is obsolete after refactoring.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
         field(11; "QR Code"; BLOB)
         {
             Caption = 'QR Code';
@@ -59,4 +51,3 @@ table 1307 "O365 Device Setup Instructions"
                 exit(ActivationCode);
     end;
 }
-

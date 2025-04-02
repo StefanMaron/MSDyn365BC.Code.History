@@ -307,6 +307,7 @@ page 9304 "Sales Return Order List"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Sales Header"), "No." = field("No."), "Document Type" = field("Document Type");
             }
@@ -351,6 +352,7 @@ page 9304 "Sales Return Order List"
             {
                 Caption = '&Return Order';
                 Image = Return;
+#if not CLEAN26
                 action(Statistics)
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -358,11 +360,41 @@ page 9304 "Sales Return Order List"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
 
                     trigger OnAction()
                     begin
                         Rec.OpenSalesOrderStatistics();
                     end;
+                }
+#endif
+                action(SalesOrderStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Enabled = Rec."No." <> '';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+#if CLEAN26
+                    Visible = true;
+#else
+                    Visible = false;
+#endif
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    RunObject = Page "Sales Order Statistics";
+                    RunPageOnRec = true;
+                }
+                action(CustomerStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Statistics';
+                    Image = Statistics;
+                    RunObject = Page "Customer Statistics";
+                    RunPageLink = "No." = field("Sell-to Customer No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the sell-to customer on the sales document.';
                 }
                 action(Dimensions)
                 {
@@ -853,9 +885,18 @@ page 9304 "Sales Return Order List"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN26
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
+#else
+                actionref(SalesOrderStatistics_Promoted; SalesOrderStatistics)
+                {
+                }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -921,4 +962,3 @@ page 9304 "Sales Return Order List"
     begin
     end;
 }
-

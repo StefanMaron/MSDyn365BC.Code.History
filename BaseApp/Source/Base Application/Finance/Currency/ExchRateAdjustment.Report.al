@@ -11,21 +11,13 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.HumanResources.Employee;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
-#if not CLEAN23
-using System.Environment;
-using System.Environment.Configuration;
-#endif
 
 report 596 "Exch. Rate Adjustment"
 {
-#if CLEAN23
     ApplicationArea = Basic, Suite;    
-#endif
     Caption = 'Exchange Rates Adjustment';
     ProcessingOnly = true;
-#if CLEAN23
     UsageCategory = Tasks;
-#endif
 
     dataset
     {
@@ -282,28 +274,12 @@ report 596 "Exch. Rate Adjustment"
 
     trigger OnInitReport()
     var
-#if not CLEAN23
-        FeatureKey: Record "Feature Key";
-        EnvironmentInformation: Codeunit "Environment Information";
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-        FeatureErrorInfo: ErrorInfo;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeOnInitReport(IsHandled);
         if IsHandled then
             exit;
-#if not CLEAN23
-        if not EnvironmentInformation.IsOnPrem() then
-            if not FeatureKeyManagement.IsExtensibleExchangeRateAdjustmentEnabled() then begin
-                FeatureKey.Get(FeatureKeyManagement.GetExtensibleExchangeRateAdjustmentFeatureKey());
-                FeatureErrorInfo.Title := FeatureDisabledTitleTxt;
-                FeatureErrorInfo.Message := StrSubstno(FeatureDisabledErrorTxt, FeatureKey.Description);
-                FeatureErrorInfo.AddAction(ShowFeatureManagementTxt, Codeunit::"Exch. Rate Adjmt. Run Handler", 'ShowFeatureManagement');
-                Error(FeatureErrorInfo);
-            end;
-#endif
     end;
 
     trigger OnPreReport()
@@ -378,11 +354,6 @@ report 596 "Exch. Rate Adjustment"
         FilterIsTooComplexErr: Label '%1 filter is too complex', Comment = '%1 - table caption';
         PostingDateNotInPeriodErr: Label 'This posting date cannot be entered because it does not occur within the adjustment period. Reenter the posting date.';
         ValuationReferenceDateErr: Label 'Short term liabilities until must not be before Valuation Reference Date.';
-#if not CLEAN23
-        FeatureDisabledErrorTxt: Label 'You should enable feature %1 to run Exchange Rates Adjustment report in Feature Management page.', Comment = '%1 - feature name';
-        FeatureDisabledTitleTxt: Label 'You cannot run Exchange Rates Adjustment report.';
-        ShowFeatureManagementTxt: Label 'Show Feature Management';
-#endif
 
     protected var
         ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters";

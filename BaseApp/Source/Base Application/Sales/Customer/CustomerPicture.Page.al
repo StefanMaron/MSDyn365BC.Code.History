@@ -25,7 +25,6 @@ page 785 "Customer Picture"
             {
                 ApplicationArea = All;
                 ShowCaption = false;
-                ToolTip = 'Specifies the picture of the customer, for example, a logo.';
             }
         }
     }

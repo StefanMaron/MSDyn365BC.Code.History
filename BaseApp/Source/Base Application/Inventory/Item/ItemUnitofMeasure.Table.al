@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
 using Microsoft.Assembly.Document;
@@ -6,7 +10,6 @@ using Microsoft.Integration.Dataverse;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Ledger;
@@ -309,8 +312,6 @@ table 5404 "Item Unit of Measure"
         CheckNoOutstandingQtyPurchLine();
         CheckNoOutstandingQtySalesLine();
         CheckNoOutstandingQtyTransferLine();
-        CheckNoRemQtyProdOrderLine();
-        CheckNoRemQtyProdOrderComponent();
         CheckNoRemQtyAssemblyHeader();
         CheckNoRemQtyAssemblyLine();
 
@@ -374,46 +375,6 @@ table 5404 "Item Unit of Measure"
             Error(
               CannotModifyUnitOfMeasureErr, TableCaption(), xRec.Code, "Item No.",
               TransferLine.TableCaption(), TransferLine.FieldCaption("Qty. to Ship"));
-    end;
-
-    local procedure CheckNoRemQtyProdOrderLine()
-    var
-        ProdOrderLine: Record "Prod. Order Line";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckNoRemQtyProdOrderLine(Rec, xRec, ProdOrderLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        ProdOrderLine.SetRange("Item No.", "Item No.");
-        ProdOrderLine.SetRange("Unit of Measure Code", Code);
-        ProdOrderLine.SetFilter("Remaining Quantity", '<>%1', 0);
-        ProdOrderLine.SetFilter(Status, '<>%1', ProdOrderLine.Status::Finished);
-        if not ProdOrderLine.IsEmpty() then
-            Error(
-              CannotModifyUnitOfMeasureErr, TableCaption(), xRec.Code, "Item No.",
-              ProdOrderLine.TableCaption(), ProdOrderLine.FieldCaption("Remaining Quantity"));
-    end;
-
-    local procedure CheckNoRemQtyProdOrderComponent()
-    var
-        ProdOrderComponent: Record "Prod. Order Component";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckNoRemQtyProdOrderComponent(Rec, xRec, ProdOrderComponent, IsHandled);
-        if IsHandled then
-            exit;
-
-        ProdOrderComponent.SetRange("Item No.", "Item No.");
-        ProdOrderComponent.SetRange("Unit of Measure Code", Code);
-        ProdOrderComponent.SetFilter("Remaining Quantity", '<>%1', 0);
-        ProdOrderComponent.SetFilter(Status, '<>%1', ProdOrderComponent.Status::Finished);
-        if not ProdOrderComponent.IsEmpty() then
-            Error(
-              CannotModifyUnitOfMeasureErr, TableCaption(), xRec.Code, "Item No.",
-              ProdOrderComponent.TableCaption(), ProdOrderComponent.FieldCaption("Remaining Quantity"));
     end;
 
     local procedure CheckNoRemQtyAssemblyHeader()
@@ -512,15 +473,31 @@ table 5404 "Item Unit of Measure"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckNoRemQtyProdOrderLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+#if not CLEAN26
+    internal procedure RunOnBeforeCheckNoRemQtyProdOrderLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var IsHandled: Boolean)
     begin
+        OnBeforeCheckNoRemQtyProdOrderLine(ItemUnitOfMeasure, xItemUnitOfMeasure, ProdOrderLine, IsHandled);
     end;
 
+    [Obsolete('Moved to codeunit Mfg. Item Integration', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckNoRemQtyProdOrderComponent(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckNoRemQtyProdOrderLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
+
+#if not CLEAN26
+    internal procedure RunOnBeforeCheckNoRemQtyProdOrderComponent(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckNoRemQtyProdOrderComponent(ItemUnitOfMeasure, xItemUnitOfMeasure, ProdOrderComponent, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Mfg. Inventory Integration', '26.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoRemQtyProdOrderComponent(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckNoOutstandingQtyPurchLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)

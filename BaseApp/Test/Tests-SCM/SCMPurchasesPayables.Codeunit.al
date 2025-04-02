@@ -66,7 +66,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Create Purchase Order with line and verify Date in line.
         // Setup: Update Manufacturing Setup.
-        Initialize(false);
+        Initialize();
         ManufacturingSetup.Get();
         Evaluate(DefaultSafetyLeadTime, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
         UpdateManufacturingSetup(DefaultSafetyLeadTime);
@@ -106,7 +106,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Create Purchase Order with line and Item Reference No in line.
         // Setup.
-        Initialize(true);
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreateVendor(Vendor);
 
@@ -128,7 +128,7 @@ codeunit 137061 "SCM Purchases & Payables"
     procedure B36070_SalesOrderShipOnly()
     begin
         // Processing a drop shipment sales order - ship sales Only.
-        Initialize(false);
+        Initialize();
         DropShipmentFromSalesOrder(true, false); // Ship,Invoice.
     end;
 
@@ -137,7 +137,7 @@ codeunit 137061 "SCM Purchases & Payables"
     procedure B36070_SalesOrderInvoice()
     begin
         // Processing a drop shipment sales order - ship & invoice sales.
-        Initialize(false);
+        Initialize();
         DropShipmentFromSalesOrder(true, true);
     end;
 
@@ -179,7 +179,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Processing a drop shipment sales order - only receive purchase.
         // Setup.
-        Initialize(false);
+        Initialize();
         CreateItem(Item);
         CreatePurchasingCode(Purchasing);
 
@@ -227,7 +227,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Processing a drop shipment sales order - receive & invoice purchase.
         // Setup.
-        Initialize(false);
+        Initialize();
         CreateItem(Item);
         CreatePurchasingCode(Purchasing);
 
@@ -262,7 +262,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Verify that the location code has changed on the Sales line.
         // Setup:
-        Initialize(false);
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
 
@@ -314,7 +314,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Verify that the location code has changed on the Purchase line.
         // Setup.
-        Initialize(false);
+        Initialize();
 
         // Create Item with Order Tracking
         CreateItemWithTracking(Item);
@@ -370,7 +370,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // [SCENARIO] Verify correct values in ILEs and in Item after Cost Adjustment (Average Costing Method), when multiple Item Journal lines posted with different Quantities and Unit Costs.
 
         // [GIVEN] Average Cost Period = Day, Automatic Cost Adjustment = Never, Item with Costing Method = Average.
-        Initialize(false);
+        Initialize();
         GeneralLedgerSetup.Get();
         InventorySetup.Get();
         ModifyInventorySetup(InventorySetup."Automatic Cost Adjustment"::Never, InventorySetup."Average Cost Period"::Day);
@@ -440,7 +440,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Post Invoice and delete Invoiced Purchase Orders.
         // 1. Setup.
-        Initialize(false);
+        Initialize();
         CreateItem(Item);
 
         // Create and Post Purchase orders and combine Purchase Receipts and post Invoice.
@@ -470,7 +470,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Post Credit Memo and delete Invoiced Purchase Return Orders.
         // 1. Setup.
-        Initialize(false);
+        Initialize();
         CreateItem(Item);
 
         // Create and Post Purchase Orders and combine Purchase Receipts and post Invoice.
@@ -505,7 +505,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Post Invoice and delete Invoiced Sales Orders.
         // 1. Setup.
-        Initialize(false);
+        Initialize();
         SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         CreateItem(Item);
@@ -542,7 +542,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // Post Credit Memo and delete Invoiced Sales Return Orders.
         // 1. Setup.
-        Initialize(false);
+        Initialize();
         SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         CreateItem(Item);
@@ -577,7 +577,7 @@ codeunit 137061 "SCM Purchases & Payables"
         LeadTimeCalculation: DateFormula;
     begin
         // Setup: Create Item. Create and Release a Purchase Order.
-        Initialize(false);
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", LibraryRandom.RandDec(100, 2));
 
@@ -606,7 +606,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // [SCENARIO] "Last Direct Cost" should be updated for SKU when Drop Shipment Purchase is Invoiced.
 
         // [GIVEN] Item with SKU for Location "L", "Last Direct Cost" set to "LDC".
-        Initialize(false);
+        Initialize();
         CreateItem(Item);
         LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::Location, false, false); // Create per Location
         Location.FindFirst();
@@ -659,7 +659,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // [FEATURE] [Purchase] [Indirect Cost]
         // [SCENARIO 219461] "Indirect Cost %" is populated successfully when "Unit Cost (LCY)" is populated by value greater than "Direct Unit Cost"
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchase Line with populated "Direct Unit Cost" = 10
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -684,7 +684,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // [FEATURE] [Purchase] [Indirect Cost]
         // [SCENARIO 219461] "Indirect Cost %" = 0 when "Unit Cost (LCY)" is populated by value less than "Direct Unit Cost".
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Purchase Line PL with populated "Direct Unit Cost"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -711,7 +711,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // [FEATURE] [Purchase] [Standard Cost]
         // [SCENARIO 255923] Item with standard costing method can be purchased with "Direct Unit Cost" greater than "Unit Cost". The difference is posted as variance.
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item with Costing Method = "Standard". Item."Unit Cost" = "X".
         LibraryInventory.CreateItem(Item);
@@ -750,7 +750,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // [FEATURE] [Posting Selection] [Order]
         // [SCENARIO 461826] Receiving and invoicing purchase order with "Prohibited" and "Mandatory" settings of invoice posting policy.
-        Initialize(false);
+        Initialize();
         Qty := LibraryRandom.RandInt(10);
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -788,7 +788,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // [FEATURE] [Posting Selection] [Order] [Invoice Posting Policy]
         // [SCENARIO 537525] Purchase order posting form PO list should respect User setting Purchase invoice Posting Policy
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Several Purchase Orders with random quantity.
         OrderCount := Random(5) + 1;
@@ -844,7 +844,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // [FEATURE] [Posting Selection] [Return Order]
         // [SCENARIO 461826] Shipping and invoicing purchase return order with "Prohibited" and "Mandatory" settings of invoice posting policy.
-        Initialize(false);
+        Initialize();
         Qty := LibraryRandom.RandInt(10);
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -881,7 +881,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // [FEATURE] [Posting Selection] [Order] [Inventory Put-away]
         // [SCENARIO 461826] Receiving and invoicing inventory put-away with "Prohibited" and "Mandatory" settings of invoice posting policy.
-        Initialize(false);
+        Initialize();
         Qty := 2 * LibraryRandom.RandInt(10);
 
         LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
@@ -927,7 +927,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // [FEATURE] [Posting Selection] [Invoice]
         // [SCENARIO 461826] Cannot post purchase invoice with "Prohibited" invoice posting policy.
-        Initialize(false);
+        Initialize();
         Qty := LibraryRandom.RandInt(10);
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -965,7 +965,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         // [SCENARIO] CalculateRemInventoryValue with no valuation date must filter value on the posting date
 
-        Initialize(false);
+        Initialize();
 
         // [GIVEN] Item I with unit cost X
         CreateItem(Item);
@@ -1009,13 +1009,12 @@ codeunit 137061 "SCM Purchases & Payables"
             CalcRemainingInvValueErr);
     end;
 
-    local procedure Initialize(Enable: Boolean)
+    local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Purchases & Payables");
-        LibraryItemReference.EnableFeature(Enable);
         LibraryVariableStorage.Clear();
         MessageCounter := 0;
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());

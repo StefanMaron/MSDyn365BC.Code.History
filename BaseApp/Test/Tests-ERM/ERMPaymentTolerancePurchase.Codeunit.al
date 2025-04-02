@@ -251,7 +251,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         DeferralTemplate: Record "Deferral Template";
         SourceCodeSetup: Record "Source Code Setup";
         DeferralCode: Code[10];
-        SameSourceCodeErr: Label 'Journal Source Code %1 is same as Source Code set for Purcase/Sales documents. This is not allowed when using deferrals. If you want to use this journal for deferrals, please update Source Codes on Gen Journal Template and generate line again.', Comment = '%1->Source Code';
+        SameSourceCodeErr: Label 'Journal Source Code %1 is same as Source Code set for Purchase/Sales documents. This is not allowed when using deferrals. If you want to use this journal for deferrals, please update Source Codes on Gen Journal Template and generate line again.', Comment = '%1->Source Code';
     begin
         Initialize();
 

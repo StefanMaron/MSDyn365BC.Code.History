@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Bank.BankAccount;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Bank.BankAccount;
 
 using Microsoft.Bank.Check;
 using Microsoft.Bank.Ledger;
@@ -379,14 +383,6 @@ table 270 "Bank Account"
         {
             Caption = 'Telex Answer Back';
         }
-        field(89; Picture; BLOB)
-        {
-            Caption = 'Picture';
-            ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Removed;
-            SubType = Bitmap;
-            ObsoleteTag = '18.0';
-        }
         field(91; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
@@ -659,13 +655,6 @@ table 270 "Bank Account"
         {
             Caption = 'Bank Clearing Standard';
             TableRelation = "Bank Clearing Standard";
-        }
-        field(1213; "Bank Name - Data Conversion"; Text[50])
-        {
-            Caption = 'Bank Name - Data Conversion';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Changed to AMC Banking 365 Fundamentals Extension';
-            ObsoleteTag = '15.0';
         }
         field(1250; "Match Tolerance Type"; Option)
         {
@@ -1584,4 +1573,3 @@ table 270 "Bank Account"
     begin
     end;
 }
-

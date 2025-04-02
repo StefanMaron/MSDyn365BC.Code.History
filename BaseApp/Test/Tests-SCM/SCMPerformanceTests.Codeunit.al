@@ -192,7 +192,7 @@ codeunit 137380 "SCM Performance Tests"
 
         // [GIVEN] Post output from production order, splitting it in several entries, 1 item in each output entry
         for I := 1 to Qty do
-            LibraryPatterns.POSTOutput(ProdOrderLine[1], 1, WorkDate(), Item."Unit Cost");
+            LibraryManufacturing.POSTOutput(ProdOrderLine[1], 1, WorkDate(), Item."Unit Cost");
 
         // [GIVEN] Another production order "P2" consuming item "I"
         LibraryManufacturing.CreateProductionOrder(ProdOrder, ProdOrder.Status::Released, ProdOrder."Source Type"::Item, Item."No.", Qty);
@@ -201,7 +201,7 @@ codeunit 137380 "SCM Performance Tests"
 
         // [WHEN] Post consumption in production order "P2"
         CodeCoverageMgt.StartApplicationCoverage();
-        LibraryPatterns.POSTConsumption(ProdOrderLine[2], Item, '', '', Qty, WorkDate(), Item."Unit Cost");
+        LibraryManufacturing.POSTConsumption(ProdOrderLine[2], Item, '', '', Qty, WorkDate(), Item."Unit Cost");
         CodeCoverageMgt.StopApplicationCoverage();
         NoOfHits :=
           GetCodeCoverageForObject(
@@ -1190,7 +1190,7 @@ codeunit 137380 "SCM Performance Tests"
     var
         ComponentItem: Record Item;
     begin
-        LibraryPatterns.MAKEItemSimple(ComponentItem, ComponentItem."Costing Method"::Average, LibraryPatterns.RandCost(ComponentItem));
+        LibraryInventory.CreateItemSimple(ComponentItem, ComponentItem."Costing Method"::Average, LibraryPatterns.RandCost(ComponentItem));
         CreateSNTrackedItemWithProduction(SubasmItem, ComponentItem);
         CreateSNTrackedItemWithProduction(OutputItem, SubasmItem);
     end;
@@ -1234,7 +1234,7 @@ codeunit 137380 "SCM Performance Tests"
         Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
         Item.Modify(true);
 
-        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, Item, ComponentItem, 1, '');
+        LibraryManufacturing.CreateProductionBOM(ProductionBOMHeader, Item, ComponentItem, 1, '');
     end;
 
     local procedure CreateTrackedItem(LotNos: Code[20]; SerialNos: Code[20]; ItemTrackingCode: Code[10]): Code[20]
@@ -1365,7 +1365,7 @@ codeunit 137380 "SCM Performance Tests"
         ProductionOrder: Record "Production Order";
         ItemJnlLine: Record "Item Journal Line";
     begin
-        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::Released, OutputItem, '', '', Quantity, WorkDate());
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, OutputItem, '', '', Quantity, WorkDate());
         PostProductionJournal(ProductionOrder, ItemJnlLine."Entry Type"::Output, SubasmItem."No.");
 
         NoOfLinesHit := GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Item Tracking Management", '');

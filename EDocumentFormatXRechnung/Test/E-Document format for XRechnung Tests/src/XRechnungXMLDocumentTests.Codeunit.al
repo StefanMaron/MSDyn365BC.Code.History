@@ -13,6 +13,7 @@ using Microsoft.Foundation.Address;
 using Microsoft.eServices.EDocument;
 using Microsoft.Sales.Document;
 using Microsoft.Finance.Currency;
+using Microsoft.eServices.EDocument.Integration;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.PaymentTerms;
 codeunit 13918 "XRechnung XML Document Tests"
@@ -952,7 +953,7 @@ codeunit 13918 "XRechnung XML Document Tests"
         CompanyInformation.Get();
         GeneralLedgerSetup.Get();
         EDocumentService.DeleteAll();
-        EDocumentService.Get(LibraryEdocument.CreateService("E-Document Format"::XRechnung, "E-Document Integration"::"No Integration"));
+        EDocumentService.Get(LibraryEdocument.CreateService("E-Document Format"::XRechnung, "Service Integration"::"No Integration"));
         Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"XRechnung XML Document Tests");

@@ -635,7 +635,7 @@ codeunit 137037 "SCM Inventory Adjustment"
     begin
         // Random values not important.
         LibraryManufacturing.CreateItemManufacturing(
-          Item, ItemCostingMethod, LibraryRandom.RandInt(5), Item."Reordering Policy", Item."Flushing Method"::Manual, '',
+          Item, ItemCostingMethod, LibraryRandom.RandInt(5), Item."Reordering Policy", Item."Flushing Method"::"Pick + Manual", '',
           ProductionBOMNo);
         Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
         Item.Modify(true);

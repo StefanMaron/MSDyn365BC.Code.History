@@ -461,10 +461,10 @@ page 7200 "CDS Connection Setup"
             action(CoupleUsers)
             {
                 ApplicationArea = Suite;
-                Caption = 'Couple Salespersons';
+                Caption = 'Couple Salespeople';
                 Enabled = Rec."Is Enabled" and (Rec."Ownership Model" = Rec."Ownership Model"::Person);
                 Image = CoupledUsers;
-                ToolTip = 'Open the list of users in Dataverse to manually couple them with salespersons in Business Central.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+                ToolTip = 'Open the list of users in Dataverse to manually couple them with salespeople in Business Central.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
                 var
@@ -522,51 +522,6 @@ page 7200 "CDS Connection Setup"
                     Message(SyncNowScheduledMsg, IntegrationSynchJobList.Caption());
                 end;
             }
-#if not CLEAN23
-            action(SetCoupledFlags)
-            {
-                ApplicationArea = Suite;
-                Caption = 'Mark Coupled Records';
-                Image = CoupledItem;
-                ToolTip = 'Set field ''Coupled to Dataverse'' to true for all records that are coupled to an entity in Dataverse.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Obsoleted by flow fields Coupled to Dataverse';
-                ObsoleteTag = '23.0';
-
-                trigger OnAction()
-                var
-                    JobQueueEntry: Record "Job Queue Entry";
-                    StartTime: DateTime;
-                begin
-                    StartTime := CurrentDateTime() + 1000;
-                    JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-                    JobQueueEntry.SetRange("Object ID to Run", Codeunit::"CDS Set Coupled Flags");
-                    JobQueueEntry.SetRange("Job Queue Category Code", JobQueueCategoryLbl);
-                    JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Ready);
-                    JobQueueEntry.SetFilter("Earliest Start Date/Time", '<=%1', StartTime);
-                    if not JobQueueEntry.IsEmpty() then begin
-                        JobQueueEntry.DeleteTasks();
-                        Commit();
-                    end;
-
-                    JobQueueEntry.Init();
-                    Clear(JobQueueEntry.ID); // "Job Queue - Enqueue" is to define new ID
-                    JobQueueEntry."Earliest Start Date/Time" := StartTime;
-                    JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
-                    JobQueueEntry."Object ID to Run" := Codeunit::"CDS Set Coupled Flags";
-                    JobQueueEntry."Run in User Session" := false;
-                    JobQueueEntry."Notify On Success" := false;
-                    JobQueueEntry."Maximum No. of Attempts to Run" := 2;
-                    JobQueueEntry."Job Queue Category Code" := JobQueueCategoryLbl;
-                    JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-                    JobQueueEntry."Rerun Delay (sec.)" := 30;
-                    JobQueueEntry.Description := CopyStr(SetCoupledFlagsJobDescriptionTxt, 1, MaxStrLen(JobQueueEntry.Description));
-                    Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry);
-                    Message(MarkingRecordsScheduledMsg);
-                end;
-            }
-#endif
             action(RebuildCouplingTable)
             {
                 ApplicationArea = Suite;
@@ -885,16 +840,6 @@ page 7200 "CDS Connection Setup"
                 {
                 }
             }
-#if not CLEAN23
-            group(Category_Category7)
-            {
-                Caption = 'Upgrade', Comment = 'Generated from the PromotedActionCategories property index 6.';
-
-                actionref(SetCoupledFlags_Promoted; SetCoupledFlags)
-                {
-                }
-            }
-#endif
             group(Category_Category8)
             {
                 Caption = 'Cloud Migration', Comment = 'Generated from the PromotedActionCategories property index 7.';
@@ -989,9 +934,6 @@ page 7200 "CDS Connection Setup"
         UserPassword: Text;
         [NonDebuggable]
         ClientSecret: Text;
-#if not CLEAN23
-        JobQueueCategoryLbl: Label 'BCI INTEG', Locked = true;
-#endif
         ResetIntegrationTableMappingConfirmQst: Label 'This will restore the default integration table mappings and synchronization jobs for Dataverse. All customizations to mappings and projects will be deleted. The default mappings and projects will be used the next time data is synchronized. Do you want to continue?';
         EncryptionIsNotActivatedQst: Label 'Data encryption is currently not enabled. We recommend that you encrypt data. \Do you want to open the Data Encryption Management window?';
         EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Dataverse Connection Setup)';
@@ -1012,9 +954,6 @@ page 7200 "CDS Connection Setup"
         SynchronizeModifiedQst: Label 'This will synchronize all modified records in all integration table mappings.\The synchronization will run in the background so you can continue with other tasks.\\Do you want to continue?';
         SyncNowScheduledMsg: Label 'Synchronization of modified records is scheduled.\You can view details on the %1 page.', Comment = '%1 = The localized caption of page Integration Synch. Job List';
         SetupSuccessfulMsg: Label 'The default setup for Dataverse synchronization has completed successfully.';
-#if not CLEAN23
-        MarkingRecordsScheduledMsg: Label 'The marking of the records that are coupled to an entity in Dataverse has been scheduled.';
-#endif
         DoYouWantToMakeSalesPeopleMappingQst: Label 'Do you want to map salespeople to users in Dataverse?';
         UsersAddedToTeamMsg: Label 'Count of users added to the default owning team: %1.', Comment = '%1 - count of users.';
         Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
@@ -1024,9 +963,6 @@ page 7200 "CDS Connection Setup"
         CDSConnDisabledOnPageTxt: Label 'The connection to Dataverse has been disabled from the Dataverse Connection Setup page', Locked = true;
         SuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solution has been successfully redeployed', Locked = true;
         UnsuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solution has failed to be redeployed', Locked = true;
-#if not CLEAN23
-        SetCoupledFlagsJobDescriptionTxt: Label 'Sets field ''Coupled to Dataverse'' to true for all records that are coupled to an entity in Dataverse.';
-#endif
         CertificateConnectionSetupTelemetryMsg: Label 'User has successfully set up the certificate connection to Dataverse.', Locked = true;
         CertificateConnectionSetupMsg: Label 'You have successfully upgraded the connection to Dataverse to use certificate-based OAuth 2.0 service-to-service authentication. Business Central has auto-generated a new integration user with user name %1 in your Dataverse environment. This user does not require a license.', Comment = '%1 - user name';
         TestServerAddressTok: Label '@@test@@', Locked = true;

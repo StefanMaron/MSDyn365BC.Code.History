@@ -4,12 +4,14 @@ using Microsoft.Finance.Analysis;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Period;
 using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Projects.Resources.Setup;
 using System.Utilities;
 
 codeunit 213 "Res. Jnl.-Post Batch"
 {
     Permissions = TableData "Res. Journal Batch" = rimd;
     TableNo = "Res. Journal Line";
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -27,6 +29,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
         ResJnlLine3: Record "Res. Journal Line";
         ResLedgEntry: Record "Res. Ledger Entry";
         ResReg: Record "Resource Register";
+        ResSetup: Record "Resources Setup";
         ResJnlCheckLine: Codeunit "Res. Jnl.-Check Line";
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
         NoSeriesBatch: Codeunit "No. Series - Batch";
@@ -55,9 +58,9 @@ codeunit 213 "Res. Jnl.-Post Batch"
     begin
         OnBeforeCode(ResJnlLine);
 
+        ResJnlLine.ReadIsolation(IsolationLevel::UpdLock);
         ResJnlLine.SetRange("Journal Template Name", ResJnlLine."Journal Template Name");
         ResJnlLine.SetRange("Journal Batch Name", ResJnlLine."Journal Batch Name");
-        ResJnlLine.LockTable();
 
         ResJnlTemplate.Get(ResJnlLine."Journal Template Name");
         ResJnlBatch.Get(ResJnlLine."Journal Template Name", ResJnlLine."Journal Batch Name");
@@ -100,13 +103,17 @@ codeunit 213 "Res. Jnl.-Post Batch"
         NoOfRecords := LineCount;
 
         // Find next register no.
-        ResLedgEntry.LockTable();
-        if ResLedgEntry.FindLast() then;
-        ResReg.LockTable();
-        if ResReg.FindLast() and (ResReg."To Entry No." = 0) then
-            ResRegNo := ResReg."No."
-        else
-            ResRegNo := ResReg."No." + 1;
+        if ResSetup.UseLegacyPosting() then begin
+            ResLedgEntry.LockTable();
+            if ResLedgEntry.FindLast() then;
+            ResReg.LockTable();
+            if ResReg.FindLast() and (ResReg."To Entry No." = 0) then
+                ResRegNo := ResReg."No."
+            else
+                ResRegNo := ResReg."No." + 1;
+        end;
+
+        BindSubscription(this);
 
         // Post lines
         LineCount := 0;
@@ -143,8 +150,9 @@ codeunit 213 "Res. Jnl.-Post Batch"
         OnCodeOnAfterPostJnlLines(ResJnlBatch, ResJnlLine, ResRegNo);
 
         // Copy register no. and current journal batch name to the res. journal
-        if not ResReg.FindLast() or (ResReg."No." <> ResRegNo) then
-            ResRegNo := 0;
+        if ResSetup.UseLegacyPosting() then
+            if not ResReg.FindLast() or (ResReg."No." <> ResRegNo) then
+                ResRegNo := 0;
 
         ResJnlLine.Init();
         ResJnlLine."Line No." := ResRegNo;
@@ -243,6 +251,13 @@ codeunit 213 "Res. Jnl.-Post Batch"
     begin
         if (ResJnlLine2."Resource No." <> '') and (ResJnlLine2."Recurring Method" <> 0) then
             AccountingPeriod.MakeRecurringTexts(ResJnlLine2."Posting Date", ResJnlLine2."Document No.", ResJnlLine2.Description);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Res. Jnl.-Post Line", 'OnAfterResLedgEntryInsert', '', false, false)]
+    local procedure OnAfterInsertResLedgEntry(var ResLedgerEntry: Record "Res. Ledger Entry"; ResJournalLine: Record "Res. Journal Line")
+    begin
+        if ResLedgerEntry."Resource Register No." > ResRegNo then
+            ResRegNo := ResLedgerEntry."Resource Register No.";
     end;
 
     [IntegrationEvent(false, false)]

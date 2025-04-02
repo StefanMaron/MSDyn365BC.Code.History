@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.MachineCenter;
 
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -312,6 +316,7 @@ table 99000758 "Machine Center"
         field(38; Blocked; Boolean)
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies whether the machine center is blocked from being posted in transactions, for example, if the machine center is out of order.';
         }
         field(39; "Date Filter"; Date)
         {
@@ -427,6 +432,7 @@ table 99000758 "Machine Center"
         field(60; "Flushing Method"; Enum "Flushing Method Routing")
         {
             Caption = 'Flushing Method';
+            ToolTip = 'Specifies the method to use to calculate and handle output at the machine center. Manual: Output must be posted manually by using the output journal. Forward: Output is automatically calculated and posted when you change the status of a simulated, planned (or firm planned) production order to Released. You can still post output manually from the output journal. Backward: Output is automatically calculated and posted when you change the status of a released production order to Finished. You can still post output manually from the output journal. The setting you make in this field is copied to the Flushing Method field on the production order routing line according to the machine/work center of the master routing, but you can change the field for an individual production order to allow a different output posting of that order.';
         }
         field(62; "Minimum Process Time"; Decimal)
         {
@@ -739,19 +745,39 @@ table 99000758 "Machine Center"
     end;
 
     procedure GetBinCodeForFlushingMethod(UseFlushingMethod: Boolean; FlushingMethod: Enum "Flushing Method") Result: Code[20]
+#if not CLEAN26
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+#endif
     begin
         if not UseFlushingMethod then
             exit("From-Production Bin Code");
 
-        case FlushingMethod of
-            FlushingMethod::Manual,
-          FlushingMethod::"Pick + Forward",
-          FlushingMethod::"Pick + Backward":
-                exit("To-Production Bin Code");
-            FlushingMethod::Forward,
-          FlushingMethod::Backward:
-                exit("Open Shop Floor Bin Code");
-        end;
+#if not CLEAN26
+        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
+            case FlushingMethod of
+                FlushingMethod::Manual,
+                FlushingMethod::"Pick + Manual",
+                FlushingMethod::"Pick + Forward",
+                FlushingMethod::"Pick + Backward":
+                    exit("To-Production Bin Code");
+                FlushingMethod::Forward,
+                FlushingMethod::Backward:
+                    exit("Open Shop Floor Bin Code");
+            end
+        else
+#endif
+            case FlushingMethod of
+                FlushingMethod::"Pick + Manual",
+                FlushingMethod::"Pick + Forward",
+                FlushingMethod::"Pick + Backward":
+                    exit("To-Production Bin Code");
+                FlushingMethod::Manual,
+                FlushingMethod::Forward,
+                FlushingMethod::Backward:
+                    exit("Open Shop Floor Bin Code");
+            end;
+
         OnAfterGetBinCodeForFlushingMethod(Rec, FlushingMethod, Result);
     end;
 

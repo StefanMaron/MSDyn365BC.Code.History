@@ -85,6 +85,17 @@ table 89 "Financial Report User Filters"
             Caption = 'Date Filter';
             DataClassification = SystemMetadata;
         }
+        field(16; "Excel Template Code"; Code[50])
+        {
+            Caption = 'Excel Template Code';
+            DataClassification = SystemMetadata;
+            TableRelation = "Fin. Report Excel Template"."Code" where("Financial Report Name" = field("Financial Report Name"));
+        }
+        field(17; NegativeAmountFormat; Enum "Analysis Negative Format")
+        {
+            Caption = 'Negative Amount Format';
+            DataClassification = SystemMetadata;
+        }
         field(51; "Row Definition"; Code[10])
         {
             Caption = 'Row Definition';

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
@@ -32,6 +36,12 @@ page 99000815 "Production Order List"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the description of the production order.';
+                }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Source No."; Rec."Source No.")
                 {
@@ -127,22 +137,6 @@ page 99000815 "Production Order List"
             {
                 Caption = 'Pro&d. Order';
                 Image = "Order";
-                action(Card)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Card';
-                    Image = EditLines;
-                    ShortCutKey = 'Shift+F7';
-                    ToolTip = 'View or change detailed information about the record on the document or journal line.';
-                    ObsoleteReason = 'Replaced by "Show Document" action';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-
-                    trigger OnAction()
-                    begin
-                        OpenSourceCard();
-                    end;
-                }
                 action(ShowDocument)
                 {
                     ApplicationArea = Manufacturing;
