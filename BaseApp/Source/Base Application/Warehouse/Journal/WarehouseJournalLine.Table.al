@@ -4,11 +4,11 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Counting.Journal;
+using Microsoft.Inventory.Counting.Tracking;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Setup;
@@ -16,7 +16,6 @@ using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Tracking;
 using Microsoft.Warehouse.Worksheet;
 using System.Security.AccessControl;
-using Microsoft.Inventory.Counting.Tracking;
 
 table 7311 "Warehouse Journal Line"
 {
@@ -887,7 +886,7 @@ table 7311 "Warehouse Journal Line"
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        if "Source Type" = Database::"Prod. Order Component" then begin
+        if "Source Type" = ProdOrderComponentSourceID() then begin
             ReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Journal Template Name", "Source Subline No.", true);
             ReservEntry.SetSourceFilter("Journal Batch Name", "Source Line No.");
         end else begin
@@ -899,6 +898,12 @@ table 7311 "Warehouse Journal Line"
             exit(ReservEntry."Quantity (Base)");
         exit("Qty. (Base)");
     end;
+
+    local procedure ProdOrderComponentSourceID(): Integer
+    begin
+        exit(5407);
+    end;
+
 
     local procedure GetItemUnitOfMeasure()
     begin

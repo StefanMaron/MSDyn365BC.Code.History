@@ -387,9 +387,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         DateCheckDone: Boolean;
         IsHandled: Boolean;
-#if not CLEAN23
-        IsDateErr: Boolean;
-#endif
     begin
         GenJnlLine.TestField("Posting Date", ErrorInfo.Create());
         if GenJnlLine."Posting Date" <> NormalDate(GenJnlLine."Posting Date") then begin
@@ -409,12 +406,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
             GenJnlLine.TestField("Journal Template Name", ErrorInfo.Create());
         OnBeforeDateNotAllowed(GenJnlLine, DateCheckDone);
         if not DateCheckDone then
-                if DateNotAllowed(GenJnlLine."Posting Date", GenJnlLine."Journal Template Name") then
-#if not CLEAN23
-                        IsDateErr := true;
-
-        if IsDateErr then
-#endif
+            if DateNotAllowed(GenJnlLine."Posting Date", GenJnlLine."Journal Template Name") then
                 GenJnlLine.FieldError("Posting Date", ErrorInfo.Create(Text001, true));
 
         if GenJnlLine."Document Date" <> 0D then

@@ -945,7 +945,7 @@ codeunit 9610 "XSD Parser"
         DataExchDef.InsertRec(XMLSchema.Code, XMLSchema.Description,
           DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
         DataExchDef."File Type" := DataExchDef."File Type"::Xml;
-        DataExchDef."Reading/Writing Codeunit" := CODEUNIT::"Import Bank Statement";
+        DataExchDef."Reading/Writing Codeunit" := Codeunit::"Import Bank Statement";
         DataExchDef.Modify();
 
         CreateDataExchColumnDefinitions(XMLSchema, DataExchDef);

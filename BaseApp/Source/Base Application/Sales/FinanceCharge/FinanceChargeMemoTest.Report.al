@@ -6,9 +6,6 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
-#if not CLEAN23
-using Microsoft.Foundation.Company;
-#endif
 using Microsoft.Sales.Customer;
 using System.Security.User;
 using System.Utilities;
@@ -93,20 +90,6 @@ report 123 "Finance Charge Memo - Test"
                 column(CustAddr_1_; CustAddr[1])
                 {
                 }
-#if not CLEAN23
-                column(CompanyInfoPlusGiroNo; CompanyInfo."Plus Giro No.")
-                {
-                    ObsoleteReason = 'Refer to the column CompanyInforPlusGiroNumber in the corresponding report extension from SE Core.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(CompanyInfoRegisteredOffice; CompanyInfo."Registered Office")
-                {
-                    ObsoleteReason = 'Refer to the column CompanyInfoRegisteredOfficeInfo in the corresponding report extension from SE Core.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-#endif
                 column(Finance_Charge_Memo_Header___Customer_No__; "Finance Charge Memo Header"."Customer No.")
                 {
                 }
@@ -684,12 +667,6 @@ report 123 "Finance Charge Memo - Test"
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                     AddError(DimMgt.GetDimValuePostingErr());
             end;
-#if not CLEAN23
-            trigger OnPreDataItem()
-            begin
-                CompanyInfo.Get();
-            end;
-#endif
         }
     }
 
@@ -726,11 +703,6 @@ report 123 "Finance Charge Memo - Test"
 
     labels
     {
-#if not CLEAN23
-        PlusGiroNoCaption = 'Plus Giro No.';
-        BoardOfDirLocCaption = 'Board of Directors Location (registered office)';
-        CompHasTaxAssNoteCaption = 'Company has Tax Assessment Note';
-#endif
     }
 
     trigger OnInitReport()
@@ -750,9 +722,6 @@ report 123 "Finance Charge Memo - Test"
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         DimSetEntry: Record "Dimension Set Entry";
         CurrExchRate: Record "Currency Exchange Rate";
-#if not CLEAN23
-        CompanyInfo: Record "Company Information";
-#endif
         DimMgt: Codeunit DimensionManagement;
         FormatAddr: Codeunit "Format Address";
         CustAddr: array[8] of Text[100];

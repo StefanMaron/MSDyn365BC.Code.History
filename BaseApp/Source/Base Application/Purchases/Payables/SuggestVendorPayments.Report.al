@@ -11,9 +11,6 @@ using Microsoft.Foundation.Company;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Purchases.Vendor;
 using System.Environment;
-#if not CLEAN23
-using System.Telemetry;
-#endif
 using System.Utilities;
 
 report 393 "Suggest Vendor Payments"
@@ -411,32 +408,6 @@ report 393 "Suggest Vendor Payments"
                             end;
                         }
                     }
-#if not CLEAN23
-                    field(PmtImmediatly; PmtImmediatly)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Payment Immediately';
-                        ObsoleteReason = 'The field is obsoleted because it is not used.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '23.0';
-                    }
-                    field(AlwaysInclCreditMemo; InclCreditMemo)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Always Include Credit Memos';
-                        ToolTip = 'Specifies whether to include credit memo information in the report.';
-                        ObsoleteReason = 'The field is obsoleted, use the events and filters if you want to treat credit memo differently.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '23.0';
-
-                        trigger OnValidate()
-                        var
-                            Telemetry: Codeunit Telemetry;
-                        begin
-                            Telemetry.LogMessage('0000F6Z', 'InclCreditMemo field is toggled', Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation);
-                        end;
-                    }
-#endif
                     group(Control22)
                     {
                         ShowCaption = false;
@@ -563,10 +534,6 @@ report 393 "Suggest Vendor Payments"
         ShowPostingDateWarning: Boolean;
         VendorBalance: Decimal;
         ServiceFieldsVisibiity: Boolean;
-#if not CLEAN23
-        PmtImmediatly: Boolean;
-        InclCreditMemo: Boolean;
-#endif
         JnlTemplateName: Code[10];
         JnlBatchName: Code[10];
 
@@ -687,11 +654,7 @@ report 393 "Suggest Vendor Payments"
 
     local procedure IncludeVendor(Vendor: Record Vendor; VendorBalance: Decimal) Result: Boolean
     begin
-#if not CLEAN23
-        Result := (VendorBalance > 0) or InclCreditMemo;
-#else
         Result := VendorBalance > 0;
-#endif
 
         OnAfterIncludeVendor(Vendor, VendorBalance, Result);
     end;
@@ -773,15 +736,8 @@ report 393 "Suggest Vendor Payments"
                 else
                     TempPayableVendorLedgerEntry.Delete();
             until TempPayableVendorLedgerEntry.Next() = 0;
-#if not CLEAN23
-            if (CurrencyBalance < 0) and (not InclCreditMemo) then begin
-                TempPayableVendorLedgerEntry.SetRange("Currency Code", PrevCurrency);
-                TempPayableVendorLedgerEntry.DeleteAll();
-                TempPayableVendorLedgerEntry.SetRange("Currency Code");
-            end else
-#endif
-                if OriginalAmtAvailable > 0 then
-                    AmountAvailable := AmountAvailable - CurrencyBalance;
+            if OriginalAmtAvailable > 0 then
+                AmountAvailable := AmountAvailable - CurrencyBalance;
             if (OriginalAmtAvailable > 0) and (AmountAvailable <= 0) then
                 StopPayments := true;
         end;
@@ -883,19 +839,10 @@ report 393 "Suggest Vendor Payments"
 
         Clear(TempOldVendorPaymentBuffer);
         TempVendorPaymentBuffer.SetCurrentKey("Document No.");
-#if not CLEAN23
-        if InclCreditMemo then
-            TempVendorPaymentBuffer.SetFilter("Vendor Ledg. Entry Doc. Type", '<>%1&<>%2',
-              TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Refund, TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Payment)
-        else
-            TempVendorPaymentBuffer.SetFilter(
-              "Vendor Ledg. Entry Doc. Type", '<>%1&<>%2&<>%3', TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::"Credit Memo",
-              TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Refund, TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Payment);
-#else
         TempVendorPaymentBuffer.SetFilter(
           "Vendor Ledg. Entry Doc. Type", '<>%1&<>%2', TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Refund,
           TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Payment);
-#endif
+
         if TempVendorPaymentBuffer.Find('-') then
             repeat
                 InsertGenJournalLine();
@@ -1115,11 +1062,7 @@ report 393 "Suggest Vendor Payments"
                 repeat
                     CurrencyBalance := CurrencyBalance + TempPayableVendorLedgerEntry."Amount (LCY)"
                 until TempPayableVendorLedgerEntry.Next() = 0;
-#if not CLEAN23
-                if (CurrencyBalance < 0) and (not InclCreditMemo) then begin
-#else
                 if CurrencyBalance < 0 then begin
-#endif
                     TempPayableVendorLedgerEntry.DeleteAll();
                     AmountAvailable += CurrencyBalance;
                 end;

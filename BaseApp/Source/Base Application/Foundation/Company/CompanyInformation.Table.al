@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Foundation.Company;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Company;
 
 using Microsoft.Bank.Setup;
 using Microsoft.EServices.OnlineMap;
@@ -6,7 +10,6 @@ using Microsoft.Finance.VAT.Registration;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.Enums;
-using Microsoft.Intercompany.GLAccount;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Utilities;
@@ -25,6 +28,7 @@ table 79 "Company Information"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; Name; Text[100])
@@ -322,41 +326,6 @@ table 79 "Company Information"
         {
             Caption = 'Industrial Classification';
         }
-        field(41; "IC Partner Code"; Code[20])
-        {
-            AccessByPermission = TableData "IC G/L Account" = R;
-            Caption = 'IC Partner Code';
-            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(42; "IC Inbox Type"; Option)
-        {
-            AccessByPermission = TableData "IC G/L Account" = R;
-            Caption = 'IC Inbox Type';
-            InitValue = Database;
-            OptionCaption = 'File Location,Database';
-            OptionMembers = "File Location",Database;
-            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(43; "IC Inbox Details"; Text[250])
-        {
-            AccessByPermission = TableData "IC G/L Account" = R;
-            Caption = 'IC Inbox Details';
-            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
-        field(44; "Auto. Send Transactions"; Boolean)
-        {
-            AccessByPermission = TableData "IC G/L Account" = R;
-            Caption = 'Auto. Send Transactions';
-            ObsoleteReason = 'Replaced by the same field from "IC Setup" table.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-        }
         field(46; "System Indicator"; Option)
         {
             Caption = 'System Indicator';
@@ -482,51 +451,22 @@ table 79 "Company Information"
             Caption = 'Cal. Convergence Time Frame';
             InitValue = '1Y';
         }
-        field(7602; "Show Chart On RoleCenter"; Boolean)
-        {
-            Caption = 'Show Chart On RoleCenter';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Only the Help and Chart Wrapper pages used this. The page has been changed to assume that this field is always set.';
-            ObsoleteTag = '18.0';
-        }
-        field(7603; "Sync with O365 Bus. profile"; Boolean)
-        {
-            Caption = 'Sync with O365 Bus. profile';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
-            ObsoleteTag = '20.0';
-        }
-        field(8000; Id; Guid)
-        {
-            Caption = 'Id';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This functionality will be replaced by the systemID field';
-            ObsoleteTag = '22.0';
-        }
+#if not CLEANSCHEMA26
         field(11200; "Plus Giro No."; Text[20])
         {
             Caption = 'Plus Giro No.';
             ObsoleteReason = 'The field is moved to SE Core extension, and renamed to "Plus Giro Number"';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
         field(11201; "Registered Office"; Text[20])
         {
             Caption = 'Registered Office';
             ObsoleteReason = 'The field is moved to SE Core extension, and renamed to "Registered Office Info"';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
     }
 
     keys
@@ -561,9 +501,6 @@ table 79 "Company Information"
         RecordHasBeenRead: Boolean;
 
         NotValidIBANErr: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?', Comment = '%1 - an actual IBAN';
-#if not CLEAN23
-        BoardOfDirectorsLocCaptionLbl: Label 'Board Of Directors Location (registered office)';
-#endif
         NoPaymentInfoQst: Label 'No payment information is provided in %1. Do you want to update it now?', Comment = '%1 = Company Information';
 #pragma warning disable AA0470
         NoPaymentInfoMsg: Label 'No payment information is provided in %1. Review the report.';
@@ -719,32 +656,6 @@ table 79 "Company Information"
             exit('');
         exit(FieldCaption("VAT Registration No."));
     end;
-
-#if not CLEAN23
-    [Obsolete('The procedure is obsoleted, directly access the field "Registered Office Info" from SE Core extension instead', '23.0')]
-    procedure GetLegalOffice(): Text
-    begin
-        exit("Registered Office");
-    end;
-
-    [Obsolete('The procedure is moved to SE Core extension', '23.0')]
-    procedure GetLegalOfficeLbl(): Text
-    begin
-        exit(BoardOfDirectorsLocCaptionLbl);
-    end;
-
-    [Obsolete('The procedure is obsoleted, directly access the field "Plus Giro Number" from SE Core extension instead', '23.0')]
-    procedure GetCustomGiro(): Text
-    begin
-        exit("Plus Giro No.");
-    end;
-
-    [Obsolete('The procedure is obsoleted, directly access the field "Plus Giro Number"''s Caption from SE Core extension instead', '23.0')]
-    procedure GetCustomGiroLbl(): Text
-    begin
-        exit(FieldCaption("Plus Giro No."));
-    end;
-#endif
 
     procedure GetRecordOnce()
     begin
@@ -906,4 +817,3 @@ table 79 "Company Information"
     begin
     end;
 }
-

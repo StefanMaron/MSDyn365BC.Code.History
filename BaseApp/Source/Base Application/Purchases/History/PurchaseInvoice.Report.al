@@ -89,26 +89,6 @@ report 406 "Purchase - Invoice"
             column(PayToContactEmail; PayToContact."E-Mail")
             {
             }
-#if not CLEAN23
-            column(PlusGiroNoCaption; PlusGiroNoCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column PlusGiroNumberCaption in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(BoardOfDirectorsLocCaption; BoardOfDirectorsLocCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column BoardOfDirectorsLocationCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(CompHasTaxAssessCaption; CompHasTaxAssessCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column CompanyHasTaxAssessCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-#endif
             dataitem(CopyLoop; "Integer")
             {
                 DataItemTableView = sorting(Number);
@@ -181,20 +161,6 @@ report 406 "Purchase - Invoice"
                     column(PayToVendNo_PurchInvHeader; "Purch. Inv. Header"."Pay-to Vendor No.")
                     {
                     }
-#if not CLEAN23
-                    column(CompanyInfoPlusGiroNo; CompanyInfo."Plus Giro No.")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInforPlusGiroNumber in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-                    column(CompanyInfoRegisteredOffice; CompanyInfo."Registered Office")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInfoRegisteredOfficeInfo in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-#endif
                     column(DocDate_PurchInvHeader; Format("Purch. Inv. Header"."Document Date"))
                     {
                     }
@@ -1065,11 +1031,6 @@ report 406 "Purchase - Invoice"
         PayToContactPhoneNoLbl: Label 'Pay-to Contact Phone No.';
         PayToContactMobilePhoneNoLbl: Label 'Pay-to Contact Mobile Phone No.';
         PayToContactEmailLbl: Label 'Pay-to Contact E-Mail';
-#if not CLEAN23
-        PlusGiroNoCaptionLbl: Label 'Plus Giro No.';
-        BoardOfDirectorsLocCaptionLbl: Label 'Board of Directors Location (registered office)';
-        CompHasTaxAssessCaptionLbl: Label 'Company has Tax Assessment Note';
-#endif
 
     protected var
         CompanyInfo: Record "Company Information";

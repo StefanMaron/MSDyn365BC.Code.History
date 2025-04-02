@@ -159,6 +159,7 @@ codeunit 9994 "API Data Upgrade"
                     'PURCHASE CREDIT MEMOS':
                         begin
                             UpgradePurchaseCreditMemoBuffer();
+                            UpgradePurchaseCreditMemoVendorCrMemoNo();
                             SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
                         end;
                     'FIXED ASSETS':
@@ -810,6 +811,37 @@ codeunit 9994 "API Data Upgrade"
 
         if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaseCreditMemoUpgradeTag()) then
             UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaseCreditMemoUpgradeTag());
+    end;
+
+    internal procedure UpgradePurchaseCreditMemoVendorCrMemoNo()
+    var
+        PurchCrMemoEntityBuffer: Record "Purch. Cr. Memo Entity Buffer";
+        PurchaseHeader: Record "Purchase Header";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        RecordCount: Integer;
+    begin
+        if PurchCrMemoEntityBuffer.FindSet() then
+            repeat
+                if PurchCrMemoEntityBuffer.Posted then begin
+                    PurchCrMemoHeader.SetLoadFields("No.", "Vendor Cr. Memo No.");
+                    if PurchCrMemoHeader.Get(PurchCrMemoEntityBuffer."No.") then
+                        if PurchCrMemoHeader."Vendor Cr. Memo No." <> '' then
+                            if PurchCrMemoHeader."Vendor Cr. Memo No." <> PurchCrMemoEntityBuffer."Vendor Cr. Memo No." then begin
+                                PurchCrMemoEntityBuffer."Vendor Cr. Memo No." := PurchCrMemoHeader."Vendor Cr. Memo No.";
+                                PurchCrMemoEntityBuffer.Modify();
+                                CountRecordsAndCommit(RecordCount);
+                            end;
+                end else begin
+                    PurchaseHeader.SetLoadFields("No.", "Document Type", "Vendor Cr. Memo No.");
+                    if PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", PurchCrMemoEntityBuffer."No.") then
+                        if PurchaseHeader."Vendor Cr. Memo No." <> '' then
+                            if PurchaseHeader."Vendor Cr. Memo No." <> PurchCrMemoEntityBuffer."Vendor Cr. Memo No." then begin
+                                PurchCrMemoEntityBuffer."Vendor Cr. Memo No." := PurchaseHeader."Vendor Cr. Memo No.";
+                                PurchCrMemoEntityBuffer.Modify();
+                                CountRecordsAndCommit(RecordCount);
+                            end;
+                end;
+            until PurchCrMemoEntityBuffer.Next() = 0;
     end;
 
     internal procedure UpgradeSalesOrderShipmentMethod()

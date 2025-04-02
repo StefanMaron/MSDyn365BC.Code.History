@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Team;
@@ -74,26 +78,6 @@ report 5912 "Service - Credit Memo"
             column(InvDiscountAmountCaption; InvDiscountAmountCaptionLbl)
             {
             }
-#if not CLEAN23
-            column(PlusGiroNoCaption; PlusGiroNoCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column PlusGiroNumberCaption in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(BoardOfDirLocCaption; BoardOfDirLocCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column BoardOfDirectorsLocationCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(CompHasTaxAssNoteCaption; CompHasTaxAssNoteCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column CompanyHasTaxAssessCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-#endif
             dataitem(CopyLoop; "Integer")
             {
                 DataItemTableView = sorting(Number);
@@ -160,20 +144,6 @@ report 5912 "Service - Credit Memo"
                     column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
-#if not CLEAN23
-                    column(CompanyInfoPlusGiroNo; CompanyInfo."Plus Giro No.")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInforPlusGiroNumber in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-                    column(CompanyInfoRegisteredOffice; CompanyInfo."Registered Office")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInfoRegisteredOfficeInfo in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-#endif
                     column(BillToCustNo_ServiceCrMemoHeader; "Service Cr.Memo Header"."Bill-to Customer No.")
                     {
                     }
@@ -833,11 +803,6 @@ report 5912 "Service - Credit Memo"
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
         InvDiscountAmountCaptionLbl: Label 'Invoice Discount Amount';
         SubtotalCaptionLbl: Label 'Subtotal';
-#if not CLEAN23
-        PlusGiroNoCaptionLbl: Label 'Plus Giro No.';
-        BoardOfDirLocCaptionLbl: Label 'Board of Directors Location (registered office)';
-        CompHasTaxAssNoteCaptionLbl: Label 'Company has Tax Assessment Note';
-#endif
 
     protected var
         CompanyInfo: Record "Company Information";

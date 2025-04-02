@@ -7,8 +7,6 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Family;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Planning;
@@ -118,26 +116,6 @@ codeunit 7302 "WMS Management"
         OnAfterCreateWhseJnlLine(WhseJnlLine, ItemJnlLine, ToTransfer);
         exit(true);
     end;
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    procedure CreateWhseJnlLineFromOutputJnl(ItemJnlLine: Record "Item Journal Line"; var WhseJnlLine: Record "Warehouse Journal Line"): Boolean
-    var
-        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
-    begin
-        exit(ProdOrderWarehouseMgt.CreateWhseJnlLineFromOutputJournal(ItemJnlLine, WhseJnlLine));
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    procedure CreateWhseJnlLineFromConsumJnl(ItemJnlLine: Record "Item Journal Line"; var WhseJnlLine: Record "Warehouse Journal Line"): Boolean
-    var
-        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
-    begin
-        exit(ProdOrderWarehouseMgt.CreateWhseJnlLineFromConsumptionJournal(ItemJnlLine, WhseJnlLine));
-    end;
-#endif
 
     procedure CheckWhseJnlLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; SourceJnl: Option " ",ItemJnl,OutputJnl,ConsumpJnl,WhseJnl; DecreaseQtyBase: Decimal; ToTransfer: Boolean)
     var
@@ -1278,26 +1256,6 @@ codeunit 7302 "WMS Management"
         PAGE.RunModal(PAGE::"Whse. Internal Pick Lines", WhseInternalPickLine);
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    procedure ShowProdOrderLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer)
-    var
-        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
-    begin
-        ProdOrderWarehouseMgt.ShowProdOrderLine(WhseDocNo, WhseDocLineNo);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit "Assembly Warehouse Mgt."', '23.0')]
-    procedure ShowAssemblyLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer)
-    var
-        AssemblyWarehouseMgt: Codeunit Microsoft.Assembly.Document."Assembly Warehouse Mgt.";
-    begin
-        AssemblyWarehouseMgt.ShowAssemblyLine(WhseDocNo, WhseDocLineNo);
-    end;
-#endif
-
     procedure ShowWhseActivityDocLine(WhseActivityDocType: Enum "Warehouse Activity Document Type"; WhseDocNo: Code[20]; WhseDocLineNo: Integer)
     begin
         case WhseActivityDocType of
@@ -1618,7 +1576,7 @@ codeunit 7302 "WMS Management"
         ReservEntry.SetCurrentKey(
           "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
           "Source Batch Name", "Source Prod. Order Line", "Reservation Status");
-        if SourceType = Database::"Prod. Order Component" then begin
+        if SourceType = 5407 then begin // Database::"Prod. Order Component"
             ReservEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceSubLineNo, true);
             ReservEntry.SetSourceFilter('', SourceLineNo);
         end else begin
@@ -1644,14 +1602,13 @@ codeunit 7302 "WMS Management"
     end;
 
     procedure GetCaptionClass(DestType: Enum "Warehouse Destination Type"; SourceDoc: Enum "Warehouse Activity Source Document";
-                                            Selection: Integer): Text[50]
+                                            Selection: Integer) CaptionClass: Text[50]
     var
         PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;
         Customer: Record Customer;
         Location2: Record Location;
         Item2: Record Item;
-        Family: Record Family;
         SalesHeader: Record "Sales Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
@@ -1666,12 +1623,15 @@ codeunit 7302 "WMS Management"
                         exit(Location2.TableCaption() + ' ' + Location2.FieldCaption(Code));
                     DestType::Item:
                         exit(Item2.TableCaption() + ' ' + Item2.FieldCaption("No."));
-                    DestType::Family:
-                        exit(Family.TableCaption() + ' ' + Family.FieldCaption("No."));
                     DestType::"Sales Order":
                         exit(Text009 + ' ' + SalesHeader.FieldCaption("No."));
-                    else
-                        exit(CopyStr(WarehouseActivityHeader.FieldCaption("Destination No."), 1, 50));
+                    else begin
+                        OnGetCaptionClass(DestType, Selection, CaptionClass);
+                        if CaptionClass <> '' then
+                            exit(CaptionClass)
+                        else
+                            exit(CopyStr(WarehouseActivityHeader.FieldCaption("Destination No."), 1, 50));
+                    end;
                 end;
             1:
                 case DestType of
@@ -1683,8 +1643,6 @@ codeunit 7302 "WMS Management"
                         exit(Location2.TableCaption() + ' ' + Location2.FieldCaption(Name));
                     DestType::Item:
                         exit(Item2.TableCaption() + ' ' + Item2.FieldCaption(Description));
-                    DestType::Family:
-                        exit(Family.TableCaption() + ' ' + Family.FieldCaption(Description));
                     DestType::"Sales Order":
                         exit(Text009 + ' ' + SalesHeader.FieldCaption("Sell-to Customer Name"));
                     else
@@ -1716,7 +1674,6 @@ codeunit 7302 "WMS Management"
         Customer: Record Customer;
         Location2: Record Location;
         Item2: Record Item;
-        Family: Record Family;
         SalesHeader: Record "Sales Header";
         IsHandled: Boolean;
     begin
@@ -1738,9 +1695,6 @@ codeunit 7302 "WMS Management"
             DestinationType::Item:
                 if Item2.Get(DestNo) then
                     exit(Item2.Description);
-            DestinationType::Family:
-                if Family.Get(DestNo) then
-                    exit(Family.Description);
             DestinationType::"Sales Order":
                 if SalesHeader.Get(SalesHeader."Document Type"::Order, DestNo) then
                     exit(SalesHeader."Sell-to Customer Name");
@@ -1913,70 +1867,6 @@ codeunit 7302 "WMS Management"
         end;
     end;
 
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    procedure GetLastOperationLocationCode(RoutingNo: Code[20]; RoutingVersionCode: Code[20]): Code[10]
-    var
-        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
-    begin
-        exit(ProdOrderWarehouseMgt.GetLastOperationLocationCode(RoutingNo, RoutingVersionCode));
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    procedure GetLastOperationFromBinCode(RoutingNo: Code[20]; RoutingVersionCode: Code[20]; LocationCode: Code[10]; UseFlushingMethod: Boolean; FlushingMethod: Option Manual,Forward,Backward,"Pick + Forward","Pick + Backward"): Code[20]
-    var
-        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
-    begin
-        exit(
-            ProdOrderWarehouseMgt.GetLastOperationFromBinCode(
-                RoutingNo, RoutingVersionCode, LocationCode, UseFlushingMethod, Enum::Microsoft.Manufacturing.Setup."Flushing Method".FromInteger(FlushingMethod)));
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    procedure GetProdRoutingLastOperationFromBinCode(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; RoutingRefNo: Integer; RoutingNo: Code[20]; LocationCode: Code[10]): Code[20]
-    var
-        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
-    begin
-        ProdOrderWarehouseMgt.GetProdRoutingLastOperationFromBinCode(ProdOrderStatus, ProdOrderNo, RoutingRefNo, RoutingNo, LocationCode);
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    procedure GetPlanningRtngLastOperationFromBinCode(WkshTemplateName: Code[10]; WkshBatchName: Code[10]; WkshLineNo: Integer; LocationCode: Code[10]): Code[20]
-    var
-        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
-    begin
-        exit(ProdOrderWarehouseMgt.GetPlanningRtngLastOperationFromBinCode(WkshTemplateName, WkshBatchName, WkshLineNo, LocationCode));
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    procedure GetProdCenterLocationCode(Type: Enum Microsoft.Manufacturing.Capacity."Capacity Type"; No: Code[20]): Code[10]
-    var
-        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
-    begin
-        exit(ProdOrderWarehouseMgt.GetProdCenterLocationCode(Type, No));
-    end;
-#endif
-
-#if not CLEAN23
-    [Obsolete('Replaced by same procedure in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    procedure GetProdCenterBinCode(Type: Enum Microsoft.Manufacturing.Capacity."Capacity Type"; No: Code[20]; LocationCode: Code[10]; UseFlushingMethod: Boolean; FlushingMethod: Option Manual,Forward,Backward,"Pick + Forward","Pick + Backward"): Code[20]
-    var
-        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
-    begin
-        exit(
-            ProdOrderWarehouseMgt.GetProdCenterBinCode(
-                Type, No, LocationCode, UseFlushingMethod, Enum::Microsoft.Manufacturing.Setup."Flushing Method".FromInteger(FlushingMethod)));
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckBlockedBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; CheckInbound: Boolean)
     begin
@@ -1996,32 +1886,6 @@ codeunit 7302 "WMS Management"
     local procedure OnAfterCreateWhseJnlLine(var WhseJournalLine: Record "Warehouse Journal Line"; ItemJournalLine: Record "Item Journal Line"; ToTransfer: Boolean)
     begin
     end;
-
-#if not CLEAN23
-    internal procedure RunOnAfterCreateWhseJnlLineFromConsumJnl(var WhseJournalLine: Record "Warehouse Journal Line"; ItemJournalLine: Record "Item Journal Line")
-    begin
-        OnAfterCreateWhseJnlLineFromConsumJnl(WhseJournalLine, ItemJournalLine);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnAfterCreateWhseJnlLineFromConsumptionJournal in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    local procedure OnAfterCreateWhseJnlLineFromConsumJnl(var WhseJournalLine: Record "Warehouse Journal Line"; ItemJournalLine: Record "Item Journal Line")
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnAfterCreateWhseJnlLineFromOutputJnl(var WhseJournalLine: Record "Warehouse Journal Line"; ItemJournalLine: Record "Item Journal Line")
-    begin
-        OnAfterCreateWhseJnlLineFromOutputJnl(WhseJournalLine, ItemJournalLine);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnAfterCreateWhseJnlLineFromOutputJournal in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    local procedure OnAfterCreateWhseJnlLineFromOutputJnl(var WhseJournalLine: Record "Warehouse Journal Line"; ItemJournalLine: Record "Item Journal Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetWhseJnlLineBinCode(SourceCode: Code[10]; BinCode: Code[20]; AdjBinCode: Code[20]; SourceCodeSetup: Record "Source Code Setup"; var Result: Code[20])
@@ -2108,36 +1972,10 @@ codeunit 7302 "WMS Management"
     begin
     end;
 
-#if not CLEAN23
-    internal procedure RunOnBeforeCheckProdOrderCompLineQtyPickedBase(var ProdOrderCompLine: Record "Prod. Order Component"; ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
-    begin
-        OnBeforeCheckProdOrderCompLineQtyPickedBase(ProdOrderCompLine, ItemJnlLine, IsHandled);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnBeforeCheckProdOrderComponentQtyPickedBase in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    local procedure OnBeforeCheckProdOrderCompLineQtyPickedBase(var ProdOrderCompLine: Record "Prod. Order Component"; ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmExceededCapacity(var IsHandled: Boolean; BinCode: Code[20]; CheckFieldCaption: Text[100]; CheckTableCaption: Text[100]; ValueToPutAway: Decimal; ValueAvailable: Decimal)
     begin
     end;
-
-#if not CLEAN23
-    internal procedure RunOnBeforeCreateWhseJnlLineFromOutputJnl(ItemJnlLine: Record "Item Journal Line")
-    begin
-        OnBeforeCreateWhseJnlLineFromOutputJnl(ItemJnlLine);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnBeforeCreateWhseJnlLineFromOutputJournal in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    local procedure OnBeforeCreateWhseJnlLineFromOutputJnl(ItemJnlLine: Record "Item Journal Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateWhseJnlLine(var ItemJnlLine: Record "Item Journal Line"; ItemJnlTemplateType: Option; var WhseJnlLine: Record "Warehouse Journal Line"; ToTransfer: Boolean; var IsHandled: Boolean)
@@ -2219,19 +2057,6 @@ codeunit 7302 "WMS Management"
     begin
     end;
 
-#if not CLEAN23
-    internal procedure RunOnCreateWhseJnlLineFromOutputJnlOnAfterInitWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; var ItemJnlLine: Record "Item Journal Line")
-    begin
-        OnCreateWhseJnlLineFromOutputJnlOnAfterInitWhseJnlLine(WhseJnlLine, ItemJnlLine);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnCreateWhseJnlLineFromOutputJnlOnAfterInitWhseJnlLine in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    local procedure OnCreateWhseJnlLineFromOutputJnlOnAfterInitWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; var ItemJnlLine: Record "Item Journal Line")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWhseJnlLineTracking(var WhseJnlLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
     begin
@@ -2247,19 +2072,6 @@ codeunit 7302 "WMS Management"
     begin
     end;
 
-#if not CLEAN23
-    internal procedure RunOnSetZoneAndBinsForConsumptionOnBeforeCheckQtyPicked(ItemJournalLine: Record "Item Journal Line"; var ProdOrderComponent: Record "Prod. Order Component")
-    begin
-        OnSetZoneAndBinsForConsumptionOnBeforeCheckQtyPicked(ItemJournalLine, ProdOrderComponent);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    local procedure OnSetZoneAndBinsForConsumptionOnBeforeCheckQtyPicked(ItemJournalLine: Record "Item Journal Line"; var ProdOrderComponent: Record "Prod. Order Component")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnShowPostedSourceDoc(PostedSourceDoc: Option; PostedSourceNo: Code[20])
     begin
@@ -2269,84 +2081,6 @@ codeunit 7302 "WMS Management"
     local procedure OnShowSourceDocCard(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20])
     begin
     end;
-
-#if not CLEAN23
-    internal procedure RunOnShowSourceDocLineOnBeforeShowSalesLines(var SalesLine: Record "Sales Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
-    begin
-        OnShowSourceDocLineOnBeforeShowSalesLines(SalesLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnBeforeShowSalesLines() in codeunit "Service Warehouse Mgt."', '23.0')]
-    local procedure OnShowSourceDocLineOnBeforeShowSalesLines(var SalesLine: Record "Sales Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnShowSourceDocLineOnBeforeShowPurchLines(var PurchLine: Record "Purchase Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
-    begin
-        OnShowSourceDocLineOnBeforeShowPurchLines(PurchLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnBeforeShowPurchaseLines() in codeunit "Purchases Warehouse Mgt."', '23.0')]
-    local procedure OnShowSourceDocLineOnBeforeShowPurchLines(var PurchLine: Record "Purchase Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnShowSourceDocLineOnBeforeShowServiceLines(var ServiceLine: Record Microsoft.Service.Document."Service Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
-    begin
-        OnShowSourceDocLineOnBeforeShowServiceLines(ServiceLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnBeforeShowServiceLines() in codeunit "Service Warehouse Mgt."', '23.0')]
-    local procedure OnShowSourceDocLineOnBeforeShowServiceLines(var ServiceLine: Record Microsoft.Service.Document."Service Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnShowSourceDocLineOnBeforeShowTransLines(var TransferLine: Record "Transfer Line"; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
-    begin
-        OnShowSourceDocLineOnBeforeShowTransLines(TransferLine, SourceNo, SourceLineNo, IsHandled);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnBeforeShowTransferLines() in codeunit "Transfer Warehouse Mgt."', '23.0')]
-    local procedure OnShowSourceDocLineOnBeforeShowTransLines(var TransferLine: Record "Transfer Line"; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnShowSourceDocLineOnBeforeShowAssemblyLines(var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
-    begin
-        OnShowSourceDocLineOnBeforeShowAssemblyLines(AssemblyLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnBeforeShowAssemblyLines() in codeunit "Assembly Warehouse Mgt."', '23.0')]
-    local procedure OnShowSourceDocLineOnBeforeShowAssemblyLines(var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
-#if not CLEAN23
-    internal procedure RunOnShowSourceDocLineOnBeforeShowProdOrderComp(var ProdOrderComp: Record "Prod. Order Component"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var IsHandled: Boolean)
-    begin
-        OnShowSourceDocLineOnBeforeShowProdOrderComp(ProdOrderComp, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, IsHandled);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnBeforeShowProdOrderComponents() in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    local procedure OnShowSourceDocLineOnBeforeShowProdOrderComp(var ProdOrderComp: Record "Prod. Order Component"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnShowSourceDocLine(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
@@ -2362,19 +2096,6 @@ codeunit 7302 "WMS Management"
     local procedure OnCheckWhseJnlLineOnBeforeCheckBySourceJnl(var WhseJnlLine: Record "Warehouse Journal Line"; var Bin: Record Bin; SourceJnl: Option; var BinContent: Record "Bin Content"; Location: Record Location; DecreaseQtyBase: Decimal; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN23
-    internal procedure RunOnBeforeSetZoneAndBinsForConsumption(ItemJnlLine: Record "Item Journal Line"; var ProdOrderCompLine: Record "Prod. Order Component"; var WhseJnlLine: Record "Warehouse Journal Line"; Location: Record Location; var IsHandled: Boolean)
-    begin
-        OnBeforeSetZoneAndBinsForConsumption(ItemJnlLine, ProdOrderCompLine, WhseJnlLine, Location, IsHandled);
-    end;
-
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnBeforeSetZoneAndBinsForConsumption() in codeunit "Prod. Order Warehouse Mgt."', '23.0')]
-    local procedure OnBeforeSetZoneAndBinsForConsumption(ItemJnlLine: Record "Item Journal Line"; var ProdOrderCompLine: Record "Prod. Order Component"; var WhseJnlLine: Record "Warehouse Journal Line"; Location: Record Location; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeTransferWhseItemTracking(var WarehouseJournalLine: Record "Warehouse Journal Line"; var ItemJournalLine: Record "Item Journal Line"; var ItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean)
@@ -2418,6 +2139,11 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnSerialNoOnInventoryOnBeforeCalcQtyBase(var WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCaptionClass(DestinationType: Enum "Warehouse Destination Type"; Selection: Integer; var CaptionClass: Text[50])
     begin
     end;
 

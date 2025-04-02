@@ -17,7 +17,6 @@ codeunit 134326 "ERM Purchase Blanket Order"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryResource: Codeunit "Library - Resource";
@@ -1438,10 +1437,10 @@ codeunit 134326 "ERM Purchase Blanket Order"
         Item.Modify(true);
 
         // Create Extended Text Header and Line.
-        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
         ExtendedTextHeader.Validate("Purchase Blanket Order", false);
         ExtendedTextHeader.Modify(true);
-        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         ExtendedTextLine.Validate(Text, Item."No.");
         ExtendedTextLine.Modify(true);
         exit(Item."No.");

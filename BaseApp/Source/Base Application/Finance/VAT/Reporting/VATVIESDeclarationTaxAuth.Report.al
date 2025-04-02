@@ -44,15 +44,6 @@ report 19 "VAT- VIES Declaration Tax Auth"
             column(CompanyInfoVATRegNo; CompanyInfo."VAT Registration No.")
             {
             }
-#if not CLEAN23
-            column(TotalAmount; VATEntriesBaseAmtSum.Sum_Base)
-            {
-                DecimalPlaces = 0 : 0;
-                    ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-            }
-#endif
             column(CompanyAddr6; CompanyAddr[6])
             {
             }
@@ -278,11 +269,6 @@ report 19 "VAT- VIES Declaration Tax Auth"
         ErrorTextCaption = 'Warning!';
         DateCaption = 'Date';
         SignatureCaption = 'Signature';
-#if not CLEAN23
-        TotalAmountforItemsCaption = 'Total Sales of Items in the period';
-        TotalAmountforServicesCaption = 'Total Sales of Services to EU in the period';
-        TotalAmountfor3PartyCaption = 'Total Sales of EU 3-Party Item Trade in the period';
-#endif
     }
 
     trigger OnInitReport()
@@ -317,8 +303,6 @@ report 19 "VAT- VIES Declaration Tax Auth"
         HeaderText: Text[50];
         CountryBlank: Boolean;
         ShowError: Boolean;
-#if not CLEAN23
-#endif
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'All amounts are in %1.';

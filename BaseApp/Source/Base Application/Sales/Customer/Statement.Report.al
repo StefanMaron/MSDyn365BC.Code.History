@@ -29,26 +29,6 @@ report 116 Statement
             column(No_Cust; "No.")
             {
             }
-#if not CLEAN23
-            column(BoardOfDirLocCaption; BoardOfDirLocCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column BoardOfDirectorsLocationCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(CompHasTaxAssNoteCaption; CompHasTaxAssNoteCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column CompanyHasTaxAssessCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(PlusGiroNoCaption; PlusGiroNoCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column PlusGiroNumberCaption in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-#endif
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = sorting(Number) where(Number = const(1));
@@ -113,35 +93,12 @@ report 116 Statement
                 column(BankAccNo_CompanyInfo; CompanyInfo."Bank Account No.")
                 {
                 }
-#if not CLEAN23
-                column(CompanyInfoPlusGiroNo; CompanyInfo."Plus Giro No.")
-                {
-                    ObsoleteReason = 'Refer to the column CompanyInforPlusGiroNumber in the corresponding report extension from SE Core.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(CompanyInfoRegisteredOffice; CompanyInfo."Registered Office")
-                {
-                    ObsoleteReason = 'Refer to the column CompanyInfoRegisteredOfficeInfo in the corresponding report extension from SE Core.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-#endif
                 column(No1_Cust; Customer."No.")
                 {
                 }
-#if not CLEAN23
-                column(TodayFormatted; Format(Today, 0, 4))
-                {
-                    ObsoleteReason = 'Refer to the column TodayFormatted_0_4 in the corresponding report extension from SE Core, the culumn TodayFormatted will be replaced by default formmatting.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-#else
                 column(TodayFormatted; Format(Today))
                 {
                 }
-#endif
                 column(StartDate; Format(StartDate))
                 {
                 }
@@ -163,28 +120,12 @@ report 116 Statement
                 column(CompanyAddr8; CompanyAddr[8])
                 {
                 }
-#if not CLEAN23
-                column(Integer_Number; Number)
-                {
-                    ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-#endif
                 column(StatementCaption; StatementCaptionLbl)
                 {
                 }
                 column(PhoneNo_CompanyInfoCaption; PhoneNo_CompanyInfoCaptionLbl)
                 {
                 }
-#if not CLEAN23
-                column(FaxNo_CompanyInfoCaption; FaxNo_CompanyInfoCaptionLbl)
-                {
-                    ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-#endif
                 column(VATRegNo_CompanyInfoCaption; VATRegNo_CompanyInfoCaptionLbl)
                 {
                 }
@@ -281,16 +222,6 @@ report 116 Statement
                         dataitem("Detailed Cust. Ledg. Entry"; "Detailed Cust. Ledg. Entry")
                         {
                             DataItemTableView = sorting("Customer No.", "Posting Date", "Entry Type", "Currency Code");
-#if not CLEAN23
-                            column(CustBalanceAmt_CustLedgEntryHdr; CustBalance - Amount)
-                            {
-                                AutoFormatExpression = "Currency Code";
-                                AutoFormatType = 1;
-                                ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout, please use the column CustBalance and Amt_DtldCustLedgEntries instead.';
-                                ObsoleteTag = '23.0';
-                                ObsoleteState = Pending;
-                            }
-#endif
                             column(PostDate_DtldCustLedgEntries; Format("Posting Date"))
                             {
                             }
@@ -324,26 +255,6 @@ report 116 Statement
                             column(Currency2Code; TempCurrency2.Code)
                             {
                             }
-#if not CLEAN23
-                            column(DtlEntries_CurrencyCode3; CurrencyCode3)
-                            {
-                                ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                                ObsoleteTag = '23.0';
-                                ObsoleteState = Pending;
-                            }
-                            column(EntryNo_DtldCustLedgEntries; "Entry No.")
-                            {
-                                ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                                ObsoleteTag = '23.0';
-                                ObsoleteState = Pending;
-                            }
-                            column(CustBalanceAmt_CustLedgEntryHdrCaption; CustBalanceAmt_CustLedgEntryHdrCaptionLbl)
-                            {
-                                ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                                ObsoleteTag = '23.0';
-                                ObsoleteState = Pending;
-                            }
-#endif
 
                             trigger OnAfterGetRecord()
                             var
@@ -443,14 +354,6 @@ report 116 Statement
                         column(EntriesExistsl_CustLedgEntryFooterCaption; EntriesExists)
                         {
                         }
-#if not CLEAN23
-                        column(CustBal_CustLedgEntryFooterCaption; CustBal_CustLedgEntryFooterCaptionLbl)
-                        {
-                            ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                            ObsoleteTag = '23.0';
-                            ObsoleteState = Pending;
-                        }
-#endif
 
                         trigger OnAfterGetRecord()
                         begin
@@ -465,14 +368,6 @@ report 116 Statement
                         column(OverDueEntries; StrSubstNo(Text002Lbl, TempCurrency2.Code))
                         {
                         }
-#if not CLEAN23
-                        column(Total_Caption_CustLedgEntry2; Total_CaptionLbl)
-                        {
-                            ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                            ObsoleteTag = '23.0';
-                            ObsoleteState = Pending;
-                        }
-#endif
                         column(RemainAmt_CustLedgEntry2; "Remaining Amount")
                         {
                             AutoFormatExpression = "Currency Code";
@@ -506,25 +401,9 @@ report 116 Statement
                         column(CurrencyCode3_CustLedgEntry2; CurrencyCode3)
                         {
                         }
-#if not CLEAN23
-                        column(EntryNo_CustLedgEntry2; "Entry No.")
-                        {
-                            ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                            ObsoleteTag = '23.0';
-                            ObsoleteState = Pending;
-                        }
-#endif
                         column(CustNo_CustLedgEntry2; "Customer No.")
                         {
                         }
-#if not CLEAN23
-                        column(RemainAmt_CustLedgEntry2Caption; RemainAmt_CustLedgEntry2CaptionLbl)
-                        {
-                            ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                            ObsoleteTag = '23.0';
-                            ObsoleteState = Pending;
-                        }
-#endif
 
                         trigger OnAfterGetRecord()
                         var
@@ -554,7 +433,6 @@ report 116 Statement
 
                         trigger OnPreDataItem()
                         begin
-
                             if not IncludeAgingBand then
                                 SetRange("Due Date", 0D, EndDate - 1);
                             SetRange("Currency Code", TempCurrency2.Code);
@@ -672,7 +550,6 @@ report 116 Statement
 
                     trigger OnPreDataItem()
                     begin
-
                         if not IncludeAgingBand then
                             CurrReport.Break();
                     end;
@@ -1015,9 +892,6 @@ report 116 Statement
         Text036Txt: Label '-%1', Comment = 'Negating the period length: %1 is the period length';
         StatementCaptionLbl: Label 'Statement';
         PhoneNo_CompanyInfoCaptionLbl: Label 'Phone No.';
-#if not CLEAN23
-        FaxNo_CompanyInfoCaptionLbl: Label 'Fax No.';
-#endif
         VATRegNo_CompanyInfoCaptionLbl: Label 'VAT Registration No.';
         GiroNo_CompanyInfoCaptionLbl: Label 'Giro No.';
         BankName_CompanyInfoCaptionLbl: Label 'Bank';
@@ -1029,11 +903,6 @@ report 116 Statement
         PostDate_DtldCustLedgEntriesCaptionLbl: Label 'Posting Date';
         DueDate_CustLedgEntry2CaptionLbl: Label 'Due Date';
         CustBalanceCaptionLbl: Label 'Running Total';
-#if not CLEAN23
-        CustBalanceAmt_CustLedgEntryHdrCaptionLbl: Label 'Continued';
-        CustBal_CustLedgEntryFooterCaptionLbl: Label 'Total';
-        RemainAmt_CustLedgEntry2CaptionLbl: Label 'Continued';
-#endif
         beforeCaptionLbl: Label '..before';
         CompanyInfoHomepageCaptionLbl: Label 'Home Page';
         CompanyInfoEmailCaptionLbl: Label 'Email';
@@ -1043,11 +912,6 @@ report 116 Statement
         BlankEndDateErr: Label 'End Date must have a value.';
         StartDateLaterTheEndDateErr: Label 'Start date must be earlier than End date.';
         CurrReportPageNoCaptionLbl: Label 'Page';
-#if not CLEAN23
-        BoardOfDirLocCaptionLbl: Label 'Board of Directors Location (registered office)';
-        CompHasTaxAssNoteCaptionLbl: Label 'Company has Tax Assessment Note';
-        PlusGiroNoCaptionLbl: Label 'Plus Giro No.';
-#endif
 
     protected var
         CompanyInfo: Record "Company Information";

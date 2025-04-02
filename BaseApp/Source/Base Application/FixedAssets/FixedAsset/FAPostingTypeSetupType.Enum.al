@@ -1,4 +1,8 @@
-﻿namespace Microsoft.FixedAssets.Posting;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.FixedAssets.Posting;
 
 enum 5614 "FA Posting Type Setup Type"
 {

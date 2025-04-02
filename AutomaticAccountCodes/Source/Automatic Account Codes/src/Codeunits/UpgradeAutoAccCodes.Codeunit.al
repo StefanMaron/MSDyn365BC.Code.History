@@ -17,8 +17,9 @@ codeunit 4854 "Upgrade Auto. Acc. Codes"
 {
     ObsoleteReason = 'Automatic Acc.functionality is moved to a new app.';
     ObsoleteState = Pending;
+#pragma warning disable AS0072
     ObsoleteTag = '25.0';
-
+#pragma warning restore AS0072
     Access = Internal;
     Subtype = Upgrade;
 

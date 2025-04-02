@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Tracking;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
@@ -464,7 +468,7 @@ table 337 "Reservation Entry"
             Rec2.SetRange("Variant Code", "Variant Code");
             Rec2.SetRange("Location Code", "Location Code");
         end;
-        Rec2.LockTable();
+        Rec2.ReadIsolation(IsolationLevel::UpdLock);
         if Rec2.FindLast() then;
     end;
 

@@ -12,7 +12,6 @@ codeunit 137411 "SCM Stockout"
     var
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
@@ -91,7 +90,7 @@ codeunit 137411 "SCM Stockout"
         CreateItemSetStockoutWarning(Item, Item."Stockout Warning"::Yes);
         SalesOrderQty := LibraryRandom.RandIntInRange(10, 50);
         // [GIVEN] Quantity on inventory is "X"
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', SalesOrderQty * 2, WorkDate(), Item."Unit Cost");
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', SalesOrderQty * 2, WorkDate(), Item."Unit Cost");
 
         // [GIVEN] Sales order with quantity = "X / 2", item is reserved
         CreateSalesOrderWithAutoReservation(SalesLine, Item, SalesOrderQty);
@@ -119,7 +118,7 @@ codeunit 137411 "SCM Stockout"
         CreateItemSetStockoutWarning(Item, Item."Stockout Warning"::Yes);
         SalesOrderQty := LibraryRandom.RandIntInRange(10, 50);
         // [GIVEN] Quantity on inventory is "X"
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', SalesOrderQty * 2, WorkDate(), Item."Unit Cost");
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', SalesOrderQty * 2, WorkDate(), Item."Unit Cost");
 
         // [GIVEN] Sales order "SO1": Quantity = "X / 2", all reserved
         CreateSalesOrderWithAutoReservation(SalesLine, Item, SalesOrderQty);
@@ -149,7 +148,7 @@ codeunit 137411 "SCM Stockout"
         CreateItemSetStockoutWarning(Item, Item."Stockout Warning"::Yes);
         SalesOrderQty := LibraryRandom.RandIntInRange(10, 50);
         // [GIVEN] Quantity on inventory is "X"
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', SalesOrderQty * 2, WorkDate(), Item."Unit Cost");
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', SalesOrderQty * 2, WorkDate(), Item."Unit Cost");
 
         // [GIVEN] Sales order with quantity = "X / 2", item is reserved
         CreateSalesOrderWithAutoReservation(SalesLine, Item, SalesOrderQty);
@@ -227,7 +226,7 @@ codeunit 137411 "SCM Stockout"
         LibrarySales.SetStockoutWarning(SalesSetupStockOutWarning);
         CreateItemSetStockoutWarning(Item, ItemStockOutWarning);
         ItemInventoryQty := LibraryRandom.RandInt(100);
-        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', ItemInventoryQty, WorkDate(), Item."Unit Cost");
+        LibraryInventory.PostPositiveAdjustment(Item, '', '', '', ItemInventoryQty, WorkDate(), Item."Unit Cost");
         CreateSalesOrder(SalesLine, Item, 2 * ItemInventoryQty);
         Assert.IsFalse(ItemCheckAvail.SalesLineCheck(SalesLine), '');
         LibrarySales.SetStockoutWarning(Stockoutwarning);

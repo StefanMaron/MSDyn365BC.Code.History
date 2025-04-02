@@ -252,7 +252,6 @@ report 15 "Consolidation - Test File"
                     {
                         ApplicationArea = Suite;
                         Caption = 'File Format';
-                        OptionCaption = 'Version 4.00 or Later (.xml),Version 3.70 or Earlier (.txt)';
                         ToolTip = 'Specifies the format of the file to be imported.';
                     }
                     field(FileName; FileName)
@@ -372,7 +371,7 @@ report 15 "Consolidation - Test File"
         GLEntryFile: File;
         FileName: Text;
         ServerFileName: Text;
-        FileFormat: Option "Version 4.00 or Later (.xml)","Version 3.70 or Earlier (.txt)";
+        FileFormat: Enum "Business Unit File Format";
         TextLine: Text[250];
         ConsolidStartDate: Date;
         ConsolidEndDate: Date;

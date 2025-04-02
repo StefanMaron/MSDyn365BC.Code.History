@@ -318,7 +318,8 @@ codeunit 99000834 "Purch. Line-Reserve"
         if not FindReservEntry(PurchaseLine, OldReservationEntry) then
             exit(TransferQty);
 
-        OldReservationEntry.Lock();
+        OldReservationEntry.LockTable();
+        OldReservationEntry.FindLast();
         // Handle Item Tracking on drop shipment:
         Clear(CreateReservEntry);
         if ApplySpecificItemTracking and (ItemJournalLine."Applies-to Entry" <> 0) then
@@ -844,11 +845,11 @@ codeunit 99000834 "Purch. Line-Reserve"
         if not PurchaseLine.ReadPermission then
             exit;
 
+        PurchaseLine.SetAutoCalcFields("Reserved Qty. (Base)");
         AvailabilityFilter := ReservationEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
         PurchaseLine.FilterLinesForReservation(ReservationEntry, DocumentType, AvailabilityFilter, Positive);
         if PurchaseLine.FindSet() then
             repeat
-                PurchaseLine.CalcFields("Reserved Qty. (Base)");
                 OnUpdateStatisticsOnBeforeCheckSpecialOrder(PurchaseLine);
                 if not PurchaseLine."Special Order" then begin
                     TempEntrySummary."Total Reserved Quantity" += PurchaseLine."Reserved Qty. (Base)";
@@ -934,12 +935,12 @@ codeunit 99000834 "Purch. Line-Reserve"
         if IsReserved then
             exit;
 
+        PurchLine.SetAutoCalcFields("Reserved Qty. (Base)");
         PurchLine.FilterLinesForReservation(
           CalcReservEntry, Enum::"Purchase Document Type".FromInteger(ReservSummEntryNo - Enum::"Reservation Summary Type"::"Purchase Quote".AsInteger()),
           sender.GetAvailabilityFilter(AvailabilityDate), Positive);
         if PurchLine.Find(Search) then
             repeat
-                PurchLine.CalcFields("Reserved Qty. (Base)");
                 if not PurchLine."Special Order" then begin
                     QtyThisLine := PurchLine."Outstanding Quantity";
                     QtyThisLineBase := PurchLine."Outstanding Qty. (Base)";

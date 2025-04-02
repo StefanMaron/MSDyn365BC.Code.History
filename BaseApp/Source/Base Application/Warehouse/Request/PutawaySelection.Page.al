@@ -66,9 +66,9 @@ page 7334 "Put-away Selection"
     {
     }
 
-    procedure GetResult(var WhsePutAwayRqst: Record "Whse. Put-away Request")
+    procedure GetResult(var WhsePutAwayRequest: Record "Whse. Put-away Request")
     begin
-        CurrPage.SetSelectionFilter(WhsePutAwayRqst);
+        CurrPage.SetSelectionFilter(WhsePutAwayRequest);
     end;
 }
 

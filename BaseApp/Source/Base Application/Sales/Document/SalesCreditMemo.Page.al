@@ -339,32 +339,6 @@ page 44 "Sales Credit Memo"
                     Importance = Additional;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                 }
-#if not CLEAN23
-                field("Source Inv. No."; Rec."Source Inv. No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the original invoice.';
-                    ObsoleteReason = 'The field is not used and will be obsoleted';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-                field("Source Inv. VAT"; Rec."Source Inv. VAT")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT amount for the original invoice.';
-                    ObsoleteReason = 'The field is not used and will be obsoleted';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-                field("Source Inv. Total"; Rec."Source Inv. Total")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the total amount for the original invoice.';
-                    ObsoleteReason = 'The field is not used and will be obsoleted';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 group("Work Description")
                 {
                     Caption = 'Work Description';
@@ -731,6 +705,7 @@ page 44 "Sales Credit Memo"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Sales Header"),
                               "No." = field("No."),
@@ -836,6 +811,7 @@ page 44 "Sales Credit Memo"
             {
                 Caption = '&Credit Memo';
                 Image = CreditMemo;
+#if not CLEAN26
                 action(Statistics)
                 {
                     ApplicationArea = Basic, Suite;
@@ -844,6 +820,9 @@ page 44 "Sales Credit Memo"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
 
                     trigger OnAction()
                     var
@@ -858,6 +837,23 @@ page 44 "Sales Credit Memo"
                         CurrPage.SalesLines.Page.ForceTotalsCalculation();
                     end;
                 }
+#endif
+                action(SalesStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Enabled = Rec."No." <> '';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+#if CLEAN26
+                    Visible = true;
+#else
+                    Visible = false;
+#endif
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    RunObject = Page "Sales Statistics";
+                    RunPageOnRec = true;
+                }
                 action(CreditMemo_CustomerCard)
                 {
                     ApplicationArea = Basic, Suite;
@@ -869,6 +865,17 @@ page 44 "Sales Credit Memo"
                                   "Date Filter" = field("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer on the sales document.';
+                }
+                action(CustomerStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Customer Statistics';
+                    Enabled = IsCustomerOrContactNotEmpty;
+                    Image = Statistics;
+                    RunObject = Page "Customer Statistics";
+                    RunPageLink = "No." = field("Sell-to Customer No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the sell-to customer on the sales document.';
                 }
                 action("Co&mments")
                 {
@@ -1448,9 +1455,18 @@ page 44 "Sales Credit Memo"
             {
                 Caption = 'Credit Memo', Comment = 'Generated from the PromotedActionCategories property index 7.';
 
+#if not CLEAN26
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
+#else
+                actionref(SalesStatistics_Promoted; SalesStatistics)
+                {
+                }
+#endif
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
@@ -1636,9 +1652,9 @@ page 44 "Sales Credit Memo"
         xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
-# if not CLEAN24
+#if not CLEAN24
         NotSkipped: Boolean;
-# endif
+#endif
     begin
         CheckSalesCheckAllLinesHaveQuantityAssigned();
         PreAssignedNo := Rec."No.";
@@ -1662,12 +1678,12 @@ page 44 "Sales Credit Memo"
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
 
-# if not CLEAN24
+#if not CLEAN24
         NotSkipped := false;
         OnPostDocumentOnBeforeSetTrackInfoForCancellation(Rec, NotSkipped);
         if NotSkipped then
             Rec.SetTrackInfoForCancellation();
-# endif
+#endif
         Rec.UpdateSalesOrderLineIfExist();
 
         if OfficeMgt.IsAvailable() then begin
@@ -1821,11 +1837,13 @@ page 44 "Sales Credit Memo"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnPostOnAfterSetDocumentIsPosted(SalesHeader: Record "Sales Header"; var IsScheduledPosting: Boolean; var DocumentIsPosted: Boolean)
     begin
@@ -1857,6 +1875,5 @@ page 44 "Sales Credit Memo"
     local procedure OnPostDocumentOnBeforeSetTrackInfoForCancellation(var SalesHeader: Record "Sales Header"; var NotSkipped: Boolean)
     begin
     end;
-# endif
+#endif
 }
-

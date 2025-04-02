@@ -187,32 +187,6 @@ page 9019 "CEO and President Role Center"
                 RunObject = Report "Fiscal Year Balance";
                 ToolTip = 'View, print, or send a report that shows balance sheet movements for selected periods. The report shows the closing balance by the end of the previous fiscal year for the selected ledger accounts. It also shows the fiscal year until this date, the fiscal year by the end of the selected period, and the balance by the end of the selected period, excluding the closing entries. The report can be used at the close of an accounting period or fiscal year.';
             }
-#if not CLEAN23
-            action("Balance Sheet - SE")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Balance Sheet - SE';
-                Image = "Report";
-                RunObject = Report "Balance sheet";
-                ToolTip = 'View assets, liabilities, and equity on the balance sheet.';
-                Visible = false;
-                ObsoleteReason = 'SE Balance Sheet is moved to SE Core extension, Balance Sheet will be replaced by W1 Financial Report';
-                ObsoleteState = Pending;
-                ObsoleteTag = '23.0';
-            }
-            action("Income Statement - SE")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Income Statement - SE';
-                Image = "Report";
-                RunObject = Report "Income statement";
-                ToolTip = 'View a report that shows your company''s income and expenses.';
-                Visible = false;
-                ObsoleteReason = 'SE Income Statement is moved to SE Core extension, Income Statement will be replaced by W1 Financial Report';
-                ObsoleteState = Pending;
-                ObsoleteTag = '23.0';
-            }
-#endif
             separator(Action6)
             {
             }

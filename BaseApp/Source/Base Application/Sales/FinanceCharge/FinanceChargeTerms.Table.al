@@ -89,18 +89,15 @@ table 5 "Finance Charge Terms"
         {
             Caption = 'Detailed Lines Description';
         }
+#if not CLEANSCHEMA26
         field(3010590; "Multiple Lines Description"; Text[50])
         {
             Caption = 'Multiple Lines Description';
             ObsoleteReason = 'Use "Detailed Lines Description" field instead.';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '26.0';
-#endif
         }
+#endif
     }
 
     keys

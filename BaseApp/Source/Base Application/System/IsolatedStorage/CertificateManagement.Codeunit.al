@@ -315,11 +315,13 @@ codeunit 1259 "Certificate Management"
     var
         DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
         DotNetAsymmetricAlgorithm: Codeunit DotNet_AsymmetricAlgorithm;
+        XmlStringSecureText: SecretText;
     begin
         IsolatedCertificate.TestField("Has Private Key");
         GetCertAsDotNet(IsolatedCertificate, DotNetX509Certificate2);
         DotNetX509Certificate2.PrivateKey(DotNetAsymmetricAlgorithm);
-        SignatureKey.FromXmlString(DotNetAsymmetricAlgorithm.ToXmlString(true));
+        XmlStringSecureText := DotNetAsymmetricAlgorithm.ToXmlString(true);
+        SignatureKey.FromXmlString(XmlStringSecureText);
     end;
 
 #if not CLEAN24

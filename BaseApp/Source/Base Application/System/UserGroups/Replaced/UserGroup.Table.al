@@ -1,4 +1,5 @@
-﻿namespace System.Security.AccessControl;
+#if not CLEANSCHEMA25 
+namespace System.Security.AccessControl;
 
 using System.Reflection;
 
@@ -58,3 +59,5 @@ table 9000 "User Group"
     }
 }
 
+ 
+#endif

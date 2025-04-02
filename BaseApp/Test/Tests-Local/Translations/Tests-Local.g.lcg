@@ -95,96 +95,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM REFINV - NamedType VATAmtCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1497643213 - NamedType 664773293" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CompanyAddr4]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Regoff SE - NamedType CompanyAddressCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1497643213 - NamedType 4155641284" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CompanyAddress4]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Regoff SE - NamedType CompanyAddressFullLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1497643213 - NamedType 1355516065" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[BoardOfDirectorsLocCaption]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Regoff SE - NamedType CompanyBoardDirectorCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1497643213 - NamedType 3415025674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Board Of Directors Location (registered office)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Regoff SE - NamedType CompanyBoardDirectorValue)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1497643213 - NamedType 2290264416" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Board of Directors Location (registered office)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Regoff SE - NamedType CompanyBoardDirectorValue2)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1497643213 - NamedType 2847498010" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CompanyLegalOffice_Lbl]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Regoff SE - NamedType CompanyLegalOfficeLbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1497643213 - NamedType 3354604204" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[1234567890]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Regoff SE - NamedType NumberValue)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1497643213 - NamedType 3267715748" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[@#$123$#@***]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Regoff SE - NamedType SpecialCharacter)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1497643213 - NamedType 4156417595" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The length of the string is %1, but it must be less than or equal to 20 characters.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Regoff SE - NamedType StringLengthError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4003130183 - NamedType 1566215040" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Payment Lines Created]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VIP - NamedType RecordExistsMsg)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 518829505 - NamedType 1697860903" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Balance(LCY) %1 must exist in the Report]]></Val>
@@ -192,24 +102,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit SE Customer Reports - NamedType BalanceReportErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 518829505 - NamedType 382769486" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Value must exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SE Customer Reports - NamedType ValueMustExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 518829505 - NamedType 3652816268" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Value must not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SE Customer Reports - NamedType ValueNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

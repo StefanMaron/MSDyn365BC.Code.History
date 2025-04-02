@@ -183,9 +183,6 @@ report 492 "Copy Purchase Document"
         PurchSetup.Get();
         CopyDocMgt.SetProperties(
           IncludeHeader, RecalculateLines, false, false, false, PurchSetup."Exact Cost Reversing Mandatory", false);
-#if not CLEAN23
-        CopyDocMgt.SetIncludeOrgInvInfo(false);
-#endif
         CopyDocMgt.SetArchDocVal(FromDocNoOccurrence, FromDocVersionNo);
 
         OnPreReportOnBeforeCopyPurchaseDoc(CopyDocMgt, CurrReport.UseRequestPage(), IncludeHeader, RecalculateLines);

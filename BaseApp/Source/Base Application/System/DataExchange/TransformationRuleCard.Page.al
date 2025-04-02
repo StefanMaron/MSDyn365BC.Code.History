@@ -5,6 +5,8 @@
 
 namespace System.IO;
 
+using System.Reflection;
+
 page 1238 "Transformation Rule Card"
 {
     Caption = 'Transformation Rule Card';
@@ -138,6 +140,7 @@ page 1238 "Transformation Rule Card"
                     field("Source Field ID"; Rec."Source Field ID")
                     {
                         ApplicationArea = Basic, Suite;
+                        LookupPageId = "Fields Lookup";
                         ToolTip = 'Specifies the ID of the field to find the record for the field lookup.';
                     }
                     field("Source Field Caption"; Rec."Source Field Caption")
@@ -148,6 +151,7 @@ page 1238 "Transformation Rule Card"
                     field("Target Field ID"; Rec."Target Field ID")
                     {
                         ApplicationArea = Basic, Suite;
+                        LookupPageId = "Fields Lookup";
                         ToolTip = 'Specifies the ID of the field to get the value for the field lookup.';
                     }
                     field("Target Field Caption"; Rec."Target Field Caption")
@@ -248,6 +252,7 @@ page 1238 "Transformation Rule Card"
     begin
         IsDataFormatVisible := Rec.IsDataFormatUpdateAllowed();
 
+        Clear(VisibleTransformationRuleGroups);
         TransformationRule := Rec."Transformation Type";
         TransformationRule.GetVisibleGroups(Rec, VisibleTransformationRuleGroups);
         IsFindValueVisible := VisibleTransformationRuleGroups.Contains(Enum::"Transformation Rule Group"::"Find Value");

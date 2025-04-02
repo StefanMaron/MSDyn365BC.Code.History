@@ -147,7 +147,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
         PriceCalculationBuffer."Price Calculation Method" := SalesLine."Price Calculation Method";
         // Tax
         PriceCalculationBuffer."Prices Including Tax" := SalesHeader."Prices Including VAT";
-        PriceCalculationBuffer."Tax %" := SalesLine."VAT %";
+        PriceCalculationBuffer."Tax %" := SalesLine.GetVATPct();
         PriceCalculationBuffer."VAT Calculation Type" := SalesLine."VAT Calculation Type".AsInteger();
         PriceCalculationBuffer."VAT Bus. Posting Group" := SalesLine."VAT Bus. Posting Group";
         PriceCalculationBuffer."VAT Prod. Posting Group" := SalesLine."VAT Prod. Posting Group";

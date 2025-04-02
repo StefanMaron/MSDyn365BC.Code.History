@@ -335,18 +335,6 @@ page 49 "Purchase Quote"
                         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
-#if not CLEAN23
-                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Select this field if the purchase order is involved in an EU 3-party trade.';
-                    Visible = not IsEU3PartyTradePurchaseEnabled;
-                    Enabled = not IsEU3PartyTradePurchaseEnabled;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                    ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
-                }
-#endif
                 field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Suite;
@@ -502,6 +490,16 @@ page 49 "Purchase Quote"
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 Importance = Additional;
                                 ToolTip = 'Specifies the name of the customer that items on the purchase order were shipped to, as a drop shipment.';
+                            }
+                            field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'Name 2';
+                                Editable = ShipToOptions = ShipToOptions::"Custom Address";
+                                Importance = Additional;
+                                ToolTip = 'Specifies an additional part of the name of the customer that items on the purchase order were shipped to, as a drop shipment.';
+                                QuickEntry = false;
+                                Visible = false;
                             }
                             field("Ship-to Address"; Rec."Ship-to Address")
                             {
@@ -775,6 +773,7 @@ page 49 "Purchase Quote"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Purchase Header"),
                               "No." = field("No."),
@@ -872,6 +871,7 @@ page 49 "Purchase Quote"
             {
                 Caption = '&Quote';
                 Image = Quote;
+#if not CLEAN26
                 action(Statistics)
                 {
                     ApplicationArea = Suite;
@@ -879,12 +879,32 @@ page 49 "Purchase Quote"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
 
                     trigger OnAction()
                     begin
                         Rec.OpenDocumentStatistics();
                         CurrPage.PurchLines.Page.ForceTotalsCalculation();
                     end;
+                }
+#endif
+                action(PurchaseStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Enabled = Rec."No." <> '';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+#if CLEAN26
+                    Visible = true;
+#else
+                    Visible = false;
+#endif
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    RunObject = Page "Purchase Statistics";
+                    RunPageOnRec = true;
                 }
                 action(Vendor)
                 {
@@ -897,6 +917,17 @@ page 49 "Purchase Quote"
                                   "Date Filter" = field("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the vendor on the purchase document.';
+                }
+                action(VendorStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Statistics';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
+                    Image = Statistics;
+                    RunObject = Page "Vendor Statistics";
+                    RunPageLink = "No." = field("Buy-from Vendor No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the buy-from vendor on the purchase document.';
                 }
                 action("Co&mments")
                 {
@@ -1043,6 +1074,21 @@ page 49 "Purchase Quote"
                         LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
                         DocPrint.PrintPurchHeader(Rec);
+                    end;
+                }
+                action(Email)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Send by Email';
+                    Ellipsis = true;
+                    Image = Email;
+                    ToolTip = 'Finalize and prepare to email the document. The Send Email window opens prefilled with the vendor''s email address so you can add or edit information.';
+
+                    trigger OnAction()
+                    var
+                        DocPrint: Codeunit "Document-Print";
+                    begin
+                        DocPrint.EmailPurchHeader(Rec);
                     end;
                 }
                 action(Send)
@@ -1409,6 +1455,9 @@ page 49 "Purchase Quote"
             {
                 Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 5.';
 
+                actionref(Email_Promoted; Email)
+                {
+                }
                 actionref(Print_Promoted; Print)
                 {
                 }
@@ -1437,9 +1486,18 @@ page 49 "Purchase Quote"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN26
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
+#else
+                actionref(PurchaseStatistics_Promoted; PurchaseStatistics)
+                {
+                }
+#endif
                 actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
@@ -1544,9 +1602,6 @@ page 49 "Purchase Quote"
         ArchiveManagement: Codeunit ArchiveManagement;
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         FormatAddress: Codeunit "Format Address";
-#if not CLEAN23
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
         PrivacyNotice: Codeunit "Privacy Notice";
         PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
         ChangeExchangeRate: Page "Change Exchange Rate";
@@ -1567,9 +1622,6 @@ page 49 "Purchase Quote"
         IsPurchaseLinesEditable: Boolean;
         IsJournalTemplateNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
-#if not CLEAN23
-        IsEU3PartyTradePurchaseEnabled: Boolean;
-#endif
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
@@ -1584,9 +1636,6 @@ page 49 "Purchase Quote"
         GLSetup.Get();
         IsJournalTemplateNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
-#if not CLEAN23
-        IsEU3PartyTradePurchaseEnabled := FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled();
-#endif
 
         OnAfterActivateFields();
     end;
@@ -1710,4 +1759,3 @@ page 49 "Purchase Quote"
     begin
     end;
 }
-

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.MachineCenter;
 
 using Microsoft.Foundation.Navigate;
@@ -126,7 +130,7 @@ page 99000916 "Machine Center Task List"
                 field("Concurrent Capacities"; Rec."Concurrent Capacities")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the con capacity of the operation.';
+                    ToolTip = 'Specifies the concurrent capacity of the operation.';
                 }
                 field("Send-Ahead Quantity"; Rec."Send-Ahead Quantity")
                 {
@@ -179,7 +183,7 @@ page 99000916 "Machine Center Task List"
                     RunObject = Page "Capacity Ledger Entries";
                     RunPageLink = Type = const("Machine Center"),
                                   "No." = field("No.");
-                    RunPageView = sorting(Type, "No.", "Work Shift Code", "Item No.", "Posting Date");
+                    RunPageView = sorting(Type, "No.", "Item No.", "Posting Date");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the capacity ledger entries of the involved production order. Capacity is recorded either as time (run time, stop time, or setup time) or as quantity (scrap quantity or output quantity).';
                 }

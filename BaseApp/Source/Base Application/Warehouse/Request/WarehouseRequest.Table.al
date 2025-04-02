@@ -1,12 +1,9 @@
 namespace Microsoft.Warehouse.Request;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Family;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
@@ -51,12 +48,6 @@ table 5765 "Warehouse Request"
                                                                                                   "No." = field("Source No."))
             else
             if ("Source Type" = const(5741)) "Transfer Header"."No." where("No." = field("Source No."))
-            else
-            if ("Source Type" = filter(5406 | 5407)) "Production Order"."No." where(Status = const(Released),
-                                                                                    "No." = field("Source No."))
-            else
-            if ("Source Type" = filter(901)) "Assembly Header"."No." where("Document Type" = const(Order),
-                                                                           "No." = field("Source No."))
             else
             if ("Source Type" = const(167)) "Job"."No." where("No." = field("Source No."));
         }
@@ -117,8 +108,6 @@ table 5765 "Warehouse Request"
             if ("Destination Type" = const(Location)) Location
             else
             if ("Destination Type" = const(Item)) Item
-            else
-            if ("Destination Type" = const(Family)) Family
             else
             if ("Destination Type" = const("Sales Order")) "Sales Header"."No." where("Document Type" = const(Order));
         }
@@ -194,7 +183,9 @@ table 5765 "Warehouse Request"
         OnAfterDeleteRequest(SourceType, SourceSubtype, SourceNo);
     end;
 
-    procedure SetDestinationType(ProdOrder: Record "Production Order")
+#if not CLEAN26
+    [Obsolete('Moved to codeunit ProdOrderWarehouseMgt', '26.0')]
+    procedure SetDestinationType(ProdOrder: Record Microsoft.Manufacturing.Document."Production Order")
     begin
         case ProdOrder."Source Type" of
             ProdOrder."Source Type"::Item:
@@ -207,6 +198,7 @@ table 5765 "Warehouse Request"
 
         OnAfterSetDestinationType(Rec, ProdOrder);
     end;
+#endif
 
     procedure SetSourceFilter(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20])
     begin
@@ -218,9 +210,6 @@ table 5765 "Warehouse Request"
     procedure ShowSourceDocumentCard()
     begin
         OnShowSourceDocumentCard(Rec);
-#if not CLEAN23
-        OnShowSourceDocumentCardCaseElse(Rec);
-#endif
     end;
 
     [IntegrationEvent(false, false)]
@@ -228,22 +217,22 @@ table 5765 "Warehouse Request"
     begin
     end;
 
+#if not CLEAN26
+    internal procedure RunOnAfterSetDestinationType(var WhseRequest: Record "Warehouse Request"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order")
+    begin
+        OnAfterSetDestinationType(WhseRequest, ProdOrder);
+    end;
+
+    [Obsolete('Moved to codeunit ProdOrderWarehouseMgt', '26.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetDestinationType(var WhseRequest: Record "Warehouse Request"; ProdOrder: Record "Production Order")
+    local procedure OnAfterSetDestinationType(var WhseRequest: Record "Warehouse Request"; ProdOrder: Record Microsoft.Manufacturing.Document."Production Order")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnShowSourceDocumentCard(var WarehouseRequest: Record "Warehouse Request")
     begin
     end;
-
-#if not CLEAN23
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnOnShowSourceDocumentCard()', '23.0')]
-    local procedure OnShowSourceDocumentCardCaseElse(var WhseRequest: Record "Warehouse Request")
-    begin
-    end;
-#endif
 }
 

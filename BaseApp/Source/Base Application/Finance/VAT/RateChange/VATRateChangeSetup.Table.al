@@ -4,8 +4,6 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Requisition;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
@@ -20,6 +18,7 @@ table 550 "VAT Rate Change Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(10; "Update Gen. Prod. Post. Groups"; Option)
@@ -137,30 +136,6 @@ table 550 "VAT Rate Change Setup"
             InitValue = Both;
             OptionCaption = 'VAT Prod. Posting Group,Gen. Prod. Posting Group,Both,No';
             OptionMembers = "VAT Prod. Posting Group","Gen. Prod. Posting Group",Both,No;
-        }
-        field(60; "Update Production Orders"; Option)
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            Caption = 'Update Production Orders';
-            InitValue = "Gen. Prod. Posting Group";
-            OptionCaption = ',Gen. Prod. Posting Group,,No';
-            OptionMembers = ,"Gen. Prod. Posting Group",,No;
-        }
-        field(62; "Update Work Centers"; Option)
-        {
-            AccessByPermission = TableData "Machine Center" = R;
-            Caption = 'Update Work Centers';
-            InitValue = "Gen. Prod. Posting Group";
-            OptionCaption = ',Gen. Prod. Posting Group,,No';
-            OptionMembers = ,"Gen. Prod. Posting Group",,No;
-        }
-        field(64; "Update Machine Centers"; Option)
-        {
-            AccessByPermission = TableData "Machine Center" = R;
-            Caption = 'Update Machine Centers';
-            InitValue = "Gen. Prod. Posting Group";
-            OptionCaption = ',Gen. Prod. Posting Group,,No';
-            OptionMembers = ,"Gen. Prod. Posting Group",,No;
         }
         field(70; "Update Reminders"; Option)
         {

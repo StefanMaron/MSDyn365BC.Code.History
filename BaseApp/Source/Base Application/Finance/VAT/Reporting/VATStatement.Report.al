@@ -8,9 +8,6 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Address;
-#if not CLEAN23
-using System.Environment.Configuration;
-#endif
 
 report 12 "VAT Statement"
 {
@@ -28,20 +25,6 @@ report 12 "VAT Statement"
             DataItemTableView = sorting("Statement Template Name", Name);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "Statement Template Name", Name;
-#if not CLEAN23
-            column(VAT_Statement_Name_Statement_Template_Name; "Statement Template Name")
-            {
-                ObsoleteReason = 'The filed will be obsoleted, refer to column StmtName1_VatStmtName instead.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(VAT_Statement_Name_Name; Name)
-            {
-                ObsoleteReason = 'The filed will be obsoleted, refer to column Name1_VatStmtName instead.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-#endif
             column(StmtName1_VatStmtName; "Statement Template Name")
             {
             }
@@ -53,40 +36,12 @@ report 12 "VAT Statement"
                 DataItemLink = "Statement Template Name" = field("Statement Template Name"), "Statement Name" = field(Name);
                 DataItemTableView = sorting("Statement Template Name", "Statement Name") where(Print = const(true));
                 RequestFilterFields = "Row No.";
-#if not CLEAN23
-                column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
-                {
-                    ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-#endif
                 column(Heading; Heading)
                 {
                 }
                 column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
-#if not CLEAN23
-                column(USERID; UserId)
-                {
-                    ObsoleteReason = 'Refer to the column User_ID in the corresponding report extension from SE Core.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(VAT_Statement_Name___Statement_Template_Name_; "VAT Statement Name"."Statement Template Name")
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column StmtName_VatStmtName instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(VAT_Statement_Name__Name; "VAT Statement Name".Name)
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column Name_VatStmtName instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-#endif
                 column(StmtName_VatStmtName; "VAT Statement Name"."Statement Template Name")
                 {
                 }
@@ -99,38 +54,6 @@ report 12 "VAT Statement"
                 column(HeaderText; HeaderText)
                 {
                 }
-#if not CLEAN23
-                column(GLSetup__LCY_Code_; GLSetup."LCY Code")
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column GlSetupLCYCode instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(Text006; Text006Lbl)
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column Allamountsarein instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(STRSUBSTNO_Text003_GLSetup__Additional_Reporting_Currency__; StrSubstNo(Text003, GLSetup."Additional Reporting Currency"))
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column TxtGLSetupAddnalReportCur instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(GLSetup__AddRepCurrency_; GLSetup."Additional Reporting Currency")
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column GLSetupAddRepCurrency instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(VAT_Statement_Line__TABLECAPTION__________VATStmtLineFilter; "VAT Statement Line".TableCaption + ': ' + VATStmtLineFilter)
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column VatStmLineTableCaptFilter instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-#endif
                 column(GlSetupLCYCode; GLSetup."LCY Code")
                 {
                 }
@@ -149,20 +72,6 @@ report 12 "VAT Statement"
                 column(VatStmtLineFilter; VATStmtLineFilter)
                 {
                 }
-#if not CLEAN23
-                column(VAT_Statement_Line__Row_No__; "Row No.")
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column VatStmtLineRowNo instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(VAT_Statement_Line_Description; Description)
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column Description_VatStmtLine instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-#endif
                 column(VatStmtLineRowNo; "Row No.")
                 {
                     IncludeCaption = true;
@@ -191,80 +100,6 @@ report 12 "VAT Statement"
                 column(PageGroupNo; PageGroupNo)
                 {
                 }
-#if not CLEAN23
-                column(VAT_Statement_Line_Statement_Template_Name; "Statement Template Name")
-                {
-                    ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(VAT_Statement_Line_Statement_Name; "Statement Name")
-                {
-                    ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(VAT_Statement_Line_Line_No_; "Line No.")
-                {
-                    ObsoleteReason = 'The column is obsoleted, because it is not used in the SE standard layout.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(VAT_StatementCaption; VAT_StatementCaptionLbl)
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column VATStmtCaption instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(CurrReport_PAGENOCaption; CurrReport_PAGENOCaptionLbl)
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column CurrReportPageNoCaption instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(VAT_Statement_Name___Statement_Template_Name_Caption; VAT_Statement_Name___Statement_Template_Name_CaptionLbl)
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column VATStmtTemplateCaption instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(VAT_Statement_Name__NameCaption; VAT_Statement_Name__NameCaptionLbl)
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column VATStmtNameCaption instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(Amounts_are_in_whole_LCYs_Caption; Amounts_are_in_whole_LCYs_CaptionLbl)
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column AmtsareinwholeLCYsCaption instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(The_report_includes_all_VAT_entries_Caption; The_report_includes_all_VAT_entries_CaptionLbl)
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column ReportinclallVATentriesCaption instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(The_report_includes_only_closed_VAT_entries_Caption; The_report_includes_only_closed_VAT_entries_CaptionLbl)
-                {
-                    ObsoleteReason = 'The filed will be obsoleted, refer to column RepinclonlyclosedVATentCaption instead.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(VAT_Statement_Line__Row_No__Caption; FieldCaption("Row No."))
-                {
-                    ObsoleteReason = 'Refer to the column VATStatementLine_RowNoCaption in the corresponding report extension from SE Core.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(VAT_Statement_Line_DescriptionCaption; FieldCaption(Description))
-                {
-                    ObsoleteReason = 'Refer to the column VATStatementLine_DescriptionCaption in the corresponding report extension from SE Core.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-#endif
                 column(VATStmtCaption; VATStmtCaptionLbl)
                 {
                 }
@@ -437,24 +272,12 @@ report 12 "VAT Statement"
         NextPageGroupNo: Integer;
 #pragma warning disable AA0074
         Text000: Label 'VAT entries before and within the period';
-#if not CLEAN23
-#endif
 #pragma warning disable AA0470
         Text003: Label 'Amounts are in %1, rounded without decimals.';
 #pragma warning restore AA0470
         Text004: Label 'VAT entries within the period';
 #pragma warning disable AA0470
         Text005: Label 'Period: %1..%2';
-#if not CLEAN23
-        Text006Lbl: Label 'All amounts are in';
-        VAT_StatementCaptionLbl: Label 'VAT Statement';
-        CurrReport_PAGENOCaptionLbl: Label 'Page';
-        VAT_Statement_Name___Statement_Template_Name_CaptionLbl: Label 'VAT Statement Template';
-        VAT_Statement_Name__NameCaptionLbl: Label 'VAT Statement Name';
-        Amounts_are_in_whole_LCYs_CaptionLbl: Label 'Amounts are in whole LCYs.';
-        The_report_includes_all_VAT_entries_CaptionLbl: Label 'The report includes all VAT entries.';
-        The_report_includes_only_closed_VAT_entries_CaptionLbl: Label 'The report includes only closed VAT entries.';
-#endif
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         AllamountsareinLbl: Label 'All amounts are in';
@@ -491,9 +314,6 @@ report 12 "VAT Statement"
     procedure CalcLineTotalWithBase(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalBase: Decimal; Level: Integer): Boolean
     var
         VATReportSetup: Record "VAT Report Setup";
-#if not CLEAN23
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
     begin
         if Level = 0 then begin
             TotalBase := 0;
@@ -524,10 +344,6 @@ report 12 "VAT Statement"
                     Amount := 0;
                     SetVATEntryKeyAndRangesForVATDate(VATStmtLine2);
                     VATEntry.SetRange(Type, VATStmtLine2."Gen. Posting Type");
-#if not CLEAN23
-                    if not FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled() then
-                        VATEntry.SetRange("EU 3-Party Trade", VATStmtLine2."EU 3-Party Trade");
-#endif
                     SetVATDate();
                     case Selection of
                         Selection::Open:

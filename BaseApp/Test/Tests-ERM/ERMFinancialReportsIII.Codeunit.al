@@ -2173,9 +2173,6 @@ codeunit 134987 "ERM Financial Reports III"
         SuggestVendorPayments.BankPaymentType.SetValue(BankPmtType::"Computer Check");
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
-#if not CLEAN23
-        SuggestVendorPayments.AlwaysInclCreditMemo.SetValue(true);
-#endif
         SuggestVendorPayments.OK().Invoke();
         Sleep(200);
     end;

@@ -4,6 +4,7 @@ using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Reports;
@@ -242,16 +243,6 @@ page 16 "Chart of Accounts"
                     ToolTip = 'Specifies accounts that you often enter in the Bal. Account No. field on intercompany journal or document lines.';
                     Visible = false;
                 }
-#if not CLEAN23
-                field("SRU-code"; Rec."SRU-code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the SRU-code for the G/L Account.';
-                    ObsoleteReason = 'Moved to Standard Import Export (SIE) app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Default Deferral Template Code"; Rec."Default Deferral Template Code")
                 {
                     ApplicationArea = Suite;
@@ -741,6 +732,13 @@ page 16 "Chart of Accounts"
     trigger OnOpenPage()
     begin
         SetControlVisibility();
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
+    begin
+        FinancialReportMgt.NotifyUpdateFinancialReport(Rec);
     end;
 
     var

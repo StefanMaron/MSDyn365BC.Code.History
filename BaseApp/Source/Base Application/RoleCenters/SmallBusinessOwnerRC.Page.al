@@ -15,9 +15,6 @@ using Microsoft.CRM.Team;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
-#if not CLEAN25
-using Microsoft.Finance.FinancialReports;
-#endif
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Reports;
@@ -30,9 +27,6 @@ using Microsoft.FixedAssets.Journal;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Calendar;
-#if not CLEAN25
-using Microsoft.Foundation.ExtendedText;
-#endif
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.Period;
 using Microsoft.HumanResources.Employee;
@@ -271,32 +265,6 @@ page 9020 "Small Business Owner RC"
                 RunObject = Report "Closing Trial Balance";
                 ToolTip = 'View this year''s and last year''s figures as an ordinary trial balance. For income statement accounts, the balances are shown without closing entries. Closing entries are listed on a fictitious date that falls between the last day of one fiscal year and the first day of the next one. The closing of the income statement accounts is posted at the end of a fiscal year. The report can be used in connection with closing a fiscal year.';
             }
-#if not CLEAN23
-            action("Balance Sheet - SE")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Balance Sheet - SE';
-                Image = "Report";
-                RunObject = Report "Balance sheet";
-                ToolTip = 'View assets, liabilities, and equity on the balance sheet.';
-                Visible = false;
-                ObsoleteReason = 'SE Balance Sheet is moved to SE Core extension, Balance Sheet will be replaced by W1 Financial Report';
-                ObsoleteState = Pending;
-                ObsoleteTag = '23.0';
-            }
-            action("Income Statement - SE")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Income Statement - SE';
-                Image = "Report";
-                RunObject = Report "Income statement";
-                ToolTip = 'View a report that shows your company''s income and expenses.';
-                Visible = false;
-                ObsoleteReason = 'SE Income Statement is moved to SE Core extension, Income Statement will be replaced by W1 Financial Report';
-                ObsoleteState = Pending;
-                ObsoleteTag = '23.0';
-            }
-#endif
             separator(Action49)
             {
             }
@@ -755,7 +723,7 @@ page 9020 "Small Business Owner RC"
                     ApplicationArea = Suite;
                     Caption = 'Salespeople/Purchasers';
                     RunObject = Page "Salespersons/Purchasers";
-                    ToolTip = 'View a list of your sales people and your purchasers.';
+                    ToolTip = 'View a list of salespeople and purchasers.';
                 }
                 action("Customer Invoice Discount")
                 {
@@ -896,19 +864,6 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Reason Codes";
                     ToolTip = 'View or set up codes that specify reasons why entries were created, such as Return, to specify why a purchase credit memo was posted.';
                 }
-#if not CLEAN25
-                action("Extended Texts")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Extended Texts';
-                    Image = Text;
-                    RunObject = Page "Extended Text List";
-                    ToolTip = 'View or edit additional text for the descriptions of items. Extended text can be inserted under the Description field on document lines for the item.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Page should not get opened without any filters.';
-                    ObsoleteTag = '23.0';
-                }
-#endif
             }
         }
         area(creation)

@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Intercompany.Outbox;
 
 using Microsoft.Intercompany.Comment;
+using Microsoft.Intercompany;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Intercompany.Partner;
 using System.Utilities;
@@ -23,12 +24,27 @@ table 414 "IC Outbox Transaction"
             Editable = false;
             TableRelation = "IC Partner".Code;
         }
+#if not CLEANSCHEMA29
         field(3; "Source Type"; Option)
         {
             Caption = 'Source Type';
             Editable = false;
             OptionCaption = 'Journal Line,Sales Document,Purchase Document';
             OptionMembers = "Journal Line","Sales Document","Purchase Document";
+            ObsoleteReason = 'Replaced by IC Source Type for Enum typing';
+#if not CLEAN26
+            ObsoleteState = Pending;
+            ObsoleteTag = '26.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '29.0';
+#endif
+        }
+#endif
+        field(4; "IC Source Type"; Enum "IC Transaction Source Type")
+        {
+            Caption = 'IC Source Type';
+            Editable = false;
         }
         field(5; "Document Type"; Enum "IC Transaction Document Type")
         {
@@ -78,6 +94,7 @@ table 414 "IC Outbox Transaction"
                 end;
             end;
         }
+#if not CLEANSCHEMA25
         field(12; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
@@ -85,6 +102,7 @@ table 414 "IC Outbox Transaction"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(13; "Source Line No."; Integer)
         {
             Caption = 'Source Line No.';
@@ -121,8 +139,8 @@ table 414 "IC Outbox Transaction"
         ICOutboxSalesHdr: Record "IC Outbox Sales Header";
         ICCommentLine: Record "IC Comment Line";
     begin
-        case "Source Type" of
-            "Source Type"::"Journal Line":
+        case "IC Source Type" of
+            "IC Source Type"::Journal:
                 begin
                     ICOutboxJnlLine.SetRange("Transaction No.", "Transaction No.");
                     ICOutboxJnlLine.SetRange("IC Partner Code", "IC Partner Code");
@@ -130,7 +148,7 @@ table 414 "IC Outbox Transaction"
                     if ICOutboxJnlLine.FindFirst() then
                         ICOutboxJnlLine.DeleteAll(true);
                 end;
-            "Source Type"::"Sales Document":
+            "IC Source Type"::"Sales Document":
                 begin
                     ICOutboxSalesHdr.SetRange("IC Transaction No.", "Transaction No.");
                     ICOutboxSalesHdr.SetRange("IC Partner Code", "IC Partner Code");
@@ -138,7 +156,7 @@ table 414 "IC Outbox Transaction"
                     if ICOutboxSalesHdr.FindFirst() then
                         ICOutboxSalesHdr.Delete(true);
                 end;
-            "Source Type"::"Purchase Document":
+            "IC Source Type"::"Purchase Document":
                 begin
                     ICOutboxPurchHdr.SetRange("IC Transaction No.", "Transaction No.");
                     ICOutboxPurchHdr.SetRange("IC Partner Code", "IC Partner Code");
@@ -169,8 +187,8 @@ table 414 "IC Outbox Transaction"
         ICOutboxSalesDoc: Page "IC Outbox Sales Doc.";
         ICOutboxPurchDoc: Page "IC Outbox Purchase Doc.";
     begin
-        case "Source Type" of
-            "Source Type"::"Journal Line":
+        case "IC Source Type" of
+            "IC Source Type"::Journal:
                 begin
                     ICOutboxJnlLine.SetRange("Transaction No.", "Transaction No.");
                     ICOutboxJnlLine.SetRange("IC Partner Code", "IC Partner Code");
@@ -179,7 +197,7 @@ table 414 "IC Outbox Transaction"
                     ICOutboxJnlLines.SetTableView(ICOutboxJnlLine);
                     ICOutboxJnlLines.RunModal();
                 end;
-            "Source Type"::"Sales Document":
+            "IC Source Type"::"Sales Document":
                 begin
                     ICOutboxSalesHeader.SetRange("IC Transaction No.", "Transaction No.");
                     ICOutboxSalesHeader.SetRange("IC Partner Code", "IC Partner Code");
@@ -188,7 +206,7 @@ table 414 "IC Outbox Transaction"
                     ICOutboxSalesDoc.SetTableView(ICOutboxSalesHeader);
                     ICOutboxSalesDoc.RunModal();
                 end;
-            "Source Type"::"Purchase Document":
+            "IC Source Type"::"Purchase Document":
                 begin
                     ICOutboxPurchHeader.SetRange("IC Partner Code", "IC Partner Code");
                     ICOutboxPurchHeader.SetRange("IC Transaction No.", "Transaction No.");
@@ -221,7 +239,7 @@ table 414 "IC Outbox Transaction"
         if IsHandled then
             exit;
 
-        HandledICOutboxTrans.SetRange("Source Type", "Source Type");
+        HandledICOutboxTrans.SetRange("Source Type", "IC Source Type");
         HandledICOutboxTrans.SetRange("Document Type", "Document Type");
         HandledICOutboxTrans.SetRange("Document No.", "Document No.");
         if HandledICOutboxTrans.FindFirst() then
@@ -233,7 +251,7 @@ table 414 "IC Outbox Transaction"
             then
                 Error('');
 
-        ICOutboxTransaction2.SetRange("Source Type", "Source Type");
+        ICOutboxTransaction2.SetRange("IC Source Type", "IC Source Type");
         ICOutboxTransaction2.SetRange("Document Type", "Document Type");
         ICOutboxTransaction2.SetRange("Document No.", "Document No.");
         ICOutboxTransaction2.SetFilter("Transaction No.", '<>%1', "Transaction No.");
@@ -261,7 +279,7 @@ table 414 "IC Outbox Transaction"
     begin
         if Rec."Document Type" <> Rec."Document Type"::Invoice then
             exit(false);
-        if Rec."Source Type" <> Rec."Source Type"::"Sales Document" then
+        if Rec."IC Source Type" <> Rec."IC Source Type"::"Sales Document" then
             exit(false);
         if Rec."Transaction Source" <> Rec."Transaction Source"::"Created by Current Company" then
             exit(false);
@@ -270,7 +288,7 @@ table 414 "IC Outbox Transaction"
         HandledICOutboxTrans.SetRange("IC Partner Code", Rec."IC Partner Code");
         HandledICOutboxTrans.SetRange("Transaction Source", Rec."Transaction Source");
         HandledICOutboxTrans.SetRange("Document No.", ICOutboxSalesHeader."Order No.");
-        HandledICOutboxTrans.SetRange("Source Type", Rec."Source Type");
+        HandledICOutboxTrans.SetRange("Source Type", Rec."IC Source Type");
         HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::Order);
         exit(not HandledICOutboxTrans.IsEmpty());
     end;

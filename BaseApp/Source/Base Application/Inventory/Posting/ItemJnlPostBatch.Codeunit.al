@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Inventory.Posting;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Posting;
 
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -13,7 +17,9 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
+using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
 using System.Utilities;
@@ -21,7 +27,8 @@ using System.Utilities;
 codeunit 23 "Item Jnl.-Post Batch"
 {
     Permissions = TableData "Item Journal Batch" = rimd,
-                  TableData "Warehouse Register" = r;
+                  TableData "Warehouse Register" = r,
+                  TableData "Value Entry" = rm;
     TableNo = "Item Journal Line";
     EventSubscriberInstance = Manual;
 
@@ -53,7 +60,9 @@ codeunit 23 "Item Jnl.-Post Batch"
         WMSMgmt: Codeunit "WMS Management";
         WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line";
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+        CreatePutaway: Codeunit "Create Put-away";
         Window: Dialog;
+        PostponedValueEntries: List of [Integer];
         ItemRegNo: Integer;
         WhseRegNo: Integer;
         StartLineNo: Integer;
@@ -73,7 +82,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         Text002: Label 'Checking lines        #2######\';
         Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
         Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
-        Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+        Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
         Text008: Label 'There are new postings made in the period you want to revalue item no. %1.\';
 #pragma warning restore AA0470
         Text009: Label 'You must calculate the inventory value again.';
@@ -92,7 +101,7 @@ codeunit 23 "Item Jnl.-Post Batch"
     begin
         OnBeforeCode(ItemJnlLine);
 
-        ItemJnlLine.LockTable();
+        ItemJnlLine.ReadIsolation(IsolationLevel::UpdLock);
         ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
 
@@ -113,25 +122,28 @@ codeunit 23 "Item Jnl.-Post Batch"
             exit;
         end;
 
-        CheckItemAvailability(ItemJnlLine);
-
         OpenProgressDialog();
+
+        CheckItemAvailability(ItemJnlLine);
 
         CheckLines(ItemJnlLine);
         GLSetup.SetLoadFields("Amount Rounding Precision");
         GLSetup.Get();
 
-        // Find next register no.
-        ItemLedgEntry.LockTable();
-        if ItemLedgEntry.FindLast() then;
+        if InvtSetup.UseLegacyPosting() then begin
+            // Find next register no.
+            ItemLedgEntry.LockTable();
+            if ItemLedgEntry.FindLast() then;
 
-        ItemReg.LockTable();
-        ItemRegNo := ItemReg.GetLastEntryNo() + 1;
+            ItemReg.LockTable();
+            ItemRegNo := ItemReg.GetLastEntryNo() + 1;
+        end;
 
         if WhseTransaction then
             WhseJnlPostLine.LockIfLegacyPosting();
 
-        BindSubscription(this); // To set WhseRegNo if a warehouse entry is created
+        Clear(PostponedValueEntries);
+        BindSubscription(this); // To set ItemRegNo or WhseRegNo if an entry is created and collect value entries for GLPosting
 
         PhysInvtCount := false;
         // Post lines
@@ -140,10 +152,11 @@ codeunit 23 "Item Jnl.-Post Batch"
         OldEntryType := ItemJnlLine."Entry Type";
         PostLines(ItemJnlLine, PhysInvtCountMgt);
         // Copy register no. and current journal batch name to item journal
-        if not ItemReg.FindLast() or (ItemReg."No." <> ItemRegNo) then
-            ItemRegNo := 0;
+        if InvtSetup.UseLegacyPosting() then
+            if not ItemReg.FindLast() or (ItemReg."No." <> ItemRegNo) then
+                ItemRegNo := 0;
 
-        UnBindSubscription(this); 
+        UnBindSubscription(this);
 
         OnAfterCopyRegNos(ItemJnlLine, ItemRegNo, WhseRegNo);
 
@@ -153,10 +166,13 @@ codeunit 23 "Item Jnl.-Post Batch"
         if ItemJnlLine."Line No." = 0 then
             ItemJnlLine."Line No." := WhseRegNo;
 
+        ItemJnlPostLine.PostDeferredValueEntriesToGL(PostponedValueEntries);
+
         InvtSetup.SetLoadFields("Automatic Cost Adjustment", "Automatic Cost Posting");
         InvtSetup.Get();
         if InvtSetup.AutomaticCostAdjmtRequired() then
             InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+
         // Update/delete lines
         OnBeforeUpdateDeleteLines(ItemJnlLine, ItemRegNo);
         if ItemJnlLine."Line No." <> 0 then begin
@@ -250,7 +266,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                     if (ItemJnlLine."Value Entry Type" = ItemJnlLine."Value Entry Type"::Revaluation) and
                         (ItemJnlLine."Inventory Value Per" = ItemJnlLine."Inventory Value Per"::" ") and ItemJnlLine."Partial Revaluation"
                     then
-                        CheckRemainingQty();
+                        CheckRemainingQty(ItemJnlLine."Applies-to Entry", ItemJnlLine."Posting Date");
 
                     OnAfterCheckJnlLine(ItemJnlLine, SuppressCommit);
                 end;
@@ -266,6 +282,7 @@ codeunit 23 "Item Jnl.-Post Batch"
     local procedure PostLines(var ItemJnlLine: Record "Item Journal Line"; var PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management")
     var
         TempTrackingSpecification: Record "Tracking Specification" temporary;
+        ItemJnlLineLoop: Record "Item Journal Line";
         OriginalQuantity: Decimal;
         OriginalQuantityBase: Decimal;
         IsHandled: Boolean;
@@ -276,9 +293,14 @@ codeunit 23 "Item Jnl.-Post Batch"
         LastDocNo2 := '';
         LastPostedDocNo := '';
 
-        ItemJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.");
-        ItemJnlLine.FindSet();
+        ItemJnlLineLoop.Copy(ItemJnlLine);
+        if InvtSetup.UseLegacyPosting() then
+            ItemJnlLineLoop.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.")
+        else
+            ItemJnlLineLoop.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.", "Item No.", "Location Code", "Bin Code", "Line No.");
+        ItemJnlLineLoop.FindSet();
         repeat
+            ItemJnlLine := ItemJnlLineLoop;
             if not ItemJnlLine.EmptyLine() and (ItemJnlBatch."No. Series" <> '') and (ItemJnlLine."Document No." <> LastDocNo2) then
                 ItemJnlLine.TestField("Document No.", NoSeriesBatch.GetNextNo(ItemJnlBatch."No. Series", ItemJnlLine."Posting Date"));
             if not ItemJnlLine.EmptyLine() then
@@ -290,7 +312,10 @@ codeunit 23 "Item Jnl.-Post Batch"
             MakeRecurringTexts(ItemJnlLine);
             ConstructPostingNumber(ItemJnlLine);
 
-            UpdateItemTracking(ItemJnlLine);
+            IsHandled := false;
+            OnBeforeOnPostLinesOnBeforePostLineUpdateItemTracking(ItemJnlLine, IsHandled);
+            if not IsHandled then
+                UpdateItemTracking(ItemJnlLine);
 
             OnPostLinesOnBeforePostLine(ItemJnlLine, SuppressCommit, WindowIsOpen);
 
@@ -313,6 +338,9 @@ codeunit 23 "Item Jnl.-Post Batch"
                         OriginalQuantityBase := ItemJnlLine."Quantity (Base)";
                         if not ItemJnlPostLine.RunWithCheck(ItemJnlLine) then
                             ItemJnlPostLine.CheckItemTracking();
+
+                        HandleWhsePutAwayForProdOutput(ItemJnlLine);
+
                         if ItemJnlLine."Value Entry Type" <> ItemJnlLine."Value Entry Type"::Revaluation then begin
                             ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification);
                             OnPostLinesBeforePostWhseJnlLine(ItemJnlLine, SuppressCommit);
@@ -332,9 +360,24 @@ codeunit 23 "Item Jnl.-Post Batch"
                 PhysInvtCountMgt.AddToTempItemSKUList(
                     ItemJnlLine."Item No.", ItemJnlLine."Location Code", ItemJnlLine."Variant Code", ItemJnlLine."Phys Invt Counting Period Type");
             end;
-        until ItemJnlLine.Next() = 0;
+        until ItemJnlLineLoop.Next() = 0;
 
+        CreatePutaway.CreateWhsePutAwayForProdOutput();
         OnAfterPostLines(ItemJnlLine, ItemRegNo, WhseRegNo);
+    end;
+
+    local procedure HandleWhsePutAwayForProdOutput(ItemJournalLine: Record "Item Journal Line")
+    begin
+        if ItemJournalLine.OutputValuePosting() then
+            exit;
+
+        if ItemJournalLine."Entry Type" <> ItemJournalLine."Entry Type"::Output then
+            exit;
+
+        if (ItemJournalLine."Order No." = '') or (ItemJournalLine."Order Line No." = 0) then
+            exit;
+
+        CreatePutaway.IncludeIntoWhsePutAwayForProdOrder(ItemJournalLine);
     end;
 
     local procedure HandleRecurringLine(var ItemJnlLine: Record "Item Journal Line")
@@ -631,10 +674,9 @@ codeunit 23 "Item Jnl.-Post Batch"
         if InventorySetup."Average Cost Calc. Type" = InventorySetup."Average Cost Calc. Type"::Item then
             UpdateItemStdCost()
         else
-            if SKU.Get(ItemJnlLine."Location Code", ItemJnlLine."Item No.", ItemJnlLine."Variant Code") then begin
-                SKU.Validate("Standard Cost", ItemJnlLine."Unit Cost (Revalued)");
-                SKU.Modify();
-            end else
+            if SKU.Get(ItemJnlLine."Location Code", ItemJnlLine."Item No.", ItemJnlLine."Variant Code") then
+                UpdateSKUStdCost(SKU)
+            else
                 UpdateItemStdCost();
     end;
 
@@ -650,13 +692,25 @@ codeunit 23 "Item Jnl.-Post Batch"
         Item.Modify();
     end;
 
-    local procedure CheckRemainingQty()
+    local procedure UpdateSKUStdCost(var SKU: Record "Stockkeeping Unit")
+    begin
+        SKU.Validate("Standard Cost", ItemJnlLine."Unit Cost (Revalued)");
+        SetSKUSingleLevelCosts(SKU, ItemJnlLine);
+        SetSKURolledUpCosts(SKU, ItemJnlLine);
+        OnAfterUpdateStdCostSKUValidate(ItemJnlLine, SKU);
+        SKU.Modify();
+    end;
+
+    local procedure CheckRemainingQty(AppliesToEntryNo: Integer; PostingDate: Date)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         RemainingQty: Decimal;
+        IsHandled: Boolean;
     begin
-        RemainingQty := ItemLedgerEntry.CalculateRemQuantity(
-            ItemJnlLine."Applies-to Entry", ItemJnlLine."Posting Date");
+        OnBeforeCheckRemainingQty(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+        RemainingQty := ItemLedgerEntry.CalculateRemQuantity(AppliesToEntryNo, PostingDate);
 
         if RemainingQty <> ItemJnlLine.Quantity then
             Error(Text008 + Text009, ItemJnlLine."Item No.");
@@ -897,6 +951,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         Item."Single-Level Subcontrd. Cost" := ItemJournalLine."Single-Level Subcontrd. Cost";
         Item."Single-Level Cap. Ovhd Cost" := ItemJournalLine."Single-Level Cap. Ovhd Cost";
         Item."Single-Level Mfg. Ovhd Cost" := ItemJournalLine."Single-Level Mfg. Ovhd Cost";
+        Item."Single-Lvl Mat. Non-Invt. Cost" := ItemJournalLine."Single-Lvl Mat. Non-Invt. Cost";
     end;
 
     local procedure SetItemRolledUpCosts(var Item: Record Item; ItemJournalLine: Record "Item Journal Line")
@@ -906,6 +961,27 @@ codeunit 23 "Item Jnl.-Post Batch"
         Item."Rolled-up Subcontracted Cost" := ItemJournalLine."Rolled-up Subcontracted Cost";
         Item."Rolled-up Mfg. Ovhd Cost" := ItemJournalLine."Rolled-up Mfg. Ovhd Cost";
         Item."Rolled-up Cap. Overhead Cost" := ItemJournalLine."Rolled-up Cap. Overhead Cost";
+        Item."Rolled-up Mat. Non-Invt. Cost" := ItemJournalLine."Rolled-up Mat. Non-Invt. Cost";
+    end;
+
+    local procedure SetSKUSingleLevelCosts(var SKU: Record "Stockkeeping Unit"; ItemJournalLine: Record "Item Journal Line")
+    begin
+        SKU."Single-Level Material Cost" := ItemJournalLine."Single-Level Material Cost";
+        SKU."Single-Level Capacity Cost" := ItemJournalLine."Single-Level Capacity Cost";
+        SKU."Single-Level Subcontrd. Cost" := ItemJournalLine."Single-Level Subcontrd. Cost";
+        SKU."Single-Level Cap. Ovhd Cost" := ItemJournalLine."Single-Level Cap. Ovhd Cost";
+        SKU."Single-Level Mfg. Ovhd Cost" := ItemJournalLine."Single-Level Mfg. Ovhd Cost";
+        SKU."Single-Lvl Mat. Non-Invt. Cost" := ItemJournalLine."Single-Lvl Mat. Non-Invt. Cost";
+    end;
+
+    local procedure SetSKURolledUpCosts(var SKU: Record "Stockkeeping Unit"; ItemJournalLine: Record "Item Journal Line")
+    begin
+        SKU."Rolled-up Material Cost" := ItemJournalLine."Rolled-up Material Cost";
+        SKU."Rolled-up Capacity Cost" := ItemJournalLine."Rolled-up Capacity Cost";
+        SKU."Rolled-up Subcontracted Cost" := ItemJournalLine."Rolled-up Subcontracted Cost";
+        SKU."Rolled-up Mfg. Ovhd Cost" := ItemJournalLine."Rolled-up Mfg. Ovhd Cost";
+        SKU."Rolled-up Cap. Overhead Cost" := ItemJournalLine."Rolled-up Cap. Overhead Cost";
+        SKU."Rolled-up Mat. Non-Invt. Cost" := ItemJournalLine."Rolled-up Mat. Non-Invt. Cost";
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
@@ -926,6 +1002,43 @@ codeunit 23 "Item Jnl.-Post Batch"
             ItemJournalLine.CreateItemTrackingLines(false);
         ItemJournalLine.ClearTracking();
         ItemJournalLine.ClearDates();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
+    local procedure OnBeforePostValueEntryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    begin
+        if InvtSetup.UseLegacyPosting() then
+            exit;
+        PostponedValueEntries.Add(ValueEntry."Entry No.");
+        IsHandled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInsertItemLedgEntry', '', false, false)]
+    local procedure OnAfterInsertItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; var ItemLedgEntryNo: Integer; var ValueEntryNo: Integer; var ItemApplnEntryNo: Integer; GlobalValueEntry: Record "Value Entry"; TransferItem: Boolean; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; var OldItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+        if ItemLedgerEntry."Item Register No." > ItemRegNo then
+            ItemRegNo := ItemLedgerEntry."Item Register No.";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInsertValueEntry', '', false, false)]
+    local procedure OnAfterInsertValueEntry(var ValueEntry: Record "Value Entry"; ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer)
+    begin
+        if ValueEntry."Item Register No." > ItemRegNo then
+            ItemRegNo := ValueEntry."Item Register No.";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInsertPhysInventoryEntry', '', false, false)]
+    local procedure OnAfterInsertPhysInventoryEntry(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    begin
+        if PhysInventoryLedgerEntry."Item Register No." > ItemRegNo then
+            ItemRegNo := PhysInventoryLedgerEntry."Item Register No.";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInsertCapLedgEntry', '', false, false)]
+    local procedure OnAfterInsertCapLedgEntry(var CapLedgEntry: Record "Capacity Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    begin
+        if CapLedgEntry."Item Register No." > ItemRegNo then
+            ItemRegNo := CapLedgEntry."Item Register No.";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Jnl.-Register Line", 'OnAfterInsertWhseEntry', '', false, false)]
@@ -1187,6 +1300,21 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPostLinesOnBeforePostLineUpdateItemTracking(var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateStdCostSKUValidate(var ItemJnlLine: Record "Item Journal Line"; var SKU: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRemainingQty(var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

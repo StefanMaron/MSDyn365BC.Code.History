@@ -202,6 +202,7 @@ codeunit 132907 AzureADUserMgtTest
         BindSubscription(AzureADUserMgtTestLibrary);
         BindSubscription(TestUserPermissionsSubs);
         TestUserPermissionsSubs.SetCanManageUser(UserSecurityId());
+        AssignSuperToCurrentUser();
 
         // [GIVEN] A permission set in a plan exists
         RainyCloudPlanId := AzureADPlanTestLibrary.CreatePlan('Rainy Cloud');
@@ -270,6 +271,7 @@ codeunit 132907 AzureADUserMgtTest
         BindSubscription(AzureADUserMgtTestLibrary);
         BindSubscription(TestUserPermissionsSubs);
         TestUserPermissionsSubs.SetCanManageUser(UserSecurityId());
+        AssignSuperToCurrentUser();
 
         // [GIVEN] A permission set in a plan exists
         RainyCloudPlanId := AzureADPlanTestLibrary.CreatePlan('Rainy Cloud');
@@ -541,6 +543,19 @@ codeunit 132907 AzureADUserMgtTest
         AccessControl.SetRange("User Security ID", UserSecId);
         AccessControl.SetRange("Role ID", CopyStr(RoleId, 1, MaxStrLen(AccessControl."Role ID")));
         Assert.RecordIsNotEmpty(AccessControl);
+    end;
+
+    local procedure AssignSuperToCurrentUser()
+    var
+        AccessControl: Record "Access Control";
+    begin
+        AccessControl.SetRange("User Security ID", UserSecurityId());
+        AccessControl.SetRange("Role ID", 'SUPER');
+        if not AccessControl.IsEmpty() then
+            exit;
+        AccessControl."User Security ID" := UserSecurityId();
+        AccessControl."Role ID" := 'SUPER';
+        AccessControl.Insert(true);
     end;
 
     [Test]

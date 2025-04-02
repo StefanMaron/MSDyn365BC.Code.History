@@ -293,13 +293,6 @@ table 93 "Vendor Posting Group"
         {
             Caption = 'View All Accounts on Lookup';
         }
-        field(11200; "Inward Reg. Bridging Debt"; Code[20])
-        {
-            Caption = 'Inward Reg. Bridging Debt';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys

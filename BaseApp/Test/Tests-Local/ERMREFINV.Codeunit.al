@@ -54,17 +54,10 @@ codeunit 144018 "ERM REFINV"
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
 
         // Exercise.
-#if not CLEAN23
-        CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.", true);  // Using True for IncludeOrgInvInfo.
-
-        // Verify.
-        VerifySalesCreditMemo(SalesHeader, DocumentNo, DocumentNo);
-#else
         CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.");
 
         // Verify.
         VerifySalesCreditMemo(SalesHeader, DocumentNo);
-#endif
     end;
 
     [Test]
@@ -82,11 +75,7 @@ codeunit 144018 "ERM REFINV"
         // Setup.
         Initialize();
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
-#if not CLEAN23
-        CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.", true);  // Using True for IncludeOrgInvInfo.
-#else
         CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.");
-#endif
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
         DeleteSalesLine(SalesHeader."No.", SalesLine."No.");
         SalesHeader.CalcFields(Amount);
@@ -121,18 +110,10 @@ codeunit 144018 "ERM REFINV"
         LibrarySales.SetPostWithJobQueue(true);
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
         DocumentNo2 := CreateAndPostSalesInvoice(SalesLine2);
-#if not CLEAN23
-        CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.", true);  // Using True for IncludeOrgInvInfo.
-#else
         CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.");
-#endif
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
         SalesHeader.CalcFields(Amount);
-#if not CLEAN23
-        CreateSalesCreditMemoFromPage(SalesHeader2, DocumentNo2, SalesLine2."Sell-to Customer No.", true);  // Using True for IncludeOrgInvInfo.
-#else
         CreateSalesCreditMemoFromPage(SalesHeader2, DocumentNo2, SalesLine2."Sell-to Customer No.");
-#endif
         SalesHeader2.Get(SalesHeader2."Document Type"::"Credit Memo", SalesHeader2."No.");
         SalesHeader2.CalcFields(Amount);
 
@@ -160,11 +141,7 @@ codeunit 144018 "ERM REFINV"
         // Setup.
         Initialize();
         DocumentNo := CreateAndPostSalesInvoiceWithGLAccount(SalesLine);
-#if not CLEAN23
-        CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.", true);  // Using True for IncludeOrgInvInfo.
-#else
         CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.");
-#endif
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
         UpdateQuantityOnSalesLine(
           SalesHeader."No.", SalesLine."No.", SalesLine.Quantity / 2, SalesLine.Amount - LibraryERM.GetAmountRoundingPrecision());  // Using Random Value.
@@ -194,17 +171,10 @@ codeunit 144018 "ERM REFINV"
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
 
         // Exercise.
-#if not CLEAN23
-        CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.", false);
-
-        // Verify.
-        VerifySalesCreditMemo(SalesHeader, '', DocumentNo);  // Blank for Source Inv. No.
-#else
         CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.");
 
         // Verify.
         VerifySalesCreditMemo(SalesHeader, DocumentNo);  // Blank for Source Inv. No.
-#endif
     end;
 
     [Test]
@@ -222,11 +192,7 @@ codeunit 144018 "ERM REFINV"
         // Setup.
         Initialize();
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
-#if not CLEAN23
-        CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.", false);
-#else
         CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.");
-#endif
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
         SalesHeader.CalcFields(Amount);
         VATAmount := (SalesHeader.Amount * SalesLine."VAT %") / 100;
@@ -264,20 +230,12 @@ codeunit 144018 "ERM REFINV"
         SalesHeader.Get(SalesLine."Document Type"::Invoice, SalesLine."Document No.");
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));  // Post as Ship and Invoice.
     end;
-#if not CLEAN23
-    local procedure CreateSalesCreditMemoFromPage(var SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; SellToCustomerNo: Code[20]; IncludeOrgInvInfo: Boolean)
-#else
     local procedure CreateSalesCreditMemoFromPage(var SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; SellToCustomerNo: Code[20])
-#endif
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SellToCustomerNo);
-#if not CLEAN23
-        EnqueueValueForCopySalesDocument(DocumentNo, SalesHeader."Sell-to Customer No.", IncludeOrgInvInfo);  // Enqueue value for CopySalesDocumentRequestPageHandler.
-#else
         EnqueueValueForCopySalesDocument(DocumentNo, SalesHeader."Sell-to Customer No.");  // Enqueue value for CopySalesDocumentRequestPageHandler
-#endif
         Commit();  // Commit is required.
         SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", SalesHeader."No.");
@@ -328,18 +286,11 @@ codeunit 144018 "ERM REFINV"
         SalesLine.Delete(true);
     end;
 
-#if not CLEAN23
-    local procedure EnqueueValueForCopySalesDocument(DocumentNo: Text; SellToCustomerNo: Text; IncludeOrgInvInfo: Boolean)
-#else
     local procedure EnqueueValueForCopySalesDocument(DocumentNo: Text; SellToCustomerNo: Text)
-#endif
     begin
         // Enqueue value for CopySalesDocumentRequestPageHandler.
         LibraryVariableStorage.Enqueue(DocumentNo);
         LibraryVariableStorage.Enqueue(SellToCustomerNo);
-#if not CLEAN23
-        LibraryVariableStorage.Enqueue(IncludeOrgInvInfo);
-#endif
     end;
 
     local procedure UpdateQuantityOnSalesLine(DocumentNo: Code[20]; No: Code[20]; Quantity: Decimal; LineAmount: Decimal)
@@ -396,17 +347,10 @@ codeunit 144018 "ERM REFINV"
         Assert.IsTrue(JobQueueEntry.FindFirst(), JobQueueEntryErr);
     end;
 
-#if not CLEAN23
-    local procedure VerifySalesCreditMemo(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; AppliesToDocNo: Code[20])
-#else
     local procedure VerifySalesCreditMemo(SalesHeader: Record "Sales Header"; AppliesToDocNo: Code[20])
-#endif
     begin
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
         SalesHeader.TestField("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::Invoice);
-#if not CLEAN23
-        SalesHeader.TestField("Source Inv. No.", DocumentNo);
-#endif
         SalesHeader.TestField("Applies-to Doc. No.", AppliesToDocNo);
     end;
 
@@ -422,24 +366,15 @@ codeunit 144018 "ERM REFINV"
     procedure CopySalesDocumentRequestPageHandler(var CopySalesDocument: TestRequestPage "Copy Sales Document")
     var
         DocumentNo: Variant;
-#if not CLEAN23
-        IncludeOrgInvInfo: Variant;
-#endif
         SellToCustNo: Variant;
         DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
         LibraryVariableStorage.Dequeue(SellToCustNo);
-#if not CLEAN23
-        LibraryVariableStorage.Dequeue(IncludeOrgInvInfo);
-#endif
         CopySalesDocument.DocumentType.SetValue(Format(DocType::"Posted Invoice"));
         CopySalesDocument.DocumentNo.SetValue(DocumentNo);
         CopySalesDocument.SellToCustNo.SetValue(SellToCustNo);
         CopySalesDocument.RecalculateLines.SetValue(false);
-#if not CLEAN23
-        CopySalesDocument.IncludeOrgInvInfo.SetValue(IncludeOrgInvInfo);
-#endif
         CopySalesDocument.OK().Invoke();
     end;
 

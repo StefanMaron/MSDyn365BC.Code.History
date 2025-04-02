@@ -29,9 +29,6 @@
         CompressErr: Label 'The transaction cannot be reversed, because the %1 has been compressed.', Locked = true;
         VerifyErr: Label 'Error must match.', Locked = true;
         isInitialized: Boolean;
-#if not CLEAN23
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
-#endif
         VoidType: Option "Unapply and void check","Void check only";
 
     [Test]
@@ -107,11 +104,7 @@
     end;
 
     [Test]
-#if not CLEAN23
-    [HandlerFunctions('ConfirmHandler,StatisticsMessageHandler')]
-#else
     [HandlerFunctions('ConfirmHandler')]
-#endif
     [Scope('OnPrem')]
     procedure ReverseAdjustExchangeRate()
     var
@@ -128,11 +121,7 @@
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           GenJournalLine."Bank Payment Type"::" ", CreateCurrency(), CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
         ModifyCurrencyAndExchangeRate(GenJournalLine."Currency Code");
-#if not CLEAN23
-        LibraryERM.RunAdjustExchangeRatesSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
-#else
         LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
-#endif
         // Exercise: Reverse Customer Ledger Entry.
         EntryNo := ReverseCustomerLedgerEntry(GenJournalLine."Document No.");
         // Verify: Verify Reversing Error for Customer Ledger Entry After Updation of Currency.
@@ -1235,15 +1224,6 @@
     procedure MessageHandler(Message: Text[1024])
     begin
     end;
-#if not CLEAN23
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -1266,9 +1246,6 @@
         SuggestVendorPayments.BalAccountType.SetValue(GenJournalLine."Bal. Account Type"::"Bank Account");
         SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText());
         SuggestVendorPayments.BankPaymentType.SetValue(GenJournalLine."Bank Payment Type"::"Computer Check");
-#if not CLEAN23
-        SuggestVendorPayments.AlwaysInclCreditMemo.SetValue(true);
-#endif
         SuggestVendorPayments.OK().Invoke();
     end;
 

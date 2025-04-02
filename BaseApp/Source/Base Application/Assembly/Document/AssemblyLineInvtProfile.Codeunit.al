@@ -1,6 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Document;
 
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Sales.Document;
@@ -143,5 +148,49 @@ codeunit 928 "Assembly Line Invt. Profile"
     begin
         if InventoryProfile."Source Type" = Database::"Assembly Line" then
             InventoryProfile."Order Priority" := 470;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Plng. Component Invt. Profile", 'OnTransferInventoryProfileFromPlamComponentByRefOrderType', '', false, false)]
+    local procedure OnTransferInventoryProfileFromPlamComponentByRefOrderType(var InventoryProfile: Record "Inventory Profile"; PlanningComponent: Record "Planning Component")
+    var
+        AssemblyLine: Record "Assembly Line";
+        ReservationEntry: Record "Reservation Entry";
+        ReservedQty: Decimal;
+    begin
+        case PlanningComponent."Ref. Order Type" of
+            PlanningComponent."Ref. Order Type"::Assembly:
+                if AssemblyLine.Get(
+                     PlanningComponent."Ref. Order Status",
+                     PlanningComponent."Ref. Order No.",
+                     PlanningComponent."Ref. Order Line No.")
+                then begin
+                    InventoryProfile."Original Quantity" := AssemblyLine.Quantity;
+                    AssemblyLine.CalcFields("Reserved Qty. (Base)");
+                    if AssemblyLine."Reserved Qty. (Base)" > 0 then begin
+                        ReservedQty := AssemblyLine."Reserved Qty. (Base)";
+                        AssemblyLine.SetReservationFilters(ReservationEntry);
+                        InventoryProfile.CalcReservedQty(ReservationEntry, ReservedQty);
+                        if ReservedQty > InventoryProfile."Untracked Quantity" then
+                            InventoryProfile."Untracked Quantity" := 0
+                        else
+                            InventoryProfile."Untracked Quantity" := InventoryProfile."Untracked Quantity" - ReservedQty;
+                    end;
+                end else begin
+                    InventoryProfile."Primary Order Type" := Database::"Planning Component";
+                    InventoryProfile."Primary Order Status" := PlanningComponent."Ref. Order Status".AsInteger();
+                    InventoryProfile."Primary Order No." := PlanningComponent."Ref. Order No.";
+                end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Plng. Component Invt. Profile", 'OnTransferToTrackingEntrySourceTypeElseCaseOnSetSource', '', false, false)]
+    local procedure OnTransferToTrackingEntrySourceTypeElseCaseOnSetSource(var InventoryProfile: Record "Inventory Profile"; var ReservationEntry: Record "Reservation Entry"; var RequisitionLine: Record "Requisition Line")
+    begin
+        case RequisitionLine."Ref. Order Type" of
+            RequisitionLine."Ref. Order Type"::Assembly:
+                ReservationEntry.SetSource(
+                    Database::"Assembly Line", InventoryProfile."Source Order Status", InventoryProfile."Ref. Order No.",
+                    InventoryProfile."Source Ref. No.", '', InventoryProfile."Ref. Line No.");
+        end;
     end;
 }

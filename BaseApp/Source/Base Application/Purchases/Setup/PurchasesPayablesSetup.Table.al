@@ -10,17 +10,12 @@ using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
-using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.Pricing;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Upgrade;
 using Microsoft.Utilities;
 using System.Environment;
-#if not CLEAN23
-using System.Environment.Configuration;
-using System.Telemetry;
-#endif
 using System.Threading;
 
 table 312 "Purchases & Payables Setup"
@@ -34,6 +29,7 @@ table 312 "Purchases & Payables Setup"
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Discount Posting"; Option)
@@ -191,13 +187,6 @@ table 312 "Purchases & Payables Setup"
             OptionCaption = 'Remainder,Blank';
             OptionMembers = Remainder,Blank;
         }
-        field(37; "Archive Quotes and Orders"; Boolean)
-        {
-            Caption = 'Archive Quotes and Orders';
-            ObsoleteReason = 'Replaced by new fields Archive Quotes and Archive Orders';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
         field(38; "Post with Job Queue"; Boolean)
         {
             Caption = 'Post with Job Queue';
@@ -324,66 +313,10 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Disable Search by Name';
             DataClassification = SystemMetadata;
         }
-        field(170; "Insert Std. Purch. Lines Mode"; Option)
-        {
-            Caption = 'Insert Std. Purch. Lines Mode';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            OptionCaption = 'Manual,Automatic,Always Ask';
-            OptionMembers = Manual,Automatic,"Always Ask";
-            ObsoleteTag = '18.0';
-        }
-        field(171; "Insert Std. Lines on Quotes"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Quotes';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(172; "Insert Std. Lines on Orders"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Orders';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(173; "Insert Std. Lines on Invoices"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Invoices';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
-        field(174; "Insert Std. Lines on Cr. Memos"; Boolean)
-        {
-            Caption = 'Insert Std. Lines on Cr. Memos';
-            DataClassification = SystemMetadata;
-            ObsoleteReason = 'Not needed after refactoring';
-            ObsoleteState = Removed;
-            ObsoleteTag = '18.0';
-        }
         field(175; "Allow Multiple Posting Groups"; Boolean)
         {
             Caption = 'Allow Multiple Posting Groups';
             DataClassification = SystemMetadata;
-
-            trigger OnValidate()
-#if not CLEAN23
-            var
-                FeatureTelemetry: Codeunit "Feature Telemetry";
-                FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
-            begin
-#if not CLEAN23
-                if "Allow Multiple Posting Groups" then
-                    FeatureTelemetry.LogUptake(
-                        '0000JRB', FeatureKeyManagement.GetAllowMultipleCustVendPostingGroupsFeatureKey(), Enum::"Feature Uptake Status"::Discovered);
-#endif
-            end;
         }
         field(176; "Check Multiple Posting Groups"; enum "Posting Group Change Method")
         {
@@ -424,13 +357,6 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Copy Line Descr. to G/L Entry';
             DataClassification = SystemMetadata;
-        }
-        field(810; "Invoice Posting Setup"; Enum "Purchase Invoice Posting")
-        {
-            Caption = 'Invoice Posting Setup';
-            ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
         }
         field(1217; "Debit Acc. for Non-Item Lines"; Code[20])
         {
@@ -512,6 +438,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Default Price List Code';
             TableRelation = "Price List Header" where("Price Type" = const(Purchase), "Source Group" = const(Vendor), "Allow Updating Defaults" = const(true));
             DataClassification = CustomerContent;
+
             trigger OnLookup()
             var
                 PriceListHeader: Record "Price List Header";
@@ -521,92 +448,27 @@ table 312 "Purchases & Payables Setup"
                     Validate("Default Price List Code", PriceListHeader.Code);
                 end;
             end;
-#if not CLEAN23
-
-            trigger OnValidate()
-            var
-                FeatureTelemetry: Codeunit "Feature Telemetry";
-                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-            begin
-                if ("Default Price List Code" <> xRec."Default Price List Code") or (CurrFieldNo = 0) then
-                    FeatureTelemetry.LogUptake('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
-            end;
-#endif
         }
         field(7004; "Link Doc. Date To Posting Date"; Boolean)
         {
             Caption = 'Link Doc. Date to Posting Date';
             DataClassification = SystemMetadata;
         }
-        field(11200; "Inward Reg. Nos."; Code[20])
+        field(11320; "Check Doc. Total Amounts"; Boolean)
         {
-            Caption = 'Inward Reg. Nos.';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
+            Caption = 'Check Doc. Total Amounts';
+            ToolTip = 'Specifies if you want the Doc. Amount Incl. VAT field in purchase documents to be compared to the sum of the VAT amounts fields in the purchase lines. If the amounts are not the same, you will be notified when posting the document.';
         }
-        field(11201; "Inward Posting Description"; Text[50])
-        {
-            Caption = 'Inward Posting Description';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-        field(11202; "Reverse Posting Description"; Text[50])
-        {
-            Caption = 'Reverse Posting Description';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-        field(11204; "Latest Return Date Calc."; DateFormula)
-        {
-            Caption = 'Latest Return Date Calc.';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-        field(11205; "Accumulated Inward Reg. Lines"; Boolean)
-        {
-            Caption = 'Accumulated Inward Reg. Lines';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-        field(11206; "Def. Inward Reg. Prod. Post Gr"; Code[20])
-        {
-            Caption = 'Def. Inward Reg. Prod. Post Gr';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
-        field(11207; "Copy Dimensions to Inward Reg."; Boolean)
-        {
-            Caption = 'Copy Dimensions to Inward Reg.';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
+#if not CLEANSCHEMA26
         field(11214; "Part. Pay. Nos."; Code[20])
         {
             Caption = 'Part. Pay. Nos.';
             TableRelation = "No. Series";
             ObsoleteReason = 'The field is not used and will be obsoleted';
-#if not CLEAN23
-            ObsoleteState = Pending;
-            ObsoleteTag = '23.0';
-#else
 			ObsoleteState = Removed;
             ObsoleteTag = '26.0';
+        }
 #endif
-        }
-        field(11230; "Show Inward Reg. in Balances"; Boolean)
-        {
-            Caption = 'Show Inward Reg. in Balances';
-            ObsoleteReason = 'Replaced by extension';
-            ObsoleteState = Removed;
-            ObsoleteTag = '19.0';
-        }
     }
 
     keys
@@ -641,4 +503,3 @@ table 312 "Purchases & Payables Setup"
         exit("Post with Job Queue" or "Post & Print with Job Queue");
     end;
 }
-

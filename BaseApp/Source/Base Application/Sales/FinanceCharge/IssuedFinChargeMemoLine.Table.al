@@ -176,13 +176,6 @@ table 305 "Issued Fin. Charge Memo Line"
             Caption = 'System-Created Entry';
             Editable = false;
         }
-        field(3010590; "Multiple Interest Rates Entry"; Boolean)
-        {
-            Caption = 'Multiple Interest Rates Entry';
-            ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Removed;
-            ObsoleteTag = '15.0';
-        }
     }
 
     keys

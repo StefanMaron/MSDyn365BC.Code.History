@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
@@ -31,26 +35,6 @@ report 5900 "Service Order"
             column(No_ServHeaderCaption; FieldCaption("No."))
             {
             }
-#if not CLEAN23
-            column(PlusGiroNoCaption; PlusGiroNoCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column PlusGiroNumberCaption in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(BoardOfDirLocCaption; BoardOfDirLocCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column BoardOfDirectorsLocationCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(CompHasTaxAssNoteCaption; CompHasTaxAssNoteCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column CompanyHasTaxAssessCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-#endif
             dataitem(CopyLoop; "Integer")
             {
                 DataItemTableView = sorting(Number);
@@ -135,20 +119,6 @@ report 5900 "Service Order"
                     column(CompanyInfoFaxNo; CompanyInfo."Fax No.")
                     {
                     }
-#if not CLEAN23
-                    column(CompanyInfoPlusGiroNo; CompanyInfo."Plus Giro No.")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInforPlusGiroNumber in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-                    column(CompanyInfoRegisteredOffice; CompanyInfo."Registered Office")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInfoRegisteredOfficeInfo in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-#endif
                     column(PhoneNo_ServHeader; "Service Header"."Phone No.")
                     {
                     }
@@ -737,11 +707,6 @@ report 5900 "Service Order"
         TotalCaptionLbl: Label 'Total';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
         ShiptoAddressCaptionLbl: Label 'Ship-to Address';
-#if not CLEAN23
-        PlusGiroNoCaptionLbl: Label 'Plus Giro No.';
-        BoardOfDirLocCaptionLbl: Label 'Board of Directors Location (registered office)';
-        CompHasTaxAssNoteCaptionLbl: Label 'Company has Tax Assessment Note';
-#endif
 
     protected var
         CompanyInfo: Record "Company Information";

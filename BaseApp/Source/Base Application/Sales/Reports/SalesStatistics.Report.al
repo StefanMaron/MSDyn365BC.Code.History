@@ -392,6 +392,8 @@ report 112 "Sales Statistics"
 
     requestpage
     {
+        AboutTitle = 'About Sales Statistics';
+        AboutText = 'Analyze earnings from an individual customer or trends in earnings.';
         SaveValues = true;
 
         layout

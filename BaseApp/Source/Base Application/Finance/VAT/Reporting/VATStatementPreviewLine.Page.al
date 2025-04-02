@@ -6,9 +6,6 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.VAT.Ledger;
-#if not CLEAN23
-using System.Environment.Configuration;
-#endif
 
 #pragma warning disable AS0106 // Protected variable VATDateType was removed before AS0106 was introduced.
 page 475 "VAT Statement Preview Line"
@@ -97,10 +94,6 @@ page 475 "VAT Statement Preview Line"
                                     VATEntry.SetRange("VAT Prod. Posting Group", Rec."VAT Prod. Posting Group");
                                     VATEntry.SetRange("Tax Jurisdiction Code", Rec."Tax Jurisdiction Code");
                                     VATEntry.SetRange("Use Tax", Rec."Use Tax");
-#if not CLEAN23
-                                    if not IsEU3PartyTradePurchaseEnabled then
-                                        VATEntry.SetRange("EU 3-Party Trade", Rec."EU 3-Party Trade");
-#endif
                                     if Rec.GetFilter("Date Filter") <> '' then
                                         SetDateFilterForVATEntry(VATEntry);
 
@@ -121,18 +114,6 @@ page 475 "VAT Statement Preview Line"
                         end;
                     end;
                 }
-#if not CLEAN23
-                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.';
-                    Visible = not IsEU3PartyTradePurchaseEnabled;
-                    Enabled = not IsEU3PartyTradePurchaseEnabled;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                    ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
-                }
-#endif
             }
         }
     }
@@ -148,18 +129,7 @@ page 475 "VAT Statement Preview Line"
             ColumnValue := -ColumnValue;
     end;
 
-#if not CLEAN23
-    trigger OnInit()
-    begin
-        IsEU3PartyTradePurchaseEnabled := FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled();
-    end;
-#endif
-
     var
-#if not CLEAN23
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-        IsEU3PartyTradePurchaseEnabled: Boolean;
-#endif
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'Drilldown is not possible when %1 is %2.';

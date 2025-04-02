@@ -1,11 +1,13 @@
-﻿namespace Microsoft.Inventory.Planning;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Planning;
 
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 
@@ -44,16 +46,32 @@ codeunit 99000856 "Planning Transparency"
         CurrWorksheetName := WorksheetName;
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure GetSurplusType()', '26.0')]
     procedure FindReason(var DemandInvProfile: Record "Inventory Profile") Result: Integer
+    begin
+        exit(GetSurplusType(DemandInvProfile).AsInteger());
+    end;
+#endif
+
+    procedure GetSurplusType(var DemandInvProfile: Record "Inventory Profile") Result: Enum "Planning Surplus Type"
     var
-        SurplusType: Option "None",Forecast,BlanketOrder,SafetyStock,ReorderPoint,MaxInventory,FixedOrderQty,MaxOrder,MinOrder,OrderMultiple,DampenerQty,PlanningFlexibility,Undefined;
+        SurplusType: Enum "Planning Surplus Type";
+#if not CLEAN26
+        ResultInt: Integer;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFindReason(DemandInvProfile, Result, IsHandled);
+#if not CLEAN26
+        OnBeforeFindReason(DemandInvProfile, ResultInt, IsHandled);
+        Result := "Planning Surplus Type".FromInteger(ResultInt);
+#endif
+        OnBeforeGetSurplusType(DemandInvProfile, Result, IsHandled);
         if IsHandled then
             exit(Result);
 
+        SurplusType := SurplusType::None;
         case DemandInvProfile."Source Type" of
             0:
                 case DemandInvProfile."Order Relation" of
@@ -67,15 +85,21 @@ codeunit 99000856 "Planning Transparency"
             Database::"Sales Line":
                 if DemandInvProfile."Source Order Status" = 4 then
                     SurplusType := SurplusType::BlanketOrder;
-            Database::"Production Forecast Entry":
-                SurplusType := SurplusType::Forecast;
             else
-                SurplusType := SurplusType::None;
+                OnFindReasonOnAfterSetSurplusType(DemandInvProfile, SurplusType);
         end;
         exit(SurplusType);
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by procedure LogPlanningSurplus()', '26.0')]
     procedure LogSurplus(SupplyLineNo: Integer; DemandLineNo: Integer; SourceType: Integer; SourceID: Code[20]; Qty: Decimal; SurplusType: Option "None",Forecast,BlanketOrder,SafetyStock,ReorderPoint,MaxInventory,FixedOrderQty,MaxOrder,MinOrder,OrderMultiple,DampenerQty,PlanningFlexibility,Undefined,EmergencyOrder)
+    begin
+        LogPlanningSurplus(SupplyLineNo, DemandLineNo, SourceType, SourceID, Qty, "Planning Surplus Type".FromInteger(SurplusType));
+    end;
+#endif
+
+    procedure LogPlanningSurplus(SupplyLineNo: Integer; DemandLineNo: Integer; SourceType: Integer; SourceID: Code[20]; Qty: Decimal; SurplusType: Enum "Planning Surplus Type")
     var
         Priority: Integer;
         IsHandled: Boolean;
@@ -108,7 +132,7 @@ codeunit 99000856 "Planning Transparency"
                 Priority := 7;
             else begin
                 IsHandled := false;
-                OnLogSurplusOnCaseSurplusTypeElse(SupplyLineNo, DemandLineNo, SourceType, SourceID, Qty, SurplusType, Priority, IsHandled);
+                OnLogSurplusOnCaseSurplusTypeElse(SupplyLineNo, DemandLineNo, SourceType, SourceID, Qty, SurplusType.AsInteger(), Priority, IsHandled);
                 if not IsHandled then
                     SurplusType := SurplusType::Undefined;
             end;
@@ -129,7 +153,15 @@ codeunit 99000856 "Planning Transparency"
         end;
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by procedure ModifyPlanningLog()', '26.0')]
     procedure ModifyLogEntry(SupplyLineNo: Integer; DemandLineNo: Integer; SourceType: Integer; SourceID: Code[20]; Qty: Decimal; SurplusType: Option)
+    begin
+        ModifyPlanningLog(SupplyLineNo, DemandLineNo, SourceType, SourceID, Qty, "Planning Surplus Type".FromInteger(SurplusType));
+    end;
+#endif
+
+    procedure ModifyPlanningLog(SupplyLineNo: Integer; DemandLineNo: Integer; SourceType: Integer; SourceID: Code[20]; Qty: Decimal; SurplusType: Enum "Planning Surplus Type")
     begin
         if (Qty = 0) or (SupplyLineNo = 0) then
             exit;
@@ -342,22 +374,16 @@ codeunit 99000856 "Planning Transparency"
                         ReservEntry.SetRange("Source Type", Database::"Purchase Line");
                         ReservEntry.SetRange("Source Subtype", 1);
                     end;
-                ReqLine."Ref. Order Type"::"Prod. Order":
-                    begin
-                        ReservEntry.SetRange("Source ID", ReqLine."Ref. Order No.");
-                        ReservEntry.SetRange("Source Type", Database::"Prod. Order Line");
-                        ReservEntry.SetRange("Source Subtype", ReqLine."Ref. Order Status");
-                        ReservEntry.SetRange("Source Prod. Order Line", ReqLine."Ref. Line No.");
-                    end;
                 ReqLine."Ref. Order Type"::Transfer:
                     begin
                         ReservEntry.SetRange("Source ID", ReqLine."Ref. Order No.");
                         ReservEntry.SetRange("Source Ref. No.", ReqLine."Ref. Line No.");
                         ReservEntry.SetRange("Source Type", Database::"Transfer Line");
-                        ReservEntry.SetRange("Source Subtype", 1);
-                        // Inbound
+                        ReservEntry.SetRange("Source Subtype", 1); // Inbound
                         ReservEntry.SetRange("Source Prod. Order Line", 0);
                     end;
+                else
+                    OnSurplusQtyOnSetReservEntryFilters(ReservEntry, ReqLine);
             end;
             ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Surplus);
             ReservEntry.CalcSums("Quantity (Base)");
@@ -368,7 +394,7 @@ codeunit 99000856 "Planning Transparency"
         exit(QtyTracked1 + QtyTracked2);
     end;
 
-    local procedure ShowSurplusReason(SurplusType: Option "None",Forecast,BlanketOrder,SafetyStock,ReorderPoint,MaxInventory,FixedOrderQty,MaxOrder,MinOrder,OrderMultiple,DampenerQty,PlanningFlexibility,Undefined,EmergencyOrder) ReturnText: Text[50]
+    local procedure ShowSurplusReason(SurplusType: Enum "Planning Surplus Type") ReturnText: Text[50]
     begin
         case SurplusType of
             SurplusType::Forecast:
@@ -397,7 +423,7 @@ codeunit 99000856 "Planning Transparency"
                 ReturnText := Text000;
         end;
 
-        OnAfterShowSurplusReason(SurplusType, ReturnText);
+        OnAfterShowSurplusReason(SurplusType.AsInteger(), ReturnText);
     end;
 
     procedure SetCurrReqLine(var CurrentReqLine: Record "Requisition Line")
@@ -461,7 +487,7 @@ codeunit 99000856 "Planning Transparency"
             TempInvProfileTrack.Priority := 10;
             TempInvProfileTrack."Sequence No." := GetSequenceNo();
             TempInvProfileTrack."Demand Line No." := 0;
-            TempInvProfileTrack."Surplus Type" := 0;
+            TempInvProfileTrack."Surplus Type" := TempInvProfileTrack."Surplus Type"::None;
             TempInvProfileTrack."Source Type" := 0;
             TempInvProfileTrack."Source ID" := '';
             TempInvProfileTrack."Quantity Tracked" := 0;
@@ -499,8 +525,16 @@ codeunit 99000856 "Planning Transparency"
     begin
     end;
 
+#if not CLEAN26
+    [Obsolete('Replaced by event OnBeforeGetSurplusType', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindReason(var DemandInvProfile: Record "Inventory Profile"; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSurplusType(var DemandInvProfile: Record "Inventory Profile"; var Result: Enum "Planning Surplus Type"; var IsHandled: Boolean)
     begin
     end;
 
@@ -526,6 +560,16 @@ codeunit 99000856 "Planning Transparency"
 
     [IntegrationEvent(false, false)]
     local procedure OnLogSurplusOnBeforeInsertTempInvProfileTrack(var TempInventoryProfileTrackBuffer: Record "Inventory Profile Track Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSurplusQtyOnSetReservEntryFilters(var ReservEntry: Record "Reservation Entry"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindReasonOnAfterSetSurplusType(var DemandInventoryProfile: Record "Inventory Profile"; var SurplusType: Enum "Planning Surplus Type")
     begin
     end;
 }

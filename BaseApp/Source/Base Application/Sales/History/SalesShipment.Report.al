@@ -40,26 +40,6 @@ report 208 "Sales - Shipment"
             column(PageCaption; PageCaptionCap)
             {
             }
-#if not CLEAN23
-            column(PlusGiroNoCaption; PlusGiroNoCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column PlusGiroNumberCaption in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(BoardOfDirectorsLocCaption; BoardOfDirectorsLocCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column BoardOfDirectorsLocationCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(CompHasTaxAssessCaption; CompHasTaxAssessCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column CompanyHasTaxAssessCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-#endif
             dataitem(CopyLoop; "Integer")
             {
                 DataItemTableView = sorting(Number);
@@ -132,14 +112,6 @@ report 208 "Sales - Shipment"
                     column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
-#if not CLEAN23
-                    column(CompanyInfoPlusGiroNo; CompanyInfo."Plus Giro No.")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInforPlusGiroNumber in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-#endif
                     column(SelltoCustNo_SalesShptHeader; "Sales Shipment Header"."Sell-to Customer No.")
                     {
                     }
@@ -215,14 +187,6 @@ report 208 "Sales - Shipment"
                     column(DocumentDateCaption; DocumentDateCaptionLbl)
                     {
                     }
-#if not CLEAN23
-                    column(CompanyInfoRegisteredOffice; CompanyInfo."Registered Office")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInfoRegisteredOfficeInfo in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-#endif
                     column(SelltoCustNo_SalesShptHeaderCaption; "Sales Shipment Header".FieldCaption("Sell-to Customer No."))
                     {
                     }
@@ -831,11 +795,6 @@ report 208 "Sales - Shipment"
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         PageCaptionCap: Label 'Page %1 of %2';
-#if not CLEAN23
-        PlusGiroNoCaptionLbl: Label 'Plus Giro No.';
-        BoardOfDirectorsLocCaptionLbl: Label 'Board of Directors Location (registered office)';
-        CompHasTaxAssessCaptionLbl: Label 'Company has Tax Assessment Note';
-#endif
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         OurDocumentNoLbl: Label 'Our Document No.';

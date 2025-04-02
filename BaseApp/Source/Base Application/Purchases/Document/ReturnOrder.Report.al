@@ -42,26 +42,6 @@ report 6641 "Return Order"
             column(AllowInvoiceDiscCaption; AllowInvoiceDiscCaptionLbl)
             {
             }
-#if not CLEAN23
-            column(PlusGiroNoCaption; PlusGiroNoCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column PlusGiroNumberCaption in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(BoardOfDirLocCaption; BoardOfDirLocCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column BoardOfDirectorsLocationCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(CompHasTaxAssNoteCaption; CompHasTaxAssNoteCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column CompanyHasTaxAssessCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-#endif
             dataitem(CopyLoop; "Integer")
             {
                 DataItemTableView = sorting(Number);
@@ -122,21 +102,7 @@ report 6641 "Return Order"
                     column(CompanyInfoBankAccountNo; CompanyInfo."Bank Account No.")
                     {
                     }
-#if not CLEAN23
-                    column(CompanyInfoPlusGiroNo; CompanyInfo."Plus Giro No.")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInforPlusGiroNumber in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-                    column(CompanyInfoRegisteredOffice; CompanyInfo."Registered Office")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInfoRegisteredOfficeInfo in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-#endif
-                    column(DocumentDate_PurchHdr; Format("Purchase Header"."Document Date", 0, 4))
+                   column(DocumentDate_PurchHdr; Format("Purchase Header"."Document Date", 0, 4))
                     {
                     }
                     column(VATNoText; VATNoText)
@@ -929,12 +895,6 @@ report 6641 "Return Order"
         TotalInvoiceDiscountAmount: Decimal;
         DiscPercentCaptionLbl: Label 'Discount %';
         AllowInvoiceDiscCaptionLbl: Label 'Allow Invoice Discount';
-
-#if not CLEAN23
-        PlusGiroNoCaptionLbl: Label 'Plus Giro No.';
-        BoardOfDirLocCaptionLbl: Label 'Board of Directors Location (registered office)';
-        CompHasTaxAssNoteCaptionLbl: Label 'Company has Tax Assessment Note';
-#endif
 
     protected var
         CompanyInfo: Record "Company Information";

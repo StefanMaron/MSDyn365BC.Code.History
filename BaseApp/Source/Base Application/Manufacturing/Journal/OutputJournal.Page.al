@@ -1,10 +1,16 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Journal;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Reporting;
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Warehouse.Structure;
@@ -66,7 +72,7 @@ page 99000823 "Output Journal"
 
                     trigger OnValidate()
                     begin
-                        ItemJnlMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
+                        MfgItemJournalMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
                     end;
                 }
                 field("Document No."; Rec."Document No.")
@@ -120,7 +126,7 @@ page 99000823 "Output Journal"
 
                     trigger OnValidate()
                     begin
-                        ItemJnlMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
+                        MfgItemJournalMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
                     end;
                 }
                 field("Order Line No."; Rec."Order Line No.")
@@ -357,6 +363,62 @@ page 99000823 "Output Journal"
                     begin
                         Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
+                }
+                field("Serial No."; Rec."Serial No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the serial number of the item.';
+                    Editable = ItemTrackingEditable;
+                    Visible = CanSelectItemTrackingOnLines;
+                    ExtendedDatatype = Barcode;
+
+                    trigger OnAssistEdit()
+                    begin
+                        if CanSelectItemTrackingOnLines then
+                            Rec.LookUpTrackingSummary(Enum::"Item Tracking Type"::"Serial No.");
+                    end;
+                }
+                field("Lot No."; Rec."Lot No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the lot number of the item.';
+                    Editable = ItemTrackingEditable;
+                    Visible = CanSelectItemTrackingOnLines;
+                    ExtendedDatatype = Barcode;
+
+                    trigger OnAssistEdit()
+                    begin
+                        if CanSelectItemTrackingOnLines then
+                            Rec.LookUpTrackingSummary(Enum::"Item Tracking Type"::"Lot No.");
+                    end;
+                }
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the package number of the item.';
+                    Editable = ItemTrackingEditable;
+                    Visible = PackageNoVisible;
+                    ExtendedDatatype = Barcode;
+
+                    trigger OnAssistEdit()
+                    begin
+                        if CanSelectItemTrackingOnLines then
+                            Rec.LookUpTrackingSummary(Enum::"Item Tracking Type"::"Package No.");
+                    end;
+                }
+                field("Expiration Date"; Rec."Expiration Date")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the expiration date, if any, of the item carrying the item tracking number.';
+                    Editable = ExpirationDateEditable;
+                    Visible = CanSelectItemTrackingOnLines;
+                }
+                field("Warranty Date"; Rec."Warranty Date")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the warranty expiration date of the item.';
+                    Editable = ItemTrackingEditable;
+                    Visible = CanSelectItemTrackingOnLines;
                 }
             }
             group(Control73)
@@ -738,12 +800,24 @@ page 99000823 "Output Journal"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ItemJnlMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
+        MfgItemJournalMgt.GetOutput(Rec, ProdOrderDescription, OperationName);
+
+        ItemTrackingEditable := false;
+        if CanSelectItemTrackingOnLines then
+            ItemTrackingEditable := not Rec.ReservEntryExist();
+
+        ExpirationDateEditable := SetExpirationDateVisibility();
     end;
 
     trigger OnAfterGetRecord()
     begin
         Rec.ShowShortcutDimCode(ShortcutDimCode);
+
+        ItemTrackingEditable := false;
+        if CanSelectItemTrackingOnLines then
+            ItemTrackingEditable := not Rec.ReservEntryExist();
+
+        ExpirationDateEditable := SetExpirationDateVisibility();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -770,9 +844,7 @@ page 99000823 "Output Journal"
         JnlSelected: Boolean;
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        // if called from API (such as edit-in-excel), do not filter 
-        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
-            exit;
+
         SetDimensionsVisibility();
         if Rec.IsOpenedFromBatch() then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
@@ -785,10 +857,14 @@ page 99000823 "Output Journal"
             Error('');
         ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch();
+
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
+            ItemTrackingEditable := CanSelectItemTrackingOnLines;
     end;
 
     var
         ItemJnlMgt: Codeunit ItemJnlManagement;
+        MfgItemJournalMgt: Codeunit "Mfg. Item Journal Mgt.";
         ReportPrint: Codeunit "Test Report-Print";
         ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
         ProdOrderDescription: Text[100];
@@ -808,6 +884,7 @@ page 99000823 "Output Journal"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        CanSelectItemTrackingOnLines, ItemTrackingEditable, PackageNoVisible, ExpirationDateEditable : Boolean;
 
     local procedure CurrentJnlBatchNameOnAfterValidate()
     begin
@@ -820,6 +897,7 @@ page 99000823 "Output Journal"
     local procedure SetControlAppearanceFromBatch()
     var
         ItemJournalBatch: Record "Item Journal Batch";
+        ItemTrackingCode: Record "Item Tracking Code";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
     begin
         if not ItemJournalBatch.Get(Rec.GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
@@ -827,6 +905,11 @@ page 99000823 "Output Journal"
 
         BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
         ShowAllLinesEnabled := true;
+
+        CanSelectItemTrackingOnLines := ItemJournalBatch."Item Tracking on Lines";
+        ItemTrackingCode.SetRange("Package Specific Tracking", true);
+        PackageNoVisible := CanSelectItemTrackingOnLines and not ItemTrackingCode.IsEmpty();
+
         Rec.SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
         ItemJournalErrorsMgt.SetFullBatchCheck(true);
     end;
@@ -853,6 +936,28 @@ page 99000823 "Output Journal"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+    end;
+
+    local procedure SetExpirationDateVisibility(): Boolean
+    var
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        if not ItemTrackingEditable then
+            exit(false);
+
+        if Rec."Item No." = '' then
+            exit(false);
+
+        Item.SetLoadFields("Item Tracking Code");
+        Item.Get(Rec."Item No.");
+
+        if Item."Item Tracking Code" = '' then
+            exit(false);
+
+        ItemTrackingCode.SetLoadFields("Use Expiration Dates");
+        ItemTrackingCode.Get(Item."Item Tracking Code");
+        exit(ItemTrackingCode."Use Expiration Dates");
     end;
 
     local procedure ShowPreview()

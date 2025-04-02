@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Counting.Journal;
 
 using Microsoft.CRM.Team;
@@ -15,6 +19,7 @@ table 281 "Phys. Inventory Ledger Entry"
     Caption = 'Phys. Inventory Ledger Entry';
     DrillDownPageID = "Phys. Inventory Ledger Entries";
     LookupPageID = "Phys. Inventory Ledger Entries";
+    Permissions = TableData "Phys. Inventory Ledger Entry" = ri;
     DataClassification = CustomerContent;
 
     fields
@@ -73,6 +78,18 @@ table 281 "Phys. Inventory Ledger Entry"
         {
             AutoFormatType = 1;
             Caption = 'Amount';
+        }
+        field(20; "Item Register No."; Integer)
+        {
+            Caption = 'Item Register No.';
+            Editable = false;
+            TableRelation = "Item Register";
+        }
+        field(21; "SIFT Bucket No."; Integer)
+        {
+            Caption = 'SIFT Bucket No.';
+            ToolTip = 'Specifies an automatically generated number that is used by the system to enable better concurrency.';
+            Editable = false;
         }
         field(22; "Salespers./Purch. Code"; Code[20])
         {
@@ -235,11 +252,11 @@ table 281 "Phys. Inventory Ledger Entry"
         {
             Clustered = true;
         }
-        key(Key2; "Item No.", "Variant Code", "Location Code", "Posting Date")
+        key(Key2; "Item No.", "Variant Code", "Location Code", "Posting Date", "SIFT Bucket No.")
         {
             SumIndexFields = Quantity;
         }
-        key(Key3; "Item No.", "Variant Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Location Code", "Posting Date")
+        key(Key3; "Item No.", "Variant Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Location Code", "Posting Date", "SIFT Bucket No.")
         {
             SumIndexFields = Quantity;
         }
@@ -261,6 +278,20 @@ table 281 "Phys. Inventory Ledger Entry"
     var
         DimMgt: Codeunit DimensionManagement;
 
+    trigger OnInsert()
+    begin
+        Rec."SIFT Bucket No." := Rec."Item Register No." mod 5;
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Phys. Inventory Ledger Entry", 'r')]
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Phys. Inventory Ledger Entry"));
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Phys. Inventory Ledger Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.CRM.Reports;
 
 using Microsoft.CRM.Contact;
@@ -88,20 +92,6 @@ report 5055 "Contact - Cover Sheet"
             column(CompanyInfo__Bank_Account_No__; CompanyInfo."Bank Account No.")
             {
             }
-#if not CLEAN23
-            column(CompanyInfo__Plus_Grio_No__; CompanyInfo."Plus Giro No.")
-            {
-                        ObsoleteReason = 'Refer to the column CompanyInforPlusGiroNumber in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-            }
-            column(CompanyInfo__Registered_Office__; CompanyInfo."Registered Office")
-            {
-                        ObsoleteReason = 'Refer to the column CompanyInfoRegisteredOfficeInfo in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-            }
-#endif
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -371,11 +361,6 @@ report 5055 "Contact - Cover Sheet"
 
     labels
     {
-#if not CLEAN23
-        PlusGiroNoCaption = 'Plus Giro No.';
-        BoardOfDirLocCaption = 'Board of Directors Location (registered office)';
-        CompHasTaxAssNoteCaption = 'Company has Tax Assessment Note';
-#endif
     }
 
     trigger OnPostReport()

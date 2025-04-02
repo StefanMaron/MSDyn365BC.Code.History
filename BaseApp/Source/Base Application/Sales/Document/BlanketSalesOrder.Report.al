@@ -103,26 +103,6 @@ report 210 "Blanket Sales Order"
             column(BillToContactEmail; BillToContact."E-Mail")
             {
             }
-#if not CLEAN23
-            column(PlusGiroNoCaption; PlusGiroNoCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column PlusGiroNumberCaption in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(BoardOfDirectorsLocCaption; BoardOfDirectorsLocCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column BoardOfDirectorsLocationCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(CompHasTaxAssessCaption; CompHasTaxAssessCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column CompanyHasTaxAssessCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-#endif
             dataitem(CopyLoop; "Integer")
             {
                 DataItemTableView = sorting(Number);
@@ -195,14 +175,6 @@ report 210 "Blanket Sales Order"
                     column(BilltoCustNo_SalesHeader; "Sales Header"."Bill-to Customer No.")
                     {
                     }
-#if not CLEAN23
-                    column(CompanyInfoPlusGiroNo; CompanyInfo."Plus Giro No.")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInforPlusGiroNumber in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-#endif
                     column(DocDate_SalesHeader; Format("Sales Header"."Document Date", 0, 4))
                     {
                     }
@@ -293,14 +265,6 @@ report 210 "Blanket Sales Order"
                     column(DocumentDateCaption; DocumentDateCaptionLbl)
                     {
                     }
-#if not CLEAN23
-                    column(CompanyInfoRegisteredOffice; CompanyInfo."Registered Office")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInfoRegisteredOfficeInfo in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-#endif
                     column(BilltoCustNo_SalesHeaderCaption; "Sales Header".FieldCaption("Bill-to Customer No."))
                     {
                     }
@@ -993,11 +957,6 @@ report 210 "Blanket Sales Order"
         BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
         BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
-#if not CLEAN23
-        PlusGiroNoCaptionLbl: Label 'Plus Giro No.';
-        BoardOfDirectorsLocCaptionLbl: Label 'Board of Directors Location (registered office)';
-        CompHasTaxAssessCaptionLbl: Label 'Company has Tax Assessment Note';
-#endif
 
     protected var
         ShipmentMethod: Record "Shipment Method";

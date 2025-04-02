@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Service.Reports;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Service.Reports;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Interaction;
@@ -133,20 +137,6 @@ report 5970 "Service Contract"
                     column(CompanyInfoFaxNo; CompanyInfo."Fax No.")
                     {
                     }
-#if not CLEAN23
-                    column(CompanyInfoPlusGiroNo; CompanyInfo."Plus Giro No.")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInforPlusGiroNumber in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-                    column(CompanyInfoRegisteredOffice; CompanyInfo."Registered Office")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInfoRegisteredOfficeInfo in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-#endif
                     column(Email_ServContract; "Service Contract Header"."E-Mail")
                     {
                     }
@@ -457,11 +447,6 @@ report 5970 "Service Contract"
 
     labels
     {
-#if not CLEAN23
-        PlusGiroNoCaption = 'Plus Giro No.';
-        BoardOfDirLocCaption = 'Board of Directors Location (registered office)';
-        CompHasTaxAssNoteCaption = 'Company has Tax Assessment Note';
-#endif
     }
 
     trigger OnInitReport()

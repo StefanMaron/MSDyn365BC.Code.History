@@ -82,7 +82,7 @@ codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Clien
         exit(TryGetAccountInformation(AccessToken, Email, Name));
     end;
 
-# if not CLEAN24
+#if not CLEAN24
     [NonDebuggable]
     [TryFunction]
     [Obsolete('Replaced by TryGetAccountInformation with SecretText data type for AccessToken parameter.', '24.0')]
@@ -351,7 +351,7 @@ codeunit 4508 "Email - Outlook API Client" implements "Email - Outlook API Clien
             MailRequestHeaders.Add('Prefer', 'outlook.body-content-type="html"')
         else
             MailRequestHeaders.Add('Prefer', 'outlook.body-content-type="text"');
-            
+
         SendRequest(MailHttpRequestMessage, MailHttpResponseMessage);
 
         if MailHttpResponseMessage.HttpStatusCode <> 200 then begin

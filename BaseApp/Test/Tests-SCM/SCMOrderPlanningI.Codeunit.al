@@ -1263,7 +1263,7 @@ codeunit 137046 "SCM Order Planning - I"
     var
         ItemJournalBatch: Record "Item Journal Batch";
     begin
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, '', ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
+        LibraryManufacturing.CreateProdItemJournal(ItemJournalBatch, '', ItemJournalBatch."Template Type"::Consumption, ProductionOrderNo);
         UpdateQuantityOnConsmpJournal(ProductionOrderNo, Quantity);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
@@ -1440,7 +1440,7 @@ codeunit 137046 "SCM Order Planning - I"
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Output);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         LibraryManufacturing.CreateOutputJournal(ItemJournalLine, ItemJournalTemplate, ItemJournalBatch, ItemNo, ProductionOrderNo);
-        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryManufacturing.OutputJnlExplodeRoute(ItemJournalLine);
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 

@@ -145,7 +145,7 @@ page 675 "My Job Queue"
 
                 trigger OnAction()
                 begin
-                    PAGE.RunModal(PAGE::"Schedule a Report");
+                    Page.RunModal(Page::"Schedule a Report");
                 end;
             }
             action(EditJob)
@@ -177,7 +177,7 @@ page 675 "My Job Queue"
 
     trigger OnOpenPage()
     begin
-        Rec.SetRange("User ID", UserId);
+        Rec.SetRange("User ID", UserId());
     end;
 
     var

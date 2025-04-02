@@ -17,39 +17,48 @@ table 226 "VAT Reg. No. Srv. Template"
         field(1; Code; Code[20])
         {
             Caption = 'Code';
+            ToolTip = 'Specifies the template code.';
         }
         field(10; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region".Code;
+            ToolTip = 'Specifies the country/region code.';
         }
         field(11; "Account Type"; Enum "VAT Reg. No. Srv. Template Account Type")
         {
             Caption = 'Account Type';
+            ToolTip = 'Specifies the account type.';
         }
         field(12; "Account No."; Code[20])
         {
             Caption = 'Account No.';
+            ToolTip = 'Specifies the account number.';
         }
         field(20; "Validate Name"; Boolean)
         {
             Caption = 'Validate Name';
+            ToolTip = 'Specifies if the name value is validated.';
         }
         field(21; "Validate Street"; Boolean)
         {
             Caption = 'Validate Street';
+            ToolTip = 'Specifies if the street value is validated.';
         }
         field(22; "Validate City"; Boolean)
         {
             Caption = 'Validate City';
+            ToolTip = 'Specifies if the city value is validated.';
         }
         field(23; "Validate Post Code"; Boolean)
         {
             Caption = 'Validate Post Code';
+            ToolTip = 'Specifies if the post code value is validated.';
         }
         field(24; "Ignore Details"; Boolean)
         {
             Caption = 'Ignore Details';
+            ToolTip = 'Specifies if you want to exclude any detailed information that the validation service returns. Choose the field to view all validation details.';
         }
     }
 

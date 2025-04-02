@@ -7,7 +7,8 @@ table 8623 "Config. Package"
     Caption = 'Config. Package';
     LookupPageID = "Config. Packages";
     DataClassification = CustomerContent;
-
+    ReplicateData = false;
+    
     fields
     {
         field(1; "Code"; Code[20])

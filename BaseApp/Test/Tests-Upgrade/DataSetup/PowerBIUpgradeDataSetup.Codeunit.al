@@ -18,35 +18,6 @@ codeunit 132863 "PowerBI Upgrade Data Setup"
         if MediaRepository.Insert() then;
     end;
 
-#if not CLEAN23
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Test Data Setup Mgt.", 'OnSetupDataPerCompany', '', false, false)]
-    local procedure SetupPowerBIWorkspacesData()
-    var
-        PowerBIReportConfiguration: Record "Power BI Report Configuration";
-        PowerBIUserConfiguration: Record "Power BI User Configuration";
-        I: Integer;
-    begin
-        if PowerBIReportConfiguration.Count < 100 then
-            for I := 0 to 100 do begin
-                PowerBIReportConfiguration.Init();
-                PowerBIReportConfiguration.Context := CopyStr(CreateGuid(), 1, MaxStrLen(PowerBIReportConfiguration.Context));
-                PowerBIReportConfiguration."User Security ID" := CreateGuid();
-                PowerBIReportConfiguration."Report ID" := CreateGuid();
-                PowerBIReportConfiguration.ReportEmbedUrl := StrSubstNo('http://microsoft.com/%1', I);
-                PowerBIReportConfiguration.Insert();
-            end;
-
-        if PowerBIUserConfiguration.Count < 100 then
-            for I := 0 to 100 do begin
-                PowerBIUserConfiguration.Init();
-                PowerBIUserConfiguration."Page ID" := CopyStr(CreateGuid(), 1, MaxStrLen(PowerBIUserConfiguration."Page ID"));
-                PowerBIUserConfiguration."User Security ID" := CreateGuid();
-                PowerBIUserConfiguration."Selected Report ID" := CreateGuid();
-                PowerBIUserConfiguration.Insert();
-            end;
-    end;
-#endif
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Test Data Setup Mgt.", 'OnSetupDataPerCompany', '', false, false)]
     local procedure SetupPowerBIUploadsData()
     var

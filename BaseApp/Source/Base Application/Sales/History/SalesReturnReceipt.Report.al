@@ -67,26 +67,6 @@ report 6646 "Sales - Return Receipt"
             column(BillToContactEmail; BillToContact."E-Mail")
             {
             }
-#if not CLEAN23
-            column(PlusGiroNoCaption; PlusGiroNoCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column PlusGiroNumberCaption in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(BoardOfDirLocCaption; BoardOfDirLocCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column BoardOfDirectorsLocationCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(CompHasTaxAssNoteCaption; CompHasTaxAssNoteCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column CompanyHasTaxAssessCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-#endif
             dataitem(CopyLoop; "Integer")
             {
                 DataItemTableView = sorting(Number);
@@ -156,20 +136,6 @@ report 6646 "Sales - Return Receipt"
                     column(CompanyInfoBankAccountNo; CompanyInfo."Bank Account No.")
                     {
                     }
-#if not CLEAN23
-                    column(CompanyInfoPlusGiroNo; CompanyInfo."Plus Giro No.")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInforPlusGiroNumber in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-                    column(CompanyInfoRegisteredOffice; CompanyInfo."Registered Office")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInfoRegisteredOfficeInfo in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-#endif
                     column(SellCustNo_ReturnRcptHdr; "Return Receipt Header"."Sell-to Customer No.")
                     {
                     }
@@ -414,14 +380,6 @@ report 6646 "Sales - Return Receipt"
                         column(BilltoCustNo_ReturnRcptHdr; "Return Receipt Header"."Bill-to Customer No.")
                         {
                         }
-#if not CLEAN23
-                        column(BilltoCustNo_ReturnRcptHdrCaption; "Return Receipt Header".FieldCaption("Bill-to Customer No."))
-                        {
-                            ObsoleteReason = 'Refer to the column BillToCustomerNo_ReturnReceiptHeader in the corresponding report extension from SE Core.';
-                            ObsoleteTag = '23.0';
-                            ObsoleteState = Pending;
-                        }
-#endif
                         column(CustAddr1; CustAddr[1])
                         {
                         }
@@ -658,11 +616,6 @@ report 6646 "Sales - Return Receipt"
         BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
         BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
-#if not CLEAN23
-        PlusGiroNoCaptionLbl: Label 'Plus Giro No.';
-        BoardOfDirLocCaptionLbl: Label 'Board of Directors Location (registered office)';
-        CompHasTaxAssNoteCaptionLbl: Label 'Company has Tax Assessment Note';
-#endif
 
     protected var
         CompanyInfo: Record "Company Information";

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.ProductionBOM;
 
 codeunit 99000768 "Production BOM-Copy"
@@ -17,107 +21,110 @@ codeunit 99000768 "Production BOM-Copy"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
 
-    procedure CopyBOM(BOMHeaderNo: Code[20]; FromVersionCode: Code[20]; CurrentBOMHeader: Record "Production BOM Header"; ToVersionCode: Code[20])
+    procedure CopyBOM(FromProductionBOMNo: Code[20]; FromVersionCode: Code[20]; ProductionBOMHeader: Record "Production BOM Header"; ToVersionCode: Code[20])
     var
-        FromProdBOMLine: Record "Production BOM Line";
-        ToProdBOMLine: Record "Production BOM Line";
-        FromProdBOMCompComment: Record "Production BOM Comment Line";
-        ToProdBOMCompComment: Record "Production BOM Comment Line";
-        ProdBOMVersion: Record "Production BOM Version";
+        ProductionBOMVersion: Record "Production BOM Version";
+        FromProductionBOMLine: Record "Production BOM Line";
+        ToProductionBOMLine: Record "Production BOM Line";
+        FromProductionBOMCommentLine: Record "Production BOM Comment Line";
+        ToProductionBOMCommentLine: Record "Production BOM Comment Line";
         SkipBOMDeletion: Boolean;
         LineNo: Integer;
     begin
-        if (CurrentBOMHeader."No." = BOMHeaderNo) and
+        if (ProductionBOMHeader."No." = FromProductionBOMNo) and
            (FromVersionCode = ToVersionCode)
         then
-            Error(Text000, CurrentBOMHeader.TableCaption());
+            Error(Text000, ProductionBOMHeader.TableCaption());
 
         if ToVersionCode = '' then begin
-            if CurrentBOMHeader.Status = CurrentBOMHeader.Status::Certified then
+            if ProductionBOMHeader.Status = ProductionBOMHeader.Status::Certified then
                 Error(
                   Text001,
-                  CurrentBOMHeader.FieldCaption(Status),
-                  CurrentBOMHeader.TableCaption(),
-                  CurrentBOMHeader."No.",
-                  CurrentBOMHeader.Status);
+                  ProductionBOMHeader.FieldCaption(Status),
+                  ProductionBOMHeader.TableCaption(),
+                  ProductionBOMHeader."No.",
+                  ProductionBOMHeader.Status);
         end else begin
-            ProdBOMVersion.Get(
-              CurrentBOMHeader."No.", ToVersionCode);
-            if ProdBOMVersion.Status = ProdBOMVersion.Status::Certified then
+            ProductionBOMVersion.Get(
+              ProductionBOMHeader."No.", ToVersionCode);
+            if ProductionBOMVersion.Status = ProductionBOMVersion.Status::Certified then
                 Error(
                   Text002,
-                  ProdBOMVersion.FieldCaption(Status),
-                  ProdBOMVersion.TableCaption(),
-                  ProdBOMVersion."Production BOM No.",
-                  ProdBOMVersion."Version Code",
-                  ProdBOMVersion.Status);
+                  ProductionBOMVersion.FieldCaption(Status),
+                  ProductionBOMVersion.TableCaption(),
+                  ProductionBOMVersion."Production BOM No.",
+                  ProductionBOMVersion."Version Code",
+                  ProductionBOMVersion.Status);
         end;
 
         LineNo := 0;
         SkipBOMDeletion := false;
-        OnBeforeCopyBOM(CurrentBOMHeader, BOMHeaderNo, FromVersionCode, ToVersionCode, SkipBOMDeletion, LineNo);
+        OnBeforeCopyBOM(ProductionBOMHeader, FromProductionBOMNo, FromVersionCode, ToVersionCode, SkipBOMDeletion, LineNo);
         if not SkipBOMDeletion then begin
-            ToProdBOMLine.SetRange("Production BOM No.", CurrentBOMHeader."No.");
-            ToProdBOMLine.SetRange("Version Code", ToVersionCode);
-            ToProdBOMLine.DeleteAll();
+            ToProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
+            ToProductionBOMLine.SetRange("Version Code", ToVersionCode);
+            ToProductionBOMLine.DeleteAll();
 
-            ToProdBOMCompComment.SetRange("Production BOM No.", CurrentBOMHeader."No.");
-            ToProdBOMCompComment.SetRange("Version Code", ToVersionCode);
-            ToProdBOMCompComment.DeleteAll();
+            ToProductionBOMCommentLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
+            ToProductionBOMCommentLine.SetRange("Version Code", ToVersionCode);
+            ToProductionBOMCommentLine.DeleteAll();
         end;
 
-        FromProdBOMLine.SetRange("Production BOM No.", BOMHeaderNo);
-        FromProdBOMLine.SetRange("Version Code", FromVersionCode);
-        if FromProdBOMLine.Find('-') then
+        FromProductionBOMLine.SetRange("Production BOM No.", FromProductionBOMNo);
+        FromProductionBOMLine.SetRange("Version Code", FromVersionCode);
+        if FromProductionBOMLine.FindSet() then
             repeat
-                ToProdBOMLine := FromProdBOMLine;
-                ToProdBOMLine."Production BOM No." := CurrentBOMHeader."No.";
-                ToProdBOMLine."Version Code" := ToVersionCode;
+                ToProductionBOMLine := FromProductionBOMLine;
+                ToProductionBOMLine."Production BOM No." := ProductionBOMHeader."No.";
+                ToProductionBOMLine."Version Code" := ToVersionCode;
                 if SkipBOMDeletion then
-                    ToProdBOMLine."Line No." := LineNo;
-                OnBeforeInsertProdBOMComponent(ToProdBOMLine, FromProdBOMLine);
-                ToProdBOMLine.Insert();
-                OnAfterInsertProdBOMComponent(ToProdBOMLine, FromProdBOMLine, CurrentBOMHeader, SkipBOMDeletion, LineNo);
-            until FromProdBOMLine.Next() = 0;
+                    ToProductionBOMLine."Line No." := LineNo;
+                OnBeforeInsertProdBOMComponent(ToProductionBOMLine, FromProductionBOMLine);
+                ToProductionBOMLine.Insert();
+                OnAfterInsertProdBOMComponent(ToProductionBOMLine, FromProductionBOMLine, ProductionBOMHeader, SkipBOMDeletion, LineNo);
+            until FromProductionBOMLine.Next() = 0;
 
         if SkipBOMDeletion then
             exit;
 
-        FromProdBOMCompComment.SetRange("Production BOM No.", BOMHeaderNo);
-        FromProdBOMCompComment.SetRange("Version Code", FromVersionCode);
-        if FromProdBOMCompComment.Find('-') then
+        FromProductionBOMCommentLine.SetRange("Production BOM No.", FromProductionBOMNo);
+        FromProductionBOMCommentLine.SetRange("Version Code", FromVersionCode);
+        if FromProductionBOMCommentLine.FindSet() then
             repeat
-                ToProdBOMCompComment := FromProdBOMCompComment;
-                ToProdBOMCompComment."Production BOM No." := CurrentBOMHeader."No.";
-                ToProdBOMCompComment."Version Code" := ToVersionCode;
-                ToProdBOMCompComment.Insert();
-            until FromProdBOMCompComment.Next() = 0;
+                ToProductionBOMCommentLine := FromProductionBOMCommentLine;
+                ToProductionBOMCommentLine."Production BOM No." := ProductionBOMHeader."No.";
+                ToProductionBOMCommentLine."Version Code" := ToVersionCode;
+                ToProductionBOMCommentLine.Insert();
+            until FromProductionBOMCommentLine.Next() = 0;
 
-        OnAfterCopyBOM(BOMHeaderNo, CurrentBOMHeader, FromVersionCode, ToVersionCode);
+        OnAfterCopyBOM(FromProductionBOMNo, ProductionBOMHeader, FromVersionCode, ToVersionCode);
     end;
 
-    procedure CopyFromVersion(var ProdBOMVersionList2: Record "Production BOM Version")
+    procedure CopyFromVersion(var ToProductionBOMVersion: Record "Production BOM Version")
     var
-        ProdBOMHeader: Record "Production BOM Header";
-        OldProdBOMVersionList: Record "Production BOM Version";
+        ProductionBOMHeader: Record "Production BOM Header";
+        FromProductionBOMVersion: Record "Production BOM Version";
     begin
-        OldProdBOMVersionList := ProdBOMVersionList2;
+        FromProductionBOMVersion := ToProductionBOMVersion;
 
-        ProdBOMHeader.Init();
-        ProdBOMHeader."No." := ProdBOMVersionList2."Production BOM No.";
-        if PAGE.RunModal(0, ProdBOMVersionList2) = ACTION::LookupOK then begin
-            if OldProdBOMVersionList.Status = OldProdBOMVersionList.Status::Certified then
+        ProductionBOMHeader.Init();
+        ProductionBOMHeader."No." := ToProductionBOMVersion."Production BOM No.";
+
+        ToProductionBOMVersion.SetFilter("Version Code", '<>%1', ToProductionBOMVersion."Version Code");
+        if Page.RunModal(0, ToProductionBOMVersion) = Action::LookupOK then begin
+            if FromProductionBOMVersion.Status = FromProductionBOMVersion.Status::Certified then
                 Error(
                   Text002,
-                  OldProdBOMVersionList.FieldCaption(Status),
-                  OldProdBOMVersionList.TableCaption(),
-                  OldProdBOMVersionList."Production BOM No.",
-                  OldProdBOMVersionList."Version Code",
-                  OldProdBOMVersionList.Status);
-            CopyBOM(ProdBOMHeader."No.", ProdBOMVersionList2."Version Code", ProdBOMHeader, OldProdBOMVersionList."Version Code");
+                  FromProductionBOMVersion.FieldCaption(Status),
+                  FromProductionBOMVersion.TableCaption(),
+                  FromProductionBOMVersion."Production BOM No.",
+                  FromProductionBOMVersion."Version Code",
+                  FromProductionBOMVersion.Status);
+            CopyBOM(ProductionBOMHeader."No.", ToProductionBOMVersion."Version Code", ProductionBOMHeader, FromProductionBOMVersion."Version Code");
         end;
+        ToProductionBOMVersion.SetRange("Version Code");
 
-        ProdBOMVersionList2 := OldProdBOMVersionList;
+        ToProductionBOMVersion := FromProductionBOMVersion;
     end;
 
     [IntegrationEvent(false, false)]

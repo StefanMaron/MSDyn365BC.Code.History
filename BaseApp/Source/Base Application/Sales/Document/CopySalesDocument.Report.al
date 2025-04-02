@@ -35,10 +35,6 @@ report 292 "Copy Sales Document"
                         begin
                             FromDocNo := '';
                             ValidateDocNo();
-#if not CLEAN23
-                            if FromDocType <> FromDocType::"Posted Invoice" then
-                                IncludeOrgInvInfo := false;
-#endif
                         end;
                     }
                     field(DocumentNo; FromDocNo)
@@ -111,23 +107,6 @@ report 292 "Copy Sales Document"
                                 RecalculateLines := true;
                         end;
                     }
-#if not CLEAN23
-                    field(IncludeOrgInvInfo; IncludeOrgInvInfo)
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'Include Source Inv. Info.';
-                        ToolTip = 'Specifies whether to include information from the original invoice.';
-                        ObsoleteReason = 'The field is not used and will be obsoleted';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '23.0';
-
-                        trigger OnValidate()
-                        begin
-                            if FromDocType <> FromDocType::"Posted Invoice" then
-                                Error(Text11200);
-                        end;
-                    }
-#endif
                 }
             }
         }
@@ -216,9 +195,6 @@ report 292 "Copy Sales Document"
         CopyDocMgt.SetProperties(
           IncludeHeader, RecalculateLines, false, false, false, ExactCostReversingMandatory, false);
         CopyDocMgt.SetArchDocVal(FromDocNoOccurrence, FromDocVersionNo);
-#if not CLEAN23
-        CopyDocMgt.SetIncludeOrgInvInfo(IncludeOrgInvInfo);
-#endif
 
         OnPreReportOnBeforeCopySalesDoc(CopyDocMgt, FromDocType.AsInteger(), FromDocNo, SalesHeader, CurrReport.UseRequestPage(), IncludeHeader, RecalculateLines, ExactCostReversingMandatory);
 
@@ -226,9 +202,6 @@ report 292 "Copy Sales Document"
     end;
 
     var
-#if not CLEAN23
-        IncludeOrgInvInfo: Boolean;
-#endif
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'The price information may not be reversed correctly, if you copy a %1. If possible copy a %2 instead or use %3 functionality.';
@@ -237,9 +210,6 @@ report 292 "Copy Sales Document"
         Text002: Label 'Undo Return Receipt';
 #pragma warning restore AA0074
         DocNoNotSerErr: Label 'Select a document number to continue, or choose Cancel to close the page.';
-#if not CLEAN23
-        Text11200: Label 'Can only be used for posted invoices.';
-#endif
 
     protected var
         SalesHeader: Record "Sales Header";

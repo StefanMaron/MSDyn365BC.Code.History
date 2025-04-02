@@ -8,9 +8,6 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
-#if not CLEAN23
-using Microsoft.Foundation.Company;
-#endif
 using Microsoft.Sales.Customer;
 using System.Security.User;
 using System.Globalization;
@@ -96,20 +93,6 @@ report 122 "Reminder - Test"
                 column(CustAddr_1_; CustAddr[1])
                 {
                 }
-#if not CLEAN23
-                column(CompanyInfoPlusGiroNo; CompanyInfo."Plus Giro No.")
-                {
-                    ObsoleteReason = 'Refer to the column CompanyInforPlusGiroNumber in the corresponding report extension from SE Core.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-                column(CompanyInfoRegisteredOffice; CompanyInfo."Registered Office")
-                {
-                    ObsoleteReason = 'Refer to the column CompanyInfoRegisteredOfficeInfo in the corresponding report extension from SE Core.';
-                    ObsoleteTag = '23.0';
-                    ObsoleteState = Pending;
-                }
-#endif
                 column(Reminder_Header___Reminder_Terms_Code_; "Reminder Header"."Reminder Terms Code")
                 {
                 }
@@ -764,13 +747,6 @@ report 122 "Reminder - Test"
                 NNC_VatAmtTotal := 0;
                 NNC_ReminderInterestAmt := 0;
             end;
-
-#if not CLEAN23
-            trigger OnPreDataItem()
-            begin
-                CompanyInfo.Get();
-            end;
-#endif
         }
     }
 
@@ -807,11 +783,6 @@ report 122 "Reminder - Test"
 
     labels
     {
-#if not CLEAN23
-        PlusGiroNoCaption = 'Plus Giro No.';
-        BoardOfDirLocCaption = 'Board of Directors Location (registered office)';
-        CompHasTaxAssNoteCaption = 'Company has Tax Assessment Note';
-#endif
     }
 
     trigger OnInitReport()
@@ -841,9 +812,6 @@ report 122 "Reminder - Test"
         DimSetEntry: Record "Dimension Set Entry";
         CurrExchRate: Record "Currency Exchange Rate";
         LanguageMgt: Codeunit Language;
-#if not CLEAN23
-        CompanyInfo: Record "Company Information";
-#endif
         DimMgt: Codeunit DimensionManagement;
         FormatAddr: Codeunit "Format Address";
         CustAddr: array[8] of Text[100];

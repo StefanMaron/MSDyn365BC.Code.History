@@ -9,7 +9,6 @@ codeunit 132205 "Library - Kitting"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryResource: Codeunit "Library - Resource";
         BOMItemLineNo: Integer;
         ITEM_DESC: Label 'Test Calculate Sales Price';
@@ -315,7 +314,7 @@ codeunit 132205 "Library - Kitting"
         BOMComponent: Record "BOM Component";
     begin
         CreateUnitOfMeasure(UOMCode);
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItem."No.", Type, No, Quantity, UOMCode);
+        LibraryInventory.CreateBOMComponent(BOMComponent, ParentItem."No.", Type, No, Quantity, UOMCode);
         if (Type = "BOM Component Type"::Resource) and Fixed then begin
             BOMComponent.Validate("Resource Usage Type", BOMComponent."Resource Usage Type"::Fixed);
             BOMComponent.Modify(true);

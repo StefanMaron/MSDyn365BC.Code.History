@@ -1,8 +1,9 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Account;
+namespace Microsoft.Finance.GeneralLedger.Account;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.FinancialReports;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -283,16 +284,6 @@ page 17 "G/L Account Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the account in a consolidated company to which to transfer credit balances on this account.';
                 }
-#if not CLEAN23
-                field("SRU-code"; Rec."SRU-code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the SRU-code for the G/L Account.';
-                    ObsoleteReason = 'Moved to Standard Import Export (SIE) app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
                 field("Consol. Translation Method"; Rec."Consol. Translation Method")
                 {
                     ApplicationArea = Suite;
@@ -693,33 +684,6 @@ page 17 "G/L Account Card"
             group(Category_Navigate)
             {
                 Caption = 'Navigate';
-#if not CLEAN23
-                actionref("General Posting Setup_Promoted"; "General Posting Setup")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '23.0';
-                }
-#endif
-#if not CLEAN23
-                actionref("VAT Posting Setup_Promoted"; "VAT Posting Setup")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '23.0';
-                }
-#endif
-#if not CLEAN23
-                actionref("G/L Register_Promoted"; "G/L Register")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '23.0';
-                }
-#endif
             }
             group(Category_Report)
             {
@@ -741,6 +705,13 @@ page 17 "G/L Account Card"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec.SetupNewGLAcc(xRec, BelowxRec);
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
+    begin
+        FinancialReportMgt.NotifyUpdateFinancialReport(Rec);
     end;
 
     var

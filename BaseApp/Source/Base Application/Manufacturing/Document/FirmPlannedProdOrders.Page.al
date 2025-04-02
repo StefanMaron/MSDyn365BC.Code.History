@@ -1,6 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Reports;
@@ -34,6 +39,12 @@ page 9325 "Firm Planned Prod. Orders"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the description of the production order.';
+                }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Source No."; Rec."Source No.")
                 {
@@ -162,6 +173,15 @@ page 9325 "Firm Planned Prod. Orders"
         }
         area(factboxes)
         {
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
+                SubPageLink = "Table ID" = const(Database::"Production Order"),
+                              "Document Type" = const("Firm Planned Production Order"),
+                              "No." = field("No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -284,8 +304,16 @@ page 9325 "Firm Planned Prod. Orders"
                     ApplicationArea = Manufacturing;
                     Caption = 'Change &Status';
                     Image = ChangeStatus;
-                    RunObject = Codeunit "Prod. Order Status Management";
-                    ToolTip = 'Change the production order to another status, such as Released.';
+                    ToolTip = 'Change the status of the selected production order(s) to a new one.';
+
+                    trigger OnAction()
+                    var
+                        ProductionOrder: record "Production Order";
+                        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
+                    begin
+                        CurrPage.SetSelectionFilter(ProductionOrder);
+                        ProdOrderStatusMgt.ChangeStatusWithSelectionFilter(ProductionOrder);
+                    end;
                 }
                 action("&Update Unit Cost")
                 {
@@ -334,8 +362,15 @@ page 9325 "Firm Planned Prod. Orders"
                 ApplicationArea = Manufacturing;
                 Caption = 'Production Order - Comp. and Routing';
                 Image = "Report";
-                RunObject = Report "Prod. Order Comp. and Routing";
                 ToolTip = 'View information about components and operations in production orders. For released production orders, the report shows the remaining quantity if parts of the quantity have been posted as output.';
+
+                trigger OnAction()
+                var
+                    ProductionOrder: Record "Production Order";
+                begin
+                    CurrPage.SetSelectionFilter(ProductionOrder);
+                    Report.RunModal(Report::"Prod. Order Comp. and Routing", true, false, ProductionOrder);
+                end;
             }
             action(ProdOrderJobCard)
             {

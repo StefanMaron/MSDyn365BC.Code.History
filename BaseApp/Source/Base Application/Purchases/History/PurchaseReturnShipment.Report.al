@@ -68,26 +68,6 @@ report 6636 "Purchase - Return Shipment"
             column(PayToContactEmail; PayToContact."E-Mail")
             {
             }
-#if not CLEAN23
-            column(PlusGiroNoCaption; PlusGiroNoCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column PlusGiroNumberCaption in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(BoardofDirLocCaption; BoardofDirLocCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column BoardOfDirectorsLocationCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-            column(CompHasTaxAssNoteCaption; CompHasTaxAssNoteCaptionLbl)
-            {
-                ObsoleteReason = 'Refer to the column CompanyHasTaxAssessCaptionLbl in the corresponding report extension from SE Core.';
-                ObsoleteTag = '23.0';
-                ObsoleteState = Pending;
-            }
-#endif
             dataitem(CopyLoop; "Integer")
             {
                 DataItemTableView = sorting(Number);
@@ -118,14 +98,6 @@ report 6636 "Purchase - Return Shipment"
                     column(CompanyInfoEMail; CompanyInfo."E-Mail")
                     {
                     }
-#if not CLEAN23
-                    column(CompanyInfoFaxNo; CompanyInfo."Fax No.")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInfoFaxNumber in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-#endif
                     column(CompanyPicture; DummyCompanyInfo.Picture)
                     {
                     }
@@ -141,20 +113,6 @@ report 6636 "Purchase - Return Shipment"
                     column(CompanyInfoBankAccountNo; CompanyInfo."Bank Account No.")
                     {
                     }
-#if not CLEAN23
-                    column(CompanyInfoPlusGiroNo; CompanyInfo."Plus Giro No.")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInforPlusGiroNumber in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-                    column(CompanyInfoRegisteredOffice; CompanyInfo."Registered Office")
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInfoRegisteredOfficeInfo in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-#endif
                     column(DocDate_ReturnShpHeader; Format("Return Shipment Header"."Document Date", 0, 4))
                     {
                     }
@@ -221,14 +179,6 @@ report 6636 "Purchase - Return Shipment"
                     column(CompanyInfoPhoneNoCaption; CompanyInfoPhoneNoCaptionLbl)
                     {
                     }
-#if not CLEAN23
-                    column(CompanyInfoFaxNoCaption; CompanyInfoFaxNoCaptionLbl)
-                    {
-                        ObsoleteReason = 'Refer to the column CompanyInfoFaxNumberCaption in the corresponding report extension from SE Core.';
-                        ObsoleteTag = '23.0';
-                        ObsoleteState = Pending;
-                    }
-#endif
                     column(CompanyInfoVATRegNoCaption; CompanyInfoVATRegNoCaptionLbl)
                     {
                     }
@@ -627,7 +577,6 @@ report 6636 "Purchase - Return Shipment"
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
         ShptBuyFromAddr: array[8] of Text[100];
-        CompanyAddr: array[8] of Text[100];
         PurchaserText: Text[50];
         ReferenceText: Text[80];
         CopyText: Text[30];
@@ -647,9 +596,6 @@ report 6636 "Purchase - Return Shipment"
         PayToCaption: Text[30];
         LogInteractionEnable: Boolean;
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
-#if not CLEAN23
-        CompanyInfoFaxNoCaptionLbl: Label 'Fax No.';
-#endif
         CompanyInfoVATRegNoCaptionLbl: Label 'VAT Reg. No.';
         CompanyInfoGiroNoCaptionLbl: Label 'Giro No.';
         CompanyInfoBankNameCaptionLbl: Label 'Bank';
@@ -667,16 +613,12 @@ report 6636 "Purchase - Return Shipment"
         PayToContactPhoneNoLbl: Label 'Pay-to Contact Phone No.';
         PayToContactMobilePhoneNoLbl: Label 'Pay-to Contact Mobile Phone No.';
         PayToContactEmailLbl: Label 'Pay-to Contact E-Mail';
-#if not CLEAN23
-        PlusGiroNoCaptionLbl: Label 'Plus Giro No.';
-        BoardofDirLocCaptionLbl: Label 'Board of Directors Location (registered office)';
-        CompHasTaxAssNoteCaptionLbl: Label 'Company has Tax Assessment Note';
-#endif
 
     protected var
         CompanyInfo: Record "Company Information";
         FirstLineHasBeenOutput: Boolean;
         ShptShipToAddr: array[8] of Text[100];
+        CompanyAddr: array[8] of Text[100];
 
     procedure InitializeRequest(NewNoOfCopies: Decimal; NewShowInternalInfo: Boolean; NewShowCorrectionLines: Boolean; NewLogInteraction: Boolean)
     begin

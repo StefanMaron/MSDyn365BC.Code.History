@@ -12,9 +12,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Utilities;
 using System.Automation;
 using System.Security.User;
-#if not CLEAN23
-using System.Environment.Configuration;
-#endif
 
 page 509 "Blanket Purchase Order"
 {
@@ -315,18 +312,6 @@ page 509 "Blanket Purchase Order"
                         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
                 }
-#if not CLEAN23
-                field("EU 3-Party Trade"; Rec."EU 3-Party Trade")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Select this field if the purchase order is involved in an EU 3-party trade.';
-                    Visible = not IsEU3PartyTradePurchaseEnabled;
-                    Enabled = not IsEU3PartyTradePurchaseEnabled;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                    ObsoleteReason = 'Moved to the EU 3-Party Trade Purchase app.';
-                }
-#endif
                 field("Expected Receipt Date"; Rec."Expected Receipt Date")
                 {
                     ApplicationArea = Suite;
@@ -442,6 +427,14 @@ page 509 "Blanket Purchase Order"
                         Caption = 'Name';
                         Importance = Additional;
                         ToolTip = 'Specifies the name of the company at the address to which you want the items in the purchase order to be shipped.';
+                    }
+                    field("Ship-to Name 2"; Rec."Ship-to Name 2")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Name 2';
+                        Importance = Additional;
+                        ToolTip = 'Specifies an additional part of the name of the company at the address to which you want the items in the purchase order to be shipped.';
+                        Visible = false;
                     }
                     field("Ship-to Address"; Rec."Ship-to Address")
                     {
@@ -687,6 +680,7 @@ page 509 "Blanket Purchase Order"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
+                Visible = false;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(Database::"Purchase Header"),
                               "No." = field("No."),
@@ -765,6 +759,7 @@ page 509 "Blanket Purchase Order"
             {
                 Caption = 'O&rder';
                 Image = "Order";
+#if not CLEAN26
                 action(Statistics)
                 {
                     ApplicationArea = Suite;
@@ -772,11 +767,31 @@ page 509 "Blanket Purchase Order"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
 
                     trigger OnAction()
                     begin
                         Rec.OpenPurchaseOrderStatistics();
                     end;
+                }
+#endif
+                action(PurchaseOrderStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Enabled = Rec."No." <> '';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+#if CLEAN26
+                    Visible = true;
+#else
+                    Visible = false;
+#endif                    
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    RunObject = Page "Purchase Order Statistics";
+                    RunPageOnRec = true;
                 }
                 action(Card)
                 {
@@ -787,6 +802,17 @@ page 509 "Blanket Purchase Order"
                     RunPageLink = "No." = field("Buy-from Vendor No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the vendor on the purchase document.';
+                }
+                action(VendorStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Statistics';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
+                    Image = Statistics;
+                    RunObject = Page "Vendor Statistics";
+                    RunPageLink = "No." = field("Buy-from Vendor No."),
+                                  "Date Filter" = field("Date Filter");
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the buy-from vendor on the purchase document.';
                 }
                 action("Co&mments")
                 {
@@ -1059,6 +1085,38 @@ page 509 "Blanket Purchase Order"
                     DocPrint.PrintPurchHeader(Rec);
                 end;
             }
+            action(Email)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Send by Email';
+                Ellipsis = true;
+                Image = Email;
+                ToolTip = 'Finalize and prepare to email the document. The Send Email window opens prefilled with the vendor''s email address so you can add or edit information.';
+
+                trigger OnAction()
+                var
+                    DocPrint: Codeunit "Document-Print";
+                begin
+                    DocPrint.EmailPurchHeader(Rec);
+                end;
+            }
+            action(Send)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Send';
+                Ellipsis = true;
+                Image = SendToMultiple;
+                ToolTip = 'Prepare to send the document according to the vendor''s sending profile, such as attached to an email. The Send document to window opens first so you can confirm or select a sending profile.';
+
+                trigger OnAction()
+                var
+                    PurchaseHeader: Record "Purchase Header";
+                begin
+                    PurchaseHeader := Rec;
+                    CurrPage.SetSelectionFilter(PurchaseHeader);
+                    PurchaseHeader.SendRecords();
+                end;
+            }
             action(AttachAsPDF)
             {
                 ApplicationArea = Basic, Suite;
@@ -1134,7 +1192,13 @@ page 509 "Blanket Purchase Order"
             {
                 Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 5.';
 
+                actionref(Email_Promoted; Email)
+                {
+                }
                 actionref(Print_Promoted; Print)
+                {
+                }
+                actionref(Send_Promoted; Send)
                 {
                 }
                 actionref(AttachAsPDF_Promoted; AttachAsPDF)
@@ -1159,9 +1223,18 @@ page 509 "Blanket Purchase Order"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN26
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '26.0';
                 }
+#else                
+                actionref(PurchaseOrderStatistics_Promoted; PurchaseOrderStatistics)
+                {
+                }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -1225,9 +1298,6 @@ page 509 "Blanket Purchase Order"
         ArchiveManagement: Codeunit ArchiveManagement;
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         FormatAddress: Codeunit "Format Address";
-#if not CLEAN23
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
         ChangeExchangeRate: Page "Change Exchange Rate";
         DocNoVisible: Boolean;
         OpenApprovalEntriesExist: Boolean;
@@ -1241,9 +1311,6 @@ page 509 "Blanket Purchase Order"
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
-#if not CLEAN23
-        IsEU3PartyTradePurchaseEnabled: Boolean;
-#endif
 
     local procedure ActivateFields()
     begin
@@ -1254,9 +1321,6 @@ page 509 "Blanket Purchase Order"
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
         IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
-#if not CLEAN23
-        IsEU3PartyTradePurchaseEnabled := FeatureKeyManagement.IsEU3PartyTradePurchaseEnabled();
-#endif
     end;
 
     local procedure ApproveCalcInvDisc()

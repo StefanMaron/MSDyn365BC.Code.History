@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Setup;
+namespace Microsoft.Purchases.Setup;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -199,6 +199,10 @@ page 460 "Purchases & Payables Setup"
                     ToolTip = 'Specifies whether the document date changes when the posting date is modified.';
                     Importance = Additional;
                 }
+                field("Check Doc. Total Amounts"; Rec."Check Doc. Total Amounts")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
             }
             group(Prices)
             {
@@ -303,16 +307,6 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase price lists.';
                 }
-#if not CLEAN23
-                field("Part. Pay. Nos."; Rec."Part. Pay. Nos.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number series is entered in the Part Pmt. No. Series field.';
-                    ObsoleteReason = 'The field is not used and will be obsoleted';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '23.0';
-                }
-#endif
             }
             group("Background Posting")
             {
@@ -350,22 +344,22 @@ page 460 "Purchases & Payables Setup"
                 field("Archive Quotes"; Rec."Archive Quotes")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you want to archive purchase quotes when they are deleted.';
+                    ToolTip = 'Specifies if you want to automatically archive purchase quotes when: deleted, processed or printed.';
                 }
                 field("Archive Orders"; Rec."Archive Orders")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you want to archive purchase orders when they are deleted.';
+                    ToolTip = 'Specifies if you want to automatically archive purchase orders when: deleted, posted or printed.';
                 }
                 field("Archive Blanket Orders"; Rec."Archive Blanket Orders")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you want to archive purchase blanket orders when they are deleted.';
+                    ToolTip = 'Specifies if you want to automatically archive purchase blanket orders when: deleted, processed or printed.';
                 }
                 field("Archive Return Orders"; Rec."Archive Return Orders")
                 {
                     ApplicationArea = PurchReturnOrder;
-                    ToolTip = 'Specifies if you want to archive purchase return orders when they are deleted.';
+                    ToolTip = 'Specifies if you want to automatically archive purchase return orders when deleted or posted.';
                 }
             }
             group("Journal Templates")

@@ -7,11 +7,14 @@ table 314 "Resources Setup"
 {
     Caption = 'Resources Setup';
     DataClassification = CustomerContent;
+    DrillDownPageID = "Resources Setup";
+    LookupPageID = "Resources Setup";
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
+            AllowInCustomizations = Never;
             Caption = 'Primary Key';
         }
         field(2; "Resource Nos."; Code[20])
@@ -56,6 +59,7 @@ table 314 "Resources Setup"
                 end;
             end;
         }
+#if not CLEANSCHEMA25
         field(953; "Use New Time Sheet Experience"; Boolean)
         {
             Caption = 'Use New Time Sheet Experience';
@@ -65,6 +69,7 @@ table 314 "Resources Setup"
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
+#endif
         field(954; "Time Sheet Submission Policy"; Option)
         {
             Caption = 'Time Sheet Submission Policy';
@@ -98,5 +103,12 @@ table 314 "Resources Setup"
         Text002: Label '%1 cannot be changed, because there is at least one time sheet.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
+
+    procedure UseLegacyPosting(): Boolean
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+    begin
+        exit(not FeatureKeyManagement.IsConcurrentResourcePostingEnabled());
+    end;
 }
 

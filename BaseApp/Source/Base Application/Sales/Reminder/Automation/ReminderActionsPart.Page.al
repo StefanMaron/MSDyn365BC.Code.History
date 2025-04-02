@@ -174,11 +174,11 @@ page 6755 "Reminder Actions Part"
     var
         NewReminderActionPage: Page "New Reminder Action";
         SelectedReminderActionInterface: Interface "Reminder Action";
-        ReminderActionName: Text;
+        ReminderActionIndex: Integer;
         SelectedReminderActionName: Text;
     begin
-        foreach ReminderActionName in NewEnumReminderAction.Names do
-            NewReminderActionPage.AddItem(ReminderActionName, '');
+        foreach ReminderActionIndex in NewEnumReminderAction.Ordinals do
+            NewReminderActionPage.AddItem(Format("Reminder Action".FromInteger(ReminderActionIndex)), '');
 
         NewReminderActionPage.LookupMode(true);
         if not (NewReminderActionPage.RunModal() in [Action::LookupOK, Action::OK]) then

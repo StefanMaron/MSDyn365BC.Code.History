@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Document;
 
 using Microsoft.Inventory.Availability;
@@ -181,9 +185,11 @@ page 917 "Component - Item FactBox"
     end;
 
     var
-        Item: Record Item;
         AssemblyAvailabilityMgt: Codeunit "Assembly Availability Mgt.";
         AssemblyInfoPaneManagement: Codeunit "Assembly Info-Pane Management";
+
+    protected var
+        Item: Record Item;
 
     local procedure ShowNo(): Code[20]
     begin
