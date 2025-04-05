@@ -990,6 +990,7 @@ codeunit 426 "Payment Tolerance Management"
 
         AppliedCustLedgEntry.LockTable();
         AppliedCustLedgEntry.SetLoadFields();
+        AppliedCustLedgEntry.SetCurrentKey("Max. Payment Tolerance");
 
         AcceptedTolAmount := Amount + AppliedAmount;
         Number := AppliedCustLedgEntry.Count();
@@ -1954,13 +1955,14 @@ codeunit 426 "Payment Tolerance Management"
                     (OldCVLedgEntryBuf."Remaining Pmt. Disc. Possible" *
                      (OldCVLedgEntryBuf2."Remaining Amount" - OldCVLedgEntryBuf."Remaining Amount") /
                      OldCVLedgEntryBuf2."Remaining Amount"), GLSetup."Amount Rounding Precision");
-            NewCVLedgEntryBuf."Remaining Pmt. Disc. Possible" :=
-              Round(NewCVLedgEntryBuf."Remaining Pmt. Disc. Possible" +
-                (NewCVLedgEntryBuf."Remaining Pmt. Disc. Possible" *
-                 (OldCVLedgEntryBuf2."Remaining Amount" - OldCVLedgEntryBuf."Remaining Amount") /
-                 (NewCVLedgEntryBuf."Remaining Amount" -
-                  OldCVLedgEntryBuf2."Remaining Amount" + OldCVLedgEntryBuf."Remaining Amount")),
-                GLSetup."Amount Rounding Precision");
+            if NewCVLedgEntryBuf."Remaining Amount" - OldCVLedgEntryBuf2."Remaining Amount" + OldCVLedgEntryBuf."Remaining Amount" <> 0 then
+                NewCVLedgEntryBuf."Remaining Pmt. Disc. Possible" :=
+                  Round(NewCVLedgEntryBuf."Remaining Pmt. Disc. Possible" +
+                    (NewCVLedgEntryBuf."Remaining Pmt. Disc. Possible" *
+                     (OldCVLedgEntryBuf2."Remaining Amount" - OldCVLedgEntryBuf."Remaining Amount") /
+                     (NewCVLedgEntryBuf."Remaining Amount" -
+                      OldCVLedgEntryBuf2."Remaining Amount" + OldCVLedgEntryBuf."Remaining Amount")),
+                    GLSetup."Amount Rounding Precision");
 
             if NewCVLedgEntryBuf."Currency Code" = OldCVLedgEntryBuf2."Currency Code" then
                 OldCVLedgEntryBuf."Remaining Pmt. Disc. Possible" := OldCVLedgEntryBuf2."Remaining Pmt. Disc. Possible"
