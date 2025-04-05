@@ -188,8 +188,9 @@ table 38 "Purchase Header"
                     Rec.RecallModifyAddressNotification(GetModifyVendorAddressNotificationId());
                     if Rec."Remit-to Code" <> '' then
                         Rec.Validate("Remit-to Code", '');
-                end;
-		
+                end else
+                    SelectDefaultRemitAddress(Rec);
+
                 if "Empl. Purchase" then
                     "Vendor Invoice No." := "No.";
             end;

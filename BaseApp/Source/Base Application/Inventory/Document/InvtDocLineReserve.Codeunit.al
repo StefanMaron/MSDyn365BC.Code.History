@@ -118,12 +118,18 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
         ShowErrorOutbnd: Boolean;
         HasErrorInbnd: Boolean;
         HasErrorOutbnd: Boolean;
+        IsHandled: Boolean;
     begin
         if Blocked then
             exit;
         if NewInvtDocumentLine."Line No." = 0 then
             if not InvtDocumentLine.Get(NewInvtDocumentLine."Document Type", NewInvtDocumentLine."Document No.", NewInvtDocumentLine."Line No.") then
                 exit;
+
+        IsHandled := false;
+        OnBeforeVerifyChange(NewInvtDocumentLine, OldInvtDocumentLine, IsHandled);
+        if IsHandled then
+            exit;
 
         NewInvtDocumentLine.CalcFields("Reserved Qty. Inbnd. (Base)");
         NewInvtDocumentLine.CalcFields("Reserved Qty. Outbnd. (Base)");
@@ -292,7 +298,12 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
     var
         InvtDocumentHeader: Record "Invt. Document Header";
         RedStorno: Boolean;
+        IsHandled: Boolean;
     begin
+        OnBeforeDeleteLine(InvtDocumentLine, DeleteItemTracking, Blocked, IsHandled);
+        if IsHandled then
+            exit;
+
         if Blocked then
             exit;
 
@@ -796,6 +807,16 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
             TrackingSpecification.FieldError("Quantity (Base)");
 
         IsHandled := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyChange(var NewInvtDocumentLine: Record "Invt. Document Line"; var OldInvtDocumentLine: Record "Invt. Document Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteLine(var InvtDocumentLine: Record "Invt. Document Line"; DeleteItemTracking: Boolean; Blocked: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -36,6 +36,7 @@ query 7321 "Summarized Stock By Item Trkg."
             filter(Item_No_; "Item No.") { }
             filter(Variant_Code; "Variant Code") { }
             filter(Location_Code; "Location Code") { }
+            filter(Unit_of_Measure_Code; "Unit of Measure Code") { }
             filter(Open; Open) { }
             filter(Positive; Positive) { }
         }
