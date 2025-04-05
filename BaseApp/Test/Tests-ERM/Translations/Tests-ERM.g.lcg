@@ -743,22 +743,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType ClearDimTotalingConfirmTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2205251927 - NamedType 4264178802" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2205251927 - NamedType 2662451768" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[is not applicable for source type Cash Flow Account]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType NotApplicableForCF)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType NotApplicableForCFLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2205251927 - NamedType 1901726728" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2205251927 - NamedType 2480978594" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The TestPage is not open.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType PageVerify)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType PageVerifyLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 291215066 - NamedType 595438891" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4676,6 +4676,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Invoice - NamedType CannotAllowInvDiscountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3007153660 - NamedType 1463247091" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot change %1 for Extended Text Line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Caption]D;]A;(LookupHint=Codeunit ERM Purchase Invoice - NamedType ChangeExtendedTextErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3007153660 - NamedType 2057817126" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Deleting this document will cause a gap in the number series for posted invoices. An empty posted invoice %1 will be created]]></Val>
@@ -6573,6 +6582,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Item No. caption, %2 = Table caption.]D;]A;(LookupHint=Codeunit ERM Sales Documents II - NamedType CannotRenameItemUsedInSalesLinesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 655909914 - NamedType 1463247091" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot change %1 for Extended Text Line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Field Caption]D;]A;(LookupHint=Codeunit ERM Sales Documents II - NamedType ChangeExtendedTextErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 655909914 - NamedType 2964215133" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
