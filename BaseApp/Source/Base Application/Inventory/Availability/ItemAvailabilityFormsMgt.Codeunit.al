@@ -234,6 +234,7 @@ codeunit 353 "Item Availability Forms Mgt"
         if QtyByUnitOfMeasure <> 0 then
             ItemAvailLineList.SetQtyByUnitOfMeasure(QtyByUnitOfMeasure);
         ItemAvailLineList.Init(What, ItemCopy);
+        OnShowItemAvailLineListOnAfterItemAvailabilityLineListInit(ItemCopy, ItemAvailLineList);
         ItemAvailLineList.RunModal();
     end;
 
@@ -494,6 +495,8 @@ codeunit 353 "Item Availability Forms Mgt"
                     if ShowItemAvailabilityByBOMLevel(Item, CaptionText, InvtDocLine."Posting Date", NewDate) then
                         InvtDocLine.Validate("Posting Date", NewDate);
                 end;
+            else
+                OnShowItemAvailabilityFromInvtDocLineOnAvailabilityTypeCaseElse(AvailabilityType, Item, InvtDocLine);
         end;
     end;
 
@@ -717,6 +720,8 @@ codeunit 353 "Item Availability Forms Mgt"
 
     local procedure ShowBOMLevelAbleToMake(FieldCaption: Text; OldDate: Date; var NewDate: Date): Boolean
     begin
+        OnBeforeShowBOMLevelAbleToMake(FieldCaption, OldDate, NewDate);
+
         if FieldCaption <> '' then
             ItemAvailByBOMLevel.LookupMode(true);
         if ItemAvailByBOMLevel.RunModal() = ACTION::LookupOK then begin
@@ -1083,6 +1088,21 @@ codeunit 353 "Item Availability Forms Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateNeed(var Item: Record Item; var GrossRequirement: Decimal; var PlannedOrderReceipt: Decimal; var ScheduledReceipt: Decimal; var PlannedOrderReleases: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowItemAvailLineListOnAfterItemAvailabilityLineListInit(var Item: Record Item; var ItemAvailabilityLineList: Page "Item Availability Line List")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowItemAvailabilityFromInvtDocLineOnAvailabilityTypeCaseElse(ItemAvailabilityType: Enum "Item Availability Type"; var Item: Record Item; var InvtDocumentLine: Record "Invt. Document Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowBOMLevelAbleToMake(FieldCaption: Text; OldDate: Date; var NewDate: Date)
     begin
     end;
 }
