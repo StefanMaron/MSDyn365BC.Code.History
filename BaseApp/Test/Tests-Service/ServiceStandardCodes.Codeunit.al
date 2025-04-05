@@ -9,6 +9,8 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Location;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
@@ -40,6 +42,7 @@ codeunit 136119 "Service Standard Codes"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         ServiceItemGroupCode2: Code[10];
         StandardServiceCode2: Code[10];
         isInitialized: Boolean;
@@ -52,6 +55,7 @@ codeunit 136119 "Service Standard Codes"
         QuantityMustbePositive: Label '%1 must be positive in %2 %3=''%4'',%5=''%6''.';
         ServiceLineMustNotExist: Label 'There is no %1 within the filter.Filters: %2: %3, %4: %5';
         ExpectedConfirm: Label 'The Credit Memo doesn''t have a Corrected Invoice No. Do you want to continue?';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Caption , %2 = Expected Value , %3 = Table Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -1026,6 +1030,75 @@ codeunit 136119 "Service Standard Codes"
         StandardServiceLine.TestField("No.", Item."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ModalFormHandlerServItemGroup')]
+    procedure ReservationEntryMustBeCreatedWhenReserveIsAlwaysInServiceLine()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Customer: Record Customer;
+        ServiceItem: Record "Service Item";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceItemLine: Record "Service Item Line";
+        StandardServiceCode: Record "Standard Service Code";
+        StandardServiceItemGrCode: Record "Standard Service Item Gr. Code";
+        ExpectedQuantity: Integer;
+    begin
+        // [SCENARIO 566581] Verify Reservation Entry must be created When Item that has Reserve = Always in the Service Line.
+        // when "Get Std. Service Codes." is executed.
+        Initialize();
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create an item with Reserve = Always.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify();
+
+        // [GIVEN] Generate Quantity.
+        ExpectedQuantity := LibraryRandom.RandInt(20);
+
+        // [GIVEN] Post inventory.
+        SetItemInventory(Item, ExpectedQuantity, Location.Code);
+
+        // [GIVEN] Create Service Item.
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+
+        // [GIVEN] Create Standard Service Code with Item and Quantity.
+        LibraryService.CreateStandardServiceCode(StandardServiceCode);
+        CreateStdServiceLineWithItem(StandardServiceCode.Code, Item."No.", ExpectedQuantity);
+
+        // [GIVEN] Create Service Order with Location.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        ServiceHeader.Validate("Location Code", Location.Code);
+        ServiceHeader.Modify();
+
+        // [GIVEN] Create Service Item Line.
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+
+        // [GIVEN] Delete Standard Service Group Code.
+        StandardServiceItemGrCode.DeleteAll();
+
+        // [WHEN] Insert Service Line through Standard Service Code.
+        ServiceItemGroupCode2 := '';
+        StandardServiceCode2 := StandardServiceCode.Code;
+        StandardServiceItemGrCode.InsertServiceLines(ServiceItemLine);
+
+        // [THEN] Verify "Reserved Qty. (Base)" must be updated in the Service Line.
+        FindServiceLine(ServiceLine, ServiceHeader."Document Type", ServiceHeader."No.");
+        ServiceLine.CalcFields("Reserved Qty. (Base)");
+        Assert.AreEqual(
+            ExpectedQuantity,
+            ServiceLine."Reserved Qty. (Base)",
+            StrSubstNo(ValueMustBeEqualErr, ServiceLine.FieldCaption("Reserved Qty. (Base)"), ExpectedQuantity, ServiceLine.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1595,6 +1668,33 @@ codeunit 136119 "Service Standard Codes"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
         VATEntry.TestField("Posting Date", PostingDate);
+    end;
+
+    local procedure SetItemInventory(Item: Record Item; Quantity: Decimal; LocationCode: Code[10])
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify();
+
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateStdServiceLineWithItem(StandardServiceCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        StandardServiceLine: Record "Standard Service Line";
+    begin
+        LibraryService.CreateStandardServiceLine(StandardServiceLine, StandardServiceCode);
+        StandardServiceLine.Validate(Type, StandardServiceLine.Type::Item);
+        StandardServiceLine.Validate("No.", ItemNo);
+        StandardServiceLine.Validate(Quantity, Quantity);
+        StandardServiceLine.Modify(true);
     end;
 
     [ConfirmHandler]

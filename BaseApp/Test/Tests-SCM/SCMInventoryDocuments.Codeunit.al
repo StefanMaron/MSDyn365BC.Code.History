@@ -40,6 +40,7 @@ codeunit 137140 "SCM Inventory Documents"
         ReorderingPolicyShouldBeVisibleErr: Label 'Reordering Policy should be visible.';
         SpecialEquipmentCodeShouldBeVisibleErr: Label 'Special Equipment Code should be visible.';
         DueDateBeforeWorkDateMsg: Label 'is before work date';
+        TransferOrderErr: Label 'Transfer Order has not been posted successfully.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1953,6 +1954,119 @@ codeunit 137140 "SCM Inventory Documents"
 
         //[THEN] Assembly Order should be posted successfully.
 
+    end;
+
+    [Test]
+    procedure PostDirectTransferOrderWithReservation()
+    var
+        DirectTransHeader: Record "Direct Trans. Header";
+        Item: Record Item;
+        LocationA: Record Location;
+        LocationB: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        InventorySetup: Record "Inventory Setup";
+        TransferOrderNo: Code[20];
+    begin
+        // [Scenario 565331] Verify Direct Transfer with reservation posted successfully.
+        Initialize();
+
+        // [GIVEN] Update Inventory setup with Direct Transfer Posting as Direct Transfer and Prevent Negative Inventory as TRUE
+        InventorySetup.Get();
+        InventorySetup."Prevent Negative Inventory" := true;
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Direct Transfer";
+        InventorySetup.Modify();
+
+        // [GIVEN] Create Two locations: "A" and "B" without Warehouse Setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationA);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationB);
+
+        // [GIVEN] Create an Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Post Item Journal Line
+        CreateAndPostItemJournalLine(Item."No.", LocationA.Code, '');
+
+        // [GIVEN] Create a Direct Transfer Order from Location "A" to location "B" and Reserve From Inventory
+        CreateDirectTransferHeader(TransferHeader, LocationA.code, LocationB.Code);
+        TransferHeader.Validate("Posting Date", WorkDate());
+        TransferHeader.Modify(true);
+
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 10);
+        TransferLine.ReserveFromInventory(TransferLine);
+        TransferHeader.PerformManualRelease();
+        TransferOrderNo := TransferHeader."No.";
+
+        // [WHEN] Post the Direct Transfer Order
+        LibraryInventory.PostDirectTransferOrder(TransferHeader);
+
+        // [THEN] Verify Direct TransferOrder Posted Successfully.
+        DirectTransHeader.SetRange("Transfer Order No.", TransferOrderNo);
+        Assert.IsTrue(DirectTransHeader.FindFirst(), TransferOrderErr);
+    end;
+
+    [Test]
+    procedure PostDirectTransferOrderWithTwoReservation()
+    var
+        DirectTransHeader: Record "Direct Trans. Header";
+        InventorySetup: Record "Inventory Setup";
+        ItemA: Record Item;
+        ItemB: Record Item;
+        LocationA: Record Location;
+        LocationB: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TransferOrderNo: Code[20];
+    begin
+        // [Scenario 565331] Verify Direct Transfer with two reservation posted successfully.
+        Initialize();
+
+        // [GIVEN] Update Inventory Setup with Direct Transfer Posting as Direct Transfer and Prevent Negative Inventory as TRUE
+        InventorySetup.Get();
+        InventorySetup."Prevent Negative Inventory" := true;
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Direct Transfer";
+        InventorySetup.Modify();
+
+        // [GIVEN] Create Two locations: "A" and "B" without Warehouse Setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationA);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationB);
+
+        // [GIVEN] Create two Item A and Item B.
+        LibraryInventory.CreateItem(ItemA);
+        LibraryInventory.CreateItem(ItemB);
+
+        // [GIVEN] Create and Post Item Journal Line for Item A and Item B.
+        CreateAndPostItemJournalLine(ItemA."No.", LocationA.Code, '');
+        CreateAndPostItemJournalLine(ItemB."No.", LocationA.Code, '');
+
+        // [GIVEN] Create a Direct Transfer Order from Location "A" to location "B" for Item A and Reserve From Inventory
+        CreateDirectTransferHeader(TransferHeader, LocationA.code, LocationB.Code);
+        TransferHeader.Validate("Posting Date", WorkDate());
+        TransferHeader.Modify(true);
+
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemA."No.", 5);
+        TransferLine.ReserveFromInventory(TransferLine);
+        TransferHeader.PerformManualRelease();
+
+        // [GIVEN] Post the Direct Transfer Order
+        LibraryInventory.PostDirectTransferOrder(TransferHeader);
+
+        // [GIVEN] Create a Direct Transfer Order from Location "A" to location "B" for Item B and Reserve From Inventory
+        CreateDirectTransferHeader(TransferHeader, LocationA.code, LocationB.Code);
+        TransferHeader.Validate("Posting Date", WorkDate());
+        TransferHeader.Modify(true);
+
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemB."No.", 5);
+        TransferLine.ReserveFromInventory(TransferLine);
+        TransferHeader.PerformManualRelease();
+        TransferOrderNo := TransferHeader."No.";
+
+        // [WHEN] Post the Direct Transfer Order
+        LibraryInventory.PostDirectTransferOrder(TransferHeader);
+
+        // [THEN] Verify Direct TransferOrder Posted Successfully.
+        DirectTransHeader.SetRange("Transfer Order No.", TransferOrderNo);
+        Assert.IsTrue(DirectTransHeader.FindFirst(), TransferOrderErr);
     end;
 
     local procedure PostWhseShipmentFromTO(DocumentNo: Code[20])
