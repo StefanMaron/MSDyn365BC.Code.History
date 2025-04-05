@@ -4,6 +4,7 @@ using Microsoft.CRM.Contact;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
@@ -526,6 +527,27 @@ page 5972 "Posted Service Credit Memo"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies an international commercial terms code that are used in international sale contracts according to the SAT internatoinal trade terms definition.';
                 }
+                field("SAT Certificate Name"; SATCertificateName)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'SAT Certificate Name';
+                    ToolTip = 'Specifies the name of the certificate that is used to sign the e-document.';
+                    Visible = SATCertInLocationEnabled;
+                    Editable = false;
+
+                    trigger OnDrillDown()
+                    begin
+                        EInvoiceMgt.DrillDownSATCertificate(SATCertificateCode);
+                    end;
+                }
+                field("SAT Certificate Source"; SATCertificateSource)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'SAT Certificate Source';
+                    ToolTip = 'Specifies the record with which the certificate is associated, such as General Ledger Setup or a specific Location (e.g., Location BLUE).';
+                    Visible = SATCertInLocationEnabled;
+                    Editable = false;
+                }
                 field("Exchange Rate USD"; Rec."Exchange Rate USD")
                 {
                     ApplicationArea = BasicMX;
@@ -921,6 +943,9 @@ page 5972 "Posted Service Credit Memo"
         DocExchStatusStyle := Rec.GetDocExchStatusStyle();
         SellToContact.GetOrClear(Rec."Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
+
+        if SATCertInLocationEnabled then
+            UpdateSATCertificateFields();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -932,10 +957,16 @@ page 5972 "Posted Service Credit Memo"
     end;
 
     trigger OnOpenPage()
+    var
+        GLSetup: Record "General Ledger Setup";
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
         ActivateFields();
+
+        GLSetup.SetLoadFields("Multiple SAT Certificates");
+        GLSetup.Get();
+        SATCertInLocationEnabled := EInvoiceMgt.IsPACEnvironmentEnabled() and GLSetup."Multiple SAT Certificates";
     end;
 
     var
@@ -943,6 +974,7 @@ page 5972 "Posted Service Credit Memo"
         SellToContact: Record Contact;
         BillToContact: Record Contact;
         FormatAddress: Codeunit "Format Address";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         DocExchStatusStyle: Text;
         DocExchStatusVisible: Boolean;
@@ -950,6 +982,10 @@ page 5972 "Posted Service Credit Memo"
         IsShipToCountyVisible: Boolean;
         IsBillToCountyVisible: Boolean;
         VATDateEnabled: Boolean;
+        SATCertInLocationEnabled: Boolean;
+        SATCertificateCode: Text;
+        SATCertificateName: Text;
+        SATCertificateSource: Text;
 
     local procedure ActivateFields()
     var
@@ -961,6 +997,13 @@ page 5972 "Posted Service Credit Memo"
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
+    local procedure UpdateSATCertificateFields()
+    var
+        DocumentRecRef: RecordRef;
+    begin
+        DocumentRecRef.GetTable(Rec);
+        EInvoiceMgt.GetSATCertificateInfoForDocument(DocumentRecRef, SATCertificateCode, SATCertificateName, SATCertificateSource);
+    end;
 #if not CLEAN25
     [Obsolete('Moved to procedure OpenStatistics in table ServiceCrMemoHeader', '25.0')]
     [IntegrationEvent(false, false)]

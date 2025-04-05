@@ -3282,6 +3282,69 @@ codeunit 137063 "SCM Manufacturing 7.0"
         VerifyOperationNoOnRequisitionLineForProductionOrder(ProductionOrder, OperationNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RefreshProdOrderWhenProdBOMHasStartingEndingDate()
+    var
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        Item2: Record Item;
+        Item3: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [SCENARIO 557289] When refreshing Production orders and using starting/ending dates on Production BOM Line 
+        // in a Released production order document pick correct component.
+        Initialize();
+
+        // [GIVEN] Create Work Center
+        CreateWorkCenter(WorkCenter);
+
+        // [GIVEN] Create Main Item and its component item
+        CreateMultipleItems(
+          Item, Item2, Item3, Item."Replenishment System"::"Prod. Order", Item3."Replenishment System"::"Prod. Order",
+          Item."Reordering Policy"::Order, false);
+
+        // [GIVEN] Update Manufacturing Policy On Items,
+        UpdateItem(Item, Item.FieldNo("Manufacturing Policy"), Item."Manufacturing Policy"::"Make-to-Order");
+        UpdateItem(Item2, Item2.FieldNo("Manufacturing Policy"), Item2."Manufacturing Policy"::"Make-to-Order");
+        UpdateItem(Item3, Item3.FieldNo("Manufacturing Policy"), Item3."Manufacturing Policy"::"Make-to-Order");
+
+        // [GIVEN] Create Production BOM with Multiple lines.
+        CreateProductionBOMWithStartingEndingDate(ProductionBOMHeader, Item."Base Unit of Measure", ProductionBOMLine.Type::Item, Item2."No.", Item3."No.", 1);
+
+        // [GIVEN] Create routing with multiple routing line
+        CreateRoutingWithMultipleRoutingLine(RoutingHeader, WorkCenter."No.", RoutingHeader.Type::Serial, RoutingLine.Type::"Work Center");
+
+        // [GIVEN] Update Production BOM No and Routing on Item.
+        UpdateItem(Item, Item.FieldNo("Production BOM No."), ProductionBOMHeader."No.");
+        UpdateItem(Item, Item.FieldNo("Routing No."), RoutingHeader."No.");
+
+        // [GIVEN] Create Released Production Order of quantity 100
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", 100);
+
+        // [GIVEN] Update Due date near to starting  date of first component
+        UpdateProductionOrder(ProductionOrder, '', CalcDate('<-10D>', WorkDate()));  // Location Code as Blank.
+
+        // [WHEN] Refresh Released Production Order.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [THEN] Find the Production Order Component and its should be first component Item2
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder, Item2."No.");
+        Assert.RecordIsNotEmpty(ProdOrderComponent);
+
+        // [WHEN] Again Refresh Released Production Order.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [THEN] Find the Production Order Component and its should be same as previous component Item2
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder, Item2."No.");
+        Assert.RecordIsNotEmpty(ProdOrderComponent);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5808,6 +5871,45 @@ codeunit 137063 "SCM Manufacturing 7.0"
         FieldRef.Validate(Value);
         RecRef.SetTable(ProductionBOMLine);
         ProductionBOMLine.Modify(true);
+    end;
+  
+    local procedure CreateProductionBOMWithStartingEndingDate(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitOfMeasure: Code[10]; Type: Enum "Production BOM Line Type"; ItemNo: Code[20]; ItemNo2: Code[20]; QuantityPer: Integer)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionBOMLine2: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, BaseUnitOfMeasure);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', Type, ItemNo, QuantityPer);
+        ProductionBOMLine."Starting Date" := CalcDate('<-1M>', WorkDate());
+        ProductionBOMLine."Ending Date" := CalcDate('<-1M+15D>', WorkDate());
+        ProductionBOMLine.Modify();
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine2, '', Type, ItemNo2, QuantityPer);
+        ProductionBOMLine2."Starting Date" := CalcDate('<-1M+16D>', WorkDate());
+        ProductionBOMLine2."Ending Date" := CalcDate('<5D>', WorkDate());
+        ProductionBOMLine2.Modify();
+        UpdateProductionBOMHeaderStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure CreateRoutingWithMultipleRoutingLine(var RoutingHeader: Record "Routing Header"; WorkCenterNo: Code[20]; Type: Option; RoutingLineType: Enum "Capacity Type Routing")
+    var
+        RoutingLine: array[3] of Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, Type);
+        CreateRoutingLineWithRunTimeSetupTime(RoutingHeader, RoutingLine[1], WorkCenterNo, RoutingLineType);
+        CreateRoutingLineWithRunTimeSetupTime(RoutingHeader, RoutingLine[2], WorkCenterNo, RoutingLineType);
+        CreateRoutingLineWithRunTimeSetupTime(RoutingHeader, RoutingLine[3], WorkCenterNo, RoutingLineType);
+        UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+    end;
+
+    local procedure CreateRoutingLineWithRunTimeSetupTime(RoutingHeader: Record "Routing Header"; var RoutingLine: Record "Routing Line"; WorkCenterNo: Code[20]; RoutingLineType: Enum "Capacity Type Routing")
+    var
+        OperationNo: Code[10];
+    begin
+        OperationNo := FindLastOperationNo(RoutingHeader."No.") + Format(LibraryRandom.RandInt(5));
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', OperationNo, RoutingLineType, WorkCenterNo);
+        RoutingLine.Validate("Setup Time", LibraryRandom.RandInt(50));
+        RoutingLine.Validate("Run Time", LibraryRandom.RandInt(50));
+        RoutingLine.Modify(true);
     end;
 }
 

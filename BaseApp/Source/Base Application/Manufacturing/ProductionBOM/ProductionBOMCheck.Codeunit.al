@@ -115,6 +115,7 @@ codeunit 99000769 "Production BOM-Check"
     var
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMComponent: Record "Production BOM Line";
+        IsHandled: Boolean;
     begin
         if Level > 99 then
             Error(
@@ -128,24 +129,30 @@ codeunit 99000769 "Production BOM-Check"
         ProdBOMComponent.SetRange("Version Code", VersionCode);
         ProdBOMComponent.SetFilter("No.", '<>%1', '');
 
+        OnCheckBOMStructureOnBeforeFindProdBOMComponent(ProdBOMComponent);
+
         if ProdBOMComponent.Find('-') then
             repeat
                 case ProdBOMComponent.Type of
                     ProdBOMComponent.Type::Item:
                         if ProdBOMComponent."Routing Link Code" <> '' then begin
-                            Item.TestField("Routing No.");
-                            RtngLine.SetRange("Routing No.", Item."Routing No.");
-                            RtngLine.SetRange("Routing Link Code", ProdBOMComponent."Routing Link Code");
-                            if not RtngLine.FindFirst() then
-                                Error(
-                                  Text003,
-                                  RtngLine.TableCaption(),
-                                  RtngLine.FieldCaption("Routing Link Code"),
-                                  ProdBOMComponent."Routing Link Code",
-                                  ProdBOMComponent.FieldCaption("Production BOM No."),
-                                  ProdBOMComponent."Production BOM No.",
-                                  ProdBOMComponent.FieldCaption("Line No."),
-                                  ProdBOMComponent."Line No.");
+                            IsHandled := false;
+                            OnCheckBOMStructureOnBeforeCheckRoutingLine(Item, ProdBOMComponent, BOMHeaderNo, VersionCode, Level, IsHandled);
+                            if not IsHandled then begin
+                                Item.TestField("Routing No.");
+                                RtngLine.SetRange("Routing No.", Item."Routing No.");
+                                RtngLine.SetRange("Routing Link Code", ProdBOMComponent."Routing Link Code");
+                                if not RtngLine.FindFirst() then
+                                    Error(
+                                      Text003,
+                                      RtngLine.TableCaption(),
+                                      RtngLine.FieldCaption("Routing Link Code"),
+                                      ProdBOMComponent."Routing Link Code",
+                                      ProdBOMComponent.FieldCaption("Production BOM No."),
+                                      ProdBOMComponent."Production BOM No.",
+                                      ProdBOMComponent.FieldCaption("Line No."),
+                                      ProdBOMComponent."Line No.");
+                            end;
                         end;
                     ProdBOMComponent.Type::"Production BOM":
                         CheckBOMStructure(
@@ -269,6 +276,16 @@ codeunit 99000769 "Production BOM-Check"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckBOMStructureOnAfterGetProdBOMHeader(ProductionBOMHeader: Record "Production BOM Header"; var VersionCode: Code[20]; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckBOMStructureOnBeforeFindProdBOMComponent(var ProdBOMComponent: Record "Production BOM Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnCheckBOMStructureOnBeforeCheckRoutingLine(Item: Record Item; ProductionBOMLine: Record "Production BOM Line"; BOMHeaderNo: Code[20]; VersionCode: Code[20]; Level: Integer; var IsHandled: Boolean)
     begin
     end;
 }

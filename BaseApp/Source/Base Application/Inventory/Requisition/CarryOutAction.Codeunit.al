@@ -1501,6 +1501,7 @@ codeunit 99000813 "Carry Out Action"
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
         ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
         ProductionBOMLine.SetRange("No.", ProdOrderComponent."Item No.");
+        ProductionBOMLine.SetRange(Position, ProdOrderComponent.Position);
         if ProductionBOMLine.FindSet() then
             repeat
                 ProductionBOMCommentLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
