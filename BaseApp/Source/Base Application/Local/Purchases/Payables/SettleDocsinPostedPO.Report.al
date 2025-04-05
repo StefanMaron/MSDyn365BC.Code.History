@@ -77,6 +77,7 @@ report 7000082 "Settle Docs. in Posted PO"
                             GenJnlLine.Description := CopyStr(StrSubstNo(Text1100001, PostedDoc."Document No."), 1, MaxStrLen(GenJnlLine.Description));
                             GenJnlLine."Document No." := PostedPmtOrd."No.";
                             GenJnlLine.Validate("Currency Code", PostedDoc."Currency Code");
+                            GenJnlLine."Posting Group" := VendLedgEntry."Vendor Posting Group";
                             if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlVend(GenJnlLine, VendLedgEntry, 0, false) then
                                 GenJnlLine.Validate(Amount, PostedDoc."Remaining Amount" + VendLedgEntry."Remaining Pmt. Disc. Possible")
                             else

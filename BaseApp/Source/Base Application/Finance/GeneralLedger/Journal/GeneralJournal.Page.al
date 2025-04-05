@@ -2032,6 +2032,7 @@ page 39 "General Journal"
         if GenJournalBatch.Get(GetJournalTemplateNameFromFilter(), CurrentJnlBatchName) then
             SetApprovalStateForBatch(GenJournalBatch, Rec, OpenApprovalEntriesExistForCurrUser, OpenApprovalEntriesOnJnlBatchExist, OpenApprovalEntriesOnBatchOrAnyJnlLineExist, CanCancelApprovalForJnlBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForBatchAndAllLines, ApprovalEntriesExistSentByCurrentUser, EnabledGenJnlBatchWorkflowsExist, EnabledGenJnlLineWorkflowsExist);
         HasIncomingDocument := Rec."Incoming Document Entry No." <> 0;
+        CurrPage.IncomingDocAttachFactBox.Page.RecordHasMainAttachment();
         CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(Rec.RecordId);
         // PostedFromSimplePage is set to TRUE when 'POST' / 'POST+PRINT' action is executed in simple page mode.
         // It gets set to FALSE when OnNewRecord is called in the simple mode.

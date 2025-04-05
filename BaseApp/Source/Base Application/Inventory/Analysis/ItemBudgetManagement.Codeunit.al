@@ -574,6 +574,8 @@ codeunit 7130 "Item Budget Management"
                 PAGE.Run(0, ItemBudgetEntry, ItemBudgetEntry."Cost Amount");
             ValueType::Quantity:
                 PAGE.Run(0, ItemBudgetEntry, ItemBudgetEntry.Quantity);
+            else
+                OnDrillDownBudgetAmountOnValueTypeCaseElse(ValueType, ItemBudgetEntry);
         end;
     end;
 
@@ -676,7 +678,7 @@ codeunit 7130 "Item Budget Management"
         DimCodeBuf."Show in Bold" := DimVal."Dimension Value Type" <> DimVal."Dimension Value Type"::Standard;
     end;
 
-    procedure CalculateAmount(ValueType: Enum "Item Analysis Value Type"; SetColumnFilter: Boolean; var ItemStatisticsBuf: Record "Item Statistics Buffer"; ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text; SourceTypeFilter: Enum "Analysis Source Type"; SourceNoFilter: Text; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text; RowDimType: Enum "Item Budget Dimension Type"; RowDimCodeBuf: Record "Dimension Code Buffer"; ColDimType: Enum "Item Budget Dimension Type"; ColDimCodeBuf: Record "Dimension Code Buffer"): Decimal
+    procedure CalculateAmount(ValueType: Enum "Item Analysis Value Type"; SetColumnFilter: Boolean; var ItemStatisticsBuf: Record "Item Statistics Buffer"; ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text; SourceTypeFilter: Enum "Analysis Source Type"; SourceNoFilter: Text; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text; RowDimType: Enum "Item Budget Dimension Type"; RowDimCodeBuf: Record "Dimension Code Buffer"; ColDimType: Enum "Item Budget Dimension Type"; ColDimCodeBuf: Record "Dimension Code Buffer") Result: Decimal
     begin
         SetBufferFilters(
           ItemStatisticsBuf, ItemBudgetName, ItemFilter, SourceTypeFilter, SourceNoFilter,
@@ -701,6 +703,10 @@ codeunit 7130 "Item Budget Management"
                     ItemStatisticsBuf.CalcFields("Budgeted Quantity");
                     exit(ItemStatisticsBuf."Budgeted Quantity");
                 end;
+            else begin
+                OnCalculateAmountOnValueTypeCaseElse(ValueType, ItemStatisticsBuf, Result);
+                exit(Result);
+            end;
         end;
     end;
 
@@ -729,6 +735,8 @@ codeunit 7130 "Item Budget Management"
                     ItemStatisticsBuf.CalcFields("Budgeted Quantity");
                     ItemStatisticsBuf.Validate("Budgeted Quantity", NewAmount);
                 end;
+            else
+                OnSetAmountOnValueTypeCaseElse(ValueType, ItemStatisticsBuf);
         end;
     end;
 
@@ -784,6 +792,21 @@ codeunit 7130 "Item Budget Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetLineAndColumnDim(ItemBudgetName: Record "Item Budget Name"; var LineDimCode: Text[30]; var LineDimType: Enum "Item Budget Dimension Type"; var ColumnDimCode: Text[30]; var ColumnDimType: Enum "Item Budget Dimension Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDrillDownBudgetAmountOnValueTypeCaseElse(ItemAnalysisValueType: Enum "Item Analysis Value Type"; var ItemBudgetEntry: Record "Item Budget Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateAmountOnValueTypeCaseElse(ItemAnalysisValueType: Enum "Item Analysis Value Type"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAmountOnValueTypeCaseElse(ItemAnalysisValueType: Enum "Item Analysis Value Type"; var ItemStatisticsBuffer: Record "Item Statistics Buffer")
     begin
     end;
 }

@@ -939,6 +939,40 @@ codeunit 147533 "Cartera Recv. Factoring"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,TotalSettleDocsInPostBillGroupRequestPage')]
+    [Scope('OnPrem')]
+    procedure CloseBillGroupWithAltCustPostingGroup()
+    var
+        BillGroup: Record "Bill Group";
+        CarteraDoc: Record "Cartera Doc.";
+        Customer: Record Customer;
+        PostedBillGroup: Record "Posted Bill Group";
+        PostedCarteraDoc: Record "Posted Cartera Doc.";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 571268] Entry balanced if we settle Invoices to Cartera via Bill Group with Multiple Posting Groups
+        Initialize();
+
+        // [GIVEN] Set Multiple Posting group on Sales Receivables Setup
+        SetSalesAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create and post Sales Invoice of Cartera doc
+        DocumentNo := PostSalesInvoiceWithCarteraDoc(Customer);
+
+        // [GIVEN] Create and post bill group for Cartera doc
+        CreateAndPostBillGroup(BillGroup, CarteraDoc, Customer, DocumentNo);
+
+        // [THEN] Verify the posted bill group
+        VerifyPostedBillGroup(BillGroup, CarteraDoc);
+
+        // [WHEN] Close the posted Bill Group by total settlement
+        TotalSettlePostedBillGroup(PostedBillGroup, PostedCarteraDoc, BillGroup);
+
+        // [THEN] Verify the closed bill group
+        VerifyClosedBillGroup(PostedBillGroup, PostedCarteraDoc);
+    end;
+
     local procedure Initialize()
     var
         CarteraSetup: Record "Cartera Setup";
@@ -1342,6 +1376,53 @@ codeunit 147533 "Cartera Recv. Factoring"
         LibraryVariableStorage.Enqueue(PostedCarteraDoc."Amount for Collection" * PercentageToSettle / 100); // for the request page handler
         LibraryVariableStorage.Enqueue(RcvDocPartialSettledMsg); // for the message handler
         PostedBillGroups.Docs."Partial Settlement".Invoke();
+    end;
+
+    local procedure SetSalesAllowMultiplePostingGroups(AllowMultiplePostingGroups: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Allow Multiple Posting Groups" := AllowMultiplePostingGroups;
+        SalesReceivablesSetup."Check Multiple Posting Groups" := "Posting Group Change Method"::"Alternative Groups";
+        SalesReceivablesSetup.Modify();
+    end;
+
+    local procedure PostSalesInvoiceWithCarteraDoc(var Customer: Record Customer): Code[20]
+    var
+        CustomerPostingGroup: Record "Customer Posting Group";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibraryCarteraReceivables.CreateFactoringCustomer(Customer, LocalCurrencyCode);
+        Customer.Validate("Allow Multiple Posting Groups", true);
+        Customer.Modify();
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, "Sales Document Type"::Invoice, Customer."No.", '', 1, '', 0D);
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+        CustomerPostingGroup.Validate("Factoring for Collection Acc.", LibraryERM.CreateGLAccountNo());
+        CustomerPostingGroup.Modify();
+        LibrarySales.CreateAltCustomerPostingGroup(Customer."Customer Posting Group", CustomerPostingGroup.Code);
+        SalesHeader.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        SalesHeader.Modify();
+
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreateAndPostBillGroup(var BillGroup: Record "Bill Group"; var CarteraDoc: Record "Cartera Doc."; Customer: Record Customer; DocumentNo: Code[20]);
+    var
+        BankAccount: Record "Bank Account";
+        BGPostAndPrint: Codeunit "BG/PO-Post and Print";
+    begin
+        LibraryCarteraReceivables.CreateBankAccount(BankAccount, LocalCurrencyCode);
+        LibraryCarteraReceivables.CreateFactoringOperationFeesForBankAccount(BankAccount);
+        CreateBillGroup(BillGroup, BankAccount."No.", BillGroup."Dealing Type"::Collection, BillGroup.Factoring::Unrisked);
+        LibraryCarteraReceivables.AddCarteraDocumentToBillGroup(CarteraDoc, DocumentNo, Customer."No.", BillGroup."No.");
+
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption()));
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(BillGroupSuccessfulPostedMsg);
+        Commit();
+        BGPostAndPrint.ReceivablePostOnly(BillGroup);
     end;
 
     [ConfirmHandler]

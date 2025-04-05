@@ -701,6 +701,40 @@ codeunit 144075 "ERM No Taxable VAT"
             'VATEntry2_NonDeductibleVATAmt', VATEntry."Non-Deductible VAT Amount");
     end;
 
+    [Test]
+    [HandlerFunctions('AutoInvoicesListRequestPageHandler')]
+    procedure AutoInvoiceListReportWithNonDeductibleVAT()
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DocumentNo: Code[20];
+        RequestPageXML: Text;
+    begin
+        // [SCENARIO 565480] Verify AutoInvoices List report should display the non-deductible operations.
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup With Non-Deductible VAT 100 %.
+        CreateHundredPctNDReverseChargeVATPostingSetup(VATPostingSetup);
+
+        // [GIVEN] Post Purchase Invoice.
+        DocumentNo := CreatePostPurchInvoiceWithVATSetup(PurchaseLine, VATPostingSetup);
+
+        // [GIVEN] Find VAT Entry
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+
+        // [WHEN] Run AutoInvoices Report.
+        Commit(); // Commit required before running this Report.
+        RequestPageXML := Report.RunRequestPage(Report::"AutoInvoices List", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"AutoInvoices List", VATEntry, RequestPageXML);
+
+        // [THEN] Verify Non-Deductible Operations.
+        LibraryReportDataset.AssertElementWithValueExists('VATBuffer2__VAT___NonDeductibleVAT___', VATEntry."Non-Deductible VAT %");
+        LibraryReportDataset.AssertElementWithValueExists('VATBuffer2_NonDeductibleVATBase', VATEntry."Non-Deductible VAT Base");
+        LibraryReportDataset.AssertElementWithValueExists('VATBuffer2_NonDeductibleVATAmt', VATEntry."Non-Deductible VAT Amount");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1267,6 +1301,75 @@ codeunit 144075 "ERM No Taxable VAT"
         VATPostingSetup.Modify(true);
     end;
 
+    local procedure CreateHundredPctNDReverseChargeVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Bus. Posting Group", VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandInt(10));
+        VATPostingSetup.Validate("VAT Identifier", VATPostingSetup."VAT Prod. Posting Group");
+
+        LibraryNonDeductibleVAT.SetAllowNonDeductibleVATForVATPostingSetup(VATPostingSetup);
+        VATPostingSetup.Validate("Non-Deductible VAT %", 0);
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        LibraryNonDeductibleVAT.SetAllowNonDeductibleVATForVATPostingSetup(VATPostingSetup);
+        VATPostingSetup.Validate("Non-Ded. Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateGLAccount(VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Enum "General Posting Type"): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("Gen. Posting Type", GenPostingType);
+        GLAccount.Modify(true);
+
+        exit(GLAccount."No.");
+    end;
+
+    local procedure CreatePostPurchInvoiceWithVATSetup(var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        GLAccountNo: Code[20];
+    begin
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(VATPostingSetup."VAT Bus. Posting Group"));
+        GLAccountNo :=
+          CreateGLAccount(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreateVendor(VATBusPostingGroup: Code[20]): Code[20]
+    var
+        CompanyInformation: Record "Company Information";
+        Vendor: Record Vendor;
+    begin
+        CompanyInformation.Get();
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Country/Region Code", CompanyInformation."Country/Region Code");
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Vendor.Modify(true);
+
+        exit(Vendor."No.");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -1331,6 +1434,11 @@ codeunit 144075 "ERM No Taxable VAT"
         SalesInvoiceBook.VATEntry.SetFilter("Document No.", DocumentNo);
         SalesInvoiceBook."No Taxable Entry".SetFilter("Document No.", DocumentNo);
         SalesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    procedure AutoInvoicesListRequestPageHandler(var AutoInvoicesList: TestRequestPage "AutoInvoices List")
+    begin
     end;
 }
 

@@ -64,6 +64,7 @@ codeunit 134386 "ERM Sales Documents II"
         ExpectedRenameErr: Label 'You cannot rename the line.';
         SalesQuoteLineNotEditableErr: Label 'The Sales Quote line should be editable';
         CannotRenameItemUsedInSalesLinesErr: Label 'You cannot rename %1 in a %2, because it is used in sales document lines.', Comment = '%1 = Item No. caption, %2 = Table caption.';
+        ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -4403,6 +4404,37 @@ codeunit 134386 "ERM Sales Documents II"
         SalesOrder.OpenEdit();
         SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(SalesHeader."Invoice Discount Value");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdateExtendedTextTypeNotAllowed()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 564049] Error message when adding a sales line with type Item that have extended text previously
+        Initialize();
+
+        // [GIVEN] Item "X" with Extended Text
+        CreateItemAndExtendedText(Item);
+
+        // [GIVEN] Create Sales Header
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Sales Line with Item, second Sales Line with Extended Text
+        CreateSalesLineWithExtendedText(SalesHeader, Item."No.");
+
+        // [WHEN] Get extended text Sales Line 
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindLast();
+
+        // [THEN] Error come when try to change type of extended text Sales line
+        asserterror SalesLine.Validate(Type, SalesLine.Type::Item);
+
+        // [THEN] Verify the error of extended text
+        Assert.ExpectedError(StrSubstNo(ChangeExtendedTextErr, SalesLine.FieldCaption(Type)));
     end;
 
     local procedure Initialize()
