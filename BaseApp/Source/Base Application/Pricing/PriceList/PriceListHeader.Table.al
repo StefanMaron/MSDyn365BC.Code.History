@@ -562,6 +562,7 @@ table 7000 "Price List Header"
     var
         xAmountType: Enum "Price Amount Type";
     begin
+        CopyTo(PriceSource);
         xAmountType := "Amount Type";
         if "Source Type" in ["Source Type"::"Customer Disc. Group", "Source Type"::"Customer Price Group"] then
             "Amount Type" := PriceSource.GetDefaultAmountType()

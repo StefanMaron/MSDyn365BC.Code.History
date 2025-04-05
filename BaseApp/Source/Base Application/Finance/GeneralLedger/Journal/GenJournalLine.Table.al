@@ -3800,7 +3800,7 @@ table 81 "Gen. Journal Line"
             exit(true);
         if (GenJnlLineForChange."Document No." <> PrevDocNo) or (GenJnlLineForChange."Posting Date" <> PrevPostingDate) then
             exit(true);
-        if GenJnlLineForChange."Document Type" = GenJnlLineForChange."Document Type"::" " then
+        if GenJnlLineForChange."Document Type" in [GenJnlLineForChange."Document Type"::" ", GenJnlLineForChange."Document Type"::Payment, GenJnlLineForChange."Document Type"::Refund] then
             exit(false);
         exit((PrevCustVendNo <> '') and (CurrCustVendNo <> '') and (CurrCustVendNo <> PrevCustVendNo));
     end;
@@ -6463,6 +6463,9 @@ table 81 "Gen. Journal Line"
             "Pmt. Discount Date" := PurchHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := PurchHeader."Prepmt. Payment Discount %";
         end;
+        "Message Type" := PurchHeader."Message Type";
+        "Invoice Message" := PurchHeader."Invoice Message";
+        "Invoice Message 2" := PurchHeader."Invoice Message 2";
 
         OnAfterCopyGenJnlLineFromPurchHeaderPrepmtPost(PurchHeader, Rec, UsePmtDisc);
     end;

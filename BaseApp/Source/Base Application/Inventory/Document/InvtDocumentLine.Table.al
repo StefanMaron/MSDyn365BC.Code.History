@@ -909,6 +909,7 @@ table 5851 "Invt. Document Line"
     procedure OpenItemTrackingLines()
     begin
         ReserveInvtDocLine.CallItemTracking(Rec);
+        OnAfterOpenItemTrackingLines(Rec);
     end;
 
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
@@ -1218,6 +1219,11 @@ table 5851 "Invt. Document Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetUnitAmount(var InvtDocumentLine: Record "Invt. Document Line"; var UnitCost: Decimal; CalledByFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenItemTrackingLines(var InvtDocumentLine: Record "Invt. Document Line")
     begin
     end;
 }

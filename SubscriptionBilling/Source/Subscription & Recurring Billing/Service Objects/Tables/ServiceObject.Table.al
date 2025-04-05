@@ -1712,6 +1712,9 @@ table 8057 "Service Object"
     var
         ServiceCommitment: Record "Service Commitment";
     begin
+        if "No." = '' then
+            exit(false);
+
         ServiceCommitment.Reset();
         ServiceCommitment.SetRange("Service Object No.", "No.");
         exit(not ServiceCommitment.IsEmpty);
