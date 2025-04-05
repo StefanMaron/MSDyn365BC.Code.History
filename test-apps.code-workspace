@@ -1,4 +1,12 @@
 {
+  "settings": {
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false,
+    "al.enableCodeActions": false,
+    "search.exclude": {
+      "**.xlf": true
+    }
+  },
   "folders": [
     {
       "path": "./EnforcedDigitalVouchers/Test/Enforced Digital Vouchers Tests"
@@ -240,13 +248,5 @@
     {
       "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"
     }
-  ],
-  "settings": {
-    "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false,
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "allint.enabled": false
-  }
+  ]
 }
