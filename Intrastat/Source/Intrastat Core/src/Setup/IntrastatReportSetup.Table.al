@@ -230,6 +230,12 @@ table 4810 "Intrastat Report Setup"
             Caption = 'Purchase Intrastat Info Based On';
             ToolTip = 'Specifies based on which vendor code Intrastat settings are added to the document.';
         }
+        field(42; "Max. No. of Lines in File"; Integer)
+        {
+            Caption = 'Max. No. of Lines in File';
+            ToolTip = 'Specifies the maximum number of lines in the Intrastat file.';
+            MinValue = 0;
+        }
     }
 
     keys

@@ -4,8 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Posting;
 
+using Microsoft.Finance.Analysis;
 using Microsoft.Foundation.BatchProcessing;
 using Microsoft.Intercompany.Outbox;
+using Microsoft.Inventory.Analysis;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Setup;
 using System.Automation;
@@ -23,15 +25,20 @@ codeunit 1371 "Sales Batch Post Mgt."
     var
         SalesHeader: Record "Sales Header";
         SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
+        UpdateAnalysisView: Codeunit "Update Analysis View";
+        UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
     begin
         SalesHeader.Copy(Rec);
 
-        BindSubscription(SalesBatchPostMgt);
+        BindSubscription(SalesBatchPostMgt);  // also disables automatic update of Analysis Views
         SalesBatchPostMgt.SetPostingCodeunitId(PostingCodeunitId);
         SalesBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
         SalesBatchPostMgt.Code(SalesHeader);
-
         Rec := SalesHeader;
+        UnBindSubscription(SalesBatchPostMgt);  // reenable automatic update of Analysis Views
+
+        UpdateAnalysisView.UpdateAll(0, true);
+        UpdateItemAnalysisView.UpdateAll(0, true);
     end;
 
     var
@@ -446,6 +453,18 @@ codeunit 1371 "Sales Batch Post Mgt."
         ICOutboxExport: Codeunit "IC Outbox Export";
     begin
         ICOutboxExport.DownloadBatchFiles(GetICBatchFileName());
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Update Analysis View", 'OnBeforeUpdateAll', '', false, false)]
+    local procedure OnBeforeUpdateAnalysisView(Which: Option "Ledger Entries","Budget Entries",Both; DirectlyFromPosting: Boolean; var AnalysisView: Record "Analysis View"; var InBatchPosting: Boolean)
+    begin
+        InBatchPosting := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Update Item Analysis View", 'OnBeforeUpdateAll', '', false, false)]
+    local procedure OnBeforeUpdateItemAnalysisView(var IsHandled: Boolean)
+    begin
+        IsHandled := true;
     end;
 }
 

@@ -316,7 +316,13 @@ codeunit 9070 "Document Errors Mgt."
 
     [EventSubscriber(ObjectType::Page, Page::"Sales Doc. Check Factbox", 'OnAfterGetCurrRecordEvent', '', false, false)]
     local procedure OnAfterGetCurrRecordSalesDocCheckFactbox(var Rec: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeOnAfterGetCurrRecordSalesDocCheckFactbox(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if BackgroundValidationEnabled() then begin
             SetFullDocumentCheck(true);
             case Rec."Document Type" of
@@ -434,7 +440,13 @@ codeunit 9070 "Document Errors Mgt."
 
     [EventSubscriber(ObjectType::Page, Page::"Purch. Doc. Check Factbox", 'OnAfterGetCurrRecordEvent', '', false, false)]
     local procedure OnAfterGetCurrRecordPurchDocCheckFactbox(var Rec: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeOnAfterGetCurrRecordPurchDocCheckFactbox(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if BackgroundValidationEnabled() then begin
             SetFullDocumentCheck(true);
             case Rec."Document Type" of
@@ -448,5 +460,15 @@ codeunit 9070 "Document Errors Mgt."
                     GlobalPurchaseReturnOrderPage.RunBackgroundCheck();
             end;
         end;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnAfterGetCurrRecordPurchDocCheckFactbox(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnAfterGetCurrRecordSalesDocCheckFactbox(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
     end;
 }
