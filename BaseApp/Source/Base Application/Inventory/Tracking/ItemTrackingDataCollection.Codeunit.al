@@ -232,6 +232,7 @@ codeunit 6501 "Item Tracking Data Collection"
         TempGlobalEntrySummary.SetRange("Lot No.");
         TempGlobalEntrySummary.SetRange("Non Serial Tracking", true);
         ItemTrackingSummaryPage.Caption := StrSubstNo(ListTxt, TempGlobalEntrySummary.FieldCaption("Lot No."));
+        OnAfterAssistEditTrackingNoLookupLotNo(TempTrackingSpecification, ItemTrackingSummaryPage);
     end;
 
     procedure SelectMultipleTrackingNo(var TempTrackingSpecification: Record "Tracking Specification" temporary; MaxQuantity: Decimal; CurrentSignFactor: Integer)
@@ -605,6 +606,7 @@ codeunit 6501 "Item Tracking Data Collection"
         if TempReservEntry.Positive then begin
             TempGlobalEntrySummary."Warranty Date" := TempReservEntry."Warranty Date";
             TempGlobalEntrySummary."Expiration Date" := TempReservEntry."Expiration Date";
+            OnAfterSetTempGlobalEntrySummaryExpirationDate(TempGlobalEntrySummary, TempReservEntry);
             if TempReservEntry."Entry No." < 0 then begin // The record represents an Item ledger entry
                 TempGlobalEntrySummary."Non-specific Reserved Qty." +=
                   LateBindingManagement.NonSpecificReservedQtyExceptForSource(-TempReservEntry."Entry No.", TempTrackingSpecification);
@@ -1775,6 +1777,16 @@ codeunit 6501 "Item Tracking Data Collection"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferItemLedgToTempRecOnBeforeFindSetItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssistEditTrackingNoLookupLotNo(TempTrackingSpecification: Record "Tracking Specification" temporary; var ItemTrackingSummaryPage: Page "Item Tracking Summary")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTempGlobalEntrySummaryExpirationDate(TempGlobalEntrySummary: Record "Entry Summary" temporary; TempReservEntry: Record "Reservation Entry" temporary)
     begin
     end;
 }
