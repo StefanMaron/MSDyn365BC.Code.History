@@ -12,6 +12,7 @@ using Microsoft.Sales.Comment;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using System.Automation;
+using Microsoft.Finance.GeneralLedger.Setup;
 
 page 134 "Posted Sales Credit Memo"
 {
@@ -390,6 +391,27 @@ page 134 "Posted Sales Credit Memo"
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies an international commercial terms code that are used in international sale contracts according to the SAT internatoinal trade terms definition.';
+                }
+                field("SAT Certificate Name"; SATCertificateName)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'SAT Certificate Name';
+                    ToolTip = 'Specifies the name of the certificate that is used to sign the e-document.';
+                    Visible = SATCertInLocationEnabled;
+                    Editable = false;
+
+                    trigger OnDrillDown()
+                    begin
+                        EInvoiceMgt.DrillDownSATCertificate(SATCertificateCode);
+                    end;
+                }
+                field("SAT Certificate Source"; SATCertificateSource)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'SAT Certificate Source';
+                    ToolTip = 'Specifies the record with which the certificate is associated, such as General Ledger Setup or a specific Location (e.g., Location BLUE).';
+                    Visible = SATCertInLocationEnabled;
+                    Editable = false;
                 }
                 field("Exchange Rate USD"; Rec."Exchange Rate USD")
                 {
@@ -1254,10 +1276,14 @@ page 134 "Posted Sales Credit Memo"
         DocExchStatusStyle := Rec.GetDocExchStatusStyle();
         SellToContact.GetOrClear(Rec."Sell-to Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
+
+        if SATCertInLocationEnabled then
+            UpdateSATCertificateFields();
     end;
 
     trigger OnOpenPage()
     var
+        GLSetup: Record "General Ledger Setup";
         OfficeMgt: Codeunit "Office Management";
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
@@ -1266,6 +1292,10 @@ page 134 "Posted Sales Credit Memo"
 
         ActivateFields();
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+
+        GLSetup.SetLoadFields("Multiple SAT Certificates");
+        GLSetup.Get();
+        SATCertInLocationEnabled := EInvoiceMgt.IsPACEnvironmentEnabled() and GLSetup."Multiple SAT Certificates";
     end;
 
     var
@@ -1273,6 +1303,7 @@ page 134 "Posted Sales Credit Memo"
         SellToContact: Record Contact;
         BillToContact: Record Contact;
         FormatAddress: Codeunit "Format Address";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         HasIncomingDocument: Boolean;
         DocExchStatusStyle: Text;
@@ -1282,12 +1313,24 @@ page 134 "Posted Sales Credit Memo"
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
         VATDateEnabled: Boolean;
+        SATCertInLocationEnabled: Boolean;
+        SATCertificateCode: Text;
+        SATCertificateName: Text;
+        SATCertificateSource: Text;
 
     local procedure ActivateFields()
     begin
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Sell-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
+    end;
+
+    local procedure UpdateSATCertificateFields()
+    var
+        DocumentRecRef: RecordRef;
+    begin
+        DocumentRecRef.GetTable(Rec);
+        EInvoiceMgt.GetSATCertificateInfoForDocument(DocumentRecRef, SATCertificateCode, SATCertificateName, SATCertificateSource);
     end;
 
     [IntegrationEvent(false, false)]

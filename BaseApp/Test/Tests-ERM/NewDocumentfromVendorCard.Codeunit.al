@@ -15,6 +15,7 @@ codeunit 134770 "New Document from Vendor Card"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryMarketing: codeunit "Library - Marketing";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         VendorNoForEventSubscriber: Code[20];
@@ -305,6 +306,62 @@ codeunit 134770 "New Document from Vendor Card"
         VendorCard."Primary Contact No.".Lookup();
 
         // [THEN] Company No. in Contact Card has a value in ContactListRunModal.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultRemitToCodeIsPopulatedInPurchInvWhenCreatedFromVendorCard()
+    var
+        Vendor: Record Vendor;
+        NoSeries: Record "No. Series";
+        PostCode: Record "Post Code";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        RemitAddress: Record "Remit Address";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [SCENARIO 565861] Remit-to Code on Purchase Invoice is poplulated from default 
+        // Remit Address of Vendor when create a new Purchase Invoice from Vendor Card page.
+        Initialize();
+
+        // [GIVEN] Find Purchase & Payables Setup and Validate Invoice Nos.
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Invoice Nos." := LibraryERM.CreateNoSeriesCode();
+        PurchasesPayablesSetup.Modify(true);
+
+        // [GIVEN] Find No. Series and Validate Manual Nos. and Default Nos.
+        NoSeries.Get(PurchasesPayablesSetup."Invoice Nos.");
+        NoSeries.Validate("Manual Nos.", true);
+        NoSeries.Validate("Default Nos.", true);
+        NoSeries.Modify(true);
+
+        // [GIVEN] Create a Post Code.
+        LibraryERM.CreatePostCode(PostCode);
+
+        // [GIVEN] Create a Vendor with Address.
+        LibraryPurchase.CreateVendorWithAddress(Vendor);
+
+        // [GIVEN] Create a Remit-to Address and Validate Address, Post Code and Default.
+        LibraryPurchase.CreateRemitToAddress(RemitAddress, Vendor."No.");
+        RemitAddress.Validate(Address, LibraryUtility.GenerateRandomCode20(Vendor.FieldNo("No."), DATABASE::Vendor));
+        RemitAddress.Validate("Post Code", PostCode.Code);
+        RemitAddress.Validate(Default, true);
+        RemitAddress.Modify(true);
+
+        // [GIVEN] Open Vendor Card page.
+        VendorCard.OpenEdit();
+        VendorCard.GoToRecord(Vendor);
+
+        // [GIVEN] Run New Purchase Invoice action.
+        PurchaseInvoice.Trap();
+        VendorCard.NewPurchaseInvoice.Invoke();
+
+        // [WHEN] Set value in No. and Buy-from Vendor No. in Purchase Invoice.
+        PurchaseInvoice."No.".SetValue(LibraryUtility.GenerateRandomCode20(Vendor.FieldNo("No."), DATABASE::Vendor));
+        PurchaseInvoice."Buy-from Vendor No.".SetValue(Vendor."No.");
+
+        // [THEN] Verify Remit-to Code on Purchase Invoice is equal to Code of RemitAddress.
+        PurchaseInvoice."Remit-to Code".AssertEquals(RemitAddress.Code);
     end;
 
     local procedure Initialize()

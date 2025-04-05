@@ -54,6 +54,7 @@
         DateFilterErr: Label 'Date Filter does not match expected value';
         AmountNotMatchedErr: Label 'Amount not matched.';
         ShipToCodeMathcedErr: Label 'Ship-to Code not matched.';
+        PrePaymentPerErr: Label 'Prepayment% are not equal on Sales Header and Sales Line';
 
     [Test]
     [Scope('OnPrem')]
@@ -4695,6 +4696,43 @@
         GLEntry.SetRange("Dimension Set ID", DimSetID[2]);
         GLEntry.FindFirst();
         Assert.AreEqual(-Amount[2], GLEntry.Amount, AmountNotMatchedErr);
+    end;
+
+    [Test]
+    procedure VerifyGLSalesLineInsertedWhenPreaymentOnCustomer()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        // [SCENARIO 568020] Gen. Prod. Posting Group Validation does not raise error when G/L Account is inserted using prepayments in Sales Orders.
+        Initialize();
+
+        // [GIVEN] Create Customer and Validate Prepayment %.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Prepayment %", LibraryRandom.RandDecInRange(1, 100, 2));
+        Customer.Modify();
+
+        // [GIVEN] Get General Ledger Setup and Validate Vat In Use to false.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT in Use", false);
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Create GL Account and blank Gen. Prod. Posting Group.
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        GLAccount."Gen. Prod. Posting Group" := '';
+        GLAccount.Modify();
+
+        // [WHEN] Create Sales Order with GL Account in Sales Line.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+            GLAccount."No.", LibraryRandom.RandInt(5));
+
+        // [THEN] Without any error Prepayment % update on Sales Line.
+        Assert.AreEqual(SalesHeader."Prepayment %", SalesLine."Prepayment %", PrePaymentPerErr);
     end;
 
     local procedure Initialize()

@@ -11,6 +11,7 @@ using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Remittance;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
@@ -653,9 +654,14 @@ report 10083 "Export Electronic Payments"
 
     local procedure ProcessVendor(var GenJnlLine: Record "Gen. Journal Line")
     var
+        RemitAddress: Record "Remit Address";
         EFTRecipientBankAccountMgt: codeunit "EFT Recipient Bank Account Mgt";
     begin
-        FormatAddress.Vendor(PayeeAddress, Vendor);
+        if GenJnlLine."Remit-to Code" <> '' then begin
+            RemitAddress.Get(GenJnlLine."Remit-to Code", Vendor."No.");
+            FormatAddress.VendorRemitToAddress(RemitAddress, PayeeAddress);
+        end else
+            FormatAddress.Vendor(PayeeAddress, Vendor);
 
         EFTRecipientBankAccountMgt.GetRecipientVendorBankAccount(VendBankAccount, GenJnlLine, Vendor."No.");
 

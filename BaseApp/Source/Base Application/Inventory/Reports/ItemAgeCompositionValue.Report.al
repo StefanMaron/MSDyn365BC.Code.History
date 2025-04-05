@@ -1,6 +1,5 @@
 namespace Microsoft.Inventory.Reports;
 
-using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using System.Utilities;
@@ -148,11 +147,9 @@ report 5808 "Item Age Composition - Value"
                 trigger OnPostDataItem()
                 var
                     AvgCostCurr: Decimal;
-                    AvgCostCurrLCY: Decimal;
                 begin
                     if Item."Costing Method" = Item."Costing Method"::Average then begin
-                        Item.SetRange("Date Filter");
-                        ItemCostMgt.CalculateAverageCost(Item, AvgCostCurr, AvgCostCurrLCY);
+                        AvgCostCurr := CalculateAverageCost(DMY2Date(31, 12, 9999));
                         TotalInvtValue_Item := AvgCostCurr * RemainingQty;
                         TotalInvtValueRTC += TotalInvtValue_Item;
                     end;
@@ -204,13 +201,9 @@ report 5808 "Item Age Composition - Value"
             trigger OnAfterGetRecord()
             begin
                 if "Costing Method" = "Costing Method"::Average then begin
-                    for i := 2 to 5 do begin
-                        SetRange("Date Filter", PeriodStartDate[i] + 1, PeriodStartDate[i + 1]);
-                        ItemCostMgt.CalculateAverageCost(Item, AverageCost[i], AverageCostACY[i]);
-                    end;
-
-                    SetRange("Date Filter", 0D, PeriodStartDate[2]);
-                    ItemCostMgt.CalculateAverageCost(Item, AverageCost[1], AverageCostACY[1]);
+                    for i := 2 to 5 do
+                        AverageCost[i] := CalculateAverageCost(PeriodStartDate[i + 1]);
+                    AverageCost[1] := CalculateAverageCost(PeriodStartDate[2]);
                 end;
 
                 PrintLine := false;
@@ -295,7 +288,6 @@ report 5808 "Item Age Composition - Value"
     end;
 
     var
-        ItemCostMgt: Codeunit ItemCostManagement;
         PeriodLength: DateFormula;
         ItemFilter: Text;
         InvtValue: array[6] of Decimal;
@@ -309,7 +301,6 @@ report 5808 "Item Age Composition - Value"
         TotalInvtQty: Decimal;
         PrintLine: Boolean;
         AverageCost: array[5] of Decimal;
-        AverageCostACY: array[5] of Decimal;
 
 #pragma warning disable AA0074
         Text002: Label 'Enter the ending date';
@@ -354,6 +345,33 @@ report 5808 "Item Age Composition - Value"
                 else
                     SumUnitCost(UnitCost, ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)", "Item Ledger Entry".Quantity);
             until ValueEntry.Next() = 0;
+    end;
+
+    local procedure CalculateAverageCost(EndDate: Date): Decimal
+    var
+        ValueEntry: Record "Value Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Amount: Decimal;
+    begin
+        ValueEntry.SetRange("Item No.", Item."No.");
+        ValueEntry.SetRange("Valuation Date", 0D, EndDate);
+        ValueEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+        ValueEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+        ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)");
+        Amount := ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
+        if Amount = 0 then
+            exit(0);
+
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.SetRange("Posting Date", 0D, EndDate);
+        ItemLedgerEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+        ItemLedgerEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+        ItemLedgerEntry.SetRange(Open, true);
+        ItemLedgerEntry.CalcSums("Remaining Quantity");
+        if ItemLedgerEntry."Remaining Quantity" = 0 then
+            exit(0);
+
+        exit(Amount / ItemLedgerEntry."Remaining Quantity");
     end;
 
     local procedure SumUnitCost(var UnitCost: Decimal; CostAmount: Decimal; Quantity: Decimal)

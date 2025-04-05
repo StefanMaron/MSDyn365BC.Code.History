@@ -10,7 +10,6 @@ using Microsoft.Bank.Ledger;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Company;
 using Microsoft.Purchases.History;
@@ -26,22 +25,24 @@ using System.Utilities;
 codeunit 27000 "Export Accounts"
 {
 
-    trigger OnRun()
-    begin
-    end;
-
     var
         TempErrorMessage: Record "Error Message" temporary;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
+        CompanyInfoGlobal: Record "Company Information";
+        XmlHelper: Codeunit "Export Accounts Xml Helper";
+        GLAccountNames: Dictionary of [Text, Text];
+        CustPostGroupReceivableAcc: Dictionary of [Text, Text];
+        VendPostGroupPayablesAcc: Dictionary of [Text, Text];
         TestFileName: Text;
-        GLAccountTypeErr: Label 'Debit/Credit ''%1'' is not supported in %2.';
+        ProgressDialog: Dialog;
+        GLAccountTypeErr: Label 'Debit/Credit ''%1'' is not supported in %2.', Comment = '%1 - G/L Account option Both, %2 - G/L Account Record ID';
         InvalidMonthErr: Label 'The Month must be in the range 1-12.';
         InvalidYearErr: Label 'The Year must be in the range 2000-2999.';
         MissingUpdateDateErr: Label 'You need to specify an update date before export.';
         MissingOrderNumberErr: Label 'You need to specify an Order Number before export.';
         NoSATAccountDefinedErr: Label 'You need to specify SAT Account Code on G/L Accounts before export.';
+        GLEntryProcessTxt: label 'G/L Entries processed: #1####\', Comment = '#1 - progress in percents';
         NamespaceTxt: Label 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/', Locked = true;
-        NamespaceW3Txt: Label 'http://www.w3.org/2001/XMLSchema-instance', Locked = true;
         CatalogoNamespaceTxt: Label 'CatalogoCuentas', Locked = true;
         BalanzaNamespaceTxt: Label 'BalanzaComprobacion', Locked = true;
         PolizasNamespaceTxt: Label 'PolizasPeriodo', Locked = true;
@@ -54,39 +55,40 @@ codeunit 27000 "Export Accounts"
     procedure ExportChartOfAccounts(Year: Integer; Month: Integer)
     var
         GLAccount: Record "G/L Account";
-        TempXMLBuffer: Record "XML Buffer" temporary;
+        AdditionalAttributes: Dictionary of [Text, Text];
     begin
         TempErrorMessage.ClearLog();
+        ClearGlobalVariables();
         GLAccount.SetFilter("SAT Account Code", '<>%1', '');
 
-        CreateXMLHeader(TempXMLBuffer, CatalogoNodeTxt, CatalogoNamespaceTxt, Year, Month, '1.3');
+        CreateXMLHeader(CatalogoNodeTxt, CatalogoNamespaceTxt, Year, Month, '1.3', AdditionalAttributes);
         if GLAccount.FindSet() then
             repeat
                 TempErrorMessage.LogIfEmpty(GLAccount, GLAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
 
                 GLAccount.CalcFields("Debit Amount", "Credit Amount");
-                TempXMLBuffer.AddGroupElement('Ctas');
-                TempXMLBuffer.AddAttribute('CodAgrup', GLAccount."SAT Account Code");
-                TempXMLBuffer.AddAttribute('NumCta', GLAccount."No.");
-                TempXMLBuffer.AddAttribute('Desc', GLAccount.Name);
-                TempXMLBuffer.AddAttribute('Nivel', Format(GLAccount.Indentation + 1));
+                XmlHelper.AddNewNode('Ctas');
+                XmlHelper.AddAttribute('CodAgrup', GLAccount."SAT Account Code");
+                XmlHelper.AddAttribute('NumCta', GLAccount."No.");
+                XmlHelper.AddAttribute('Desc', GLAccount.Name);
+                XmlHelper.AddAttribute('Nivel', Format(GLAccount.Indentation + 1));
                 case GLAccount."Debit/Credit" of
                     GLAccount."Debit/Credit"::Debit:
-                        TempXMLBuffer.AddAttribute('Natur', 'D');
+                        XmlHelper.AddAttribute('Natur', 'D');
                     GLAccount."Debit/Credit"::Credit:
-                        TempXMLBuffer.AddAttribute('Natur', 'A');
+                        XmlHelper.AddAttribute('Natur', 'A');
                     else
                         TempErrorMessage.LogMessage(
                           GLAccount, GLAccount.FieldNo("Debit/Credit"), TempErrorMessage."Message Type"::Error,
                           StrSubstNo(GLAccountTypeErr, GLAccount."Debit/Credit", GLAccount.RecordId));
                 end;
-                TempXMLBuffer.GetParent();
+                XmlHelper.FinalizeNode();
             until GLAccount.Next() = 0
         else
             TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, NoSATAccountDefinedErr);
 
         if not TempErrorMessage.HasErrors(true) then
-            SaveXMLToClient(TempXMLBuffer, Year, Month, 'CT');
+            SaveXMLToClient(Year, Month, 'CT');
         TempErrorMessage.ShowErrorMessages(false);
     end;
 
@@ -95,12 +97,13 @@ codeunit 27000 "Export Accounts"
         GLAccount: Record "G/L Account";
         GLAccountBalanceIni: Record "G/L Account";
         GLAccountBalanceFin: Record "G/L Account";
-        TempXMLBuffer: Record "XML Buffer" temporary;
+        AdditionalAttributes: Dictionary of [Text, Text];
         StartDate: Date;
         EndDate: Date;
         FileType: Text;
     begin
         TempErrorMessage.ClearLog();
+        ClearGlobalVariables();
 
         if not ClosingBalanceSheet then begin
             StartDate := DMY2Date(1, Month, Year);
@@ -111,18 +114,18 @@ codeunit 27000 "Export Accounts"
             Month := 13;
         end;
 
-        CreateXMLHeader(TempXMLBuffer, BalanzaNodeTxt, BalanzaNamespaceTxt, Year, Month, '1.3');
+        CreateXMLHeader(BalanzaNodeTxt, BalanzaNamespaceTxt, Year, Month, '1.3', AdditionalAttributes);
 
         GLAccount.SetRange("Date Filter", StartDate, EndDate);
         GLAccount.SetFilter("SAT Account Code", '<>%1', '');
 
         if DeliveryType = DeliveryType::Normal then
-            TempXMLBuffer.AddAttribute('TipoEnvio', 'N')
+            XmlHelper.AddAttribute('TipoEnvio', 'N')
         else begin
-            TempXMLBuffer.AddAttribute('TipoEnvio', 'C');
+            XmlHelper.AddAttribute('TipoEnvio', 'C');
             if UpdateDate = 0D then
                 TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, MissingUpdateDateErr);
-            TempXMLBuffer.AddAttribute('FechaModBal', Format(UpdateDate, 0, 9));
+            XmlHelper.AddAttribute('FechaModBal', FormatDate(UpdateDate));
         end;
 
         if GLAccount.FindSet() then
@@ -137,13 +140,13 @@ codeunit 27000 "Export Accounts"
                 GLAccountBalanceFin.SetFilter("Date Filter", '..%1', EndDate);
                 GLAccountBalanceFin.CalcFields("Balance at Date");
 
-                TempXMLBuffer.AddGroupElement('Ctas');
-                TempXMLBuffer.AddAttribute('NumCta', GLAccount."No.");
-                TempXMLBuffer.AddAttribute('SaldoIni', FormatDecimal(GLAccountBalanceIni."Balance at Date"));
-                TempXMLBuffer.AddAttribute('Debe', FormatDecimal(GLAccount."Debit Amount"));
-                TempXMLBuffer.AddAttribute('Haber', FormatDecimal(GLAccount."Credit Amount"));
-                TempXMLBuffer.AddAttribute('SaldoFin', FormatDecimal(GLAccountBalanceFin."Balance at Date"));
-                TempXMLBuffer.GetParent();
+                XmlHelper.AddNewNode('Ctas');
+                XmlHelper.AddAttribute('NumCta', GLAccount."No.");
+                XmlHelper.AddAttribute('SaldoIni', FormatDecimal(GLAccountBalanceIni."Balance at Date"));
+                XmlHelper.AddAttribute('Debe', FormatDecimal(GLAccount."Debit Amount"));
+                XmlHelper.AddAttribute('Haber', FormatDecimal(GLAccount."Credit Amount"));
+                XmlHelper.AddAttribute('SaldoFin', FormatDecimal(GLAccountBalanceFin."Balance at Date"));
+                XmlHelper.FinalizeNode();
             until GLAccount.Next() = 0;
 
         if DeliveryType = DeliveryType::Normal then
@@ -152,7 +155,7 @@ codeunit 27000 "Export Accounts"
             FileType := 'BC';
 
         if not TempErrorMessage.HasErrors(true) then
-            SaveXMLToClient(TempXMLBuffer, Year, Month, FileType);
+            SaveXMLToClient(Year, Month, FileType);
 
         TempErrorMessage.ShowErrorMessages(false);
     end;
@@ -160,46 +163,63 @@ codeunit 27000 "Export Accounts"
     procedure ExportTransactions(Year: Integer; Month: Integer; RequestType: Option AF,FC,DE,CO; OrderNumber: Text[13]; ProcessNumber: Text[14])
     var
         GLEntry: Record "G/L Entry";
-        TempXMLBuffer: Record "XML Buffer" temporary;
         StartDate: Date;
         EndDate: Date;
-        TransactionNoCurrent: Integer;
+        PrevTransactionNo: Integer;
+        AdditionalAttributes: Dictionary of [Text, Text];
+        TotalCount: Integer;
+        Count: Integer;
     begin
         TempErrorMessage.ClearLog();
+        ClearGlobalVariables();
         StartDate := DMY2Date(1, Month, Year);
         EndDate := CalcDate('<CM>', StartDate);
 
-        CreateXMLHeader(TempXMLBuffer, PolizasNodeTxt, PolizasNamespaceTxt, Year, Month, '1.3');
-        TempXMLBuffer.AddAttribute('TipoSolicitud', Format(RequestType));
+        AdditionalAttributes.Add('TipoSolicitud', Format(RequestType));
         if RequestType in [RequestType::AF, RequestType::FC] then begin
             if OrderNumber <> '' then
-                TempXMLBuffer.AddAttribute('NumOrden', OrderNumber)
+                AdditionalAttributes.Add('NumOrden', OrderNumber)
             else
                 TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, MissingOrderNumberErr);
         end else
             if ProcessNumber <> '' then
-                TempXMLBuffer.AddAttribute('NumTramite', ProcessNumber)
+                AdditionalAttributes.Add('NumTramite', ProcessNumber)
             else
                 TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, MissingOrderNumberErr);
+
+        CreateXMLHeader(PolizasNodeTxt, PolizasNamespaceTxt, Year, Month, '1.3', AdditionalAttributes);
+        LoadCustomerPostingGroups();
+        LoadVendorPostingGroups();
 
         GLEntry.SetCurrentKey("Transaction No.");
         GLEntry.SetRange("Posting Date", StartDate, EndDate);
 
+        TotalCount := GLEntry.Count();
+        OpenProgressDialog(GLEntryProcessTxt);
+
+        PrevTransactionNo := 0;
+        GLEntry.SetLoadFields("Transaction No.", "Posting Date", "Source Code", "G/L Account No.", "Debit Amount", "Credit Amount", Description, "Document Type");
         if GLEntry.FindSet() then begin
             repeat
-                if TransactionNoCurrent <> GLEntry."Transaction No." then begin
-                    if TransactionNoCurrent <> 0 then
-                        TempXMLBuffer.GetParent();
-                    TransactionNoCurrent := GLEntry."Transaction No.";
-                    CreatePolizaNode(TempXMLBuffer, GLEntry);
+                Count += 1;
+                if Count mod 100 = 0 then
+                    UpdateProgressDialog(1, Format(Round(Count / TotalCount * 100, 1)));
+
+                if GLEntry."Transaction No." <> PrevTransactionNo then begin
+                    if PrevTransactionNo <> 0 then
+                        XmlHelper.FinalizeNode();    // close previous Poliza node
+                    PrevTransactionNo := GLEntry."Transaction No.";
+                    CreatePolizaNode(GLEntry);
                 end;
-                CreateTransaccionNode(TempXMLBuffer, GLEntry);
+                CreateTransaccionNode(GLEntry);
             until GLEntry.Next() = 0;
-            TempXMLBuffer.GetParent();
+            XmlHelper.FinalizeNode();
         end;
 
+        CloseProgressDialog();
+
         if not TempErrorMessage.HasErrors(true) then
-            SaveXMLToClient(TempXMLBuffer, Year, Month, 'PL');
+            SaveXMLToClient(Year, Month, 'PL');
 
         TempErrorMessage.ShowErrorMessages(false);
     end;
@@ -210,29 +230,31 @@ codeunit 27000 "Export Accounts"
         GLAccountBalanceIni: Record "G/L Account";
         GLAccountBalanceFin: Record "G/L Account";
         GLEntry: Record "G/L Entry";
-        TempXMLBuffer: Record "XML Buffer" temporary;
+        AdditionalAttributes: Dictionary of [Text, Text];
         StartDate: Date;
         EndDate: Date;
     begin
         TempErrorMessage.ClearLog();
+        ClearGlobalVariables();
         StartDate := DMY2Date(1, Month, Year);
         EndDate := CalcDate('<CM>', StartDate);
 
         GLAccount.SetRange("Date Filter", StartDate, EndDate);
         GLAccount.SetFilter("SAT Account Code", '<>%1', '');
 
-        CreateXMLHeader(TempXMLBuffer, AuxiliaryAccountNodeTxt, AuxiliaryAccountNamespaceTxt, Year, Month, '1.3');
-        TempXMLBuffer.AddAttribute('TipoSolicitud', Format(RequestType));
+        AdditionalAttributes.Add('TipoSolicitud', Format(RequestType));
         if RequestType in [RequestType::AF, RequestType::FC] then begin
             if OrderNumber <> '' then
-                TempXMLBuffer.AddAttribute('NumOrden', OrderNumber)
+                AdditionalAttributes.Add('NumOrden', OrderNumber)
             else
                 TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, MissingOrderNumberErr);
         end else
             if ProcessNumber <> '' then
-                TempXMLBuffer.AddAttribute('NumTramite', ProcessNumber)
+                AdditionalAttributes.Add('NumTramite', ProcessNumber)
             else
                 TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, MissingOrderNumberErr);
+
+        CreateXMLHeader(AuxiliaryAccountNodeTxt, AuxiliaryAccountNamespaceTxt, Year, Month, '1.3', AdditionalAttributes);
 
         if GLAccount.FindSet() then
             repeat
@@ -249,94 +271,103 @@ codeunit 27000 "Export Accounts"
 
                     TempErrorMessage.LogIfEmpty(GLAccount, GLAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
 
-                    TempXMLBuffer.AddGroupElement('Cuenta');
-                    TempXMLBuffer.AddAttribute('NumCta', GLAccount."No.");
-                    TempXMLBuffer.AddAttribute('DesCta', GLAccount.Name);
-                    TempXMLBuffer.AddAttribute('SaldoIni', FormatDecimal(GLAccountBalanceIni."Balance at Date"));
-                    TempXMLBuffer.AddAttribute('SaldoFin', FormatDecimal(GLAccountBalanceFin."Balance at Date"));
+                    XmlHelper.AddNewNode('Cuenta');
+                    XmlHelper.AddAttribute('NumCta', GLAccount."No.");
+                    XmlHelper.AddAttribute('DesCta', GLAccount.Name);
+                    XmlHelper.AddAttribute('SaldoIni', FormatDecimal(GLAccountBalanceIni."Balance at Date"));
+                    XmlHelper.AddAttribute('SaldoFin', FormatDecimal(GLAccountBalanceFin."Balance at Date"));
 
                     repeat
                         TempErrorMessage.LogIfEmpty(GLEntry, GLEntry.FieldNo(Description), TempErrorMessage."Message Type"::Warning);
-                        TempXMLBuffer.AddGroupElement('DetalleAux');
-                        TempXMLBuffer.AddAttribute('Fecha', Format(GLEntry."Posting Date", 0, 9));
-                        TempXMLBuffer.AddAttribute('NumUnIdenPol', Format(GLEntry."Transaction No."));
-                        TempXMLBuffer.AddAttribute('Concepto', GLEntry.Description);
-                        TempXMLBuffer.AddAttribute('Debe', FormatDecimal(GLEntry."Debit Amount"));
-                        TempXMLBuffer.AddAttribute('Haber', FormatDecimal(GLEntry."Credit Amount"));
-                        TempXMLBuffer.GetParent();
+                        XmlHelper.AddNewNode('DetalleAux');
+                        XmlHelper.AddAttribute('Fecha', FormatDate(GLEntry."Posting Date"));
+                        XmlHelper.AddAttribute('NumUnIdenPol', Format(GLEntry."Transaction No."));
+                        XmlHelper.AddAttribute('Concepto', GLEntry.Description);
+                        XmlHelper.AddAttribute('Debe', FormatDecimal(GLEntry."Debit Amount"));
+                        XmlHelper.AddAttribute('Haber', FormatDecimal(GLEntry."Credit Amount"));
+                        XmlHelper.FinalizeNode();
                     until GLEntry.Next() = 0;
-                    TempXMLBuffer.GetParent();
+                    XmlHelper.FinalizeNode();
                 end;
             until GLAccount.Next() = 0;
 
         if not TempErrorMessage.HasErrors(true) then
-            SaveXMLToClient(TempXMLBuffer, Year, Month, 'XC');
+            SaveXMLToClient(Year, Month, 'XC');
 
         TempErrorMessage.ShowErrorMessages(false);
     end;
 
-    local procedure CreateXMLHeader(var TempXMLBuffer: Record "XML Buffer" temporary; RootNodeName: Text; NodeNameSpace: Text; Year: Integer; Month: Integer; Version: Text)
+    local procedure CreateXMLHeader(RootNodeName: Text; NodeNameSpace: Text; Year: Integer; Month: Integer; Version: Text; AdditionalAttributes: Dictionary of [Text, Text])
     var
-        CompanyInformation: Record "Company Information";
         FullNameSpace: Text;
+        SchemaLocation: Text;
+        XmlAttributeName: Text;
+        XmlAttributes: Dictionary of [Text, Text];
     begin
-        CompanyInformation.Get();
+        GetCompanyInformation();
 
-        TempErrorMessage.LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("RFC Number"), TempErrorMessage."Message Type"::Error);
+        TempErrorMessage.LogIfEmpty(CompanyInfoGlobal, CompanyInfoGlobal.FieldNo("RFC Number"), TempErrorMessage."Message Type"::Error);
         if (Month < 1) or (Month > 13) then
             TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, InvalidMonthErr);
         if (Year < 2000) or (Month > 2999) then
             TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, InvalidYearErr);
 
         FullNameSpace := NamespaceTxt + NodeNameSpace;
-        TempXMLBuffer.CreateRootElement(RootNodeName);
-        TempXMLBuffer.AddNamespace('', FullNameSpace);
+        SchemaLocation := FullNameSpace + ' ' + FullNameSpace + '/' + NodeNameSpace + '_1_3.xsd';
 
-        TempXMLBuffer.AddAttribute('Version', Version);
-        TempXMLBuffer.AddAttribute('RFC', CompanyInformation."RFC Number");
-        TempXMLBuffer.AddAttribute('Mes', Format(Month, 2, '<Integer,2><Filler Character,0>'));
-        TempXMLBuffer.AddAttribute('Anio', Format(Year));
-        TempXMLBuffer.AddAttribute('xsi:schemaLocation',
-          FullNameSpace + ' ' + FullNameSpace + '/' + NodeNameSpace + '_1_3.xsd');
-        TempXMLBuffer.AddAttribute('xmlns:xsi', NamespaceW3Txt);
+        XmlAttributes.Add('Version', Version);
+        XmlAttributes.Add('RFC', CompanyInfoGlobal."RFC Number");
+        XmlAttributes.Add('Mes', Format(Month, 2, '<Integer,2><Filler Character,0>'));
+        XmlAttributes.Add('Anio', Format(Year));
+
+        foreach XmlAttributeName in AdditionalAttributes.Keys() do
+            XmlAttributes.Add(XmlAttributeName, AdditionalAttributes.Get(XmlAttributeName));
+
+        XmlHelper.Initialize(RootNodeName, '', FullNameSpace, SchemaLocation, XmlAttributes);
     end;
 
-    local procedure CreatePolizaNode(var TempXMLBuffer: Record "XML Buffer" temporary; GLEntry: Record "G/L Entry")
+    local procedure CreatePolizaNode(var GLEntry: Record "G/L Entry")
     begin
         TempErrorMessage.LogIfEmpty(GLEntry, GLEntry.FieldNo("Source Code"), TempErrorMessage."Message Type"::Warning);
 
-        TempXMLBuffer.AddGroupElement('Poliza');
-        TempXMLBuffer.AddAttribute('NumUnIdenPol', Format(GLEntry."Transaction No."));
-        TempXMLBuffer.AddAttribute('Fecha', Format(GLEntry."Posting Date", 0, 9));
-        TempXMLBuffer.AddAttribute('Concepto', GLEntry."Source Code");
+        XmlHelper.AddNewNode('Poliza');
+        XmlHelper.AddAttribute('NumUnIdenPol', Format(GLEntry."Transaction No."));
+        XmlHelper.AddAttribute('Fecha', FormatDate(GLEntry."Posting Date"));
+        XmlHelper.AddAttribute('Concepto', GLEntry."Source Code");
     end;
 
-    local procedure CreateTransaccionNode(var TempXMLBuffer: Record "XML Buffer"; GLEntry: Record "G/L Entry")
+    local procedure CreateTransaccionNode(var GLEntry: Record "G/L Entry")
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
+        GLAccountNo: Text;
+        GLAccountName: Text;
     begin
-        GeneralLedgerSetup.Get();
-        GLAccount.Get(GLEntry."G/L Account No.");
+        GLAccountNo := GLEntry."G/L Account No.";
+        if not GLAccountNames.Get(GLAccountNo, GLAccountName) then begin
+            GLAccount.SetLoadFields(Name);
+            GLAccount.Get(GLAccountNo);
+            TempErrorMessage.LogIfEmpty(GLAccount, GLAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
+            GLAccountNames.Add(GLAccount."No.", GLAccount.Name);
+            GLAccountName := GLAccount.Name;
+        end;
 
-        TempErrorMessage.LogIfEmpty(GLAccount, GLAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
         TempErrorMessage.LogIfEmpty(GLEntry, GLEntry.FieldNo(Description), TempErrorMessage."Message Type"::Warning);
 
-        TempXMLBuffer.AddGroupElement('Transaccion');
-        TempXMLBuffer.AddAttribute('NumCta', GLAccount."No.");
-        TempXMLBuffer.AddAttribute('DesCta', GLAccount.Name);
-        TempXMLBuffer.AddAttribute('Concepto', GLEntry.Description);
-        TempXMLBuffer.AddAttribute('Debe', FormatDecimal(GLEntry."Debit Amount"));
-        TempXMLBuffer.AddAttribute('Haber', FormatDecimal(GLEntry."Credit Amount"));
+        XmlHelper.AddNewNode('Transaccion');
+        XmlHelper.AddAttribute('NumCta', GLAccountNo);
+        XmlHelper.AddAttribute('DesCta', GLAccountName);
+        XmlHelper.AddAttribute('Concepto', GLEntry.Description);
+        XmlHelper.AddAttribute('Debe', FormatDecimal(GLEntry."Debit Amount"));
+        XmlHelper.AddAttribute('Haber', FormatDecimal(GLEntry."Credit Amount"));
 
-        CreateCustomerReceipts(TempXMLBuffer, GLEntry, false);
-        CreateVendorReceipts(TempXMLBuffer, GLEntry, false);
+        CreateCustomerReceipts(GLEntry, false);
+        CreateVendorReceipts(GLEntry, false);
 
-        CreateTransfers(TempXMLBuffer, GLEntry);
-        TempXMLBuffer.GetParent();
+        CreateTransfers(GLEntry);
+        XmlHelper.FinalizeNode();
     end;
 
-    local procedure CreateVendorReceipts(var TempXMLBuffer: Record "XML Buffer"; GLEntry: Record "G/L Entry"; IsAuxiliary: Boolean)
+    local procedure CreateVendorReceipts(var GLEntry: Record "G/L Entry"; IsAuxiliary: Boolean)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         AppliedVendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -351,94 +382,65 @@ codeunit 27000 "Export Accounts"
                     if VendorLedgerEntry."Document Type" in [VendorLedgerEntry."Document Type"::Payment,
                                                              VendorLedgerEntry."Document Type"::Refund]
                     then begin
-                        FindAppliedVendorReceipts(AppliedVendorLedgerEntry, VendorLedgerEntry."Entry No.");
+                        FindAppliedVendorReceipts(AppliedVendorLedgerEntry, VendorLedgerEntry."Entry No.", VendorLedgerEntry."Closed by Entry No.");
                         if AppliedVendorLedgerEntry.FindSet() then
                             repeat
-                                CreateReceipt(TempXMLBuffer, AppliedVendorLedgerEntry, IsAuxiliary);
+                                CreateReceipt(AppliedVendorLedgerEntry, IsAuxiliary);
                             until AppliedVendorLedgerEntry.Next() = 0;
                     end else
-                        CreateReceipt(TempXMLBuffer, VendorLedgerEntry, IsAuxiliary);
+                        CreateReceipt(VendorLedgerEntry, IsAuxiliary);
             until VendorLedgerEntry.Next() = 0;
     end;
 
-    local procedure CreateCustomerReceipts(var TempXMLBuffer: Record "XML Buffer"; GLEntry: Record "G/L Entry"; IsAuxiliary: Boolean)
+    local procedure CreateCustomerReceipts(var GLEntry: Record "G/L Entry"; IsAuxiliary: Boolean)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         AppliedCustLedgerEntry: Record "Cust. Ledger Entry";
-        CustomerPostingGroup: Record "Customer Posting Group";
+        CustReceivablesAccount: Text;
     begin
         CustLedgerEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
 
+        CustLedgerEntry.SetLoadFields("Customer Posting Group", "Document Type", "Closed by Entry No.");
         if CustLedgerEntry.FindSet() then
             repeat
-                CustomerPostingGroup.Get(CustLedgerEntry."Customer Posting Group");
-                if CustomerPostingGroup."Receivables Account" = GLEntry."G/L Account No." then
+                CustReceivablesAccount := CustPostGroupReceivableAcc.Get(CustLedgerEntry."Customer Posting Group");
+                if GLEntry."G/L Account No." = CustReceivablesAccount then
                     if CustLedgerEntry."Document Type" in [CustLedgerEntry."Document Type"::Payment,
                                                            CustLedgerEntry."Document Type"::Refund]
                     then begin
-                        FindAppliedCustomerReceipts(AppliedCustLedgerEntry, CustLedgerEntry."Entry No.");
+                        FindAppliedCustomerReceipts(AppliedCustLedgerEntry, CustLedgerEntry."Entry No.", CustLedgerEntry."Closed by Entry No.");
                         if AppliedCustLedgerEntry.FindSet() then
                             repeat
-                                CreateReceipt(TempXMLBuffer, AppliedCustLedgerEntry, IsAuxiliary);
+                                CreateReceipt(AppliedCustLedgerEntry, IsAuxiliary);
                             until AppliedCustLedgerEntry.Next() = 0;
                     end else
-                        CreateReceipt(TempXMLBuffer, CustLedgerEntry, IsAuxiliary);
+                        CreateReceipt(CustLedgerEntry, IsAuxiliary);
             until CustLedgerEntry.Next() = 0;
     end;
 
-    local procedure FindAppliedVendorReceipts(var AppliedVendorLedgerEntry: Record "Vendor Ledger Entry"; EntryNo: Integer)
+    local procedure FindAppliedVendorReceipts(var AppliedVendorLedgerEntry: Record "Vendor Ledger Entry"; EntryNo: Integer; ClosedByEntryNo: Integer)
     var
-        DetailedVendorLedgEntry1: Record "Detailed Vendor Ledg. Entry";
-        DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        TempAppliedVendLedgerEntry: Record "Vendor Ledger Entry" temporary;
+        VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
     begin
         AppliedVendorLedgerEntry.Reset();
 
-        VendorLedgerEntry.Get(EntryNo);
-
-        DetailedVendorLedgEntry1.SetCurrentKey("Vendor Ledger Entry No.");
-        DetailedVendorLedgEntry1.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
-        DetailedVendorLedgEntry1.SetRange(Unapplied, false);
-        if DetailedVendorLedgEntry1.Find('-') then
+        VendEntryApplyPostedEntries.GetAppliedVendLedgerEntries(TempAppliedVendLedgerEntry, EntryNo);
+        if TempAppliedVendLedgerEntry.FindSet() then
             repeat
-                if DetailedVendorLedgEntry1."Vendor Ledger Entry No." =
-                   DetailedVendorLedgEntry1."Applied Vend. Ledger Entry No."
-                then begin
-                    DetailedVendorLedgEntry2.Init();
-                    DetailedVendorLedgEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
-                    DetailedVendorLedgEntry2.SetRange(
-                      "Applied Vend. Ledger Entry No.", DetailedVendorLedgEntry1."Applied Vend. Ledger Entry No.");
-                    DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::Application);
-                    DetailedVendorLedgEntry2.SetRange(Unapplied, false);
-                    if DetailedVendorLedgEntry2.Find('-') then
-                        repeat
-                            if DetailedVendorLedgEntry2."Vendor Ledger Entry No." <> DetailedVendorLedgEntry2."Applied Vend. Ledger Entry No."
-                            then begin
-                                AppliedVendorLedgerEntry.SetCurrentKey("Entry No.");
-                                AppliedVendorLedgerEntry.SetRange("Entry No.", DetailedVendorLedgEntry2."Vendor Ledger Entry No.");
-                                if AppliedVendorLedgerEntry.Find('-') then
-                                    AppliedVendorLedgerEntry.Mark(true);
-                            end;
-                        until DetailedVendorLedgEntry2.Next() = 0;
-                end else begin
-                    AppliedVendorLedgerEntry.SetCurrentKey("Entry No.");
-                    AppliedVendorLedgerEntry.SetRange("Entry No.", DetailedVendorLedgEntry1."Applied Vend. Ledger Entry No.");
-                    if AppliedVendorLedgerEntry.Find('-') then
-                        AppliedVendorLedgerEntry.Mark(true);
-                end;
-            until DetailedVendorLedgEntry1.Next() = 0;
+                AppliedVendorLedgerEntry."Entry No." := TempAppliedVendLedgerEntry."Entry No.";
+                if AppliedVendorLedgerEntry.Find('=') then
+                    AppliedVendorLedgerEntry.Mark(true);
+            until TempAppliedVendLedgerEntry.Next() = 0;
 
-        AppliedVendorLedgerEntry.SetCurrentKey("Entry No.");
-        AppliedVendorLedgerEntry.SetRange("Entry No.");
-
-        if VendorLedgerEntry."Closed by Entry No." <> 0 then begin
-            AppliedVendorLedgerEntry."Entry No." := VendorLedgerEntry."Closed by Entry No.";
+        if ClosedByEntryNo <> 0 then begin
+            AppliedVendorLedgerEntry."Entry No." := ClosedByEntryNo;
             AppliedVendorLedgerEntry.Mark(true);
         end;
 
         AppliedVendorLedgerEntry.SetCurrentKey("Closed by Entry No.");
-        AppliedVendorLedgerEntry.SetRange("Closed by Entry No.", VendorLedgerEntry."Entry No.");
-        if AppliedVendorLedgerEntry.Find('-') then
+        AppliedVendorLedgerEntry.SetRange("Closed by Entry No.", EntryNo);
+        if AppliedVendorLedgerEntry.FindSet() then
             repeat
                 AppliedVendorLedgerEntry.Mark(true);
             until AppliedVendorLedgerEntry.Next() = 0;
@@ -448,57 +450,30 @@ codeunit 27000 "Export Accounts"
         AppliedVendorLedgerEntry.MarkedOnly(true);
     end;
 
-    local procedure FindAppliedCustomerReceipts(var AppliedCustLedgerEntry: Record "Cust. Ledger Entry"; EntryNo: Integer)
+    local procedure FindAppliedCustomerReceipts(var AppliedCustLedgerEntry: Record "Cust. Ledger Entry"; EntryNo: Integer; ClosedByEntryNo: Integer)
     var
-        DetailedCustLedgEntry1: Record "Detailed Cust. Ledg. Entry";
-        DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
-        CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempAppliedCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
     begin
         AppliedCustLedgerEntry.Reset();
 
-        CustLedgerEntry.Get(EntryNo);
-
-        DetailedCustLedgEntry1.SetCurrentKey("Cust. Ledger Entry No.");
-        DetailedCustLedgEntry1.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
-        DetailedCustLedgEntry1.SetRange(Unapplied, false);
-        if DetailedCustLedgEntry1.Find('-') then
+        CustEntryApplyPostedEntries.GetAppliedCustLedgerEntries(TempAppliedCustLedgerEntry, EntryNo);
+        if TempAppliedCustLedgerEntry.FindSet() then
             repeat
-                if DetailedCustLedgEntry1."Cust. Ledger Entry No." = DetailedCustLedgEntry1."Applied Cust. Ledger Entry No." then begin
-                    DetailedCustLedgEntry2.Init();
-                    DetailedCustLedgEntry2.SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
-                    DetailedCustLedgEntry2.SetRange(
-                      "Applied Cust. Ledger Entry No.", DetailedCustLedgEntry1."Applied Cust. Ledger Entry No.");
-                    DetailedCustLedgEntry2.SetRange("Entry Type", DetailedCustLedgEntry2."Entry Type"::Application);
-                    DetailedCustLedgEntry2.SetRange(Unapplied, false);
-                    if DetailedCustLedgEntry2.Find('-') then
-                        repeat
-                            if DetailedCustLedgEntry2."Cust. Ledger Entry No." <> DetailedCustLedgEntry2."Applied Cust. Ledger Entry No."
-                            then begin
-                                AppliedCustLedgerEntry.SetCurrentKey("Entry No.");
-                                AppliedCustLedgerEntry.SetRange("Entry No.", DetailedCustLedgEntry2."Cust. Ledger Entry No.");
-                                if AppliedCustLedgerEntry.Find('-') then
-                                    AppliedCustLedgerEntry.Mark(true);
-                            end;
-                        until DetailedCustLedgEntry2.Next() = 0;
-                end else begin
-                    AppliedCustLedgerEntry.SetCurrentKey("Entry No.");
-                    AppliedCustLedgerEntry.SetRange("Entry No.", DetailedCustLedgEntry1."Applied Cust. Ledger Entry No.");
-                    if AppliedCustLedgerEntry.Find('-') then
-                        AppliedCustLedgerEntry.Mark(true);
-                end;
-            until DetailedCustLedgEntry1.Next() = 0;
+                AppliedCustLedgerEntry."Entry No." := TempAppliedCustLedgerEntry."Entry No.";
+                if AppliedCustLedgerEntry.Find('=') then
+                    AppliedCustLedgerEntry.Mark(true);
+            until TempAppliedCustLedgerEntry.Next() = 0;
 
-        AppliedCustLedgerEntry.SetCurrentKey("Entry No.");
-        AppliedCustLedgerEntry.SetRange("Entry No.");
-
-        if CustLedgerEntry."Closed by Entry No." <> 0 then begin
-            AppliedCustLedgerEntry."Entry No." := CustLedgerEntry."Closed by Entry No.";
+        if ClosedByEntryNo <> 0 then begin
+            AppliedCustLedgerEntry."Entry No." := ClosedByEntryNo;
             AppliedCustLedgerEntry.Mark(true);
         end;
 
         AppliedCustLedgerEntry.SetCurrentKey("Closed by Entry No.");
-        AppliedCustLedgerEntry.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
-        if AppliedCustLedgerEntry.Find('-') then
+        AppliedCustLedgerEntry.SetRange("Closed by Entry No.", EntryNo);
+        AppliedCustLedgerEntry.SetLoadFields("Closed by Entry No.");
+        if AppliedCustLedgerEntry.FindSet() then
             repeat
                 AppliedCustLedgerEntry.Mark(true);
             until AppliedCustLedgerEntry.Next() = 0;
@@ -508,10 +483,8 @@ codeunit 27000 "Export Accounts"
         AppliedCustLedgerEntry.MarkedOnly(true);
     end;
 
-    local procedure CreateReceipt(var TempXMLBuffer: Record "XML Buffer"; LedgerEntry: Variant; IsAuxiliary: Boolean)
+    local procedure CreateReceipt(LedgerEntry: Variant; IsAuxiliary: Boolean)
     var
-        SourceCodeSetup: Record "Source Code Setup";
-        CompanyInformation: Record "Company Information";
         PaymentMethod: Record "Payment Method";
         LedgerEntryRecordRef: RecordRef;
         AmountFieldRef: FieldRef;
@@ -526,8 +499,7 @@ codeunit 27000 "Export Accounts"
         Amount: Decimal;
         AdjustedCurrencyFactor: Decimal;
     begin
-        SourceCodeSetup.Get();
-        CompanyInformation.Get();
+        GetCompanyInformation();
 
         LedgerEntryRecordRef.GetTable(LedgerEntry);
         FindCustVendDetails(LedgerEntryRecordRef, CountryRegion, RFCNo, VATRegistrationNo, CustVendName);
@@ -539,51 +511,51 @@ codeunit 27000 "Export Accounts"
         PaymentMethodCode := LedgerEntryRecordRef.Field(172).Value();
 
         DocumentNo := LedgerEntryRecordRef.Field(6).Value();
-        if (CountryRegion = CompanyInformation."Country/Region Code") or (CountryRegion = '') then begin
+        if (CountryRegion = CompanyInfoGlobal."Country/Region Code") or (CountryRegion = '') then begin
             UUIDCFDI := FindUUIDCFDI(LedgerEntryRecordRef);
 
             if UUIDCFDI <> '' then begin
                 if IsAuxiliary then
-                    TempXMLBuffer.AddGroupElement('ComprNal')
+                    XmlHelper.AddNewNode('ComprNal')
                 else
-                    TempXMLBuffer.AddGroupElement('CompNal');
-                TempXMLBuffer.AddAttribute('UUID_CFDI', UUIDCFDI);
+                    XmlHelper.AddNewNode('CompNal');
+                XmlHelper.AddAttribute('UUID_CFDI', UUIDCFDI);
             end else begin
                 if IsAuxiliary then
-                    TempXMLBuffer.AddGroupElement('ComprNalOtr')
+                    XmlHelper.AddNewNode('ComprNalOtr')
                 else
-                    TempXMLBuffer.AddGroupElement('CompNalOtr');
+                    XmlHelper.AddNewNode('CompNalOtr');
                 TempErrorMessage.LogIfInvalidCharacters(LedgerEntryRecordRef, 6, TempErrorMessage."Message Type"::Warning, '0123456789');
                 DocumentNo := DelChr(DocumentNo, '=', DelChr(DocumentNo, '=', '0123456789'));
-                TempXMLBuffer.AddAttribute('CFD_CBB_NumFol', DocumentNo);
+                XmlHelper.AddAttribute('CFD_CBB_NumFol', DocumentNo);
             end;
-            TempXMLBuffer.AddAttribute('RFC', RFCNo);
+            XmlHelper.AddAttribute('RFC', RFCNo);
         end else begin
             if IsAuxiliary then
-                TempXMLBuffer.AddGroupElement('ComprExt')
+                XmlHelper.AddNewNode('ComprExt')
             else
-                TempXMLBuffer.AddGroupElement('CompExt');
-            TempXMLBuffer.AddAttribute('NumFactExt', DocumentNo);
-            TempXMLBuffer.AddAttribute('TaxID', VATRegistrationNo);
+                XmlHelper.AddNewNode('CompExt');
+            XmlHelper.AddAttribute('NumFactExt', DocumentNo);
+            XmlHelper.AddAttribute('TaxID', VATRegistrationNo);
         end;
 
         if IsAuxiliary and PaymentMethod.Get(PaymentMethodCode) then begin
             TempErrorMessage.LogIfEmpty(
               PaymentMethod, PaymentMethod.FieldNo("SAT Payment Method Code"), TempErrorMessage."Message Type"::Error);
-            TempXMLBuffer.AddAttribute('MetPagoAux', PaymentMethod."SAT Payment Method Code");
+            XmlHelper.AddAttribute('MetPagoAux', PaymentMethod."SAT Payment Method Code");
         end;
 
         if LedgerEntryRecordRef.Number = DATABASE::"Vendor Ledger Entry" then
             Amount := -Amount;
-        TempXMLBuffer.AddAttribute('MontoTotal', FormatDecimal(Amount));
+        XmlHelper.AddAttribute('MontoTotal', FormatDecimal(Amount));
         if CurrencyCode <> '' then begin
-            TempXMLBuffer.AddAttribute('Moneda', CurrencyCode);
-            TempXMLBuffer.AddAttribute('TipCamb', FormatDecimal(1 / AdjustedCurrencyFactor));
+            XmlHelper.AddAttribute('Moneda', CurrencyCode);
+            XmlHelper.AddAttribute('TipCamb', FormatDecimal(1 / AdjustedCurrencyFactor));
         end;
-        TempXMLBuffer.GetParent();
+        XmlHelper.FinalizeNode();
     end;
 
-    local procedure CreateTransfers(var TempXMLBuffer: Record "XML Buffer" temporary; GLEntry: Record "G/L Entry")
+    local procedure CreateTransfers(var GLEntry: Record "G/L Entry")
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         CheckLedgerEntry: Record "Check Ledger Entry";
@@ -602,10 +574,10 @@ codeunit 27000 "Export Accounts"
                     CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
                     if CheckLedgerEntry.FindSet() then
                         repeat
-                            PaymentHandled := CreateChequeNode(TempXMLBuffer, CheckLedgerEntry) or PaymentHandled;
+                            PaymentHandled := CreateChequeNode(CheckLedgerEntry) or PaymentHandled;
                         until CheckLedgerEntry.Next() = 0
                     else
-                        PaymentHandled := CreateTransferenciaNode(TempXMLBuffer, BankAccountLedgerEntry) or PaymentHandled
+                        PaymentHandled := CreateTransferenciaNode(BankAccountLedgerEntry) or PaymentHandled
                 end else
                     PaymentHandled := true;
             until BankAccountLedgerEntry.Next() = 0;
@@ -614,24 +586,23 @@ codeunit 27000 "Export Accounts"
             (GLEntry."Credit Amount" > 0) and
             (GLEntry."Document Type" = GLEntry."Document Type"::Payment)
         then begin
-            CreateOtrMetodoPagoNode(TempXMLBuffer, DATABASE::"Cust. Ledger Entry", GLEntry."Transaction No.");
-            CreateOtrMetodoPagoNode(TempXMLBuffer, DATABASE::"Vendor Ledger Entry", GLEntry."Transaction No.");
+            CreateOtrMetodoPagoNode(DATABASE::"Cust. Ledger Entry", GLEntry."Transaction No.");
+            CreateOtrMetodoPagoNode(DATABASE::"Vendor Ledger Entry", GLEntry."Transaction No.");
         end
     end;
 
-    local procedure CreateChequeNode(var TempXMLBuffer: Record "XML Buffer" temporary; CheckLedgerEntry: Record "Check Ledger Entry"): Boolean
+    local procedure CreateChequeNode(var CheckLedgerEntry: Record "Check Ledger Entry"): Boolean
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         Vendor: Record Vendor;
         Customer: Record Customer;
         BankAccount: Record "Bank Account";
         RecipientBankAccount: Record "Bank Account";
-        CompanyInformation: Record "Company Information";
         Benef: Text[300];
         RFC: Text[30];
         ExchangeRate: Decimal;
     begin
-        BankAccountLedgerEntry.Get(CheckLedgerEntry."Bank Account Ledger Entry No.");
+        BankAccount.SetLoadFields("Bank Code", Name, "Bank Account No.");
         BankAccount.Get(CheckLedgerEntry."Bank Account No.");
 
         TempErrorMessage.LogIfEmpty(CheckLedgerEntry, CheckLedgerEntry.FieldNo("Check No."), TempErrorMessage."Message Type"::Warning);
@@ -643,6 +614,7 @@ codeunit 27000 "Export Accounts"
         case CheckLedgerEntry."Bal. Account Type" of
             CheckLedgerEntry."Bal. Account Type"::Vendor:
                 begin
+                    Vendor.SetLoadFields(Name, "RFC No.");
                     Vendor.Get(CheckLedgerEntry."Bal. Account No.");
                     TempErrorMessage.LogIfEmpty(Vendor, Vendor.FieldNo(Name), TempErrorMessage."Message Type"::Error);
                     TempErrorMessage.LogIfEmpty(Vendor, Vendor.FieldNo("RFC No."), TempErrorMessage."Message Type"::Error);
@@ -651,6 +623,7 @@ codeunit 27000 "Export Accounts"
                 end;
             CheckLedgerEntry."Bal. Account Type"::Customer:
                 begin
+                    Customer.SetLoadFields(Name, "RFC No.");
                     Customer.Get(CheckLedgerEntry."Bal. Account No.");
                     TempErrorMessage.LogIfEmpty(Customer, Customer.FieldNo(Name), TempErrorMessage."Message Type"::Error);
                     TempErrorMessage.LogIfEmpty(Customer, Customer.FieldNo("RFC No."), TempErrorMessage."Message Type"::Error);
@@ -659,38 +632,39 @@ codeunit 27000 "Export Accounts"
                 end;
             CheckLedgerEntry."Bal. Account Type"::"Bank Account":
                 begin
-                    CompanyInformation.Get();
+                    GetCompanyInformation();
+                    RecipientBankAccount.SetLoadFields(Name);
                     RecipientBankAccount.Get(CheckLedgerEntry."Bal. Account No.");
-                    TempErrorMessage.LogIfEmpty(
-                      RecipientBankAccount, RecipientBankAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
-                    TempErrorMessage.LogIfEmpty(
-                      CompanyInformation, CompanyInformation.FieldNo("RFC Number"), TempErrorMessage."Message Type"::Error);
+                    TempErrorMessage.LogIfEmpty(RecipientBankAccount, RecipientBankAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
+                    TempErrorMessage.LogIfEmpty(CompanyInfoGlobal, CompanyInfoGlobal.FieldNo("RFC Number"), TempErrorMessage."Message Type"::Error);
                     Benef := RecipientBankAccount.Name;
-                    RFC := CompanyInformation."RFC Number";
+                    RFC := CompanyInfoGlobal."RFC Number";
                 end;
         end;
 
-        TempXMLBuffer.AddGroupElement('Cheque');
-        TempXMLBuffer.AddAttribute('Num', CheckLedgerEntry."Check No.");
-        TempXMLBuffer.AddAttribute('BanEmisNal', BankAccount."Bank Code");
-        TempXMLBuffer.AddAttribute('BanEmisExt', BankAccount.Name);
-        TempXMLBuffer.AddAttribute('CtaOri', BankAccount."Bank Account No.");
-        TempXMLBuffer.AddAttribute('Fecha', Format(CheckLedgerEntry."Check Date", 0, 9));
-        TempXMLBuffer.AddAttribute('Benef', Benef);
-        TempXMLBuffer.AddAttribute('RFC', RFC);
-        TempXMLBuffer.AddAttribute('Monto', FormatDecimal(CheckLedgerEntry.Amount));
+        XmlHelper.AddNewNode('Cheque');
+        XmlHelper.AddAttribute('Num', CheckLedgerEntry."Check No.");
+        XmlHelper.AddAttribute('BanEmisNal', BankAccount."Bank Code");
+        XmlHelper.AddAttribute('BanEmisExt', BankAccount.Name);
+        XmlHelper.AddAttribute('CtaOri', BankAccount."Bank Account No.");
+        XmlHelper.AddAttribute('Fecha', FormatDate(CheckLedgerEntry."Check Date"));
+        XmlHelper.AddAttribute('Benef', Benef);
+        XmlHelper.AddAttribute('RFC', RFC);
+        XmlHelper.AddAttribute('Monto', FormatDecimal(CheckLedgerEntry.Amount));
 
+        BankAccountLedgerEntry.SetLoadFields("Currency Code");
+        BankAccountLedgerEntry.Get(CheckLedgerEntry."Bank Account Ledger Entry No.");
         if BankAccountLedgerEntry."Currency Code" <> '' then begin
             ExchangeRate := CurrencyExchangeRate.ExchangeRate(CheckLedgerEntry."Posting Date", BankAccountLedgerEntry."Currency Code");
-            TempXMLBuffer.AddAttribute('Moneda', BankAccountLedgerEntry."Currency Code");
-            TempXMLBuffer.AddAttribute('TipCamb', FormatDecimal(1 / ExchangeRate));
+            XmlHelper.AddAttribute('Moneda', BankAccountLedgerEntry."Currency Code");
+            XmlHelper.AddAttribute('TipCamb', FormatDecimal(1 / ExchangeRate));
         end;
-        TempXMLBuffer.GetParent();
+        XmlHelper.FinalizeNode();
 
         exit(true);
     end;
 
-    local procedure CreateTransferenciaNode(var TempXMLBuffer: Record "XML Buffer" temporary; BankAccountLedgerEntry: Record "Bank Account Ledger Entry"): Boolean
+    local procedure CreateTransferenciaNode(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"): Boolean
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -699,7 +673,6 @@ codeunit 27000 "Export Accounts"
         BankAccount: Record "Bank Account";
         CustomerBankAccount: Record "Customer Bank Account";
         VendorBankAccount: Record "Vendor Bank Account";
-        CompanyInformation: Record "Company Information";
         RecipientBankAccount: Record "Bank Account";
         CtaDest: Text[50];
         BancoDestNal: Code[3];
@@ -714,9 +687,12 @@ codeunit 27000 "Export Accounts"
                     CustLedgerEntry.SetCurrentKey("Transaction No.");
                     CustLedgerEntry.SetRange("Transaction No.", BankAccountLedgerEntry."Transaction No.");
                     CustLedgerEntry.SetFilter("Recipient Bank Account", '<>%1', '');
+                    CustLedgerEntry.SetLoadFields("Transaction No.", "Recipient Bank Account", "Customer No.");
                     if not CustLedgerEntry.FindFirst() then
                         exit(false);
+                    Customer.SetLoadFields(Name, "RFC No.");
                     Customer.Get(CustLedgerEntry."Customer No.");
+                    CustomerBankAccount.SetLoadFields("Bank Account No.", "Bank Code", Name);
                     CustomerBankAccount.Get(Customer."No.", CustLedgerEntry."Recipient Bank Account");
 
                     TempErrorMessage.LogIfEmpty(
@@ -738,9 +714,12 @@ codeunit 27000 "Export Accounts"
                     VendorLedgerEntry.SetCurrentKey("Transaction No.");
                     VendorLedgerEntry.SetRange("Transaction No.", BankAccountLedgerEntry."Transaction No.");
                     VendorLedgerEntry.SetFilter("Recipient Bank Account", '<>%1', '');
+                    VendorLedgerEntry.SetLoadFields("Transaction No.", "Recipient Bank Account", "Vendor No.");
                     if not VendorLedgerEntry.FindFirst() then
                         exit(false);
+                    Vendor.SetLoadFields(Name, "RFC No.");
                     Vendor.Get(VendorLedgerEntry."Vendor No.");
+                    VendorBankAccount.SetLoadFields("Bank Account No.", "Bank Code", Name);
                     VendorBankAccount.Get(Vendor."No.", VendorLedgerEntry."Recipient Bank Account");
 
                     TempErrorMessage.LogIfEmpty(
@@ -759,9 +738,10 @@ codeunit 27000 "Export Accounts"
                 end;
             BankAccountLedgerEntry."Bal. Account Type"::"Bank Account":
                 begin
+                    RecipientBankAccount.SetLoadFields("Bank Account No.", "Bank Code", Name);
                     if not RecipientBankAccount.Get(BankAccountLedgerEntry."Bal. Account No.") then
                         exit(false);
-                    CompanyInformation.Get();
+                    GetCompanyInformation();
 
                     TempErrorMessage.LogIfEmpty(
                       RecipientBankAccount, RecipientBankAccount.FieldNo("Bank Account No."), TempErrorMessage."Message Type"::Error);
@@ -769,50 +749,51 @@ codeunit 27000 "Export Accounts"
                       RecipientBankAccount, RecipientBankAccount.FieldNo("Bank Code"), TempErrorMessage."Message Type"::Error);
                     TempErrorMessage.LogIfEmpty(
                       RecipientBankAccount, RecipientBankAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
-                    TempErrorMessage.LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo(Name), TempErrorMessage."Message Type"::Error);
+                    TempErrorMessage.LogIfEmpty(CompanyInfoGlobal, CompanyInfoGlobal.FieldNo(Name), TempErrorMessage."Message Type"::Error);
                     TempErrorMessage.LogIfEmpty(
-                      CompanyInformation, CompanyInformation.FieldNo("RFC Number"), TempErrorMessage."Message Type"::Error);
+                      CompanyInfoGlobal, CompanyInfoGlobal.FieldNo("RFC Number"), TempErrorMessage."Message Type"::Error);
 
                     CtaDest := RecipientBankAccount."Bank Account No.";
                     BancoDestNal := RecipientBankAccount."Bank Code";
                     BancoDestExt := RecipientBankAccount.Name;
-                    Benef := CompanyInformation.Name;
-                    RFC := CompanyInformation."RFC Number";
+                    Benef := CompanyInfoGlobal.Name;
+                    RFC := CompanyInfoGlobal."RFC Number";
                 end;
             else
                 exit(false);
         end;
 
+        BankAccount.SetLoadFields("Bank Account No.", "Bank Code", Name);
         BankAccount.Get(BankAccountLedgerEntry."Bank Account No.");
 
         TempErrorMessage.LogIfEmpty(BankAccount, BankAccount.FieldNo("Bank Account No."), TempErrorMessage."Message Type"::Error);
         TempErrorMessage.LogIfEmpty(BankAccount, BankAccount.FieldNo("Bank Code"), TempErrorMessage."Message Type"::Error);
         TempErrorMessage.LogIfEmpty(BankAccount, BankAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
 
-        TempXMLBuffer.AddGroupElement('Transferencia');
-        TempXMLBuffer.AddAttribute('CtaOri', BankAccount."Bank Account No.");
-        TempXMLBuffer.AddAttribute('BancoOriNal', BankAccount."Bank Code");
-        TempXMLBuffer.AddAttribute('BancoOriExt', BankAccount.Name);
-        TempXMLBuffer.AddAttribute('CtaDest', CtaDest);
-        TempXMLBuffer.AddAttribute('BancoDestNal', BancoDestNal);
-        TempXMLBuffer.AddAttribute('BancoDestExt', BancoDestExt);
-        TempXMLBuffer.AddAttribute('Fecha', Format(BankAccountLedgerEntry."Posting Date", 0, 9));
-        TempXMLBuffer.AddAttribute('Benef', Benef);
-        TempXMLBuffer.AddAttribute('RFC', RFC);
-        TempXMLBuffer.AddAttribute('Monto', FormatDecimal(BankAccountLedgerEntry."Credit Amount"));
+        XmlHelper.AddNewNode('Transferencia');
+        XmlHelper.AddAttribute('CtaOri', BankAccount."Bank Account No.");
+        XmlHelper.AddAttribute('BancoOriNal', BankAccount."Bank Code");
+        XmlHelper.AddAttribute('BancoOriExt', BankAccount.Name);
+        XmlHelper.AddAttribute('CtaDest', CtaDest);
+        XmlHelper.AddAttribute('BancoDestNal', BancoDestNal);
+        XmlHelper.AddAttribute('BancoDestExt', BancoDestExt);
+        XmlHelper.AddAttribute('Fecha', FormatDate(BankAccountLedgerEntry."Posting Date"));
+        XmlHelper.AddAttribute('Benef', Benef);
+        XmlHelper.AddAttribute('RFC', RFC);
+        XmlHelper.AddAttribute('Monto', FormatDecimal(BankAccountLedgerEntry."Credit Amount"));
 
         if BankAccountLedgerEntry."Currency Code" <> '' then begin
             ExchangeRate :=
               CurrencyExchangeRate.ExchangeRate(BankAccountLedgerEntry."Posting Date", BankAccountLedgerEntry."Currency Code");
-            TempXMLBuffer.AddAttribute('Moneda', BankAccountLedgerEntry."Currency Code");
-            TempXMLBuffer.AddAttribute('TipCamb', FormatDecimal(1 / ExchangeRate));
+            XmlHelper.AddAttribute('Moneda', BankAccountLedgerEntry."Currency Code");
+            XmlHelper.AddAttribute('TipCamb', FormatDecimal(1 / ExchangeRate));
         end;
-        TempXMLBuffer.GetParent();
+        XmlHelper.FinalizeNode();
 
         exit(true);
     end;
 
-    local procedure CreateOtrMetodoPagoNode(var TempXMLBuffer: Record "XML Buffer"; LedgerEntryTableNo: Integer; TransactionNo: Integer)
+    local procedure CreateOtrMetodoPagoNode(LedgerEntryTableNo: Integer; TransactionNo: Integer)
     var
         PaymentMethod: Record "Payment Method";
         PaymentMethodFieldRef: FieldRef;
@@ -848,18 +829,18 @@ codeunit 27000 "Export Accounts"
                 AdjustedCurrencyFactor := LedgerEntryRecordRef.Field(73).Value();
                 PostingDate := LedgerEntryRecordRef.Field(4).Value();
 
-                TempXMLBuffer.AddGroupElement('OtrMetodoPago');
-                TempXMLBuffer.AddAttribute('MetPagoPol', PaymentMethod."SAT Payment Method Code");
-                TempXMLBuffer.AddAttribute('Fecha', Format(PostingDate, 0, 9));
-                TempXMLBuffer.AddAttribute('Benef', Name);
-                TempXMLBuffer.AddAttribute('RFC', RFCNo);
+                XmlHelper.AddNewNode('OtrMetodoPago');
+                XmlHelper.AddAttribute('MetPagoPol', PaymentMethod."SAT Payment Method Code");
+                XmlHelper.AddAttribute('Fecha', FormatDate(PostingDate));
+                XmlHelper.AddAttribute('Benef', Name);
+                XmlHelper.AddAttribute('RFC', RFCNo);
 
-                TempXMLBuffer.AddAttribute('Monto', FormatDecimal(Abs(Amount)));
+                XmlHelper.AddAttribute('Monto', FormatDecimal(Abs(Amount)));
                 if CurrencyCode <> '' then begin
-                    TempXMLBuffer.AddAttribute('Moneda', CurrencyCode);
-                    TempXMLBuffer.AddAttribute('TipCamb', FormatDecimal(1 / AdjustedCurrencyFactor));
+                    XmlHelper.AddAttribute('Moneda', CurrencyCode);
+                    XmlHelper.AddAttribute('TipCamb', FormatDecimal(1 / AdjustedCurrencyFactor));
                 end;
-                TempXMLBuffer.GetParent();
+                XmlHelper.FinalizeNode();
             until LedgerEntryRecordRef.Next() = 0;
     end;
 
@@ -921,6 +902,7 @@ codeunit 27000 "Export Accounts"
     begin
         CustVendNo := LedgerEntryRecordRef.Field(3).Value();
         if LedgerEntryRecordRef.Number = DATABASE::"Cust. Ledger Entry" then begin
+            Customer.SetLoadFields(Name, "VAT Registration No.", "RFC No.", "Country/Region Code");
             Customer.Get(CustVendNo);
 
             TempErrorMessage.LogIfEmpty(Customer, Customer.FieldNo(Name), TempErrorMessage."Message Type"::Error);
@@ -932,6 +914,7 @@ codeunit 27000 "Export Accounts"
             VATRegistrationNo := Customer."VAT Registration No.";
             Name := Customer.Name;
         end else begin
+            Vendor.SetLoadFields(Name, "VAT Registration No.", "RFC No.", "Country/Region Code");
             Vendor.Get(CustVendNo);
 
             TempErrorMessage.LogIfEmpty(Vendor, Vendor.FieldNo(Name), TempErrorMessage."Message Type"::Error);
@@ -945,42 +928,103 @@ codeunit 27000 "Export Accounts"
         end;
     end;
 
-    local procedure SaveXMLToClient(var TempXMLBuffer: Record "XML Buffer" temporary; Year: Integer; Month: Integer; Type: Text): Boolean
+    local procedure SaveXMLToClient(Year: Integer; Month: Integer; Type: Text): Boolean
     var
-        CompanyInformation: Record "Company Information";
         DataCompression: Codeunit "Data Compression";
         XMLTempBlob: Codeunit "Temp Blob";
         ZipTempBlob: Codeunit "Temp Blob";
-        XMLBufferReader: Codeunit "XML Buffer Reader";
-        ServerTempFileInStream: InStream;
+        FileMgt: Codeunit "File Management";
+        BlobInStream: InStream;
         ZipInStream: InStream;
         ZipOutStream: OutStream;
         Result: Boolean;
         ClientFileName: Text;
     begin
+        XmlHelper.WriteXmlDocToTempBlob(XMLTempBlob);
+        XMLTempBlob.CreateInStream(BlobInStream);
+
         if TestFileName <> '' then
-            TempXMLBuffer.Save(TestFileName)
-        else begin
-            CompanyInformation.Get();
-            ClientFileName := CompanyInformation."RFC Number" + Format(Year) +
-              Format(Month, 2, '<Integer,2><Filler Character,0>') + Type;
-            XMLBufferReader.SaveToTempBlob(XMLTempBlob, TempXMLBuffer);
-            XMLTempBlob.CreateInStream(ServerTempFileInStream);
-            DataCompression.CreateZipArchive();
-            DataCompression.AddEntry(ServerTempFileInStream, ClientFileName + '.xml');
-            ZipTempBlob.CreateOutStream(ZipOutStream);
-            DataCompression.SaveZipArchive(ZipOutStream);
-            DataCompression.CloseZipArchive();
-            ZipTempBlob.CreateInStream(ZipInStream);
-            ClientFileName += '.zip';
-            Result := DownloadFromStream(ZipInStream, '', '', '', ClientFileName);
-            exit(Result);
-        end;
+            exit(FileMgt.DownloadFromStreamHandler(BlobInStream, '', '', '', TestFileName));
+
+        GetCompanyInformation();
+        ClientFileName := CompanyInfoGlobal."RFC Number" + Format(Year) +
+          Format(Month, 2, '<Integer,2><Filler Character,0>') + Type;
+
+        DataCompression.CreateZipArchive();
+        DataCompression.AddEntry(BlobInStream, ClientFileName + '.xml');
+        ZipTempBlob.CreateOutStream(ZipOutStream);
+        DataCompression.SaveZipArchive(ZipOutStream);
+        DataCompression.CloseZipArchive();
+        ZipTempBlob.CreateInStream(ZipInStream);
+        ClientFileName += '.zip';
+        Result := FileMgt.DownloadFromStreamHandler(ZipInStream, '', '', '', ClientFileName);
+        exit(Result);
+    end;
+
+    local procedure LoadCustomerPostingGroups()
+    var
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        Clear(CustPostGroupReceivableAcc);
+        CustomerPostingGroup.SetLoadFields("Receivables Account");
+        if CustomerPostingGroup.FindSet() then
+            repeat
+                CustPostGroupReceivableAcc.Add(CustomerPostingGroup.Code, CustomerPostingGroup."Receivables Account");
+            until CustomerPostingGroup.Next() = 0;
+    end;
+
+    local procedure LoadVendorPostingGroups()
+    var
+        VendorPostingGroup: Record "Vendor Posting Group";
+    begin
+        Clear(VendPostGroupPayablesAcc);
+        VendorPostingGroup.SetLoadFields("Payables Account");
+        if VendorPostingGroup.FindSet() then
+            repeat
+                VendPostGroupPayablesAcc.Add(VendorPostingGroup.Code, VendorPostingGroup."Payables Account");
+            until VendorPostingGroup.Next() = 0;
+    end;
+
+    local procedure GetCompanyInformation()
+    begin
+        if IsNullGuid(CompanyInfoGlobal.SystemId) then
+            CompanyInfoGlobal.Get();
+    end;
+
+    local procedure ClearGlobalVariables()
+    begin
+        Clear(CompanyInfoGlobal);
+        Clear(CustPostGroupReceivableAcc);
+        Clear(VendPostGroupPayablesAcc);
+        Clear(GLAccountNames);
     end;
 
     local procedure FormatDecimal(Amount: Decimal): Text
     begin
         exit(Format(Amount, 0, '<Precision,2:2><Standard Format,9>'));
+    end;
+
+    local procedure FormatDate(InputDate: Date): Text
+    begin
+        exit(Format(InputDate, 0, 9));
+    end;
+
+    local procedure OpenProgressDialog(DialogContent: Text)
+    begin
+        if GuiAllowed() then
+            ProgressDialog.Open(DialogContent);
+    end;
+
+    local procedure CloseProgressDialog()
+    begin
+        if GuiAllowed() then
+            ProgressDialog.Close();
+    end;
+
+    local procedure UpdateProgressDialog(Number: Integer; NewText: Text)
+    begin
+        if GuiAllowed() then
+            ProgressDialog.Update(Number, NewText + '%');
     end;
 
     procedure InitializeRequest(FileName: Text)
