@@ -347,6 +347,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM - Movement - NamedType LinesExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 20771605 - NamedType 374431739" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There is nothing to replenish.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM - Movement - NamedType NothingToReplenishErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 20771605 - NamedType 1144510249" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Item tracking defined for line %1, lot number %2, serial number %3, package number %4 cannot be applied.]]></Val>
@@ -16248,6 +16257,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Cubage Value, %2 = Maximum Quantity, %3 =  Maximum Cubage Caption, %4 = Maximum Cubage Value, %5 = Bin Table Caption]D;]A;(LookupHint=Codeunit SCM Warehouse - Receiving - NamedType ExceedsMaximumCubage)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3546302981 - NamedType 1003500272" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[From Bin Should be blank]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse - Receiving - NamedType FromBinBlankErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3546302981 - NamedType 3741881461" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
