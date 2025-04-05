@@ -488,6 +488,33 @@ codeunit 134347 "ERM Document Line Tracking"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler,DocumentLineTrackingPageHandler2')]
+    procedure VerifyDocumentLineTrackingOnBlanketPurchaseOrderArchive()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        BlanketPurchaseOrderArchive: TestPage "Blanket Purchase Order Archive";
+    begin
+        // [SCENARIO 565974] Verify the document line tracking on the blanket purchase order archive.
+        Initialize();
+
+        // [GIVEN] Create Blanket Purchase Order.
+        CreateBlanketPurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [GIVEN] Convert Blanket Purchase Order to Purchase Order and Archive the Blanket Purchase Order.
+        BlanketPurchaseOrderMakeOrderAndArchive(PurchaseHeader);
+
+        // [WHEN] Open Blanket Purchase Order Archive Page. 
+        BlanketPurchaseOrderArchive.OpenEdit();
+
+        // [GIVEN] Filter Set on Blanket Purchase Order Archive
+        FilterSetOnBlanketPurchaseOrderArchive(BlanketPurchaseOrderArchive, PurchaseHeader);
+
+        // [THEN] DocumentLineTracking Action was invoked & Verify Document Line Tracking for Blanket Purchase Order.
+        BlanketPurchaseOrderArchive.PurchLinesArchive.DocumentLineTracking.Invoke();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Document Line Tracking");
@@ -989,6 +1016,40 @@ codeunit 134347 "ERM Document Line Tracking"
         DocumentLineTracking."No. of Records".AssertEquals(ExpectedCount);
     end;
 
+    local procedure CreateBlanketPurchaseOrder(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchLine, PurchHeader,
+            PurchLine.Type::Item, '', LibraryRandom.RandInt(10));
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 1000, 2));
+        PurchLine.Modify(true);
+    end;
+
+    local procedure BlanketPurchaseOrderMakeOrderAndArchive(PurchaseHeader: Record "Purchase Header")
+    var
+        ArchiveManagement: Codeunit ArchiveManagement;
+    begin
+        LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);
+        ArchiveManagement.ArchivePurchDocument(PurchaseHeader);
+    end;
+
+    local procedure FilterSetOnBlanketPurchaseOrderArchive(var BlanketPurchaseOrderArchive: TestPage "Blanket Purchase Order Archive"; PurchaseHeader: Record "Purchase Header")
+    begin
+        BlanketPurchaseOrderArchive.Filter.SetFilter("Document Type", Format(PurchaseHeader."Document Type"));
+        BlanketPurchaseOrderArchive.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseHeader.CalcFields("No. of Archived Versions");
+        BlanketPurchaseOrderArchive.Filter.SetFilter("Version No.", Format(PurchaseHeader."No. of Archived Versions"));
+        BlanketPurchaseOrderArchive.Filter.SetFilter("Doc. No. Occurrence", Format(PurchaseHeader."Doc. No. Occurrence"));
+    end;
+
+    local procedure VerifyDocumentLineTrackingForBlanketPurchaseOrderArchive(var DocumentLineTracking: TestPage "Document Line Tracking")
+    begin
+        VerifyDocumentLineTrackingLine(DocumentLineTracking, BlanketPurchaseOrderLinesTxt, 1, 1);
+        VerifyDocumentLineTrackingLine(DocumentLineTracking, ArchivedBlanketPurchaseOrderLinesTxt, 1, 2);
+        VerifyDocumentLineTrackingLine(DocumentLineTracking, PurchaseOrderLinesTxt, 1, 3);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -1038,6 +1099,12 @@ codeunit 134347 "ERM Document Line Tracking"
         DocumentLineTracking.DocLineUnit.AssertEquals('');
         Assert.IsFalse(DocumentLineTracking.First(), 'Expecting blank Document Line Tracking page');
         DocumentLineTracking.Close();
+    end;
+
+    [ModalPageHandler]
+    procedure DocumentLineTrackingPageHandler2(var DocumentLineTracking: TestPage "Document Line Tracking")
+    begin
+        VerifyDocumentLineTrackingForBlanketPurchaseOrderArchive(DocumentLineTracking);
     end;
 }
 

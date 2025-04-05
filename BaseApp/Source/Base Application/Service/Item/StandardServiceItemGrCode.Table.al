@@ -155,6 +155,11 @@ table 5998 "Standard Service Item Gr. Code"
                     ServLine."Line No." := ServLine.GetLineNo();
                     OnBeforeInsertServLine(ServLine);
                     ServLine.Insert(true);
+
+                    if ServLine.Type = ServLine.Type::Item then
+                        if ServLine.Reserve = ServLine.Reserve::Always then
+                            ServLine.AutoReserve(false);
+
                     InsertExtendedText(ServLine);
                 end;
             until StdServLine.Next() = 0;

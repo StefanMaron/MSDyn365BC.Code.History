@@ -39,6 +39,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderComp: Record "Prod. Order Component";
         ProdOrderRoutingLine2: Record "Prod. Order Routing Line";
         ProdBOMLine: array[99] of Record "Production BOM Line";
+        ProdLineItem: Record Item;
         UOMMgt: Codeunit "Unit of Measure Management";
         CostCalcMgt: Codeunit "Cost Calculation Management";
         VersionMgt: Codeunit VersionManagement;
@@ -256,8 +257,8 @@ codeunit 99000773 "Calculate Prod. Order"
 
     local procedure TransferBOMProcessItem(Level: Integer; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal; var ErrorOccured: Boolean)
     var
-        Item2: Record Item;
         ComponentSKU: Record "Stockkeeping Unit";
+        Item2: Record Item;
         IsHandled: Boolean;
         QtyRoundPrecision: Decimal;
     begin
@@ -295,6 +296,7 @@ codeunit 99000773 "Calculate Prod. Order"
             ProdOrderComp.Validate("Unit of Measure Code", ProdBOMLine[Level]."Unit of Measure Code");
             if ProdOrderComp."Item No." <> '' then
                 QtyRoundPrecision := UOMMgt.GetQtyRoundingPrecision(Item2, ProdBOMLine[Level]."Unit of Measure Code");
+            CheckingRoundingPrecision(Item2, ProdLineItem, QtyRoundPrecision, Level);
             if QtyRoundPrecision <> 0 then
                 ProdOrderComp."Quantity per" := Round(ProdBOMLine[Level]."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM, QtyRoundPrecision)
             else
@@ -562,6 +564,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ErrorOccured: Boolean;
         IsHandled: Boolean;
         ShouldCheckIfEntriesExist: Boolean;
+        SkipCalcComponents: Boolean;
     begin
         ProdOrderLine := ProdOrderLine2;
 
@@ -644,7 +647,9 @@ codeunit 99000773 "Calculate Prod. Order"
                         until ProdOrderRoutingLine3.Next() = 0;
                 end;
 
-        if CalcComponents then
+        SkipCalcComponents := false;
+        OnCalculateOnBeforeCalcComponents(ProdOrderLine, CalcComponents, SkipCalcComponents);
+        if CalcComponents and not SkipCalcComponents then
             if ProdOrderLine."Production BOM No." <> '' then begin
                 Item.Get(ProdOrderLine."Item No.");
                 GetPlanningParameters.AtSKU(
@@ -655,7 +660,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 OnCalculateOnAfterGetpLanningParameterAtSKUCalcComponents(ProdOrderLine, SKU);
 
                 CalculateLeadTime(ProdOrderLine, Direction, LetDueDateDecrease);
-
+                CalculateRouting(Direction, LetDueDateDecrease);
                 if not TransferBOM(
                      ProdOrderLine."Production BOM No.",
                      1,
@@ -969,6 +974,21 @@ codeunit 99000773 "Calculate Prod. Order"
             ProdOrderLineToCheck.TestField(Quantity);
     end;
 
+    local procedure CheckingRoundingPrecision(ChildItem: Record Item; ProdLineItem: Record Item; var QtyRoundPrecision: Decimal; Level: Integer)
+    begin
+        if (ChildItem."Rounding Precision" = 0) or (QtyRoundPrecision = 0) then
+            exit;
+
+        if (not ProdLineItem.Get(ProdOrderLine."Item No.")) or (ProdLineItem."Replenishment System" <> ProdLineItem."Replenishment System"::"Prod. Order") then
+            exit;
+
+        if (ChildItem."Base Unit of Measure" <> ProdBOMLine[Level]."Unit of Measure Code") then
+            exit;
+        QtyRoundPrecision := ChildItem."Rounding Precision";
+        ProdOrderComp."Qty. Rounding Precision" := ChildItem."Rounding Precision";
+        ProdOrderComp."Qty. Rounding Precision (Base)" := ChildItem."Rounding Precision";
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertProdRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
     begin
@@ -1221,6 +1241,11 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckProdOrderLineQuantity(ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnBeforeCalcComponents(ProdOrderLine: Record "Prod. Order Line"; CalcComponents: Boolean; var SkipCalcComponents: Boolean)
     begin
     end;
 }

@@ -141,6 +141,9 @@ table 37 "Sales Line"
                                 SalesHeader.TestField(Status, SalesHeader.Status::Open);
                         Type::"Charge (Item)":
                             DeleteChargeChargeAssgnt("Document Type", "Document No.", "Line No.");
+                        Type::" ":
+                            if ("Attached to Line No." <> 0) and (Quantity = 0) then
+                                Error(ChangeExtendedTextErr, FieldCaption(Type));
                     end;
                     if xRec."Deferral Code" <> '' then
                         DeferralUtilities.RemoveOrSetDeferralSchedule('',
@@ -308,7 +311,7 @@ table 37 "Sales Line"
                             PostingSetupMgt.CheckVATPostingSetupSalesAccount("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                         end;
 
-                if HasTypeToFillMandatoryFields() and (Type <> Type::"Fixed Asset") then
+                if HasTypeToFillMandatoryFields() and (Type <> Type::"Fixed Asset") and HasVatInUse() then
                     ValidateVATProdPostingGroup();
 
                 UpdatePrepmtSetupFields();
@@ -3810,6 +3813,7 @@ table 37 "Sales Line"
         CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
         NonInvReserveTypeErr: Label 'Non-inventory and service items must have the reserve type Never. The current reserve type for item %1 is %2.', Comment = '%1 is Item No., %2 is Reserve';
+        ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
 
     protected var
         HideValidationDialog: Boolean;
@@ -4953,13 +4957,16 @@ table 37 "Sales Line"
                     FieldError("Prepmt. Line Amount", StrSubstNo(Text045, 0));
             if "System-Created Entry" and not IsServiceChargeLine() then
                 "Prepayment %" := 0;
-            GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-            if GenPostingSetup."Sales Prepayments Account" <> '' then begin
-                GLAcc.Get(GenPostingSetup."Sales Prepayments Account");
-                VATPostingSetup.Get("VAT Bus. Posting Group", GLAcc."VAT Prod. Posting Group");
-                VATPostingSetup.TestField("VAT Calculation Type", "VAT Calculation Type");
-            end else
-                Clear(VATPostingSetup);
+
+            if HasVatInUse() then begin
+                GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
+                if GenPostingSetup."Sales Prepayments Account" <> '' then begin
+                    GLAcc.Get(GenPostingSetup."Sales Prepayments Account");
+                    VATPostingSetup.Get("VAT Bus. Posting Group", GLAcc."VAT Prod. Posting Group");
+                    VATPostingSetup.TestField("VAT Calculation Type", "VAT Calculation Type");
+                end else
+                    Clear(VATPostingSetup);
+            end;
             if ("Prepayment VAT %" <> 0) and ("Prepayment VAT %" <> VATPostingSetup."VAT %") and ("Prepmt. Amt. Inv." <> 0) then
                 Error(CannotChangePrepmtAmtDiffVAtPctErr);
             "Prepayment VAT %" := VATPostingSetup."VAT %";
@@ -5671,7 +5678,7 @@ table 37 "Sales Line"
     begin
         if "Sell-to Customer No." = '' then
             exit(false);
-            
+
         Customer.SetLoadFields("Base Calendar Code");
         if Customer.Get("Sell-to Customer No.") then
             exit(Customer."Base Calendar Code" <> '');
@@ -10277,6 +10284,22 @@ table 37 "Sales Line"
         TestField("Qty. Shipped (Base)", 0);
         TestField("Return Qty. Received", 0);
         TestField("Return Qty. Received (Base)", 0);
+    end;
+
+    local procedure HasVatInUse(): Boolean
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.GetRecordOnce();
+        if not (GeneralLedgerSetup."VAT in Use") and
+               (Type = Type::"G/L Account") and
+               ("Document Type" = "Document Type"::Order) and
+               ("Gen. Prod. Posting Group" = '') and
+               ("Prepayment %" <> 0) and
+               (Amount = 0) then
+            exit(false);
+
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]
