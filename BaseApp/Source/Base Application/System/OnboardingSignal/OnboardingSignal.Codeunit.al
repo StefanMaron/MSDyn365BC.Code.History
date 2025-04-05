@@ -66,6 +66,7 @@ codeunit 7580 "Onboarding Signal"
 
         OnboardingSignal.SetRange("Company Name", CompanyName());
         OnboardingSignal.SetRange("Onboarding Completed", false);
+        OnboardingSignal.SetFilter("Onboarding Signal Type", CreateFilterForValidEnum());
 
         if OnboardingSignal.FindSet() then
             repeat
@@ -123,6 +124,19 @@ codeunit 7580 "Onboarding Signal"
                 OnboardingSignalBuffer.TransferFields(OnboardingSignal);
                 OnboardingSignalBuffer.Insert();
             until OnboardingSignal.Next() = 0;
+    end;
+
+    /// <summary>
+    /// Create a filter for all valid Enum Onboarding Signal Types.
+    /// This is needed to filter out Enum values that no longer exist in the current runtime (e.g. extensions that are uninstalled).
+    /// </summary>
+    local procedure CreateFilterForValidEnum() FilterText: Text
+    var
+        OnboardingSignalType: Enum "Onboarding Signal Type";
+    begin
+        foreach OnboardingSignalType in Enum::"Onboarding Signal Type".Ordinals() do
+            FilterText += Format(OnboardingSignalType) + '|';
+        FilterText := FilterText.TrimEnd('|');
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Company, 'OnAfterDeleteEvent', '', false, false)]
