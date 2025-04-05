@@ -57,7 +57,7 @@ codeunit 136306 "Job Invoicing"
         YourReferenceErr: Label 'The actual %1 Your Reference and the expected %2 Your Reference are not equal', Comment = '%1 = Project, %2 = Sales Header';
         DetailLevel: Option All,"Per Job","Per Job Task","Per Job Planning Line";
         LineDiscountPctErr: Label '%1 should be %2', Comment = '%1 = Field Caption, %2 = Field Value';
-        WrongNoofLinesLbl: Label 'Wrong number of lines created';
+        WrongNoOfLinesLbl: Label 'Wrong number of lines created.';
 
     [Test]
     [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
@@ -3866,7 +3866,7 @@ codeunit 136306 "Job Invoicing"
         GetSalesInvoiceDocumentList(JobPlanningLine[3], DocumentType::Invoice, InvoicesList);
 
         // [THEN] Verify One Sales Invoice is Created.
-        Assert.AreEqual(1, InvoicesList.Count, WrongNoofLinesLbl);
+        Assert.AreEqual(1, InvoicesList.Count, WrongNoOfLinesLbl);
 
         // [GIVEN] Get Sales Invoice No from List.
         InvoicesList.Get(1, DocumentNo);
@@ -3877,7 +3877,7 @@ codeunit 136306 "Job Invoicing"
         SalesLine.SetRange("Document No.", DocumentNo);
 
         // [THEN] Verify Three Sales Lines are created in a single invoice.
-        Assert.AreEqual(3, SalesLine.Count, WrongNoofLinesLbl);
+        Assert.AreEqual(3, SalesLine.Count, WrongNoOfLinesLbl);
     end;
 
     [Test]
@@ -3926,6 +3926,76 @@ codeunit 136306 "Job Invoicing"
 
         // [THEN] Verify that "Unit Cost" is updated to the old value "X".
         JobPlanningLine.TestField("Unit Cost", OldUnitCost);
+    end;
+
+    [Test]
+    [HandlerFunctions('TransferToInvoiceHandler,MessageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CopyInvoicedJobAndCreateInvoiceWithoutError()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: array[3] of Record "Job Planning Line";
+        JobPlanningLine2: Record "Job Planning Line";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        CopyJob: Codeunit "Copy Job";
+        DocumentType: Enum "Sales Document Type";
+        TaskBillingMethod: Enum "Task Billing Method";
+        InvoicesList: List of [Code[20]];
+        TargetJobNo: Code[20];
+    begin
+        // [SCENARIO 569370] After copying an existed project card & task to new, cannot create sales invoice although there is quantity to invoice
+        Initialize();
+
+        // [GIVEN] Create a Job and a Job Task with Billing Method set Multiple Customers.
+        CreateJobAndJobTaskWithBillingMethod(JobTask, TaskBillingMethod::"Multiple customers");
+
+        // [GIVEN] Create Three Job Planning Lines for Type Item. 
+        CreateThreeJobPlanningLinesWithItem(JobTask, JobPlanningLine);
+        Commit();
+
+        // [GIVEN] Create Invoice for all three Job Planning Lines.
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine[3], false);
+
+        // [WHEN] Get Sales Invoice Document.
+        GetSalesInvoiceDocumentList(JobPlanningLine[3], DocumentType::Invoice, InvoicesList);
+
+        // [THEN] Verify One Sales Invoice is Created.
+        Assert.AreEqual(1, InvoicesList.Count, WrongNoOfLinesLbl);
+
+        // [GIVEN] Save Target Job No.
+        TargetJobNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Copy Job 
+        Job.Get(JobTask."Job No.");
+        CopyJob.CopyJob(Job, TargetJobNo, TargetJobNo, Job."Bill-to Customer No.", '');
+
+        // [GIVEN] Update Task Billing method to Multiple Customer
+        Job.Get(TargetJobNo);
+        Job.Validate("Task Billing Method", TaskBillingMethod::"Multiple customers");
+        Job.Modify(true);
+
+        // [GIVEN]  Update Quantity in Job Planning Line
+        UpdateQuantityInJobPlanningLine(Job."No.");
+
+        // [GIVEN] Get the Job Planning Line 
+        JobPlanningLine2.SetRange("Job No.", Job."No.");
+        JobPlanningLine2.FindSet();
+
+        // [GIVEN]  Commit before run the report
+        Commit();
+
+        // [WHEN] Run the Create Sales Invoice
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine2, false);
+
+        // [GIVEN] Clear the list 
+        Clear(InvoicesList);
+
+        // [WHEN] Gwt Sales Invoice Document List
+        GetSalesInvoiceDocumentList(JobPlanningLine2, DocumentType::Invoice, InvoicesList);
+
+        // [THEN] Verify the invoice is created successfully
+        Assert.AreEqual(1, InvoicesList.Count, WrongNoOfLinesLbl);
     end;
 
     local procedure Initialize()
@@ -5610,6 +5680,18 @@ codeunit 136306 "Job Invoicing"
             if not InvoicesList.Contains(JobPlanningLineInvoice."Document No.") then
                 InvoicesList.Add(JobPlanningLineInvoice."Document No.");
         until JobPlanningLineInvoice.Next() = 0;
+    end;
+
+    local procedure UpdateQuantityInJobPlanningLine(JobNo: Code[20])
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        JobPlanningLine.SetRange("Job No.", JobNo);
+        JobPlanningLine.FindSet();
+        repeat
+            JobPlanningLine.Validate(Quantity, LibraryRandom.RandIntInRange(1, 10));
+            JobPlanningLine.Modify();
+        until JobPlanningLine.Next() = 0;
     end;
 
     [RequestPageHandler]

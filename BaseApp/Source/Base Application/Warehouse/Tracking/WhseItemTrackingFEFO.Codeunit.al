@@ -31,14 +31,25 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         LastSummaryEntryNo := 0;
         StrictExpirationPosting := ItemTrackingMgt.StrictExpirationPosting(ItemNo);
 
-        SummarizeInventoryFEFO(Location, ItemNo, VariantCode, UseExpDates);
+        SummarizeInventoryFEFO(Location, ItemNo, VariantCode, '', UseExpDates);
         if UseExpDates then
             SummarizeAdjustmentBinFEFO(Location, ItemNo, VariantCode);
 
         OnAfterCreateEntrySummaryFEFO(TempGlobalEntrySummary);
     end;
 
-    local procedure SummarizeInventoryFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; HasExpirationDate: Boolean)
+    procedure CreateEntrySummaryFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; UseExpDates: Boolean)
+    begin
+        InitEntrySummaryFEFO();
+        LastSummaryEntryNo := 0;
+        StrictExpirationPosting := ItemTrackingMgt.StrictExpirationPosting(ItemNo);
+
+        SummarizeInventoryFEFO(Location, ItemNo, VariantCode, UnitofMeasureCode, UseExpDates);
+        if UseExpDates then
+            SummarizeAdjustmentBinFEFO(Location, ItemNo, VariantCode);
+    end;
+
+    local procedure SummarizeInventoryFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; HasExpirationDate: Boolean)
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
         SummarizedStockByItemTrkg: Query "Summarized Stock By Item Trkg.";
@@ -66,6 +77,8 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         SummarizedStockByItemTrkg.SetSKUFilters(ItemNo, VariantCode, Location.Code);
         SummarizedStockByItemTrkg.SetRange(Open, true);
         SummarizedStockByItemTrkg.SetRange(Positive, true);
+        if UnitofMeasureCode <> '' then
+            SummarizedStockByItemTrkg.SetRange(Unit_of_Measure_Code, UnitofMeasureCode);
         if HasExpirationDate then
             SummarizedStockByItemTrkg.SetFilter(Expiration_Date, '<>%1', 0D)
         else
