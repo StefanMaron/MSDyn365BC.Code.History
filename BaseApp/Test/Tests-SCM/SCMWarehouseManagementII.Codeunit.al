@@ -38,6 +38,7 @@ codeunit 137154 "SCM Warehouse Management II"
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryPatterns: Codeunit "Library - Patterns";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
@@ -3348,6 +3349,61 @@ codeunit 137154 "SCM Warehouse Management II"
         VerifyTrackingOnTransferLineReceiptAfterUndo(TransferLine, 0, Quantity * QuantityPerUOM);
         LibraryVariableStorage.AssertEmpty();
     end;
+
+    [Test]
+    [HandlerFunctions('CloseGLPostingPreviewPageHandler')]
+    procedure WarehouseShipmentPageRemainsOpenWhenRunPreviewPostAndCloseGLPostingPreviewPage()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipment: TestPage "Warehouse Shipment";
+        Quatity: Decimal;
+    begin
+        // [SCENARIO 563377] When Preview Posts Warehouse Shipment and closes G/L Posting Preview page then
+        // Warehouse Shipment page remains open.
+        Initialize();
+
+        // [GIVEN] Create a location with Require Receive and Require Shipment.
+        CreateAndUpdateLocation(Location, true, false, true, false, false);
+
+        // [GIVEN] Create Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Quantity.
+        Quatity := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Post Positive Adjustment for the Item and Location.
+        LibraryPatterns.POSTPositiveAdjustment(Item, Location.Code, '', '', Quatity, WorkDate(), Quatity);
+
+        // [GIVEN] Create and Release Transfer Order.
+        LibraryInventory.CreateTransferHeader(TransferHeader, Location.Code, LocationYellow.Code, LocationInTransit.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Quatity);
+        LibraryInventory.ReleaseTransferOrder(TransferHeader);
+
+        // [GIVEN] Create Warehouse Shipment from Transfer Order.
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+
+        // [GIVEN] Find Warehouse Shipment Header.
+        WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
+        WarehouseShipmentHeader.FindFirst();
+        Commit();
+
+        // [WHEN] Open Warehouse Shipment page and run Preview Posting action.
+        WarehouseShipment.OpenEdit();
+        WarehouseShipment.GoToRecord(WarehouseShipmentHeader);
+        WarehouseShipment.PreviewPosting.Invoke();
+
+        // [THEN] Warehouse Shipment remains Open.
+        WarehouseShipment."No.".AssertEquals(Format(WarehouseShipmentHeader."No."));
+    end;
+
 
     local procedure Initialize()
     var

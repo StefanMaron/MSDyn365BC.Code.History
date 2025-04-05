@@ -78,7 +78,13 @@ codeunit 137306 "SCM Costing Reports"
 
         // [THEN] Inventory value on workdate is "C1", inventory value in the period after workdate is "C2"
         LibraryReportDataset.LoadDataSetFile();
-        VerifyItemAgeComposition(Item."No.", UnitCost[1], UnitCost[2]);
+        LibraryReportDataset.SetRange('No_Item', Item."No.");
+        LibraryReportDataset.GetNextRow();
+
+        LibraryReportDataset.AssertCurrentRowValueEquals('InvtValue4_Item', UnitCost[1]);
+        LibraryReportDataset.AssertCurrentRowValueEquals('InvtValue5_Item', (UnitCost[1] + UnitCost[2]) / 2);
+        LibraryReportDataset.AssertCurrentRowValueEquals('TotalInvtValue_Item', UnitCost[1] * 1 + UnitCost[2] * 1);
+
     end;
 
     [Test]
@@ -125,7 +131,7 @@ codeunit 137306 "SCM Costing Reports"
 
         // [THEN] Inventory value on workdate is ("C1" + "C2") / 2
         LibraryReportDataset.LoadDataSetFile();
-        VerifyItemAgeComposition(Item."No.", (UnitCost[1] + UnitCost[2]) / 2, 0);
+        VerifyItemAgeComposition(Item."No.", UnitCost[1] + UnitCost[2] - Round((UnitCost[1] + UnitCost[2]) / 2), 0);
     end;
 
     [Test]
@@ -178,7 +184,7 @@ codeunit 137306 "SCM Costing Reports"
 
         // [THEN] The report shows that the invt. value of "A" = "ResA", invt. value of "F" = "ResF".
         LibraryReportDataset.LoadDataSetFile();
-        ItemInvtValue[1] := UnitCost[1] [1] + UnitCost[1] [2] - (UnitCost[1] [1] + UnitCost[1] [2]) / 2;
+        ItemInvtValue[1] := UnitCost[1] [1] + UnitCost[1] [2] - Round((UnitCost[1] [1] + UnitCost[1] [2]) / 2);
         ItemInvtValue[2] := UnitCost[2] [2];
         VerifyItemAgeComposition(Item[1]."No.", ItemInvtValue[1], 0);
         VerifyItemAgeComposition(Item[2]."No.", ItemInvtValue[2], 0);

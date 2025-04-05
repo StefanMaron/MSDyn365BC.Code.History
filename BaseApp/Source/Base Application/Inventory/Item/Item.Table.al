@@ -3571,10 +3571,8 @@ table 27 Item
         FoundRecordCount :=
             FindRecordMgt.FindRecordByDescriptionAndView(ReturnValue, SalesLine.Type::Item.AsInteger(), ItemText, View);
 
-        if FoundRecordCount = 1 then begin
-            ReturnValue := DelChr(ReturnValue, '<>', '''');
+        if FoundRecordCount = 1 then
             exit(true);
-        end;
 
         if FoundRecordCount = 0 then begin
             ReturnValue := CopyStr(ItemText, 1, MaxStrLen(ReturnValue));
@@ -3675,14 +3673,20 @@ table 27 Item
     procedure PickItem(var Item: Record Item): Code[20]
     var
         ItemList: Page "Item List";
+        FindRecordMgt: Codeunit "Find Record Management";
+        RaiseNotification: Boolean;
     begin
         if Item.FilterGroup = -1 then
             ItemList.SetTempFilteredItemRec(Item);
+
+        RaiseNotification := Item.Count > FindRecordMgt.GetMaxRecordCountToReturn();
 
         if Item.FindFirst() then;
         ItemList.SetTableView(Item);
         ItemList.SetRecord(Item);
         ItemList.LookupMode := true;
+        if RaiseNotification then
+            ItemList.DoShowNotification();
         if ItemList.RunModal() = ACTION::LookupOK then
             ItemList.GetRecord(Item)
         else

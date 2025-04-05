@@ -317,7 +317,11 @@ codeunit 5407 "Prod. Order Status Management"
         FromProdOrderComp: Record "Prod. Order Component";
         ToProdOrderComp: Record "Prod. Order Component";
         Location: Record Location;
+        IsHandled: Boolean;
     begin
+        OnBeforeTransProdOrderComp(FromProdOrder, ToProdOrder, IsHandled);
+        if IsHandled then
+            exit;
         FromProdOrderComp.SetRange(Status, FromProdOrder.Status);
         FromProdOrderComp.SetRange("Prod. Order No.", FromProdOrder."No.");
         FromProdOrderComp.LockTable();
@@ -1418,6 +1422,11 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransProdOrderLineOnAfterFromProdOrderLineSetFilters(var FromProdOrderLine: Record "Prod. Order Line"; var FromProductionOrder: Record "Production Order"; NewUpdateUnitCost: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransProdOrderComp(FromProdOrder: Record "Production Order"; var ToProdOrder: Record "Production Order"; var IsHandled: Boolean)
     begin
     end;
 }
