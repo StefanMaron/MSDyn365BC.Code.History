@@ -290,7 +290,10 @@ codeunit 23 "Item Jnl.-Post Batch"
             MakeRecurringTexts(ItemJnlLine);
             ConstructPostingNumber(ItemJnlLine);
 
-            UpdateItemTracking(ItemJnlLine);
+            IsHandled := false;
+            OnBeforeOnPostLinesOnBeforePostLineUpdateItemTracking(ItemJnlLine, IsHandled);
+            if not IsHandled then
+                UpdateItemTracking(ItemJnlLine);
 
             OnPostLinesOnBeforePostLine(ItemJnlLine, SuppressCommit, WindowIsOpen);
 
@@ -633,6 +636,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         else
             if SKU.Get(ItemJnlLine."Location Code", ItemJnlLine."Item No.", ItemJnlLine."Variant Code") then begin
                 SKU.Validate("Standard Cost", ItemJnlLine."Unit Cost (Revalued)");
+                OnAfterUpdateStdCostSKUValidate(ItemJnlLine, SKU);
                 SKU.Modify();
             end else
                 UpdateItemStdCost();
@@ -654,7 +658,12 @@ codeunit 23 "Item Jnl.-Post Batch"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         RemainingQty: Decimal;
+        IsHandled: Boolean;
     begin
+        OnBeforeCheckRemainingQty(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         RemainingQty := ItemLedgerEntry.CalculateRemQuantity(
             ItemJnlLine."Applies-to Entry", ItemJnlLine."Posting Date");
 
@@ -1187,6 +1196,21 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPostLinesOnBeforePostLineUpdateItemTracking(var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateStdCostSKUValidate(var ItemJnlLine: Record "Item Journal Line"; var SKU: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRemainingQty(var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

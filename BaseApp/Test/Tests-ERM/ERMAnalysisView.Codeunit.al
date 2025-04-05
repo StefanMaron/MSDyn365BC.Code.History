@@ -18,8 +18,8 @@ codeunit 134229 "ERM Analysis View"
         LibraryERM: Codeunit "Library - ERM";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
-        PageVerify: Label 'The TestPage is not open.';
-        NotApplicableForCF: Label 'is not applicable for source type Cash Flow Account';
+        PageVerifyLbl: Label 'The TestPage is not open.';
+        NotApplicableForCFLbl: Label 'is not applicable for source type Cash Flow Account';
         ClearDimTotalingConfirmTxt: Label 'Changing dimension will clear dimension totaling columns of Account Schedule Lines using current Analysis Vew. \Do you want to continue?';
 
     [Test]
@@ -39,7 +39,7 @@ codeunit 134229 "ERM Analysis View"
         asserterror AnalysisViewListSales.Close();
 
         // [THEN] Error: Analysis View List Sales page is not open.
-        Assert.ExpectedError(PageVerify);
+        Assert.ExpectedError(PageVerifyLbl);
     end;
 
     [Test]
@@ -59,7 +59,7 @@ codeunit 134229 "ERM Analysis View"
         asserterror AnalysisViewListPurchase.Close();
 
         // [THEN] Error: Analysis View List Purchase is not open.
-        Assert.ExpectedError(PageVerify);
+        Assert.ExpectedError(PageVerifyLbl);
     end;
 
     [Test]
@@ -77,10 +77,10 @@ codeunit 134229 "ERM Analysis View"
 
         // Verify
         asserterror AnalysisView.Validate("Include Budgets", true);
-        Assert.ExpectedError(NotApplicableForCF);
+        Assert.ExpectedError(NotApplicableForCFLbl);
 
         asserterror AnalysisView.Validate("Update on Posting", true);
-        Assert.ExpectedError(NotApplicableForCF);
+        Assert.ExpectedError(NotApplicableForCFLbl);
 
         AnalysisView.Validate("Include Budgets", false);
         AnalysisView.Validate("Update on Posting", false);
@@ -614,7 +614,7 @@ codeunit 134229 "ERM Analysis View"
         // Verify
         if TestFromNonCachFlowToCF then begin
             asserterror AnalysisView.Validate("Account Source", ToAccountSource);
-            Assert.ExpectedError(NotApplicableForCF);
+            Assert.ExpectedError(NotApplicableForCFLbl);
         end else
             AnalysisView.Validate("Account Source", ToAccountSource);
     end;

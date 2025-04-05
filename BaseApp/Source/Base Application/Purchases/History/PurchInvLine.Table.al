@@ -908,6 +908,8 @@ table 123 "Purch. Inv. Line"
 
         if RemainingQty > Quantity then
             RemainingQty := Quantity;
+
+        OnAfterCalcReceivedPurchNotReturned(Rec, RemainingQty, RevUnitCostLCY, ExactCostReverse);
     end;
 
     local procedure CalcQty(QtyBase: Decimal) Result: Decimal
@@ -1075,6 +1077,11 @@ table 123 "Purch. Inv. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchInvLine: Record "Purch. Inv. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcReceivedPurchNotReturned(var PurchInvLine: Record "Purch. Inv. Line"; var RemainingQty: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean)
     begin
     end;
 }
