@@ -59,6 +59,7 @@
         NoElectronicDocumentSentErr: Label 'There is no electronic Document sent yet';
         NamespaceCFD4Txt: Label 'http://www.sat.gob.mx/cfd/4';
         SchemaLocationCFD4Txt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd';
+        CertificateNotExistErr: Label 'The Isolated Certificate does not exist. Identification fields and values: Code=''%1''', Comment = '%1 - Isolated Certificate code';
         CancelOption: Option ,CancelRequest,GetResponse,MarkAsCanceled,ResetCancelRequest;
 
     [Test]
@@ -6865,6 +6866,246 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure SATCertOnPostedSalesInvoiceWhenLocationCertNotSet()
+    var
+        DummyGLSetup: Record "General Ledger Setup";
+        Certificate: Record "Isolated Certificate";
+        Location: Record Location;
+        PostedSalesInvoiceCard: TestPage "Posted Sales Invoice";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Multiple SAT Certificates]
+        // [SCENARIO 540218] "SAT Certificate Name" and "SAT Certificate Source" values on Posted Sales Invoice card when Multiple SAT Certificates are enabled and SAT Certificate is not set in Location.
+        Initialize();
+
+        // [GIVEN] Multiple SAT Certificates are enabled in General Ledger Setup.
+        UpdateMultipleSATCertOnGLSetup(true);
+
+        // [GIVEN] SAT Certificate with Name A is set in General Ledger Setup.
+        CreateIsolatedCertificate(Certificate);
+        UpdateSATCertificateOnGLSetup(Certificate.Code);
+
+        // [GIVEN] Location L1 that does not have linked SAT Certificate.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        UpdateSATCertificateOnLocation(Location, '');
+
+        // [GIVEN] Posted Sales Invoice with Location L1.
+        PostedDocNo := CreateAndPostSalesDoc(Enum::"Sales Document Type"::Invoice, CreatePaymentMethodForSAT());
+        UpdateLocationOnPostedSalesInvoice(PostedDocNo, Location.Code);
+
+        // [WHEN] Posted Sales Invoice card is opened.
+        PostedSalesInvoiceCard.OpenEdit();
+        PostedSalesInvoiceCard.Filter.SetFilter("No.", PostedDocNo);
+
+        // [THEN] "SAT Certificate Name" is A and "SAT Certificate Source" is 'General Ledger Setup'.
+        Assert.AreEqual(Certificate.Name, PostedSalesInvoiceCard."SAT Certificate Name".Value, 'Incorrect SAT Certificate Name');
+        Assert.AreEqual(DummyGLSetup.TableCaption, PostedSalesInvoiceCard."SAT Certificate Source".Value, 'Incorrect SAT Certificate Source');
+        PostedSalesInvoiceCard.Close();
+    end;
+
+    [Test]
+    procedure SATCertOnPostedTransferShipmentWhenLocationCertNotSet()
+    var
+        DummyGLSetup: Record "General Ledger Setup";
+        Certificate: Record "Isolated Certificate";
+        Location: Record Location;
+        PostedTransferShipmentCard: TestPage "Posted Transfer Shipment";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Multiple SAT Certificates]
+        // [SCENARIO 540218] "SAT Certificate Name" and "SAT Certificate Source" values on Posted Transfer Shipment card when Multiple SAT Certificates are enabled and SAT Certificate is not set in Location.
+        Initialize();
+
+        // [GIVEN] Multiple SAT Certificates are enabled in General Ledger Setup.
+        UpdateMultipleSATCertOnGLSetup(true);
+
+        // [GIVEN] SAT Certificate with Name A is set in General Ledger Setup.
+        CreateIsolatedCertificate(Certificate);
+        UpdateSATCertificateOnGLSetup(Certificate.Code);
+
+        // [GIVEN] Location L1 that does not have linked SAT Certificate.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        UpdateSATCertificateOnLocation(Location, '');
+
+        // [GIVEN] Transfer Order posted as Shipment with Transfer-from Code location that does not have linked SAT Certificate.
+        PostedDocNo := CreateAndPostDoc(Database::"Transfer Shipment Header", CreatePaymentMethodForSAT());
+        UpdateLocationFromOnTransferShipment(PostedDocNo, Location.Code);
+
+        // [WHEN] Posted Transfer Shipment card is opened.
+        PostedTransferShipmentCard.OpenEdit();
+        PostedTransferShipmentCard.Filter.SetFilter("No.", PostedDocNo);
+
+        // [THEN] "SAT Certificate Name" is A and "SAT Certificate Source" is 'General Ledger Setup'.
+        Assert.AreEqual(Certificate.Name, PostedTransferShipmentCard."SAT Certificate Name".Value, 'Incorrect SAT Certificate Name');
+        Assert.AreEqual(DummyGLSetup.TableCaption, PostedTransferShipmentCard."SAT Certificate Source".Value, 'Incorrect SAT Certificate Source');
+        PostedTransferShipmentCard.Close();
+    end;
+
+    [Test]
+    procedure SATCertOnPostedSalesInvoiceWhenLocationCertSet()
+    var
+        CertificateA: Record "Isolated Certificate";
+        CertificateB: Record "Isolated Certificate";
+        Location: Record Location;
+        PostedSalesInvoiceCard: TestPage "Posted Sales Invoice";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Multiple SAT Certificates]
+        // [SCENARIO 540218] "SAT Certificate Name" and "SAT Certificate Source" values on Posted Sales Invoice card when Multiple SAT Certificates are enabled and SAT Certificate is set in Location.
+        Initialize();
+
+        // [GIVEN] Multiple SAT Certificates are enabled in General Ledger Setup.
+        UpdateMultipleSATCertOnGLSetup(true);
+
+        // [GIVEN] SAT Certificate with Name A is set in General Ledger Setup.
+        CreateIsolatedCertificate(CertificateA);
+        UpdateSATCertificateOnGLSetup(CertificateA.Code);
+
+        // [GIVEN] Location L1 with SAT Certificate with Name B.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateIsolatedCertificate(CertificateB);
+        UpdateSATCertificateOnLocation(Location, CertificateB.Code);
+
+        // [GIVEN] Posted Sales Invoice with Location L1.
+        PostedDocNo := CreateAndPostSalesDoc(Enum::"Sales Document Type"::Invoice, CreatePaymentMethodForSAT());
+        UpdateLocationOnPostedSalesInvoice(PostedDocNo, Location.Code);
+
+        // [WHEN] Posted Sales Invoice card is opened.
+        PostedSalesInvoiceCard.OpenEdit();
+        PostedSalesInvoiceCard.Filter.SetFilter("No.", PostedDocNo);
+
+        // [THEN] "SAT Certificate Name" is B and "SAT Certificate Source" is 'Location L1'.
+        Assert.AreEqual(CertificateB.Name, PostedSalesInvoiceCard."SAT Certificate Name".Value, 'Incorrect SAT Certificate Name');
+        Assert.AreEqual(StrSubstNo('%1 %2', Location.TableCaption, Location.Code), PostedSalesInvoiceCard."SAT Certificate Source".Value, 'Incorrect SAT Certificate Source');
+        PostedSalesInvoiceCard.Close();
+    end;
+
+    [Test]
+    procedure SATCertOnPostedTransferShipmentWhenLocationCertSet()
+    var
+        CertificateA: Record "Isolated Certificate";
+        CertificateB: Record "Isolated Certificate";
+        Location: Record Location;
+        PostedTransferShipmentCard: TestPage "Posted Transfer Shipment";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Multiple SAT Certificates]
+        // [SCENARIO 540218] "SAT Certificate Name" and "SAT Certificate Source" values on Posted Transfer Shipment card when Multiple SAT Certificates are enabled and SAT Certificate is set in Location.
+        Initialize();
+
+        // [GIVEN] Multiple SAT Certificates are enabled in General Ledger Setup.
+        UpdateMultipleSATCertOnGLSetup(true);
+
+        // [GIVEN] SAT Certificate with Name A is set in General Ledger Setup.
+        CreateIsolatedCertificate(CertificateA);
+        UpdateSATCertificateOnGLSetup(CertificateA.Code);
+
+        // [GIVEN] Location L1 with SAT Certificate with Name B.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateIsolatedCertificate(CertificateB);
+        UpdateSATCertificateOnLocation(Location, CertificateB.Code);
+
+        // [GIVEN] Transfer Order posted as Shipment with Transfer-from Code L1.
+        PostedDocNo := CreateAndPostDoc(Database::"Transfer Shipment Header", CreatePaymentMethodForSAT());
+        UpdateLocationFromOnTransferShipment(PostedDocNo, Location.Code);
+
+        // [WHEN] Posted Transfer Shipment card is opened.
+        PostedTransferShipmentCard.OpenEdit();
+        PostedTransferShipmentCard.Filter.SetFilter("No.", PostedDocNo);
+
+        // [THEN] "SAT Certificate Name" is A and "SAT Certificate Source" is 'General Ledger Setup'.
+        Assert.AreEqual(CertificateB.Name, PostedTransferShipmentCard."SAT Certificate Name".Value, 'Incorrect SAT Certificate Name');
+        Assert.AreEqual(StrSubstNo('%1 %2', Location.TableCaption, Location.Code), PostedTransferShipmentCard."SAT Certificate Source".Value, 'Incorrect SAT Certificate Source');
+        PostedTransferShipmentCard.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure RequestStampSalesInvoiceWhenLocationCertificateNotSet()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Location: Record Location;
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        RecRef: RecordRef;
+        SATCertificateCode: Code[20];
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Multiple SAT Certificates]
+        // [SCENARIO 540218] Request Stamp on Posted Sales Invoice card when Multiple SAT Certificates are enabled and SAT Certificate is not set in Location.
+        Initialize();
+        UpdateSimulationModeOnGLSetup(false);
+
+        // [GIVEN] Multiple SAT Certificates are enabled in General Ledger Setup.
+        UpdateMultipleSATCertOnGLSetup(true);
+
+        // [GIVEN] General Ledger Setup with SAT Certificate A. Isolated Certificate A does not exist.
+        SATCertificateCode := LibraryUtility.GenerateGUID();
+        UpdateSATCertificateOnGLSetup(SATCertificateCode);
+
+        // [GIVEN] Location L1 that does not have linked SAT Certificate.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        UpdateSATCertificateOnLocation(Location, '');
+
+        // [GIVEN] Posted Sales Invoice with Location L1.
+        PostedDocNo := CreateAndPostSalesDoc(Enum::"Sales Document Type"::Invoice, CreatePaymentMethodForSAT());
+        UpdateLocationOnPostedSalesInvoice(PostedDocNo, Location.Code);
+
+        // [WHEN] Request Stamp for Posted Sales Invoice.
+        LibraryVariableStorage.Enqueue(ActionOption::"Request Stamp");
+        SalesInvoiceHeader.Get(PostedDocNo);
+        RecRef.GetTable(SalesInvoiceHeader);
+        asserterror EInvoiceMgt.RequestStampDocument(RecRef, false);
+
+        // [THEN] Error message "The certificate A does not exist" is shown.
+        Assert.ExpectedErrorCode('RecordNotFound');
+        Assert.ExpectedError(StrSubstNo(CertificateNotExistErr, SATCertificateCode));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure RequestStampSalesInvoiceWhenLocationCertificateSet()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Location: Record Location;
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        RecRef: RecordRef;
+        SATCertificateCodeA: Code[20];
+        SATCertificateCodeB: Code[20];
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Multiple SAT Certificates]
+        // [SCENARIO 540218] Request Stamp on Posted Sales Invoice card when Multiple SAT Certificates are enabled and SAT Certificate is set in Location.
+        Initialize();
+        UpdateSimulationModeOnGLSetup(false);
+
+        // [GIVEN] Multiple SAT Certificates are enabled in General Ledger Setup.
+        UpdateMultipleSATCertOnGLSetup(true);
+
+        // [GIVEN] General Ledger Setup with SAT Certificate A. Isolated Certificate A does not exist.
+        SATCertificateCodeA := LibraryUtility.GenerateGUID();
+        UpdateSATCertificateOnGLSetup(SATCertificateCodeA);
+
+        // [GIVEN] Location L1 with SAT Certificate B. Isolated Certificate B does not exist.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        SATCertificateCodeB := LibraryUtility.GenerateGUID();
+        UpdateSATCertificateOnLocation(Location, SATCertificateCodeB);
+
+        // [GIVEN] Posted Sales Invoice with Location L1.
+        PostedDocNo := CreateAndPostSalesDoc(Enum::"Sales Document Type"::Invoice, CreatePaymentMethodForSAT());
+        UpdateLocationOnPostedSalesInvoice(PostedDocNo, Location.Code);
+
+        // [WHEN] Request Stamp for Posted Sales Invoice.
+        LibraryVariableStorage.Enqueue(ActionOption::"Request Stamp");
+        SalesInvoiceHeader.Get(PostedDocNo);
+        RecRef.GetTable(SalesInvoiceHeader);
+        asserterror EInvoiceMgt.RequestStampDocument(RecRef, false);
+
+        // [THEN] Error message "The certificate B does not exist" is shown.
+        Assert.ExpectedErrorCode('RecordNotFound');
+        Assert.ExpectedError(StrSubstNo(CertificateNotExistErr, SATCertificateCodeB));
+    end;
+
     local procedure Initialize()
     var
         PostCode: Record "Post Code";
@@ -7100,16 +7341,16 @@
     local procedure CreateSalesDocWithPaymentMethodCode(DocumentType: Enum "Sales Document Type"; PaymentMethodCode: Code[10]): Code[20]
     var
         SalesHeader: Record "Sales Header";
+        DocumentNo: Code[20];
     begin
-        SalesHeader.Get(
-          DocumentType, CreateSalesDocForCustomer(DocumentType, CreateCustomer(), PaymentMethodCode));
+        DocumentNo := CreateSalesDocForCustomer(DocumentType, CreateCustomer(), PaymentMethodCode);
+        SalesHeader.Get(DocumentType, DocumentNo);
         exit(SalesHeader."No.");
     end;
 
     local procedure CreateSalesDocForCustomer(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PaymentMethodCode: Code[10]): Code[20]
     begin
-        exit(
-          CreateSalesDocForCustomerWithVAT(DocumentType, CustomerNo, PaymentMethodCode, LibraryRandom.RandIntInRange(10, 20), false, false));
+        exit(CreateSalesDocForCustomerWithVAT(DocumentType, CustomerNo, PaymentMethodCode, LibraryRandom.RandIntInRange(10, 20), false, false));
     end;
 
     local procedure CreateSalesDocForCustomerWithVAT(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PaymentMethodCode: Code[10]; VATPct: Decimal; IsVATExempt: Boolean; IsNoTaxable: Boolean): Code[20]
@@ -7118,8 +7359,7 @@
         SalesLine: Record "Sales Line";
     begin
         CreateSalesHeaderForCustomer(SalesHeader, DocumentType, CustomerNo, PaymentMethodCode);
-        CreateSalesLineItem(
-          SalesLine, SalesHeader, CreateItem(), LibraryRandom.RandInt(10), 0, VATPct, IsVATExempt, IsNoTaxable);
+        CreateSalesLineItem(SalesLine, SalesHeader, CreateItem(), LibraryRandom.RandInt(10), 0, VATPct, IsVATExempt, IsNoTaxable);
         exit(SalesHeader."No.");
     end;
 
@@ -7178,11 +7418,11 @@
     local procedure CreateAndPostSalesDoc(DocumentType: Enum "Sales Document Type"; PaymentMethodCode: Code[10]) PostedDocumentNo: Code[20]
     var
         SalesHeader: Record "Sales Header";
-        NoSeries: Codeunit "No. Series";
+        DocumentNo: Code[20];
     begin
-        SalesHeader.Get(DocumentType, CreateSalesDocWithPaymentMethodCode(DocumentType, PaymentMethodCode));
-        PostedDocumentNo := NoSeries.PeekNextNo(SalesHeader."Posting No. Series");
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        DocumentNo := CreateSalesDocWithPaymentMethodCode(DocumentType, PaymentMethodCode);
+        SalesHeader.Get(DocumentType, DocumentNo);
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
     local procedure CreateAndPostSalesInvoice(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20])
@@ -7522,10 +7762,16 @@
     var
         IsolatedCertificate: Record "Isolated Certificate";
     begin
+        CreateIsolatedCertificate(IsolatedCertificate);
+        exit(IsolatedCertificate.Code);
+    end;
+
+    local procedure CreateIsolatedCertificate(var IsolatedCertificate: Record "Isolated Certificate")
+    begin
         IsolatedCertificate.Code := LibraryUtility.GenerateGUID();
+        IsolatedCertificate.Name := LibraryUtility.GenerateGUID();
         IsolatedCertificate.ThumbPrint := IsolatedCertificate.Code;
         IsolatedCertificate.Insert();
-        exit(IsolatedCertificate.Code);
     end;
 
     local procedure CreatePostCode(var PostCode: Record "Post Code"; TimeZoneID: Text[180])
@@ -8998,6 +9244,59 @@
         Currency."Invoice Rounding Precision" := RoundingPrecision;
         Currency."Amount Decimal Places" := Decimals;
         Currency.Modify();
+    end;
+
+    local procedure UpdateSimulationModeOnGLSetup(Enabled: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Sim. Signature", Enabled);
+        GeneralLedgerSetup.Validate("Sim. Send", Enabled);
+        GeneralLedgerSetup.Validate("Sim. Request Stamp", Enabled);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
+    local procedure UpdateMultipleSATCertOnGLSetup(Enabled: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Multiple SAT Certificates" := Enabled;
+        GeneralLedgerSetup.Modify();
+    end;
+
+    local procedure UpdateSATCertificateOnGLSetup(SATCertificateCode: Code[20])
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."SAT Certificate" := SATCertificateCode;
+        GeneralLedgerSetup.Modify();
+    end;
+
+    local procedure UpdateSATCertificateOnLocation(var Location: Record Location; SATCertificateCode: Code[20])
+    begin
+        Location."SAT Certificate" := SATCertificateCode;
+        Location.Modify();
+    end;
+
+    local procedure UpdateLocationOnPostedSalesInvoice(PostedDocNo: Code[20]; LocationCode: Code[10])
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        SalesInvoiceHeader.Get(PostedDocNo);
+        SalesInvoiceHeader."Location Code" := LocationCode;
+        SalesInvoiceHeader.Modify();
+    end;
+
+    local procedure UpdateLocationFromOnTransferShipment(PostedDocNo: Code[20]; LocationCode: Code[10])
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+    begin
+        TransferShipmentHeader.Get(PostedDocNo);
+        TransferShipmentHeader."Transfer-from Code" := LocationCode;
+        TransferShipmentHeader.Modify();
     end;
 
     local procedure VerifyMandatoryFields(OriginalString: Text; RFCNo: Code[13]; CFDIPurpose: Code[10]; CFDIRelation: Code[10]; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; UnitOfMeasureCode: Text[10]; RelationIdx: Integer)
