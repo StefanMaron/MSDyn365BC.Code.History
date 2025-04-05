@@ -1247,7 +1247,7 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
                                 InvoicePostingBuffer."VAT Base Amount (ACY)" := Round(InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100));
                             end;
                             InvoicePostingBuffer."VAT Base (ACY)" := 0;
-                            NonDeductibleVAT.Update(InvoicePostingBuffer, RemainderInvoicePostingBuffer, CurrencyDocument."Amount Rounding Precision");
+                            NonDeductibleVAT.Update(InvoicePostingBuffer, RemainderInvoicePostingBuffer, GetGeneralLedgerSetupAmountRoundingPrecision(CurrencyDocument."Amount Rounding Precision"));
                             PurchPostInvoiceEvents.RunOnCalculateVATAmountsOnReverseChargeVATOnBeforeModify(PurchHeader, CurrencyDocument, VATPostingSetup, InvoicePostingBuffer);
                             InvoicePostingBuffer.Modify();
                         end;
@@ -1335,6 +1335,17 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
                 Error(NoDeferralScheduleErr, PurchLine."No.", PurchLine."Deferral Code")
         end else
             Error(NoDeferralScheduleErr, PurchLine."No.", PurchLine."Deferral Code")
+    end;
+
+    local procedure GetGeneralLedgerSetupAmountRoundingPrecision(CurrencyAmountRoundingPrecision: Decimal): Decimal
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.GetRecordOnce();
+        if GeneralLedgerSetup."Amount Rounding Precision" <> 0 then
+            exit(GeneralLedgerSetup."Amount Rounding Precision");
+
+        exit(CurrencyAmountRoundingPrecision);
     end;
 
     procedure CalcDeferralAmounts(PurchHeaderVar: Variant; PurchLineVar: Variant; OriginalDeferralAmount: Decimal)

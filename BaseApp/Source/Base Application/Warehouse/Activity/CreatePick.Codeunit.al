@@ -141,8 +141,8 @@ codeunit 7312 "Create Pick"
         if PickAccordingToFEFO(LocationCode, WhseItemTrackingSetup) or PickStrictExpirationPosting(ItemNo, WhseItemTrackingSetup) then begin
             QtyToTrackBase := RemTrackedQtyToPickBase;
             if UndefinedItemTrkg(QtyToTrackBase) then begin
-                CreateTempItemTrkgLines(ItemNo, VariantCode, QtyToTrackBase, true);
-                CreateTempItemTrkgLines(ItemNo, VariantCode, TransferRemQtyToPickBase, false);
+                CreateTempItemTrkgLines(ItemNo, VariantCode, UnitofMeasureCode, QtyToTrackBase, true);
+                CreateTempItemTrkgLines(ItemNo, VariantCode, UnitofMeasureCode, TransferRemQtyToPickBase, false);
             end;
         end;
 
@@ -2286,7 +2286,7 @@ codeunit 7312 "Create Pick"
             until TempTotalWhseItemTrackingLine.Next() = 0;
     end;
 
-    local procedure CreateTempItemTrkgLines(ItemNo: Code[20]; VariantCode: Code[10]; TotalQtyToPickBase: Decimal; HasExpiryDate: Boolean)
+    local procedure CreateTempItemTrkgLines(ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; TotalQtyToPickBase: Decimal; HasExpiryDate: Boolean)
     var
         EntrySummary: Record "Entry Summary";
         DummyEntrySummary2: Record "Entry Summary";
@@ -2312,7 +2312,10 @@ codeunit 7312 "Create Pick"
 
         WhseItemTrackingFEFO.SetSource(CurrSourceType, CurrSourceSubType, CurrSourceNo, CurrSourceLineNo, CurrSourceSubLineNo);
         WhseItemTrackingFEFO.SetCalledFromMovementWksh(CalledFromMoveWksh);
-        WhseItemTrackingFEFO.CreateEntrySummaryFEFO(CurrLocation, ItemNo, VariantCode, HasExpiryDate);
+        if not CurrLocation."Allow Breakbulk" then
+            WhseItemTrackingFEFO.CreateEntrySummaryFEFO(CurrLocation, ItemNo, VariantCode, UnitofMeasureCode, HasExpiryDate)
+        else
+            WhseItemTrackingFEFO.CreateEntrySummaryFEFO(CurrLocation, ItemNo, VariantCode, HasExpiryDate);
 
         RemQtyToPickBase := TotalQtyToPickBase;
         if HasExpiryDate then

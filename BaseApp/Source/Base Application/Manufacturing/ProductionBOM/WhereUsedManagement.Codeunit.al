@@ -58,7 +58,12 @@ codeunit 99000770 "Where-Used Management"
     var
         ProdBOMCheck: Codeunit "Production BOM-Check";
         ProdBOMToCheck: Code[20];
+        IsHandled: Boolean;
     begin
+        OnBeforeBuildWhereUsedListWithCheck(BOMLineType, No, CalcDate, IsMultiLevel, TempWhereUsedList, IsHandled);
+        if IsHandled then
+            exit;
+
         if BOMLineType = BOMLineType::Item then
             ProdBOMToCheck := GetItemBOMNo(No)
         else
@@ -180,7 +185,12 @@ codeunit 99000770 "Where-Used Management"
     local procedure GetItemBOMNo(ItemNo: Code[20]): Code[20]
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
+        OnBeforeGetItemBOMNo(ItemNo, Item, IsHandled);
+        if IsHandled then
+            exit(Item."Production BOM No.");
+
         Item.SetLoadFields("Production BOM No.");
         Item.Get(ItemNo);
         exit(Item."Production BOM No.");
@@ -218,6 +228,16 @@ codeunit 99000770 "Where-Used Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBuildWhereUsedListOnBeforeFindSetProdBOMComponent(var ProductionBOMLine: Record "Production BOM Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBuildWhereUsedListWithCheck(ProductionBOMLineType: Enum "Production BOM Line Type"; No: Code[20]; CalcDate: Date; IsMultiLevel: Boolean; var TempWhereUsedLine: Record "Where-Used Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItemBOMNo(ItemNo: Code[20]; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 }
