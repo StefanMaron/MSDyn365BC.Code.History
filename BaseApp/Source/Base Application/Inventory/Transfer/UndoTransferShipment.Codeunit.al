@@ -272,7 +272,13 @@ codeunit 9030 "Undo Transfer Shipment"
     end;
 
     local procedure PostCorrectiveItemLedgEntries(var ItemJnlLine: Record "Item Journal Line"; var ItemLedgEntry: Record "Item Ledger Entry")
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforePostCorrectiveItemLedgEntries(ItemJnlLine, ItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         repeat
             ItemJnlLine."Applies-to Entry" := ItemLedgEntry."Entry No.";
             ItemJnlLine."Location Code" := ItemLedgEntry."Location Code";
@@ -428,6 +434,11 @@ codeunit 9030 "Undo Transfer Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterPostTempWhseJnlLineCache(var TransferShipmentLine: Record "Transfer Shipment Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostCorrectiveItemLedgEntries(var ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }
