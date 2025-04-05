@@ -2,6 +2,7 @@
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Sales.Comment;
 using Microsoft.Utilities;
@@ -556,6 +557,27 @@ page 130 "Posted Sales Shipment"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies an international commercial terms code that are used in international sale contracts according to the SAT internatoinal trade terms definition.';
                 }
+                field("SAT Certificate Name"; SATCertificateName)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'SAT Certificate Name';
+                    ToolTip = 'Specifies the name of the certificate that is used to sign the e-document.';
+                    Visible = SATCertInLocationEnabled;
+                    Editable = false;
+
+                    trigger OnDrillDown()
+                    begin
+                        EInvoiceMgt.DrillDownSATCertificate(SATCertificateCode);
+                    end;
+                }
+                field("SAT Certificate Source"; SATCertificateSource)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'SAT Certificate Source';
+                    ToolTip = 'Specifies the record with which the certificate is associated, such as General Ledger Setup or a specific Location (e.g., Location BLUE).';
+                    Visible = SATCertInLocationEnabled;
+                    Editable = false;
+                }
                 field("Exchange Rate USD"; Rec."Exchange Rate USD")
                 {
                     ApplicationArea = BasicMX;
@@ -950,17 +972,26 @@ page 130 "Posted Sales Shipment"
     }
 
     trigger OnOpenPage()
+    var
+        GLSetup: Record "General Ledger Setup";
     begin
         Rec.SetSecurityFilterOnRespCenter();
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Sell-to Country/Region Code");
+
+        GLSetup.SetLoadFields("Multiple SAT Certificates");
+        GLSetup.Get();
+        SATCertInLocationEnabled := EInvoiceMgt.IsPACEnvironmentEnabled() and GLSetup."Multiple SAT Certificates";
     end;
 
     trigger OnAfterGetRecord()
     begin
         SellToContact.GetOrClear(Rec."Sell-to Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
+
+        if SATCertInLocationEnabled then
+            UpdateSATCertificateFields();
     end;
 
     var
@@ -968,9 +999,22 @@ page 130 "Posted Sales Shipment"
         SellToContact: Record Contact;
         BillToContact: Record Contact;
         FormatAddress: Codeunit "Format Address";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        SATCertInLocationEnabled: Boolean;
+        SATCertificateCode: Text;
+        SATCertificateName: Text;
+        SATCertificateSource: Text;
+
+    local procedure UpdateSATCertificateFields()
+    var
+        DocumentRecRef: RecordRef;
+    begin
+        DocumentRecRef.GetTable(Rec);
+        EInvoiceMgt.GetSATCertificateInfoForDocument(DocumentRecRef, SATCertificateCode, SATCertificateName, SATCertificateSource);
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(SalesShptHeaderRec: Record "Sales Shipment Header"; var SalesShptHeaderToPrint: Record "Sales Shipment Header")

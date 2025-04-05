@@ -9,6 +9,7 @@ using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Tracking;
+using Microsoft.Warehouse.Worksheet;
 using System.Telemetry;
 using System.Utilities;
 using System.Globalization;
@@ -729,7 +730,9 @@ table 7302 "Bin Content"
         exit(
           Round("Min. Qty." * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()) >
           "Quantity (Base)" +
-          Abs("Put-away Quantity (Base)" - ExcludeQtyBase + "Positive Adjmt. Qty. (Base)"));
+          Abs("Put-away Quantity (Base)" - ExcludeQtyBase + "Positive Adjmt. Qty. (Base)") +
+          CalcWorksheetQty());
+
     end;
 
     procedure CalcQtyToReplenish(ExcludeQtyBase: Decimal) Result: Decimal
@@ -1407,6 +1410,20 @@ table 7302 "Bin Content"
     begin
         IsTrackingFiltersExist := (GetFilter("Lot No. Filter") <> '') or (GetFilter("Serial No. Filter") <> '');
         OnAfterTrackingFiltersExist(Rec, IsTrackingFiltersExist);
+    end;
+
+    local procedure CalcWorksheetQty(): Decimal
+    var
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+    begin
+        WhseWorksheetLine.SetRange("Item No.", "Item No.");
+        WhseWorksheetLine.SetRange("To Zone Code", "Zone Code");
+        WhseWorksheetLine.SetRange("Location Code", "Location Code");
+        WhseWorksheetLine.SetRange("Variant Code", "Variant Code");
+        WhseWorksheetLine.SetRange("Unit of Measure Code", "Unit of Measure Code");
+        WhseWorksheetLine.SetRange("To Bin Code", "Bin Code");
+        WhseWorksheetLine.CalcSums("Qty. Outstanding (Base)");
+        exit(WhseWorksheetLine."Qty. Outstanding (Base)");
     end;
 
     [IntegrationEvent(false, false)]
