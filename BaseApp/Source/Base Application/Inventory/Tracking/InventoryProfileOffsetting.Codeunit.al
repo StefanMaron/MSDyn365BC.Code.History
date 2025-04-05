@@ -158,7 +158,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         LineNo := 0; // Global variable
         PlanningTransparency.SetTemplAndWorksheet(CurrTemplateName, CurrWorksheetName);
 
-        OnAfterInitVariables(InventoryProfile);
+        OnAfterInitVariables(InventoryProfile, Item);
     end;
 
     procedure CreateTempSKUForLocation(ItemNo: Code[20]; LocationCode: Code[10])
@@ -331,39 +331,42 @@ codeunit 99000854 "Inventory Profile Offsetting"
         ProdOrderComp: Record "Prod. Order Component";
         ProdOrderLineReserve: Codeunit "Prod. Order Line-Reserve";
         ShouldProcess: Boolean;
+        IsHandled: Boolean;
     begin
-        if ProdOrderLine.FindLinesWithItemToPlan(Item, true) then
-            repeat
-                ShouldProcess := ProdOrderLine."Due Date" <> 0D;
-                OnTransProdOrderToProfileOnBeforeProcessLine(ProdOrderLine, ShouldProcess);
-                if ShouldProcess then begin
-                    InventoryProfile.Init();
-                    InventoryProfile."Line No." := GetNextLineNo();
-                    ProdOrderLineReserve.TransferInventoryProfileFromProdOrderLine(InventoryProfile, ProdOrderLine, TempItemTrkgEntry);
-                    if (ProdOrderLine."Planning Flexibility" = ProdOrderLine."Planning Flexibility"::Unlimited) and
-                       (ProdOrderLine.Status = ProdOrderLine.Status::Released)
-                    then begin
-                        CapLedgEntry.SetCurrentKey("Order Type", "Order No.");
-                        CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Production);
-                        CapLedgEntry.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
-                        ItemLedgEntry.Reset();
-                        ItemLedgEntry.SetCurrentKey("Order Type", "Order No.");
-                        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
-                        ItemLedgEntry.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
-                        if not (CapLedgEntry.IsEmpty() and ItemLedgEntry.IsEmpty) then
-                            InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None
-                        else begin
-                            ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
-                            ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-                            ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-                            ProdOrderComp.SetFilter("Qty. Picked (Base)", '>0');
-                            if not ProdOrderComp.IsEmpty() then
-                                InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None;
+        OnBeforeTransProdOrderToProfile(InventoryProfile, Item, ToDate, IsHandled);
+        if not IsHandled then
+            if ProdOrderLine.FindLinesWithItemToPlan(Item, true) then
+                repeat
+                    ShouldProcess := ProdOrderLine."Due Date" <> 0D;
+                    OnTransProdOrderToProfileOnBeforeProcessLine(ProdOrderLine, ShouldProcess);
+                    if ShouldProcess then begin
+                        InventoryProfile.Init();
+                        InventoryProfile."Line No." := GetNextLineNo();
+                        ProdOrderLineReserve.TransferInventoryProfileFromProdOrderLine(InventoryProfile, ProdOrderLine, TempItemTrkgEntry);
+                        if (ProdOrderLine."Planning Flexibility" = ProdOrderLine."Planning Flexibility"::Unlimited) and
+                           (ProdOrderLine.Status = ProdOrderLine.Status::Released)
+                        then begin
+                            CapLedgEntry.SetCurrentKey("Order Type", "Order No.");
+                            CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Production);
+                            CapLedgEntry.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
+                            ItemLedgEntry.Reset();
+                            ItemLedgEntry.SetCurrentKey("Order Type", "Order No.");
+                            ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
+                            ItemLedgEntry.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
+                            if not (CapLedgEntry.IsEmpty() and ItemLedgEntry.IsEmpty) then
+                                InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None
+                            else begin
+                                ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
+                                ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+                                ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+                                ProdOrderComp.SetFilter("Qty. Picked (Base)", '>0');
+                                if not ProdOrderComp.IsEmpty() then
+                                    InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None;
+                            end;
                         end;
+                        InventoryProfile.InsertSupplyInvtProfile(ToDate);
                     end;
-                    InventoryProfile.InsertSupplyInvtProfile(ToDate);
-                end;
-            until ProdOrderLine.Next() = 0;
+                until ProdOrderLine.Next() = 0;
     end;
 
     local procedure TransRcptTransLineToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; ToDate: Date)
@@ -1814,6 +1817,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         InventoryProfile.SetRange("Item No.", TempSKU."Item No.");
         InventoryProfile.SetRange("Variant Code", TempSKU."Variant Code");
         InventoryProfile.SetRange("Location Code", TempSKU."Location Code");
+        OnAfterFilterDemandSupplyRelatedToSKU(InventoryProfile, TempSKU);
     end;
 
     procedure ScheduleForward(var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; StartingDate: Date)
@@ -5595,7 +5599,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitVariables(var InventoryProfile: Record "Inventory Profile")
+    local procedure OnAfterInitVariables(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
     begin
     end;
 
@@ -6078,6 +6082,16 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnPlanItemNextStateMatchDatesOnAfterCalcNewSupplyDate(var NewSupplyDate: Date; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var SupplyInvtProfile: Record "Inventory Profile"; LotAccumulationPeriodStartDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterFilterDemandSupplyRelatedToSKU(var InventoryProfile: Record "Inventory Profile"; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransProdOrderToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; ToDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

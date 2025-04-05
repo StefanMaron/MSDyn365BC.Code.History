@@ -102,37 +102,40 @@ codeunit 5772 "Whse.-Purch. Release"
     procedure CreateWarehouseRequest(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; WhseType: Enum "Warehouse Request Type")
     var
         PurchaseLine2: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
-        if ShouldCreateWarehouseRequest(WhseType, PurchaseLine."Location Code") then begin
-            PurchaseLine2.Copy(PurchaseLine);
-            PurchaseLine2.SetRange("Location Code", PurchaseLine."Location Code");
-            PurchaseLine2.SetRange("Unit of Measure Code", '');
-            if PurchaseLine2.FindFirst() then
-                PurchaseLine2.TestField("Unit of Measure Code");
+        OnBeforeProcedureCreateWhseRequest(PurchaseHeader, PurchaseLine, WhseType, IsHandled);
+        if not IsHandled then
+            if ShouldCreateWarehouseRequest(WhseType, PurchaseLine."Location Code") then begin
+                PurchaseLine2.Copy(PurchaseLine);
+                PurchaseLine2.SetRange("Location Code", PurchaseLine."Location Code");
+                PurchaseLine2.SetRange("Unit of Measure Code", '');
+                if PurchaseLine2.FindFirst() then
+                    PurchaseLine2.TestField("Unit of Measure Code");
 
-            WarehouseRequest.Type := WhseType;
-            WarehouseRequest."Source Type" := DATABASE::"Purchase Line";
-            WarehouseRequest."Source Subtype" := PurchaseHeader."Document Type".AsInteger();
-            WarehouseRequest."Source No." := PurchaseHeader."No.";
-            WarehouseRequest."Shipment Method Code" := PurchaseHeader."Shipment Method Code";
-            WarehouseRequest."Document Status" := PurchaseHeader.Status::Released.AsInteger();
-            WarehouseRequest."Location Code" := PurchaseLine."Location Code";
-            WarehouseRequest."Destination Type" := WarehouseRequest."Destination Type"::Vendor;
-            WarehouseRequest."Destination No." := PurchaseHeader."Buy-from Vendor No.";
-            WarehouseRequest."External Document No." := PurchaseHeader."Vendor Shipment No.";
-            if WhseType = WhseType::Inbound then
-                WarehouseRequest."Expected Receipt Date" := PurchaseHeader."Expected Receipt Date"
-            else
-                WarehouseRequest."Shipment Date" := PurchaseHeader."Expected Receipt Date";
-            PurchaseHeader.SetRange("Location Filter", PurchaseLine."Location Code");
-            PurchaseHeader.CalcFields("Completely Received");
-            WarehouseRequest."Completely Handled" := PurchaseHeader."Completely Received";
-            OnBeforeCreateWhseRequest(WarehouseRequest, PurchaseHeader, PurchaseLine, WhseType.AsInteger());
-            if not WarehouseRequest.Insert() then
-                WarehouseRequest.Modify();
+                WarehouseRequest.Type := WhseType;
+                WarehouseRequest."Source Type" := DATABASE::"Purchase Line";
+                WarehouseRequest."Source Subtype" := PurchaseHeader."Document Type".AsInteger();
+                WarehouseRequest."Source No." := PurchaseHeader."No.";
+                WarehouseRequest."Shipment Method Code" := PurchaseHeader."Shipment Method Code";
+                WarehouseRequest."Document Status" := PurchaseHeader.Status::Released.AsInteger();
+                WarehouseRequest."Location Code" := PurchaseLine."Location Code";
+                WarehouseRequest."Destination Type" := WarehouseRequest."Destination Type"::Vendor;
+                WarehouseRequest."Destination No." := PurchaseHeader."Buy-from Vendor No.";
+                WarehouseRequest."External Document No." := PurchaseHeader."Vendor Shipment No.";
+                if WhseType = WhseType::Inbound then
+                    WarehouseRequest."Expected Receipt Date" := PurchaseHeader."Expected Receipt Date"
+                else
+                    WarehouseRequest."Shipment Date" := PurchaseHeader."Expected Receipt Date";
+                PurchaseHeader.SetRange("Location Filter", PurchaseLine."Location Code");
+                PurchaseHeader.CalcFields("Completely Received");
+                WarehouseRequest."Completely Handled" := PurchaseHeader."Completely Received";
+                OnBeforeCreateWhseRequest(WarehouseRequest, PurchaseHeader, PurchaseLine, WhseType.AsInteger());
+                if not WarehouseRequest.Insert() then
+                    WarehouseRequest.Modify();
 
-            OnAfterCreateWhseRqst(WarehouseRequest, PurchaseHeader, PurchaseLine, WhseType.AsInteger());
-        end;
+                OnAfterCreateWhseRqst(WarehouseRequest, PurchaseHeader, PurchaseLine, WhseType.AsInteger());
+            end;
     end;
 
     local procedure FilterWarehouseRequest(var WarehouseRequest2: Record "Warehouse Request"; PurchaseHeader: Record "Purchase Header"; DocumentStatus: Option)
@@ -216,6 +219,11 @@ codeunit 5772 "Whse.-Purch. Release"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShouldCreateWarehouseRequest(Location: Record Location; var ShouldCreate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcedureCreateWhseRequest(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; WhseType: Enum "Warehouse Request Type"; var IsHandled: Boolean)
     begin
     end;
 }

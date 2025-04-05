@@ -48,6 +48,8 @@ codeunit 240 ItemJnlManagement
         ItemJnlTemplate.SetRange(Type, PageTemplate);
         OnTemplateSelectionSetFilter(ItemJnlTemplate, PageTemplate);
 
+        OnBeforeTemplateSelection(ItemJnlLine, JnlSelected);
+
         case ItemJnlTemplate.Count of
             0:
                 begin
@@ -355,6 +357,11 @@ codeunit 240 ItemJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeExitItemJnlBatchGetFilter(var ItemJnlBatch: record "Item Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTemplateSelection(var ItemJnlLine: Record "Item Journal Line"; var JnlSelected: Boolean)
     begin
     end;
 }

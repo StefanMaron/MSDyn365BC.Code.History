@@ -271,6 +271,11 @@ codeunit 5804 ItemCostManagement
         if HasOpenEntries(Item) then
             exit;
 
+        AvgCostCalculated := false;
+        OnCalcLastAdjEntryAvgCostOnBeforeSetFilters(ValueEntry, Item, AverageCost, AverageCostACY, AvgCostCalculated);
+        if AvgCostCalculated then
+            exit;
+
         SetFilters(ValueEntry, Item);
         if ValueEntry.Find('+') then
             repeat
@@ -422,6 +427,7 @@ codeunit 5804 ItemCostManagement
         OpenOutbndItemLedgEntry: Record "Item Ledger Entry";
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
         ItemApplicationEntry: Record "Item Application Entry";
+        IsHandled: Boolean;
     begin
         // Collect precise (not rounded) remaining cost on:
         // 1. open inbound item ledger entries;
@@ -441,36 +447,44 @@ codeunit 5804 ItemCostManagement
                 TempItemLedgerEntry.Insert();
             until OpenInbndItemLedgEntry.Next() = 0;
 
-        OpenOutbndItemLedgEntry.CopyFilters(OpenInbndItemLedgEntry);
-        OpenOutbndItemLedgEntry.SetRange(Positive, false);
-        if OpenOutbndItemLedgEntry.FindSet() then
-            repeat
-                if ItemApplicationEntry.GetInboundEntriesTheOutbndEntryAppliedTo(OpenOutbndItemLedgEntry."Entry No.") then
-                    repeat
-                        if TempItemLedgerEntry.Get(ItemApplicationEntry."Inbound Item Entry No.") then begin
-                            TempItemLedgerEntry."Remaining Quantity" -= ItemApplicationEntry.Quantity;
-                            TempItemLedgerEntry.Modify();
-                        end else begin
-                            OpenInbndItemLedgEntry.Get(ItemApplicationEntry."Inbound Item Entry No.");
-                            TempItemLedgerEntry := OpenInbndItemLedgEntry;
-                            TempItemLedgerEntry."Remaining Quantity" := -ItemApplicationEntry.Quantity;
-                            TempItemLedgerEntry.Insert();
-                        end;
-                    until ItemApplicationEntry.Next() = 0;
-            until OpenOutbndItemLedgEntry.Next() = 0;
+        IsHandled := false;
+        OnCalculatePreciseCostAmountsOnBeforeProcessOpenOutboundItemLedgerEntry(Item, OpenInbndItemLedgEntry, OpenOutbndItemLedgEntry, TempItemLedgerEntry, IsHandled);
+        if not IsHandled then begin
+            OpenOutbndItemLedgEntry.CopyFilters(OpenInbndItemLedgEntry);
+            OpenOutbndItemLedgEntry.SetRange(Positive, false);
+            if OpenOutbndItemLedgEntry.FindSet() then
+                repeat
+                    if ItemApplicationEntry.GetInboundEntriesTheOutbndEntryAppliedTo(OpenOutbndItemLedgEntry."Entry No.") then
+                        repeat
+                            if TempItemLedgerEntry.Get(ItemApplicationEntry."Inbound Item Entry No.") then begin
+                                TempItemLedgerEntry."Remaining Quantity" -= ItemApplicationEntry.Quantity;
+                                TempItemLedgerEntry.Modify();
+                            end else begin
+                                OpenInbndItemLedgEntry.Get(ItemApplicationEntry."Inbound Item Entry No.");
+                                TempItemLedgerEntry := OpenInbndItemLedgEntry;
+                                TempItemLedgerEntry."Remaining Quantity" := -ItemApplicationEntry.Quantity;
+                                TempItemLedgerEntry.Insert();
+                            end;
+                        until ItemApplicationEntry.Next() = 0;
+                until OpenOutbndItemLedgEntry.Next() = 0;
+        end;
 
-        TempItemLedgerEntry.Reset();
-        if TempItemLedgerEntry.FindSet() then
-            repeat
-                if NeedCalcPreciseAmt then begin
-                    TempItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
-                    PreciseAmt += (TempItemLedgerEntry."Cost Amount (Actual)" + TempItemLedgerEntry."Cost Amount (Expected)") / TempItemLedgerEntry.Quantity * TempItemLedgerEntry."Remaining Quantity";
-                end;
-                if NeedCalcPreciseAmtACY then begin
-                    TempItemLedgerEntry.CalcFields("Cost Amount (Actual) (ACY)", "Cost Amount (Expected) (ACY)");
-                    PreciseAmtACY += (TempItemLedgerEntry."Cost Amount (Actual) (ACY)" + TempItemLedgerEntry."Cost Amount (Expected) (ACY)") / TempItemLedgerEntry.Quantity * TempItemLedgerEntry."Remaining Quantity";
-                end;
-            until TempItemLedgerEntry.Next() = 0;
+        IsHandled := false;
+        OnCalculatePreciseCostAmountsOnOnBeforeProcessTempItemLedgerEntry(TempItemLedgerEntry, PreciseAmt, IsHandled);
+        if not IsHandled then begin
+            TempItemLedgerEntry.Reset();
+            if TempItemLedgerEntry.FindSet() then
+                repeat
+                    if NeedCalcPreciseAmt then begin
+                        TempItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
+                        PreciseAmt += (TempItemLedgerEntry."Cost Amount (Actual)" + TempItemLedgerEntry."Cost Amount (Expected)") / TempItemLedgerEntry.Quantity * TempItemLedgerEntry."Remaining Quantity";
+                    end;
+                    if NeedCalcPreciseAmtACY then begin
+                        TempItemLedgerEntry.CalcFields("Cost Amount (Actual) (ACY)", "Cost Amount (Expected) (ACY)");
+                        PreciseAmtACY += (TempItemLedgerEntry."Cost Amount (Actual) (ACY)" + TempItemLedgerEntry."Cost Amount (Expected) (ACY)") / TempItemLedgerEntry.Quantity * TempItemLedgerEntry."Remaining Quantity";
+                    end;
+                until TempItemLedgerEntry.Next() = 0;
+        end;
     end;
 
     local procedure ExcludeOpenOutbndCosts(var Item: Record Item; var CostAmt: Decimal; var CostAmtACY: Decimal; var Quantity: Decimal)
@@ -709,6 +723,21 @@ codeunit 5804 ItemCostManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateUnitCostSKUOnBeforeCheckNegCost(var AverageCost: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLastAdjEntryAvgCostOnBeforeSetFilters(var ValueEntry: Record "Value Entry"; var Item: Record Item; var AverageCost: Decimal; var AverageCostACY: Decimal; var AvgCostCalculated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculatePreciseCostAmountsOnBeforeProcessOpenOutboundItemLedgerEntry(var Item: Record Item; var OpenInboundItemLedgEntry: Record "Item Ledger Entry"; var OpenOutboundItemLedgEntry: Record "Item Ledger Entry"; var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculatePreciseCostAmountsOnOnBeforeProcessTempItemLedgerEntry(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var PreciseAmt: Decimal; var IsHandled: Boolean)
     begin
     end;
 }
