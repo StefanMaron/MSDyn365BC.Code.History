@@ -5995,6 +5995,48 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler')]
+    Procedure CreatePickAccToFEFOandLotNo()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        SaleQuantity: Decimal;
+    begin
+        // [SCENARIO 563367] Pick Created with FEFO Picking and disabled Breakbulk where item with no expiration with a different UOM on the Sales Order        Initialize();
+
+        // [GIVEN] Create Location with Pick According To FEFO and Allow BreakBulk as False.
+        CreateFullWMSLocation(Location, 2);
+        Location.Validate("Pick According to FEFO", true);
+        Location.Validate("Allow Breakbulk", false);
+        Location.Modify(true);
+
+        //[GIVEN] Create Item With Item Tracking Code and with 2 Item Unit of Measure Code
+        CreateTrackedItem(Item, true, false, false, false, false);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure[1], Item."No.", 24);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure[2], Item."No.", 288);
+
+        // [GIVEN] Create and Post Warehouse Receipt of Purchase Order 1.
+        PostPurchaseReceiptWithItemTracking(Item, ItemUnitOfMeasure[2], Location.Code, (LibraryRandom.RandDecInDecimalRange(1000, 1000, 2)));
+
+        // [GIVEN] Create and Post Warehouse Receipt of Purchase Order 2.
+        PostPurchaseReceiptWithItemTracking(Item, ItemUnitOfMeasure[1], Location.Code, (LibraryRandom.RandDecInDecimalRange(10000, 10000, 2)));
+
+        // [GIVEN] Create Sales Order with Warehouse Shipment
+        SaleQuantity := LibraryRandom.RandDecInDecimalRange(12, 12, 02);
+        PrepareSalesOrderWithWhseShipment(SalesHeader, WarehouseShipmentHeader, Item."No.", Location.Code, SaleQuantity, ItemUnitOfMeasure[1].Code);
+
+        // [WHEN] Create Pick from Warehouse Shipment Header
+        CreatePick(WarehouseShipmentHeader, WarehouseShipmentHeader."No.");
+
+        // [THEN] Verify Pick Created and values on Whse Activity Line.
+        VerifyWhseActivityLine(WarehouseActivityLine, SaleQuantity, SalesHeader."No.", Location.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -8130,6 +8172,46 @@ codeunit 137051 "SCM Warehouse - III"
         FindWhseActivityLine(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationCode, SourceNo, WarehouseActivityLine."Action Type"::Place);
         WarehouseActivityLine.TestField(Quantity, Qty);
         WarehouseActivityLine.TestField("Package No.", PackageNo);
+    end;
+
+    local procedure PrepareSalesOrderWithWhseShipment(var SalesHeader: Record "Sales Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; UnitofMeasureCode: Code[10])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
+         '', ItemNo, Qty, LocationCode, 0D);
+        SalesLine.Validate("Unit of Measure Code", UnitofMeasureCode);
+        SalesLine.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.");
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+    end;
+
+    local procedure PostPurchaseReceiptWithItemTracking(Item: Record Item; ItemUnitOfeasure: Record "Item Unit of Measure"; LocationCode: Code[10]; Quantity: Decimal)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        LotNo: Code[50];
+    begin
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Quantity, LocationCode, WorkDate());
+        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfeasure.Code);
+        PurchaseLine.Modify(true);
+
+        CreateWhseReceiptFromPurchaseOrder(PurchaseHeader);
+        FindWarehouseReceiptNo(
+          WarehouseReceiptLine, WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        LotNo := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(WarehouseReceiptLine."Qty. (Base)");
+        WarehouseReceiptLine.OpenItemTrackingLines(); // Use handler to assign lot no.
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+        RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
     end;
 
     [ModalPageHandler]
