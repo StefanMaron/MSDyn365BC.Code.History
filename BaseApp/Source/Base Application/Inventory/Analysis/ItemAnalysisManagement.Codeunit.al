@@ -395,6 +395,8 @@ codeunit 7153 "Item Analysis Management"
                     end;
                 end;
         end;
+
+        OnAfterDrillDownAmount(ItemAnalysisViewEntry, ItemStatisticsBuffer, ValueType, ShowActualBudget);
     end;
 
     procedure SetLineAndColumnDim(ItemAnalysisView: Record "Item Analysis View"; var LineDimCode: Text[30]; var LineDimType: Enum "Item Analysis Dimension Type"; var ColumnDimCode: Text[30]; var ColumnDimType: Enum "Item Analysis Dimension Type")
@@ -844,6 +846,8 @@ codeunit 7153 "Item Analysis Management"
                     ItemStatisticsBuffer.CalcFields("Analysis - Budgeted Quantity");
                     Amount := ItemStatisticsBuffer."Analysis - Budgeted Quantity";
                 end;
+            else
+                OnCalcBudgetAmountOnValueTypeCaseElse(ValueType, ItemStatisticsBuffer, CurrentItemAnalysisViewCode, Amount);
         end;
 
         exit(Amount);
@@ -931,6 +935,16 @@ codeunit 7153 "Item Analysis Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPeriodToBuf(var Period: Record Date; var DimensionCodeBuffer: Record "Dimension Code Buffer"; DateFilter: Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDrillDownAmount(var ItemAnalysisViewEntry: Record "Item Analysis View Entry"; ItemStatisticsBuffer: Record "Item Statistics Buffer"; ItemAnalysisValueType: Enum "Item Analysis Value Type"; ItemAnalysisShowType: Enum "Item Analysis Show Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcBudgetAmountOnValueTypeCaseElse(ItemAnalysisValueType: Enum "Item Analysis Value Type"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; var Amount: Decimal)
     begin
     end;
 }

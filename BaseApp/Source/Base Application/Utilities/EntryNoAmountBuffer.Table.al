@@ -44,6 +44,21 @@ table 386 "Entry No. Amount Buffer"
             Caption = 'End Date';
             DataClassification = SystemMetadata;
         }
+        field(7; "Source Currency Code"; Code[10])
+        {
+            Caption = 'Source Currency Code';
+            DataClassification = SystemMetadata;
+        }
+        field(8; "Source Currency Amount"; Decimal)
+        {
+            Caption = 'Source Currency Amount';
+            DataClassification = SystemMetadata;
+        }
+        field(9; "Source Currency VAT Amount"; Decimal)
+        {
+            Caption = 'Source Currency VAT Amount';
+            DataClassification = SystemMetadata;
+        }
         field(11760; "Debit Amount"; Decimal)
         {
             AutoFormatType = 1;

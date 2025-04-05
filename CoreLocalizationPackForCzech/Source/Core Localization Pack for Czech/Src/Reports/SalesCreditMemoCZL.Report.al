@@ -25,6 +25,7 @@ using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
 using System.Security.User;
+using System.Text;
 using System.Utilities;
 
 report 31190 "Sales Credit Memo CZL"
@@ -270,10 +271,16 @@ report 31190 "Sales Credit Memo CZL"
             column(Amount_SalesCrMemoHeader; Amount)
             {
             }
+            column(Formatted_Amount_SalesCrMemoHeader; format(Amount, 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, "Sales Cr.Memo Header"."Currency Code")))
+            {
+            }
             column(AmountIncludingVAT_SalesCrMemoHeaderCaption; FieldCaption("Amount Including VAT"))
             {
             }
             column(AmountIncludingVAT_SalesCrMemoHeader; "Amount Including VAT")
+            {
+            }
+            column(Formatted_AmountIncludingVAT_SalesCrMemoHeader; format("Amount Including VAT", 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, "Sales Cr.Memo Header"."Currency Code")))
             {
             }
             column(CalculatedExchRate; CalculatedExchRate)
@@ -380,6 +387,9 @@ report 31190 "Sales Credit Memo CZL"
                     column(UnitPrice_SalesCrMemoLine; UnitPriceExclVAT)
                     {
                     }
+                    column(Formatted_UnitPrice_SalesCrMemoLine; format(UnitPriceExclVAT, 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, "Sales Cr.Memo Header"."Currency Code")))
+                    {
+                    }
                     column(LineDiscount_SalesCrMemoLineCaption; FieldCaption("Line Discount %"))
                     {
                     }
@@ -398,10 +408,16 @@ report 31190 "Sales Credit Memo CZL"
                     column(LineAmount_SalesCrMemoLine; "Line Amount")
                     {
                     }
+                    column(Formatted_LineAmount_SalesCrMemoLine; format("Line Amount", 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, "Sales Cr.Memo Header"."Currency Code")))
+                    {
+                    }
                     column(InvDiscountAmount_SalesCrMemoLineCaption; FieldCaption("Inv. Discount Amount"))
                     {
                     }
                     column(InvDiscountAmount_SalesCrMemoLine; "Inv. Discount Amount")
+                    {
+                    }
+                    column(Formatted_InvDiscountAmount_SalesCrMemoLine; format("Inv. Discount Amount", 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, "Sales Cr.Memo Header"."Currency Code")))
                     {
                     }
 
@@ -427,10 +443,16 @@ report 31190 "Sales Credit Memo CZL"
                         AutoFormatExpression = "Sales Cr.Memo Line".GetCurrencyCode();
                         AutoFormatType = 1;
                     }
+                    column(Formatted_VATAmtLineVATBase; format(-TempVATAmountLine."VAT Base", 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, "Sales Cr.Memo Header"."Currency Code")))
+                    {
+                    }
                     column(VATAmtLineVATAmt; -TempVATAmountLine."VAT Amount")
                     {
                         AutoFormatExpression = "Sales Cr.Memo Header"."Currency Code";
                         AutoFormatType = 1;
+                    }
+                    column(Formatted_VATAmtLineVATAmt; format(-TempVATAmountLine."VAT Amount", 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, "Sales Cr.Memo Header"."Currency Code")))
+                    {
                     }
                     column(VATAmtLineVATBaseLCY; -TempVATAmountLine."VAT Base (LCY) CZL")
                     {
@@ -642,6 +664,7 @@ report 31190 "Sales Credit Memo CZL"
         FormatDocument: Codeunit "Format Document";
         FormatDocumentMgtCZL: Codeunit "Format Document Mgt. CZL";
         SegManagement: Codeunit SegManagement;
+        AutoFormat: Codeunit "Auto Format";
         ExchRateText: Text[50];
         VATClauseText: Text;
         ExchRateLbl: Label 'Exchange Rate %1 %2 / %3 %4', Comment = '%1 = Calculated Exchange Rate, %2 = LCY Code, %3 = Exchange Rate, %4 = Currency Code';

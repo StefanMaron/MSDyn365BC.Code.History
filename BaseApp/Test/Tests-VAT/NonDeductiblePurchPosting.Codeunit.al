@@ -375,6 +375,61 @@ codeunit 134283 "Non-Deductible Purch. Posting"
                 ValueEntry.TableCaption()));
     end;
 
+    [Test]
+    procedure ReverseChargeNonDeductibleAmountsAfterPostingPurchaseOrder()
+    var
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        GLEntry: Record "G/L Entry";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 562638] Non-Deductible VAT rounding when using Reverse Charge VAT.
+        Initialize();
+
+        // [GIVEN] Create Currency and Currency Exchange Rate.
+        CreateCurrencyWithExchangeRateFor492296(CurrencyExchangeRate, Currency);
+
+        // [GIVEN] Setup Use For Item Cost.
+        LibraryNonDeductibleVAT.SetUseForItemCost();
+
+        // [GIVEN] Create Non Deductible Reverse Charge in VAT Posting Setup.
+        LibraryNonDeductibleVAT.CreateNonDeductibleReverseChargeVATPostingSetup(VATPostingSetup);
+
+        // [GIVEN] Create Purchase Header and Validate Currency Code.
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        PurchaseHeader.Validate("Currency Code", Currency.Code);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create Purchase Line with Vat Product Posting Group
+        CreatePurchLineItemWithVATProdPostingGroup(PurchaseLine, PurchaseHeader, VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Post purchase document
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Find VAT Entry.
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("Bill-to/Pay-to No.", PurchaseHeader."Buy-from Vendor No.");
+        VATEntry.FindFirst();
+
+        // [GIVEN] Find General Posting Setup.
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+
+        // [THEN] Non deductible VAT Amount must be correct.
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLEntry.FindFirst();
+        Assert.AreEqual(GLEntry."Non-Deductible VAT Amount", VATEntry."Non-Deductible VAT Amount", AmountMustBeEqualErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

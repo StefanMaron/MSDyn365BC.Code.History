@@ -17,6 +17,7 @@ using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using System.Globalization;
 using System.Security.User;
+using System.Text;
 using System.Utilities;
 
 report 31015 "Sales - Advance VAT Doc. CZZ"
@@ -265,6 +266,9 @@ report 31015 "Sales - Advance VAT Doc. CZZ"
                 column(AmountIncludingVAT; AmountIncludingVAT)
                 {
                 }
+                column(Formatted_AmountIncludingVAT; Format(AmountIncludingVAT, 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, "Sales Adv. Letter Header"."Currency Code")))
+                {
+                }
                 dataitem(CopyLoop; "Integer")
                 {
                     DataItemTableView = sorting(Number);
@@ -325,20 +329,32 @@ report 31015 "Sales - Advance VAT Doc. CZZ"
                             AutoFormatExpression = "Sales Adv. Letter Header"."Currency Code";
                             AutoFormatType = 1;
                         }
+                        column(Formatted_VATAmtLineVATBase; Format(TempVATAmountLine."VAT Base", 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, "Sales Adv. Letter Header"."Currency Code")))
+                        {
+                        }
                         column(VATAmtLineVATAmt; TempVATAmountLine."VAT Amount")
                         {
                             AutoFormatExpression = "Sales Adv. Letter Header"."Currency Code";
                             AutoFormatType = 1;
+                        }
+                        column(Formatted_VATAmtLineVATAmt; Format(TempVATAmountLine."VAT Amount", 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, "Sales Adv. Letter Header"."Currency Code")))
+                        {
                         }
                         column(VATAmtLineVATBaseLCY; TempVATAmountLine."VAT Base (LCY) CZL")
                         {
                             AutoFormatExpression = "Sales Adv. Letter Header"."Currency Code";
                             AutoFormatType = 1;
                         }
+                        column(Formatted_VATAmtLineVATBaseLCY; Format(TempVATAmountLine."VAT Base (LCY) CZL", 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, '')))
+                        {
+                        }
                         column(VATAmtLineVATAmtLCY; TempVATAmountLine."VAT Amount (LCY) CZL")
                         {
                             AutoFormatExpression = "Sales Adv. Letter Header"."Currency Code";
                             AutoFormatType = 1;
+                        }
+                        column(Formatted_VATAmtLineVATAmtLCY; Format(TempVATAmountLine."VAT Amount (LCY) CZL", 0, AutoFormat.ResolveAutoFormat(Enum::"Auto Format"::AmountFormat, '')))
+                        {
                         }
 
                         trigger OnAfterGetRecord()
@@ -502,6 +518,7 @@ report 31015 "Sales - Advance VAT Doc. CZZ"
         DocumentFooterCZL: Record "Document Footer CZL";
         LanguageMgt: Codeunit Language;
         FormatAddress: Codeunit "Format Address";
+        AutoFormat: Codeunit "Auto Format";
         NoOfLoops: Integer;
         ExchangeRateTxt: Label 'Exchange Rate %1 %2 / %3 %4', Comment = '%1=calculatedexchrate;%2=general ledger setup.LCY Code;%3=currexchrate.exchange rate amount;%4=currency code';
         DocumentLbl: Label 'VAT Document to Received Payment';

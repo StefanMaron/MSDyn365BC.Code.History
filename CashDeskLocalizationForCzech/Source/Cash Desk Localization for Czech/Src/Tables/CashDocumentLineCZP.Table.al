@@ -804,6 +804,12 @@ table 11733 "Cash Document Line CZP"
         {
             Caption = 'Gen. Posting Type';
             DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if "Gen. Posting Type" <> "Gen. Posting Type"::" " then
+                    Validate("VAT Prod. Posting Group");
+            end;
         }
         field(70; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
@@ -830,26 +836,26 @@ table 11733 "Cash Document Line CZP"
 
             trigger OnValidate()
             begin
-                if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
-                    "VAT %" := VATPostingSetup."VAT %";
-                    "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
-                    "VAT Identifier" := VATPostingSetup."VAT Identifier";
-                    case "VAT Calculation Type" of
-                        "VAT Calculation Type"::"Reverse Charge VAT",
-                        "VAT Calculation Type"::"Sales Tax":
-                            "VAT %" := 0;
-                        "VAT Calculation Type"::"Full VAT":
-                            begin
-                                TestField("Account Type", "Account Type"::"G/L Account");
-                                VATPostingSetup.TestField("Sales VAT Account");
-                                TestField("Account No.", VATPostingSetup."Sales VAT Account");
-                            end;
+                "VAT %" := 0;
+                "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
+                "VAT Identifier" := '';
+                if "Gen. Posting Type" <> "Gen. Posting Type"::" " then
+                    if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
+                        "VAT %" := VATPostingSetup."VAT %";
+                        "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+                        "VAT Identifier" := VATPostingSetup."VAT Identifier";
+                        case "VAT Calculation Type" of
+                            "VAT Calculation Type"::"Reverse Charge VAT",
+                            "VAT Calculation Type"::"Sales Tax":
+                                "VAT %" := 0;
+                            "VAT Calculation Type"::"Full VAT":
+                                begin
+                                    TestField("Account Type", "Account Type"::"G/L Account");
+                                    VATPostingSetup.TestField("Sales VAT Account");
+                                    TestField("Account No.", VATPostingSetup."Sales VAT Account");
+                                end;
+                        end;
                     end;
-                end else begin
-                    "VAT %" := 0;
-                    "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
-                    "VAT Identifier" := '';
-                end;
                 Validate(Amount);
             end;
         }
@@ -1911,6 +1917,8 @@ table 11733 "Cash Document Line CZP"
 
     local procedure CalcTotalAmounts(var TotalCashDocumentLineCZP: Record "Cash Document Line CZP")
     begin
+        if "Allocation Account No." = '' then
+            exit;
         TotalCashDocumentLineCZP.Init();
         if ("VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax") or
            (("VAT Calculation Type" in
@@ -1921,6 +1929,7 @@ table 11733 "Cash Document Line CZP"
             TotalCashDocumentLineCZP.SetFilter("Line No.", '<>%1', "Line No.");
             TotalCashDocumentLineCZP.SetRange("VAT Identifier", "VAT Identifier");
             TotalCashDocumentLineCZP.SetFilter("VAT %", '<>%1', 0);
+            TotalCashDocumentLineCZP.SetRange("Allocation Account No.", "Allocation Account No.");
             if not TotalCashDocumentLineCZP.IsEmpty() then
                 TotalCashDocumentLineCZP.CalcSums("VAT Base Amount", "Amount Including VAT", "VAT Amount");
         end;
