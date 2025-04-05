@@ -43,7 +43,6 @@ report 7390 "Whse. Calculate Inventory"
             trigger OnPreDataItem()
             var
                 WhseJnlTemplate: Record "Warehouse Journal Template";
-                WhseJnlBatch: Record "Warehouse Journal Batch";
             begin
                 if RegisteringDate = 0D then
                     Error(Text001, WhseJnlLine.FieldCaption("Registering Date"));
