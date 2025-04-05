@@ -64,9 +64,11 @@ codeunit 31011 "VAT Entry Handler CZZ"
         VATEntry.SetFilter("Advance Letter No. CZZ", '<>%1', '');
         if VATEntry.FindSet() then
             repeat
-                VATLCYCorrectionBufferCZL.InsertFromVATEntry(VATEntry);
-                VATLCYCorrectionBufferCZL."Dimension Set ID" := DimensionSetID;
-                VATLCYCorrectionBufferCZL.Modify();
+                if not VATLCYCorrectionBufferCZL.Get(VATEntry."Entry No.") then begin
+                    VATLCYCorrectionBufferCZL.InsertFromVATEntry(VATEntry);
+                    VATLCYCorrectionBufferCZL."Dimension Set ID" := DimensionSetID;
+                    VATLCYCorrectionBufferCZL.Modify();
+                end;
             until VATEntry.Next() = 0;
     end;
 }

@@ -81,6 +81,8 @@ codeunit 31315 "Gen.Jnl. Post Line Handler CZL"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnCalcPmtDiscOnAfterAssignPmtDisc', '', false, false)]
     local procedure SavePmtDiscOnCalcPmtDiscOnAfterAssignPmtDisc(var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var PmtDisc: Decimal; var PmtDiscLCY: Decimal)
     begin
+        if OldCVLedgEntryBuf2."Currency Code" = '' then
+            exit;
         OldCVLedgEntryBuf2."Orig. Pmt. Disc. CZL" := PmtDisc;
         OldCVLedgEntryBuf2."Orig. Pmt. Disc. (LCY) CZL" := PmtDiscLCY;
     end;

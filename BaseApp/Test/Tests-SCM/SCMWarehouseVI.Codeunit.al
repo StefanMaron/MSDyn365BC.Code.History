@@ -12,6 +12,7 @@ codeunit 137408 "SCM Warehouse VI"
 
     var
         Assert: Codeunit Assert;
+        LibraryERM: Codeunit "Library - ERM";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -4023,6 +4024,45 @@ codeunit 137408 "SCM Warehouse VI"
         PurchaseLine.TestField("Quantity Received", -1);
     end;
 
+    [Test]
+    [HandlerFunctions('PhysicalInventoryItemSelectionHandler,CalculatePhysicalInventoryCountingHandler')]
+    [Scope('OnPrem')]
+    procedure ReasonCodeTransferredToWhsePhysInvtJournalWithCalculateCountingPeriod()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        Location: Record Location;
+        PhysInvtCountingPeriod: Record "Phys. Invt. Counting Period";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        ReasonCode: Record "Reason Code";
+    begin
+        // [SCENARIO 566142] Reason Code not transfered to Warehouse Physical Inventory Journal line with the 'Calculate Counting Period' functionality.
+        Initialize();
+
+        // [GIVEN] Setup: Create full Warehouse Setup with Location and Reason Code
+        CreateFullWarehouseSetup(Location);
+        LibraryERM.CreateReasonCode(ReasonCode);
+
+        // [GIVEN] Create Item with Physical Inventory Counting Period.
+        CreateItemWithPhysicalInventoryCountingPeriod(Item, PhysInvtCountingPeriod);
+        FindBin(Bin, Location.Code);
+
+        // [GIVEN] Create and register Warehouse Journal Line. Calculate and post Warehouse Adjustment.
+        CreateAndRegisterWarehouseJournalLine(
+            WarehouseJournalLine, WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
+            Bin, Item."No.", LibraryRandom.RandDec(100, 2));//, ReasonCode.Code);  // Using random Quantity.
+        CalculateAndPostWarehouseAdjustment(Item);
+
+        // [WHEN] Exercise: Run Calculate Counting Period from Warehouse Physical Inventory Journal.
+        CalcPhysInvtDatesAndRunCalculateCountingPeriodInWhseInvtJournalReasonCode(
+            WarehouseJournalBatch, Item."No.", Location.Code, Item."Last Counting Period Update",
+            PhysInvtCountingPeriod."Count Frequency per Year", ReasonCode.Code);
+
+        // [THEN] Verify Warehouse Physical Inventory Journal Line.
+        VerifyWarehouseJournalLineWithReasonCode(WarehouseJournalBatch, WarehouseJournalLine, ReasonCode.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6037,6 +6077,57 @@ codeunit 137408 "SCM Warehouse VI"
         Assert.AreEqual(WarehouseEntry.Quantity, Quantity,
           StrSubstNo(AbsoluteValueEqualToQuantityErr, WarehouseEntry.TableName, WarehouseEntry.FieldName(Quantity)));
         WarehouseEntry.TestField("Lot No.", LotNo);
+    end;
+
+    local procedure VerifyWarehouseJournalLineWithReasonCode(
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line"; ReasonCode: Code[10])
+    begin
+        WarehouseJournalLine.SetRange("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
+        WarehouseJournalLine.SetRange("Journal Batch Name", WarehouseJournalBatch.Name);
+        WarehouseJournalLine.SetRange("Item No.", WarehouseJournalLine."Item No.");
+        WarehouseJournalLine.FindFirst();
+        WarehouseJournalLine.TestField("Reason Code", ReasonCode);
+    end;
+
+    local procedure RunCalculateCountingPeriodFromWarehousePhysicalInventoryJournalReasonCode(
+        var WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        LocationCode: Code[10]; ReasonCode: Code[10])
+    var
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        PhysInvtCountManagement: Codeunit "Phys. Invt. Count.-Management";
+    begin
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::"Physical Inventory", LocationCode);
+        WarehouseJournalTemplate.Get(WarehouseJournalBatch."Journal Template Name");
+        WarehouseJournalTemplate."Reason Code" := ReasonCode;
+        WarehouseJournalTemplate.Modify(true);
+        WarehouseJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
+        WarehouseJournalBatch."Reason Code" := ReasonCode;
+        WarehouseJournalBatch.Modify(true);
+        WarehouseJournalLine.Init();
+        WarehouseJournalLine.Validate("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
+        WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
+        WarehouseJournalLine.Validate("Location Code", LocationCode);
+        PhysInvtCountManagement.InitFromWhseJnl(WarehouseJournalLine);
+        Commit();  // Commit is required.
+        PhysInvtCountManagement.Run();
+    end;
+
+    local procedure CalcPhysInvtDatesAndRunCalculateCountingPeriodInWhseInvtJournalReasonCode(
+       var WarehouseJournalBatch: Record "Warehouse Journal Batch"; ItemNo: Code[20];
+       LocationCode: Code[10]; LastCountingDate: Date; CountFrequency: Integer; ReasonCode: Code[10])
+    var
+        PhysInvtCountManagement: Codeunit "Phys. Invt. Count.-Management";
+        NextCountingStartDate: Date;
+        NextCountingEndDate: Date;
+    begin
+        PhysInvtCountManagement.CalcPeriod(LastCountingDate, NextCountingStartDate, NextCountingEndDate, CountFrequency);
+
+        LibraryVariableStorage.Enqueue(ItemNo);
+        LibraryVariableStorage.Enqueue(NextCountingStartDate);
+        LibraryVariableStorage.Enqueue(NextCountingEndDate);
+        RunCalculateCountingPeriodFromWarehousePhysicalInventoryJournalReasonCode(WarehouseJournalBatch, LocationCode, ReasonCode);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse.-Activity-Register", 'OnBeforeAutoReserveForSalesLine', '', false, false)]
