@@ -650,7 +650,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 OnCalculateOnAfterGetpLanningParameterAtSKUCalcComponents(ProdOrderLine, SKU);
 
                 CalculateLeadTime(ProdOrderLine, Direction, LetDueDateDecrease);
-
+                CalculateRouting(Direction, LetDueDateDecrease);
                 if not TransferBOM(
                      ProdOrderLine."Production BOM No.",
                      1,

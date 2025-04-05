@@ -1,12 +1,4 @@
 {
-  "settings": {
-    "al.enableCodeAnalysis": false,
-    "al.enableCodeActions": false,
-    "allint.enabled": false,
-    "search.exclude": {
-      "**.xlf": true
-    }
-  },
   "folders": [
     {
       "path": "./EnforcedDigitalVouchers/Test/Enforced Digital Vouchers Tests"
@@ -278,5 +270,13 @@
     {
       "path": "./WorldPayPaymentsStandard/Test/WorldPay Payments Standard Tests"
     }
-  ]
+  ],
+  "settings": {
+    "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false,
+    "allint.enabled": false,
+    "search.exclude": {
+      "**.xlf": true
+    }
+  }
 }
