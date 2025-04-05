@@ -61,9 +61,9 @@ codeunit 1002 "Job Create-Invoice"
 
     procedure CreateSalesInvoice(var JobPlanningLine: Record "Job Planning Line"; CrMemo: Boolean)
     var
-        SalesHeader: Record "Sales Header";
         Job: Record Job;
         JobPlanningLine2: Record "Job Planning Line";
+        TempJobTask: Record "Job Task" temporary;
         GetSalesInvoiceNo: Report "Job Transfer to Sales Invoice";
         GetSalesCrMemoNo: Report "Job Transfer to Credit Memo";
         Done: Boolean;
@@ -106,19 +106,26 @@ codeunit 1002 "Job Create-Invoice"
                 CreateSalesInvoiceLines(
                     JobPlanningLine."Job No.", JobPlanningLine, InvoiceNo, NewInvoice, PostingDate, DocumentDate, CrMemo)
             else begin
+                TempJobTask.DeleteAll();
                 JobPlanningLine2.Copy(JobPlanningLine);
-                JobPlanningLine2.SetCurrentKey("Job No.", "Job Task No.", "Line No.");
-                JobPlanningLine2.FindSet();
-                JobPlanningLine.Reset();
-                repeat
-                    JobPlanningLine.SetFilter("Job No.", JobPlanningLine2."Job No.");
-                    JobPlanningLine.SetFilter("Job Task No.", JobPlanningLine2."Job Task No.");
-                    JobPlanningLine.FindFirst();
-                    CreateSalesInvoiceLines(JobPlanningLine."Job No.", JobPlanningLine, InvoiceNo, NewInvoice, PostingDate, DocumentDate, CrMemo);
-                    JobPlanningLine2.SetRange("Job Task No.", JobPlanningLine2."Job Task No.");
-                    JobPlanningLine2.FindLast();
-                    JobPlanningLine2.SetRange("Job Task No.");
-                until JobPlanningLine2.Next() = 0;
+                JobPlanningLine2.SetCurrentKey("Job No.", "Job Task No.");
+                if JobPlanningLine2.FindSet() then
+                    repeat
+                        if not TempJobTask.Get(JobPlanningLine2."Job No.", JobPlanningLine2."Job Task No.") then begin
+                            TempJobTask.Init();
+                            TempJobTask."Job No." := JobPlanningLine2."Job No.";
+                            TempJobTask."Job Task No." := JobPlanningLine2."Job Task No.";
+                            TempJobTask.Insert();
+                        end;
+                    until JobPlanningLine2.Next() = 0;
+
+                if TempJobTask.FindSet() then
+                    repeat
+                        JobPlanningLine.SetRange("Job No.", TempJobTask."Job No.");
+                        JobPlanningLine.SetRange("Job Task No.", TempJobTask."Job Task No.");
+                        JobPlanningLine.FindFirst();
+                        CreateSalesInvoiceLines(JobPlanningLine."Job No.", JobPlanningLine, InvoiceNo, NewInvoice, PostingDate, DocumentDate, CrMemo);
+                    until TempJobTask.Next() = 0;
             end;
 
             Commit();

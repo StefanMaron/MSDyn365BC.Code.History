@@ -3796,7 +3796,7 @@ table 81 "Gen. Journal Line"
             exit(true);
         if (GenJnlLineForChange."Document No." <> PrevDocNo) or (GenJnlLineForChange."Posting Date" <> PrevPostingDate) then
             exit(true);
-        if GenJnlLineForChange."Document Type" = GenJnlLineForChange."Document Type"::" " then
+        if GenJnlLineForChange."Document Type" in [GenJnlLineForChange."Document Type"::" ", GenJnlLineForChange."Document Type"::Payment, GenJnlLineForChange."Document Type"::Refund] then
             exit(false);
         exit((PrevCustVendNo <> '') and (CurrCustVendNo <> '') and (CurrCustVendNo <> PrevCustVendNo));
     end;

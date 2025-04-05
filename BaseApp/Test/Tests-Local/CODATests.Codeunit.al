@@ -17,6 +17,7 @@ codeunit 144006 "CODA Tests"
         LibraryERM: Codeunit "Library - ERM";
         LibraryBEHelper: Codeunit "Library - BE Helper";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryPurchase: Codeunit "Library - Purchase";
         IncorrectNoOfRecordsErr: Label 'The expected number of records were not found.';
         AppliedToIdNotResetErr: Label 'The Applies-to ID field is not reset.';
         AmountToApplyNotResetErr: Label 'The Amount To Apply field is not reset.';
@@ -989,6 +990,70 @@ codeunit 144006 "CODA Tests"
         Assert.IsFalse(GenJnlLine.IsEmpty, IncorrectNoOfRecordsErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure AmountLCYInFinJnlIsEqualToStmtAmtOfCODAStmtLineIfCurrCodeIsBlankInBankAcc()
+    var
+        BankAccount: Record "Bank Account";
+        CodaStatement: Record "CODA Statement";
+        CODAStatementLine: array[2] of Record "CODA Statement Line";
+        Vendor: Record Vendor;
+        GenJnlLine: Record "Gen. Journal Line";
+        TransactionCoding: Record "Transaction Coding";
+        CODAStatementPage: TestPage "CODA Statement";
+    begin
+        // [SCENARIO 565753] "Amount (LCY)" in Financial Journal is equal to the Statement Amount of 
+        // CODA Statement Line if Bank Account has no Currency Code and the Account No. 
+        // which is selected has a Currency Code and "Amount" in Financial Journal is equal 
+        // to the Currency exchanged amount.
+        Initialize();
+
+        // [GIVEN] Create a Vendor and Validate Currency Code.
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", CreateCurrencyAndExchangeRate());
+        Vendor.Modify(true);
+
+        // [GIVEN] Create a Bank Account And Validate Currency Code.
+        CreateBankAccounInformation(BankAccount);
+        BankAccount.Validate("Currency Code", '');
+        BankAccount.Modify(true);
+
+        // [GIVEN] Create CODA Statement Header.
+        CreateCODAStament(CodaStatement, BankAccount, TransactionCoding);
+
+        // [GIVEN] Create CODA Statement Line [1] and Validate Account Type and Account No.
+        CreateCODAStmtLinesForBankAcc(CodaStatement, TransactionCoding, CODAStatementLine[1], BankAccount, LibraryRandom.RandIntInRange(100, 100));
+        CODAStatementLine[1].Validate("Account Type", CODAStatementLine[1]."Account Type"::Vendor);
+        CODAStatementLine[1].Validate("Account No.", Vendor."No.");
+        CODAStatementLine[1].Modify(true);
+
+        // [GIVEN] Create CODA Statement Line [2] and Validate Account Type and Account No.
+        CreateCODAStmtLinesForBankAcc(CodaStatement, TransactionCoding, CODAStatementLine[2], BankAccount, LibraryRandom.RandIntInRange(200, 200));
+        CODAStatementLine[2].Validate("Account Type", CODAStatementLine[2]."Account Type"::"G/L Account");
+        CODAStatementLine[2].Validate("Account No.", LibraryERM.CreateGLAccountNo());
+        CODAStatementLine[2].Modify(true);
+
+        // [GIVEN] Open CODA Statement Page.
+        CODAStatementPage.OpenEdit();
+        CODAStatementPage.Filter.SetFilter("Bank Account No.", BankAccount."No.");
+
+        // [GIVEN] Run "Transfer to General Ledger" action.
+        CODAStatementPage."Transfer to General Ledger".Invoke();
+        CODAStatementPage.Close();
+
+        // [WHEN] Find Gen. Journal Line.
+        GenJnlLine.SetRange("Account No.", Vendor."No.");
+        GenJnlLine.SetRange("Bal. Account No.", BankAccount."No.");
+        GenJnlLine.FindFirst();
+
+        // [THEN] "Amount (LCY)" of Gen. Journal Line is equal to the Statement Amount of CODA Statement Line [1] with opp. sign.
+        Assert.AreEqual(CODAStatementLine[1]."Statement Amount", -GenJnlLine."Amount (LCY)", '');
+
+        // [THEN] "Amount" of Gen. Journal Line is not equal to Statement Amount of CODA Statement Line [1] with opp. sign.
+        Assert.AreNotEqual(CODAStatementLine[1]."Statement Amount", -GenJnlLine.Amount, '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"CODA Tests");
@@ -1172,7 +1237,7 @@ codeunit 144006 "CODA Tests"
         CODAStatementLine.TestField("Application Status", ApplicationStatus);
         CODAStatementLine.TestField("Unapplied Amount", UnappliedAmount);
     end;
-   
+
     local procedure CreateCODAStament(var CodaStatement: Record "CODA Statement"; BankAccount: Record "Bank Account"; var TransactionCoding: Record "Transaction Coding")
     begin
         CODAStatement.Init();
@@ -1245,6 +1310,45 @@ codeunit 144006 "CODA Tests"
         BankAccount.Modify(true);
 
         CreateGeneralJournalTemplate(BankAccount."No.", 'Financial', BankAccount.TableCaption());
+    end;
+
+    local procedure CreateCODAStmtLinesForBankAcc(var CodaStatement: Record "CODA Statement"; var TransactionCoding: Record "Transaction Coding"; var CODAStatementLine: Record "CODA Statement Line"; BankAccount: Record "Bank Account"; StatementAmount: Decimal)
+    begin
+        CODAStatementLine.Validate("Bank Account No.", BankAccount."No.");
+        CODAStatementLine.Validate("Statement No.", CODAStatement."Statement No.");
+        CODAStatementLine.Validate("Statement Line No.", LibraryRandom.RandInt(1000));
+        CODAStatementLine.Validate("Transaction Family", TransactionCoding."Transaction Family");
+        CODAStatementLine.Validate(Transaction, TransactionCoding.Transaction);
+        CODAStatementLine.Validate("Transaction Category", TransactionCoding."Transaction Category");
+        CODAStatementLine.Validate(ID, CODAStatementLine.ID::Movement);
+        CODAStatementLine.Validate("Posting Date", WorkDate());
+        CODAStatementLine.Validate("Document No.", LibraryRandom.RandText(10));
+        CODAStatementLine.Validate("Application Status", CODAStatementLine."Application Status"::"Partly applied");
+        CODAStatementLine.Validate("Statement Amount", StatementAmount);
+        CODAStatementLine.Insert(true);
+    end;
+    
+    local procedure CreateCurrencyAndExchangeRate(): Code[10]
+    var
+        GLAccount: Record "G/L Account";
+        Currency: Record Currency;
+        CurrencyExchRate: Record "Currency Exchange Rate";
+    begin
+        LibraryERM.FindGLAccount(GLAccount);
+
+        LibraryERM.CreateCurrency(Currency);
+        Currency.Validate("Residual Gains Account", GLAccount."No.");
+        Currency.Validate("Residual Losses Account", Currency."Residual Gains Account");
+        Currency.Validate("Realized G/L Gains Account", GLAccount."No.");
+        Currency.Validate("Realized G/L Losses Account", Currency."Realized G/L Gains Account");
+        Currency.Modify(true);
+
+        LibraryERM.CreateExchRate(CurrencyExchRate, Currency.Code, WorkDate());
+        CurrencyExchRate.Validate("Exchange Rate Amount", LibraryRandom.RandDec(100, 2));
+        CurrencyExchRate.Validate(
+          "Relational Exch. Rate Amount", CurrencyExchRate."Exchange Rate Amount" + LibraryRandom.RandDec(500, 2));
+        CurrencyExchRate.Modify(true);
+        exit(Currency.Code);
     end;
 
     [Normal]
