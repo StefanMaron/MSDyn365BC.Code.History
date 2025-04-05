@@ -10,6 +10,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     var
         StringTxt: Label 'A', Comment = 'Single character string is required for the field 770 Code which is of 1 character';
         Assert: Codeunit Assert;
+        LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -1489,6 +1490,52 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    procedure GLEntryDimensionsWhenTwoDifferentVendorsMultipleBillMovements()
+    var
+        BillPostingGroup: Record "Bill Posting Group";
+        BankAccount: Record "Bank Account";
+        Vendor: array[2] of Record Vendor;
+        VendorBillHeader: Record "Vendor Bill Header";
+        VendorNoFilter: Code[50];
+    begin
+        // [SCENARIO 568576] Check the GL entry dimensions when two different vendors have multiple bill movements.
+        Initialize();
+
+        // [GIVEN] Crete Bank Account.
+        LibraryERM.CreateBankAccount(BankAccount);
+
+        // [GIVEN] Create two different vendors with default dimensions.
+        CreateVendorWithDimension(Vendor[1]);
+        CreateVendorWithDimension(Vendor[2]);
+
+        // [GIVEN] Create the full bill posting group setup
+        CreateBillPostingGroupWithFullSetup(
+            BillPostingGroup, Vendor[1]."Payment Method Code", BankAccount."No.");
+
+        // [GIVEN] Create and post purchase invoices for two different vendors.
+        CreatePurchaseInvoiceAndPost(Vendor[1]."No.");
+        CreatePurchaseInvoiceAndPost(Vendor[2]."No.");
+
+        // [GIVEN] Create Vendor Bill Header.
+        CretaeVendorBillHeader(VendorBillHeader, BankAccount."No.");
+        VendorNoFilter := Vendor[1]."No." + '|' + Vendor[2]."No.";
+
+        // [GIVEN] Insert multiple vendor bill lines from the 'Suggest Vendor Bills' action.
+        SuggestMultipleVendorsBills(VendorBillHeader, VendorNoFilter);
+        Commit();
+
+        // [GIVEN] Issue vendor bills.
+        IssueVendorBill(VendorBillHeader."No.");
+
+        // [WHEN] Post the vendor bill from the Vendor Bill List Issued page.
+        PostUsingVendorBillListSentCardPage(VendorBillHeader."No.");
+
+        // [THEN] Verify that the GL entry does not contain any dimensions.
+        VerifyGlEntryDimensions(BankAccount."No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2816,6 +2863,98 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VATBookEntry.SetRange("Document No.", GLBookEntry."Document No.");
         VATBookEntry.FindFirst();
         VATBookEntry.TestField("Official Date", NormalDate(WorkDate()));
+    end;
+
+    local procedure CreateVendorWithDimension(var Vendor: Record Vendor)
+    var
+        Dimension: array[4] of Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        i: Integer;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Payment Method Code", FindPaymentMethod());
+        Vendor.Modify(true);
+
+        for i := 1 to 4 do begin
+            GenerateDimensions(Dimension[i], DimensionValue);
+            LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, Vendor."No.", Dimension[i].Code, DimensionValue.Code);
+        end;
+    end;
+
+    local procedure GenerateDimensions(var Dimension: Record Dimension; var DimensionValue: Record "Dimension Value")
+    var
+        Number: Integer;
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        Number := LibraryRandom.RandIntInRange(5, 10);
+        while Number > 0 do begin
+            LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+            Number -= 1;
+        end;
+    end;
+
+    local procedure CreateBillPostingGroupWithFullSetup(var BillPostingGroup: Record "Bill Posting Group"; PaymentMethod: Code[10]; BankAccountNo: Code[20])
+    var
+        BillPostingGroup2: Record "Bill Posting Group";
+        PaymentMethod2: Record "Payment Method";
+    begin
+        PaymentMethod2.Setrange("Bill Code", FindBill(true, true));
+        PaymentMethod2.FindFirst();
+        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup2, BankAccountNo, PaymentMethod);
+        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, BankAccountNo, PaymentMethod2.Code);
+        BillPostingGroup.Validate("Bills For Collection Acc. No.", LibraryERM.CreateGLAccountNo());
+        BillPostingGroup.Validate("Bills For Discount Acc. No.", LibraryERM.CreateGLAccountNo());
+        BillPostingGroup.Validate("Bills Subj. to Coll. Acc. No.", LibraryERM.CreateGLAccountNo());
+        BillPostingGroup.Validate("Expense Bill Account No.", LibraryERM.CreateGLAccountNo());
+        BillPostingGroup.Modify(true);
+    end;
+
+    local procedure CreatePurchaseInvoiceAndPost(VendorNo: Code[20])
+    var
+        PurchasHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchasHeader, VendorNo);
+        LibraryPurchase.PostPurchaseDocument(PurchasHeader, true, true);
+    end;
+
+    local procedure CretaeVendorBillHeader(var VendorBillHeader: Record "Vendor Bill Header"; BankAccNo: Code[20])
+    begin
+        LibraryITLocalization.CreateVendorBillHeader(VendorBillHeader);
+        VendorBillHeader.Validate("Bank Account No.", BankAccNo);
+        VendorBillHeader.Validate("Payment Method Code", FindPaymentMethod());
+        VendorBillHeader.Modify(true);
+    end;
+
+    local procedure SuggestMultipleVendorsBills(VendorBillHeader: Record "Vendor Bill Header"; VendorNo: Code[50])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SuggestVendorBills: Report "Suggest Vendor Bills";
+    begin
+        Commit();
+        VendorLedgerEntry.SetFilter("Vendor No.", VendorNo);
+        SuggestVendorBills.InitValues(VendorBillHeader);
+        SuggestVendorBills.SetTableView(VendorLedgerEntry);
+        SuggestVendorBills.UseRequestPage(false);
+        SuggestVendorBills.Run();
+    end;
+
+    local procedure IssueVendorBill(No: Code[20])
+    var
+        VendorBillCard: TestPage "Vendor Bill Card";
+    begin
+        VendorBillCard.OpenEdit();
+        VendorBillCard.Filter.SetFilter("No.", No);
+        VendorBillCard."&Create List".Invoke();
+    end;
+
+    local procedure VerifyGlEntryDimensions(BankAccountNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Source No.", BankAccountNo);
+        GLEntry.FindFirst();
+        GLEntry.TestField("Dimension Set ID", 0);
     end;
 
     [ModalPageHandler]

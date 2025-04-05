@@ -443,12 +443,17 @@ codeunit 5870 "Calculate BOM Tree"
         end;
     end;
 
-    local procedure GenerateProdOrderLineSubTree(ProdOrderLine: Record "Prod. Order Line"; var BOMBuffer: Record "BOM Buffer"): Boolean
+    local procedure GenerateProdOrderLineSubTree(ProdOrderLine: Record "Prod. Order Line"; var BOMBuffer: Record "BOM Buffer") Result: Boolean
     var
         OldProdOrderLine: Record "Prod. Order Line";
         ProdOrderComp: Record "Prod. Order Component";
         ParentBOMBuffer: Record "BOM Buffer";
+        IsHandled: Boolean;
     begin
+        OnBeforeGenerateProdOrderLineSubTree(ProdOrderLine, BOMBuffer, ParentBOMBuffer, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ParentBOMBuffer := BOMBuffer;
         ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
         ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
@@ -754,6 +759,7 @@ codeunit 5870 "Calculate BOM Tree"
         ExpectedQty: Decimal;
         AvailQty: Decimal;
         MaxTime: Integer;
+        AvailableVsExpectedCondition: Boolean;
     begin
         if BOMBuffer.Indentation = 0 then begin
             if IsTest then
@@ -782,7 +788,9 @@ codeunit 5870 "Calculate BOM Tree"
                     AvailQty := TempItemAvailByDate."Updated Available Qty";
                 end;
 
-                if AvailQty < ExpectedQty then begin
+                AvailableVsExpectedCondition := AvailQty < ExpectedQty;
+                OnCalcAvailabilityOnBeforeUpdateAvailableQty(BOMBuffer, ExpectedQty, AvailQty, AvailableVsExpectedCondition);
+                if AvailableVsExpectedCondition then begin
                     if BOMBuffer."Is Leaf" then begin
                         if MarkBottleneck then begin
                             BOMBuffer.Bottleneck := true;
@@ -1175,6 +1183,16 @@ codeunit 5870 "Calculate BOM Tree"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitBOMBuffer(var BOMBuffer: Record "BOM Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailabilityOnBeforeUpdateAvailableQty(var BOMBuffer: Record "BOM Buffer"; ExpectedQty: Decimal; AvailQty: Decimal; var AvailableVsExpectedCondition: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateProdOrderLineSubTree(ProdOrderLine: Record "Prod. Order Line"; var BOMBuffer: Record "BOM Buffer"; var ParentBOMBuffer: Record "BOM Buffer"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

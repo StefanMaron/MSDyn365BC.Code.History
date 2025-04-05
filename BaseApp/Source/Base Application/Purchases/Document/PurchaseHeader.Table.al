@@ -207,7 +207,8 @@ table 38 "Purchase Header"
                     Rec.RecallModifyAddressNotification(GetModifyVendorAddressNotificationId());
 		    if Rec."Remit-to Code" <> '' then
                         Rec.Validate("Remit-to Code", '');
-                end;
+                end else
+                    SelectDefaultRemitAddress(Rec);
 
                 if xRec."Buy-from Vendor No." = "Buy-from Vendor No." then
                     UpdatePurchLinesByFieldNo(FieldNo("Buy-from Vendor No."), CurrFieldNo <> 0);

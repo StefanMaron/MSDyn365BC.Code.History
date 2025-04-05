@@ -758,7 +758,7 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure TipoDocumentTD02ForSalesPrepaymentCrMemo()
+    procedure TipoDocumentForSalesPrepaymentCrMemo()
     var
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
@@ -768,7 +768,7 @@
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo] [Prepayment]
-        // [SCENARIO 287458] The node "TipoDocumento" has value "TD02" for sales prepayment credit memo
+        // [SCENARIO 571369] The node "TipoDocumento" has value "TD02" for sales prepayment credit memo
 
         Initialize();
 
@@ -783,8 +783,8 @@
         ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        // [THEN] TipoDocumento is "TD02" in exported file
-        VerifyTipoDocumento(TempBlob, 'TD02');
+        // [THEN] TipoDocumento is "TD04" in exported file
+        VerifyTipoDocumento(TempBlob, 'TD04');
     end;
 
     [Test]

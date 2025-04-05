@@ -869,22 +869,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType ClearDimTotalingConfirmTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2205251927 - NamedType 4264178802" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2205251927 - NamedType 2662451768" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[is not applicable for source type Cash Flow Account]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType NotApplicableForCF)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType NotApplicableForCFLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2205251927 - NamedType 1901726728" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2205251927 - NamedType 2480978594" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The TestPage is not open.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType PageVerify)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType PageVerifyLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 291215066 - NamedType 595438891" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

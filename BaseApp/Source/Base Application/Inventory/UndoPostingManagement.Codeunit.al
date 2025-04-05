@@ -923,6 +923,7 @@ codeunit 5817 "Undo Posting Management"
 
         // Move tracking information from the derived line to the original line
         TransferTracking(DerivedTransferLine, TransferLine, TransferShptLine);
+        OnUpdateDerivedTransferLineOnAfterTransferTracking(TransferLine, TransferShptLine, DerivedTransferLine);
 
         // Update any Transfer Shipment Lines that are pointing to this Derived Transfer Order Line
         TransferShipmentLine.SetRange("Transfer Order No.", DerivedTransferLine."Document No.");
@@ -1612,6 +1613,11 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnRevertPostedItemTrackingOnBeforeGetTrackingSpecification(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateDerivedTransferLineOnAfterTransferTracking(var TransferLine: Record "Transfer Line"; var TransferShipmentLine: Record "Transfer Shipment Line"; var DerivedTransferLine: Record "Transfer Line")
     begin
     end;
 }

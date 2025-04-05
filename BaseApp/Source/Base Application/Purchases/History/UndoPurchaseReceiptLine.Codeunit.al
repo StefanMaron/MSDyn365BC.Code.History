@@ -136,6 +136,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
                 JobItem := (PurchRcptLine.Type = PurchRcptLine.Type::Item) and (PurchRcptLine."Job No." <> '');
         until PurchRcptLine.Next() = 0;
 
+        OnCodeOnBeforeMakeInventoryAdjustment(PurchLine, PurchRcptLine);
         MakeInventoryAdjustment();
 
         WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
@@ -693,6 +694,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPurchRcptLineFields(var PurchRcptLine: Record "Purch. Rcpt. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeMakeInventoryAdjustment(var PurchaseLine: Record "Purchase Line"; var PurchaseReceiptLine: Record "Purch. Rcpt. Line")
     begin
     end;
 }
