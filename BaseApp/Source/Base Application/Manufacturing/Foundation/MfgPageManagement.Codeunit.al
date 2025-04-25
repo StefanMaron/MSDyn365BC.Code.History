@@ -8,7 +8,7 @@ using Microsoft.Manufacturing.Document;
 
 codeunit 99000791 "Mfg. Page Management"
 {
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Page Management", 'OnConditionalCardPageIDNotFound', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Page Management", 'OnConditionalCardPageIDNotFound', '', true, true)]
     local procedure OnConditionalCardPageIDNotFound(RecordRef: RecordRef; var CardPageID: Integer);
     begin
         case RecordRef.Number of
