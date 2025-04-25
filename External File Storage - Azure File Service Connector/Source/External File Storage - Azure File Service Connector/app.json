@@ -4,7 +4,7 @@
   "publisher": "Microsoft",
   "brief": "Enables file and folder operations for Azure File Services via the External File Storage Module with Business Central.",
   "description": "This app enables file and folder operations for Azure File Services via the External File Storage Module with Business Central.",
-  "version": "26.0.30643.32481",
+  "version": "26.0.30643.33317",
   "privacyStatement": "https://go.microsoft.com/fwlink/?linkid=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://go.microsoft.com/fwlink/?linkid=2134520",

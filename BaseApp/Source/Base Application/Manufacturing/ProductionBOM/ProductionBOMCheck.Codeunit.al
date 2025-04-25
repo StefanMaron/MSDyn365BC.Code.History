@@ -21,13 +21,6 @@ codeunit 99000769 "Production BOM-Check"
     end;
 
     var
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text000: Label 'Checking Item           #1########## @2@@@@@@@@@@@@@';
-        Text001: Label 'The maximum number of BOM levels, %1, was exceeded. The process stopped at item number %2, BOM header number %3, BOM level %4.';
-        Text003: Label '%1 with %2 %3 cannot be found. Check %4 %5 %6 %7.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         RtngLine: Record "Routing Line";
         MfgSetup: Record "Manufacturing Setup";
@@ -36,41 +29,48 @@ codeunit 99000769 "Production BOM-Check"
         NoOfItems: Integer;
         ItemCounter: Integer;
         CircularRefInBOMErr: Label 'The production BOM %1 has a circular reference. Pay attention to the production BOM %2 that closes the loop.', Comment = '%1 = Production BOM No., %2 = Production BOM No.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        Text000: Label 'Checking Item           #1########## @2@@@@@@@@@@@@@';
+        Text001: Label 'The maximum number of BOM levels, %1, was exceeded. The process stopped at item number %2, BOM header number %3, BOM level %4.';
+        Text003: Label '%1 with %2 %3 cannot be found. Check %4 %5 %6 %7.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure "Code"(var ProdBOMHeader: Record "Production BOM Header"; VersionCode: Code[20])
     var
-        CalcLowLevel: Codeunit "Calculate Low-Level Code";
+        CalculateLowLevelCode: Codeunit "Calculate Low-Level Code";
     begin
         ProdBOMHeader.TestField("Unit of Measure Code");
         MfgSetup.Get();
         if MfgSetup."Dynamic Low-Level Code" then begin
-            CalcLowLevel.SetActualProdBOM(ProdBOMHeader);
-            ProdBOMHeader."Low-Level Code" := CalcLowLevel.CalcLevels(2, ProdBOMHeader."No.", ProdBOMHeader."Low-Level Code", 1);
-            CalcLowLevel.RecalcLowerLevels(ProdBOMHeader."No.", ProdBOMHeader."Low-Level Code", false);
+            CalculateLowLevelCode.SetActualProdBOM(ProdBOMHeader);
+            ProdBOMHeader."Low-Level Code" := CalculateLowLevelCode.CalcLevels(2, ProdBOMHeader."No.", ProdBOMHeader."Low-Level Code", 1);
+            CalculateLowLevelCode.RecalcLowerLevels(ProdBOMHeader."No.", ProdBOMHeader."Low-Level Code", false);
             ProdBOMHeader.Modify();
         end else
             CheckBOM(ProdBOMHeader."No.", VersionCode);
 
-        ProcessItems(ProdBOMHeader, VersionCode, CalcLowLevel);
+        ProcessItems(ProdBOMHeader, VersionCode, CalculateLowLevelCode);
 
         OnAfterCode(ProdBOMHeader, VersionCode);
     end;
 
-    local procedure ProcessItems(var ProdBOMHeader: Record "Production BOM Header"; VersionCode: Code[20]; var CalcLowLevel: Codeunit "Calculate Low-Level Code")
+    local procedure ProcessItems(var ProductionBOMHeader: Record "Production BOM Header"; VersionCode: Code[20]; var CalculateLowLevelCode: Codeunit "Calculate Low-Level Code")
     var
         Item: Record Item;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeProcessItems(ProdBOMHeader, VersionCode, IsHandled);
+        OnBeforeProcessItems(ProductionBOMHeader, VersionCode, IsHandled);
         if IsHandled then
             exit;
 
         Item.SetCurrentKey("Production BOM No.");
-        Item.SetRange("Production BOM No.", ProdBOMHeader."No.");
+        Item.SetRange("Production BOM No.", ProductionBOMHeader."No.");
 
-        OnProcessItemsOnAfterItemSetFilters(Item, ProdBOMHeader);
-        if Item.Find('-') then begin
+        OnProcessItemsOnAfterItemSetFilters(Item, ProductionBOMHeader);
+        if Item.FindSet() then begin
             OpenDialogWindow();
             NoOfItems := Item.Count();
             ItemCounter := 0;
@@ -79,10 +79,10 @@ codeunit 99000769 "Production BOM-Check"
 
                 UpdateDialogWindow(Item);
                 if MfgSetup."Dynamic Low-Level Code" then
-                    CalcLowLevel.Run(Item);
+                    CalculateLowLevelCode.Run(Item);
                 if Item."Routing No." <> '' then
-                    CheckBOMStructure(Item, ProdBOMHeader."No.", VersionCode, 1);
-                ItemUnitOfMeasure.Get(Item."No.", ProdBOMHeader."Unit of Measure Code");
+                    CheckBOMStructure(Item, ProductionBOMHeader."No.", VersionCode, 1);
+                ItemUnitOfMeasure.Get(Item."No.", ProductionBOMHeader."Unit of Measure Code");
             until Item.Next() = 0;
         end;
     end;
@@ -127,63 +127,68 @@ codeunit 99000769 "Production BOM-Check"
 
     procedure CheckBOMStructure(var FirstLevelItem: Record Item; BOMHeaderNo: Code[20]; VersionCode: Code[20]; Level: Integer)
     var
-        ProdBOMHeader: Record "Production BOM Header";
-        ProdBOMComponent: Record "Production BOM Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        IsHandled: Boolean;
     begin
         if Level > 99 then
             Error(
               Text001,
               99, BOMHeaderNo, FirstLevelItem."Production BOM No.", Level);
 
-        ProdBOMHeader.Get(BOMHeaderNo);
-        OnCheckBOMStructureOnAfterGetProdBOMHeader(ProdBOMHeader, VersionCode, FirstLevelItem);
+        ProductionBOMHeader.Get(BOMHeaderNo);
+        OnCheckBOMStructureOnAfterGetProdBOMHeader(ProductionBOMHeader, VersionCode, FirstLevelItem);
 
-        ProdBOMComponent.SetRange("Production BOM No.", BOMHeaderNo);
-        ProdBOMComponent.SetRange("Version Code", VersionCode);
-        ProdBOMComponent.SetFilter("No.", '<>%1', '');
+        ProductionBOMLine.SetRange("Production BOM No.", BOMHeaderNo);
+        ProductionBOMLine.SetRange("Version Code", VersionCode);
+        ProductionBOMLine.SetFilter("No.", '<>%1', '');
 
-        OnCheckBOMStructureOnBeforeFindProdBOMComponent(ProdBOMComponent);
+        OnCheckBOMStructureOnBeforeFindProdBOMComponent(ProductionBOMLine);
 
-        if ProdBOMComponent.Find('-') then
+        if ProductionBOMLine.FindSet() then
             repeat
-                case ProdBOMComponent.Type of
-                    ProdBOMComponent.Type::Item:
-                        if ProdBOMComponent."Routing Link Code" <> '' then begin
-                            FirstLevelItem.TestField("Routing No.");
-                            RtngLine.SetRange("Routing No.", FirstLevelItem."Routing No.");
-                            RtngLine.SetRange("Routing Link Code", ProdBOMComponent."Routing Link Code");
-                            if not RtngLine.FindFirst() then
-                                Error(
-                                  Text003,
-                                  RtngLine.TableCaption(),
-                                  RtngLine.FieldCaption("Routing Link Code"),
-                                  ProdBOMComponent."Routing Link Code",
-                                  ProdBOMComponent.FieldCaption("Production BOM No."),
-                                  ProdBOMComponent."Production BOM No.",
-                                  ProdBOMComponent.FieldCaption("Line No."),
-                                  ProdBOMComponent."Line No.");
+                case ProductionBOMLine.Type of
+                    ProductionBOMLine.Type::Item:
+                        if ProductionBOMLine."Routing Link Code" <> '' then begin
+                            IsHandled := false;
+                            OnCheckBOMStructureOnBeforeCheckRoutingLine(FirstLevelItem, ProductionBOMLine, BOMHeaderNo, VersionCode, Level, IsHandled);
+                            if not IsHandled then begin
+                                FirstLevelItem.TestField("Routing No.");
+                                RtngLine.SetRange("Routing No.", FirstLevelItem."Routing No.");
+                                RtngLine.SetRange("Routing Link Code", ProductionBOMLine."Routing Link Code");
+                                if not RtngLine.FindFirst() then
+                                    Error(
+                                      Text003,
+                                      RtngLine.TableCaption(),
+                                      RtngLine.FieldCaption("Routing Link Code"),
+                                      ProductionBOMLine."Routing Link Code",
+                                      ProductionBOMLine.FieldCaption("Production BOM No."),
+                                      ProductionBOMLine."Production BOM No.",
+                                      ProductionBOMLine.FieldCaption("Line No."),
+                                      ProductionBOMLine."Line No.");
+                            end;
                         end;
-                    ProdBOMComponent.Type::"Production BOM":
+                    ProductionBOMLine.Type::"Production BOM":
                         CheckBOMStructure(
                           FirstLevelItem,
-                          ProdBOMComponent."No.",
-                          VersionMgt.GetBOMVersion(ProdBOMComponent."No.", WorkDate(), true), Level + 1);
+                          ProductionBOMLine."No.",
+                          VersionMgt.GetBOMVersion(ProductionBOMLine."No.", WorkDate(), true), Level + 1);
                 end;
-            until ProdBOMComponent.Next() = 0;
+            until ProductionBOMLine.Next() = 0;
     end;
 
     procedure ProdBOMLineCheck(ProdBOMNo: Code[20]; VersionCode: Code[20])
     var
-        ProdBOMLine: Record "Production BOM Line";
+        ProductionBOMLine: Record "Production BOM Line";
     begin
-        ProdBOMLine.SetRange("Production BOM No.", ProdBOMNo);
-        ProdBOMLine.SetRange("Version Code", VersionCode);
-        ProdBOMLine.SetFilter(Type, '<>%1', ProdBOMLine.Type::" ");
-        ProdBOMLine.SetRange("No.", '');
-        if ProdBOMLine.FindFirst() then
-            ProdBOMLine.FieldError("No.");
+        ProductionBOMLine.SetRange("Production BOM No.", ProdBOMNo);
+        ProductionBOMLine.SetRange("Version Code", VersionCode);
+        ProductionBOMLine.SetFilter(Type, '<>%1', ProductionBOMLine.Type::" ");
+        ProductionBOMLine.SetRange("No.", '');
+        if ProductionBOMLine.FindFirst() then
+            ProductionBOMLine.FieldError("No.");
 
-        OnAfterProdBomLineCheck(ProdBOMLine, VersionCode);
+        OnAfterProdBomLineCheck(ProductionBOMLine, VersionCode);
     end;
 
     procedure CheckBOM(ProductionBOMNo: Code[20]; VersionCode: Code[20])
@@ -291,6 +296,11 @@ codeunit 99000769 "Production BOM-Check"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckBOMStructureOnBeforeFindProdBOMComponent(var ProdBOMComponent: Record "Production BOM Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnCheckBOMStructureOnBeforeCheckRoutingLine(Item: Record Item; ProductionBOMLine: Record "Production BOM Line"; BOMHeaderNo: Code[20]; VersionCode: Code[20]; Level: Integer; var IsHandled: Boolean)
     begin
     end;
 }
