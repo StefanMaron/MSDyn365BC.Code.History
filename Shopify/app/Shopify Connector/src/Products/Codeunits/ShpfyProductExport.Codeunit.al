@@ -365,6 +365,9 @@ codeunit 30178 "Shpfy Product Export"
     /// <param name="Item">Parameter of type Record Item.</param>
     /// <param name="ItemVariant">Parameter of type Record "Item Variant".</param>
     internal procedure FillInProductVariantData(var ShopifyVariant: Record "Shpfy Variant"; Item: Record Item; ItemVariant: Record "Item Variant")
+    var
+        Product: Record "Shpfy Product";
+        ItemAsVariant: Boolean;
     begin
         if Shop."Sync Prices" or OnlyUpdatePrice then
             if (not Item.Blocked) and (not Item."Sales Blocked") then
@@ -372,9 +375,15 @@ codeunit 30178 "Shpfy Product Export"
             else
                 SkippedRecord.LogSkippedRecord(ShopifyVariant.Id, Item.RecordId, VariantPriceCalcSkippedLbl, Shop);
         if not OnlyUpdatePrice then begin
+            if Product.Get(ShopifyVariant."Product Id") then
+                if Product."Has Variants" then
+                    ItemAsVariant := ShopifyVariant."Item SystemId" <> Product."Item SystemId";
             ShopifyVariant."Available For Sales" := (not Item.Blocked) and (not Item."Sales Blocked");
             ShopifyVariant.Barcode := CopyStr(GetBarcode(Item."No.", ItemVariant.Code, Item."Sales Unit of Measure"), 1, MaxStrLen(ShopifyVariant.Barcode));
-            ShopifyVariant.Title := CopyStr(RemoveTabChars(ItemVariant.Description), 1, MaxStrLen(ShopifyVariant.Title));
+            if ItemAsVariant then
+                ShopifyVariant.Title := Item."No."
+            else
+                ShopifyVariant.Title := CopyStr(RemoveTabChars(ItemVariant.Description), 1, MaxStrLen(ShopifyVariant.Title));
             ShopifyVariant."Inventory Policy" := Shop."Default Inventory Policy";
             case Shop."SKU Mapping" of
                 Shop."SKU Mapping"::"Bar Code":
@@ -395,8 +404,12 @@ codeunit 30178 "Shpfy Product Export"
             ShopifyVariant."Tax Code" := Item."Tax Group Code";
             ShopifyVariant.Taxable := true;
             ShopifyVariant.Weight := Item."Gross Weight";
-            ShopifyVariant."Option 1 Name" := 'Variant';
-            ShopifyVariant."Option 1 Value" := ItemVariant.Code;
+            if ShopifyVariant."Option 1 Name" = '' then
+                ShopifyVariant."Option 1 Name" := 'Variant';
+            if ItemAsVariant then
+                ShopifyVariant."Option 1 Value" := Item."No."
+            else
+                ShopifyVariant."Option 1 Value" := ItemVariant.Code;
             ShopifyVariant."Shop Code" := Shop.Code;
             ShopifyVariant."Item SystemId" := Item.SystemId;
             ShopifyVariant."Item Variant SystemId" := ItemVariant.SystemId;

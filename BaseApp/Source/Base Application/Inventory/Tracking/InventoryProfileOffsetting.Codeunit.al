@@ -153,8 +153,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
         PlanMRP := MRPPlanning;
         if Item."Item Tracking Code" <> '' then begin
             ItemTrackingCode.Get(Item."Item Tracking Code");
-            SpecificLotTracking := ItemTrackingCode."Lot Specific Tracking";
-            SpecificSNTracking := ItemTrackingCode."SN Specific Tracking";
+            SpecificLotTracking := IsLotSpecificTracking(ItemTrackingCode);
+            SpecificSNTracking := IsSNSpecificTracking(ItemTrackingCode);
         end else begin
             SpecificLotTracking := false;
             SpecificSNTracking := false;
@@ -4942,6 +4942,50 @@ codeunit 99000854 "Inventory Profile Offsetting"
             exit(false);
 
         exit(true);
+    end;
+
+    local procedure IsLotSpecificTracking(ItemTrackingCode: Record "Item Tracking Code"): Boolean
+    begin
+        exit(
+            (ItemTrackingCode."Lot Specific Tracking") or
+            (ItemTrackingCode."Lot Warehouse Tracking") or
+            (ItemTrackingCode."Lot Transfer Tracking") or
+            (ItemTrackingCode."Lot Info. Outbound Must Exist") or
+            (ItemTrackingCode."Lot Purchase Outbound Tracking") or
+            (ItemTrackingCode."Lot Sales Outbound Tracking") or
+            (ItemTrackingCode."Lot Pos. Adjmt. Outb. Tracking") or
+            (ItemTrackingCode."Lot Neg. Adjmt. Outb. Tracking") or
+            (ItemTrackingCode."Lot Manuf. Outbound Tracking") or
+            (ItemTrackingCode."Lot Assembly Outbound Tracking") or
+            (ItemTrackingCode."Lot Info. Inbound Must Exist") or
+            (ItemTrackingCode."Lot Purchase Inbound Tracking") or
+            (ItemTrackingCode."Lot Sales Inbound Tracking") or
+            (ItemTrackingCode."Lot Pos. Adjmt. Inb. Tracking") or
+            (ItemTrackingCode."Lot Neg. Adjmt. Inb. Tracking") or
+            (ItemTrackingCode."Lot Manuf. Inbound Tracking") or
+            (ItemTrackingCode."Lot Assembly Inbound Tracking"));
+    end;
+
+    local procedure IsSNSpecificTracking(ItemTrackingCode: Record "Item Tracking Code"): Boolean
+    begin
+        exit(
+            (ItemTrackingCode."SN Specific Tracking") or
+            (ItemTrackingCode."SN Warehouse Tracking") or
+            (ItemTrackingCode."SN Transfer Tracking") or
+            (ItemTrackingCode."SN Info. Outbound Must Exist") or
+            (ItemTrackingCode."SN Purchase Outbound Tracking") or
+            (ItemTrackingCode."SN Sales Outbound Tracking") or
+            (ItemTrackingCode."SN Pos. Adjmt. Outb. Tracking") or
+            (ItemTrackingCode."SN Neg. Adjmt. Outb. Tracking") or
+            (ItemTrackingCode."SN Manuf. Outbound Tracking") or
+            (ItemTrackingCode."SN Assembly Outbound Tracking") or
+            (ItemTrackingCode."SN Info. Inbound Must Exist") or
+            (ItemTrackingCode."SN Purchase Inbound Tracking") or
+            (ItemTrackingCode."SN Sales Inbound Tracking") or
+            (ItemTrackingCode."SN Pos. Adjmt. Inb. Tracking") or
+            (ItemTrackingCode."SN Neg. Adjmt. Inb. Tracking") or
+            (ItemTrackingCode."SN Manuf. Inbound Tracking") or
+            (ItemTrackingCode."SN Assembly Inbound Tracking"));
     end;
 
     [IntegrationEvent(false, false)]
