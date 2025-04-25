@@ -74,7 +74,8 @@ codeunit 212 "Res. Jnl.-Post Line"
             OnBeforeCheckResourceBlocked(Resource, IsHandled);
             if not IsHandled then
                 Resource.TestField(Blocked, false);
-            ResJournalLineGlobal."Resource Group No." := Resource."Resource Group No.";
+
+            UpdateResJnlLineResourceGroupNo();
 
             if not ResourcesSetup.UseLegacyPosting() then
                 NextEntryNo := ResLedgerEntry.GetNextEntryNo();
@@ -193,6 +194,18 @@ codeunit 212 "Res. Jnl.-Post Line"
         end;
     end;
 
+    local procedure UpdateResJnlLineResourceGroupNo()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateResJnlLineResourceGroupNo(ResJournalLineGlobal, Resource, IsHandled);
+        if IsHandled then
+            exit;
+
+        ResJournalLineGlobal."Resource Group No." := Resource."Resource Group No.";
+    end;
+
     [InherentPermissions(PermissionObjectType::TableData, Database::"Res. Ledger Entry", 'r')]
     local procedure ValidateSequenceNo(LedgEntryNo: Integer; xLedgEntryNo: Integer; TableNo: Integer)
     var
@@ -252,6 +265,11 @@ codeunit 212 "Res. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterResLedgEntryInsert(var ResLedgerEntry: Record "Res. Ledger Entry"; ResJournalLine: Record "Res. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateResJnlLineResourceGroupNo(var ResJournalLine: Record "Res. Journal Line"; Resource: Record Resource; var IsHandled: Boolean)
     begin
     end;
 }

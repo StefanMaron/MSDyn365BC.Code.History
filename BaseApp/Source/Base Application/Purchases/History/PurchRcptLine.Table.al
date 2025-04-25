@@ -1027,6 +1027,8 @@ table 121 "Purch. Rcpt. Line"
             RevUnitCostLCY := "Unit Cost (LCY)";
 
         RemainingQty := CalcQty(RemainingQty);
+
+        OnAfterCalcReceivedPurchNotReturned(RemainingQty, RevUnitCostLCY, ExactCostReverse, ItemLedgEntry);
     end;
 
     local procedure CalcQty(QtyBase: Decimal): Decimal
@@ -1335,6 +1337,11 @@ table 121 "Purch. Rcpt. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemTrackingLines(var PurchRcptLine: Record "Purch. Rcpt. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcReceivedPurchNotReturned(var RemainingQty: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 }

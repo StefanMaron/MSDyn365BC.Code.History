@@ -255,7 +255,7 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
         AvgCostAdjmtEntryPoint.SetRange("Location Code", "Location Code");
         if AvgCostCalcTypeIsChanged("Valuation Date") then begin
             GetAvgCostCalcTypeIsChgPeriod(NextFiscalYearAccPeriod, "Valuation Date");
-            AvgCostAdjmtEntryPoint.SetRange("Valuation Date", "Valuation Date", CalcDate('<1D>', NextFiscalYearAccPeriod."Starting Date"));
+            AvgCostAdjmtEntryPoint.SetRange("Valuation Date", "Valuation Date", CalcDate('<-1D>', NextFiscalYearAccPeriod."Starting Date"));
         end else
             AvgCostAdjmtEntryPoint.SetRange("Valuation Date", "Valuation Date", DMY2Date(31, 12, 9999));
 
