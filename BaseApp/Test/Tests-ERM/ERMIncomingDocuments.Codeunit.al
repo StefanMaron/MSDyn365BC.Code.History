@@ -2262,6 +2262,29 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.Modify();
     end;
 
+    local procedure CreateRecurringJournalLines(var GenJournalLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch")
+    var
+        IncomingDocument: Record "Incoming Document";
+        RecurringFrequency: DateFormula;
+        Amount: Decimal;
+        LineNo: Integer;
+    begin
+        Amount := LibraryRandom.RandDec(100, 2);
+        for LineNo := 1 to 2 do begin
+            LibraryERM.CreateGeneralJnlLine(
+                GenJournalLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
+                GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
+                LibraryERM.CreateGLAccountNo(), Amount);
+            GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"F  Fixed");
+            Evaluate(RecurringFrequency, '<' + Format(LibraryRandom.RandInt(10)) + 'M >');
+            GenJournalLine.Validate("Recurring Frequency", RecurringFrequency);
+            CreateIncomingDocumentWithoutAttachments(IncomingDocument);
+            GenJournalLine.Validate("Incoming Document Entry No.", IncomingDocument."Entry No.");
+            GenJournalLine.Modify(true);
+            Amount := -Amount
+        end;
+    end;
+
     local procedure MockSalesHeaderWithDateAndIncomingDocEntryNo(var SalesHeader: Record "Sales Header"; DocDate: Date; DueDate: Date)
     var
         IncomingDocument: Record "Incoming Document";
@@ -2434,30 +2457,45 @@ codeunit 134400 "ERM Incoming Documents"
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        IncomingDocument: Record "Incoming Document";
     begin
         // [SCENARIO 556017] Incoming Document Entry No. is cleared in Gen. Journal Line posted from template with "Unlink Inc. Doc On Posting" option
 
-        // [GIVEN] Gen. Journal Template with "Unlink Inc. Doc On Posting" option
+        // [GIVEN] Gen. Recurring Journal Template with "Unlink Inc. Doc On Posting" option
+        // Bug 573613: "Unlink Inc. Doc On Posting" option must work right for the recurring journal
         InsertGenJnlTemplateWithUnlinkIncDocOption(GenJnlTemplate);
-        LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
-        // [GIVEN] General journal line with template
-        LibraryERM.CreateGeneralJnlLine2WithBalAcc(
-            GenJournalLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
-            GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
-            LibraryERM.CreateGLAccountNo(), GenJournalLine."Bal. Account Type"::"G/L Account",
-            LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(100, 2));
-        CreateIncomingDocumentWithoutAttachments(IncomingDocument);
-        // [GIVEN] Incoming document is assigned to general journal line through the "Incoming Document Entry No." field
-        GenJournalLine.Validate("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        GenJournalLine.Modify(true);
+        LibraryERM.CreateRecurringBatchName(GenJnlBatch, GenJnlTemplate.Name);
+        // [GIVEN] General two recurring journal lines with template and batch
+        // [GIVEN] Incoming document is assigned to each general journal line through the "Incoming Document Entry No." field
+        CreateRecurringJournalLines(GenJournalLine, GenJnlBatch);
 
         // [WHEN] Post general journal line
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        // [THEN] Incoming Document Entry No. is blank in Gen. Journal Line
-        GenJournalLine.Find();
-        GenJournalLine.TestField("Incoming Document Entry No.", 0);
+        // [THEN] Incoming Document Entry No. is blank in both Gen. Journal Lines
+        GenJournalLine.Reset();
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.Findset();
+        repeat
+            GenJournalLine.TestField("Incoming Document Entry No.", 0);
+        until GenJournalLine.Next() = 0;
+    end;
+
+    [Test]
+    procedure CannotSetUnlinkIncDocOnPostingOnNonRecurringGenJnlTemplate()
+    var
+        GenJnlTemplate: Record "Gen. Journal Template";
+    begin
+        // [SCENARIO 573613] Stan cannot enable the "Unlink Inc. Doc On Posting" option on non-recurring general journal template
+
+        // [GIVEN] Non-recurring general journal template
+        LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
+
+        // [WHEN] Enable "Unlink Inc. Doc On Posting" option
+        asserterror GenJnlTemplate.Validate("Unlink Inc. Doc On Posting", true);
+
+        // [THEN] An error is thrown
+        Assert.ExpectedError('Recurring must have a value in Gen. Journal Template');
     end;
 
     [Test]
@@ -2582,6 +2620,8 @@ codeunit 134400 "ERM Incoming Documents"
     local procedure InsertGenJnlTemplateWithUnlinkIncDocOption(var GenJnlTemplate: Record "Gen. Journal Template")
     begin
         LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
+        GenJnlTemplate.Validate(Recurring, true);
+        GenJnlTemplate.Validate("Force Doc. Balance", false);
         GenJnlTemplate.Validate("Unlink Inc. Doc On Posting", true);
         GenJnlTemplate.Modify(true);
     end;

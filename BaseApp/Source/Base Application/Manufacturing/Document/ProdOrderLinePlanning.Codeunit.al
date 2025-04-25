@@ -16,14 +16,14 @@ codeunit 99000857 "Prod. Order Line-Planning"
         ProductionOrder: Record "Production Order";
         ProductionTxt: Label 'Production';
 
-    [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnSetDemandTypeFromUnplannedDemand', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Requisition Line", 'OnSetDemandTypeFromUnplannedDemand', '', true, true)]
     local procedure ReqLineOnSetDemandTypeFromUnplannedDemand(var RequisitionLine: Record "Requisition Line"; UnplannedDemand: Record "Unplanned Demand")
     begin
         if UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Production then
             RequisitionLine."Demand Type" := Database::"Prod. Order Component";
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Unplanned Demand", 'OnValidateDemandOrderNoOnGetSourceFields', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Unplanned Demand", 'OnValidateDemandOrderNoOnGetSourceFields', '', true, true)]
     local procedure OnValidateDemandOrderNoOnGetSourceFields(var UnplannedDemand: Record "Unplanned Demand")
     var
         ProdOrder: Record "Production Order";
@@ -37,7 +37,7 @@ codeunit 99000857 "Prod. Order Line-Planning"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Report, Report::"Carry Out Action Msg. - Plan.", 'OnCheckDemandType', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Carry Out Action Msg. - Plan.", 'OnCheckDemandType', '', true, true)]
     local procedure CarryOutActionMsgPlanOnCheckDemandType(RequisitionLine: Record "Requisition Line")
     var
         ProdOrderComp: Record "Prod. Order Component";
@@ -57,7 +57,7 @@ codeunit 99000857 "Prod. Order Line-Planning"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Order Planning Mgt.", 'OnInsertDemandLinesOnCopyItemTracking', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Order Planning Mgt.", 'OnInsertDemandLinesOnCopyItemTracking', '', true, true)]
     local procedure OnInsertDemandLinesOnCopyItemTracking(var RequisitionLine: Record "Requisition Line"; UnplannedDemand: Record "Unplanned Demand")
     var
         ProdOrderComponent: Record "Prod. Order Component";
@@ -69,7 +69,7 @@ codeunit 99000857 "Prod. Order Line-Planning"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnBeforeShowDemandOrder', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnBeforeShowDemandOrder', '', true, true)]
     local procedure OrderPlanningOnBeforeShowDemandOrder(RequisitionLine: Record "Requisition Line")
     begin
         if RequisitionLine."Demand Type" = Database::"Prod. Order Component" then begin
@@ -85,7 +85,7 @@ codeunit 99000857 "Prod. Order Line-Planning"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnSetRecDemandFilter', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnSetRecDemandFilter', '', true, true)]
     local procedure OnSetRecDemandFilter(var RequisitionLine: Record "Requisition Line"; DemandOrderFilter: Enum "Demand Order Source Type")
     begin
         if DemandOrderFilter = DemandOrderFilter::"Production Demand" then begin
@@ -94,7 +94,7 @@ codeunit 99000857 "Prod. Order Line-Planning"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnAfterStatusTextOnFormat', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnAfterStatusTextOnFormat', '', true, true)]
     local procedure OnAfterStatusTextOnFormat(var RequisitionLine: Record "Requisition Line"; var Text: Text)
     begin
         if RequisitionLine."Demand Line No." = 0 then
@@ -102,7 +102,7 @@ codeunit 99000857 "Prod. Order Line-Planning"
                 Text := Format(Enum::"Production Order Status".FromInteger(RequisitionLine.Status));
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnAfterDemandTypeTextOnFormat', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnAfterDemandTypeTextOnFormat', '', true, true)]
     local procedure OnAfterDemandTypeTextOnFormat(var RequisitionLine: Record "Requisition Line"; var Text: Text)
     begin
         if RequisitionLine."Demand Line No." = 0 then
@@ -110,7 +110,7 @@ codeunit 99000857 "Prod. Order Line-Planning"
                 Text := ProductionTxt;
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnAfterDemandSubtypeTextOnFormat', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Order Planning", 'OnAfterDemandSubtypeTextOnFormat', '', true, true)]
     local procedure OnAfterDemandSubtypeTextOnFormat(var RequisitionLine: Record "Requisition Line"; var Text: Text)
     begin
         if RequisitionLine."Demand Type" = Database::"Prod. Order Component" then
