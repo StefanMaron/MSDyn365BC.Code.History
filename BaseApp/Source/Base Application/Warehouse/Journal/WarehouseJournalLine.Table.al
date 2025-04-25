@@ -1088,10 +1088,15 @@ table 7311 "Warehouse Journal Line"
         end;
     end;
 
-    procedure GetBinType(LocationCode: Code[10]; BinCode: Code[20]): Code[10]
+    procedure GetBinType(LocationCode: Code[10]; BinCode: Code[20]) BinTypeCode: Code[10]
     var
         BinType: Record "Bin Type";
+        IsHandled: Boolean;
     begin
+        OnBeforeGetBinType(LocationCode, BinCode, BinTypeCode, IsHandled);
+        if IsHandled then
+            exit(BinTypeCode);
+            
         GetBin(LocationCode, BinCode);
         WhseJnlTemplate.Get("Journal Template Name");
         if WhseJnlTemplate.Type = WhseJnlTemplate.Type::Reclassification then
@@ -1817,6 +1822,11 @@ table 7311 "Warehouse Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeGetWhseJnlTemplate(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false,false)]
+    local procedure OnBeforeGetBinType(LocationCode: Code[10]; BinCode: Code[20]; var BinTypeCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

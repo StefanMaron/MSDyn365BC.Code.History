@@ -1189,6 +1189,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         while AvgCostAdjmtEntryPointExist(TempAvgCostAdjmtEntryPoint) do begin
             repeat
                 Restart := false;
+                EndOfValuationDateReached := false;
                 AvgCostAdjmtEntryPoint := TempAvgCostAdjmtEntryPoint;
                 OnBeforeAvgCostAdjmtEntryPoint(AvgCostAdjmtEntryPoint);
 
@@ -1297,9 +1298,9 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         ValueEntry.SetRange("Item No.", AvgCostAdjmtEntryPoint."Item No.");
         if AvgCostAdjmtEntryPoint.AvgCostCalcTypeIsChanged(CalendarPeriod."Period Start") then begin
             AvgCostAdjmtEntryPoint.GetAvgCostCalcTypeIsChgPeriod(NextFiscalYearAccPeriod, CalendarPeriod."Period Start");
-            ValueEntry.SetRange("Valuation Date", CalendarPeriod."Period Start", CalcDate('<-1D>', NextFiscalYearAccPeriod."Starting Date"));
+            ValueEntry.SetRange("Valuation Date", CalendarPeriod."Period Start", Min(AdjustTillDate, CalcDate('<-1D>', NextFiscalYearAccPeriod."Starting Date")));
         end else
-            ValueEntry.SetRange("Valuation Date", CalendarPeriod."Period Start", DMY2Date(31, 12, 9999));
+            ValueEntry.SetRange("Valuation Date", CalendarPeriod."Period Start", Min(AdjustTillDate, DMY2Date(31, 12, 9999)));
 
         IsAvgCostCalcTypeItem := AvgCostAdjmtEntryPoint.IsAvgCostCalcTypeItem(CalendarPeriod."Period End");
         if not IsAvgCostCalcTypeItem then begin
@@ -2192,8 +2193,9 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
             Item."Allow Online Adjustment" := true;
             AvgCostAdjmtPoint.SetRange("Item No.", Item."No.");
             AvgCostAdjmtPoint.SetRange("Cost Is Adjusted", false);
-            AvgCostAdjmtPoint.SetRange("Valuation Date", 0D, AdjustTillDate);
-            if not IsAvgCostItem() then
+            if IsAvgCostItem() then
+                AvgCostAdjmtPoint.SetRange("Valuation Date", 0D, AdjustTillDate)
+            else
                 AvgCostAdjmtPoint.ModifyAll("Cost Is Adjusted", true);
             Item."Cost is Adjusted" := AvgCostAdjmtPoint.IsEmpty();
 
@@ -2984,6 +2986,13 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
         if Item2.FindLast() then
             exit(Item2."Low-Level Code");
         exit(0);
+    end;
+
+    local procedure Min(Date1: Date; Date2: Date): Date
+    begin
+        if Date1 < Date2 then
+            exit(Date1);
+        exit(Date2);
     end;
 
     // Extension interface for local procedures

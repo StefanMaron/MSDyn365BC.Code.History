@@ -9,7 +9,7 @@ using Microsoft.Inventory.Tracking;
 
 codeunit 99000883 "Mfg. Sales Order Planning"
 {
-    [EventSubscriber(ObjectType::Page, Page::"Sales Order Planning", 'OnMakeLinesOnSetFromSourceLine', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Order Planning", 'OnMakeLinesOnSetFromSourceLine', '', true, true)]
     local procedure OnMakeLinesOnSetFromSourceLine(var SalesPlanningLine: Record "Sales Planning Line"; ReservEntry: Record "Reservation Entry")
     var
         ProdOrderLine: Record "Prod. Order Line";
