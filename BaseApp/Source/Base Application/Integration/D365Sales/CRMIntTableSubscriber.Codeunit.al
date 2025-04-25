@@ -877,7 +877,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                     ChangeSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Open);
                     ResetSalesOrderLineFromCRMSalesorderdetail(SourceRecordRef, DestinationRecordRef);
                     CreateFreightLines(SourceRecordRef, DestinationRecordRef);
-                    ChangeSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Released);
+                    SetSalesOrderStatus(DestinationRecordRef);
                     CreateSalesOrderNotes(SourceRecordRef, DestinationRecordRef);
                 end;
         end;
@@ -902,7 +902,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
                     ChangeSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Open);
                     ResetSalesOrderLineFromCRMSalesorderdetail(SourceRecordRef, DestinationRecordRef);
-                    ChangeSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Released);
+                    SetSalesOrderStatus(DestinationRecordRef);
                     CreateSalesOrderNotes(SourceRecordRef, DestinationRecordRef);
                 end;
         end;
