@@ -804,6 +804,8 @@ table 113 "Sales Invoice Line"
 
         if ShippedQtyNotReturned > Quantity then
             ShippedQtyNotReturned := Quantity;
+
+        OnAfterCalcShippedSaleNotReturned(Rec, ShippedQtyNotReturned, RevUnitCostLCY, ExactCostReverse);
     end;
 
     local procedure CalcQty(QtyBase: Decimal) Result: Decimal
@@ -1019,6 +1021,11 @@ table 113 "Sales Invoice Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetVATPct(var SalesInvoiceLine: Record "Sales Invoice Line"; var VATPct: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcShippedSaleNotReturned(var SalesInvoiceLine: Record "Sales Invoice Line"; var ShippedQtyNotReturned: Decimal; var RevUnitCostLCY: Decimal; ExactCostReverse: Boolean)
     begin
     end;
 }
