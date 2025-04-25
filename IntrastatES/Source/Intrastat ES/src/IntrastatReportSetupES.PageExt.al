@@ -13,6 +13,7 @@ pageextension 10791 "Intrastat Report Setup ES" extends "Intrastat Report Setup"
             field("Max. No. of Lines in File"; Rec."Max. No. of Lines in File")
             {
                 ApplicationArea = All;
+                MaxValue = 10000;
             }
         }
     }
