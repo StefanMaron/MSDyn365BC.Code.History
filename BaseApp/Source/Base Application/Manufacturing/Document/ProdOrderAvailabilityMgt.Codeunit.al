@@ -30,7 +30,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
 
     // Page "Demand Overview"
 
-    [EventSubscriber(ObjectType::Page, Page::"Demand Overview", 'OnLookupDemandNo', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Demand Overview", 'OnLookupDemandNo', '', true, true)]
     local procedure OnLookupDemandNo(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; DemandType: Enum "Demand Order Source Type"; var Result: Boolean; var Text: Text);
     var
         ProdOrder: Record "Production Order";
@@ -49,7 +49,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
         end;
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Demand Overview", 'OnSourceTypeTextOnFormat', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Demand Overview", 'OnSourceTypeTextOnFormat', '', true, true)]
     local procedure OnSourceTypeTextOnFormat(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; var Text: Text)
     begin
         case AvailabilityCalcOverview."Source Type" of
@@ -62,7 +62,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
 
     // Codeunit "Calc. Availability Overview"
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnGetDemandDates', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnGetDemandDates', '', true, true)]
     local procedure OnGetDemandDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; var Item: Record Item; var sender: Codeunit "Calc. Availability Overview")
     var
         ProdOrderComp: Record "Prod. Order Component";
@@ -85,7 +85,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
             until ProdOrderComp.Next() = 0;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnGetSupplyDates', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnGetSupplyDates', '', true, true)]
     local procedure OnGetSupplyDates(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; var Item: Record Item; var sender: Codeunit "Calc. Availability Overview")
     var
         ProdOrderLine: Record "Prod. Order Line";
@@ -108,7 +108,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
             until ProdOrderLine.Next() = 0;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnGetDemandEntries', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnGetDemandEntries', '', true, true)]
     local procedure OnGetDemandEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; var Item: Record Item; var sender: Codeunit "Calc. Availability Overview")
     var
         ProdOrderComp: Record "Prod. Order Component";
@@ -127,7 +127,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
             until ProdOrderComp.Next() = 0;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnGetSupplyEntries', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnGetSupplyEntries', '', true, true)]
     local procedure OnGetSupplyEntries(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; var Item: Record Item; var sender: Codeunit "Calc. Availability Overview")
     var
         ProdOrderLine: Record "Prod. Order Line";
@@ -146,7 +146,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
             until ProdOrderLine.Next() = 0;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnCheckItemInRange', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnCheckItemInRange', '', true, true)]
     local procedure OnCheckItemInRange(var Item: Record Item; DemandType: Enum "Demand Order Source Type"; DemandNo: Code[20]; var Found: Boolean)
     var
         ProdOrderComp: Record "Prod. Order Component";
@@ -160,7 +160,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
                     Found := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnDemandExist', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnDemandExist', '', true, true)]
     local procedure OnDemandExist(var Item: Record Item; var Exists: Boolean)
     var
         ProdOrderComp: Record "Prod. Order Component";
@@ -168,7 +168,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
         Exists := Exists or ProdOrderComp.LinesWithItemToPlanExist(Item, true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnSupplyExist', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Availability Overview", 'OnSupplyExist', '', true, true)]
     local procedure OnSupplyExist(var Item: Record Item; var Exists: Boolean)
     var
         ProdOrderLine: Record "Prod. Order Line";
@@ -178,7 +178,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
 
     // Table "Availability Info. Buffer" 
 
-    [EventSubscriber(ObjectType::Table, Database::"Availability Info. Buffer", 'OnLookupAvailableInventory', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Availability Info. Buffer", 'OnLookupAvailableInventory', '', true, true)]
     local procedure OnLookupAvailableInventory(var TempReservationEntry: Record "Reservation Entry" temporary; var sender: Record "Availability Info. Buffer")
     begin
         LookupReservationEntryForQtyOnCompLines(TempReservationEntry, sender);
@@ -186,19 +186,19 @@ codeunit 99000875 "Prod. Order Availability Mgt."
         LookupReservationEntryForQtyOnProdReceipt(TempReservationEntry, sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Availability Info. Buffer", 'OnLookupGrossRequirement', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Availability Info. Buffer", 'OnLookupGrossRequirement', '', true, true)]
     local procedure OnLookupGrossRequirement(var TempReservationEntry: Record "Reservation Entry" temporary; var sender: Record "Availability Info. Buffer")
     begin
         LookupReservationEntryForQtyOnCompLines(TempReservationEntry, sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Availability Info. Buffer", 'OnLookupPlannedOrderReceipt', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Availability Info. Buffer", 'OnLookupPlannedOrderReceipt', '', true, true)]
     local procedure OnLookupPlannedOrderReceipt(var TempReservationEntry: Record "Reservation Entry" temporary; var sender: Record "Availability Info. Buffer")
     begin
         LookupReservationEntryForQtyOnPlannedOrderReceipt(TempReservationEntry, sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Availability Info. Buffer", 'OnLookupScheduledReceipt', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Availability Info. Buffer", 'OnLookupScheduledReceipt', '', true, true)]
     local procedure OnLookupScheduledReceipt(var TempReservationEntry: Record "Reservation Entry" temporary; var sender: Record "Availability Info. Buffer")
     begin
         LookupReservationEntryForQtyOnProdReceipt(TempReservationEntry, sender);
@@ -383,7 +383,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
         PAGE.Run(0, ProdOrderComp);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Availability Forms Mgt", 'OnAfterCalcItemPlanningFields', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Availability Forms Mgt", 'OnAfterCalcItemPlanningFields', '', true, true)]
     local procedure OnAfterCalcItemPlanningFields(var Item: Record Item)
     begin
         Item.CalcFields(
@@ -397,7 +397,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
 
     // Codeunit "Calc. Inventory Page Data"
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Inventory Page Data", 'OnTransferToPeriodDetailsElseCase', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Calc. Inventory Page Data", 'OnTransferToPeriodDetailsElseCase', '', true, true)]
     local procedure OnTransferToPeriodDetailsElseCase(var InventoryPageData: Record "Inventory Page Data"; InventoryEventBuffer: Record "Inventory Event Buffer"; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; var IsHandled: Boolean; SourceRefNo: Integer)
     begin
         case SourceType of
@@ -498,7 +498,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
 
     // Page "Item Availability Line List"
 
-    [EventSubscriber(ObjectType::Page, Page::"Item Availability Line List", 'OnAfterMakeEntries', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Item Availability Line List", 'OnAfterMakeEntries', '', true, true)]
     local procedure OnAfterMakeEntries(var Item: Record Item; var ItemAvailabilityLine: Record "Item Availability Line"; AvailabilityType: Option "Gross Requirement","Planned Order Receipt","Scheduled Order Receipt","Planned Order Release",All; Sign: Decimal; QtyByUnitOfMeasure: Decimal)
     var
         ProdOrderLine: Record "Prod. Order Line";
@@ -533,7 +533,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
         end;
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Item Availability Line List", 'OnAfterLookupEntries', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Item Availability Line List", 'OnAfterLookupEntries', '', true, true)]
     local procedure OnAfterLookupEntries(var Item: Record Item; ItemAvailabilityLine: Record "Item Availability Line");
     var
         ProdOrderLine: Record "Prod. Order Line";
@@ -686,7 +686,7 @@ codeunit 99000875 "Prod. Order Availability Mgt."
 
     // Codeunit "Available to Promise"
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Available to Promise", 'OnAfterCalculateAvailability', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Available to Promise", 'OnAfterCalculateAvailability', '', true, true)]
     local procedure OnAfterCalculateAvailability(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var sender: Codeunit "Available to Promise")
     begin
         UpdateSchedRcptAvail(AvailabilityAtDate, Item, sender);

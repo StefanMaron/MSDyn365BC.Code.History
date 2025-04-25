@@ -14,7 +14,7 @@ codeunit 99000799 "Mfg. Posting Preview Handler"
     var
         TempCapacityLedgerEntry: Record "Capacity Ledger Entry" temporary;
 
-    [EventSubscriber(ObjectType::Table, Database::"Capacity Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Capacity Ledger Entry", 'OnAfterInsertEvent', '', true, true)]
     local procedure OnInsertCapacityLedgerEntry(var Rec: Record "Capacity Ledger Entry"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary() then

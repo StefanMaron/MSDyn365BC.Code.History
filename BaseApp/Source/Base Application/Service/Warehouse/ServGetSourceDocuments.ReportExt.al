@@ -36,11 +36,15 @@ reportextension 5753 "Serv. Get Source Documents" extends "Get Source Documents"
                             case RequestType of
                                 RequestType::Ship:
                                     if ServiceWarehouseMgt.CheckIfFromServiceLine2ShptLine("Service Line", ReservedFromStock) then begin
-                                        if not OneHeaderCreated and not WhseHeaderCreated then
-                                            CreateShptHeader();
-                                        if not ServiceWarehouseMgt.FromServiceLine2ShptLine(WhseShptHeader, "Service Line") then
-                                            ErrorOccured := true;
-                                        LineCreated := true;
+                                        IsHandled := false;
+                                        OnServiceLineOnAfterGetRecordOnBeforeCreateShptHeader("Service Line", "Warehouse Request", WhseShptHeader, WhseHeaderCreated, OneHeaderCreated, IsHandled);
+                                        if not IsHandled then begin
+                                            if not OneHeaderCreated and not WhseHeaderCreated then
+                                                CreateShptHeader();
+                                            if not ServiceWarehouseMgt.FromServiceLine2ShptLine(WhseShptHeader, "Service Line") then
+                                                ErrorOccured := true;
+                                            LineCreated := true;
+                                        end;
                                     end;
                             end;
                     end;
@@ -97,6 +101,11 @@ reportextension 5753 "Serv. Get Source Documents" extends "Get Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceLineOnAfterGetRecord(ServiceLine: Record "Service Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServiceLineOnAfterGetRecordOnBeforeCreateShptHeader(ServiceLine: Record "Service Line"; var WarehouseRequest: Record "Warehouse Request"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var OneHeaderCreated: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
