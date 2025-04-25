@@ -15,7 +15,7 @@ using Microsoft.Manufacturing.Forecast;
 
 codeunit 99000861 "Mfg. Planning Integration"
 {
-    [EventSubscriber(ObjectType::Table, Database::"Planning Assignment", 'OnItemChange', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Planning Assignment", 'OnItemChange', '', true, true)]
     local procedure PlanningAssignmentOnItemChange(var NewItem: Record Item; var OldItem: Record Item; var PlanningAssignment: Record "Planning Assignment")
     var
         InventorySetup: Record "Inventory Setup";
@@ -31,26 +31,26 @@ codeunit 99000861 "Mfg. Planning Integration"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Planning Component", 'OnAfterGetUpdateFromSKU', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Planning Component", 'OnAfterGetUpdateFromSKU', '', true, true)]
     local procedure OnAfterGetUpdateFromSKU(var PlanningComponent: Record "Planning Component"; StockeepingUnit: Record "Stockkeeping Unit")
     begin
         PlanningComponent.Validate("Flushing Method", StockeepingUnit."Flushing Method");
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Planning Component", 'OnAfterValidateCalculationFormula', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Planning Component", 'OnAfterValidateCalculationFormula', '', true, true)]
     local procedure PlanningCompomentOnAfterValidateCalculationFormula(var PlanningComponent: Record "Planning Component")
     begin
         if PlanningComponent."Calculation Formula" <> PlanningComponent."Calculation Formula"::"Fixed Quantity" then
             PlanningComponent.UpdateExpectedQuantityForPlanningNeeds();
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Planning Component", 'OnGetToBinOnBeforeGetWMSDefaultCode', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Planning Component", 'OnGetToBinOnBeforeGetWMSDefaultCode', '', true, true)]
     local procedure OnGetToBinOnBeforeGetWMSDefaultCode(var PlanningComponent: Record "Planning Component"; var BinCode: Code[20])
     begin
         BinCode := PlanningComponent.GetRefOrderTypeBin();
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Planning Error Log", 'OnShowError', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Planning Error Log", 'OnShowError', '', true, true)]
     local procedure PlanningErrorLogOnShowError(RecRef: RecordRef; TableID: Integer)
     var
         ProdBOMHeader: Record "Production BOM Header";
@@ -106,7 +106,7 @@ codeunit 99000861 "Mfg. Planning Integration"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Transparency", 'OnSurplusQtyOnSetReservEntryFilters', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Transparency", 'OnSurplusQtyOnSetReservEntryFilters', '', true, true)]
     local procedure OnSurplusQtyOnSetReservEntryFilters(var ReservEntry: Record "Reservation Entry"; var RequisitionLine: Record "Requisition Line")
     begin
         case RequisitionLine."Ref. Order Type" of
@@ -120,7 +120,7 @@ codeunit 99000861 "Mfg. Planning Integration"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Transparency", 'OnFindReasonOnAfterSetSurplusType', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Transparency", 'OnFindReasonOnAfterSetSurplusType', '', true, true)]
     local procedure OnFindReasonOnAfterSetSurplusType(var DemandInventoryProfile: Record "Inventory Profile"; var SurplusType: Enum "Planning Surplus Type")
     begin
         case DemandInventoryProfile."Source Type" of

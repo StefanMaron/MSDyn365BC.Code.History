@@ -683,7 +683,7 @@ codeunit 912 "Calculate Assembly Cost"
 
     // Subscribers
 
-    [EventSubscriber(ObjectType::Table, Database::Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet", 'OnAfterGetItemCosts', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet", 'OnAfterGetItemCosts', '', true, true)]
     local procedure OnAfterGetItemCosts(var StandardCostWorksheet: Record Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet"; var Item: Record Item)
     begin
         if Item.IsMfgItem() then
