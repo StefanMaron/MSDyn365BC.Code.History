@@ -1160,7 +1160,7 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
           '', NewProdOrderComponent."Prod. Order Line No.", NewProdOrderComponent."Line No.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Plng. Component-Reserve", 'OnUpdateDerivedTrackingOnAfterSetReservationEntryFilters', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Plng. Component-Reserve", 'OnUpdateDerivedTrackingOnAfterSetReservationEntryFilters', '', true, true)]
     local procedure OnUpdateDerivedTrackingOnAfterSetReservationEntryFilters(var ReservationEntry: Record "Reservation Entry"; PlanningComponent: Record "Planning Component")
     begin
         case PlanningComponent."Ref. Order Type" of
