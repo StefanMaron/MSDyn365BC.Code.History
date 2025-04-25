@@ -118,14 +118,14 @@ codeunit 8063 "Sales Documents"
             ServiceObject.Type::Item:
                 begin
                     Item.Get(ServiceObject."Source No.");
-                    Item.TestField("VAT Prod. Posting Group");
-                    SalesLine.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+                    if Item."VAT Prod. Posting Group" <> '' then
+                        SalesLine.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
                 end;
             ServiceObject.Type::"G/L Account":
                 begin
                     GLAccount.Get(ServiceObject."Source No.");
-                    GLAccount.TestField("VAT Prod. Posting Group");
-                    SalesLine.Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
+                    if GLAccount."VAT Prod. Posting Group" <> '' then
+                        SalesLine.Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
                 end;
         end;
     end;

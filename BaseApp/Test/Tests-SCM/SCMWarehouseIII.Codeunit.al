@@ -6036,7 +6036,7 @@ codeunit 137051 "SCM Warehouse - III"
         // [THEN] Do Not Fill Qty. to Handle in Warehouse Activity Header is false.
         Assert.IsFalse(WarehouseActivityHeader."Do Not Fill Qty. to Handle", DoNotFillQtyToHandleMustBeFalseErr);
     end;
-    
+
     [Test]
     [HandlerFunctions('WhseItemTrackingLinesMultipleModalPageHandler,ItemTrackingPageHandler')]
     procedure WhsePickHasLotNoWhenRegisteredPickDeletedAndCreateNewPick()
@@ -6127,8 +6127,7 @@ codeunit 137051 "SCM Warehouse - III"
 
     [Test]
     [HandlerFunctions('ItemTrackingPageHandler')]
-    [Scope('OnPrem')]
-    Procedure CreatePickAccToFEFOandLotNo()
+    procedure CreatePickAccToFEFOandLotNoForDirectedPutAwayAndPickLocation()
     var
         Item: Record Item;
         ItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
@@ -6138,7 +6137,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         SaleQuantity: Decimal;
     begin
-        //[SCENARIO 563367] Nothing to Handle error with FEFO Picking where item with no expiration or an earlier expiration with a different UOM than what is on the Sales Order, and does not want to breakbulk.]
+        // [SCENARIO 563367] Directed Put away and pick - Nothing to Handle error with FEFO Picking where item with no expiration or an earlier expiration with a different UOM than what is on the Sales Order, and does not want to breakbulk.
         Initialize();
 
         // [GIVEN] Create Location with Pick According To FEFO and Allow BreakBulk as False.
@@ -6167,6 +6166,62 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [THEN] Verify Pick Created and values on Whse Activity Line.
         VerifyWhseActivityLine(WarehouseActivityLine, SaleQuantity, SalesHeader."No.", Location.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler')]
+    procedure CreatePickAccToFEFOandLotNoForNonDirectedPutAwayAndPickLocation()
+    var
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        QtyItemStock: Decimal;
+        QtyToSell: Decimal;
+        LotNo: Code[50];
+        ExpirationDate: Date;
+    begin
+        // [SCENARIO 574361] Non-Directed Put away and pick - FEFO picking selects Lot when there is an alternative UOM on the Sales Order.
+        Initialize();
+
+        // [GIVEN] Create Location with Bin Mandatory, Requre Pick and Pick According To FEFO
+        CreateAndUpdateLocation(Location, true, false, true, false, true, true);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', ArrayLen(Bin), false);
+        LibraryWarehouse.FindBin(Bin[1], Location.Code, '', 1);
+        LibraryWarehouse.FindBin(Bin[2], Location.Code, '', 2);
+        Location.Validate("Shipment Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        WarehouseEmployee.DeleteAll();
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        //[GIVEN] Create Item With Item Tracking Code and with different Sales Item Unit of Measure Code
+        CreateTrackedItem(Item, true, false, false, false, false);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 24);
+
+        // [GIVEN] Create and Post Positive Adjustment Item Journal Line with Lot No. and Expiration Date
+        QtyItemStock := LibraryRandom.RandDecInDecimalRange(1000, 1000, 2);
+        LotNo := Format(LibraryRandom.RandText(10));
+        ExpirationDate := CalcDate(ExpirationDateCalcFormula, WorkDate());
+        PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin[1].Code, LotNo, QtyItemStock, ExpirationDate);
+
+        // [GIVEN] Create Sales Order with Warehouse Shipment
+        QtyToSell := LibraryRandom.RandDecInDecimalRange(12, 12, 02);
+        PrepareSalesOrderWithWhseShipment(SalesHeader, WarehouseShipmentHeader, Item."No.", Location.Code, QtyToSell, ItemUnitOfMeasure.Code);
+
+        // [WHEN] Create Pick from Warehouse Shipment Header
+        CreatePick(WarehouseShipmentHeader, WarehouseShipmentHeader."No.");
+
+        // [THEN] Verify Pick Created and values on Whse Activity Line
+        VerifyWhseActivityLine(WarehouseActivityLine, QtyToSell, SalesHeader."No.", Location.Code);
+
+        // [THEN] Verify Lot No. and Expiration Date on Whse Activity Line
+        WarehouseActivityLine.TestField("Lot No.", LotNo);
+        WarehouseActivityLine.TestField("Expiration Date", ExpirationDate);
     end;
 
     local procedure Initialize()
