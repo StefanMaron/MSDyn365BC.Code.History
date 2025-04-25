@@ -1214,7 +1214,13 @@ table 38 "Purchase Header"
             trigger OnValidate()
             var
                 VendorLedgerEntry: Record "Vendor Ledger Entry";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVendorInvoiceNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Vendor Invoice No." <> '' then
                     if FindPostedDocumentWithSameExternalDocNo(VendorLedgerEntry, "Vendor Invoice No.") then
                         ShowExternalDocAlreadyExistNotification(VendorLedgerEntry)
@@ -1229,7 +1235,13 @@ table 38 "Purchase Header"
             trigger OnValidate()
             var
                 VendorLedgerEntry: Record "Vendor Ledger Entry";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVendorCrMemoNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Vendor Cr. Memo No." <> '' then
                     if FindPostedDocumentWithSameExternalDocNo(VendorLedgerEntry, "Vendor Cr. Memo No.") then
                         ShowExternalDocAlreadyExistNotification(VendorLedgerEntry)
@@ -9158,6 +9170,16 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterValidateEmptySellToCustomerAndLocation(var PurchaseHeader: Record "Purchase Header"; var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVendorInvoiceNo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVendorCrMemoNo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }
