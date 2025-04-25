@@ -34,7 +34,7 @@ table 1833 "Consolidation Setup"
         {
             Caption = 'Page Size';
             DataClassification = SystemMetadata;
-            MinValue = 50;
+            MinValue = 1;
             MaxValue = 1000;
         }
         field(5; MaxAttempts; Integer)
