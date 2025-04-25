@@ -252,6 +252,7 @@ permissionset 30104 "Shpfy - Objects"
         codeunit "Shpfy GQL UpdateLocPmtTerms" = X,
         codeunit "Shpfy GQL UpdateOrderAttr" = X,
         codeunit "Shpfy GQL UpdateProductImage" = X,
+        codeunit "Shpfy GQL UpdateProductOption" = X,
         codeunit "Shpfy GQL VariantById" = X,
         codeunit "Shpfy GQL VariantIds" = X,
         codeunit "Shpfy GQL VariantImages" = X,

@@ -2,7 +2,7 @@
   "id": "d196d21b-75c3-45da-831b-345055b9d25f",
   "name": "ESG Statistical Accounts Demo Tool",
   "publisher": "Microsoft",
-  "version": "26.0.30643.32481",
+  "version": "26.0.30643.33317",
   "brief": "To help partners demonstrate the capabilities of Statistical accounts related to the ESG features, we are making demo data available for various Statistical accounts scenarios.",
   "description": "Statistical specialists can run the tool on top of Cronus or My Company and get the setup and demo data they'll need when they demonstrate various Statistical account scenarios related to the ESG.",
   "privacyStatement": "https://go.microsoft.com/fwlink/?linkid=724009",
