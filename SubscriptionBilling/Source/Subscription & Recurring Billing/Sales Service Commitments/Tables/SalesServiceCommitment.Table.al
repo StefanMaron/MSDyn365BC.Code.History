@@ -691,7 +691,7 @@ table 8068 "Sales Service Commitment"
             TempSalesServiceCommitmentBuff.SetRange("VAT Calculation Type", SalesLineVAT."VAT Calculation Type");
             TempSalesServiceCommitmentBuff.SetRange("VAT %", VatPercent);
             TempSalesServiceCommitmentBuff.SetRange("Tax Group Code", SalesLineVAT."Tax Group Code");
-            if TempSalesServiceCommitmentBuff.IsEmpty() then begin
+            if not TempSalesServiceCommitmentBuff.FindLast() then begin
                 TempSalesServiceCommitmentBuff."Entry No." := TempSalesServiceCommitmentBuff.GetNextEntryNo();
                 TempSalesServiceCommitmentBuff.Init();
                 TempSalesServiceCommitmentBuff."Rhythm Identifier" := RhythmIdentifier;

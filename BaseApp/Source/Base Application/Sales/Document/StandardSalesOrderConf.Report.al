@@ -1080,16 +1080,11 @@ report 1305 "Standard Sales - Order Conf."
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
+            InitLogInteraction();
+            LogInteractionEnable := LogInteraction;
             ArchiveDocument := SalesSetup."Archive Orders";
 
             OnAfterOnInit(Header);
-        end;
-
-        trigger OnOpenPage()
-        begin
-            InitLogInteraction();
-            LogInteractionEnable := LogInteraction;
         end;
     }
 
@@ -1186,9 +1181,6 @@ report 1305 "Standard Sales - Order Conf."
     begin
         if Header.GetFilters = '' then
             Error(NoFilterSetErr);
-
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
 
         CompanyLogoPosition := SalesSetup."Logo Position on Documents";
     end;

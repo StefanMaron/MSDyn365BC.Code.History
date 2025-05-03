@@ -63,6 +63,8 @@
         MPSOrderErr: Label '%1 must be true', Comment = '%1 = MPS Order';
         PlanningComponentMustNotBeFoundErr: Label 'Planning Component must not be found.';
         BOMLineCommnetAndFirmProdOrderBOMLineCommentMustMatchErr: Label 'BOM Line Comment and Firm Prod. Order BOM Line Comment must match.';
+        PostingProductionJournalQst: Label 'Do you want to post the journal lines?';
+        PostingProductionJournalTxt: Label 'The journal lines were successfully posted';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -4972,6 +4974,124 @@
         Assert.AreEqual(ProductionBOMCommentLine[2].Comment, ProdOrderCompCmtLine[2].Comment, BOMLineCommnetAndFirmProdOrderBOMLineCommentMustMatchErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,CalculatePlanPlanWkshRequestPageHandler,ProductionJournalPageHandler,ItemTrackingLinesAssignPageHandler,AssignSerialNoEnterQtyPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyPlanningWorksheetShouldNotCreateRequisitionLineForPostedOutput()
+    var
+        Bin: array[3] of Record Bin;
+        CompItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemTrackingCode: Record "Item Tracking Code";
+        Location: Record Location;
+        ProdItem: Record Item;
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WorkCenter: Record "Work Center";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+        RoutingNo: Code[20];
+        ShipmentDate: Date;
+    begin
+        // [SCENARIO 568930] With Reordering Policy set to Order, Planning Worksheet breaks reservation entries and
+        // creates a new planning line for quantity that was already posted on Output.
+        Initialize();
+        LibraryApplicationArea.EnablePremiumSetup();
+
+        // [GIVEN] Set Shipment Date
+        ShipmentDate := GetRequiredDate(20, 0, WorkDate(), 1);
+
+        // [GIVEN] Create Location
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Create three Bins and assign on Location
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bin[3], Location.Code, '', '', '');
+
+        // [GIVEN] Validate Open Shop Floor Bin Code,From-Production Bin Code and To-Production Bin Code in Location.
+        Location.Validate("Open Shop Floor Bin Code", Bin[1].Code);
+        Location.Validate("To-Production Bin Code", Bin[2].Code);
+        Location.Validate("From-Production Bin Code", Bin[3].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Item Tracking Code and set SN Transfer Tracking, SN Manuf. Inbound Tracking and SN Manuf. Outbound Tracking as TRUE.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false);
+        ItemTrackingCode.Validate("SN Transfer Tracking", true);
+        ItemTrackingCode.Validate("SN Manuf. Inbound Tracking", true);
+        ItemTrackingCode.Validate("SN Manuf. Outbound Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Create Component Item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create an Item Journal Line  for ComponentItem and Validate Location Code and Bin Code.
+        CreateItemJournalLine(ItemJournalBatch, ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", CompItem."No.", 10);
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Validate("Bin Code", Bin[3].Code);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Create Work Center with Calendar
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create Production BOM
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, CompItem."No.");
+
+        // [GIVEN] Create Routing for Work Center
+        RoutingNo := CreateRoutingWithWorkCenter(WorkCenter."No.", 10, 2, 0);
+
+        // [GIVEN] Create Production Item and validate Reordering Policy,Routing No.,Item Tracking Code and Serial Nos.
+        CreateItem(ProdItem, ProdItem."Reordering Policy"::Order, ProdItem."Replenishment System"::"Prod. Order");
+
+        ProdItem.Validate("Routing No.", RoutingNo);
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        ProdItem.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create Sales Order and Update Shipment Date.
+        CreateSalesOrder(SalesHeader, SalesLine, ProdItem."No.", LibraryRandom.RandInt(20));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        if ShipmentDate < WorkDate() then
+            LibraryVariableStorage.Enqueue(ShipmentDateMessageTxt);  // Required inside MessageHandler.
+        UpdateShipmentDateOnSalesLine(SalesLine, ShipmentDate);
+
+        // [GIVEN] Calculate Plan for Requisition Worksheet with the required Start and End dates, Carry out Action Message.
+        CalculateRegenerativePlanForPlanWorksheet(CompItem."No.", ProdItem."No.");
+        AcceptActionMessage(ProdItem."No.");
+        SelectRequisitionLine(RequisitionLine, ProdItem."No.");
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [GIVEN] Find Production Order and Change status from Firm Planned to Released
+        FindProductionOrderLine(ProdOrderLine, ProdOrderLine.Status::"Firm Planned", ProdItem."No.", Location.Code);
+        LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProdOrderLine."Prod. Order No.");
+        FindProductionOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, ProdItem."No.", Location.Code);
+        ProductionOrder.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.");
+
+        // [GIVEN] Open Production Journal and assign Output Quantity and Post the Journal.
+        LibraryVariableStorage.Enqueue(ProdItem."No.");
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandDecInRange(1, 1, 0));
+        LibraryVariableStorage.Enqueue(PostingProductionJournalQst);
+        LibraryVariableStorage.Enqueue(PostingProductionJournalTxt);
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
+
+        //[WHEN] Calculate Plan for Requisition Worksheet with the required Start and End dates, Carry out Action Message.
+        CalculateRegenerativePlanForPlanWorksheet(CompItem."No.", ProdItem."No.");
+
+        // [THEN]] Verify that no Requisition line is created for Requisition Worksheet.
+        FilterOnRequisitionLine(RequisitionLine, ProdItem."No.");
+        Assert.IsTrue(RequisitionLine.IsEmpty, StrSubstNo(RequisitionLineMustNotExistTxt, ProdItem."No."));
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -6759,6 +6879,33 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
         ProdOrderCompCmtLine.FindFirst();
     end;
 
+    local procedure FindProductionOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Enum "Production Order Status"; ItemNo: Code[20]; LocationCode: Code[10])
+    begin
+        ProdOrderLine.SetRange(Status, Status);
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.SetRange("Location Code", LocationCode);
+        ProdOrderLine.FindFirst();
+    end;
+
+    local procedure CreateRoutingWithWorkCenter(WorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; LotSize: Decimal): Code[20]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenterNo);
+        RoutingLine.Validate("Setup Time", SetupTime);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Validate("Lot Size", LotSize);
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+        exit(RoutingHeader."No.");
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CalculatePlanPlanWkshRequestPageHandler(var CalculatePlanPlanWksh: TestRequestPage "Calculate Plan - Plan. Wksh.")
@@ -6818,6 +6965,38 @@ ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
         Reservation."Auto Reserve".Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesAssignPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Assign &Serial No.".Invoke(); // AssignSerialNoEnterQtyPageHandler required.
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure AssignSerialNoEnterQtyPageHandler(var EnterQuantityPage: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantityPage.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    var
+        ProdItemNo: Variant;
+        Quantity: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ProdItemNo);
+        LibraryVariableStorage.Dequeue(Quantity);
+        
+        ProductionJournal.FILTER.SetFilter("Item No.", ProdItemNo);
+        ProductionJournal."Output Quantity".SetValue(Quantity);
+        ProductionJournal.ItemTrackingLines.Invoke();
+        ProductionJournal.Post.Invoke();
+        ProductionJournal.OK().Invoke();
     end;
 
     [ConfirmHandler]

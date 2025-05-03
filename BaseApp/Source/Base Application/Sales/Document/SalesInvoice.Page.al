@@ -845,6 +845,25 @@ page 43 "Sales Invoice"
                                     CurrPage.Update();
                                 end;
                             end;
+
+                            trigger OnLookup(var Text: Text): Boolean
+                            var
+                                Customer: Record Customer;
+                            begin
+                                if Customer.SelectCustomer(Customer) then begin
+                                    xRec := Rec;
+                                    Rec."Bill-to Name" := Customer.Name;
+                                    Rec.Validate("Bill-to Customer No.", Customer."No.");
+                                end;
+
+                                if not ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName) then begin
+                                    if Rec.GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
+                                        if Rec."Bill-to Customer No." <> xRec."Bill-to Customer No." then
+                                            Rec.SetRange("Bill-to Customer No.");
+
+                                    CurrPage.Update();
+                                end;
+                            end;
                         }
                         field("Bill-to Address"; Rec."Bill-to Address")
                         {

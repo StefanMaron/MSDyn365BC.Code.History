@@ -4646,7 +4646,8 @@ table 36 "Sales Header"
                                 SalesLine.Validate("Shipment Date", "Shipment Date");
                         FieldNo("Currency Factor"):
                             if SalesLine.Type <> SalesLine.Type::" " then begin
-                                SalesLine.Validate("Unit Price");
+                                if SalesLine."Line Discount %" <> 0 then
+                                    SalesLine.Validate("Unit Price");
                                 SalesLine.Validate("Unit Cost (LCY)");
                                 if SalesLine."Job No." <> '' then
                                     JobTransferLine.FromSalesHeaderToPlanningLine(SalesLine, "Currency Factor");
@@ -7889,6 +7890,7 @@ table 36 "Sales Header"
 
     local procedure UpdateShipToContact()
     var
+        ShipToAddress: Record "Ship-to Address";
         IsHandled: Boolean;
     begin
         if not (CurrFieldNo in [FieldNo("Sell-to Contact"), FieldNo("Sell-to Contact No.")]) then
@@ -7896,6 +7898,11 @@ table 36 "Sales Header"
 
         if IsCreditDocType() then
             exit;
+
+        if "Ship-to Code" <> '' then
+            if ShipToAddress.Get("Sell-to Customer No.", "Ship-to Code") then
+                if ShipToAddress.Contact <> '' then
+                    exit;
 
         IsHandled := false;
         OnUpdateShipToContactOnBeforeValidateShipToContact(Rec, xRec, CurrFieldNo, IsHandled);
@@ -9312,6 +9319,7 @@ table 36 "Sales Header"
         if IsHandled then
             exit(Result);
 
+        Contact.FilterGroup(2);
         if "Sell-to Customer No." <> '' then
             if Contact.Get("Sell-to Contact No.") then
                 Contact.SetRange("Company No.", Contact."Company No.")
@@ -9329,6 +9337,7 @@ table 36 "Sales Header"
             Validate("Sell-to Contact No.", Contact."No.");
             exit(true);
         end;
+        Contact.FilterGroup(0);
         exit(false);
     end;
 
