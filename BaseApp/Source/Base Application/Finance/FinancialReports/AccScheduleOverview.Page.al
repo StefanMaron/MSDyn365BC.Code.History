@@ -1056,6 +1056,7 @@ page 490 "Acc. Schedule Overview"
 
     trigger OnOpenPage()
     begin
+        Clear(Rec);
         ViewLayout := ViewLayout::"Show All";
         ReloadPage();
     end;
@@ -1170,6 +1171,8 @@ page 490 "Acc. Schedule Overview"
     begin
         GLSetup.Get();
         UseAmtsInAddCurrVisible := GLSetup."Additional Reporting Currency" <> '';
+        if FinancialReportCode = '' then
+            FinancialReportCode := TempFinancialReport.Name;
 
         // `FinancialReportTemp` contains the state of the filters the user interacts with
         // `LoadFinancialReportFiltersOrDefault` loads this temporary record considering user overriden filters (if any).

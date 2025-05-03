@@ -836,7 +836,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
         SalesHeader: Record "Sales Header";
     begin
-        if not RecalculateInvoiceDisc then
+        if (not RecalculateInvoiceDisc) and (SalesLine.Type = SalesLine.Type::Item) then
             exit;
 
         if not SalesInvoiceEntityAggregate.Get(SalesLine."Document No.", false) then

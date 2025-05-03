@@ -177,6 +177,7 @@ table 167 Job
                         repeat
                             if ShouldDeleteReservationEntries then
                                 JobPlanningLineReserve.DeleteLineInternal(JobPlanningLine, false);
+                            UpdateReservationEntries();
                             ATOLink.MakeAsmOrderLinkedToJobPlanningOrderLine(JobPlanningLine);
                             JobPlanningLine.Validate(Status, Status);
                             JobPlanningLine.Modify();
@@ -3028,6 +3029,22 @@ table 167 Job
             exit;
 
         TimeSheetLine.CheckIfTimeSheetLineLinkExist(Rec);
+    end;
+
+    local procedure UpdateReservationEntries()
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        if Status <> Status::Open then
+            exit;
+
+        ReservationEntry.ReadIsolation(IsolationLevel::UpdLock);
+        ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
+        ReservationEntry.SetRange("Source ID", "No.");
+        if ReservationEntry.FindSet(true) then begin
+            ReservationEntry.ModifyAll("Source Subtype", 2);
+            ReservationEntry.ModifyAll("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        end;
     end;
 
     [IntegrationEvent(true, false)]
