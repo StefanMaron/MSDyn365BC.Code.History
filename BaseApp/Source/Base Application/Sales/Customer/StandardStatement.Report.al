@@ -952,10 +952,9 @@ report 1316 "Standard Statement"
         {
         }
 
-        trigger OnOpenPage()
+        trigger OnInit()
         begin
-            if CurrReport.UseRequestPage then
-                InitInteractionLog();
+            InitInteractionLog();
             LogInteractionEnable := LogInteraction;
             InitRequestPageDataInternal();
         end;

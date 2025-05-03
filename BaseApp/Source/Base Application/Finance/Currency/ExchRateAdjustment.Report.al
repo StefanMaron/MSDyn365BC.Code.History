@@ -345,7 +345,7 @@ report 596 "Exch. Rate Adjustment"
             if not Confirm(ConfirmationTxt + ContinueTxt, false) then
                 Error(AdjustmentCancelledErr);
 
-        if (not AdjCust) and (not AdjVend) and (not AdjBank) and (not AdjEmpl) and (not AdjGLAcc) then
+        if (not AdjCust) and (not AdjVend) and (not AdjBank) and (not AdjEmpl) and (not AdjGLAcc) and (not AdjVATEntries) then
             exit;
 
         if AdjVATEntries then

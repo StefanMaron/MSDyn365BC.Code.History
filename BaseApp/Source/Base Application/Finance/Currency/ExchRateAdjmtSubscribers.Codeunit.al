@@ -17,6 +17,9 @@ using Microsoft.Sales.Receivables;
 
 codeunit 597 "Exch. Rate Adjmt. Subscribers"
 {
+    Permissions = TableData "VAT Entry" = rim,
+                  TableData "G/L Register" = rim;
+
     var
         GLSetup: Record "General Ledger Setup";
         SourceCodeSetup: Record "Source Code Setup";

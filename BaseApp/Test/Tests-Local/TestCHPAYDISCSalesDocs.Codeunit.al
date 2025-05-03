@@ -18,8 +18,11 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryPurchase: Codeunit "Library - Purchase";
         IsInitialized: Boolean;
         PmtApplnErr: Label 'You cannot post and apply general journal line %1, %2, %3 because the corresponding balance contains VAT.', Comment = '%1 - Template name, %2 - Batch name, %3 - Line no.';
+        VATEntryCountErr: Label 'New VAT entry not created';
 
     local procedure Initialize()
     begin
@@ -231,6 +234,69 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
           GeneralLedgerSetup."Pmt. Disc. Tolerance Posting");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure ExchangeRateAdjustmentCheckVATEntryWhileAdjustVATTrue()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        BeforeVATCount: Integer;
+        CurrencyCode: Code[10];
+        InvoiceNo: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 573894] Check new VAT entry created from Exchange Rate adjustment when only "Adjust VAT" True on report.
+        Initialize();
+
+        // [GIVEN] Set New WorkDate.
+        WorkDate(DMY2Date(1, 1, 2025));
+
+        // [GIVEN] Create Currency With Exchange Rate using new workdate.
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1);
+        ModifyCurrencyExchangeRate(CurrencyCode);
+
+        // [GIVEN] Create VAT Posting Setup with "VAT Calculation Type" = "Normal VAT".
+        LibraryCH.CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", '', '');
+
+        // [GIVEN] Create Vendor With VAT Bus Posting Group.
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create GL Account.
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        ModifyGLAccount(GLAccount, GeneralPostingSetup, VATPostingSetup);
+
+        // [GIVEN] Create And Post Purchase Invoice with line GL Account.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.");
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Modify();
+        PurchaseLine.Validate(Quantity, 1);
+        PurchaseLine.Validate(Amount, 10000);
+        PurchaseLine.Modify();
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Count VAT Entry Before Running Exch. Rate Adjustment Report.
+        VATEntry.SetRange("Document No.", InvoiceNo);
+        if VATEntry.Findset() then
+            BeforeVATCount := VATEntry.Count;
+
+        // [WHEN] Adjusted exchange rate Report Run with only "Adjust VAT" True on Request Page.
+        RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());
+
+        // [WHEN] Count VAT Entry After Running Exch. Rate Adjustment Report.
+        Clear(VATEntry);
+        VATEntry.SetRange("Document No.", InvoiceNo);
+        if VATEntry.Findset() then;
+
+        // [THEN] Actual Result VAT Entry Count Must Not Eqalt to BeforeVATCount, New VAT Entry Must Created after Running Exch. Rate Adjustment Report.
+        Assert.AreNotEqual(BeforeVATCount, VATEntry.Count, VATEntryCountErr);
+    end;
+
     local procedure ApplyAfterPosting(var CustLedgerEntry: Record "Cust. Ledger Entry"; Customer: Record Customer; GLAccount: Record "G/L Account")
     var
         InvGenJournalLine1: Record "Gen. Journal Line";
@@ -429,6 +495,54 @@ codeunit 144066 "Test CH PAYDISC Sales Docs"
         GeneralLedgerSetup.Validate("Payment Tolerance Warning", PmtToleranceWarning);
         GeneralLedgerSetup.Validate("Pmt. Disc. Tolerance Posting", PmtDiscTolerancePosting);
         GeneralLedgerSetup.Modify();
+    end;
+
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20])
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));  // Use Random Unit Price between 1 and 100.
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure ModifyCurrencyExchangeRate(CurrencyCode: Code[10])
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        CurrencyExchangeRate.Get(CurrencyCode, WorkDate());
+        CurrencyExchangeRate."Relational Exch. Rate Amount" := 1.1;
+        CurrencyExchangeRate."Relational Adjmt Exch Rate Amt" := 1.1;
+        CurrencyExchangeRate."VAT Exch. Rate Amount" := 1;
+        CurrencyExchangeRate."Relational VAT Exch. Rate Amt" := 1.2;
+        CurrencyExchangeRate.Modify();
+    end;
+
+    local procedure ModifyGLAccount(var GLAccount: Record "G/L Account"; GeneralPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+    end;
+
+    local procedure RunExchRateAdjustmentSimple(CurrencyCode: Code[10]; EndDate: Date; PostingDate: Date)
+    begin
+        RunExchRateAdjustment(CurrencyCode, 0D, EndDate, 'Test', PostingDate, LibraryUtility.GenerateGUID(), false);
+    end;
+
+    local procedure RunExchRateAdjustment(CurrencyCode: Code[10]; StartDate: Date; EndDate: Date; PostingDescription: Text[50]; PostingDate: Date; PostingDocNo: Code[20]; AdjGLAcc: Boolean)
+    var
+        Currency: Record Currency;
+        ExchRateAdjustment: Report "Exch. Rate Adjustment";
+    begin
+        Currency.SetRange(Code, CurrencyCode);
+        ExchRateAdjustment.SetTableView(Currency);
+        ExchRateAdjustment.InitializeRequest2(StartDate, EndDate, PostingDescription, PostingDate, PostingDocNo, false, AdjGLAcc);
+        ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.SetHideUI(true);
+        ExchRateAdjustment.SetAdjustVATEntries(true);
+        ExchRateAdjustment.Run();
     end;
 
     [ConfirmHandler]

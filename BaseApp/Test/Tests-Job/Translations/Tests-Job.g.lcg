@@ -50,6 +50,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Inv. Pick On Job Planning - NamedType NothingToCreateMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 736944143 - NamedType 1306784414" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reservation Entry should be created for the Job Planning Line]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Inv. Pick On Job Planning - NamedType ReservationEntryNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 736944143 - NamedType 50934526" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The actual value and the expected sum of filtered %1 %2 are not equal]]></Val>

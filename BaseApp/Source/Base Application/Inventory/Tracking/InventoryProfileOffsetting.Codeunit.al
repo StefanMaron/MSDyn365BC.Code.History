@@ -150,7 +150,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if Item."Item Tracking Code" <> '' then begin
             ItemTrackingCode.Get(Item."Item Tracking Code");
             SpecificLotTracking := ItemTrackingCode."Lot Specific Tracking";
-            SpecificSNTracking := ItemTrackingCode."SN Specific Tracking";
+            SpecificSNTracking := (ItemTrackingCode."SN Specific Tracking") or (ItemTrackingCode."SN Transfer Tracking");
         end else begin
             SpecificLotTracking := false;
             SpecificSNTracking := false;

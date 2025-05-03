@@ -8963,7 +8963,7 @@ codeunit 80 "Sales-Post"
             until TempSalesLine.Next() = 0;
         CRMSalesDocumentPostingMgt.CheckShippedOrders(TempSalesOrderHeader);
 
-        OnAfterPostUpdateInvoiceLine(TempSalesLine, SalesHeader);
+        OnAfterPostUpdateInvoiceLine(TempSalesLine, SalesHeader, TempSalesOrderHeader);
     end;
 
     local procedure PostUpdateOrderNo(var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -9718,7 +9718,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterPostUpdateInvoiceLine(var TempSalesLine: Record "Sales Line" temporary; var SalesHeader: Record "Sales Header")
+    local procedure OnAfterPostUpdateInvoiceLine(var TempSalesLine: Record "Sales Line" temporary; var SalesHeader: Record "Sales Header"; var TempSalesOrderHeader: Record "Sales Header" temporary)
     begin
     end;
 
