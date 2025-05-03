@@ -251,7 +251,7 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         CreateInputData(PostingDate, BankAccountNo, StatementNo, DocumentNo, Description, Amount);
         DateRange := LibraryRandom.RandIntInRange(2, 10);
 
-        ExpectedMatchedEntryNo := CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, '');
+        ExpectedMatchedEntryNo := CreateBankAccLedgerEntry(BankAccountNo, PostingDate, DocumentNo, '', Amount, Description);
         CreateBankAccRec(BankAccReconciliation, BankAccountNo, StatementNo);
         ExpectedMatchedLineNo := CreateBankAccRecLine(BankAccReconciliation,
             PostingDate - LibraryRandom.RandInt(DateRange), Description, '', Amount);
