@@ -107,7 +107,7 @@ page 250 "General Journal Template List"
                 field("Unlink Inc. Doc On Posting"; Rec."Unlink Inc. Doc On Posting")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the the incoming document will be unlinked from the journal when it is posted.';
+                    ToolTip = 'Specifies whether the the incoming document will be unlinked from the journal when it is posted. This option can be enabled only for recurring journals.';
                     Visible = false;
                 }
             }

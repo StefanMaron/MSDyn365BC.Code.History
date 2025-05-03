@@ -1151,6 +1151,85 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         Assert.AreEqual(0, InventoryCostByItem(ComponentItem."No."), InvCostMustBeZeroErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GetRcptLinesPageHandler')]
+    procedure OrderNoIsPopulatedInPostedPurchInvWhenGetRcptLinesAndPostPIForPOHavingPrePmtInv()
+    var
+        GLAccount: Record "G/L Account";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [SCENARIO 566107] "Order No." is populated in Posted Purchase Invoice from Purchase Order,
+        // which is having a Prepayment Invoice and a Posted Purchase Receipt, and the Purchase
+        // Invoice is created and posted using Get Receipt Lines action.
+        Initialize();
+
+        // [GIVEN] Create a GL Account with Prepayment Posting Setup.
+        PreparePrepaymentsPostingSetup(GLAccount);
+
+        // [GIVEN] Create an Item with GL Account.
+        PrepareItemAccordingToSetup(Item, GLAccount);
+
+        // [GIVEN] Create a Vendor with GL Account.
+        PrepareVendorAccordingToSetup(Vendor, GLAccount, LibraryRandom.RandIntInRange(20, 20));
+
+        // [GIVEN] Create Purchase Header [1].
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create Purchase Line [1] and Validate "Direct Unit Cost".
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item, Item."No.", LibraryRandom.RandIntInRange(10, 10));
+        PurchaseLine[1].Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine[1].Modify(true);
+
+        // [GIVEN] Validate "Prepayment Due Date" in Purchase Header [1].
+        PurchaseHeader[1].Validate("Prepayment Due Date", CalcDate('<3D>', WorkDate()));
+        PurchaseHeader[1].Modify(true);
+
+        // [GIVEN] Post Purchase Prepayment Invoice.
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader[1]);
+
+        // [GIVEN] Post Purchase Receipt.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, false);
+
+        // [GIVEN] Create Purchase Header [2].
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Open Purchase Invoice page and run Get Receipt Lines action.
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.GoToRecord(PurchaseHeader[2]);
+        LibraryVariableStorage.Enqueue(Format(PurchaseHeader[1]."Buy-from Vendor No."));
+        PurchaseInvoice.PurchLines.GetReceiptLines.Invoke();
+
+        // [GIVEN] Find Purchase Header [2].
+        PurchaseHeader[2].Get(PurchaseHeader[2]."Document Type"::Invoice, PurchaseHeader[2]."No.");
+
+        // [GIVEN] Post Purchase Header [2].
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader[2], false, true);
+
+        // [WHEN] Find Purch. Rcpt. Header.
+        PurchRcptHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchRcptHeader.FindFirst();
+
+        // [THEN] "Order No." in Purch. Rcpt. Header is equal to "No." of Purchase Header [1].
+        Assert.AreEqual(PurchaseHeader[1]."No.", PurchRcptHeader."Order No.", '');
+
+        // [WHEN] Find Purch. Rcpt. Line.
+        PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
+        PurchRcptLine.FindLast();
+
+        // [THEN] "Order No." in Purch. Rcpt. Line is equal to "No." of Purchase Header [1].
+        Assert.AreEqual(PurchaseHeader[1]."No.", PurchRcptLine."Order No.", '');
+
+        // [THEN] "Order Line No." in Purch. Rcpt. Line is equal to "Line No." of Purchase Line [1].
+        Assert.AreEqual(PurchaseLine[1]."Line No.", PurchRcptLine."Order Line No.", '');
+    end;
+
     local procedure AcceptActionMessage(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
         SelectRequisitionLine(RequisitionLine, ItemNo);
@@ -1969,6 +2048,45 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         ItemApplicationEntry.TestField(Quantity, Quantity);
     end;
 
+    local procedure PreparePrepaymentsPostingSetup(var GLAccount: Record "G/L Account")
+    var
+        PrepmtGLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreatePrepaymentVATSetup(
+          GLAccount, PrepmtGLAccount, GLAccount."Gen. Posting Type"::Purchase,
+          "Tax Calculation Type"::"Normal VAT", "Tax Calculation Type"::"Normal VAT");
+    end;
+
+    local procedure PrepareItemAccordingToSetup(var Item: Record Item; GLAccount: Record "G/L Account")
+    var
+        InventoryPostingGroup: Record "Inventory Posting Group";
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        InventoryPostingGroup.FindFirst();
+
+        Item.Init();
+        Item.Insert(true);
+
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, LibraryRandom.RandInt(0));
+
+        Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Validate("Gen. Prod. Posting Group", GLAccount."Gen. Prod. Posting Group");
+        Item.Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
+        Item.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
+        Item.Modify(true);
+    end;
+
+    local procedure PrepareVendorAccordingToSetup(var Vendor: Record Vendor; GLAccount: Record "G/L Account"; PrepaymentPercentage: Integer)
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Gen. Bus. Posting Group", GLAccount."Gen. Bus. Posting Group");
+        Vendor.Validate("VAT Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
+        Vendor.Validate("Prepayment %", PrepaymentPercentage);
+        Vendor.Modify();
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MsgHandler(Msg: Text[1024])
@@ -2025,6 +2143,14 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryVariableStorage.Dequeue(ItemNo);
         PostedTransferReceiptLines.FILTER.SetFilter("Item No.", ItemNo);
         PostedTransferReceiptLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetRcptLinesPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
+    begin
+        GetReceiptLines.Filter.SetFilter("Buy-from Vendor No.", LibraryVariableStorage.DequeueText());
+        GetReceiptLines.OK().Invoke();
     end;
 }
 
