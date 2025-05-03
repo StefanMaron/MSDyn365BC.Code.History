@@ -533,11 +533,6 @@ report 408 "Purchase - Receipt"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-        end;
-
-        trigger OnOpenPage()
-        begin
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
@@ -564,12 +559,6 @@ report 408 "Purchase - Receipt"
                       "Purch. Rcpt. Header"."Purchaser Code",
                       '', "Purch. Rcpt. Header"."Posting Description", '');
                 until "Purch. Rcpt. Header".Next() = 0;
-    end;
-
-    trigger OnPreReport()
-    begin
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
     end;
 
     var
