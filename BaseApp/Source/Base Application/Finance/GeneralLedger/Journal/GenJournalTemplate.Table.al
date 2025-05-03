@@ -336,6 +336,12 @@ table 80 "Gen. Journal Template"
         field(34; "Unlink Inc. Doc On Posting"; Boolean)
         {
             Caption = 'Unlink Incoming Documents On Posting';
+
+            trigger OnValidate()
+            begin
+                if "Unlink Inc. Doc On Posting" then
+                    TestField(Recurring);
+            end;
         }
         field(11402; "No. of CBG Statements"; Integer)
         {

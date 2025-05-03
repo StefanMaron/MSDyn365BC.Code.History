@@ -1265,6 +1265,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = FIELD Caption, %2 = FIELD Value]D;]A;(LookupHint=Codeunit ERM Apply Unapply Vendor - NamedType ApplicationEntryErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4182006359 - NamedType 3837909384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applies to Ext. Doc No. must be empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Unapply Vendor - NamedType AppliesToExtDocNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4182006359 - NamedType 1693110424" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Detailed Vendor Ledger Entry Must Found.]]></Val>
@@ -6467,6 +6476,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Blanket Order - NamedType QuantityShippedMustNotBeGreaterErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3058997361 - NamedType 1785547107" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Total record count must be equal to %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Record Count.]D;]A;(LookupHint=Codeunit ERM Sales Blanket Order - NamedType TotalRecordCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3058997361 - NamedType 1353928866" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unit Price is changed on Quantity update.]]></Val>
@@ -6528,6 +6546,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1= Expected Tax Amount]D;]A;(LookupHint=Codeunit ERM Sales Cr. Memo Aggr. UT - NamedType TaxAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 891447087 - NamedType 3541576472" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount must be same]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Document - NamedType AmountMustSameErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 891447087 - NamedType 2625341778" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

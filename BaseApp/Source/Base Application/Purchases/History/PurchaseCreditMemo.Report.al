@@ -835,12 +835,7 @@ report 407 "Purchase - Credit Memo"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-        end;
-
-        trigger OnOpenPage()
-        begin
-            LogInteraction := SegManagement.FindInteractionTemplateCode(Enum::"Interaction Log Entry Document Type"::"Purch. Cr. Memo") <> '';
+            InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -867,12 +862,6 @@ report 407 "Purchase - Credit Memo"
                       16, "Purch. Cr. Memo Hdr."."No.", 0, 0, DATABASE::Vendor, "Purch. Cr. Memo Hdr."."Buy-from Vendor No.",
                       "Purch. Cr. Memo Hdr."."Purchaser Code", '', "Purch. Cr. Memo Hdr."."Posting Description", '');
                 until "Purch. Cr. Memo Hdr.".Next() = 0;
-    end;
-
-    trigger OnPreReport()
-    begin
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
     end;
 
     var

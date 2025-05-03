@@ -74,7 +74,8 @@ codeunit 212 "Res. Jnl.-Post Line"
             OnBeforeCheckResourceBlocked(Resource, IsHandled);
             if not IsHandled then
                 Resource.TestField(Blocked, false);
-            ResJournalLineGlobal."Resource Group No." := Resource."Resource Group No.";
+
+            UpdateResJnlLineResourceGroupNo();
 
             ResLedgerEntry.Init();
             ResLedgerEntry.CopyFromResJnlLine(ResJournalLineGlobal);
@@ -173,6 +174,18 @@ codeunit 212 "Res. Jnl.-Post Line"
         ResourceRegister.Insert();
     end;
 
+    local procedure UpdateResJnlLineResourceGroupNo()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateResJnlLineResourceGroupNo(ResJournalLineGlobal, Resource, IsHandled);
+        if IsHandled then
+            exit;
+
+        ResJournalLineGlobal."Resource Group No." := Resource."Resource Group No.";
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckResourceBlocked(Resource: Record Resource; var IsHandled: Boolean)
     begin
@@ -215,6 +228,11 @@ codeunit 212 "Res. Jnl.-Post Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnCodeOnAfterRunCheck(var ResJournalLine: Record "Res. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateResJnlLineResourceGroupNo(var ResJournalLine: Record "Res. Journal Line"; Resource: Record Resource; var IsHandled: Boolean)
     begin
     end;
 }

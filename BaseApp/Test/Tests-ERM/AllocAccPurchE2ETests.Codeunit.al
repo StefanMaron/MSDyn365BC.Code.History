@@ -1126,6 +1126,55 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         Assert.AreEqual(AmountIncludingVAT, PurchInvLine."Amount Including VAT", AmountMustBeEqualErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure PostPurchaseInvoiceWithAllocationAccountUsingFixAccountSplitAmount()
+    var
+        AllocationAccount: Record "Allocation Account";
+        DimensionValue: array[2] of Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+        PurchInvLine: Record "Purch. Inv. Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        Quantity: Decimal;
+        UnitCost: Decimal;
+        AmountIncludingVAT: Decimal;
+    begin
+        // [SCENARIO 572659] A Purchase Invoice with a G/L Account and Allocation Account generates correct 
+        // allocation of the Expense and include Canada Tax in the Allocation of the Purchase Invoice Line Amount
+        Initialize();
+
+        // [GIVEN] Assign the value for quantity, unit cost and amount
+        Quantity := LibraryRandom.RandIntInRange(25, 25);
+        UnitCost := LibraryRandom.RandDecInDecimalRange(26.85, 26.85, 2);
+
+        // [GIVEN] Create a GL Account.
+        GLAccount.Get((CreateGLAccount()));
+
+        // [GIVEN] Create a dimension that is defined as a department with two values.
+        CreateDimensionsWithNineValues(DimensionValue);
+
+        // [GIVEN] Create a fixed Allocation Account with nine Distribution Lines and inherit from parent values.
+        CreateFixedAllocationAccountWithNineDistributionLinesInheritFromParent(AllocationAccount, DimensionValue);
+
+        // [GIVEN] Create a Purchase Invoice with Inherit 
+        CreatePurchaseInvoiceWithInheritFromParent(GLAccount."No.", AllocationAccount."No.", PurchaseInvoice, PurchaseHeader, Quantity, UnitCost);
+
+        // [GIVEN] Save the value in AmountIncludingVAT variable 
+        Evaluate(AmountIncludingVAT, PurchaseInvoice.DocAmount.Value());
+
+        // [WHEN] The Purchase Invoice is posted
+        PurchaseInvoice.Post.Invoke();
+        PurchInvHeader.SetRange("Draft Invoice SystemId", PurchaseHeader.SystemId);
+        PurchInvHeader.FindFirst();
+
+        // [THEN] Verify G/L entry will be posted with correct amount.
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.CalcSums("Amount Including VAT");
+        Assert.AreEqual(AmountIncludingVAT, PurchInvLine."Amount Including VAT", AmountMustBeEqualErr);
+    end;
+
     local procedure CreateAllocationAccountwithVariableGLDistributionsAndInheritFromParent(
         var AllocationAccount: Record "Allocation Account";
         FirstDimensionValue: Record "Dimension Value";
@@ -1520,6 +1569,42 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         EditDimensionSetEntriesPage."Dimension Code".SetValue(DimensionValue."Dimension Code");
         EditDimensionSetEntriesPage.DimensionValueCode.SetValue(DimensionValue.Code);
         EditDimensionSetEntriesPage.OK().Invoke();
+    end;
+
+    local procedure CreateFixedAllocationAccountwithNineDistributionLinesInheritFromParent(var AllocationAccount: Record "Allocation Account"; DimensionValue: array[9] of Record "Dimension Value")
+    var
+        FixedAllocationAccountCode: Code[20];
+        i: Integer;
+    begin
+        FixedAllocationAccountCode := CreateAllocationAccountWithFixedDistribution();
+
+        for i := 1 to ArrayLen(DimensionValue) do
+            CreateAllocationAccountDistributionLineInheritFromParent(FixedAllocationAccountCode, '', '');
+
+        AllocationAccount.Get(FixedAllocationAccountCode);
+    end;
+
+    local procedure CreateAllocationAccountWithFixedDistribution(): Code[20]
+    var
+        AllocationAccount: Record "Allocation Account";
+    begin
+        AllocationAccount."No." := Format(LibraryRandom.RandText(5));
+        AllocationAccount."Account Type" := AllocationAccount."Account Type"::Fixed;
+        AllocationAccount.Name := Format(LibraryRandom.RandText(10));
+        AllocationAccount."Document Lines Split" := AllocationAccount."Document Lines Split"::"Split Amount";
+        AllocationAccount.Insert(true);
+        exit(AllocationAccount."No.");
+    end;
+
+    local procedure CreateDimensionsWithNineValues(var DimensionValue: array[9] of Record "Dimension Value")
+    var
+        Dimension: Record Dimension;
+        i: Integer;
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+
+        for i := 1 to ArrayLen(DimensionValue) do
+            LibraryDimension.CreateDimensionValue(DimensionValue[i], Dimension.Code);
     end;
 
     [ConfirmHandler]
