@@ -34,6 +34,7 @@ using Microsoft.Service.Contract;
 using Microsoft.Service.Item;
 using Microsoft.Service.Ledger;
 using Microsoft.Service.Pricing;
+using Microsoft.Warehouse.Ledger;
 using System.Utilities;
 
 
@@ -55,7 +56,9 @@ codeunit 361 MoveEntries
                   TableData "Inventory Adjmt. Entry (Order)" = rm,
                   TableData "Service Ledger Entry" = rm,
                   TableData "Warranty Ledger Entry" = rm,
-                  TableData "Service Contract Header" = rm;
+                  TableData "Service Contract Header" = rm,
+                  TableData "Warehouse Entry" = rm;
+
 
     trigger OnRun()
     begin
@@ -339,6 +342,7 @@ codeunit 361 MoveEntries
 
     procedure MoveItemEntries(Item: Record Item)
     var
+        WarehouseEntry: Record "Warehouse Entry";
         AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
         NewItemNo: Code[20];
     begin
@@ -473,6 +477,9 @@ codeunit 361 MoveEntries
             ServiceItemComponent.ModifyAll("No.", NewItemNo);
 
         OnAfterMoveItemEntries(Item, ItemLedgEntry, ValueEntry, ServLedgEntry, WarrantyLedgEntry, InvtAdjmtEntryOrder);
+
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.ModifyAll("Item No.", NewItemNo);
     end;
 
     procedure MoveResEntries(Res: Record Resource)
