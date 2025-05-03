@@ -3405,6 +3405,54 @@ codeunit 137154 "SCM Warehouse Management II"
     end;
 
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler')]
+    procedure PostWarehouseShipmentWithMultipleRegisteredPicks()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        LotNo: Code[20];
+        Counter: Integer;
+        Quantity: Decimal;
+        Quantity2: Decimal;
+    begin
+        // [SCENARIO 563117] Post Warehouse Shipment with multiple Registered Pick.
+        Initialize();
+
+        // [GIVEN] Create Item with Lot No. Tracking.
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', LotItemTrackingCode.Code);
+
+        // [GIVEN] Generate Quantity.
+        Quantity := LibraryRandom.RandInt(5);
+        Quantity2 := Quantity + LibraryRandom.RandInt(20);
+
+        // [GIVEN] Generate Lot No.
+        LotNo := LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Lot No."), Database::"Warehouse Activity Line");
+
+        // [GIVEN] Post Positive Adjustment with Item Tracking.
+        PostItemJournalWithTracking(Item."No.", LotNo, Quantity2, LocationYellow.Code);
+
+        // [GIVEN] Create and Release Sales Order.
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationYellow.Code, '', Quantity2, WorkDate(), false, true);
+
+        // [GIVEN] Post Negative Adjustment with Item Tracking.
+        POSTNegativeAdjustmentWithItemTracking(Item, LocationYellow.Code, Quantity, '', LotNo);
+
+        // [GIVEN] Create Warehouse Shipment and Pick.
+        CreatePickFromWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
+
+        // [WHEN] Register Pick Multiple Times.
+        for Counter := 1 to (Quantity2 - Quantity) do
+            UpdateQuantityToHandleAndLotNoOnPickAndRegisterPick(SalesHeader."No.", 1, LotNo);
+
+        // [THEN] Post the Warehouse Shipment.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5106,6 +5154,67 @@ codeunit 137154 "SCM Warehouse Management II"
         LibraryVariableStorage.Enqueue(TrackingQtyToHandle);
         LibraryVariableStorage.Enqueue(TrackingQty);
         TransferLine.OpenItemTrackingLines("Transfer Direction"::Inbound);
+    end;
+
+    local procedure UpdateQuantityToHandleAndLotNoOnPickAndRegisterPick(SourceNo: Code[20]; Quantity: Decimal; LotNo: Code[50])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        UpdateQuantityToHandleAndLotNoOnPickLines(WarehouseActivityLine."Activity Type"::Pick, SourceNo, Quantity, LotNo);
+        RegisterWarehouseActivity(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SourceNo, WarehouseActivityLine."Activity Type"::Pick);
+    end;
+
+    local procedure POSTNegativeAdjustmentWithItemTracking(Item: Record Item; LocationCode: Code[10]; Qty: Decimal; SerialNo: Code[50]; LotNo: Code[50])
+    var
+        ReservEntry: Record "Reservation Entry";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Item);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch."Journal Template Name",
+            ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Negative Adjmt.",
+            Item."No.", Qty);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, SerialNo, LotNo, Qty);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    local procedure PostItemJournalWithTracking(ItemNo: Code[20]; TrackingNo: Code[20]; Qty: Decimal; LocationCode: Code[10])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLine(ItemJournalLine, ItemNo, LocationCode, '', Qty);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Manual Lot Nos");
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(TrackingNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Bin Code", BinCode);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, TemplateType);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, TemplateType, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
     [ModalPageHandler]
