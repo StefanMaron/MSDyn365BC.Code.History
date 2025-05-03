@@ -39,6 +39,7 @@ codeunit 137055 "SCM Warehouse Pick"
         NoAllowedLocationsErr: Label 'Internal movement is not possible at any locations where you are a warehouse employee.';
         UnexpectedLocationCodeErr: Label 'Unexpected location code. Actual -  %1, Expected - %2', Comment = '%1 : Actual location code; %2 : expected location code.';
         LocationCodeMustNotOccurErr: Label 'Location code %1 must not occur.  Expected value - %2', Comment = '%1 : occured location code, %2 : expected location code.';
+        ReturnQtyMismatchErr: Label 'The value in the %1 field in the %2 does not match.', Comment = '%1 :FieldCaption, %2:Table Caption';
         ReservationAction: Option AutoReserve,GetQuantities;
 
     [Test]
@@ -1740,6 +1741,41 @@ codeunit 137055 "SCM Warehouse Pick"
         Assert.RecordCount(WarehouseActivityLine, 0);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CheckPurchReturnOrderReturnQtyShippedWhenNegativeQtyAndPartialPostingOfInventoryPutAway()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        LocationCode: Code[10];
+        PartialQuantity: Decimal;
+    begin
+        // [SCENARIO 565208] Verify the 'Purchase Return Order Quantity to Ship' field when using a negative quantity and partial posting of the inventory put-away.
+        Initialize();
+
+        // [GIVEN] Create Location.
+        LocationCode := CreateLocationWithRequirePickPutAway(true, true);
+
+        // [GIVEN] Create a partial purchase return order with a negative quantity.
+        PartialQuantity := CreatePurchaseReturnOrderAndPartialPost(PurchaseHeader, PurchaseLine, LocationCode);
+
+        // [GIVEN] Create inventory put-away from the purchase return order.
+        CreateInvtPutPickFromPurchDoc(WarehouseActivityHeader, PurchaseHeader, "Warehouse Request Source Document"::"Purchase Return Order");
+
+        // [GIVEN] Update the 'Quantity to Handle' in the warehouse activity line.
+        UpdateQtyToHandleInWhseActivityLine(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.", PartialQuantity);
+
+        // [WHEN] Received the inventory put-away document.
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+
+        // [THEN] Verify the return quantity shipped in the purchase return order.
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        Assert.AreEqual(
+            PurchaseLine."Return Qty. Shipped", -PartialQuantity,
+            StrSubstNo(ReturnQtyMismatchErr, PurchaseLine."Return Qty. Shipped", PurchaseLine.TableCaption));
+    end;
+
     local procedure Initialize()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -2553,6 +2589,19 @@ codeunit 137055 "SCM Warehouse Pick"
         RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
         RoutingHeader.Modify(true);
         exit(RoutingHeader."No.");
+    end;
+
+    local procedure CreatePurchaseReturnOrderAndPartialPost(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]): Decimal
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), -LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Validate("Return Qty. to Ship", -LibraryRandom.RandIntInRange(2, 5));
+        PurchaseLine.Modify(true);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        exit(-PurchaseLine."Return Qty. to Ship");
     end;
 
     [ModalPageHandler]

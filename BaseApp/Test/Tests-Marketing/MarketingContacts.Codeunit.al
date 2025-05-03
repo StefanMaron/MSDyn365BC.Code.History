@@ -6029,6 +6029,39 @@ codeunit 136201 "Marketing Contacts"
         Assert.AreEqual(VerifyInteractionLogEntry."Duration (Min.)", DurationMin, ValueMustMatch);
     end;
 
+    [Test]
+    [HandlerFunctions('ModalPageHandlerForTask')]
+    procedure TaskListPageHasFixedSystemTaskTypeFilterAsOrganiserOrContactAttendee()
+    var
+        Contact: Record Contact;
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+        ContactCard: TestPage "Contact Card";
+        TaskList: TestPage "Task List";
+    begin
+        // [SCENARIO 568324] Task List page has a fixed System Task Type filter as 'Organizer|Contact Attendee' when Next Task Date Drilldown on Contact card
+        Initialize();
+
+        // [GIVEN] Create Contact
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] Create Task for Contact
+        Task.SetRange("Contact No.", Contact."No.");
+        TempTask.CreateTaskFromTask(Task);
+
+        // [WHEN] Open Contact Card and Drilldonw 'Next Task Date' also Trap Task List
+        ContactCard.OpenView();
+        ContactCard.GoToRecord(Contact);
+        TaskList.Trap();
+        ContactCard."Next Task Date".Drilldown();
+
+        // [THEN] Verify Correct filter has been set on the page
+        TaskList."Contact No.".AssertEquals(Contact."No.");
+        Assert.AreEqual(
+            StrSubstNo('%1|%2', Task."System To-do Type"::Organizer, Task."System To-do Type"::"Contact Attendee"),
+            TaskList.Filter.GetFilter("System To-do Type"), 'Wrong filter was set');
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";
