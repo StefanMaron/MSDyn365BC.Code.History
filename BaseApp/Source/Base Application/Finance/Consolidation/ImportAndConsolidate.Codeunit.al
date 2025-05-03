@@ -34,10 +34,11 @@ codeunit 107 "Import and Consolidate"
         ConsolidationMethod: Interface "Consolidation Method";
         ImportConsolidationData: Interface "Import Consolidation Data";
         IsHandled: Boolean;
+        ImportingConsolidationDataTxt: Label 'Importing Consolidation Data';
     begin
         if ConsolidationProcess.Status <> ConsolidationProcess.Status::NotStarted then
             exit;
-        Session.LogMessage('0000KTT', 'Imported consolidation data:' + UserId(), Verbosity::Normal, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::All, '', '');
+        Session.LogSecurityAudit(ImportingConsolidationDataTxt, SecurityOperationResult::Success, UserId(), AuditCategory::Euii);
         GeneralLedgerSetup.Get();
         BusUnitInConsProcess.SetRange("Consolidation Process Id", ConsolidationProcess.Id);
         BusUnitInConsProcess.SetRange("Default Data Import Method", BusUnitInConsProcess."Default Data Import Method"::API);
