@@ -1016,6 +1016,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         if not CurrGenJnlTemplate."Unlink Inc. Doc On Posting" then
             exit;
         GenJnlLine."Incoming Document Entry No." := 0;
+        GenJnlLine.Modify();
     end;
 
     local procedure CopyGenJnlLineBalancingData(var GenJnlLineTo: Record "Gen. Journal Line"; var GenJnlLineFrom: Record "Gen. Journal Line")

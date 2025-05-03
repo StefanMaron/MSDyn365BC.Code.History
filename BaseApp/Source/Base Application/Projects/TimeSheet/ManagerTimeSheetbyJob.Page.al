@@ -444,6 +444,7 @@ page 954 "Manager Time Sheet by Job"
     local procedure GetLineAdditionalData()
     begin
         if TimeSheetHeader."No." <> Rec."Time Sheet No." then begin
+            TimeSheetHeader.SetAutoCalcFields("Resource Name");
             if not TimeSheetHeader.Get(Rec."Time Sheet No.") then
                 Clear(TimeSheetHeader);
 
