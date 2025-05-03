@@ -941,14 +941,9 @@ report 210 "Blanket Sales Order"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-            ArchiveDocument := SalesSetup."Archive Blanket Orders";
-        end;
-
-        trigger OnOpenPage()
-        begin
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
+            ArchiveDocument := SalesSetup."Archive Blanket Orders";
         end;
     }
 
@@ -986,12 +981,6 @@ report 210 "Blanket Sales Order"
                           "Sales Header"."Opportunity No.");
 
                 until "Sales Header".Next() = 0;
-    end;
-
-    trigger OnPreReport()
-    begin
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
     end;
 
     var

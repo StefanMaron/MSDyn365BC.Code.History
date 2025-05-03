@@ -604,11 +604,6 @@ report 5902 "Service Quote"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-        end;
-
-        trigger OnOpenPage()
-        begin
             LogInteraction := SegManagement.FindInteractionTemplateCode(Enum::"Interaction Log Entry Document Type"::"Service Quote") <> '';
             LogInteractionEnable := LogInteraction;
         end;
