@@ -445,6 +445,28 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         LibraryReportDataset.AssertElementTagWithValueExists('VATEntryGetFiltTaxJurisCd', TaxJurisdictionCode[2]);
     end;
 
+    [Test]
+    procedure VerifyDocumentNoSequenceInCalcAndPostVATSettlement()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocNo, DocNo1 : Code[20];
+    begin
+        // [SCENARIO 573513] Missing sequence in number series used for VAT settlement when calculate & post a settlement with zero amount.
+
+        // [GIVEN] Setup: Create VAT Posting Setup. Create and post General Journal Line.
+        Initialize();
+        CreateAndPostGenJournalLine(GenJournalLine);
+
+        // [GIVEN] Run Calc. and Post VAT Settlement.
+        RunCalcAndPostVATSettlement(GenJournalLine, DocNo);
+
+        // [WHEN] Run agin Run Calc. and Post VAT Settlement with Same Parameters
+        RunCalcAndPostVATSettlement(GenJournalLine, DocNo1);
+
+        // [THEN] Verify the No. Series of Particaluar template
+        VerifyNoSeriesForTemplate(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", DocNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -958,6 +980,16 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         Assert.AreEqual(VATAmount, VATEntry.Amount, VATEntry.FieldCaption(Amount));
         VATEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
         Assert.AreEqual(1, VATEntry.Count, IncorrectVATEntryCountErr);
+    end;
+
+    local procedure VerifyNoSeriesForTemplate(TemplateName: Code[10]; BatchName: Code[10]; DocNo: Code[20])
+    var
+        GenJnlBatch: Record "Gen. Journal Batch";
+        NoSeries: Codeunit "No. Series";
+    begin
+        GenJnlBatch.Get(TemplateName, BatchName);
+
+        Assert.AreEqual(DocNo, NoSeries.GetLastNoUsed(GenJnlBatch."No. Series"), GenJnlBatch.FieldCaption("No. Series"));
     end;
 
     [RequestPageHandler]

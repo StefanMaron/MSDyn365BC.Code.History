@@ -734,7 +734,7 @@ codeunit 144006 "CODA Tests"
         CODAWriteStatements.Apply(CODAStatementLine);
 
         // [WHEN] Set applies-to id to blank in the "Apply Entries" page and then press Cancel
-        LibraryVariableStorage.Enqueue(CODAStatementLine."Document No.");
+        LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(false);
         CODAWriteStatements.Apply(CODAStatementLine);
 
@@ -1327,7 +1327,7 @@ codeunit 144006 "CODA Tests"
         CODAStatementLine.Validate("Statement Amount", StatementAmount);
         CODAStatementLine.Insert(true);
     end;
-    
+
     local procedure CreateCurrencyAndExchangeRate(): Code[10]
     var
         GLAccount: Record "G/L Account";
