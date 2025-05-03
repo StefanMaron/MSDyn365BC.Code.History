@@ -6644,10 +6644,7 @@ table 37 "Sales Line"
                                         Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                     VATAmountLine."Amount Including VAT" := VATAmountLine."Line Amount";
                                 end else begin
-                                    VATAmountLine."VAT Base" :=
-                                      Round(
-                                        (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount") / (1 + VATAmountLine."VAT %" / 100),
-                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) - VATAmountLine."VAT Difference";
+                                    VATAmountLine."VAT Base" := (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount") / (1 + VATAmountLine."VAT %" / 100) - VATAmountLine."VAT Difference";
                                     VATAmountLine."VAT Amount" :=
                                       VATAmountLine."VAT Difference" +
                                       Round(
@@ -6655,6 +6652,10 @@ table 37 "Sales Line"
                                         (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" - VATAmountLine."VAT Base" - VATAmountLine."VAT Difference") *
                                         (1 - SalesHeader."VAT Base Discount %" / 100),
                                         Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                    if SalesHeader."VAT Base Discount %" <> 0 then
+                                        VATAmountLine."VAT Base" := Round(VATAmountLine."VAT Base", Currency."Amount Rounding Precision", Currency.VATRoundingDirection())
+                                    else
+                                        VATAmountLine."VAT Base" := VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" - VATAmountLine."VAT Amount";
                                     VATAmountLine."Amount Including VAT" := VATAmountLine."VAT Base" + VATAmountLine."VAT Amount";
                                     VATAmountLine."VAT Base (ACY)" :=
                                               Round(

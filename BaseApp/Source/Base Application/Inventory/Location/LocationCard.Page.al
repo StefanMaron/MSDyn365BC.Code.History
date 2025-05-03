@@ -446,7 +446,6 @@ page 5703 "Location Card"
                 {
                     ApplicationArea = Warehouse;
                     Enabled = AllowBreakbulkEnable;
-                    ToolTip = 'Specifies that an order can be fulfilled with items stored in alternate units of measure, if an item stored in the requested unit of measure is not found.';
                 }
                 group("Put-away")
                 {
