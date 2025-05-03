@@ -252,7 +252,7 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
                                     JobPlanningLine."Unit Cost" := PriceListLine."Direct Unit Cost";
                     end;
             end;
-        OnAfterSetPrice(JobPlanningLine, PriceListLine, AmountType);
+        OnAfterSetPrice(JobPlanningLine, PriceListLine, AmountType, CurrPriceType);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
@@ -300,7 +300,7 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetPrice(var JobPlanningLine: Record "Job Planning Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    local procedure OnAfterSetPrice(var JobPlanningLine: Record "Job Planning Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; CurrPriceType: Enum "Price Type")
     begin
     end;
 
