@@ -129,6 +129,14 @@ table 5023 "Service Declaration Header"
         CheckStatusOpen();
     end;
 
+    trigger OnDelete()
+    var
+        ServiceDeclarationLine: Record "Service Declaration Line";
+    begin
+        ServiceDeclarationLine.SetRange("Service Declaration No.", "No.");
+        ServiceDeclarationLine.DeleteAll();
+    end;
+
     procedure SuggestLines()
     var
         VATReportsConfiguration: Record "VAT Reports Configuration";

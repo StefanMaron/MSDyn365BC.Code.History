@@ -2312,7 +2312,7 @@ codeunit 7312 "Create Pick"
 
         WhseItemTrackingFEFO.SetSource(CurrSourceType, CurrSourceSubType, CurrSourceNo, CurrSourceLineNo, CurrSourceSubLineNo);
         WhseItemTrackingFEFO.SetCalledFromMovementWksh(CalledFromMoveWksh);
-        if not CurrLocation."Allow Breakbulk" then
+        if IsPickByExactRequestedUnitOfMeasure() then
             WhseItemTrackingFEFO.CreateEntrySummaryFEFO(CurrLocation, ItemNo, VariantCode, UnitofMeasureCode, HasExpiryDate)
         else
             WhseItemTrackingFEFO.CreateEntrySummaryFEFO(CurrLocation, ItemNo, VariantCode, HasExpiryDate);
@@ -2383,6 +2383,11 @@ codeunit 7312 "Create Pick"
             HasExpiredItems := WhseItemTrackingFEFO.GetHasExpiredItems();
             EnqueueCannotBeHandledReason(WhseItemTrackingFEFO.GetResultMessageForExpiredItem());
         end;
+    end;
+
+    local procedure IsPickByExactRequestedUnitOfMeasure(): Boolean
+    begin
+        exit(CurrLocation."Directed Put-away and Pick" and (not CurrLocation."Allow Breakbulk"));
     end;
 
     procedure ItemTrackedQuantity(WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal

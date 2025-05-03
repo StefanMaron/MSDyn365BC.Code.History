@@ -4602,7 +4602,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!Base_NoTaxableEntryFormat.Value</Format>
+                                    <Format>=Last(Fields!Base_NoTaxableEntryFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -4755,7 +4755,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!Base_NoTaxableEntryFormat.Value</Format>
+                                    <Format>=Last(Fields!Base_NoTaxableEntryFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -4971,7 +4971,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!VATBuffer2_BaseFormat.Value</Format>
+                                    <Format>=Last(Fields!VATBuffer2_BaseFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -5091,7 +5091,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!VATBuffer2_AmountFormat.Value</Format>
+                                    <Format>=Last(Fields!VATBuffer2_AmountFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -5121,7 +5121,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!VATBuffer2_Base_VATBuffer2_AmountFormat.Value</Format>
+                                    <Format>=Last(Fields!VATBuffer2_Base_VATBuffer2_AmountFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -5330,7 +5330,7 @@
                                   <Value>=SUM(Fields!VATBuffer2_Base_Control88.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!VATBuffer2_Base_Control88Format.Value</Format>
+                                    <Format>=Last(Fields!VATBuffer2_Base_Control88Format.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -5448,7 +5448,7 @@
                                   <Value>=Code.BlankZero(SUM(Fields!VATBuffer2_Amount_Control82.Value))</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!VATBuffer2_Amount_Control82Format.Value</Format>
+                                    <Format>=Last(Fields!VATBuffer2_Amount_Control82Format.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -5477,7 +5477,7 @@
                                   <Value>=SUM(Fields!VATBuffer2_Base_VATBuffer2_Amount_Control81.Value)+SUM(Fields!VATEntry2_NonDeductibleVATBase.Value)+SUM(Fields!VATEntry2_NonDeductibleVATAmt.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!VATBuffer2_Base_VATBuffer2_Amount_Control81Format.Value</Format>
+                                    <Format>=Last(Fields!VATBuffer2_Base_VATBuffer2_Amount_Control81Format.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -5656,7 +5656,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!VATBuffer2_BaseFormat.Value</Format>
+                                    <Format>=Last(Fields!VATBuffer2_BaseFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -5770,7 +5770,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!VATBuffer2_AmountFormat.Value</Format>
+                                    <Format>=Last(Fields!VATBuffer2_AmountFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -5800,7 +5800,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!VATBuffer2_Base_VATBuffer2_AmountFormat.Value</Format>
+                                    <Format>=Last(Fields!VATBuffer2_Base_VATBuffer2_AmountFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -5979,7 +5979,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!VATBuffer4_BaseFormat.Value</Format>
+                                    <Format>=Last(Fields!VATBuffer4_BaseFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -6093,7 +6093,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!VATBuffer4_AmountFormat.Value</Format>
+                                    <Format>=Last(Fields!VATBuffer4_AmountFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -6122,7 +6122,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!VATBuffer4_Base_VATBuffer4_AmountFormat.Value</Format>
+                                    <Format>=Last(Fields!VATBuffer4_Base_VATBuffer4_AmountFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -6302,7 +6302,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!Base_NoTaxableEntryFormat.Value</Format>
+                                    <Format>=Last(Fields!Base_NoTaxableEntryFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -6448,7 +6448,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!Base_NoTaxableEntryFormat.Value</Format>
+                                    <Format>=Last(Fields!Base_NoTaxableEntryFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>

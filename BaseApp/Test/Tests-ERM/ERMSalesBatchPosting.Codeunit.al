@@ -1542,7 +1542,41 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
 
         // [THEN] The amount was not changed in the posted sales invoice line
-        VerifyPostedSalesInvoiceAmount(SalesHeader."No.", SalesHeader."Posting Date" + 10, Amount);
+        VerifyPostedSalesInvoiceAmount(SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Posting Date" + 10, Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('RequestPageHandlerBatchPostSalesOrderShipmentCompleted,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostSaleOrderCompleteShipmentWithReplacePostingDateAndCurrencyCode()
+    var
+        Currency: Record Currency;
+        SalesHeader: Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        Amount: Decimal;
+    begin
+        // [SCENARIO 563344] Batch posting when changing posting date and when different currency is used and Item has completely shipped document status is "Released"
+        Initialize();
+
+        // [GIVEN] Set Post with Job queue on Sales & Receivables Setup
+        LibrarySales.SetPostWithJobQueue(true);
+
+        // [GIVEN] Bind subscription and do not handle Job queue event as true
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Create Sales Order with Currency Code.
+        Amount := CreateSalesDocumentWithCurrency(SalesHeader, Currency, SalesHeader."Document Type"::Order, false);
+
+        // [WHEN] Post the shipment
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Run Post Batch with Replace Posting Date, Replace Document Date & Replace VAT Date options.
+        RunBatchPostSales(SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Posting Date" + 10, false);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
+
+        // [THEN] The amount was not changed in the posted sales invoice line
+        VerifyPostedSalesInvoiceAmount(SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Posting Date" + 10, Amount);
     end;
 
     local procedure Initialize()
@@ -1907,12 +1941,16 @@ codeunit 134391 "ERM Sales Batch Posting"
         CurrencyExchangeRate.Modify(true);
     end;
 
-    local procedure VerifyPostedSalesInvoiceAmount(PreAssignedNo: Code[20]; PostingDate: Date; Amount: Decimal)
+    local procedure VerifyPostedSalesInvoiceAmount(SalesDocumentType: Enum "Sales Document Type"; PreAssignedNo: Code[20]; PostingDate: Date; Amount: Decimal)
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        if SalesDocumentType = SalesDocumentType::Order then
+            SalesInvoiceHeader.SetRange("Order No.", PreAssignedNo)
+        else
+            SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+
         SalesInvoiceHeader.FindFirst();
         Assert.Equal(SalesInvoiceHeader."Posting Date", PostingDate);
         SalesInvoiceLine.SetFilter("Document No.", SalesInvoiceHeader."No.");
@@ -2036,6 +2074,31 @@ codeunit 134391 "ERM Sales Batch Posting"
 
         LibraryVariableStorage.Enqueue(PrintVisible);
         LibraryVariableStorage.Enqueue(0); // initialize report run counter
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RequestPageHandlerBatchPostSalesOrderShipmentCompleted(var BatchPostSalesOrders: TestRequestPage "Batch Post Sales Orders")
+    var
+        SalesHeader: Record "Sales Header";
+        PostingDate: Variant;
+        DocumentNoFilter: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DocumentNoFilter);
+        LibraryVariableStorage.Dequeue(PostingDate);
+
+        BatchPostSalesOrders."Sales Header".SetFilter("No.", DocumentNoFilter);
+        BatchPostSalesOrders."Sales Header".SetFilter("Document Type", Format(SalesHeader."Document Type"::Order));
+
+        BatchPostSalesOrders.PostingDate.SetValue(PostingDate);
+        if Format(PostingDate) <> '' then begin
+            BatchPostSalesOrders.ReplacePostingDate.SetValue(true);
+            BatchPostSalesOrders.ReplaceDocumentDate.SetValue(false);
+        end else
+            BatchPostSalesOrders.ReplacePostingDate.SetValue(false);
+        BatchPostSalesOrders.Ship.SetValue(false);
+        BatchPostSalesOrders.Invoice.SetValue(true);
+        BatchPostSalesOrders.OK().Invoke();
     end;
 
     [ReportHandler]

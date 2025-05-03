@@ -304,17 +304,19 @@ page 835 "Reminder Level Communication"
     var
         ReminderAttachmentText: Record "Reminder Attachment Text";
         ReminderEmailText: Record "Reminder Email Text";
+        ReminderLevel: Record "Reminder Level";
     begin
         if LanguageCode = '' then
             exit;
 
         CurrentLanguage.SetRange(Code, LanguageCode);
         CurrentLanguage.FindFirst();
+        ReminderLevel.Get(Rec."Reminder Terms Code", Rec."No.");
 
-        if not ReminderAttachmentText.Get(Rec."Reminder Attachment Text", CurrentLanguage.Code) then
+        if not ReminderAttachmentText.Get(ReminderLevel."Reminder Attachment Text", CurrentLanguage.Code) then
             if CreateNewEntry then begin
-                ReminderAttachmentText.SetDefaultContentForNewLanguage(Rec."Reminder Attachment Text", CurrentLanguage.Code, Enum::"Reminder Text Source Type"::"Reminder Level");
-                ReminderEmailText.SetDefaultContentForNewLanguage(Rec."Reminder Email Text", CurrentLanguage.Code, Enum::"Reminder Text Source Type"::"Reminder Level");
+                ReminderAttachmentText.SetDefaultContentForNewLanguage(ReminderLevel."Reminder Attachment Text", CurrentLanguage.Code, Enum::"Reminder Text Source Type"::"Reminder Level");
+                ReminderEmailText.SetDefaultContentForNewLanguage(ReminderLevel."Reminder Email Text", CurrentLanguage.Code, Enum::"Reminder Text Source Type"::"Reminder Level");
             end
             else
                 Error(NoTextForSelectedLanguageErr, CurrentLanguage.Code);

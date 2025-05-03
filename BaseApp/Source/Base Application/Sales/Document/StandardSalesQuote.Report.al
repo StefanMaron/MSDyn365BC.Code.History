@@ -1004,14 +1004,9 @@ report 1304 "Standard Sales - Quote"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-            ArchiveDocument := SalesSetup."Archive Quotes" <> SalesSetup."Archive Quotes"::Never;
-        end;
-
-        trigger OnOpenPage()
-        begin
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
+            ArchiveDocument := SalesSetup."Archive Quotes" <> SalesSetup."Archive Quotes"::Never;
         end;
     }
 
@@ -1107,9 +1102,6 @@ report 1304 "Standard Sales - Quote"
     begin
         if Header.GetFilters = '' then
             Error(NoFilterSetErr);
-
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
 
         CompanyLogoPosition := SalesSetup."Logo Position on Documents";
     end;
