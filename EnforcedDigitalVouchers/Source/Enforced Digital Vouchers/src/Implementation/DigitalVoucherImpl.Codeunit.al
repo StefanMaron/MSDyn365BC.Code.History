@@ -94,7 +94,7 @@ codeunit 5579 "Digital Voucher Impl."
             exit;
         DigitalVoucherCheck := DigitalVoucherEntrySetup."Check Type";
         FindGenJournalLineFromGLEntry(ConnectedGenJournalLine, GenJournalLine, GLEntry);
-        if not (GenJournalLine."Document Type" in [GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo"]) then
+        if not ShouldGenJnlLineHasDigitalVoucher(ConnectedGenJournalLine, DigitalVoucherEntrySetup) then
             exit;
         RecRef.GetTable(ConnectedGenJournalLine);
         DigitalVoucherCheck.GenerateDigitalVoucherForPostedDocument(DigitalVoucherEntrySetup."Entry Type", RecRef);
@@ -406,6 +406,15 @@ codeunit 5579 "Digital Voucher Impl."
         TempAttachReportSelections.Insert();
     end;
 
+    local procedure ShouldGenJnlLineHasDigitalVoucher(GenJournalLine: Record "Gen. Journal Line"; DigitalVoucherEntrySetup: Record "Digital Voucher Entry Setup"): Boolean
+    begin
+        if GenJournalLine."Document Type" in [GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo"] then
+            exit(true);
+        if DigitalVoucherEntrySetup."Consider Blank Doc. Type" and (GenJournalLine."Document Type" = GenJournalLine."Document Type"::" ") then
+            exit(true);
+        exit(false);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', true, true)]
     local procedure InsertIntoAssistedSetup()
     var
@@ -501,9 +510,9 @@ codeunit 5579 "Digital Voucher Impl."
             exit;
         if GenJournalLine."System-Created Entry" then
             exit;
-        if not (GenJournalLine."Document Type" in [GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo"]) then
-            exit;
         if not GetDigitalVoucherEntrySetup(DigitalVoucherEntrySetup, DigitalVoucherEntry.GetVoucherEntryTypeFromGenJnlLine(GenJournalLine)) then
+            exit;
+        if not ShouldGenJnlLineHasDigitalVoucher(GenJournalLine, DigitalVoucherEntrySetup) then
             exit;
         HandleDigitalVoucherForEntryTypeAndDoc(ErrorMessageMgt, DigitalVoucherEntrySetup, GenJournalLine);
     end;

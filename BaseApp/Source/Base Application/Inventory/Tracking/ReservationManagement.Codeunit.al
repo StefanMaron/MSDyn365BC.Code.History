@@ -385,7 +385,7 @@ codeunit 99000845 "Reservation Management"
                     UpdateItemTrackingLineStats(CalcReservEntry, TempEntrySummary, AvailabilityDate);
             end;
 
-            OnUpdateStatistics(CalcReservEntry, TempEntrySummary, AvailabilityDate, Positive, TotalQuantity, HandleItemTracking2, QtyOnOutBound);
+            OnUpdateStatistics(CalcReservEntry, TempEntrySummary, AvailabilityDate, Positive, TotalQuantity, HandleItemTracking2, QtyOnOutBound, ValueArray[i]);
         end;
 
         OnAfterUpdateStatistics(TempEntrySummary, AvailabilityDate, TotalQuantity);
@@ -2825,7 +2825,7 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal; HandleItemTracking2: Boolean; var QtyOnOutBound: Decimal)
+    local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal; HandleItemTracking2: Boolean; var QtyOnOutBound: Decimal; ReservationSummaryType: Integer)
     begin
     end;
 
