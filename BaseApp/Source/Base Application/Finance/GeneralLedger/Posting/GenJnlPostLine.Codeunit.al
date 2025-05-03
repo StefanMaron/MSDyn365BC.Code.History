@@ -2347,9 +2347,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
             else begin
                 GLEntry."Source Currency VAT Amount" := GenJnlLine."Source Curr. VAT Amount";
                 if GLEntry."Source Currency VAT Amount" = 0 then
-                    GLEntry."Source Currency Amount" := GenJnlLine."Source Currency Amount"
+                    GLEntry."Source Currency Amount" := GetSourceCurrencyAmount(GenJnlLine, GLEntry.Amount > 0, true)
                 else
-                    GLEntry."Source Currency Amount" := GenJnlLine."Source Curr. VAT Base Amount";
+                    GLEntry."Source Currency Amount" := GetSourceCurrencyAmount(GenJnlLine, GLEntry.Amount > 0, false);
             end;
         end;
     end;
@@ -7002,6 +7002,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             VendLedgEntry."Pmt. Tolerance (LCY)" := 0;
             VendLedgEntry."Vendor Bill No." := '';
             VendLedgEntry."Vendor Bill List" := '';
+            VendLedgEntry."Applies-to Ext. Doc. No." := '';
         end;
 
         OnBeforeVendLedgEntryModify(VendLedgEntry, DtldVendLedgEntry);
@@ -7623,6 +7624,22 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
         VATPostingSetup.TestField("Nondeductible VAT Account");
         exit(VATPostingSetup."Nondeductible VAT Account");
+    end;
+
+    local procedure GetSourceCurrencyAmount(GenJnlLine: Record "Gen. Journal Line"; IsPositive: Boolean; IsSourceCurrVATZero: Boolean): Decimal
+    begin
+        if IsSourceCurrVATZero then
+            exit(UpdateAmountSign(GenJnlLine."Source Currency Amount", IsPositive));
+
+        exit(UpdateAmountSign(GenJnlLine."Source Curr. VAT Base Amount", IsPositive));
+    end;
+
+    local procedure UpdateAmountSign(Amount: Decimal; IsPositive: Boolean): Decimal
+    begin
+        if IsPositive then
+            exit(Abs(Amount))
+        else
+            exit(-Abs(Amount));
     end;
 
     /// <summary>

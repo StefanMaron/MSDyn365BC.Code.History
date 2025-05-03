@@ -60,8 +60,8 @@ codeunit 144204 "FatturaPA Discount"
         // [THEN] An invoice discount amount under ScontoMaggiorazione xml node has eight decimal places
         // TFS ID 348540: Changes in the format of Italian electronic invoices
         VerifyInvDiscAmount(
-          TempBlob, SalesLine.Quantity, SalesLine."Line Amount" - Round(SalesLine."Inv. Discount Amount" / SalesLine.Quantity),
-          SalesLine."Inv. Discount Amount");
+          TempBlob, SalesLine."Line Amount" - Round(SalesLine."Inv. Discount Amount" / SalesLine.Quantity),
+          SalesLine."Inv. Discount Amount", SalesLine."Unit Price", SalesLine."Line Discount %");
     end;
 
     [Test]
@@ -103,8 +103,8 @@ codeunit 144204 "FatturaPA Discount"
         // [THEN] An invoice discount amount under ScontoMaggiorazione xml node has eight decimal places
         // TFS ID 348540: Changes in the format of Italian electronic invoices
         VerifyInvDiscAmount(
-          TempBlob, SalesLine.Quantity, SalesLine."Line Amount" - Round(SalesLine."Inv. Discount Amount" / SalesLine.Quantity),
-          SalesLine."Inv. Discount Amount");
+          TempBlob, SalesLine."Line Amount" - Round(SalesLine."Inv. Discount Amount" / SalesLine.Quantity),
+          SalesLine."Inv. Discount Amount", SalesLine."Unit Price", SalesLine."Line Discount %");
     end;
 
     [Test]
@@ -149,8 +149,8 @@ codeunit 144204 "FatturaPA Discount"
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.FindFirst();
         VerifyInvDiscAmount(
-          TempBlob, ServiceLine.Quantity, ServiceLine."Line Amount" - Round(ServiceLine."Inv. Discount Amount" / ServiceLine.Quantity),
-          ServiceLine."Inv. Discount Amount");
+          TempBlob, ServiceLine."Line Amount" - Round(ServiceLine."Inv. Discount Amount" / ServiceLine.Quantity),
+          ServiceLine."Inv. Discount Amount", ServiceLine."Unit Price", ServiceLine."Line Discount %");
     end;
 
     [Test]
@@ -195,8 +195,8 @@ codeunit 144204 "FatturaPA Discount"
         ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
         ServiceCrMemoLine.FindFirst();
         VerifyInvDiscAmount(
-          TempBlob, ServiceLine.Quantity, ServiceLine."Line Amount" - Round(ServiceLine."Inv. Discount Amount" / ServiceLine.Quantity),
-          ServiceLine."Inv. Discount Amount");
+          TempBlob, ServiceLine."Line Amount" - Round(ServiceLine."Inv. Discount Amount" / ServiceLine.Quantity),
+          ServiceLine."Inv. Discount Amount", ServiceLine."Unit Price", ServiceLine."Line Discount %");
     end;
 
     [Test]
@@ -635,6 +635,134 @@ codeunit 144204 "FatturaPA Discount"
           ServiceLine."Inv. Discount Amount");
     end;
 
+    [Test]
+    procedure CheckUnitInvoiceDiscountWhenSalesInvoiceWithInvoiceDiscountPactmorethen2Decimal()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
+        DocumentNo: Code[20];
+        CustomerNo: Code[20];
+        ClientFileName: Text[250];
+    begin
+        // [SCENARIO 571852] Check Invoice Discount Amount in FatturaPA file while Sales Invoice have Invoice Discount Percentage more Then 
+        // 2 Decimal and Quantity more then 1.
+        Initialize();
+
+        // [GIVEN] Create New Customer.
+        CustomerNo := CreateCustomer();
+
+        // [GIVEN] Create and Post New Sales Invoice with Line Discount.
+        CreateSalesDocument(SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::Invoice);
+        UpdateDiscInSalesLine(SalesLine, SalesHeader, LibraryRandom.RandDecInRange(1, 10, 5), LibraryRandom.RandIntInRange(5, 10));
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.SetRange("No.", DocumentNo);
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] Check Sales Invoice Discount Amount Tag 'Importo'.
+        VerifyInvDiscAmount(TempBlob, SalesLine."Unit Price", SalesLine."Line Discount %");
+    end;
+
+    [Test]
+    procedure CheckUnitInvoiceDiscountWhenSalesInvoiceWithInvoiceDiscountPactmorethen2DecimalQty1()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
+        DocumentNo: Code[20];
+        CustomerNo: Code[20];
+        ClientFileName: Text[250];
+    begin
+        // [SCENARIO 571852] Check Invoice Discount Amount in FatturaPA file while Sales Invoice have Invoice Discount Percentage more Then 
+        // 2 Decimal and Quantity 1.
+        Initialize();
+
+        // [GIVEN] Create New Customer.
+        CustomerNo := CreateCustomer();
+
+        // [GIVEN] Create and Post New Sales Invoice with Line Discount.
+        CreateSalesDocument(SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::Invoice);
+        UpdateDiscInSalesLine(SalesLine, SalesHeader, LibraryRandom.RandDecInRange(1, 10, 5), 1);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.SetRange("No.", DocumentNo);
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] Check Sales Invoice Discount Amount Tag 'Importo'.
+        VerifyInvDiscAmount(TempBlob, SalesLine."Unit Price", SalesLine."Line Discount %");
+    end;
+
+    [Test]
+    procedure CheckUnitInvoiceDiscountWhenSalesInvoiceWithSimpleInvoiceDiscountPact()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
+        DocumentNo: Code[20];
+        CustomerNo: Code[20];
+        ClientFileName: Text[250];
+    begin
+        // [SCENARIO 571852] Check Invoice Discount Amount in FatturaPA file while Sales Invoice have Single Digit Invoice Discount Percentage.
+        Initialize();
+
+        // [GIVEN] Create New Customer.
+        CustomerNo := CreateCustomer();
+
+        // [GIVEN] Create and Post New Sales Invoice with Line Discount.
+        CreateSalesDocument(SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::Invoice);
+        UpdateDiscInSalesLine(SalesLine, SalesHeader, LibraryRandom.RandDecInRange(1, 10, 0), LibraryRandom.RandIntInRange(5, 10));
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.SetRange("No.", DocumentNo);
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] Check Sales Invoice Discount Amount Tag 'Importo'.
+        VerifyInvDiscAmount(TempBlob, SalesLine."Unit Price", SalesLine."Line Discount %");
+    end;
+
+    [Test]
+    procedure CheckUnitInvoiceDiscountWhenSalesInvoiceWithZeroInvoiceDiscountPact()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        DocumentNo: Code[20];
+        CustomerNo: Code[20];
+        ClientFileName: Text[250];
+    begin
+        // [SCENARIO 571852] Check Invoice Discount Amount in FatturaPA file while Sales Invoice have 0 Invoice Discount Percentage.
+        Initialize();
+
+        // [GIVEN] Create New Customer.
+        CustomerNo := CreateCustomer();
+
+        // [GIVEN] Create and Post New Sales Invoice with Line Discount.
+        CreateSalesDocument(SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::Invoice);
+        UpdateDiscInSalesLine(SalesLine, SalesHeader, 0, LibraryRandom.RandIntInRange(5, 10));
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.SetRange("No.", DocumentNo);
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] Check Sales Invoice Discount Amount Tag 'Importo'.
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
+        AssertCurrentElementValue(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/ScontoMaggiorazione/Importo', '');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -780,7 +908,7 @@ codeunit 144204 "FatturaPA Discount"
         ServiceLine.Modify(true);
     end;
 
-    local procedure VerifyInvDiscAmount(TempBlob: Codeunit "Temp Blob"; Quantity: Decimal; LineAmount: Decimal; InvDiscAmount: Decimal)
+    local procedure VerifyInvDiscAmount(TempBlob: Codeunit "Temp Blob"; LineAmount: Decimal; InvDiscAmount: Decimal; UnitPrice: Decimal; DiscPerc: Decimal)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
@@ -793,7 +921,7 @@ codeunit 144204 "FatturaPA Discount"
           FormatAmount(LineAmount));
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/ScontoMaggiorazione/Importo',
-          FormatAmountEightDecimalPlaces(Round(InvDiscAmount / Quantity)));
+          FormatAmountEightDecimalPlaces((UnitPrice * DiscPerc) / 100));
     end;
 
     local procedure VerifyLineAmountWithInvDisc(TempBlob: Codeunit "Temp Blob"; LineAmount: Decimal; InvDiscAmount: Decimal)
@@ -826,8 +954,6 @@ codeunit 144204 "FatturaPA Discount"
         LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         AssertElementDoesNotExist(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/ScontoMaggiorazione/Importo');
-        AssertElementDoesNotExist(
-          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/ScontoMaggiorazione/Importo');
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/ScontoMaggiorazione/Percentuale',
           FormatAmount(LineDiscPct));
@@ -860,6 +986,24 @@ codeunit 144204 "FatturaPA Discount"
         TempXMLBuffer.Reset();
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, XPath);
         Assert.RecordCount(TempXMLBuffer, 0);
+    end;
+
+    local procedure UpdateDiscInSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineDiscPct: Decimal; Qty: Decimal)
+    begin
+        FindSalesLine(SalesLine, SalesHeader);
+        SalesLine.Validate(Quantity, Qty);
+        SalesLine.Validate("Line Discount %", LineDiscPct);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure VerifyInvDiscAmount(TempBlob: Codeunit "Temp Blob"; UnitPrice: Decimal; DiscPerc: Decimal)
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
+        AssertCurrentElementValue(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/ScontoMaggiorazione/Importo',
+          FormatAmountEightDecimalPlaces((UnitPrice * DiscPerc) / 100));
     end;
 }
 

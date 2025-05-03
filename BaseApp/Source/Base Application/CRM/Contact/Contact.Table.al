@@ -586,7 +586,7 @@ table 5050 Contact
             CalcFormula = min("To-do".Date where("Contact Company No." = field("Company No."),
                                                   "Contact No." = field(filter("Lookup Contact No.")),
                                                   Closed = const(false),
-                                                  "System To-do Type" = const("Contact Attendee")));
+                                                  "System To-do Type" = filter(Organizer | "Contact Attendee")));
             Caption = 'Next Task Date';
             Editable = false;
             FieldClass = FlowField;
