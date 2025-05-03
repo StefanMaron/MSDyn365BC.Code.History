@@ -496,6 +496,7 @@ table 14 Location
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Allow Breakbulk';
+            ToolTip = 'Specifies that an order can be fulfilled with items stored in alternate units of measure, if an item stored in the requested unit of measure is not found. This feature is applicable only with directed put-away and pick locations.';
         }
         field(7309; "Bin Capacity Policy"; Option)
         {
