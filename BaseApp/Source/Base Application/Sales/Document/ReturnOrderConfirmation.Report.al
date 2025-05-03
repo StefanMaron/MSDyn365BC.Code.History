@@ -818,11 +818,6 @@ report 6631 "Return Order Confirmation"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-        end;
-
-        trigger OnOpenPage()
-        begin
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
@@ -875,12 +870,6 @@ report 6631 "Return Order Confirmation"
                           "Sales Header"."Bill-to Customer No.", "Sales Header"."Salesperson Code",
                           "Sales Header"."Campaign No.", "Sales Header"."Posting Description", "Sales Header"."Opportunity No.");
                 until "Sales Header".Next() = 0;
-    end;
-
-    trigger OnPreReport()
-    begin
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
     end;
 
     var

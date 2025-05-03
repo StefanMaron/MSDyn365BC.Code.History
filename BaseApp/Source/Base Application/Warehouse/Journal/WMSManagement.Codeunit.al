@@ -1098,12 +1098,12 @@ codeunit 7302 "WMS Management"
                         LocationAllowed := false;
                         OnBeforeLocationIsAllowed(Location2.Code, LocationAllowed);
                         if LocationAllowed then begin
-                            Filterstring += '|' + StrSubstNo('''%1''', ConvertStr(Location.Code, '''', '*'));
+                            Filterstring += '|' + StrSubstNo('''%1''', ConvertStr(Location2.Code, '''', '*'));
                             FilterTooLong := StrLen(Filterstring) > 2000; // platform limitation on length
                             HasLocationSubscribers := true;
                         end;
                     end;
-                until (location2.Next() = 0) or FilterTooLong;
+                until (Location2.Next() = 0) or FilterTooLong;
         WhseEmplLocationBuffer.SetHasLocationSubscribers(HasLocationSubscribers);
         if FilterTooLong then
             Filterstring := '*';
