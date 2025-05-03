@@ -176,7 +176,7 @@ codeunit 7008 "Price Calculation Buffer Mgt."
         if PriceListLine."Price Includes VAT" then begin
             VATPostingSetup.Get(PriceListLine."VAT Bus. Posting Gr. (Price)", PriceCalculationBuffer."VAT Prod. Posting Group");
             IsHandled := false;
-            OnConvertAmountByTaxOnAfterVATPostingSetupGet(VATPostingSetup, Amount, IsHandled);
+            OnConvertAmountByTaxOnAfterVATPostingSetupGet(VATPostingSetup, Amount, IsHandled, PriceCalculationBuffer);
             if IsHandled then
                 exit;
 
@@ -340,7 +340,7 @@ codeunit 7008 "Price Calculation Buffer Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnConvertAmountByTaxOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup"; var Amount: Decimal; var IsHandled: Boolean)
+    local procedure OnConvertAmountByTaxOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup"; var Amount: Decimal; var IsHandled: Boolean; var PriceCalculationBuffer: Record "Price Calculation Buffer")
     begin
     end;
 

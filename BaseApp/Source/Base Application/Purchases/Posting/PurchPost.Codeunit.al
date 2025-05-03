@@ -5528,6 +5528,7 @@ codeunit 90 "Purch.-Post"
     local procedure CreatePrepmtLines(PurchHeader: Record "Purchase Header"; CompleteFunctionality: Boolean)
     var
         GLAcc: Record "G/L Account";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
         TempPurchLine: Record "Purchase Line" temporary;
         TempExtTextLine: Record "Extended Text Line" temporary;
         GenPostingSetup: Record "General Posting Setup";
@@ -5635,6 +5636,10 @@ codeunit 90 "Purch.-Post"
                         TempPrepmtPurchLine."Job No." := TempPurchLine."Job No.";
                         TempPrepmtPurchLine."Job Task No." := TempPurchLine."Job Task No.";
                         TempPrepmtPurchLine."Job Line Type" := TempPurchLine."Job Line Type";
+                        if PurchRcptLine.Get(TempPurchLine."Receipt No.", TempPurchLine."Receipt Line No.") then begin
+                            TempPrepmtPurchLine."Order No." := PurchRcptLine."Order No.";
+                            TempPrepmtPurchLine."Order Line No." := PurchRcptLine."Order Line No.";
+                        end;
                         TempPrepmtPurchLine."Line No." := NextLineNo;
                         NextLineNo := NextLineNo + 10000;
                         OnBeforeTempPrepmtPurchLineInsert(TempPrepmtPurchLine, TempPurchLine, PurchHeader, CompleteFunctionality);

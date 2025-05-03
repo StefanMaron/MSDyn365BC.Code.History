@@ -20,6 +20,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryInventory: Codeunit "Library - Inventory";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         WrongValErr: Label '%1 must be %2 in %3.';
@@ -1108,6 +1109,83 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         Assert.AreEqual(ExpectedAmount, GenJournalLine2.Amount, SummedAmountWrongErr);
     end;
 
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateListModalPageHandler,ApplyCustomerEntriesModalPageHandlerWithSetAppliesID')]
+    procedure SourceCurrAmountHasCorrectSignUsingMultiplePostingGroup()
+    var
+        Currency: Record Currency;
+        Customer: Record Customer;
+        CustomerPostingGroup: array[2] of Record "Customer Posting Group";
+        GenJournalLine: Record "Gen. Journal Line";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvHeader: Record "Sales Invoice Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CashReceiptJournal: TestPage "Cash Receipt Journal";
+        VATCalculationType: Enum "Tax Calculation Type";
+        PaymentDocNo: Code[20];
+    begin
+        // [SCENARIO 563179] Source Currency Amount has correct sign if pay non-base currency invoice using Multiple Posting Groups feature.
+        Initialize();
+
+        // [GIVEN] Enable Multiple Posting Group in Sales Setup.
+        SetSalesAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create Customer Posting Group One.
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[1]);
+
+        // [GIVEN] Create Alternative Customer Posting Group. 
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[2]);
+        LibrarySales.CreateAltCustomerPostingGroup(CustomerPostingGroup[1].Code, CustomerPostingGroup[2].Code);
+        LibrarySales.CreateAltCustomerPostingGroup(CustomerPostingGroup[2].Code, CustomerPostingGroup[1].Code);
+
+        // [GIVEN] Create VAT Posting Setup.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType::"Normal VAT", 25);
+
+        // [GIVEN Create Customer.
+        CreateCustomerWithAllowMultiplePostingGroups(
+            Customer, CustomerPostingGroup[1].Code,
+            Currency.Code, VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create Currency with Exchange Rates.
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
+
+        // [GIVEN] Create Item.
+        Item.Get(LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
+
+        // [GIVEN] Create Sales Header and validate currency code and customer posting group.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Currency Code", Currency.Code);
+        SalesHeader.Validate("Customer Posting Group", CustomerPostingGroup[2].Code);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Create Sales Line.
+        LibrarySales.CreateSalesLineWithUnitPrice(
+            SalesLine, SalesHeader, Item."No.", LibraryRandom.RandIntInRange(100, 100), LibraryRandom.RandInt(0));
+
+        // [GIVEN] Post Sales Invoice.
+        SalesInvHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [GIVEN] Create Cash Receipt Journal Line for the customer.
+        CreateCashReceiptJnlLine(GenJournalLine, Customer."No.");
+        GenJournalLine.Validate("Currency Code", Currency.Code);
+        GenJournalLine.Modify(true);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        PaymentDocNo := GenJournalLine."Document No.";
+        Commit();
+
+        // [WHEN] Apply Cash Receipt to Posted Invoice and Post
+        LibraryVariableStorage.Enqueue(SalesInvHeader."No.");
+        CashReceiptJournal.OpenEdit();
+        CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
+        CashReceiptJournal."Apply Entries".Invoke();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] VErify Source Currency amount has same sign as appear in GL Entry Amount field.
+        VerifyGLEntrySourceCurrenyAmount(PaymentDocNo, Currency.Code, GenJournalLine."Document Type"::Payment);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1526,6 +1604,41 @@ codeunit 134000 "ERM Apply Sales/Receivables"
           StrSubstNo(WrongValErr, GenJournalLine.FieldCaption(Amount), ExpectedAmount, GenJournalLine.TableCaption));
     end;
 
+    local procedure SetSalesAllowMultiplePostingGroups(AllowMultiplePostingGroups: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Allow Multiple Posting Groups" := AllowMultiplePostingGroups;
+        SalesReceivablesSetup."Check Multiple Posting Groups" := "Posting Group Change Method"::"Alternative Groups";
+        SalesReceivablesSetup.Modify();
+    end;
+
+    local procedure CreateCustomerWithAllowMultiplePostingGroups(
+        var Customer: Record Customer;
+        CustomerPostingGroupCode: Code[20];
+        CurrencyCode: Code[20];
+        VATBusPostGroupCode: Code[20])
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Allow Multiple Posting Groups", true);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
+        Customer.Validate("Customer Posting Group", CustomerPostingGroupCode);
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Modify(true);
+    end;
+
+    local procedure VerifyGLEntrySourceCurrenyAmount(DocumentNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Enum "Gen. Journal Document Type")
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document Type", DocumentType);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Source Currency Code", CurrencyCode);
+        GLEntry.CalcSums("Source Currency Amount");
+        Assert.Equal(0, GLEntry."Source Currency Amount");
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
@@ -1652,6 +1765,15 @@ codeunit 134000 "ERM Apply Sales/Receivables"
             ApplyCustomerEntries.Previous();
             ApplyCustomerEntries.AppliesToID.AssertEquals(AppliesToID);
         end;
+        ApplyCustomerEntries.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyCustomerEntriesModalPageHandlerWithSetAppliesID(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    begin
+        ApplyCustomerEntries.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
         ApplyCustomerEntries.OK().Invoke();
     end;
 }
