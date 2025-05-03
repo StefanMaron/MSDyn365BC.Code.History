@@ -297,6 +297,7 @@ codeunit 11710 "Data Class. Eval. Handler CZL"
         DataClassificationMgt.SetFieldToNormal(Database::"General Ledger Setup", GeneralLedgerSetup.FieldNo("Shared Account Schedule CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"General Ledger Setup", GeneralLedgerSetup.FieldNo("Acc. Schedule Results Nos. CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"General Ledger Setup", GeneralLedgerSetup.FieldNo("Def. Orig. Doc. VAT Date CZL"));
+        DataClassificationMgt.SetFieldToNormal(Database::"General Ledger Setup", GeneralLedgerSetup.FieldNo("Functional Currency CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"General Posting Setup", GeneralPostingSetup.FieldNo("Invt. Rounding Adj. Acc. CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"Gen. Journal Batch", GenJournalBatch.FieldNo("Allow Hybrid Document CZL"));
         DataClassificationMgt.SetFieldToNormal(Database::"Gen. Journal Line", GenJournalLine.FieldNo("VAT Delay CZL"));

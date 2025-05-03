@@ -39,6 +39,7 @@ codeunit 137408 "SCM Warehouse VI"
         AbsoluteValueEqualToQuantityErr: Label 'Absolute value of %1.%2 must be equal to the test quantity.', Comment = '%1 - tablename, %2 - fieldname.';
         RegisteringPickInterruptedErr: Label 'Registering pick has been interrupted.';
         LotNoNotAvailableInInvtErr: Label 'Lot No. %1 is not available in inventory, it has already been reserved for another document, or the quantity available is lower than the quantity to handle specified on the line.', Comment = '%1: Lot No.';
+        InvtPickCreatedTxt: Label 'Number of Invt. Pick activities created';
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesHandler,ItemTrackingSummaryHandler,MessageHandler,WhseItemTrackingLinesHandler,ConfirmHandlerTrue')]
@@ -4062,6 +4063,115 @@ codeunit 137408 "SCM Warehouse VI"
         VerifyWarehouseJournalLineWithReasonCode(WarehouseJournalBatch, WarehouseJournalLine, ReasonCode.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure InvDiscPctAndAmtInSOIsNotZeroWhenCreateAndShipInvPickFromSOHavingInvDiscPctAndAmt()
+    var
+        Bin: Record Bin;
+        Customer: Record Customer;
+        Item: Record Item;
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseActivityPost: Codeunit "Whse.-Activity-Post";
+        SalesOrder: TestPage "Sales Order";
+        InvDiscountPct: Decimal;
+    begin
+        // [SCENARIO 256471] It should not be allowed to change location code in an inventory pick that has lines
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Location.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, false);
+
+        // [GIVEN] Create a Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, '', '');
+
+        // [GIVEN] Create a Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create a Customer and Validate "Currency Code".
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", CreateCurrency());
+        Customer.Modify(true);
+
+        // [GIVEN] Create an Item Journal Line and Post it.
+        CreateItemJournalLine(ItemJournalLine, Item."No.", Location.Code, LibraryRandom.RandIntInRange(20, 20), WorkDate(), Bin.Code, Item."Base Unit of Measure");
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Update Work Date.
+        WorkDate(CalcDate('<CY+1M+1D>', WorkDate()));
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Currency Factor", LibraryRandom.RandIntInRange(2, 2));
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Create a Sales Line and Validate "Location Code" and "Unit Price".
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(1000, 1000));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Generate and save Invoice Discount % in a Variable.
+        InvDiscountPct := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Open Sales Order page and Set Invoice Disc. Pct.
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+        SalesOrder.SalesLines."Invoice Disc. Pct.".SetValue(InvDiscountPct);
+        SalesOrder.Close();
+
+        // [GIVEN] Find Sales Header.
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+
+        // [GIVEN] Release Sales Order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create Invt. Pick from Sales Order.
+        LibraryVariableStorage.Enqueue(InvtPickCreatedTxt);
+        LibraryWarehouse.CreateInvtPutPickMovement(
+            WarehouseActivityHeader."Source Document"::"Sales Order", SalesHeader."No.", false, true, false);
+
+        // [GIVEN] Find Warehouse Activity Line.
+        FindWarehouseActivityLine(
+            WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
+            WarehouseActivityLine."Activity Type"::"Invt. Pick");
+
+        // [GIVEN] Find Warehouse Activity Header and Validate "Posting Date".
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.Validate("Posting Date", CalcDate('<CY+1M+14D>', WorkDate()));
+        WarehouseActivityHeader.Modify(true);
+
+        // [GIVEN] Validate "Qty. to Handle" in Warehouse Activity Line.
+        WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity);
+        WarehouseActivityLine.Modify(true);
+
+        // [GIVEN] Update Work Date.
+        WorkDate(WarehouseActivityHeader."Posting Date");
+
+        // [GIVEN] Post Inventory Pick.
+        WhseActivityPost.Run(WarehouseActivityLine);
+
+        // [GIVEN] Find Sales Header.
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+
+        // [WHEN] Open Sales Order page.
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+
+        // [THEN] Invoice Disc. Pct. is equal to InvDiscountPct.
+        SalesOrder.SalesLines."Invoice Disc. Pct.".AssertEquals(InvDiscountPct);
+        SalesOrder.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6104,6 +6214,65 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryVariableStorage.Enqueue(NextCountingStartDate);
         LibraryVariableStorage.Enqueue(NextCountingEndDate);
         RunCalculateCountingPeriodFromWarehousePhysicalInventoryJournalReasonCode(WarehouseJournalBatch, LocationCode, ReasonCode);
+    end;
+
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; PostingDate: Date; BinCode: Code[20]; UnitOfMeasureCode: Code[10])
+    begin
+        LibraryInventory.CreateItemJnlLine(
+            ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, PostingDate, ItemNo,
+            Quantity, LocationCode);
+        ItemJournalLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        if BinCode <> '' then
+            ItemJournalLine.Validate("Bin Code", BinCode);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    begin
+        FilterWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
+        WarehouseActivityLine.FindFirst();
+    end;
+
+    local procedure FilterWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    begin
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        if SourceNo <> '' then
+            WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+    end;
+
+    local procedure CreateCurrency(): Code[10]
+    var
+        Currency: Record Currency;
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.SetCurrencyGainLossAccounts(Currency);
+        Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
+        Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
+        Currency.Validate("Currency Factor", LibraryRandom.RandDecInDecimalRange(1.176471, 1.176471, 0));
+        Currency.Modify(true);
+        CreateCurrExchangeRate(Currency.Code, CalcDate('<CY+1D>', WorkDate()), LibraryRandom.RandDecInDecimalRange(0.5, 0.5, 0));
+        CreateCurrExchangeRate(Currency.Code, CalcDate('<CY+1M+2D>', WorkDate()), LibraryRandom.RandDecInDecimalRange(0.75, 0.75, 0));
+        CreateCurrExchangeRate(Currency.Code, CalcDate('<CY+1M+14D>', WorkDate()), LibraryRandom.RandDecInDecimalRange(0.85, 0.85, 0));
+        exit(Currency.Code);
+    end;
+
+    procedure CreateCurrExchangeRate(CurrencyCode: Code[10]; StartingDate: Date; RelExchRateAmt: Decimal)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        CurrencyExchangeRate.Init();
+        CurrencyExchangeRate.Validate("Currency Code", CurrencyCode);
+        CurrencyExchangeRate.Validate("Starting Date", StartingDate);
+        CurrencyExchangeRate.Insert(true);
+
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandDecInDecimalRange(1.0, 1.0, 0));
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", LibraryRandom.RandDecInDecimalRange(1.0, 1.0, 0));
+
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelExchRateAmt);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelExchRateAmt);
+        CurrencyExchangeRate.Validate("Fix Exchange Rate Amount", CurrencyExchangeRate."Fix Exchange Rate Amount"::Currency);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse.-Activity-Register", 'OnBeforeAutoReserveForSalesLine', '', false, false)]

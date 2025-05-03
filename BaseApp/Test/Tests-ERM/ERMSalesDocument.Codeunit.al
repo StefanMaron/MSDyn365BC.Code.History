@@ -53,6 +53,7 @@
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         DateFilterErr: Label 'Date Filter does not match expected value';
         AmountNotMatchedErr: Label 'Amount not matched.';
+        AmountMustSameErr: Label 'Amount must be same';
 
     [Test]
     [Scope('OnPrem')]
@@ -4650,6 +4651,35 @@
         Assert.AreEqual(-Amount[2], GLEntry.Amount, AmountNotMatchedErr);
     end;
 
+    [Test]
+    procedure AmountUpdatedInSalesInvEntityAggregateTableWhenSaleInvHasLastLineAsGLAccount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesEntityAggregate: Record "Sales Invoice Entity Aggregate";
+        LineAmtGLAccount: Decimal;
+        LineAmtItem: Decimal;
+        TotalAmountIncludingVAT: Decimal;
+    begin
+        // [SCENARIO 568828] Amount not updated in Sales Inv. Entity Aggregate Table when last line has type G/L Account
+        Initialize();
+
+        // [GIVEN] Create Sales Header and 2 Sales Line, 1st line type with Item
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LineAmtItem := CreateSalesLineWithReturnAmt(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithPrice());
+        TotalAmountIncludingVAT := SalesLine."Amount Including VAT";
+
+        // [WHEN] 2nd line type with G/L Account
+        LineAmtGLAccount := CreateSalesLineWithReturnAmt(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        TotalAmountIncludingVAT += SalesLine."Amount Including VAT";
+
+        // [THEN] Check Amount and "Amount Including VAT" on Sales Invoice Entity Aggregate table
+        SalesEntityAggregate.SetRange("No.", SalesHeader."No.");
+        SalesEntityAggregate.FindFirst();
+        Assert.AreEqual(LineAmtGLAccount + LineAmtItem, SalesEntityAggregate.Amount, AmountMustSameErr);
+        Assert.AreEqual(TotalAmountIncludingVAT, SalesEntityAggregate."Amount Including VAT", AmountMustSameErr);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -6343,6 +6373,25 @@
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValues[1], Dimension.Code);
         LibraryDimension.CreateDimensionValue(DimensionValues[2], Dimension.Code);
+    end;
+
+    local procedure CreateItemWithPrice(): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Last Direct Cost", LibraryRandom.RandInt(100));
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateSalesLineWithReturnAmt(var SalesLine: Record "sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]): Decimal
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, 1);
+        SalesLine.Validate("Unit Cost", 100 + LibraryRandom.RandDec(10, 2));
+        SalesLine.Modify(true);
+        exit(SalesLine."Line Amount");
     end;
 
     [ConfirmHandler]

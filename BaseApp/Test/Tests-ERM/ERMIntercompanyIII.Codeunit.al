@@ -3354,6 +3354,40 @@ codeunit 134154 "ERM Intercompany III"
         Assert.AreEqual(300, SalesLine."Line Amount", 'When a sales order with a discount amount and prices including VAT is received from intercompany, the line amount should be preserved');
     end;
 
+    [Test]
+    procedure ICNavigateFromSalesCreditMemoLine()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ICOutboxTransactions: TestPage "IC Outbox Transactions";
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+    begin
+        // [SCENARIO 574577] "Unable to navigate to the related document" error message if you use Go to Document from the Intercompany Outbox Transactions for a Credit Memo.
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+        CleanupIC(false, true, true, false);
+        CreateCustomerWithICPartner(Customer);
+
+        // [GIVEN] A posted sales credit memo to an IC customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] The posted sales credit memo IC transaction should be on the Outbox
+        ICOutboxTransactions.OpenEdit();
+
+        // [WHEN] Navigating from Outbox for this transaction
+        PostedSalesCreditMemo.Trap();
+        ICOutboxTransactions.GoToDocument.Invoke();
+
+        // [THEN] It should open the Posted Sales Credit Memo
+        PostedSalesCreditMemo."Pre-Assigned No.".AssertEquals(SalesHeader."No.");
+
+        // Cleanup
+        CleanupIC(false, true, true, false);
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";

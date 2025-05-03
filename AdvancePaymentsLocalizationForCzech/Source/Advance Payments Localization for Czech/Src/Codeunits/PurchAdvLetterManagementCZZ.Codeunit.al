@@ -34,7 +34,6 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         PostingDateEmptyErr: Label 'Posting Date cannot be empty.';
         LaterPostingDateQst: Label 'The linked advance letter %1 is paid after %2. If you continue, the advance letter won''t be deducted.\\Do you want to continue?', Comment = '%1 = advance letter no., %2 = posting date';
         ExceededUsageAmountErr: Label 'Post VAT Document higher than usage is not possible.';
-        ApplyVATCoefficientQst: Label 'Do you want to apply VAT coefficient?';
         NonDeductVATPostedMsg: Label 'Non-deductible VAT has been successfully posted.';
         VATUsageExistErr: Label 'It''s not possible to post non-deductible VAT when there are already VAT usage entries.';
 
@@ -334,7 +333,6 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         VATDocumentCZZ: Page "VAT Document CZZ";
         DocumentNo: Code[20];
         IsHandled: Boolean;
-        IsPostNonDeductibleVATConfirmed: Boolean;
         DocumentDate: Date;
         VATDate: Date;
         OriginalDocumentVATDate: Date;
@@ -391,21 +389,15 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
             OriginalDocumentVATDate, ExternalDocumentNo, TempAdvancePostingBufferCZZ);
 
         if NonDeductibleVATCZZ.IsNonDeductibleVATEnabled() then
-            if TempAdvancePostingBufferCZZ.IsNonDeductibleVATAllowedInBuffer() then begin
-                IsPostNonDeductibleVATConfirmed := AdvanceLetterTemplateCZZ."Automatic Post Non-Ded. VAT";
-                if not IsPostNonDeductibleVATConfirmed then
-                    IsPostNonDeductibleVATConfirmed := ConfirmManagement.GetResponse(ApplyVATCoefficientQst);
-            end;
-
-        if IsPostNonDeductibleVATConfirmed then
-            if NonDeductibleVATCZL.CheckNonDeductibleVATSetupToDate(VATDate, false) then begin
-                TempAdvancePostingBufferCZZ.FindSet();
-                repeat
-                    TempAdvancePostingBufferCZZ."Non-Deductible VAT %" :=
-                        NonDeductibleVATCZZ.GetNonDeductibleVATPct(TempAdvancePostingBufferCZZ, VATDate);
-                    TempAdvancePostingBufferCZZ.Modify();
-                until TempAdvancePostingBufferCZZ.Next() = 0;
-            end;
+            if TempAdvancePostingBufferCZZ.IsNonDeductibleVATAllowedInBuffer() then
+                if NonDeductibleVATCZL.CheckNonDeductibleVATSetupToDate(VATDate, false) then begin
+                    TempAdvancePostingBufferCZZ.FindSet();
+                    repeat
+                        TempAdvancePostingBufferCZZ."Non-Deductible VAT %" :=
+                            NonDeductibleVATCZZ.GetNonDeductibleVATPct(TempAdvancePostingBufferCZZ, VATDate);
+                        TempAdvancePostingBufferCZZ.Modify();
+                    until TempAdvancePostingBufferCZZ.Next() = 0;
+                end;
 
         Clear(AdvancePostingParametersCZZ);
         AdvancePostingParametersCZZ."Document Type" := Enum::"Gen. Journal Document Type"::Invoice;

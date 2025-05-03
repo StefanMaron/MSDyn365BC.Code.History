@@ -87,6 +87,18 @@ report 31018 "Sales - Invoice with Adv. CZZ"
                     column(LCYCode_GeneralLedgerSetup; "LCY Code")
                     {
                     }
+                    column(VATCurrencyCode; VATCurrencyCode)
+                    {
+                    }
+                    trigger OnAfterGetRecord()
+                    begin
+                        UseFunctionalCurrency := "General Ledger Setup"."Functional Currency CZL";
+
+                        if UseFunctionalCurrency then
+                            VATCurrencyCode := "General Ledger Setup"."Additional Reporting Currency"
+                        else
+                            VATCurrencyCode := "General Ledger Setup"."LCY Code";
+                    end;
                 }
             }
 
@@ -543,6 +555,10 @@ report 31018 "Sales - Invoice with Adv. CZZ"
                     trigger OnAfterGetRecord()
                     begin
                         TempVATAmountLine.GetLine(Number);
+                        if UseFunctionalCurrency then begin
+                            TempVATAmountLine."VAT Base (LCY) CZL" := TempVATAmountLine."Additional-Currency Base CZL";
+                            TempVATAmountLine."VAT Amount (LCY) CZL" := TempVATAmountLine."Additional-Currency Amount CZL";
+                        end;
                     end;
 
                     trigger OnPreDataItem()
@@ -651,18 +667,33 @@ report 31018 "Sales - Invoice with Adv. CZZ"
                 TempVATAmountLine.UpdateVATEntryLCYAmountsCZL("Sales Invoice Header");
                 SalesAdvLetterEntryCZZ.CalcUsageVATAmountLines("Sales Invoice Header", TempVATAmountLine);
 
-                if "Currency Code" = '' then
-                    "Currency Code" := "General Ledger Setup"."LCY Code";
-
-                if ("Currency Factor" <> 0) and ("Currency Factor" <> 1) then begin
+                Clear(ExchRateText);
+                if "Currency Code" <> '' then begin
                     CurrencyExchangeRate.FindCurrency("Posting Date", "Currency Code", 1);
                     CalculatedExchRate := Round(1 / "Currency Factor" * CurrencyExchangeRate."Exchange Rate Amount", 0.00001);
                     ExchRateText :=
                       StrSubstNo(ExchRateLbl, CalculatedExchRate, "General Ledger Setup"."LCY Code",
                         CurrencyExchangeRate."Exchange Rate Amount", "Currency Code");
+                    if "Currency Code" = "General Ledger Setup"."LCY Code" then
+                        ExchRateText := '';
                 end else
                     CalculatedExchRate := 1;
 
+                if "Currency Code" = '' then
+                    "Currency Code" := "General Ledger Setup"."LCY Code";
+
+                if UseFunctionalCurrency then begin
+                    if ("Additional Currency Factor CZL" <> 0) and ("Additional Currency Factor CZL" <> 1) then begin
+                        if ("VAT Currency Factor CZL" = 0) or ((TempVATAmountLine."VAT Base" + TempVATAmountLine."VAT Amount") = 0) then
+                            CalculatedExchRate := Round("Additional Currency Factor CZL", 0.00001)
+                        else
+                            CalculatedExchRate := Round((TempVATAmountLine."Additional-Currency Base CZL" + TempVATAmountLine."Additional-Currency Amount CZL") / (TempVATAmountLine."VAT Base" + TempVATAmountLine."VAT Amount"), 0.00001);
+                        ExchRateText :=
+                          StrSubstNo(ExchRateLbl, 1, "Currency Code", CalculatedExchRate, "General Ledger Setup"."Additional Reporting Currency");
+                    end;
+                    if (CalculatedExchRate = 1) or ("Currency Code" = "General Ledger Setup"."Additional Reporting Currency") then
+                        ExchRateText := '';
+                end;
                 SalesInvLine.SetRange("Document No.", "No.");
                 SalesInvLine.CalcSums(Amount, "Amount Including VAT");
                 Amount := SalesInvLine.Amount;
@@ -836,6 +867,8 @@ report 31018 "Sales - Invoice with Adv. CZZ"
         LogInteract: Boolean;
         QRPaymentCode: Text;
         DisplayAddFeeNote: Boolean;
+        UseFunctionalCurrency: Boolean;
+        VATCurrencyCode: Code[10];
 
     procedure InitLogInteraction()
     begin

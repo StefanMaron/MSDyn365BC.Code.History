@@ -82,6 +82,17 @@ report 31190 "Sales Credit Memo CZL"
                     column(LCYCode_GeneralLedgerSetup; "LCY Code")
                     {
                     }
+                    column(VATCurrencyCode; VATCurrencyCode)
+                    {
+                    }
+                    trigger OnAfterGetRecord()
+                    begin
+                        UseFunctionalCurrency := "General Ledger Setup"."Functional Currency CZL";
+                        if UseFunctionalCurrency then
+                            VATCurrencyCode := "General Ledger Setup"."Additional Reporting Currency"
+                        else
+                            VATCurrencyCode := "General Ledger Setup"."LCY Code";
+                    end;
                 }
             }
             trigger OnAfterGetRecord()
@@ -467,6 +478,10 @@ report 31190 "Sales Credit Memo CZL"
                     trigger OnAfterGetRecord()
                     begin
                         TempVATAmountLine.GetLine(Number);
+                        if UseFunctionalCurrency then begin
+                            TempVATAmountLine."VAT Base (LCY) CZL" := TempVATAmountLine."Additional-Currency Base CZL";
+                            TempVATAmountLine."VAT Amount (LCY) CZL" := TempVATAmountLine."Additional-Currency Amount CZL";
+                        end;
                     end;
 
                     trigger OnPreDataItem()
@@ -568,13 +583,29 @@ report 31190 "Sales Credit Memo CZL"
 
                 SalesCrMemoLine.CalcVATAmountLines("Sales Cr.Memo Header", TempVATAmountLine);
                 TempVATAmountLine.UpdateVATEntryLCYAmountsCZL("Sales Cr.Memo Header");
-                if ("Currency Factor" <> 0) and ("Currency Factor" <> 1) then begin
+                Clear(ExchRateText);
+                if "Currency Code" <> '' then begin
                     CurrencyExchangeRate.FindCurrency("Posting Date", "Currency Code", 1);
                     CalculatedExchRate := Round(1 / "Currency Factor" * CurrencyExchangeRate."Exchange Rate Amount", 0.00001);
                     ExchRateText := StrSubstNo(ExchRateLbl, CalculatedExchRate, "General Ledger Setup"."LCY Code",
                                         CurrencyExchangeRate."Exchange Rate Amount", "Currency Code");
+                    if "Currency Code" = "General Ledger Setup"."LCY Code" then
+                        ExchRateText := '';
                 end else
                     CalculatedExchRate := 1;
+
+                if UseFunctionalCurrency then begin
+                    if ("Additional Currency Factor CZL" <> 0) and ("Additional Currency Factor CZL" <> 1) then begin
+                        if ("VAT Currency Factor CZL" = 0) or ((TempVATAmountLine."VAT Base" + TempVATAmountLine."VAT Amount") = 0) then
+                            CalculatedExchRate := Round("Additional Currency Factor CZL", 0.00001)
+                        else
+                            CalculatedExchRate := Round((TempVATAmountLine."Additional-Currency Base CZL" + TempVATAmountLine."Additional-Currency Amount CZL") / (TempVATAmountLine."VAT Base" + TempVATAmountLine."VAT Amount"), 0.00001);
+                        ExchRateText :=
+                          StrSubstNo(ExchRateLbl, 1, "Currency Code", CalculatedExchRate, "General Ledger Setup"."Additional Reporting Currency");
+                    end;
+                    if (CalculatedExchRate = 1) or ("Currency Code" = "General Ledger Setup"."Additional Reporting Currency") then
+                        ExchRateText := '';
+                end;
 
                 if LogInteraction and not IsReportInPreviewMode() then
                     if "Bill-to Contact No." <> '' then
@@ -718,6 +749,8 @@ report 31190 "Sales Credit Memo CZL"
         NoOfCopies: Integer;
         NoOfLoops: Integer;
         LogInteraction: Boolean;
+        UseFunctionalCurrency: Boolean;
+        VATCurrencyCode: Code[10];
 
     procedure InitLogInteraction()
     begin

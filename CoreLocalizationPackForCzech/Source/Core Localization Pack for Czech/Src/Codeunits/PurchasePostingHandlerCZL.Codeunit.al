@@ -238,6 +238,13 @@ codeunit 31039 "Purchase Posting Handler CZL"
         GenJournalLine."Source Curr. VAT Base Amount" := GenJournalLine."Source Currency Amount";
         GenJournalLine."VAT Difference" :=
             Sign * Round(TempInvoicePostingBuffer."VAT Difference" * CurrFactor, Currency."Amount Rounding Precision");
+        GenJournalLine."Non-Deductible VAT %" := TempInvoicePostingBuffer."Non-Deductible VAT %";
+        GenJournalLine."Non-Deductible VAT Base LCY" :=
+            Sign * Round(TempInvoicePostingBuffer."Non-Deductible VAT Base" * CurrFactor, Currency."Amount Rounding Precision");
+        GenJournalLine."Non-Deductible VAT Amount LCY" :=
+            Sign * Round(TempInvoicePostingBuffer."Non-Deductible VAT Amount" * CurrFactor, Currency."Amount Rounding Precision");
+        GenJournalLine."Non-Deductible VAT Diff." :=
+            Sign * Round(TempInvoicePostingBuffer."Non-Deductible VAT Diff." * CurrFactor, Currency."Amount Rounding Precision");
 
         GenJournalLine.Correction := TempInvoicePostingBuffer."Correction CZL" xor IsCorrection;
         GenJournalLine."VAT Bus. Posting Group" := TempInvoicePostingBuffer."VAT Bus. Posting Group";
@@ -260,7 +267,6 @@ codeunit 31039 "Purchase Posting Handler CZL"
     var
         GenJournalLine: Record "Gen. Journal Line";
         Amount: Decimal;
-        AccountNo: Code[20];
     begin
         GetCurrency(PurchaseHeader."Currency Code");
         if CurrFactor = 0 then
@@ -268,26 +274,19 @@ codeunit 31039 "Purchase Posting Handler CZL"
 
         case AmountType of
             AmountType::Base:
-                Amount :=
-                    TempInvoicePostingBuffer.Amount -
-                    Round(TempInvoicePostingBuffer.Amount * CurrFactor, Currency."Amount Rounding Precision");
+                Amount := TempInvoicePostingBuffer.Amount;
             AmountType::VAT:
-                begin
-                    Amount :=
-                        TempInvoicePostingBuffer."VAT Amount" -
-                        Round(TempInvoicePostingBuffer."VAT Amount" * CurrFactor, Currency."Amount Rounding Precision");
-                    if Amount < 0 then
-                        AccountNo := Currency."Realized Gains Acc."
-                    else
-                        AccountNo := Currency."Realized Losses Acc.";
-                end;
+                Amount := TempInvoicePostingBuffer."VAT Amount";
         end;
 
         InitGenJournalLine(PurchaseHeader, TempInvoicePostingBuffer, GenJournalLine);
         GenJournalLine."Gen. Posting Type" := GenJournalLine."Gen. Posting Type"::" ";
-        if AccountNo <> '' then
-            GenJournalLine."Account No." := AccountNo;
-        GenJournalLine.Amount := Amount;
+        if AmountType = AmountType::VAT then
+            if Amount < 0 then
+                GenJournalLine."Account No." := Currency."Realized Gains Acc."
+            else
+                GenJournalLine."Account No." := Currency."Realized Losses Acc.";
+        GenJournalLine.Amount := Amount - Round(Amount * CurrFactor, Currency."Amount Rounding Precision");
 
         GenJnlPostLine.RunWithCheck(GenJournalLine);
     end;

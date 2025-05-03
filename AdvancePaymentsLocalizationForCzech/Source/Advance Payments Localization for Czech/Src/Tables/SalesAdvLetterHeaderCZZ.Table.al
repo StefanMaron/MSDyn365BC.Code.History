@@ -1720,6 +1720,8 @@ table 31004 "Sales Adv. Letter Header CZZ"
             if "SWIFT Code" <> '' then
                 SWIFT := "SWIFT Code";
         end;
+        if IBANCode <> '' then
+            IBANCode := DelChr(IBANCode, '=', ' ');
 
         CalcFields("Amount Including VAT");
 
