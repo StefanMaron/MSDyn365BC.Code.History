@@ -758,6 +758,37 @@
     end;
 
     [Test]
+    [HandlerFunctions('CancelRequestMenuHandler,ConfirmHandler')]
+    procedure CancelPaymentManually()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        PaymentNo: Code[20];
+    begin
+        // [SCENARIO 573377] Cancel customer payment manually
+        Initialize();
+        // [GIVEN] Sales Invoice
+        SalesInvoiceHeader.Get(CreateAndPostDoc(DATABASE::"Sales Invoice Header", CreatePaymentMethodForSAT()));
+        SalesInvoiceHeader.CalcFields("Amount Including VAT");
+
+        // [GIVEN] A payment for this sales invoice
+        PaymentNo := CreatePostPayment(SalesInvoiceHeader."Sell-to Customer No.", SalesInvoiceHeader."No.", -SalesInvoiceHeader."Amount Including VAT", '');
+        UpdateDocumentFieldValue(
+          DATABASE::"Cust. Ledger Entry", CustLedgerEntry.FieldNo("Document No."), PaymentNo,
+          CustLedgerEntry.FieldNo("Electronic Document Status"), CustLedgerEntry."Electronic Document Status"::"Cancel In Progress");
+
+        // [WHEN] Runing Cancel document with Cancel Request option
+        LibraryVariableStorage.Enqueue(CancelOption::MarkAsCanceled);
+        LibraryVariableStorage.Enqueue(true);
+        Cancel(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success);
+
+        // [THEN] 'Electronic Document Status' set to "Canceled"
+        CustLedgerEntry.SetRange("Document No.", PaymentNo);
+        CustLedgerEntry.FindFirst();
+        Assert.AreEqual(CustLedgerEntry."Electronic Document Status", CustLedgerEntry."Electronic Document Status"::Canceled, 'Status should be Canceled');
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure CancelRequestStatusBatch()
     var
