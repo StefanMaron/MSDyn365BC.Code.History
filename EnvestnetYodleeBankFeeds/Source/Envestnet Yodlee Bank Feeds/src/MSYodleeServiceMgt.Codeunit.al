@@ -18,6 +18,7 @@ using System.Telemetry;
 using System;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Utilities;
+using System.Apps;
 
 codeunit 1450 "MS - Yodlee Service Mgt."
 {
@@ -164,6 +165,10 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         FastlinkEditAccountExtraParamsTok: Label 'providerAccountId=%1&flow=edit&callback=%2', Locked = true;
         BankAccountNameDisplayLbl: Label '%1 - %2', Locked = true;
         LabelDateExprTok: Label '<%1D>', Locked = true;
+        HttpRequestBlockedErr: Label 'Envestnet Yodlee Bank Feeds app is not allowed to make HTTP requests when running in a non-production environment.';
+        HttpRequestBlockedTelemetryMsg: Label 'Customer trying to enable Envestnet Yodlee Bank Feeds and app is not allowed to make HTTP requests when running in a non-production environment.', Locked = true;
+        HttpRequestAllowedTelemetryMsg: Label 'Customer enabled http requests for Envestnet Yodlee Bank Feeds app via notification action.', Locked = true;
+        EnableHttpRequestActionLbl: Label 'Allow HTTP requests';
 
     procedure SetValuesToDefault(var MSYodleeBankServiceSetup: Record "MS - Yodlee Bank Service Setup");
     var
@@ -1676,6 +1681,7 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         UnsuccessfulRequestTelemetryTxt: Text;
         PaginationLinks: array[1] of Text;
         PaginationRelativeLink: Text;
+        HttpRequestBlockedErrorInfo: ErrorInfo;
     begin
         if not TryCheckCredentials(ErrorText) then
             ERROR(ErrorText);
@@ -1730,6 +1736,15 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         if IsSuccessful then
             GetHttpResponseMessage.Content().ReadAs(GLBResponseInStream)
         else begin
+            if GetHttpResponseMessage.IsBlockedByEnvironment() then begin
+                HttpRequestBlockedErrorInfo.DataClassification := HttpRequestBlockedErrorInfo.DataClassification::SystemMetadata;
+                HttpRequestBlockedErrorInfo.ErrorType := HttpRequestBlockedErrorInfo.ErrorType::Client;
+                HttpRequestBlockedErrorInfo.Verbosity := HttpRequestBlockedErrorInfo.Verbosity::Error;
+                HttpRequestBlockedErrorInfo.Message := HttpRequestBlockedErr;
+                HttpRequestBlockedErrorInfo.AddAction(EnableHttpRequestActionLbl, Codeunit::"MS - Yodlee Service Mgt.", 'EnableHttpRequestForYodlee');
+                Session.LogMessage('0000P7D', HttpRequestBlockedTelemetryMsg, Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', YodleeTelemetryCategoryTok);
+                Error(HttpRequestBlockedErrorInfo);
+            end;
             DotNetExceptionHandler.Collect();
             UnsuccessfulRequestTelemetryTxt := DotNetExceptionHandler.GetMessage();
             FeatureTelemetry.LogError('0000GXZ', 'Yodlee', 'Requesting to Yodlee', RequestUnsuccessfulErr);
@@ -3048,6 +3063,15 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         MSYodleeBankSession.DeleteAll();
     end;
 
+    internal procedure EnableHttpRequestForYodlee(ErrorInfo: ErrorInfo)
+    var
+        ExtensionManagement: Codeunit "Extension Management";
+        CallerModuleInfo: ModuleInfo;
+    begin
+        NavApp.GetCurrentModuleInfo(CallerModuleInfo);
+        ExtensionManagement.ConfigureExtensionHttpClientRequestsAllowance(CallerModuleInfo.PackageId(), true);
+        Session.LogMessage('0000P7E', HttpRequestAllowedTelemetryMsg, Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', YodleeTelemetryCategoryTok);
+    end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"MS - Yodlee Service Mgt.", 'OnAfterSuccessfulActivitySendTelemetry', '', false, false)]
     local procedure SendTelemetryAfterSuccessfulActivity(Message: Text);

@@ -41,6 +41,8 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPatterns: Codeunit "Library - Patterns";
+        LibraryCosting: Codeunit "Library - Costing";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         Counter: Integer;
         IsInitialized: Boolean;
         TrackingAction: Option SerialNo,LotNo,All,SelectEntries,AssignLotNo,UpdateAndAssignNew,CheckQtyToHandleBase,AssignPackageNo;
@@ -6128,8 +6130,7 @@ codeunit 137051 "SCM Warehouse - III"
 
     [Test]
     [HandlerFunctions('ItemTrackingPageHandler')]
-    [Scope('OnPrem')]
-    Procedure CreatePickAccToFEFOandLotNo()
+    procedure CreatePickAccToFEFOandLotNoForDirectedPutAwayAndPickLocation()
     var
         Item: Record Item;
         ItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
@@ -6139,7 +6140,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         SaleQuantity: Decimal;
     begin
-        //[SCENARIO 563367] Nothing to Handle error with FEFO Picking where item with no expiration or an earlier expiration with a different UOM than what is on the Sales Order, and does not want to breakbulk.]
+        // [SCENARIO 563367] Directed Put away and pick - Nothing to Handle error with FEFO Picking where item with no expiration or an earlier expiration with a different UOM than what is on the Sales Order, and does not want to breakbulk.
         Initialize();
 
         // [GIVEN] Create Location with Pick According To FEFO and Allow BreakBulk as False.
@@ -6168,6 +6169,145 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [THEN] Verify Pick Created and values on Whse Activity Line.
         VerifyWhseActivityLine(WarehouseActivityLine, SaleQuantity, SalesHeader."No.", Location.Code);
+    end;
+    
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler')]
+    procedure CreatePickAccToFEFOandLotNoForNonDirectedPutAwayAndPickLocation()
+    var
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        QtyItemStock: Decimal;
+        QtyToSell: Decimal;
+        LotNo: Code[50];
+        ExpirationDate: Date;
+    begin
+        // [SCENARIO 574361] Non-Directed Put away and pick - FEFO picking selects Lot when there is an alternative UOM on the Sales Order.
+        Initialize();
+
+        // [GIVEN] Create Location with Bin Mandatory, Requre Pick and Pick According To FEFO
+        CreateAndUpdateLocation(Location, true, false, true, false, true, true);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', ArrayLen(Bin), false);
+        LibraryWarehouse.FindBin(Bin[1], Location.Code, '', 1);
+        LibraryWarehouse.FindBin(Bin[2], Location.Code, '', 2);
+        Location.Validate("Shipment Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        WarehouseEmployee.DeleteAll();
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        //[GIVEN] Create Item With Item Tracking Code and with different Sales Item Unit of Measure Code
+        CreateTrackedItem(Item, true, false, false, false, false);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 24);
+
+        // [GIVEN] Create and Post Positive Adjustment Item Journal Line with Lot No. and Expiration Date
+        QtyItemStock := LibraryRandom.RandDecInDecimalRange(1000, 1000, 2);
+        LotNo := Format(LibraryRandom.RandText(10));
+        ExpirationDate := CalcDate(ExpirationDateCalcFormula, WorkDate());
+        PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin[1].Code, LotNo, QtyItemStock, ExpirationDate);
+
+        // [GIVEN] Create Sales Order with Warehouse Shipment
+        QtyToSell := LibraryRandom.RandDecInDecimalRange(12, 12, 02);
+        PrepareSalesOrderWithWhseShipment(SalesHeader, WarehouseShipmentHeader, Item."No.", Location.Code, QtyToSell, ItemUnitOfMeasure.Code);
+
+        // [WHEN] Create Pick from Warehouse Shipment Header
+        CreatePick(WarehouseShipmentHeader, WarehouseShipmentHeader."No.");
+
+        // [THEN] Verify Pick Created and values on Whse Activity Line
+        VerifyWhseActivityLine(WarehouseActivityLine, QtyToSell, SalesHeader."No.", Location.Code);
+
+        // [THEN] Verify Lot No. and Expiration Date on Whse Activity Line
+        WarehouseActivityLine.TestField("Lot No.", LotNo);
+        WarehouseActivityLine.TestField("Expiration Date", ExpirationDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseCalculateInventoryIncludeItemWithoutTransactionHandler')]
+    procedure WhseCalculateInventoryShouldRunWithoutAnyErrorForDeletedItem()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        BinCode: Code[20];
+        PostingDate: Date;
+        Quantity: Decimal;
+        WhsePhysInvJournal: TestPage "Whse. Phys. Invt. Journal";
+    begin
+        // [SCENARIO 562944] Verify "Calculate Inventory" in Warehouse Physical Inventory Journal should run without any error.
+        // when Stan filter with "Location Code" and "Bin Code" after closing the fiscal year for deleted item.
+        Initialize();
+
+        // [GIVEN] Create Warehouse location.
+        CreateFullWMSLocation(Location, 2);
+
+        // [GIVEN] Create Fiscal Year and Inventory Period.
+        PostingDate := CreateFiscalYearAndInventoryPeriod();
+
+        // [GIVEN] Create an Item "I".
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create PO for Item "I" with Posting Date.
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Location.Code, Item."No.");
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Save Quantity.
+        Quantity := PurchaseLine.Quantity;
+
+        // [GIVEN] Create and Post Whse. Receipt from PO with Bin.
+        BinCode := CreateAndPostWhseReceiptFromPO(PurchaseHeader);
+
+        // [GIVEN] Register Put Away.
+        RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
+
+        // [GIVEN] Post Purchase Order.
+        PurchaseHeader.Find();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Create and Release SO for Item "I" with Posting Date.
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", Location.Code, Quantity);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create and Post Whse. Shipment from SO.
+        CreateAndPostWhseShipmentFromSO(SalesHeader, Location.Code);
+
+        // [GIVEN] Post Sales Order.
+        SalesHeader.Find();
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Run Adjust Cost Item Entries.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Close Accounting Year and Create Fiscal Year.
+        LibraryFiscalYear.CloseAccountingPeriod();
+        LibraryFiscalYear.CreateFiscalYear();
+
+        // [GIVEN] Delete Item.
+        Item.Delete(true);
+        Commit();
+
+        // [WHEN] Open "Whse. Phys. Invt. Journal".
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(Location.Code);
+        LibraryVariableStorage.Enqueue(BinCode);
+        WhsePhysInvJournal.OpenEdit();
+
+        // [THEN] "Calculate Inventory" in Warehouse Physical Inventory Journal should run without any error.
+        WhsePhysInvJournal."Calculate &Inventory".Invoke();
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -8411,6 +8551,58 @@ codeunit 137051 "SCM Warehouse - III"
         RegisterWarehouseActivity(PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away");
     end;
 
+    local procedure CreateAndPostWhseShipmentFromSO(var SalesHeader: Record "Sales Header"; LocationCode: Code[10])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(FindWhseShipmentNo(WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No."));
+        CreatePick(WarehouseShipmentHeader, WarehouseShipmentHeader."No.");
+        FindWhseActivityLine(
+            WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, LocationCode, SalesHeader."No.",
+            WarehouseActivityLine."Action Type"::Take);
+        RegisterWarehouseActivity(SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+    end;
+
+    local procedure FindWhseShipmentNo(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]): Code[20]
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
+        WarehouseShipmentLine.SetRange("Source No.", SourceNo);
+        WarehouseShipmentLine.FindFirst();
+
+        exit(WarehouseShipmentLine."No.");
+    end;
+
+    local procedure CreateFiscalYearAndInventoryPeriod() PostingDate: Date
+    var
+        InventoryPeriod: Record "Inventory Period";
+        AccountingPeriod: Record "Accounting Period";
+    begin
+        AccountingPeriod.DeleteAll();
+
+        LibraryFiscalYear.CreateFiscalYear();
+        PostingDate := LibraryFiscalYear.GetLastPostingDate(false);
+        LibraryInventory.CreateInventoryPeriod(InventoryPeriod, PostingDate);
+    end;
+
+    local procedure CreateAndPostWhseReceiptFromPO(PurchaseHeader: Record "Purchase Header"): Code[20]
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        BinCode: Code[20];
+    begin
+        CreateWhseReceiptFromPurchaseOrder(PurchaseHeader);
+        FindWarehouseReceiptNo(WarehouseReceiptLine, WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
+        BinCode := WarehouseReceiptLine."Bin Code";
+        PostWarehouseReceipt(WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
+
+        exit(BinCode);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ProductionJournalPostOneHandler(var ProductionJournal: TestPage "Production Journal")
@@ -8817,6 +9009,14 @@ codeunit 137051 "SCM Warehouse - III"
             WhseItemTrackingLines.Next();
         end;
         WhseItemTrackingLines.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure WhseCalculateInventoryIncludeItemWithoutTransactionHandler(var WhseCalculateInventory: TestRequestPage "Whse. Calculate Inventory")
+    begin
+        WhseCalculateInventory."Bin Content".SetFilter("Location Code", LibraryVariableStorage.DequeueText());
+        WhseCalculateInventory."Bin Content".SetFilter("Bin Code", LibraryVariableStorage.DequeueText());
+        WhseCalculateInventory.OK().Invoke();
     end;
 }
 

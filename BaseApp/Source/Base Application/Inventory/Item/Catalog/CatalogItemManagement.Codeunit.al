@@ -377,6 +377,7 @@ codeunit 5703 "Catalog Item Management"
         SalesLine: Record "Sales Line";
         SalesLineArch: Record "Sales Line Archive";
         IsHandled: Boolean;
+        ShouldExit: Boolean;
     begin
         IsHandled := false;
         OnBeforeDelNonStockItem(Item, IsHandled);
@@ -424,7 +425,9 @@ codeunit 5703 "Catalog Item Management"
                     exit;
             until ProdBOMLine.Next() = 0;
 
-        OnDelNonStockItemOnAfterCheckRelations(Item);
+        OnDelNonStockItemOnAfterCheckRelations(Item, ShouldExit);
+        if ShouldExit then
+            exit;
 
         NewItem.Get(Item."No.");
         DeleteCreatedFromNonstockItem();
@@ -953,7 +956,7 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDelNonStockItemOnAfterCheckRelations(var Item: Record Item)
+    local procedure OnDelNonStockItemOnAfterCheckRelations(var Item: Record Item; var ShouldExit: Boolean)
     begin
     end;
 }
