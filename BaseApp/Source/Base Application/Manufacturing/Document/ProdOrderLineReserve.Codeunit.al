@@ -655,8 +655,11 @@ codeunit 99000837 "Prod. Order Line-Reserve"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnUpdateStatistics', '', false, false)]
-    local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal)
+    local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal; ReservationSummaryType: Integer)
     begin
+        if ReservationSummaryType = Enum::"Reservation Summary Type"::"Item Tracking Line".AsInteger() then
+            exit;
+
         if ReservSummEntry."Entry No." in [Enum::"Reservation Summary Type"::"Firm Planned Production Order".AsInteger(),
                                            Enum::"Reservation Summary Type"::"Released Production Order".AsInteger()] then
             UpdateStatistics(

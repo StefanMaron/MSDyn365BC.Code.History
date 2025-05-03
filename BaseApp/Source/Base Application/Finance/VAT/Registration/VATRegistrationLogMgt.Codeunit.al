@@ -8,6 +8,7 @@ using Microsoft.CRM.Contact;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Purchases.Vendor;
+using System.Environment;
 using Microsoft.Sales.Customer;
 using Microsoft.Utilities;
 using System;
@@ -24,7 +25,7 @@ codeunit 249 "VAT Registration Log Mgt."
 
     var
         DataTypeManagement: Codeunit "Data Type Management";
-
+        ClientTypeManagement: Codeunit "Client Type Management";
         ValidPathTxt: Label 'descendant::vat:valid', Locked = true;
         NamePathTxt: Label 'descendant::vat:traderName', Locked = true;
         AddressPathTxt: Label 'descendant::vat:traderAddress', Locked = true;
@@ -347,6 +348,9 @@ codeunit 249 "VAT Registration Log Mgt."
         VATRegNo: Text[20];
         IsHandled: Boolean;
     begin
+        if IsAPIClientType() then
+            exit;
+
         IsHandled := false;
         OnBeforeCheckVIESForVATNoField(RecordRef, VATRegistrationLog, RecordVariant, EntryNo, CountryCode, AccountType, VATNoFieldName, IsHandled);
         if IsHandled then
@@ -474,6 +478,11 @@ codeunit 249 "VAT Registration Log Mgt."
             ServiceConnection.Status := ServiceConnection.Status::Disabled;
         ServiceConnection.InsertServiceConnection(
               ServiceConnection, RecRef.RecordId, DescriptionLbl, VATRegNoSrvConfig."Service Endpoint", PAGE::"VAT Registration Config");
+    end;
+
+    local procedure IsAPIClientType(): Boolean
+    begin
+        exit(ClientTypeManagement.GetCurrentClientType() in [ClientType::Api, ClientType::SOAP, ClientType::OData, ClientType::ODataV4])
     end;
 
     [IntegrationEvent(false, false)]
