@@ -1425,40 +1425,40 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // [SCENARIO 545351] When a Sales Line having VAT % is created then Total VAT Amount is not 0 in
         // Sales Lines of Sales Invoice page if Default Item Quantity is set to true in Sales & Receivables page.
         Initialize();
- 
+
         // [GIVEN] Create a VAT Posting Setup.
         CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandIntInRange(10, 10));
- 
+
         // [GIVEN] Set Default Item Quantity to true in Sales & Receivables Setup.
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Default Item Quantity" := true;
         SalesReceivablesSetup."VAT Bus. Posting Gr. (Price)" := VATPostingSetup."VAT Bus. Posting Group"; // NA
         SalesReceivablesSetup.Modify(true);
- 
+
         // [GIVEN] Create a Customer with VAT Bus. Posting Group.
         CreateCustomerWithVATBusPostingGroup(Customer, VATPostingSetup."VAT Bus. Posting Group");
- 
+
         // [GIVEN] Create an Item with VAT Posting Setup and Validate Unit Price.
         CreateItemWithVATPostingSetup(Item, VATPostingSetup);
         Item.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 100));
         Item.Validate("VAT Bus. Posting Gr. (Price)", VATPostingSetup."VAT Bus. Posting Group"); // NA
         Item.Validate("Price Includes VAT", true);
         Item.Modify(true);
- 
+
         // [GIVEN] Open and create a Sales Invoice.
         SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer No.".SetValue(Customer."No.");
- 
+
         // [GIVEN] Find Sales Header and Validate Prices Including VAT. // NA
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, Format(SalesInvoice."No."));
         SalesHeader.Validate("Prices Including VAT", false);
         SalesHeader.Modify(true);
- 
+
         // [WHEN] Create a Sales Line.
         SalesInvoice.SalesLines.Last();
         SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines."No.".SetValue(Item."No.");
- 
+
         // [THEN] Total VAT Amount must not be 0 in Sales Line of Sales Invoice.
         Assert.AreNotEqual(0, SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(), StrSubstNo(TaxAmountErr, 0));
     end;
@@ -2384,14 +2384,14 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
                 exit(true)
         end;
     end;
-    
+
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATPercentage: Decimal)
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPercentage);
         VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
         VATPostingSetup.Modify();
     end;
- 
+
     local procedure CreateCustomerWithVATBusPostingGroup(var Customer: Record Customer; VATBusPostingGroup: Code[20])
     begin
         CreateCustomer(Customer);
@@ -2399,7 +2399,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         Customer.Validate("Prices Including VAT", true);
         Customer.Modify();
     end;
- 
+
     local procedure CreateItemWithVATPostingSetup(var Item: Record Item; VATPostingSetup: Record "VAT Posting Setup")
     begin
         LibraryInventory.CreateItem(Item);
@@ -2414,4 +2414,3 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 }
-
