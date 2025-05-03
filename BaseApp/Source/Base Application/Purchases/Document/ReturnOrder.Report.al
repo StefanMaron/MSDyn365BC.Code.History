@@ -793,11 +793,6 @@ report 6641 "Return Order"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-        end;
-
-        trigger OnOpenPage()
-        begin
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
@@ -829,12 +824,6 @@ report 6641 "Return Order"
                           "Purchase Header"."Buy-from Vendor No.", "Purchase Header"."Purchaser Code", '',
                           "Purchase Header"."Posting Description", '')
                 until "Purchase Header".Next() = 0;
-    end;
-
-    trigger OnPreReport()
-    begin
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
     end;
 
     var

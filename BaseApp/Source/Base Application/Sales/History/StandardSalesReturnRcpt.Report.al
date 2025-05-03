@@ -575,11 +575,6 @@ report 1309 "Standard Sales - Return Rcpt."
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-        end;
-
-        trigger OnOpenPage()
-        begin
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
@@ -659,9 +654,6 @@ report 1309 "Standard Sales - Return Rcpt."
     begin
         if Header.GetFilters = '' then
             Error(NoFilterSetErr);
-
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
 
         CompanyLogoPosition := SalesSetup."Logo Position on Documents";
     end;
