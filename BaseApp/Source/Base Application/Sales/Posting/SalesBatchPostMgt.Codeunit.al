@@ -161,9 +161,9 @@ codeunit 1371 "Sales Batch Post Mgt."
             CalculateInvoiceDiscount(SalesHeader);
 
         SalesHeader.BatchConfirmUpdateDeferralDate(BatchConfirm, ReplacePostingDate, PostingDate, ReplaceVATDate, VATDate);
-        PerformManualReleaseOrReopenSalesHeader(SalesHeader, ManualReopen, ReplacePostingDate);
+        PerformManualReleaseOrReopenSalesHeader(SalesHeader, ManualReopen, ReplacePostingDate, PostingDate);
         SalesHeader.BatchConfirmUpdatePostingDate(ReplacePostingDate, PostingDate, ReplaceVATDate, VATDate, ReplaceDocumentDate);
-        PerformManualReleaseOrReopenSalesHeader(SalesHeader, ManualReopen, ReplacePostingDate);
+        PerformManualReleaseOrReopenSalesHeader(SalesHeader, ManualReopen, ReplacePostingDate, PostingDate);
         OnPrepareSalesHeaderOnAfterBatchConfirmUpdateDeferralDate(SalesHeader, BatchProcessingMgt);
 
         BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, Enum::"Batch Posting Parameter Type"::Ship, SalesHeader.Ship);
@@ -320,13 +320,15 @@ codeunit 1371 "Sales Batch Post Mgt."
         JobQueueEntry.Insert(true);
     end;
 
-    local procedure PerformManualReleaseOrReopenSalesHeader(var SalesHeader: Record "Sales Header"; var ManualReopen: Boolean; ReplacePostingDate: Boolean)
+    local procedure PerformManualReleaseOrReopenSalesHeader(var SalesHeader: Record "Sales Header"; var ManualReopen: Boolean; ReplacePostingDate: Boolean; PostingDate: Date)
     var
         ReleaseSalesDoc: Codeunit "Release Sales Document";
     begin
         if (not ReplacePostingDate) or (SalesHeader."Currency Code" = '') then
             exit;
-        if not SalesHeader.Invoice and not (SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice) then
+        if SalesHeader."Posting Date" = PostingDate then
+            exit;
+        if not SalesHeader.Invoice and not (SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order]) then
             exit;
 
         if ManualReopen then

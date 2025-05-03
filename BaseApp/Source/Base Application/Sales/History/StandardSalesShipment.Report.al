@@ -819,11 +819,6 @@ report 1308 "Standard Sales - Shipment"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-        end;
-
-        trigger OnOpenPage()
-        begin
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
@@ -906,9 +901,6 @@ report 1308 "Standard Sales - Shipment"
     begin
         if Header.GetFilters = '' then
             Error(NoFilterSetErr);
-
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
 
         CompanyLogoPosition := SalesSetup."Logo Position on Documents";
     end;

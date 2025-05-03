@@ -550,11 +550,6 @@ report 6646 "Sales - Return Receipt"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-        end;
-
-        trigger OnOpenPage()
-        begin
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
@@ -597,8 +592,6 @@ report 6646 "Sales - Return Receipt"
 
     trigger OnPreReport()
     begin
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
         OnAfterPreReport("Return Receipt Header", NoOfCopies, ShowCorrectionLines, LogInteraction, ShowInternalInfo);
     end;
 

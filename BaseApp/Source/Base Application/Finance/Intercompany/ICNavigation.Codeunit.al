@@ -56,6 +56,20 @@ codeunit 437 "IC Navigation"
         exit(true);
     end;
 
+    local procedure NavigateToSalesCreditMemo(DocumentNo: Code[20]): Boolean
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PostedSalesCreditMemo: Page "Posted Sales Credit Memo";
+    begin
+        // An IC Transaction of type Sales Credit Memo can only be sent when posted.
+        if not SalesCrMemoHeader.Get(DocumentNo) then
+            exit(false);
+        // The related document is a Posted Sales Credit Memo.
+        PostedSalesCreditMemo.SetRecord(SalesCrMemoHeader);
+        PostedSalesCreditMemo.Run();
+        exit(true);
+    end;
+
     local procedure NavigateToSalesInvoice(DocumentNo: Code[20]; ICPartnerCode: Code[20]): Boolean
     var
         Customer: Record Customer;
@@ -120,6 +134,8 @@ codeunit 437 "IC Navigation"
                 exit(NavigateToSalesOrderDocument(DocumentNo, ICDirectionType, ICPartnerCode));
             DocumentType::Invoice:
                 exit(NavigateToSalesInvoice(DocumentNo));
+            DocumentType::"Credit Memo":
+                exit(NavigateToSalesCreditMemo(DocumentNo));
             else begin
                 ShouldNavigateToDoc := false;
                 OnNavigateToSalesDocumentOnAfterCheckDocumentType(DocumentNo, ICDirectionType, ICPartnerCode, DocumentType, ShouldNavigateToDoc);
