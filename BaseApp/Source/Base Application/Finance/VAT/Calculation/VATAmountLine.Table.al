@@ -1065,4 +1065,3 @@ table 290 "VAT Amount Line"
     begin
     end;
 }
-
