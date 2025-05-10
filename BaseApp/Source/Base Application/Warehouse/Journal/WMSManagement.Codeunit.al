@@ -931,7 +931,7 @@ codeunit 7302 "WMS Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetWrongPickPutAwayQtyErrorText(WarehouseActivityLine3, QtyToPick, QtyToPutAway, ErrorText, IsHandled);
+        OnBeforeGetWrongPickPutAwayQtyErrorText(WarehouseActivityLine3, QtyToPick, QtyToPutAway, ErrorText, IsHandled, WarehouseActivityLine);
         if IsHandled then
             exit(ErrorText);
 
@@ -1101,12 +1101,12 @@ codeunit 7302 "WMS Management"
                         LocationAllowed := false;
                         OnBeforeLocationIsAllowed(Location2.Code, LocationAllowed);
                         if LocationAllowed then begin
-                            Filterstring += '|' + StrSubstNo('''%1''', ConvertStr(Location.Code, '''', '*'));
+                            Filterstring += '|' + StrSubstNo('''%1''', ConvertStr(Location2.Code, '''', '*'));
                             FilterTooLong := StrLen(Filterstring) > 2000; // platform limitation on length
                             HasLocationSubscribers := true;
                         end;
                     end;
-                until (location2.Next() = 0) or FilterTooLong;
+                until (Location2.Next() = 0) or FilterTooLong;
         WhseEmplLocationBuffer.SetHasLocationSubscribers(HasLocationSubscribers);
         if FilterTooLong then
             Filterstring := '*';
@@ -1458,7 +1458,13 @@ codeunit 7302 "WMS Management"
     local procedure CheckSerialNo(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20]; UOMCode: Code[10]; SerialNo: Code[50]; QuantityBase: Decimal)
     var
         BinContent: Record "Bin Content";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSerialNo(ItemNo, VariantCode, LocationCode, BinCode, UOMCode, SerialNo, QuantityBase, IsHandled);
+        if IsHandled then
+            exit;
+
         BinContent.Get(LocationCode, BinCode, ItemNo, VariantCode, UOMCode);
         BinContent.SetRange("Serial No. Filter", SerialNo);
         BinContent.CalcFields("Quantity (Base)");
@@ -2008,7 +2014,7 @@ codeunit 7302 "WMS Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetWrongPickPutAwayQtyErrorText(var WhseActivLine: Record "Warehouse Activity Line"; QtyToPick: Decimal; QtyToPutAway: Decimal; var ErrorTxt: Text[250]; var IsHandled: Boolean)
+    local procedure OnBeforeGetWrongPickPutAwayQtyErrorText(var WhseActivLine: Record "Warehouse Activity Line"; QtyToPick: Decimal; QtyToPutAway: Decimal; var ErrorTxt: Text[250]; var IsHandled: Boolean; var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 
@@ -2164,6 +2170,11 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckItemJournalLineBinCodeForDirectedPutAwayAndPickLocation(ItemJournalLine: Record "Item Journal Line"; var CheckResult: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSerialNo(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20]; UOMCode: Code[10]; SerialNo: Code[50]; QuantityBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

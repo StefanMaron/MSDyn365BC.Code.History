@@ -275,20 +275,12 @@ report 596 "Exch. Rate Adjustment"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLineReq: Record "Gen. Journal Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
-        DimensionPosting: Enum "Exch. Rate Adjmt. Dimensions";
         PostingDate: Date;
         PostingDescription: Text[100];
         PostingDocNo: Code[20];
         StartDate: Date;
         EndDate: Date;
         EndDateReq: Date;
-        AdjCust: Boolean;
-        AdjVend: Boolean;
-        AdjEmpl: Boolean;
-        AdjBank: Boolean;
-        AdjGLAcc: Boolean;
-        AdjPerEntry: Boolean;
-        PreviewPosting: Boolean;
         HideUI: Boolean;
         IsJournalTemplNameVisible: Boolean;
         MustBeEnteredErr: Label '%1 must be entered.', Comment = '%1 = field name';
@@ -301,6 +293,14 @@ report 596 "Exch. Rate Adjustment"
 
     protected var
         ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters";
+        DimensionPosting: Enum "Exch. Rate Adjmt. Dimensions";
+        AdjCust: Boolean;
+        AdjVend: Boolean;
+        AdjEmpl: Boolean;
+        AdjBank: Boolean;
+        AdjGLAcc: Boolean;
+        AdjPerEntry: Boolean;
+        PreviewPosting: Boolean;
 
     local procedure RunAdjustmentProcess()
     var

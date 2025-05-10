@@ -641,13 +641,20 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Price Calculation Method';
         }
+        field(8512; "Buy-from Vendor Name"; Text[100])
+        {
+            CalcFormula = lookup(Vendor.Name where("No." = field("Buy-from Vendor No.")));
+            Caption = 'Buy-from Vendor Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
 #if not CLEANSCHEMA25
         field(11200; "Auto. Acc. Group"; Code[10])
         {
             Caption = 'Auto. Acc. Group';
             TableRelation = "Automatic Acc. Header";
             ObsoleteReason = 'Moved to Automatic Account Codes app.';
-			ObsoleteState = Removed;
+            ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
 #endif

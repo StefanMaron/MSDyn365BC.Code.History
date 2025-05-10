@@ -311,15 +311,30 @@ codeunit 703 "Find Record Management"
     var
         SelectionFilterManagement: Codeunit SelectionFilterManagement;
         FieldRef: FieldRef;
+        TextBuilder: TextBuilder;
     begin
         Result := DelChr(Result, '<>', '|');
         if RecRef.FindSet() then
             repeat
                 FieldRef := RecRef.Field(SelectionFieldID);
-                Result += '|' + SelectionFilterManagement.AddQuotes(Format(FieldRef.Value));
+                TextBuilder.Append('|' + SelectionFilterManagement.AddQuotes(Format(FieldRef.Value)));
                 RecordsCount += 1;
-            until (RecRef.Next() = 0) or (RecordsCount >= 10);
+            until ((RecRef.Next() = 0) or (RecordsCount > GetMaxRecordCountToReturn()));
+
+        if RecordsCount = 1 then begin //to avoid adding single quotes
+            Result := Format(FieldRef.Value);
+            exit;
+        end;
+
+        Result += TextBuilder.ToText();
         Result := DelChr(Result, '<>', '|');
+    end;
+
+    internal procedure GetMaxRecordCountToReturn() Result: Integer
+    begin
+        Result := 30;
+        OnGetMaxRecordCountToReturnOnBeforeExit(Result);
+        exit(Result);
     end;
 
     procedure FindRecordWithSimilarName(RecRef: RecordRef; SearchText: Text; DescriptionFieldNo: Integer): Boolean
@@ -467,6 +482,11 @@ codeunit 703 "Find Record Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetRecRefAndFieldsNoByType(RecRef: RecordRef; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; var SearchFieldNo: array[4] of Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetMaxRecordCountToReturnOnBeforeExit(var Result: Integer)
     begin
     end;
 

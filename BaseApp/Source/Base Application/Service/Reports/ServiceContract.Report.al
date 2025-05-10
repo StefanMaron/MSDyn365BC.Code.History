@@ -447,11 +447,6 @@ report 5970 "Service Contract"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-        end;
-
-        trigger OnOpenPage()
-        begin
             LogInteraction := SegManagement.FindInteractionTemplateCode(Enum::"Interaction Log Entry Document Type"::"Service Contract") <> '';
             LogInteractionEnable := LogInteraction;
         end;

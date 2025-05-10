@@ -17,6 +17,7 @@ codeunit 144002 "Bank Payments"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        MessageTypeErr: Label 'Ref. Payment in document %1 for Vendor %2 has incorrect Message Type';
         InvoiceMessageErr: Label 'Ref. Payment in document %1 for Vendor %2 has incorrect Invoice Message';
         FullPathErr: Label 'File full path ''%1'' exceeds length (%3) of field ''%2'' ';
         CountryRegion: Record "Country/Region";
@@ -216,6 +217,38 @@ codeunit 144002 "Bank Payments"
 
         // [VERIFY] Verified Credit transfer entry has correct Applies to entry no. as on Vendor Ledger entry.
         Assert.AreEqual(VendorLedgerEntry."Entry No.", CreditTransferEntry."Applies-to Entry No.", NotAppliedErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('RPHSuggestBankPayments')]
+    procedure SuggestVendorPaymentsWithMessageTypeAndInvoiceMessage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        RefFileSetup: Record "Reference File Setup";
+        RefPmtExported: Record "Ref. Payment - Exported";
+        BankAccountNo: Code[20];
+        VendorNo: Code[20];
+        PostedDocNo: Code[20];
+    begin
+        // [SCENARIO 567323] Verify that when a prepayment invoice is created and Suggest Vendor Payments is run, 
+        // the Message Type and Invoice Message fields are correctly populated in the suggested vendor payment line.
+        Initialize();
+
+        // [GIVEN] Create Bank Account and Vendor.
+        BankAccountNo := CreateBankAccount(CountryRegion.Code, 'FI9780RBOS16173241116737', '');
+        CreateBankAccountReferenceFileSetup(RefFileSetup, BankAccountNo);
+        VendorNo := CreateVendor(CountryRegion.Code, 'FI9780RBOS16173241116737', true, 1);
+
+        // [GIVEN] Create purchase order and post prepayment invoice.
+        PostedDocNo := CreateAndPostPurchasePrepayments(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        RefPmtExported.DeleteAll();
+        Commit();
+
+        // [WHEN] Run Suggest Bank Payments for vendor
+        RunSuggestBankPayments(BankAccountNo, VendorNo, CalcDate('<30D>', PurchaseHeader."Posting Date"));
+
+        // [THEN] Verify suggested vendor payment line has message type and invoice message
+        VerifySuggestedVendorPaymentsWithMessageTypeAndInvoiceMessage(VendorNo, PostedDocNo, PurchaseHeader);
     end;
 
     local procedure Initialize()
@@ -500,6 +533,58 @@ codeunit 144002 "Bank Payments"
         // Extra Info
         Assert.AreEqual(RefPmtExp."Description 2", PmtExpData."Recipient Name", 'Incorrect Recipient Name');
         Assert.AreEqual(RefPmtExp."Document No.", PmtExpData."Document No.", 'Incorrect Document No.');
+    end;
+
+    local procedure CreateAndPostPurchasePrepayments(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]): Code[20]
+    var
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
+        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(1, 99));
+        PurchaseHeader.Validate("Message Type", PurchaseHeader."Message Type"::Message);
+        PurchaseHeader.Validate("Invoice Message", LibraryRandom.RandText(6));
+        PurchaseHeader.Validate("Invoice Message 2", LibraryRandom.RandText(6));
+        PurchaseHeader.Modify(true);
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 99));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Modify(true);
+        exit(LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader));
+    end;
+
+    local procedure RunSuggestBankPayments(BankAccountNo: Code[20]; VendorNo: Code[20]; PaymentDate: Date)
+    var
+        SuggestBankPayments: Report "Suggest Bank Payments";
+    begin
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        LibraryVariableStorage.Enqueue(VendorNo);
+        SuggestBankPayments.InitializeRequest(PaymentDate, false, 0);
+        SuggestBankPayments.Run();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    local procedure VerifySuggestedVendorPaymentsWithMessageTypeAndInvoiceMessage(VendorNo: Code[20]; DocNo: Code[20]; PurchaseHeader: Record "Purchase Header")
+    var
+        RefPaymentExported: Record "Ref. Payment - Exported";
+    begin
+        RefPaymentExported.SetRange("Vendor No.", VendorNo);
+        RefPaymentExported.SetRange("Document No.", DocNo);
+        RefPaymentExported.FindFirst();
+        Assert.AreEqual(
+            PurchaseHeader."Message Type",
+            RefPaymentExported."Message Type",
+            StrSubstNo(MessageTypeErr, DocNo, VendorNo));
+        Assert.AreEqual(
+            PurchaseHeader."Invoice Message",
+            RefPaymentExported."Invoice Message",
+            StrSubstNo(InvoiceMessageErr, DocNo, VendorNo));
+        Assert.AreEqual(
+            PurchaseHeader."Invoice Message 2",
+            RefPaymentExported."Invoice Message 2",
+            StrSubstNo(InvoiceMessageErr, DocNo, VendorNo));
     end;
 }
 

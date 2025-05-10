@@ -32,6 +32,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Payments - NamedType InvoiceMessageErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1006221881 - NamedType 2851206674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Ref. Payment in document %1 for Vendor %2 has incorrect Message Type]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Bank Payments - NamedType MessageTypeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1006221881 - NamedType 2144627911" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Entries not applied]]></Val>
