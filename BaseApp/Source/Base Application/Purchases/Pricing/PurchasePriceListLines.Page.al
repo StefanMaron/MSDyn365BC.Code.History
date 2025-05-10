@@ -3,6 +3,8 @@
 using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
 using Microsoft.Projects.Project.Pricing;
+using System.Environment.Configuration;
+using System.Integration.Excel;
 
 page 7011 "Purchase Price List Lines"
 {
@@ -264,9 +266,37 @@ page 7011 "Purchase Price List Lines"
         }
     }
 
+    actions
+    {
+        area(Processing)
+        {
+            action(EditInExcel)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Edit in Excel';
+                Image = Excel;
+                ToolTip = 'Send the data in the worksheet to an Excel file for analysis or editing.';
+                Visible = IsSaaSExcelAddinEnabled;
+                AccessByPermission = System "Allow Action Export To Excel" = X;
+
+                trigger OnAction()
+                var
+                    EditinExcel: Codeunit "Edit in Excel";
+                    EditinExcelFilters: Codeunit "Edit in Excel Filters";
+                begin
+                    EditinExcelFilters.AddFieldV2('Price_List_Code', Enum::"Edit in Excel Filter Type"::Equal, Rec."Price List Code", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                    EditinExcel.EditPageInExcel(CopyStr(CurrPage.Caption, 1, 240), Page::"Purchase Price List Lines", EditinExcelFilters, StrSubstNo(ExcelFileNameTxt, Rec."Price List Code"));
+                end;
+            }
+        }
+    }
+
     trigger OnOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
     begin
         UseCustomLookup := Rec.UseCustomizedLookup();
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
     end;
 
     trigger OnAfterGetRecord()
@@ -331,6 +361,7 @@ page 7011 "Purchase Price List Lines"
         DiscountVisible: Boolean;
         IsJobGroup: Boolean;
         IsParentAllowed: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         ItemAsset: Boolean;
         PriceStyle: Text;
         PriceMandatory: Boolean;
@@ -348,6 +379,7 @@ page 7011 "Purchase Price List Lines"
         UOMEditable: Boolean;
         UnitCostEditable: Boolean;
         UseCustomLookup: Boolean;
+        ExcelFileNameTxt: Label 'Purchase Price List %1 - Lines', Comment = '%1 = Price List Code';
 
     local procedure GetStyle(Mandatory: Boolean): Text;
     begin

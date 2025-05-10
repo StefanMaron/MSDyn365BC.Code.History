@@ -969,14 +969,9 @@ report 1304 "Standard Sales - Quote"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-            ArchiveDocument := SalesSetup."Archive Quotes" <> SalesSetup."Archive Quotes"::Never;
-        end;
-
-        trigger OnOpenPage()
-        begin
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
+            ArchiveDocument := SalesSetup."Archive Quotes" <> SalesSetup."Archive Quotes"::Never;
         end;
     }
 
@@ -1065,14 +1060,10 @@ report 1304 "Standard Sales - Quote"
         if Header.GetFilters = '' then
             Error(NoFilterSetErr);
 
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
-
         CompanyLogoPosition := SalesSetup."Logo Position on Documents";
     end;
 
     var
-        CompanyBankAccount: Record "Bank Account";
         DummyCompanyInfo: Record "Company Information";
         Cust: Record Customer;
         LanguageMgt: Codeunit Language;
@@ -1157,6 +1148,7 @@ report 1304 "Standard Sales - Quote"
         SellToContact: Record Contact;
         BillToContact: Record Contact;
         VATClause: Record "VAT Clause";
+        CompanyBankAccount: Record "Bank Account";
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];

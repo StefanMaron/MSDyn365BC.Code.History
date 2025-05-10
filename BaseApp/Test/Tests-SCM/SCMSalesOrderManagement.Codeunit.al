@@ -23,6 +23,7 @@ codeunit 137050 "SCM Sales Order Management"
         IsInitialised: Boolean;
         SuggestAssignmentErr: Label 'Qty. to Invoice must have a value in Sales Line';
         AgentServiceCodeValidationErr: Label 'Shipping Agent Service Code must be equal to %1', Comment = '%1 = Shipping Agent Service Code';
+        GrossWeightErr: Label '%1 must be calculated in %2.', Comment = '%1=Field Caption; %2 Page Caption.';
 
     [Test]
     [Scope('OnPrem')]
@@ -631,6 +632,68 @@ codeunit 137050 "SCM Sales Order Management"
         until SalesLine.Next() = 0;
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentHandler')]
+    procedure ItemChargeAssignmentByWeightOnSalesQuote()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        SalesQuote: TestPage "Sales Quote";
+        ItemChargeNo: Code[20];
+    begin
+        // [SCENARIO 571496] Item Charge Assignment on Sales Quote assigned by Weight.
+        Initialize();
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Sales Header with Document Type Quote.
+        LibrarySales.CreateSalesHeader(
+            SalesHeader,
+            SalesHeader."Document Type"::Quote,
+            Customer."No.");
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Sales Line with an Item.
+        LibrarySales.CreateSalesLine(
+            SalesLine[1],
+            SalesHeader,
+            SalesLine[1].Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Validate Unit Cost, Net Weight, Gross Weight in Sales Line.
+        SalesLine[1].Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        SalesLine[1].Validate("Net Weight", LibraryRandom.RandDec(10, 2));
+        SalesLine[1].Validate("Gross Weight", LibraryRandom.RandDec(10, 2));
+        SalesLine[1].Modify(true);
+
+        // [GIVEN] Create an Item Charge.
+        ItemChargeNo := LibraryInventory.CreateItemChargeNo();
+
+        // [GIVEN] Create Item Charge Line in Sales Quote and Validate Direct Unit Cost.
+        LibrarySales.CreateSalesLine(
+            SalesLine[2],
+            SalesHeader,
+            SalesLine[2].Type::"Charge (Item)",
+            ItemChargeNo,
+            LibraryRandom.RandInt(10));
+        SalesLine[2].Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        SalesLine[2].Modify(true);
+
+        // [WHEN] Assign Item Charge to Sales Quote.
+        SalesQuote.OpenEdit();
+        SalesQuote.GotoRecord(SalesHeader);
+        SalesQuote.SalesLines.Filter.SetFilter("No.", ItemChargeNo);
+
+        // [THEN] Item Charge Assignment should calculate Gross Weight.
+        SalesQuote.SalesLines."Item Charge &Assignment".Invoke();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -911,6 +974,22 @@ codeunit 137050 "SCM Sales Order Management"
     procedure PostedSalesDocumentLinesPageHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
     begin
         PostedSalesDocumentLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemChargeAssignmentHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
+    begin
+        ItemChargeAssignmentSales.SuggestItemChargeAssignment.Invoke();
+
+        Assert.AreNotEqual(
+            0,
+            ItemChargeAssignmentSales.GrossWeight.AsDecimal(),
+            StrSubstNo(
+                GrossWeightErr,
+                ItemChargeAssignmentSales.GrossWeight.Caption(),
+                ItemChargeAssignmentSales.Caption()));
+
+        ItemChargeAssignmentSales.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Shipment Header", 'OnAfterInsertEvent', '', false, false)]

@@ -12,6 +12,8 @@ tableextension 99000850 "Mfg. Planning Assignment" extends "Planning Assignment"
         if OldRoutingNo <> Item."Routing No." then
             if Item."Reordering Policy" <> Item."Reordering Policy"::" " then
                 AssignPlannedOrders(Item."No.", false);
+
+        OnAfterRoutingReplace(Item, OldRoutingNo);
     end;
 
     procedure BomReplace(var Item: Record Item; OldProductionBOMNo: Code[20])
@@ -22,6 +24,8 @@ tableextension 99000850 "Mfg. Planning Assignment" extends "Planning Assignment"
             if OldProductionBOMNo <> '' then
                 OldBom(OldProductionBOMNo);
         end;
+
+        OnAfterBomReplace(Item, OldProductionBOMNo);
     end;
 
     procedure OldBom(ProductionBOMNo: Code[20])
@@ -46,18 +50,27 @@ tableextension 99000850 "Mfg. Planning Assignment" extends "Planning Assignment"
             if not ProductionBOMVersion.FindSet() then
                 exit;
 
+        EndLoop := false;
+        OnOldBomOnBeforeProcessProductionBOMLine(ProductionBOMNo, EndLoop);
+        if EndLoop then
+            exit;
         repeat
             ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMVersion."Production BOM No.");
             ProductionBOMLine.SetRange("Version Code", ProductionBOMVersion."Version Code");
+            ProductionBOMLine.SetFilter(Type, '<>%1', ProductionBOMLine.Type::" ");
             if ProductionBOMLine.FindSet() then
                 repeat
-                    if ProductionBOMLine.Type = ProductionBOMLine.Type::Item then begin
-                        if Item.Get(ProductionBOMLine."No.") then
-                            if Item."Reordering Policy" <> Item."Reordering Policy"::" " then
-                                AssignPlannedOrders(ProductionBOMLine."No.", false);
-                    end else
-                        if ProductionBOMLine.Type = ProductionBOMLine.Type::"Production BOM" then
+                    case ProductionBOMLine.Type of
+                        ProductionBOMLine.Type::Item:
+                            begin
+                                Item.SetLoadFields("Reordering Policy");
+                                if Item.Get(ProductionBOMLine."No.") then
+                                    if Item."Reordering Policy" <> Item."Reordering Policy"::" " then
+                                        AssignPlannedOrders(ProductionBOMLine."No.", false);
+                            end;
+                        ProductionBOMLine.Type::"Production BOM":
                             OldBom(ProductionBOMLine."No.");
+                    end;
                 until ProductionBOMLine.Next() = 0;
             if UseVersions then
                 EndLoop := ProductionBOMVersion.Next() = 0
@@ -72,17 +85,20 @@ tableextension 99000850 "Mfg. Planning Assignment" extends "Planning Assignment"
     begin
         Item.SetCurrentKey("Production BOM No.");
         Item.SetRange("Production BOM No.", ProductionBOMNo);
+        Item.SetLoadFields("Reordering Policy");
         if Item.FindSet() then
             repeat
                 if Item."Reordering Policy" <> Item."Reordering Policy"::" " then
                     AssignPlannedOrders(Item."No.", false);
             until Item.Next() = 0;
+
+        OnAfterNewBOM(ProductionBOMNo);
     end;
 
     procedure AssignPlannedOrders(ItemNo: Code[20]; CheckSKU: Boolean)
     var
         ProdOrderLine: Record "Prod. Order Line";
-        ReqLine: Record "Requisition Line";
+        RequisitionLine: Record "Requisition Line";
         AssignThis: Boolean;
     begin
         ProdOrderLine.SetCurrentKey(Status, "Item No.", "Variant Code", "Location Code");
@@ -103,24 +119,49 @@ tableextension 99000850 "Mfg. Planning Assignment" extends "Planning Assignment"
                 ProdOrderLine.SetRange("Location Code");
             until ProdOrderLine.Next() = 0;
 
-        ReqLine.SetCurrentKey(Type, "No.", "Variant Code", "Location Code");
-        ReqLine.SetRange(Type, ReqLine.Type::Item);
-        ReqLine.SetRange("No.", ItemNo);
-        if ReqLine.FindSet(true) then
+        RequisitionLine.SetCurrentKey(Type, "No.", "Variant Code", "Location Code");
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", ItemNo);
+        if RequisitionLine.FindSet(true) then
             repeat
                 if CheckSKU then
-                    AssignThis := not SKUExists(ReqLine."No.", ReqLine."Variant Code", ReqLine."Location Code")
+                    AssignThis := not SKUExists(RequisitionLine."No.", RequisitionLine."Variant Code", RequisitionLine."Location Code")
                 else
                     AssignThis := true;
                 if AssignThis then
-                    AssignOne(ReqLine."No.", ReqLine."Variant Code", ReqLine."Location Code", WorkDate());
-                ReqLine.SetRange("Variant Code", ReqLine."Variant Code");
-                ReqLine.SetRange("Location Code", ReqLine."Location Code");
-                ReqLine.FindLast();
-                ReqLine.SetRange("Variant Code");
-                ReqLine.SetRange("Location Code");
-            until ReqLine.Next() = 0;
+                    AssignOne(RequisitionLine."No.", RequisitionLine."Variant Code", RequisitionLine."Location Code", WorkDate());
+                RequisitionLine.SetRange("Variant Code", RequisitionLine."Variant Code");
+                RequisitionLine.SetRange("Location Code", RequisitionLine."Location Code");
+                RequisitionLine.FindLast();
+                RequisitionLine.SetRange("Variant Code");
+                RequisitionLine.SetRange("Location Code");
+            until RequisitionLine.Next() = 0;
+
+        OnAfterAssignPlannedOrders(ItemNo, CheckSKU, AssignThis);
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRoutingReplace(var Item: Record Item; OldRoutingNo: Code[20])
+    begin
+    end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBomReplace(var Item: Record Item; OldProductionBOMNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOldBomOnBeforeProcessProductionBOMLine(ProductionBOMNo: Code[20]; var EndLoop: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterNewBOM(ProductionBOMNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignPlannedOrders(ItemNo: Code[20]; CheckSKU: Boolean; var AssignThis: Boolean)
+    begin
+    end;
 }

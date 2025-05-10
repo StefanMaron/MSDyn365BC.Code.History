@@ -106,7 +106,7 @@ page 6325 "Power BI Embedded Report Part"
 
                     trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                     begin
-                        LogVisualLoaded(CorrelationId, Enum::"Power BI Element Type"::Report);
+                        PowerBiServiceMgt.LogVisualLoaded(CorrelationId, Enum::"Power BI Element Type"::Report);
                         if not AvailableReportLevelFilters.ReadFrom(ReportFilters) then
                             Clear(AvailableReportLevelFilters);
 
@@ -115,17 +115,17 @@ page 6325 "Power BI Embedded Report Part"
 
                     trigger DashboardLoaded(CorrelationId: Text)
                     begin
-                        LogVisualLoaded(CorrelationId, Enum::"Power BI Element Type"::Dashboard);
+                        PowerBiServiceMgt.LogVisualLoaded(CorrelationId, Enum::"Power BI Element Type"::Dashboard);
                     end;
 
                     trigger DashboardTileLoaded(CorrelationId: Text)
                     begin
-                        LogVisualLoaded(CorrelationId, Enum::"Power BI Element Type"::"Dashboard Tile");
+                        PowerBiServiceMgt.LogVisualLoaded(CorrelationId, Enum::"Power BI Element Type"::"Dashboard Tile");
                     end;
 
                     trigger ErrorOccurred(Operation: Text; ErrorText: Text)
                     begin
-                        LogEmbedError(Operation);
+                        PowerBiServiceMgt.LogEmbedError(Operation);
                         ShowError(Operation, ErrorText);
                     end;
 
@@ -519,8 +519,6 @@ page 6325 "Power BI Embedded Report Part"
         IsPartVisible: Boolean;
         LockedToFirstElement: Boolean;
         // Telemetry labels
-        EmbedCorrelationTelemetryTxt: Label 'Embed element started with type: %1, and correlation: %2', Locked = true;
-        EmbedErrorOccurredTelemetryTxt: Label 'Embed error occurred with category: %1', Locked = true;
         NoOptInImageTxt: Label 'There is no Power BI Opt-in image in the Database with ID: %1', Locked = true;
         ReportsResetTelemetryMsg: Label 'User has reset Power BI setup for everyone, option chosen: %1', Locked = true;
         ReportsResetUserTelemetryMsg: Label 'User has reset their own Power BI setup.', Locked = true;
@@ -673,20 +671,6 @@ page 6325 "Power BI Embedded Report Part"
             // Very old tenants might not have this image: let's not spam telemetry with warnings
             Session.LogMessage('0000GJT', StrSubstNo(NoOptInImageTxt, PowerBiOptInImageNameLbl), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
         end;
-    end;
-
-    local procedure LogVisualLoaded(CorrelationId: Text; EmbedType: Enum "Power BI Element Type")
-    begin
-        Session.LogMessage('0000KAD', StrSubstNo(EmbedCorrelationTelemetryTxt, EmbedType, CorrelationId),
-            Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
-    end;
-
-    local procedure LogEmbedError(ErrorCategory: Text)
-    begin
-        FeatureTelemetry.LogError('0000L02', PowerBIServiceMgt.GetPowerBiFeatureTelemetryName(), ErrorCategory, 'Error loading Power BI visual');
-
-        Session.LogMessage('0000KAE', StrSubstNo(EmbedErrorOccurredTelemetryTxt, ErrorCategory),
-            Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
     end;
 
     local procedure ShouldCalculateFilter(): Boolean

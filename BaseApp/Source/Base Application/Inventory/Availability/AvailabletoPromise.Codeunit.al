@@ -205,7 +205,7 @@ codeunit 5790 "Available to Promise"
         CalculateAvailabilityByPeriod(TempAvailabilityAtDate, PeriodType);
 
         IsHandled := false;
-        OnCalcEarliestAvailabilityDateOnBeforeFilterDate(Item, NeededQty, StartDate, AvailableQty, PeriodType, LookaheadDateFormula, TempAvailabilityAtDate, AvailableDate, IsHandled);
+        OnCalcEarliestAvailabilityDateOnBeforeFilterDate(Item, NeededQty, StartDate, AvailableQty, PeriodType, LookaheadDateFormula, TempAvailabilityAtDate, AvailableDate, IsHandled, ExcludeOnDate);
         if IsHandled then
             exit(AvailableDate);
 
@@ -220,8 +220,10 @@ codeunit 5790 "Available to Promise"
                         PeriodStart := TempAvailabilityAtDate."Period Start";
                     ScheduledReceipt += TempAvailabilityAtDate."Scheduled Receipt";
                     GrossRequirement += TempAvailabilityAtDate."Gross Requirement";
+                    OnCalcEarliestAvailabilityDateOnBeforeNextTempAvailabilityAtDate(TempAvailabilityAtDate);
                 until TempAvailabilityAtDate.Next() = 0;
             AvailableQty := Item.Inventory - Item."Reserved Qty. on Inventory" + ScheduledReceipt - GrossRequirement;
+            OnCalcEarliestAvailabilityDateOnAfterCalculateAvailableQty(AvailableQty, Item, ScheduledReceipt, GrossRequirement);
             if AvailableQty >= NeededQty then begin
                 QtyIsAvailable := true;
                 AvailableDate := Date."Period End";
@@ -381,6 +383,8 @@ codeunit 5790 "Available to Promise"
         AvailabilityAtDate."Scheduled Receipt" += ScheduledReceipt;
         AvailabilityAtDate."Gross Requirement" += GrossRequirement;
 
+        OnUpdateAvailabilityOnBeforeInsertModify(AvailabilityAtDate, Date, ScheduledReceipt, GrossRequirement);
+
         if RecordExists then
             AvailabilityAtDate.Modify()
         else
@@ -410,6 +414,7 @@ codeunit 5790 "Available to Promise"
                     repeat
                         AvailabilityInPeriod."Scheduled Receipt" += AvailabilityAtDate."Scheduled Receipt";
                         AvailabilityInPeriod."Gross Requirement" += AvailabilityAtDate."Gross Requirement";
+                        OnCalculateAvailabilityByPeriodOnBeforeDeleteAvailabilityAtDate(AvailabilityInPeriod, AvailabilityAtDate);
                         AvailabilityAtDate.Delete();
                     until AvailabilityAtDate.Next() = 0;
                     AvailabilityAtDate.SetRange("Period Start");
@@ -655,7 +660,7 @@ codeunit 5790 "Available to Promise"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateAsmCompAvail(AvailabilityAtDate, Item, IsHandled);
+        OnBeforeUpdateAsmCompAvail(AvailabilityAtDate, Item, IsHandled, ChangedAssemblyLine);
         if IsHandled then
             exit;
 
@@ -802,7 +807,7 @@ codeunit 5790 "Available to Promise"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcEarliestAvailabilityDateOnBeforeFilterDate(var Item: Record Item; NeededQty: Decimal; StartDate: Date; var AvailableQty: Decimal; PeriodType: Enum "Analysis Period Type"; LookaheadDateFormula: DateFormula; var AvailabilityAtDate: Record "Availability at Date"; var AvailableDate: Date; var IsHandled: Boolean)
+    local procedure OnCalcEarliestAvailabilityDateOnBeforeFilterDate(var Item: Record Item; NeededQty: Decimal; StartDate: Date; var AvailableQty: Decimal; PeriodType: Enum "Analysis Period Type"; LookaheadDateFormula: DateFormula; var AvailabilityAtDate: Record "Availability at Date"; var AvailableDate: Date; var IsHandled: Boolean; ExcludeOnDate: Date)
     begin
     end;
 
@@ -889,12 +894,32 @@ codeunit 5790 "Available to Promise"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateAsmCompAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateAsmCompAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean; var ChangedAssemblyLine: Record "Assembly Line")
     begin
     end;
 
     [IntegrationEvent(true, false)]
     local procedure OnCalcEarliestAvailabilityDateOnAfterUpdateScheduledReceipt(var TempAvailabilityAtDate: Record "Availability at Date" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnUpdateAvailabilityOnBeforeInsertModify(var AvailabilityAtDate: Record "Availability at Date"; Date: Date; var ScheduledReceipt: Decimal; var GrossRequirement: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCalculateAvailabilityByPeriodOnBeforeDeleteAvailabilityAtDate(var AvailabilityInPeriod: Record "Availability at Date"; AvailabilityAtDate: Record "Availability at Date")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCalcEarliestAvailabilityDateOnBeforeNextTempAvailabilityAtDate(var AvailabilityAtDate: Record "Availability at Date")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCalcEarliestAvailabilityDateOnAfterCalculateAvailableQty(var AvailableQty: decimal; var Item: Record "Item"; ScheduledReceipt: decimal; GrossRequirement: decimal)
     begin
     end;
 }

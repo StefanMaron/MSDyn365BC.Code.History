@@ -28,7 +28,9 @@ report 5899 "Calculate Inventory Value"
 
             trigger OnAfterGetRecord()
             var
+                ItemLedgerEntry: Record "Item Ledger Entry";
                 SkipItem: Boolean;
+                IncludeExpectedCost: Boolean;
                 RemCost: Decimal;
             begin
                 if ShowDialog then
@@ -49,36 +51,37 @@ report 5899 "Calculate Inventory Value"
                 TempValJnlBuffer.Reset();
                 TempValJnlBuffer.DeleteAll();
                 IncludeExpectedCost := ("Costing Method" = "Costing Method"::Standard) and (CalculatePer = CalculatePer::Item);
-                ItemLedgEntry.SetRange("Item No.", "No.");
-                ItemLedgEntry.SetRange(Positive, true);
-                CopyFilter("Location Filter", ItemLedgEntry."Location Code");
-                CopyFilter("Variant Filter", ItemLedgEntry."Variant Code");
-                OnItemAfterGetRecordOnAfterItemLedgEntrySetFilters(ItemLedgEntry, Item);
-                if ItemLedgEntry.Find('-') then
+                ItemLedgerEntry.SetCurrentKey("Item No.", Positive, "Location Code", "Variant Code");
+                ItemLedgerEntry.SetRange("Item No.", "No.");
+                ItemLedgerEntry.SetRange(Positive, true);
+                CopyFilter("Location Filter", ItemLedgerEntry."Location Code");
+                CopyFilter("Variant Filter", ItemLedgerEntry."Variant Code");
+                OnItemAfterGetRecordOnAfterItemLedgEntrySetFilters(ItemLedgerEntry, Item);
+                if ItemLedgerEntry.FindSet() then
                     repeat
-                        if IncludeEntryInCalc(ItemLedgEntry, PostingDate, IncludeExpectedCost) then begin
-                            RemQty := ItemLedgEntry.CalculateRemQuantity(ItemLedgEntry."Entry No.", PostingDate);
-                            RemCost := CalcRemainingCost(ItemLedgEntry, RemQty, IncludeExpectedCost);
+                        if IncludeEntryInCalc(ItemLedgerEntry, PostingDate, IncludeExpectedCost) then begin
+                            RemQty := ItemLedgerEntry.CalculateRemQuantity(ItemLedgerEntry."Entry No.", PostingDate);
+                            RemCost := CalcRemainingCost(ItemLedgerEntry, RemQty, IncludeExpectedCost);
                             case CalculatePer of
                                 CalculatePer::"Item Ledger Entry":
                                     begin
-                                        OnAfterGetRecordItemOnBeforInsertItemJnlLine(ItemLedgEntry, ItemJnlLine);
+                                        OnAfterGetRecordItemOnBeforInsertItemJnlLine(ItemLedgerEntry, ItemJnlLine);
                                         InsertItemJnlLine(
-                                          ItemLedgEntry."Entry Type", ItemLedgEntry."Item No.",
-                                          ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", RemQty, RemCost, ItemLedgEntry."Entry No.", 0);
+                                          ItemLedgerEntry."Entry Type", ItemLedgerEntry."Item No.",
+                                          ItemLedgerEntry."Variant Code", ItemLedgerEntry."Location Code", RemQty, RemCost, ItemLedgerEntry."Entry No.", 0, ItemLedgerEntry."Dimension Set ID");
                                     end;
                                 CalculatePer::Item:
                                     InsertValJnlBuffer(
-                                      ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", RemQty, RemCost);
+                                      ItemLedgerEntry."Item No.", ItemLedgerEntry."Variant Code", ItemLedgerEntry."Location Code", RemQty, RemCost);
                             end;
                         end;
-                    until ItemLedgEntry.Next() = 0;
+                    until ItemLedgerEntry.Next() = 0;
 
                 if CalculatePer = CalculatePer::Item then
                     if (GetFilter("Location Filter") <> '') or ByLocation then begin
                         ByLocation2 := true;
                         CopyFilter("Location Filter", Location.Code);
-                        if Location.Find('-') then begin
+                        if Location.FindSet() then begin
                             Clear(TempValJnlBuffer);
                             TempValJnlBuffer.SetCurrentKey("Item No.", "Location Code", "Variant Code");
                             TempValJnlBuffer.SetRange("Item No.", "No.");
@@ -88,7 +91,7 @@ report 5899 "Calculate Inventory Value"
                                     ByVariant2 := true;
                                     ItemVariant.SetRange("Item No.", "No.");
                                     CopyFilter("Variant Filter", ItemVariant.Code);
-                                    if ItemVariant.Find('-') then
+                                    if ItemVariant.FindSet() then
                                         repeat
                                             TempValJnlBuffer.SetRange("Variant Code", ItemVariant.Code);
                                             Calculate(Item, ItemVariant.Code, Location.Code);
@@ -103,7 +106,7 @@ report 5899 "Calculate Inventory Value"
                         if ByVariant then begin
                             ItemVariant.SetRange("Item No.", "No.");
                             CopyFilter("Variant Filter", ItemVariant.Code);
-                            if ItemVariant.Find('-') then
+                            if ItemVariant.FindSet() then
                                 repeat
                                     TempValJnlBuffer.SetRange("Variant Code", ItemVariant.Code);
                                     Calculate(Item, ItemVariant.Code, '');
@@ -117,7 +120,7 @@ report 5899 "Calculate Inventory Value"
                             ByVariant2 := true;
                             ItemVariant.SetRange("Item No.", "No.");
                             CopyFilter("Variant Filter", ItemVariant.Code);
-                            if ItemVariant.Find('-') then begin
+                            if ItemVariant.FindSet() then begin
                                 TempValJnlBuffer.Reset();
                                 TempValJnlBuffer.SetCurrentKey("Item No.", "Variant Code");
                                 TempValJnlBuffer.SetRange("Item No.", "No.");
@@ -139,35 +142,35 @@ report 5899 "Calculate Inventory Value"
 
             trigger OnPostDataItem()
             var
-                SKU: Record "Stockkeeping Unit";
-                ItemCostMgt: Codeunit ItemCostManagement;
+                StockkeepingUnit: Record "Stockkeeping Unit";
+                ItemCostManagement: Codeunit ItemCostManagement;
                 IsHandled: Boolean;
             begin
                 if not UpdStdCost then
                     exit;
 
                 if ByLocation then
-                    CopyFilter("Location Filter", SKU."Location Code");
+                    CopyFilter("Location Filter", StockkeepingUnit."Location Code");
                 if ByVariant then
-                    CopyFilter("Variant Filter", SKU."Variant Code");
+                    CopyFilter("Variant Filter", StockkeepingUnit."Variant Code");
 
                 TempNewStdCostItem.CopyFilters(Item);
-                if TempNewStdCostItem.Find('-') then
+                if TempNewStdCostItem.FindSet() then
                     repeat
                         if not TempUpdatedStdCostSKU.Get('', TempNewStdCostItem."No.", '') then
-                            ItemCostMgt.UpdateStdCostShares(TempNewStdCostItem);
+                            ItemCostManagement.UpdateStdCostShares(TempNewStdCostItem);
 
-                        SKU.SetRange("Item No.", TempNewStdCostItem."No.");
-                        if SKU.Find('-') then
+                        StockkeepingUnit.SetRange("Item No.", TempNewStdCostItem."No.");
+                        if StockkeepingUnit.FindSet() then
                             repeat
-                                if not TempUpdatedStdCostSKU.Get(SKU."Location Code", TempNewStdCostItem."No.", SKU."Variant Code") then begin
+                                if not TempUpdatedStdCostSKU.Get(StockkeepingUnit."Location Code", TempNewStdCostItem."No.", StockkeepingUnit."Variant Code") then begin
                                     IsHandled := false;
-                                    OnPostDataItemForItemOnBeforeValidateStandardCost(TempNewStdCostItem, SKU, IsHandled);
+                                    OnPostDataItemForItemOnBeforeValidateStandardCost(TempNewStdCostItem, StockkeepingUnit, IsHandled);
                                     if not IsHandled then
-                                        SKU.Validate("Standard Cost", TempNewStdCostItem."Standard Cost");
-                                    SKU.Modify();
+                                        StockkeepingUnit.Validate("Standard Cost", TempNewStdCostItem."Standard Cost");
+                                    StockkeepingUnit.Modify();
                                 end;
-                            until SKU.Next() = 0;
+                            until StockkeepingUnit.Next() = 0;
                     until TempNewStdCostItem.Next() = 0;
             end;
 
@@ -193,8 +196,6 @@ report 5899 "Calculate Inventory Value"
 
                 CalcInvtValCheck.SetParameters(PostingDate, CalculatePer, ByLocation, ByVariant, ShowDialog, false);
                 CalcInvtValCheck.RunCheck(Item, TempErrorBuf);
-
-                ItemLedgEntry.SetCurrentKey("Item No.", Positive, "Location Code", "Variant Code");
 
                 NextLineNo := 0;
 
@@ -330,7 +331,6 @@ report 5899 "Calculate Inventory Value"
         ItemJnlLine: Record "Item Journal Line";
         TempValJnlBuffer: Record "Item Journal Buffer" temporary;
         ItemJnlTemplate: Record "Item Journal Template";
-        ItemLedgEntry: Record "Item Ledger Entry";
         GLSetup: Record "General Ledger Setup";
         SourceCodeSetup: Record "Source Code Setup";
         Location: Record Location;
@@ -353,7 +353,6 @@ report 5899 "Calculate Inventory Value"
         ByVariant: Boolean;
         UpdStdCost: Boolean;
         ShowDialog: Boolean;
-        IncludeExpectedCost: Boolean;
         ByLocationEnable: Boolean;
         ByVariantEnable: Boolean;
         CalcBaseEnable: Boolean;
@@ -374,11 +373,11 @@ report 5899 "Calculate Inventory Value"
         ByVariant2: Boolean;
         PostingDate: Date;
 
-    local procedure IncludeEntryInCalc(ItemLedgEntry: Record "Item Ledger Entry"; PostingDate: Date; IncludeExpectedCost: Boolean): Boolean
+    local procedure IncludeEntryInCalc(ItemLedgerEntry: Record "Item Ledger Entry"; PostingDate: Date; IncludeExpectedCost: Boolean): Boolean
     begin
         if IncludeExpectedCost then
-            exit(ItemLedgEntry."Posting Date" in [0D .. PostingDate]);
-        exit(ItemLedgEntry."Completely Invoiced" and (ItemLedgEntry."Last Invoice Date" in [0D .. PostingDate]));
+            exit(ItemLedgerEntry."Posting Date" in [0D .. PostingDate]);
+        exit(ItemLedgerEntry."Completely Invoiced" and (ItemLedgerEntry."Last Invoice Date" in [0D .. PostingDate]));
     end;
 
     procedure SetItemJnlLine(var NewItemJnlLine: Record "Item Journal Line")
@@ -481,37 +480,37 @@ report 5899 "Calculate Inventory Value"
 
     local procedure CalcNotComplInvcdTransfer(var NotComplInvQty: Decimal; var NotComplInvValue: Decimal)
     var
-        ItemLedgEntry: Record "Item Ledger Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
         RemQty: Decimal;
         RemInvValue: Decimal;
         i: Integer;
     begin
         for i := 1 to 2 do begin
-            ItemLedgEntry.SetCurrentKey("Item No.", Positive, "Location Code", "Variant Code");
-            ItemLedgEntry.SetRange("Item No.", Item."No.");
-            ItemLedgEntry.SetRange(Positive, i = 1);
-            ItemLedgEntry.SetFilter("Location Code", TempValJnlBuffer.GetFilter("Location Code"));
-            ItemLedgEntry.SetFilter("Variant Code", TempValJnlBuffer.GetFilter("Variant Code"));
-            if ItemLedgEntry.Find('-') then
+            ItemLedgerEntry.SetCurrentKey("Item No.", Positive, "Location Code", "Variant Code");
+            ItemLedgerEntry.SetRange("Item No.", Item."No.");
+            ItemLedgerEntry.SetRange(Positive, i = 1);
+            ItemLedgerEntry.SetFilter("Location Code", TempValJnlBuffer.GetFilter("Location Code"));
+            ItemLedgerEntry.SetFilter("Variant Code", TempValJnlBuffer.GetFilter("Variant Code"));
+            if ItemLedgerEntry.FindSet() then
                 repeat
-                    if (ItemLedgEntry.Quantity = ItemLedgEntry."Invoiced Quantity") and
-                       not ItemLedgEntry."Completely Invoiced" and
-                       (ItemLedgEntry."Last Invoice Date" in [0D .. PostingDate]) and
-                       (ItemLedgEntry."Invoiced Quantity" <> 0)
+                    if (ItemLedgerEntry.Quantity = ItemLedgerEntry."Invoiced Quantity") and
+                       not ItemLedgerEntry."Completely Invoiced" and
+                       (ItemLedgerEntry."Last Invoice Date" in [0D .. PostingDate]) and
+                       (ItemLedgerEntry."Invoiced Quantity" <> 0)
                     then begin
-                        RemQty := ItemLedgEntry.Quantity;
-                        RemInvValue := ItemLedgEntry.CalculateRemInventoryValue(ItemLedgEntry."Entry No.", ItemLedgEntry.Quantity, ItemLedgEntry.Quantity, false, 0D, PostingDate);
+                        RemQty := ItemLedgerEntry.Quantity;
+                        RemInvValue := ItemLedgerEntry.CalculateRemInventoryValue(ItemLedgerEntry."Entry No.", ItemLedgerEntry.Quantity, ItemLedgerEntry.Quantity, false, 0D, PostingDate);
                         NotComplInvQty := NotComplInvQty + RemQty;
                         NotComplInvValue := NotComplInvValue + RemInvValue;
                     end;
-                until ItemLedgEntry.Next() = 0;
+                until ItemLedgerEntry.Next() = 0;
         end;
     end;
 
-    local procedure InsertItemJnlLine(EntryType2: Enum "Item Ledger Entry Type"; ItemNo2: Code[20]; VariantCode2: Code[10]; LocationCode2: Code[10]; Quantity2: Decimal; Amount2: Decimal; ApplyToEntry2: Integer; AppliedAmount: Decimal)
+    local procedure InsertItemJnlLine(EntryType2: Enum "Item Ledger Entry Type"; ItemNo2: Code[20]; VariantCode2: Code[10]; LocationCode2: Code[10]; Quantity2: Decimal; Amount2: Decimal; ApplyToEntry2: Integer; AppliedAmount: Decimal; DimensionSetID: Integer)
     var
         Item: Record Item;
-        SKU: Record "Stockkeeping Unit";
+        StockkeepingUnit: Record "Stockkeeping Unit";
     begin
         if Quantity2 = 0 then
             exit;
@@ -541,7 +540,7 @@ report 5899 "Calculate Inventory Value"
                         ItemJnlLine."Inventory Value Per" := ItemJnlLine."Inventory Value Per"::Item;
         if CalculatePer = CalculatePer::"Item Ledger Entry" then begin
             ItemJnlLine."Applies-to Entry" := ApplyToEntry2;
-            ItemJnlLine.CopyDim(ItemLedgEntry."Dimension Set ID");
+            ItemJnlLine.CopyDim(DimensionSetID);
         end;
         ItemJnlLine.Validate(Quantity, Quantity2);
         ItemJnlLine.Validate("Inventory Value (Calculated)", Round(Amount2, GLSetup."Amount Rounding Precision"));
@@ -549,8 +548,8 @@ report 5899 "Calculate Inventory Value"
             CalcBase::" ":
                 ItemJnlLine.Validate("Inventory Value (Revalued)", ItemJnlLine."Inventory Value (Calculated)");
             CalcBase::"Last Direct Unit Cost":
-                if SKU.Get(ItemJnlLine."Location Code", ItemJnlLine."Item No.", ItemJnlLine."Variant Code") then
-                    ItemJnlLine.Validate("Unit Cost (Revalued)", SKU."Last Direct Cost")
+                if StockkeepingUnit.Get(ItemJnlLine."Location Code", ItemJnlLine."Item No.", ItemJnlLine."Variant Code") then
+                    ItemJnlLine.Validate("Unit Cost (Revalued)", StockkeepingUnit."Last Direct Cost")
                 else begin
                     Item.Get(ItemJnlLine."Item No.");
                     ItemJnlLine.Validate("Unit Cost (Revalued)", Item."Last Direct Cost");
@@ -586,33 +585,33 @@ report 5899 "Calculate Inventory Value"
         OnAfterInsertItemJnlLine(ItemJnlLine, EntryType2, ItemNo2, VariantCode2, LocationCode2, Quantity2, Amount2, ApplyToEntry2, AppliedAmount, CalcBase);
     end;
 
-    local procedure InitItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; EntryType2: Enum "Item Ledger Entry Type"; ItemNo2: Code[20]; VariantCode2: Code[10]; LocationCode2: Code[10])
+    local procedure InitItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; EntryType2: Enum "Item Ledger Entry Type"; ItemNo2: Code[20]; VariantCode2: Code[10]; LocationCode2: Code[10])
     begin
         if NextLineNo = 0 then begin
-            ItemJnlLine.LockTable();
-            ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
-            ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
-            if ItemJnlLine.FindLast() then
-                NextLineNo := ItemJnlLine."Line No.";
+            ItemJournalLine.LockTable();
+            ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
+            ItemJournalLine.SetRange("Journal Batch Name", ItemJournalLine."Journal Batch Name");
+            if ItemJournalLine.FindLast() then
+                NextLineNo := ItemJournalLine."Line No.";
         end;
 
         NextLineNo := NextLineNo + 10000;
-        ItemJnlLine.Init();
-        ItemJnlLine."Line No." := NextLineNo;
-        ItemJnlLine."Value Entry Type" := ItemJnlLine."Value Entry Type"::Revaluation;
+        ItemJournalLine.Init();
+        ItemJournalLine."Line No." := NextLineNo;
+        ItemJournalLine."Value Entry Type" := ItemJournalLine."Value Entry Type"::Revaluation;
 
-        OnInitItemJnlLineOnBeforeValidateFields(ItemJnlLine);
+        OnInitItemJnlLineOnBeforeValidateFields(ItemJournalLine);
 
-        ItemJnlLine.Validate("Posting Date", PostingDate);
-        ItemJnlLine.Validate("Entry Type", EntryType2);
-        ItemJnlLine.Validate("Document No.", NextDocNo);
-        ItemJnlLine.Validate("Item No.", ItemNo2);
-        ItemJnlLine."Reason Code" := ItemJnlBatch."Reason Code";
-        ItemJnlLine."Variant Code" := VariantCode2;
-        ItemJnlLine."Location Code" := LocationCode2;
-        ItemJnlLine."Source Code" := SourceCodeSetup."Revaluation Journal";
+        ItemJournalLine.Validate("Posting Date", PostingDate);
+        ItemJournalLine.Validate("Entry Type", EntryType2);
+        ItemJournalLine.Validate("Document No.", NextDocNo);
+        ItemJournalLine.Validate("Item No.", ItemNo2);
+        ItemJournalLine."Reason Code" := ItemJnlBatch."Reason Code";
+        ItemJournalLine."Variant Code" := VariantCode2;
+        ItemJournalLine."Location Code" := LocationCode2;
+        ItemJournalLine."Source Code" := SourceCodeSetup."Revaluation Journal";
 
-        OnAfterInitItemJnlLine(ItemJnlLine, ItemJnlBatch);
+        OnAfterInitItemJnlLine(ItemJournalLine, ItemJnlBatch);
     end;
 
 #if not CLEAN24
@@ -666,15 +665,15 @@ report 5899 "Calculate Inventory Value"
         ValidateCalcLevel();
     end;
 
-    local procedure ItemJnlLineExists(ItemJnlLine: Record "Item Journal Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; ApplyToEntry: Integer): Boolean
+    local procedure ItemJnlLineExists(ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; ApplyToEntry: Integer): Boolean
     begin
-        ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
-        ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
-        ItemJnlLine.SetRange("Item No.", ItemNo);
-        ItemJnlLine.SetRange("Variant Code", VariantCode);
-        ItemJnlLine.SetRange("Location Code", LocationCode);
-        ItemJnlLine.SetRange("Applies-to Entry", ApplyToEntry);
-        exit(not ItemJnlLine.IsEmpty);
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalLine."Journal Batch Name");
+        ItemJournalLine.SetRange("Item No.", ItemNo);
+        ItemJournalLine.SetRange("Variant Code", VariantCode);
+        ItemJournalLine.SetRange("Location Code", LocationCode);
+        ItemJournalLine.SetRange("Applies-to Entry", ApplyToEntry);
+        exit(not ItemJournalLine.IsEmpty());
     end;
 
     local procedure CalcRemainingCost(ItemLedgerEntry: Record "Item Ledger Entry"; RemainingQty: Decimal; IncludeExpCost: Boolean): Decimal
@@ -715,7 +714,7 @@ report 5899 "Calculate Inventory Value"
             InsertItemJnlLine(
                 ItemJnlLine."Entry Type"::"Positive Adjmt.",
                 Item."No.", VariantCode, LocationCode, TempValJnlBuffer.Quantity, TempValJnlBuffer."Inventory Value (Calculated)",
-                0, AppliedAmount);
+                0, AppliedAmount, 0);
         end;
     end;
 
