@@ -681,6 +681,7 @@ page 403 "Purchase Order Statistics"
         Clear(TotalPurchLineLCY);
 
         for i := 1 to 3 do begin
+            OnRefreshOnAfterGetRecordOnBeforeTempPurchLineDeleteAll(Rec, TempPurchLine, i);
             TempPurchLine.DeleteAll();
             Clear(TempPurchLine);
             Clear(PurchPost);
@@ -1027,6 +1028,11 @@ page 403 "Purchase Order Statistics"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterRefreshOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header"; TotalAmount1: array[3] of Decimal; TotalAmount2: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRefreshOnAfterGetRecordOnBeforeTempPurchLineDeleteAll(var PurchaseHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line" temporary; i: Integer)
     begin
     end;
 }

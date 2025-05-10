@@ -214,9 +214,11 @@ report 742 "VAT Report Request Page"
     }
 
     var
+        PeriodIsEditable: Boolean;
+
+    protected var
         Selection: Enum "VAT Statement Report Selection";
         PeriodSelection: Enum "VAT Statement Report Period Selection";
-        PeriodIsEditable: Boolean;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPeriodIsEditable(VATReportHeader: Record "VAT Report Header"; var PeriodIsEditable: Boolean)

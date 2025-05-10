@@ -3345,6 +3345,54 @@ codeunit 137154 "SCM Warehouse Management II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler')]
+    procedure PostWarehouseShipmentWithMultipleRegisteredPicks()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        LotNo: Code[50];
+        Counter: Integer;
+        Quantity: Decimal;
+        Quantity2: Decimal;
+    begin
+        // [SCENARIO 563117] Post Warehouse Shipment with multiple Registered Pick.
+        Initialize();
+
+        // [GIVEN] Create Item with Lot No. Tracking.
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', LotItemTrackingCode.Code);
+
+        // [GIVEN] Generate Quantity.
+        Quantity := LibraryRandom.RandInt(5);
+        Quantity2 := Quantity + LibraryRandom.RandInt(20);
+
+        // [GIVEN] Generate Lot No.
+        LotNo := LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Lot No."), Database::"Warehouse Activity Line");
+
+        // [GIVEN] Post Positive Adjustment with Item Tracking.
+        LibraryItemTracking.PostPositiveAdjustmentWithItemTracking(Item, LocationYellow.Code, '', Quantity2, WorkDate(), '', LotNo);
+
+        // [GIVEN] Create and Release Sales Order.
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", LocationYellow.Code, '', Quantity2, WorkDate(), false, true);
+
+        // [GIVEN] Post Negative Adjustment with Item Tracking.
+        POSTNegativeAdjustmentWithItemTracking(Item, LocationYellow.Code, '', Quantity, WorkDate(), '', LotNo);
+
+        // [GIVEN] Create Warehouse Shipment and Pick.
+        CreatePickFromWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
+
+        // [WHEN] Register Pick Multiple Times.
+        for Counter := 1 to (Quantity2 - Quantity) do
+            UpdateQuantityToHandleAndLotNoOnPickAndRegisterPick(SalesHeader."No.", 1, LotNo);
+
+        // [THEN] Post the Warehouse Shipment.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5046,6 +5094,30 @@ codeunit 137154 "SCM Warehouse Management II"
         LibraryVariableStorage.Enqueue(TrackingQtyToHandle);
         LibraryVariableStorage.Enqueue(TrackingQty);
         TransferLine.OpenItemTrackingLines("Transfer Direction"::Inbound);
+    end;
+
+    local procedure UpdateQuantityToHandleAndLotNoOnPickAndRegisterPick(SourceNo: Code[20]; Quantity: Decimal; LotNo: Code[50])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        UpdateQuantityToHandleAndLotNoOnPickLines(WarehouseActivityLine."Activity Type"::Pick, SourceNo, Quantity, LotNo);
+        RegisterWarehouseActivity(WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SourceNo, WarehouseActivityLine."Activity Type"::Pick);
+    end;
+
+    local procedure POSTNegativeAdjustmentWithItemTracking(Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; SerialNo: Code[50]; LotNo: Code[50])
+    var
+        ReservEntry: Record "Reservation Entry";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Item);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch, Item,
+            LocationCode, VariantCode, PostingDate,
+            ItemJournalLine."Entry Type"::"Negative Adjmt.", Qty, 0);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, SerialNo, LotNo, Qty);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
     [ModalPageHandler]

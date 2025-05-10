@@ -238,9 +238,14 @@ page 6648 "Get Return Shipment Lines"
         DocumentNoHideValue: Boolean;
 
     procedure SetPurchHeader(var PurchHeader2: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
         PurchHeader.Get(PurchHeader2."Document Type", PurchHeader2."No.");
-        PurchHeader.TestField("Document Type", PurchHeader."Document Type"::"Credit Memo");
+        IsHandled := false;
+        OnSetPurchHeaderOnBegoreTestIsCreditMemo(PurchHeader, IsHandled);
+        if not IsHandled then
+            PurchHeader.TestField("Document Type", PurchHeader."Document Type"::"Credit Memo");
     end;
 
     local procedure IsFirstDocLine(): Boolean
@@ -279,6 +284,11 @@ page 6648 "Get Return Shipment Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsFirstDocLine(var ReturnShipmentLine: Record "Return Shipment Line"; var TempReturnShipmentLine: Record "Return Shipment Line" temporary);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetPurchHeaderOnBegoreTestIsCreditMemo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

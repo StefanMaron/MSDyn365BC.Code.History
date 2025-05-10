@@ -89,12 +89,17 @@ codeunit 7150 "Update Item Analysis View"
     var
         ItemAnalysisView2: Record "Item Analysis View";
         IsHandled: Boolean;
+        SessionNo: integer;
     begin
+        if not ItemAnalysisView2.WritePermission() then
+            exit;
+
         IsHandled := false;
         OnBeforeUpdateAll(IsHandled);
         if IsHandled then
             exit;
 
+        ItemAnalysisView2.ReadIsolation(IsolationLevel::ReadUncommitted);
         ItemAnalysisView2.SetRange(Blocked, false);
         if DirectlyFromPosting then
             ItemAnalysisView2.SetRange("Update on Posting", true);
@@ -102,6 +107,15 @@ codeunit 7150 "Update Item Analysis View"
         if ItemAnalysisView2.IsEmpty() then
             exit;
 
+        if GuiAllowed() and DirectlyFromPosting and TaskScheduler.CanCreateTask() then
+            StartSession(SessionNo, Codeunit::"Update Item Analysis View Bck.")
+        else
+            UpdateAll(ItemAnalysisView2, Which, DirectlyFromPosting);
+
+    end;
+
+    procedure UpdateAll(var ItemAnalysisView2: Record "Item Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both; DirectlyFromPosting: Boolean)
+    begin
         InitLastEntryNo();
 
         if DirectlyFromPosting then

@@ -926,6 +926,7 @@ report 17117 "Aged Acc. Pay. (BackDating)"
             VendorLedgerEntry.SetFilter("Global Dimension 1 Code", Vendor.GetFilter("Global Dimension 1 Filter"));
         if Vendor.GetFilter("Global Dimension 2 Filter") <> '' then
             VendorLedgerEntry.SetFilter("Global Dimension 2 Code", Vendor.GetFilter("Global Dimension 2 Filter"));
+        CopyDimFiltersFromVendorToVendorLedgerEntry(VendorLedgerEntry, Vendor);
     end;
 
     local procedure CopyDimFiltersFromVendor(var DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
@@ -934,6 +935,17 @@ report 17117 "Aged Acc. Pay. (BackDating)"
             DtldVendorLedgEntry.SetFilter("Initial Entry Global Dim. 1", Vendor.GetFilter("Global Dimension 1 Filter"));
         if Vendor.GetFilter("Global Dimension 2 Filter") <> '' then
             DtldVendorLedgEntry.SetFilter("Initial Entry Global Dim. 2", Vendor.GetFilter("Global Dimension 2 Filter"));
+        CopyDimFiltersFromVendorToDetailedVendorLedgEntry(DtldVendorLedgEntry, Vendor);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure CopyDimFiltersFromVendorToVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure CopyDimFiltersFromVendorToDetailedVendorLedgEntry(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var Vendor: Record Vendor)
+    begin
     end;
 }
 

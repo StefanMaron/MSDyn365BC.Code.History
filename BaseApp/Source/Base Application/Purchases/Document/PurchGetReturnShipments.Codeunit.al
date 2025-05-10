@@ -119,9 +119,14 @@ codeunit 6648 "Purch.-Get Return Shipments"
     end;
 
     procedure SetPurchHeader(var PurchHeader2: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
         PurchHeader.Get(PurchHeader2."Document Type", PurchHeader2."No.");
-        PurchHeader.TestField("Document Type", PurchHeader."Document Type"::"Credit Memo");
+        IsHandled := false;
+        OnSetPurchHeaderOnBegoreTestIsCreditMemo(PurchHeader, IsHandled);
+        if not IsHandled then
+            PurchHeader.TestField("Document Type", PurchHeader."Document Type"::"Credit Memo");
     end;
 
     procedure GetItemChargeAssgnt(var ReturnShptLine: Record "Return Shipment Line"; QtyToInv: Decimal)
@@ -289,6 +294,11 @@ codeunit 6648 "Purch.-Get Return Shipments"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyItemChargeAssgntOnBeforeFindPurchLine2(var PurchLine2: Record "Purchase Line"; var ItemChargeAssgntPurch2: Record "Item Charge Assignment (Purch)");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetPurchHeaderOnBegoreTestIsCreditMemo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

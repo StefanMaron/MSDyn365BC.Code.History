@@ -225,6 +225,7 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
             SalesHeader.Validate("Alt. VAT Bus Posting Group", true);
             SalesHeader.Validate("VAT Bus. Posting Group", AltCustVATReg."VAT Bus. Posting Group");
         end;
+        OnAfterUpdateAltCustVATRegInSalesHeader(SalesHeader, AltCustVATReg);
         UnbindSubscription(this);
         FeatureTelemetry.LogUptake('0000NHG', FeatureNameTxt, Enum::"Feature Uptake Status"::Used);
     end;
@@ -383,6 +384,11 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterBuildFieldChangeBuffer(var TempChangeLogEntry: Record "Change Log Entry" temporary; SalesHeader: Record "Sales Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateAltCustVATRegInSalesHeader(var SalesHeader: Record "Sales Header"; var AltCustVATReg: Record "Alt. Cust. VAT Reg.")
     begin
     end;
 }

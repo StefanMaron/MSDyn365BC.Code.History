@@ -405,4 +405,15 @@ codeunit 30177 "Shpfy Product Events"
     internal procedure OnAfterFillInShopifyProductFields(Item: Record Item; var ShopifyProduct: Record "Shpfy Product")
     begin
     end;
+
+    /// <summary>
+    /// Raised after products to export are filtered.
+    /// </summary>
+    /// <param name="ShopifyProduct">Parameter of type Record "Shpfy Product".</param>
+    /// <param name="Shop">Parameter of type Record "Shpfy Shop".</param>
+    /// <param name="OnlyUpdatePrice">Parameter of type Boolean.</param>
+    [IntegrationEvent(false, false)]
+    internal procedure OnAfterProductsToSynchronizeFiltersSet(var ShopifyProduct: Record "Shpfy Product"; Shop: Record "Shpfy Shop"; OnlyUpdatePrice: Boolean)
+    begin
+    end;
 }

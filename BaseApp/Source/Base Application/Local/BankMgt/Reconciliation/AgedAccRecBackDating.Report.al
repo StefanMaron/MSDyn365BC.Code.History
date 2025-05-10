@@ -1111,6 +1111,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
             CustLedgerEntry.SetFilter("Global Dimension 1 Code", Customer.GetFilter("Global Dimension 1 Filter"));
         if Customer.GetFilter("Global Dimension 2 Filter") <> '' then
             CustLedgerEntry.SetFilter("Global Dimension 2 Code", Customer.GetFilter("Global Dimension 2 Filter"));
+        OnAfterCopyDimFiltersFromCustomerToCustLedgerEntry(CustLedgerEntry, Customer);
     end;
 
     local procedure CopyDimFiltersFromCustomer(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
@@ -1119,6 +1120,17 @@ report 17116 "Aged Acc. Rec. (BackDating)"
             DtldCustLedgEntry.SetFilter("Initial Entry Global Dim. 1", Customer.GetFilter("Global Dimension 1 Filter"));
         if Customer.GetFilter("Global Dimension 2 Filter") <> '' then
             DtldCustLedgEntry.SetFilter("Initial Entry Global Dim. 2", Customer.GetFilter("Global Dimension 2 Filter"));
+        OnAfterCopyDimFiltersFromCustomerToDetailedCustLedgEntry(DtldCustLedgEntry, Customer);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyDimFiltersFromCustomerToCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyDimFiltersFromCustomerToDetailedCustLedgEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var Customer: Record Customer)
+    begin
     end;
 }
 

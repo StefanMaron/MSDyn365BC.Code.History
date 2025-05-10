@@ -44,6 +44,7 @@ codeunit 1006 "Copy Job"
         TargetJob.SetHideValidationDialog(true);
         TargetJob."No." := TargetJobNo;
         TargetJob.TransferFields(SourceJob, false);
+        OnCopyJobOnBeforeTargetJobInsert(TargetJob, SourceJob);
         TargetJob.Insert(true);
         if TargetJobDescription <> '' then
             TargetJob.Validate(Description, TargetJobDescription);
@@ -487,6 +488,11 @@ codeunit 1006 "Copy Job"
 
     [IntegrationEvent(true, false)]
     local procedure OnCopyJLEsToJobPlanningLinesOnBeforeValidateQuantity(var TargetJobPlanningLine: Record "Job Planning Line"; var CopyQuantity: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyJobOnBeforeTargetJobInsert(var TargetJob: Record Job; var SourceJob: Record Job)
     begin
     end;
 }

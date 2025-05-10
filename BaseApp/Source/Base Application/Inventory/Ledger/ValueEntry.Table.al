@@ -464,6 +464,13 @@ table 5802 "Value Entry"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+        field(6603; "Item Description"; Text[100])
+        {
+            CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
+            Caption = 'Item Description';
+            Editable = false;
+            FieldClass = FlowField;
+        }
     }
 
     keys
@@ -474,7 +481,7 @@ table 5802 "Value Entry"
         }
         key(Key2; "Item Ledger Entry No.", "Entry Type")
         {
-            IncludedFields = "Invoiced Quantity", "Sales Amount (Expected)", "Sales Amount (Actual)", "Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)", "Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)", "Cost Amount (Non-Invtbl.)(ACY)", "Purchase Amount (Actual)", "Purchase Amount (Expected)", "Discount Amount", "Item Charge No.", "Variance Type", "Applies-to Entry";
+            IncludedFields = "Invoiced Quantity", "Sales Amount (Expected)", "Sales Amount (Actual)", "Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)", "Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)", "Cost Amount (Non-Invtbl.)(ACY)", "Purchase Amount (Actual)", "Purchase Amount (Expected)", "Discount Amount", "Item Charge No.", "Variance Type", "Applies-to Entry", Inventoriable;
         }
         key(Key3; "Item Ledger Entry No.", "Document No.", "Document Line No.")
         {
@@ -516,7 +523,7 @@ table 5802 "Value Entry"
         }
         key(Key15; "Item Ledger Entry No.", "Valuation Date", "Posting Date")
         {
-            IncludedFields = "Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)";
+            IncludedFields = "Cost Amount (Expected)", "Cost Amount (Actual)", "Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)", "Valued Quantity", "Expected Cost", "Entry Type";
         }
         key(Key16; "Location Code", "Inventory Posting Group")
         {
