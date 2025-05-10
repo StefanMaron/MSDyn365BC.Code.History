@@ -639,7 +639,7 @@ codeunit 7018 "Price UX Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowPriceListLines(PriceSource: Record "Price Source"; PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
+    local procedure OnBeforeShowPriceListLines(PriceSource: Record "Price Source"; var PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
     begin
     end;
 

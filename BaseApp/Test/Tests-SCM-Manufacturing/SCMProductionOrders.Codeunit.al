@@ -4794,6 +4794,68 @@ codeunit 137069 "SCM Production Orders"
         Assert.ExpectedError(StrSubstNo(ProductionBlockedOutputItemErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Production Blocked"), Item."Production Blocked"));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmQstHandlerTRUE')]
+    Procedure SkippingConsumptionMissingMessageWhenRoutingLinkCodesOnManuallyFlushedComponent()
+    var
+        ItemFinal: Record Item;
+        ItemComp: Record Item;
+        ProdBOMHeaderRec: Record "Production BOM Header";
+        ProdBOMLineRec: Record "Production BOM Line";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        RoutingLink: Record "Routing Link";
+        WorkCenter: Record "Work Center";
+        ProdOrderNo: Code[20];
+        RoutingNo: Code[20];
+    begin
+        // [SCENARIO 566586] In Production Order change status of Finish is skipping consumption is missing message when routing link codes on Manually flushed Component.
+        Initialize();
+
+        //[GIVEN] Create Item FG and Item Compponent.
+        CreateFinalItem(ItemFinal);
+        CreateCompItem(ItemComp);
+
+        //[GIVEN] Create Production Bom with Routing Link Code
+        LibraryManufacturing.CreateProductionBOMHeader(ProdBOMHeaderRec, ItemFinal."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProdBOMHeaderRec, ProdBOMLineRec, '', ProdBOMLineRec.Type::Item, ItemComp."No.", 1);
+        ProdBOMLineRec.Validate("Routing Link Code", '100');
+        ProdBOMLineRec.Modify(true);
+        ProdBOMHeaderRec.Validate(Status, ProdBOMHeaderRec.Status::Certified);
+        ProdBOMHeaderRec.Modify(true);
+
+        // [GIVEN] Create Work Center with Calendar
+        CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create Routing for Work Center
+        RoutingNo := CreateRoutingWithWorkCenter(WorkCenter."No.", 10, 1, 100);
+
+        // [GIVEN] Update Item with Production BOM and Routing No.
+        ItemFinal.Validate("Production BOM No.", ProdBOMHeaderRec."No.");
+        ItemFinal.Validate("Routing No.", RoutingNo);
+        ItemFinal.Modify(true);
+
+        // [GIVEN] Create Production Order
+        ProdOrderNo := CreateProductionOrder(ProdOrderLine, RoutingNo, ItemFinal, 2);
+
+        // [GIVEN] Create a Routing Link.
+        LibraryManufacturing.CreateRoutingLink(RoutingLink);
+
+        // [GIVEN] Create Prod. Order Routing Line with Routing Link Code.
+        CreateProdOrderRoutingLineWithRoutingLinkCode(ProdOrderLine, WorkCenter, ProdOrderRoutingLine.Type::"Work Center", RoutingLink.Code, 1);
+
+        // [GIVEN] Create Prod. Order Component with Routing Link Code.
+        CreateProdOrderComponentWithRountingLinkCode(ProdOrderComponent, ProdOrderLine, RoutingLink.Code, 1, ItemComp);
+
+        // [WHEN] Change status Finished
+        LibraryVariableStorage.Enqueue(ProductionOrderFinishedStatusMsg);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProdOrderNo);
+
+        // [THEN] ProductionOrderFinishedStatusMsg is displayed in ManagedConfirmHandler.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6584,6 +6646,122 @@ codeunit 137069 "SCM Production Orders"
         ItemJnlLine.Modify(true);
 
         LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+    end;
+
+    local procedure CreateProductionOrder(var ProdOrderLine: Record "Prod. Order Line"; RoutingNo: Code[20]; ItemFinal: Record Item; Quantity: Decimal): Code[20]
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemFinal."No.", Quantity);
+        ProdOrderLine.Status := ProdOrderLine.Status::Released;
+        ProdOrderLine."Prod. Order No." := ProductionOrder."No.";
+        ProdOrderLine."Line No." := 10000;
+        ProdOrderLine."Routing Reference No." := 10000;
+        ProdOrderLine.Validate("Item No.", ItemFinal."No.");
+        ProdOrderLine.Validate(Quantity, Quantity);
+        ProdOrderLine."Routing No." := RoutingNo;
+        ProdOrderLine.Insert(true);
+        exit(ProductionOrder."No.");
+    end;
+
+    local procedure CreateProdOrderComponentWithRountingLinkCode(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; RoutingLinkCode: Code[10]; ComponentCount: Integer; ItemComp: Record Item)
+    var
+        i: Integer;
+    begin
+        for i := 1 to ComponentCount do begin
+            ProdOrderComponent.Init();
+            ProdOrderComponent.Validate(Status, ProdOrderLine.Status);
+            ProdOrderComponent."Prod. Order No." := ProdOrderLine."Prod. Order No.";
+            ProdOrderComponent."Prod. Order Line No." := ProdOrderLine."Line No.";
+            ProdOrderComponent.Insert(true);
+
+            ProdOrderComponent."Item No." := ItemComp."No.";
+            ProdOrderComponent.Quantity := 1;
+            ProdOrderComponent."Quantity per" := 1;
+            ProdOrderComponent."Expected Quantity" := ProdOrderLine.Quantity;
+            ProdOrderComponent."Quantity (Base)" := 1;
+            ProdOrderComponent."Expected Qty. (Base)" := ProdOrderLine.Quantity;
+            ProdOrderComponent."Remaining Quantity" := 1;
+            ProdOrderComponent."Remaining Qty. (Base)" := 1;
+            ProdOrderComponent."Routing Link Code" := RoutingLinkCode;
+            ProdOrderComponent.Modify(true);
+        end;
+    end;
+
+    local procedure CreateProdOrderRoutingLineWithRoutingLinkCode(ProdOrderLine: Record "Prod. Order Line"; WorkCenter: Record "Work Center"; CapacityType: Enum "Capacity Type"; RoutingLinkCode: Code[10]; RoutingLineCount: Integer)
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        i: Integer;
+    begin
+        for i := 1 to RoutingLineCount do begin
+            ProdOrderRoutingLine.Init();
+            ProdOrderRoutingLine.Validate(Status, ProdOrderLine.Status);
+            ProdOrderRoutingLine.Validate("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+            ProdOrderRoutingLine.Validate("Routing No.", ProdOrderLine."Routing No.");
+            ProdOrderRoutingLine.Validate("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+            ProdOrderRoutingLine.Validate("Operation No.", Format(LibraryRandom.RandInt(100)));
+            ProdOrderRoutingLine.Insert(true);
+
+            ProdOrderRoutingLine.Validate(Type, CapacityType);
+            ProdOrderRoutingLine.Validate("Work Center No.", WorkCenter."No.");
+            ProdOrderRoutingLine.Validate("No.", WorkCenter."No.");
+            ProdOrderRoutingLine."Flushing Method" := ProdOrderRoutingLine."Flushing Method"::Backward;
+            ProdOrderRoutingLine."Setup Time" := LibraryRandom.RandInt(100);
+            ProdOrderRoutingLine."Run Time" := LibraryRandom.RandInt(100);
+            ProdOrderRoutingLine.Validate("Routing Link Code", RoutingLinkCode);
+            ProdOrderRoutingLine.Modify(true);
+        end;
+    end;
+
+    local procedure CreateRoutingWithWorkCenter(WorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; LotSize: Decimal): Code[20]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenterNo);
+        RoutingLine.Validate("Setup Time", SetupTime);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Validate("Lot Size", LotSize);
+        RoutingLine.Validate("Routing Link Code", Format(100));
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+        exit(RoutingHeader."No.");
+    end;
+
+    local procedure CreateWorkCenterWithCalendar(var WorkCenter: Record "Work Center")
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Work Center Group Code", '1');
+        WorkCenter.Validate("Direct Unit Cost", 50);
+        WorkCenter.Validate("Unit of Measure Code", 'HOURS');
+        WorkCenter.Validate(Capacity, 1);
+        WorkCenter.Validate(Efficiency, 100);
+        WorkCenter.Validate("Flushing Method", WorkCenter."Flushing Method"::Backward);
+        WorkCenter.Validate("Shop Calendar Code", '1');
+        WorkCenter.Modify(true);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', Today()), CalcDate('<1M>', Today()));
+    end;
+
+    local procedure CreateFinalItem(var ItemRec: Record Item)
+    begin
+        LibraryInventory.CreateItem(ItemRec);
+        ItemRec.Validate("Base Unit of Measure", 'PCS');
+        ItemRec.Validate("Replenishment System", ItemRec."Replenishment System"::"Prod. Order");
+        ItemRec.Modify(true);
+    end;
+
+    local procedure CreateCompItem(var ItemRec: Record Item)
+    begin
+        LibraryInventory.CreateItem(ItemRec);
+        ItemRec.Validate("Flushing Method", ItemRec."Flushing Method"::Manual);
+        ItemRec.Validate("Replenishment System", ItemRec."Replenishment System"::Purchase);
+        ItemRec.Modify(true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnBeforeAssistEditTrackingNo', '', false, false)]

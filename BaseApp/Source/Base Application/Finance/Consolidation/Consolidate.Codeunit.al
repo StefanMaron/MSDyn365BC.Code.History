@@ -900,6 +900,7 @@ codeunit 432 Consolidate
             TempSubsidGLAcc := AccountToTest;
             TempSubsidGLAcc.Find('=');
         end;
+        OnTestGLAccountsOnBeforeTestForConflicts(TempSubsidGLAcc);
         // Then, test for conflicts between subsidiary and parent (consolidated)
         if TempSubsidGLAcc."Consol. Debit Acc." <> '' then begin
             if not ConsolidGLAcc.Get(TempSubsidGLAcc."Consol. Debit Acc.") then
@@ -1692,6 +1693,11 @@ codeunit 432 Consolidate
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdatePriorPeriodBalancesOnBeforePostBalanceAdjustment(var GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnTestGLAccountsOnBeforeTestForConflicts(var TempSubsidGLAcc: Record "G/L Account" temporary)
     begin
     end;
 }

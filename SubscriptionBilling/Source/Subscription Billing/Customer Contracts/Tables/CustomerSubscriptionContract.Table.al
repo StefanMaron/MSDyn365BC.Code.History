@@ -28,7 +28,6 @@ table 8052 "Customer Subscription Contract"
     DataCaptionFields = "No.", "Sell-to Customer Name";
     LookupPageId = "Customer Contracts";
     DrillDownPageId = "Customer Contracts";
-    Access = Internal;
 
     fields
     {
@@ -353,10 +352,11 @@ table 8052 "Customer Subscription Contract"
 
             trigger OnValidate()
             begin
-                if (("Currency Code" <> '') and (xRec."Currency Code" <> Rec."Currency Code")) then
-                    Rec.UpdateAndRecalculateServiceCommitmentCurrencyData()
+                if "Currency Code" = '' then
+                    Rec.ResetCustomerServiceCommitmentCurrencyFromLCY()
                 else
-                    Rec.ResetCustomerServiceCommitmentCurrencyFromLCY();
+                    if (xRec."Currency Code" <> Rec."Currency Code") then
+                        Rec.UpdateAndRecalculateServiceCommitmentCurrencyData();
             end;
         }
         field(33; DefaultExcludeFromPriceUpdate; Boolean)
@@ -1029,7 +1029,6 @@ table 8052 "Customer Subscription Contract"
         NotifySalesLineDiscountNotTransferredDescriptionTxt: Label 'Warn if a Sales Line Discount is not transferred to a Sales Subscription Line.';
         UpdateDimensionsOnLinesQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         AssignServicePricesMustBeRecalculatedMsg: Label 'You added Subscription Lines to a contract in which a different currency is stored than in the Subscription Lines. The prices for the Subscription Lines must therefore be recalculated.';
-        CurrCodeChangePricesMustBeRecalculatedMsg: Label 'If you change the currency code, the prices for existing Subscription Lines must be recalculated.';
         UpdatedDeferralsMsg: Label 'The dimensions in %1 deferrals have been updated.', Comment = '%1 = number of (count)';
         LinesNotUpdatedMsg: Label 'You have changed %1 on the contract header, but it has not been changed on the existing contract lines.', Comment = '%1 = FieldCaption';
         SplitMessageTxt: Label '%1\%2', Comment = '%1 = message text 1, %2 = message text 2', Locked = true;
@@ -1119,14 +1118,14 @@ table 8052 "Customer Subscription Contract"
         exit(CustomerContractLinesExists(CustomerContractLine));
     end;
 
-    internal procedure CustomerContractLinesExists(var CustomerContractLine: Record "Cust. Sub. Contract Line"): Boolean
+    local procedure CustomerContractLinesExists(var CustomerContractLine: Record "Cust. Sub. Contract Line"): Boolean
     begin
         CustomerContractLine.Reset();
         CustomerContractLine.SetRange("Subscription Contract No.", Rec."No.");
         exit(not CustomerContractLine.IsEmpty());
     end;
 
-    internal procedure MessageIfCustomerContractLinesExist(ChangedFieldName: Text[100])
+    local procedure MessageIfCustomerContractLinesExist(ChangedFieldName: Text[100])
     var
         MessageText: Text;
     begin
@@ -1150,7 +1149,7 @@ table 8052 "Customer Subscription Contract"
         HideValidationDialog := NewHideValidationDialog;
     end;
 
-    internal procedure GetHideValidationDialog(): Boolean
+    local procedure GetHideValidationDialog(): Boolean
     begin
         exit(HideValidationDialog);
     end;
@@ -1215,14 +1214,20 @@ table 8052 "Customer Subscription Contract"
         IsHandled: Boolean;
     begin
         IsHandled := false;
+        OnBeforeUpdateAllLineDim(Rec, NewParentDimSetID, OldParentDimSetID, IsHandled, xRec);
         if IsHandled then
             exit;
 
         if NewParentDimSetID = OldParentDimSetID then
             exit;
 
-        if not ConfirmManagement.GetResponse(UpdateDimensionsOnLinesQst, true) then
-            exit;
+        OnBeforeConfirmUpdateAllLineDim(Rec, xRec, Confirmed, IsHandled);
+        if not IsHandled then
+            if GetHideValidationDialog() or not GuiAllowed then
+                Confirmed := true
+            else
+                Confirmed := ConfirmManagement.GetResponse(UpdateDimensionsOnLinesQst, true);
+        if not Confirmed then exit;
 
         ServiceCommitment.Reset();
         ServiceCommitment.SetRange("Subscription Contract No.", Rec."No.");
@@ -1628,11 +1633,27 @@ table 8052 "Customer Subscription Contract"
 
         "Payment Method Code" := BillToCustomer."Payment Method Code";
 
-        "Currency Code" := BillToCustomer."Currency Code";
+        if ShouldReplaceCurrencyCode(BillToCustomer) then
+            "Currency Code" := BillToCustomer."Currency Code";
         "Customer Price Group" := BillToCustomer."Customer Price Group";
         SetSalespersonCode(BillToCustomer."Salesperson Code", "Salesperson Code");
 
         OnAfterSetFieldsBilltoCustomer(Rec, BillToCustomer);
+    end;
+
+    local procedure ShouldReplaceCurrencyCode(BillToCustomer: Record Customer): Boolean
+    var
+        CurrencyCodeWillBeChangedQst: Label 'The Currency Code for the selected customer is different from the current Currency Code in Customer Contract %1. If the customer is changed the currency and exchange rate needs to be updated.';
+    begin
+        if "Currency Code" = '' then
+            exit(true);
+        if "Currency Code" = BillToCustomer."Currency Code" then
+            exit(false);
+        if GetHideValidationDialog() or not GuiAllowed then
+            exit(true);
+        if ConfirmManagement.GetResponse(StrSubstNo(CurrencyCodeWillBeChangedQst, Rec."No."), true) then
+            exit(true);
+        Error(''); //Cancel and rollback
     end;
 
     local procedure ShouldCopyAddressFromSellToCustomer(SellToCustomer: Record Customer): Boolean
@@ -1969,7 +1990,7 @@ table 8052 "Customer Subscription Contract"
         end;
     end;
 
-    procedure CreateCustomerContractLinesFromServiceCommitments(var TempServiceCommitment: Record "Subscription Line" temporary)
+    internal procedure CreateCustomerContractLinesFromServiceCommitments(var TempServiceCommitment: Record "Subscription Line" temporary)
     var
         ServiceObject: Record "Subscription Header";
     begin
@@ -1992,11 +2013,16 @@ table 8052 "Customer Subscription Contract"
         NotifyIfShipToAddressDiffers();
     end;
 
-    procedure CreateCustomerContractLineFromServiceCommitment(TempServiceCommitment: Record "Subscription Line" temporary; ContractNo: Code[20])
+    internal procedure CreateCustomerContractLineFromServiceCommitment(TempServiceCommitment: Record "Subscription Line" temporary; ContractNo: Code[20])
     var
         CustomerContractLine: Record "Cust. Sub. Contract Line";
         ServiceCommitment2: Record "Subscription Line";
+        IsHandled: Boolean;
     begin
+        OnBeforeCreateCustomerContractLineFromTempSubscriptionLine(TempServiceCommitment, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ServiceCommitment2.Get(TempServiceCommitment."Entry No.");
         CreateCustomerContractLineFromServiceCommitment(ServiceCommitment2, ContractNo, CustomerContractLine);
     end;
@@ -2075,7 +2101,7 @@ table 8052 "Customer Subscription Contract"
         OnAfterUpdateHarmonizedBillingFields(Rec);
     end;
 
-    internal procedure CalculateNextBillingDates()
+    local procedure CalculateNextBillingDates()
     begin
         if (("Billing Base Date" = 0D) or (Format("Default Billing Rhythm") = '')) then
             exit;
@@ -2098,6 +2124,7 @@ table 8052 "Customer Subscription Contract"
         TempServiceObject: Record "Subscription Header" temporary;
         ServiceObject: Record "Subscription Header";
     begin
+        OnBeforeUpdateServicesDates(Rec, CustomerContractLine);
         CustomerContractLine.SetRange("Subscription Contract No.", Rec."No.");
         CustomerContractLine.FilterOnServiceObjectContractLineType();
         if CustomerContractLine.FindSet() then
@@ -2118,8 +2145,7 @@ table 8052 "Customer Subscription Contract"
     begin
         if not CustomerContractLinesExists() then
             exit;
-        if not ServiceCommitment.OpenExchangeSelectionPage(CurencyFactorDate, CurrencyFactor, Rec."Currency Code", CurrCodeChangePricesMustBeRecalculatedMsg, false) then
-            Error('');
+        ServiceCommitment.OpenExchangeSelectionPage(CurencyFactorDate, CurrencyFactor, Rec."Currency Code", '', false);
         ServiceCommitment.UpdateAndRecalculateServCommCurrencyFromContract(Enum::"Service Partner"::Customer, Rec."No.", CurrencyFactor, CurencyFactorDate, Rec."Currency Code");
     end;
 
@@ -2182,15 +2208,6 @@ table 8052 "Customer Subscription Contract"
         ServiceCommitment.SetFilter("Subscription Contract Line No.", '<>%1', DeletedCustContractLineNo);
         ServiceCommitment.SetRange(Closed, false);
         ServiceCommitmentFound := ServiceCommitment.FindFirst();
-    end;
-
-    internal procedure IsContractEmpty(): Boolean
-    var
-        CustomerContractLine: Record "Cust. Sub. Contract Line";
-    begin
-        CustomerContractLine.SetRange("Subscription Contract No.", Rec."No.");
-        CustomerContractLine.FilterOnServiceObjectContractLineType();
-        exit(CustomerContractLine.IsEmpty());
     end;
 
     local procedure SetDefaultWithoutContractDeferralsFromContractType()
@@ -2271,233 +2288,253 @@ table 8052 "Customer Subscription Contract"
         CurrencyFactor := CurrExchRage.ExchangeRate(ProvisionStartDate, CurrencyCode)
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterIsShipToAddressEqualToSellToAddress(SellToCustomerSubscriptionContract: Record "Customer Subscription Contract"; ShipToCustomerSubscriptionContract: Record "Customer Subscription Contract"; var Result: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterIsShipToAddressEqualToSubscriptionHeaderShipToAddress(CustomerSubscriptionContract: Record "Customer Subscription Contract"; SubscriptionHeader: Record "Subscription Header"; var Result: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetSubscriptionContractSetup(CustomerSubscriptionContract: Record "Customer Subscription Contract"; var SubscriptionContractSetup: Record "Subscription Contract Setup"; CalledByFieldNo: Integer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; xCustomerSubscriptionContract: Record "Customer Subscription Contract"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetFieldsBilltoCustomer(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Customer: Record Customer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopySellToAddressToShipToAddress(var CustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopySellToAddressToBillToAddress(var CustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyShipToCustomerAddressFieldsFromCustomer(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; SellToCustomer: Record Customer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; ShipToAddress: Record "Ship-to Address")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopySellToCustomerAddressFieldsFromCustomer(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; SellToCustomer: Record Customer; CurrentFieldNo: Integer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; OldCustomerSubscriptionContract: Record "Customer Subscription Contract"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmBillToContactNoChange(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; xCustomerSubscriptionContract: Record "Customer Subscription Contract"; CurrentFieldNo: Integer; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmSellToContactNoChange(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; xCustomerSubscriptionContract: Record "Customer Subscription Contract"; CurrentFieldNo: Integer; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitInsert(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; xCustomerSubscriptionContract: Record "Customer Subscription Contract"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyShipToCustomerAddressFieldsFromCustomer(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyShipToCustomerAddressFieldsFromShipToAddr(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; ShipToAddress: Record "Ship-to Address"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupBillToPostCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupSellToPostCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupShipToPostCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBillToPostCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateSellToPostCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipToPostCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSellToCust(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var Contact: Record Contact; var Customer: Record Customer; ContactNo: Code[20])
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnBeforeModify(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; xCustomerSubscriptionContract: Record "Customer Subscription Contract"; CurrentFieldNo: Integer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnInitFromContactOnAfterInitNoSeries(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var xCustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnValidateSellToCustomerNoAfterInit(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var xCustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBillToCont(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Customer: Record Customer; Contact: Record Contact)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateBillToCust(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Contact: Record Contact)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSellToCont(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Customer: Record Customer; Contact: Record Contact)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSellToCust(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Contact: Record Contact)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBillToCustomerName(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var Customer: Record Customer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateSellToCustomerName(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var Customer: Record Customer)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; xCustomerSubscriptionContract: Record "Customer Subscription Contract"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateBillToCustOnBeforeContactIsNotRelatedToAnyCustomerErr(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateBillToCustOnBeforeFindContactBusinessRelation(Contact: Record Contact; var ContBusinessRelation: Record "Contact Business Relation"; var ContactBusinessRelationFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateSellToCustOnBeforeContactIsNotRelatedToAnyCustomerErr(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateSellToCustOnBeforeFindContactBusinessRelation(Cont: Record Contact; var ContBusinessRelation: Record "Contact Business Relation"; var ContactBusinessRelationFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnValidateBillToCustomerNoOnAfterConfirmed(var CustomerSubscriptionContract: Record "Customer Subscription Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateBillToCust(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; ContactNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckContactRelatedToCustomerCompany(CustomerSubscriptionContract: Record "Customer Subscription Contract"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateCustomerContractLineFromSubscriptionLine(var SubscriptionLine: Record "Subscription Line"; ContractNo: Code[20]; var CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateCustomerContractLineFromSubscriptionLine(SubscriptionLine: Record "Subscription Line"; var CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeModifySubscriptionLineOnCreateCustomerContractLineFromSubscriptionLine(var SubscriptionLine: Record "Subscription Line"; CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimDimSource(CustomerSubscriptionContract: Record "Customer Subscription Contract"; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateHarmonizedBillingFields(var CustomerSubscriptionContract: Record "Customer Subscription Contract")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAllLineDim(var CustomerContract: Record "Customer Subscription Contract"; NewParentDimSetID: Integer; OldParentDimSetID: Integer; var IsHandled: Boolean; xCustomerContract: Record "Customer Subscription Contract")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmUpdateAllLineDim(var CustomerContract: Record "Customer Subscription Contract"; xCustomerContract: Record "Customer Subscription Contract"; var Confirmed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCustomerContractLineFromTempSubscriptionLine(var TempSubscriptionLine: Record "Subscription Line" temporary; CustomerSubscriptionContract: Record "Customer Subscription Contract"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateServicesDates(CustomerSubscriptionContract: Record "Customer Subscription Contract"; CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 }

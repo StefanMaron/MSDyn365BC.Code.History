@@ -1,10 +1,11 @@
+#pragma warning disable AA0247
 table 8019 "Sub. Contr. Analysis Entry"
 {
     Caption = 'Subscription Contract Analysis Entry';
     DataClassification = CustomerContent;
     DrillDownPageId = "Contract Analysis Entries";
     LookupPageId = "Contract Analysis Entries";
-    Access = Internal;
+
     fields
     {
         field(1; "Entry No."; Integer)

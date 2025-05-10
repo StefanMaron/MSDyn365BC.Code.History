@@ -153,6 +153,10 @@ page 9657 "Customer Report Selections"
                         ReportManagementCodeunit: Codeunit ReportManagement;
                         IsReportLayoutSelected: Boolean;
                     begin
+                        if Rec.Sequence = 0 then begin
+                            Rec.Insert(true);
+                            Commit();
+                        end;
                         ReportLayoutListSelection.SetRange("Report ID", Rec."Report ID");
                         ReportManagementCodeunit.OnSelectReportLayout(ReportLayoutListSelection, IsReportLayoutSelected);
                         if IsReportLayoutSelected then begin

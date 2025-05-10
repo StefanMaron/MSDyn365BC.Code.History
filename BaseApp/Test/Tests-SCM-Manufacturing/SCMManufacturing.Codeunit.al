@@ -125,6 +125,8 @@ codeunit 137404 "SCM Manufacturing"
         ActionMustBeVisibleErr: Label 'Action %1 must be visible in %2', Comment = ' %1 = Action Name , %2 = Page Name';
         PreviousSetLbl: Label 'Previous Set';
         NextSetLbl: Label 'Next Set';
+        FieldMustNotBeVisibleErr: Label '%1 must not be visible in %2', Comment = ' %1 = Field Name , %2 = Page Name';
+        StandardTaskFieldErr: Label 'Standard task code not match with relesed Production Order standard Task code Field.';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,OutputJournalItemtrackingPageHandler,MessageHandler')]
@@ -4632,6 +4634,96 @@ codeunit 137404 "SCM Manufacturing"
         ProductionBOMList.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('ProdBOMVersionComparisonListHandlerForBOMWithoutVersion')]
+    procedure VerifyProdBOMDetailMustBeShownOnProdBOMComparisonPage()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ProdBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionBOMList: TestPage "Production BOM List";
+        ProductionBOMNo: Code[20];
+    begin
+        // [SCENARIO 566038] Verify that Production BOM Comparison must show BOM quantities when there are no versions.
+        Initialize();
+
+        // [GIVEN] Create a Unit of Measure.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create five Items.
+        CreateSetofItems(Item, 5);
+
+        // [GIVEN] Create a Production BOM with five Items.
+        ProductionBOMNo := CreateProductionBOMForSetOfItems(Item, UnitOfMeasure.Code);
+
+        // [GIVEN] Get the Production BOM Header.
+        ProdBOMHeader.Get(ProductionBOMNo);
+
+        // [GIVEN] Find the Production BOM Line.
+        FindProductionBOMVersionLine(ProductionBOMLine, ProductionBOMNo, '');
+
+        // [GIVEN] Modify the Quantity of Production BOM Line.
+        ProductionBOMLine.Quantity := LibraryRandom.RandInt(1000);
+        ProductionBOMLine.Modify();
+
+        // [GIVEN] Enqueue Quantity, "Production BOM No." of Production BOM Version Line.
+        LibraryVariableStorage.Enqueue(ProductionBOMLine.Quantity);
+        LibraryVariableStorage.Enqueue(ProductionBOMLine."Production BOM No.");
+
+        // [GIVEN] Open Production BOM page.
+        ProductionBOMList.OpenEdit();
+        ProductionBOMList.GoToRecord(ProdBOMHeader);
+
+        // [WHEN] Executing the "Prod. BOM Version Comparison" action in Production BOM List page.
+        ProductionBOMList."Prod. BOM Version Comparison".Invoke();
+
+        // [THEN] Verify that Production BOM Comparison must show BOM quantities when there are no versions through ProdBOMVersionComparisonListHandlerForBOMWithoutVersion handler.
+        ProductionBOMList.Close();
+    end;
+
+    [HandlerFunctions('ExchangeProductionBOMRequestPageDefaultValueCheckHandler')]
+    procedure ExchangeProductionBOMRequestPageDefaultValueCheck()
+    begin
+        // [SCENARIO 563372] UX improvement for Tooltips and Setting Request Page fields(Exchange Type,With Type) Default Value.
+        Initialize();
+
+        // [WHEN] Run Exchange Production BOM Item report with blank Starting Date.
+        RunExchangeProductionBOMItemReport();
+    end;
+
+    [Test]
+    procedure CheckingStandardCodeFieldOnProductionOrderLine()
+    var
+        ProdBOMHeader: Record "Production BOM Header";
+        ProdChild, ProdParent : Record Item;
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionOrder: Record "Production Order";
+        StandardTask: Record "Standard Task";
+    begin
+        // [SCENARIO 572823] Standard code field Check on the Production Order line.
+        Initialize();
+
+        // [GIVEN] Create Standard Task.   
+        CreateStandardTasks(StandardTask);
+
+        // [GIVEN] Create Item with Production BOM.
+        LibraryInventory.CreateItem(ProdChild);
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProdBOMHeader, ProdChild."No.", LibraryRandom.RandInt(2));
+        LibraryManufacturing.CreateItemManufacturing(ProdParent, Enum::"Costing Method"::Standard, 1000, Enum::"Reordering Policy"::" ", Enum::"Flushing Method"::"Pick + Manual", '', ProdBOMHeader."No.");
+
+        // [WHEN] Create Released production order and Modify "Standard Task Code" on Prod. Order Line.
+        LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, ProdParent."No.", 1);
+        ProdOrderLine.SetRange(Status, Enum::"Production Order Status"::Released);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+        ProdOrderLine.Validate("Standard Task Code", StandardTask.Code);
+        ProdOrderLine.Modify();
+
+        // [THEN] Verify that Standard Task Code value on Prod. Order Line.
+        Assert.AreEqual(StandardTask.Code, ProdOrderLine."Standard Task Code", StandardTaskFieldErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7470,6 +7562,18 @@ codeunit 137404 "SCM Manufacturing"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
+    local procedure CreateStandardTasks(var StandardTask: Record "Standard Task")
+    begin
+        LibraryManufacturing.CreateStandardTask(StandardTask);
+        UpdateStandardTaskDesc(StandardTask);
+    end;
+
+    local procedure UpdateStandardTaskDesc(var StandardTask: Record "Standard Task")
+    begin
+        standardTask.Validate("Description", Format(LibraryRandom.RandText(50)));
+        standardTask.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ProdBOMVersionComparisonHandlerForActionSet(var ProdBOMVersionComparison: TestPage "Prod. BOM Version Comparison")
@@ -7528,6 +7632,36 @@ codeunit 137404 "SCM Manufacturing"
         Assert.AreEqual(ExpectedCaptionForField1, ProdBOMVersionComparison.Field1.Caption(), StrSubstNo(CaptionMustBeEqualErr, ProdBOMVersionComparison.Field1.Caption(), ExpectedCaptionForField1, ProdBOMVersionComparison.Caption()));
         Assert.AreEqual(ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption(), StrSubstNo(CaptionMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption()));
         Assert.AreEqual(ExpectedValueForBOMField1, ProdBOMVersionComparison.BOMField1.AsInteger(), StrSubstNo(ValueMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedValueForBOMField1, ProdBOMVersionComparison.Caption()));
+    end;
+
+    [PageHandler]
+    procedure ProdBOMVersionComparisonListHandlerForBOMWithoutVersion(var ProdBOMVersionComparison: TestPage "Prod. BOM Version Comparison")
+    var
+        ExpectedCaptionForBOMField1: Code[20];
+        ExpectedValueForBOMField1: Integer;
+    begin
+        ProdBOMVersionComparison.First();
+
+        ExpectedValueForBOMField1 := LibraryVariableStorage.DequeueInteger();
+        ExpectedCaptionForBOMField1 := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(ExpectedCaptionForBOMField1));
+
+        Assert.IsFalse(ProdBOMVersionComparison.Field1.Visible(), StrSubstNo(FieldMustNotBeVisibleErr, ProdBOMVersionComparison.Field1.Caption(), ProdBOMVersionComparison.Caption()));
+        Assert.AreEqual(ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption(), StrSubstNo(CaptionMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedCaptionForBOMField1, ProdBOMVersionComparison.BOMField1.Caption()));
+        Assert.AreEqual(ExpectedValueForBOMField1, ProdBOMVersionComparison.BOMField1.AsInteger(), StrSubstNo(ValueMustBeEqualErr, ProdBOMVersionComparison.BOMField1.Caption(), ExpectedValueForBOMField1, ProdBOMVersionComparison.Caption()));
+    end;
+
+    [RequestPageHandler]
+    procedure ExchangeProductionBOMRequestPageDefaultValueCheckHandler(var ExchangeProductionBOMItem: TestRequestPage "Exchange Production BOM Item")
+    var
+        Item: Record Item;
+        ProductionBOMLineType: Enum "Production BOM Line Type";
+    begin
+        ExchangeProductionBOMItem.ExchangeType.AssertEquals(ProductionBOMLineType::Item);// [THEN] Verify ExchangeType Default Type is ITEM
+        Item.Reset();
+        if Item.FindFirst() then;
+        ExchangeProductionBOMItem.ExchangeNo.SetValue(Item."No.");
+        ExchangeProductionBOMItem.WithType.AssertEquals(ProductionBOMLineType::Item);// [THEN] Verify WithType Default Type is ITEM
+        ExchangeProductionBOMItem.OK().Invoke();
     end;
 }
 

@@ -135,7 +135,7 @@ page 88 "Job Card"
                         field("Sell-to County"; Rec."Sell-to County")
                         {
                             ApplicationArea = Jobs;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county of the address.';
@@ -474,10 +474,10 @@ page 88 "Job Card"
                             field("Bill-to County"; Rec."Bill-to County")
                             {
                                 ApplicationArea = Jobs;
+                                CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                                 QuickEntry = false;
                                 Importance = Additional;
                                 ToolTip = 'Specifies the county code of the customer''s billing address.';
-                                Caption = 'County';
                                 Editable = BillToInformationEditable;
                                 Enabled = BillToInformationEditable;
                             }
@@ -699,7 +699,7 @@ page 88 "Job Card"
                             field("Ship-to County"; Rec."Ship-to County")
                             {
                                 ApplicationArea = Jobs;
-                                Caption = 'County';
+                                CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                                 Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                 QuickEntry = false;
                                 ToolTip = 'Specifies the state, province or county of the address.';

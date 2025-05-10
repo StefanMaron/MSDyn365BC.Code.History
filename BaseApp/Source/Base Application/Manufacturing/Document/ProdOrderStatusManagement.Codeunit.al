@@ -1274,7 +1274,9 @@ codeunit 5407 "Prod. Order Status Management"
                 if ((ProdOrderComp."Flushing Method" <> ProdOrderComp."Flushing Method"::Backward) and
                     (ProdOrderComp."Flushing Method" <> ProdOrderComp."Flushing Method"::"Pick + Backward") and
                     (ProdOrderComp."Routing Link Code" = '')) or
-                   ((ProdOrderComp."Routing Link Code" <> '') and not RtngWillFlushComp(ProdOrderComp))
+                   ((ProdOrderComp."Routing Link Code" <> '') and not RtngWillFlushComp(ProdOrderComp)) or
+                   ((ProdOrderComp."Flushing Method" in [ProdOrderComp."Flushing Method"::Manual, ProdOrderComp."Flushing Method"::"Pick + Manual"]) and
+                   (ProdOrderComp."Routing Link Code" <> ''))
                 then
                     ShowWarning := true;
             until ProdOrderComp.Next() = 0;
@@ -1326,6 +1328,7 @@ codeunit 5407 "Prod. Order Status Management"
     begin
         ProdOrderLine.SetRange(Status, ProdOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
+        OnErrorIfUnableToClearWIPOnAfterProdOrderLineSetFilters(ProdOrder, ProdOrderLine);
         if ProdOrderLine.FindSet() then
             repeat
                 IsHandled := false;
@@ -1900,6 +1903,11 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransProdOrderComp(FromProdOrder: Record "Production Order"; var ToProdOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnErrorIfUnableToClearWIPOnAfterProdOrderLineSetFilters(ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 }

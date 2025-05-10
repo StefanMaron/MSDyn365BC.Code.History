@@ -189,6 +189,13 @@ page 5802 "Value Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item that this value entry is linked to.';
                 }
+                field("Item Description"; Rec."Item Description")
+                {
+                    ApplicationArea = Basic, Suite;
+                    DrillDown = false;
+                    ToolTip = 'Specifies the description of the item that this value entry is linked to.  Analysis mode must be used for sorting and filtering on this field.';
+                    Visible = false;
+                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
@@ -275,6 +282,20 @@ page 5802 "Value Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
+                }
+                field("Source Description"; InventoryLedgerSourceMgt.GetSourceDescription(Rec."Source Type", Rec."Source No."))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Source Description';
+                    ToolTip = 'Specifies the name or description of the source. Analysis mode must be used for sorting and filtering on this field.';
+                    Visible = false;
+                }
+                field("Source Order No."; InventoryLedgerSourceMgt.GetSourceOrderNo(Rec."Document Type", Rec."Document No."))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Source Order No.';
+                    ToolTip = 'Specifies the order number of the source document this entry is associated with. Analysis mode must be used for sorting and filtering on this field.';
+                    Visible = false;
                 }
                 field("Document Date"; Rec."Document Date")
                 {
@@ -505,6 +526,7 @@ page 5802 "Value Entries"
     end;
 
     var
+        InventoryLedgerSourceMgt: Codeunit "Invt. Ledger Source Mgt.";
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
         FilterGroupNo: Integer;

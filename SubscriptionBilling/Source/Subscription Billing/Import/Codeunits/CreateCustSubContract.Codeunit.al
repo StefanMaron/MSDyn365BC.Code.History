@@ -4,7 +4,6 @@ using Microsoft.Foundation.NoSeries;
 
 codeunit 8008 "Create Cust. Sub. Contract"
 {
-    Access = Internal;
     TableNo = "Imported Cust. Sub. Contract";
 
     trigger OnRun()
@@ -93,17 +92,17 @@ codeunit 8008 "Create Cust. Sub. Contract"
     end;
 
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCustomerContractInsert(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var ImportedCustSubContract: Record "Imported Cust. Sub. Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCustomerContractModify(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; var ImportedCustSubContract: Record "Imported Cust. Sub. Contract")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTestImportedCustomerContract(ImportedCustSubContract: Record "Imported Cust. Sub. Contract")
     begin
     end;

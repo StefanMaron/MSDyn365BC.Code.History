@@ -17,9 +17,8 @@ codeunit 1304 "Sales-Quote to Invoice Yes/No"
         OfficeManagement: Codeunit "Office Management";
     begin
         Rec.TestField("Document Type", "Sales Document Type"::Quote);
-        if GuiAllowed then
-            if not Confirm(ConfirmConvertToInvoiceQst, false) then
-                exit;
+        if not ConfirmConvertToInvoice(Rec) then
+            exit;
 
         SalesQuoteToInvoice.Run(Rec);
         SalesQuoteToInvoice.GetSalesInvoiceHeader(InvoiceSalesHeader);
@@ -62,6 +61,22 @@ codeunit 1304 "Sales-Quote to Invoice Yes/No"
         exit(Confirm(StrSubstNo(OpenNewInvoiceQst, InvoiceSalesHeader."No."), true));
     end;
 
+    local procedure ConfirmConvertToInvoice(SalesHeader: Record "Sales Header") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmConvertToInvoice(SalesHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if GuiAllowed() then
+            if not Confirm(ConfirmConvertToInvoiceQst, false) then
+                exit(false);
+
+        exit(true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowInvoice(var InvoiceSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
@@ -69,6 +84,11 @@ codeunit 1304 "Sales-Quote to Invoice Yes/No"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmOpenNewInvoice(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmConvertToInvoice(SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
