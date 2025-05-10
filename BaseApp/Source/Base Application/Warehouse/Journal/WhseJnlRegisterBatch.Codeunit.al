@@ -556,8 +556,6 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        WarehouseEntry.Reset();
-        WarehouseEntry.SetCurrentKey("Item No.", "Location Code", "Variant Code", "Bin Type Code", "Unit of Measure Code", "Lot No.", "Serial No.");
         WarehouseEntry.SetRange("Item No.", ItemNo);
         WarehouseEntry.SetRange("Location Code", LocationCode);
         WarehouseEntry.SetRange("Variant Code", VariantCode);

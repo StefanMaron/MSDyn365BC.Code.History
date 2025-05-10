@@ -377,4 +377,23 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
     local procedure OnAfterCollectPostedOutputEntries(ItemLedgerEntry: Record "Item Ledger Entry"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", OnCheckIsSNSpecificTracking, '', false, false)]
+    local procedure OnCheckIsSNSpecificTracking(ItemTrackingCode: Record "Item Tracking Code"; var SNSepecificTracking: Boolean)
+    begin
+        if SNSepecificTracking then
+            exit;
+
+        SNSepecificTracking := ItemTrackingCode."SN Manuf. Inbound Tracking" or ItemTrackingCode."SN Manuf. Outbound Tracking";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Profile Offsetting", OnCheckIsLotSpecificTracking, '', false, false)]
+    local procedure OnCheckIsLotSpecificTracking(ItemTrackingCode: Record "Item Tracking Code"; var LotSepecificTracking: Boolean)
+    begin
+        if LotSepecificTracking then
+            exit;
+
+        LotSepecificTracking := ItemTrackingCode."Lot Manuf. Inbound Tracking" or ItemTrackingCode."Lot Manuf. Outbound Tracking";
+    end;
+
 }

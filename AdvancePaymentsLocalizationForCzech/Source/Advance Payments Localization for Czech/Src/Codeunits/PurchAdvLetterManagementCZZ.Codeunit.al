@@ -34,7 +34,6 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         PostingDateEmptyErr: Label 'Posting Date cannot be empty.';
         LaterPostingDateQst: Label 'The linked advance letter %1 is paid after %2. If you continue, the advance letter won''t be deducted.\\Do you want to continue?', Comment = '%1 = advance letter no., %2 = posting date';
         ExceededUsageAmountErr: Label 'Post VAT Document higher than usage is not possible.';
-        ApplyVATCoefficientQst: Label 'Do you want to apply VAT coefficient?';
         NonDeductVATPostedMsg: Label 'Non-deductible VAT has been successfully posted.';
         VATUsageExistErr: Label 'It''s not possible to post non-deductible VAT when there are already VAT usage entries.';
 
@@ -334,7 +333,6 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         VATDocumentCZZ: Page "VAT Document CZZ";
         DocumentNo: Code[20];
         IsHandled: Boolean;
-        IsPostNonDeductibleVATConfirmed: Boolean;
         DocumentDate: Date;
         VATDate: Date;
         OriginalDocumentVATDate: Date;
@@ -391,21 +389,15 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
             OriginalDocumentVATDate, ExternalDocumentNo, TempAdvancePostingBufferCZZ);
 
         if NonDeductibleVATCZZ.IsNonDeductibleVATEnabled() then
-            if TempAdvancePostingBufferCZZ.IsNonDeductibleVATAllowedInBuffer() then begin
-                IsPostNonDeductibleVATConfirmed := AdvanceLetterTemplateCZZ."Automatic Post Non-Ded. VAT";
-                if not IsPostNonDeductibleVATConfirmed then
-                    IsPostNonDeductibleVATConfirmed := ConfirmManagement.GetResponse(ApplyVATCoefficientQst);
-            end;
-
-        if IsPostNonDeductibleVATConfirmed then
-            if NonDeductibleVATCZL.CheckNonDeductibleVATSetupToDate(VATDate, false) then begin
-                TempAdvancePostingBufferCZZ.FindSet();
-                repeat
-                    TempAdvancePostingBufferCZZ."Non-Deductible VAT %" :=
-                        NonDeductibleVATCZZ.GetNonDeductibleVATPct(TempAdvancePostingBufferCZZ, VATDate);
-                    TempAdvancePostingBufferCZZ.Modify();
-                until TempAdvancePostingBufferCZZ.Next() = 0;
-            end;
+            if TempAdvancePostingBufferCZZ.IsNonDeductibleVATAllowedInBuffer() then
+                if NonDeductibleVATCZL.CheckNonDeductibleVATSetupToDate(VATDate, false) then begin
+                    TempAdvancePostingBufferCZZ.FindSet();
+                    repeat
+                        TempAdvancePostingBufferCZZ."Non-Deductible VAT %" :=
+                            NonDeductibleVATCZZ.GetNonDeductibleVATPct(TempAdvancePostingBufferCZZ, VATDate);
+                        TempAdvancePostingBufferCZZ.Modify();
+                    until TempAdvancePostingBufferCZZ.Next() = 0;
+                end;
 
         Clear(AdvancePostingParametersCZZ);
         AdvancePostingParametersCZZ."Document Type" := Enum::"Gen. Journal Document Type"::Invoice;
@@ -1078,7 +1070,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
 
     procedure ApplyAdvanceLetter(var PurchInvHeader: Record "Purch. Inv. Header")
     var
-        AdvanceLetterApplication: Record "Advance Letter Application CZZ";
+        AdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ";
         AdvancePostingParametersCZZ: Record "Advance Posting Parameters CZZ";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         ConfirmManagement: Codeunit "Confirm Management";
@@ -1086,26 +1078,27 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         ApplyAdvanceLetterQst: Label 'Apply Advance Letter?';
         CannotApplyErr: Label 'You cannot apply more than %1.', Comment = '%1 = Remaining amount to apply';
     begin
-        AdvanceLetterApplication.SetRange("Document Type", AdvanceLetterApplication."Document Type"::"Posted Purchase Invoice");
-        AdvanceLetterApplication.SetRange("Document No.", PurchInvHeader."No.");
-        if AdvanceLetterApplication.IsEmpty() then
+        AdvanceLetterApplicationCZZ.SetRange("Document Type", AdvanceLetterApplicationCZZ."Document Type"::"Posted Purchase Invoice");
+        AdvanceLetterApplicationCZZ.SetRange("Document No.", PurchInvHeader."No.");
+        if AdvanceLetterApplicationCZZ.IsEmpty() then
             LinkAdvanceLetter("Adv. Letter Usage Doc.Type CZZ"::"Posted Purchase Invoice", PurchInvHeader."No.", PurchInvHeader."Pay-to Vendor No.", PurchInvHeader."Posting Date", PurchInvHeader."Currency Code");
 
-        if AdvanceLetterApplication.IsEmpty() then
+        if AdvanceLetterApplicationCZZ.IsEmpty() then
             exit;
 
         if not ConfirmManagement.GetResponseOrDefault(ApplyAdvanceLetterQst, false) then
             exit;
 
-        CheckAdvancePayment(AdvanceLetterApplication."Document Type"::"Posted Purchase Invoice", PurchInvHeader);
-        AdvanceLetterApplication.CalcSums(Amount);
+        CheckAdvancePayment(AdvanceLetterApplicationCZZ."Document Type"::"Posted Purchase Invoice", PurchInvHeader);
+        AdvanceLetterApplicationCZZ.CalcSums(Amount);
         VendorLedgerEntry.SetCurrentKey("Document No.");
         VendorLedgerEntry.SetRange("Document No.", PurchInvHeader."No.");
         VendorLedgerEntry.SetRange(Open, true);
+        OnApplyAdvanceLetterOnAfterSetVendorLedgerEntryFilter(VendorLedgerEntry, PurchInvHeader, AdvanceLetterApplicationCZZ);
         VendorLedgerEntry.FindLast();
         VendorLedgerEntry.CalcFields("Remaining Amount");
-        OnApplyAdvanceLetterOnBeforeTestAmount(AdvanceLetterApplication, VendorLedgerEntry);
-        if AdvanceLetterApplication.Amount > -VendorLedgerEntry."Remaining Amount" then
+        OnApplyAdvanceLetterOnBeforeTestAmount(AdvanceLetterApplicationCZZ, VendorLedgerEntry);
+        if AdvanceLetterApplicationCZZ.Amount > -VendorLedgerEntry."Remaining Amount" then
             Error(CannotApplyErr, -VendorLedgerEntry."Remaining Amount");
 
         PurchAdvLetterPostCZZ.PostAdvanceLetterApplying(PurchInvHeader, GenJnlPostLine, AdvancePostingParametersCZZ);
@@ -1666,6 +1659,11 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckAdvancePaymentOnAfterSetFilters(var PurchAdvLetterEntryCZZ: Record "Purch. Adv. Letter Entry CZZ"; AdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyAdvanceLetterOnAfterSetVendorLedgerEntryFilter(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchInvHeader: Record "Purch. Inv. Header"; var AdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ")
     begin
     end;
 }

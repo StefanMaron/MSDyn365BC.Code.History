@@ -33,6 +33,7 @@ page 5914 "Service Order Statistics"
                     AutoFormatExpression = Rec."Currency Code";
                     AutoFormatType = 1;
                     CaptionClass = GetCaptionClass(Text002, false);
+                    ToolTip = 'Specifies the line amount.';
                     Editable = false;
                 }
                 field("Inv. Discount Amount_General"; TotalServLine[1]."Inv. Discount Amount")

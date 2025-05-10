@@ -6,10 +6,11 @@ using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Projects.Project.Job;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.UOM;
+using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Ledger;
+using Microsoft.Purchases.Document;
 
 codeunit 1032 "Job Planning Line-Reserve"
 {
@@ -33,6 +34,7 @@ codeunit 1032 "Job Planning Line-Reserve"
         InvalidLineTypeErr: Label 'must be %1 or %2', Comment = '%1 and %2 are line type options, fx. Budget or Billable';
         SummaryTypeTxt: Label '%1, %2', Locked = true;
         SourceDoc2Txt: Label '%1 %2', Locked = true;
+        NonInvReserveTypeErr: Label 'Non-inventory and service items cannot be reserved.';
 
     procedure CreateReservation(JobPlanningLine: Record "Job Planning Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     var
@@ -844,6 +846,7 @@ codeunit 1032 "Job Planning Line-Reserve"
         if IsReserved then
             exit;
 
+        CheckItemType(CalcReservEntry);
         JobPlanningLine.SetAutoCalcFields("Reserved Qty. (Base)");
         JobPlanningLine.FilterLinesForReservation(
           CalcReservEntry, ReservSummEntryNo - 131, sender.GetAvailabilityFilter(AvailabilityDate), Positive);
@@ -867,6 +870,23 @@ codeunit 1032 "Job Planning Line-Reserve"
                     RemainingQtyToReserve, RemainingQtyToReserveBase, ReservQty,
                     Description, JobPlanningLine."Planning Date", QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
             until (JobPlanningLine.Next(NextStep) = 0) or (RemainingQtyToReserveBase = 0);
+    end;
+
+    local procedure CheckItemType(CalcReservEntry: Record "Reservation Entry")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        if (CalcReservEntry."Source Type" <> Database::"Purchase Line") or (CalcReservEntry."Source Subtype" <> CalcReservEntry."Source Subtype"::"1") then
+            exit;
+
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", CalcReservEntry."Source ID");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", CalcReservEntry."Item No.");
+        PurchaseLine.SetRange("Special Order", false);
+        if PurchaseLine.FindFirst() then
+            if PurchaseLine.IsNonInventoriableItem() then
+                Error(NonInvReserveTypeErr);
     end;
 
     [IntegrationEvent(false, false)]

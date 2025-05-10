@@ -1024,6 +1024,126 @@ codeunit 137272 "SCM Reservation V"
         PurchaseLine[2].TestField("Reserved Quantity", 4);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,ConfirmYesHandler,ReservationFromCurrentLine,ItemTrackingListPageHandler')]
+    procedure VerifyTotalReservedQuantityInReservationPageForSalesOrderWhenLotIsConsumedFromRelProdOrder()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LotNo: Code[50];
+    begin
+        // [SCENARIO 565347] Verify Total Reserved Quantity field in the Reservation Order page after you manually type in the Item Tracking of a Sales Line.
+        Initialize();
+
+        // [GIVEN] Generate Lot No.
+        LotNo := LibraryRandom.RandText(50);
+
+        // [GIVEN] Create Lot Item No.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Create production order.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProductionOrder."Source Type"::Item,
+            Item."No.",
+            LibraryRandom.RandIntInRange(200, 300));
+
+        // [GIVEN] Create Production Order Line.
+        LibraryManufacturing.CreateProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", Item."No.", '', '', ProductionOrder.Quantity);
+
+        // [GIVEN] Enqueue Lot No. and Quantity.
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(ProdOrderLine.Quantity);
+
+        // [GIVEN] Open Item Tracking Lines for Prod Order Line.
+        ProdOrderLine.OpenItemTrackingLines();
+
+        // [GIVEN] Create Sales Order with Lot item.
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandIntInRange(100, 150), '', WorkDate());
+
+        // [GIVEN] Enqueue Lot No. and Quantity for Sales Line.
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+
+        // [GIVEN] Open Item Tracking Lines for Sales Line.
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Enqueue Total Reserved Quantity and Total Available Quantity.
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+        LibraryVariableStorage.Enqueue(ProdOrderLine.Quantity - SalesLine.Quantity);
+
+        // [WHEN] Open Reservation page and Reserve from Current Line using ReservationFromCurrentLine Handler. 
+        SalesLine.ShowReservation();
+
+        // [THEN] Verify Total Reserved Quantity field in the Reservation Order page using ReservationFromCurrentLine Handler.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,ConfirmYesHandler,ReservationFromCurrentLine,ItemTrackingListPageHandler')]
+    procedure VerifyTotalReservedQuantityInReservationPageForSalesOrderWhenLotIsConsumedFromFirmPlannedProdOrder()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LotNo: Code[50];
+    begin
+        // [SCENARIO 565347] Verify Total Reserved Quantity field in the Reservation Order page after you manually type in the Item Tracking of a Sales Line.
+        Initialize();
+
+        // [GIVEN] Generate Lot No.
+        LotNo := LibraryRandom.RandText(50);
+
+        // [GIVEN] Create Lot Item No.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Create production order.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::"Firm Planned",
+            ProductionOrder."Source Type"::Item,
+            Item."No.",
+            LibraryRandom.RandIntInRange(200, 300));
+
+        // [GIVEN] Create Production Order Line.
+        LibraryManufacturing.CreateProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", Item."No.", '', '', ProductionOrder.Quantity);
+
+        // [GIVEN] Enqueue Lot No. and Quantity.
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(ProdOrderLine.Quantity);
+
+        // [GIVEN] Open Item Tracking Lines for Prod Order Line.
+        ProdOrderLine.OpenItemTrackingLines();
+
+        // [GIVEN] Create Sales Order with Lot item.
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandIntInRange(100, 150), '', WorkDate());
+
+        // [GIVEN] Enqueue Lot No. and Quantity for Sales Line.
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+
+        // [GIVEN] Open Item Tracking Lines for Sales Line.
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Enqueue Total Reserved Quantity and Total Available Quantity.
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+        LibraryVariableStorage.Enqueue(ProdOrderLine.Quantity - SalesLine.Quantity);
+
+        // [WHEN] Open Reservation page and Reserve from Current Line using ReservationFromCurrentLine Handler. 
+        SalesLine.ShowReservation();
+
+        // [THEN] Verify Total Reserved Quantity field in the Reservation Order page using ReservationFromCurrentLine Handler.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1790,6 +1910,15 @@ codeunit 137272 "SCM Reservation V"
     procedure AvailableSalesLinesModalPageHandler(var AvailableSalesLines: TestPage "Available - Sales Lines")
     begin
         AvailableSalesLines.Reserve.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ReservationFromCurrentLine(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.TotalReservedQuantity.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Reservation.TotalAvailableQuantity.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Reservation.OK().Invoke();
     end;
 }
 

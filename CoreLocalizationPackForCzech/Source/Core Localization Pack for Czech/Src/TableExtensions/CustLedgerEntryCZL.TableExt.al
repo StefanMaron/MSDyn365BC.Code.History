@@ -38,8 +38,8 @@ tableextension 11720 "Cust. Ledger Entry CZL" extends "Cust. Ledger Entry"
         field(11720; "Bank Account Code CZL"; Code[20])
         {
             Caption = 'Bank Account Code';
-            TableRelation = if ("Document Type" = filter(Payment | Invoice | "Finance Charge Memo" | Reminder)) "Bank Account" else
-            if ("Document Type" = filter("Credit Memo" | Refund)) "Customer Bank Account".Code where("Customer No." = field("Customer No."));
+            TableRelation = if ("Document Type" = filter(Refund | Invoice | "Finance Charge Memo" | Reminder)) "Bank Account" else
+            if ("Document Type" = filter("Credit Memo" | Payment)) "Customer Bank Account".Code where("Customer No." = field("Customer No."));
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -52,7 +52,7 @@ tableextension 11720 "Cust. Ledger Entry CZL" extends "Cust. Ledger Entry"
                     exit;
                 end;
                 case "Document Type" of
-                    "Document Type"::Payment, "Document Type"::"Finance Charge Memo",
+                    "Document Type"::Refund, "Document Type"::"Finance Charge Memo",
                     "Document Type"::Invoice, "Document Type"::Reminder:
                         begin
                             BankAccount.Get("Bank Account Code CZL");
@@ -63,7 +63,7 @@ tableextension 11720 "Cust. Ledger Entry CZL" extends "Cust. Ledger Entry"
                               BankAccount.IBAN,
                               BankAccount."SWIFT Code");
                         end;
-                    "Document Type"::"Credit Memo", "Document Type"::Refund:
+                    "Document Type"::"Credit Memo", "Document Type"::Payment:
                         begin
                             TestField("Customer No.");
                             CustomerBankAccount.Get("Customer No.", "Bank Account Code CZL");

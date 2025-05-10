@@ -38,8 +38,8 @@ tableextension 11721 "Vendor Ledger Entry CZL" extends "Vendor Ledger Entry"
         field(11720; "Bank Account Code CZL"; Code[20])
         {
             Caption = 'Bank Account Code';
-            TableRelation = if ("Document Type" = filter(Invoice | Payment | Reminder | "Finance Charge Memo")) "Vendor Bank Account".Code where("Vendor No." = field("Vendor No.")) else
-            if ("Document Type" = filter("Credit Memo" | Refund)) "Bank Account";
+            TableRelation = if ("Document Type" = filter(Invoice | Refund | Reminder | "Finance Charge Memo")) "Vendor Bank Account".Code where("Vendor No." = field("Vendor No.")) else
+            if ("Document Type" = filter("Credit Memo" | Payment)) "Bank Account";
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -52,7 +52,7 @@ tableextension 11721 "Vendor Ledger Entry CZL" extends "Vendor Ledger Entry"
                     exit;
                 end;
                 case "Document Type" of
-                    "Document Type"::Payment, "Document Type"::"Finance Charge Memo",
+                    "Document Type"::Refund, "Document Type"::"Finance Charge Memo",
                     "Document Type"::Invoice, "Document Type"::Reminder:
                         begin
                             TestField("Vendor No.");
@@ -64,7 +64,7 @@ tableextension 11721 "Vendor Ledger Entry CZL" extends "Vendor Ledger Entry"
                               VendorBankAccount.IBAN,
                               VendorBankAccount."SWIFT Code");
                         end;
-                    "Document Type"::"Credit Memo", "Document Type"::Refund:
+                    "Document Type"::"Credit Memo", "Document Type"::Payment:
                         begin
                             BankAccount.Get("Bank Account Code CZL");
                             UpdateBankInfoCZL(

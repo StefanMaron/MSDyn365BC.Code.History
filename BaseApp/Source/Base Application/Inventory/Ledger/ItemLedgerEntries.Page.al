@@ -66,6 +66,13 @@ page 38 "Item Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item in the entry.';
                 }
+                field("Item Description"; Rec."Item Description")
+                {
+                    ApplicationArea = Basic, Suite;
+                    DrillDown = false;
+                    ToolTip = 'Specifies the description of the item in the entry. Analysis mode must be used for sorting and filtering on this field.';
+                    Visible = false;
+                }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
@@ -379,6 +386,20 @@ page 38 "Item Ledger Entries"
                     ToolTip = 'Shows where the entry originated. If the entry was posted from an item journal line, the field will be empty. If the entry was posted from an purchase order, purchase invoice or purchase credit memo, the field displays the buy-from vendor number. If it is posted from sales the sell-to customer number will be displayed.';
                     Visible = false;
                 }
+                field("Source Description"; InventoryLedgerSourceMgt.GetSourceDescription(Rec."Source Type", Rec."Source No."))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Source Description';
+                    ToolTip = 'Specifies the name or description of the source. Analysis mode must be used for sorting and filtering on this field.';
+                    Visible = false;
+                }
+                field("Source Order No."; InventoryLedgerSourceMgt.GetSourceOrderNo(Rec."Document Type", Rec."Document No."))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Source Order No.';
+                    ToolTip = 'Specifies the order number of the source document this entry is associated with. Analysis mode must be used for sorting and filtering on this field.';
+                    Visible = false;
+                }
             }
         }
         area(factboxes)
@@ -622,6 +643,7 @@ page 38 "Item Ledger Entries"
 
     var
         CalcRunningInvBalance: Codeunit "Calc. Running Inv. Balance";
+        InventoryLedgerSourceMgt: Codeunit "Invt. Ledger Source Mgt.";
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
         AdjustCostActionsVisible: Boolean;

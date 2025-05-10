@@ -42,6 +42,8 @@ codeunit 134982 "ERM Financial Reports"
         FileNameNotPersistedErr: Label 'The FileName value on the request form should be persisted between successive invocations of the report.';
         FilePathTxt: Label 'TestFileName';
         BlankLinesQtyErr: Label 'Wrong blank lines quantity in dataset.';
+        SourceBalanceErr: Label 'Source Currency Balance Must be 0';
+        JournalLineCreatedMsg: Label 'The journal lines have successfully been created.';
         CurrentSaveValuesId: Integer;
         ReverseFALedgerEntryErr: Label 'Function Reverse Register and Reverse Transaction cannot be used! Use function Cancel Entries instead.';
 
@@ -1430,6 +1432,66 @@ codeunit 134982 "ERM Financial Reports"
         FileManagement.DeleteServerFile(FileName);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandler,CloseIncomeStatementRequestPageHandler')]
+    procedure CloseIncomeStatementWithNotClosingSourceCurrencyAmount()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+        CurrencyCode: Code[10];
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 563552] G/L Currency revaluation is not closing of source currency amounts.
+        Initialize();
+
+        // [GIVEN] Previous Fiscal Year Closed, New Fiscal Year Created and Closed
+        LibraryFiscalYear.CloseFiscalYear();
+        ExecuteUIHandler();
+        LibraryFiscalYear.CreateFiscalYear();
+        LibraryFiscalYear.CloseFiscalYear();
+
+        // [GIVEN] Created New Currency Code
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Created 2 New  GL Account
+        GLAccount.Get(LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
+        GLAccount.Modify(true);
+        GLAccount2.Get(LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GLAccount2.Validate("Income/Balance", GLAccount2."Income/Balance"::"Income Statement");
+        GLAccount2.Modify(true);
+
+        // [GIVEN] Created GenJournalTemplate And GenJournalBatch
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::General);
+        GenJournalTemplate.Modify(true);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
+        GenJournalBatch.Modify(true);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+
+        // [GIVEN] Created And Post General journal Lines For 2 New Created GL Accounts
+        CreateAndPostGenJnlLineWithCurrencyCode(GenJournalLine, GLAccount."No.", GLAccount2."No.", CurrencyCode, LibraryFiscalYear.GetLastPostingDate(true), GenJournalBatch);
+
+        // [WHEN] Run "Close Income Statement" for Generating General Journals
+        DocNo := LibraryRandom.RandText(10);
+        CloseIncomeStatementWithoutBusinessUnit(GenJournalLine, DocNo);
+
+        // [WHEN] Post General Journal Lines That Created From "Close Income Statement"
+        FindGenJournalLine(GenJournalLine2, GenJournalBatch, DocNo);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine2);
+
+        // [THEN] New Created Both GL Account "Source Currency Balance" Should be Zero 
+        GLAccount.CalcFields("Source Currency Balance");
+        GLAccount2.CalcFields("Source Currency Balance");
+        Assert.AreEqual(0, GLAccount."Source Currency Balance", SourceBalanceErr);
+        Assert.AreEqual(0, GLAccount2."Source Currency Balance", SourceBalanceErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2347,6 +2409,55 @@ codeunit 134982 "ERM Financial Reports"
         exit(GLAccount."No.");
     end;
 
+    local procedure CloseIncomeStatementWithoutBusinessUnit(GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20])
+    var
+        Date: Record Date;
+    begin
+        // Run the Close Income Statement Batch Job.
+        Date.SetRange("Period Type", Date."Period Type"::Month);
+        Date.SetRange("Period Start", LibraryFiscalYear.GetLastPostingDate(true));
+        Date.FindFirst();
+
+        RunCloseIncomeStatement(GenJournalLine, NormalDate(Date."Period End"), DocumentNo);
+    end;
+
+    local procedure CreateAndPostGenJnlLineWithCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; GLAccountNo: Code[20]; GLAccountNo2: Code[20]; CurrencyCode: Code[10]; PostingDate: Date; GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccountNo, GenJournalLine."Account Type"::"G/L Account", GLAccountNo2, LibraryRandom.RandDecInRange(1, 1000, 2));
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure FindGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocNo: Code[20])
+    begin
+        GenJournalLine.Reset();
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.SetRange("Document No.", DocNo);
+        GenJournalLine.FindSet();
+    end;
+
+    local procedure RunCloseIncomeStatement(GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; DocumentNo: Code[20])
+    begin
+        // Enqueue values for CloseIncomeStatementRequestPageHandler.
+        LibraryVariableStorage.Enqueue(PostingDate);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
+        LibraryVariableStorage.Enqueue(DocumentNo);
+
+        Commit();  // commit requires to run report.
+        Report.Run(Report::"Close Income Statement");
+    end;
+
+    local procedure ExecuteUIHandler()
+    begin
+        // Generate Dummy message. Required for executing the test case successfully in ES.
+        Message(JournalLineCreatedMsg);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -2614,6 +2725,17 @@ codeunit 134982 "ERM Financial Reports"
         DetailTrialBalance.NewPageperGLAcc.SetValue(PrintOnlyOnePerPage);
 
         DetailTrialBalance.SaveAsExcel(LibraryReportValidation.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    procedure CloseIncomeStatementRequestPageHandler(var CloseIncomeStatement: TestRequestPage "Close Income Statement")
+    begin
+        CloseIncomeStatement.FiscalYearEndingDate.SetValue(LibraryVariableStorage.DequeueDate()); // Fiscal Year Ending Date
+        CloseIncomeStatement.GenJournalTemplate.SetValue(LibraryVariableStorage.DequeueText()); // Gen. Journal Template
+        CloseIncomeStatement.GenJournalBatch.SetValue(LibraryVariableStorage.DequeueText()); // Gen. Journal Batch
+        CloseIncomeStatement.DocumentNo.SetValue(LibraryVariableStorage.DequeueText()); // Document No.
+        CloseIncomeStatement.RetainedEarningsAcc.SetValue(''); // Retained Earnings Acc.
+        CloseIncomeStatement.OK().Invoke();
     end;
 }
 

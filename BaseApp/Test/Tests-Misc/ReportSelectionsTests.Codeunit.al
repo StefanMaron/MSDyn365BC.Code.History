@@ -37,6 +37,7 @@ codeunit 134421 "Report Selections Tests"
         StatementTitlePdfTxt: Label 'Statement';
         ReportTitleTemplatePdfTxt: Label '%1 for %2 as of %3.pdf';
         LayoutCodeShouldNotChangedErr: Label 'Layout code should not change.';
+        SendToEmailTxt: Label 'test@test.com';
 
     [Test]
     [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
@@ -1867,6 +1868,33 @@ codeunit 134421 "Report Selections Tests"
         VerifyCopiedCustomReportSelectionEmailAttachment(ReportSelections, Database::Customer, CustomerNo, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('InvoiceCustomerReportSelectionsHandler,ReportLayoutsHandler')]
+    procedure VerifyCustomerDocumentLayoutWhenCreatedNewRec()
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        Customer: Record Customer;
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [SCENARIO 565404] Verify Customer Document Layout - Entry of new record 
+        Initialize();
+
+        // [GIVEN] Create Customer with Custom Report Selection.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Open Document Layouts page from Customer Card using modal page handler and assign values
+        CustomerCard.OpenEdit();
+        CustomerCard.GoToKey(Customer."No.");
+        CustomerCard.CustomerReportSelections.Invoke();
+
+        // [THEN] Verify S.Invoice is available in Custom Report Selection
+        CustomReportSelection.Reset();
+        CustomReportSelection.SetRange("Source Type", Database::Customer);
+        CustomReportSelection.SetRange("Source No.", Customer."No.");
+        CustomReportSelection.SetRange(Usage, CustomReportSelection.Usage::"S.Invoice");
+        Assert.RecordIsNotEmpty(CustomReportSelection);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -2687,6 +2715,21 @@ codeunit 134421 "Report Selections Tests"
     procedure CustomReportLayoutsHandlerCancel(var CustomReportLayouts: TestPage "Custom Report Layouts")
     begin
         CustomReportLayouts.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure InvoiceCustomerReportSelectionsHandler(var CustomerReportSelections: TestPage "Customer Report Selections")
+    begin
+        CustomerReportSelections.Usage2.SetValue('Invoice');
+        CustomerReportSelections.ReportID.SetValue(1306);
+        CustomerReportSelections.SendToEmail.SetValue(SendToEmailTxt);
+        CustomerReportSelections."Email Body Layout".Drilldown();
+    end;
+
+    [ModalPageHandler]
+    procedure ReportLayoutsHandler(var ReportLayouts: TestPage "Report Layouts")
+    begin
+        ReportLayouts.OK().Invoke();
     end;
 }
 
