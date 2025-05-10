@@ -605,7 +605,7 @@ page 9802 "Permission Sets"
         IntelligentCloudTok: Label 'INTELLIGENT CLOUD', Locked = true;
         ObsoletePermissionsMsg: Label '%1 obsolete permissions were removed.', Comment = '%1 = number of deleted records.';
         NothingToRemoveMsg: Label 'There is nothing to remove.';
-        UpdateExistingPermissionsLbl: Label 'Update existing permissions and permission sets';
+        UpdateExistingPermissionsLbl: Label 'Do you want to update the existing permission sets with those from the file? If you choose ''No'', the permissions from the import file will overwrite the existing ones for the included permission sets.';
         ExportSystemPermissionSetsMsg: Label 'You are exporting system permission sets. These permission sets will become user-defined permission sets when they are imported.';
         PermissionSetsLbl: Label 'PermissionSets.zip', Locked = true;
         PermissionSetsTenantLbl: Label 'UserDefinedPermissionSets.xml', Locked = true;

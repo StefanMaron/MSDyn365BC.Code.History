@@ -345,7 +345,11 @@ table 6103 "E-Document Service"
 
     internal procedure GetDefaultImportParameters() EDocImportParameters: Record "E-Doc. Import Parameters"
     begin
-        EDocImportParameters."Step to Run" := IsAutomaticProcessingEnabled() ? "Import E-Document Steps"::"Finish draft" : "Import E-Document Steps"::"Prepare draft";
+        if Rec."Import Process" = "Import Process"::"Version 1.0" then begin
+            EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
+            EDocImportParameters."Create Document V1 Behavior" := IsAutomaticProcessingEnabled();
+        end else
+            EDocImportParameters."Step to Run" := IsAutomaticProcessingEnabled() ? "Import E-Document Steps"::"Finish draft" : "Import E-Document Steps"::"Prepare draft";
     end;
 
     internal procedure ToString(): Text

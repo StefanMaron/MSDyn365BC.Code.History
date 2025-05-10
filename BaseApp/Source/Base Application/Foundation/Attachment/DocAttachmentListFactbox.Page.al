@@ -294,7 +294,7 @@ page 1178 "Doc. Attachment List Factbox"
         EmailHasAttachments: Boolean;
         CannotDownloadOrViewFileWithEmptyNameErr: Label 'The file must have a name.';
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterGetRecRefFail(DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef)
     begin
     end;

@@ -104,7 +104,13 @@ table 5742 "Transfer Route"
     var
         PlannedReceiptDate: Date;
         PlannedShipmentDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcReceiptDate(Rec, TransferFromCode, TransferToCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if ShipmentDate <> 0D then begin
             // The calculation will run through the following steps:
             // ShipmentDate -> PlannedShipmentDate -> PlannedReceiptDate -> ReceiptDate
@@ -142,6 +148,8 @@ table 5742 "Transfer Route"
             PlannedShipmentDate := CalendarMgmt.CalcDateBOC(Format(OutboundWhseTime), ShipmentDate, CustomCalendarChange, true);
         end else
             PlannedShipmentDate := 0D;
+
+        OnAfterCalcPlanShipmentDateForward(Rec, ShipmentDate, PlannedShipmentDate, TransferFromCode);
     end;
 
     procedure CalcPlannedReceiptDateForward(PlannedShipmentDate: Date; var PlannedReceiptDate: Date; ShippingTime: DateFormula; TransferToCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10])
@@ -159,6 +167,8 @@ table 5742 "Transfer Route"
             PlannedReceiptDate := CalendarMgmt.CalcDateBOC(Format(ShippingTime), PlannedShipmentDate, CustomCalendarChange, true);
         end else
             PlannedReceiptDate := 0D;
+
+        OnAfterCalcPlannedReceiptDateForward(Rec, PlannedShipmentDate, PlannedReceiptDate, TransferToCode);
     end;
 
     procedure CalcReceiptDateForward(PlannedReceiptDate: Date; var ReceiptDate: Date; InboundWhseTime: DateFormula; TransferToCode: Code[10])
@@ -175,6 +185,8 @@ table 5742 "Transfer Route"
             ReceiptDate := CalendarMgmt.CalcDateBOC(Format(InboundWhseTime), PlannedReceiptDate, CustomCalendarChange, false);
         end else
             ReceiptDate := 0D;
+
+        OnAfterCalcReceiptDateForward(Rec, PlannedReceiptDate, ReceiptDate, TransferToCode);
     end;
 
     procedure CalcShipmentDate(var ShipmentDate: Date; ReceiptDate: Date; ShippingTime: DateFormula; OutboundWhseTime: DateFormula; InboundWhseTime: DateFormula; TransferFromCode: Code[10]; TransferToCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10])
@@ -224,6 +236,8 @@ table 5742 "Transfer Route"
             PlannedReceiptDate := CalendarMgmt.CalcDateBOC2(Format(InboundWhseTime), ReceiptDate, CustomCalendarChange, true);
         end else
             PlannedReceiptDate := 0D;
+
+        OnAfterCalcPlanReceiptDateBackward(Rec, PlannedReceiptDate, ReceiptDate, TransferToCode);
     end;
 
     procedure CalcPlanShipmentDateBackward(var PlannedShipmentDate: Date; PlannedReceiptDate: Date; ShippingTime: DateFormula; TransferFromCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10])
@@ -241,6 +255,8 @@ table 5742 "Transfer Route"
             PlannedShipmentDate := CalendarMgmt.CalcDateBOC2(Format(ShippingTime), PlannedReceiptDate, CustomCalendarChange, true);
         end else
             PlannedShipmentDate := 0D;
+
+        OnAfterCalcPlanShipmentDateBackward(Rec, PlannedShipmentDate, PlannedReceiptDate, TransferFromCode);
     end;
 
     procedure CalcShipmentDateBackward(var ShipmentDate: Date; PlannedShipmentDate: Date; OutboundWhseTime: DateFormula; TransferFromCode: Code[10])
@@ -257,6 +273,8 @@ table 5742 "Transfer Route"
             ShipmentDate := CalendarMgmt.CalcDateBOC2(Format(OutboundWhseTime), PlannedShipmentDate, CustomCalendarChange, false);
         end else
             ShipmentDate := 0D;
+
+        OnAfterCalcShipmentDateBackward(Rec, ShipmentDate, PlannedShipmentDate, TransferFromCode);
     end;
 
     procedure GetShippingTime(TransferFromCode: Code[10]; TransferToCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10]; var ShippingTime: DateFormula)
@@ -307,6 +325,41 @@ table 5742 "Transfer Route"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetShippingTime(var TransferRoute: Record "Transfer Route"; TransferFromCode: Code[10]; TransferToCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10]; var ShippingTime: DateFormula; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcReceiptDate(var TransferRoute: Record "Transfer Route"; TransferFromCode: Code[10]; TransferToCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcPlanShipmentDateForward(var TransferRoute: Record "Transfer Route"; var ShipmentDate: Date; var PlannedShipmentDate: Date; TransferFromCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcPlannedReceiptDateForward(var TransferRoute: Record "Transfer Route"; var PlannedShipmentDate: Date; var PlannedReceiptDate: Date; TransferToCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcReceiptDateForward(var TransferRoute: Record "Transfer Route"; var PlannedReceiptDate: Date; var ReceiptDate: Date; TransferToCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcPlanReceiptDateBackward(var TransferRoute: Record "Transfer Route"; var PlannedReceiptDate: Date; var ReceiptDate: Date; TransferToCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcPlanShipmentDateBackward(var TransferRoute: Record "Transfer Route"; var PlannedShipmentDate: Date; var PlannedReceiptDate: Date; TransferFromCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcShipmentDateBackward(var TransferRoute: Record "Transfer Route"; var ShipmentDate: Date; var PlannedShipmentDate: Date; TransferFromCode: Code[10])
     begin
     end;
 }

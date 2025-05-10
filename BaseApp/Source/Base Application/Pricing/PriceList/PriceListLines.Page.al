@@ -380,7 +380,7 @@ page 7001 "Price List Lines"
         UOMEditable: Boolean;
         CostFactorVisible: Boolean;
         UseCustomLookup: Boolean;
-        ExcelFileNameTxt: Label 'Price List %1 - Lines', Comment = '%1 = Price List Code';
+        ExcelFileNameTxt: Label 'Sales Price List %1 - Lines', Comment = '%1 = Price List Code';
 
     local procedure GetStyle(Mandatory: Boolean): Text;
     begin

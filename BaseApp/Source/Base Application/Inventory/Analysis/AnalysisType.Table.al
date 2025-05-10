@@ -334,6 +334,8 @@ table 7113 "Analysis Type"
           '',
           "Value Type"::"Indirect Cost");
 
+        OnAfterResetDefaultAnalysisTypes(ShowMessage);
+
         if ShowMessage then
             Message(Text055);
     end;
@@ -359,6 +361,11 @@ table 7113 "Analysis Type"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCanUseValueTypeForValueEntryTypeFilter(AnalysisType: Record "Analysis Type"; var CanUseValueType: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterResetDefaultAnalysisTypes(ShowMessage: Boolean)
     begin
     end;
 }

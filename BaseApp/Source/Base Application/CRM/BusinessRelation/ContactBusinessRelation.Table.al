@@ -401,9 +401,16 @@ table 5054 "Contact Business Relation"
     procedure UpdateContactBusinessRelation()
     var
         Contact: Record Contact;
+        IsHandled: Boolean;
     begin
         if IsTemporary() then
             exit;
+
+        IsHandled := false;
+        OnBeforeUpdateContactBusinessRelation(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Contact No." <> '' then
             if Contact.Get("Contact No.") then begin
                 if Contact.UpdateBusinessRelation() then
@@ -492,6 +499,11 @@ table 5054 "Contact Business Relation"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertOnBeforeFindByContact(ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateContactBusinessRelation(ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 }

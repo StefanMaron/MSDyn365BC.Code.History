@@ -75,7 +75,7 @@ page 5167 "Purchase Order Archive"
                         field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                             ToolTip = 'Specifies the county of your vendor.';
                         }
                     }
@@ -237,7 +237,7 @@ page 5167 "Purchase Order Archive"
                         field("Pay-to County"; Rec."Pay-to County")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                             ToolTip = 'Specifies the county of the vendor on the purchase document.';
                         }
                     }
@@ -388,7 +388,7 @@ page 5167 "Purchase Order Archive"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             ToolTip = 'Specifies the county of the ship-to address.';
                         }
                     }

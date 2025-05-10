@@ -38,6 +38,7 @@ codeunit 14136 "Create Customer MX"
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         Customer.Validate("Post Code", PostCode);
         Customer.Validate(County, '');
+        Customer."Format Region" := ''; // Format Region will be automatically set basing on the Language Code
         Customer.Validate("Language Code", LanguageCode);
         Customer.Validate("Reminder Terms Code", ReminderTermsCode);
     end;

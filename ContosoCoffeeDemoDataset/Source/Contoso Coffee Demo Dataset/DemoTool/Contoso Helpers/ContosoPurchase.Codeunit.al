@@ -102,7 +102,7 @@ codeunit 4781 "Contoso Purchase"
 
         PurchaseLine.Validate(Quantity, Quantity);
 
-        if PurchaseLine."Unit Cost" <> 0 then
+        if UnitCost <> 0 then
             PurchaseLine.Validate("Direct Unit Cost", UnitCost);
 
         PurchaseLine.Insert(true);

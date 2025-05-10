@@ -33,6 +33,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryXMLRead: Codeunit "Library - XML Read";
+        SEPACTCode: Code[20];
         Initialized: Boolean;
         NameTxt: Label 'You Name It';
         AddressTxt: Label 'Privet Drive';
@@ -1726,6 +1728,39 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Assert.IsTrue(PaymentJnlExportErrorText.IsEmpty, StrSubstNo(ErrorTextsExistErr, PaymentJnlExportErrorText.TableCaption()));
     end;
 
+    [Test]
+    procedure RemovedPstlAdrPartFromInitgPtyTag()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BlobOutStream: OutStream;
+        ExportedFilePath: Text;
+        File: File;
+    begin
+        // [SCENARIO 572911] Verify Removal of 'PstlAdr' tag From SEPA Payment pain.001.001.09 Format Export ,since the scheme has been changed.
+        InitializeSEPA09();
+
+        // [GIVEN] Company Information with VAT Registartion No.
+        LibraryERMCountryData.CompanyInfoSetVATRegistrationNo();
+
+        // [GIVEN] Created General Journal Line.
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        EURCode := LibraryERM.GetCurrencyCode('EUR');
+        CreateGenJnlLine(GenJournalLine);
+        ModifyGenJournalLine(GenJournalLine);
+
+        // [WHEN] Export General Jornal Line using XmlPort "SEPA CT pain.001.001.09".
+        ExportedFilePath := TemporaryPath + LibraryUtility.GenerateGUID() + '.xml';
+        File.Create(ExportedFilePath);
+        File.CreateOutStream(BlobOutStream);
+        Xmlport.Export(XMLPORT::"SEPA CT pain.001.001.09", BlobOutStream, GenJournalLine);
+        File.Close();
+
+        // [THEN] Verify Removal of 'PstlAdr' tag since the scheme has been changed.
+        LibraryXMLRead.Initialize(ExportedFilePath);
+        LibraryXMLRead.VerifyNodeAbsenceInSubtree('InitgPty', 'PstlAdr');
+    end;
+
     local procedure Init()
     var
         NoSeries: Record "No. Series";
@@ -2273,6 +2308,53 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentJnlExportErrorText.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         PaymentJnlExportErrorText.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
         PaymentJnlExportErrorText.SetRange("Journal Line No.", GenJnlLine."Line No.");
+    end;
+
+    local procedure ModifyGenJournalLine(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        BankAccount2: Record "Bank Account";
+        NoSeries: Record "No. Series";
+        PaymentMethod: Record "Payment Method";
+        VendorNo: Code[20];
+    begin
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
+        LibraryERM.FindPaymentMethod(PaymentMethod);
+        GenJnlLine.Validate("Account No.", VendorNo);
+        GenJnlLine.Validate("Payment Method Code", PaymentMethod.Code);
+        GenJnlLine.Validate(Amount, LibraryRandom.RandDec(500, 0));
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"Bank Account");
+        GenJnlLine.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
+        GenJnlLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
+        GenJnlLine.Validate("Currency Code", EURCode);
+        GenJnlLine.Modify(true);
+        NoSeries.FindFirst();
+        CreateBankExpSetup();
+        BankAccount2.get(GenJnlLine."Bal. Account No.");
+        BankAccount2.IBAN := LibraryUtility.GenerateGUID();
+        BankAccount2."Credit Transfer Msg. Nos." := NoSeries.Code;
+        BankAccount2."Payment Export Format" := BankExportImportSetup.Code;
+        BankAccount2."SWIFT Code" := LibraryUtility.GenerateGUID();
+        BankAccount2.Modify(true);
+        VendorBankAccount.IBAN := LibraryUtility.GenerateGUID();
+        VendorBankAccount.Modify(true);
+    end;
+
+    local procedure InitializeSEPA09()
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Test SEPA Credit Transfers");
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Test SEPA Credit Transfers");
+        SEPACTCode := FindSEPACTPaymentFormat();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Test SEPA Credit Transfers");
+    end;
+
+    local procedure FindSEPACTPaymentFormat(): Code[20]
+    var
+        BankExportImportSetupRec: Record "Bank Export/Import Setup";
+    begin
+        BankExportImportSetupRec.SetRange("Processing XMLport ID", XMLPORT::"SEPA CT pain.001.001.09");
+        BankExportImportSetupRec.FindFirst();
+        exit(BankExportImportSetupRec.Code);
     end;
 
     [RequestPageHandler]

@@ -2795,6 +2795,15 @@
       <Cmt Name="Dev"><![CDATA[Cashflow is a name of Cash Flow Forecast No. Series.]D;]A;(LookupHint=Codeunit Job Reports NA - NamedType XJOBWIPTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1581927567 - NamedType 2985071810" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Isolated Certificate does not exist. Identification fields and values: Code='%1']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Isolated Certificate code]D;]A;(LookupHint=Codeunit MX CFDI - NamedType CertificateNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1581927567 - NamedType 3812673520" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[CFDI Purpose]]></Val>
@@ -3558,6 +3567,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Export Electronic Pmt. - NamedType GenJournalLineJournalTemplateNameTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3093297337 - NamedType 1921746322" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[PayeeAddress_1_]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Export Electronic Pmt. - NamedType PayeeAddressTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3093297337 - NamedType 2899164339" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -712,13 +712,15 @@ codeunit 444 "Purchase-Post Prepayments"
         PrepmtInvLineBuf := SavedPrepmtInvLineBuf;
     end;
 
-    local procedure GetPrepmtAccNo(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]): Code[20]
+    local procedure GetPrepmtAccNo(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]) PrepmtAccNo: Code[20]
     begin
         if (GenBusPostingGroup <> GenPostingSetup."Gen. Bus. Posting Group") or
            (GenProdPostingGroup <> GenPostingSetup."Gen. Prod. Posting Group")
         then
             GenPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        exit(GenPostingSetup.GetPurchPrepmtAccount());
+        PrepmtAccNo := GenPostingSetup.GetPurchPrepmtAccount();
+        OnAfterGetPrepmtAccNo(GenPostingSetup, PrepmtAccNo);
+        exit(PrepmtAccNo);
     end;
 
     procedure GetCorrBalAccNo(PurchHeader: Record "Purchase Header"; PositiveAmount: Boolean): Code[20]
@@ -2091,6 +2093,11 @@ codeunit 444 "Purchase-Post Prepayments"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimensionsOnAfterAddDimSources(var PurchaseLine: Record "Purchase Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPrepmtAccNo(GenPostingSetup: Record "General Posting Setup"; var PrepmtAccNo: Code[20])
     begin
     end;
 }

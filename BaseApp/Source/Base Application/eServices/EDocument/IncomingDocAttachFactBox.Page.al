@@ -403,6 +403,11 @@ page 193 "Incoming Doc. Attach. FactBox"
         exit(GetIncomingDocumentRecordFromRecordRef(IncomingDocument, MainRecordRef));
     end;
 
+    procedure RecordHasMainAttachment()
+    begin
+        HasMainAttachment := Rec.Count() > 0;
+    end;
+
     local procedure GetIncomingDocumentRecordFromRecordRef(var IncomingDocument: Record "Incoming Document"; MainRecordRef: RecordRef): Boolean
     begin
         if IncomingDocument.FindFromIncomingDocumentEntryNo(MainRecordRef, IncomingDocument) then
