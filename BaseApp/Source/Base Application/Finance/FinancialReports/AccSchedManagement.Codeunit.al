@@ -1828,6 +1828,7 @@ codeunit 8 AccSchedManagement
             else
                 OnConvDimTotalingFilterOnDimNoElseCase(DimNo, DimCode, AnalysisView, CostAccSetup);
         end;
+        OnAfterGetConvDimCode(AnalysisView, DimCode);
         if DimCode = '' then
             exit(DimTotaling);
 
@@ -3071,6 +3072,11 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcCFAccountOnAfterSetEntryFilters(var CFAccount: Record "Cash Flow Account"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var ColValue: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetConvDimCode(AnalysisView: Record "Analysis View"; var DimCode: Code[20])
     begin
     end;
 }

@@ -30,6 +30,7 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.Receivables;
+using Microsoft.Warehouse.Ledger;
 using System.Utilities;
 
 codeunit 361 MoveEntries
@@ -48,7 +49,8 @@ codeunit 361 MoveEntries
                   TableData "Value Entry" = rm,
                   TableData "Avg. Cost Adjmt. Entry Point" = rd,
                   TableData "Inventory Adjmt. Entry (Order)" = rm,
-                  TableData "G/L Correspondence Entry" = rm;
+                  TableData "G/L Correspondence Entry" = rm,
+                  TableData "Warehouse Entry" = rm;
 
     trigger OnRun()
     begin
@@ -287,6 +289,7 @@ codeunit 361 MoveEntries
         ServiceLedgerEntry: Record Microsoft.Service.Ledger."Service Ledger Entry";
         WarrantyLedgerEntry: Record Microsoft.Service.Ledger."Warranty Ledger Entry";
 #endif
+        WarehouseEntry: Record "Warehouse Entry";
         AvgCostEntryPointHandler: Codeunit "Avg. Cost Entry Point Handler";
         NewItemNo: Code[20];
     begin
@@ -368,6 +371,9 @@ codeunit 361 MoveEntries
 
         OnAfterMoveItemEntries(Item, ItemLedgEntry, ValueEntry, ServiceLedgerEntry, WarrantyLedgerEntry, InvtAdjmtEntryOrder);
 #endif
+
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.ModifyAll("Item No.", NewItemNo);
     end;
 
     procedure MoveResEntries(Res: Record Resource)

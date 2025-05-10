@@ -41,6 +41,7 @@
         GLEntryCntErr: Label 'Wrong count of created G/L Entries.';
         DimBalanceErr: Label 'Wrong balance by Dimension.';
         OptionValue: Integer;
+        AppliesToExtDocNoErr: Label 'Applies to Ext. Doc No. must be empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1442,6 +1443,50 @@
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, PurchaseHeader."Document Type", PostedDocumentNo);
         VendorLedgerEntry.CalcFields("Remaining Amount");
         VendorLedgerEntry.TestField("Remaining Amount", 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesPageHandler,PaymentToleranceWarning')]
+    procedure AppliesToExtDocNoIsClearedOnUnApplyEntries()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO 573180] The Applies-to Ext. Doc. No. field is cleaned up after Un Apply Entries.
+        Initialize();
+
+        // [GIVEN] Setup Adjust For Payment Setups.
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
+        LibraryPmtDiscSetup.SetPmtTolerance(LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Find VAT Posting Setup.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+
+        // [GIVEN] Set Adjustment Payment in VAT Posting setup.
+        SetAdjustForPaymentDiscInVATPostingSetup(VATPostingSetup, true);
+
+        // [GIVEN] Create and Post Purchase Order.
+        CreateAndPostPurchaseOrder(PurchaseHeader, VATPostingSetup);
+
+        // [GIVEN] Create Payment Journal
+        CreateGeneralJournalLine(GenJournalLine, 1, PurchaseHeader."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment, 0);
+
+        // [GIVEN] Apply the Purchase Order.
+        OpenGeneralJournalPage(GenJournalLine."Document No.", GenJournalLine."Document Type");
+
+        // [GIVEN] Post General Journal Line.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Unapply Vendor Ledger Entry.
+        UnapplyVendorLedgerEntry(GenJournalLine."Document Type", GenJournalLine."Document No.");
+
+        // [THEN] "Applies-to Ext. Doc. No." in Vendor Ledger Entry is cleared.
+        VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
+        VendorLedgerEntry.FindFirst();
+        Assert.AreEqual('', VendorLedgerEntry."Applies-to Ext. Doc. No.", AppliesToExtDocNoErr);
     end;
 
     local procedure Initialize()

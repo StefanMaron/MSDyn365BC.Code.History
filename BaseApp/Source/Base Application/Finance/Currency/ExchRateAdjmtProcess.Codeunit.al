@@ -682,6 +682,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
 
     local procedure PostAdjmt(ExchRateAdjmtBuffer: Record "Exch. Rate Adjmt. Buffer"; var TempDimSetEntry: Record "Dimension Set Entry" temporary; CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; Gains: Boolean): Integer
     begin
+        OnBeforePostAdjmt(ExchRateAdjmtBuffer, TempDimSetEntry);
         exit(
             PostAdjmt(
                 ExchRateAdjmtBuffer."Account No.", ExchRateAdjmtBuffer."Adjmt. Amount",
@@ -735,6 +736,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         GenJnlLine."Agreement No." := CVLedgEntryBuf."Agreement No.";
         GetTempJnlLineDim(DimSetEntry, GenJnlLine, BalAccType::Unreal, CurrencyCode2, Gains);
 
+        OnPostAdjmtOnBeforePostGenJnlLine(GenJnlLine, TempDimSetEntry);
         TransactionNo := PostGenJnlLine(GenJnlLine, DimSetEntry);
     end;
 
@@ -997,6 +999,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
             TempExchRateAdjmtBuffer.Modify();
         end;
 
+        OnAfterExchRateAdjmtBufferUpdate(ExchRateAdjmtParameters, TempExchRateAdjmtBuffer);
         exit(TempExchRateAdjmtBuffer.Index);
     end;
 
@@ -1034,6 +1037,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                     TempDtldCVLedgEntryBuf.Modify();
                 until TempExchRateAdjmtBuffer.Next() = 0;
 
+                OnHandlePostAdjmtOnBeforePostAdjmt(TempExchRateAdjmtBuffer2, TempCurrencyToAdjust, TempDimSetEntry, AdjustAccType);
                 TempCurrencyToAdjust.Get(TempExchRateAdjmtBuffer2."Currency Code");
                 if TempExchRateAdjmtBuffer2."Gains Amount" <> 0 then
                     PostAdjmt(
@@ -3157,7 +3161,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAdjustCustomerLedgerEntryOnAfterCalcAdjmtAmount(CustLedgerEntry: Record "Cust. Ledger Entry"; ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters"; AdjmtAmount: Decimal; Application: Boolean; var ShouldExit: Boolean);
+    local procedure OnAfterAdjustCustomerLedgerEntryOnAfterCalcAdjmtAmount(CustLedgerEntry: Record "Cust. Ledger Entry"; var ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters"; AdjmtAmount: Decimal; Application: Boolean; var ShouldExit: Boolean);
     begin
     end;
 
@@ -3172,7 +3176,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAdjustVendorLedgerEntryOnAfterCalcAdjmtAmount(VendLedgerEntry: Record "Vendor Ledger Entry"; ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters"; AdjmtAmount: Decimal; Application: Boolean; var ShouldExit: Boolean);
+    local procedure OnAfterAdjustVendorLedgerEntryOnAfterCalcAdjmtAmount(VendLedgerEntry: Record "Vendor Ledger Entry"; var ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters"; AdjmtAmount: Decimal; Application: Boolean; var ShouldExit: Boolean);
     begin
     end;
 
@@ -3187,7 +3191,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAdjustEmployeeLedgerEntryOnAfterCalcAdjmtAmount(EmplLedgerEntry: Record "Employee Ledger Entry"; ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters"; AdjmtAmount: Decimal; Application: Boolean; var ShouldExit: Boolean);
+    local procedure OnAfterAdjustEmployeeLedgerEntryOnAfterCalcAdjmtAmount(EmplLedgerEntry: Record "Employee Ledger Entry"; var ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters"; AdjmtAmount: Decimal; Application: Boolean; var ShouldExit: Boolean);
     begin
     end;
 
@@ -3363,6 +3367,26 @@ codeunit 699 "Exch. Rate Adjmt. Process"
 
     [IntegrationEvent(false, false)]
     local procedure OnAdjustVendorLedgerEntryOnAfterCalcFields(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandlePostAdjmtOnBeforePostAdjmt(var TempExchRateAdjmtBuffer2: Record "Exch. Rate Adjmt. Buffer" temporary; var Currency: Record Currency; var DimensionSetEntry: Record "Dimension Set Entry"; var AdjustAccType: Enum "Exch. Rate Adjmt. Account Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterExchRateAdjmtBufferUpdate(var ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters"; var TempExchRateAdjmtBuffer: Record "Exch. Rate Adjmt. Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostAdjmt(var ExchRateAdjmtBuffer: Record "Exch. Rate Adjmt. Buffer"; var TempDimSetEntry: Record "Dimension Set Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostAdjmtOnBeforePostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var TempDimSetEntry: Record "Dimension Set Entry" temporary)
     begin
     end;
 }

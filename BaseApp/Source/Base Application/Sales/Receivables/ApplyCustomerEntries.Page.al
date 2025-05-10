@@ -116,10 +116,14 @@ page 232 "Apply Customer Entries"
 
                     trigger OnValidate()
                     begin
+                        if Rec."Applies-to ID" = xRec."Applies-to ID" then
+                            exit;
+
                         if (CalcType = CalcType::"Gen. Jnl. Line") and (ApplnType = ApplnType::"Applies-to Doc. No.") then
                             Error(CannotSetAppliesToIDErr);
 
                         SetCustApplId(true);
+                        Rec.Get(Rec."Entry No.");
                         if Rec."Applies-to ID" <> '' then
                             UpdateCustomAppliesToIDForGenJournal(Rec."Applies-to ID");
 

@@ -611,19 +611,7 @@ report 1307 "Standard Sales - Credit Memo"
                     else
                         LineDiscountPctText := StrSubstNo('%1%', -Round("Line Discount %", 0.1));
 
-                    VATAmountLine.Init();
-                    VATAmountLine."VAT Identifier" := "VAT Identifier";
-                    VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
-                    VATAmountLine."Tax Group Code" := "Tax Group Code";
-                    VATAmountLine."VAT %" := "VAT %";
-                    VATAmountLine."VAT Base" := Amount;
-                    VATAmountLine."Amount Including VAT" := "Amount Including VAT";
-                    VATAmountLine."Line Amount" := "Line Amount";
-                    if "Allow Invoice Disc." then
-                        VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
-                    VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
-                    VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                    VATAmountLine.InsertLine();
+                    InsertVATAmountLine(VATAmountLine, Line);
 
                     TransHeaderAmount += PrevLineAmount;
                     PrevLineAmount := "Line Amount";
@@ -1022,11 +1010,6 @@ report 1307 "Standard Sales - Credit Memo"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-        end;
-
-        trigger OnOpenPage()
-        begin
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
@@ -1105,9 +1088,6 @@ report 1307 "Standard Sales - Credit Memo"
     begin
         if Header.GetFilters = '' then
             Error(NoFilterSetErr);
-
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
 
         CompanyLogoPosition := SalesSetup."Logo Position on Documents";
     end;
@@ -1298,6 +1278,30 @@ report 1307 "Standard Sales - Credit Memo"
         exit(UnitOfMeasure.Description);
     end;
 
+    local procedure InsertVATAmountLine(var VATAmountLine2: Record "VAT Amount Line"; var SalesCrMemoLine: Record "Sales Cr.Memo Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeVATAmountLineInsertLine(VATAmountLine2, SalesCrMemoLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        VATAmountLine2.Init();
+        VATAmountLine2."VAT Identifier" := SalesCrMemoLine."VAT Identifier";
+        VATAmountLine2."VAT Calculation Type" := SalesCrMemoLine."VAT Calculation Type";
+        VATAmountLine2."Tax Group Code" := SalesCrMemoLine."Tax Group Code";
+        VATAmountLine2."VAT %" := SalesCrMemoLine."VAT %";
+        VATAmountLine2."VAT Base" := SalesCrMemoLine.Amount;
+        VATAmountLine2."Amount Including VAT" := SalesCrMemoLine."Amount Including VAT";
+        VATAmountLine2."Line Amount" := SalesCrMemoLine."Line Amount";
+        if SalesCrMemoLine."Allow Invoice Disc." then
+            VATAmountLine2."Inv. Disc. Base Amount" := SalesCrMemoLine."Line Amount";
+        VATAmountLine2."Invoice Discount Amount" := SalesCrMemoLine."Inv. Discount Amount";
+        VATAmountLine2."VAT Clause Code" := SalesCrMemoLine."VAT Clause Code";
+        VATAmountLine2.InsertLine();
+    end;
+
     local procedure CreateReportTotalLines()
     begin
         ReportTotalsLine.DeleteAll();
@@ -1368,6 +1372,11 @@ report 1307 "Standard Sales - Credit Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitReportForGlobalVariable(var IsHandled: Boolean; var LegalOfficeTxt: Text; var LegalOfficeLbl: Text; var CustomGiroTxt: Text; var CustomGiroLbl: Text; var LegalStatementLbl: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVATAmountLineInsertLine(var VATAmountLine: Record "VAT Amount Line"; var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var IsHandled: Boolean)
     begin
     end;
 

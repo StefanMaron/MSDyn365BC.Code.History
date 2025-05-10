@@ -309,13 +309,6 @@ report 596 "Exch. Rate Adjustment"
         StartDate: Date;
         EndDate: Date;
         EndDateReq: Date;
-        AdjCust: Boolean;
-        AdjVend: Boolean;
-        AdjEmpl: Boolean;
-        AdjBank: Boolean;
-        AdjGLAcc: Boolean;
-        AdjPerEntry: Boolean;
-        PreviewPosting: Boolean;
         HideUI: Boolean;
         IsJournalTemplNameVisible: Boolean;
         MustBeEnteredErr: Label '%1 must be entered.', Comment = '%1 = field name';
@@ -328,6 +321,13 @@ report 596 "Exch. Rate Adjustment"
 
     protected var
         ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters";
+        AdjCust: Boolean;
+        AdjVend: Boolean;
+        AdjEmpl: Boolean;
+        AdjBank: Boolean;
+        AdjGLAcc: Boolean;
+        AdjPerEntry: Boolean;
+        PreviewPosting: Boolean;
 
     local procedure RunAdjustmentProcess()
     var

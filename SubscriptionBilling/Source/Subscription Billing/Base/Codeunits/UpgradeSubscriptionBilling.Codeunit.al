@@ -56,7 +56,7 @@ codeunit 8032 "Upgrade Subscription Billing"
         UpgradeTag.SetUpgradeTag(GetClosedFlagUpgradeTag());
     end;
 
-    internal procedure GetClosedFlagUpgradeTag(): Code[250]
+    local procedure GetClosedFlagUpgradeTag(): Code[250]
     begin
         exit('MS-XXXXXX-ClosedFlagUpgradeTag-20241110');
     end;
@@ -79,7 +79,7 @@ codeunit 8032 "Upgrade Subscription Billing"
         UpgradeTag.SetUpgradeTag(GetSourceNoForServiceObjectsUpgradeTag());
     end;
 
-    internal procedure GetSourceNoForServiceObjectsUpgradeTag(): Code[250]
+    local procedure GetSourceNoForServiceObjectsUpgradeTag(): Code[250]
     begin
         exit('MS-565334-SourceNoForServiceObjectsUpgradeTag-20250205');
     end;
@@ -117,7 +117,7 @@ codeunit 8032 "Upgrade Subscription Billing"
         UpgradeTag.SetUpgradeTag(GetTypeNoForContractLinesUpgradeTag());
     end;
 
-    internal procedure GetTypeNoForContractLinesUpgradeTag(): Code[250]
+    local procedure GetTypeNoForContractLinesUpgradeTag(): Code[250]
     begin
         exit('MS-565334-TypeNoForContractLinessUpgradeTag-20250205');
     end;
@@ -140,7 +140,7 @@ codeunit 8032 "Upgrade Subscription Billing"
         UpgradeTag.SetUpgradeTag(GetSourceNoForContractAnalysisEntriesUpgradeTag());
     end;
 
-    internal procedure GetSourceNoForContractAnalysisEntriesUpgradeTag(): Code[250]
+    local procedure GetSourceNoForContractAnalysisEntriesUpgradeTag(): Code[250]
     begin
         exit('MS-565334-SourceNoForContractAnalysisEntriesTag-20250205');
     end;
@@ -162,7 +162,7 @@ codeunit 8032 "Upgrade Subscription Billing"
         UpgradeTag.SetUpgradeTag(GetUpdateDefaultPeriodsInServiceContractSetupUpgradeTag());
     end;
 
-    internal procedure GetUpdateDefaultPeriodsInServiceContractSetupUpgradeTag(): Code[250]
+    local procedure GetUpdateDefaultPeriodsInServiceContractSetupUpgradeTag(): Code[250]
     begin
         exit('MS-565334-DefaultPeriodsInServiceContractSetupsTag-20250205');
     end;
@@ -187,7 +187,7 @@ codeunit 8032 "Upgrade Subscription Billing"
         UpgradeTag.SetUpgradeTag(GetMoveCustContrDimensionUpgradeTag());
     end;
 
-    internal procedure GetMoveCustContrDimensionUpgradeTag(): Code[250]
+    local procedure GetMoveCustContrDimensionUpgradeTag(): Code[250]
     begin
         exit('MS-565334-MoveCustContrDimension-20250205');
     end;

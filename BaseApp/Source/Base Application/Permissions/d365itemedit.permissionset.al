@@ -1,45 +1,45 @@
 namespace System.Security.AccessControl;
 
 using Microsoft.Assembly.Document;
-using Microsoft.Warehouse.Structure;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
-using Microsoft.Pricing.Calculation;
-using Microsoft.Pricing.PriceList;
-using Microsoft.Inventory.Item;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Analysis;
-using Microsoft.Inventory.Item.Attribute;
-using Microsoft.Purchases.Document;
-using Microsoft.Warehouse.ADCS;
-using Microsoft.Inventory.Journal;
-using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Costing;
-using Microsoft.Inventory.Planning;
-using Microsoft.Pricing.Asset;
-using Microsoft.Pricing.Source;
-using Microsoft.Pricing.Worksheet;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Purchases.History;
-using Microsoft.Purchases.Pricing;
-using Microsoft.Sales.History;
-using Microsoft.Sales.Pricing;
-using Microsoft.Warehouse.Setup;
-using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Attribute;
+using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Purchases.Vendor;
-using Microsoft.Foundation.Period;
-using Microsoft.Sales.Document;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
 using Microsoft.Projects.Project.Planning;
-using Microsoft.Inventory.Intrastat;
-using Microsoft.Finance.VAT.RateChange;
-
-using Microsoft.Service.Resources;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Pricing;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Pricing;
 using Microsoft.Service.Contract;
 using Microsoft.Service.Item;
 using Microsoft.Service.Ledger;
 using Microsoft.Service.Maintenance;
+using Microsoft.Service.Resources;
+using Microsoft.Warehouse.ADCS;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Warehouse.Structure;
 
 permissionset 5947 "D365 ITEM, EDIT"
 {
@@ -120,6 +120,7 @@ permissionset 5947 "D365 ITEM, EDIT"
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
                   tabledata "Vendor Bank Account" = R,
+                  tabledata "Warehouse Entry" = Rm,
 
                   // Service
                   tabledata "Resource Skill" = RIMD,
