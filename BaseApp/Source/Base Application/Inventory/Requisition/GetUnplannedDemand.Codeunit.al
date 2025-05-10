@@ -323,7 +323,13 @@ codeunit 5520 "Get Unplanned Demand"
     local procedure GetJobPlanningLineNeededQty(JobPlanningLine: Record "Job Planning Line") NeededQty: Decimal
     var
         PurchaseLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetJobPlanningLineNeededQty(JobPlanningLine, NeededQty, IsHandled);
+        if IsHandled then
+            exit(NeededQty);
+
         if JobPlanningLine.Planned or (JobPlanningLine."No." = '') or (JobPlanningLine.Type <> JobPlanningLine.Type::Item) or JobPlanningLine.IsNonInventoriableItem() then
             exit(0);
 
@@ -439,6 +445,7 @@ codeunit 5520 "Get Unplanned Demand"
         NeededQtyBase: Decimal;
         TotalNeedQuantityBase: Decimal;
         ReducedJobQtyReceivedNotInvoiced: Decimal;
+        IsHandled: Boolean;
     begin
         UnplannedDemand.Reset();
         MoveUnplannedDemand(UnplannedDemand, TempUnplannedDemand);
@@ -450,14 +457,18 @@ codeunit 5520 "Get Unplanned Demand"
             repeat
                 UpdateWindow();
                 UnplannedDemand := TempUnplannedDemand;
-                if UnplannedDemand."Special Order" then
-                    UnplannedDemand."Needed Qty. (Base)" := TempUnplannedDemand."Quantity (Base)"
-                else
-                    UnplannedDemand."Needed Qty. (Base)" :=
-                      OrderPlanningMgt.CalcNeededQty(
-                        OrderPlanningMgt.CalcATPQty(TempUnplannedDemand."Item No.", TempUnplannedDemand."Variant Code", TempUnplannedDemand."Location Code", TempUnplannedDemand."Demand Date") +
-                        CalcDemand(TempUnplannedDemand, false) + CalcDemand(UnplannedDemand, true),
-                        TempUnplannedDemand."Quantity (Base)");
+
+                IsHandled := false;
+                OnCalcNeededDemandsOnBeforeCalcNeededQtyBase(UnplannedDemand, IsHandled);
+                if not IsHandled then
+                    if UnplannedDemand."Special Order" then
+                        UnplannedDemand."Needed Qty. (Base)" := TempUnplannedDemand."Quantity (Base)"
+                    else
+                        UnplannedDemand."Needed Qty. (Base)" :=
+                          OrderPlanningMgt.CalcNeededQty(
+                            OrderPlanningMgt.CalcATPQty(TempUnplannedDemand."Item No.", TempUnplannedDemand."Variant Code", TempUnplannedDemand."Location Code", TempUnplannedDemand."Demand Date") +
+                            CalcDemand(TempUnplannedDemand, false) + CalcDemand(UnplannedDemand, true),
+                            TempUnplannedDemand."Quantity (Base)");
 
                 if UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Job then begin
                     GetJobTask(UnplannedDemand, JobPlanningLine);
@@ -778,6 +789,16 @@ codeunit 5520 "Get Unplanned Demand"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetFilterToSpecificSalesOrderOnBeforeTempItemGet(var TempItem: Record Item temporary; SalesOrderLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetJobPlanningLineNeededQty(JobPlanningLine: Record "Job Planning Line"; var NeededQty: Decimal; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcNeededDemandsOnBeforeCalcNeededQtyBase(var UnplannedDemand: Record "Unplanned Demand"; var IsHandled: Boolean)
     begin
     end;
 }

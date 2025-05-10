@@ -861,6 +861,36 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ApplyVendorEntriesPageHandler')]
+    procedure AppliedAmtInApplyVLEIsEqualToAmtToApplyOfSelectedVLEWhenManuallyEnterAppliesToID()
+    var
+        Vendor: Record vendor;
+        VendorLedgerEntry: array[3] of Record "Vendor Ledger Entry";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+    begin
+        // [SCENARIO 566073] Applied Amount in Apply Vendor Entries page is equal to the sum of 
+        // "Amount to Apply" of Vendor Ledger Entries when Stan sets "Applies-to ID" manually in them.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Gen. Journal Lines and Post them.
+        CreateAndPostGenJnlLines(VendorLedgerEntry, Vendor);
+
+        // [WHEN] Open Vendor Ledger Entries page and run Apply Entries action.
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.Filter.SetFilter("Vendor No.", Vendor."No.");
+        VendorLedgerEntries.Filter.SetFilter("Document No.", VendorLedgerEntry[1]."Document No.");
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
+        VendorLedgerEntries.Close();
+
+        // [THEN] AppliedAmount in Apply Vendor Entries page is equal to the sum of "Amount to Apply" 
+        // of Vendor Ledger Entries When "Applies-to ID" is set, in ApplyVendorEntriesPageHandler.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1731,6 +1761,23 @@
         exit(ApplicationEntryNo);
     end;
 
+    local procedure CreateAndPostGenJnlLines(var VendorLedgerEntry: array[3] of Record "Vendor Ledger Entry"; Vendor: Record Vendor)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Index: Integer;
+    begin
+        for Index := 1 to ArrayLen(VendorLedgerEntry) do begin
+            Clear(GenJournalLine);
+            LibraryJournals.CreateGenJournalLineWithBatch(
+                GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, Vendor."No.", -LibraryRandom.RandIntInRange(100, 200));
+            GenJournalLine.Validate("Posting Date", WorkDate() + 1);
+            GenJournalLine.Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+            VendorLedgerEntry[Index].SetRange("Vendor No.", Vendor."No.");
+            LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry[Index], VendorLedgerEntry[Index]."Document Type"::Invoice, GenJournalLine."Document No.");
+        end;
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -1779,6 +1826,22 @@
     procedure UnapplyVendorEntriesPageHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
     begin
         UnapplyVendorEntries.Unapply.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyVendorEntriesPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    var
+        AmountToApply: Decimal;
+    begin
+        ApplyVendorEntries.First();
+        ApplyVendorEntries.AppliesToID.SetValue(UserId());
+        AmountToApply := ApplyVendorEntries."Amount to Apply".AsDecimal();
+        ApplyVendorEntries.AppliedAmount.AssertEquals(AmountToApply);
+        ApplyVendorEntries.Next();
+        ApplyVendorEntries.AppliesToID.SetValue(UserId());
+        AmountToApply += ApplyVendorEntries."Amount to Apply".AsDecimal();
+        ApplyVendorEntries.AppliedAmount.AssertEquals(AmountToApply);
     end;
 }
 

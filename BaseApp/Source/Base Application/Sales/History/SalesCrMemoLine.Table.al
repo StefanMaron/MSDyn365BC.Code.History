@@ -546,13 +546,20 @@ table 115 "Sales Cr.Memo Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
+        field(7012; "Sell-to Customer Name"; Text[100])
+        {
+            CalcFormula = lookup(Customer.Name where("No." = field("Sell-to Customer No.")));
+            Caption = 'Sell-to Customer Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
 #if not CLEANSCHEMA25
         field(11200; "Auto. Acc. Group"; Code[10])
         {
             Caption = 'Auto. Acc. Group';
             TableRelation = "Automatic Acc. Header";
             ObsoleteReason = 'Moved to Automatic Account Codes app.';
-			ObsoleteState = Removed;
+            ObsoleteState = Removed;
             ObsoleteTag = '25.0';
         }
 #endif

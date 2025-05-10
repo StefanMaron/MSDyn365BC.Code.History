@@ -203,6 +203,7 @@ codeunit 11299 "Create SE GL Accounts"
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherLiabilitiesName(), '2890');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherLiabilitiesTotalName(), '2990');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.ShorttermLiabilitiesTotalName(), '2995');
+        ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherAccruedExpensesAndDeferredIncomeName(), '2996');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.TotalLiabilitiesName(), '2997');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.TOTALLIABILITIESANDEQUITYName(), '2999');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.INCOMESTATEMENTName(), '3000');

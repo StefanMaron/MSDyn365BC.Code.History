@@ -91,6 +91,7 @@ report 295 "Combine Shipments"
                             repeat
                                 SalesLineInvoice.SetRange("Document Type", SalesLineInvoice."Document Type"::Invoice);
                                 SalesLineInvoice.SetRange("Document No.", SalesHeader."No.");
+                                SalesLineInvoice.SetRange("Shipment No.", SalesShipmentLine."Document No.");
                                 SalesLineInvoice.SetRange("Shipment Line No.", SalesShipmentLine."Line No.");
                                 if SalesLineInvoice.FindFirst() then
                                     SalesGetShpt.GetItemChargeAssgnt(SalesShipmentLine, SalesLineInvoice."Qty. to Invoice");
