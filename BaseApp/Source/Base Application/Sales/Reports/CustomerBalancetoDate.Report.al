@@ -436,6 +436,7 @@ report 121 "Customer - Balance to Date"
                       RemainingAmt,
                       0,
                       Counter1);
+                OnCalcCustomerTotalAmountOnAfterUpdateCurrencyTotalBuffer(TempCustLedgerEntry, TempCurrencyTotalBuffer, Counter1, RemainingAmt, ShowEntriesWithZeroBalance);
             until TempCustLedgerEntry.Next() = 0;
     end;
 
@@ -551,6 +552,11 @@ report 121 "Customer - Balance to Date"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDetailedCustLedgEntryOnAfterCalcAmt(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; PrintAmountInLCY: Boolean; var Amt: Decimal; var CurrencyCode: Code[10]; MaxDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCustomerTotalAmountOnAfterUpdateCurrencyTotalBuffer(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var TempCurrencyTotalBuffer: Record "Currency Total Buffer" temporary; Counter1: Integer; RemainingAmt: Decimal; ShowEntriesWithZeroBalance: Boolean)
     begin
     end;
 }

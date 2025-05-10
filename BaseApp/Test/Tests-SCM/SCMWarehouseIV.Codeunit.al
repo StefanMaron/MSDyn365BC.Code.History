@@ -48,6 +48,8 @@ codeunit 137407 "SCM Warehouse IV"
         ItemTrackingMode: Option AssignLotNo,AssignSerialNo,SelectEntries,AssignLotAndQty;
         ItemTrackingModeWithVerification: Option AssignLotNo,AssignSerialNo,SelectEntries,AssignLotAndQty,VerifyWarrantyDate;
         WarrantyDateError: Label 'Warranty Date must be %1';
+        ReorderPolicyVisibleErr: Label 'Reorder Policy must be visible';
+        SpecialEquipmentCodeVisibleErr: Label 'Special Equipment Code should be visible.';
 
     [Test]
     [Scope('OnPrem')]
@@ -4004,6 +4006,34 @@ codeunit 137407 "SCM Warehouse IV"
         VerifyWarrantyDatesOnServiceItem(Item."No.", WarrantyStartingDateWhenItemTrackingExists, WarrantyDateFormula, DefaultWarrantyDuration);
     end;
 
+    [Test]
+    procedure SKUCardHasReorderPlanningAndWarehouseFastTabVisble()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        StocKkeepingUnitCard: Testpage "Stockkeeping Unit Card";
+    begin
+        // [SCENARIO 566001] Planning and Warehouse fasttab Visible on the newly created Stockkeeping Unit.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [WHEN] Create new Stockkeeping Unit.
+        StocKkeepingUnitCard.OpenNew();
+        StocKkeepingUnitCard."Item No.".SetValue(Item."No.");
+        StocKkeepingUnitCard."Location Code".SetValue(Location.Code);
+
+        // [THEN] Reorder Policy must be visible.
+        Assert.IsTrue(StocKkeepingUnitCard."Reordering Policy".Visible(), ReorderPolicyVisibleErr);
+
+        // [THEN] Special Equipment Code must visible.
+        Assert.IsTrue(StocKkeepingUnitCard."Special Equipment Code".Visible(), SpecialEquipmentCodeVisibleErr);
+    end;
+
     local procedure Initialize()
     var
         WarehouseSetup: Record "Warehouse Setup";
@@ -5574,5 +5604,6 @@ codeunit 137407 "SCM Warehouse IV"
     begin
         ItemTrackingSummary.OK().Invoke();
     end;
+
 }
 

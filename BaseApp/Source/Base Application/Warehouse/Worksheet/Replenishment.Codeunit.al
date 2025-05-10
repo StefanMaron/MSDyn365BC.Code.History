@@ -293,14 +293,15 @@ codeunit 7308 Replenishment
 
     procedure SetWhseWorksheet(WhseWkshTemplateName2: Code[10]; WhseWkshName2: Code[10]; LocationCode2: Code[10]; DoNotFillQtytoHandle2: Boolean)
     var
-        WhseWkshLine: Record "Whse. Worksheet Line";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
     begin
         TempWhseWkshLine.DeleteAll();
-        WhseWkshLine.SetRange("Worksheet Template Name", WhseWkshTemplateName2);
-        WhseWkshLine.SetRange(Name, WhseWkshName2);
-        WhseWkshLine.SetRange("Location Code", LocationCode2);
-        if WhseWkshLine.FindLast() then
-            NextLineNo := WhseWkshLine."Line No." + 10000
+        WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWkshTemplateName2);
+        WhseWorksheetLine.SetRange(Name, WhseWkshName2);
+        WhseWorksheetLine.SetRange("Location Code", LocationCode2);
+        OnSetWhseWorksheetOnAfterWhseWorksheetLineSetFilters(WhseWorksheetLine);
+        if WhseWorksheetLine.FindLast() then
+            NextLineNo := WhseWorksheetLine."Line No." + 10000
         else
             NextLineNo := 10000;
 
@@ -387,6 +388,11 @@ codeunit 7308 Replenishment
 
     [IntegrationEvent(false, false)]
     local procedure OnFindBreakbulkBinOnAfterFromBinContentSetFilters(var FromBinContent: Record "Bin Content"; var ToBinContent: Record "Bin Content"; ItemUnitOfMeasure: Record "Item Unit of Measure"; var SkipItemUnitOfMeasure: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetWhseWorksheetOnAfterWhseWorksheetLineSetFilters(var WhseWorksheetLine: Record "Whse. Worksheet Line")
     begin
     end;
 }

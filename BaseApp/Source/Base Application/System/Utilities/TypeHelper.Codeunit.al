@@ -527,6 +527,20 @@ codeunit 10 "Type Helper"
         exit(Value);
     end;
 
+    procedure JavaScriptStringEncode(Value: Text): Text
+    var
+        HttpUtility: DotNet HttpUtility;
+    begin
+        exit(HttpUtility.JavaScriptStringEncode(Value));
+    end;
+
+    procedure JavaScriptStringEncode(Value: Text; AddDoubleQuotes: Boolean): Text
+    var
+        HttpUtility: DotNet HttpUtility;
+    begin
+        exit(HttpUtility.JavaScriptStringEncode(Value, AddDoubleQuotes));
+    end;
+
     procedure UriEscapeDataString(Value: Text): Text
     var
         Uri: DotNet Uri;

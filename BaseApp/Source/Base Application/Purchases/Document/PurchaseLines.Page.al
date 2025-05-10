@@ -38,6 +38,10 @@ page 518 "Purchase Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the vendor who delivered the items.';
                 }
+                field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                }
                 field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Basic, Suite;

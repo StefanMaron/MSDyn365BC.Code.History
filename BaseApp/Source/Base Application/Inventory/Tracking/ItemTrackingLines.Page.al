@@ -2536,6 +2536,8 @@ page 6510 "Item Tracking Lines"
                 end;
         end;
         SetQtyToHandleAndInvoice(NewTrackingSpecification);
+
+        OnAfterRegisterChange(Rec, OldTrackingSpecification, NewTrackingSpecification, CurrentSignFactor, CurrentRunMode.AsInteger(), CurrentPageIsOpen, ChangeType, ModifySharedFields, OK);
     end;
 
     local procedure ProcessLateBinding(var NewTrackingSpecification: Record "Tracking Specification")
@@ -4378,6 +4380,13 @@ page 6510 "Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckItemTrackingLineIsBoundForBarcodeScanning(var TrackingSpecification: Record "Tracking Specification"; var Result: Boolean; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRegisterChange(var TrackingSpecification: Record "Tracking Specification"; var OldTrackingSpecification: Record "Tracking Specification";
+        var NewTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; FormRunMode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer;
+        CurrentPageIsOpen: Boolean; ChangeType: Option Insert,Modify,FullDelete,PartDelete,ModifyAll; ModifySharedFields: Boolean; var ResultOK: Boolean)
     begin
     end;
 }

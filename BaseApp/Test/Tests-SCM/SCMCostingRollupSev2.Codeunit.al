@@ -35,6 +35,7 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         isInitialized: Boolean;
         InvCostMustBeZeroErr: Label 'Total cost amount must be 0 after correction.';
         ReverseCapacityLedgerEntryForSubContractingErr: Label 'Entry cannot be reversed as it is linked to the subcontracting work center.';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
     local procedure Initialize()
     var
@@ -1199,6 +1200,61 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         Assert.ExpectedError(ReverseCapacityLedgerEntryForSubContractingErr);
     end;
 
+    [Test]
+    [HandlerFunctions('PostProductionJournalHandler,MsgHandler,YesConfirmHandler')]
+    procedure VerifyReverseItemLedgerEntryShouldBeCreatedForConsumptionWhenReverseIsExecuted()
+    var
+        MfgSetup: Record "Manufacturing Setup";
+        OutputItem: Record Item;
+        CompItem: Record Item;
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+    begin
+        // [SCENARIO 567053] Verify Reverse Entry should be created of Item Ledger Entry for Entry Type "Consumption" when Reverse action is executed.
+        // if there is production order with Routing with subcontracting.
+        Initialize();
+
+        // [GIVEN] Get "Manufacturing Setup".
+        MfgSetup.Get();
+
+        // [GIVEN] Create Item Setup.
+        CreateItemsSetup(OutputItem, CompItem, LibraryRandom.RandIntInRange(1, 10));
+
+        // [GIVEN] Create and Post Item Journal Line for Component item.
+        CreateAndPostItemJournalLine(CompItem."No.", LibraryRandom.RandIntInRange(100, 200), '', MfgSetup."Components at Location");
+
+        // [GIVEN] Create Routing with Subcontracting.
+        CreateRoutingAndUpdateItemSubcontracted(OutputItem, WorkCenter, true);
+
+        // [GIVEN] Create and refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", LibraryRandom.RandIntInRange(1, 10), '', '');
+
+        // [GIVEN] Find Released Production Order Line.
+        FindProdOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrder."No.");
+
+        // [GIVEN] Open and Post Production Journal.
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] OpenEdit Item Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Document No.", ProductionOrder."No.");
+        ItemLedgerEntries.Filter.SetFilter("Entry Type", Format(ItemLedgerEntry."Entry Type"::Consumption));
+
+        // [WHEN] Invoke "Reverse" action.
+        ItemLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Reverse Entry should be created of Item Ledger Entry for Entry Type "Consumption".
+        ItemLedgerEntry.Get(ItemLedgerEntries."Entry No.".AsInteger());
+        FindLastItemLedgerEntry(ItemLedgerEntry, "Inventory Order Type"::Production, ProductionOrder."No.", ItemLedgerEntry."Order Line No.", "Item Ledger Entry Type"::Consumption);
+        Assert.AreEqual(
+            -ItemLedgerEntries.Quantity.AsInteger(),
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -ItemLedgerEntries.Quantity.AsInteger(), ItemLedgerEntry.TableCaption()));
+    end;
+
     local procedure AcceptActionMessage(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
         SelectRequisitionLine(RequisitionLine, ItemNo);
@@ -2114,6 +2170,78 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         CapacityLedgerEntry.FindFirst();
     end;
 
+    local procedure CreateItemsSetup(var Item: Record Item; var Item2: Record Item; QuantityPer: Decimal)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        CreateItem(Item2);
+
+        CreateCertifiedProductionBOM(ProductionBOMHeader, Item2, QuantityPer);
+        CreateProductionItem(Item, ProductionBOMHeader."No.");
+    end;
+
+    local procedure CreateCertifiedProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; Item: Record Item; QuantityPer: Decimal)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", QuantityPer);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure CreateProductionItem(var Item: Record Item; ProductionBOMNo: Code[20])
+    begin
+        CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Modify(true);
+    end;
+
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
+    begin
+        ProdOrderLine.SetRange(Status, ProdOrderStatus);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderLine.FindFirst();
+    end;
+
+    local procedure FindLastItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; InventoryOrderType: Enum "Inventory Order Type"; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ItemLedgerEntryType: Enum "Item Ledger Entry Type")
+    begin
+        ItemLedgerEntry.SetRange("Order Type", InventoryOrderType);
+        ItemLedgerEntry.SetRange("Order No.", ProdOrderNo);
+        ItemLedgerEntry.SetRange("Order Line No.", ProdOrderLineNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntryType);
+        ItemLedgerEntry.FindLast();
+    end;
+
+    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal; BinCode: Code[20]; LocationCode: Code[10])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine, ItemNo, Quantity, BinCode, LocationCode, LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateItemJournalLineWithUnitCost(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal; BinCode: Code[20]; LocationCode: Code[10]; UnitCost: Decimal)
+    begin
+        ItemJournalSetup(ItemJournalBatch);
+
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        ItemJournalLine.Validate("Unit Cost", UnitCost);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Bin Code", BinCode);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure ItemJournalSetup(var ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
+        ItemJournalBatch.Modify(true);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MsgHandler(Msg: Text[1024])
@@ -2170,6 +2298,12 @@ codeunit 137612 "SCM Costing Rollup Sev 2"
         LibraryVariableStorage.Dequeue(ItemNo);
         PostedTransferReceiptLines.FILTER.SetFilter("Item No.", ItemNo);
         PostedTransferReceiptLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PostProductionJournalHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Post.Invoke();
     end;
 }
 

@@ -466,6 +466,7 @@ report 7305 "Whse.-Source - Create Document"
                 WhseWkshLine.SetRange("Source Type", Database::"Prod. Order Component");
                 WhseWkshLine.SetRange("Source Subtype", ProdOrderHeader.Status);
                 WhseWkshLine.SetRange("Source No.", ProdOrderHeader."No.");
+                OnAfterProdOrderComponentOnPreDataItem("Prod. Order Component");
             end;
         }
         dataitem("Assembly Line"; "Assembly Line")
@@ -772,48 +773,56 @@ report 7305 "Whse.-Source - Create Document"
 
     trigger OnPostReport()
     var
-        WhseActivHeader: Record "Warehouse Activity Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
         TempWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
         HideNothingToHandleErr: Boolean;
+        IsHandled: Boolean;
     begin
-        if (CreateErrorText <> '') and (FirstActivityNo = '') and (LastActivityNo = '') then
-            Error(CreateErrorText);
-        if not (WhseDoc in
-                [WhseDoc::"Put-away Worksheet", WhseDoc::"Posted Receipt", WhseDoc::"Internal Put-away"])
-        then begin
-            CreatePick.CreateWhseDocument(FirstActivityNo, LastActivityNo, true);
-            CreatePick.ReturnTempItemTrkgLines(TempWhseItemTrkgLine);
-            ItemTrackingMgt.UpdateWhseItemTrkgLines(TempWhseItemTrkgLine);
-            Commit();
-        end else
-            CreatePutAway.GetWhseActivHeaderNo(FirstActivityNo, LastActivityNo);
+        IsHandled := false;
+        OnPostReportOnBeforeCreateWarehouseDocument(this, TempWhseItemTrkgLine, ItemTrackingManagement, CreatePick, CreatePutAway, WhseDoc, CreateErrorText, FirstActivityNo, LastActivityNo, IsHandled);
+        if not IsHandled then begin
+            if (CreateErrorText <> '') and (FirstActivityNo = '') and (LastActivityNo = '') then
+                Error(CreateErrorText);
+            if not (WhseDoc in
+                    [WhseDoc::"Put-away Worksheet", WhseDoc::"Posted Receipt", WhseDoc::"Internal Put-away"])
+            then begin
+                CreatePick.CreateWhseDocument(FirstActivityNo, LastActivityNo, true);
+                CreatePick.ReturnTempItemTrkgLines(TempWhseItemTrkgLine);
+                ItemTrackingManagement.UpdateWhseItemTrkgLines(TempWhseItemTrkgLine);
+                Commit();
+            end else
+                CreatePutAway.GetWhseActivHeaderNo(FirstActivityNo, LastActivityNo);
+        end;
 
         HideNothingToHandleErr := false;
         OnBeforeSortWhseDocsForPrints(WhseDoc, FirstActivityNo, LastActivityNo, SortActivity, PrintDoc, HideNothingToHandleErr);
 
-        WhseActivHeader.SetRange("No.", FirstActivityNo, LastActivityNo);
+        WarehouseActivityHeader.SetRange("No.", FirstActivityNo, LastActivityNo);
 
         case WhseDoc of
             WhseDoc::"Internal Pick", WhseDoc::Production, WhseDoc::Assembly, WhseDoc::Job:
-                WhseActivHeader.SetRange(Type, WhseActivHeader.Type::Pick);
+                WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::Pick);
             WhseDoc::"Whse. Mov.-Worksheet":
-                WhseActivHeader.SetRange(Type, WhseActivHeader.Type::Movement);
+                WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::Movement);
             WhseDoc::"Posted Receipt", WhseDoc::"Put-away Worksheet", WhseDoc::"Internal Put-away":
-                WhseActivHeader.SetRange(Type, WhseActivHeader.Type::"Put-away");
+                WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::"Put-away");
         end;
 
-        if WhseActivHeader.Find('-') then begin
-            repeat
-                CreatePutAway.DeleteBlankBinContent(WhseActivHeader);
-                OnAfterCreatePutAwayDeleteBlankBinContent(WhseActivHeader);
-                if SortActivity <> SortActivity::None then
-                    WhseActivHeader.SortWhseDoc();
-                Commit();
-            until WhseActivHeader.Next() = 0;
+        if WarehouseActivityHeader.Find('-') then begin
+            IsHandled := false;
+            OnPostReportOnBeforeDeleteBlankBinContent(this, WarehouseActivityHeader, SortActivity, IsHandled);
+            if not IsHandled then
+                repeat
+                    CreatePutAway.DeleteBlankBinContent(WarehouseActivityHeader);
+                    OnAfterCreatePutAwayDeleteBlankBinContent(WarehouseActivityHeader);
+                    if SortActivity <> SortActivity::None then
+                        WarehouseActivityHeader.SortWhseDoc();
+                    Commit();
+                until WarehouseActivityHeader.Next() = 0;
 
             if PrintDoc then
-                PrintWarehouseDocument(WhseActivHeader);
+                PrintWarehouseDocument(WarehouseActivityHeader);
         end else
             if WhseDoc in [WhseDoc::Production, WhseDoc::Assembly, WhseDoc::Job] then begin
                 CreatePick.SetSummaryPageMessage(Text003, false);
@@ -825,7 +834,7 @@ report 7305 "Whse.-Source - Create Document"
                 if not HideNothingToHandleErr then
                     Error(Text003);
 
-        OnAfterPostReport(FirstActivityNo, LastActivityNo);
+        OnAfterPostReport(FirstActivityNo, LastActivityNo, WarehouseActivityHeader, this);
     end;
 
     trigger OnPreReport()
@@ -1347,30 +1356,34 @@ report 7305 "Whse.-Source - Create Document"
 
     procedure CreatePutAwayFromDiffSource(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; SourceType: Integer)
     var
-        TempPostedWhseRcptLine: Record "Posted Whse. Receipt Line" temporary;
-        TempPostedWhseRcptLine2: Record "Posted Whse. Receipt Line" temporary;
+        TempPostedWhseReceiptLine: Record "Posted Whse. Receipt Line" temporary;
+        TempPostedWhseReceiptLine2: Record "Posted Whse. Receipt Line" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         RemQtyToHandleBase: Decimal;
+        IsHandled: Boolean;
     begin
         case SourceType of
             Database::"Whse. Internal Put-away Line":
-                ItemTrackingMgt.SplitInternalPutAwayLine(PostedWhseRcptLine, TempPostedWhseRcptLine);
+                ItemTrackingMgt.SplitInternalPutAwayLine(PostedWhseRcptLine, TempPostedWhseReceiptLine);
             Database::"Posted Whse. Receipt Line":
-                ItemTrackingMgt.SplitPostedWhseRcptLine(PostedWhseRcptLine, TempPostedWhseRcptLine);
+                ItemTrackingMgt.SplitPostedWhseRcptLine(PostedWhseRcptLine, TempPostedWhseReceiptLine);
         end;
         RemQtyToHandleBase := PostedWhseRcptLine."Qty. (Base)";
 
-        TempPostedWhseRcptLine.Reset();
-        if TempPostedWhseRcptLine.Find('-') then
-            repeat
-                TempPostedWhseRcptLine2 := TempPostedWhseRcptLine;
-                TempPostedWhseRcptLine2."Line No." := PostedWhseRcptLine."Line No.";
-                SetQuantity(TempPostedWhseRcptLine2, SourceType, RemQtyToHandleBase);
-                if TempPostedWhseRcptLine2."Qty. (Base)" > 0 then begin
-                    CreatePutAway.Run(TempPostedWhseRcptLine2);
-                    CreatePutAway.UpdateTempWhseItemTrkgLines(TempPostedWhseRcptLine2, SourceType);
-                end;
-            until TempPostedWhseRcptLine.Next() = 0;
+        TempPostedWhseReceiptLine.Reset();
+        IsHandled := false;
+        OnCreatePutAwayFromDiffSourceOnBeforeProcessCreatePutAway(this, PostedWhseRcptLine, TempPostedWhseReceiptLine, CreatePutAway, IsHandled);
+        if not IsHandled then
+            if TempPostedWhseReceiptLine.FindSet() then
+                repeat
+                    TempPostedWhseReceiptLine2 := TempPostedWhseReceiptLine;
+                    TempPostedWhseReceiptLine2."Line No." := PostedWhseRcptLine."Line No.";
+                    SetQuantity(TempPostedWhseReceiptLine2, SourceType, RemQtyToHandleBase);
+                    if TempPostedWhseReceiptLine2."Qty. (Base)" > 0 then begin
+                        CreatePutAway.Run(TempPostedWhseReceiptLine2);
+                        CreatePutAway.UpdateTempWhseItemTrkgLines(TempPostedWhseReceiptLine2, SourceType);
+                    end;
+                until TempPostedWhseReceiptLine.Next() = 0;
     end;
 
     local procedure CreatePutAwayFromProdOutput(ProdOrderLine: Record "Prod. Order Line")
@@ -1474,7 +1487,7 @@ report 7305 "Whse.-Source - Create Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostReport(FirstActivityNo: Code[20]; LastActivityNo: Code[20])
+    local procedure OnAfterPostReport(FirstActivityNo: Code[20]; LastActivityNo: Code[20]; var WarehouseActivityHeader: Record "Warehouse Activity Header"; WhseSourceCreateDocument: Report "Whse.-Source - Create Document")
     begin
     end;
 
@@ -1585,6 +1598,26 @@ report 7305 "Whse.-Source - Create Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnPreDataItemJobPlanningLineOnAfterSetFilters(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostReportOnBeforeCreateWarehouseDocument(WhseSourceCreateDocument: Report "Whse.-Source - Create Document"; TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; var ItemTrackingManagement: Codeunit "Item Tracking Management"; var CreatePick: Codeunit "Create Pick"; var CreatePutAway: Codeunit "Create Put-away"; WhseDoc: Option "Whse. Mov.-Worksheet","Posted Receipt","Internal Pick","Internal Put-away",Production,"Put-away Worksheet",Assembly,"Service Order",Job; var CreateErrorText: Text; var FirstActivityNo: Code[20]; var LastActivityNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostReportOnBeforeDeleteBlankBinContent(WhseSourceCreateDocument: Report "Whse.-Source - Create Document"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WhseActivitySortingMethod: Enum "Whse. Activity Sorting Method"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePutAwayFromDiffSourceOnBeforeProcessCreatePutAway(WhseSourceCreateDocument: Report "Whse.-Source - Create Document"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var TempPostedWhseReceiptLine: Record "Posted Whse. Receipt Line" temporary; var CreatePutAway: Codeunit "Create Put-away"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterProdOrderComponentOnPreDataItem(var ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
 }

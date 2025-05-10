@@ -538,7 +538,7 @@ codeunit 7324 "Whse.-Activity-Post"
                         if InvoiceSourceDoc then
                             PurchLine.Validate("Qty. to Invoice", TempWhseActivLine."Qty. to Handle");
                     end else begin
-                        if (PurchLine."Outstanding Quantity" <> 0) and (-TempWhseActivLine."Qty. to Handle" > PurchLine."Outstanding Quantity") then
+                        if (PurchLine."Outstanding Quantity" <> 0) and (-TempWhseActivLine."Qty. to Handle" = PurchLine."Outstanding Quantity") then
                             TempWhseActivLine."Qty. to Handle" := -PurchLine."Outstanding Quantity";
                         PurchLine.Validate("Return Qty. to Ship", -TempWhseActivLine."Qty. to Handle");
                         PurchLine."Return Qty. to Ship (Base)" := -TempWhseActivLine."Qty. to Handle (Base)";

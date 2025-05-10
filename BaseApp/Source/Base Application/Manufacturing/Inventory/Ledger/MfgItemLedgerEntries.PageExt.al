@@ -18,7 +18,7 @@ pageextension 99000787 "Mfg. Item Ledger Entries" extends "Item Ledger Entries"
             action("Reverse")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Reverse Production Order Transaction';
+                Caption = 'Reverse Production Entry';
                 Visible = (Rec."Entry Type" = Rec."Entry Type"::Output) or (Rec."Entry Type" = Rec."Entry Type"::Consumption);
                 Image = ReverseLines;
                 ToolTip = 'Reverse a posted Consumption/Output Item Ledger Entry.';

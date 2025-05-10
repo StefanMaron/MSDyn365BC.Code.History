@@ -1077,6 +1077,42 @@ codeunit 134391 "ERM Sales Batch Posting"
         Assert.IsTrue(StrPos(ReportInbox.Description, StrSubstNo('Print Sales Invoice No. %1', SalesHeader[2]."No.")) > 0, 'Report Inbox contains wrong printed document');
     end;
 
+    [Test]
+    [HandlerFunctions('BatchPostSalesInvoicesPrintRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostInvoicesWithAnalysisView()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        AnalysisView: Record "Analysis View";
+        ERMAnalysisView: Codeunit "ERM Analysis View";
+        AnalysisAccountSource: Enum "Analysis Account Source";
+        LastEntryNo: Integer;
+        i: Integer;
+    begin
+        // [SCENARIO] Batch posting updates Analysis Views
+        Initialize();
+        ERMAnalysisView.CreateAnalysisViewWithDimensions(AnalysisView, AnalysisAccountSource::"G/L Account");
+        AnalysisView."Update on Posting" := true;
+        AnalysisView.Modify();
+        Commit();
+        LastEntryNo := AnalysisView."Last Entry No.";
+
+        // [GIVEN] Two invoices
+        CreateSalesDocument(SalesHeader[1], SalesHeader[1]."Document Type"::Invoice, false);
+        CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice, false);
+
+        // [WHEN] Post batch
+        RunBatchPostSales(SalesHeader[1]."Document Type", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", 0D, false);
+        AnalysisView.Get(AnalysisView.Code);
+        while (i < 10) and (LastEntryNo = AnalysisView."Last Entry No.") do begin  // may be executed in background
+            i += 1;
+            AnalysisView.Get(AnalysisView.Code);
+            Sleep(1000 * i);
+        end;
+        if i >= 10 then
+            Error('Analysis View is not updated after 10 waits.');
+    end;
+
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]

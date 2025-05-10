@@ -214,7 +214,7 @@ report 5199 "Update Contact Classification"
         NoOfRecs := Cust.Count();
         if Cust.Find('-') then
             repeat
-                OnFindCustomerValuesOnBeforeCustLoop(ProfileQuestionnaireLine, Cust);
+                OnFindCustomerValuesOnBeforeCustLoop(ProfileQuestionnaireLine, Cust, Date);
                 RecCount := RecCount + 1;
                 Window.Update(5, Cust."No.");
                 Window.Update(6, Round(10000 * RecCount / NoOfRecs, 1));
@@ -468,7 +468,7 @@ report 5199 "Update Contact Classification"
         NoOfRecs := Cont.Count();
         if Cont.Find('-') then
             repeat
-                OnFindContactValuesOnBeforeContLoop(ProfileQuestionnaireLine, Cont);
+                OnFindContactValuesOnBeforeContLoop(ProfileQuestionnaireLine, Cont, Date);
                 RecCount := RecCount + 1;
                 Window.Update(5, Cont."No.");
                 Window.Update(6, Round(10000 * RecCount / NoOfRecs, 1));
@@ -922,12 +922,12 @@ report 5199 "Update Contact Classification"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnFindContactValuesOnBeforeContLoop(ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; var Contact: Record Contact)
+    local procedure OnFindContactValuesOnBeforeContLoop(var ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; var Contact: Record Contact; Date: Date)
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnFindCustomerValuesOnBeforeCustLoop(ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; var Customer: Record Customer)
+    local procedure OnFindCustomerValuesOnBeforeCustLoop(var ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; var Customer: Record Customer; Date: Date)
     begin
     end;
 
