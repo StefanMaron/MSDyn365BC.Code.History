@@ -582,11 +582,18 @@ table 7321 "Warehouse Shipment Line"
         StatusCheckSuspended: Boolean;
 
     procedure InitNewLine(DocNo: Code[20])
+    var
+        IsHandled: Boolean;
     begin
         Reset();
         "No." := DocNo;
         SetRange("No.", "No.");
-        LockTable();
+        
+        IsHandled := false;
+        OnBeforeLockTable(Rec, IsHandled);
+        if not IsHandled then
+            LockTable();
+            
         if FindLast() then;
 
         Init();
@@ -1377,6 +1384,11 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenItemTrackingLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLockTable(var Rec: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }

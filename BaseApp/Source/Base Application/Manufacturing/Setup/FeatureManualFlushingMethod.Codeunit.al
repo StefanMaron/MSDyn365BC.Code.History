@@ -18,11 +18,11 @@ codeunit 5892 "Feature-ManualFlushingMethod" implements "Feature Data Update"
 {
     Access = Internal;
     Permissions = TableData "Feature Data Update Status" = rm;
-    ObsoleteReason = 'Feature ''Activate Manual Flushing Method without requiring pick'' will be enabled by default in version 29.0.';
+    ObsoleteReason = 'Feature ''Manual Flushing Method without requiring pick'' will be enabled by default in version 29.0.';
     ObsoleteState = Pending;
     ObsoleteTag = '26.0';
 
-    // The Data upgrade codeunit for ''Activate Manual Flushing Method without requiring pick'' feature. Moves 'Manual' to 'Pick + Manual' Flushing Method.
+    // The Data upgrade codeunit for ''Manual Flushing Method without requiring pick'' feature. Moves 'Manual' to 'Pick + Manual' Flushing Method.
     var
         TempDocumentEntry: Record "Document Entry" temporary;
         FeatureDataUpdateMgt: Codeunit "Feature Data Update Mgt.";

@@ -34,6 +34,11 @@ page 6667 "Return Receipt Lines"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the customer.';
                 }
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the customer.';
+                }
                 field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -117,6 +122,12 @@ page 6667 "Return Receipt Lines"
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies how many units of the item on the line have been posted as invoiced.';
+                }
+                field("Return Order No."; Rec."Return Order No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the return order number this line is associated with.';
+                    Visible = false;
                 }
             }
         }

@@ -372,7 +372,7 @@ codeunit 99000845 "Reservation Management"
                     UpdateItemTrackingLineStats(CalcReservEntry, TempEntrySummary, AvailabilityDate);
             end;
 
-            OnUpdateStatistics(CalcReservEntry, TempEntrySummary, AvailabilityDate, Positive, TotalQuantity, HandleItemTracking2, QtyOnOutBound);
+            OnUpdateStatistics(CalcReservEntry, TempEntrySummary, AvailabilityDate, Positive, TotalQuantity, HandleItemTracking2, QtyOnOutBound, ValueArray[i]);
         end;
 
         OnAfterUpdateStatistics(TempEntrySummary, AvailabilityDate, TotalQuantity);
@@ -1964,7 +1964,7 @@ codeunit 99000845 "Reservation Management"
     procedure CalcIsAvailTrackedQtyInBin(ItemNo: Code[20]; BinCode: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer) Result: Boolean
     var
         ReservationEntry: Record "Reservation Entry";
-        WhseEntry: Record "Warehouse Entry";
+        WarehouseEntry: Record "Warehouse Entry";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
@@ -1982,14 +1982,13 @@ codeunit 99000845 "Reservation Management"
         if ReservationEntry.FindSet() then
             repeat
                 if ReservEntryPositiveTypeIsItemLedgerEntry(ReservationEntry."Entry No.") then begin
-                    WhseEntry.SetCurrentKey("Item No.", "Location Code", "Variant Code", "Bin Type Code");
-                    WhseEntry.SetRange("Item No.", ItemNo);
-                    WhseEntry.SetRange("Location Code", LocationCode);
-                    WhseEntry.SetRange("Bin Code", BinCode);
-                    WhseEntry.SetRange("Variant Code", VariantCode);
-                    WhseEntry.SetTrackingFilterFromReservEntryIfNotBlank(ReservationEntry);
-                    WhseEntry.CalcSums("Qty. (Base)");
-                    if WhseEntry."Qty. (Base)" < Abs(ReservationEntry."Quantity (Base)") then
+                    WarehouseEntry.SetRange("Item No.", ItemNo);
+                    WarehouseEntry.SetRange("Location Code", LocationCode);
+                    WarehouseEntry.SetRange("Bin Code", BinCode);
+                    WarehouseEntry.SetRange("Variant Code", VariantCode);
+                    WarehouseEntry.SetTrackingFilterFromReservEntryIfNotBlank(ReservationEntry);
+                    WarehouseEntry.CalcSums("Qty. (Base)");
+                    if WarehouseEntry."Qty. (Base)" < Abs(ReservationEntry."Quantity (Base)") then
                         exit(false);
                 end;
             until ReservationEntry.Next() = 0;
@@ -2843,7 +2842,7 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal; HandleItemTracking2: Boolean; var QtyOnOutBound: Decimal)
+    local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal; HandleItemTracking2: Boolean; var QtyOnOutBound: Decimal; ReservationSummaryType: Integer)
     begin
     end;
 

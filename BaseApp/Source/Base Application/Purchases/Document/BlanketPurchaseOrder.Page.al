@@ -95,7 +95,7 @@ page 509 "Blanket Purchase Order"
                     field("Buy-from County"; Rec."Buy-from County")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                         ToolTip = 'Specifies the county of the vendor related to the blanket purchase order.';
                     }
                     field("Buy-from Post Code"; Rec."Buy-from Post Code")
@@ -447,7 +447,7 @@ page 509 "Blanket Purchase Order"
                     field("Ship-to County"; Rec."Ship-to County")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                         ToolTip = 'Specifies the county of the vendor related to the blanket purchase order.';
                     }
                     field("Ship-to Post Code"; Rec."Ship-to Post Code")
@@ -524,7 +524,7 @@ page 509 "Blanket Purchase Order"
                     field("Pay-to County"; Rec."Pay-to County")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                         ToolTip = 'Specifies the county of the vendor related to the blanket purchase order.';
                     }
                     field("Pay-to Post Code"; Rec."Pay-to Post Code")

@@ -79,7 +79,7 @@ page 6660 "Posted Return Receipt"
                         field("Sell-to County"; Rec."Sell-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                             Editable = false;
                         }
                     }
@@ -235,7 +235,7 @@ page 6660 "Posted Return Receipt"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             Editable = false;
                         }
                     }
@@ -356,7 +356,7 @@ page 6660 "Posted Return Receipt"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = SalesReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Editable = false;
                         }
                     }

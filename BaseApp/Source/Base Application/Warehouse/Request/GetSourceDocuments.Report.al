@@ -219,7 +219,7 @@ report 5753 "Get Source Documents"
                     begin
                         SetPurchLineFilters("Purchase Line", "Warehouse Request");
 
-                        OnAfterPurchaseLineOnPreDataItem("Purchase Line", OneHeaderCreated, WhseShptHeader, WhseReceiptHeader);
+                        OnAfterPurchaseLineOnPreDataItem("Purchase Line", OneHeaderCreated, WhseShptHeader, WhseReceiptHeader, RequestType);
                     end;
                 }
 
@@ -968,7 +968,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterPurchaseLineOnPreDataItem(var PurchaseLine: Record "Purchase Line"; OneHeaderCreated: Boolean; WhseShptHeader: Record "Warehouse Shipment Header"; WhseReceiptHeader: Record "Warehouse Receipt Header")
+    local procedure OnAfterPurchaseLineOnPreDataItem(var PurchaseLine: Record "Purchase Line"; OneHeaderCreated: Boolean; WhseShptHeader: Record "Warehouse Shipment Header"; WhseReceiptHeader: Record "Warehouse Receipt Header"; RequestType: Option)
     begin
     end;
 

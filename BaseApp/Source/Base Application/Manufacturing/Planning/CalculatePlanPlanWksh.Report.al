@@ -142,7 +142,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
                         {
                             ApplicationArea = Planning;
                             Caption = 'MRP';
-                            ToolTip = 'Specifies whether to calculate an MRP, which will calculate dependent demand that is based on the MPS.';
+                            ToolTip = 'Specifies whether to calculate a material requirements planning (MRP), which will calculate dependent demand that is based on the MPS.';
 
                             trigger OnValidate()
                             begin

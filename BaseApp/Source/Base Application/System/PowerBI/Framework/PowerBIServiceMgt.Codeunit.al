@@ -7,6 +7,7 @@ using System.Environment.Configuration;
 using System.Integration;
 using System.Reflection;
 using System.Security.User;
+using System.Telemetry;
 using System.Threading;
 
 codeunit 6301 "Power BI Service Mgt."
@@ -16,8 +17,10 @@ codeunit 6301 "Power BI Service Mgt."
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         GenericErr: Label 'An error occurred while trying to get reports from the Power BI service. Please try again or contact your system administrator if the error persists.';
         PowerBiResourceNameTxt: Label 'Power BI Services';
+#if not CLEAN27
         MainPageRatioTxt: Label '16:9', Locked = true;
         FactboxRatioTxt: Label '4:3', Locked = true;
+#endif
         FailedAuthErr: Label 'We failed to authenticate with Power BI. Try to sign out and in again. This problem typically happens if you no longer have a license for Power BI or if you just changed your email or password.';
         UnauthorizedErr: Label 'You do not have a Power BI account. If you have just activated a license, it might take several minutes for the changes to be effective in Power BI.';
         PowerBIEmbedReportUrlTemplateTxt: Label 'https://app.powerbi.com/reportEmbed?reportId=%1', Locked = true;
@@ -27,6 +30,8 @@ codeunit 6301 "Power BI Service Mgt."
         JobQueueCategoryCodeTxt: Label 'PBI EMBED', Locked = true;
         JobQueueCategoryDescriptionTxt: Label 'Synchronize Power BI reports', MaxLength = 30;
         // Telemetry constants
+        EmbedCorrelationTelemetryTxt: Label 'Embed element started with type: %1, and correlation: %2', Locked = true;
+        EmbedErrorOccurredTelemetryTxt: Label 'Embed error occurred with category: %1', Locked = true;
         PowerBiEmbedFeatureTelemetryTok: Label 'Power BI Embed', Locked = true;
         PowerBiLicenseCheckErrorTelemetryMsg: Label 'Power BI license check finished with error.', Locked = true;
         PowerBiLicenseCheckSuccessTelemetryMsg: Label 'Power BI license check returned success.', Locked = true;
@@ -78,15 +83,19 @@ codeunit 6301 "Power BI Service Mgt."
         exit(GenericErr);
     end;
 
+#if not CLEAN27
+    [Obsolete('This function is now deprecated, and the client decides the addin ratio instead.', '27.0')]
     procedure GetFactboxRatio(): Text
     begin
         exit(FactboxRatioTxt);
     end;
 
+    [Obsolete('This function is now deprecated, and the client decides the addin ratio instead.', '27.0')]
     procedure GetMainPageRatio(): Text
     begin
         exit(MainPageRatioTxt);
     end;
+#endif
 
     procedure GetContentPacksServicesUrl(): Text
     var
@@ -291,6 +300,24 @@ codeunit 6301 "Power BI Service Mgt."
         end;
 
         PowerBIManagement.SetToken(AccessToken);
+    end;
+
+    [Scope('OnPrem')]
+    procedure LogVisualLoaded(CorrelationId: Text; EmbedType: Enum "Power BI Element Type")
+    begin
+        Session.LogMessage('0000KAF', StrSubstNo(EmbedCorrelationTelemetryTxt, EmbedType, CorrelationId),
+            Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetPowerBiTelemetryCategory());
+    end;
+
+    [Scope('OnPrem')]
+    procedure LogEmbedError(ErrorCategory: Text)
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        FeatureTelemetry.LogError('0000L02', GetPowerBiFeatureTelemetryName(), ErrorCategory, 'Error loading Power BI visual');
+
+        Session.LogMessage('0000KAE', StrSubstNo(EmbedErrorOccurredTelemetryTxt, ErrorCategory),
+            Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetPowerBiTelemetryCategory());
     end;
 
     internal procedure CreateServiceProvider(var PowerBIServiceProvider: Interface "Power BI Service Provider")

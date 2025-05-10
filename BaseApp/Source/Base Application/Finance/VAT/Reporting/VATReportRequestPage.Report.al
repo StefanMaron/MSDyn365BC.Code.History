@@ -219,10 +219,12 @@ report 742 "VAT Report Request Page"
     }
 
     var
-        Selection: Enum "VAT Statement Report Selection";
-        PeriodSelection: Enum "VAT Statement Report Period Selection";
         PeriodIsEditable: Boolean;
         WrongVATSatementSetupErr: Label 'VAT statement template %1 name %2 has a wrong setup. There must be nine rows, each with a value between 1 and 9 for the Box No. field.', Comment = '1 - statement template name, 2 - statement name';
+
+    protected var
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPeriodIsEditable(VATReportHeader: Record "VAT Report Header"; var PeriodIsEditable: Boolean)

@@ -34,10 +34,13 @@ codeunit 30178 "Shpfy Product Export"
         ShopifyProduct: Record "Shpfy Product";
         BulkOperationMgt: Codeunit "Shpfy Bulk Operation Mgt.";
         BulkOperationType: Enum "Shpfy Bulk Operation Type";
-        GraphQuery: TextBuilder;
+        VariantId: BigInteger;
     begin
         ShopifyProduct.SetFilter("Item SystemId", '<>%1', NullGuid);
         ShopifyProduct.SetFilter("Shop Code", Rec.GetFilter(Code));
+
+        ProductEvents.OnAfterProductsToSynchronizeFiltersSet(ShopifyProduct, Shop, OnlyUpdatePrice);
+
         RecordCount := ShopifyProduct.Count();
         if ShopifyProduct.FindSet(false) then
             repeat
@@ -48,9 +51,10 @@ codeunit 30178 "Shpfy Product Export"
 
         if OnlyUpdatePrice then
             if BulkOperationInput.Length > 0 then
-                if not BulkOperationMgt.SendBulkMutation(Shop, BulkOperationType::UpdateProductPrice, BulkOperationInput.ToText()) then
-                    foreach GraphQuery in GraphQueryList do
-                        VariantAPI.UpdateProductPrice(GraphQuery);
+                if not BulkOperationMgt.SendBulkMutation(Shop, BulkOperationType::UpdateProductPrice, BulkOperationInput.ToText(), JRequestData) then
+                    foreach VariantId in GraphQueryList.Keys do
+                        if not VariantAPI.UpdateProductPrice(GraphQueryList.Get(VariantId)) then
+                            RevertVariantChanges(VariantId);
     end;
 
     var
@@ -65,7 +69,8 @@ codeunit 30178 "Shpfy Product Export"
         RecordCount: Integer;
         NullGuid: Guid;
         BulkOperationInput: TextBuilder;
-        GraphQueryList: List of [TextBuilder];
+        GraphQueryList: Dictionary of [BigInteger, TextBuilder];
+        JRequestData: JsonArray;
         VariantPriceCalcSkippedLbl: Label 'Variant price is not synchronized because the item is blocked or sales blocked.';
         ItemIsBlockedLbl: Label 'Item is blocked.';
         ItemIsDraftLbl: Label 'Shopify product is in draft status.';
@@ -771,7 +776,7 @@ codeunit 30178 "Shpfy Product Export"
         TempShopifyVariant := ShopifyVariant;
         FillInProductVariantData(ShopifyVariant, Item, ItemUnitofMeasure);
         if OnlyUpdatePrice then
-            VariantApi.UpdateProductPrice(ShopifyVariant, TempShopifyVariant, BulkOperationInput, GraphQueryList, RecordCount)
+            VariantApi.UpdateProductPrice(ShopifyVariant, TempShopifyVariant, BulkOperationInput, GraphQueryList, RecordCount, JRequestData)
         else
             VariantApi.UpdateProductVariant(ShopifyVariant, TempShopifyVariant);
     end;
@@ -790,7 +795,7 @@ codeunit 30178 "Shpfy Product Export"
         TempShopifyVariant := ShopifyVariant;
         FillInProductVariantData(ShopifyVariant, Item, ItemVariant);
         if OnlyUpdatePrice then
-            VariantApi.UpdateProductPrice(ShopifyVariant, TempShopifyVariant, BulkOperationInput, GraphQueryList, RecordCount)
+            VariantApi.UpdateProductPrice(ShopifyVariant, TempShopifyVariant, BulkOperationInput, GraphQueryList, RecordCount, JRequestData)
         else
             VariantApi.UpdateProductVariant(ShopifyVariant, TempShopifyVariant);
     end;
@@ -810,9 +815,29 @@ codeunit 30178 "Shpfy Product Export"
         TempShopifyVariant := ShopifyVariant;
         FillInProductVariantData(ShopifyVariant, Item, ItemVariant, ItemUnitofMeasure);
         if OnlyUpdatePrice then
-            VariantApi.UpdateProductPrice(ShopifyVariant, TempShopifyVariant, BulkOperationInput, GraphQueryList, RecordCount)
+            VariantApi.UpdateProductPrice(ShopifyVariant, TempShopifyVariant, BulkOperationInput, GraphQueryList, RecordCount, JRequestData)
         else
             VariantApi.UpdateProductVariant(ShopifyVariant, TempShopifyVariant);
+    end;
+
+    local procedure RevertVariantChanges(VariantId: BigInteger)
+    var
+        ShopifyVariant: Record "Shpfy Variant";
+        JRequest: JsonToken;
+        JVariant: JsonObject;
+    begin
+        foreach JRequest in JRequestData do begin
+            JVariant := JRequest.AsObject();
+            if JVariant.GetBigInteger('id') = VariantId then begin
+                if ShopifyVariant.Get(VariantId) then begin
+                    ShopifyVariant.Price := JVariant.GetDecimal('price');
+                    ShopifyVariant."Compare at Price" := JVariant.GetDecimal('compareAtPrice');
+                    ShopifyVariant."Updated At" := JVariant.GetDateTime('updatedAt');
+                    ShopifyVariant.Modify();
+                end;
+                exit;
+            end;
+        end;
     end;
 
     #region Translations
