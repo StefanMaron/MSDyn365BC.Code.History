@@ -1155,6 +1155,7 @@ codeunit 11148 "Create AT GL Account"
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.CorporateTaxesPayableName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherLiabilitiesTotalName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.ShortTermLiabilitiesTotalName(), '');
+        ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherAccruedExpensesAndDeferredIncomeName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.TotalLiabilitiesName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.TotalLiabilitiesAndEquityName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.IncomeStatementName(), '');

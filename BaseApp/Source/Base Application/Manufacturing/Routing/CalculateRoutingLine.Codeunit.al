@@ -428,6 +428,8 @@ codeunit 99000774 "Calculate Routing Line"
 
         CreateLoadBack(TimeType, Write);
 
+        OnLoadCapBackOnAfterCreateLoadBack(CapType, CapNo, TimeType, Write);
+
         if RemainNeedQty = 0 then
             exit;
 
@@ -444,7 +446,6 @@ codeunit 99000774 "Calculate Routing Line"
         OnBeforeLoadCapForward(ProdOrderRoutingLine, CapType, CapNo, TimeType, ProdStartingDate, ProdStartingTime, IsHandled, RemainNeedQty);
         if IsHandled then
             exit;
-
 
         ProdOrderRoutingLine."Ending Date" := ProdStartingDate;
         ProdOrderRoutingLine."Ending Time" := ProdStartingTime;
@@ -473,7 +474,9 @@ codeunit 99000774 "Calculate Routing Line"
         end else
             LoadFactor := 1;
 
+        OnLoadCapForwardOnBeforeCreateLoadForward(RemainNeedQty, CapType, CapNo, TimeType, Write, LoadFactor);
         CreateLoadForward(TimeType, Write, LoadFactor);
+        OnLoadCapForwardOnAfterCreateLoadForward(RemainNeedQty, CapType, CapNo, TimeType, Write, LoadFactor);
 
         if RemainNeedQty = 0 then
             exit;
@@ -1114,6 +1117,7 @@ codeunit 99000774 "Calculate Routing Line"
             CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code"),
             Workcenter."Calendar Rounding Precision");
         RemainNeedQty += InputQtyDiffTime;
+        OnCalcRoutingLineForwardOnBeforeLoadCapForward(ProdOrderRoutingLine, ProdOrderRoutingLine3);
         LoadCapForward(ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.", RoutingTimeType::"Queue Time", false);
         RemainNeedQty :=
           Round(
@@ -1168,6 +1172,8 @@ codeunit 99000774 "Calculate Routing Line"
             CalendarMgt.TimeFactor(ProdOrderRoutingLine."Wait Time Unit of Meas. Code") /
             CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code"),
             Workcenter."Calendar Rounding Precision");
+
+        OnCalcRoutingLineForwardOnBeforeLoadCapForward2(ProdOrderRoutingLine, ProdOrderRoutingLine3);
         LoadCapForward(ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.", RoutingTimeType::"Wait Time", false);
         RemainNeedQty :=
           Round(
@@ -2355,6 +2361,31 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitProdOrderCapNeed(ProductionOrder: Record "Production Order"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; RoutingTimeType: Enum "Routing Time Type"; NeedDate: Date; StartingTime: Time; EndingTime: Time; var NeedQty: Decimal; LotSize: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLoadCapBackOnAfterCreateLoadBack(CapacityType: Enum "Capacity Type"; CapacityNo: Code[20]; RoutingTimeType: Enum "Routing Time Type"; Write: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRoutingLineForwardOnBeforeLoadCapForward(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderRoutingLine3: Record "Prod. Order Routing Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRoutingLineForwardOnBeforeLoadCapForward2(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderRoutingLine3: Record "Prod. Order Routing Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLoadCapForwardOnBeforeCreateLoadForward(var RemainNeedQty: Decimal; CapacityType: Enum "Capacity Type"; CapacityNo: Code[20]; RoutingTimeType: Enum "Routing Time Type"; Write: Boolean; LoadFactor: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLoadCapForwardOnAfterCreateLoadForward(var RemainNeedQty: Decimal; CapacityType: Enum "Capacity Type"; CapacityNo: Code[20]; RoutingTimeType: Enum "Routing Time Type"; Write: Boolean; LoadFactor: Decimal);
     begin
     end;
 }

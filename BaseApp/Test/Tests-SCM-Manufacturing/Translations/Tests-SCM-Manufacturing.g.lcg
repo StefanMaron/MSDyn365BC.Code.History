@@ -275,6 +275,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Manufacturing - NamedType ExpectedWhsePickMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1233714583 - NamedType 1927549272" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must not be visible in %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[ %1 = Field Name , %2 = Page Name]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Manufacturing - NamedType FieldMustNotBeVisibleErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1233714583 - NamedType 2012558403" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You have insufficient quantity of Item %1 on inventory.]]></Val>
@@ -462,6 +471,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Manufacturing - NamedType ReservDateConflictErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1233714583 - NamedType 3127336491" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Standard task code not match with relesed Production Order standard Task code Field.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Manufacturing - NamedType StandardTaskFieldErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1233714583 - NamedType 2450020218" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1364,6 +1382,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Order III - NamedType ItemJournalLineExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 191131963 - NamedType 3286046000" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 for Item No. %3 in the %4.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Item No., %4 = Table Caption]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Order III - NamedType ItemMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 191131963 - NamedType 333267428" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong Item Substitution's count.]]></Val>
@@ -1434,15 +1461,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Production Order No.]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Order III - NamedType MissingReleasedProductionErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 191131963 - NamedType 205731057" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot modify %1 on Item %2 as Production BOM %3 has a non-inventory Item %4.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Production Item No. , %3 = Production BOM No. , %4 = Non-Inventory Item]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Order III - NamedType NonInventoryItemInStandardCostCalcErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 191131963 - NamedType 644876557" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2543,6 +2561,15 @@
       <Cmt Name="Dev"><![CDATA[ %1 = Field Name , %2 = Page Name]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType FieldMustNotBeEditableErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2276747048 - NamedType 3286046000" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 for Item No. %3 in the %4.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Item No., %4 = Table Caption]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType ItemMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2276747048 - NamedType 3938104762" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[ItemNo]]></Val>
@@ -2604,15 +2631,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Field caption, %2 = Table Caption]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType MissingAccountTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2276747048 - NamedType 1002667803" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot modify %1 on SKU %2 = %3, %4 = %5, %6 = %7 as Production BOM %8 has a non-inventory Item %9.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Field Caption, %2 = Field Caption, %3 = Location Code , %4 = Field Caption , %5 = Item No. , %6 = Field Caption , %7 = Variant Code , %8 =  Production BOM No. , %9 = Item No.]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Orders IV - NamedType NonInventoryItemInStandardCostCalcForSKUErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2276747048 - NamedType 2346205153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

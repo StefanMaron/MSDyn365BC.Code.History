@@ -1602,6 +1602,56 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         Assert.AreNotEqual(0, SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(), StrSubstNo(TaxAmountErr, 0));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyTotalTaxAmountSameOnGLEntries()
+    var
+        SalesHeader: Record "Sales Header";
+        GLEntry: Record "G/L Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoice: TestPage "Sales Invoice";
+        ExpectedTaxAmount: Decimal;
+        DocumentNo: Text;
+        PostedDocumentNo: Code[20];
+        Quantity: array[4] of Integer;
+        UnitPrice: array[4] of Decimal;
+    begin
+        // [SCENARIO 538876] Correct VAT in Statistics FactBox when "Price Including VAT" is activated.
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup with VAT Percentage 20
+        CreateVATPostingSetup(VATPostingSetup, 20);
+
+        // [GIVEN] Create Static Unit Price to get the 0.01 difference
+        AssignStaticValues524113(UnitPrice, Quantity);
+
+        // [GIVEN] Create Four Sales Invoice Lines
+        CreateInvoiceWithMultipleLineThroughTestPageNoDiscount(SalesInvoice, VATPostingSetup, UnitPrice, Quantity);
+
+        // [GIVEN] Save Total Tax Amount on Page as actual result
+        ExpectedTaxAmount := -1 * SalesInvoice.SalesLines."Total VAT Amount".AsDecimal();
+
+        // [GIVEN] Save the Sales Invoice Document No.
+        DocumentNo := SalesInvoice."No.".Value();
+
+        // [GIVEN] Close the Sales Invoice Page
+        SalesInvoice.Close();
+
+        // [GIVEN] Get the Sales Header
+        SalesHeader.Get(SalesHeader."Document Type"::Invoice, DocumentNo);
+
+        // [WHEN] Post the Sales Document 
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Get the Sales VAT Account G/l Entries
+        GLEntry.SetRange("Document No.", PostedDocumentNo);
+        GLEntry.SetRange("G/L Account No.", VATPostingSetup."Sales VAT Account");
+        GLEntry.FindFirst();
+
+        // [THEN] Verify the Total tax amount should be same as on Sales Invoice Page
+        Assert.AreEqual(ExpectedTaxAmount, GLEntry.Amount, StrSubstNo(TaxAmountErr, ExpectedTaxAmount));
+    end;
+
     local procedure CreateCustomerWithDiscount(var Customer: Record Customer; DiscPct: Decimal; minAmount: Decimal)
     begin
         CreateCustomer(Customer);
@@ -2464,7 +2514,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
             Field.FieldNo(SystemModifiedBy));
     end;
 
-    local procedure AssignStaticValues524113(var UnitPrice: array[4] of Decimal; Quantity: array[4] of Integer)
+    local procedure AssignStaticValues524113(var UnitPrice: array[4] of Decimal; var Quantity: array[4] of Integer)
     var
         i: Integer;
     begin

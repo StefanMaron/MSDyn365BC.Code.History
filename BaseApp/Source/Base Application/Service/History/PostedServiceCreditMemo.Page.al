@@ -273,7 +273,7 @@ page 5972 "Posted Service Credit Memo"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             Editable = false;
                             ToolTip = 'Specifies the state, province or county of the address.';
                         }
@@ -415,7 +415,7 @@ page 5972 "Posted Service Credit Memo"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Editable = false;
                             ToolTip = 'Specifies the state, province or county of the address that the items are shipped to.';
                         }

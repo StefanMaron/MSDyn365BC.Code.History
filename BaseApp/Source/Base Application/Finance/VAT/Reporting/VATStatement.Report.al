@@ -332,7 +332,14 @@ report 12 "VAT Statement"
     procedure CalcLineTotalWithBase(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalBase: Decimal; Level: Integer): Boolean
     var
         VATReportSetup: Record "VAT Report Setup";
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcLineTotalWithBase(VATStmtLine2, TotalAmount, TotalBase, Level, RowNo, ErrorText, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Level = 0 then begin
             TotalBase := 0;
             TotalAmount := 0;
@@ -584,6 +591,11 @@ report 12 "VAT Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAmtRoundingDirection(var Direction: Text[1]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcLineTotalWithBase(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalBase: Decimal; Level: Integer; var RowNo: array[6] of Code[10]; var ErrorText: Text[80]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -366,12 +366,10 @@ table 14 Location
                 if not WhseActivHeader.IsEmpty() then
                     Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseActivHeader.TableCaption());
 
-                WhseRcptHeader.SetCurrentKey("Location Code");
                 WhseRcptHeader.SetRange("Location Code", Code);
                 if not WhseRcptHeader.IsEmpty() then
                     Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseRcptHeader.TableCaption());
 
-                WhseShptHeader.SetCurrentKey("Location Code");
                 WhseShptHeader.SetRange("Location Code", Code);
                 if not WhseShptHeader.IsEmpty() then
                     Error(Text008, FieldCaption("Bin Mandatory"), xRec."Bin Mandatory", WhseShptHeader.TableCaption());
@@ -418,12 +416,10 @@ table 14 Location
                 if not WhseActivHeader.IsEmpty() then
                     Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseActivHeader.TableCaption());
 
-                WhseRcptHeader.SetCurrentKey("Location Code");
                 WhseRcptHeader.SetRange("Location Code", Code);
                 if not WhseRcptHeader.IsEmpty() then
                     Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseRcptHeader.TableCaption());
 
-                WhseShptHeader.SetCurrentKey("Location Code");
                 WhseShptHeader.SetRange("Location Code", Code);
                 if not WhseShptHeader.IsEmpty() then
                     Error(Text014, FieldCaption("Directed Put-away and Pick"), WhseShptHeader.TableCaption());
@@ -492,6 +488,7 @@ table 14 Location
         {
             AccessByPermission = TableData "Warehouse Source Filter" = R;
             Caption = 'Allow Breakbulk';
+            ToolTip = 'Specifies that an order can be fulfilled with items stored in alternate units of measure, if an item stored in the requested unit of measure is not found. This feature is applicable only with directed put-away and pick locations.';
         }
         field(7309; "Bin Capacity Policy"; Option)
         {
@@ -924,7 +921,6 @@ table 14 Location
             repeat
                 WarehouseEntry.SetRange("Item No.", WarehouseEntry."Item No.");
 
-                WhseEntry2.SetCurrentKey("Item No.", "Bin Code", "Location Code");
                 WhseEntry2.CopyFilters(WarehouseEntry);
                 WhseEntry2.CalcSums("Qty. (Base)");
                 if WhseEntry2."Qty. (Base)" <> 0 then begin

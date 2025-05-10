@@ -274,12 +274,17 @@ table 904 "Assemble-to-Order Link"
     procedure UpdateQtyToAsmFromSalesLine(SalesLine: Record "Sales Line")
     var
         Window: Dialog;
+        ShowWindow: Boolean;
     begin
         if AsmExistsForSalesLine(SalesLine) then
             if GetAsmHeader() then begin
-                Window.Open(GetWindowOpenTextSale(SalesLine));
+                ShowWindow := GuiAllowed();
+                OnUpdateQtyToAsmFromSalesLineOnBeforeUpdateQtyToAsm(SalesLine, ShowWindow);
+                if ShowWindow then
+                    Window.Open(GetWindowOpenTextSale(SalesLine));
                 UpdateQtyToAsm(MaxQtyToAsm(SalesLine, AsmHeader));
-                Window.Close();
+                if ShowWindow then
+                    Window.Close();
             end;
     end;
 
@@ -287,17 +292,21 @@ table 904 "Assemble-to-Order Link"
     var
         Window: Dialog;
         IsHandled: Boolean;
+        ShowWindow: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateQtyToAsmFromWhseShptLine(WhseShptLine, IsHandled);
+        ShowWindow := GuiAllowed();
+        OnBeforeUpdateQtyToAsmFromWhseShptLine(WhseShptLine, IsHandled, ShowWindow);
         if IsHandled then
             exit;
 
         if AsmExistsForWhseShptLine(WhseShptLine) then
             if GetAsmHeader() then begin
-                Window.Open(GetWindowOpenTextWhseShpt(WhseShptLine));
+                if ShowWindow then
+                    Window.Open(GetWindowOpenTextWhseShpt(WhseShptLine));
                 UpdateQtyToAsm(WhseShptLine."Qty. to Ship");
-                Window.Close();
+                if ShowWindow then
+                    Window.Close();
             end;
     end;
 
@@ -2060,7 +2069,7 @@ table 904 "Assemble-to-Order Link"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateQtyToAsmFromWhseShptLine(WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateQtyToAsmFromWhseShptLine(WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean; var ShowWindow: Boolean)
     begin
     end;
 
@@ -2091,6 +2100,11 @@ table 904 "Assemble-to-Order Link"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAsmHeader(AssembleToOrderLink: Record "Assemble-to-Order Link"; var AssemblyHeader: Record "Assembly Header"; var HeaderFound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateQtyToAsmFromSalesLineOnBeforeUpdateQtyToAsm(var SalesLine: Record "Sales Line"; var ShowWindow: Boolean)
     begin
     end;
 }

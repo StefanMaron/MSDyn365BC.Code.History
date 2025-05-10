@@ -456,4 +456,16 @@ table 313 "Inventory Setup"
     begin
         exit(not FeatureKeyManagement.IsConcurrentInventoryPostingEnabled());
     end;
+
+#if not CLEAN24
+#pragma warning disable AS0072
+    [Obsolete('Feature ''Enable use of package tracking in physical inventory orders'' will be enabled by default in version 27.0.', '24.0')]
+    procedure IsFeatureKeyPhysInvtOrderPackageTrackingEnabled(): Boolean
+    var
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+    begin
+        exit(FeatureKeyManagement.IsPhysInvtOrderPackageTrackingEnabled());
+    end;
+#pragma warning restore AS0072
+#endif
 }

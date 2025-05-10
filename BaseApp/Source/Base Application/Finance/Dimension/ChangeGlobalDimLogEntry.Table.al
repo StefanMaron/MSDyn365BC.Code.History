@@ -331,6 +331,8 @@ table 483 "Change Global Dim. Log Entry"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         DimensionCode: Code[20];
+        DimensionValueCode: Code[20];
+        IsHandled: Boolean;
     begin
         GeneralLedgerSetup.Get();
         case DimNo of
@@ -342,6 +344,10 @@ table 483 "Change Global Dim. Log Entry"
         if "Dim. Set ID Field No." = 0 then begin
             if RecRef.Number = DATABASE::"Job Task" then
                 exit(FindJobTaskDimensionValueCode(RecRef, DimensionCode));
+            IsHandled := false;
+            OnBeforeFindDefaultDimensionValueCode(RecRef, DimensionCode, DimensionValueCode, IsHandled);
+            if IsHandled then
+                exit(DimensionValueCode);
             exit(FindDefaultDimensionValueCode(RecRef, DimensionCode));
         end;
         exit(FindDimSetDimensionValueCode(RecRef, DimensionCode));
@@ -545,6 +551,11 @@ table 483 "Change Global Dim. Log Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindingScheduledTask(TaskID: Guid; var IsTaskExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindDefaultDimensionValueCode(RecRef: RecordRef; DimensionCode: Code[20]; var DimensionValueCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }
