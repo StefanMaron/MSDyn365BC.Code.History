@@ -1377,6 +1377,8 @@ page 95 "Sales Quote Subform"
             CurrPage.SaveRecord();
             Rec.AutoReserve();
         end;
+
+        OnUnitofMeasureCodeOnAfterValidateOnBeforeDeltaUpdateTotals(Rec, xRec);
         DeltaUpdateTotals();
     end;
 
@@ -1624,6 +1626,11 @@ page 95 "Sales Quote Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnUnitofMeasureCodeOnAfterValidateOnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 }

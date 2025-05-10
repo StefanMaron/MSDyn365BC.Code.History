@@ -326,6 +326,7 @@ codeunit 11119 "Create DE GL Acc."
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.FinishedGoodsName(), '1101');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.TotalAssetsName(), '1999');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherLiabilitiesName(), '3500');
+        ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherAccruedExpensesAndDeferredIncomeName(), '3990');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.TotalLiabilitiesName(), '3999');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.IncomeStatementName(), '4');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.InterestIncomeName(), '4203');

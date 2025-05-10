@@ -707,9 +707,12 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     begin
         InitNewSalesLine(SalesHeader, SalesLine);
 
-        if IsNullGuid(CRMSalesorderdetail.ProductId) then
+        if IsNullGuid(CRMSalesorderdetail.ProductId) then begin
+            OnInitializeSalesOrderLineOnBeforeInitializeWriteInOrderLine(SalesLine, CRMSalesorderdetail, IsHandled);
+            if IsHandled then
+                exit;
             InitializeWriteInOrderLine(SalesLine)
-        else begin
+        end else begin
             CRMProduct.Get(CRMSalesorderdetail.ProductId);
             CRMProduct.TestField(StateCode, CRMProduct.StateCode::Active);
             case CRMProduct.ProductTypeCode of
@@ -926,6 +929,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyBillToInformationIfNotEmpty(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitializeSalesOrderLineOnBeforeInitializeWriteInOrderLine(var SalesLine: Record "Sales Line"; var CRMSalesorderdetail: Record "CRM Salesorderdetail"; var IsHandled: Boolean)
     begin
     end;
 }

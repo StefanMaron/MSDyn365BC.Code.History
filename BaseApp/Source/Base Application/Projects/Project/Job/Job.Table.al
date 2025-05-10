@@ -178,6 +178,7 @@ table 167 Job
                         repeat
                             if ShouldDeleteReservationEntries then
                                 JobPlanningLineReserve.DeleteLineInternal(JobPlanningLine, false);
+                            UpdateReservationEntries();
                             ATOLink.MakeAsmOrderLinkedToJobPlanningOrderLine(JobPlanningLine);
                             JobPlanningLine.Validate(Status, Status);
                             JobPlanningLine.Modify();
@@ -2145,7 +2146,13 @@ table 167 Job
     local procedure AddToMyJobs(ProjectManager: Code[50])
     var
         MyJob: Record "My Job";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddToMyJobs(Rec, MyJob, ProjectManager, IsHandled);
+        if IsHandled then
+            exit;
+
         if Status <> Status::Open then
             exit;
 
@@ -3012,6 +3019,24 @@ table 167 Job
         TimeSheetLine.CheckIfTimeSheetLineLinkExist(Rec);
     end;
 
+    local procedure UpdateReservationEntries()
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        if Status <> Status::Open then
+            exit;
+
+        ReservationEntry.ReadIsolation(IsolationLevel::UpdLock);
+        ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
+        ReservationEntry.SetRange("Source ID", "No.");
+        if ReservationEntry.FindSet(true) then
+            repeat
+                ReservationEntry.Validate("Source Subtype", 2);
+                ReservationEntry.Validate("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+                ReservationEntry.Modify();
+            until ReservationEntry.Next() = 0;
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterCalcRecognizedProfitAmount(var Result: Decimal)
     begin
@@ -3337,6 +3362,11 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnInitJobNoOnAfterAssignNoSeries(var Job: Record Job; var xJob: Record Job; var JobsSetup: Record "Jobs Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddToMyJobs(var Job: Record Job; var MyJob: Record "My Job"; ProjectManager: Code[50]; var IsHandled: Boolean)
     begin
     end;
 }

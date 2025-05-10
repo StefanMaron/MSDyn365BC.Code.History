@@ -31,6 +31,7 @@ codeunit 11108 "Create DE Customer"
 
     local procedure ValidateCustomer(var Customer: Record Customer; LanguageCode: Code[10]; PaymentTermCode: Code[10]; CountryRegionCode: Code[10]; PostCode: Code[20]; VatRegistraionNo: Text[20]; City: Text[30])
     begin
+        Customer."Format Region" := ''; // Format Region will be automatically set basing on the Language Code
         Customer.Validate("Language Code", LanguageCode);
         Customer.Validate("Payment Terms Code", PaymentTermCode);
         Customer.Validate("VAT Registration No.", VatRegistraionNo);

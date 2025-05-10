@@ -262,6 +262,7 @@ page 6053 "Service Contract Quote"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Service;
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             QuickEntry = false;
                             ToolTip = 'Specifies the county code of the customer''s billing address.';
                         }
@@ -406,6 +407,7 @@ page 6053 "Service Contract Quote"
                     field("Ship-to County"; Rec."Ship-to County")
                     {
                         ApplicationArea = Service;
+                        CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                         ToolTip = 'Specifies the county of the address.';
                     }
                 }

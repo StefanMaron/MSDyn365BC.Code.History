@@ -466,13 +466,13 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
             exit(-1);
 
         if Increment >= 1000 then
-            exit(1000);
-
-        if Increment >= 100 then
             exit(100);
 
-        if Increment >= 10 then
+        if Increment >= 100 then
             exit(10);
+
+        if Increment >= 10 then
+            exit(1);
 
         exit(Increment);
     end;

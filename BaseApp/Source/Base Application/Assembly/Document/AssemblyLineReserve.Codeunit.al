@@ -145,6 +145,7 @@ codeunit 926 "Assembly Line-Reserve"
         ReservationManagement.SetReservSource(AssemblyLine);
         if DeleteItemTracking then
             ReservationManagement.SetItemTrackingHandling(1); // Allow Deletion
+        OnDeleteLineOnBeforeDeleteReservationEntries(AssemblyLine);
         ReservationManagement.DeleteReservEntries(true, 0);
         ReservationManagement.ClearActionMessageReferences();
         AssemblyLine.CalcFields("Reserved Qty. (Base)");
@@ -291,6 +292,7 @@ codeunit 926 "Assembly Line-Reserve"
         ReservationManagement.SetReservSource(NewAssemblyLine);
         if NewAssemblyLine."Qty. per Unit of Measure" <> OldAssemblyLine."Qty. per Unit of Measure" then
             ReservationManagement.ModifyUnitOfMeasure();
+        OnVerifyQuantityOnBeforeDeleteReservationEntries(NewAssemblyLine);
         ReservationManagement.DeleteReservEntries(false, NewAssemblyLine."Remaining Quantity (Base)");
         ReservationManagement.ClearSurplus();
         ReservationManagement.AutoTrack(NewAssemblyLine."Remaining Quantity (Base)");
@@ -409,6 +411,7 @@ codeunit 926 "Assembly Line-Reserve"
                     OldReservationEntry.TestField("Variant Code", OldAssemblyLine."Variant Code");
                     OldReservationEntry.TestField("Location Code", OldAssemblyLine."Location Code");
 
+                    OnTransferAsmLineToAsmLineOnBeforeTransferReservationEntry(OldAssemblyLine, NewAssemblyLine, OldReservationEntry);
                     TransferQty :=
                         CreateReservEntry.TransferReservEntry(
                             Database::"Assembly Line", NewAssemblyLine."Document Type".AsInteger(), NewAssemblyLine."Document No.", '', 0,
@@ -1042,6 +1045,21 @@ codeunit 926 "Assembly Line-Reserve"
                         DocTypeCaption := StrSubstNo(DeleteDocLineWithItemReservQst, SelectStr(3, FldRef.OptionCaption), DocNo);
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteLineOnBeforeDeleteReservationEntries(AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVerifyQuantityOnBeforeDeleteReservationEntries(var NewAssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferAsmLineToAsmLineOnBeforeTransferReservationEntry(var OldAssemblyLine: Record "Assembly Line"; var NewAssemblyLine: Record "Assembly Line"; var OldReservationEntry: Record "Reservation Entry")
+    begin
     end;
 }
 

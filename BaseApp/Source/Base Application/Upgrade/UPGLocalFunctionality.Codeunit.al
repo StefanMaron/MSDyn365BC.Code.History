@@ -17,6 +17,12 @@ codeunit 104100 "Upg Local Functionality"
         UpdatePhysInventoryOrders();
         CleanupPhysOrders();
 #endif
+#if not CLEAN27
+        SetReportSelectionForGLVATReconciliation();
+        SetReportSelectionForVATStatementSchedule();
+        SetReportSelectionForIssuedDeliveryReminder();
+        SetReportSelectionForDeliveryReminderTest();
+#endif
         UpdateVendorRegistrationNo();
     end;
 
@@ -205,7 +211,7 @@ codeunit 104100 "Upg Local Functionality"
     end;
 #endif
 
-#if not CLEAN25
+#if not CLEAN27
     [Obsolete('Replaced by ReportSelections table setup', '25.0')]
     procedure SetReportSelectionForGLVATReconciliation()
     var
@@ -227,11 +233,101 @@ codeunit 104100 "Upg Local Functionality"
         ReportSelections.Init();
         ReportSelections.Usage := ReportSelections.Usage::"Sales VAT Acc. Proof";
         ReportSelections.Sequence := '1';
-        ReportSelections."Report ID" := DACHReportSelections."Report ID";
+        ReportSelections."Report ID" := ReportID;
         if not ReportSelections.Insert() then
             ReportSelections.Modify();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForGLVATReconciliationTag());
+    end;
+#endif
+
+#if not CLEAN27
+    [Obsolete('Replaced by ReportSelections table setup', '27.0')]
+    procedure SetReportSelectionForVATStatementSchedule()
+    var
+        DACHReportSelections: Record "DACH Report Selections";
+        ReportSelections: Record "Report Selections";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+        ReportID: Integer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForVATStatementScheduleTag()) then
+            exit;
+
+        DACHReportSelections.SetRange(Usage, DACHReportSelections.Usage::"VAT Statement Schedule");
+        if DACHReportSelections.FindFirst() then
+            ReportID := DACHReportSelections."Report ID"
+        else
+            ReportID := Report::"VAT Statement Schedule";
+
+        ReportSelections.Init();
+        ReportSelections.Usage := ReportSelections.Usage::"VAT Statement Schedule";
+        ReportSelections.Sequence := '1';
+        ReportSelections."Report ID" := ReportID;
+        if not ReportSelections.Insert() then
+            ReportSelections.Modify();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForVATStatementScheduleTag());
+    end;
+#endif
+
+#if not CLEAN27
+    [Obsolete('Replaced by ReportSelections table setup', '27.0')]
+    procedure SetReportSelectionForIssuedDeliveryReminder()
+    var
+        DACHReportSelections: Record "DACH Report Selections";
+        ReportSelections: Record "Report Selections";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+        ReportID: Integer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForIssuedDeliveryReminderTag()) then
+            exit;
+
+        DACHReportSelections.SetRange(Usage, DACHReportSelections.Usage::"Issued Delivery Reminder");
+        if DACHReportSelections.FindFirst() then
+            ReportID := DACHReportSelections."Report ID"
+        else
+            ReportID := Report::"Issued Delivery Reminder";
+
+        ReportSelections.Init();
+        ReportSelections.Usage := ReportSelections.Usage::"Issued Delivery Reminder";
+        ReportSelections.Sequence := '1';
+        ReportSelections."Report ID" := ReportID;
+        if not ReportSelections.Insert() then
+            ReportSelections.Modify();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForIssuedDeliveryReminderTag());
+    end;
+#endif
+
+#if not CLEAN27
+    [Obsolete('Replaced by ReportSelections table setup', '27.0')]
+    procedure SetReportSelectionForDeliveryReminderTest()
+    var
+        DACHReportSelections: Record "DACH Report Selections";
+        ReportSelections: Record "Report Selections";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+        ReportID: Integer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForDeliveryReminderTestTag()) then
+            exit;
+
+        DACHReportSelections.SetRange(Usage, DACHReportSelections.Usage::"Delivery Reminder Test");
+        if DACHReportSelections.FindFirst() then
+            ReportID := DACHReportSelections."Report ID"
+        else
+            ReportID := Report::"Delivery Reminder - Test";
+
+        ReportSelections.Init();
+        ReportSelections.Usage := ReportSelections.Usage::"Delivery Reminder Test";
+        ReportSelections.Sequence := '1';
+        ReportSelections."Report ID" := ReportID;
+        if not ReportSelections.Insert() then
+            ReportSelections.Modify();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForDeliveryReminderTestTag());
     end;
 #endif
 

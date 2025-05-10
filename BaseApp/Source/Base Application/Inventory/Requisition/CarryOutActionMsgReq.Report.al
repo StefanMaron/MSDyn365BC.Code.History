@@ -90,7 +90,12 @@ report 493 "Carry Out Action Msg. - Req."
         PrintOrders: Boolean;
 
     procedure SetReqWkshLine(var NewReqLine: Record "Requisition Line")
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeSetReqWkshLine(ReqLine, NewReqLine, IsHandled);
+        if IsHandled then
+            exit;
         ReqLine.Copy(NewReqLine);
         ReqWkshTmpl.Get(NewReqLine."Worksheet Template Name");
 
@@ -179,6 +184,11 @@ report 493 "Carry Out Action Msg. - Req."
 
     [IntegrationEvent(false, false)]
     local procedure OnUseOneJnlOnBeforeSetReqWkshMakeOrdersParameters(var ReqLine: Record "Requisition Line"; var ReqWkshMakeOrders: Codeunit "Req. Wksh.-Make Order"; PurchOrderHeader: Record "Purchase Header"; EndOrderDate: Date; PrintOrders: Boolean; var SuppressCommit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetReqWkshLine(var RequisitionLine: Record "Requisition Line"; var NewReqLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }

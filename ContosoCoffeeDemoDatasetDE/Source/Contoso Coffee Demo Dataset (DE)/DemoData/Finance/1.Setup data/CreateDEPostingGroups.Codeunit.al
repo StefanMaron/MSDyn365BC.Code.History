@@ -33,6 +33,7 @@ codeunit 11380 "Create DE Posting Groups"
     procedure UpdateGenPostingSetup()
     var
         GeneralPostingSetup: Record "General Posting Setup";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
         ContosoGenPostingSetup: Codeunit "Contoso Posting Setup";
         CreateDEGLAccount: Codeunit "Create DE GL Acc.";
         CreatePostingGroup: Codeunit "Create Posting Groups";
@@ -54,6 +55,9 @@ codeunit 11380 "Create DE Posting Groups"
 
         GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", CreatePostingGroup.ZeroPostingGroup());
         GeneralPostingSetup.DeleteAll();
+
+        GenProductPostingGroup.Get(CreatePostingGroup.ZeroPostingGroup());
+        GenProductPostingGroup.Delete();
     end;
 
     procedure NoVATPostingGroup(): Code[20]

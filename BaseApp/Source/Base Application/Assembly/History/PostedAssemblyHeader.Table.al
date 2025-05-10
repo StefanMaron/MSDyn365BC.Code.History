@@ -68,6 +68,11 @@ table 910 "Posted Assembly Header"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
+        field(17; "Gen. Bus. Posting Group"; Code[20])
+        {
+            Caption = 'Gen. Bus. Posting Group';            
+            TableRelation = "Gen. Business Posting Group";            
+        }
         field(19; Comment; Boolean)
         {
             CalcFormula = exist("Assembly Comment Line" where("Document Type" = const("Posted Assembly"),

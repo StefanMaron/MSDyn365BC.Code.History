@@ -1175,7 +1175,7 @@ codeunit 5940 ServContractManagement
                     AppliedCreditLineUnitCost,
                     AppliedCreditLineDiscAmount,
                     ServLedgEntryNo);
-                if not ApplyServiceLedgerEntryAmounts then begin
+                if (not ApplyServiceLedgerEntryAmounts) or (not ServContract.Prepaid) then begin
                     AppliedCreditLineAmount :=
                       Round(CalcContractLineAmount(ContractLineAmount, WDate, OldWDate), Currency."Amount Rounding Precision");
                     AppliedCreditLineCost :=

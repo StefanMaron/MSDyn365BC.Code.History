@@ -29,6 +29,11 @@ page 6657 "Return Shipment Lines"
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the name of the vendor who delivered the items.';
                 }
+                field("Buy-from Vendor Name"; Rec."Buy-from Vendor Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the vendor who delivered the items.';
+                }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -94,6 +99,12 @@ page 6657 "Return Shipment Lines"
                 {
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied to.';
+                    Visible = false;
+                }
+                field("Return Order No."; Rec."Return Order No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the return order number this line is associated with.';
                     Visible = false;
                 }
                 field("Job No."; Rec."Job No.")

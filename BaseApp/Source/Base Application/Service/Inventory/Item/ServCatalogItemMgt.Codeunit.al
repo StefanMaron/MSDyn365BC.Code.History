@@ -108,7 +108,7 @@ codeunit 6479 "Serv. Catalog Item Mgt."
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Catalog Item Management", 'OnDelNonStockItemOnAfterCheckRelations', '', false, false)]
-    local procedure OnDelNonStockItemOnAfterCheckRelations(var Item: Record Item)
+    local procedure OnDelNonStockItemOnAfterCheckRelations(var Item: Record Item; var ShouldExit: Boolean)
     var
         ServiceLine: Record "Service Line";
         ServiceLineArchive: Record "Service Line Archive";
@@ -117,13 +117,13 @@ codeunit 6479 "Serv. Catalog Item Mgt."
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
         ServiceLine.SetRange("No.", Item."No.");
         if not ServiceLine.IsEmpty() then
-            exit;
+            ShouldExit := true;
 
         ServiceLineArchive.SetCurrentKey(Type, "No.");
         ServiceLineArchive.SetRange(Type, ServiceLine.Type::Item);
         ServiceLineArchive.SetRange("No.", Item."No.");
         if not ServiceLineArchive.IsEmpty() then
-            exit;
+            ShouldExit := true;
     end;
 
     [IntegrationEvent(false, false)]
