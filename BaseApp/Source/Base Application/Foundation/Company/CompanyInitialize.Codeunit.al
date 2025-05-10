@@ -137,14 +137,14 @@ codeunit 2 "Company-Initialize"
 #pragma warning disable AA0074
         Text000: Label 'Initializing company...';
 #pragma warning restore AA0074
-        SEPACTCodeTxt: Label 'SEPACT', Comment = 'No need to translate - but can be translated at will.';
-        SEPACTNameTxt: Label 'SEPA Credit Transfer';
-        SEPADDCodeTxt: Label 'SEPADD', Comment = 'No need to translate - but can be translated at will.';
-        SEPADDNameTxt: Label 'SEPA Direct Debit';
+        SEPACTCodeTxt: Label 'SEPACT', Comment = 'No need to translate - but can be translated at will.', MaxLength = 20;
+        SEPACTNameTxt: Label 'SEPA Credit Transfer', MaxLength = 100;
+        SEPADDCodeTxt: Label 'SEPADD', Comment = 'No need to translate - but can be translated at will.', MaxLength = 20;
+        SEPADDNameTxt: Label 'SEPA Direct Debit', MaxLength = 100;
         SEPACTCode09Txt: Label 'SEPACTPAIN00100109', Locked = true;
-        SEPACTName09Txt: Label 'SEPA Credit Transfer pain.001.001.09';
+        SEPACTName09Txt: Label 'SEPA Credit Transfer pain.001.001.09', MaxLength = 100;
         SEPADDCode08Txt: Label 'SEPADDPAIN00800108', Locked = true;
-        SEPADDName08Txt: Label 'SEPA Direct Debit pain.008.001.08';
+        SEPADDName08Txt: Label 'SEPA Direct Debit pain.008.001.08', MaxLength = 100;
 #pragma warning disable AA0074
         Text001: Label 'SALES';
         Text002: Label 'Sales';
@@ -611,12 +611,12 @@ codeunit 2 "Company-Initialize"
 
     procedure GetSEPACT09Name(): Text[100]
     begin
-        exit(SEPACTName09Txt);
+        exit(CopyStr(SEPACTName09Txt, 1, 100));
     end;
 
     procedure GetSEPADD08Name(): Text[100]
     begin
-        exit(SEPADDName08Txt);
+        exit(CopyStr(SEPADDName08Txt, 1, 100));
     end;
 
     local procedure InitDocExchServiceSetup()

@@ -975,6 +975,10 @@ table 98 "General Ledger Setup"
         {
             Caption = 'Cancel on Time Expiration';
         }
+        field(10125; "Multiple SAT Certificates"; Boolean)
+        {
+            Caption = 'Multiple SAT Certificates';
+        }
     }
 
     keys

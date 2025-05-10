@@ -9,6 +9,7 @@ using Microsoft.Foundation.Address;
 using Microsoft.Inventory.Comment;
 using Microsoft.Inventory.History;
 using Microsoft.eServices.EDocument;
+using Microsoft.Finance.GeneralLedger.Setup;
 
 page 5743 "Posted Transfer Shipment"
 {
@@ -183,7 +184,7 @@ page 5743 "Posted Transfer Shipment"
                     field("Transfer-from County"; Rec."Transfer-from County")
                     {
                         ApplicationArea = Location;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Trsf.-from Country/Region Code";
                         Editable = false;
                         Importance = Additional;
                     }
@@ -261,7 +262,7 @@ page 5743 "Posted Transfer Shipment"
                     field("Transfer-to County"; Rec."Transfer-to County")
                     {
                         ApplicationArea = Location;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Trsf.-to Country/Region Code";
                         Editable = false;
                         Importance = Additional;
                     }
@@ -388,6 +389,27 @@ page 5743 "Posted Transfer Shipment"
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies an international commercial terms code that are used in international sale contracts according to the SAT internatoinal trade terms definition.';
+                }
+                field("SAT Certificate Name"; SATCertificateName)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'SAT Certificate Name';
+                    ToolTip = 'Specifies the name of the certificate that is used to sign the e-document.';
+                    Visible = SATCertInLocationEnabled;
+                    Editable = false;
+
+                    trigger OnDrillDown()
+                    begin
+                        EInvoiceMgt.DrillDownSATCertificate(SATCertificateCode);
+                    end;
+                }
+                field("SAT Certificate Source"; SATCertificateSource)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'SAT Certificate Source';
+                    ToolTip = 'Specifies the record with which the certificate is associated, such as General Ledger Setup or a specific Location (e.g., Location BLUE).';
+                    Visible = SATCertInLocationEnabled;
+                    Editable = false;
                 }
                 field("Exchange Rate USD"; Rec."Exchange Rate USD")
                 {
@@ -684,14 +706,39 @@ page 5743 "Posted Transfer Shipment"
     }
 
     trigger OnOpenPage()
+    var
+        GLSetup: Record "General Ledger Setup";
     begin
         IsFromCountyVisible := FormatAddress.UseCounty(Rec."Trsf.-from Country/Region Code");
         IsToCountyVisible := FormatAddress.UseCounty(Rec."Trsf.-to Country/Region Code");
+
+        GLSetup.SetLoadFields("Multiple SAT Certificates");
+        GLSetup.Get();
+        SATCertInLocationEnabled := EInvoiceMgt.IsPACEnvironmentEnabled() and GLSetup."Multiple SAT Certificates";
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        if SATCertInLocationEnabled then
+            UpdateSATCertificateFields();
     end;
 
     var
         FormatAddress: Codeunit "Format Address";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
         IsFromCountyVisible: Boolean;
         IsToCountyVisible: Boolean;
+        SATCertInLocationEnabled: Boolean;
+        SATCertificateCode: Text;
+        SATCertificateName: Text;
+        SATCertificateSource: Text;
+
+    local procedure UpdateSATCertificateFields()
+    var
+        DocumentRecRef: RecordRef;
+    begin
+        DocumentRecRef.GetTable(Rec);
+        EInvoiceMgt.GetSATCertificateInfoForDocument(DocumentRecRef, SATCertificateCode, SATCertificateName, SATCertificateSource);
+    end;
 }
 

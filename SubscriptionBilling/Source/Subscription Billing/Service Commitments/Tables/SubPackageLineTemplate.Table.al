@@ -8,7 +8,6 @@ table 8054 "Sub. Package Line Template"
     DataClassification = CustomerContent;
     DrillDownPageId = "Service Commitment Templates";
     LookupPageId = "Service Commitment Templates";
-    Access = Internal;
 
     fields
     {

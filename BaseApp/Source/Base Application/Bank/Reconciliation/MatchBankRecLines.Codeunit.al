@@ -84,7 +84,9 @@ codeunit 1252 "Match Bank Rec. Lines"
             if SelectedBankAccReconciliationLine.FindSet() then
                 repeat
                     BankAccReconciliationLine.GetBySystemId(SelectedBankAccReconciliationLine.SystemId);
+                    OnPerformManyToOneMatchOnBeforeApplyEntries(BankAccReconciliationLine, BankAccountLedgerEntry);
                     BankAccEntrySetReconNo.ApplyEntries(BankAccReconciliationLine, BankAccountLedgerEntry, Relation::"Many-to-One");
+                    OnPerformManyToOneMatchOnAfterApplyEntries(BankAccReconciliationLine, BankAccountLedgerEntry);
                     PaymentMatchingDetails.CreatePaymentMatchingDetail(BankAccReconciliationLine, MatchedManuallyTxt);
 
                 until SelectedBankAccReconciliationLine.Next() = 0;
@@ -111,7 +113,9 @@ codeunit 1252 "Match Bank Rec. Lines"
                 repeat
                     BankAccountLedgerEntry.Get(SelectedBankAccountLedgerEntry."Entry No.");
                     BankAccEntrySetReconNo.RemoveApplication(BankAccountLedgerEntry);
+                    OnPerformOneToOneOrManyMatchOnBeforeApplyEntries(BankAccReconciliationLine, BankAccountLedgerEntry);
                     BankAccEntrySetReconNo.ApplyEntries(BankAccReconciliationLine, BankAccountLedgerEntry, Relation);
+                    OnPerformOneToOneOrManyMatchOnAfterApplyEntries(BankAccReconciliationLine, BankAccountLedgerEntry);
                     PaymentMatchingDetails.CreatePaymentMatchingDetail(BankAccReconciliationLine, MatchedManuallyTxt);
                 until SelectedBankAccountLedgerEntry.Next() = 0;
         end;
@@ -140,7 +144,13 @@ codeunit 1252 "Match Bank Rec. Lines"
         BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
         BankAccEntrySetReconNo: Codeunit "Bank Acc. Entry Set Recon.-No.";
         CheckEntrySetReconNo: Codeunit "Check Entry Set Recon.-No.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRemoveMatchesFromRecLines(IsHandled);
+        if IsHandled then
+            exit;
+
         if SelectedBankAccReconciliationLine.FindSet() then
             repeat
                 BankAccReconciliationLine.Get(
@@ -206,6 +216,7 @@ codeunit 1252 "Match Bank Rec. Lines"
                         begin
                             BankAccountLedgerEntry.Get(SelectedBankAccountLedgerEntry."Entry No.");
                             BankAccEntrySetReconNo.RemoveApplication(BankAccountLedgerEntry);
+                            OnRemoveMatchOnAfterRemoveApplication(BankAccountLedgerEntry);
                             MatchesRemoved := true;
                         end;
                     SelectedBankAccountLedgerEntry."Statement Status"::"Check Entry Applied":
@@ -982,6 +993,36 @@ codeunit 1252 "Match Bank Rec. Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindBestMatches(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempBankAccLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; DaysTolerance: Integer; var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var RemovedPreviouslyAssigned: Boolean; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRemoveMatchesFromRecLines(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRemoveMatchOnAfterRemoveApplication(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPerformManyToOneMatchOnBeforeApplyEntries(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPerformManyToOneMatchOnAfterApplyEntries(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPerformOneToOneOrManyMatchOnBeforeApplyEntries(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPerformOneToOneOrManyMatchOnAfterApplyEntries(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 }

@@ -899,11 +899,6 @@ report 406 "Purchase - Invoice"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-        end;
-
-        trigger OnOpenPage()
-        begin
             InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
@@ -930,12 +925,6 @@ report 406 "Purchase - Invoice"
                     SegManagement.LogDocument(14, "Purch. Inv. Header"."No.", 0, 0, DATABASE::Vendor, "Purch. Inv. Header"."Buy-from Vendor No.",
                       "Purch. Inv. Header"."Purchaser Code", '', "Purch. Inv. Header"."Posting Description", '');
                 until "Purch. Inv. Header".Next() = 0;
-    end;
-
-    trigger OnPreReport()
-    begin
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
     end;
 
     var

@@ -5,6 +5,7 @@
 namespace Microsoft.Service.History;
 
 using Microsoft.EServices.EDocument;
+using Microsoft.Finance.GeneralLedger.Setup;
 
 pageextension 10014 "Posted Service Invoice NA" extends "Posted Service Invoice"
 {
@@ -52,6 +53,27 @@ pageextension 10014 "Posted Service Invoice NA" extends "Posted Service Invoice"
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies an international commercial terms code that are used in international sale contracts according to the SAT internatoinal trade terms definition.';
+                }
+                field("SAT Certificate Name"; SATCertificateName)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'SAT Certificate Name';
+                    ToolTip = 'Specifies the name of the certificate that is used to sign the e-document.';
+                    Visible = SATCertInLocationEnabled;
+                    Editable = false;
+
+                    trigger OnDrillDown()
+                    begin
+                        EInvoiceMgt.DrillDownSATCertificate(SATCertificateCode);
+                    end;
+                }
+                field("SAT Certificate Source"; SATCertificateSource)
+                {
+                    ApplicationArea = BasicMX;
+                    Caption = 'SAT Certificate Source';
+                    ToolTip = 'Specifies the record with which the certificate is associated, such as General Ledger Setup or a specific Location (e.g., Location BLUE).';
+                    Visible = SATCertInLocationEnabled;
+                    Editable = false;
                 }
                 field("Exchange Rate USD"; Rec."Exchange Rate USD")
                 {
@@ -197,6 +219,35 @@ pageextension 10014 "Posted Service Invoice NA" extends "Posted Service Invoice"
 #endif
     }
 
+    trigger OnOpenPage()
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        GLSetup.SetLoadFields("Multiple SAT Certificates");
+        GLSetup.Get();
+        SATCertInLocationEnabled := EInvoiceMgt.IsPACEnvironmentEnabled() and GLSetup."Multiple SAT Certificates";
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        if SATCertInLocationEnabled then
+            UpdateSATCertificateFields();
+    end;
+
+    var
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        SATCertInLocationEnabled: Boolean;
+        SATCertificateCode: Text;
+        SATCertificateName: Text;
+        SATCertificateSource: Text;
+
+    local procedure UpdateSATCertificateFields()
+    var
+        DocumentRecRef: RecordRef;
+    begin
+        DocumentRecRef.GetTable(Rec);
+        EInvoiceMgt.GetSATCertificateInfoForDocument(DocumentRecRef, SATCertificateCode, SATCertificateName, SATCertificateSource);
+    end;
 #if not CLEAN25
     [Obsolete('Moved to procedure OpenStatistics in table ServiceInvoiceHeader', '25.0')]
     [IntegrationEvent(false, false)]

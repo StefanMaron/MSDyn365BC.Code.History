@@ -13,7 +13,6 @@ using Microsoft.Service.Item;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Inventory.Setup;
 using Microsoft.Sales.Customer;
-using System.Telemetry;
 using Microsoft.Projects.Project.Posting;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Resources.Resource;
@@ -25,6 +24,8 @@ using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Sales.History;
 using Microsoft.Service.Setup;
+using System.Security.User;
+using System.Telemetry;
 
 codeunit 6610 "FS Int. Table Subscriber"
 {
@@ -1672,8 +1673,12 @@ codeunit 6610 "FS Int. Table Subscriber"
                             if Resource."Vendor No." <> '' then
                                 FSBookableResource.ResourceType := FSBookableResource.ResourceType::Account
                             else
-                                FSBookableResource.ResourceType := FSBookableResource.ResourceType::Generic;
+                                if Resource."Time Sheet Owner User ID" <> '' then
+                                    FSBookableResource.ResourceType := FSBookableResource.ResourceType::User
+                                else
+                                    FSBookableResource.ResourceType := FSBookableResource.ResourceType::Generic;
                     end;
+                    FSBookableResource.UserId := ReturnCRMUserGuidForResource(Resource);
                     DestinationRecordRef.GetTable(FSBookableResource);
                 end;
             'FS Bookable Resource-Resource':
@@ -1685,10 +1690,12 @@ codeunit 6610 "FS Int. Table Subscriber"
                         FSBookableResource.ResourceType::Equipment:
                             Resource.Type := Resource.Type::Machine;
                         FSBookableResource.ResourceType::Account,
+                        FSBookableResource.ResourceType::User,
                         FSBookableResource.ResourceType::Generic:
                             Resource.Type := Resource.Type::Person;
                     end;
                     Resource."Base Unit of Measure" := FSConnectionSetup."Hour Unit of Measure";
+                    Resource."Time Sheet Owner User ID" := SetUserIDFromFSBookableResource(FSBookableResource);
                     DestinationRecordRef.GetTable(Resource);
                     SourceRecordRef.Modify();
                 end;
@@ -1787,6 +1794,48 @@ codeunit 6610 "FS Int. Table Subscriber"
                     DestinationRecordRef.GetTable(FSWorkOrderService);
                 end;
         end;
+    end;
+
+    local procedure SetUserIDFromFSBookableResource(BookableResource: Record "FS Bookable Resource"): Code[50]
+    var
+        UserSetup: Record "User Setup";
+        CRMSystemUser: Record "CRM Systemuser";
+    begin
+        if BookableResource.ResourceType <> BookableResource.ResourceType::User then
+            exit;
+
+        if IsNullGuid(BookableResource.UserId) then
+            exit;
+
+        CRMSystemUser.SetRange(SystemUserId, BookableResource.UserId);
+        if CRMSystemUser.IsEmpty() then
+            exit;
+
+        CRMSystemUser.FindFirst();
+#pragma warning disable AA0210
+        UserSetup.SetRange("E-Mail", CRMSystemUser.InternalEMailAddress);
+#pragma warning restore AA0210
+        if UserSetup.IsEmpty() then
+            exit;
+
+        UserSetup.FindFirst();
+        exit(UserSetup."User ID");
+    end;
+
+    local procedure ReturnCRMUserGuidForResource(Resource: Record Resource): Guid
+    var
+        UserSetup: Record "User Setup";
+        CRMSystemUser: Record "CRM Systemuser";
+    begin
+        if Resource."Time Sheet Owner User ID" = '' then
+            exit;
+
+        if not UserSetup.Get(Resource."Time Sheet Owner User ID") then
+            exit;
+
+        CRMSystemUser.SetRange(InternalEMailAddress, UserSetup."E-Mail");
+        if CRMSystemUser.FindFirst() then
+            exit(CRMSystemUser.SystemUserId);
     end;
 
     local procedure CheckPostingRuleAndSetDocumentNo(var JobJournalLine: Record "Job Journal Line"; var LastJobJournalLine: Record "Job Journal Line"; JobJournalBatch: Record "Job Journal Batch"; var SourceRecordRef: RecordRef)

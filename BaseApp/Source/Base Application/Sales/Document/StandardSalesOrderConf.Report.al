@@ -1080,16 +1080,11 @@ report 1305 "Standard Sales - Order Conf."
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
+            InitLogInteraction();
+            LogInteractionEnable := LogInteraction;
             ArchiveDocument := SalesSetup."Archive Orders";
 
             OnAfterOnInit(Header);
-        end;
-
-        trigger OnOpenPage()
-        begin
-            InitLogInteraction();
-            LogInteractionEnable := LogInteraction;
         end;
     }
 
@@ -1179,15 +1174,11 @@ report 1305 "Standard Sales - Order Conf."
         if Header.GetFilters = '' then
             Error(NoFilterSetErr);
 
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
-
         CompanyLogoPosition := SalesSetup."Logo Position on Documents";
     end;
 
     var
         GLSetup: Record "General Ledger Setup";
-        CompanyBankAccount: Record "Bank Account";
         DummyCompanyInfo: Record "Company Information";
         SalesSetup: Record "Sales & Receivables Setup";
         Cust: Record Customer;
@@ -1268,6 +1259,7 @@ report 1305 "Standard Sales - Order Conf."
         PaymentMethod: Record "Payment Method";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         ShipmentMethod: Record "Shipment Method";
+        CompanyBankAccount: Record "Bank Account";
         VATClause: Record "VAT Clause";
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];

@@ -17,10 +17,11 @@
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         ExportAccounts: Codeunit "Export Accounts";
-        ValueMistmatchErr: Label 'XML node attribute %1 values does not match';
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVerifyXMLSchema: Codeunit "Library - Verify XML Schema";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        TempBlob: Codeunit "Temp Blob";
         ExportFileName: Text;
         Month: Integer;
         Year: Integer;
@@ -32,6 +33,7 @@
         XSDSchemaFile_Transactions: Text;
         XSDSchemaFile_AuxAccount: Text;
         XSDSchemaFile_CatalogosParaEsqContE: Text;
+        ValueMistmatchErr: Label 'XML node attribute %1 values does not match';
 
     [Test]
     [Scope('OnPrem')]
@@ -43,7 +45,8 @@
 
         ExportAccounts.ExportChartOfAccounts(Year, Month);
 
-        VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_ChartOfAccount);
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        VerifyXMLAgainstXSDSchema(TempBlob, XSDSchemaFile_ChartOfAccount);
     end;
 
     [Test]
@@ -60,7 +63,8 @@
 
         ExportAccounts.ExportChartOfAccounts(Year, Month);
 
-        InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/CatalogoCuentas');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        InitializeXMLHelper(TempBlob, 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/CatalogoCuentas');
 
         VerifyXMLHeader('Catalogo', Month);
         VerifyAccountExistsInXML(GLAccount);
@@ -76,7 +80,8 @@
 
         ExportAccounts.ExportBalanceSheet(Date2DMY(WorkDate(), 3), Month, 1, Today, false);
 
-        VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_Balance);
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        VerifyXMLAgainstXSDSchema(TempBlob, XSDSchemaFile_Balance);
     end;
 
     [Test]
@@ -89,7 +94,8 @@
 
         ExportAccounts.ExportBalanceSheet(Date2DMY(WorkDate(), 3), Month, 1, Today, true);
 
-        VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_Balance);
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        VerifyXMLAgainstXSDSchema(TempBlob, XSDSchemaFile_Balance);
     end;
 
     [Test]
@@ -107,7 +113,8 @@
 
         ExportAccounts.ExportBalanceSheet(Year, Month, 1, Today, false);
 
-        InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/BalanzaComprobacion');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        InitializeXMLHelper(TempBlob, 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/BalanzaComprobacion');
 
         VerifyXMLHeader('Balanza', Month);
         VerifyAccountBalanceSheetInXML(GLEntry."G/L Account No.");
@@ -128,7 +135,8 @@
 
         ExportAccounts.ExportBalanceSheet(Year, Month, 1, Today, true);
 
-        InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/BalanzaComprobacion');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        InitializeXMLHelper(TempBlob, 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/BalanzaComprobacion');
 
         VerifyXMLHeader('Balanza', 13);
         VerifyAccountBalanceSheetInXML(GLEntry."G/L Account No.");
@@ -146,7 +154,8 @@
 
         ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
-        VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_Transactions);
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        VerifyXMLAgainstXSDSchema(TempBlob, XSDSchemaFile_Transactions);
     end;
 
     [Test]
@@ -161,7 +170,8 @@
 
         ExportAccounts.ExportTransactions(Year, Month, RequestType::DE, '', GetProcessNumber());
 
-        VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_Transactions);
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        VerifyXMLAgainstXSDSchema(TempBlob, XSDSchemaFile_Transactions);
     end;
 
     [Test]
@@ -181,7 +191,8 @@
         // with AF
         ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
-        InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        InitializeXMLHelper(TempBlob, 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
 
         // Verify Header
         VerifyXMLHeader('Polizas', Month);
@@ -213,7 +224,8 @@
         ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
-        InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        InitializeXMLHelper(TempBlob, 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
         VerifyNationalEInvoiceNodeInXML(GLEntry, CustLedgerEntry, '//Poliza[@NumUnIdenPol="%1"]/Transaccion[@NumCta="%2"]/CompNal');
     end;
 
@@ -236,7 +248,8 @@
         ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
-        InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        InitializeXMLHelper(TempBlob, 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
         VerifyNationalReceiptNodeInXML(GLEntry, CustLedgerEntry, '//Poliza[@NumUnIdenPol="%1"]/Transaccion[@NumCta="%2"]/CompNalOtr');
     end;
 
@@ -259,7 +272,8 @@
         ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
-        InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        InitializeXMLHelper(TempBlob, 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
         VerifyInternationalReceiptNodeInXML(GLEntry, CustLedgerEntry, '//Poliza[@NumUnIdenPol="%1"]/Transaccion[@NumCta="%2"]/CompExt');
     end;
 
@@ -284,7 +298,8 @@
         ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
-        InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        InitializeXMLHelper(TempBlob, 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
         VerifyBankTransferVendorNodeInXML(GLEntry, BankAccountLedgerEntry, VendorLedgerEntry);
     end;
 
@@ -307,7 +322,8 @@
         ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
-        InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        InitializeXMLHelper(TempBlob, 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
         VerifyBankTransferInternalNodeInXML(GLEntry, BankAccountLedgerEntry);
     end;
 
@@ -334,7 +350,8 @@
         ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
-        InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        InitializeXMLHelper(TempBlob, 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
         VerifyCheckPaymentNodeInXML(GLEntry, CheckLedgerEntry, VendorLedgerEntry);
     end;
 
@@ -357,7 +374,8 @@
         ExportAccounts.ExportTransactions(Year, Month, RequestType::AF, GetOrderNumber(), '');
 
         // Verify Content
-        InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        InitializeXMLHelper(TempBlob, 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/PolizasPeriodo');
         VerifyCashPaymentNodeInXML(GLEntry, VendorLedgerEntry);
     end;
 
@@ -371,7 +389,8 @@
 
         ExportAccounts.ExportAuxiliaryAccounts(Date2DMY(WorkDate(), 3), Month, RequestType::FC, GetOrderNumber(), '');
 
-        VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_AuxAccount);
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        VerifyXMLAgainstXSDSchema(TempBlob, XSDSchemaFile_AuxAccount);
     end;
 
     [Test]
@@ -384,7 +403,8 @@
 
         ExportAccounts.ExportAuxiliaryAccounts(Date2DMY(WorkDate(), 3), Month, RequestType::DE, '', GetProcessNumber());
 
-        VerifyXMLAgainstXSDSchema(ExportFileName, XSDSchemaFile_AuxAccount);
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        VerifyXMLAgainstXSDSchema(TempBlob, XSDSchemaFile_AuxAccount);
     end;
 
     [Test]
@@ -402,7 +422,8 @@
 
         ExportAccounts.ExportAuxiliaryAccounts(Year, Month, RequestType::FC, GetOrderNumber(), '');
 
-        InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/AuxiliarCtas');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        InitializeXMLHelper(TempBlob, 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/AuxiliarCtas');
 
         VerifyXMLHeader('AuxiliarCtas', Month);
         VerifyTipoSolicitudAndNumOrden('AuxiliarCtas', 'FC', GetOrderNumber());
@@ -424,7 +445,8 @@
 
         ExportAccounts.ExportAuxiliaryAccounts(Year, Month, RequestType::DE, '', GetProcessNumber());
 
-        InitializeXMLHelper('http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/AuxiliarCtas');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        InitializeXMLHelper(TempBlob, 'http://www.sat.gob.mx/esquemas/ContabilidadE/1_3/AuxiliarCtas');
 
         VerifyXMLHeader('AuxiliarCtas', Month);
         VerifyTipoSolicitudAndNumTramite('AuxiliarCtas', 'DE', GetProcessNumber());
@@ -435,8 +457,7 @@
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Export Electr. Accounting Test");
 
-        if FILE.Exists(ExportFileName) then
-            FILE.Erase(ExportFileName);
+        Clear(TempBlob);
 
         if Initialized then
             exit;
@@ -450,6 +471,8 @@
 
         ExportFileName := GetFileName();
         ExportAccounts.InitializeRequest(ExportFileName);
+        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
 
         FixChartOfAccounts();
         ExportXSDShemas();
@@ -459,9 +482,9 @@
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Export Electr. Accounting Test");
     end;
 
-    local procedure InitializeXMLHelper(NameSpace: Text)
+    local procedure InitializeXMLHelper(var XmlTempBlob: Codeunit "Temp Blob"; NameSpace: Text)
     begin
-        LibraryXPathXMLReader.Initialize(ExportFileName, NameSpace);
+        LibraryXPathXMLReader.InitializeWithBlob(XmlTempBlob, NameSpace);
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(true);
     end;
 
@@ -781,12 +804,14 @@
         Assert.AreEqual(Vendor."RFC No.", Node.Attributes.GetNamedItem('RFC').Value, StrSubstNo(ValueMistmatchErr, 'RFC'));
     end;
 
-    local procedure VerifyXMLAgainstXSDSchema(XMLFileName: Text; XSDFileName: Text)
+    local procedure VerifyXMLAgainstXSDSchema(var XmlTempBlob: Codeunit "Temp Blob"; XSDFileName: Text)
     var
         Message: Text;
+        XmlFileInStream: InStream;
     begin
+        XmlTempBlob.CreateInStream(XmlFileInStream);
         LibraryVerifyXMLSchema.SetAdditionalSchemaPath(XSDSchemaFile_CatalogosParaEsqContE);
-        Assert.IsTrue(LibraryVerifyXMLSchema.VerifyXMLAgainstSchema(XMLFileName, XSDFileName, Message), Message);
+        Assert.IsTrue(LibraryVerifyXMLSchema.VerifyXMLStreamAgainstSchema(XmlFileInStream, XSDFileName, Message), Message);
     end;
 
     local procedure VerifyTipoSolicitudAndNumOrden(NodeName: Text; TipoSolicitud: Text; NumOrden: Text)

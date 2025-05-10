@@ -1188,6 +1188,36 @@ codeunit 134010 "ERM Application Customer"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ApplyCustomerEntriesPageHandler')]
+    procedure AppliedAmtInApplyCLEIsEqualToAmtToApplyOfSelectedCLEWhenManuallyEnterAppliesToID()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: array[3] of Record "Cust. Ledger Entry";
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+    begin
+        // [SCENARIO 566073] Applied Amount in Apply Customer Entries page is equal to the sum of 
+        // "Amount to Apply" of Cust. Ledger Entries when Stan sets "Applies-to ID" manually in them.
+        Initialize();
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Gen. Journal Lines and Post them.
+        CreateAndPostGenJnlLines(CustLedgerEntry, Customer);
+
+        // [WHEN] Open Customer Ledger Entries page and run Apply Entries action.
+        CustomerLedgerEntries.OpenEdit();
+        CustomerLedgerEntries.Filter.SetFilter("Customer No.", Customer."No.");
+        CustomerLedgerEntries.Filter.SetFilter("Document No.", CustLedgerEntry[1]."Document No.");
+        CustomerLedgerEntries."Apply Entries".Invoke();
+        CustomerLedgerEntries.Close();
+
+        // [THEN] AppliedAmount in Apply Customer Entries page is equal to the sum of "Amount to Apply" 
+        // of Cust. Ledger Entries When "Applies-to ID" is set, in ApplyCustomerEntriesPageHandler.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2037,6 +2067,23 @@ codeunit 134010 "ERM Application Customer"
         LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
+    local procedure CreateAndPostGenJnlLines(var CustLedgerEntry: array[3] of Record "Cust. Ledger Entry"; Customer: Record Customer)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Index: Integer;
+    begin
+        for Index := 1 to ArrayLen(CustLedgerEntry) do begin
+            Clear(GenJournalLine);
+            LibraryJournals.CreateGenJournalLineWithBatch(
+                GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer."No.", LibraryRandom.RandIntInRange(100, 200));
+            GenJournalLine.Validate("Posting Date", WorkDate() + 1);
+            GenJournalLine.Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+            CustLedgerEntry[Index].SetRange("Customer No.", Customer."No.");
+            LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry[Index], CustLedgerEntry[Index]."Document Type"::Invoice, GenJournalLine."Document No.");
+        end;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
@@ -2065,6 +2112,22 @@ codeunit 134010 "ERM Application Customer"
         PostApplication.DocNo.SetValue(LibraryVariableStorage.DequeueText());
         PostApplication.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
         PostApplication.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyCustomerEntriesPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    var
+        AmountToApply: Decimal;
+    begin
+        ApplyCustomerEntries.First();
+        ApplyCustomerEntries.AppliesToID.SetValue(UserId());
+        AmountToApply := ApplyCustomerEntries."Amount to Apply".AsDecimal();
+        ApplyCustomerEntries.AppliedAmount.AssertEquals(AmountToApply);
+        ApplyCustomerEntries.Next();
+        ApplyCustomerEntries.AppliesToID.SetValue(UserId());
+        AmountToApply += ApplyCustomerEntries."Amount to Apply".AsDecimal();
+        ApplyCustomerEntries.AppliedAmount.AssertEquals(AmountToApply);
     end;
 
     [MessageHandler]

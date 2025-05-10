@@ -12,9 +12,11 @@ codeunit 142068 "UT Account Schedule"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         DoubleUnderlineMsg: Label 'The Double Underline should be true when Totaling Type is Double Underline.';
         UnderlineMsg: Label 'The Underline should be true when Totaling Type is Underline.';
         Assert: Codeunit Assert;
+        IsInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('AccountScheduleLayoutRequestPageHandler')]
@@ -167,7 +169,14 @@ codeunit 142068 "UT Account Schedule"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"UT Account Schedule");
         LibraryVariableStorage.Clear();
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"UT Account Schedule");
+        IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"UT Account Schedule");
     end;
 
     local procedure CreateAccScheduleName(var AccScheduleLine: Record "Acc. Schedule Line")

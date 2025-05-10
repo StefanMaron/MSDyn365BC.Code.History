@@ -485,6 +485,13 @@ table 6661 "Return Receipt Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
+        field(7012; "Sell-to Customer Name"; Text[100])
+        {
+            CalcFormula = lookup(Customer.Name where("No." = field("Sell-to Customer No.")));
+            Caption = 'Sell-to Customer Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(10000; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';

@@ -45,6 +45,8 @@ codeunit 137088 "SCM Order Planning - III"
         LineExistErr: Label 'Requistion line in %1 worksheet should exist for item %2';
         PurchaseLineQuantityBaseErr: Label '%1.%2 must be nearly equal to %3.', Comment = '%1 : Purchase Line, %2 : Quantity (Base), %3 : Value.';
         BOMFixedQtyCalcFormulaErr: Label 'BOM Fixed Quantity Calculation Formula should be used to calculate the values.';
+        RelesedProdOrderComponentQtyPerRoundingErr: Label 'Relesed Production Order Item Component Quantity per %1 Not Match With Expected Result %2';
+        RelesedProdOrderComponentExpQtyRoundingErr: Label 'Relesed Production Order Item Component Expected Quantity %1 Not Match With Expected Result %2';
 
     [Test]
     [HandlerFunctions('MakeSupplyOrdersPageHandler')]
@@ -2988,6 +2990,73 @@ codeunit 137088 "SCM Order Planning - III"
         VerifyStartingTimeOnFirmPlannedProductionOrder(StartingTime, ChildItem."No.", ProductionOrderNo);
     end;
 
+    [Test]
+    [HandlerFunctions('ModalPageHandler,ErrorMessageHandler')]
+    procedure ReleasedProdOrderQuantityPerandExpectedQtyRoundingPrecisionChecking()
+    var
+        BaseItemUnitOfMeasure: Record "Item Unit of Measure";
+        ComponentItem: Record Item;
+        ProdOrderComp: Record "Prod. Order Component";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProductItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        ExpectedQty: Decimal;
+        RelesedProdOrderNo: Code[20];
+        Status: Enum "Production Order Status";
+    begin
+        // [SCENARIO 562766] If a component's Item UOM has a 'Quantity Rounding Precision' of 1, & a Finished Good consumes partial quantity, 
+        // the Prod. Order created from the Planning of a Sales Order pulls in the Component with a 'Qty. Per' and 'Exp. Qty.' of 0.
+        Initialize();
+
+        // [GIVEN] Created Component Item
+        LibraryInventory.CreateItem(ComponentItem);
+        ComponentItem.Validate("Replenishment System", ComponentItem."Replenishment System"::Purchase);
+        ComponentItem.Validate("Rounding Precision", LibraryRandom.RandPrecision());
+        ComponentItem.Validate("Reordering Policy", ComponentItem."Reordering Policy"::"Lot-for-Lot");
+        ComponentItem.Validate("Include Inventory", true);
+        ComponentItem.Modify(true);
+
+        // [GIVEN] Set Qty. Rounding Precision = 1 for Component Item
+        BaseItemUnitOfMeasure.Get(ComponentItem."No.", ComponentItem."Base Unit of Measure");
+        BaseItemUnitOfMeasure.Validate("Qty. Rounding Precision", 1);
+        BaseItemUnitOfMeasure.Modify();
+
+        // [GIVEN] Created Production Bom using Component Item
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ComponentItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem."No.", LibraryRandom.RandDecInDecimalRange(0.01, 0.99, 2));
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify();
+
+        // [GIVEN] Created Master Item and Production Bom Assigned to Master Item
+        LibraryInventory.CreateItem(ProductItem);
+        ProductItem.Validate("Replenishment System", ProductItem."Replenishment System"::"Prod. Order");
+        ProductItem.Validate("Rounding Precision", 1);
+        ProductItem.Validate("Reordering Policy", ProductItem."Reordering Policy"::Order);
+        ProductItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProductItem.Modify(true);
+
+        // [GIVEN] Created Sales Order Using Master Item Quantity - 1
+        CreateSalesOrder(SalesHeader, ProductItem."No.", '', 1, 1);
+
+        // [WHEN] Created Released Prod. Order From Sales Order Using Planning
+        LibraryPlanning.CreateProdOrderUsingPlanning(ProductionOrder, Status::"Firm Planned", SalesHeader."No.", ProductItem."No.");
+        RelesedProdOrderNo := LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No.");
+
+        // [WHEN] Find Released Production Order Component
+        FindProdOrderLine(ProdOrderLine, RelesedProdOrderNo);
+        FindProdOrderComponent(ProdOrderComp, ProdOrderLine."Prod. Order No.", ComponentItem."No.");
+
+        // [WHEN] Getting Expected result using Component Rounding Precision
+        ExpectedQty := Round(ProductionBOMLine."Quantity per" * BaseItemUnitOfMeasure."Qty. Rounding Precision" / BaseItemUnitOfMeasure."Qty. Rounding Precision", ComponentItem."Rounding Precision");
+
+        // [THEN] Expected Quantity must be Equal to Production Order Component "Quantity per" And "Expected Quantity"
+        Assert.AreEqual(ExpectedQty, ProdOrderComp."Quantity per", StrSubstNo(RelesedProdOrderComponentQtyPerRoundingErr, ProdOrderComp."Quantity per", ExpectedQty));
+        Assert.AreEqual(ExpectedQty, ProdOrderComp."Expected Quantity", StrSubstNo(RelesedProdOrderComponentExpQtyRoundingErr, ProdOrderComp."Expected Quantity", ExpectedQty));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3805,6 +3874,14 @@ codeunit 137088 "SCM Order Planning - III"
         Assert.IsTrue(ProductionOrder."Starting Time" = StartingTime, '');
     end;
 
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrderNo: Code[20])
+    begin
+        ProdOrderLine.Reset();
+        ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
+        ProdOrderLine.FindFirst();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders"; var Response: Action)
@@ -3910,6 +3987,17 @@ codeunit 137088 "SCM Order Planning - III"
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    procedure ModalPageHandler(var CreateOrderFromSales: Page "Create Order From Sales"; var Response: Action)
+    begin
+        Response := Action::Yes;
+    end;
+
+    [MessageHandler]
+    procedure ErrorMessageHandler(Message: Text[1024])
+    begin
     end;
 }
 

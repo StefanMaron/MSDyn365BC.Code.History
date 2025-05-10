@@ -2469,6 +2469,8 @@ page 31 "Item List"
         SetWorkflowManagementEnabledState();
         IsOnPhone := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone;
         NewFromPictureVisible := ItemFromPicture.GetNewFromPictureActionVisible();
+        if ShowNotification then
+            NotAllItemsShownNotification();
     end;
 
     var
@@ -2479,6 +2481,7 @@ page 31 "Item List"
         ClientTypeManagement: Codeunit "Client Type Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         IsInventoryAdjmtAllowed: Boolean;
+        ShowNotification: Boolean;
 
     protected var
         TempFilterItemAttributesBuffer: Record "Filter Item Attributes Buffer" temporary;
@@ -2626,6 +2629,20 @@ page 31 "Item List"
                 TempItemFilteredFromAttributes := TempItemFilteredFromPickItem;
                 TempItemFilteredFromAttributes.Insert();
             until TempItemFilteredFromPickItem.Next() = 0;
+    end;
+
+    internal procedure DoShowNotification()
+    begin
+        ShowNotification := true;
+    end;
+
+    local procedure NotAllItemsShownNotification()
+    var
+        NarrowFilterNotification: Notification;
+        NarrowDownFilterMsg: Label 'Some items are not shown. If you did not find what you are looking for, please narrow down the filter to show fewer items.';
+    begin
+        NarrowFilterNotification.Message := NarrowDownFilterMsg;
+        NarrowFilterNotification.Send();
     end;
 
 #if not CLEAN25

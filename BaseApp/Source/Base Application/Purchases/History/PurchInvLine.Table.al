@@ -640,6 +640,13 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Price Calculation Method';
         }
+        field(8512; "Buy-from Vendor Name"; Text[100])
+        {
+            CalcFormula = lookup(Vendor.Name where("No." = field("Buy-from Vendor No.")));
+            Caption = 'Buy-from Vendor Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(10017; "Provincial Tax Area Code"; Code[20])
         {
             Caption = 'Provincial Tax Area Code';
