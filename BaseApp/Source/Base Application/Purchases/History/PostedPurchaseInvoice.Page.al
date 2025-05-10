@@ -86,7 +86,7 @@ page 138 "Posted Purchase Invoice"
                         field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                             Editable = false;
                             Importance = Additional;
                             ToolTip = 'Specifies the state, province or county as a part of the address.';
@@ -489,7 +489,7 @@ page 138 "Posted Purchase Invoice"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Editable = false;
                             ToolTip = 'Specifies the state, province or county as a part of the address.';
                         }
@@ -565,7 +565,7 @@ page 138 "Posted Purchase Invoice"
                         field("Pay-to County"; Rec."Pay-to County")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                             Editable = false;
                             Importance = Additional;
                             ToolTip = 'Specifies the state, province or county as a part of the address.';

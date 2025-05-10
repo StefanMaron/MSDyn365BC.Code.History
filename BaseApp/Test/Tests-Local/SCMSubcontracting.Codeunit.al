@@ -99,6 +99,7 @@ codeunit 144081 "SCM Subcontracting"
         NotShippedQtyForWIPItemErr: Label 'WIP Qty. is not Shipped.';
         CountryRegionErr: Label '%1 must be %2 in %3.', Comment = '%1=Field Caption ,%2=Value ,%3=Table Caption.';
         ReverseCapacityLedgerEntryForSubContractingErr: Label 'Entry cannot be reversed as it is linked to the subcontracting work center.';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
     [Test]
     [HandlerFunctions('CalculatePlanningWkshRequestPageHandler,CarryOutActionMsgPlanRequestPageHandler')]
@@ -986,6 +987,72 @@ codeunit 144081 "SCM Subcontracting"
         Assert.ExpectedError(ReverseCapacityLedgerEntryForSubContractingErr)
     end;
 
+    [Test]
+    [HandlerFunctions('PostProductionJournalHandler,MessageHandler,ConfirmHandler')]
+    procedure VerifyReverseItemLedgerEntryShouldBeCreatedForConsumptionWhenReverseIsExecuted()
+    var
+        OutputItem: Record Item;
+        CompItem: Record Item;
+        MfgSetup: Record "Manufacturing Setup";
+        TransferRoute: Record "Transfer Route";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+        VendorNo: Code[20];
+        WorkCenterNo: Code[20];
+    begin
+        // [SCENARIO 567053] Verify Reverse Entry should be created of Item Ledger Entry for Entry Type "Consumption" when Reverse action is executed.
+        // if there is production order with Routing with subcontracting.
+        Initialize();
+
+        // [GIVEN] Get "Manufacturing Setup".
+        MfgSetup.Get();
+
+        // [GIVEN] Create Subcontracting Location with Transfer Route.
+        CreateSubconLocationWithTransferRoute(TransferRoute);
+
+        // [GIVEN] Create Subcontracting Vendor.
+        VendorNo := CreateSubcontractingVendorWithProcurement(TransferRoute."Transfer-to Code", true);
+
+        // [GIVEN] Create Subcontracting Work Center.
+        WorkCenterNo := CreateSubcontractingWorkCenter(VendorNo);
+
+        // [GIVEN] Create Item With Production BOM and Routing.
+        CreateItemWithProdBOMAndRouting(OutputItem, WorkCenterNo, TransferRoute."Transfer-from Code", '', false);
+
+        // [GIVEN] Create Item Setup.
+        CreateItemsSetup(OutputItem, CompItem, LibraryRandom.RandIntInRange(1, 10));
+
+        // [GIVEN] Create and Post Item Journal Line for Component item.
+        CreateAndPostItemJournalLine(CompItem."No.", LibraryRandom.RandIntInRange(100, 200), '', MfgSetup."Components at Location");
+
+        // [GIVEN] Create and refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, OutputItem."No.", LibraryRandom.RandIntInRange(1, 10), '', '');
+
+        // [GIVEN] Find Released Production Order Line.
+        FindProdOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrder."No.");
+
+        // [GIVEN] Open and Post Production Journal.
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] OpenEdit Item Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Document No.", ProductionOrder."No.");
+        ItemLedgerEntries.Filter.SetFilter("Entry Type", Format(ItemLedgerEntry."Entry Type"::Consumption));
+
+        // [WHEN] Invoke "Reverse" action.
+        ItemLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Reverse Entry should be created of Item Ledger Entry for Entry Type "Consumption".
+        ItemLedgerEntry.Get(ItemLedgerEntries."Entry No.".AsInteger());
+        FindLastItemLedgerEntry(ItemLedgerEntry, "Inventory Order Type"::Production, ProductionOrder."No.", ItemLedgerEntry."Order Line No.", "Item Ledger Entry Type"::Consumption);
+        Assert.AreEqual(
+            -ItemLedgerEntries.Quantity.AsInteger(),
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -ItemLedgerEntries.Quantity.AsInteger(), ItemLedgerEntry.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1850,6 +1917,92 @@ codeunit 144081 "SCM Subcontracting"
         CapacityLedgerEntry.FindFirst();
     end;
 
+    local procedure CreateItemsSetup(var Item: Record Item; var Item2: Record Item; QuantityPer: Decimal)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        LibraryInventory.CreateItem(Item2);
+
+        CreateCertifiedProductionBOM(ProductionBOMHeader, Item2, QuantityPer);
+        UpdateProductionItem(Item, ProductionBOMHeader."No.");
+    end;
+
+    local procedure CreateCertifiedProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; Item: Record Item; QuantityPer: Decimal)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", QuantityPer);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure UpdateProductionItem(var Item: Record Item; ProductionBOMNo: Code[20])
+    begin
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateAndRefreshReleasedProductionOrder(var ProductionOrder: Record "Production Order"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
+    begin
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, SourceNo, Quantity, LocationCode, BinCode);
+    end;
+
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, SourceNo, Quantity);
+        ProductionOrder.Validate("Location Code", LocationCode);
+        ProductionOrder.Validate("Bin Code", BinCode);
+        ProductionOrder.Modify(true);
+
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20])
+    begin
+        ProdOrderLine.SetRange(Status, ProdOrderStatus);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderLine.FindFirst();
+    end;
+
+    local procedure FindLastItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; InventoryOrderType: Enum "Inventory Order Type"; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ItemLedgerEntryType: Enum "Item Ledger Entry Type")
+    begin
+        ItemLedgerEntry.SetRange("Order Type", InventoryOrderType);
+        ItemLedgerEntry.SetRange("Order No.", ProdOrderNo);
+        ItemLedgerEntry.SetRange("Order Line No.", ProdOrderLineNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntryType);
+        ItemLedgerEntry.FindLast();
+    end;
+
+    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal; BinCode: Code[20]; LocationCode: Code[10])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine, ItemNo, Quantity, BinCode, LocationCode, LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateItemJournalLineWithUnitCost(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal; BinCode: Code[20]; LocationCode: Code[10]; UnitCost: Decimal)
+    begin
+        ItemJournalSetup(ItemJournalBatch);
+
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        ItemJournalLine.Validate("Unit Cost", UnitCost);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Bin Code", BinCode);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure ItemJournalSetup(var ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
+        ItemJournalBatch.Modify(true);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CalculatePlanningWkshRequestPageHandler(var CalculatePlanPlanWksh: TestRequestPage "Calculate Plan - Plan. Wksh.")
@@ -1923,6 +2076,12 @@ codeunit 144081 "SCM Subcontracting"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ModalPageHandler]
+    procedure PostProductionJournalHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Post.Invoke();
     end;
 }
 

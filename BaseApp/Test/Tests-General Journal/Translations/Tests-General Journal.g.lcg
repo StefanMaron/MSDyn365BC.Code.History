@@ -653,6 +653,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit General Journal Line Approval - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 682591466 - NamedType 1782265769" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Main Attachment must be enabled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Incom. Doc. Attach. FactBox - NamedType MainAttachmentErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 682591466 - NamedType 3152627868" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected number of stored file names.]]></Val>

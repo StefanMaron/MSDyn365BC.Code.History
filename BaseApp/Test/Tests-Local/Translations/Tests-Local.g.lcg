@@ -3785,6 +3785,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Subcontracting - NamedType UnexpectedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2418598749 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in the %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value, %3 = Table Caption]D;]A;(LookupHint=Codeunit SCM Subcontracting - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2418598749 - NamedType 2605746843" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Vendor %1 on Work Center %2 does not exist.]]></Val>

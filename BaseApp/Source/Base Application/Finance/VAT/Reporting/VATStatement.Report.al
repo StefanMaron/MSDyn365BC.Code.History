@@ -296,7 +296,15 @@ report 12 "VAT Statement"
     procedure CalcLineTotal(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer): Boolean
     var
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
+        Result: Boolean;
+        IsHandled: Boolean;
+        DummyBase: Decimal;
     begin
+        IsHandled := false;
+        OnBeforeCalcLineTotalWithBase(VATStmtLine2, TotalAmount, DummyBase, Level, RowNo, ErrorText, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Level = 0 then
             TotalAmount := 0;
         Amount := 0;
@@ -658,6 +666,11 @@ report 12 "VAT Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalWithBaseOnAfterGLAccSetFilters(var GLAccount: Record "G/L Account"; VATStatementLine2: Record "VAT Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcLineTotalWithBase(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalBase: Decimal; Level: Integer; var RowNo: array[6] of Code[10]; var ErrorText: Text[80]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

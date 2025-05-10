@@ -735,14 +735,16 @@ codeunit 444 "Purchase-Post Prepayments"
         PrepmtInvLineBuf := SavedPrepmtInvLineBuf;
     end;
 
-    local procedure GetPrepmtAccNo(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]): Code[20]
+    local procedure GetPrepmtAccNo(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]) PrepmtAccNo: Code[20]
     begin
         if (VATBusPostingGroup <> VATPostingSetup."VAT Bus. Posting Group") or
            (VATProdPostingGroup <> VATPostingSetup."VAT Prod. Posting Group")
         then
             VATPostingSetup.Get(VATBusPostingGroup, VATProdPostingGroup);
         VATPostingSetup.TestField("Purch. Prepayments Account");
-        exit(VATPostingSetup."Purch. Prepayments Account");
+        PrepmtAccNo := VATPostingSetup."Purch. Prepayments Account";
+        OnAfterGetPrepmtAccNo(VATPostingSetup, PrepmtAccNo);
+        exit(PrepmtAccNo);
     end;
 
     procedure GetCorrBalAccNo(PurchHeader: Record "Purchase Header"; PositiveAmount: Boolean): Code[20]
@@ -1329,8 +1331,8 @@ codeunit 444 "Purchase-Post Prepayments"
             PurchHeader."Posting Date", PurchHeader."Document Date", PurchHeader."VAT Reporting Date", PostingDescription,
             PrepmtInvLineBuffer."Global Dimension 1 Code", PrepmtInvLineBuffer."Global Dimension 2 Code",
             PrepmtInvLineBuffer."Dimension Set ID", PurchHeader."Reason Code");
-            GenJnlLine.Validate("Document Date", PurchHeader."Document Date");
-            GenJnlLine."Operation Occurred Date" := PurchHeader."Operation Occurred Date";
+        GenJnlLine.Validate("Document Date", PurchHeader."Document Date");
+        GenJnlLine."Operation Occurred Date" := PurchHeader."Operation Occurred Date";
 
         GenJnlLine.CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode);
         GenJnlLine.CopyFromPurchHeaderPrepmt(PurchHeader);
@@ -2166,6 +2168,11 @@ codeunit 444 "Purchase-Post Prepayments"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimensionsOnAfterAddDimSources(var PurchaseLine: Record "Purchase Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPrepmtAccNo(VATPostingSetup: Record "VAT Posting Setup"; var PrepmtAccNo: Code[20])
     begin
     end;
 }

@@ -131,8 +131,8 @@ codeunit 137079 "SCM Production Order III"
         ActionShouldBeVisibleErr: Label 'Reverse Production Order Transaction should be visible in Page %1', Comment = '%1 = Page Caption';
         EntryMustBeEqualErr: Label '%1 must be equal to %2 for Entry No. %3 in the %4.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Entry No., %4 = Table Caption';
         MissingAccountTxt: Label '%1 is missing in %2.', Comment = '%1 = Field Caption, %2 = Table Caption';
-        NonInventoryItemInStandardCostCalcErr: Label 'You cannot modify %1 on Item %2 as Production BOM %3 has a non-inventory Item %4.', Comment = '%1 = Field Caption , %2 = Production Item No. , %3 = Production BOM No. , %4 = Non-Inventory Item';
         ProductionOrderHasAlreadyBeenReopenedErr: Label 'This production order has already been reopened before. This can only be done once.';
+        ItemMustBeEqualErr: Label '%1 must be equal to %2 for Item No. %3 in the %4.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Item No., %4 = Table Caption';
         ReservationEntryMustExistErr: Label '%1 must exist.', Comment = '%1 is Table Caption';
 
     [Test]
@@ -6447,7 +6447,7 @@ codeunit 137079 "SCM Production Order III"
     end;
 
     [Test]
-    procedure VerifyStandardCostMustNotBeUpdatedInProductionItem()
+    procedure VerifyStandardCostMustBeUpdatedInProductionItem()
     var
         OutputItem: Record Item;
         NonInvItem: Record Item;
@@ -6455,7 +6455,7 @@ codeunit 137079 "SCM Production Order III"
         Quantity: Decimal;
         NonInvUnitCost: Decimal;
     begin
-        // [SCENARIO 457878] Verify Standard Cost must not be updated in production item When Non-Inventory item exist in Production BOM.
+        // [SCENARIO 457878] Verify Standard Cost must be updated in production item When Non-Inventory item exist in Production BOM.
         Initialize();
 
         // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
@@ -6479,10 +6479,10 @@ codeunit 137079 "SCM Production Order III"
         OutputItem.Modify();
 
         // [WHEN] Update "Standard Cost" in Item.
-        asserterror OutputItem.Validate("Standard Cost", LibraryRandom.RandIntInRange(10, 10));
+        OutputItem.Validate("Standard Cost", LibraryRandom.RandIntInRange(10, 10));
 
-        // [THEN] Verify Standard Cost must not be updated in production item.
-        Assert.ExpectedError(StrSubstNo(NonInventoryItemInStandardCostCalcErr, OutputItem.FieldCaption("Standard Cost"), OutputItem."No.", OutputItem."Production BOM No.", NonInvItem."No."));
+        // [THEN] Verify Standard Cost must be updated in production item.
+        VerifyCostFieldsInItem(OutputItem, NonInvUnitCost, NonInvUnitCost, NonInvUnitCost, 0, 0, 0, 0);
     end;
 
     [Test]
@@ -9681,6 +9681,38 @@ codeunit 137079 "SCM Production Order III"
         Location.Validate("Asm. Consump. Whse. Handling", Location."Asm. Consump. Whse. Handling"::"No Warehouse Handling");
         Location.Validate("Job Consump. Whse. Handling", Location."Job Consump. Whse. Handling"::"No Warehouse Handling");
         Location.Modify(true);
+    end;
+
+    local procedure VerifyCostFieldsInItem(Item: Record Item; StandardCost: Decimal; SLMatCost: Decimal; RUMatCost: Decimal; SLNonInvMatCost: Decimal; RUNonInvMatCost: Decimal; SLMfgOvhdCost: Decimal; RUMfgOvhdCost: Decimal)
+    begin
+        Assert.AreEqual(
+            StandardCost,
+            Item."Standard Cost",
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Standard Cost"), StandardCost, Item."No.", Item.TableCaption()));
+        Assert.AreEqual(
+            SLNonInvMatCost,
+            Item."Single-Lvl Mat. Non-Invt. Cost",
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Single-Lvl Mat. Non-Invt. Cost"), SLNonInvMatCost, Item."No.", Item.TableCaption()));
+        Assert.AreEqual(
+            RUNonInvMatCost,
+            Item."Rolled-up Mat. Non-Invt. Cost",
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Rolled-up Mat. Non-Invt. Cost"), RUNonInvMatCost, Item."No.", Item.TableCaption()));
+        Assert.AreEqual(
+            SLMatCost,
+            Item."Single-Level Material Cost",
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Single-Level Material Cost"), SLMatCost, Item."No.", Item.TableCaption()));
+        Assert.AreEqual(
+            RUMatCost,
+            Item."Rolled-up Material Cost",
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Rolled-up Material Cost"), RUMatCost, Item."No.", Item.TableCaption()));
+        Assert.AreEqual(
+            SLMfgOvhdCost,
+            Item."Single-Level Mfg. Ovhd Cost",
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Single-Level Mfg. Ovhd Cost"), SLMfgOvhdCost, Item."No.", Item.TableCaption()));
+        Assert.AreEqual(
+            RUMfgOvhdCost,
+            Item."Rolled-up Mfg. Ovhd Cost",
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Rolled-up Mfg. Ovhd Cost"), RUMfgOvhdCost, Item."No.", Item.TableCaption()));
     end;
 
     [MessageHandler]

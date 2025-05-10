@@ -385,6 +385,22 @@ codeunit 99000809 "Planning Line Management"
                             if not TempPlanningComponent.Insert() then
                                 TempPlanningComponent.Modify();
                         end;
+                    AsmBOMComp[Level].Type::" ":
+                        begin
+                            NextPlanningCompLineNo := NextPlanningCompLineNo + 10;
+                            PlanningComponent.Reset();
+                            PlanningComponent.Init();
+                            PlanningComponent."Worksheet Template Name" := ReqLine."Worksheet Template Name";
+                            PlanningComponent."Worksheet Batch Name" := ReqLine."Journal Batch Name";
+                            PlanningComponent."Worksheet Line No." := ReqLine."Line No.";
+                            PlanningComponent."Line No." := NextPlanningCompLineNo;
+                            PlanningComponent.Description := CopyStr(AsmBOMComp[Level].Description, 1, MaxStrLen(PlanningComponent.Description));
+                            PlanningComponent.Insert();
+                            // A temporary list of Planning Components handled is sustained:
+                            TempPlanningComponent := PlanningComponent;
+                            if not TempPlanningComponent.Insert() then
+                                TempPlanningComponent.Modify();
+                        end;
                 end;
             until AsmBOMComp[Level].Next() = 0;
     end;
@@ -762,7 +778,7 @@ codeunit 99000809 "Planning Line Management"
             exit;
 
         ShouldExit := Item3."Manufacturing Policy" <> Item3."Manufacturing Policy"::"Make-to-Order";
-        OnCheckMultiLevelStructureOnAfterCalcShouldExitManufacturingPolicy(ReqLine2, ShouldExit);
+        OnCheckMultiLevelStructureOnAfterCalcShouldExitManufacturingPolicy(ReqLine2, ShouldExit, PlanningLevel, LineSpacing, PlanningResiliency, Blocked, CalcRouting, CalcComponents, TempPlanningErrorLog);
         if ShouldExit then
             exit;
 
@@ -1181,7 +1197,7 @@ codeunit 99000809 "Planning Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckMultiLevelStructureOnAfterCalcShouldExitManufacturingPolicy(var RequisitionLine: Record "Requisition Line"; var ShouldExit: Boolean)
+    local procedure OnCheckMultiLevelStructureOnAfterCalcShouldExitManufacturingPolicy(var RequisitionLine: Record "Requisition Line"; var ShouldExit: Boolean; PlanningLevel: Integer; var LineSpacing: array[50] of Integer; PlanningResiliency: Boolean; Blocked: Boolean; CalcRouting: Boolean; CalcComponents: Boolean; var TempPlanningErrorLog: Record "Planning Error Log" temporary)
     begin
     end;
 

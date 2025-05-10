@@ -302,12 +302,16 @@ report 12121 "G/L Book - Print"
                         GetPayToName();
                     "Source Type"::"Bank Account":
                         begin
+                            BankAccount.SetLoadFields(Name);
                             BankAccount.Get("Source No.");
                             Descr := BankAccount.Name;
                         end;
                     "Source Type"::"Fixed Asset":
-                        if FA.Get("Source No.") then
-                            Descr := FA.Description;
+                        begin
+                            FA.SetLoadFields(Description);
+                            if FA.Get("Source No.") then
+                                Descr := FA.Description;
+                        end;
                 end;
 
                 if (not CurrReport.Preview) and
@@ -337,9 +341,9 @@ report 12121 "G/L Book - Print"
             begin
                 GLBookEntry.Reset();
                 GLBookEntry.SetCurrentKey("Official Date");
+                GLBookEntry.SetRange("Progressive No.", 0);
                 GLBookEntry.SetFilter("Official Date", '<%1', StartDate);
                 GLBookEntry.SetFilter(Amount, '<>0');
-                GLBookEntry.SetRange("Progressive No.", 0);
 
                 if GLBookEntry.FindFirst() and
                    (ReportType <> ReportType::"Test Print")
@@ -722,6 +726,8 @@ report 12121 "G/L Book - Print"
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
+        SalesInvHeader.SetLoadFields("Bill-to Name");
+        SalesCrMemoHeader.SetLoadFields("Bill-to Name");
         case "GL Book Entry"."Document Type" of
             "GL Book Entry"."Document Type"::Invoice:
                 if SalesInvHeader.Get("GL Book Entry"."Document No.") then

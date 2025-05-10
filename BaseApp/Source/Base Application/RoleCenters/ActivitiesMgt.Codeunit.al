@@ -279,7 +279,7 @@ codeunit 1311 "Activities Mgt."
         IsHandled := false;
         OnBeforeCalcNoOfReservedFromStockSalesOrders(SalesHeader, Number, IsHandled);
         if IsHandled then
-            exit;
+            exit(Number);
 
         if UseCachedValue then
             if ActivitiesCue.Get() then
@@ -322,6 +322,7 @@ codeunit 1311 "Activities Mgt."
         OnBeforeDrillDownNoOfReservedFromStockSalesOrders(SalesHeader);
 
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.SetLoadFields("Document Type", "No.");
         if SalesHeader.FindSet() then
             repeat
                 if SalesHeader.GetQtyReservedFromStockState() = Enum::"Reservation From Stock"::Full then

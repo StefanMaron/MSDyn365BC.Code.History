@@ -17,6 +17,7 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
+using Microsoft.Sales.Posting;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
@@ -655,9 +656,6 @@ codeunit 12184 "Fattura Doc. Helper"
 
     local procedure GetTipoDocumento(TempFatturaHeader: Record "Fattura Header" temporary; Customer: Record Customer; FatturaDocType: Variant): Text
     begin
-        if TempFatturaHeader.Prepayment then
-            exit(GetPrepaymentCode());
-
         if Format(FatturaDocType) <> '' then
             exit(Format(FatturaDocType));
 
@@ -1531,6 +1529,24 @@ codeunit 12184 "Fattura Doc. Helper"
             exit;
         SalesHeader.Validate("Fattura Document Type", CrMemoCode);
         SalesHeader.Modify(true);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post Prepayments", 'OnCodeOnAfterPostingDescriptionSet', '', false, false)]
+    local procedure AssignFatturaDocTypeOnBeforeInsertPostedHeaders(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; var PostingDescription: Text[100])
+    begin
+        case DocumentType of
+            DocumentType::Invoice:
+                SalesHeader."Fattura Document Type" := GetPrepaymentCode();
+            DocumentType::"Credit Memo":
+                SalesHeader."Fattura Document Type" := GetCrMemoCode();
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnInsertCrMemoHeaderOnAfterSalesCrMemoHeaderTransferFields', '', false, false)]
+    local procedure AssignFatturaDocTypeOnBeforeInsertCrMemoHeader(var SalesHeader: Record "Sales Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order" then
+            SalesCrMemoHeader."Fattura Document Type" := GetCrMemoCode();
     end;
 
     [IntegrationEvent(false, false)]

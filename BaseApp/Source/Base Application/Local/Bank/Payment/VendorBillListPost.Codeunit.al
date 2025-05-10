@@ -232,6 +232,7 @@ codeunit 12173 "Vendor Bill List - Post"
         else
             GenJnlLine."Dimension Set ID" := VendorBillLine."Dimension Set ID";
 
+        GenJnlLine.CreateDimFromDefaultDim(GenJnlLine.FieldNo("Account No."));
         OnBeforePostBalanceAccount(GenJnlLine, VendorBillHeader, VendorBillLine, VendLedgEntry);
         GenJnlPostLine.RunWithCheck(GenJnlLine);
     end;

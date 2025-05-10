@@ -5845,6 +5845,7 @@ codeunit 137158 "SCM Orders V"
         ItemRegister.SetFilter("From Entry No.", '>0');
         ItemRegister.FindLast();
         ItemLedgerEntry.SetRange("Entry No.", ItemRegister."From Entry No.", ItemRegister."To Entry No.");
+        ItemLedgerEntry.SetFilter("Item Register No.", '0|%1', ItemRegister."No.");
         Assert.RecordCount(ItemLedgerEntry, 2);
         VerifyItemApplicationEntry(ItemRegister."From Entry No.", ItemRegister."From Entry No.", 0, Quantity);
         VerifyItemApplicationEntry(ItemRegister."To Entry No.", ItemRegister."From Entry No.", ItemRegister."To Entry No.", -Quantity);

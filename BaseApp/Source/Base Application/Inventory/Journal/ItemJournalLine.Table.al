@@ -179,7 +179,8 @@ table 83 "Item Journal Line"
                 OnValidateItemNoOnBeforeValidateUnitOfMeasureCode(Rec, Item, CurrFieldNo, xRec);
                 Validate("Unit of Measure Code");
                 if "Variant Code" <> '' then
-                    Validate("Variant Code");
+                    if not IsEntryTypeProduction() then
+                        Validate("Variant Code");
 
                 OnAfterOnValidateItemNoAssignByEntryType(Rec, Item);
 
@@ -1993,7 +1994,7 @@ table 83 "Item Journal Line"
     begin
         OnBeforeSelectItemEntry(Rec, xRec, CurrentFieldNo);
 
-        IsHandled := true;
+        IsHandled := false;
         OnSelectItemEntryOnSetFilters(Rec, ItemLedgEntry, CurrentFieldNo, IsHandled);
         if not IsHandled then begin
             ItemLedgEntry.SetCurrentKey("Item No.", Positive);

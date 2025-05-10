@@ -814,6 +814,30 @@ codeunit 134979 "Reminder Automation Tests"
         ReminderAutomationCard.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerFalse,ReminderLevelCommunicationPageHandler,LanguagesPageHandler')]
+    procedure AddTextforLanguageInReminderLevelCommunication()
+    var
+        ReminderTerms: Record "Reminder Terms";
+        ReminderLevel: Record "Reminder Level";
+        ReminderTermSetupPage: TestPage "Reminder Terms Setup";
+    begin
+        // [SCENARIO 568005] Adding text for language in Reminder Level Communication.
+        Initialize();
+
+        // [GIVEN] Create Reminder Term with levels
+        LibraryErm.CreateReminderTerms(ReminderTerms);
+        LibraryErm.CreateReminderLevel(ReminderLevel, ReminderTerms.Code);
+
+        // [WHEN] Open Reminder Term Setup page and add text for language
+        ReminderTermSetupPage.OpenEdit();
+        ReminderTermSetupPage.GoToRecord(ReminderTerms);
+        ReminderTermSetupPage.ReminderLevelSetup.First();
+
+        // [THEN] Varify that the text for language is added in Reminder Level Communication.
+        ReminderTermSetupPage.ReminderLevelSetup.CustomerCommunications.Invoke();
+    end;
+
     local procedure CreateReminderAttachmentText(ReminderTerms: Record "Reminder Terms"; LanguageCode: Code[10])
     var
         ReminderLevel: Record "Reminder Level";
@@ -1210,6 +1234,25 @@ codeunit 134979 "Reminder Automation Tests"
         Customer.SetFilter("Customer Posting Group", LibraryVariableStorage.DequeueText());
         CustomerRecordRef.SetView(Customer.GetView());
         exit(true);
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerFalse(QuestionText: Text[1024]; var Relpy: Boolean)
+    begin
+        Relpy := false;
+    end;
+
+    [PageHandler]
+    procedure ReminderLevelCommunicationPageHandler(var ReminderLevelCommunication: TestPage "Reminder Level Communication")
+    begin
+        ReminderLevelCommunication."Add New Language".Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure LanguagesPageHandler(var Languages: TestPage "Languages")
+    begin
+        Languages.Filter.SetFilter("Code", 'ENG');
+        Languages.OK().Invoke();
     end;
 
     var

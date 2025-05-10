@@ -1,3 +1,4 @@
+#pragma warning disable AS0049
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -24,6 +25,8 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
         UnitOfMeasure: Record "Unit of Measure";
         Vendor: Record Vendor;
         PurchaseOrder: Record "Purchase Header";
+        EDocPurchaseLineMatch: Record "E-Doc. Purchase Line History";
+        EDocPurchaseHistMapping: Codeunit "E-Doc. Purchase Hist. Mapping";
         IVendorProvider: Interface IVendorProvider;
         IUnitOfMeasureProvider: Interface IUnitOfMeasureProvider;
         IPurchaseLineAccountProvider: Interface IPurchaseLineAccountProvider;
@@ -56,6 +59,13 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
                 EDocumentLineMapping."Unit of Measure" := UnitOfMeasure.Code;
                 IPurchaseLineAccountProvider.GetPurchaseLineAccount(EDocumentPurchaseLine, EDocumentLineMapping, EDocumentLineMapping."Purchase Line Type", EDocumentLineMapping."Purchase Type No.");
                 EDocumentLineMapping.Modify();
+
+                Clear(EDocPurchaseLineMatch);
+                if EDocPurchaseHistMapping.FindRelatedPurchaseLineMatch(Vendor, EDocumentPurchaseLine, EDocPurchaseLineMatch) then begin
+                    EDocPurchaseHistMapping.CopyLineMappingFromHistory(EDocPurchaseLineMatch, EDocumentLineMapping);
+                    EDocumentLineMapping.Modify();
+                end;
+
             until EDocumentPurchaseLine.Next() = 0;
         exit("E-Document Type"::"Purchase Invoice");
     end;
@@ -82,3 +92,4 @@ codeunit 6125 "Prepare Purchase E-Doc. Draft" implements IProcessStructuredData
             EDocumentPurchaseLine.DeleteAll(true);
     end;
 }
+#pragma warning restore AS0049

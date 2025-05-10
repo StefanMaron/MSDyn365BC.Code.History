@@ -533,6 +533,105 @@ codeunit 134914 "ERM Payment Disc Application"
         VATEntry.TestField("Document Date", GenJournalLine."Document Date");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentDiscountOfOneCentForCrMemoAndInvoiceAppliedToPayment()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PaymentTerms: Record "Payment Terms";
+        GenJournalLine: Record "Gen. Journal Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Customer: Record "Customer";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        InvoiceCustLedgerEntry, CrMemoCustLedgerEntry, PmtCustLedgerEntry : Record "Cust. Ledger Entry";
+        DetailedCustLedgerEntry: Record "Detailed Cust. Ledg. Entry";
+        InvoiceNo, CrMemoNo : Code[20];
+        PaymentTermsDiscount: Decimal;
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Payment Discount] [Credit Memo] [Invoice] [Payment]
+        // [SCENARIO 569281] Apply payment to invoice and credit memo with same amounts on last payment discount date when credit memo has Rem. Pmt. Disc. Possible = -0.01
+        Initialize();
+
+        // [GIVEN] G/L Setup: "Adjust for Payment Disc." = TRUE
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        UpdateGeneralPostingSetup(GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+
+        // [GIVEN] Payment terms with "Due Date Calculation" = 5D, "Discount Date Calculation" = 10D, "Discount %" = 0
+        PaymentTermsDiscount := LibraryRandom.RandDec(10, 0);
+        CreatePaymentTermsDiscount(PaymentTerms, 0);
+        Evaluate(PaymentTerms."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(5)) + 'D>');
+        Evaluate(PaymentTerms."Discount Date Calculation", '<' + Format(LibraryRandom.RandIntInRange(6, 10)) + 'D>');
+        PaymentTerms.Modify();
+
+        // [GIVEN] VAT posting setup 19%
+        CreateVATPostingSetupWithGivenPct(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(11, 19));
+        Customer.Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
+        UpdateGenPostingSetupForCustomerAndGLAccount(
+          Customer."No.", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "));
+
+        // [GIVEN] Posted sales invoice on "Posting Date" = 01 Jan with Amount = 1000
+        Amount := LibraryRandom.RandIntInRange(1000, 1999);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GenJournalLine."Gen. Posting Type"::" "), 1);
+        SalesLine.Validate("Unit Price", Amount);
+        SalesLine.Modify(true);
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        LibraryERM.FindCustomerLedgerEntry(InvoiceCustLedgerEntry, InvoiceCustLedgerEntry."Document Type"::Invoice, InvoiceNo);
+
+        // [GIVEN] Posted sales credit memo on "Posting Date" = 01 Jan with Amount = 1000
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+          SalesLine."No.", 1);
+        SalesLine.Validate("Unit Price", Amount);
+        SalesLine.Modify(true);
+        CrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        LibraryERM.FindCustomerLedgerEntry(CrMemoCustLedgerEntry, CrMemoCustLedgerEntry."Document Type"::"Credit Memo", CrMemoNo);
+
+        // [GIVEN] Customer payment with "Posting Date" = 11 Jan (01 Jan + 10D of "Discount Date Calculation") with Amount = -0.01
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, Customer."No.", -0.01);
+        GenJournalLine.Validate("Posting Date", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
+        GenJournalLine.Validate("Applies-to ID", GenJournalLine."Document No.");
+        GenJournalLine.Modify(true);
+        // [GIVEN] Set apply payment to full amount of the invoice 
+        InvoiceCustLedgerEntry.CalcFields("Remaining Amount");
+        InvoiceCustLedgerEntry.Validate("Applies-to ID", GenJournalLine."Document No.");
+        InvoiceCustLedgerEntry.Validate("Amount to Apply", InvoiceCustLedgerEntry."Remaining Amount");
+        InvoiceCustLedgerEntry.Modify();
+        // [GIVEN] Set apply payment to full amount of credit memo with Rem. Pmt. Disc. Possible = -0.01
+        CrMemoCustLedgerEntry.CalcFields("Remaining Amount");
+        CrMemoCustLedgerEntry.Validate("Applies-to ID", GenJournalLine."Document No.");
+        CrMemoCustLedgerEntry.Validate("Amount to Apply", CrMemoCustLedgerEntry."Remaining Amount");
+        CrMemoCustLedgerEntry.Validate(CrMemoCustLedgerEntry."Remaining Pmt. Disc. Possible", -0.01);
+        CrMemoCustLedgerEntry.Modify();
+
+        // [WHEN] Post the payment
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryERM.FindCustomerLedgerEntry(PmtCustLedgerEntry, PmtCustLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        PmtCustLedgerEntry.CalcFields("Remaining Amount");
+
+        // [THEN] Both customer ledger entries for invoice and credit memo have been closed
+        InvoiceCustLedgerEntry.Find();
+        InvoiceCustLedgerEntry.TestField(Open, false);
+        CrMemoCustLedgerEntry.Find();
+        CrMemoCustLedgerEntry.TestField(Open, false);
+        // [THEN] The payment is closed, payment discount of one cent has been applied to the payment        
+        PmtCustLedgerEntry.TestField(Open, false);
+        DetailedCustLedgerEntry.SetRange("Cust. Ledger Entry No.", PmtCustLedgerEntry."Entry No.");
+        DetailedCustLedgerEntry.SetRange("Entry Type", DetailedCustLedgerEntry."Entry Type"::"Payment Discount");
+        DetailedCustLedgerEntry.FindFirst();
+        DetailedCustLedgerEntry.TestField(Amount, 0.01);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

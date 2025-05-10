@@ -4581,7 +4581,7 @@ codeunit 6620 "Copy Document Mgt."
         JobPlanningLine.SetRange("Job Contract Entry No.", JobContractEntryNo);
         if JobPlanningLine.FindFirst() then begin
             NewJobPlanningLine.InitFromJobPlanningLine(JobPlanningLine, SalesLine.Quantity);
-
+            OnCreateJobPlanningLineOnAfterInitFromJobPlanningLine(NewJobPlanningLine, JobPlanningLine, SalesLine);
             JobPlanningLineInvoice.InitFromJobPlanningLine(NewJobPlanningLine);
             JobPlanningLineInvoice.InitFromSales(SalesHeader, SalesHeader."Posting Date", SalesLine."Line No.");
             JobPlanningLineInvoice.Insert();
@@ -12521,6 +12521,11 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyArchSalesLineOnBeforeIncrementLinesNotCopied(FromSalesLineArchive: Record "Sales Line Archive"; var ShouldIncrementLinesNotCopied: Boolean; var LinesNotCopied: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateJobPlanningLineOnAfterInitFromJobPlanningLine(var NewJobPlanningLine: Record "Job Planning Line"; JobPlanningLine: Record "Job Planning Line"; SalesLine: Record "Sales Line")
     begin
     end;
 }

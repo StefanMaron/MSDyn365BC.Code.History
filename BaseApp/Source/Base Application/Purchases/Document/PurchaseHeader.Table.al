@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Document;
 
 using Microsoft.Bank.BankAccount;
@@ -5641,7 +5645,7 @@ table 38 "Purchase Header"
         GeneralLedgerSetup: Record "General Ledger Setup";
         DocumentTotals: Codeunit "Document Totals";
         VATAmount: Decimal;
-        IsHandled: Boolean;
+        IsHandled, Result : Boolean;
     begin
         OnBeforeIsTotalValid(Rec, IsHandled);
         if IsHandled then
@@ -5664,6 +5668,11 @@ table 38 "Purchase Header"
            (IncomingDocument."Currency Code" <> GeneralLedgerSetup."LCY Code")
         then
             exit(true);
+
+        IsHandled := false;
+        OnBeforeCheckIsTotalValid(IncomingDocument, Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         TempTotalPurchaseLine.Init();
         DocumentTotals.PurchaseCalculateTotalsWithInvoiceRounding(PurchaseLine, VATAmount, TempTotalPurchaseLine);
@@ -9588,6 +9597,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateVendorCrMemoNo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIsTotalValid(IncomingDocument: Record "Incoming Document"; PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

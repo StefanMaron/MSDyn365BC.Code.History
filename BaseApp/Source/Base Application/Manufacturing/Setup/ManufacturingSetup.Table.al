@@ -291,7 +291,7 @@ table 99000765 "Manufacturing Setup"
 
 #if not CLEAN26
 #pragma warning disable AS0072
-    [Obsolete('Feature ''Activate Manual Flushing Method without requiring pick'' will be enabled by default in version 29.0.', '26.0')]
+    [Obsolete('Feature ''Manual Flushing Method without requiring pick'' will be enabled by default in version 29.0.', '26.0')]
     procedure IsFeatureKeyFlushingMethodManualWithoutPickEnabled(): Boolean
     var
         FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";

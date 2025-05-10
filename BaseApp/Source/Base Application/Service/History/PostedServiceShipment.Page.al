@@ -293,7 +293,7 @@ page 5975 "Posted Service Shipment"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             Editable = false;
                             ToolTip = 'Specifies the state, province or county for the customer that the invoice is sent to.';
                         }
@@ -441,7 +441,7 @@ page 5975 "Posted Service Shipment"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Editable = false;
                         }
                     }

@@ -40,7 +40,7 @@ codeunit 5225 "Create Accounting Period"
         AccountingPeriod.SetRange("Starting Date", FiscalYearStartDate, FiscalYearEndDate);
         AccountingPeriod.ModifyAll(Closed, true);
 
-        AccountingPeriod.SetRange("Starting Date", FiscalYearStartDate, FiscalYearEndDate);
+        AccountingPeriod.SetRange("Starting Date", FiscalYearStartDate, CalcDate('<1M>', FiscalYearEndDate));
         AccountingPeriod.ModifyAll("Date Locked", true);
     end;
 }

@@ -117,7 +117,7 @@ page 509 "Blanket Purchase Order"
                         field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county of the address.';
@@ -467,7 +467,7 @@ page 509 "Blanket Purchase Order"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county of the address.';
@@ -568,7 +568,7 @@ page 509 "Blanket Purchase Order"
                         field("Pay-to County"; Rec."Pay-to County")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                             Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
                             Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
                             Importance = Additional;

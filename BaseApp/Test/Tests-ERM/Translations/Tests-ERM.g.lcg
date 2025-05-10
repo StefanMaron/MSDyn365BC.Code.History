@@ -14,6 +14,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Accounting Period Search Test - NamedType WrongPeriodDateErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 665138851 - NamedType 599322055" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount must be equal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Alloc. Acc. Purch. E2E Tests - NamedType AmountMisMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2964098855 - NamedType 438356844" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Destination GL Account must be %1 in %2.]]></Val>
@@ -788,22 +797,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType ClearDimTotalingConfirmTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2205251927 - NamedType 4264178802" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2205251927 - NamedType 2662451768" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[is not applicable for source type Cash Flow Account]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType NotApplicableForCF)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType NotApplicableForCFLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2205251927 - NamedType 1901726728" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2205251927 - NamedType 2480978594" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The TestPage is not open.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType PageVerify)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Analysis View - NamedType PageVerifyLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 291215066 - NamedType 595438891" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4613,6 +4622,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Blanket Order - NamedType QuantityShippedMustNotBeGreaterErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3058997361 - NamedType 1785547107" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Total record count must be equal to %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Record Count.]D;]A;(LookupHint=Codeunit ERM Sales Blanket Order - NamedType TotalRecordCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3058997361 - NamedType 1353928866" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unit Price is changed on Quantity update.]]></Val>
@@ -6474,6 +6492,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=Document No.]D;]A;(LookupHint=Codeunit No Acc. Periods: Posting - NamedType DuplicateRecordErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 678155582 - NamedType 1737695498" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Source Currency Amount, %2 = Amount, %3 = G/L Entry]D;]A;(LookupHint=Codeunit No Acc. Periods: Posting - NamedType SourceCurrAmtErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2240216850 - NamedType 3770914415" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

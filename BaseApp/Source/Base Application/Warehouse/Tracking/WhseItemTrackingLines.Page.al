@@ -750,6 +750,8 @@ page 6550 "Whse. Item Tracking Lines"
                 OnSetSourceFilters(WhseItemTrackingLine2, WhseWorksheetLine, SourceType);
         end;
         WhseItemTrackingLine2.FilterGroup := 0;
+
+        OnAfterSetFilters(WhseItemTrackingLine2, SourceType);
     end;
 
     local procedure UpdateExpDateColor()
@@ -1065,6 +1067,11 @@ page 6550 "Whse. Item Tracking Lines"
 
     [IntegrationEvent(true, false)]
     local procedure OnCopyToReservEntryOnUpdate(var TempSourceWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; var QuantityBase: Decimal; var DueDate: Date; var Updated: Boolean; FormSourceType: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilters(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; SourceType: Integer)
     begin
     end;
 }

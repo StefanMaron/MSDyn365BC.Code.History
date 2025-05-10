@@ -33,6 +33,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         BlanketOrderLineNoFieldError: Label 'Blanket Order Line No. missing on related Sales Credit Memo';
         UnitPriceIsChangedErr: Label 'Unit Price is changed on Quantity update.';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
+        TotalRecordCountErr: Label 'Total record count must be equal to %1', Comment = '%1 = Record Count.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1381,10 +1382,45 @@ codeunit 134377 "ERM Sales Blanket Order"
             until SalesLine.Next() = 0;
     end;
 
+    [Test]
+    procedure CheckMultipleExtendedTextFromBlanketSalesOrderToSalesOrder()
+    var
+        BlanketSalesHeader: Record "Sales Header";
+        SalesOrderLine: Record "Sales Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+        CustomerNo: Code[20];
+        OrderNo: Code[20];
+    begin
+        // [SCENARIO 567891] Verify the multiple extended texts line when converting a blanket sales order to a sales order.
+        Initialize();
+
+        // [GIVEN] Create Blanket Sales Order With Multiple Extended Items.
+        CustomerNo := CreateBlanketSalesOrder(BlanketSalesOrder);
+
+        // [GIVEN] Find Blanket Sales Order.
+        BlanketSalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        BlanketSalesHeader.FindFirst();
+
+        // [WHEN] Convert the blanket sales order into a sales order.
+        OrderNo := LibrarySales.BlanketSalesOrderMakeOrder(BlanketSalesHeader);
+
+        // [THEN] Calculate no. of Sales order line record.
+        SalesOrderLine.SetRange("Document Type", SalesOrderLine."Document Type"::Order);
+        SalesOrderLine.SetRange("Document No.", OrderNo);
+
+        // [THEN] Verify the sales order line record count with the extended text records.
+        Assert.AreEqual(
+            SalesOrderLine.Count(), CalculateBlanketSalesOrderLineRecords(BlanketSalesHeader),
+            StrSubstNo(TotalRecordCountErr, SalesOrderLine.Count()));
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Blanket Order");
         LibrarySetupStorage.Restore();
@@ -1718,6 +1754,61 @@ codeunit 134377 "ERM Sales Blanket Order"
         Purchasing.Modify(true);
 
         exit(Purchasing.Code);
+    end;
+
+    local procedure CreateBlanketSalesOrder(var BlanketSalesOrder: TestPage "Blanket Sales Order"): Code[20]
+    var
+        Customer: Record Customer;
+        Item: array[3] of Record Item;
+        i: Integer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        BlanketSalesOrder.OpenNew();
+        BlanketSalesOrder."Sell-to Customer No.".SetValue(Customer."No.");
+        for i := 1 to LibraryRandom.RandIntInRange(3, 3) do begin
+            CreateMultipleItemWithExtendedText(Item[i]);
+            CreateBlanketSalesLineFromSubformPage(BlanketSalesOrder, Item[i]);
+        end;
+        BlanketSalesOrder.Close();
+
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateMultipleItemWithExtendedText(var Item: Record Item)
+    var
+        ExtendedTextHeader: Record "Extended Text Header";
+        ExtendedTextLine: Record "Extended Text Line";
+    begin
+        Item.Get(CreateItem());
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+        ExtendedTextLine.Validate(Text, Item."No.");
+        ExtendedTextLine.Modify(true);
+    end;
+
+    local procedure CreateBlanketSalesLineFromSubformPage(var BlanketSalesOrder: TestPage "Blanket Sales Order"; Item: Record Item)
+    var
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        BlanketSalesOrder.SalesLines.New();
+        BlanketSalesOrder.SalesLines.Type.SetValue(SalesLineType::Item);
+        BlanketSalesOrder.SalesLines."No.".SetValue(Item."No.");
+        BlanketSalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(10));
+        Commit();
+        BlanketSalesOrder.SalesLines.Next();
+    end;
+
+    local procedure CalculateBlanketSalesOrderLineRecords(BlanketSalesOrder: Record "Sales Header"): Integer
+    var
+        BlanketSalesLine: Record "Sales Line";
+    begin
+        BlanketSalesLine.SetRange("Document Type", BlanketSalesOrder."Document Type");
+        BlanketSalesLine.SetRange("Document No.", BlanketSalesOrder."No.");
+
+        exit(BlanketSalesLine.Count);
     end;
 
     [MessageHandler]

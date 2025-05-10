@@ -1,4 +1,4 @@
-codeunit 144210 "FatturaPA Document Type"
+﻿codeunit 144210 "FatturaPA Document Type"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -578,7 +578,7 @@ codeunit 144210 "FatturaPA Document Type"
             SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
-        SalesInvHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, True, True));
+        SalesInvHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         Clear(SalesHeader);
 
         // [WHEN] Create corrective credit memo for the posted sales invoice
@@ -588,6 +588,91 @@ codeunit 144210 "FatturaPA Document Type"
         // TFS ID 403084: Corrective credit memo does not have "TD04" code
         SalesHeader.Find();
         SalesHeader.TestField("Fattura Document Type", FatturaDocHelper.GetCrMemoCode());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PrepaymentSalesInvoiceFatturaDocType()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        FatturaDocHelper: Codeunit "Fattura Doc. Helper";
+    begin
+        // [FEATURE] [Sales] [Prepayment]
+        // [SCENARIO 571369] "Fattura Document Type" is 'TD02' in the Sales Prepayment Invoice document
+        Initialize();
+
+        // [GIVEN] Sales order with prepayment
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibraryITLocalization.CreateCustomer(), '', 1, '', 0D);
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(10, 20));
+        SalesHeader.Modify(true);
+
+        // [WHEN] Post prepayment invoice for the sales order
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [THEN] Sales prepayment invoice has "Fattura Document Type" = "TD02"
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesInvoiceHeader.FindFirst();
+        SalesInvoiceHeader.TestField("Fattura Document Type", FatturaDocHelper.GetPrepaymentCode());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PrepaymentSalesCrMemoFatturaDocType()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        FatturaDocHelper: Codeunit "Fattura Doc. Helper";
+    begin
+        // [FEATURE] [Sales] [Prepayment] [Credit Memo]
+        // [SCENARIO 571369] "Fattura Document Type" is 'TD04' in the Sales Prepayment Credit Memo document
+        Initialize();
+
+        // [GIVEN] Sales order with prepayment
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibraryITLocalization.CreateCustomer(), '', 1, '', 0D);
+        SalesHeader.Validate(SalesHeader."Prepayment %", LibraryRandom.RandIntInRange(10, 20));
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Posted prepayment invoice for the sales order
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [WHEN] Post prepayment credit memo for the sales order        
+        LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
+
+        // [THEN] Sales prepayment credit memo has "Fattura Document Type" = "TD04"
+        SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesCrMemoHeader.FindFirst();
+        SalesCrMemoHeader.TestField("Fattura Document Type", FatturaDocHelper.GetCrMemoCode());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesReturnOrderFatturaDocType()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        FatturaDocHelper: Codeunit "Fattura Doc. Helper";
+    begin
+        // [FEATURE] [Sales] [Return Order] [Credit Memo]
+        // [SCENARIO 571369] "Fattura Document Type" is 'TD04' in the Sales Credit Memo posted for Return Order document
+        Initialize();
+
+        // [GIVEN] Sales return order
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", LibraryITLocalization.CreateCustomer(), '', 1, '', 0D);
+
+        // [WHEN] Post sales return order
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Sales credit memo has "Fattura Document Type" = "TD04"
+        SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesCrMemoHeader.FindFirst();
+        SalesCrMemoHeader.TestField("Fattura Document Type", FatturaDocHelper.GetCrMemoCode());
     end;
 
     local procedure Initialize()
