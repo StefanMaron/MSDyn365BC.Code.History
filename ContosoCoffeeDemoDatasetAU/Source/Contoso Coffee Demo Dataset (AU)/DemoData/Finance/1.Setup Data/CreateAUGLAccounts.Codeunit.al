@@ -299,6 +299,7 @@ codeunit 17107 "Create AU GL Accounts"
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.TotalPersonnelRelatedItemsName(), '2379');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.ShortTermLiabilitiesTotalName(), '2399');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherLiabilitiesTotalName(), '2530');
+        ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherAccruedExpensesAndDeferredIncomeName(), '2950');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.TotalLiabilitiesName(), '2999');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.NetIncomeForTheYearName(), '3045');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.TotalStockholderName(), '3050');

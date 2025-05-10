@@ -8,7 +8,6 @@ table 8053 "Subscription Contract Type"
     LookupPageId = "Contract Types";
     DrillDownPageId = "Contract Types";
     Caption = 'Subscription Contract Type';
-    Access = Internal;
 
     fields
     {

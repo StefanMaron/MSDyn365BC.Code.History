@@ -346,6 +346,7 @@ table 5079 "Marketing Setup"
     }
 
     var
+        RecordHasBeenRead: Boolean;
         DuplicateSearchQst: Label 'Do you want to generate duplicate search strings?';
 
     procedure TrySetWebhookSubscriptionUser(UserSecurityID: Guid): Boolean
@@ -413,5 +414,13 @@ table 5079 "Marketing Setup"
             ContactType::Person:
                 exit(MarketingSetup."Cust. Template Person Code");
         end
+    end;
+
+    procedure GetRecordOnce()
+    begin
+        if RecordHasBeenRead then
+            exit;
+        Get();
+        RecordHasBeenRead := true;
     end;
 }

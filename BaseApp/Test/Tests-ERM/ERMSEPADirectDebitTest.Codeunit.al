@@ -778,7 +778,6 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
     procedure VerifyIBANNoWhenBranchNoAndBankAccountNotEmpty()
     var
         BankAccount: Record "Bank Account";
@@ -789,7 +788,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // [GIVEN] Create Customer and Customer Bank Account.
-        CreateCustomerWithustomerBankAccount(CustomerBankAccount);
+        CreateCustomerWithCustomerBankAccount(CustomerBankAccount);
 
         // [GIVEN] Create Direct Debit Collection Entry and Customer Ledger Entry.
         CreateDirectDebitCollectionEntryWithBank(CustomerBankAccount, DirectDebitCollectionEntry, BankAccount);
@@ -1307,16 +1306,18 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         until GLEntry.Next() = 0;
     end;
 
-    local procedure CreateCustomerWithustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account")
+    local procedure CreateCustomerWithCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account")
     var
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomerWithAddress(Customer);
+        Customer.Validate("Currency Code", LibraryERM.GetCurrencyCode('EUR'));
+        Customer.Modify(true);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
-        CustomerBankAccount.Validate("Bank Account No.", Format(LibraryRandom.RandIntInRange(111111111, 999999999)));
+        CustomerBankAccount."Bank Account No." := Format(LibraryRandom.RandIntInRange(111111111, 999999999)); // avoid local values validation
         CustomerBankAccount."Bank Branch No." := Format(LibraryRandom.RandIntInRange(100, 200));
-        CustomerBankAccount.Validate(IBAN, Format(LibraryRandom.RandIntInRange(11111111, 99999999)));
-        CustomerBankAccount.Validate("SWIFT Code", Format(LibraryRandom.RandIntInRange(1111, 9999)));
+        CustomerBankAccount.IBAN := Format(LibraryRandom.RandIntInRange(11111111, 99999999));
+        CustomerBankAccount."SWIFT Code" := Format(LibraryRandom.RandIntInRange(1111, 9999));
         CustomerBankAccount.Modify(true);
 
         Customer.Validate("Preferred Bank Account Code", CustomerBankAccount.Code);

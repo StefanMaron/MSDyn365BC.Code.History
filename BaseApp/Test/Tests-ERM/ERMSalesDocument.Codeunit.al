@@ -53,6 +53,8 @@
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         DateFilterErr: Label 'Date Filter does not match expected value';
         AmountNotMatchedErr: Label 'Amount not matched.';
+        AmountMustSameErr: Label 'Amount must be same';
+        QtyHandleMustSameErr: Label 'Qty to handle must equal';
 
     [Test]
     [Scope('OnPrem')]
@@ -4740,6 +4742,83 @@
         Assert.AreEqual(-Amount[2], GLEntry.Amount, AmountNotMatchedErr);
     end;
 
+    [Test]
+    procedure AmountUpdatedInSalesInvEntityAggregateTableWhenSaleInvHasLastLineAsGLAccount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesEntityAggregate: Record "Sales Invoice Entity Aggregate";
+        LineAmtGLAccount: Decimal;
+        LineAmtItem: Decimal;
+        TotalAmountIncludingVAT: Decimal;
+    begin
+        // [SCENARIO 568828] Amount not updated in Sales Inv. Entity Aggregate Table when last line has type G/L Account
+        Initialize();
+
+        // [GIVEN] Create Sales Header and 2 Sales Line, 1st line type with Item
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LineAmtItem := CreateSalesLineWithReturnAmt(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithPrice());
+        TotalAmountIncludingVAT := SalesLine."Amount Including VAT";
+
+        // [WHEN] 2nd line type with G/L Account
+        LineAmtGLAccount := CreateSalesLineWithReturnAmt(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
+        TotalAmountIncludingVAT += SalesLine."Amount Including VAT";
+
+        // [THEN] Check Amount and "Amount Including VAT" on Sales Invoice Entity Aggregate table
+        SalesEntityAggregate.SetRange("No.", SalesHeader."No.");
+        SalesEntityAggregate.FindFirst();
+        Assert.AreEqual(LineAmtGLAccount + LineAmtItem, SalesEntityAggregate.Amount, AmountMustSameErr);
+        Assert.AreEqual(TotalAmountIncludingVAT, SalesEntityAggregate."Amount Including VAT", AmountMustSameErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentSalesModalPageHandler,SalesCombineShipmentRequestPageHandler,MessageHandler')]
+    procedure CheckQtyToHandleOnItemChargeAssignmentWhenMultipleCombinedSalesShipmentsUsedForSameCustomer()
+    var
+        Customer: Record Customer;
+        Item: array[2] of Record Item;
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        Quantity: array[2] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 571650] Verify the quantity to handle across multiple sales shipments for the same customer with item charge assignment.
+        Initialize();
+
+        // [GIVEN] Create Customer.
+        CreteCombineSalesShipmentCustomer(Customer, Location);
+
+        // [GIVEN] Create and Post Item Journal.
+        Quantity[1] := LibraryRandom.RandIntInRange(1000, 2000);
+        Quantity[2] := LibraryRandom.RandIntInRange(1, 1);
+        for i := 1 to 2 do begin
+            // [GIVEN] Create Multiple Items.
+            LibraryInventory.CreateItem(Item[i]);
+            LibraryInventory.CreateItemJournalLineInItemTemplate(
+                ItemJournalLine, Item[i]."No.", Location.Code, '', Quantity[i]);
+            LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        end;
+
+        // [GIVEN] Create First Sales Order and Ship.
+        CreteSalesOrder(Customer."No.", Item[1]."No.", Quantity[1]);
+
+        // [GIVEN] Create Second Sales Order with Item Charge and Ship.
+        CreateSalesOrderWithItemChargeLineAndShip(Customer."No.", Item[2]."No.", Quantity[2]);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+
+        // [WHEN] Run Combined Sales Shipment Report for Same Customer.
+        Report.Run(Report::"Combine Shipments");
+
+        // [GIVEN] Find Item Charge Assignment Sales Line.
+        FindItemChargeAssignmentSalesLine(ItemChargeAssignmentSales, Customer."No.", Item[2]."No.");
+
+        // [THEN] Verify Qty to handle in Item Charge Assignment Sales Line table.
+        Assert.AreEqual(ItemChargeAssignmentSales."Qty. to Handle", Quantity[2], QtyHandleMustSameErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -6461,6 +6540,104 @@
         SalesReceivablesSetup.Modify(true);
     end;
 
+    local procedure CreateItemWithPrice(): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Last Direct Cost", LibraryRandom.RandInt(100));
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateSalesLineWithReturnAmt(var SalesLine: Record "sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]): Decimal
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, 1);
+        SalesLine.Validate("Unit Cost", 100 + LibraryRandom.RandDec(10, 2));
+        SalesLine.Modify(true);
+        exit(SalesLine."Line Amount");
+    end;
+
+    local procedure CreteCombineSalesShipmentCustomer(var Customer: Record Customer; var Location: Record Location)
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Combine Shipments", true);
+        Customer.Validate("Location Code", Location.Code);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreteSalesOrder(CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    local procedure CreateSalesOrderWithItemChargeLineAndShip(CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ItemCharge: Record "Item Charge";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrderPage: TestPage "Sales Order";
+    begin
+        ItemCharge.FindFirst();
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", ItemCharge."No.", Quantity);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10000));
+        SalesLine.Modify(true);
+
+        CrateSalesLineWithItemCharge(SalesHeader, ItemNo, Quantity, SalesLine."Line No.");
+
+        // Open sales order page & assign item charge.
+        SalesOrderPage.OpenEdit();
+        SalesOrderPage.Filter.SetFilter("Document Type", Format(SalesHeader."Document Type"));
+        SalesOrderPage.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesOrderPage.SalesLines.Filter.SetFilter(Type, Format(SalesLine.Type::"Charge (Item)"));
+        SalesOrderPage.SalesLines."Item Charge &Assignment".Invoke();
+        SalesOrderPage.Close();
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    local procedure CrateSalesLineWithItemCharge(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal; LineNo: Integer)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.Init();
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        SalesLine.Validate("Line No.", LineNo / 2);
+        SalesLine.Validate(Type, SalesLine.Type::Item);
+        SalesLine.Validate("No.", ItemNo);
+        SalesLine.Validate(Quantity, Quantity);
+        SalesLine.Insert(true);
+    end;
+
+    local procedure FindSalesInvoice(CustomerNo: Code[20]): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesHeader.FindFirst();
+
+        exit(SalesHeader."No.");
+    end;
+
+    local procedure FindItemChargeAssignmentSalesLine(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; CustomerNo: Code[20]; ItemNo: Code[20])
+    begin
+        ItemChargeAssignmentSales.SetRange("Document Type", ItemChargeAssignmentSales."Document Type"::Invoice);
+        ItemChargeAssignmentSales.SetRange("Document No.", FindSalesInvoice(CustomerNo));
+        ItemChargeAssignmentSales.SetRange("Item No.", ItemNo);
+        ItemChargeAssignmentSales.FindFirst();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -6708,5 +6885,22 @@
         Assert.AreEqual(LibraryVariableStorage.DequeueText(),
             CustomerLookup.Filter.GetFilter("Date Filter"), 'Wrong Date Filter.');
         CustomerLookup.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemChargeAssignmentSalesModalPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
+    begin
+        Commit();
+        ItemChargeAssignmentSales.SuggestItemChargeAssignment.Invoke();
+        ItemChargeAssignmentSales.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure SalesCombineShipmentRequestPageHandler(var CombineShipments: TestRequestPage "Combine Shipments")
+    begin
+        Commit();
+        CombineShipments.PostingDate.SetValue(WorkDate());
+        CombineShipments.SalesOrderHeader.SetFilter("Sell-to Customer No.", LibraryVariableStorage.DequeueText());
+        CombineShipments.OK().Invoke();
     end;
 }

@@ -341,7 +341,7 @@ page 5900 "Service Order"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county of the bill-to customer related to the service order.';
                         }
@@ -603,7 +603,7 @@ page 5900 "Service Order"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county related to the service order.';
                         }

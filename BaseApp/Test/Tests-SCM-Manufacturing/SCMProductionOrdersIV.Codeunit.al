@@ -84,8 +84,7 @@ codeunit 137083 "SCM Production Orders IV"
         DateConflictErr: Label 'The change leads to a date conflict with existing reservations.\Reserved quantity (Base): %1, Date %2\Cancel or change reservations and try again', Comment = '%1 - reserved quantity, %2 - date';
         FieldMustBeVisibleErr: Label '%1 must be visible in Page %2', Comment = '%1 = Field Caption , %2 = Page Caption';
         FieldMustBeEnabledErr: Label '%1 must be enabled in Page %2', Comment = '%1 = Field Caption , %2 = Page Caption';
-        NonInventoryItemInStandardCostCalcForSKUErr: Label 'You cannot modify %1 on SKU %2 = %3, %4 = %5, %6 = %7 as Production BOM %8 has a non-inventory Item %9.',
-                                                     Comment = '%1 = Field Caption, %2 = Field Caption, %3 = Location Code , %4 = Field Caption , %5 = Item No. , %6 = Field Caption , %7 = Variant Code , %8 =  Production BOM No. , %9 = Item No.';
+        ItemMustBeEqualErr: Label '%1 must be equal to %2 for Item No. %3 in the %4.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Item No., %4 = Table Caption';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
@@ -3471,7 +3470,7 @@ codeunit 137083 "SCM Production Orders IV"
 
     [Test]
     [HandlerFunctions('StrMenuHandler')]
-    procedure VerifyStandardCostMustNotBeUpdatedInSKUIfNonInventoryExistInProductionBOM()
+    procedure VerifyStandardCostMustBeUpdatedInSKUIfNonInventoryExistInProductionBOM()
     var
         OutputItem: Record Item;
         NonInvItem: Record Item;
@@ -3485,7 +3484,7 @@ codeunit 137083 "SCM Production Orders IV"
         ExpectedOvhdCost: Decimal;
         IndirectCostPer: Decimal;
     begin
-        // [SCENARIO 565590] Verify "Standard Cost" must not be updated in SKU if Non-Inventory item must be exist in "Production BOM".
+        // [SCENARIO 565590] Verify "Standard Cost" must be updated in SKU if Non-Inventory item must be exist in "Production BOM".
         Initialize();
 
         // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
@@ -3540,21 +3539,10 @@ codeunit 137083 "SCM Production Orders IV"
         StockkeepingUnit.FindFirst();
 
         // [WHEN] Update "Standard Cost" in SKU.
-        asserterror StockkeepingUnit.Validate("Standard Cost", ExpectedStandardCost + NonInvUnitCost);
+        StockkeepingUnit.Validate("Standard Cost", ExpectedStandardCost + NonInvUnitCost);
 
-        // [THEN] Verify "Standard Cost" must not be updated in SKU.
-        Assert.ExpectedError(
-            StrSubstNo(
-                NonInventoryItemInStandardCostCalcForSKUErr,
-                StockkeepingUnit.FieldCaption("Standard Cost"),
-                StockkeepingUnit.FieldCaption("Location Code"),
-                StockkeepingUnit."Location Code",
-                StockkeepingUnit.FieldCaption("Item No."),
-                StockkeepingUnit."Item No.",
-                StockkeepingUnit.FieldCaption("Variant Code"),
-                StockkeepingUnit."Variant Code",
-                OutputItem."Production BOM No.",
-                NonInvItem."No."));
+        // [THEN] Verify "Standard Cost" must be updated in SKU.
+        VerifyCostFieldsInSKU(StockkeepingUnit, ExpectedStandardCost + NonInvUnitCost, ExpectedStandardCost + NonInvUnitCost, ExpectedStandardCost + NonInvUnitCost, 0, 0, 0, 0);
     end;
 
     [Test]
@@ -3970,6 +3958,100 @@ codeunit 137083 "SCM Production Orders IV"
         // [THEN] Verify Value Entry should be created with "Variance Type" - "Material - Non Inventory" for SKU.
         VerifyCostAmountExpectedAndActualForValueEntry(ProductionOrder, "Item Ledger Entry Type"::Output, "Cost Entry Type"::Variance, OutputItem, Location.Code, 0, 0, (NonInvUnitCost * Quantity));
         VerifyCostAmountExpectedAndActualForItemLedgerEntry(ProductionOrder, "Item Ledger Entry Type"::Output, OutputItem, Location.Code, 0, ExpectedStandardCost * Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    procedure VerifyCostFieldsMustBeUpdatedInSKUIfNonInventoryItemExistInProdBOMWhenRevaluationJournalIsPosted()
+    var
+        OutputItem: Record Item;
+        NonInvItem: Record Item;
+        Location: Record Location;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        ProductionBOMHeader: Record "Production BOM Header";
+        RevaluationItemJournalBatch: Record "Item Journal Batch";
+        CalculateStdCost: Codeunit "Calculate Standard Cost";
+        Quantity: Decimal;
+        NonInvUnitCost: Decimal;
+        ExpectedStandardCost: Decimal;
+        ExpectedOvhdCost: Decimal;
+        IndirectCostPer: Decimal;
+        RevaluedUnitCost: Decimal;
+    begin
+        // [SCENARIO 567056] Verify Cost Fields must be updated in SKU If Non-Inventory item exist in Production BOM.
+        // When Revaluation Journal is posted.
+        Initialize();
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Update "Journal Templ. Name Mandatory" in General Ledger Setup.
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Production Item, Non-Inventory Item with Production BOM.
+        CreateProductionItemWithNonInvItemAndProductionBOM(OutputItem, NonInvItem, ProductionBOMHeader);
+
+        // [GIVEN] Save Quantity, Indirect%, Component Unit Cost.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+        NonInvUnitCost := LibraryRandom.RandIntInRange(20, 20);
+        IndirectCostPer := LibraryRandom.RandIntInRange(10, 10);
+        ExpectedOvhdCost := (NonInvUnitCost * IndirectCostPer) / 100;
+        ExpectedStandardCost := NonInvUnitCost + ExpectedOvhdCost;
+        RevaluedUnitCost := ExpectedStandardCost + NonInvUnitCost;
+
+        // [GIVEN] Create and Post Purchase Document for Non-Inventory item with Unit Cost.
+        CreateAndPostPurchaseDocumentWithNonInvItem(NonInvItem, Quantity, NonInvUnitCost);
+
+        // [GIVEN] Update "Costing Method", "Indirect Cost %" in Production item.
+        OutputItem.Validate("Costing Method", OutputItem."Costing Method"::Standard);
+        OutputItem.Validate("Indirect Cost %", IndirectCostPer);
+        OutputItem.Modify();
+
+        // [WHEN] Calculate Cost of Production Item.
+        CalculateStdCost.CalcItem(OutputItem."No.", false);
+
+        // [THEN] Verify Cost fields in Output item.
+        OutputItem.Get(OutputItem."No.");
+        VerifyCostFieldsInItem(OutputItem, ExpectedStandardCost, 0, 0, NonInvUnitCost, NonInvUnitCost, ExpectedOvhdCost, ExpectedOvhdCost);
+
+        // [GIVEN] Create Semi-Stockkeeping Unit.
+        LibraryInventory.CreateStockKeepingUnit(OutputItem, Enum::"SKU Creation Method"::"Location & Variant", false, false);
+
+        // [WHEN] Find Semi-Stockkeeping Unit.
+        StockkeepingUnit.SetRange("Item No.", OutputItem."No.");
+        StockkeepingUnit.SetRange("Location Code", Location.Code);
+        StockkeepingUnit.FindFirst();
+
+        // [THEN] Verify Cost fields in SKU.
+        VerifyCostFieldsInSKU(StockkeepingUnit, ExpectedStandardCost, 0, 0, NonInvUnitCost, NonInvUnitCost, ExpectedOvhdCost, ExpectedOvhdCost);
+
+        // [GIVEN] Create and Post Item Journal with Location Code.
+        CreateAndPostItemJournalLine(OutputItem."No.", Quantity, '', '');
+        CreateAndPostItemJournalLine(OutputItem."No.", Quantity, '', Location.Code);
+
+        // [GIVEN] Revaluation Journal Setup.
+        RevaluationJournalSetup(RevaluationItemJournalBatch);
+
+        // [GIVEN] Calculate Inventory Value.
+        CalculateInventoryValue(RevaluationItemJournalBatch, OutputItem);
+
+        // [GIVEN] Update Revaluation Item Journal.
+        UpdateRevaluationJournalLine(OutputItem."No.", '', RevaluedUnitCost);
+        UpdateRevaluationJournalLine(OutputItem."No.", Location.Code, RevaluedUnitCost);
+
+        // [WHEN] Post Revaluation Item Journal.
+        LibraryInventory.PostItemJournalLine(RevaluationItemJournalBatch."Journal Template Name", RevaluationItemJournalBatch.Name);
+
+        // [THEN] Verify Cost fields in Output item.
+        OutputItem.Get(OutputItem."No.");
+        VerifyCostFieldsInItem(OutputItem, RevaluedUnitCost, RevaluedUnitCost, RevaluedUnitCost, 0, 0, 0, 0);
+
+        // [THEN] Verify Cost Fields must be updated in SKU When Revaluation Journal is posted.
+        StockkeepingUnit.Get(StockkeepingUnit."Location Code", StockkeepingUnit."Item No.", StockkeepingUnit."Variant Code");
+        VerifyCostFieldsInSKU(StockkeepingUnit, RevaluedUnitCost, RevaluedUnitCost, RevaluedUnitCost, 0, 0, 0, 0);
     end;
 
     local procedure Initialize()
@@ -4419,31 +4501,31 @@ codeunit 137083 "SCM Production Orders IV"
         Assert.AreEqual(
             StandardCost,
             Item."Standard Cost",
-            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Standard Cost"), StandardCost, Item."No.", Item.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Standard Cost"), StandardCost, Item."No.", Item.TableCaption()));
         Assert.AreEqual(
             SLNonInvMatCost,
             Item."Single-Lvl Mat. Non-Invt. Cost",
-            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Single-Lvl Mat. Non-Invt. Cost"), SLNonInvMatCost, Item."No.", Item.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Single-Lvl Mat. Non-Invt. Cost"), SLNonInvMatCost, Item."No.", Item.TableCaption()));
         Assert.AreEqual(
             RUNonInvMatCost,
             Item."Rolled-up Mat. Non-Invt. Cost",
-            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Rolled-up Mat. Non-Invt. Cost"), RUNonInvMatCost, Item."No.", Item.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Rolled-up Mat. Non-Invt. Cost"), RUNonInvMatCost, Item."No.", Item.TableCaption()));
         Assert.AreEqual(
             SLMatCost,
             Item."Single-Level Material Cost",
-            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Single-Level Material Cost"), SLMatCost, Item."No.", Item.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Single-Level Material Cost"), SLMatCost, Item."No.", Item.TableCaption()));
         Assert.AreEqual(
             RUMatCost,
             Item."Rolled-up Material Cost",
-            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Rolled-up Material Cost"), RUMatCost, Item."No.", Item.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Rolled-up Material Cost"), RUMatCost, Item."No.", Item.TableCaption()));
         Assert.AreEqual(
             SLMfgOvhdCost,
             Item."Single-Level Mfg. Ovhd Cost",
-            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Single-Level Mfg. Ovhd Cost"), SLMfgOvhdCost, Item."No.", Item.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Single-Level Mfg. Ovhd Cost"), SLMfgOvhdCost, Item."No.", Item.TableCaption()));
         Assert.AreEqual(
             RUMfgOvhdCost,
             Item."Rolled-up Mfg. Ovhd Cost",
-            StrSubstNo(EntryMustBeEqualErr, Item.FieldCaption("Rolled-up Mfg. Ovhd Cost"), RUMfgOvhdCost, Item."No.", Item.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Rolled-up Mfg. Ovhd Cost"), RUMfgOvhdCost, Item."No.", Item.TableCaption()));
     end;
 
     local procedure VerifyCostFieldsInSKU(SKU: Record "Stockkeeping Unit"; StandardCost: Decimal; SLMatCost: Decimal; RUMatCost: Decimal; SLNonInvMatCost: Decimal; RUNonInvMatCost: Decimal; SLMfgOvhdCost: Decimal; RUMfgOvhdCost: Decimal)
@@ -4451,31 +4533,31 @@ codeunit 137083 "SCM Production Orders IV"
         Assert.AreEqual(
             StandardCost,
             SKU."Standard Cost",
-            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Standard Cost"), StandardCost, SKU."Item No.", SKU.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, SKU.FieldCaption("Standard Cost"), StandardCost, SKU."Item No.", SKU.TableCaption()));
         Assert.AreEqual(
             SLNonInvMatCost,
             SKU."Single-Lvl Mat. Non-Invt. Cost",
-            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Single-Lvl Mat. Non-Invt. Cost"), SLNonInvMatCost, SKU."Item No.", SKU.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, SKU.FieldCaption("Single-Lvl Mat. Non-Invt. Cost"), SLNonInvMatCost, SKU."Item No.", SKU.TableCaption()));
         Assert.AreEqual(
             RUNonInvMatCost,
             SKU."Rolled-up Mat. Non-Invt. Cost",
-            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Rolled-up Mat. Non-Invt. Cost"), RUNonInvMatCost, SKU."Item No.", SKU.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, SKU.FieldCaption("Rolled-up Mat. Non-Invt. Cost"), RUNonInvMatCost, SKU."Item No.", SKU.TableCaption()));
         Assert.AreEqual(
             SLMatCost,
             SKU."Single-Level Material Cost",
-            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Single-Level Material Cost"), SLMatCost, SKU."Item No.", SKU.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, SKU.FieldCaption("Single-Level Material Cost"), SLMatCost, SKU."Item No.", SKU.TableCaption()));
         Assert.AreEqual(
             RUMatCost,
             SKU."Rolled-up Material Cost",
-            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Rolled-up Material Cost"), RUMatCost, SKU."Item No.", SKU.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, SKU.FieldCaption("Rolled-up Material Cost"), RUMatCost, SKU."Item No.", SKU.TableCaption()));
         Assert.AreEqual(
             SLMfgOvhdCost,
             SKU."Single-Level Mfg. Ovhd Cost",
-            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Single-Level Mfg. Ovhd Cost"), SLMfgOvhdCost, SKU."Item No.", SKU.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, SKU.FieldCaption("Single-Level Mfg. Ovhd Cost"), SLMfgOvhdCost, SKU."Item No.", SKU.TableCaption()));
         Assert.AreEqual(
             RUMfgOvhdCost,
             SKU."Rolled-up Mfg. Ovhd Cost",
-            StrSubstNo(EntryMustBeEqualErr, SKU.FieldCaption("Rolled-up Mfg. Ovhd Cost"), RUMfgOvhdCost, SKU."Item No.", SKU.TableCaption()));
+            StrSubstNo(ItemMustBeEqualErr, SKU.FieldCaption("Rolled-up Mfg. Ovhd Cost"), RUMfgOvhdCost, SKU."Item No.", SKU.TableCaption()));
     end;
 
     local procedure RunBOMCostSharesReport(Item: Record Item; ShowLevel: Option; ShowDetails: Boolean; ShowCostShare: Option)

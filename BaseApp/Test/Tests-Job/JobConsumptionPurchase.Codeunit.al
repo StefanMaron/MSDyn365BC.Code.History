@@ -4339,6 +4339,73 @@ codeunit 136302 "Job Consumption Purchase"
         JobLedgerEntry.TestField("Lot No.", LotNo);
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseOrderReserveFromCurrentLineHandler2')]
+    procedure PurchaseLineNotReservedWhenItemTypeNonInventoryOrService()
+    var
+        Item: array[3] of Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        i: Integer;
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 563482] Verify that it is not possible to reserve a sales line when the item type is Non-Inventory or Service.
+        Initialize();
+        Quantity := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Create Inventory, Non Inventory & Service type item.
+        LibraryInventory.CreateItem(Item[1]);
+        LibraryInventory.CreateNonInventoryTypeItem(Item[2]);
+        LibraryInventory.CreateServiceTypeItem(Item[3]);
+
+        // [GIVEN] Create Job and Job Task.
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Create Purchase Header.
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Set the Work Date to be later than the Purchase Document date.
+        WorkDate := WorkDate() + 1;
+
+        for i := 1 to LibraryRandom.RandIntInRange(3, 3) do begin
+            // [GIVEN] Create a job planning line for Inventory, Non-Inventory, and Service type items.
+            CreateJobPlanningLine(
+                JobPlanningLine, JobTask, JobPlanningLine.Type::Item, Item[i]."No.", Quantity, true);
+            JobPlanningLine.Validate(Reserve, JobPlanningLine.Reserve::Optional);
+            JobPlanningLine.Validate("Unit Cost", LibraryRandom.RandDec(1000, 2));
+            JobPlanningLine.Modify(true);
+
+            // [GIVEN] Create a purchase line for Inventory, Non-Inventory, and Service type items.
+            LibraryPurchase.CreatePurchaseLine(
+                PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item[i]."No.", Quantity);
+
+            Commit();
+            // [GIVEN] Open Purchase Order Page
+            PurchaseOrder.OpenEdit();
+            PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+            PurchaseOrder.PurchLines.Filter.SetFilter("No.", Item[i]."No.");
+
+            // [WHEN] Item type Inventory
+            if Item[i].IsInventoriableType() then
+                PurchaseOrder.PurchLines.Reserve.Invoke()
+            else
+                asserterror PurchaseOrder.PurchLines.Reserve.Invoke();
+            PurchaseOrder.Close();
+        end;
+
+        // [GIVEN] Post the Purchase Document
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] Verify Remaining Quantity on Item Ledger Entry.
+        VerifyItemLedgerEntry(Item[1], Quantity); // Item Type Inventory.
+        VerifyItemLedgerEntry(Item[2], 0); // Item Type Non Inventory.
+        VerifyItemLedgerEntry(Item[3], 0); // Item Type Service.
+    end;
+
     local procedure Initialize()
     var
         WarehouseEmployee: Record "Warehouse Employee";
@@ -6702,6 +6769,14 @@ codeunit 136302 "Job Consumption Purchase"
         CreateInvtPutawayPickMvmt.OK().Invoke();
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderReserveFromCurrentLineHandler2(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
+    end;
+
     local procedure UndoPurchReciptAndAdjustCostItemEntries(var PurchaseLine: Record "Purchase Line"; var Item: Record Item)
     begin
         UndoPurchRcpt(PurchaseLine);
@@ -6789,6 +6864,21 @@ codeunit 136302 "Job Consumption Purchase"
         PostedWhseReceiptLine.SetRange("Source No.", PurchaseLine."Document No.");
         PostedWhseReceiptLine.SetRange("Source Line No.", PurchaseLine."Line No.");
         PostedWhseReceiptLine.FindFirst();
+    end;
+
+    local procedure VerifyItemLedgerEntry(Item: Record Item; Quantity: Decimal)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.CalcFields("Reserved Quantity");
+        if Item.IsInventoriableType() then
+            Assert.AreEqual(ItemLedgerEntry."Reserved Quantity", Quantity,
+                StrSubstNo(ValueMustMatchErr, ItemLedgerEntry."Reserved Quantity", Quantity))
+        else
+            Assert.AreEqual(ItemLedgerEntry."Reserved Quantity", Quantity,
+                StrSubstNo(ValueMustMatchErr, ItemLedgerEntry."Reserved Quantity", Quantity))
     end;
 }
 

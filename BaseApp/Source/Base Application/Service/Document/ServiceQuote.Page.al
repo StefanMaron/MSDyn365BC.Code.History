@@ -294,7 +294,7 @@ page 5964 "Service Quote"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county of the address.';
                         }
@@ -469,7 +469,7 @@ page 5964 "Service Quote"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county of the address.';
                         }

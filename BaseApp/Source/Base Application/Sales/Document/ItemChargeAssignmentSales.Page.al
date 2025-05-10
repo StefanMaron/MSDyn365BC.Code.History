@@ -483,7 +483,7 @@ page 5814 "Item Charge Assignment (Sales)"
     local procedure UpdateQty()
     begin
         case Rec."Applies-to Doc. Type" of
-            "Sales Applies-to Document Type"::Order, "Sales Applies-to Document Type"::Invoice:
+            "Sales Applies-to Document Type"::Quote, "Sales Applies-to Document Type"::Order, "Sales Applies-to Document Type"::Invoice:
                 begin
                     SalesLine.Get(Rec."Applies-to Doc. Type", Rec."Applies-to Doc. No.", Rec."Applies-to Doc. Line No.");
                     QtyToShipBase := SalesLine."Qty. to Ship (Base)";
