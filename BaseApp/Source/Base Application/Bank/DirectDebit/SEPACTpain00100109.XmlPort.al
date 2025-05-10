@@ -50,46 +50,6 @@ xmlport 1001 "SEPA CT pain.001.001.09"
                         fieldelement(Nm; CompanyInformation.Name)
                         {
                         }
-                        textelement(initgptypstladr)
-                        {
-                            XmlName = 'PstlAdr';
-                            fieldelement(StrtNm; CompanyInformation.Address)
-                            {
-
-                                trigger OnBeforePassField()
-                                begin
-                                    if CompanyInformation.Address = '' then
-                                        currXMLport.Skip();
-                                end;
-                            }
-                            fieldelement(PstCd; CompanyInformation."Post Code")
-                            {
-
-                                trigger OnBeforePassField()
-                                begin
-                                    if CompanyInformation."Post Code" = '' then
-                                        currXMLport.Skip();
-                                end;
-                            }
-                            fieldelement(TwnNm; CompanyInformation.City)
-                            {
-
-                                trigger OnBeforePassField()
-                                begin
-                                    if CompanyInformation.City = '' then
-                                        currXMLport.Skip();
-                                end;
-                            }
-                            fieldelement(Ctry; CompanyInformation."Country/Region Code")
-                            {
-
-                                trigger OnBeforePassField()
-                                begin
-                                    if CompanyInformation."Country/Region Code" = '' then
-                                        currXMLport.Skip();
-                                end;
-                            }
-                        }
                         textelement(initgptyid)
                         {
                             XmlName = 'Id';
@@ -414,7 +374,7 @@ xmlport 1001 "SEPA CT pain.001.001.09"
     trigger OnPreXmlPort()
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";     
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";
     begin
         FeatureTelemetry.LogUptake('0000N1Z', SEPACTExportFile.FeatureName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000N20', SEPACTExportFile.FeatureName(), 'XmlPort SEPA CT pain.001.001.09');

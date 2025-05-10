@@ -63,7 +63,7 @@ table 189 "VAT Setup"
         }
         field(11; "Non-Deductible VAT Is Enabled"; Boolean)
         {
-            Caption = 'Show Non-Ded. VAT In Lines';
+            Caption = 'Non-Deductible VAT Is Enabled';
             Editable = false;
         }
         field(12; "Allow VAT Date From"; Date)

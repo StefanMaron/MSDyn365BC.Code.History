@@ -327,6 +327,11 @@ table 17 "G/L Entry"
         {
             Caption = 'Journal Template Name';
         }
+        field(79; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -337,11 +342,6 @@ table 17 "G/L Entry"
             begin
                 Rec.ShowDimensions();
             end;
-        }
-        field(79; "VAT Reporting Date"; Date)
-        {
-            Caption = 'VAT Date';
-            Editable = false;
         }
         field(481; "Shortcut Dimension 3 Code"; Code[20])
         {

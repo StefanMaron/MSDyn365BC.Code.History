@@ -733,7 +733,7 @@ codeunit 144006 "CODA Tests"
         CODAWriteStatements.Apply(CODAStatementLine);
 
         // [WHEN] Set applies-to id to blank in the "Apply Entries" page and then press Cancel
-        LibraryVariableStorage.Enqueue(CODAStatementLine."Document No.");
+        LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(false);
         CODAWriteStatements.Apply(CODAStatementLine);
 

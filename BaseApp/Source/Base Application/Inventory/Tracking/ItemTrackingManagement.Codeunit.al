@@ -2141,7 +2141,10 @@ codeunit 6500 "Item Tracking Management"
                             else
                                 if RegisteredWhseActLine."Whse. Document Type" = RegisteredWhseActLine."Whse. Document Type"::Shipment then begin
                                     ZeroQtyToHandle := true;
-                                    Qty := -(TempTrackingSpecification."Qty. to Handle (Base)" + CalcQtyBaseRegistered(RegisteredWhseActLine));
+                                    Qty :=
+                                        -(TempTrackingSpecification."Qty. to Handle (Base)" +
+                                            CalcQtyBaseRegistered(RegisteredWhseActLine) -
+                                            CalcQtyBaseShipped(RegisteredWhseActLine));
                                 end;
                         end;
 
@@ -2324,7 +2327,7 @@ codeunit 6500 "Item Tracking Management"
 
         if ItemLedgEntry.GetFilters() <> '' then
             ItemLedgEntry.Reset();
-        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Lot No.", "Package No.", "Serial No.");
+        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.", "Package No.");
         ItemLedgEntry.SetRange("Item No.", ItemNo);
         ItemLedgEntry.SetRange("Variant Code", VariantCode);
         ItemLedgEntry.SetRange(Positive, true);
@@ -2625,7 +2628,7 @@ codeunit 6500 "Item Tracking Management"
         RegisteredWhseActivityLineForCalcBaseQty: Record "Registered Whse. Activity Line";
     begin
         RegisteredWhseActivityLineForCalcBaseQty.CopyFilters(RegisteredWhseActivityLine);
-        RegisteredWhseActivityLineForCalcBaseQty.SetRange("Action Type", RegisteredWhseActivityLineForCalcBaseQty."Action Type"::Place);
+        RegisteredWhseActivityLineForCalcBaseQty.SetFilter("Action Type", '<>%1', RegisteredWhseActivityLineForCalcBaseQty."Action Type"::Take);
         RegisteredWhseActivityLineForCalcBaseQty.CalcSums("Qty. (Base)");
         exit(RegisteredWhseActivityLineForCalcBaseQty."Qty. (Base)");
     end;
@@ -3797,6 +3800,17 @@ codeunit 6500 "Item Tracking Management"
     local procedure ProdOrderCompID(): Integer
     begin
         exit(5407);
+    end;
+
+    local procedure CalcQtyBaseShipped(RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"): Decimal
+    var
+        WarehouseShipmentline: Record "Warehouse Shipment Line";
+    begin
+        WarehouseShipmentline.SetRange("No.", RegisteredWhseActivityLine."Whse. Document No.");
+        WarehouseShipmentline.SetRange("Line No.", RegisteredWhseActivityLine."Whse. Document Line No.");
+        WarehouseShipmentline.CalcSums("Qty. Shipped (Base)");
+
+        exit(WarehouseShipmentline."Qty. Shipped (Base)");
     end;
 
     [IntegrationEvent(false, false)]

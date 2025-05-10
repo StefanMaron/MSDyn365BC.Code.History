@@ -181,7 +181,7 @@ page 5743 "Posted Transfer Shipment"
                     field("Transfer-from County"; Rec."Transfer-from County")
                     {
                         ApplicationArea = Location;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Trsf.-from Country/Region Code";
                         Editable = false;
                         Importance = Additional;
                     }
@@ -259,7 +259,7 @@ page 5743 "Posted Transfer Shipment"
                     field("Transfer-to County"; Rec."Transfer-to County")
                     {
                         ApplicationArea = Location;
-                        Caption = 'County';
+                        CaptionClass = '5,1,' + Rec."Trsf.-to Country/Region Code";
                         Editable = false;
                         Importance = Additional;
                     }

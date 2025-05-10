@@ -1,6 +1,7 @@
 namespace System.Threading;
 
 using System.IO;
+using System.Telemetry;
 
 codeunit 448 "Job Queue Dispatcher"
 {
@@ -12,14 +13,18 @@ codeunit 448 "Job Queue Dispatcher"
 
     trigger OnRun()
     var
+        TelemetrySubscribers: Codeunit "Telemetry Subscribers";
         Skip: Boolean;
     begin
         OnBeforeRun(Rec, Skip);
-        if Skip then
+        if Skip then begin
+            TelemetrySubscribers.SendJobQueueSkippedTelemetry(Rec);
             exit;
-
-        if not Rec.IsReadyToStart() then
+        end;
+        if not Rec.IsReadyToStart() then begin
+            TelemetrySubscribers.SendJobQueueNotReadyToStartTelemetry(Rec);
             exit;
+        end;
 
         Rec.RefreshLocked();
 

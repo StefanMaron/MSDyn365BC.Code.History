@@ -1370,13 +1370,38 @@ codeunit 144025 "Test Enterprise No and Branch"
         Assert.AreEqual(ReturnRcptHeader.FieldCaption("VAT Registration No."), ReturnRcptHeader.GetCustomerVATRegistrationNumberLbl(), 'Invalid VAT Registration No. label');
     end;
 
+    [Test]
+    procedure EnterpriseNoTakenFromCustomerWhenSellToVATCalcInGenLedgSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 574040] Enterprise number is taken from the customer card when "Bill-to/Sell-to VAT Calc." is "Sell-to/Buy-from No." in general ledger setup
+
+        Initialize();
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Customer with "Enterprise No." = "X"
+        LibrarySales.CreateCustomer(Customer);
+        Customer."Enterprise No." := LibraryUtility.GenerateGUID();
+        Customer.Modify(true);
+        // [WHEN] Stan creates sales invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [THEN] Enterprise No. is set to "X" in the sales invoice
+        SalesHeader.Testfield("Enterprise No.", Customer."Enterprise No.");
+    end;
+
     local procedure Initialize()
     var
         FeatureKey: Record "Feature Key";
         FeatureKeyUpdateStatus: Record "Feature Data Update Status";
     begin
         LibrarySetupStorage.Restore();
-        
+
         if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
             FeatureKey.Enabled := FeatureKey.Enabled::None;
             FeatureKey.Modify();
@@ -1391,6 +1416,7 @@ codeunit 144025 "Test Enterprise No and Branch"
 
         LibraryBEHelper.InitializeCompanyInformation();
         LibrarySetupStorage.SaveCompanyInformation();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         IsInitialized := true;
     end;

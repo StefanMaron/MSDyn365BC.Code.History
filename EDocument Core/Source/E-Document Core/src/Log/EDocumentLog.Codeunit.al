@@ -154,7 +154,13 @@ codeunit 6132 "E-Document Log"
         if (EDocumentService."Service Integration" = EDocumentService."Service Integration"::"No Integration") and
         (EDocumentService."Service Integration V2" = EDocumentService."Service Integration V2"::"No Integration") then
             exit;
+#else
+        if (EDocumentService."Service Integration V2" = EDocumentService."Service Integration V2"::"No Integration") then
+            exit;
 #endif
+
+        if HttpRequest.GetRequestUri() = '' then
+            exit;
 
         EDocumentIntegrationLog.Validate("E-Doc. Entry No", EDocument."Entry No");
         EDocumentIntegrationLog.Validate("Service Code", EDocumentService.Code);

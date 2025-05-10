@@ -132,6 +132,9 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
         GLSetup: Record "General Ledger Setup";
         AltCustVATReg: Record "Alt. Cust. VAT Reg.";
     begin
+        if not SalesHeader."Alt. Enterprise No." then
+            SalesHeader."Enterprise No." := BillToCustomer."Enterprise No.";
+
         GLSetup.Get();
         if GLSetup."Bill-to/Sell-to VAT Calc." <> GLSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No." then
             exit;
@@ -152,10 +155,8 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
             SalesHeader."VAT Bus. Posting Group" := BillToCustomer."VAT Bus. Posting Group";
         SalesHeader."VAT Country/Region Code" := BillToCustomer."Country/Region Code";
         SalesHeader."VAT Registration No." := BillToCustomer."VAT Registration No.";
-        SalesHeader."Enterprise No." := BillToCustomer."Enterprise No.";
         SalesHeader."Registration Number" := BillToCustomer."Registration Number";
         SalesHeader."Gen. Bus. Posting Group" := BillToCustomer."Gen. Bus. Posting Group";
-        SalesHeader."Enterprise No." := BillToCustomer."Enterprise No.";
         OnAfterUpdateSetupOnBillToCustomerChangeInSalesHeader(SalesHeader, BillToCustomer);
     end;
 
@@ -237,6 +238,7 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
             SalesHeader.Validate("Alt. Enterprise No.", true);
             SalesHeader.Validate("Enterprise No.", AltCustVATReg."Enterprise No.");
         end;
+        OnAfterUpdateAltCustVATRegInSalesHeader(SalesHeader, AltCustVATReg);
         UnbindSubscription(this);
         FeatureTelemetry.LogUptake('0000NHG', FeatureNameTxt, Enum::"Feature Uptake Status"::Used);
     end;
@@ -397,6 +399,11 @@ codeunit 205 "Alt. Cust. VAT Reg. Doc. Impl." implements "Alt. Cust. VAT Reg. Do
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterBuildFieldChangeBuffer(var TempChangeLogEntry: Record "Change Log Entry" temporary; SalesHeader: Record "Sales Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateAltCustVATRegInSalesHeader(var SalesHeader: Record "Sales Header"; var AltCustVATReg: Record "Alt. Cust. VAT Reg.")
     begin
     end;
 }
