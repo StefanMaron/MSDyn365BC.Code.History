@@ -48,6 +48,7 @@ page 905 "Assembly Setup"
                 field("Default Gen. Bus. Post. Group"; Rec."Default Gen. Bus. Post. Group")
                 {
                     ApplicationArea = Assembly;
+                    ToolTip = 'Specifies the general business posting group that is used by default for assembly orders.';
                 }
             }
             group(Numbering)

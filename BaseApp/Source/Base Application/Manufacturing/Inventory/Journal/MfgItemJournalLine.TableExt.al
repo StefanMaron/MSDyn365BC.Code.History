@@ -731,7 +731,7 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
         if ProdOrderLineList.RunModal() = ACTION::LookupOK then begin
             ProdOrderLineList.GetRecord(ProdOrderLine);
             Validate("Item No.", ProdOrderLine."Item No.");
-            if ProdOrderLine."Variant Code" <> '' then
+            if (ProdOrderLine."Variant Code" <> '') and ("Variant Code" <> ProdOrderLine."Variant Code") then
                 Validate("Variant Code", ProdOrderLine."Variant Code");
             if "Order Line No." <> ProdOrderLine."Line No." then
                 Validate("Order Line No.", ProdOrderLine."Line No.");

@@ -104,7 +104,7 @@ page 136 "Posted Purchase Receipt"
                         field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                             Editable = false;
                             ToolTip = 'Specifies the state, province or county related to the posted purchase order.';
                         }
@@ -288,7 +288,7 @@ page 136 "Posted Purchase Receipt"
                         field("Pay-to County"; Rec."Pay-to County")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                             Editable = false;
                             ToolTip = 'Specifies the state, province or county related to the posted purchase order.';
                         }
@@ -378,7 +378,7 @@ page 136 "Posted Purchase Receipt"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Editable = false;
                             ToolTip = 'Specifies the state, province or county related to the posted purchase order.';
                         }

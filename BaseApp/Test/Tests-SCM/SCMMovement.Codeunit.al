@@ -21,6 +21,7 @@ codeunit 137931 "SCM - Movement"
         TotalPendingMovQtyExceedsBinAvailErr: Label 'Item tracking defined for line %1, lot number %2, serial number %3, package number %4 cannot be applied.', Comment = '%1=Line No.,%2=Lot No.,%3=Serial No.,%4=Package No.';
         DialogCodeErr: Label 'Dialog';
         LinesExistErr: Label 'You cannot change %1 because one or more lines exist.';
+        NothingToReplenishErr: Label 'There is nothing to replenish.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1123,6 +1124,54 @@ codeunit 137931 "SCM - Movement"
         asserterror WarehouseActivityLine.Validate("Bin Code", PutAwayBin.Code);
     end;
 
+    [Test]
+    procedure CalculateBinReplenishmentInMovementWorksheetForMaxQtyOfFixedBinContent()
+    var
+        Item: Record Item;
+        PutAwayBin: Record Bin;
+        PutPickBin: Record Bin;
+        BinContent: Record "Bin Content";
+        BinContentFilter: Record "Bin Content";
+        LocationCode: Code[10];
+        ItemNo: Code[20];
+        MinQty: Decimal;
+    begin
+        // [SCENARIO 561988] When Calculate Bin Replenishment in Movement Worksheet then Qty should be less than "Max. Qty" of Fixed Bin Content
+        Initialize();
+
+        // [GIVEN] Create Item 
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Generate Random Min Qty
+        MinQty := LibraryRandom.RandIntInRange(5, 10);
+
+        // [GIVEN] Location with with Put Pick Bin and Put-away Bin, Bin Ranking is higher for Pick Bin
+        LocationCode := CreateFullWMSLocation(1, false);
+        LibraryWarehouse.FindBin(PutPickBin, LocationCode, FindZone(LocationCode, FindBinType(true, true, false, false)), 1);
+        LibraryWarehouse.CreateBinContent(BinContent, LocationCode, PutPickBin."Zone Code", PutPickBin.Code, ItemNo, '', GetItemBaseUoM(ItemNo));
+        UpdateBinContentForReplenishmentWithFixedBin(BinContent, MinQty, 2 * MinQty, LibraryRandom.RandIntInRange(11, 20));
+
+        // [GIVEN] Bin Content for Put-away Bin
+        LibraryWarehouse.FindBin(PutAwayBin, LocationCode, FindZone(LocationCode, FindBinType(false, true, false, false)), 1);
+        LibraryWarehouse.CreateBinContent(
+          BinContent, LocationCode, PutAwayBin."Zone Code", PutAwayBin.Code, ItemNo, '', GetItemBaseUoM(ItemNo));
+        UpdateBinContentForReplenishmentWithFixedBin(BinContent, 0, 0, LibraryRandom.RandIntInRange(1, 10));
+
+        // [GIVEN] Create and Post Two Positive Adjustment for Item
+        Item.Get(ItemNo);
+        CreateAndPostTwoPositiveAdjustmt(Item, LocationCode, PutAwayBin.Code, PutPickBin.Code, 5 * MinQty, LibraryRandom.RandIntInRange(1, 2));
+
+        // [GIVEN] Calculate Bin Replenishment
+        BinContentFilter.SetRange("Item No.", ItemNo);
+        CalculateBinReplenishmentWithDialog(BinContentFilter, LocationCode);
+
+        // [WHEN] Calculate Bin Replenishment again
+        asserterror CalculateBinReplenishmentWithDialog(BinContentFilter, LocationCode);
+
+        // [THEN] Error should occur while calculating Bin Replenishment
+        Assert.ExpectedError(NothingToReplenishErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1442,6 +1491,63 @@ codeunit 137931 "SCM - Movement"
     begin
         Item.Get(ItemNo);
         exit(Item."Base Unit of Measure");
+    end;
+
+    local procedure UpdateBinContentForReplenishmentWithFixedBin(var BinContent: Record "Bin Content"; MinQty: Decimal; MaxQty: Decimal; BinRanking: Integer)
+    begin
+        BinContent.Validate(Fixed, true);
+        BinContent.Validate("Min. Qty.", MinQty);
+        BinContent.Validate("Max. Qty.", MaxQty);
+        BinContent.Validate("Bin Ranking", BinRanking);
+        BinContent.Modify(true);
+    end;
+
+    local procedure CalculateBinReplenishmentWithDialog(BinContent: Record "Bin Content"; LocationCode: Code[10])
+    var
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+    begin
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
+        LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
+        LibraryWarehouse.CalculateBinReplenishment(BinContent, WhseWorksheetName, LocationCode, true, false, false);
+    end;
+
+    local procedure CreateAndPostTwoPositiveAdjustmt(Item: Record Item; LocationCode: Code[10]; BinCode1: Code[20]; BinCode2: Code[20]; Qty1: Decimal; Qty2: Decimal)
+    var
+        Location: Record Location;
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        WhseJournalTemplate: Record "Warehouse Journal Template";
+        WhseJournalBatch: Record "Warehouse Journal Batch";
+    begin
+        FindItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        Location.Get(LocationCode);
+        LibraryWarehouse.WarehouseJournalSetup(LocationCode, WhseJournalTemplate, WhseJournalBatch);
+        LibraryWarehouse.CreateWhseJournalLine(
+            WarehouseJournalLine, WhseJournalTemplate.Name,
+            WhseJournalBatch.Name, LocationCode, '',
+            BinCode1, WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
+            Item."No.", Qty1);
+        LibraryWarehouse.CreateWhseJournalLine(
+            WarehouseJournalLine, WhseJournalTemplate.Name,
+            WhseJournalBatch.Name, LocationCode, '',
+            BinCode2, WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
+            Item."No.", Qty2);
+        LibraryWarehouse.PostWhseJournalLine(WhseJournalTemplate.Name, WhseJournalBatch.Name, LocationCode);
+        Item.SetRange("Location Filter", LocationCode);
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate(), '');
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
+    local procedure FindItemJournal(var ItemJournalTemplate: Record "Item Journal Template"; var ItemJournalBatch: Record "Item Journal Batch")
+    begin
+        ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
+        ItemJournalTemplate.SetRange(Recurring, false);
+        ItemJournalTemplate.FindFirst();
+        ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
+        ItemJournalBatch.FindFirst();
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
     [ModalPageHandler]

@@ -132,6 +132,9 @@ table 39 "Purchase Line"
                                 PurchHeader.TestField(Status, PurchHeader.Status::Open);
                         Type::"Charge (Item)":
                             DeleteChargeChargeAssgnt("Document Type", "Document No.", "Line No.");
+                        Type::" ":
+                            if ("Attached to Line No." <> 0) and (Quantity = 0) then
+                                Error(ChangeExtendedTextErr, FieldCaption(Type));
                     end;
                     if xRec."Deferral Code" <> '' then
                         DeferralUtilities.RemoveOrSetDeferralSchedule('',
@@ -3569,6 +3572,13 @@ table 39 "Purchase Line"
         {
             Caption = 'Over-Receipt Approval Status';
         }
+        field(8512; "Buy-from Vendor Name"; Text[100])
+        {
+            CalcFormula = lookup(Vendor.Name where("No." = field("Buy-from Vendor No.")));
+            Caption = 'Buy-from Vendor Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
@@ -3935,6 +3945,7 @@ table 39 "Purchase Line"
         CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
         LineAmountInvalidErr: Label 'You have set the line amount to a value that results in a discount that is not valid. Consider increasing the unit cost instead.';
+        ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
 
     protected var
         HideValidationDialog: Boolean;
@@ -6804,6 +6815,7 @@ table 39 "Purchase Line"
                         end;
                         if PurchLine.Type = PurchLine.Type::"Charge (Item)" then
                             PurchLine.UpdateItemChargeAssgnt();
+                        OnUpdateVATOnLinesOnBeforeModifyPurchLine(PurchLine, VATAmount);
                         PurchLine.Modify();
                         LineWasModified := true;
 
@@ -9682,7 +9694,14 @@ table 39 "Purchase Line"
     end;
 
     internal procedure TestPurchaseJobFields()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestPurchaseJobFields(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Rec."Job No." = '' then
             exit;
 
@@ -11696,6 +11715,16 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateIndirectCostOnAfterCalcShouldCheckCostingMethod(var PurchaseLine: Record "Purchase Line"; var ShouldCheckCostingMethod: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnBeforeModifyPurchLine(var PurchaseLine: Record "Purchase Line"; VATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestPurchaseJobFields(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean);
     begin
     end;
 }

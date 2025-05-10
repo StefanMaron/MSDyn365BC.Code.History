@@ -636,7 +636,7 @@ codeunit 99000830 "Create Reserv. Entry"
     begin
         // This event used internally for base app source tables
         OnCheckSourceTypeSubtype(ReservEntry, IsError);
-        
+
         // This event used for compatibility with previous versions
         OnAfterCheckValidity(ReservEntry, IsError);
 
@@ -955,7 +955,6 @@ codeunit 99000830 "Create Reserv. Entry"
         UseQtyToInvoice := UseQtyToInvoice2;
     end;
 
-    [Scope('OnPrem')]
     procedure SetUntrackedSurplus(OrderTracking: Boolean)
     begin
         InsertReservEntry."Untracked Surplus" := OrderTracking;

@@ -21,7 +21,13 @@ codeunit 1019 "Job-Explode BOM"
     var
         AssembleToOrderLink: Record "Assemble-to-Order Link";
         HideDialog: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Job.Get(Rec."Job No.");
 
         CheckJobPlanningLine(Rec);
@@ -244,5 +250,10 @@ codeunit 1019 "Job-Explode BOM"
         ReservMgt.SetReservSource(JobPlanningLine);
         ReservMgt.SetItemTrackingHandling(1);
         ReservMgt.DeleteReservEntries(true, 0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
     end;
 }

@@ -472,8 +472,10 @@ report 99001020 "Carry Out Action Msg. - Plan."
         "Requisition Line".SetRange("Worksheet Template Name", CurrReqWkshTemp);
         if CurrReqWkshTemp <> '' then
             "Requisition Line".SetRange("Journal Batch Name", CurrReqWkshName);
+        "Requisition Line".FilterGroup(2);
         "Requisition Line".SetRange(Type, "Requisition Line".Type::Item);
         "Requisition Line".SetFilter("Action Message", '<>%1', "Requisition Line"."Action Message"::" ");
+        "Requisition Line".FilterGroup(0);
         OnAfterSetReqLineFilters("Requisition Line");
     end;
 

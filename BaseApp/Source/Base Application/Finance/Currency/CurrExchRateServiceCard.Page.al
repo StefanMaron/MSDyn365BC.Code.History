@@ -208,16 +208,18 @@ page 1651 "Curr. Exch. Rate Service Card"
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         WebServiceURL: Text;
-        NotEnabledAndCurrPageEditable: Boolean;
         EnabledWarningTok: Label 'You must disable the service before you can make changes.';
         DisableEnableQst: Label 'Do you want to disable currency exchange rate service?';
         TheXMLStructureCannotBeReadMsg: Label 'The XML structure cannot be read. Try to verify if the service is valid.';
         PreviousWebServiceURL: Text;
-        EnabledAndCurrPageEditable: Boolean;
         IsSoftwareAsService: Boolean;
         ShowEnableWarning: Text;
         EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Currency Exch. Rate Service)';
         XmlStructureIsNotSupportedErr: Label ' The provided url does not contain a supported structure.';
+
+    protected var
+        NotEnabledAndCurrPageEditable: Boolean;
+        EnabledAndCurrPageEditable: Boolean;
 
     local procedure UpdateSimpleMappingsPart()
     begin
@@ -276,6 +278,7 @@ page 1651 "Curr. Exch. Rate Service Card"
         NotEnabledAndCurrPageEditable := not Rec.Enabled and CurrPage.Editable;
         EnabledAndCurrPageEditable := Rec.Enabled and CurrPage.Editable;
         ShowEnableWarning := '';
+        OnUpdateBasedOnEnableOnBeforeSetShowEnableWarning(Rec);
         if CurrPage.Editable and Rec.Enabled then
             ShowEnableWarning := EnabledWarningTok;
     end;
@@ -322,6 +325,11 @@ page 1651 "Curr. Exch. Rate Service Card"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenerateXMLStructure(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBasedOnEnableOnBeforeSetShowEnableWarning(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup")
     begin
     end;
 }

@@ -10,6 +10,7 @@ codeunit 137301 "SCM Inventory Reports - I"
 
     var
         Assert: Codeunit Assert;
+        LibraryERM: Codeunit "Library - ERM";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
@@ -1187,6 +1188,43 @@ codeunit 137301 "SCM Inventory Reports - I"
         LibraryReportDataset.AssertElementWithValueExists('IncreaseExpectedQty', Item.Inventory);
     end;
 
+    [Test]
+    [HandlerFunctions('PostInvtCostToGLWithBatchRequestPageHandler,MessageHandler')]
+    procedure CheckDocNoInPostInvCostToGLReportWhenTemplateAndBatchAreDifferFromGLSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GenJournalBatch: array[2] of Record "Gen. Journal Batch";
+        i: Integer;
+    begin
+        // [SCENARIO 560866] Verify the document number in 'Post Inventory Cost to G/L' when the report request page parameters for Template and Batch differ from the G/L setup.
+        Initialize();
+
+        // [GIVEN] Create two General Journal Batches with No. Series.
+        for i := 1 to 2 do
+            CreateGenJournalBatchWithNoSeries(GenJournalBatch[i]);
+
+        // [GIVEN] Setup: General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Journal Templ. Name Mandatory", true);
+        GeneralLedgerSetup.Validate("Apply Jnl. Template Name", GenJournalBatch[1]."Journal Template Name");
+        GeneralLedgerSetup.Validate("Apply Jnl. Batch Name", GenJournalBatch[1].Name);
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Enqueue the Journal Template Name and Batch Name.
+        LibraryVariableStorage.Enqueue(GenJournalBatch[2]."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalBatch[2].Name);
+
+        // [WHEN] Exercise: Run Post Inventory Cost to G/L report.
+        Commit();
+        Report.RunModal(Report::"Post Inventory Cost to G/L");
+
+        // [THEN] Verify the document number when different templates and batches are used.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueNotExist('DocNo', GenJournalBatch[1]."No. Series");
+        LibraryReportDataset.AssertElementWithValueExists('DocNo', GenJournalBatch[2]."No. Series");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1523,6 +1561,31 @@ codeunit 137301 "SCM Inventory Reports - I"
         PurchaseLine.Modify(true);
     end;
 
+    local procedure CreateGenJournalBatchWithNoSeries(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        CreateNoSeriesWithIncrementByNo(NoSeriesLine);
+        GenJournalBatch.Validate("No. Series", NoSeriesLine."Series Code");
+        GenJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateNoSeriesWithIncrementByNo(var NoSeriesLine: Record "No. Series Line")
+    var
+        NoSeries: Record "No. Series";
+    begin
+        NoSeries.Get(LibraryERM.CreateNoSeriesCode());
+        NoSeriesLine.SetRange("Series Code", NoSeries.Code);
+        NoSeriesLine.FindFirst();
+        NoSeriesLine.Validate("Starting Date", WorkDate());
+        NoSeriesLine.Validate("Starting No.", NoSeries.Code);
+        NoSeriesLine.Validate("Increment-by No.", 10);
+        NoSeriesLine.Modify(true);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -1731,6 +1794,17 @@ codeunit 137301 "SCM Inventory Reports - I"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
+    end;
+
+    [RequestPageHandler]
+    procedure PostInvtCostToGLWithBatchRequestPageHandler(var PostInventoryCostToGL: TestRequestPage "Post Inventory Cost to G/L")
+    var
+        PostMethod: Option "per Posting Group","per Entry";
+    begin
+        PostInventoryCostToGL.PostMethod.SetValue(PostMethod::"per Posting Group"); // Post Method: per entry or per Posting Group.
+        PostInventoryCostToGL.JnlTemplateName.SetValue(LibraryVariableStorage.DequeueText()); // Set New Template Name.
+        PostInventoryCostToGL.JnlBatchName.SetValue(LibraryVariableStorage.DequeueText()); // Set New Batch Name.
+        PostInventoryCostToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

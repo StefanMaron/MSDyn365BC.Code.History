@@ -1,3 +1,4 @@
+#pragma warning disable AS0049, AS0009, AS0005, AS0125
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -18,31 +19,37 @@ using Microsoft.Finance.Dimension;
 
 table 6105 "E-Document Line Mapping"
 {
-    InherentEntitlements = X;
-    InherentPermissions = X;
+#pragma warning disable AS0034
+    Access = Internal;
+    InherentEntitlements = RIMDX;
+    InherentPermissions = RIMDX;
+#pragma warning restore AS0034
     DataClassification = CustomerContent;
 
     fields
     {
         field(1; "E-Document Entry No."; Integer)
         {
+            Caption = 'E-Document Entry No.';
+            ToolTip = 'Specifies the entry number of the e-document.';
             TableRelation = "E-Document"."Entry No";
             DataClassification = SystemMetadata;
         }
         field(2; "Line No."; Integer)
         {
-            DataClassification = SystemMetadata;
+            Caption = 'Line No.';
             ToolTip = 'Specifies the line number.';
+            DataClassification = SystemMetadata;
         }
         field(3; "Purchase Line Type"; Enum "Purchase Line Type")
         {
             Caption = 'Type';
-            ToolTip = 'Specifies the type of purchase line.';
+            ToolTip = 'Specifies the type of entity that will be posted for this purchase line, such as Item, Resource, or G/L Account.';
         }
         field(4; "Purchase Type No."; Code[20])
         {
             Caption = 'No.';
-            ToolTip = 'Specifies the number of the purchase type.';
+            ToolTip = 'Specifies what you''re selling. The options vary, depending on what you choose in the Type field.';
             TableRelation = if ("Purchase Line Type" = const(" ")) "Standard Text"
             else
             if ("Purchase Line Type" = const("G/L Account")) "G/L Account"
@@ -114,3 +121,4 @@ table 6105 "E-Document Line Mapping"
     end;
 
 }
+#pragma warning restore AS0049, AS0009, AS0005, AS0125

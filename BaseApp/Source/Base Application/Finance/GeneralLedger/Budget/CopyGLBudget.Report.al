@@ -222,6 +222,7 @@ report 96 "Copy G/L Budget"
                 end;
         end;
         InsertGLBudgetEntry();
+        OnPostReportOnAfterInsertGLBudgetEntry(FromGLBudgetName, ToGLBudgetName);
         Window.Close();
 
         if not NoMessage then
@@ -484,8 +485,10 @@ report 96 "Copy G/L Budget"
                                 ToGLBudgetEntry."Budget Dimension 4 Code" := DimSetEntry."Dimension Value Code";
                         until DimSetEntry.Next() = 0;
 
-                    if ToGLBudgetEntry.Amount <> 0 then
+                    if ToGLBudgetEntry.Amount <> 0 then begin
+                        OnInsertGLBudgetEntryOnBeforeToGLBudgetEntryInsert(ToGLBudgetEntry, ToDateCompression);
                         ToGLBudgetEntry.Insert();
+                    end;
                 end;
             until TempGLBudgetEntry.Next() = 0;
 
@@ -636,6 +639,16 @@ report 96 "Copy G/L Budget"
 
     [IntegrationEvent(false, false)]
     local procedure OnPreReportOnBeforeCopyBudgetDimCodes(var GLBudgetName: Record "G/L Budget Name")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnPostReportOnAfterInsertGLBudgetEntry(FromBudgetName: Code[10]; ToBudgetName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnInsertGLBudgetEntryOnBeforeToGLBudgetEntryInsert(var ToGLBudgetEntry: Record "G/L Budget Entry"; ToDateCompression: Option "None",Day,Week,Month,Quarter,Year,Period)
     begin
     end;
 }
