@@ -462,7 +462,7 @@ page 6624 "Blanket Purch. Order Arch.Sub."
     begin
         Clear(DocumentLineTrackingPage);
         DocumentLineTrackingPage.SetSourceDoc(
-            "Document Line Source Type"::"Purchase Order", Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", '', 0);
+            "Document Line Source Type"::"Blanket Purchase Order", Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", '', 0);
         DocumentLineTrackingPage.RunModal();
     end;
 

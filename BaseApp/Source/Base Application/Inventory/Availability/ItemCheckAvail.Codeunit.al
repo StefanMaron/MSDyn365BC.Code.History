@@ -28,6 +28,7 @@ codeunit 311 "Item-Check Avail."
         AvailableToPromise: Codeunit "Available to Promise";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         UOMMgt: Codeunit "Unit of Measure Management";
+        AssemblyLineDueDateGlobal: Date;
         ItemNo: Code[20];
         UnitOfMeasureCode: Code[10];
         ItemLocationCode: Code[10];
@@ -331,9 +332,8 @@ codeunit 311 "Item-Check Avail."
         if IsHandled then
             exit;
 
-        AvailableToPromise.CalcQtyAvailabletoPromise(
-          Item, GrossReq, SchedRcpt, Item.GetRangeMax("Date Filter"),
-          CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
+        AvailableToPromise.CalcQtyAvailabletoPromise(Item, GrossReq, SchedRcpt, CheckAvailabilityDate(Item, AssemblyLineDueDateGlobal),
+            CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
         InventoryQty := ConvertQty(AvailableToPromise.CalcAvailableInventory(Item) - OldItemNetResChange);
         GrossReq := ConvertQty(GrossReq);
         ReservedReq := ConvertQty(AvailableToPromise.CalcReservedRequirement(Item) + OldItemNetResChange);
@@ -485,6 +485,7 @@ codeunit 311 "Item-Check Avail."
         OldItemNetChange := 0;
 
         OldAssemblyLine := AssemblyLine;
+        AssemblyLineDueDateGlobal := OldAssemblyLine."Due Date";
 
         if OldAssemblyLine.Find() then begin // Find previous quantity
             ShouldCheckQty :=
@@ -765,6 +766,14 @@ codeunit 311 "Item-Check Avail."
     procedure SetUseOrderPromise(NewUseOrderPromise: Boolean)
     begin
         UseOrderPromise := NewUseOrderPromise;
+    end;
+
+    local procedure CheckAvailabilityDate(var Item: Record Item; AssemblyLineDueDate: Date): Date
+    begin
+        if AssemblyLineDueDate = 0D then
+            exit(Item.GetRangeMax("Date Filter"))
+        else
+            exit(0D);
     end;
 
     [IntegrationEvent(false, false)]

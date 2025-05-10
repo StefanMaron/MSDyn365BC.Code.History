@@ -18,6 +18,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         LCYCode: Code[10];
         NoAmtFoundToBePostedErr: Label 'No amount found to be posted.';
@@ -266,6 +267,87 @@ codeunit 134333 "ERM Purchase Prepayments"
         Assert.IsTrue(PurchasePostPrepayments.CheckOpenPrepaymentLines(PurchaseHeader, DocumentType::Invoice), NoAmtFoundToBePostedErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GetReceiptLinesPageHandler')]
+    procedure OrderNoIsPopulatedInPostedPurchInvWhenGetRcptLinesAndPostPIForPOHavingPrePmtInv()
+    var
+        GLAccount: Record "G/L Account";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [SCENARIO 566107] "Order No." is populated in Posted Purchase Invoice from Purchase Order,
+        // which is having a Prepayment Invoice and a Posted Purchase Receipt, and the Purchase
+        // Invoice is created and posted using Get Receipt Lines action.
+        Initialize();
+
+        // [GIVEN] Create a GL Account with Prepayment Posting Setup.
+        PreparePrepaymentsPostingSetup(GLAccount);
+
+        // [GIVEN] Create an Item with GL Account.
+        PrepareItemAccordingToSetup(Item, GLAccount);
+
+        // [GIVEN] Create a Vendor with GL Account.
+        PrepareVendorAccordingToSetup(Vendor, GLAccount, LibraryRandom.RandIntInRange(20, 20));
+
+        // [GIVEN] Create Purchase Header [1].
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create Purchase Line [1] and Validate "Direct Unit Cost".
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item, Item."No.", LibraryRandom.RandIntInRange(10, 10));
+        PurchaseLine[1].Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine[1].Modify(true);
+
+        // [GIVEN] Validate "Doc. Amount Incl. VAT" in Purchase Header [1].
+        PurchaseHeader[1].Validate("Doc. Amount Incl. VAT", PurchaseLine[1]."Amount Including VAT");
+        PurchaseHeader[1].Modify(true);
+
+        // [GIVEN] Post Purchase Prepayment Invoice.
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader[1]);
+
+        // [GIVEN] Post Purchase Receipt.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, false);
+
+        // [GIVEN] Create Purchase Header [2].
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Open Purchase Invoice page and run Get Receipt Lines action.
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.GoToRecord(PurchaseHeader[2]);
+        LibraryVariableStorage.Enqueue(Format(PurchaseHeader[1]."Buy-from Vendor No."));
+        PurchaseInvoice.PurchLines.GetReceiptLines.Invoke();
+
+        // [GIVEN] Find Purchase Header [2] and Validate "Doc. Amount Incl. VAT".
+        PurchaseHeader[2].Get(PurchaseHeader[2]."Document Type"::Invoice, PurchaseHeader[2]."No.");
+        PurchaseHeader[2].Validate("Doc. Amount Incl. VAT", PurchaseLine[1]."Amount Including VAT");
+        PurchaseHeader[2].Modify(true);
+
+        // [GIVEN] Post Purchase Header [2].
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader[2], false, true);
+
+        // [WHEN] Find Purch. Rcpt. Header.
+        PurchRcptHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchRcptHeader.FindFirst();
+
+        // [THEN] "Order No." in Purch. Rcpt. Header is equal to "No." of Purchase Header [1].
+        Assert.AreEqual(PurchaseHeader[1]."No.", PurchRcptHeader."Order No.", '');
+
+        // [WHEN] Find Purch. Rcpt. Line.
+        PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
+        PurchRcptLine.FindLast();
+
+        // [THEN] "Order No." in Purch. Rcpt. Line is equal to "No." of Purchase Header [1].
+        Assert.AreEqual(PurchaseHeader[1]."No.", PurchRcptLine."Order No.", '');
+
+        // [THEN] "Order Line No." in Purch. Rcpt. Line is equal to "Line No." of Purchase Line [1].
+        Assert.AreEqual(PurchaseLine[1]."Line No.", PurchRcptLine."Order Line No.", '');
+    end;
+
     local procedure PreparePrepaymentsPostingSetup(var GLAccount: Record "G/L Account")
     var
         PrepmtGLAccount: Record "G/L Account";
@@ -385,6 +467,14 @@ codeunit 134333 "ERM Purchase Prepayments"
         if CurrencyExchangeRate.Count = 0 then
             // Create exchange rate so we're sure there's one
             LibraryERM.CreateRandomExchangeRate(Currency.Code);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetReceiptLinesPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
+    begin
+        GetReceiptLines.Filter.SetFilter("Buy-from Vendor No.", LibraryVariableStorage.DequeueText());
+        GetReceiptLines.OK().Invoke();
     end;
 }
 

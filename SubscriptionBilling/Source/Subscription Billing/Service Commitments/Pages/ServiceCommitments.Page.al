@@ -209,7 +209,6 @@ page 8064 "Service Commitments"
                 field("Notice Period"; Rec."Notice Period")
                 {
                     Visible = false;
-                    Editable = false;
                     ToolTip = 'Specifies a date formula for the lead time that a notice must have before the Subscription Line ends. The rhythm of the update of "Notice possible to" and "Term Until" is determined using the extension term. For example, with an extension period of 1M, the notice period is repeatedly postponed by one month.';
                 }
                 field(Discount; Rec.Discount)

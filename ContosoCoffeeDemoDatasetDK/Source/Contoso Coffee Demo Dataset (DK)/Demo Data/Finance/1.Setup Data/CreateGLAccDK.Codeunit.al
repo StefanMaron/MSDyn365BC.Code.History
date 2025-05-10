@@ -780,6 +780,7 @@ codeunit 13721 "Create GL Acc. DK"
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.CorporatetaxespayableName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherliabilitiestotalName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.ShorttermliabilitiestotalName(), '');
+        ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherAccruedExpensesAndDeferredIncomeName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.TotalliabilitiesName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.IncomestatementName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.SalesofretailName(), '');

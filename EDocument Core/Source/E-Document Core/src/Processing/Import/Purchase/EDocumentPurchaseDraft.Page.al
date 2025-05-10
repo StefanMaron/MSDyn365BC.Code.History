@@ -1,3 +1,4 @@
+#pragma warning disable AS0032, AS0050
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -31,7 +32,7 @@ page 6181 "E-Document Purchase Draft"
             {
                 field(Record; RecordLinkTxt)
                 {
-                    Caption = 'Document';
+                    Caption = 'Finalized Document';
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the record, document, journal line, or ledger entry, that is linked to the electronic document.';
@@ -66,15 +67,15 @@ page 6181 "E-Document Purchase Draft"
                         Caption = 'Vendor Name';
                         Importance = Promoted;
                         Editable = false;
-                        ToolTip = 'Specifies the name of the vendor who delivers the products.';
+                        ToolTip = 'Specifies the extracted name of the vendor who delivers the products.';
                     }
                     field("Vendor Address"; EDocumentPurchaseHeader."Vendor Address")
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Address';
+                        Caption = 'Vendor Address';
                         Importance = Additional;
                         Editable = false;
-                        ToolTip = 'Specifies the vendor''s buy-from address.';
+                        ToolTip = 'Specifies the extracted vendor''s address.';
                     }
                 }
                 group(Document)
@@ -83,47 +84,47 @@ page 6181 "E-Document Purchase Draft"
                     field("Document Type"; Rec."Document Type")
                     {
                         Importance = Additional;
+                        Caption = 'Document Type';
                         ToolTip = 'Specifies the electronic document type.';
                         Editable = false;
                     }
                     field("Document No."; EDocumentPurchaseHeader."Sales Invoice No.")
                     {
                         Importance = Promoted;
-                        ToolTip = 'Specifies the electronic document number.';
+                        Caption = 'Document No.';
+                        ToolTip = 'Specifies the extracted ID for this specific document.';
                         Editable = false;
                     }
                     field("Document Date"; EDocumentPurchaseHeader."Invoice Date")
                     {
-                        ToolTip = 'Specifies the document date of the electronic document.';
+                        Caption = 'Document Date';
+                        ToolTip = 'Specifies the extracted document date.';
                         Importance = Promoted;
                         Editable = false;
                     }
                     field("Due Date"; EDocumentPurchaseHeader."Due Date")
                     {
                         Importance = Promoted;
-                        ToolTip = 'Specifies the due date of the electronic document.';
+                        Caption = 'Due Date';
+                        ToolTip = 'Specifies the extracted due date.';
                         Editable = false;
                     }
                 }
                 field("Status"; Rec.Status)
                 {
                     Caption = 'Status';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the current state of the electronic document.';
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether the EDocument is in progress and awaiting processing, has been processed into a Purchase Document, or encountered an error. The processing behavior depends on the EDocument Service setup.';
                     StyleExpr = StyleStatusTxt;
                     Editable = false;
                 }
             }
-            group(LinesAndViewer)
+            part(Lines; "E-Doc. Purchase Draft Subform")
             {
-                ShowCaption = false;
-                part(Lines; "E-Doc. Purchase Draft Subform")
-                {
-                    ApplicationArea = Suite;
-                    Editable = true;
-                    SubPageLink = "E-Document Entry No." = field("Entry No");
-                    UpdatePropagation = Both;
-                }
+                ApplicationArea = Suite;
+                Editable = true;
+                SubPageLink = "E-Document Entry No." = field("Entry No");
+                UpdatePropagation = Both;
             }
             group("E-Document Details")
             {
@@ -181,7 +182,7 @@ page 6181 "E-Document Purchase Draft"
             action(CreateDocument)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Finalize Draft';
+                Caption = 'Finalize draft';
                 ToolTip = 'Process the electronic document into a business central document';
                 Image = CreateDocument;
                 Visible = ShowFinalizeDraftAction;
@@ -194,7 +195,7 @@ page 6181 "E-Document Purchase Draft"
             action(AnalyzeDocument)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Analyze Document';
+                Caption = 'Analyze document';
                 ToolTip = 'Analyze the selected electronic document';
                 Image = SendAsPDF;
                 Visible = ShowAnalyzeDocumentAction;
@@ -279,12 +280,33 @@ page 6181 "E-Document Purchase Draft"
             ClearErrorsAndWarnings();
 
         SetStyle();
-        DataCaption := 'Purchase Document Draft ' + Format(Rec."Entry No");
+        SetPageCaption();
 
         ShowFinalizeDraftAction := Rec.GetEDocumentImportProcessingStatus() = Enum::"Import E-Doc. Proc. Status"::"Draft Ready";
         ShowAnalyzeDocumentAction :=
             (Rec.GetEDocumentImportProcessingStatus() = Enum::"Import E-Document Steps"::"Structure received data") and
             (Rec.Status = Enum::"E-Document Status"::Error);
+    end;
+
+    local procedure SetPageCaption()
+    var
+        Vendor: Record Vendor;
+        CaptionBuilder: TextBuilder;
+    begin
+        if Rec."File Name" <> '' then
+            CaptionBuilder.Append(Rec."File Name" + ' - ');
+
+        EDocumentHeaderMapping := Rec.GetEDocumentHeaderMapping();
+        if Vendor.Get(EDocumentHeaderMapping."Vendor No.") then
+            CaptionBuilder.Append(Vendor.Name + ' - ')
+        else begin
+            EDocumentPurchaseHeader := EDocumentHeaderMapping.GetEDocumentPurchaseHeader();
+            if EDocumentPurchaseHeader."Vendor Company Name" <> '' then
+                CaptionBuilder.Append(EDocumentPurchaseHeader."Vendor Company Name" + ' - ');
+        end;
+
+        CaptionBuilder.Append(Format(Rec."Entry No"));
+        DataCaption := CaptionBuilder.ToText();
     end;
 
     local procedure SetStyle()
@@ -375,3 +397,4 @@ page 6181 "E-Document Purchase Draft"
         ShowAnalyzeDocumentAction: Boolean;
         EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';
 }
+#pragma warning restore AS0050, AS0032
