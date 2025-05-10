@@ -1463,6 +1463,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - Template name, %2 - Batch name, %3 - Line no.]D;]A;(LookupHint=Codeunit Test CH PAYDISC Sales Docs - NamedType PmtApplnErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1244317549 - NamedType 600702795" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[New VAT entry not created]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test CH PAYDISC Sales Docs - NamedType VATEntryCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1826705366 - NamedType 1989112190" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Completely Shipped should be Yes after fully post shipment]]></Val>

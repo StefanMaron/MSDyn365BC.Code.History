@@ -54,6 +54,11 @@ page 5700 "Stockkeeping Unit Card"
                     ApplicationArea = Location;
                     Importance = Promoted;
                     ToolTip = 'Specifies the location code (for example, the warehouse or distribution center) to which the SKU applies.';
+                    trigger OnValidate()
+                    begin
+                        if xRec."Location Code" <> Rec."Location Code" then
+                            EnableControls();
+                    end;
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {

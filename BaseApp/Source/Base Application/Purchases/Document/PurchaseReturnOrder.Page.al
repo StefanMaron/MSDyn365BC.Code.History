@@ -112,7 +112,7 @@ page 6640 "Purchase Return Order"
                         field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = PurchReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                             Importance = Additional;
                             ToolTip = 'Specifies the county of the address.';
                         }
@@ -525,7 +525,7 @@ page 6640 "Purchase Return Order"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = PurchReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Editable = ShipToOptions = ShipToOptions::"Custom Address";
                             Importance = Additional;
                             ToolTip = 'Specifies the county of the address.';
@@ -621,7 +621,7 @@ page 6640 "Purchase Return Order"
                         field("Pay-to County"; Rec."Pay-to County")
                         {
                             ApplicationArea = PurchReturnOrder;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                             Editable = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
                             Enabled = Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.";
                             Importance = Additional;

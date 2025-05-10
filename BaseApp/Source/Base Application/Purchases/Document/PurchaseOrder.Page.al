@@ -139,7 +139,7 @@ page 50 "Purchase Order"
                         field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                             Importance = Additional;
                             QuickEntry = false;
                             ToolTip = 'Specifies the state, province or county of the address.';
@@ -652,7 +652,7 @@ page 50 "Purchase Order"
                                 field("Ship-to County"; Rec."Ship-to County")
                                 {
                                     ApplicationArea = Basic, Suite;
-                                    Caption = 'County';
+                                    CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                                     Editable = ShipToOptions = ShipToOptions::"Custom Address";
                                     Importance = Additional;
                                     QuickEntry = false;
@@ -783,7 +783,7 @@ page 50 "Purchase Order"
                             field("Pay-to County"; Rec."Pay-to County")
                             {
                                 ApplicationArea = Basic, Suite;
-                                Caption = 'County';
+                                CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                                 Editable = (PayToOptions = PayToOptions::"Custom Address") or (Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.");
                                 Enabled = (PayToOptions = PayToOptions::"Custom Address") or (Rec."Buy-from Vendor No." <> Rec."Pay-to Vendor No.");
                                 Importance = Additional;

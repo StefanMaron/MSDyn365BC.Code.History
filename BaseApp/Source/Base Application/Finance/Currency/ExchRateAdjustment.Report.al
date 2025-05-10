@@ -14,7 +14,7 @@ using Microsoft.Sales.Customer;
 
 report 596 "Exch. Rate Adjustment"
 {
-    ApplicationArea = Basic, Suite;    
+    ApplicationArea = Basic, Suite;
     Caption = 'Exchange Rates Adjustment';
     ProcessingOnly = true;
     UsageCategory = Tasks;
@@ -321,7 +321,7 @@ report 596 "Exch. Rate Adjustment"
             if not Confirm(ConfirmationTxt + ContinueTxt, false) then
                 Error(AdjustmentCancelledErr);
 
-        if (not AdjCust) and (not AdjVend) and (not AdjBank) and (not AdjEmpl) and (not AdjGLAcc) then
+        if (not AdjCust) and (not AdjVend) and (not AdjBank) and (not AdjEmpl) and (not AdjGLAcc) and (not AdjVATEntries) then
             exit;
 
         if AdjVATEntries then
@@ -335,21 +335,13 @@ report 596 "Exch. Rate Adjustment"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLineReq: Record "Gen. Journal Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
-        DimensionPosting: Enum "Exch. Rate Adjmt. Dimensions";
         PostingDate: Date;
         PostingDescription: Text[100];
         PostingDocNo: Code[20];
         StartDate: Date;
         EndDate: Date;
         EndDateReq: Date;
-        AdjCust: Boolean;
-        AdjVend: Boolean;
-        AdjEmpl: Boolean;
-        AdjBank: Boolean;
-        AdjGLAcc: Boolean;
-        AdjPerEntry: Boolean;
         AdjVATEntries: Boolean;
-        PreviewPosting: Boolean;
         HideUI: Boolean;
         IsJournalTemplNameVisible: Boolean;
         ValuationMethod: Option Standard,"Lowest Value","BilMoG (Germany)";
@@ -369,6 +361,14 @@ report 596 "Exch. Rate Adjustment"
 
     protected var
         ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters";
+        DimensionPosting: Enum "Exch. Rate Adjmt. Dimensions";
+        AdjCust: Boolean;
+        AdjVend: Boolean;
+        AdjEmpl: Boolean;
+        AdjBank: Boolean;
+        AdjGLAcc: Boolean;
+        AdjPerEntry: Boolean;
+        PreviewPosting: Boolean;
 
     local procedure RunAdjustmentProcess()
     var

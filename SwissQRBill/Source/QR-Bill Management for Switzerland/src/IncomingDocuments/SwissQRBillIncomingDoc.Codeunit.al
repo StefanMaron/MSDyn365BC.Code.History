@@ -190,10 +190,14 @@ codeunit 11516 "Swiss QR-Bill Incoming Doc"
 
             if IncomingDocument."Document Date" <> 0D then
                 Validate("Document Date", IncomingDocument."Document Date");
-
-            Validate("Posting Description", CopyStr(IncomingDocument."Swiss QR-Bill Unstr. Message", 1, MaxStrLen("Posting Description")));
-            Validate("Payment Reference", DelChr(IncomingDocument."Swiss QR-Bill Reference No."));
-            Validate("Vendor Invoice No.", IncomingDocument."Vendor Invoice No.");
+            if IncomingDocument."Swiss QR-Bill Unstr. Message" <> '' then
+                Validate("Posting Description", CopyStr(IncomingDocument."Swiss QR-Bill Unstr. Message", 1, MaxStrLen("Posting Description")));
+            if IncomingDocument."Swiss QR-Bill Reference No." <> '' then
+                Validate("Payment Reference", DelChr(IncomingDocument."Swiss QR-Bill Reference No."));
+            if IncomingDocument."Vendor Invoice No." <> '' then
+                Validate("Vendor Invoice No.", IncomingDocument."Vendor Invoice No.");
+            if IncomingDocument."Vendor Bank Account No." <> '' then
+                Validate("Bank Code", IncomingDocument."Vendor Bank Account No.");
 
             "Swiss QR-Bill IBAN" := IncomingDocument."Vendor IBAN";
             "Swiss QR-Bill Currency" := IncomingDocument."Currency Code";

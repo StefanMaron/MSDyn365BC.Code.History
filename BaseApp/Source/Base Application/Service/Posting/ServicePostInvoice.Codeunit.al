@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -157,7 +157,8 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         InvoicePostingBuffer.SetAccount(SalesAccountNo, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
         InvoicePostingBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
 
-        ServicePostInvoiceEvents.RunOnPrepareLineOnAfterFillInvoicePostingBuffer(InvoicePostingBuffer, ServiceLine, ServiceLineACY, SuppressCommit);
+        ServicePostInvoiceEvents.RunOnPrepareLineOnAfterFillInvoicePostingBuffer(
+            InvoicePostingBuffer, ServiceLine, ServiceLineACY, SuppressCommit, TempInvoicePostingBuffer);
 
         UpdateInvoicePostingBuffer(InvoicePostingBuffer, ServiceLine);
     end;
@@ -298,6 +299,8 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         LineCount: Integer;
     begin
         ServiceHeader := DocumentHeaderVar;
+
+        ServicePostInvoiceEvents.RunOnBeforePostLines(ServiceHeader, TempInvoicePostingBuffer);
 
         LineCount := 0;
         if TempInvoicePostingBuffer.Find('+') then

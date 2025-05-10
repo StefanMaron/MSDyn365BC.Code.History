@@ -39,6 +39,7 @@ codeunit 11594 "Create CH Customer"
         Customer.Validate("Country/Region Code", CountryRegionCode);
         Customer.Validate(County, County);
         Customer.Validate("Territory Code", TerritoryCode);
+        Customer."Format Region" := ''; // Format Region will be automatically set basing on the Language Code
         Customer.Validate("Language Code", LanguageCode);
         Customer.Validate("VAT Registration No.", VatRegistraionNo);
         Customer.Validate("E-Mail", Email);

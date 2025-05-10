@@ -9,7 +9,6 @@ table 8051 "Subscription Contract Setup"
 {
     Caption = 'Subscription Contract Setup';
     DataClassification = CustomerContent;
-    Access = Internal;
 
     fields
     {
@@ -151,7 +150,7 @@ table 8051 "Subscription Contract Setup"
         OpenServiceContractSetupTok: Label 'Open Subscription Contract Setup.';
         ManualCreationOfContractLinesNotPossibleMsg: Label 'No manual contract lines can be created without %1. Do you want to delete the value?', Comment = '%1 = FieldCaption';
 
-    procedure ContractTextsCreateDefaults()
+    internal procedure ContractTextsCreateDefaults()
     begin
         Rec.Validate("Contract Invoice Description", Enum::"Contract Invoice Text Type"::"Service Object");
         Rec.Validate("Contract Invoice Add. Line 1", Enum::"Contract Invoice Text Type"::"Service Commitment");
@@ -186,7 +185,7 @@ table 8051 "Subscription Contract Setup"
         ServiceCommitment.ModifyAll("Period Calculation", Rec."Default Period Calculation", false);
     end;
 
-    internal procedure CheckPrerequisitesForCreatingManualContractLine()
+    procedure CheckPrerequisitesForCreatingManualContractLine()
     var
         FieldEmptyErrorInfo: ErrorInfo;
     begin

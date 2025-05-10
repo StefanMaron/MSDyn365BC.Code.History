@@ -489,6 +489,7 @@ codeunit 11580 "Create CH GL Accounts"
         ContosoGLAccount.AddAccountForLocalization(LtReserveRepairsName(), '2600');
         ContosoGLAccount.AddAccountForLocalization(LongTermWarrantyWorkName(), '2630');
         ContosoGLAccount.AddAccountForLocalization(LtReserveDeferredTaxName(), '2640');
+        ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherAccruedExpensesAndDeferredIncomeName(), '2790');
         ContosoGLAccount.AddAccountForLocalization(TotalLongTermLiabilitiesName(), '2798');
         ContosoGLAccount.AddAccountForLocalization(TotalLiabilitiesName(), '2799');
         ContosoGLAccount.AddAccountForLocalization(ShareholdersEquityName(), '28');

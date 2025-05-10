@@ -545,6 +545,13 @@ table 115 "Sales Cr.Memo Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
+        field(7012; "Sell-to Customer Name"; Text[100])
+        {
+            CalcFormula = lookup(Customer.Name where("No." = field("Sell-to Customer No.")));
+            Caption = 'Sell-to Customer Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(3010501; "Customer Line Reference"; Integer)
         {
             Caption = 'Customer Line Reference';

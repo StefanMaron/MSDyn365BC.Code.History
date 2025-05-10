@@ -2381,9 +2381,9 @@ table 18 Customer
     procedure GetSalesLCY() SalesLCY: Decimal
     var
         CustomerSalesYTD: Record Customer;
-        AccountingPeriod: Record "Accounting Period";
-        StartDate: Date;
-        EndDate: Date;
+        DateFilterCalc: Codeunit "DateFilter-Calc";
+        CustDateFilter: Text[30];
+        CustDateName: Text[30];
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2391,11 +2391,10 @@ table 18 Customer
         if IsHandled then
             exit(SalesLCY);
 
-        StartDate := AccountingPeriod.GetFiscalYearStartDate(WorkDate());
-        EndDate := AccountingPeriod.GetFiscalYearEndDate(WorkDate());
+        DateFilterCalc.CreateFiscalYearFilter(CustDateFilter, CustDateName, WorkDate(), 0);
         CustomerSalesYTD := Rec;
         CustomerSalesYTD."SecurityFiltering"("SecurityFiltering");
-        CustomerSalesYTD.SetRange("Date Filter", StartDate, EndDate);
+        CustomerSalesYTD.SetFilter("Date Filter", CustDateFilter);
         CustomerSalesYTD.CalcFields("Sales (LCY)");
         exit(CustomerSalesYTD."Sales (LCY)");
     end;

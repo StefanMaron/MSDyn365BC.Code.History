@@ -2635,6 +2635,40 @@ codeunit 137280 "SCM Inventory Basic"
         Assert.AreEqual(4, UnitOfMeasureManagement.GetResQtyPerUnitOfMeasure(Resource, ResourceUnitOfMeasure.Code), '');
     end;
 
+    [Test]
+    procedure CheckExternalDocNoInValueEntry()
+    var
+        ItemPurchaseLine: Record "Purchase Line";
+        GLPurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 567739] Check the External Document No. in the Value Entry Table.
+        Initialize();
+
+        // [GIVEN] Create Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
+
+        // [GIVEN] Create First Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(
+            ItemPurchaseLine, PurchaseHeader, ItemPurchaseLine.Type::Item, '', LibraryRandom.RandInt(10));
+        ItemPurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(200, 300));
+        ItemPurchaseLine.Modify(true);
+
+        // [GIVEN] Create Second Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(
+            GLPurchaseLine, PurchaseHeader, GLPurchaseLine.Type::"G/L Account", '', LibraryRandom.RandInt(10));
+        GLPurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(200, 300));
+        GLPurchaseLine.Modify(true);
+        UpdateDocAmtInPurchaseOrder(PurchaseHeader);
+
+        // [WHEN] Post Purchase Invoice.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify that the External Document is not blank in the Value Entry table.
+        VerifyExtDocNoInValueEntry(DocumentNo, PurchaseHeader."Vendor Invoice No.");
+    end;
+
     local procedure Initialize()
     var
         NonstockItemSetup: Record "Nonstock Item Setup";
@@ -3291,6 +3325,24 @@ codeunit 137280 "SCM Inventory Basic"
             exit(false);
 
         exit(InventoryPostingSetup."Inventory Account" <> '');
+    end;
+
+    local procedure UpdateDocAmtInPurchaseOrder(var PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", PurchaseHeader."Amount Including VAT");
+        PurchaseHeader.Modify(true);
+    end;
+
+    local procedure VerifyExtDocNoInValueEntry(DocumentNo: Code[20]; ExternalDocumentNo: Code[35])
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.FindSet();
+        repeat
+            ValueEntry.TestField("External Document No.", ExternalDocumentNo);
+        until ValueEntry.Next() = 0;
     end;
 
     [PageHandler]

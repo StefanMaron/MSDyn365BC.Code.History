@@ -34,6 +34,7 @@ codeunit 11515 "CH Report Management"
         InvAdrTxt: Label 'Invoice Address';
         OrderAdrTxt: Label 'Order Address';
         ShipDateTxt: Label 'Shipping Date';
+        ExpReceiptDateTxt: Label 'Expected Receipt Date';
         BankInformationTxt: Label 'Bank Information';
         AccountTxt: Label 'Account';
 
@@ -238,10 +239,10 @@ codeunit 11515 "CH Report Management"
               GetFieldValue(RecRef, PurchaseHeader.FieldNo("Buy-from Vendor Name")) + ', ' + GetFieldValue(RecRef, PurchaseHeader.FieldNo("Buy-from City"));
         end;
 
-        if (GetFieldValue(RecRef, PurchaseHeader.FieldNo("Expected Receipt Date")) = GetFieldValue(RecRef, PurchaseHeader.FieldNo("Document Date"))) and
-           (GetFieldValue(RecRef, PurchaseHeader.FieldNo("Expected Receipt Date")) = '')
+        if (GetFieldValue(RecRef, PurchaseHeader.FieldNo("Expected Receipt Date")) <> GetFieldValue(RecRef, PurchaseHeader.FieldNo("Document Date"))) and
+           (GetFieldValue(RecRef, PurchaseHeader.FieldNo("Expected Receipt Date")) <> '')
         then begin
-            FooterLabel[6] := ShipDateTxt;
+            FooterLabel[6] := ExpReceiptDateTxt;
             FooterTxt[6] := GetDateFieldValue(RecRef, PurchaseHeader.FieldNo("Expected Receipt Date"));
         end;
     end;

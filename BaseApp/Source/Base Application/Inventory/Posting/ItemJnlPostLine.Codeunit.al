@@ -2066,9 +2066,9 @@ codeunit 22 "Item Jnl.-Post Line"
                 if TempTrackingSpecification.IsEmpty() then
                     if ItemJnlLine."Document Type" = ItemJnlLine."Document Type"::"Direct Transfer" then
                         if ItemLedgEntry.Quantity < 0 then
-                            ReservEntry.SetRange("Source Subtype", 0)
+                            ReservEntry.SetRange(Positive, false)
                         else
-                            ReservEntry.SetRange("Source Subtype", 1);
+                            ReservEntry.SetRange(Positive, true);
 
                 if not SkipReservationCheck then
                     UseReservationApplication := FindReservationEntryWithAdditionalCheckForAssemblyItem(ReservEntry);
@@ -4874,6 +4874,7 @@ codeunit 22 "Item Jnl.-Post Line"
         IsReserved: Boolean;
         IsHandled: Boolean;
         ShouldInsertCorrValueEntries: Boolean;
+        ShouldCheckItem: Boolean;
     begin
         IsHandled := false;
         OnBeforeUndoQuantityPosting(ItemJnlLine, IsHandled);
@@ -4897,11 +4898,15 @@ codeunit 22 "Item Jnl.-Post Line"
             OldItemLedgEntry.Get(ItemJnlLine."Applies-from Entry");
 
         if GetItem(OldItemLedgEntry."Item No.", false) then begin
-            Item.TestField(Blocked, false);
-            Item.CheckBlockedByApplWorksheet();
+            ShouldCheckItem := true;
+            OnUndoQuantityPostingOnBeforeCheckItem(Item, OldItemLedgEntry, ShouldCheckItem);
+            if ShouldCheckItem then begin
+                Item.TestField(Blocked, false);
+                Item.CheckBlockedByApplWorksheet();
 
-            if GetItemVariant(OldItemLedgEntry."Item No.", OldItemLedgEntry."Variant Code", false) then
-                ItemVariant.TestField(Blocked, false);
+                if GetItemVariant(OldItemLedgEntry."Item No.", OldItemLedgEntry."Variant Code", false) then
+                    ItemVariant.TestField(Blocked, false);
+            end;
         end;
 
         ItemJnlLine."Item No." := OldItemLedgEntry."Item No.";
@@ -8621,6 +8626,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetupTempSplitItemJnlLine(var ItemJnlLine2: Record "Item Journal Line"; var SignFactor: Integer; var NonDistrQuantity: Decimal; var NonDistrAmount: Decimal; var NonDistrAmountACY: Decimal; var NonDistrDiscountAmount: Decimal; var Invoice: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUndoQuantityPostingOnBeforeCheckItem(Item: Record Item; ItemLedgerEntry: Record "Item Ledger Entry"; var ShouldCheckItem: Boolean)
     begin
     end;
 }
