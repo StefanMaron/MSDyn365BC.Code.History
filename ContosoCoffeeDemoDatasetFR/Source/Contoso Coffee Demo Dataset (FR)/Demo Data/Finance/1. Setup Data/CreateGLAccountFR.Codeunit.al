@@ -344,6 +344,7 @@ codeunit 10863 "Create GL Account FR"
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.LiabilitiesName(), '160003');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.LongTermBankLoansName(), '164100');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.MortgageName(), '164400');
+        ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherAccruedExpensesAndDeferredIncomeName(), '169980');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.TotalLiabilitiesName(), '169990');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.TotalAssetsName(), '199990');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.FixedAssetsName(), '200002');

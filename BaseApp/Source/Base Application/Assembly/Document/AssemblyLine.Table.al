@@ -1575,10 +1575,13 @@ table 901 "Assembly Line"
           EarliestDate);
 
         if ExpectedInventory < "Remaining Quantity (Base)" then begin
-            if ExpectedInventory < 0 then
-                AbleToAssemble := 0
-            else
-                AbleToAssemble := Round(ExpectedInventory / "Quantity per", UOMMgt.QtyRndPrecision(), '<')
+            if ExpectedInventory < 0 then begin
+                AbleToAssemble := 0;
+                if AvailableInventory >= "Remaining Quantity (Base)" then
+                    AbleToAssemble := AssemblyHeader."Remaining Quantity";
+            end else
+                AbleToAssemble := Round(ExpectedInventory / "Quantity per", UOMMgt.QtyRndPrecision(), '<');
+
         end else begin
             AbleToAssemble := AssemblyHeader."Remaining Quantity";
             EarliestDate := 0D;

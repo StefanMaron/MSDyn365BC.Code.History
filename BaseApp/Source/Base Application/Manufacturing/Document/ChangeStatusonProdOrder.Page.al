@@ -128,20 +128,20 @@ page 99000882 "Change Status on Prod. Order"
 
     procedure ReturnPostingInfo(var Status: Enum "Production Order Status"; var PostingDate2: Date; var UpdUnitCost: Boolean)
     var
-        IsHandled: Boolean;
+        DummyFinishOrderWithoutOutput: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeReturnPostingInfo(Status, PostingDate2, UpdUnitCost, IsHandled);
-        if IsHandled then
-            exit;
-
-        Status := ProdOrderStatus.Status;
-        PostingDate2 := PostingDate;
-        UpdUnitCost := ReqUpdUnitCost;
+        ReturnPostingInfo(Status, PostingDate2, UpdUnitCost, DummyFinishOrderWithoutOutput);
     end;
 
     procedure ReturnPostingInfo(var Status: Enum "Production Order Status"; var PostingDate2: Date; var UpdUnitCost: Boolean; var NewFinishOrderWithoutOutput: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReturnPostingInfo(Status, PostingDate2, UpdUnitCost, IsHandled, NewFinishOrderWithoutOutput);
+        if IsHandled then
+            exit;
+
         Status := ProdOrderStatus.Status;
         PostingDate2 := PostingDate;
         UpdUnitCost := ReqUpdUnitCost;
@@ -167,7 +167,7 @@ page 99000882 "Change Status on Prod. Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReturnPostingInfo(var Status: Enum "Production Order Status"; var PostingDate2: Date; var UpdUnitCost: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeReturnPostingInfo(var Status: Enum "Production Order Status"; var PostingDate2: Date; var UpdUnitCost: Boolean; var IsHandled: Boolean; var NewFinishOrderWithoutOutput: Boolean)
     begin
     end;
 

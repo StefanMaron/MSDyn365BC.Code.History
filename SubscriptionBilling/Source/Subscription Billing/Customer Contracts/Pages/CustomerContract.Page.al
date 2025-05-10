@@ -994,17 +994,17 @@ page 8052 "Customer Contract"
         BillToFieldsEnabled := (BillToOptions = BillToOptions::"Custom Address") or (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipToOptions(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; ShipToOptions: Enum "Sales Ship-to Options"; var IsHandled: Boolean)
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShippingOptions(var CustomerSubscriptionContract: Record "Customer Subscription Contract"; ShipToOptions: Enum "Sales Ship-to Options")
     begin
     end;
 
-    [InternalEvent(false, false)]
+    [IntegrationEvent(false, false)]
     local procedure OnValidateShipToOptionsOnAfterShipToAddressListGetRecord(var ShipToAddress: Record "Ship-to Address"; var CustomerContract: Record "Customer Subscription Contract")
     begin
     end;

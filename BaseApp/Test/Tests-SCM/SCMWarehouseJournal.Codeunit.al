@@ -1951,6 +1951,54 @@ codeunit 137153 "SCM Warehouse - Journal"
     end;
 
     [Test]
+    procedure CreateOutputJournalFromProdOrderWithItemWithVariants()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        BinCodeList: List of [Code[20]];
+        VariantCode: Code[10];
+    begin
+        Initialize();
+        // [GIVEN] Location with bins
+        BinCodeList := CreateLocationWithBins(Location, 3);
+
+        // [GIVEN] Item with variants and replenishment system "Prod. Order" and manufacturing policy "Make-to-Order"
+        CreateItemWithReplenishmentSystemAndManufacturingPolicy(Item, "Replenishment System"::"Prod. Order", "Manufacturing Policy"::"Make-to-Order");
+        Evaluate(VariantCode, LibraryRandom.RandText(5));
+        AddVariantsToItem(Item, VariantCode);
+        SetDefaultBinContent(Item."No.", VariantCode, Location.Code, BinCodeList.Get(1));
+
+        // [GIVEN] Production Order with 1 line 
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released,
+          ProductionOrder."Source Type"::Item, Item."No.", 2);
+
+        // [GIVEN] Production Order updated with Variant, Location and Bin Code
+        ProductionOrder.Validate("Variant Code", VariantCode);
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Validate("Bin Code", BinCodeList.Get(3));
+        ProductionOrder.Modify();
+
+        // [GIVEN] Production order is refreshed
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Output Journal Template and Batch are created
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Output);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Output, ItemJournalTemplate.Name);
+
+        // [WHEN] Create Output Journal for Production Order Line
+        LibraryManufacturing.CreateOutputJournal(ItemJournalLine, ItemJournalTemplate, ItemJournalBatch, Item."No.", ProductionOrder."No.");
+
+        // [THEN] Output Journal Line is created for Item No., Variant Code with defined Location Code and Bin Code
+        ItemJournalLine.TestField("Location Code", Location.Code);
+        ItemJournalLine.TestField("Bin Code", BinCodeList.Get(3));
+    end;
+
+    [Test]
     [HandlerFunctions('ItemTrackLinesPageHandler,QuantityToCreateNewLotNoPageHandler,ItemTrackingSummaryPageHandler')]
     [Scope('OnPrem')]
     procedure SingleWarehouseRegisterForProductionOrderConsumption()
@@ -4843,6 +4891,54 @@ codeunit 137153 "SCM Warehouse - Journal"
         LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
         Location.Validate("Default Bin Code", Bin.Code);
         Location.Modify(true);
+    end;
+
+    local procedure CreateLocationWithBins(var Location: Record Location; BinCount: Integer) BinCodeList: List of [Code[20]]
+    var
+        Bin: Record Bin;
+        i: Integer;
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        if BinCount <= 0 then
+            exit;
+
+        Location.Validate("Bin Mandatory", true);
+
+        for i := 1 to BinCount do begin
+            Clear(Bin);
+            LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+            BinCodeList.Add(Bin.Code);
+
+            if i = 1 then begin
+                Location.Validate("Default Bin Code", Bin.Code);
+                Location.Modify(true);
+            end;
+        end;
+    end;
+
+    local procedure AddVariantsToItem(Item: Record Item; VariantCode: Code[10])
+    var
+        ItemVariant: Record "Item Variant";
+    begin
+        Clear(ItemVariant);
+        ItemVariant.Init();
+        ItemVariant.Validate("Item No.", Item."No.");
+        ItemVariant.Validate(Code, VariantCode);
+        ItemVariant.Insert(true);
+    end;
+
+    local procedure SetDefaultBinContent(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20])
+    var
+        BinContent: Record "Bin Content";
+    begin
+        BinContent.Init();
+        BinContent.Validate("Location Code", LocationCode);
+        BinContent.Validate("Bin Code", BinCode);
+        BinContent.Validate("Item No.", ItemNo);
+        BinContent.Validate("Variant Code", VariantCode);
+        BinContent.Validate(Default, true);
+        if not BinContent.Insert() then
+            BinContent.Modify();
     end;
 
     local procedure CreateLocationsChain(var FromLocation: Record Location; var ToLocation: Record Location; var TransitLocation: Record Location)

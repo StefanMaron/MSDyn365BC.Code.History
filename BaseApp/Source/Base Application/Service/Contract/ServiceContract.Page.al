@@ -262,7 +262,7 @@ page 6050 "Service Contract"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             QuickEntry = false;
                         }
                     }
@@ -428,7 +428,7 @@ page 6050 "Service Contract"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             QuickEntry = false;
                         }
                     }

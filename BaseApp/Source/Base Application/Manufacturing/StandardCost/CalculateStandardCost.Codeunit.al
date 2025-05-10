@@ -73,9 +73,6 @@ codeunit 5812 "Calculate Standard Cost"
         NonAssemblyComponentWithList: Label 'One or more subassemblies on the assembly list for this item does not use replenishment system Assembly. The %1 for these subassemblies will not be calculated. Are you sure that you want to continue?';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
-        NonInventoryItemInStandardCostCalcErr: Label 'You cannot modify %1 on Item %2 as Production BOM %3 has a non-inventory Item %4.';
-        NonInventoryItemInStandardCostCalcForSKUErr: Label 'You cannot modify %1 on SKU %2 = %3, %4 = %5, %6 = %7 as Production BOM %8 has a non-inventory Item %9.',
-                                                     Comment = '%1 = Field Caption, %2 = Field Caption, %3 = Location Code , %4 = Field Caption , %5 = Item No. , %6 = Field Caption , %7 = Variant Code , %8 =  Production BOM No. , %9 = Item No.';
 
     procedure SetProperties(NewCalculationDate: Date; NewCalcMultiLevel: Boolean; NewUseAssemblyList: Boolean; NewLogErrors: Boolean; NewStdCostWkshName: Text[50]; NewShowDialog: Boolean)
     begin
@@ -262,63 +259,11 @@ codeunit 5812 "Calculate Standard Cost"
     end;
 
     procedure CalcItemForNonInventoryValue(var Item: Record Item)
-    var
-        VersionMgmt: Codeunit VersionManagement;
-        ActiveVersionNo: Code[20];
     begin
-        if not MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
-            exit;
-
-        if Item.CanHideNonInventoryValidateOnStdCost() then
-            exit;
-
-        if Item."Costing Method" <> Item."Costing Method"::Standard then
-            exit;
-
-        if Item."Production BOM No." = '' then
-            exit;
-
-        ActiveVersionNo := VersionMgmt.GetBOMVersion(Item."Production BOM No.", WorkDate(), true);
-
-        if ActiveVersionNo = '' then
-            if not CheckForCertifiedBOMNo(Item."Production BOM No.") then
-                exit;
-
-        CheckForNonInventoryItemInProdBOM(Item, ActiveVersionNo);
     end;
 
     procedure CalcSKUForNonInventoryValue(var SKU: Record "Stockkeeping Unit")
-    var
-        Item: Record Item;
-        VersionMgmt: Codeunit VersionManagement;
-        ActiveVersionNo: Code[20];
-        BOMNo: Code[20];
     begin
-        if not MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
-            exit;
-
-        if SKU.CanHideNonInventoryValidateOnStdCost() then
-            exit;
-
-        Item.Get(SKU."Item No.");
-        if Item."Costing Method" <> Item."Costing Method"::Standard then
-            exit;
-
-        if SKU."Production BOM No." = '' then
-            BOMNo := Item."Production BOM No."
-        else
-            BOMNo := SKU."Production BOM No.";
-
-        if BOMNo = '' then
-            exit;
-
-        ActiveVersionNo := VersionMgmt.GetBOMVersion(BOMNo, WorkDate(), true);
-
-        if ActiveVersionNo = '' then
-            if not CheckForCertifiedBOMNo(BOMNo) then
-                exit;
-
-        CheckForNonInventoryItemInProdBOM(SKU, BOMNo, ActiveVersionNo);
     end;
 
     procedure CalcItemSKU(ItemNo: Code[20]; LocationCode: Code[20]; VariantCode: Code[20])
@@ -396,79 +341,6 @@ codeunit 5812 "Calculate Standard Cost"
 
         if ShowDialog then
             Window.Close();
-    end;
-
-    local procedure CheckForCertifiedBOMNo(BomNo: Code[20]): Boolean
-    var
-        ProdBOMHeader: Record "Production BOM Header";
-    begin
-        ProdBOMHeader.SetLoadFields(Status);
-        if not ProdBOMHeader.Get(BomNo) then
-            exit(false);
-
-        exit(ProdBOMHeader.Status = ProdBOMHeader.Status::Certified);
-    end;
-
-    local procedure CheckForNonInventoryItemInProdBOM(ParentItem: Record Item; VersionNo: Code[20])
-    var
-        ProdBOMLine: Record "Production BOM Line";
-        IsNonInventoriable: Boolean;
-    begin
-        ProdBOMLine.SetLoadFields("Production BOM No.", "Version Code", Type, "No.");
-        ProdBOMLine.SetRange("Production BOM No.", ParentItem."Production BOM No.");
-        ProdBOMLine.SetRange("Version Code", VersionNo);
-        ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
-        ProdBOMLine.SetFilter("No.", '<>%1', '');
-        if ProdBOMLine.FindSet() then
-            repeat
-                IsNonInventoriable := CheckIfNonInventoriable(ProdBOMLine."No.");
-                if IsNonInventoriable then
-                    Error(NonInventoryItemInStandardCostCalcErr,
-                        ParentItem.FieldCaption("Standard Cost"),
-                        ParentItem."No.", ParentItem."Production BOM No.",
-                        ProdBOMLine."No.");
-
-            until ProdBOMLine.Next() = 0;
-    end;
-
-    local procedure CheckForNonInventoryItemInProdBOM(SKU: Record "Stockkeeping Unit"; BOMNo: Code[20]; VersionNo: Code[20])
-    var
-        ProdBOMLine: Record "Production BOM Line";
-        IsNonInventoriable: Boolean;
-    begin
-        ProdBOMLine.SetLoadFields("No.");
-        ProdBOMLine.SetRange("Production BOM No.", BOMNo);
-        ProdBOMLine.SetRange("Version Code", VersionNo);
-        ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
-        ProdBOMLine.SetFilter("No.", '<>%1', '');
-        if ProdBOMLine.FindSet() then
-            repeat
-                IsNonInventoriable := CheckIfNonInventoriable(ProdBOMLine."No.");
-                if IsNonInventoriable then
-                    Error(NonInventoryItemInStandardCostCalcForSKUErr,
-                        SKU.FieldCaption("Standard Cost"),
-                        SKU.FieldCaption("Location Code"),
-                        SKU."Location Code",
-                        SKU.FieldCaption("Item No."),
-                        SKU."Item No.",
-                        SKU.FieldCaption("Variant Code"),
-                        SKU."Variant Code",
-                        BOMNo,
-                        ProdBOMLine."No.");
-
-            until ProdBOMLine.Next() = 0;
-    end;
-
-    local procedure CheckIfNonInventoriable(ItemNo: Code[20]): Boolean
-    var
-        Item: Record Item;
-    begin
-        if ItemNo = '' then
-            exit;
-
-        Item.SetLoadFields("No.", Type);
-        Item.Get(ItemNo);
-        exit(Item.IsNonInventoriableType());
     end;
 
     local procedure CalcAssemblyItem(ItemNo: Code[20]; var Item: Record Item; Level: Integer; CalcMfgItems: Boolean)

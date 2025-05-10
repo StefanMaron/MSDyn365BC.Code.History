@@ -47,6 +47,7 @@ codeunit 6452 "Serv. Availability Mgt."
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
         ServiceLine.SetFilter("Outstanding Quantity", '>0');
+        OnSetServiceHeaderOnAfterFilterServiceLine(ServiceLine, ServiceHeader);
         if ServiceLine.Find('-') then
             repeat
                 OrderPromisingLine."Entry No." := OrderPromisingLine.GetLastEntryNo() + 10000;
@@ -654,6 +655,11 @@ codeunit 6452 "Serv. Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateServOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetServiceHeaderOnAfterFilterServiceLine(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header")
     begin
     end;
 }

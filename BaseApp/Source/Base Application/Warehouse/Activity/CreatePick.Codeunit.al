@@ -837,7 +837,6 @@ codeunit 7312 "Create Pick"
         BinContent: Record "Bin Content";
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
     begin
-        BinContent.SetCurrentKey("Location Code", "Item No.", "Variant Code", "Cross-Dock Bin", "Qty. per Unit of Measure", "Bin Ranking");
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
         BinContent.SetRange("Variant Code", VariantCode);
@@ -1296,6 +1295,8 @@ codeunit 7312 "Create Pick"
         else
             TempWarehouseActivityLine2.SetRange("Action Type", TempWarehouseActivityLine2."Action Type"::" ");
 
+        OnFindSmallerUOMBinOnBeforeFindWhseActivLine(TempWarehouseActivityLine2, Location);
+
         if not TempWarehouseActivityLine2.Find('-') then begin
             OnAfterFindWhseActivLine(FirstWhseDocNo, LastWhseDocNo);
             exit(false);
@@ -1340,6 +1341,9 @@ codeunit 7312 "Create Pick"
     begin
         BinContent.SetFilterOnUnitOfMeasure();
         BinContent.CalcFields(BinContent."Quantity (Base)", BinContent."Pick Quantity (Base)", BinContent."Negative Adjmt. Qty. (Base)");
+
+        OnCalcBinAvailQtyToBreakbulkOnOnAfterBinContentCalcFields(BinContent);
+
         QtyToPickBase := BinContent."Quantity (Base)" - BinContent."Pick Quantity (Base)" - BinContent."Negative Adjmt. Qty. (Base)";
         if QtyToPickBase <= 0 then
             exit(0);
@@ -1412,6 +1416,9 @@ codeunit 7312 "Create Pick"
     begin
         BinContent.SetFilterOnUnitOfMeasure();
         BinContent.CalcFields(BinContent."Quantity (Base)", BinContent."Pick Quantity (Base)", BinContent."Negative Adjmt. Qty. (Base)");
+
+        OnBeforeSetAvailableQtyBase(BinContent);
+
         AvailableQtyBase := BinContent."Quantity (Base)" - BinContent."Pick Quantity (Base)" - BinContent."Negative Adjmt. Qty. (Base)";
         if (AvailableQtyBase < 0) or ((AvailableQtyBase = 0) and (not AllowInitialZero)) then
             exit;
@@ -2312,8 +2319,13 @@ codeunit 7312 "Create Pick"
     procedure SaveTempItemTrkgLines()
     var
         i: Integer;
+        isHandled: Boolean;
     begin
         if WhseItemTrkgLineCount = 0 then
+            exit;
+
+        OnBeforeSaveTempItemTrkgLines(isHandled);
+        if isHandled then
             exit;
 
         i := 0;
@@ -2553,6 +2565,7 @@ codeunit 7312 "Create Pick"
         CurrSourceNo := SourceNo2;
         CurrSourceLineNo := SourceLineNo2;
         CurrSourceSubLineNo := SourceSubLineNo2;
+        OnAfterSetSource(CurrSourceType, CurrSourceSubType, CurrSourceNo, CurrSourceLineNo, CurrSourceSubLineNo);
     end;
 
     local procedure ShowErrorWhenNoTempWarehouseActivityLineExists()
@@ -3150,8 +3163,6 @@ codeunit 7312 "Create Pick"
         QtyPlaced: Decimal;
         QtyTaken: Decimal;
     begin
-        WhseEntry.SetCurrentKey(
-            "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
         WhseEntry.SetRange("Location Code", BinContent."Location Code");
         WhseEntry.SetRange("Bin Code", BinContent."Bin Code");
         WhseEntry.SetRange("Item No.", BinContent."Item No.");
@@ -3183,8 +3194,6 @@ codeunit 7312 "Create Pick"
 
         TempWhseActivLine.Reset();
 
-        WhseJournalLine.SetCurrentKey(
-            "Item No.", "From Bin Code", "Location Code", "Entry Type", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
         WhseJournalLine.SetRange("Location Code", BinContent."Location Code");
         WhseJournalLine.SetRange("From Bin Code", BinContent."Bin Code");
         WhseJournalLine.SetRange("Item No.", BinContent."Item No.");
@@ -3197,8 +3206,15 @@ codeunit 7312 "Create Pick"
     end;
 
     local procedure PickAccordingToFEFO(LocationCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup") PickAccordingToFEFO: Boolean
+    var
+        IsHandled: Boolean;
     begin
         GetLocation(LocationCode);
+
+        OnBeforePickAccordingToFEFO(LocationCode, WhseItemTrackingSetup, PickAccordingToFEFO, IsHandled);
+        if IsHandled then
+            exit(PickAccordingToFEFO);
+
         PickAccordingToFEFO := CurrLocation."Pick According to FEFO" and WhseItemTrackingSetup.TrackingRequired();
         OnAfterPickAccordingToFEFO(LocationCode, WhseItemTrackingSetup, PickAccordingToFEFO);
     end;
@@ -4324,7 +4340,7 @@ codeunit 7312 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateTempActivityLine(BinCode: Code[20]; QtyToPick: Decimal; QtyToPickBase: Decimal; ActionType: Integer; LocationCode: Code[10]; UOMCode: Code[10]; QtyPerUOM: Decimal; WarehouseShipmentLine: Record "Warehouse Shipment Line"; CreatePickParameters: Record "Create Pick Parameters"; TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var Bin: Record Bin; WhseItemTrkgExists: Boolean)
+    local procedure OnBeforeCreateTempActivityLine(BinCode: Code[20]; QtyToPick: Decimal; QtyToPickBase: Decimal; ActionType: Integer; LocationCode: Code[10]; UOMCode: Code[10]; QtyPerUOM: Decimal; WarehouseShipmentLine: Record "Warehouse Shipment Line"; CreatePickParameters: Record "Create Pick Parameters"; var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var Bin: Record Bin; WhseItemTrkgExists: Boolean)
     begin
     end;
 
@@ -4827,6 +4843,36 @@ codeunit 7312 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateWhseActivHeader(var CurrWarehouseActivityHeader: Record "Warehouse Activity Header"; LocationCode: Code[10]; var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20]; var NoOfSourceDoc: Integer; var NoOfLines: Integer; var WhseDocCreated: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePickAccordingToFEFO(LocationCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; var PickAccordingToFEFO: Boolean; var isHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindSmallerUOMBinOnBeforeFindWhseActivLine(var TempWarehouseActivityLine2: Record "Warehouse Activity Line" temporary; Location: Record Location)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetAvailableQtyBase(var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcBinAvailQtyToBreakbulkOnOnAfterBinContentCalcFields(var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveTempItemTrkgLines(isHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSource(SourceType2: Integer; SourceSubType2: Option; SourceNo2: Code[20]; SourceLineNo2: Integer; SourceSubLineNo2: Integer)
     begin
     end;
 }

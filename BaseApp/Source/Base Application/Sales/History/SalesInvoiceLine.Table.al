@@ -560,6 +560,13 @@ table 113 "Sales Invoice Line"
         {
             Caption = 'Price description';
         }
+        field(7012; "Sell-to Customer Name"; Text[100])
+        {
+            CalcFormula = lookup(Customer.Name where("No." = field("Sell-to Customer No.")));
+            Caption = 'Sell-to Customer Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
     }
 
     keys

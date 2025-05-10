@@ -640,6 +640,7 @@ report 5805 "Item Register - Value"
                 trigger OnPreDataItem()
                 begin
                     SetRange("Entry No.", "Item Register"."From Value Entry No.", "Item Register"."To Value Entry No.");
+                    SetFilter("Item Register No.", '0|%1', "Item Register"."No.");
 
                     Clear(ShowItemLineSummary);
                 end;
