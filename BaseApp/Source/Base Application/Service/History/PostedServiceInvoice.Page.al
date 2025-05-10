@@ -290,7 +290,7 @@ page 5978 "Posted Service Invoice"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             Editable = false;
                             ToolTip = 'Specifies the county in the customer''s address.';
                         }
@@ -542,7 +542,7 @@ page 5978 "Posted Service Invoice"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Service;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Editable = false;
                             ToolTip = 'Specifies the county in the customer''s address.';
                         }

@@ -684,7 +684,6 @@ codeunit 10740 "No Taxable Mgt."
                 until NoTaxableEntry.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
     procedure CalcNoTaxableAmountVendor(var NormalAmount: Decimal; var EUServiceAmount: Decimal; VendorNo: Code[20]; FromDate: Date; ToDate: Date; FilterString: Text[1024])
     var
         NoTaxableEntry: Record "No Taxable Entry";

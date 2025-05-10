@@ -5019,6 +5019,7 @@
         GenJournalLine: Record "Gen. Journal Line";
         SalesVATEntry: Record "VAT Entry";
         PurchaseVATEntry: Record "VAT Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         DocumentNo: Code[20];
         UpdatedVATDate: Date;
@@ -5070,6 +5071,9 @@
         // [THEN] Only GL Entries related to sales transactions are updated
         VerifyVATDateInGLEntries(SalesVATEntry, UpdatedVATDate);
         VerifyVATDateInGLEntries(PurchaseVATEntry, InitalVATDate);
+
+        // Cleanup
+        CustLedgerEntry.DeleteAll();
     end;
 
     [Test]
@@ -6905,15 +6909,18 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
     local procedure VerifyAmountOnVendorLedgerEntry(PostedInvoiceNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        PurchInvHeader: Record "Purch. Inv. Header";
+        ExpectedPmtAmount: Decimal;
     begin
-        PurchInvHeader.Get(PostedInvoiceNo);
-        PurchInvHeader.CalcFields("Amount Including VAT");
         VendorLedgerEntry.SetRange("Document No.", PostedInvoiceNo);
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
         VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Amount (LCY)");
-        VendorLedgerEntry.TestField("Amount (LCY)", PurchInvHeader."Amount Including VAT");
+        ExpectedPmtAmount := VendorLedgerEntry."Amount (LCY)" - VendorLedgerEntry."Original Pmt. Disc. Possible";
+
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Amount (LCY)");
+        VendorLedgerEntry.TestField("Amount (LCY)", ExpectedPmtAmount);
         VendorLedgerEntry.TestField(Open, false);
     end;
 

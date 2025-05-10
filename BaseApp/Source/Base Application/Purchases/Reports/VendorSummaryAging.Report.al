@@ -216,6 +216,7 @@ report 305 "Vendor - Summary Aging"
 
                     PrintLine := false;
                     LineTotalVendAmountDue := 0;
+                    OnAfterGetRecordIntegerOnBeforeFillColumns(Vendor, DtldVendLedgEntry);
                     for i := 1 to 5 do begin
                         DtldVendLedgEntry.SetCurrentKey("Excluded from calculation", "Vendor No.", "Posting Date", "Currency Code",
                           "Initial Entry Due Date", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2");
@@ -258,6 +259,7 @@ report 305 "Vendor - Summary Aging"
                 PrintLine := false;
                 LineTotalVendAmountDue := 0;
                 CopyFilter("Currency Filter", DtldVendLedgEntry."Currency Code");
+                OnAfterGetRecordVendorOnBeforeFillColumns(Vendor, DtldVendLedgEntry);
                 for i := 1 to 5 do begin
                     DtldVendLedgEntry.SetCurrentKey("Excluded from calculation", "Vendor No.", "Posting Date", "Currency Code",
                       "Initial Entry Due Date", "Initial Entry Global Dim. 1", "Initial Entry Global Dim. 2");
@@ -381,6 +383,16 @@ report 305 "Vendor - Summary Aging"
         PeriodStartDate[2] := NewPeriodStartDate;
         Evaluate(PeriodLength, NewPeriodLength);
         PrintAmountsInLCY := NewPrintAmountsInLCY;
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterGetRecordIntegerOnBeforeFillColumns(var Vendor: Record Vendor; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterGetRecordVendorOnBeforeFillColumns(var Vendor: Record Vendor; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    begin
     end;
 }
 

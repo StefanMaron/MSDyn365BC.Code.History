@@ -125,6 +125,7 @@ codeunit 10780 "Create ES GL Accounts"
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.AllowancesName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.LongtermLiabilitiesName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherLiabilitiesName(), '589');
+        ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherAccruedExpensesAndDeferredIncomeName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.TotalLiabilitiesName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.INCOMESTATEMENTName(), '');
         ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.SalesofResourcesName(), '');

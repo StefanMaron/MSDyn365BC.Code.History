@@ -63,6 +63,7 @@ codeunit 134386 "ERM Sales Documents II"
         ExpectedRenameErr: Label 'You cannot rename the line.';
         SalesQuoteLineNotEditableErr: Label 'The Sales Quote line should be editable';
         CannotRenameItemUsedInSalesLinesErr: Label 'You cannot rename %1 in a %2, because it is used in sales document lines.', Comment = '%1 = Item No. caption, %2 = Table caption.';
+        ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -4499,6 +4500,194 @@ codeunit 134386 "ERM Sales Documents II"
         SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(SalesHeader."Invoice Discount Value");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdateExtendedTextTypeNotAllowed()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 564049] Error message when adding a sales line with type Item that have extended text previously
+        Initialize();
+
+        // [GIVEN] Item "X" with Extended Text
+        CreateItemAndExtendedText(Item);
+
+        // [GIVEN] Create Sales Header
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Sales Line with Item, second Sales Line with Extended Text
+        CreateSalesLineWithExtendedText(SalesHeader, Item."No.");
+
+        // [WHEN] Get extended text Sales Line 
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindLast();
+
+        // [THEN] Error come when try to change type of extended text Sales line
+        asserterror SalesLine.Validate(Type, SalesLine.Type::Item);
+
+        // [THEN] Verify the error of extended text
+        Assert.ExpectedError(StrSubstNo(ChangeExtendedTextErr, SalesLine.FieldCaption(Type)));
+    end;
+
+    [HandlerFunctions('CustomerLookupHandler,ConfirmHandlerYes')]
+    [Test]
+    procedure UpdateEmailAndPhoneNoWhenChangeBillToOfSalesInvoice()
+    var
+        Contact: array[2] of Record Contact;
+        Customer: array[2] of Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [SCENARIO 564632] The Email and Phone No. should update when selecting Another Customer in the "Bill-to" field of a Sales Invoice
+        Initialize();
+
+        // [GIVEN] Create First Customer with First Contact with Phone = "111111111", Mobile Phone = "222222222" and Email = "contact1@mail.com"
+        LibraryMarketing.CreateContactWithCustomer(Contact[1], Customer[1]);
+        UpdateContactInfo(Contact[1], '111111111', '222222222', 'contact1@mail.com');
+        Contact[1].Modify(true);
+
+        // [GIVEN] Create Second Customer with Second Contact with Phone = "333333333", Mobile Phone = "444444444" and Email = "contact2@mail.com"
+        LibraryMarketing.CreateContactWithCustomer(Contact[2], Customer[2]);
+        UpdateContactInfo(Contact[2], '333333333', '444444444', 'contact2@mail.com');
+        Contact[2].Modify(true);
+
+        // [GIVEN] Create Sales Invoice with First Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer[1]."No.");
+
+        // [GIVEN] Sales Invoice Card is opened
+        LibraryVariableStorage.Enqueue(Customer[2]."No.");
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue(true); // yes to change "Bill-to Customer No."
+        SalesInvoice.OpenEdit();
+        SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        // [WHEN] Select Second Customer when lookup "Bill-to Customer Name"
+        SalesInvoice."Bill-to Name".Lookup();
+
+        // [THEN] Verify Sales Invoice "Phone No." = "333333333"
+        SalesInvoice.BillToContactPhoneNo.AssertEquals(Contact[2]."Phone No.");
+
+        // [THEN] Verify Sales Invoice "Mobile Phone No." = "444444444"
+        SalesInvoice.BillToContactMobilePhoneNo.AssertEquals(Contact[2]."Mobile Phone No.");
+
+        // [THEN] Verify Sales Invoice "Email" = "contact2@mail.com"
+        SalesInvoice.BillToContactEmail.AssertEquals(Contact[2]."E-Mail");
+    end;
+    
+    [Test]
+    [HandlerFunctions('ContactListPageHandler,ConfirmHandlerYes')]
+    procedure ShipToContactUpdateFromAlternateShippingAddressContact()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ContactNew: Record Contact;
+        SalesHeader: Record "Sales Header";
+        ShipToAddress: Record "Ship-to Address";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 562670] Alternate shipping address contact on a Sales Order is changed when changing the contact person on the General FastTab
+        Initialize();
+
+        // [GIVEN] Create Customer and ShipToAddress with Contact
+        CreateCustomerWithTwoContacts(Customer, Contact, ContactNew);
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        ShipToAddress.Validate(Contact, 'London');
+        ShipToAddress.Modify(true);
+
+        // [GIVEN] Sales Order with default Contact
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        SalesHeader.Modify(true);
+
+        // [WHEN] Open Sales Order page and change Contact on General Tab
+        SalesOrder.OpenEdit();
+        SalesOrder.GotoRecord(SalesHeader);
+        LibraryVariableStorage.Enqueue(ContactNew."No.");
+        SalesOrder."Sell-to Contact".Lookup();
+        SalesOrder.OK().Invoke();
+
+        // [THEN] Ship-to Option is "Alternate Shipping Address" in Sales Order
+        Assert.AreEqual(ShipToAddress.Contact, SalesHeader."Ship-to Contact", ' ');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure UpdateEmailAndPhoneNoAfterChangeSelltoContactfieldinSalesQuote()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        Contact2: Record Contact;
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [SCENARIO 564179] Email and Phone No. must be updated when change sell-to contact on sales Quote. 
+        Initialize();
+
+        // [GIVEN] Create Two Contacts with Customer
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        UpdateContactInfo(Contact, '111111111', '222222222', 'contact1@mail.com');
+        Contact.Modify(true);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        LibraryMarketing.CreatePersonContact(Contact2);
+        UpdateContactInfo(Contact2, '333333333', '444444444', 'contact2@mail.com');
+        Contact2.Validate("Company No.", Contact."Company No.");
+        Contact2.Modify(true);
+
+        // [GIVEN] Create Sales Quote
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
+        SalesQuote.Trap();
+        Page.Run(Page::"Sales Quote", SalesHeader);
+
+        // [WHEN] Update "Sell-to Contact"
+        SalesQuote."Sell-to Contact No.".SetValue(Contact2."No.");
+        SalesQuote."Sell-to Contact".SetValue(Contact2.Name);
+
+        // [THEN] Verify Email and Phone No auto update from Contact
+        SalesQuote.SellToPhoneNo.AssertEquals(Contact2."Phone No.");
+        SalesQuote.SellToEmail.AssertEquals(Contact2."E-Mail");
+    end;
+
+    [Test]
+    [HandlerFunctions('ContactListModalPageHandler')]
+    procedure CompanyNoAndCompanyNameAutomaticallyFilledOnContactCardWhenCreateNewFromSellToContactNoLookup()
+    var
+        Contact: Record Contact;
+        Contact2: Record Contact;
+        Customer: Record Customer;
+        Salesheader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [SCENARIO 564179] "Company No." and "Company Name" auto filled from contacts when create new contact from "Sell-to Contact No." lookup
+        Initialize();
+
+        // [GIVEN] Create Contact with Customer
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        Contact.Validate("Contact Business Relation", Contact."Contact Business Relation"::Customer);
+        Contact.Modify(true);
+
+        // [GIVEN] Create Person Contact
+        LibraryMarketing.CreatePersonContact(Contact2);
+        Contact2.Validate("Company No.", Contact."Company No.");
+        Contact2.Validate("Contact Business Relation", Contact2."Contact Business Relation"::Customer);
+        Contact2.Modify(true);
+
+        // [GIVEN] Create Sales Quote
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
+
+        // [GIVEN] Lookup "Contact list" page.
+        SalesQuote.OpenView();
+        SalesQuote.GoToRecord(SalesHeader);
+        LibraryVariableStorage.Enqueue(Contact2."Company No.");
+        SalesQuote."Sell-to Contact No.".Lookup();
+
+        // [THEN] Verify Company No. and Company Name after create new from "Sell-to Contact No." lookup.
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";
@@ -6626,6 +6815,22 @@ codeunit 134386 "ERM Sales Documents II"
     begin
         CustomerLookup.Filter.SetFilter(Name, LibraryVariableStorage.DequeueText());
         CustomerLookup.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure CustomerLookupHandler(var CustomerLookup: TestPage "Customer Lookup")
+    begin
+        CustomerLookup.GotoKey(LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(),
+            CustomerLookup.Filter.GetFilter("Date Filter"), 'Wrong Date Filter.');
+        CustomerLookup.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ContactListModalPageHandler(var ContactList: TestPage "Contact List")
+    begin
+        ContactList.FILTER.SetFilter("Company No.", LibraryVariableStorage.DequeueText());
+        ContactList.New();
     end;
 }
 

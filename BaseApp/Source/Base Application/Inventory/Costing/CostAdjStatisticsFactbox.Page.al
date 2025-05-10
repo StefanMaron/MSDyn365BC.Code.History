@@ -40,6 +40,8 @@ page 5812 "Cost Adj. Statistics Factbox"
             }
             group("No. of Entries")
             {
+                Caption = 'No. of Entries';
+
                 field("Item Ledger Entries"; ItemEntries)
                 {
                     Caption = 'Item ledger entries';
@@ -98,6 +100,8 @@ page 5812 "Cost Adj. Statistics Factbox"
             }
             group("Cost Adjustments")
             {
+                Caption = 'Cost Adjustments';
+
                 field(Runs; TotalRuns)
                 {
                     Caption = 'Total runs';

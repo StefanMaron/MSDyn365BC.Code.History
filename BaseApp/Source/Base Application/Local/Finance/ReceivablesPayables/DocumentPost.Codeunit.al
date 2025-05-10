@@ -226,6 +226,7 @@ codeunit 7000006 "Document-Post"
             if GenJnlLine."Recipient Bank Account" <> '' then begin
                 CustBankAcc.Get(GenJnlLine."Account No.", GenJnlLine."Recipient Bank Account");
                 CarteraDoc.Place := CompanyInfo."Post Code" = CustBankAcc."Post Code";
+                OnGJLInfoToDocOnBeforeExit(CarteraDoc, GenJnlLine);
                 exit;
             end;
             Cust.Get(GenJnlLine."Account No.");
@@ -1279,6 +1280,11 @@ codeunit 7000006 "Document-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdatePayableDocBeforeClosedCarteraDocInsert(var ClosedCarteraDoc: Record "Closed Cartera Doc."; GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGJLInfoToDocOnBeforeExit(var CarteraDoc: Record "Cartera Doc."; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

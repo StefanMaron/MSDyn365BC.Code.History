@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -1650,6 +1650,6 @@ codeunit 5802 "Inventory Posting To G/L"
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateGlobalInvtPostBuf(ValueEntryNo: Integer; var TempInvtPostBuf: array[20] of Record "Invt. Posting Buffer" temporary; RunOnlyCheck: Boolean; CalledFromTestReport: Boolean; Result: Boolean; IsHandled: Boolean)
     begin
-    end;    
+    end;
 }
 

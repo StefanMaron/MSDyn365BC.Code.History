@@ -13,6 +13,7 @@ codeunit 301 "Allocate Reserv. Basic" implements "Allocate Reservation"
     procedure Allocate(var ReservationWkshLine: Record "Reservation Wksh. Line")
     var
         ReservWkshLine: Record "Reservation Wksh. Line";
+        IsHandled: Boolean;
     begin
         ReservWkshLine.Copy(ReservationWkshLine);
         ReservWkshLine.FilterGroup := 2;
@@ -21,6 +22,11 @@ codeunit 301 "Allocate Reserv. Basic" implements "Allocate Reservation"
         ReservWkshLine.SetFilter("Location Code", ReservationWkshLine.GetFilter("Location Code"));
         ReservWkshLine.FilterGroup := 0;
         ReservWkshLine.SetCurrentKey("Journal Batch Name", "Item No.", "Variant Code", "Location Code");
+        IsHandled := false;
+        OnAllocateOnAfterReservationWorksheetLinePrepare(ReservWkshLine, ReservationWkshLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ReservWkshLine.FindSet(true) then
             exit;
 
@@ -63,5 +69,10 @@ codeunit 301 "Allocate Reserv. Basic" implements "Allocate Reservation"
     procedure GetDescription(): Text
     begin
         exit(DescriptionTxt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAllocateOnAfterReservationWorksheetLinePrepare(var ReservationWkshLine2: Record "Reservation Wksh. Line"; var ReservationWkshLine: Record "Reservation Wksh. Line"; var IsHandled: Boolean)
+    begin
     end;
 }

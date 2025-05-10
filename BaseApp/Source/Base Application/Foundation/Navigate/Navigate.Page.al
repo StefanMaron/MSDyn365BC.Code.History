@@ -2076,6 +2076,8 @@ page 344 Navigate
         ItemTrackingFilters.SetFilter("Lot No. Filter", LotNoFilter);
         ItemTrackingFilters.SetFilter("Package No. Filter", PackageNoFilter);
 
+        OnAfterSetTrackingFiltersOnBeforeFindTrackingRecords(ItemTrackingFilters);
+
         Clear(ItemTrackingNavigateMgt);
         ItemTrackingNavigateMgt.FindTrackingRecords(ItemTrackingFilters);
 
@@ -2574,6 +2576,11 @@ page 344 Navigate
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrint(var Rec: Record "Document Entry"; SearchBasedOn: Enum "Navigate Search Type"; var TempRecordBuffer: Record "Record Buffer"; var ItemTrackingFilters: Record Item; DocNoFilter: Text; PostingDateFilter: Text; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetTrackingFiltersOnBeforeFindTrackingRecords(var ItemTrackingFilters: Record Item)
     begin
     end;
 }

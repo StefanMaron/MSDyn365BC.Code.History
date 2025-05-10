@@ -279,7 +279,8 @@ codeunit 99000843 "Undo Prod. Posting Mgmt."
                     Error(QuantityMustBeGreaterThanZeroErr, ItemLedgEntry.TableCaption, ItemLedgEntry."Entry No.");
         end;
 
-        ValidateSubcontracting(ProdOrderLine);
+        if ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Output then
+            ValidateSubcontracting(ProdOrderLine);
     end;
 
     local procedure ValidateSubcontracting(ProdOrderLine: Record "Prod. Order Line")

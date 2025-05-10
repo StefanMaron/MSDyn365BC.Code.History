@@ -177,27 +177,31 @@ codeunit 5055 "CustVendBank-Update"
     procedure UpdateEmployee(Contact: Record Contact; ContBusRel: Record "Contact Business Relation")
     var
         Employee: Record Employee;
+        IsHandled: Boolean;
     begin
-        Employee.Get(ContBusRel."No.");
-        Employee.Address := Contact.Address;
-        Employee."Address 2" := Contact."Address 2";
-        Employee.City := Contact.City;
-        Employee."Phone No." := Contact."Phone No.";
-        Employee."Country/Region Code" := Contact."Country/Region Code";
-        Employee.Comment := Contact.Comment;
-        Employee."Fax No." := Contact."Fax No.";
-        Employee."Post Code" := Contact."Post Code";
-        Employee.County := Contact.County;
-        Employee."E-Mail" := Contact."E-Mail";
-        Employee.Image := Contact.Image;
-        Employee.Name := Contact."First Name";
-        Employee."Second Family Name" := Contact."Middle Name";
-        Employee."First Family Name" := Contact.Surname;
-        Employee."Job Title" := Contact."Job Title";
-        Employee.Initials := Contact.Initials;
-        Employee."Mobile Phone No." := Contact."Mobile Phone No.";
-        Employee.Pager := Contact.Pager;
-        Employee.Modify(true);
+        OnBeforeUpdateEmployee(Employee, Contact, ContBusRel, IsHandled);
+        if not IsHandled then begin
+            Employee.Get(ContBusRel."No.");
+            Employee.Address := Contact.Address;
+            Employee."Address 2" := Contact."Address 2";
+            Employee.City := Contact.City;
+            Employee."Phone No." := Contact."Phone No.";
+            Employee."Country/Region Code" := Contact."Country/Region Code";
+            Employee.Comment := Contact.Comment;
+            Employee."Fax No." := Contact."Fax No.";
+            Employee."Post Code" := Contact."Post Code";
+            Employee.County := Contact.County;
+            Employee."E-Mail" := Contact."E-Mail";
+            Employee.Image := Contact.Image;
+            Employee.Name := Contact."First Name";
+            Employee."Second Family Name" := Contact."Middle Name";
+            Employee."First Family Name" := Contact.Surname;
+            Employee."Job Title" := Contact."Job Title";
+            Employee.Initials := Contact.Initials;
+            Employee."Mobile Phone No." := Contact."Mobile Phone No.";
+            Employee.Pager := Contact.Pager;
+            Employee.Modify(true);
+        end;
 
         OnAfterUpdateEmployee(Employee, Contact);
     end;
@@ -322,6 +326,11 @@ codeunit 5055 "CustVendBank-Update"
 
         xRec.UpdateContactBusinessRelation();
         Rec.UpdateContactBusinessRelation();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateEmployee(var Employee: Record Employee; var Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
     end;
 }
 
