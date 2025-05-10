@@ -23,12 +23,20 @@ report 799 "Delete Empty Item Registers"
             trigger OnAfterGetRecord()
             begin
                 ItemLedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
+                ItemLedgEntry.SetFilter("Item Register No.", '0|%1', "Item Register"."No.");
+                ValueEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
+                ValueEntry.SetFilter("Item Register No.", '0|%1', "Item Register"."No.");
                 PhysInvtLedgEntry.SetRange("Entry No.", "From Phys. Inventory Entry No.", "To Phys. Inventory Entry No.");
+                PhysInvtLedgEntry.SetFilter("Item Register No.", '0|%1', "Item Register"."No.");
                 CapLedgEntry.SetRange("Entry No.", "From Capacity Entry No.", "To Capacity Entry No.");
-                if ItemLedgEntry.FindFirst() or
-                   PhysInvtLedgEntry.FindFirst() or
-                   CapLedgEntry.FindFirst()
-                then
+                CapLedgEntry.SetFilter("Item Register No.", '0|%1', "Item Register"."No.");
+                if not ItemLedgEntry.IsEmpty() then
+                    CurrReport.Skip();
+                if not ValueEntry.IsEmpty() then
+                    CurrReport.Skip();
+                if not PhysInvtLedgEntry.IsEmpty() then
+                    CurrReport.Skip();
+                if not CapLedgEntry.IsEmpty() then
                     CurrReport.Skip();
                 Window.Update(1, "No.");
                 Window.Update(2, "Creation Date");
@@ -76,6 +84,7 @@ report 799 "Delete Empty Item Registers"
 
     var
         ItemLedgEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
         PhysInvtLedgEntry: Record "Phys. Inventory Ledger Entry";
         CapLedgEntry: Record Microsoft.Manufacturing.Capacity."Capacity Ledger Entry";
         Window: Dialog;

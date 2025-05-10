@@ -573,6 +573,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
     begin
         Clear(DecimalArray);
         case TempItemChargeAssgntSales."Applies-to Doc. Type" of
+            TempItemChargeAssgntSales."Applies-to Doc. Type"::Quote,
             TempItemChargeAssgntSales."Applies-to Doc. Type"::Order,
             TempItemChargeAssgntSales."Applies-to Doc. Type"::Invoice,
             TempItemChargeAssgntSales."Applies-to Doc. Type"::"Return Order",

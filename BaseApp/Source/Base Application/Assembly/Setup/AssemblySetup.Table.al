@@ -76,7 +76,6 @@ table 905 "Assembly Setup"
         field(140; "Default Gen. Bus. Post. Group"; Code[20])
         {
             Caption = 'Default General Business Posting Group';
-            ToolTip = 'Specifies the general business posting group that is used by default for assembly orders.';
             TableRelation = "Gen. Business Posting Group";
         }
     }

@@ -141,6 +141,9 @@ table 37 "Sales Line"
                                 SalesHeader.TestField(Status, SalesHeader.Status::Open);
                         Type::"Charge (Item)":
                             DeleteChargeChargeAssgnt("Document Type", "Document No.", "Line No.");
+                        Type::" ":
+                            if ("Attached to Line No." <> 0) and (Quantity = 0) then
+                                Error(ChangeExtendedTextErr, FieldCaption(Type));
                     end;
                     if xRec."Deferral Code" <> '' then
                         DeferralUtilities.RemoveOrSetDeferralSchedule('',
@@ -3366,6 +3369,13 @@ table 37 "Sales Line"
             FieldClass = FlowField;
             BlankZero = true;
         }
+        field(7012; "Sell-to Customer Name"; Text[100])
+        {
+            CalcFormula = lookup(Customer.Name where("No." = field("Sell-to Customer No.")));
+            Caption = 'Sell-to Customer Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
 #if not CLEANSCHEMA26
         field(10604; "VAT Code"; Code[10])
         {
@@ -3728,6 +3738,7 @@ table 37 "Sales Line"
         CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
         NonInvReserveTypeErr: Label 'Non-inventory and service items must have the reserve type Never. The current reserve type for item %1 is %2.', Comment = '%1 is Item No., %2 is Reserve';
+        ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
 
     protected var
         HideValidationDialog: Boolean;
@@ -5583,7 +5594,7 @@ table 37 "Sales Line"
     begin
         if "Sell-to Customer No." = '' then
             exit(false);
-            
+
         Customer.SetLoadFields("Base Calendar Code");
         if Customer.Get("Sell-to Customer No.") then
             exit(Customer."Base Calendar Code" <> '');
@@ -8720,8 +8731,12 @@ table 37 "Sales Line"
     procedure ValidateLineDiscountPercent(DropInvoiceDiscountAmount: Boolean)
     var
         InvDiscountAmount: Decimal;
+        IsHandled: Boolean;
     begin
-        TestJobPlanningLine();
+        IsHandled := false;
+        OnValidateLineDiscountPercentOnBeforeTestJobPlanningLine(Rec, xRec, IsHandled);
+        if not IsHandled then
+            TestJobPlanningLine();
         TestStatusOpen();
         OnValidateLineDiscountPercentOnAfterTestStatusOpen(Rec, xRec, CurrFieldNo);
         "Line Discount Amount" :=
@@ -12239,6 +12254,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitDeferralCodeOnBeforeUpdateDeferralCode(var SalesLine: Record "Sales Line"; var ShouldUpdateDeferralCode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateLineDiscountPercentOnBeforeTestJobPlanningLine(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

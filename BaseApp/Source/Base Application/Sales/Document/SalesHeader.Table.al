@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Document;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Document;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Bank.BankAccount;
@@ -226,7 +230,7 @@ table 36 "Sales Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
-            
+
             trigger OnValidate()
             var
                 NoSeries: Codeunit "No. Series";
@@ -253,6 +257,8 @@ table 36 "Sales Header"
 
                 IsHandled := false;
                 OnValidateBillToCustomerNoOnAfterCheckBilltoCustomerNoChanged(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
 
                 if BilltoCustomerNoChanged and not IsHandled then
                     if xRec."Bill-to Customer No." = '' then
@@ -324,7 +330,7 @@ table 36 "Sales Header"
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
-                        TableRelation = Customer.Name;
+            TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -360,11 +366,11 @@ table 36 "Sales Header"
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
-                    }
+        }
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
-            
+
             trigger OnValidate()
             begin
                 ModifyBillToCustomerAddress();
@@ -373,7 +379,7 @@ table 36 "Sales Header"
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
-            
+
             trigger OnValidate()
             begin
                 ModifyBillToCustomerAddress();
@@ -382,7 +388,7 @@ table 36 "Sales Header"
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
-                        TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code".City
+            TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Bill-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Bill-to Country/Region Code"));
             ValidateTableRelation = false;
@@ -411,7 +417,7 @@ table 36 "Sales Header"
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
-            
+
             trigger OnLookup()
             var
                 Contact: Record Contact;
@@ -431,7 +437,7 @@ table 36 "Sales Header"
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
-                    }
+        }
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
@@ -504,23 +510,23 @@ table 36 "Sales Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
-                    }
+        }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
-                    }
+        }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-                    }
+        }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-                    }
+        }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
-                        TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
+            TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Ship-to Country/Region Code"));
             ValidateTableRelation = false;
@@ -548,7 +554,7 @@ table 36 "Sales Header"
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
-                    }
+        }
         field(19; "Order Date"; Date)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
@@ -630,7 +636,7 @@ table 36 "Sales Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
-                    }
+        }
         field(23; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
@@ -987,7 +993,7 @@ table 36 "Sales Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
-                        TableRelation = "Language Selection"."Language Tag";
+            TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Salesperson Code"; Code[20])
         {
@@ -1206,7 +1212,7 @@ table 36 "Sales Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
-            
+
             trigger OnValidate()
             var
                 Customer: Record Customer;
@@ -1279,7 +1285,7 @@ table 36 "Sales Header"
         field(72; "Registration Number"; Text[50])
         {
             Caption = 'Registration No.';
-                        DataClassification = CustomerContent;
+            DataClassification = CustomerContent;
         }
         field(73; "Reason Code"; Code[10])
         {
@@ -1340,7 +1346,7 @@ table 36 "Sales Header"
         field(79; "Sell-to Customer Name"; Text[100])
         {
             Caption = 'Sell-to Customer Name';
-                        TableRelation = Customer.Name;
+            TableRelation = Customer.Name;
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -1389,11 +1395,11 @@ table 36 "Sales Header"
         field(80; "Sell-to Customer Name 2"; Text[50])
         {
             Caption = 'Sell-to Customer Name 2';
-                    }
+        }
         field(81; "Sell-to Address"; Text[100])
         {
             Caption = 'Sell-to Address';
-            
+
             trigger OnValidate()
             begin
                 UpdateShipToAddressFromSellToAddress(FieldNo("Ship-to Address"));
@@ -1403,7 +1409,7 @@ table 36 "Sales Header"
         field(82; "Sell-to Address 2"; Text[50])
         {
             Caption = 'Sell-to Address 2';
-            
+
             trigger OnValidate()
             begin
                 UpdateShipToAddressFromSellToAddress(FieldNo("Ship-to Address 2"));
@@ -1413,7 +1419,7 @@ table 36 "Sales Header"
         field(83; "Sell-to City"; Text[30])
         {
             Caption = 'Sell-to City';
-                        TableRelation = if ("Sell-to Country/Region Code" = const('')) "Post Code".City
+            TableRelation = if ("Sell-to Country/Region Code" = const('')) "Post Code".City
             else
             if ("Sell-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Sell-to Country/Region Code"));
             ValidateTableRelation = false;
@@ -1443,7 +1449,7 @@ table 36 "Sales Header"
         field(84; "Sell-to Contact"; Text[100])
         {
             Caption = 'Sell-to Contact';
-            
+
             trigger OnLookup()
             var
                 Contact: Record Contact;
@@ -1503,7 +1509,7 @@ table 36 "Sales Header"
         {
             CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
-            
+
             trigger OnValidate()
             begin
                 ModifyBillToCustomerAddress();
@@ -1561,7 +1567,7 @@ table 36 "Sales Header"
         {
             CaptionClass = '5,2,' + "Sell-to Country/Region Code";
             Caption = 'Sell-to County';
-            
+
             trigger OnValidate()
             begin
                 UpdateShipToAddressFromSellToAddress(FieldNo("Ship-to County"));
@@ -1616,7 +1622,7 @@ table 36 "Sales Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
-                    }
+        }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
             Caption = 'Ship-to Country/Region Code';
@@ -1673,7 +1679,7 @@ table 36 "Sales Header"
         field(100; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
-            
+
             trigger OnValidate()
             var
                 WhseSalesRelease: Codeunit "Whse.-Sales Release";
@@ -1771,7 +1777,7 @@ table 36 "Sales Header"
         field(106; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
-                        ObsoleteReason = 'Field length will be increased to 50.';
+            ObsoleteReason = 'Field length will be increased to 50.';
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
         }
@@ -2015,7 +2021,7 @@ table 36 "Sales Header"
         field(127; "IC Reference Document No."; Code[20])
         {
             Caption = 'IC Reference Document No.';
-                        Editable = false;
+            Editable = false;
         }
         field(129; "IC Direction"; Enum "IC Direction Type")
         {
@@ -2124,7 +2130,7 @@ table 36 "Sales Header"
         field(135; "Prepmt. Posting Description"; Text[100])
         {
             Caption = 'Prepmt. Posting Description';
-                    }
+        }
         field(138; "Prepmt. Pmt. Discount Date"; Date)
         {
             Caption = 'Prepmt. Pmt. Discount Date';
@@ -2298,7 +2304,7 @@ table 36 "Sales Header"
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
-                        ExtendedDatatype = PhoneNo;
+            ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
             var
@@ -2315,7 +2321,7 @@ table 36 "Sales Header"
         field(172; "Sell-to E-Mail"; Text[80])
         {
             Caption = 'Email';
-                        ExtendedDatatype = EMail;
+            ExtendedDatatype = EMail;
 
             trigger OnValidate()
             var
@@ -2380,7 +2386,7 @@ table 36 "Sales Header"
         field(210; "Ship-to Phone No."; Text[30])
         {
             Caption = 'Ship-to Phone No.';
-                        ExtendedDatatype = PhoneNo;
+            ExtendedDatatype = PhoneNo;
         }
         field(300; "Amt. Ship. Not Inv. (LCY)"; Decimal)
         {
@@ -4439,7 +4445,8 @@ table 36 "Sales Header"
                                 SalesLine.Validate("Shipment Date", "Shipment Date");
                         FieldNo("Currency Factor"):
                             if SalesLine.Type <> SalesLine.Type::" " then begin
-                                SalesLine.Validate("Unit Price");
+                                if SalesLine."Line Discount %" <> 0 then
+                                    SalesLine.Validate("Unit Price");
                                 SalesLine.Validate("Unit Cost (LCY)");
                                 if SalesLine."Job No." <> '' then
                                     JobTransferLine.FromSalesHeaderToPlanningLine(SalesLine, "Currency Factor");
@@ -7659,6 +7666,7 @@ table 36 "Sales Header"
 
     local procedure UpdateShipToContact()
     var
+        ShipToAddress: Record "Ship-to Address";
         IsHandled: Boolean;
     begin
         if not (CurrFieldNo in [FieldNo("Sell-to Contact"), FieldNo("Sell-to Contact No.")]) then
@@ -7666,6 +7674,11 @@ table 36 "Sales Header"
 
         if IsCreditDocType() then
             exit;
+
+        if "Ship-to Code" <> '' then
+            if ShipToAddress.Get("Sell-to Customer No.", "Ship-to Code") then
+                if ShipToAddress.Contact <> '' then
+                    exit;
 
         IsHandled := false;
         OnUpdateShipToContactOnBeforeValidateShipToContact(Rec, xRec, CurrFieldNo, IsHandled);
@@ -8057,18 +8070,36 @@ table 36 "Sales Header"
     local procedure ModifyBillToCustomerAddress()
     var
         Customer: Record Customer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeModifyBillToCustomerAddress(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetSalesSetup();
         if SalesSetup."Ignore Updated Addresses" then
             exit;
+
         if IsCreditDocType() then
             exit;
-        if ("Bill-to Customer No." <> "Sell-to Customer No.") and Customer.Get("Bill-to Customer No.") then
-            if HasBillToAddress() and HasDifferentBillToAddress(Customer) then
-                ShowModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId(),
-                  ModifyCustomerAddressNotificationLbl, ModifyCustomerAddressNotificationMsg,
-                  'CopyBillToCustomerAddressFieldsFromSalesDocument', "Bill-to Customer No.",
-                  "Bill-to Name", FieldName("Bill-to Customer No."));
+
+        if ("Bill-to Customer No." = "Sell-to Customer No.") then
+            exit;
+
+        if not HasBillToAddress() then
+            exit;
+
+        if not Customer.Get("Bill-to Customer No.") then
+            exit;
+
+        if not HasDifferentBillToAddress(Customer) then
+            exit;
+
+        ShowModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId(),
+          ModifyCustomerAddressNotificationLbl, ModifyCustomerAddressNotificationMsg,
+          'CopyBillToCustomerAddressFieldsFromSalesDocument', "Bill-to Customer No.",
+          "Bill-to Name", FieldName("Bill-to Customer No."));
     end;
 
     local procedure ModifyCustomerAddress()
@@ -9069,6 +9100,7 @@ table 36 "Sales Header"
         if IsHandled then
             exit(Result);
 
+        Contact.FilterGroup(2);
         if "Sell-to Customer No." <> '' then
             if Contact.Get("Sell-to Contact No.") then
                 Contact.SetRange("Company No.", Contact."Company No.")
@@ -9086,6 +9118,7 @@ table 36 "Sales Header"
             Validate("Sell-to Contact No.", Contact."No.");
             exit(true);
         end;
+        Contact.FilterGroup(0);
         exit(false);
     end;
 
@@ -9289,21 +9322,28 @@ table 36 "Sales Header"
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        SalesLineLocal: Record "Sales Line";
         QtyReservedFromStock: Decimal;
     begin
         QtyReservedFromStock := SalesLineReserve.GetReservedQtyFromInventory(Rec);
         if QtyReservedFromStock = 0 then
             exit(Result::None);
 
-        SalesLineLocal.SetRange("Document Type", "Document Type");
-        SalesLineLocal.SetRange("Document No.", "No.");
-        SalesLineLocal.SetRange(Type, SalesLineLocal.Type::Item);
-        SalesLineLocal.CalcSums("Outstanding Qty. (Base)");
-
-        if QtyReservedFromStock = SalesLineLocal."Outstanding Qty. (Base)" then
+        if QtyReservedFromStock = CalcOutstandingQuantityBase() then
             exit(Result::Full);
+
         exit(Result::Partial);
+    end;
+
+    local procedure CalcOutstandingQuantityBase(): Decimal
+    var
+        SalesLine2: Record "Sales Line";
+    begin
+        SalesLine2.SetRange("Document Type", "Document Type");
+        SalesLine2.SetRange("Document No.", "No.");
+        SalesLine2.SetRange(Type, SalesLine2.Type::Item);
+        OnCalcOutstandingQuantityBaseOnAfterSalesLineSetFilters(SalesLine2);
+        SalesLine2.CalcSums("Outstanding Qty. (Base)");
+        exit(SalesLine2."Outstanding Qty. (Base)");
     end;
 
     local procedure UpdateVATReportingDate(CalledByFieldNo: Integer)
@@ -11259,6 +11299,16 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePrepmtCrMemoNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcOutstandingQuantityBaseOnAfterSalesLineSetFilters(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyBillToCustomerAddress(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

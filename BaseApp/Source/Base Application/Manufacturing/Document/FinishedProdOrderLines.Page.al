@@ -169,6 +169,12 @@ page 99000868 "Finished Prod. Order Lines"
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
+                field("Standard Task Code"; Rec."Standard Task Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies a standard task.';
+                    Visible = false;
+                }
             }
         }
     }

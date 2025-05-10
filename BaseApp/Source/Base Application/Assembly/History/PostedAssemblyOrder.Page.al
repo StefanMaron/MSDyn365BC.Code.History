@@ -132,6 +132,11 @@ page 920 "Posted Assembly Order"
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
                     Visible = false;
                 }
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
+                {
+                    ApplicationArea = Assembly;
+                    ToolTip = 'Specifies the code for the General Business Posting Group that applies to the entry.';
+                }
             }
         }
         area(factboxes)

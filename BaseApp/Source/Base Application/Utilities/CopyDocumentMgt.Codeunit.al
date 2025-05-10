@@ -4567,7 +4567,7 @@ codeunit 6620 "Copy Document Mgt."
         JobPlanningLine.SetRange("Job Contract Entry No.", JobContractEntryNo);
         if JobPlanningLine.FindFirst() then begin
             NewJobPlanningLine.InitFromJobPlanningLine(JobPlanningLine, SalesLine.Quantity);
-
+            OnCreateJobPlanningLineOnAfterInitFromJobPlanningLine(NewJobPlanningLine, JobPlanningLine, SalesLine);
             JobPlanningLineInvoice.InitFromJobPlanningLine(NewJobPlanningLine);
             JobPlanningLineInvoice.InitFromSales(SalesHeader, SalesHeader."Posting Date", SalesLine."Line No.");
             JobPlanningLineInvoice.Insert();
@@ -8203,7 +8203,7 @@ codeunit 6620 "Copy Document Mgt."
     /// <param name="NextLineNo">The next line number for the target document.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyPurchLine(var ToPurchHeader: Record "Purchase Header"; FromPurchHeader: Record "Purchase Header"; FromPurchLine: Record "Purchase Line"; RecalculateAmount: Boolean; var CopyThisLine: Boolean; ToPurchLine: Record "Purchase Line"; MoveNegLines: Boolean; var RoundingLineInserted: Boolean; var Result: Boolean; var IsHandled: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; DocLineNo: Integer;
-                                                                                                                                                                                                                                                                                                                                                                                                 RecalculateLines: Boolean; var LinesNotCopied: Integer; var CopyPostedDeferral: Boolean; var NextLineNo: Integer)
+                                                                                                                                                                                                                                                                                                                                                                                                  RecalculateLines: Boolean; var LinesNotCopied: Integer; var CopyPostedDeferral: Boolean; var NextLineNo: Integer)
     begin
     end;
 
@@ -12507,6 +12507,11 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyArchSalesLineOnBeforeIncrementLinesNotCopied(FromSalesLineArchive: Record "Sales Line Archive"; var ShouldIncrementLinesNotCopied: Boolean; var LinesNotCopied: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateJobPlanningLineOnAfterInitFromJobPlanningLine(var NewJobPlanningLine: Record "Job Planning Line"; JobPlanningLine: Record "Job Planning Line"; SalesLine: Record "Sales Line")
     begin
     end;
 }

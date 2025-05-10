@@ -391,6 +391,7 @@ permissionset 30104 "Shpfy - Objects"
         page "Shpfy Companies" = X,
         page "Shpfy Company Card" = X,
         page "Shpfy Comp. Locations" = X,
+        page "Shpfy Comp. Locations Subform" = X,
         page "Shpfy Connector Guide" = X,
         page "Shpfy Credit Card Companies" = X,
         page "Shpfy Customer Adresses" = X,

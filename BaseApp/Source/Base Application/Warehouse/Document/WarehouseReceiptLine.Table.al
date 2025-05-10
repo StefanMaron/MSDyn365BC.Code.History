@@ -507,11 +507,15 @@ table 7317 "Warehouse Receipt Line"
         ErrorOccured: Boolean;
 
     procedure InitNewLine(DocNo: Code[20])
+    var
+        SkipLocking: Boolean;
     begin
+        OnBeforeInitNewLine(DocNo, SkipLocking);
         Reset();
         "No." := DocNo;
         SetRange("No.", "No.");
-        LockTable();
+        if not SkipLocking then
+            LockTable();
         if FindLast() then;
 
         Init();
@@ -897,6 +901,11 @@ table 7317 "Warehouse Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcBaseQty(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var Qty: Decimal; FromFieldName: Text; ToFieldName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitNewLine(DocumentNo: Code[20]; var SkipLocking: Boolean)
     begin
     end;
 }

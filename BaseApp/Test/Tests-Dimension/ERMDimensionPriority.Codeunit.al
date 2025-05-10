@@ -25,9 +25,20 @@ codeunit 134381 "ERM Dimension Priority"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         SystemActionTriggers: Codeunit "System Action Triggers";
+        LibraryAssembly: Codeunit "Library - Assembly";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         isInitialized: Boolean;
         WrongDimValueCodeErr: Label 'Wrong dimension value code.';
         DefaultDimPrioritiesNotificationIdTxt: Label '69CE42D9-0580-4907-8BC9-0EEB59DA96C9', Locked = true;
+        ItemAvaibilityIsLowNotificationIdTxt: Label '2712ad06-c48b-4c20-820e-347a60c9ad00', Locked = true;
+        AvailWarningYesMsg: Label 'Avail. warning should be Yes';
+        AvailWarningNoMsg: Label 'Avail. warning should be No';
+        DueDateBeforeWDFromLineMsg: Label 'Due Date %1 is before work date %2.';
+        DueDateBeforeWDFromHeaderMsg: Label 'Due Date %1 is before work date %2 in one or more of the assembly lines.';
+        NewLineDueDate: Date;
+        TestMethodName: Text[30];
+        Step: Integer;
+        TestVSTF257960A: Label 'VSTF257960A';
 
     [Test]
     [Scope('OnPrem')]
@@ -758,6 +769,105 @@ codeunit 134381 "ERM Dimension Priority"
         Assert.IsFalse(ProdOrderLine."Shortcut Dimension 1 Code" = ProdOrderComponent."Shortcut Dimension 1 Code", 'Dimensions are equal.');
     end;
 
+    [Test]
+    [HandlerFunctions('DueDateBeforeWorkDateMsgHandler')]
+    procedure AvailWarningAssemblyOrdersConsideringDueDates()
+    var
+        AsmHeader: Record "Assembly Header";
+        AsmHeader2: Record "Assembly Header";
+        AsmLine: Record "Assembly Line";
+        AssemblySetup: Record "Assembly Setup";
+        BOMComponent: Record "BOM Component";
+        ComponentItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        MyNotifications: Record "My Notifications";
+        ProductItem: Record Item;
+        Newworkdate: Date;
+    begin
+        // [SCENARIO 565695] Avail. Warning on Assembly Orders are now considering Demand for the Component only for selected Assembly Order.
+        Initialize();
+
+        // [GIVEN] Set Item Avaibility Is Low Notification Enabled.
+        SetMyNotificationsSetup(MyNotifications);
+
+        // [GIVEN] Create New Location.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Validate "Default Location for Orders" in Assembly Setup for New Created Location.
+        AssemblySetup.Get();
+        AssemblySetup.Validate("Default Location for Orders", Location.Code);
+        AssemblySetup.Modify(true);
+
+        // [GIVEN] Validate "Components at Location" in Manufacturing Setup for New Created Location.
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", Location.Code);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Created Component Item
+        LibraryInventory.CreateItem(ComponentItem);
+
+        // [GIVEN] Created Master Item and Assembly Component for Master Item
+        LibraryInventory.CreateItem(ProductItem);
+        ProductItem.Validate("Replenishment System", ProductItem."Replenishment System"::Purchase);
+        ProductItem.Validate("Manufacturing Policy", ProductItem."Manufacturing Policy"::"Make-to-Stock");
+        ProductItem.Modify(true);
+        LibraryAssembly.CreateAssemblyListComponent(BOMComponent.Type::Item, ComponentItem."No.", ProductItem."No.", '', 0, 2, true);
+
+        // [GIVEN] Created 1st Assembly Order
+        MakeAsmOrder(AsmHeader, ProductItem, 1, WorkDate(), Location.Code);
+
+        // [WHEN] Get Assemblyline and Validate Quantity 
+        AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000);
+        AsmLine.ShowAvailabilityWarning();
+        AsmLine.Validate(Quantity, AsmLine.Quantity);
+
+        // [THEN] 1st Check "Avail. Warning" on Assemblyline for 1st Assembly Order
+        Assert.IsTrue(AsmLine."Avail. Warning", AvailWarningYesMsg);
+
+
+        // [GIVEN] Created and Post Item Journal for Component Item
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ComponentItem."No.", Location.Code, '', 2);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] Get Assemblyline and Validate Quantity for 1st Assembly Order
+        AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000);
+        AsmLine.ShowAvailabilityWarning();
+        AsmLine.Validate(Quantity, AsmLine.Quantity);
+
+        // [THEN] 2nd Check "Avail. Warning" on Assemblyline for 1st Assembly Order
+        Assert.IsFalse(AsmLine."Avail. Warning", AvailWarningNoMsg);
+
+        // [GIVEN] Recall All Notifications
+        NotificationLifecycleMgt.RecallAllNotifications();
+
+        // [GIVEN] Set 2nd New Work Date.
+        Newworkdate := CalcDate('<1W>', WorkDate());
+        WorkDate(Newworkdate);
+
+        // [GIVEN] Make 2nd Assembly Order 
+        MakeAsmOrder(AsmHeader2, ProductItem, 3, Newworkdate, Location.Code);
+
+        // [WHEN] Get Assemblyline and Validate Quantity for 2nd Assembly Order
+        AsmLine.Get(AsmHeader2."Document Type", AsmHeader2."No.", 10000);
+        AsmLine.ShowAvailabilityWarning();
+        AsmLine.Validate(Quantity, AsmLine.Quantity);
+
+        // [THEN] 1st Check "Avail. Warning" on Assemblyline for 2nd Assembly Order
+        Assert.IsTrue(AsmLine."Avail. Warning", AvailWarningYesMsg);
+
+        // [WHEN] Get Assemblyline and Validate Quantity for 1st Assembly Order
+        AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000);
+        AsmLine.ShowAvailabilityWarning();
+        AsmLine.Validate(Quantity, AsmLine.Quantity);
+
+        // [THEN] 3rd Check "Avail. Warning" on Assemblyline for 1st Assembly Order
+        Assert.IsFalse(AsmLine."Avail. Warning", AvailWarningNoMsg);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1312,6 +1422,27 @@ codeunit 134381 "ERM Dimension Priority"
         CreateDefaultDimensionPriority(SourceCode, DATABASE::"G/L Account", 2);
     end;
 
+    local procedure SetMyNotificationsSetup(var MyNotifications: Record "My Notifications")
+    begin
+        if MyNotifications.Get(UserId, ItemAvaibilityIsLowNotificationIdTxt) then begin
+            MyNotifications.Validate(Enabled, true);
+            MyNotifications.Modify(true);
+        end else
+            MyNotifications.InsertDefault(ItemAvaibilityIsLowNotificationIdTxt, '', '', true);
+    end;
+
+    local procedure MakeAsmOrder(var AsmHeader: Record "Assembly Header"; ParentItem: Record Item; Qty: Decimal; DueDate: Date; LocationCode: Code[10])
+    begin
+        Clear(AsmHeader);
+        AsmHeader."Document Type" := AsmHeader."Document Type"::Order;
+        AsmHeader.Insert(true);
+        AsmHeader.Validate("Due Date", DueDate);
+        AsmHeader.Validate("Location Code", LocationCode);
+        AsmHeader.Validate("Item No.", ParentItem."No.");
+        AsmHeader.Validate(Quantity, Qty);
+        AsmHeader.Modify(true);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text)
@@ -1540,6 +1671,37 @@ codeunit 134381 "ERM Dimension Priority"
     procedure TransferToInvoiceHandler(var RequestPage: TestRequestPage "Job Transfer to Sales Invoice")
     begin
         RequestPage.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    procedure DueDateBeforeWorkDateMsgHandler(Msg: Text[1024])
+    var
+        MessageTextFromHeader: Text[1024];
+        MessageTextFromLine: Text[1024];
+    begin
+        MessageTextFromHeader := StrSubstNo(DueDateBeforeWDFromHeaderMsg, NewLineDueDate, WorkDate());
+        MessageTextFromLine := StrSubstNo(DueDateBeforeWDFromLineMsg, NewLineDueDate, WorkDate());
+        case TestMethodName of
+            TestVSTF257960A:
+                case Step of
+                    1, 9:
+                        begin
+                            Assert.IsTrue(
+                              StrPos(Msg, MessageTextFromHeader) > 0, StrSubstNo('Wrong message: %1 \Expected: %2', Msg, MessageTextFromHeader));
+                            exit;
+                        end;
+                    10:
+                        begin
+                            Assert.IsTrue(
+                              StrPos(Msg, MessageTextFromLine) > 0, StrSubstNo('Wrong message: %1 \Expected: %2', Msg, MessageTextFromLine));
+                            exit;
+                        end;
+                end;
+            else
+                exit; // for other test methods.
+        end;
+
+        Assert.Fail(StrSubstNo('Message at Step %1 not expected.', Step));
     end;
 }
 

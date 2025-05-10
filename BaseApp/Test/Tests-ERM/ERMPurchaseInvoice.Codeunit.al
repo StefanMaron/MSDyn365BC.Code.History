@@ -62,6 +62,7 @@
         DocumentNoErr: Label 'Document No. are not equal.';
         AmountZeroErr: Label 'Amount must be zero';
         AmountMustSameErr: Label 'Amount must be same';
+        ChangeExtendedTextErr: Label 'You cannot change %1 for Extended Text Line.', Comment = '%1= Field Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -3250,6 +3251,37 @@
         PurchInvEntityAggregate.FindFirst();
         Assert.AreEqual(LineAmtGLAccount + LineAmtItem, PurchInvEntityAggregate.Amount, AmountMustSameErr);
         Assert.AreEqual(TotalAmountIncludingVAT, PurchInvEntityAggregate."Amount Including VAT", AmountMustSameErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdateExtendedTextTypeNotAllowed()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 564049] Error message when adding a Purchase line with type Item that have extended text previously
+        Initialize();
+
+        // [GIVEN] Item "X" with Extended Text
+        CreateItemAndExtendedText(Item);
+
+        // [GIVEN] Create Purchase Header
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+
+        // [GIVEN] Purchase Line with Item, second Purchase Line with Extended Text
+        CreatePurchLineWithExtendedText(PurchaseHeader, Item."No.");
+
+        // [WHEN] Get extended text Purchase Line 
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindLast();
+
+        // [THEN] Error come when try to change type of extended text Purchase line
+        asserterror PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
+
+        // [THEN] Verify the error of extended text
+        Assert.ExpectedError(StrSubstNo(ChangeExtendedTextErr, PurchaseLine.FieldCaption(Type)));
     end;
 
     local procedure Initialize()

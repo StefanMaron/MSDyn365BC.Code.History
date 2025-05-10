@@ -16,6 +16,7 @@ codeunit 302 "Allocate Reserv. Equally" implements "Allocate Reservation"
         AverageQty: Decimal;
         QtyToReserveBase: Decimal;
         LeftToAllocateEntries: Integer;
+        IsHandled: Boolean;
     begin
         ReservWkshLine.Copy(ReservationWkshLine);
         ReservWkshLine.FilterGroup := 2;
@@ -24,6 +25,11 @@ codeunit 302 "Allocate Reserv. Equally" implements "Allocate Reservation"
         ReservWkshLine.SetFilter("Location Code", ReservationWkshLine.GetFilter("Location Code"));
         ReservWkshLine.FilterGroup := 0;
         ReservWkshLine.SetCurrentKey("Journal Batch Name", "Item No.", "Variant Code", "Location Code", "Remaining Qty. to Reserve");
+        IsHandled := false;
+        OnAllocateOnAfterReservationWorksheetLinePrepare(ReservWkshLine, ReservationWkshLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ReservWkshLine.FindSet(true) then
             exit;
 
@@ -105,5 +111,10 @@ codeunit 302 "Allocate Reserv. Equally" implements "Allocate Reservation"
             exit(A);
 
         exit(B);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAllocateOnAfterReservationWorksheetLinePrepare(var ReservationWkshLine2: Record "Reservation Wksh. Line"; var ReservationWkshLine: Record "Reservation Wksh. Line"; var IsHandled: Boolean)
+    begin
     end;
 }

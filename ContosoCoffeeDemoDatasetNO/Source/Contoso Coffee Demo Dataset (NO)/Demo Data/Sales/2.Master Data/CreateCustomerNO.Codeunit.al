@@ -33,6 +33,7 @@ codeunit 10709 "Create Customer NO"
         Customer.Validate(City, City);
         Customer.Validate("Post Code", PostCode);
         Customer."VAT Registration No." := VatRegNo;
+        Customer."Format Region" := ''; // Format Region will be automatically set basing on the Language Code
         Customer.Validate("Language Code", LanguageCode);
         Customer.Validate("Customer Posting Group", CustomerPostingGroup);
         Customer.Validate("Gen. Bus. Posting Group", GenBusPostingGroup);

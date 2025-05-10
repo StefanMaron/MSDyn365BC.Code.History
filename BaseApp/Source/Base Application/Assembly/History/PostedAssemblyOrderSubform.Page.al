@@ -104,6 +104,12 @@ page 921 "Posted Assembly Order Subform"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how the cost of the resource on the posted assembly order line is allocated to the assembly item.';
                 }
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the General Business Posting Group that applies to the entry.';
+                    Visible = false;
+                }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
