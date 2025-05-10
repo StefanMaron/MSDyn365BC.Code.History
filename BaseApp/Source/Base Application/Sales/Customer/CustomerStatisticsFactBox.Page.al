@@ -179,12 +179,14 @@ page 9082 "Customer Statistics FactBox"
                 trigger OnDrillDown()
                 var
                     CustLedgEntry: Record "Cust. Ledger Entry";
-                    AccountingPeriod: Record "Accounting Period";
+                    DateFilterCalc: Codeunit "DateFilter-Calc";
+                    CustDateFilter: Text[30];
+                    CustDateName: Text[30];
                 begin
                     CustLedgEntry.Reset();
                     CustLedgEntry.SetRange("Customer No.", Rec."No.");
-                    CustLedgEntry.SetRange(
-                      "Posting Date", AccountingPeriod.GetFiscalYearStartDate(WorkDate()), AccountingPeriod.GetFiscalYearEndDate(WorkDate()));
+                    DateFilterCalc.CreateFiscalYearFilter(CustDateFilter, CustDateName, WorkDate(), 0);
+                    CustLedgEntry.SetFilter("Posting Date", CustDateFilter);
                     PAGE.RunModal(PAGE::"Customer Ledger Entries", CustLedgEntry);
                 end;
             }

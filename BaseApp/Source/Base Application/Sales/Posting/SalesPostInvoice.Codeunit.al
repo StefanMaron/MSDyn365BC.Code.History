@@ -322,7 +322,7 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
         SalesPostInvoiceEvents.RunOnAfterInitTotalAmounts(SalesLine, SalesLineACY, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY);
     end;
 
-    internal procedure PrepareInvoicePostingBuffer(var SalesLine: Record "Sales Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    procedure PrepareInvoicePostingBuffer(var SalesLine: Record "Sales Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
         SalesPostInvoiceEvents.RunOnBeforePrepareInvoicePostingBuffer(SalesLine, InvoicePostingBuffer);
 #if not CLEAN25

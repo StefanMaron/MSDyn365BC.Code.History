@@ -38,6 +38,11 @@ page 516 "Sales Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the customer.';
                 }
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the customer.';
+                }
                 field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Basic, Suite;

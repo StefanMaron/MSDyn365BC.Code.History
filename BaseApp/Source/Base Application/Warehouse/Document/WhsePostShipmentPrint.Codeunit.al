@@ -42,6 +42,7 @@ codeunit 5765 "Whse.-Post Shipment + Print"
 
         WhsePostShipment.SetPostingSettings(Invoice);
         WhsePostShipment.SetPrint(true);
+        OnCodeOnBeforePostShipmentLine(WhseShptLine, WhsePostShipment);
         WhsePostShipment.Run(WhseShptLine);
         WhsePostShipment.GetResultMessage();
         Clear(WhsePostShipment);
@@ -60,6 +61,11 @@ codeunit 5765 "Whse.-Post Shipment + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var WhseShptLine: Record "Warehouse Shipment Line"; var HideDialog: Boolean; var Invoice: Boolean; var IsPosted: Boolean; var Selection: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforePostShipmentLine(WarehouseShipmentLine: Record "Warehouse Shipment Line"; var WhsePostShipment: Codeunit "Whse.-Post Shipment")
     begin
     end;
 }

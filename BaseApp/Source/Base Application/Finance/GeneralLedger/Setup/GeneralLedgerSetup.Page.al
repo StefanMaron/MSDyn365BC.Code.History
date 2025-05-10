@@ -558,6 +558,11 @@ page 118 "General Ledger Setup"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies if users cancel documents when requesting cancellation before 24 hours of issue, or if no response is received for cancellation after 72 hours.';
                 }
+                field("Multiple SAT Certificates"; Rec."Multiple SAT Certificates")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies if the SAT certificate can be linked to different records. It allows to set the SAT certificate on the location card to verify the identity of the company branch when sending electronic invoices.';
+                }
             }
             group("Gen. Journal Templates")
             {

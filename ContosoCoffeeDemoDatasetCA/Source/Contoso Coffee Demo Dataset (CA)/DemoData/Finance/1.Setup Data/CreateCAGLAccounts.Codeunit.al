@@ -407,6 +407,7 @@ codeunit 27009 "Create CA GL Accounts"
         ContosoGLAccount.AddAccountForLocalization(ShortTermLiabilitiesTotalName(), '24500');
         ContosoGLAccount.AddAccountForLocalization(DeferralRevenueName(), '25301');
         ContosoGLAccount.AddAccountForLocalization(LongTermLiabilitiesTotalName(), '25400');
+        ContosoGLAccount.AddAccountForLocalization(CreateGLAccount.OtherAccruedExpensesAndDeferredIncomeName(), '25700');
         ContosoGLAccount.AddAccountForLocalization(TotalLiabilitiesName(), '25995');
         ContosoGLAccount.AddAccountForLocalization(EquityName(), '30000');
         ContosoGLAccount.AddAccountForLocalization(NetIncomeForTheYearName(), '30400');

@@ -62,7 +62,7 @@ page 6627 "Sales Return Order Archive"
                         field("Sell-to County"; Rec."Sell-to County")
                         {
                             ApplicationArea = Advanced;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Sell-to Country/Region Code";
                             Importance = Additional;
                         }
                     }
@@ -249,7 +249,7 @@ page 6627 "Sales Return Order Archive"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Advanced;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                         }
                     }
                     field("Ship-to Post Code"; Rec."Ship-to Post Code")
@@ -306,7 +306,7 @@ page 6627 "Sales Return Order Archive"
                         field("Bill-to County"; Rec."Bill-to County")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Bill-to Country/Region Code";
                             Importance = Additional;
                         }
                     }

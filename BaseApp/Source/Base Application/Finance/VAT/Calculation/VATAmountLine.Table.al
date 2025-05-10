@@ -735,7 +735,7 @@ table 290 "VAT Amount Line"
                         "VAT Calculation Type"::"Reverse Charge VAT":
                             begin
                                 "VAT Base" :=
-                                  Round(CalcLineAmount() / (1 + "VAT %" / 100), Currency."Amount Rounding Precision") - "VAT Difference";
+                                  CalcLineAmount() / (1 + "VAT %" / 100) - "VAT Difference";
                                 OnUpdateLinesOnAfterCalcVATBase(Rec, Currency, PricesIncludingVAT);
                                 "VAT Amount" :=
                                   "VAT Difference" +
@@ -744,6 +744,10 @@ table 290 "VAT Amount Line"
                                     (CalcLineAmount() - "VAT Base" - "VAT Difference") *
                                     (1 - VATBaseDiscountPerc / 100),
                                     Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                if VATBaseDiscountPerc <> 0 then
+                                    "VAT Base" := Round("VAT Base", Currency."Amount Rounding Precision")
+                                else
+                                    "VAT Base" := CalcLineAmount() - "VAT Amount";
                                 OnUpdateLinesOnAfterCalcVATAmount(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);
                                 "Amount Including VAT" := "VAT Base" + "VAT Amount";
                                 OnUpdateLinesOnAfterCalcAmountIncludingVATNormalVAT(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);

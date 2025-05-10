@@ -26,6 +26,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
     end;
 
     var
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -40,6 +41,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         CLABETransitNoTxt: Label '123456789123456789';
         "Layout": Option RDLC,Word;
         TempSubDirectoryTxt: Label '142083_Test\';
+        PayeeAddressTxt: Label 'PayeeAddress_1_';
 
     [Test]
     [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
@@ -244,6 +246,67 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         asserterror BulkVendorRemitReporting.RunWithRecord(GenJournalLine);
         // [THEN] Error is expected about no reports found in Report Selections for Vendor Remittance
         Assert.ExpectedError(VendRemittanceReportSelectionErr);
+        UnbindSubscription(UTREPExportElectronicPmt);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ExportElectronicPaymentsVendorShowRemitAddress()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RemitAddress: Record "Remit Address";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        UTREPExportElectronicPmt: Codeunit "UT REP Export Electronic Pmt.";
+        PaymentJournal: TestPage "Payment Journal";
+        VendorNo, VendorBankAccountCode : Code[20];
+        ExportFormat: Option ,US,CA,MX;
+    begin
+        // [SCENARIO 568388] The default remit address defined on the vendor is used on the Remittance Advice printed as a part of the (Bank - Export) 
+        // processing of the CA/US Electronic Payments.
+        Initialize();
+
+        // [GIVEN] Bind the subscription
+        BindSubscription(UTREPExportElectronicPmt);
+
+        // [GIVEN] Create Vendor and Vendor Bank Account 
+        VendorNo := CreateVendor();
+        VendorBankAccountCode := CreateVendorBankAccount(VendorNo, ExportFormat::US);
+
+        // [GIVEN] Create Remit to Address and set as default 
+        LibraryPurchase.CreateRemitToAddress(RemitAddress, VendorNo);
+        RemitAddress.Validate(Default, true);
+        RemitAddress.Modify();
+
+        // [GIVEN] Create Vendor Ledger Entry
+        CreateVendorLedgerEntry(VendorLedgerEntry, VendorNo);
+
+        // [GIVEN] Create Payment Journal
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo,
+          VendorLedgerEntry."Document No.", ExportFormat::US, VendorLedgerEntry.Amount, VendorBankAccountCode);
+
+        // [GIVEN] Assign Remit to code
+        GenJournalLine."Remit-to Code" := RemitAddress.Code;
+        GenJournalLine.Modify();
+
+        // [GIVEN]  Enqueue value for Report "Export Electronic Payments"
+        EnqueueValuesForExportElectronicPayment(GenJournalLine);
+        Commit();
+
+        // [WHEN] Open Payment Journal and run the report "Export Electronic Payments"
+        PaymentJournal.OpenEdit();
+        asserterror ExportPaymentJournalDirect(PaymentJournal, GenJournalLine);
+
+        // [GIVEN] Close the Payment Journal Page
+        PaymentJournal.Close();
+
+        // [THEN] Load the report dataset file
+        LibraryReportDataset.LoadDataSetFile();
+
+        // [THEN] Verify Remit address on PayeeAddress
+        LibraryReportDataset.AssertElementWithValueExists(PayeeAddressTxt, RemitAddress.Address);
+
         UnbindSubscription(UTREPExportElectronicPmt);
     end;
 
@@ -537,7 +600,7 @@ codeunit 142074 "UT REP Export Electronic Pmt."
         ExportElectronicPayments."Gen. Journal Line".SetFilter("Journal Batch Name", JournalBatchName);
         ExportElectronicPayments.BankAccountNo.SetValue(BankAccountNo);
         ExportElectronicPayments.NumberOfCopies.SetValue(0);
-        ExportElectronicPayments.PrintCompanyAddress.SetValue(true);
+        ExportElectronicPayments.PrintCompanyAddress.SetValue(false);
         ExportElectronicPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 

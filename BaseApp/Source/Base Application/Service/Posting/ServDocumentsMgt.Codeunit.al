@@ -1976,16 +1976,8 @@ codeunit 5988 "Serv-Documents Mgt."
                         ServiceShptLine.Get(ItemEntryRelation."Source ID", ItemEntryRelation."Source Ref. No.");
                     end else
                         ItemEntryRelation."Item Entry No." := ServiceShptLine."Item Shpt. Entry No.";
-                    ServiceShptLine.TestField("Customer No.", ServiceLine."Customer No.");
-                    ServiceShptLine.TestField(Type, ServiceLine.Type);
-                    ServiceShptLine.TestField("No.", ServiceLine."No.");
-                    ServiceShptLine.TestField("Gen. Bus. Posting Group", ServiceLine."Gen. Bus. Posting Group");
-                    ServiceShptLine.TestField("Gen. Prod. Posting Group", ServiceLine."Gen. Prod. Posting Group");
 
-                    ServiceShptLine.TestField("Unit of Measure Code", ServiceLine."Unit of Measure Code");
-                    ServiceShptLine.TestField("Variant Code", ServiceLine."Variant Code");
-                    if -ServiceLine."Qty. to Invoice" * ServiceShptLine.Quantity < 0 then
-                        ServiceLine.FieldError("Qty. to Invoice", Text011);
+                    CheckServiceShipmentLineValues(ServiceShptLine, ServiceLine);
 
                     if TrackingSpecificationExists then begin
                         if Invoice then begin
@@ -2108,6 +2100,26 @@ codeunit 5988 "Serv-Documents Mgt."
                 Error(Text027, ServiceShptLine."Document No.");
             Error(Text013);
         end;
+    end;
+
+    local procedure CheckServiceShipmentLineValues(var ServiceShptLine: Record "Service Shipment Line"; var ServiceLine: Record "Service Line")
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeCheckServiceShipmentLineValues(ServiceShptLine, ServiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ServiceShptLine.TestField("Customer No.", ServiceLine."Customer No.");
+        ServiceShptLine.TestField(Type, ServiceLine.Type);
+        ServiceShptLine.TestField("No.", ServiceLine."No.");
+        ServiceShptLine.TestField("Gen. Bus. Posting Group", ServiceLine."Gen. Bus. Posting Group");
+        ServiceShptLine.TestField("Gen. Prod. Posting Group", ServiceLine."Gen. Prod. Posting Group");
+
+        ServiceShptLine.TestField("Unit of Measure Code", ServiceLine."Unit of Measure Code");
+        ServiceShptLine.TestField("Variant Code", ServiceLine."Variant Code");
+        if -ServiceLine."Qty. to Invoice" * ServiceShptLine.Quantity < 0 then
+            ServiceLine.FieldError("Qty. to Invoice", Text011);
     end;
 
     local procedure UpdateServLinesOnPostOrder()
@@ -3181,6 +3193,11 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnFinalizeCrMemoDocumentOnBeforeServiceCreditMemoHeaderInsert(var ServiceCrMemoHeaderToInsert: Record "Service Cr.Memo Header"; var TempServiceCrMemoHeader: Record "Service Cr.Memo Header" temporary; var TempServiceHeader: Record "Service Header" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckServiceShipmentLineValues(var ServiceShipmentLine: Record "Service Shipment Line"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 }

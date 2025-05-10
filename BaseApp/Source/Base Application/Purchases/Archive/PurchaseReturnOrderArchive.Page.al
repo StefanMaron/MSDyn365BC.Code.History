@@ -65,7 +65,7 @@ page 6644 "Purchase Return Order Archive"
                         field("Buy-from County"; Rec."Buy-from County")
                         {
                             ApplicationArea = Advanced;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Buy-from Country/Region Code";
                             Importance = Additional;
                         }
                     }
@@ -294,7 +294,7 @@ page 6644 "Purchase Return Order Archive"
                         field("Ship-to County"; Rec."Ship-to County")
                         {
                             ApplicationArea = Advanced;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Ship-to Country/Region Code";
                             Importance = Additional;
                         }
                     }
@@ -364,7 +364,7 @@ page 6644 "Purchase Return Order Archive"
                         field("Pay-to County"; Rec."Pay-to County")
                         {
                             ApplicationArea = Advanced;
-                            Caption = 'County';
+                            CaptionClass = '5,1,' + Rec."Pay-to Country/Region Code";
                             Importance = Additional;
                         }
                     }

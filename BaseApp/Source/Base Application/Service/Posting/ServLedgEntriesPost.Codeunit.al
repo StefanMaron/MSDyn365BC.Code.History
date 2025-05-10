@@ -636,37 +636,37 @@ codeunit 5912 "ServLedgEntries-Post"
         exit(WarrantyLedgEntry.GetLastEntryNo() + 1);
     end;
 
-    procedure ReverseCnsmServLedgEntries(ServShptLine: Record "Service Shipment Line")
+    procedure ReverseCnsmServLedgEntries(ServiceShipmentLine: Record "Service Shipment Line")
     var
-        ServLine: Record "Service Line";
-        ServLedgEntry: Record "Service Ledger Entry";
-        TempNewServLedgEntry: Record "Service Ledger Entry" temporary;
+        ServiceLine: Record "Service Line";
+        ServiceLedgerEntry: Record "Service Ledger Entry";
+        TempNewServiceLedgerEntry: Record "Service Ledger Entry" temporary;
     begin
-        ServLedgEntry.LockTable();
-        ServLedgEntry.Reset();
-        ServLine.Get(ServLine."Document Type"::Order, ServShptLine."Order No.", ServShptLine."Order Line No.");
-        ServLedgEntry.SetCurrentKey("Entry Type", "Document Type", "Document No.", "Document Line No.");
-        ServLedgEntry.SetFilter("Entry Type", '%1|%2', ServLedgEntry."Entry Type"::Consume, ServLedgEntry."Entry Type"::Usage);
-        ServLedgEntry.SetRange("Document Type", ServLedgEntry."Document Type"::Shipment);
-        ServLedgEntry.SetRange("Document No.", ServShptLine."Document No.");
-        ServLedgEntry.SetRange("Document Line No.", ServShptLine."Line No.");
-        if ServLedgEntry.Find('-') then begin
+        ServiceLedgerEntry.LockTable();
+        ServiceLedgerEntry.Reset();
+        ServiceLine.Get(ServiceLine."Document Type"::Order, ServiceShipmentLine."Order No.", ServiceShipmentLine."Order Line No.");
+        ServiceLedgerEntry.SetCurrentKey("Entry Type", "Document Type", "Document No.", "Document Line No.");
+        ServiceLedgerEntry.SetFilter("Entry Type", '%1|%2', ServiceLedgerEntry."Entry Type"::Consume, ServiceLedgerEntry."Entry Type"::Usage);
+        ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
+        ServiceLedgerEntry.SetRange("Document No.", ServiceShipmentLine."Document No.");
+        ServiceLedgerEntry.SetRange("Document Line No.", ServiceShipmentLine."Line No.");
+        if ServiceLedgerEntry.Find('-') then begin
             repeat
-                TempNewServLedgEntry.Copy(ServLedgEntry);
-                InvertServLedgEntry(TempNewServLedgEntry);
-                TempNewServLedgEntry."Entry No." := NextServLedgerEntryNo;
-                TempNewServLedgEntry.Insert();
+                TempNewServiceLedgerEntry.Copy(ServiceLedgerEntry);
+                InvertServLedgEntry(TempNewServiceLedgerEntry);
+                TempNewServiceLedgerEntry."Entry No." := NextServLedgerEntryNo;
+                TempNewServiceLedgerEntry.Insert();
                 NextServLedgerEntryNo += 1;
-            until ServLedgEntry.Next() = 0;
+            until ServiceLedgerEntry.Next() = 0;
 
-            TempNewServLedgEntry.Reset();
-            if TempNewServLedgEntry.FindSet() then
+            TempNewServiceLedgerEntry.Reset();
+            if TempNewServiceLedgerEntry.FindSet() then
                 repeat
-                    ServLedgEntry.Init();
-                    ServLedgEntry.Copy(TempNewServLedgEntry);
-                    ServLedgEntry.Insert();
-                until TempNewServLedgEntry.Next() = 0;
-            TempNewServLedgEntry.DeleteAll();
+                    ServiceLedgerEntry.Init();
+                    ServiceLedgerEntry.Copy(TempNewServiceLedgerEntry);
+                    ServiceLedgerEntry.Insert();
+                until TempNewServiceLedgerEntry.Next() = 0;
+            TempNewServiceLedgerEntry.DeleteAll();
         end;
     end;
 
@@ -680,7 +680,7 @@ codeunit 5912 "ServLedgEntries-Post"
             ServiceLine.TestField("Appl.-to Service Entry");
 
             InitServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
-            ReverseOpenServLedgEntry(ServiceLine);
+            ReverseOpenServiceLedgerEntry(ServiceLine);
 
             ServiceLine."Appl.-to Service Entry" := 0;
             ServiceLine.Modify(true);
@@ -689,7 +689,7 @@ codeunit 5912 "ServLedgEntries-Post"
         until ServiceLine.Next() = 0;
     end;
 
-    local procedure ReverseOpenServLedgEntry(ServiceLine: Record "Service Line")
+    local procedure ReverseOpenServiceLedgerEntry(ServiceLine: Record "Service Line")
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
         NewServiceLedgerEntry: Record "Service Ledger Entry";
@@ -706,57 +706,59 @@ codeunit 5912 "ServLedgEntries-Post"
         NewServiceLedgerEntry."Entry No." := NextServLedgerEntryNo;
         NewServiceLedgerEntry.Insert();
         NextServLedgerEntryNo += 1;
+
+        OnAfterReverseOpenServiceLedgerEntry(ServiceLedgerEntry, NextServLedgerEntryNo);
     end;
 
     procedure ReverseServLedgEntry(var ServShptLine: Record "Service Shipment Line")
     var
-        ServLedgEntry: Record "Service Ledger Entry";
-        NewServLedgEntry: Record "Service Ledger Entry";
+        ServiceLedgerEntry: Record "Service Ledger Entry";
+        NewServiceLedgerEntry: Record "Service Ledger Entry";
     begin
-        ServLedgEntry.LockTable();
-        if ServLedgEntry.Get(ServShptLine."Appl.-to Service Entry") then begin
-            NewServLedgEntry := ServLedgEntry;
-            NewServLedgEntry."Entry No." := NextServLedgerEntryNo;
-            InvertServLedgEntry(NewServLedgEntry);
-            OnReverseServLedgEntryOnBeforeNewServLedgEntryInsert(NewServLedgEntry, ServLedgEntry, ServShptLine);
-            NewServLedgEntry.Insert();
+        ServiceLedgerEntry.LockTable();
+        if ServiceLedgerEntry.Get(ServShptLine."Appl.-to Service Entry") then begin
+            NewServiceLedgerEntry := ServiceLedgerEntry;
+            NewServiceLedgerEntry."Entry No." := NextServLedgerEntryNo;
+            InvertServLedgEntry(NewServiceLedgerEntry);
+            OnReverseServLedgEntryOnBeforeNewServLedgEntryInsert(NewServiceLedgerEntry, ServiceLedgerEntry, ServShptLine);
+            NewServiceLedgerEntry.Insert();
             NextServLedgerEntryNo += 1;
         end;
     end;
 
-    local procedure InvertServLedgEntry(var ServLedgEntry: Record "Service Ledger Entry")
+    local procedure InvertServLedgEntry(var ServiceLedgerEntry: Record "Service Ledger Entry")
     begin
-        ServLedgEntry.Amount := -ServLedgEntry.Amount;
-        ServLedgEntry."Amount (LCY)" := -ServLedgEntry."Amount (LCY)";
-        ServLedgEntry."Cost Amount" := -ServLedgEntry."Cost Amount";
-        ServLedgEntry."Contract Disc. Amount" := -ServLedgEntry."Contract Disc. Amount";
-        ServLedgEntry."Discount Amount" := -ServLedgEntry."Discount Amount";
-        ServLedgEntry."Charged Qty." := -ServLedgEntry."Charged Qty.";
-        ServLedgEntry.Quantity := -ServLedgEntry.Quantity;
+        ServiceLedgerEntry.Amount := -ServiceLedgerEntry.Amount;
+        ServiceLedgerEntry."Amount (LCY)" := -ServiceLedgerEntry."Amount (LCY)";
+        ServiceLedgerEntry."Cost Amount" := -ServiceLedgerEntry."Cost Amount";
+        ServiceLedgerEntry."Contract Disc. Amount" := -ServiceLedgerEntry."Contract Disc. Amount";
+        ServiceLedgerEntry."Discount Amount" := -ServiceLedgerEntry."Discount Amount";
+        ServiceLedgerEntry."Charged Qty." := -ServiceLedgerEntry."Charged Qty.";
+        ServiceLedgerEntry.Quantity := -ServiceLedgerEntry.Quantity;
     end;
 
     procedure ReverseWarrantyEntry(var ServShptLine: Record "Service Shipment Line")
     var
-        WarrantyLedgEntry: Record "Warranty Ledger Entry";
-        NewWarrantyLedgEntry: Record "Warranty Ledger Entry";
+        WarrantyLedgerEntry: Record "Warranty Ledger Entry";
+        NewWarrantyLedgerEntry: Record "Warranty Ledger Entry";
     begin
-        WarrantyLedgEntry.LockTable();
-        if WarrantyLedgEntry.Get(ServShptLine."Appl.-to Warranty Entry") then begin
-            WarrantyLedgEntry.Open := false;
-            WarrantyLedgEntry.Modify();
-            NewWarrantyLedgEntry := WarrantyLedgEntry;
-            NewWarrantyLedgEntry."Entry No." := NextWarrantyLedgerEntryNo;
-            InvertWarrantyLedgEntry(NewWarrantyLedgEntry);
-            OnReverseWarrantyEntryOnBeforeNewWarrantyLedgEntryInsert(NewWarrantyLedgEntry, WarrantyLedgEntry);
-            NewWarrantyLedgEntry.Insert();
+        WarrantyLedgerEntry.LockTable();
+        if WarrantyLedgerEntry.Get(ServShptLine."Appl.-to Warranty Entry") then begin
+            WarrantyLedgerEntry.Open := false;
+            WarrantyLedgerEntry.Modify();
+            NewWarrantyLedgerEntry := WarrantyLedgerEntry;
+            NewWarrantyLedgerEntry."Entry No." := NextWarrantyLedgerEntryNo;
+            InvertWarrantyLedgEntry(NewWarrantyLedgerEntry);
+            OnReverseWarrantyEntryOnBeforeNewWarrantyLedgEntryInsert(NewWarrantyLedgerEntry, WarrantyLedgerEntry);
+            NewWarrantyLedgerEntry.Insert();
             NextWarrantyLedgerEntryNo += 1;
         end;
     end;
 
-    local procedure InvertWarrantyLedgEntry(var WarrantyLedgEntry: Record "Warranty Ledger Entry")
+    local procedure InvertWarrantyLedgEntry(var WarrantyLedgerEntry: Record "Warranty Ledger Entry")
     begin
-        WarrantyLedgEntry.Amount := -WarrantyLedgEntry.Amount;
-        WarrantyLedgEntry.Quantity := -WarrantyLedgEntry.Quantity;
+        WarrantyLedgerEntry.Amount := -WarrantyLedgerEntry.Amount;
+        WarrantyLedgerEntry.Quantity := -WarrantyLedgerEntry.Quantity;
     end;
 
     procedure CreateCreditEntry(var PassedNextEntryNo: Integer; var ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; GenJnlLineDocNo: Code[20])
@@ -1239,6 +1241,11 @@ codeunit 5912 "ServLedgEntries-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFinishServiceRegister(var ServiceRegister: Record "Service Register")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReverseOpenServiceLedgerEntry(var ServiceLedgerEntry: Record "Service Ledger Entry"; var NextServLedgerEntryNo: Integer)
     begin
     end;
 }

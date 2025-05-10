@@ -45,6 +45,7 @@ codeunit 27081 "Create CA Customer"
         Customer.Validate("Tax Liable", TaxLiable);
         Customer.Validate("Document Sending Profile", DocumentSendingProfile);
         Customer.Validate("Territory Code", TerritoryCode);
+        Customer."Format Region" := ''; // Format Region will be automatically set basing on the Language Code
         Customer.Validate("Language Code", LanguageCode);
         if ReminderTermsCode <> '' then
             Customer.Validate("Reminder Terms Code", ReminderTermsCode);

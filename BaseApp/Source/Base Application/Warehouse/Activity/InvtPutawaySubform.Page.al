@@ -513,6 +513,7 @@ page 7376 "Invt. Put-away Subform"
     protected procedure LotNoOnAfterValidate()
     begin
         UpdateExpDateEditable();
+        OnAfterLotNoOnValidate(Rec, ExpirationDateEditable);
     end;
 
     protected procedure PackageNoOnAfterValidate()
@@ -532,6 +533,11 @@ page 7376 "Invt. Put-away Subform"
     local procedure ExpirationDateOnFormat()
     begin
         if UpdateExpDateEditable() then;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLotNoOnValidate(var Rec: Record "Warehouse Activity Line"; var ExpDateEditable: Boolean)
+    begin
     end;
 }
 

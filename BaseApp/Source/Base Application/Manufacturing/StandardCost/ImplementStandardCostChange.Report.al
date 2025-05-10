@@ -145,6 +145,7 @@ report 5855 "Implement Standard Cost Change"
 
         trigger OnOpenPage()
         begin
+            OnBeforeOnOpenPage(DocNo);
             if PostingDate = 0D then
                 PostingDate := WorkDate();
 
@@ -158,6 +159,7 @@ report 5855 "Implement Standard Cost Change"
 
     trigger OnPreReport()
     begin
+        OnBeforeOnPreReport(DocNo, NoMessage);
         RevalItemJnlTemplate.Get(RevalItemJnlTemplate.Name);
         RevalItemJnlTemplate.TestField(Type, RevalItemJnlTemplate.Type::Revaluation);
         RevalItemJnlBatch.Get(RevalItemJnlTemplate.Name, RevalItemJnlBatch.Name);
@@ -513,6 +515,16 @@ report 5855 "Implement Standard Cost Change"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertRevalItemJnlLineOnBeforeItemJnlLineLoop(var ItemJournalLine: Record "Item Journal Line"; var RevalJnlCreated: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreReport(var DocNo: Code[20]; var NoMessage: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnOpenPage(DocNo: Code[20])
     begin
     end;
 }

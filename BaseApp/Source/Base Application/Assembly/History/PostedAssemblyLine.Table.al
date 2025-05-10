@@ -150,6 +150,11 @@ table 911 "Posted Assembly Line"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
+        field(64; "Gen. Bus. Posting Group"; Code[20])
+        {
+            Caption = 'Gen. Bus. Posting Group';            
+            TableRelation = "Gen. Business Posting Group";            
+        }
         field(65; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;

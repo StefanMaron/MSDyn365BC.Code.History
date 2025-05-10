@@ -14,7 +14,7 @@ enum 5417 "Flushing Method"
     value(0; "Manual")
     {
         Caption = 'Manual';
-        ObsoleteReason = 'The ''Pick + Manual'' option now works in the same way as the ''Manual'' option previously did. The ''Manual'' option will not be removed but it has been repurposed to no longer require picking. This functional change is controlled by the feature key ''Activate Manual Flushing Method without requiring pick'', which will be enabled by default in version 29.0.';
+        ObsoleteReason = 'The ''Pick + Manual'' option now works in the same way as the ''Manual'' option previously did. The ''Manual'' option will not be removed but it has been repurposed to no longer require picking. This functional change is controlled by the feature key ''Manual Flushing Method without requiring pick'', which will be enabled by default in version 29.0.';
         ObsoleteState = Pending;
         ObsoleteTag = '26.0';
     }

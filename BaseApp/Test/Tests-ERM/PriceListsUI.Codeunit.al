@@ -4366,6 +4366,36 @@ codeunit 134117 "Price Lists UI"
                 PurchasePriceList.Caption()));
     end;
 
+    [Test]
+    procedure AmountTypeFieldDoesNotChangeOnClosePageSalesPriceList()
+    var
+        PriceListHeader: Record "Price List Header";
+        CustomerDiscountGroup: Record "Customer Discount Group";
+        SalesPriceList: TestPage "Sales Price List";
+        PriceListHeaderCode: Code[20];
+    begin
+        // [SCENARIO 566994] Bug fix to ensure the field "Amount Type" does not change after closing the page "Sales Price List" 
+        Initialize(true);
+        // [GIVEN] Sales Price List for discount
+        PriceListHeaderCode := LibraryUtility.GenerateGUID();
+        SalesPriceList.OpenEdit();
+        SalesPriceList.New();
+        SalesPriceList.Code.SetValue(PriceListHeaderCode);
+        SalesPriceList.Description.SetValue(LibraryUtility.GenerateGUID());
+        SalesPriceList.SourceType.SetValue("Price Source Type"::"Customer Disc. Group");
+        SalesPriceList.AmountType.SetValue("Price Amount Type"::Discount);
+        CustomerDiscountGroup.Init();
+        CustomerDiscountGroup.Code := LibraryUtility.GenerateGUID();
+        CustomerDiscountGroup.Insert();
+        SalesPriceList.AssignToNo.SetValue(CustomerDiscountGroup.Code);
+        SalesPriceList.Status.SetValue("Price Status"::Active);
+        // [WHEN] Close the page "Sales Price List"
+        SalesPriceList.Close();
+        // [THEN] Check the field "Amount Type" has not reverted to Price & Discount
+        PriceListHeader.Get(PriceListHeaderCode);
+        Assert.IsTrue((PriceListHeader."Amount Type" = PriceListHeader."Amount Type"::Discount), 'The field "Amount Type" has changed after closing the page "Sales Price List"');
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         PriceListHeader: Record "Price List Header";

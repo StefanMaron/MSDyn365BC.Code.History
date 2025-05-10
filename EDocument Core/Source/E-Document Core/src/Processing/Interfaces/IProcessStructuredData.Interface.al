@@ -6,6 +6,7 @@ namespace Microsoft.eServices.EDocument.Processing.Interfaces;
 
 using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Import;
+
 /// <summary>
 /// Describe the data processing used to assign Business Central values to the E-Document data structures
 /// </summary>

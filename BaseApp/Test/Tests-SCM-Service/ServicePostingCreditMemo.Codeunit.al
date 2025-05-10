@@ -1417,6 +1417,63 @@ codeunit 136104 "Service Posting - Credit Memo"
         ResLedgerEntry.TestField("Document No.", ServiceHeader."Last Posting No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerFalse,MessageHandler,RemoveLinesFromContractRequestHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyCrdtMemoUnitPriceCreatedFrmRemovalOfExpiredContractLine()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceContractLine2: Record "Service Contract Line";
+        ServiceHeader: Record "Service Header";
+        LockOpenServContract: Codeunit "Lock-OpenServContract";
+        ServContractManagement: Codeunit ServContractManagement;
+        SignServContractDoc: Codeunit SignServContractDoc;
+        ExpirationDate: Date;
+        ExpectedAmount: Decimal;
+    begin
+        //[SCENARIO 565322] Service Contract - Issue in auto creation of Credit Memo when Removal of expired line is done
+        Initialize();
+
+        // [GIVEN] Create Service Contract with Automatic Credit Memos as TRUE.
+        CreateServiceContract(ServiceContractHeader, ServiceContractLine);
+        ServiceContractHeader.Validate("Starting Date", CalcDate('<-CM>', WorkDate()));  // Validate first date of month.
+        ServiceContractHeader.Validate("First Service Date", CalcDate('<-CM>', WorkDate()));
+        ServiceContractHeader.Validate("Automatic Credit Memos", true);
+        ServiceContractHeader.Modify(true);
+
+        // [GIVEN] Sign Service Contract and Create and Post Service Invoice.
+        SignServContractDoc.SignContract(ServiceContractHeader);
+        ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
+        ServContractManagement.InitCodeUnit();
+        ServContractManagement.CreateInvoice(ServiceContractHeader);
+        PostServiceInvoice(ServiceContractHeader."Contract No.");
+
+        // [GIVEN] Change "Expiration Date" on First Line .
+        ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
+        LockOpenServContract.OpenServContract(ServiceContractHeader);
+        FindServiceContractLines(ServiceContractLine2, ServiceContractHeader);
+        ExpirationDate := ServiceContractHeader."Starting Date";
+        ServiceContractLine2.Validate("Credit Memo Date", ExpirationDate);
+        ServiceContractLine2.Validate("Contract Expiration Date", ExpirationDate);
+        ServiceContractLine2.Validate("Invoiced to Date", ExpirationDate);
+        ServiceContractLine2.Modify(true);
+        Commit();
+
+        // [WHEN] Create Service Credit Memo by running Remove Lines from Contract report.
+        LibraryVariableStorage.Enqueue(ServiceContractLine2."Contract Expiration Date");
+        Report.Run(Report::"Remove Lines from Contract", true, false, ServiceContractLine2);
+
+        ExpectedAmount :=
+              Round(
+                ServContractManagement.CalcContractLineAmount(
+                ServiceContractLine2."Line Amount", ServiceContractLine2."Starting Date", ServiceContractLine2."Contract Expiration Date"));
+
+        // [THEN] Verify the values in the Service Credit Memo Line with the Expected.
+        FindServiceCreditMemo(ServiceHeader, ServiceContractHeader."Contract No.");
+        VerifyCrdtMemoUnitPriceOfExpiredContractLine(ServiceHeader."No.", ExpectedAmount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2218,6 +2275,16 @@ codeunit 136104 "Service Posting - Credit Memo"
         until GLEntry.Next() = 0;
     end;
 
+    local procedure VerifyCrdtMemoUnitPriceOfExpiredContractLine(ServiceHeaderNo: Code[20]; ExpectedAmount: Decimal);
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::"Credit Memo");
+        ServiceLine.SetRange("Document No.", ServiceHeaderNo);
+        ServiceLine.SetRange("Line Amount", ExpectedAmount);
+        Assert.RecordIsNotEmpty(ServiceLine);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
@@ -2286,6 +2353,16 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         PostedServiceCreditMemo."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         PostedServiceCreditMemo."Customer No.".AssertEquals(LibraryVariableStorage.DequeueText());
+    end;
+
+    [RequestPageHandler]
+    procedure RemoveLinesFromContractRequestHandler(var RemoveLinesFromReport: TestRequestPage "Remove Lines from Contract")
+    var
+        ExpiredDateVariant: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ExpiredDateVariant);
+        RemoveLinesFromReport.DelToDate.SetValue(ExpiredDateVariant);
+        RemoveLinesFromReport.OK().Invoke();
     end;
 
     [RecallNotificationHandler]
