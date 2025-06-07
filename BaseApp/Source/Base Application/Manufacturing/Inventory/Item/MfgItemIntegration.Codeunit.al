@@ -157,7 +157,7 @@ codeunit 99000795 "Mfg. Item Integration"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Item Variant", 'OnBeforeRenameEvent', '', true, true)]
-    local procedure OnBeforeRenameItemVariant(var Rec: Record "Item Variant"; var xRec: Record "Item Variant")
+    local procedure OnBeforeRenameItemVariant(var Rec: Record "Item Variant"; var xRec: Record "Item Variant"; RunTrigger: Boolean)
     var
         BOMComponent: Record "BOM Component";
         AssemblyHeader: Record "Assembly Header";
@@ -172,6 +172,9 @@ codeunit 99000795 "Mfg. Item Integration"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ProdOrderLine: Record "Prod. Order Line";
     begin
+        if not RunTrigger then
+            exit;
+
         if xRec."Item No." <> Rec."Item No." then begin
             ProdOrderLine.SetRange("Item No.", xRec."Item No.");
             ProdOrderLine.SetRange("Variant Code", xRec.Code);
@@ -406,24 +409,6 @@ codeunit 99000795 "Mfg. Item Integration"
     begin
         if ManufacturingSetup.Get() then
             Item."Flushing Method" := ManufacturingSetup."Default Flushing Method";
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnInitFromTemplateOnAfterPrepareTempItem', '', true, true)]
-    local procedure OnInitFromTemplateOnAfterPrepareTempItem(var TempItem: Record Item temporary)
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        if ManufacturingSetup.Get() then
-            TempItem."Flushing Method" := ManufacturingSetup."Default Flushing Method";
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnInitFromTemplateOnAfterPrepareEmptyItemTemplRecordRef', '', true, true)]
-    local procedure OnInitFromTemplateOnAfterPrepareEmptyItemTemplRecordRef(var EmptyItemTemplRecordRef: RecordRef; ItemTempl: Record "Item Templ.")
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        if ManufacturingSetup.Get() then
-            EmptyItemTemplRecordRef.Field(ItemTempl.FieldNo("Flushing Method")).Value := ManufacturingSetup."Default Flushing Method";
     end;
 
     // Item Templ. Card

@@ -16,6 +16,7 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryJob: Codeunit "Library - Job";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         PrepaymentsWithNDVATErr: Label 'You cannot post prepayment that contains Non-Deductible VAT.';
@@ -424,6 +425,60 @@ codeunit 134283 "Non-Deductible Purch. Posting"
                 ValueEntry.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('JobConfirmHandler')]
+    procedure VerifyUnitCostOnProjectLedgerEntryForNonDeductibleAmountsAfterPosting()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 573600] Incorrect "Unit Cost" in Project Ledger Entries when partially invoicing after receiving the full quantity with Non-deductible VAT setting
+
+        Initialize();
+        LibraryNonDeductibleVAT.SetUseForItemCost();
+        LibraryNonDeductibleVAT.SetUseForJobCost();
+
+        // [GIVEN] Normal VAT Posting Setup with "VAT %" = 20 and Non-Deductible VAT %" = 75
+        LibraryNonDeductibleVAT.CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
+
+        // [GIVEN] Create a new Project and Project Task
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Purchase invoice with amount = 100
+        LibraryPurchase.CreatePurchHeader(
+            PurchHeader, PurchHeader."Document Type"::Order,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        CreatePurchLineItemWithVATProdPostingGroup(PurchLine, PurchHeader, VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Update Project and Project Task No. on Purchase Line
+        PurchLine.Validate("Job No.", Job."No.");
+        PurchLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchLine.Modify(true);
+
+        // [GIVEN] Post purchase document with Receipt
+        LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
+
+        // [GIVEN] Update Qty. to Invoice with 1
+        PurchLine.Get(PurchHeader."Document Type", PurchHeader."No.", PurchLine."Line No.");
+        PurchLine.Validate("Qty. to Invoice", 1);
+        PurchLine.Modify(true);
+
+        // [WHEN] Post purchase document with Invoice
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, false, true);
+
+        // [THEN] Verify Unit Cost Amount on Project Ledger Entry
+        FindVATEntry(VATEntry, DocNo);
+        FindJobLedgerEntry(JobLedgerEntry, DocNo);
+        Assert.AreEqual(JobLedgerEntry."Unit Cost", PurchLine."Direct Unit Cost" + VATEntry."Non-Deductible VAT Amount", JobLedgerEntry.FieldCaption("Unit Cost"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -539,10 +594,23 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         PurchaseLine.ShowItemChargeAssgnt();
     end;
 
+    local procedure FindJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; DocumentNo: Code[20])
+    begin
+        JobLedgerEntry.SetRange("Document No.", DocumentNo);
+        JobLedgerEntry.SetRange("Posting Date", WorkDate());
+        JobLedgerEntry.FindFirst();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SuggestItemChargeAssignmentPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
         ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure JobConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }

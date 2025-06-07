@@ -29,6 +29,11 @@ pageextension 10020 "Service Credit Memo NA" extends "Service Credit Memo"
                 ApplicationArea = BasicMX;
                 ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
             }
+            field("CFDI Certificate of Origin No."; Rec."CFDI Certificate of Origin No.")
+            {
+                ApplicationArea = BasicMX;
+                ToolTip = 'Specifies the identifier which was used to pay for the issuance of the certificate of origin.';
+            }
         }
         addafter("Prices Including VAT")
         {

@@ -664,6 +664,7 @@ table 254 "VAT Entry"
             "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"VAT Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";

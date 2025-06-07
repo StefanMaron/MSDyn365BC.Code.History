@@ -43,6 +43,7 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
         ZeroDeferralAmtErr: Label 'Deferral amounts cannot be 0. Line: %1, Deferral Template: %2.', Comment = '%1=The item number of the sales transaction line, %2=The Deferral Template Code';
         GenProdPostingGrDiscErr: Label 'You must enter a value in %1 for %2 %3 if you want to post discounts for that line.', Comment = '%1 = Gen. Prod. Posting Group, %2 - Line No. field name, %3 - line number';
         IncorrectInterfaceErr: Label 'This implementation designed to post Sales Header table only.';
+        TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
 
     procedure Check(TableID: Integer)
     begin
@@ -727,6 +728,7 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
     var
         DeferralTemplate: Record "Deferral Template";
         DeferralPostingBuffer: Record "Deferral Posting Buffer";
+        IsDeferralAmountCheck: Boolean;
     begin
         DeferralTemplate.Get(SalesLine."Deferral Code");
 
@@ -758,6 +760,11 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
                 if TempDeferralLine.FindSet() then
                     repeat
                         if (TempDeferralLine."Amount (LCY)" <> 0) or (TempDeferralLine.Amount <> 0) then begin
+                            if not IsDeferralAmountCheck then begin
+                                CheckDeferralAmount(TempDeferralLine);
+                                IsDeferralAmountCheck := true;
+                            end;
+
                             DeferralPostingBuffer.PrepareSales(SalesLine, InvoicePostingParameters."Document No.");
                             DeferralPostingBuffer.InitFromDeferralLine(TempDeferralLine);
                             if not SalesLine.IsCreditDocType() then
@@ -780,6 +787,26 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
         end else
             Error(NoDeferralScheduleErr, SalesLine."No.", SalesLine."Deferral Code");
         SalesPostInvoiceEvents.RunOnAfterPrepareDeferralLine(DeferralPostingBuffer, SalesHeader, SalesLine, InvoicePostingParameters."Document No.", DeferralAccount, SalesAccount, InvDefLineNo, DeferralLineNo, RemainAmtToDefer);
+    end;
+
+    local procedure CheckDeferralAmount(DeferralLine: Record "Deferral Line")
+    var
+        DeferralHeader: Record "Deferral Header";
+    begin
+        DeferralHeader.SetLoadFields("Amount to Defer", "Schedule Line Total");
+        if not DeferralHeader.Get(
+            DeferralLine."Deferral Doc. Type",
+            DeferralLine."Gen. Jnl. Template Name",
+            DeferralLine."Gen. Jnl. Batch Name",
+            DeferralLine."Document Type",
+            DeferralLine."Document No.",
+            DeferralLine."Line No.")
+        then
+            exit;
+
+        DeferralHeader.CalcFields("Schedule Line Total");
+        if DeferralHeader."Schedule Line Total" <> DeferralHeader."Amount to Defer" then
+            Error(TotalToDeferErr);
     end;
 
     procedure CalcDeferralAmounts(SalesHeaderVar: Variant; SalesLineVar: Variant; OriginalDeferralAmount: Decimal)

@@ -92,5 +92,11 @@ tableextension 10011 "Service Header NA" extends "Service Header"
                     Rec."SAT Address ID" := SATAddress.Id;
             end;
         }
+        field(27012; "CFDI Certificate of Origin No."; Text[50])
+        {
+            Caption = 'CFDI Certificate of Origin No.';
+            DataClassification = CustomerContent;
+            Description = 'NumCertificadoOrigen';
+        }
     }
 }

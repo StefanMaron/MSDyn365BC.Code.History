@@ -1491,6 +1491,7 @@
         InsertDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
     end;
 
+#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Purchase Order", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ShowDialog: Boolean)
     begin
@@ -1503,7 +1504,6 @@
         InsertDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
     end;
 
-#if not CLEAN26
     [EventSubscriber(ObjectType::Page, Page::"Purchase Invoice", 'OnBeforeCalculateSalesTaxStatistics', '', false, false)]
     local procedure OnBeforeCalculateSalesTaxStatisticsPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; ShowDialog: Boolean)
     begin

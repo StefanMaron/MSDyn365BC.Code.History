@@ -145,7 +145,7 @@ page 251 "General Journal Batches"
                     Caption = 'P&ost';
                     Image = PostOrder;
                     ShortCutKey = 'F9';
-                    ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
+                    ToolTip = 'Post selected journal batches.';
 
                     trigger OnAction()
                     var
@@ -164,7 +164,7 @@ page 251 "General Journal Batches"
                     Caption = 'Post and &Print';
                     Image = PostPrint;
                     ShortCutKey = 'Shift+F9';
-                    ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
+                    ToolTip = 'Post and print selected journal batches.';
                     trigger OnAction()
                     var
                         GenJournalBatch: Record "Gen. Journal Batch";
@@ -179,9 +179,9 @@ page 251 "General Journal Batches"
                 action(MarkedOnOff)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Marked On/Off';
+                    Caption = 'Failed to Post On/Off';
                     Image = Change;
-                    ToolTip = 'View all journal batches or only marked journal batches. A journal batch is marked if an attempt to post the general journal fails.';
+                    ToolTip = 'Toggle between showing all journal batches and only those that failed to post.';
 
                     trigger OnAction()
                     begin

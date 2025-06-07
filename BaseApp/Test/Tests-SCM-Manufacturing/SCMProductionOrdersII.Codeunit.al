@@ -7065,6 +7065,99 @@ codeunit 137072 "SCM Production Orders II"
                 ItemLedgerEntry.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,WhseSourceCreateDocPageHandler,MessageHandlerNoText')]
+    procedure WhsePutAwayRegisteredIfCreatedByWarehousePickFromReleasedProdOrderIfAllowWhseOverpickIsTrueInLotTrackedCompItem()
+    var
+        Bin: array[3] of Record Bin;
+        Item: array[2] of Record Item;
+        Location: Record Location;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: Code[50];
+        Quantity: Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 578160] Verify Warehouse put-away is registered if it is created by a warehouse pick from a released production order, 
+        // and if 'Allow Whse. Overpick' is set to true for a lot-tracked component item.
+        Initialize();
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+
+        // [GIVEN] Create three bins.
+        for i := 1 to LibraryRandom.RandIntInRange(3, 3) do
+            LibraryWarehouse.CreateBin(Bin[i], Location.Code, Bin[i].Code, '', '');
+
+        // [GIVEN] Validate From-Production Bin Code,To-Production Bin Code & Open Shop Floor Bin Code in Location.
+        Location.Get(Location.Code);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+        Location.Validate("From-Production Bin Code", Bin[1].Code);
+        Location.Validate("To-Production Bin Code", Bin[2].Code);
+        Location.Validate("Open Shop Floor Bin Code", Bin[3].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Item and Validate Costing Method, Replenishment System and Allow Whse. Overpick.
+        CreateLotTrackedItemWithAllowWhseOverpick(Item[1]);
+
+        // [GIVEN] Create and Post Item Journal Lines with Lot No.
+        LotNo := LibraryRandom.RandText(50);
+
+        CreateAndPostItemJournalLineWithManualLot(
+            Item[1]."No.", LibraryRandom.RandIntInRange(150, 200),
+            Bin[3].Code, Location.Code, LotNo, true);
+
+        // [GIVEN] Create a Production BOM Header.
+        CreateProductionBOM(Item[1], ProductionBOMHeader);
+
+        // [GIVEN] Create Item [2] and Validate Costing Method and Production BOM No.
+        CreateItemWithProductionBOM(Item[2], ProductionBOMHeader."No.");
+
+        // [GIVEN] Create Released Production Order.
+        CreateAndRefreshProductionOrder(
+            ProductionOrder, ProductionOrder.Status::Released, Item[2]."No.",
+            LibraryRandom.RandIntInRange(80, 100), Location.Code, '');
+
+        // [GIVEN] Find Prod. Order Component.
+        FindAndUpdateProdOrderComponent(Item[1]."No.", Location.Code, Bin[1].Code);
+
+        // [GIVEN] Create warehouse pick from released production order.
+        OpenReleasedProdOrderPageAndCreateWarehousePick(ProductionOrder);
+
+        // [GIVEN] Generate and save Quantity in a variable.
+        Quantity := LibraryRandom.RandIntInRange(110, 120);
+
+        // [WHEN] Find and update Warehouse Activity Line.
+        WarehouseActivityLine.SetRange("Item No.", Item[1]."No.");
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate(Quantity, Quantity);
+        WarehouseActivityLine.Validate("Lot No.", LotNo);
+        WarehouseActivityLine.Modify(true);
+
+        WarehouseActivityLine.FindLast();
+        WarehouseActivityLine.Validate(Quantity, Quantity);
+        WarehouseActivityLine.Validate("Lot No.", LotNo);
+        WarehouseActivityLine.Modify(true);
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+
+        // [WHEN] Register Warehouse Pick.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Find Registered Whse. Activity Hdr.
+        RegisteredWhseActivityHdr.SetRange("Whse. Activity No.", WarehouseActivityLine."No.");
+        RegisteredWhseActivityHdr.SetRange("Location Code", Location.Code);
+        RegisteredWhseActivityHdr.FindFirst();
+
+        // [THEN] Registered Whse. Activity Hdr. is found.
+        Assert.IsFalse(RegisteredWhseActivityHdr.IsEmpty(), RegisteredWhseActivityHdrMustBeFoundErr);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -9037,6 +9130,81 @@ codeunit 137072 "SCM Production Orders II"
         LibraryInventory.ItemJournalSetup(ItemJnlTemplate, ItemJnlBatch);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateLotTrackedItemWithAllowWhseOverpick(var Item: Record Item)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        ItemTrackingCode.Validate("Lot Specific Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::FIFO);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Allow Whse. Overpick", true);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateAndPostItemJournalLineWithManualLot(ItemNo: Code[20]; Quantity: Decimal; BinCode: Code[20]; LocationCode: Code[10]; LotNo: Code[50]; Tracking: Boolean)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLine(ItemJournalLine, ItemNo, Quantity, BinCode, LocationCode);
+        if Tracking then begin
+            LibraryVariableStorage.Enqueue(ItemTrackingMode::"Manual Lot No.");
+            LibraryVariableStorage.Enqueue(LotNo);
+            LibraryVariableStorage.Enqueue(Quantity);  // Assign Quantity.
+            ItemJournalLine.OpenItemTrackingLines(false);  // Invokes ItemTrackingPageHandler.
+        end;
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateProductionBOM(Item: Record Item; var ProductionBOMHeader: Record "Production BOM Header")
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(3, 3));
+
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+    end;
+
+    local procedure CreateItemWithProductionBOM(var Item: Record Item; ProductionBOMNo: Code[20])
+    begin
+        LibraryInventory.CreateItem(Item);
+
+        Item.Validate("Costing Method", Item."Costing Method"::FIFO);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Modify(true);
+    end;
+
+    local procedure FindAndUpdateProdOrderComponent(ItemNo: Code[20]; LocationCode: Code[20]; BinCode: Code[20])
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        ProdOrderComponent.SetRange("Item No.", ItemNo);
+        ProdOrderComponent.FindFirst();
+
+        ProdOrderComponent.Validate("Location Code", LocationCode);
+        ProdOrderComponent.Validate("Bin Code", BinCode);
+        ProdOrderComponent.Validate("Quantity per", 1);
+        ProdOrderComponent.Modify(true);
+    end;
+
+    local procedure OpenReleasedProdOrderPageAndCreateWarehousePick(ProductionOrder: Record "Production Order")
+    var
+        ReleasedProductionOrder: TestPage "Released Production Order";
+    begin
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+        ReleasedProductionOrder."Create Warehouse Pick".Invoke(); //Create Warehouse Pick
+        Commit();
+        ReleasedProductionOrder.Close();
     end;
 
     [ModalPageHandler]
