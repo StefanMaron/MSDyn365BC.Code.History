@@ -51,6 +51,8 @@ codeunit 137048 "SCM Warehouse II"
         NonWarehouseErr: Label 'Directed Put-away and Pick must have a value';
         BinContentGetCaptionErr: Label 'BinContent.GetCaption does not work with %1';
         LocationCodeMustMatchErr: Label 'Location Code must match.';
+        QuantityErr: Label 'Quantity must not be changed when a Warehouse Receipt Line for this Purchase Line exists:  in Purchase Line Document Type=''%1'',Document No.=''%2'',Line No.=''%3''.',
+                     Comment = '%1= Document Type Value, %2= Document No. Value, %3= Line No. Value.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2552,6 +2554,50 @@ codeunit 137048 "SCM Warehouse II"
 
         // [VERIFY] The posted document opened in the Posted Purchase Invoice page
         PostedPurchaseInvoice.Close();
+    end;
+
+    [Test]
+    procedure PurchaseOrderLineDeleteNotAllowedWhenWarehouseReceiptExists()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 571552] Delete of Purchase Order line is not allowed while a Warehouse Receipt exists.
+        Initialize();
+
+        // [GIVEN] Create Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create a Warehouse Location.
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a Purchase Order.
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Location.Code, Item."No.");
+
+        // [GIVEN] Release Purchase Document.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create a Warehouse Receipt of Purchase Order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [GIVEN] Reopen Purchase Order.
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Validate Purchase Line to 0.
+        asserterror PurchaseLine.Validate(Quantity, 0);
+
+        // [THEN] Quantity should not be allowed to be 0 when Warehouse Recipt exits.
+        Assert.ExpectedError(
+            StrSubstNo(
+                QuantityErr,
+                PurchaseLine."Document Type",
+                PurchaseLine."Document No.",
+                PurchaseLine."Line No."));
     end;
 
     local procedure Initialize()
