@@ -2873,6 +2873,7 @@ table 5767 "Warehouse Activity Line"
     local procedure ReNumberAllLines(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; OldLineNo: Integer; var NewLineNo: Integer)
     var
         TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary;
+        OldLineNos: Dictionary of [Integer, Integer];
         LineNo: Integer;
     begin
         NewWarehouseActivityLine.FindSet();
@@ -2881,6 +2882,8 @@ table 5767 "Warehouse Activity Line"
             TempWarehouseActivityLine := NewWarehouseActivityLine;
             TempWarehouseActivityLine."Line No." := LineNo;
             TempWarehouseActivityLine.Insert();
+            if not OldLineNos.ContainsKey(NewWarehouseActivityLine."Line No.") then
+                OldLineNos.Add(LineNo, NewWarehouseActivityLine."Line No.");
             if NewWarehouseActivityLine."Line No." = OldLineNo then
                 NewLineNo := LineNo;
         until NewWarehouseActivityLine.Next() = 0;
@@ -2890,6 +2893,8 @@ table 5767 "Warehouse Activity Line"
         repeat
             NewWarehouseActivityLine := TempWarehouseActivityLine;
             NewWarehouseActivityLine.Insert();
+            if OldLineNos.ContainsKey(NewWarehouseActivityLine."Line No.") then
+                OnAfterReNumberWhseActivLine(NewWarehouseActivityLine, OldLineNos.Get(NewWarehouseActivityLine."Line No."));
         until TempWarehouseActivityLine.Next() = 0;
     end;
 
@@ -3728,6 +3733,11 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateQtyToHandleOnSplitLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterReNumberWhseActivLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; OldLineNo: Integer)
     begin
     end;
 }

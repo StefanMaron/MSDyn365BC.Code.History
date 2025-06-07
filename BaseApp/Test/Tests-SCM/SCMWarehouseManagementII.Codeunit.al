@@ -64,6 +64,8 @@ codeunit 137154 "SCM Warehouse Management II"
         ReceiptLinesNotCreatedErr: Label 'There are no warehouse receipt lines created.';
         ItemTrackingMode: Option " ","Assign Lot No.","Assign Multiple Lot No.","Assign Serial No.","Assign Lot And Serial","Select Entries","Blank Quantity Base","Assign Lot No. & Expiration Date","Assign Manual Lot Nos","Show Entries";
         DescriptionMustBeSame: Label 'Description must be same.';
+        InputQtyErr: Label 'Input Quantity Must be %1 in %2', Comment = '1% = Remaining Quanity value, %2 = Prod. Order Routing Line';
+        StartingDateTimeErr: Label 'Starting Date-Time must not be %1 in %2', Comment = '%1 = StartingDateTime value, %2 = Prod. Order Routing Line.';
 
     [Test]
     [HandlerFunctions('ReservationPageHandler')]
@@ -3393,6 +3395,152 @@ codeunit 137154 "SCM Warehouse Management II"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
     end;
 
+    [Test]
+    [HandlerFunctions('CloseGLPostingPreviewPageHandler')]
+    procedure WarehouseShipmentPageRemainsOpenWhenRunPreviewPostAndCloseGLPostingPreviewPage()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipment: TestPage "Warehouse Shipment";
+        Quatity: Decimal;
+    begin
+        // [SCENARIO 563377] When Preview Posts Warehouse Shipment and closes G/L Posting Preview page then
+        // Warehouse Shipment page remains open.
+        Initialize();
+
+        // [GIVEN] Create a location with Require Receive and Require Shipment.
+        CreateAndUpdateLocation(Location, true, false, true, false, false);
+
+        // [GIVEN] Create Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Quantity.
+        Quatity := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Post Positive Adjustment for the Item and Location.
+        LibraryInventory.PostPositiveAdjustment(Item, Location.Code, '', '', Quatity, WorkDate(), Quatity);
+
+        // [GIVEN] Create and Release Transfer Order.
+        LibraryInventory.CreateTransferHeader(TransferHeader, Location.Code, LocationYellow.Code, LocationInTransit.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Quatity);
+        LibraryInventory.ReleaseTransferOrder(TransferHeader);
+
+        // [GIVEN] Create Warehouse Shipment from Transfer Order.
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+
+        // [GIVEN] Find Warehouse Shipment Header.
+        WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
+        WarehouseShipmentHeader.FindFirst();
+        Commit();
+
+        // [WHEN] Open Warehouse Shipment page and run Preview Posting action.
+        WarehouseShipment.OpenEdit();
+        WarehouseShipment.GoToRecord(WarehouseShipmentHeader);
+        WarehouseShipment.PreviewPosting.Invoke();
+
+        // [THEN] Warehouse Shipment remains Open.
+        WarehouseShipment."No.".AssertEquals(Format(WarehouseShipmentHeader."No."));
+    end;
+
+
+    [Test]
+    [HandlerFunctions('ProductionJournalPageHandler,ConfirmHandlerYes,MessageHandlerNotext')]
+    procedure InputQtyAndStartingDateTimeIsRecalculatedWhenReplanProdOrder()
+    var
+        CompItem, ProdItem : Record Item;
+        ProductionBOMLine: Record "Production BOM Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        WorkCenter: Record "Work Center";
+        Direction: Option Forward,Backward;
+        CalcMethod: Option "No Levels","One level","All levels";
+        StartingDateTime: DateTime;
+    begin
+        // [SCENARIO 565975] "Input Quantity" and "Starting Date-Time" in Prod. Order Routing Line is 
+        // recalculated when Production Journal is posted and Stan runs Replan Production Order Report.
+        Initialize();
+
+        // [GIVEN] Create a Component Item and Validate "Replenishment System", 
+        // "Manufacturing Policy" and "Flushing Method".
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Replenishment System", CompItem."Replenishment System"::Purchase);
+        CompItem.Validate("Manufacturing Policy", CompItem."Manufacturing Policy"::"Make-to-Stock");
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::"Pick + Manual");
+        CompItem.Modify(true);
+
+        // [GIVEN] Create a Work Center.
+        CreateWorkCenter(WorkCenter);
+
+        // [GIVEN] Create and Certify Routing.
+        CreateAndCertifyRouting(RoutingHeader, WorkCenter);
+
+        // [GIVEN] Create and Certify Production BOM.
+        CreateAndCertifyProductionBOM(ProductionBOMLine, CompItem, LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Create a Production Item and Validate "Replenishment System", 
+        // "Manufacturing Policy", "Routing No." and "Production BOM No.".
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Stock");
+        ProdItem.Validate("Routing No.", RoutingHeader."No.");
+        ProdItem.Validate("Production BOM No.", ProductionBOMLine."Production BOM No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Set Item Inventory.
+        SetItemInventory(CompItem, LibraryRandom.RandIntInRange(500, 500));
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProdItem."No.", LibraryRandom.RandIntInRange(50, 50));
+
+        // [GIVEN] Find Prod. Order Routing Line.
+        ProdOrderRoutingLine.SetRange("Routing No.", RoutingHeader."No.");
+        ProdOrderRoutingLine.FindFirst();
+
+        // [GIVEN] Generate and save Starting Date-Time in a Variable.
+        StartingDateTime := ProdOrderRoutingLine."Starting Date-Time";
+
+        // [GIVEN] Open Production Journal.
+        OpenProductionJournal(ProductionOrder."No.");
+
+        // [GIVEN] Run Replan Production Order Report.
+        LibraryManufacturing.RunReplanProductionOrder(ProductionOrder, Direction::Backward, CalcMethod::"No Levels");
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [WHEN] Find Prod. Order Routing Line.
+        ProdOrderRoutingLine.SetRange("Routing No.", RoutingHeader."No.");
+        ProdOrderRoutingLine.FindFirst();
+
+        // [THEN] "Input Quantity" in Prod. Order Routing Line is equal to "Remaining Quantity" of Prod. Order Line.
+        Assert.AreEqual(
+            ProdOrderLine."Remaining Quantity",
+            ProdOrderRoutingLine."Input Quantity",
+            StrSubstNo(
+                InputQtyErr,
+                ProdOrderLine."Remaining Quantity",
+                ProdOrderRoutingLine.TableCaption()));
+
+        // [THEN] "Starting Date-Time" in Prod. Order Routing Line is equal to StartingDateTime.
+        Assert.AreNotEqual(
+            StartingDateTime,
+            ProdOrderRoutingLine."Starting Date-Time",
+            StrSubstNo(
+                StartingDateTimeErr,
+                StartingDateTime,
+                ProdOrderRoutingLine.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5120,6 +5268,71 @@ codeunit 137154 "SCM Warehouse Management II"
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Quantity: Decimal)
+    begin
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo, Quantity);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure SetItemInventory(Item: Record Item; Quantity: Decimal)
+    var
+        ItemJnlTemplate: Record "Item Journal Template";
+        ItemJnlBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        Item.TestField("No.");
+
+        LibraryInventory.CreateItemJournalTemplate(ItemJnlTemplate);
+        LibraryInventory.CreateItemJournalBatch(ItemJnlBatch, ItemJnlTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJnlTemplate.Name, ItemJnlBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
+
+        LibraryInventory.PostItemJournalLine(ItemJnlTemplate.Name, ItemJnlBatch.Name);
+    end;
+
+    local procedure OpenProductionJournal(No: Code[20])
+    var
+        ReleasedProductionOrder: TestPage "Released Production Order";
+    begin
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.FILTER.SetFilter("No.", No);
+        ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke();
+    end;
+
+    local procedure CreateWorkCenter(var WorkCenter: Record "Work Center")
+    begin
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        WorkCenter.Validate(Capacity, LibraryRandom.RandIntInRange(3, 3));
+        WorkCenter.Validate(Efficiency, LibraryRandom.RandIntInRange(100, 100));
+        WorkCenter.Modify(true);
+    end;
+
+    local procedure CreateAndCertifyRouting(var RoutingHeader: Record "Routing Header"; WorkCenter: Record "Work Center")
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandIntInRange(10, 10)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Setup Time", LibraryRandom.RandIntInRange(10, 10));
+        RoutingLine.Validate("Run Time", LibraryRandom.RandIntInRange(10, 10));
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure CreateAndCertifyProductionBOM(var ProductionBOMLine: Record "Production BOM Line"; Item: Record Item; Qty: Decimal)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", Qty);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EnterQuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
@@ -5293,6 +5506,19 @@ codeunit 137154 "SCM Warehouse Management II"
         SourceDocumentFilterCard.Run.Invoke();
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.First();
+        ProductionJournal.Quantity.SetValue(LibraryRandom.RandIntInRange(200, 200));
+        ProductionJournal.Next();
+        ProductionJournal."Setup Time".SetValue(LibraryRandom.RandIntInRange(10, 10));
+        ProductionJournal."Run Time".SetValue(LibraryRandom.RandIntInRange(10, 10));
+        ProductionJournal."Output Quantity".SetValue(LibraryRandom.RandIntInRange(20, 20));
+        ProductionJournal.Post.Invoke();
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure GLPostingPreviewPageHandler(var ShowAllEntries: TestPage "G/L Posting Preview")
@@ -5316,6 +5542,11 @@ codeunit 137154 "SCM Warehouse Management II"
         LibraryVariableStorage.Dequeue(DequeueVariable);
         LocalMessage := DequeueVariable;
         Assert.IsTrue(StrPos(Message, LocalMessage) > 0, Message);
+    end;
+
+    [MessageHandler]
+    procedure MessageHandlerNotext(Message: Text[1024])
+    begin
     end;
 
     [ConfirmHandler]

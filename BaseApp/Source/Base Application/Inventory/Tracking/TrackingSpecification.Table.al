@@ -1356,8 +1356,8 @@ table 336 "Tracking Specification"
 
     procedure TestTrackingFieldsAreBlank();
     begin
-        TestField("Serial No.");
-        TestField("Lot No.");
+        TestField("Serial No.", '');
+        TestField("Lot No.", '');
 
         OnAfterTestTrackingFieldsAreBlank(Rec);
     end;
@@ -1367,6 +1367,13 @@ table 336 "Tracking Specification"
         IsTrackingExist := ("Serial No." <> '') or ("Lot No." <> '');
 
         OnAfterTrackingExist(Rec, IsTrackingExist);
+    end;
+
+    procedure NewTrackingExists() IsTrackingExist: Boolean
+    begin
+        IsTrackingExist := ("New Serial No." <> '') or ("New Lot No." <> '');
+
+        OnAfterNewTrackingExist(Rec, IsTrackingExist);
     end;
 
     procedure NonSerialTrackingExists() IsTrackingExists: Boolean
@@ -1723,6 +1730,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTrackingExist(var TrackingSpecification: Record "Tracking Specification"; var IsTrackingExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterNewTrackingExist(var TrackingSpecification: Record "Tracking Specification"; var IsTrackingExist: Boolean)
     begin
     end;
 

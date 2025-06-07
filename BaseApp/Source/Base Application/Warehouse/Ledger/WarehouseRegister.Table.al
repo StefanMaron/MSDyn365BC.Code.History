@@ -107,6 +107,7 @@ table 7313 "Warehouse Register"
         exit(SequenceNoMgt.GetNextSeqNo(Database::"Warehouse Register"));
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Warehouse Register", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
