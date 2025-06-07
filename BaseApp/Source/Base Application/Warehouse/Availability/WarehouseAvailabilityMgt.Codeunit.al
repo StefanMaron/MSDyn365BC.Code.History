@@ -379,7 +379,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         WarehouseEntry: Record "Warehouse Entry";
         QtyOnDedicatedBin: Decimal;
     begin
-        WarehouseEntry.ReadIsolation(IsolationLevel::ReadCommitted);
+        WarehouseEntry.ReadIsolation(IsolationLevel::ReadUnCommitted);
         WarehouseEntry.SetRange("Item No.", ItemNo);
         WarehouseEntry.SetRange("Location Code", LocationCode);
         WarehouseEntry.SetRange("Variant Code", VariantCode);
@@ -476,7 +476,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         if not Location."Directed Put-away and Pick" then
             exit(0);
 
-        WhseEntry.ReadIsolation(IsolationLevel::ReadCommitted);
+        WhseEntry.ReadIsolation(IsolationLevel::ReadUnCommitted);
         WhseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, ExcludeDedicatedBinContent);
         WhseEntry.SetFilter("Bin Type Code", CreatePick.GetBinTypeFilter(1)); // Shipping area
         WhseEntry.CalcSums("Qty. (Base)");
@@ -593,7 +593,7 @@ codeunit 7314 "Warehouse Availability Mgt."
     var
         WhseEntry2: Record "Warehouse Entry";
     begin
-        WhseEntry2.ReadIsolation(IsolationLevel::ReadCommitted);
+        WhseEntry2.ReadIsolation(IsolationLevel::ReadUnCommitted);
         if WhseEntry.FindSet() then
             repeat
                 WhseEntry.SetRange("Bin Code", WhseEntry."Bin Code");
@@ -764,7 +764,7 @@ codeunit 7314 "Warehouse Availability Mgt."
             exit(QtyPickedBase);
 
         WarehouseEntry.Reset();
-        WarehouseEntry.ReadIsolation(IsolationLevel::ReadCommitted);
+        WarehouseEntry.ReadIsolation(IsolationLevel::ReadUnCommitted);
         WarehouseEntry.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceRefNo, true);
         WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::Movement);
         WarehouseEntry.SetRange("Reference Document", WarehouseEntry."Reference Document"::Pick);
@@ -773,7 +773,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         QtyPickedBase := WarehouseEntry."Qty. (Base)";
 
         WarehouseEntry.Reset();
-        WarehouseEntry.ReadIsolation(IsolationLevel::ReadCommitted);
+        WarehouseEntry.ReadIsolation(IsolationLevel::ReadUnCommitted);
         WarehouseEntry.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceRefNo, true);
         WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::"Negative Adjmt.");
         WarehouseEntry.SetRange("Whse. Document Type", WarehouseEntry."Whse. Document Type"::Shipment);
