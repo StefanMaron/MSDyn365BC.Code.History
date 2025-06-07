@@ -3290,6 +3290,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purchase Documents With Tax - NamedType FieldValueErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3296676670 - NamedType 1188703771" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT Difference must be equal to %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = TaxAmount value]D;]A;(LookupHint=Codeunit PurchDocTotalsWithSalesTax - NamedType VATDifferenceErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1036987717 - NamedType 971307845" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[CALCSUM for Additional Currency fields must be evaluated]]></Val>

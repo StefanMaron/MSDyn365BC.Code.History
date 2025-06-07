@@ -1880,6 +1880,45 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         PurchaseInvoiceHeader.Get(DocNo);
     end;
 
+    [Test]
+    procedure NoInconsistencyErrorOnPartialPrepaymentWithCurrency()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        CurrencyCode: Code[10];
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+    begin
+        // [SCENARIO 562060] Posting a Sales Invoice after posting a Prepayment Invoice for 70% with a Currency Code of EUR in a USD company with US Sales Tax generates an Inconsistency error due to rounding in the GL entries in the US Localized Database
+        Initialize();
+
+        // [GIVEN] Create Currency with Exchange Rate as 0.9952
+        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup();
+        CreateExchangeRate(CurrencyExchangeRate, CurrencyCode, DMY2Date(1, 1, Date2DMY(WorkDate(), 3)));
+
+        // [GIVEN] Create Tax Setup for 3 TaxJurisdictionCode with 3%, 1% and 1%
+        CreateSalesTaxSetup(TaxAreaCode, TaxGroupCode);
+
+        // [GIVEN] Create Customer with Tax Area Code and Currency
+        Customer.Get(CreateCustomerWithTaxArea(TaxAreaCode, CurrencyCode, LibraryRandom.RandIntInRange(70, 70)));
+
+        // [GIVEN] Create Sales Order With Prepayment as 70%
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLineWithUnitPrice(SalesLine, SalesHeader, '', 4019.29, 1);
+        SalesLine.Validate("Tax Group Code", TaxGroupCode);
+        SalesLine.Modify();
+
+        // [GIVEN] Post Prepayment Invoice
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [WHEN] Post Sales Order with Ship and Invoice
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] No inconsitency error should be there in posting of document
+    end;
+
     local procedure Initialize()
     var
         TaxSetup: Record "Tax Setup";
@@ -2959,6 +2998,61 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         VATEntry.FindFirst();
         VATEntry.TestField(Base, VATBase);
         VATEntry.TestField(Amount, VATAmount);
+    end;
+
+    local procedure CreateExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; StartingDate: Date)
+    begin
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
+
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 0.9952);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
+        CurrencyExchangeRate.Modify(true);
+    end;
+
+    local procedure CreateSalesTaxSetup(var TaxAreaCode: Code[20]; var TaxGroupCode: Code[20])
+    var
+        TaxDetail: array[3] of Record "Tax Detail";
+        TaxAreaLine: array[3] of Record "Tax Area Line";
+        TaxJurisdictionCode: array[3] of Code[10];
+    begin
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+
+        TaxJurisdictionCode[1] := LibraryERMTax.CreateTaxJurisdictionWithCountryRegion(DummyTaxCountry::US);
+        TaxJurisdictionCode[2] := LibraryERMTax.CreateTaxJurisdictionWithCountryRegion(DummyTaxCountry::US);
+        TaxJurisdictionCode[3] := LibraryERMTax.CreateTaxJurisdictionWithCountryRegion(DummyTaxCountry::US);
+
+        LibraryERMTax.CreateTaxDetailWithTaxType(TaxDetail[1], TaxJurisdictionCode[1], TaxGroupCode, TaxDetail[1]."Tax Type"::"Sales and Use Tax", 3, 0);
+        LibraryERMTax.CreateTaxDetailWithTaxType(TaxDetail[2], TaxJurisdictionCode[2], TaxGroupCode, TaxDetail[2]."Tax Type"::"Sales and Use Tax", 1, 0);
+        LibraryERMTax.CreateTaxDetailWithTaxType(TaxDetail[3], TaxJurisdictionCode[3], TaxGroupCode, TaxDetail[3]."Tax Type"::"Sales and Use Tax", 1, 0);
+
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine[1], TaxAreaCode, TaxJurisdictionCode[1]);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine[2], TaxAreaCode, TaxJurisdictionCode[2]);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine[3], TaxAreaCode, TaxJurisdictionCode[3]);
+    end;
+
+    local procedure CreateCustomerWithTaxArea(TaxAreaCode: Code[20]; CurrencyCode: Code[10]; PrepaymentPercent: Decimal): Code[20]
+    var
+        Customer: Record Customer;
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.SetFilter("Sales Account", '<>%1', '');
+        GeneralPostingSetup.SetFilter("Gen. Bus. Posting Group", '<>%1', '');
+        GeneralPostingSetup.FindFirst();
+
+        Customer.Init();
+        Customer.Insert(true);
+        Customer.Validate(Name, Customer."No.");
+        Customer.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        Customer.Validate("Tax Area Code", TaxAreaCode);
+        Customer.Validate("Tax Liable", true);
+        Customer.Validate("Customer Posting Group", LibrarySales.FindCustomerPostingGroup());
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Validate("Prepayment %", PrepaymentPercent);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     [ConfirmHandler]

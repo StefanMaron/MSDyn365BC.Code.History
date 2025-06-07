@@ -210,6 +210,12 @@ tableextension 10013 "Service Invoice Header NA" extends "Service Invoice Header
                     Rec."SAT Address ID" := SATAddress.Id;
             end;
         }
+        field(27012; "CFDI Certificate of Origin No."; Text[50])
+        {
+            Caption = 'CFDI Certificate of Origin No.';
+            DataClassification = CustomerContent;
+            Description = 'NumCertificadoOrigen';
+        }
     }
 
     var

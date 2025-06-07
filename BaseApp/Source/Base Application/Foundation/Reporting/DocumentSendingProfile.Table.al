@@ -739,7 +739,7 @@ table 60 "Document Sending Profile"
                 begin
                     ReportSelections.GetEmailBodyForCust(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
                     ReportDistributionManagement.SendXmlEmailAttachment(
-                      RecordVariant, "E-Mail Format", ServerEmailBodyFilePath, SendToEmailAddress);
+                      RecordVariant, "E-Mail Format", ServerEmailBodyFilePath, SendToEmailAddress, ReportUsage);
                 end;
             "E-Mail Attachment"::"PDF & Electronic Document":
                 begin

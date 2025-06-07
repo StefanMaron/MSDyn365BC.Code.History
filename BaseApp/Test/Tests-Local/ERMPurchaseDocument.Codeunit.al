@@ -14,6 +14,7 @@ codeunit 140611 "ERM - Purchase Document"
     end;
 
     var
+        Assert: Codeunit Assert;
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -87,6 +88,47 @@ codeunit 140611 "ERM - Purchase Document"
         // [THEN] Vendor Ledger Entry has "IRS 1099 Amount" = 1000
         VendLedgEntry.CalcFields(Amount);
         VendLedgEntry.TestField("IRS 1099 Amount", VendLedgEntry.Amount);
+    end;
+
+    [Test]
+    procedure CheckCopyPurchaseDocumentNotCopyIRS1099AmountInPurchaseDocument()
+    var
+        FromPurchHeader, ToPurchHeader : Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+    begin
+        //[SCENARIO 573639] Verify Copy Purchase Document should not copy the IRS 1099 amount in the Purchase Document.
+        Initialize();
+
+        // [GIVEN] Create Purchase order with IRS 1099 Code.
+        LibraryPurchase.CreatePurchHeader(FromPurchHeader, FromPurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        FromPurchHeader.Validate("IRS 1099 Code", FindIrs1099Code());
+        FromPurchHeader.Modify(true);
+
+        // [GIVEN] Create Purchase Line.
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(
+            PurchLine, FromPurchHeader, LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandDec(100, 2), LibraryRandom.RandIntInRange(100, 200));
+
+        // [GIVEN] Set the 'Qty. to Receive' and 'Qty. to Invoice' fields to partial quantities on the purchase line.
+        PurchLine.Validate("Qty. to Receive", LibraryRandom.RandIntInRange(30, 40));
+        PurchLine.Validate("Qty. to Invoice", LibraryRandom.RandIntInRange(20, 25));
+        PurchLine.Modify(true);
+
+        // [GIVEN] Partially Post a Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(FromPurchHeader, true, true);
+        Commit();
+
+        // [GIVEN] Create second purchase order.
+        LibraryPurchase.CreatePurchHeader(
+            ToPurchHeader, ToPurchHeader."Document Type"::Order, FromPurchHeader."Buy-from Vendor No.");
+
+        // [WHEN] Use the 'Copy Document' function to copy from the first purchase order, setting 'Include Header' to true.
+        PurchaseCopyDocument(ToPurchHeader, FromPurchHeader."No.", "Purchase Document Type From"::Order);
+        ToPurchHeader.Get(ToPurchHeader."Document Type", ToPurchHeader."No.");
+
+        // [THEN] Verify Copy Purchase Document should not copy the IRS 1099 amount in the Purchase Document.
+        Assert.Equal(ToPurchHeader."IRS 1099 Code", FromPurchHeader."IRS 1099 Code");
+        Assert.Equal(ToPurchHeader."IRS 1099 Amount", 0);
     end;
 
     local procedure Initialize()
@@ -164,6 +206,18 @@ codeunit 140611 "ERM - Purchase Document"
         PurchaseLine.SetRange("Buy-from Vendor No.", VendorNo);
         PurchaseLine.FindFirst();
         PurchaseLine.TestField("IRS 1099 Liable", true);
+    end;
+
+    local procedure PurchaseCopyDocument(PurchaseHeader: Record "Purchase Header"; No: Code[20]; DocumentType: Enum "Purchase Document Type From")
+    var
+        CopyPurchaseDocument: Report "Copy Purchase Document";
+    begin
+        Clear(CopyPurchaseDocument);
+        CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
+        CopyPurchaseDocument.SetParameters(DocumentType, No, true, false);
+        CopyPurchaseDocument.UseRequestPage(false);
+        CopyPurchaseDocument.Run();
+        Commit();
     end;
 }
 #endif

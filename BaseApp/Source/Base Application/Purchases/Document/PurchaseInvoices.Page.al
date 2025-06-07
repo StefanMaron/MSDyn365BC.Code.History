@@ -358,7 +358,7 @@ page 9308 "Purchase Invoices"
                     Visible = not SalesTaxStatisticsVisible;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Statistics";
                     RunPageOnRec = true;
@@ -374,7 +374,7 @@ page 9308 "Purchase Invoices"
                     Visible = SalesTaxStatisticsVisible;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Stats.";
                     RunPageOnRec = true;
@@ -819,11 +819,13 @@ page 9308 "Purchase Invoices"
             Error(TotalsMismatchErr);
     end;
 
+#if not CLEAN26
+    [Obsolete('The Statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxStatistics(var PurchaseHeader: Record "Purchase Header"; ShowDialog: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(true, false)]
     local procedure OnPostBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var IsHandled: Boolean)
     begin

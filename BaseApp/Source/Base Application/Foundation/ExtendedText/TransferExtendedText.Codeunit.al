@@ -770,7 +770,13 @@ codeunit 378 "Transfer Extended Text"
     procedure JobCheckIfAnyExtText(var JobPlanningLine: Record "Job Planning Line"; Unconditionally: Boolean; Job: Record Job) Result: Boolean
     var
         ExtTextHeader: Record "Extended Text Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeJobCheckIfAnyExtText(JobPlanningLine, Unconditionally, MakeUpdateRequired, AutoText, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         MakeUpdateRequired := false;
         if IsDeleteAttachedLines(JobPlanningLine."Line No.", JobPlanningLine."No.", JobPlanningLine."Attached to Line No.") and not JobPlanningLine.IsExtendedText() then
             MakeUpdateRequired := DeleteJobPlanningLines(JobPlanningLine);
@@ -1166,6 +1172,11 @@ codeunit 378 "Transfer Extended Text"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertSalesExtTextRetLastOnAfterSetLineSpacing(var LineSpacing: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeJobCheckIfAnyExtText(var JobPlanningLine: Record "Job Planning Line"; Unconditionally: Boolean; var MakeUpdateRequired: Boolean; var AutoText: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

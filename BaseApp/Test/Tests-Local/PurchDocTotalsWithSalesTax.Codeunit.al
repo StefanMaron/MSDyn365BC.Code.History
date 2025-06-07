@@ -20,6 +20,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         LibraryApplicationArea: Codeunit "Library - Application Area";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
+        VATDifferenceErr: Label 'VAT Difference must be equal to %1', Comment = '%1 = TaxAmount value';
 
     [Test]
     [Scope('OnPrem')]
@@ -587,6 +588,52 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseStatsPageHandler,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure VATDiffInVATEntryIsEqualToTaxAmtOfSalesTaxAmtLineInPurchInvStatsWhenPostPurchInv()
+    var
+        PurchaseLine: Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        TaxAmount: Decimal;
+    begin
+        // [SCENARIO 555978] "VAT Difference" in VAT Entry is equal to "TAX Amount" of Purchase Statistics 
+        // when post Purchase Invoice having "Currency Code" and Allow VAT Difference is set in 
+        // General Ledger Setup and Purchases & Payables Setup.
+        Initialize();
+
+        // [GIVEN] Enable Sales Tax Setup.
+        LibraryApplicationArea.EnableSalesTaxSetup();
+
+        // [GIVEN] Set Max VAT Difference Allowed.
+        LibraryERM.SetMaxVATDifferenceAllowed(LibraryRandom.RandIntInRange(500, 500));
+        LibraryPurchase.SetAllowVATDifference(true);
+
+        // [GIVEN] Create a Purchase Invoice and Validate "Currency Code".
+        CreatePurchaseDocument(PurchaseLine, "Purchase Document Type"::Invoice, false);
+        PurchaseLine.Validate("Currency Code", CreateCurrencyWithExchRate());
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Open Purchase Invoice page and run Purchase Stats action.
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseLine."Document No.");
+        PurchaseInvoice.PurchaseStats.Invoke();
+
+        // [GIVEN] Post Purchase Invoice.
+        PostPurchaseInvoiceFromPage(PurchaseLine."Document No.");
+
+        // [GIVEN] Generate and save "Tax Amount" from Purchase Statistics in a Vraiable.
+        TaxAmount := -LibraryVariableStorage.DequeueDecimal();
+
+        // [WHEN] Find VAT Entry.
+        VATEntry.SetRange("Tax Area Code", PurchaseLine."Tax Area Code");
+        VATEntry.FindFirst();
+
+        // [THEN] "VAT Difference" in VAT Entry is equal to TaxAmount.
+        Assert.AreEqual(TaxAmount, VATEntry."VAT Difference", VATDifferenceErr);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -836,6 +883,29 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         Assert.AreEqual(ExpectedAmountInclVAT, PurchInvHeader."Amount Including VAT", '');
     end;
 
+    local procedure CreateCurrencyWithExchRate(): Code[10]
+    var
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        Currency.Validate("Max. VAT Difference Allowed", LibraryRandom.RandIntInRange(500, 500));
+        Currency.Modify(true);
+
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+
+        CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
+        CurrencyExchangeRate.FindFirst();
+
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandIntInRange(1, 1));
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryRandom.RandDecInDecimalRange(0.5, 0.5, 0));
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", LibraryRandom.RandIntInRange(1, 1));
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", LibraryRandom.RandDecInDecimalRange(0.5, 0.5, 0));
+        CurrencyExchangeRate.Modify(true);
+
+        exit(Currency.Code);
+    end;
+
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
@@ -860,6 +930,15 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         TaxDifference := LibraryVariableStorage.DequeueDecimal();
         NewTaxAmount := PurchaseStats.SubForm."Tax Amount".AsDecimal() + TaxDifference;
         PurchaseStats.SubForm."Tax Amount".SetValue(NewTaxAmount);
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseStatsPageHandler(var PurchaseStats: TestPage "Purchase Stats.")
+    begin
+        PurchaseStats.SubForm."Tax Amount".SetValue(PurchaseStats.TaxAmount.AsDecimal() / LibraryRandom.RandIntInRange(2, 2));
+        LibraryVariableStorage.Enqueue(PurchaseStats.SubForm."Tax Amount".AsDecimal());
+        PurchaseStats.OK().Invoke();
     end;
 
     [ConfirmHandler]

@@ -1,4 +1,4 @@
-#pragma warning disable AS0032, AS0050
+#pragma warning disable AS0050
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -10,6 +10,8 @@ using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Purchases.Vendor;
+using Microsoft.eServices.EDocument.OrderMatch.Copilot;
+using System.Telemetry;
 
 page 6181 "E-Document Purchase Draft"
 {
@@ -46,14 +48,14 @@ page 6181 "E-Document Purchase Draft"
                 group("Buy-from")
                 {
                     ShowCaption = false;
-                    field("Vendor No."; EDocumentHeaderMapping."Vendor No.")
+                    field("Vendor No."; EDocumentPurchaseHeader."[BC] Vendor No.")
                     {
                         ApplicationArea = Suite;
                         Caption = 'Vendor No.';
                         Importance = Promoted;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the number of the vendor who delivers the products.';
-                        Editable = true;
+                        Editable = PageEditable;
                         Lookup = true;
 
                         trigger OnLookup(var Text: Text): Boolean
@@ -93,21 +95,21 @@ page 6181 "E-Document Purchase Draft"
                         Importance = Promoted;
                         Caption = 'Document No.';
                         ToolTip = 'Specifies the extracted ID for this specific document.';
-                        Editable = false;
+                        Editable = true;
                     }
                     field("Document Date"; EDocumentPurchaseHeader."Invoice Date")
                     {
                         Caption = 'Document Date';
                         ToolTip = 'Specifies the extracted document date.';
                         Importance = Promoted;
-                        Editable = false;
+                        Editable = true;
                     }
                     field("Due Date"; EDocumentPurchaseHeader."Due Date")
                     {
                         Importance = Promoted;
                         Caption = 'Due Date';
                         ToolTip = 'Specifies the extracted due date.';
-                        Editable = false;
+                        Editable = true;
                     }
                 }
                 field("Status"; Rec.Status)
@@ -122,7 +124,7 @@ page 6181 "E-Document Purchase Draft"
             part(Lines; "E-Doc. Purchase Draft Subform")
             {
                 ApplicationArea = Suite;
-                Editable = true;
+                Editable = PageEditable;
                 SubPageLink = "E-Document Entry No." = field("Entry No");
                 UpdatePropagation = Both;
             }
@@ -146,7 +148,13 @@ page 6181 "E-Document Purchase Draft"
                 {
                     Importance = Promoted;
                     ToolTip = 'Specifies the electronic document currency code.';
-                    Editable = false;
+                    Editable = true;
+
+                    trigger OnValidate()
+                    begin
+                        EDocumentPurchaseHeader.Modify();
+                        CurrPage.Update();
+                    end;
                 }
             }
 
@@ -189,7 +197,19 @@ page 6181 "E-Document Purchase Draft"
 
                 trigger OnAction()
                 begin
-                    ProcessEDocument();
+                    FinalizeEDocument();
+                end;
+            }
+            action(ResetDraftDocument)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Reset draft';
+                ToolTip = 'Resets the draft document. Any changes made to the draft document will be lost.';
+                Image = Restore;
+                Visible = true;
+                trigger OnAction()
+                begin
+                    ResetDraft();
                 end;
             }
             action(AnalyzeDocument)
@@ -211,7 +231,7 @@ page 6181 "E-Document Purchase Draft"
                 Caption = 'View pdf';
                 ToolTip = 'View pdf.';
                 Image = ViewDetails;
-                Visible = Rec."File Type" = Rec."File Type"::PDF;
+                Visible = HasPDFSource;
 
                 trigger OnAction()
                 begin
@@ -227,10 +247,9 @@ page 6181 "E-Document Purchase Draft"
 
                 trigger OnAction()
                 var
-                    EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+                    EDocImport: Codeunit "E-Doc. Import";
                 begin
-                    EDocumentPurchaseHeader.GetFromEDocument(Rec);
-                    Page.Run(Page::"E-Doc. Readable Purchase Doc.", EDocumentPurchaseHeader);
+                    EDocImport.ViewExtractedData(Rec);
                 end;
             }
         }
@@ -258,15 +277,37 @@ page 6181 "E-Document Purchase Draft"
     begin
         if not EDocumentsSetup.IsNewEDocumentExperienceActive() then
             Error('');
-        if EDocumentPurchaseHeader.Get(Rec."Entry No") then begin
-            AIGeneratedContentNotification.Message(ImportEDocumentProcess.AIGeneratedContentText());
-            AIGeneratedContentNotification.AddAction(ImportEDocumentProcess.TermsAndConditionsText(), Codeunit::"Import E-Document Process", 'OpenTermsAndConditions');
-            AIGeneratedContentNotification.Send();
-        end;
-        if EDocumentHeaderMapping.Get(Rec."Entry No") then;
+
+        if EDocumentPurchaseHeader.Get(Rec."Entry No") then
+            if Rec."Read into Draft Impl." = "E-Doc. Read into Draft"::ADI then begin
+                HasPDFSource := true;
+                AIGeneratedContentNotification.Message(ImportEDocumentProcess.AIGeneratedContentText());
+                AIGeneratedContentNotification.AddAction(ImportEDocumentProcess.TermsAndConditionsText(), Codeunit::"Import E-Document Process", 'OpenTermsAndConditions');
+                AIGeneratedContentNotification.Send();
+            end;
         EDocumentServiceStatus := Rec.GetEDocumentServiceStatus();
         HasErrorsOrWarnings := false;
         HasErrors := false;
+        PageEditable := ConditionallyEditable();
+    end;
+
+    local procedure ConditionallyEditable(): Boolean
+    var
+        RecRef: RecordRef;
+    begin
+        if Rec."Document Record ID".TableNo() = 0 then
+            exit(true);
+
+        if not TryOpen(RecRef, Rec."Document Record ID".TableNo()) then
+            exit(true);
+
+        exit(not RecRef.Get(Rec."Document Record ID"));
+    end;
+
+    [TryFunction]
+    local procedure TryOpen(var RecRef: RecordRef; TableNo: Integer)
+    begin
+        RecRef.Open(TableNo);
     end;
 
     trigger OnAfterGetRecord()
@@ -282,9 +323,10 @@ page 6181 "E-Document Purchase Draft"
         SetStyle();
         SetPageCaption();
 
-        ShowFinalizeDraftAction := Rec.GetEDocumentImportProcessingStatus() = Enum::"Import E-Doc. Proc. Status"::"Draft Ready";
+        Rec.CalcFields("Import Processing Status");
+        ShowFinalizeDraftAction := Rec."Import Processing Status" = Enum::"Import E-Doc. Proc. Status"::"Draft Ready";
         ShowAnalyzeDocumentAction :=
-            (Rec.GetEDocumentImportProcessingStatus() = Enum::"Import E-Document Steps"::"Structure received data") and
+            (Rec."Import Processing Status" = Enum::"Import E-Document Steps"::"Structure received data") and
             (Rec.Status = Enum::"E-Document Status"::Error);
     end;
 
@@ -296,14 +338,12 @@ page 6181 "E-Document Purchase Draft"
         if Rec."File Name" <> '' then
             CaptionBuilder.Append(Rec."File Name" + ' - ');
 
-        EDocumentHeaderMapping := Rec.GetEDocumentHeaderMapping();
-        if Vendor.Get(EDocumentHeaderMapping."Vendor No.") then
+        EDocumentPurchaseHeader.GetFromEDocument(Rec);
+        if Vendor.Get(EDocumentPurchaseHeader."[BC] Vendor No.") then
             CaptionBuilder.Append(Vendor.Name + ' - ')
-        else begin
-            EDocumentPurchaseHeader := EDocumentHeaderMapping.GetEDocumentPurchaseHeader();
+        else
             if EDocumentPurchaseHeader."Vendor Company Name" <> '' then
                 CaptionBuilder.Append(EDocumentPurchaseHeader."Vendor Company Name" + ' - ');
-        end;
 
         CaptionBuilder.Append(Format(Rec."Entry No"));
         DataCaption := CaptionBuilder.ToText();
@@ -343,8 +383,8 @@ page 6181 "E-Document Purchase Draft"
         VendorList.LookupMode := true;
         if VendorList.RunModal() = Action::LookupOK then begin
             VendorList.GetRecord(Vendor);
-            EDocumentHeaderMapping."Vendor No." := Vendor."No.";
-            EDocumentHeaderMapping.Modify();
+            EDocumentPurchaseHeader."[BC] Vendor No." := Vendor."No.";
+            EDocumentPurchaseHeader.Modify();
         end;
     end;
 
@@ -354,41 +394,94 @@ page 6181 "E-Document Purchase Draft"
     begin
         CurrPage.ErrorMessagesPart.Page.SetRecords(TempErrorMessage);
         CurrPage.ErrorMessagesPart.Page.Update(false);
+
+        if ErrorsAndWarningsNotification.Recall() then;
     end;
 
-    local procedure ProcessEDocument()
+    local procedure FinalizeEDocument()
     var
         EDocImportParameters: Record "E-Doc. Import Parameters";
         EDocImport: Codeunit "E-Doc. Import";
         EDocumentHelper: Codeunit "E-Document Helper";
-        ImportEdocumentProcess: Codeunit "Import E-Document Process";
     begin
+        Session.LogMessage('0000PCO', FinalizeDraftInvokedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
+
         if not EDocumentHelper.EnsureInboundEDocumentHasService(Rec) then
             exit;
 
-        EDocImportParameters."Step to Run" := ImportEdocumentProcess.GetNextStep(Rec.GetEDocumentImportProcessingStatus());
+        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+        Rec.Get(Rec."Entry No");
+
+        if EDocumentErrorHelper.HasErrors(Rec) then
+            exit;
+
+        PageEditable := ConditionallyEditable();
+        CurrPage.Lines.Page.Update();
+        CurrPage.Update();
+        Session.LogMessage('0000PCP', FinalizeDraftPerformedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
+        FeatureTelemetry.LogUsage('0000PCU', EDocPOCopilotMatching.FeatureName(), 'Finalize draft');
+        Rec.ShowRecord();
+    end;
+
+    local procedure ResetDraft()
+    var
+        EDocImportParameters: Record "E-Doc. Import Parameters";
+        EDocImport: Codeunit "E-Doc. Import";
+        EDocumentHelper: Codeunit "E-Document Helper";
+        ConfirmDialogMgt: Codeunit "Confirm Management";
+        Progress: Dialog;
+    begin
+        if not EDocumentHelper.EnsureInboundEDocumentHasService(Rec) then
+            exit;
+        if not ConfirmDialogMgt.GetResponseOrDefault(ResetDraftQst) then
+            exit;
+        if GuiAllowed() then
+            Progress.Open(ProcessingDocumentMsg);
+
+        // Regardless of document state, we re-run the read data into IR, then prepare draft step.
+        EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Read into Draft";
+        EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+        EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+
+        Rec.Get(Rec."Entry No");
+        if GuiAllowed() then
+            Progress.Close();
     end;
 
     local procedure AnalyzeEDocument()
     var
-        EDocumentService: Record "E-Document Service";
         EDocImportParameters: Record "E-Doc. Import Parameters";
+        EDocumentService: Record "E-Document Service";
         EDocImport: Codeunit "E-Doc. Import";
+        Progress: Dialog;
     begin
         EDocumentService.GetPDFReaderService();
         Rec.TestField("Service", EDocumentService.Code);
 
+        if GuiAllowed() then
+            Progress.Open(ProcessingDocumentMsg);
+
+
+        // Regardless of document state, we re-run the structure received data, then prepare draft step.
         EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Structure received data";
         EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+        EDocImportParameters."Step to Run" := Enum::"Import E-Document Steps"::"Prepare draft";
+        EDocImport.ProcessIncomingEDocument(Rec, EDocImportParameters);
+
+        Rec.Get(Rec."Entry No");
+        if GuiAllowed() then
+            Progress.Close();
     end;
 
     var
         EDocumentPurchaseHeader: Record "E-Document Purchase Header";
-        EDocumentHeaderMapping: Record "E-Document Header Mapping";
         EDocumentServiceStatus: Record "E-Document Service Status";
         EDocumentErrorHelper: Codeunit "E-Document Error Helper";
         EDocumentProcessing: Codeunit "E-Document Processing";
+        EDocPOCopilotMatching: Codeunit "E-Doc. PO Copilot Matching";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ErrorsAndWarningsNotification: Notification;
         AIGeneratedContentNotification: Notification;
         RecordLinkTxt, StyleStatusTxt, ServiceStatusStyleTxt, VendorName, DataCaption : Text;
@@ -396,5 +489,10 @@ page 6181 "E-Document Purchase Draft"
         ShowFinalizeDraftAction: Boolean;
         ShowAnalyzeDocumentAction: Boolean;
         EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';
+        FinalizeDraftInvokedTxt: Label 'User invoked Finalize Draft action.';
+        FinalizeDraftPerformedTxt: Label 'User completed Finalize Draft action.';
+        ProcessingDocumentMsg: Label 'Processing document...';
+        ResetDraftQst: Label 'All the changes that you may have made on the document draft will be lost. Do you want to continue?';
+        PageEditable, HasPDFSource : Boolean;
 }
-#pragma warning restore AS0050, AS0032
+#pragma warning restore AS0050
