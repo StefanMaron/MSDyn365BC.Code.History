@@ -176,7 +176,7 @@ report 10084 "Void/Transmit Elec. Payments"
 
     local procedure ClearApplication(var GenJournalLine: Record "Gen. Journal Line")
     begin
-        if GenJournalLine."Applies-to Doc. Type" <> GenJournalLine."Applies-to Doc. Type"::" " then
+        if (GenJournalLine."Applies-to Doc. Type" <> GenJournalLine."Applies-to Doc. Type"::" ") or (GenJournalLine.IsApplied()) then
             exit;
 
         if GenJournalLine."Applies-to ID" <> '' then begin

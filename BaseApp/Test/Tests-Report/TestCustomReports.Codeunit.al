@@ -1170,9 +1170,6 @@ codeunit 134761 "Test Custom Reports"
 
         // [THEN] Report Aging amount for the previous month = Entry1.Amount
         VerifyStandardStatementAging(OutputPath, LineAmount, 12);
-
-        // [THEN] Report Aging amount for the current month = 0
-        VerifyStandardStatementAging(OutputPath, 0, 13);
     end;
 
     [Test]
@@ -2415,6 +2412,36 @@ codeunit 134761 "Test Custom Reports"
 
         // [VERIFY] Verify: Sub Total Amount on Report Total Lines
         VerifySubTotalAmtStdSalesInvoiceReportTotalsLines(SalesLine."Line Amount")
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AgingBandTotalsOnStandaredStatementWhenDueDateIsEqualToEnDate()
+    var
+        Customer: Record Customer;
+        LineAmount: array[2] of Decimal;
+        OutputPath: Text;
+    begin
+        // [SCENARIO 574870] Standard Statement Aging totals must include Amount that is within range when Aging by Due Date.
+        Initialize();
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.SetRecFilter();
+
+        LineAmount[1] := LibraryRandom.RandDec(99, 2);
+        LineAmount[2] := LibraryRandom.RandDec(99, 2);
+
+        // [GIVEN] Two Customer Ledger Entries for "CUS" where each has "Amount", "PostingDate" and "DueDate".
+        // [GIVEN] Entry1 "PostingDate" = 08/01/2017, "DueDate" = 22/01/2017, is overdue.
+        // [GIVEN] Entry2 "PostingDate" = 22/01/2017, "DueDate" = 22/02/2017, is NOT overdue.
+        CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount[1], LineAmount[2]);
+
+        // [WHEN] Standard Statement Report executed for "CUS" with BeginDate = 01/02/2017, EndDate = 22/02/2017, Aging Band by Due Date.
+        SaveStandardStatementAsXML(Customer, OutputPath, 0, CalcDate('<-CM>', GetDate()), GetDate());
+
+        // [THEN] Report Aging amount for the current month.
+        VerifyStandardStatementAging(OutputPath, LineAmount[2], 13);
     end;
 
     [Scope('OnPrem')]

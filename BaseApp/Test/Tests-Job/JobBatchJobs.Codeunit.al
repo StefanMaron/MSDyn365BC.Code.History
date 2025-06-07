@@ -57,6 +57,7 @@ codeunit 136310 "Job Batch Jobs"
         XDefaultJobWIPNoTxt: Label 'WIP0000001', Comment = 'CF stands for Cash Flow.';
         XDefaultJobWIPEndNoTxt: Label 'WIP9999999';
         XJobWIPDescriptionTxt: Label 'PROJECT-WIP';
+        LineDiscountErr: Label 'Value in Line Discount % must not be removed.';
 
     [Test]
     [HandlerFunctions('ChangeJobDatesHandler')]
@@ -1476,6 +1477,52 @@ codeunit 136310 "Job Batch Jobs"
         JobJournalLine.SetRange("Journal Template Name", JobJournalBatch."Journal Template Name");
         JobJournalLine.SetRange("Journal Batch Name", JobJournalBatch.Name);
         Assert.IsTrue(JobJournalLine.IsEmpty(), '');
+    end;
+
+    [Test]
+    procedure LineDiscountOnValidatingProjectTaskNoPurchaseLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+    begin
+        // [SCENARIO 572198] Line Discount % is not removed after validating Project Task No. in Purchase Line.
+        Initialize();
+
+        //[GIVEN] Create a Job.
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Create a Job Task from the Job.
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create a Purchase Header with Document Type Order.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Line with an Item.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandInt(10));
+
+        // [GIVEN] Validate "Location Code", "Direct Unit Cost" and "Line Discount %" on Purchase Line.
+        PurchaseLine.Validate("Location Code", LibraryWarehouse.CreateLocation(Location));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Validate("Line Discount %", LibraryRandom.RandInt(10));
+
+        // [WHEN] Validate "Job No." and "Job Task No." in Purchase Line.
+        PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Modify(true);
+
+        // [THEN] Value in "Line Discount %" of Purchase Line must have value.
+        Assert.AreNotEqual(0, PurchaseLine."Line Discount %", LineDiscountErr);
     end;
 
     local procedure Initialize()

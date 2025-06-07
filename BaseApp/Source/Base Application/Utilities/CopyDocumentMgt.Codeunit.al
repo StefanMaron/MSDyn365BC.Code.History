@@ -1320,7 +1320,7 @@ codeunit 6620 "Copy Document Mgt."
 
         ToPurchHeader.Validate("Buy-from Vendor No.", FromPurchInvHeader."Buy-from Vendor No.");
 
-        if PurchasesPayablesSetup."Check Doc. Total Amounts" then begin
+        if PurchasesPayablesSetup.ShouldDocumentTotalAmountsBeChecked(ToPurchHeader) then begin
             FromPurchInvHeader.CalcFields("Amount Including VAT", Amount);
             ToPurchHeader.Validate("Doc. Amount Incl. VAT", FromPurchInvHeader."Amount Including VAT");
             ToPurchHeader.Validate("Doc. Amount VAT", FromPurchInvHeader."Amount Including VAT" - FromPurchInvHeader.Amount);
@@ -2169,6 +2169,9 @@ codeunit 6620 "Copy Document Mgt."
                 PurchaseHeader."Posting Date" := WorkDate()
             else
                 PurchaseHeader."Posting Date" := OriginalPurchaseHeader."Posting Date";
+#if not CLEAN25
+        PurchaseHeader.Validate("IRS 1099 Amount", 0);
+#endif
     end;
 
     local procedure UpdatePurchHeaderWhenCopyFromPurchHeaderArchive(var PurchaseHeader: Record "Purchase Header")

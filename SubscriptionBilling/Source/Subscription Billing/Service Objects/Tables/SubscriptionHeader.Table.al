@@ -1738,12 +1738,12 @@ table 8057 "Subscription Header"
         end;
     end;
 
-    internal procedure InsertServiceCommitmentsFromServCommPackage(ServiceAndCalculationStartDate: Date; var ServiceCommitmentPackage: Record "Subscription Package")
+    procedure InsertServiceCommitmentsFromServCommPackage(ServiceAndCalculationStartDate: Date; var ServiceCommitmentPackage: Record "Subscription Package")
     begin
         InsertServiceCommitmentsFromServCommPackage(ServiceAndCalculationStartDate, 0D, ServiceCommitmentPackage, false);
     end;
 
-    internal procedure InsertServiceCommitmentsFromServCommPackage(ServiceAndCalculationStartDate: Date; ServiceEndDate: Date; var ServiceCommitmentPackage: Record "Subscription Package"; UsageBasedBillingPackageLinesOnly: Boolean)
+    procedure InsertServiceCommitmentsFromServCommPackage(ServiceAndCalculationStartDate: Date; ServiceEndDate: Date; var ServiceCommitmentPackage: Record "Subscription Package"; UsageBasedBillingPackageLinesOnly: Boolean)
     var
         ServiceCommitment: Record "Subscription Line";
         ServiceCommPackageLine: Record "Subscription Package Line";
@@ -1822,6 +1822,7 @@ table 8057 "Subscription Header"
                         ServiceCommitment.SetLCYFields(false);
                         ServiceCommitment."Period Calculation" := ServiceCommPackageLine."Period Calculation";
                         ServiceCommitment.SetDefaultDimensions(true);
+                        ServiceCommitment."Create Contract Deferrals" := ServiceCommPackageLine."Create Contract Deferrals";
                         OnBeforeInsertSubscriptionLineFromSubscriptionPackageLine(ServiceCommitment, ServiceCommPackageLine);
                         ServiceCommitment.Insert(false);
                         OnAfterInsertSubscriptionLineFromSubscriptionPackage(ServiceCommitment, ServiceCommitmentPackage, ServiceCommPackageLine);

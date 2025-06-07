@@ -3583,9 +3583,11 @@ codeunit 80 "Sales-Post"
     var
         NoVAT: Boolean;
         IsHandled: Boolean;
+        BefIncrTotalSalesLineAmtInclVAT: Decimal;
     begin
         OnBeforeRoundAmount(SalesHeader, SalesLine, SalesLineQty, CurrExchRate);
 
+        BefIncrTotalSalesLineAmtInclVAT := TotalSalesLine."Amount Including VAT";
         IncrAmount(SalesHeader, SalesLine, TotalSalesLine);
         Increment(TotalSalesLine."Net Weight", Round(SalesLineQty * SalesLine."Net Weight", UOMMgt.WeightRndPrecision()));
         Increment(TotalSalesLine."Gross Weight", Round(SalesLineQty * SalesLine."Gross Weight", UOMMgt.WeightRndPrecision()));
@@ -3603,12 +3605,22 @@ codeunit 80 "Sales-Post"
         if not IsHandled then
             if SalesHeader."Currency Code" <> '' then begin
                 NoVAT := SalesLine.Amount = SalesLine."Amount Including VAT";
-                SalesLine."Amount Including VAT" :=
-                  Round(
-                    CurrExchRate.ExchangeAmtFCYToLCY(
-                      SalesHeader.GetUseDate(), SalesHeader."Currency Code",
-                      TotalSalesLine."Amount Including VAT", SalesHeader."Currency Factor")) -
-                  TotalSalesLineLCY."Amount Including VAT";
+                if SalesLine."VAT Calculation Type" = SalesLine."VAT Calculation Type"::"Sales Tax" then
+                    SalesLine."Amount Including VAT" :=
+                        Round(
+                            CurrExchRate.ExchangeAmtFCYToLCY(
+                                SalesHeader.GetUseDate(), SalesHeader."Currency Code",
+                                TotalSalesLine."Amount Including VAT", SalesHeader."Currency Factor") -
+                            CurrExchRate.ExchangeAmtFCYToLCY(
+                                SalesHeader.GetUseDate(), SalesHeader."Currency Code",
+                                BefIncrTotalSalesLineAmtInclVAT, SalesHeader."Currency Factor"))
+                else
+                    SalesLine."Amount Including VAT" :=
+                      Round(
+                        CurrExchRate.ExchangeAmtFCYToLCY(
+                          SalesHeader.GetUseDate(), SalesHeader."Currency Code",
+                          TotalSalesLine."Amount Including VAT", SalesHeader."Currency Factor")) -
+                        TotalSalesLineLCY."Amount Including VAT";
                 if NoVAT then
                     SalesLine.Amount := SalesLine."Amount Including VAT"
                 else

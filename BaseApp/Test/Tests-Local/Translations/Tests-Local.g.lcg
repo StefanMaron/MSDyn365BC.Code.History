@@ -3065,6 +3065,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Positive Pay Test Unit 2 - NamedType TransformationErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3296676670 - NamedType 1188703771" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT Difference must be equal to %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = TaxAmount value]D;]A;(LookupHint=Codeunit PurchDocTotalsWithSalesTax - NamedType VATDifferenceErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 281091619 - NamedType 3116745372" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Purchase_Line__Inv__Discount_Amount_]]></Val>

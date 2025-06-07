@@ -68,5 +68,11 @@ tableextension 10010 "Service Header Archive NA" extends "Service Header Archive
             DataClassification = CustomerContent;
             TableRelation = "SAT Address";
         }
+        field(27012; "CFDI Certificate of Origin No."; Text[50])
+        {
+            Caption = 'CFDI Certificate of Origin No.';
+            DataClassification = CustomerContent;
+            Description = 'NumCertificadoOrigen';
+        }
     }
 }

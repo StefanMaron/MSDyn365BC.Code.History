@@ -21,6 +21,10 @@ codeunit 448 "Job Queue Dispatcher"
             TelemetrySubscribers.SendJobQueueSkippedTelemetry(Rec);
             exit;
         end;
+
+        if Rec.Status = Rec.Status::"In Process" then
+            RunCleanupForCurrentJob(Rec);
+
         if not Rec.IsReadyToStart() then begin
             TelemetrySubscribers.SendJobQueueNotReadyToStartTelemetry(Rec);
             exit;
@@ -53,6 +57,16 @@ codeunit 448 "Job Queue Dispatcher"
         JobQueueEntryFailedtoGetBeforeFinalizingTxt: Label 'Failed to get Job Queue Entry before finalizing record.', Locked = true;
         JobQueueEntryFailedtoGetBeforeUpdatingStatusTxt: Label 'Failed to get Job Queue Entry before updating status.', Locked = true;
         JobQueueEntriesCategoryTxt: Label 'AL JobQueueEntries', Locked = true;
+
+    /// <summary>
+    /// This is used to run the cleanup tasks for the current job queue entry when the job queue fails but is retriable.
+    /// The prior Job Queue Log Entry would still be in the "In Process" state.
+    /// </summary>
+    /// <param name="JobQueueEntry">The Job Queue Entry that is running.</param>
+    local procedure RunCleanupForCurrentJob(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+        TaskScheduler.CreateTask(Codeunit::"Job Queue Cleanup Tasks", 0, true, CompanyName(), CurrentDateTime(), JobQueueEntry.RecordId);
+    end;
 
     local procedure HandleRequest(var JobQueueEntry: Record "Job Queue Entry")
     var

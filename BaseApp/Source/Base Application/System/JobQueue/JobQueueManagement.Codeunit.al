@@ -1,4 +1,4 @@
-﻿namespace System.Threading;
+namespace System.Threading;
 
 using System.Automation;
 using System.Utilities;
@@ -16,9 +16,11 @@ codeunit 456 "Job Queue Management"
         ExecuteEndErrorMsg: label 'Job finished executing.\Status: %1\Error: %2', Comment = '%1 is a status value, e.g. Success, %2=Error message';
         JobSomethingWentWrongMsg: Label 'Something went wrong and the job has stopped. Likely causes are system updates or routine maintenance processes. To restart the job, set the status to Ready.';
         JobQueueDelegatedAdminCategoryTxt: Label 'AL JobQueueEntries Delegated Admin', Locked = true;
+        JobSomethingWentWrongMsgErr: Label 'Something went wrong and the job has stopped. Likely causes are system updates or routine maintenance processes. The job will automatically run again.';
         JobQueueStatusChangeTxt: Label 'The status for Job Queue Entry: %1 has changed.', Comment = '%1 is the Job Queue Entry Id', Locked = true;
         TelemetryStaleJobQueueEntryTxt: Label 'Updated Job Queue Entry status to error as it is stale. Please investigate associated Task Id for error.', Locked = true;
         TelemetryStaleJobQueueLogEntryTxt: Label 'Updated Job Queue Log Entry status to error as it is stale. Please investigate associated Task Id for error.', Locked = true;
+        TelemetryStaleRetriableJobQueueLogEntryTxt: Label 'Updated Job Queue Log Entry status to error as it is was retriable by platform.', Locked = true;
         RunJobQueueOnceTxt: Label 'Running job queue once.', Locked = true;
         JobQueueWorkflowSetupErr: Label 'The Job Queue approval workflow has not been setup.';
         DelegatedAdminSendingApprovalLbl: Label 'Delegated admin sending approval', Locked = true;
@@ -333,6 +335,28 @@ codeunit 456 "Job Queue Management"
             until JobQueueLogEntry.Next() = 0;
     end;
 
+    internal procedure UpdateRetriableFailedJobQueueLogEntry(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+    begin
+        JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
+        JobQueueLogEntry.SetRange(Status, JobQueueLogEntry.Status::"In Process");
+        JobQueueLogEntry.SetFilter("User Service Instance ID", '<>%1', JobQueueEntry."User Service Instance ID");
+        JobQueueLogEntry.SetFilter("User Session ID", '<>%1', JobQueueEntry."User Session ID");
+
+        if not JobQueueLogEntry.FindSet() then
+            exit;
+
+        repeat
+            JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
+            JobQueueLogEntry."Error Message" := CopyStr(JobSomethingWentWrongMsgErr, 1, MaxStrLen(JobQueueLogEntry."Error Message"));
+            JobQueueLogEntry.Modify();
+
+            StaleRetriableJobQueueLogEntryTelemetry(JobQueueLogEntry);
+        until JobQueueLogEntry.Next() = 0;
+        Commit();
+    end;
+
     local procedure GetCheckDelayInMilliseconds(): Integer
     var
         DelayInMinutes: Integer;
@@ -397,6 +421,21 @@ codeunit 456 "Job Queue Management"
         TelemetrySubscribers.SetJobQueueTelemetryDimensions(JobQueueLogEntry, Dimensions);
 
         Session.LogMessage('0000FMI', TelemetryStaleJobQueueLogEntryTxt, Verbosity::Warning, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
+
+        GlobalLanguage(CurrentLanguage);
+    end;
+
+    local procedure StaleRetriableJobQueueLogEntryTelemetry(JobQueueLogEntry: Record "Job Queue Log Entry")
+    var
+        CurrentLanguage: Integer;
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        CurrentLanguage := GlobalLanguage();
+        GlobalLanguage(1033);
+
+        TelemetrySubscribers.SetJobQueueTelemetryDimensions(JobQueueLogEntry, Dimensions);
+
+        Session.LogMessage('0000PCR', TelemetryStaleRetriableJobQueueLogEntryTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
 
         GlobalLanguage(CurrentLanguage);
     end;

@@ -1839,7 +1839,7 @@ page 6510 "Item Tracking Lines"
                     TempReservEntry := ReservEntry;
                     TempReservEntry.Insert();
                 end;
-                if ReservEntry.TrackingExists() then begin
+                if ReservEntry.TrackingExists() or (ReservEntry.IsReclass() and ReservEntry.NewTrackingExists()) then begin
                     AddTracking := true;
                     if SecondSourceID = Database::"Warehouse Shipment Line" then
                         if FromReservEntry.Get(ReservEntry."Entry No.", not ReservEntry.Positive) then
@@ -2377,7 +2377,7 @@ page 6510 "Item Tracking Lines"
                     if IsHandled then
                         exit(true);
 
-                    if (OldTrackingSpecification."Quantity (Base)" = 0) or not OldTrackingSpecification.TrackingExists() then
+                    if (OldTrackingSpecification."Quantity (Base)" = 0) or (not OldTrackingSpecification.TrackingExists() and not NewTrackingSpecification.NewTrackingExists()) then
                         exit(true);
                     TempReservEntry.SetTrackingFilterBlank();
                     OldTrackingSpecification."Quantity (Base)" :=
