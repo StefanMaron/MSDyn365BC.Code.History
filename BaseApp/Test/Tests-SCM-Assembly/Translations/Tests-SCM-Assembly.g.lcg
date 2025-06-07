@@ -2066,6 +2066,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Kitting Reservation - NamedType PurchaseLineOrder)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 774640041 - NamedType 2343165839" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity(Base) is incorrect in Item Tracking Lines]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Assembly.Test)(LookupHint=Codeunit SCM Kitting Reservation - NamedType QtyBaseIsNotCorrectErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 774640041 - NamedType 588843452" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Quantity is incorrect in Sales Invoice Line]]></Val>

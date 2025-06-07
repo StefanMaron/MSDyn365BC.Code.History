@@ -2898,6 +2898,105 @@ codeunit 137065 "SCM Reservation II"
         UpdateManufacturingSetupComponentsAtLocation(ComponentsAtLocation);
     end;
 
+    [Test]
+    [HandlerFunctions('CreatePickReportHandler,DummyMessageHandler,InvPostingSelectionHandler,GetActionMessageReportHandler')]
+    [Scope('OnPrem')]
+    procedure OrderTrackingAndLotSpecificItemTrackingShouldNotDamageReservation()
+    var
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        Location: Record Location;
+        ReservationEntry: Record "Reservation Entry";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        Quantity: array[10] of Decimal;
+        LotNo: array[2] of Code[20];
+    begin
+        // [SCENARIO 573919] Using Order Tracking Policy of Tracking & Action Message and Lot Specific Tracking can result in damaged Reservation Entries with Inventory Pick process - Follow up from Bug 555810
+        Initialize();
+
+        // [GIVEN] Create a Lot Tracked Item with "Order Tracking Policy" = "Tracking & Action Msg."
+        CreateItemWithLotWarehouseTracking(Item);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking & Action Msg.");
+        Item.Modify(true);
+
+        // [GIVEN] Create a Location with Require Receive = Yes, Require Pick = Yes along with Bin Mandatory = Yes and two Bins for the Location.
+        CreateAndUpdateLocation(Location, false, true, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, Bin[1].Code, '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, Bin[2].Code, '', '');
+
+        // [GIVEN] Set Quantity and LotNo.
+        Quantity[1] := LibraryRandom.RandIntInRange(11, 11);
+        Quantity[2] := LibraryRandom.RandIntInRange(4, 4);
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create and post two Item Journal with different LotNo and Bin where Item Tracking on Lines is enabled for the Batch
+        ItemJournalBatch.Validate("Item Tracking on Lines", true);
+        ItemJournalBatch.Modify(true);
+        CreateAndPostItemJournalLineWithLot(Item."No.", Quantity[1], bin[1].Code, Location.Code, LotNo[1]);
+        CreateAndPostItemJournalLineWithLot(Item."No.", Quantity[2], bin[2].Code, Location.Code, LotNo[2]);
+
+        // [GIVEN] Create and release a Sales Order with Quantity = Quantity[1] + Quantity[2] = 15.
+        CreateSalesOrder(SalesHeader[1], SalesLine[1], Item."No.", Quantity[1] + Quantity[2], Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader[1]);
+
+        // [WHEN] Create and release another Sales Order with Quantity = 8.
+        CreateSalesOrder(SalesHeader[2], SalesLine[2], Item."No.", 8, Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader[2]);
+
+        // [THEN] Verify second Sales Order has one Surplus Reservation Entry because of insufficient inventory.
+        VerifyReservationIsCorrect(Database::"Sales Line", SalesHeader[2]."No.", ReservationEntry."Reservation Status"::Surplus, -SalesLine[2]."Quantity (Base)");
+
+        // [GIVEN] Create Inventory Pick from second Sales Order.
+        Commit();
+        SalesHeader[2].CreateInvtPutAwayPick();
+
+        // [GIVEN] Split the Inventory Pick Line and assign LotNo[1] for both lines but maintain the different "Bin Code"
+        // i.e. first line will have "Bin Code" = Bin[1].Code and second line will have "Bin Code" = Bin[2].Code
+        SplitInventoryPickAndUpdateLotAndBin(SalesHeader[2]."No.", LotNo, Bin, true);
+
+        // [WHEN] Posting the Inventory Pick.
+        asserterror PostInventoryPickWithSuppressCommitEnabledFromSales(SalesHeader[2]);
+
+        // [THEN] During the post the untracked surplus Reservation Entry will get delete and new Lot tracked Reservation with same "Quantity" will be created.
+        VerifyReservationIsCorrect(Database::"Sales Line", SalesHeader[2]."No.", ReservationEntry."Reservation Status"::Surplus, -SalesLine[2]."Quantity (Base)");
+
+        // [WHEN] Posting the Inventory Pick after correcting the "Lot No." in Pick Line.
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[2]."No.", Bin[1].Code, LotNo[1]);
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[2]."No.", Bin[2].Code, LotNo[2]);
+        PostInventoryPickWithSuppressCommitEnabledFromSales(SalesHeader[2]);
+
+        // [THEN] There should be Surplus Reservation Entry of "Quantity (Base)" = -8 for first Sales Order as second sales order use 8 inventory out of 15.
+        VerifyReservationIsCorrect(Database::"Sales Line", SalesHeader[1]."No.", ReservationEntry."Reservation Status"::Surplus, -8);
+
+        // [GIVEN] Modify the Quantity in first Sales Order to 7 and create the Inventory Pick.
+        SalesLine[1].Validate(Quantity, 7);
+        SalesLine[1].Modify(true);
+        Commit();
+        SalesHeader[1].CreateInvtPutAwayPick();
+
+        // [GIVEN] Assign the correct "Lot No." to Inventory Pick Lines.
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[1]."No.", Bin[1].Code, LotNo[1]);
+        UpdateWhseLotNoUsingSourceAndBin(WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader[1]."No.", Bin[2].Code, LotNo[2]);
+
+        // [WHEN] Post the Inventory Pick.
+        PostInventoryPickWithSuppressCommitEnabledFromSales(SalesHeader[1]);
+
+        // [THEN] Verify that there should not be any Action Message Entries for both Sales Orders.
+        // And Planning Worksheet should not generate any entry on doing "Get Action Message".
+        assert.IsFalse(ActionMessageExist(Item."No.", SalesHeader[1]."No."), StrSubstNo(ActionMessageEntryExistErr, Item."No."));
+        assert.IsFalse(ActionMessageExist(Item."No.", SalesHeader[2]."No."), StrSubstNo(ActionMessageEntryExistErr, Item."No."));
+        asserterror ExecuteGetActionMessageFromPlanningWorksheet(Item."No.");
+
+        // [THEN] Verify that there is no surplus reservation entry in the system for any Sales Orders
+        VerifyThereIsNoDamagedReservationEntryForSurplus(Database::"Sales Line", SalesHeader[1]."No.", ReservationEntry."Reservation Status"::Surplus);
+        VerifyThereIsNoDamagedReservationEntryForSurplus(Database::"Sales Line", SalesHeader[2]."No.", ReservationEntry."Reservation Status"::Surplus);//, -SalesLine[2]."Quantity (Base)");
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -4569,6 +4668,26 @@ codeunit 137065 "SCM Reservation II"
         LibraryVariableStorage.Enqueue(ItemNo);
         PlanningWorksheet.OpenEdit();
         PlanningWorksheet."Get &Action Messages".Invoke();
+    end;
+
+    local procedure CreateItemWithLotWarehouseTracking(var Item: Record Item)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryItemTracking.CreateLotItem(Item);
+        ItemTrackingCode.Get(Item."Item Tracking Code");
+        ItemTrackingCode."Lot Warehouse Tracking" := true;
+        ItemTrackingCode.Modify(true);
+    end;
+
+    local procedure VerifyThereIsNoDamagedReservationEntryForSurplus(SourceType: Integer; SourceID: Code[20]; ReservationStatus: enum "Reservation Status")//; ExpectedBaseQty: Decimal)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Source Type", SourceType);
+        ReservationEntry.SetRange("Source ID", SourceID);
+        ReservationEntry.SetRange("Reservation Status", ReservationStatus);
+        asserterror ReservationEntry.FindFirst();
     end;
 
     [PageHandler]

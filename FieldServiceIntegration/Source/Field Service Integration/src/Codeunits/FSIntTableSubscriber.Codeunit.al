@@ -2610,6 +2610,7 @@ codeunit 6610 "FS Int. Table Subscriber"
     var
         FSConnectionSetup: Record "FS Connection Setup";
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        FSIntegrationMgt: Codeunit "FS Integration Mgt.";
         IntegrationRecordRef: RecordRef;
         TelemetryCategories: Dictionary of [Text, Text];
         IntegrationTableName: Text;
@@ -2634,8 +2635,8 @@ codeunit 6610 "FS Int. Table Subscriber"
                 Database::"FS Resource Pay Type",
                 Database::"FS Warehouse"] then begin
             Session.LogMessage('0000M9F', FSEntitySynchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryCategories);
-            FeatureTelemetry.LogUsage('0000M9E', 'Field Service Integration', 'Entity synch');
-            FeatureTelemetry.LogUptake('0000M9D', 'Field Service Integration', Enum::"Feature Uptake Status"::Used);
+            FeatureTelemetry.LogUsage('0000M9E', FSIntegrationMgt.ReturnIntegrationTypeLabel(FSConnectionSetup), 'Entity synch');
+            FeatureTelemetry.LogUptake('0000M9D', FSIntegrationMgt.ReturnIntegrationTypeLabel(FSConnectionSetup), Enum::"Feature Uptake Status"::Used);
             exit;
         end;
     end;

@@ -19,7 +19,6 @@ codeunit 139624 "E-Doc E2E Test"
         DocumentSendingProfileWithWorkflowErr: Label 'Workflow %1 defined for %2 in Document Sending Profile %3 is not found.', Comment = '%1 - The workflow code, %2 - Enum value set in Electronic Document, %3 - Document Sending Profile Code';
         FailedToGetBlobErr: Label 'Failed to get exported blob from EDocument %1', Comment = '%1 - E-Document No.';
         SendingErrStateErr: Label 'E-document is Pending response and can not be sent in this state.';
-        DeleteNotAllowedErr: Label 'Deletion of Purchase Header linked to E-Document is not allowed.';
         DeleteProcessedNotAllowedErr: Label 'The E-Document has already been processed and cannot be deleted.';
 
     [Test]
@@ -1458,31 +1457,34 @@ codeunit 139624 "E-Doc E2E Test"
     end;
 
     [Test]
+    [HandlerFunctions('DeleteDocumentOk')]
     procedure DeleteLinkedPurchaseHeaderNoAllowedSuccess()
     var
+        EDocument: Record "E-Document";
         PurchaseHeader: Record "Purchase Header";
-        NullGuid: Guid;
+        EDocImportParams: Record "E-Doc. Import Parameters";
     begin
         // [FEATURE] [E-Document] [Processing] 
         // [SCENARIO] 
         Initialize(Enum::"Service Integration"::"Mock");
+        EDocumentService."Read into Draft Impl." := "E-Doc. Read into Draft"::PEPPOL;
+        EDocumentService."Import Process" := Enum::"E-Document Import Process"::"Version 2.0";
+        EDocumentService.Modify();
 
-        // [GIVEN] PO with link
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
-        PurchaseHeader."E-Document Link" := CreateGuid();
-        PurchaseHeader.Modify();
-        Commit();
+        // [GIVEN] An inbound e-document is received and fully processed
+        EDocImportParams."Step to Run" := "Import E-Document Steps"::"Finish draft";
+        Assert.IsTrue(LibraryEDoc.CreateInboundPEPPOLDocumentToState(EDocument, EDocumentService, 'peppol/peppol-invoice-0.xml', EDocImportParams), 'The e-document should be processed');
+        EDocument.SetRecFilter();
+        EDocument.FindLast();
+        Assert.AreEqual(Enum::"E-Document Status"::Processed, EDocument.Status, 'E-Document should be in Processed status.');
 
-        // [THEN] Fails to delete
-        asserterror PurchaseHeader.Delete(true);
-        Assert.ExpectedError(DeleteNotAllowedErr);
+        // [THEN] Delete
+        PurchaseHeader.Get(EDocument."Document Record ID");
+        if PurchaseHeader.Delete(true) then;
 
-        // [GIVEN] Reset link 
-        PurchaseHeader."E-Document Link" := NullGuid;
-        PurchaseHeader.Modify();
-
-        // [THEN] Delete ok
-        PurchaseHeader.Delete();
+        EDocument.SetRecFilter();
+        EDocument.FindLast();
+        Assert.AreEqual(Enum::"E-Document Status"::"In Progress", EDocument.Status, 'E-Document should be in In Progress status.');
     end;
 
     local procedure CheckPDFEmbedToXML(TempBlob: Codeunit "Temp Blob")
@@ -1595,6 +1597,65 @@ codeunit 139624 "E-Doc E2E Test"
         Assert.ExpectedError(this.DeleteProcessedNotAllowedErr);
     end;
 
+    [Test]
+    internal procedure PurchaseDocumentsCreatedFromEDocumentsUseDocumentTotalsValidation()
+    var
+        EDocument: Record "E-Document";
+        EDocImportParameters: Record "E-Doc. Import Parameters";
+        PurchaseHeader: Record "Purchase Header";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        EDocImport: Codeunit "E-Doc. Import";
+    begin
+        // [SCENARIO 566852] Purchase documents created from E-Documents use Document Totals validation, even if the feature is not configured in the Purchase & Payables Setup page.
+        Initialize(Enum::"Service Integration"::"Mock");
+        PurchasesPayablesSetup.GetRecordOnce();
+        PurchasesPayablesSetup."Check Doc. Total Amounts" := false;
+        PurchasesPayablesSetup.Modify();
+        SetV2EDocService();
+
+        // [GIVEN] An E-Document v2 with lines and totals
+        LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
+        LibraryEDoc.MockPurchaseDraftPrepared(EDocument);
+        // [WHEN] Processing into a purchase invoice
+        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
+        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+        // [THEN] The purchase invoice should have the totals from the E-Document
+        PurchaseHeader.SetRange("E-Document Link", EDocument.SystemId);
+        PurchaseHeader.FindFirst();
+        Assert.AreNotEqual(0, PurchaseHeader."Doc. Amount VAT", 'Document Totals should be set correctly.');
+        Assert.AreNotEqual(0, PurchaseHeader."Doc. Amount Incl. VAT", 'Document Totals should be set correctly.');
+
+        SetV1EDocService();
+    end;
+
+    [Test]
+    internal procedure PurchaseDocumentsCreatedFromStructuredEDocumentCantEditTotals()
+    var
+        EDocument: Record "E-Document";
+        EDocImportParameters: Record "E-Doc. Import Parameters";
+        PurchaseHeader: Record "Purchase Header";
+        EDocImport: Codeunit "E-Doc. Import";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [SCENARIO 566862] Purchase documents created from E-Documents coming from an structured format (e.g. XML) should not allow editing of the totals in the purchase invoice.
+        Initialize(Enum::"Service Integration"::"Mock");
+        SetV2EDocService();
+        // [GIVEN] An E-Document v2 with lines and totals
+        LibraryEDoc.CreateInboundEDocument(EDocument, EDocumentService);
+        LibraryEDoc.MockPurchaseDraftPrepared(EDocument);
+        // [WHEN] Processing into a purchase invoice
+        EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
+        EDocImport.ProcessIncomingEDocument(EDocument, EDocImportParameters);
+        PurchaseHeader.SetRange("E-Document Link", EDocument.SystemId);
+        PurchaseHeader.FindFirst();
+        // [THEN] The purchase invoice page should not allow editing of the totals
+        PurchaseInvoice.Trap();
+        Page.Run(Page::"Purchase Invoice", PurchaseHeader);
+        Assert.IsFalse(PurchaseInvoice.DocAmount.Editable(), 'The totals should not be editable in the purchase invoice.');
+
+        SetV1EDocService();
+    end;
+
     local procedure CreateIncomingEDocument(VendorNo: Code[20]; Status: Enum "E-Document Status")
     var
         EDocument: Record "E-Document";
@@ -1609,6 +1670,30 @@ codeunit 139624 "E-Doc E2E Test"
         EDocument.Insert(false);
     end;
 
+    local procedure SetV2EDocService()
+    var
+        PreviousEDocService: Record "E-Document Service";
+    begin
+        PreviousEDocService.CopyFilters(EDocumentService);
+        EDocumentService.SetRecFilter();
+        EDocumentService.FindFirst();
+        EDocumentService."Import Process" := "E-Document Import Process"::"Version 2.0";
+        EDocumentService.Modify();
+        EDocumentService.CopyFilters(PreviousEDocService);
+    end;
+
+    local procedure SetV1EDocService()
+    var
+        PreviousEDocService: Record "E-Document Service";
+    begin
+        PreviousEDocService.CopyFilters(EDocumentService);
+        EDocumentService.SetRecFilter();
+        EDocumentService.FindFirst();
+        EDocumentService."Import Process" := "E-Document Import Process"::"Version 1.0";
+        EDocumentService.Modify();
+        EDocumentService.CopyFilters(PreviousEDocService);
+    end;
+
     [ModalPageHandler]
     internal procedure EDocServicesPageHandler(var EDocServicesPage: TestPage "E-Document Services")
     var
@@ -1621,11 +1706,21 @@ codeunit 139624 "E-Doc E2E Test"
         EDocServicesPage.OK().Invoke();
     end;
 
+    [ConfirmHandler]
+    internal procedure DeleteDocumentOk(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
     local procedure Initialize(Integration: Enum "Service Integration")
     var
         TransformationRule: Record "Transformation Rule";
         EDocument: Record "E-Document";
         EDocumentServiceStatus: Record "E-Document Service Status";
+        EDocumentSetup: Record "E-Documents Setup";
+        Vendor: Record Vendor;
+        Currency: Record Currency;
+        LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryLowerPermission.SetOutsideO365Scope();
         LibraryVariableStorage.Clear();
@@ -1640,7 +1735,15 @@ codeunit 139624 "E-Doc E2E Test"
 
         LibraryEDoc.SetupStandardVAT();
         LibraryEDoc.SetupStandardSalesScenario(Customer, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
+        LibraryEDoc.SetupStandardPurchaseScenario(Vendor, EDocumentService, Enum::"E-Document Format"::Mock, Integration);
         EDocumentService.Modify();
+        EDocumentSetup.InsertNewExperienceSetup();
+
+        // Set a currency that can be used across all localizations
+        Currency.Init();
+        Currency.Validate(Code, 'XYZ');
+        if Currency.Insert(true) then
+            LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1.0, 1.0);
 
         TransformationRule.DeleteAll();
         TransformationRule.CreateDefaultTransformations();
@@ -2404,32 +2507,34 @@ codeunit 139624 "E-Doc E2E Test"
     end;
 
     [Test]
+    [HandlerFunctions('DeleteDocumentOk')]
     internal procedure DeleteLinkedPurchaseHeaderNoAllowedSuccess26()
     var
+        EDocument: Record "E-Document";
         PurchaseHeader: Record "Purchase Header";
-        NullGuid: Guid;
+        EDocImportParams: Record "E-Doc. Import Parameters";
     begin
         // [FEATURE] [E-Document] [Processing] 
         // [SCENARIO] 
-        Initialize(Enum::"E-Document Integration"::"Mock");
+        Initialize(Enum::"Service Integration"::"Mock");
+        EDocumentService."Read into Draft Impl." := "E-Doc. Read into Draft"::PEPPOL;
+        EDocumentService."Import Process" := Enum::"E-Document Import Process"::"Version 2.0";
+        EDocumentService.Modify();
 
-        // [GIVEN] PO with link
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
-        PurchaseHeader."E-Document Link" := CreateGuid();
-        PurchaseHeader.Modify();
-        Commit();
+        // [GIVEN] An inbound e-document is received and fully processed
+        EDocImportParams."Step to Run" := "Import E-Document Steps"::"Finish draft";
+        Assert.IsTrue(LibraryEDoc.CreateInboundPEPPOLDocumentToState(EDocument, EDocumentService, 'peppol/peppol-invoice-0.xml', EDocImportParams), 'The e-document should be processed');
+        EDocument.SetRecFilter();
+        EDocument.FindLast();
+        Assert.AreEqual(Enum::"E-Document Status"::Processed, EDocument.Status, 'E-Document should be in Processed status.');
 
-        // [THEN] Fails to delete
-        asserterror PurchaseHeader.Delete(true);
-        Assert.ExpectedError(DeleteNotAllowedErr);
+        // [THEN] Delete
+        PurchaseHeader.Get(EDocument."Document Record ID");
+        if PurchaseHeader.Delete(true) then;
 
-        // [GIVEN] Reset link 
-        PurchaseHeader."E-Document Link" := NullGuid;
-        PurchaseHeader.Modify();
-
-        // [THEN] Delete ok
-        PurchaseHeader.Delete();
+        EDocument.SetRecFilter();
+        EDocument.FindLast();
+        Assert.AreEqual(Enum::"E-Document Status"::"In Progress", EDocument.Status, 'E-Document should be in In Progress status.');
     end;
-
 #endif
 }

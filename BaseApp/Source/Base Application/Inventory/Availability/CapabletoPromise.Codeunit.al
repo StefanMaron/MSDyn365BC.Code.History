@@ -184,6 +184,7 @@ codeunit 99000886 "Capable to Promise"
         ReqLine."Worksheet Template Name" := OrderPromisingSetup."Order Promising Template";
         ReqLine."Journal Batch Name" := OrderPromisingSetup."Order Promising Worksheet";
         GetNextReqLineNo(ReqLine);
+        ReqLine.SetDoNotUpdateOrderReceiptDate(true);
         ReqLine.Type := ReqLine.Type::Item;
         ReqLine."Location Code" := LocationCode;
         ReqLine.Validate("No.", ItemNo);

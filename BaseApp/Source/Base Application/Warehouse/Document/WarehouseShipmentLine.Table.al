@@ -588,12 +588,10 @@ table 7321 "Warehouse Shipment Line"
         Reset();
         "No." := DocNo;
         SetRange("No.", "No.");
-        
         IsHandled := false;
         OnBeforeLockTable(Rec, IsHandled);
         if not IsHandled then
             LockTable();
-            
         if FindLast() then;
 
         Init();

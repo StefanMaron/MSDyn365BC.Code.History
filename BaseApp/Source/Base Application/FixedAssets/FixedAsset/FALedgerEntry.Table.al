@@ -544,6 +544,7 @@ table 5601 "FA Ledger Entry"
         DimMgt: Codeunit DimensionManagement;
         NextLineNo: Integer;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"FA Ledger Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
