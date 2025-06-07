@@ -4,7 +4,7 @@
   "publisher": "Microsoft",
   "brief": "E-Document format for XRechnung.",
   "description": ": XRechnung is a customization for Germany business requirements. This app supports XRechnung 3.0.2 format for working with E-documents app.",
-  "version": "25.7.33396.0",
+  "version": "25.8.34727.0",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://go.microsoft.com/fwlink/?linkid=2305711",
@@ -16,7 +16,7 @@
       "id": "e1d97edc-c239-46b4-8d84-6368bdf67c8b",
       "name": "E-Document Core",
       "publisher": "Microsoft",
-      "version": "25.7.0.0"
+      "version": "25.8.0.0"
     }
   ],
   "screenshots": [],
@@ -32,7 +32,7 @@
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "application": "25.7.0.0",
+  "application": "25.8.0.0",
   "target": "Cloud",
   "features": [
     "TranslationFile"

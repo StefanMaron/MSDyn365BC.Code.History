@@ -719,6 +719,36 @@ codeunit 134907 "ERM Invoice and Reminder"
         Assert.AreEqual(TotalReminderLines, ReminderLine.Count, ReminderLinesErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrueFalse,ReminderLevelCommunicationPageHandler,LanguagesPageHandler')]
+    procedure AddAndAttachTextforLanguageInReminderLevelCommunication()
+    var
+        ReminderTerms: Record "Reminder Terms";
+        ReminderLevel: Record "Reminder Level";
+        ReminderTermSetupPage: TestPage "Reminder Terms Setup";
+    begin
+        // [SCENARIO 566387] Adding and Attach New Text for language in Reminder Level Communication.
+        Initialize();
+
+        // [GIVEN] Create Reminder Term with levels
+        LibraryErm.CreateReminderTerms(ReminderTerms);
+        LibraryErm.CreateReminderLevel(ReminderLevel, ReminderTerms.Code);
+
+        // [WHEN] Open Reminder Term Setup page and add text for language
+        ReminderTermSetupPage.OpenEdit();
+        ReminderTermSetupPage.GoToRecord(ReminderTerms);
+        ReminderTermSetupPage.ReminderLevelSetup.First();
+
+        // [THEN] Varify that the text for language is added in Reminder Level Communication.
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
+        ReminderTermSetupPage.ReminderLevelSetup.CustomerCommunications.Invoke();
+        ReminderTermSetupPage.Close();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         FeatureKey: Record "Feature Key";
@@ -1264,6 +1294,25 @@ codeunit 134907 "ERM Invoice and Reminder"
     begin
         SuggestReminderLines.CustLedgEntry2.SetFilter("Due Date", LibraryVariableStorage.DequeueText());
         SuggestReminderLines.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerTrueFalse(QuestionText: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean();
+    end;
+
+    [PageHandler]
+    procedure ReminderLevelCommunicationPageHandler(var ReminderLevelCommunication: TestPage "Reminder Level Communication")
+    begin
+        ReminderLevelCommunication."Add New Language".Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure LanguagesPageHandler(var Languages: TestPage "Languages")
+    begin
+        Languages.Filter.SetFilter("Code", 'ENG');
+        Languages.OK().Invoke();
     end;
 }
 
