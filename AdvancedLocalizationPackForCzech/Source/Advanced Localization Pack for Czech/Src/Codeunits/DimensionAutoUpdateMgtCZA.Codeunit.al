@@ -46,6 +46,9 @@ codeunit 31395 "Dimension Auto.Update Mgt. CZA"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"GlobalTriggerManagement", 'OnAfterGetDatabaseTableTriggerSetup', '', false, false)]
     local procedure GetDatabaseTableTriggerSetup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
     begin
+        if GetExecutionContext() <> ExecutionContext::Normal then
+            exit;
+
         if CompanyName = '' then
             exit;
 
@@ -67,6 +70,9 @@ codeunit 31395 "Dimension Auto.Update Mgt. CZA"
         PrimaryKeyFieldRef: FieldRef;
         PrimaryKeyRef: KeyRef;
     begin
+        if GetExecutionContext() <> ExecutionContext::Normal then
+            exit;
+
         if RecRef.IsTemporary then
             exit;
 
@@ -91,6 +97,9 @@ codeunit 31395 "Dimension Auto.Update Mgt. CZA"
     var
         xRecRef: RecordRef;
     begin
+        if GetExecutionContext() <> ExecutionContext::Normal then
+            exit;
+
         if RecRef.IsTemporary then
             exit;
 
@@ -178,6 +187,7 @@ codeunit 31395 "Dimension Auto.Update Mgt. CZA"
 
     local procedure ReadSetup()
     var
+        AllObjWithCaption: Record AllObjWithCaption;
         DefaultDimension: Record "Default Dimension";
         DimensionManagement: Codeunit DimensionManagement;
     begin
@@ -199,7 +209,8 @@ codeunit 31395 "Dimension Auto.Update Mgt. CZA"
         DefaultDimension.SetRange("Dim. Description Update CZA");
         if DefaultDimension.FindSet(false) then
             repeat
-                DimensionManagement.DefaultDimInsertTempObject(TempAutoCreateDimAllObjWithCaption, DefaultDimension."Table ID");
+                if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Table, DefaultDimension."Table ID") then
+                    DimensionManagement.DefaultDimInsertTempObject(TempAutoCreateDimAllObjWithCaption, DefaultDimension."Table ID");
             until DefaultDimension.Next() = 0;
     end;
 

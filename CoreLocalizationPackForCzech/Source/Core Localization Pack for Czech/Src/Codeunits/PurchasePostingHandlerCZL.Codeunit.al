@@ -274,9 +274,9 @@ codeunit 31039 "Purchase Posting Handler CZL"
 
         case AmountType of
             AmountType::Base:
-                Amount := TempInvoicePostingBuffer.Amount;
+                Amount := TempInvoicePostingBuffer.Amount + TempInvoicePostingBuffer."Non-Deductible VAT Amount";
             AmountType::VAT:
-                Amount := TempInvoicePostingBuffer."VAT Amount";
+                Amount := TempInvoicePostingBuffer."VAT Amount" - TempInvoicePostingBuffer."Non-Deductible VAT Amount";
         end;
 
         InitGenJournalLine(PurchaseHeader, TempInvoicePostingBuffer, GenJournalLine);
