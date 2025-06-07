@@ -58,6 +58,7 @@ codeunit 136306 "Job Invoicing"
         DetailLevel: Option All,"Per Job","Per Job Task","Per Job Planning Line";
         LineDiscountPctErr: Label '%1 should be %2', Comment = '%1 = Field Caption, %2 = Field Value';
         WrongNoOfLinesLbl: Label 'Wrong number of lines created.';
+        SystemCreatedEntryErr: Label 'System Created Entry must not equal to %1', Comment = '%1= System Created Entry';
 
     [Test]
     [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
@@ -4043,6 +4044,44 @@ codeunit 136306 "Job Invoicing"
         Assert.AreEqual(1, InvoicesList.Count, WrongNoOfLinesLbl);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CopyJobAndCreateProjectJournalLineWithoutError()
+    var
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        CopyJob: Codeunit "Copy Job";
+        JobLineType: Enum "Job Line Type";
+        TargetJobNo: Code[20];
+    begin
+        // [SCENARIO 573397] Copy project of System-Created Entry must be equal to 'No' in Project Planning Line
+        Initialize();
+
+        // [GIVEN] Create Job with Customer
+        CreateJobWithCustomer(Job);
+
+        // [GIVEN] Create Job Task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create Job Journal Line of type "Both Budget and Billable" and post it.
+        CreateAndPostJobJournalLineWithIteAndType(JobJournalLine, JobTask, JobLineType::"Both Budget and Billable");
+
+        // [GIVEN] Create target Job Id
+        TargetJobNo := LibraryUtility.GenerateGUID();
+
+        // [WHEN] Copy Job by setting Copy Quantity as true.
+        CopyJob.SetCopyOptions(false, true, false, 0, 0, 0);
+        CopyJob.CopyJob(Job, TargetJobNo, TargetJobNo, Job."Bill-to Customer No.", '');
+
+        // [THEN] Find the created Job Planning Line and "System-Created Entry" should be set false
+        JobPlanningLine.SetRange("Job No.", TargetJobNo);
+        JobPlanningLine.FindFirst();
+        Assert.IsFalse(JobPlanningLine."System-Created Entry", StrSubstNo(SystemCreatedEntryErr, JobPlanningLine."System-Created Entry"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5674,6 +5713,20 @@ codeunit 136306 "Job Invoicing"
             JobPlanningLine.Validate(Quantity, LibraryRandom.RandIntInRange(1, 10));
             JobPlanningLine.Modify();
         until JobPlanningLine.Next() = 0;
+    end;
+
+    local procedure CreateAndPostJobJournalLineWithIteAndType(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; JobLineType: Enum "Job Line Type")
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryJob.CreateJobJournalLine(JobLineType, JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Item);
+        JobJournalLine.Validate("No.", Item."No.");
+        JobJournalLine.Validate(Quantity, LibraryRandom.RandInt(100));
+        JobJournalLine.Modify(true);
+
+        LibraryJob.PostJobJournal(JobJournalLine);
     end;
 
     [RequestPageHandler]

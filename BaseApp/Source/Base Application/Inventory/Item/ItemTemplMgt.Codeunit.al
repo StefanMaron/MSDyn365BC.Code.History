@@ -97,12 +97,10 @@ codeunit 1336 "Item Templ. Mgt."
         ItemRecRef.GetTable(Item);
         InventorySetup.Get();
         TempItem.Init();
-        TempItem."Costing Method" := InventorySetup."Default Costing Method";
         EmptyItemRecRef.GetTable(TempItem);
         ItemTemplRecRef.GetTable(ItemTempl);
         EmptyItemTemplRecRef.Open(Database::"Item Templ.");
         EmptyItemTemplRecRef.Init();
-        UpdateDefaultCostingMethodToEmptyItemTemplateRecRef(EmptyItemTemplRecRef, ItemTempl.FieldNo("Costing Method"), InventorySetup);
 
         FillFieldExclusionList(FieldExclusionList);
 
@@ -112,9 +110,8 @@ codeunit 1336 "Item Templ. Mgt."
                 ItemFldRef := ItemRecRef.Field(ItemTemplFldRef.Number);
                 EmptyItemFldRef := EmptyItemRecRef.Field(ItemTemplFldRef.Number);
                 EmptyItemTemplFldRef := EmptyItemTemplRecRef.Field(ItemTemplFldRef.Number);
-                if (not UpdateExistingValues and (ItemFldRef.Value = EmptyItemFldRef.Value) and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value)) or
-                   (UpdateExistingValues and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value))
-                then begin
+
+                if DoUpdateValue(ItemFldRef, EmptyItemFldRef, ItemTemplFldRef, EmptyItemTemplFldRef, UpdateExistingValues) then begin
                     ItemFldRef.Value := ItemTemplFldRef.Value();
                     FieldValidationList.Add(ItemTemplFldRef.Number);
                 end;
@@ -144,6 +141,20 @@ codeunit 1336 "Item Templ. Mgt."
         if ShouldUpdateItemCategoryCode(Item, ItemTempl, UpdateExistingValues) then
             Item.Validate("Item Category Code", ItemTempl."Item Category Code");
         Item.Validate("Indirect Cost %", ItemTempl."Indirect Cost %");
+    end;
+
+    local procedure DoUpdateValue(ItemFldRef: FieldRef; EmptyItemFldRef: FieldRef; ItemTemplFldRef: FieldRef; EmptyItemTemplFldRef: FieldRef; UpdateExistingValues: Boolean): Boolean
+    begin
+        // UpdateExistingValues always rewrites the enumerable type field
+        if ItemFldRef.IsEnum() or (ItemFldRef.Type = ItemFldRef.Type::Option) then
+            exit(UpdateExistingValues);
+
+        // If the field is empty in the item template, it will not be updated
+        if ItemTemplFldRef.Value = EmptyItemTemplFldRef.Value then
+            exit(false);
+
+        // If the field is empty in the item, it will be updated
+        exit(UpdateExistingValues or (ItemFldRef.Value = EmptyItemFldRef.Value));
     end;
 
     local procedure ShouldUpdateItemCategoryCode(Item: Record Item; ItemTempl: Record "Item Templ."; UpdateExistingValues: Boolean): Boolean
@@ -549,11 +560,6 @@ codeunit 1336 "Item Templ. Mgt."
             exit(Result);
 
         exit(ConfirmManagement.GetResponse(OpenBlankCardQst, false));
-    end;
-
-    local procedure UpdateDefaultCostingMethodToEmptyItemTemplateRecRef(var EmptyItemTemplRecordRef: RecordRef; ItemCostingMethodFieldNo: Integer; InventorySetup: Record "Inventory Setup")
-    begin
-        EmptyItemTemplRecordRef.Field(ItemCostingMethodFieldNo).Value := InventorySetup."Default Costing Method";
     end;
 
     local procedure SetAllowedValuesFilterInDefaultDimension(var DestDefaultDimension: Record "Default Dimension"; SourceDefaultDimension: Record "Default Dimension")
