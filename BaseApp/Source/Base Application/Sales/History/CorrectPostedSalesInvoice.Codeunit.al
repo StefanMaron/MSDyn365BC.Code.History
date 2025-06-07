@@ -117,6 +117,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         CreateCreditMemoLbl: Label 'Create credit memo anyway';
         ShowEntriesLbl: Label 'Show applied entries';
         WMSLocationCancelCorrectErr: Label 'You cannot cancel or correct this posted sales invoice because Warehouse Receive is required for Line No. = %1.', Comment = '%1 - line number';
+        DropShipmentDocumentExistsErr: Label 'You cannot use the cancel or correct functionality because the invoice line is associated with purchase order %1 via a Drop Shipment.', Comment = '%1 - Purchase Order No.';
 
     procedure CancelPostedInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
     begin
@@ -186,6 +187,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         OnBeforeCreateCreditMemoCopyDocument(SalesInvoiceHeader);
         TestNoFixedAssetInSalesInvoice(SalesInvoiceHeader);
         TestNotSalesPrepaymentlInvoice(SalesInvoiceHeader);
+        TestIfDropShipmentDocument(SalesInvoiceHeader);
         if not SalesInvoiceHeader.IsFullyOpen() then begin
             ShowInvoiceAppliedNotification(SalesInvoiceHeader);
             exit(false);
@@ -304,6 +306,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         TestExternalDocument(SalesInvoiceHeader);
         TestInventoryPostingClosed(SalesInvoiceHeader);
         TestNotSalesPrepaymentlInvoice(SalesInvoiceHeader);
+        TestIfDropShipmentDocument(SalesInvoiceHeader);
 
         OnAfterTestCorrectInvoiceIsAllowed(SalesInvoiceHeader, Cancelling);
     end;
@@ -1147,6 +1150,19 @@ codeunit 1303 "Correct Posted Sales Invoice"
                     Currency."Amount Rounding Precision"));
 
         SalesLine.Modify(true);
+    end;
+
+    local procedure TestIfDropShipmentDocument(SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        TempSalesShipmentLine: Record "Sales Shipment Line" temporary;
+    begin
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.SetRange("Drop Shipment", true);
+        if SalesInvoiceLine.FindFirst() then begin
+            SalesInvoiceLine.GetSalesShptLines(TempSalesShipmentLine);
+            Error(DropShipmentDocumentExistsErr, TempSalesShipmentLine."Purchase Order No.");
+        end;
     end;
 
     [IntegrationEvent(false, false)]
