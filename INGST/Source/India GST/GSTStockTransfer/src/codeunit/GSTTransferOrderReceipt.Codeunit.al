@@ -826,18 +826,34 @@ codeunit 18390 "GST Transfer Order Receipt"
         if TransferLine."Custom Duty Amount" <> 0 then
             TempTransferBufferStage."Custom Duty Amount" := TransferLine."Custom Duty Amount";
 
-        if TransferLine.Quantity <> 0 then
-            TempTransferBufferStage."GST Amount Loaded on Inventory" := Abs(
-                RoundTotalGSTAmountLoadedQtyFactor(
-                    DocTransactionType::Transfer,
-                    DocumentType::Quote,
-                    TransferLine."Document No.",
-                    TransferLine."Line No.",
-                    TransferLine."Qty. to Receive" / TransferLine.Quantity, '')
-            );
-
+        GSTLoadedOnInventory(TransferLine, DocTransactionType, DocumentType);
         GSTAmountLoaded := TempTransferBufferStage."GST Amount Loaded on Inventory";
         UpdTransferBuffer();
+    end;
+
+    local procedure GSTLoadedOnInventory(TransferLine: Record "Transfer Line"; DocTransactionType: Enum "Transaction Type Enum"; DocumentType: Enum "Document Type Enum")
+    begin
+        if TransferLine.Quantity <> 0 then
+            case TransferLine."GST Credit" of
+                TransferLine."GST Credit"::Availment:
+                    TempTransferBufferStage."GST Amount Loaded on Inventory" := Abs(
+                        RoundTotalGSTAmountLoadedQtyFactor(
+                            DocTransactionType::Transfer,
+                            DocumentType::Quote,
+                            TransferLine."Document No.",
+                            TransferLine."Line No.",
+                            TransferLine."Qty. to Receive" / TransferLine.Quantity, '')
+                    );
+                TransferLine."GST Credit"::"Non-Availment":
+                    TempTransferBufferStage."GST Amount Loaded on Inventory" := Abs(
+                            RoundTotalGSTAmountLoadedQtyFactor(
+                                DocTransactionType::Transfer,
+                                DocumentType::Quote,
+                                TransferLine."Document No.",
+                                TransferLine."Line No.",
+                                1, '')
+                        );
+            end;
     end;
 
     local procedure RoundTotalGSTAmountQtyFactor(
@@ -1081,6 +1097,7 @@ codeunit 18390 "GST Transfer Order Receipt"
     var
         SourceCodeSetup: Record "Source Code Setup";
         TransferReceiptLine: Record "Transfer Receipt Line";
+        TransferLine: Record "Transfer Line";
     begin
         SourceCodeSetup.Get();
 
@@ -1092,6 +1109,10 @@ codeunit 18390 "GST Transfer Order Receipt"
 
         if not TransferReceiptLine.Get(ItemJournalLine."Document No.", ItemJournalLine."Document Line No.") then
             exit;
+
+        if TransferLine.Get(ItemJournalLine."Order No.", ItemJournalLine."Order Line No.") then
+            if TransferLine."GST Credit" = TransferLine."GST Credit"::"Non-Availment" then
+                exit;
 
         if ItemLedgerEntryNo <> 0 then
             InitRevaluationEntry(ItemJournalLine, (ItemJournalCustom / TransferReceiptLine."Quantity"), ItemLedgerEntryNo);

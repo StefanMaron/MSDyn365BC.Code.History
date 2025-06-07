@@ -204,12 +204,19 @@ codeunit 18716 "TDS Subscribers"
         if PurchLine."TDS Section Code" = '' then
             exit;
 
-        if PurchaseHeader."Applies-to Doc. No." = '' then
+        if (PurchaseHeader."Applies-to Doc. No." = '') and (PurchaseHeader."Applies-to ID" = '') then
             exit;
 
+        VendorLedgerEntry.SetLoadFields("User ID", "Document Type", "Document No.", "TDS Section Code");
         VendorLedgerEntry.SetRange("Document Type", PurchaseHeader."Applies-to Doc. Type");
-        VendorLedgerEntry.SetRange("Document No.", PurchaseHeader."Applies-to Doc. No.");
-        if VendorLedgerEntry.FindFirst() then
+
+        if PurchaseHeader."Applies-to Doc. No." <> '' then
+            VendorLedgerEntry.SetRange("Document No.", PurchaseHeader."Applies-to Doc. No.")
+        else
+            if PurchaseHeader."Applies-to ID" <> '' then
+                VendorLedgerEntry.SetRange("User ID", PurchaseHeader."Applies-to ID");
+
+        if not VendorLedgerEntry.IsEmpty() then
             VendorLedgerEntry.TestField("TDS Section Code", PurchLine."TDS Section Code");
     end;
 

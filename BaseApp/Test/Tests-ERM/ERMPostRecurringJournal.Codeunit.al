@@ -19,6 +19,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryDimension: Codeunit "Library - Dimension";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         GenJnlDocType: Enum "Gen. Journal Document Type";
         GenJnlAccountType: Enum "Gen. Journal Account Type";
@@ -31,6 +32,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         SkippedLineMsg: Label 'One or more lines has not been posted because the amount is zero.';
         DocumentOutOfBalanceErr: Label 'Document No. %1 is out of balance', Locked = true;
         AllocAccountImportWrongAccTypeErr: Label 'Import from Allocation Account is only allowed for G/L Account Destination account type.', Locked = true;
+        AllocationDimensionErr: Label 'Allocation dimension is not correct';
 
     [Test]
     [Scope('OnPrem')]
@@ -1298,6 +1300,48 @@ codeunit 134227 "ERM PostRecurringJournal"
 
     end;
 
+    [Test]
+    [HandlerFunctions('HandleEditDimensionSetEntriesPage,AllocationAccountListPageHandler,ConfirmHandlerYes')]
+    procedure CheckDimensionOfRecurringJournalImportAllocationFromAllocationAccount()
+    var
+        AllocationAccount: Record "Allocation Account";
+        FirstDimensionValue: Record "Dimension Value";
+        GenJnlAllocation: Record "Gen. Jnl. Allocation";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        SecondDimensionValue: Record "Dimension Value";
+        GLAccounts: array[2] of Record "G/L Account";
+        AllocationShares: array[2] of Decimal;
+        DimensionSetID: array[2] of Integer;
+    begin
+        // [SCENARIO 579186] In Recurring General Journals Import from Allocation Accounts does not import dimensions.
+        Initialize();
+
+        // [GIVEN] Create Recurring General Journal Batch.
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create Recurring Journal with a line.
+        CreateRecurringJnlLine(GenJournalLine, GenJournalBatch, WorkDate(), 0D, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create allocation for general journal line.
+        LibraryERM.CreateGenJnlAllocation(GenJnlAllocation, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+
+        // [GIVEN] Dimension With Value.
+        CreateDimensionsWithValues(FirstDimensionValue, SecondDimensionValue);
+
+        // [GIVEN] Allocation Account "XXX" with 2 lines exists for different G/L Accounts and different Allocation Shares with Dimension.
+        CreateAllocationAccountWithTwoGLAccLines(AllocationAccount, GLAccounts, AllocationShares, FirstDimensionValue, SecondDimensionValue, DimensionSetID);
+
+        // [WHEN] Invoke Import from Allocation Account. Handler chooses Allocation Account "XXX" in lookup
+        LibraryVariableStorage.Enqueue(AllocationAccount."No.");
+        GenJnlAllocation.ChooseAndImportFromAllocationAccount();
+        // UI Handled by handler
+
+        // [THEN] There are 2 Gen Journal Allocations with the same Dimension as in Allocation Account
+        VerifyGenJnlAllocationDimension(GenJnlAllocation, GenJournalLine, GLAccounts[1], DimensionSetID[1]);
+        VerifyGenJnlAllocationDimension(GenJnlAllocation, GenJournalLine, GLAccounts[2], DimensionSetID[2]);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM PostRecurringJournal");
@@ -1769,6 +1813,79 @@ codeunit 134227 "ERM PostRecurringJournal"
         VendorLedgerEntry.TestField("Due Date", PostingDate + 1);
     end;
 
+    local procedure CreateDimensionsWithValues(var FirstDimensionValue: Record "Dimension Value"; var SecondDimensionValue: Record "Dimension Value")
+    var
+        Dimension: Record Dimension;
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(FirstDimensionValue, Dimension.Code);
+        LibraryDimension.CreateDimensionValue(SecondDimensionValue, Dimension.Code);
+    end;
+
+    local procedure CreateAllocationAccountWithTwoGLAccLines(var AllocationAccount: Record "Allocation Account"; var GLAccounts: array[2] of Record "G/L Account"; var AllocationShares: array[2] of Decimal; FirstDimensionValue: Record "Dimension Value"; SecondDimensionValue: Record "Dimension Value"; var DimensionSetID: array[2] of Integer)
+    var
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
+        AllocationAccountPage: TestPage "Allocation Account";
+        FixedAllocationAccountCode: Code[20];
+    begin
+        FixedAllocationAccountCode := CreateAllocationAccountWithFixedDistribution(AllocationAccountPage);
+        AddGLDestinationAccountForFixedDistributionWithDimension(AllocationAccountPage, GLAccounts[1]);
+        AllocationShares[1] := LibraryRandom.RandDecInRange(1, 100, 2);
+        AllocationAccountPage.FixedAccountDistribution.Share.SetValue(AllocationShares[1]);
+        SetDimensionToCurrentVariableLine(AllocationAccountPage, FirstDimensionValue);
+
+        AllocAccountDistribution.SetRange("Allocation Account No.", FixedAllocationAccountCode);
+        AllocAccountDistribution.SetRange("Account Type", AllocAccountDistribution."Account Type"::Fixed);
+        AllocAccountDistribution.SetRange("Destination Account Number", GLAccounts[1]."No.");
+        AllocAccountDistribution.FindFirst();
+        DimensionSetID[1] := AllocAccountDistribution."Dimension Set ID";
+
+        AllocationAccountPage.FixedAccountDistribution.New();
+        AddGLDestinationAccountForFixedDistributionWithDimension(AllocationAccountPage, GLAccounts[2]);
+        AllocationShares[2] := LibraryRandom.RandDecInRange(1, 100, 2);
+        AllocationAccountPage.FixedAccountDistribution.Share.SetValue(AllocationShares[2]);
+        SetDimensionToCurrentVariableLine(AllocationAccountPage, SecondDimensionValue);
+
+        AllocAccountDistribution.Reset();
+        AllocAccountDistribution.SetRange("Allocation Account No.", FixedAllocationAccountCode);
+        AllocAccountDistribution.SetRange("Account Type", AllocAccountDistribution."Account Type"::Fixed);
+        AllocAccountDistribution.SetRange("Destination Account Number", GLAccounts[2]."No.");
+        AllocAccountDistribution.FindFirst();
+        AllocationAccountPage.FixedAccountDistribution.GoToRecord(AllocAccountDistribution);
+        DimensionSetID[2] := AllocAccountDistribution."Dimension Set ID";
+
+        AllocationAccountPage.Close();
+
+        AllocationAccount.Get(FixedAllocationAccountCode);
+    end;
+
+    local procedure SetDimensionToCurrentVariableLine(var AllocationAcccount: TestPage "Allocation Account"; var DimensionValue: Record "Dimension Value")
+    begin
+        LibraryVariableStorage.Enqueue(DimensionValue.SystemId);
+        AllocationAcccount.FixedAccountDistribution.Dimensions.Invoke();
+    end;
+
+    local procedure AddGLDestinationAccountForFixedDistributionWithDimension(var AllocationAccountPage: TestPage "Allocation Account"; var GLAccount: Record "G/L Account")
+    var
+        DummyAllocAccountDistribution: Record "Alloc. Account Distribution";
+    begin
+        if GLAccount."No." = '' then
+            GLAccount.Get(LibraryERM.CreateGLAccountNoWithDirectPosting());
+
+        AllocationAccountPage.FixedAccountDistribution."Destination Account Type".SetValue(DummyAllocAccountDistribution."Destination Account Type"::"G/L Account");
+        AllocationAccountPage.FixedAccountDistribution."Destination Account Number".SetValue(GLAccount."No.");
+    end;
+
+    local procedure VerifyGenJnlAllocationDimension(GenJnlAllocation: Record "Gen. Jnl. Allocation"; GenJournalLine: Record "Gen. Journal Line"; GLAccount: Record "G/L Account"; DimensionSetID: Integer)
+    begin
+        GenJnlAllocation.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJnlAllocation.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJnlAllocation.SetRange("Journal Line No.", GenJournalLine."Line No.");
+        GenJnlAllocation.SetRange("Account No.", GLAccount."No.");
+        GenJnlAllocation.FindFirst();
+        Assert.AreEqual(GenJnlAllocation."Dimension Set ID", DimensionSetID, AllocationDimensionErr);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
@@ -1820,6 +1937,20 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         NameValueBuffer.ID := LibraryUtility.GetNewRecNo(NameValueBuffer, NameValueBuffer.FieldNo(ID));
         NameValueBuffer.Insert();
+    end;
+
+    [ModalPageHandler]
+    procedure HandleEditDimensionSetEntriesPage(var EditDimensionSetEntriesPage: TestPage "Edit Dimension Set Entries")
+    var
+        DimensionValue: Record "Dimension Value";
+        DimensionValueSystemId: Text;
+    begin
+        DimensionValueSystemId := LibraryVariableStorage.DequeueText();
+        DimensionValue.GetBySystemId(DimensionValueSystemId);
+        EditDimensionSetEntriesPage.New();
+        EditDimensionSetEntriesPage."Dimension Code".SetValue(DimensionValue."Dimension Code");
+        EditDimensionSetEntriesPage.DimensionValueCode.SetValue(DimensionValue.Code);
+        EditDimensionSetEntriesPage.OK().Invoke();
     end;
 }
 
