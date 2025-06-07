@@ -33,7 +33,7 @@ codeunit 10541 "MTD Fraud Prevention Mgt."
     var
         TypeHelper: Codeunit "Type Helper";
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        MTDOAuth20Mgt: Codeunit "MTD OAuth 2.0 Mgt";
+        EnvironmentInformation: Codeunit "Environment Information";
         ConnectionMethodWebClientTxt: Label 'WEB_APP_VIA_SERVER', Locked = true;
         ProdNameTxt: Label 'Microsoft Dynamics 365 Business Central', Locked = true;
         ProdNameOnPremSuffixTxt: Label ' OnPrem', Locked = true;
@@ -41,13 +41,51 @@ codeunit 10541 "MTD Fraud Prevention Mgt."
         IPAddressErr: Label 'Public IP address lookup failed. Specify a service that will return the public IP address of the current user.';
         IPAddressOkTxt: Label 'Public IP address lookup was successful.';
         LicenseTxt: Label 'Microsoft_Dynamics_365_Business_Central,AadTenantId=%1,TenantId=%2,Start=%3,End=%4', Locked = true;
-        ClientScreensTxt: Label 'width=%1&height=%2&scaling-factor=1&colour-depth=%3', Locked = true;
+        GovClientScreensTxt: Label 'width=%1&height=%2&scaling-factor=1&colour-depth=%3', Locked = true;
         ClientWindowTxt: Label 'width=%1&height=%2', Locked = true;
         HMRCFraudPreventHeadersTok: label 'HMRC Fraud Prevention Headers', Locked = true;
         NoFPHeadersFromJSErr: Label 'No FP headers were returned from JS.', Locked = true;
-        GetPublicIPAddressRequestFailedErr: Label 'Getting server public IP address from public service failed.', Locked = true;
+        FraudPreventHeadersValidTxt: Label 'Fraud prevention headers are valid. ', Locked = true;
+        FraudPreventHeadersNotValidTxt: Label 'Fraud prevention headers are NOT valid. ', Locked = true;
+        JsonTextBlankErr: Label 'JSON text is blank. ', Locked = true;
+        CannotReadJsonErr: Label 'Cannot read JSON. ', Locked = true;
+        JsonKeyMissingErr: Label 'JSON key %1 is missing. ', Locked = true;
+        CannotReadJsonValueErr: Label 'Cannot read value from JSON key %1. ', Locked = true;
+        JsonValueBlankErr: Label 'Value from key %1 is blank. ', Locked = true;
+        JsonValueNotMatchedErr: Label 'Value from key %1 does not match validation pattern %2. ', Locked = true;
+        ClientBrowserDoNotTrackTxt: Label 'GOV-CLIENT-BROWSER-DO-NOT-TRACK', Locked = true;
+        ClientBrowserJsUserAgentTxt: Label 'GOV-CLIENT-BROWSER-JS-USER-AGENT', Locked = true;
+        ClientConnectionMethodTxt: Label 'GOV-CLIENT-CONNECTION-METHOD', Locked = true;
+        ClientDeviceIdTxt: Label 'GOV-CLIENT-DEVICE-ID', Locked = true;
+        ClientPublicIpTxt: Label 'GOV-CLIENT-PUBLIC-IP', Locked = true;
+        ClientPublicIpTimestampTxt: Label 'GOV-CLIENT-PUBLIC-IP-TIMESTAMP', Locked = true;
+        ClientScreensTxt: Label 'GOV-CLIENT-SCREENS', Locked = true;
+        ClientTimezoneTxt: Label 'GOV-CLIENT-TIMEZONE', Locked = true;
+        ClientUserIdsTxt: Label 'GOV-CLIENT-USER-IDS', Locked = true;
+        ClientWindowSizeTxt: Label 'GOV-CLIENT-WINDOW-SIZE', Locked = true;
+        VendorForwardedTxt: Label 'GOV-VENDOR-FORWARDED', Locked = true;
+        VendorLicenseIdsTxt: Label 'GOV-VENDOR-LICENSE-IDS', Locked = true;
+        VendorProductNameTxt: Label 'GOV-VENDOR-PRODUCT-NAME', Locked = true;
+        VendorPublicIpTxt: Label 'GOV-VENDOR-PUBLIC-IP', Locked = true;
+        VendorVersionTxt: Label 'GOV-VENDOR-VERSION', Locked = true;
+        AzFunctionClientIdKeyTok: Label 'AppNetProxyFnClientID', Locked = true;
+        AzFuncScopeKeyTok: Label 'AppNetProxyFnScope', Locked = true;
+        AzFuncAuthURLKeyTok: Label 'AppNetProxyFnAuthUrl', Locked = true;
+        AzFuncCertificateNameTok: Label 'ElectronicInvoicingCertificateName', Locked = true;
+        AzFuncEndpointTextKeyTok: Label 'ClientPublicIP-Endpoint', Locked = true;
+        CannotGetAuthorityURLFromKeyVaultErr: Label 'Cannot get Authority URL from Azure Key Vault using key %1', Locked = true;
+        CannotGetClientIdFromKeyVaultErr: Label 'Cannot get Client ID from Azure Key Vault using key %1', Locked = true;
+        CannotGetCertFromKeyVaultErr: Label 'Cannot get certificate from Azure Key Vault using key %1', Locked = true;
+        CannotGetScopeFromKeyVaultErr: Label 'Cannot get Scope from Azure Key Vault using key %1', Locked = true;
+        CannotGetEndpointTextFromKeyVaultErr: Label 'Cannot get Endpoint from Azure Key Vault using key %1 ', Locked = true;
+        GetPublicIPAddressRequestFailedErr: Label 'Getting server public IP address from Azure Function failed.', Locked = true;
+        EmptyPublicIPAddressErr: Label 'Empty server public IP address was returned.', Locked = true;
+        NonEmptyPublicIPAddressTxt: Label 'Non-empty server public IP address was returned by tenant settings', Locked = true;
+        IPv4LoopbackIPAddressTxt: Label '127.0.0.1', Locked = true;
+        IPv6LoopbackIPAddressTxt: Label '::1', Locked = true;
+        IPAddressRegExPatternTxt: Label '[0-9]{1,3}(\.[0-9]{1,3}){3}|([0-9A-Fa-f]{0,4}:){2,7}([0-9A-Fa-f]{1,4})', Locked = true;
 
-    internal procedure AddFraudPreventionHeaders(var RequestJSON: Text; ConfirmHeaders: Boolean)
+    internal procedure AddFraudPreventionHeaders(var RequestJSON: Text)
     var
         MTDMissingFraudPrevHdr: Record "MTD Missing Fraud Prev. Hdr";
         MTDSessionFraudPrevHdr: Record "MTD Session Fraud Prev. Hdr";
@@ -72,30 +110,36 @@ codeunit 10541 "MTD Fraud Prevention Mgt."
         VATReportSetup: Record "VAT Report Setup";
         MTDSessionFraudPrevHdr: Record "MTD Session Fraud Prev. Hdr";
         MTDWebClientFPHeaders: Page "MTD Web Client FP Headers";
-        vendorIP: Text;
-        clientIP: Text;
+        ServerIP: Text;
+        ClientIP: Text;
         VendorForwarded: Text;
     begin
-        VATReportSetup.Get();
-        VATReportSetup.TestField("MTD FP Public IP Service URL");
-
         MTDSessionFraudPrevHdr.SafeInsert('Gov-Client-Connection-Method', GetConnectionMethod());
         MTDSessionFraudPrevHdr.SafeInsert('Gov-Vendor-Version', GetVendorVersion());
         MTDSessionFraudPrevHdr.SafeInsert('Gov-Vendor-Product-Name', GetProdName());
         MTDSessionFraudPrevHdr.SafeInsert('Gov-Vendor-License-IDs', GetVendorLicenseIDs());
         MTDSessionFraudPrevHdr.SafeInsert('Gov-Client-User-IDs', GetClientUserIDs());
 
-        MTDWebClientFPHeaders.SetPublicIPServiceURL(VATReportSetup."MTD FP Public IP Service URL");
+        VATReportSetup.Get();
+        if not EnvironmentInformation.IsSaaS() then
+            VATReportSetup.TestField("MTD FP Public IP Service URL");
+
+        // public client IP address
+        MTDWebClientFPHeaders.SetPublicIPServiceURL(VATReportSetup."MTD FP Public IP Service URL", false);
         Commit();
         MTDWebClientFPHeaders.RunModal();
 
-        if GetVendorIP(vendorIP, VATReportSetup."MTD FP Public IP Service URL") then;
-        MTDSessionFraudPrevHdr.SafeInsert('Gov-Vendor-Public-IP', vendorIP);
+        // public server IP address
+        if EnvironmentInformation.IsSaaS() then begin
+            if GetServerPublicIPFromAzureFunction(ServerIP) then;
+        end else
+            if GetServerPublicIPFromExternalService(ServerIP, VATReportSetup."MTD FP Public IP Service URL") then;
+        MTDSessionFraudPrevHdr.SafeInsert('Gov-Vendor-Public-IP', ServerIP);
 
         if MTDSessionFraudPrevHdr.Get('Gov-Client-Public-IP') then
-            clientIP := MTDSessionFraudPrevHdr.Value;
-        if (clientIP <> '') and (vendorIP <> '') then
-            VendorForwarded := 'by=' + vendorIP + '&for=' + clientIP;
+            ClientIP := MTDSessionFraudPrevHdr.Value;
+        if (ClientIP <> '') and (ServerIP <> '') then
+            VendorForwarded := 'by=' + ServerIP + '&for=' + ClientIP;
         MTDSessionFraudPrevHdr.SafeInsert('Gov-Vendor-Forwarded', VendorForwarded);
     end;
 
@@ -202,7 +246,7 @@ codeunit 10541 "MTD Fraud Prevention Mgt."
         MTDSessionFraudPrevHdr.SafeInsert(
             'Gov-Client-Screens',
             StrSubstNo(
-                ClientScreensTxt,
+                GovClientScreensTxt,
                 GetJsonValue(JSHeadersJson, 'screenWidth'),
                 GetJsonValue(JSHeadersJson, 'screenHeight'),
                 GetJsonValue(JSHeadersJson, 'screenColorDepth')));
@@ -220,51 +264,225 @@ codeunit 10541 "MTD Fraud Prevention Mgt."
             exit(token.AsValue().AsText());
     end;
 
+    internal procedure LogFraudPreventionHeadersValidity(RequestJSON: Text)
+    var
+        CustomDimensions: Dictionary of [Text, Text];
+        JsonObject: JsonObject;
+        HeaderJsonToken: JsonToken;
+        ErrorText: Text;
+        ClientIPAddrErrorText: Text;
+        VendorIPAddrErrorText: Text;
+    begin
+        if RequestJSON = '' then begin
+            FeatureTelemetry.LogError('0000LJE', HMRCFraudPreventHeadersTok, '', JsonTextBlankErr);
+            exit;
+        end;
+
+        if not JsonObject.ReadFrom(RequestJSON) then begin
+            FeatureTelemetry.LogError('0000LJF', HMRCFraudPreventHeadersTok, '', CannotReadJsonErr);
+            exit;
+        end;
+
+        if not JsonObject.Get('Header', HeaderJsonToken) then begin
+            FeatureTelemetry.LogError('0000LJG', HMRCFraudPreventHeadersTok, '', StrSubstNo(JsonKeyMissingErr, 'Header'));
+            exit;
+        end;
+
+        JsonObject := HeaderJsonToken.AsObject();
+
+        ClientIPAddrErrorText := CheckJsonTokenValidity(JsonObject, ClientPublicIpTxt, IPAddressRegExPatternTxt);   // IPv4 or IPv6
+        VendorIPAddrErrorText := CheckJsonTokenValidity(JsonObject, VendorPublicIpTxt, IPAddressRegExPatternTxt);   // IPv4 or IPv6
+        ErrorText += ClientIPAddrErrorText;
+        ErrorText += VendorIPAddrErrorText;
+        CustomDimensions.Add('IsClientIPAddressLoopback', Format(IsLoopbackIPAddress(GetJsonValue(JsonObject, ClientPublicIpTxt))));
+        CustomDimensions.Add('IsVendorIPAddressLoopback', Format(IsLoopbackIPAddress(GetJsonValue(JsonObject, VendorPublicIpTxt))));
+
+        ErrorText += CheckJsonTokenValidity(JsonObject, ClientBrowserDoNotTrackTxt, 'true|false');              // true or false
+        ErrorText += CheckJsonTokenValidity(JsonObject, ClientBrowserJsUserAgentTxt, '\w+');                    // any letter, digit, or underscore
+        ErrorText += CheckJsonTokenValidity(JsonObject, ClientConnectionMethodTxt, 'WEB_APP_VIA_SERVER');       // WEB_APP_VIA_SERVER
+        ErrorText += CheckJsonTokenValidity(JsonObject, ClientDeviceIdTxt, '\w+');                              // any letter, digit, or underscore
+        ErrorText += CheckJsonTokenValidity(JsonObject, ClientPublicIpTimestampTxt, '\d+[:\.-]\d+[:\.-]\d+');   // for example 13:00:00
+        ErrorText += CheckJsonTokenValidity(JsonObject, ClientScreensTxt, '^(?=.*width)(?=.*height).*$');       // width and height must be present in any order
+        ErrorText += CheckJsonTokenValidity(JsonObject, ClientTimezoneTxt, '[-+]\d{1,2}');                      // for example +02
+        ErrorText += CheckJsonTokenValidity(JsonObject, ClientUserIdsTxt, 'Business.*Central');                 // Business Central
+        ErrorText += CheckJsonTokenValidity(JsonObject, ClientWindowSizeTxt, '^(?=.*width)(?=.*height).*$');    // width and height must be present in any order
+        ErrorText += CheckJsonTokenValidity(JsonObject, VendorForwardedTxt, IPAddressRegExPatternTxt);  // IPv4 or IPv6
+        ErrorText += CheckJsonTokenValidity(JsonObject, VendorLicenseIdsTxt, 'Business.*Central.*\w+');         // Business Central and any letter, digit, or underscore
+        ErrorText += CheckJsonTokenValidity(JsonObject, VendorProductNameTxt, 'Business.*Central');             // Business Central
+        ErrorText += CheckJsonTokenValidity(JsonObject, VendorVersionTxt, 'Business.*Central.*=\d+');           // for example Business Central=23
+
+        if ErrorText <> '' then
+            FeatureTelemetry.LogError('0000LJH', HMRCFraudPreventHeadersTok, FraudPreventHeadersNotValidTxt, ErrorText, '', CustomDimensions)
+        else
+            FeatureTelemetry.LogUsage('0000LJI', HMRCFraudPreventHeadersTok, FraudPreventHeadersValidTxt);
+    end;
+
+    internal procedure LogClientPublicIPInfo(JSHeadersJson: JsonObject)
+    var
+        ClientPublicIP: Text;
+        ClientPublicIPSource: Text;
+        CustomDimensions: Dictionary of [Text, Text];
+    begin
+        ClientPublicIP := GetJsonValue(JSHeadersJson, 'publicIP');
+        CustomDimensions.Add('IsClientIPAddressEmpty', Format(ClientPublicIP = ''));
+        CustomDimensions.Add('IsClientIPAddressLoopback', Format(IsLoopbackIPAddress(ClientPublicIP)));
+        CustomDimensions.Add('IsClientIPAddressMatchRegex', Format(MatchRegexPattern(ClientPublicIP, IPAddressRegExPatternTxt))); // IPv4 or IPv6
+
+        ClientPublicIPSource := GetJsonValue(JSHeadersJson, 'publicIPSource');
+        CustomDimensions.Add('ClientPublicIPSource', ClientPublicIPSource);
+
+        FeatureTelemetry.LogUsage('0000PFB', HMRCFraudPreventHeadersTok, 'ClientPublicIPSource', CustomDimensions);
+    end;
+
+    local procedure CheckJsonTokenValidity(var JsonObject: JsonObject; TokenKey: Text; ValidationRegExPattern: Text) ErrorText: Text
+    var
+        JsonToken: JsonToken;
+        TextValue: Text;
+    begin
+        if not JsonObject.Get(TokenKey, JsonToken) then begin
+            ErrorText := StrSubstNo(JsonKeyMissingErr, TokenKey);
+            exit;
+        end;
+
+        if not JsonToken.WriteTo(TextValue) then begin
+            ErrorText := StrSubstNo(CannotReadJsonValueErr, TokenKey);
+            exit;
+        end;
+
+        if TextValue = '' then begin
+            ErrorText := StrSubstNo(JsonValueBlankErr, TokenKey);
+            exit;
+        end;
+
+        if not MatchRegexPattern(TextValue, ValidationRegExPattern) then begin
+            ErrorText := StrSubstNo(JsonValueNotMatchedErr, TokenKey, ValidationRegExPattern);
+            exit;
+        end;
+    end;
+
+    local procedure MatchRegexPattern(InputString: Text; RegExPattern: Text): Boolean
+    var
+        RegEx: DotNet Regex;
+        RegExOptions: DotNet RegexOptions;
+    begin
+        RegEx := RegEx.Regex(RegExPattern, RegExOptions.IgnoreCase);
+        exit(RegEx.IsMatch(InputString));
+    end;
+
+    local procedure IsLoopbackIPAddress(IPAddress: Text): Boolean
+    begin
+        exit((IPAddress = IPv4LoopbackIPAddressTxt) or (IPAddress = IPv6LoopbackIPAddressTxt));
+    end;
+
     [TryFunction]
-    internal procedure GetVendorIP(var Result: Text; url: Text)
+    [NonDebuggable]
+    internal procedure GetServerPublicIPFromAzureFunction(var ServerIPAddress: Text)
+    var
+        AzureFunctions: Codeunit "Azure Functions";
+        AzureFunctionsResponse: Codeunit "Azure Functions Response";
+        AzureFunctionsAuthentication: Codeunit "Azure Functions Authentication";
+        AzureFunctionsAuth: Interface "Azure Functions Authentication";
+        ResultResponseMsg: HttpResponseMessage;
+        ClientID, Scope, AuthURL, Endpoint : Text;
+        CustomDimensions: Dictionary of [Text, Text];
+        QueryDict: Dictionary of [Text, Text];
+        Cert: SecretText;
+    begin
+        if not EnvironmentInformation.IsSaaS() then
+            exit;
+
+        GetAzFunctionSecrets(ClientID, Cert, AuthURL, Scope, Endpoint);
+        AzureFunctionsAuth := AzureFunctionsAuthentication.CreateOAuth2WithCert(Endpoint, '', ClientID, Cert, AuthURL, '', Scope);
+        AzureFunctionsResponse := AzureFunctions.SendGetRequest(AzureFunctionsAuth, QueryDict);
+        if not AzureFunctionsResponse.IsSuccessful() then begin
+            AzureFunctionsResponse.GetHttpResponse(ResultResponseMsg);
+            CustomDimensions.Add('HttpStatusCode', Format(ResultResponseMsg.HttpStatusCode));
+            CustomDimensions.Add('ResponseError', AzureFunctionsResponse.GetError());
+            CustomDimensions.Add('ReasonPhrase', ResultResponseMsg.ReasonPhrase);
+            CustomDimensions.Add('IsBlockedByEnvironment', Format(ResultResponseMsg.IsBlockedByEnvironment));
+            FeatureTelemetry.LogError('0000NRO', HMRCFraudPreventHeadersTok, '', GetPublicIPAddressRequestFailedErr, '', CustomDimensions);
+        end;
+        AzureFunctionsResponse.GetResultAsText(ServerIPAddress);
+        if ServerIPAddress = '' then
+            FeatureTelemetry.LogError('0000NRP', HMRCFraudPreventHeadersTok, '', EmptyPublicIPAddressErr)
+        else
+            FeatureTelemetry.LogUsage('0000NRW', HMRCFraudPreventHeadersTok, NonEmptyPublicIPAddressTxt);
+    end;
+
+    [NonDebuggable]
+    local procedure GetAzFunctionSecrets(var ClientID: Text; var Certificate: SecretText; var AuthURL: Text; var Scope: Text; var Endpoint: Text)
+    var
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        CertificateName: Text;
+    begin
+        if not EnvironmentInformation.IsSaaS() then
+            exit;
+
+        if not AzureKeyVault.GetAzureKeyVaultSecret(AzFunctionClientIdKeyTok, ClientID) then begin
+            FeatureTelemetry.LogError('0000NRQ', HMRCFraudPreventHeadersTok, '', StrSubstNo(CannotGetClientIdFromKeyVaultErr, AzFunctionClientIdKeyTok));
+            exit;
+        end;
+
+        if not AzureKeyVault.GetAzureKeyVaultSecret(AzFuncCertificateNameTok, CertificateName) then begin
+            FeatureTelemetry.LogError('0000NRR', HMRCFraudPreventHeadersTok, '', StrSubstNo(CannotGetCertFromKeyVaultErr, AzFuncCertificateNameTok));
+            exit;
+        end;
+        if not AzureKeyVault.GetAzureKeyVaultCertificate(CertificateName, Certificate) then begin
+            FeatureTelemetry.LogError('0000NRS', HMRCFraudPreventHeadersTok, '', StrSubstNo(CannotGetCertFromKeyVaultErr, AzFuncCertificateNameTok));
+            exit;
+        end;
+
+        if not AzureKeyVault.GetAzureKeyVaultSecret(AzFuncAuthURLKeyTok, AuthURL) then begin
+            FeatureTelemetry.LogError('0000NRT', HMRCFraudPreventHeadersTok, '', StrSubstNo(CannotGetAuthorityURLFromKeyVaultErr, AzFuncAuthURLKeyTok));
+            exit;
+        end;
+
+        if not AzureKeyVault.GetAzureKeyVaultSecret(AzFuncScopeKeyTok, Scope) then begin
+            FeatureTelemetry.LogError('0000NRU', HMRCFraudPreventHeadersTok, '', StrSubstNo(CannotGetScopeFromKeyVaultErr, AzFuncScopeKeyTok));
+            exit;
+        end;
+
+        if not AzureKeyVault.GetAzureKeyVaultSecret(AzFuncEndpointTextKeyTok, Endpoint) then begin
+            FeatureTelemetry.LogError('0000NRV', HMRCFraudPreventHeadersTok, '', StrSubstNo(CannotGetEndpointTextFromKeyVaultErr, AzFuncEndpointTextKeyTok));
+            exit;
+        end;
+    end;
+
+    [TryFunction]
+    internal procedure GetServerPublicIPFromExternalService(var ServerIPAddress: Text; PublicIPServiceURL: Text)
     var
         Matches: Record Matches;
         Regex: Codeunit Regex;
         HttpClient: HttpClient;
         HttpResponseMessage: HttpResponseMessage;
-        CustomDimensions: Dictionary of [Text, Text];
         Content: Text;
-        RegExString: Text;
     begin
-        Result := '';
-        if MTDOAuth20Mgt.GetServerPublicIPFromAzureFunction(Result) then
-            if Result <> '' then
-                exit;
-
-        HttpClient.Get(url, HttpResponseMessage);
-        if not HttpResponseMessage.IsSuccessStatusCode() then begin
-            CustomDimensions.Add('url', url);
-            CustomDimensions.Add('HttpStatusCode', Format(HttpResponseMessage.HttpStatusCode()));
-            CustomDimensions.Add('ReasonPhrase', HttpResponseMessage.ReasonPhrase);
-            CustomDimensions.Add('IsBlockedByEnvironment', Format(HttpResponseMessage.IsBlockedByEnvironment()));
-            FeatureTelemetry.LogError('0000NRN', HMRCFraudPreventHeadersTok, '', GetPublicIPAddressRequestFailedErr, '', CustomDimensions);
-        end;
+        ServerIPAddress := '';
+        HttpClient.Get(PublicIPServiceURL, HttpResponseMessage);
         HttpResponseMessage.Content().ReadAs(Content);
-        RegExString := '([0-9]{1,3}(\.[0-9]{1,3}){3})|(([0-9A-Fa-f]{0,4}:){2,7}([0-9A-Fa-f]{1,4}))';
-        Regex.Match(Content, RegExString, 0, Matches);
+        Regex.Match(Content, IPAddressRegExPatternTxt, 0, Matches);
         if Matches.FindFirst() then
-            Result := Matches.ReadValue();
+            ServerIPAddress := Matches.ReadValue();
     end;
 
     internal procedure TestPublicIPServiceURL(url: Text)
     var
         MTDSessionFraudPrevHdr: Record "MTD Session Fraud Prev. Hdr";
         MTDWebClientFPHeaders: Page "MTD Web Client FP Headers";
-        Result: Text;
+        ServerIPAddress: Text;
     begin
-        if not GetVendorIP(Result, url) then
-            Error(IPAddressErr);
+        if url = '' then
+            exit;
 
-        if Result = '' then
+        // test getting server public IP address
+        if not GetServerPublicIPFromExternalService(ServerIPAddress, url) then
             Error(IPAddressErr);
+        if ServerIPAddress = '' then
+            Error(EmptyPublicIPAddressErr);
 
+        // test getting client public IP address
         MTDSessionFraudPrevHdr.DeleteAll();
-        MTDWebClientFPHeaders.SetPublicIPServiceURL(url);
+        MTDWebClientFPHeaders.SetPublicIPServiceURL(url, true);
         Commit();
         MTDWebClientFPHeaders.RunModal();
         if not MTDSessionFraudPrevHdr.Get('Gov-Client-Public-IP') then
