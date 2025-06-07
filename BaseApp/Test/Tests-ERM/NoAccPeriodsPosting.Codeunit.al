@@ -26,6 +26,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         DuplicateRecordErr: Label 'Document No. %1 already exists. It is not possible to calculate new deferrals for a Document No. that already exists.', Comment = '%1=Document No.';
+        SourceCurrAmtErr: Label '%1 must be %2 in %3', Comment = '%1 = Source Currency Amount, %2 = Amount, %3 = G/L Entry';
 
     [Test]
     [Scope('OnPrem')]
@@ -395,6 +396,61 @@ codeunit 134361 "No Acc. Periods: Posting"
         Assert.ExpectedError(StrSubstNo(DuplicateRecordErr, DocumentNo));
     end;
 
+    [Test]
+    procedure VerifySourceCurrencyAmountWithDeferralCode()
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        DeferralTemplate: Record "Deferral Template";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        CurrencyCode: Code[10];
+        GLAccountNo: Code[20];
+        CurrencyStartingDate: Date;
+    begin
+        // [SCENARIO 563229] Verify Source Currency Amount on Posting of PurchaseInvoice using Deferral Code.
+        Initialize();
+
+        // [GIVEN] Create Currency with Currency Exchange Rate with Exchange Rate Amount,Adjustment Rate Amount,
+        //Relational Exch. Rate Amount and Relational Ajmt Exch Rate Amt.
+        CurrencyStartingDate := CalcDate('<-1D>', WorkDate());
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(CurrencyStartingDate, 1.0, 1.0);
+        CurrencyExchangeRate.Get(CurrencyCode, CurrencyStartingDate);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 11.472);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", 114.472);
+        CurrencyExchangeRate.Modify(true);
+
+        // [GIVEN] Create Deferral Template with "Calc. Method" = "Equal per Period" and "Period No." = 12.
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate, DeferralTemplate."Calc. Method"::"Equal per Period",
+          DeferralTemplate."Start Date"::"Beginning of Next Period", 12);
+
+        // [GIVEN] Create G/L Account with Purchase Setup.
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
+
+        // [GIVEN] Create Purchase Invoice with Currency Code and Deferral Codeand Direct Unit cost as 4435.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendor(Vendor));
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.CalcFields("Amount Including VAT", Amount);
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", PurchaseHeader."Amount Including VAT");
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchaseLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
+        PurchaseLine.Validate("Direct Unit Cost", 4435);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Validating of field Doc. Amount Incl. VAT with Amount Including VAT.
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        PurchaseHeader.Validate("Doc. Amount Incl. VAT", PurchaseHeader."Amount Including VAT");
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Post Purchase Invoice with Deferral.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Source Currency Amount of G/L Entries for Deferral Account.
+        VerifyDeferralPostingSourceCurrencyAmount(PurchaseLine."Deferral Code", CurrencyExchangeRate."Relational Exch. Rate Amount");
+    end;
+
     local procedure Initialize()
     var
         AccountingPeriod: Record "Accounting Period";
@@ -622,6 +678,29 @@ codeunit 134361 "No Acc. Periods: Posting"
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    local procedure VerifyDeferralPostingSourceCurrencyAmount(DeferralTemplateCode: Code[10]; ExchnageRate: Decimal)
+    var
+        DeferralTemplate: Record "Deferral Template";
+        GLEntry: Record "G/L Entry";
+        ExpectedAmount: Decimal;
+    begin
+        DeferralTemplate.Get(DeferralTemplateCode);
+        GLEntry.SetRange("G/L Account No.", DeferralTemplate."Deferral Account");
+        GLEntry.SetRange(Description, DeferralTemplate."Period Description");
+        GLEntry.FindSet();
+        repeat
+            ExpectedAmount := Round(GLEntry.Amount / ExchnageRate, 0.01);
+            Assert.AreEqual(
+                ExpectedAmount,
+                GLEntry."Source Currency Amount",
+                StrSubstNo(
+                    SourceCurrAmtErr,
+                    GLEntry.FieldCaption("Source Currency Amount"),
+                    ExpectedAmount,
+                    GLEntry.TableCaption()));
+        until GLEntry.Next() = 0;
     end;
 
     [ConfirmHandler]
