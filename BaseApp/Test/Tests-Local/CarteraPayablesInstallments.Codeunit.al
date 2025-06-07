@@ -19,6 +19,7 @@ codeunit 147314 "Cartera Payables Installments"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJournals: Codeunit "Library - Journals";
         LocalCurrencyCode: Code[10];
+        RemainingAmountLCYstatsErr: Label 'Remaining Amount (LCY) stats. must be %1 in %2.', Comment = '%1= Field Value, %2=Table Name.';
 
     [Test]
     [HandlerFunctions('ApplyVendorEntriesPageHandler,PostApplicationPageHandler,MessageHandler')]
@@ -404,6 +405,87 @@ codeunit 147314 "Cartera Payables Installments"
         VATEntry.TestField("Remaining Unrealized Amount", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesPageHandler,PostApplicationPageHandler,MessageHandler,UnapplyVendorEntriesPageHandler,UnApplyConfirmHandler')]
+    procedure ValueOfRemainingAmountLCYStatWhenApplyAndUnApplyOfVendorLedgerEntry()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        Vendor: Record Vendor;
+        VendorLedgerEntry: array[2] of Record "Vendor Ledger Entry";
+        PurchInvLine: Record "Purch. Inv. Line";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        CreditMemoDocumentNo: Code[20];
+        DocumentNo: Code[20];
+        RemainingAmountLCYStats: Decimal;
+    begin
+        // [SCENARIO 575331] The "Remaining Amount (LCY) stats." field is correct after unapplying a Credit Memo.
+        Initialize();
+
+        // [GIVEN] Create Cartera Vendor to use Cartera Payment.
+        LibraryCarteraPayables.CreateCarteraVendorUseBillToCarteraPayment(Vendor, LocalCurrencyCode);
+
+        // [GIVEN] Create Vendor Bank Account.
+        LibraryCarteraPayables.CreateVendorBankAccount(Vendor, LocalCurrencyCode);
+
+        // [GIVEN] Create Purchase Invoice.
+        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader[1], Vendor."No.");
+
+        // [GIVEN] Post Purchase Invoice and store Document No.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader[1], true, true);
+
+        // [GIVEN] Find Purchase Invoice Line.
+        PurchInvLine.SetRange("Document No.", DocumentNo);
+        PurchInvLine.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchInvLine.SetRange(Type, PurchInvLine.Type::Item);
+        PurchInvLine.FindFirst();
+
+        // [GIVEN] Find Open Vendor Ledger Entry of Cartera Document.
+        LibraryCarteraPayables.FindOpenCarteraDocVendorLedgerEntries(
+          VendorLedgerEntry[1],
+          Vendor."No.",
+          DocumentNo,
+          VendorLedgerEntry[1]."Document Situation"::Cartera,
+          VendorLedgerEntry[1]."Document Type"::Bill);
+
+        VendorLedgerEntry[1].CalcFields("Original Amount");
+
+        // [GIVEN] Store the Current Value of Remaining Amount LCY Stat.
+        RemainingAmountLCYStats := VendorLedgerEntry[1]."Remaining Amount (LCY) stats.";
+
+        // [GIVEN] Create Corrective Credit Memo.
+        CreateCreditMemoToCorrectInvoice(
+          PurchaseHeader[2],
+          Vendor."No.",
+          DocumentNo,
+          PurchInvLine."No.",
+          LibraryRandom.RandIntInRange(1, 1),
+          VendorLedgerEntry[1]."Original Amount" / 2);
+
+        // [GIVEN] Post Purchase Credit Memo and store Document No.
+        CreditMemoDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader[2], true, true);
+
+        // [GIVEN] Find Vendor Ledger Entry of Credit Memo.
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry[2], VendorLedgerEntry[2]."Document Type"::"Credit Memo", CreditMemoDocumentNo);
+
+        // [GIVEN] Apply Vendor Ledger Entry.
+        ApplyCreditMemoToFirstInstallment(VendorLedgerEntry[2]."Entry No.");
+
+        // [WHEN] Unapply the Vendor Leger Entry.
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.GotoKey(VendorLedgerEntry[2]."Entry No.");
+        VendorLedgerEntries.UnapplyEntries.Invoke();
+
+        // [THEN] Remaining Amount (LCY) stats. must be restored into previous value.
+        VendorLedgerEntry[1].Get(VendorLedgerEntry[1]."Entry No.");
+        Assert.AreEqual(
+          RemainingAmountLCYStats,
+          VendorLedgerEntry[1]."Remaining Amount (LCY) stats.",
+          StrSubstNo(
+            RemainingAmountLCYstatsErr,
+            RemainingAmountLCYStats,
+            VendorLedgerEntry[1].TableName()));
+    end;
+
     local procedure Initialize()
     begin
         LibraryCarteraCommon.RevertUnrealizedVATPostingSetup();
@@ -605,10 +687,22 @@ codeunit 147314 "Cartera Payables Installments"
         PostApplication.OK().Invoke();
     end;
 
+    [ModalPageHandler]
+    procedure UnapplyVendorEntriesPageHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
+    begin
+        UnapplyVendorEntries.Unapply.Invoke();
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text)
     begin
+    end;
+
+    [ConfirmHandler]
+    procedure UnApplyConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

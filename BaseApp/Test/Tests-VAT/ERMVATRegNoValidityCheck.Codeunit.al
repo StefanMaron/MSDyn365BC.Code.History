@@ -36,7 +36,6 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         EmptyCountryCodeErr: Label 'You must specify the country that issued the VAT registration number. Choose the country in the Country/Region Code field.';
         EmptyEUCountryCodeErr: Label 'You must specify the EU Country/Region Code for the country that issued the VAT registration number. You can specify that on the Country/Regions page.';
         CannotInsertMultipleSettingsErr: Label 'You cannot insert multiple settings.';
-        UnexpectedResponseErr: Label 'The VAT registration number could not be verified because the VIES VAT Registration No. service may be currently unavailable for the selected EU state, %1.';
 
     [Test]
     [Scope('OnPrem')]
@@ -412,6 +411,7 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerNo')]
     procedure TestMaliciousResponseWithEmptyResponseFile()
     var
         Customer: Record Customer;
@@ -431,13 +431,20 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         Commit();
 
         asserterror VATRegistrationLogMgt.LogVerification(VATRegistrationLog, EmptyVATResponseDoc, NamespaceTxt);
-        Assert.ExpectedError(StrSubstNo(UnexpectedResponseErr, VATRegistrationLog."Country/Region Code"));
+        Assert.ExpectedError('');
 
         // document empty - no line was logged
         Assert.RecordCount(VATRegistrationLog, VATRegistrationLogCount);
 
         // Tear Down
         Customer.Delete();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 
     [Test]

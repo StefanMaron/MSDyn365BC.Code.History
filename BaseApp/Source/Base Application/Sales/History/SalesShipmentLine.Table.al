@@ -594,6 +594,17 @@ table 111 "Sales Shipment Line"
                 UpdateDocumentNo();
             end;
         }
+        field(10701; "EC %"; Decimal)
+        {
+            Caption = 'EC %';
+        }
+        field(10702; "EC Difference"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'EC Difference';
+            Editable = false;
+        }
     }
 
     keys

@@ -21,6 +21,7 @@ codeunit 147531 "Cartera Recv. Installments"
         LibraryJournals: Codeunit "Library - Journals";
         CountMismatchErr: Label 'Number of %1 does not match %2.', Comment = '%1=TableCaption;%2=FieldCaption';
         LocalCurrencyCode: Code[10];
+        RemainingAmountLCYstatsErr: Label 'Remaining Amount (LCY) stats. must be %1 in %2.', Comment = '%1= Field Value, %2=Table Name.';
 
     [Test]
     [HandlerFunctions('ApplyCustomerEntriesPageHandler,PostApplicationPageHandler,MessageHandler')]
@@ -558,6 +559,88 @@ codeunit 147531 "Cartera Recv. Installments"
         VATEntry.TestField("Remaining Unrealized Amount", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('ApplyCustomerEntriesPageHandler,PostApplicationPageHandler,MessageHandler,UnapplyCustomerEntriesPageHandler,ConfirmHandlerYes')]
+    procedure ValueOfRemainingAmountLCYStatWhenApplyAndUnApplyOfCustomerLedgerEntry()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        Customer: Record Customer;
+        CustomerBankAccount: Record "Customer Bank Account";
+        CustLedgerEntry: array[2] of Record "Cust. Ledger Entry";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+        CreditMemoDocumentNo: Code[20];
+        DocumentNo: Code[20];
+        RemainingAmountLCYStats: Decimal;
+    begin
+        // [SCENARIO 575331] The "Remaining Amount (LCY) stats." field is correct after unapplying a Credit Memo.
+        Initialize();
+
+        // [GIVEN] Create Cartera Customer to use Cartera Payment.
+        LibraryCarteraReceivables.CreateCarteraCustomer(Customer, LocalCurrencyCode);
+
+        // [GIVEN] Create Customer Bank Account.
+        LibraryCarteraReceivables.CreateCustomerBankAccount(Customer, CustomerBankAccount);
+
+        // [GIVEN] Create Sales Invoice.
+        LibraryCarteraReceivables.CreateSalesInvoice(SalesHeader[1], Customer."No.");
+
+        // [GIVEN] Post Sales Document and store Document No.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader[1], true, true);
+
+        // [GIVEN] Find Sales Invoice Line.
+        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+        SalesInvoiceLine.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
+        SalesInvoiceLine.FindFirst();
+
+        // [GIVEN] Find Open Customer Ledger Entry of Cartera Document.
+        LibraryCarteraReceivables.FindOpenCarteraDocCustomerLedgerEntries(
+          CustLedgerEntry[1],
+          Customer."No.",
+          DocumentNo,
+          CustLedgerEntry[1]."Document Situation"::Cartera,
+          CustLedgerEntry[1]."Document Type"::Bill);
+
+        CustLedgerEntry[1].CalcFields("Original Amount");
+
+        // [GIVEN] Store the Current Value of Remaining Amount LCY Stat.
+        RemainingAmountLCYStats := CustLedgerEntry[1]."Remaining Amount (LCY) stats.";
+
+        // [GIVEN] Create Corrective Credit Memo.
+        CreateCreditMemoToCorrectInvoice(
+          SalesHeader[2],
+          Customer."No.",
+          DocumentNo,
+          SalesInvoiceLine."No.",
+          LibraryRandom.RandIntInRange(1, 1),
+          CustLedgerEntry[1]."Original Amount" / 2);
+
+        // [GIVEN] Post Purchase Credit Memo and store Document No.
+        CreditMemoDocumentNo := LibrarySales.PostSalesDocument(SalesHeader[2], true, true);
+
+        // [GIVEN] Find Customer Ledger Entry of Credit Memo.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry[2], CustLedgerEntry[2]."Document Type"::"Credit Memo", CreditMemoDocumentNo);
+
+        // [GIVEN] Apply Customer Ledger Entry.
+        ApplyCreditMemoToFirstInstallment(CustLedgerEntry[2]."Entry No.");
+
+        // [WHEN] Unapply the Customer Leger Entry.
+        CustomerLedgerEntries.OpenEdit();
+        CustomerLedgerEntries.GotoKey(CustLedgerEntry[2]."Entry No.");
+        CustomerLedgerEntries.UnapplyEntries.Invoke();
+
+        // [THEN] Remaining Amount (LCY) stats. must be restored into previous value.
+        CustLedgerEntry[1].Get(CustLedgerEntry[1]."Entry No.");
+        Assert.AreEqual(
+          RemainingAmountLCYStats,
+          CustLedgerEntry[1]."Remaining Amount (LCY) stats.",
+          StrSubstNo(
+            RemainingAmountLCYstatsErr,
+            RemainingAmountLCYStats,
+            CustLedgerEntry[1].TableName()));
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -901,6 +984,12 @@ codeunit 147531 "Cartera Recv. Installments"
         CarteraDocumentsPage.SetRecord(CarteraDoc);
 
         Response := ACTION::LookupOK;
+    end;
+
+    [ModalPageHandler]
+    procedure UnapplyCustomerEntriesPageHandler(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
+    begin
+        UnapplyCustomerEntries.Unapply.Invoke();
     end;
 }
 
