@@ -7,6 +7,8 @@ namespace Microsoft.EServices.EDocument.Processing.Import;
 
 using Microsoft.Purchases.Document;
 using Microsoft.Finance.Deferral;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
+using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Utilities;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.FixedAssets.FixedAsset;
@@ -25,6 +27,7 @@ table 6105 "E-Document Line Mapping"
     InherentPermissions = RIMDX;
 #pragma warning restore AS0034
     DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {
@@ -85,7 +88,6 @@ table 6105 "E-Document Line Mapping"
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
-
         }
         field(9; "Shortcut Dimension 2 Code"; Code[20])
         {
@@ -95,8 +97,40 @@ table 6105 "E-Document Line Mapping"
             DataClassification = CustomerContent;
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
+        }
+        field(10; "Item Reference No."; Code[20])
+        {
+            Caption = 'Item Reference No.';
+            ToolTip = 'Specifies the item reference number.';
+            TableRelation = "Item Reference"."Reference No." where("Unit of Measure" = field("Unit of Measure"), "Variant Code" = field("Variant Code"));
+        }
+        field(11; "Variant Code"; Code[10])
+        {
+            Caption = 'Variant Code';
+            ToolTip = 'Specifies the variant code.';
+            TableRelation = "Item Variant".Code where("Item No." = field("Purchase Type No."));
+        }
+        field(12; "Dimension Set ID"; Integer)
+        {
+            Caption = 'Dimension Set ID';
+            Editable = false;
+            TableRelation = "Dimension Set Entry";
 
+            trigger OnLookup()
+            begin
+            end;
 
+            trigger OnValidate()
+            begin
+                DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+            end;
+        }
+        field(50; "E-Doc. Purch. Line History Id"; Integer)
+        {
+            Caption = 'E-Doc. Purch. Line History Id';
+            ToolTip = 'Specifies the ID of the e-document purchase line history.';
+            TableRelation = "E-Doc. Purchase Line History"."Entry No.";
+            DataClassification = SystemMetadata;
         }
     }
     keys
@@ -106,6 +140,9 @@ table 6105 "E-Document Line Mapping"
             Clustered = true;
         }
     }
+
+    var
+        DimMgt: Codeunit DimensionManagement;
 
     procedure InsertForEDocumentLine(EDocument: Record "E-Document"; LineNo: Integer)
     begin

@@ -134,7 +134,7 @@ tableextension 8054 "Sales Line" extends "Sales Line"
         }
     }
     var
-        BillingLineexist, IsBillingLineCached : Boolean;
+        BillingLineExist, IsBillingLineCached : Boolean;
     trigger OnDelete()
     begin
         DeleteSalesServiceCommitment();
@@ -158,12 +158,13 @@ tableextension 8054 "Sales Line" extends "Sales Line"
         DimMgt: Codeunit DimensionManagement;
         TypeCannotBeSelectedManuallyErr: Label 'Type "%1" cannot be selected manually.', Comment = '%1 = Sales Line Type';
 
-    internal procedure InitFromSalesHeader(SourceSalesHeader: Record "Sales Header")
+    procedure InitFromSalesHeader(SourceSalesHeader: Record "Sales Header")
     begin
         Rec.Init();
         Rec."Document Type" := SourceSalesHeader."Document Type";
         Rec."Document No." := SourceSalesHeader."No.";
         Rec."Line No." := SourceSalesHeader.GetNextLineNo();
+        Rec."Sell-to Customer No." := SourceSalesHeader."Sell-to Customer No.";
     end;
 
     internal procedure DeleteSalesServiceCommitment()
@@ -264,8 +265,9 @@ tableextension 8054 "Sales Line" extends "Sales Line"
             if Rec.IsTypeServiceObject() then
                 Rec.Validate("Exclude from Doc. Total", IsContractRenewalLocal);
         end else
-            if (Rec.Type = Rec.Type::Item) and (Rec."No." <> '') and (not Rec.IsLineAttachedToBillingLine()) then
-                Rec.Validate("Exclude from Doc. Total", ItemManagement.IsServiceCommitmentItem(Rec."No."));
+            if Rec.IsSalesDocumentTypeWithServiceCommitments() then
+                if ((Rec.Type = Rec.Type::Item) and (Rec."No." <> '')) then
+                    Rec.Validate("Exclude from Doc. Total", ItemManagement.IsServiceCommitmentItem(Rec."No."));
     end;
 
     internal procedure IsLineWithServiceObject(): Boolean
@@ -278,7 +280,7 @@ tableextension 8054 "Sales Line" extends "Sales Line"
         exit(Rec.Type = "Sales Line Type"::"Service Object");
     end;
 
-    internal procedure InsertDescriptionSalesLine(SourceSalesHeader: Record "Sales Header"; NewDescription: Text; AttachedToLineNo: Integer)
+    procedure InsertDescriptionSalesLine(SourceSalesHeader: Record "Sales Header"; NewDescription: Text; AttachedToLineNo: Integer)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -308,11 +310,37 @@ tableextension 8054 "Sales Line" extends "Sales Line"
     begin
         if not IsBillingLineCached then begin
             BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromSalesDocumentType(Rec."Document Type"), Rec."Document No.", Rec."Line No.");
-            BillingLineexist := not BillingLine.IsEmpty();
+            BillingLineExist := not BillingLine.IsEmpty();
             IsBillingLineCached := true;
         end;
 
-        exit(BillingLineexist);
+        exit(BillingLineExist);
+    end;
+
+    internal procedure CreateContractDeferrals(): Boolean
+    var
+        CustomerSubscriptionContract: Record "Customer Subscription Contract";
+        SubscriptionLine: Record "Subscription Line";
+        BillingLine: Record "Billing Line";
+    begin
+        BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromSalesDocumentType(Rec."Document Type"), Rec."Document No.", Rec."Line No.");
+        if not BillingLine.FindFirst() then
+            exit;
+
+        if not SubscriptionLine.Get(BillingLine."Subscription Line Entry No.") then
+            exit;
+
+        case SubscriptionLine."Create Contract Deferrals" of
+            Enum::"Create Contract Deferrals"::"Contract-dependent":
+                begin
+                    CustomerSubscriptionContract.Get(BillingLine."Subscription Contract No.");
+                    exit(CustomerSubscriptionContract."Create Contract Deferrals");
+                end;
+            Enum::"Create Contract Deferrals"::Yes:
+                exit(true);
+            Enum::"Create Contract Deferrals"::No:
+                exit(false);
+        end;
     end;
 
     internal procedure IsContractRenewalQuote(): Boolean

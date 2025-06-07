@@ -158,10 +158,12 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
         if HasNewCost(InventoryAdjmtEntryOrder."Indirect Cost", InventoryAdjmtEntryOrder."Indirect Cost (ACY)") then
             InventoryAdjustmentBuffer.AddCost(
               ItemLedgerEntry."Entry No.", InventoryAdjustmentBuffer."Entry Type"::"Indirect Cost", "Cost Variance Type"::" ", InventoryAdjmtEntryOrder."Indirect Cost", InventoryAdjmtEntryOrder."Indirect Cost (ACY)");
-        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
-            if HasNewCost(InventoryAdjmtEntryOrder."Direct Cost Non-Inventory", InventoryAdjmtEntryOrder."Direct Cost Non-Inv. (ACY)") then
-                InventoryAdjustmentBuffer.AddCost(
-                  ItemLedgerEntry."Entry No.", InventoryAdjustmentBuffer."Entry Type"::"Direct Cost - Non Inventory", "Cost Variance Type"::" ", InventoryAdjmtEntryOrder."Direct Cost Non-Inventory", InventoryAdjmtEntryOrder."Direct Cost Non-Inv. (ACY)");
+
+        if ItemLedgerEntry."Order Type" = ItemLedgerEntry."Order Type"::Production then
+            if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                if HasNewCost(InventoryAdjmtEntryOrder."Direct Cost Non-Inventory", InventoryAdjmtEntryOrder."Direct Cost Non-Inv. (ACY)") then
+                    InventoryAdjustmentBuffer.AddCost(
+                      ItemLedgerEntry."Entry No.", InventoryAdjustmentBuffer."Entry Type"::"Direct Cost - Non Inventory", "Cost Variance Type"::" ", InventoryAdjmtEntryOrder."Direct Cost Non-Inventory", InventoryAdjmtEntryOrder."Direct Cost Non-Inv. (ACY)");
 
         if Item."Costing Method" <> Item."Costing Method"::Standard then
             exit;
@@ -171,11 +173,12 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
               InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::Material,
               InventoryAdjmtEntryOrder."Single-Level Material Cost", InventoryAdjmtEntryOrder."Single-Lvl Material Cost (ACY)");
 
-        if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
-            if HasNewCost(InventoryAdjmtEntryOrder."Single-Lvl Mat. Non-Invt. Cost", InventoryAdjmtEntryOrder."Single-Lvl Mat.NonInvCost(ACY)") then
-                InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
-                  InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::"Material - Non Inventory",
-                  InventoryAdjmtEntryOrder."Single-Lvl Mat. Non-Invt. Cost", InventoryAdjmtEntryOrder."Single-Lvl Mat.NonInvCost(ACY)");
+        if ItemLedgerEntry."Order Type" = ItemLedgerEntry."Order Type"::Production then
+            if MfgCostCalcMgt.CanIncNonInvCostIntoProductionItem() then
+                if HasNewCost(InventoryAdjmtEntryOrder."Single-Lvl Mat. Non-Invt. Cost", InventoryAdjmtEntryOrder."Single-Lvl Mat.NonInvCost(ACY)") then
+                    InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
+                      InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::"Material - Non Inventory",
+                      InventoryAdjmtEntryOrder."Single-Lvl Mat. Non-Invt. Cost", InventoryAdjmtEntryOrder."Single-Lvl Mat.NonInvCost(ACY)");
 
         if HasNewCost(InventoryAdjmtEntryOrder."Single-Level Capacity Cost", InventoryAdjmtEntryOrder."Single-Lvl Capacity Cost (ACY)") then
             InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",

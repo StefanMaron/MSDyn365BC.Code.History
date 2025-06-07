@@ -2147,6 +2147,82 @@ codeunit 136353 "UT T Job Planning Line"
                 JobPlanningLine.TableCaption()));
     end;
 
+    [Test]
+    procedure UnitCostIsNotChangedWhenUnitPriceIsChangedInJobPlanningLineHavingFIFOCostingMethodItem()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        JobPlanningLines: TestPage "Job Planning Lines";
+        UnitCost: Decimal;
+    begin
+        // [SCENARIO 561139] Unit Cost and Unit Cost (LCY) in Job Planning Line is not changed when Unit Price is changed.
+        Initialize();
+
+        // [GIVEN] Create an Item and Validate Costing Method and Unit Cost.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::FIFO);
+        Item.Validate("Unit Cost", LibraryRandom.RandInt(100));
+        Item.Modify(true);
+
+        // [GIVEN] Create a Job and a Job task.
+        CreateJobAndJobTask(Job, JobTask, false, '');
+
+        // [GIVEN] Create a Job Planning Line and Validate Type and No.
+        CreateSimpleJobPlanningLine(JobPlanningLine, JobTask);
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Generate and save Unit Cost in a Variable.
+        UnitCost := LibraryRandom.RandInt(50);
+
+        // [GIVEN] Open Job Planning Lines page and set value in Unit Cost.
+        JobPlanningLines.OpenEdit();
+        JobPlanningLines.GoToRecord(JobPlanningLine);
+        JobPlanningLines."Unit Cost".SetValue(UnitCost);
+        JobPlanningLines.Close();
+
+        // [GIVEN] Find Job Planning Line.
+        JobPlanningLine.Get(
+            JobPlanningLine."Job No.",
+            JobPlanningLine."Job Task No.",
+            JobPlanningLine."Line No.");
+
+        // [GIVEN] Open Job Planning Lines page and set value in Unit Price.
+        JobPlanningLines.OpenEdit();
+        JobPlanningLines.GoToRecord(JobPlanningLine);
+        JobPlanningLines."Unit Price".SetValue(LibraryRandom.RandInt(100));
+        JobPlanningLines.Close();
+
+        // [WHEN] Find Job Planning Line.
+        JobPlanningLine.Get(
+            JobPlanningLine."Job No.",
+            JobPlanningLine."Job Task No.",
+            JobPlanningLine."Line No.");
+
+        // [THEN] Unit Cost of Job Planning Line is equal to Unit Cost.
+        Assert.AreEqual(
+            UnitCost,
+            JobPlanningLine."Unit Cost",
+            StrSubstNo(
+                UnitCostErr,
+                JobPlanningLine.FieldCaption("Unit Cost"),
+                UnitCost,
+                JobPlanningLine.TableCaption()));
+
+        // [THEN] Unit Cost (LCY) of Job Planning Line is equal to Unit Cost.
+        Assert.AreEqual(
+            UnitCost,
+            JobPlanningLine."Unit Cost (LCY)",
+            StrSubstNo(
+                UnitCostErr,
+                JobPlanningLine.FieldCaption("Unit Cost (LCY)"),
+                UnitCost,
+                JobPlanningLine.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

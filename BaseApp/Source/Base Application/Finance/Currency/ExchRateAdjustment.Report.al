@@ -403,7 +403,7 @@ report 596 "Exch. Rate Adjustment"
             Error(PostingDateNotInPeriodErr);
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCopyParameters(var ExchRateAdjmtParameters2: Record "Exch. Rate Adjmt. Parameters" temporary)
     begin
     end;

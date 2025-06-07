@@ -192,6 +192,7 @@ table 5223 "Detailed Employee Ledger Entry"
         SetLedgerEntryAmount();
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Detailed Employee Ledger Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
