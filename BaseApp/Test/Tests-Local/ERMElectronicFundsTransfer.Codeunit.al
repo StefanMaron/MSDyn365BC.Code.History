@@ -2916,6 +2916,116 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentRequestPageHandler,MessageHandler,ExportElectronicPaymentsRequestPageHandler,VoidElectronicPaymentsRequestPageHandler,ApplyVendorEntriesWithSetAppliesToIDModalPageHandler,ConfirmHandler')]
+    procedure ManualVendorPaymentForAVendorStillRemainsAppliedEvenIfVoidedAfterExport()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        Vendor: array[2] of Record Vendor;
+        VendorBankAccount: array[2] of Record "Vendor Bank Account";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [SCENARIO 572812] When Stan runs Void action for two Payment type Gen. Journal Lines created 
+        // for different Vendors, one using Suggest Vendor Payments action and another one manually, 
+        // then "Applies-to ID" doesn't become blank in them.
+        Initialize();
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
+        // [GIVEN] Create Electronic Bank Account.
+        CreateElectronicExportBankAccount(BankAccount);
+
+        // [GIVEN] Create a General Journal Batch using Journal Template Payments.
+        CreateGeneralJournalBatchWithBalAccountType(GenJournalBatch, GenJournalTemplate.Type::Payments, BankAccount."No.");
+
+        // [GIVEN] Create Vendor & their Bank Account.
+        CreateVendorWithBankAccount(Vendor[1], VendorBankAccount[1]);
+        CreateVendorWithBankAccount(Vendor[2], VendorBankAccount[2]);
+
+        // [GIVEN] Post Multiple Vendor Ledger Entry.
+        CreateAndPostVendorLedgerEntry(Vendor[1]."No.");
+        CreateAndPostVendorLedgerEntry(Vendor[2]."No.");
+
+        // [GIVEN] Suggest Vendor Payment with Summarize per Vendor set to True.
+        PaymentJournal.OpenEdit();
+        SuggestVendorPayment(PaymentJournal, GenJournalBatch.Name, Vendor[1]."No.", BankAccount."No.");
+
+        // [GIVEN] Find Vendor Ledger Entry.
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor[1]."No.");
+        VendorLedgerEntry.FindFirst();
+
+        // [GIVEN] Find Gen. Journal Line.
+        GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
+        GenJournalLine.SetRange("Account No.", Vendor[1]."No.");
+        GenJournalLine.FindFirst();
+
+        // [GIVEN] Validate "Applies-to Doc. Type" and "Applies-to Doc. No." in Gen. Journal Line.
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", VendorLedgerEntry."Document No.");
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Electronic Payment");
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Set Vendor Bank Account in Payment Journal Page.
+        PaymentJournal.First();
+        PaymentJournal."Recipient Bank Account".SetValue(VendorBankAccount[1].Code);
+
+        // [GIVEN] Find Vendor Ledger Entry.
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor[2]."No.");
+        VendorLedgerEntry.FindFirst();
+
+        // [GIVEN] Create Payment Gen. Journal Line.
+        CreatePaymentGLLine(
+            GenJournalLine, GenJournalBatch,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor,
+            Vendor[2]."No.",
+            GenJournalLine."Applies-to Doc. Type"::" ",
+            '',
+            GenJournalLine."Bal. Account Type"::"Bank Account",
+            BankAccount."No.",
+            VendorLedgerEntry.Amount);
+
+        // [GIVEN] Validate "Recipient Bank Account" and "Document No." in Gen. Journal Line.
+        GenJournalLine.Validate("Recipient Bank Account", VendorBankAccount[2].Code);
+        GenJournalLine.Validate("Document No.", LibraryRandom.RandText(MaxStrLen(GenJournalLine."Document No.")));
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Electronic Payment");
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Run Apply Entries action.
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
+        PaymentJournal.Filter.SetFilter("Account No.", Vendor[2]."No.");
+        PaymentJournal.ApplyEntries.Invoke();
+
+        // [GIVEN] Export Electronic File.
+        InvokeExportPaymentJournalAction(PaymentJournal, GenJournalBatch, BankAccount."No.");
+        Commit();
+
+        // [GIVEN] Void the exported file.
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        PaymentJournal.VoidPayments.Invoke();
+
+        // [WHEN] Find Gen. Journal Line.
+        GenJournalLine.SetRange("Account No.", Vendor[1]."No.");
+        GenJournalLine.FindFirst();
+
+        // [THEN] "Applies-to ID" is not blank in Gen. Journal Line.
+        Assert.IsTrue(GenJournalLine."Applies-to ID" <> '', '');
+
+        // [WHEN] Find Gen. Journal Line.
+        GenJournalLine.SetRange("Account No.", Vendor[2]."No.");
+        GenJournalLine.FindFirst();
+
+        // [THEN] "Applies-to ID" is not blank in Gen. Journal Line.
+        Assert.IsTrue(GenJournalLine."Applies-to ID" <> '', '');
+    end;
+
     local procedure Initialize()
     var
         EFTExport: Record "EFT Export";

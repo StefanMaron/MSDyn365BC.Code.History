@@ -118,6 +118,7 @@ codeunit 5992 "Purchases Warehouse Mgt."
         NewRecordRef: RecordRef;
         OldRecordRef: RecordRef;
         IsHandled: Boolean;
+        ShouldVerifyChange: Boolean;
     begin
         IsHandled := false;
 #if not CLEAN23
@@ -147,7 +148,11 @@ codeunit 5992 "Purchases Warehouse Mgt."
         WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Special Order Sales No."));
         WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Special Order Sales Line No."));
         WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Job No."));
-        if not OverReceiptMgt.IsQuantityUpdatedFromInvtPutAwayOverReceipt(NewPurchaseLine) then begin
+        ShouldVerifyChange := false;
+        ShouldVerifyChange := not OverReceiptMgt.IsQuantityUpdatedFromInvtPutAwayOverReceipt(NewPurchaseLine);
+        if not ShouldVerifyChange then
+            ShouldVerifyChange := CheckQuantityReducedToZero(NewPurchaseLine, OldPurchaseLine);
+        if ShouldVerifyChange then begin
             if not OverReceiptMgt.IsQuantityUpdatedFromWarehouseOverReceipt(NewPurchaseLine) then
                 WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo(Quantity));
             WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewPurchaseLine.FieldNo("Qty. to Receive"));
@@ -408,6 +413,11 @@ codeunit 5992 "Purchases Warehouse Mgt."
 
         PurchaseLine.CalcFields("Whse. Outstanding Qty. (Base)");
         exit(Abs(PurchaseLine."Outstanding Qty. (Base)") > Abs(PurchaseLine."Whse. Outstanding Qty. (Base)"));
+    end;
+
+    local procedure CheckQuantityReducedToZero(NewPurchaseLine: Record "Purchase Line"; OldPurchaseLine: Record "Purchase Line"): Boolean
+    begin
+        exit((OldPurchaseLine.Quantity <> 0) and (NewPurchaseLine.Quantity = 0));
     end;
 
     [IntegrationEvent(false, false)]

@@ -18,9 +18,11 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         PostingGroupNonEditableErr: Label 'Posting Group is not editable in General Journal page';
+        VendorPostingGroupErr: Label 'Vendor Posting Group must be %1 in %2.', Comment = '%1= Value ,%2=Table Name';
 
     [Test]
     [Scope('OnPrem')]
@@ -816,6 +818,53 @@ codeunit 134195 "ERM Multiple Posting Groups"
         Assert.IsTrue(GenJournalPage."Posting Group".Editable(), PostingGroupNonEditableErr);
     end;
 
+    [Test]
+    [HandlerFunctions('VoidCheckPageHandler')]
+    procedure CheckVoidCheckVendLdgerEntryWithMultiplePostingGroups()
+    var
+        BankAccount: Record "Bank Account";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        VendorPostingGroup2: Record "Vendor Posting Group";
+        GenJournalLine: Record "Gen. Journal Line";
+        VoidType: Option "Unapply and void check","Void check only";
+    begin
+        // [SCENARIO 575576] Verify Voided Check in the Vendor Ledger entries when Allow Multiple Posting Groups is enabled.
+        Initialize();
+
+        // [GIVEN] Set Allow Multiple Posting Groups on Purchases & Payable Setup.
+        SetPurchAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create Vendor with Allow Multiple Posting Groups as True.
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Modify();
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+
+        // [GIVEN] Create new Vendor Posting Group and assigned as Alternative Groups.
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup2);
+        LibraryPurchase.CreateAltVendorPostingGroup(Vendor."Vendor Posting Group", VendorPostingGroup2.Code);
+        LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup2.Code, Vendor."Vendor Posting Group");
+
+        // [GIVEN] Create and Post Payment Journal with VendorPostingGroup2.
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Currency Code", CreateCurrencyCode());
+        BankAccount.Modify(true);
+        PostPaymentJournalLineWithVendorPostingGroup(GenJournalLine, WorkDate(), Vendor."No.", BankAccount."No.", VendorPostingGroup2.Code);
+
+        // [GIVEN] Find Check Ledger Entry.
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        CheckLedgerEntry.FindFirst();
+
+        // [WHEN] Void Check on Check Ledger Entry.
+        LibraryVariableStorage.Enqueue(VoidType::"Void check only");
+        VoidCheck(CheckLedgerEntry."Document No.");
+
+        // Verify Vendor Posting Group on Vendor Ledger Entry. 
+        VerifyPostingGroupOnVendorLedgerEntry(GenJournalLine."Document No.", VendorPostingGroup2.Code);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Multiple Posting Groups");
@@ -1013,5 +1062,81 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibraryERM.CreateGeneralJnlLine(
             GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
             GenJournalLine."Document Type"::" ", AccountType, AccountNo, LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure VerifyPostingGroupOnVendorLedgerEntry(DocumentNo: Code[20]; VendorPostingGroup: Code[20])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        if VendorLedgerEntry.FindSet() then
+            repeat
+                Assert.AreEqual(VendorPostingGroup, VendorLedgerEntry."Vendor Posting Group",
+                    StrSubstNo(
+                        VendorPostingGroupErr,
+                        VendorPostingGroup,
+                        VendorLedgerEntry.TableCaption()));
+            until VendorLedgerEntry.Next() = 0;
+    end;
+
+    local procedure VoidCheck(DocumentNo: Code[20])
+    var
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        CheckManagement: Codeunit CheckManagement;
+        ConfirmFinancialVoid: Page "Confirm Financial Void";
+    begin
+        CheckLedgerEntry.SetRange("Document No.", DocumentNo);
+        CheckLedgerEntry.FindFirst();
+        CheckManagement.FinancialVoidCheck(CheckLedgerEntry);
+        ConfirmFinancialVoid.SetCheckLedgerEntry(CheckLedgerEntry);
+    end;
+
+    local procedure PostPaymentJournalLineWithVendorPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AccountNo: Code[20]; BankAccountNo: Code[20]; VendorPostingGroup: Code[20])
+    var
+        PaymentMethod: Record "Payment Method";
+    begin
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, "Gen. Journal Document Type"::Payment, GenJournalLine."Account Type"::Vendor, AccountNo,
+          LibraryRandom.RandIntInRange(1000, 2000));
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Payment Method Code", PaymentMethod.Code);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccountNo);
+        GenJournalLine.Validate("Posting Group", VendorPostingGroup);
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Manual Check");
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateCurrencyCode(): Code[10]
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Currency: Record Currency;
+    begin
+        GeneralLedgerSetup.Get();
+
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.SetCurrencyGainLossAccounts(Currency);
+        Currency.Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
+        Currency.Validate("EMU Currency", true);
+        Currency.Validate("Conv. LCY Rndg. Debit Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Modify(true);
+
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+
+        exit(Currency.Code);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VoidCheckPageHandler(var ConfirmFinancialVoid: Page "Confirm Financial Void"; var Response: Action)
+    var
+        VoidTypeVariant: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(VoidTypeVariant);
+        ConfirmFinancialVoid.InitializeRequest(WorkDate(), VoidTypeVariant);
+        Response := ACTION::Yes
     end;
 }

@@ -2161,6 +2161,9 @@ codeunit 6620 "Copy Document Mgt."
                 PurchaseHeader."Posting Date" := WorkDate()
             else
                 PurchaseHeader."Posting Date" := OriginalPurchaseHeader."Posting Date";
+#if not CLEAN25
+        PurchaseHeader.Validate("IRS 1099 Amount", 0);
+#endif
     end;
 
     local procedure UpdatePurchHeaderWhenCopyFromPurchHeaderArchive(var PurchaseHeader: Record "Purchase Header")
