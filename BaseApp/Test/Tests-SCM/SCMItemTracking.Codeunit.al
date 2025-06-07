@@ -60,6 +60,7 @@ codeunit 137405 "SCM Item Tracking"
         LotNoMustNotBeBlankErr: Label 'Lot No. must not be blank.';
         SerialNoMustNotBeBlankErr: Label 'Serial No. must not be blank.';
         WhseActivityLineMustBeFoundErr: Label 'Warehouse Activity Line must be found.';
+        SerialNoAlreadyOnInventoryErr: Label 'Serial No. %1 is already on inventory.', Comment = '%1 - Serial No.';
 
     [Test]
     [HandlerFunctions('ItemTrackingAssignTrackingNoAndVerifyQuantityHandler,EnterQuantityToCreateHandler')]
@@ -5099,7 +5100,7 @@ codeunit 137405 "SCM Item Tracking"
 
         // [GIVEN] Create Serial Item Tracking Code.
         CreateSerialItemTrackingCode(ItemTrackingCode);
- 
+
 
         // [GIVEN] Create Item with Serial Item Tracking Code and
         // Validate "Use Expiration Dates" and "Strict Expiration Posting".
@@ -5168,6 +5169,55 @@ codeunit 137405 "SCM Item Tracking"
 
         // [VERIFY] Warehouse Activity Lineis found.
         Assert.IsFalse(WhseActivityLine.IsEmpty(), WhseActivityLineMustBeFoundErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandlerTrackingOption,ItemTrackingSummaryOkModalPageHandler,ConfirmHandlerTrue')]
+    procedure DuplicateSNNotAllowedAddedToStockWithSNSpecificTracking()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SerialNo: Code[20];
+    begin
+        // [SCENARIO 563235] A Duplicate SN is not allowed to be added to stock with SN Specific Tracking when Item Journal is posted followed by an Undo Shipment with the same SN.
+        Initialize();
+
+        // [GIVEN] Create Item with Serial Number Item Tracking Code 
+        CreateItem(
+          Item, CreateItemTrackingCodeSerialSpecificWhseTracking(false, true), LibraryUtility.GetGlobalNoSeriesCode(), '');
+
+        // [GIVEN] Location with Inventory Posting Setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Post item to inventory with Serial No.
+        SerialNo := LibraryUtility.GenerateGUID();
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, '', SerialNo, '');
+
+        // [GIVEN] Sales Order is created to exhaust the posted items in item journal
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", 1);
+
+        // [GIVEN] Update Location on Sales Line
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Assign Serial No. to Sales Line
+        LibraryVariableStorage.Enqueue(ItemTrackingOption::SelectEntries);
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Release and Post Sales Order
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Post item to inventory with same Serial No.
+        CreateAndPostItemJournalLineWithItemTracking(Item."No.", Location.Code, '', SerialNo, '');
+
+        // [WHEN] Undo Sales Shipment
+        asserterror UndoSalesShipment(SalesLine);
+
+        // [THEN] Error is thrown for duplicate Serial No.
+        Assert.ExpectedError(StrSubstNo(SerialNoAlreadyOnInventoryErr, SerialNo));
     end;
 
     local procedure Initialize()
@@ -6899,6 +6949,27 @@ codeunit 137405 "SCM Item Tracking"
         PurchaseLine.FindFirst();
     end;
 
+    local procedure UndoSalesShipment(SalesLine: Record "Sales Line")
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        FindShipmentLine(SalesShipmentLine, SalesLine, 1);
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+    end;
+
+    local procedure FindShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; SalesLine: Record "Sales Line"; SignFactor: Integer)
+    begin
+        FilterForShipmentLine(SalesShipmentLine, SalesLine, SalesLine."No.");
+        SalesShipmentLine.SetRange(Quantity, SignFactor * SalesLine.Quantity);
+        SalesShipmentLine.FindFirst();
+    end;
+
+    local procedure FilterForShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; SalesLine: Record "Sales Line"; ItemNo: Code[20])
+    begin
+        SalesShipmentLine.SetRange("Order No.", SalesLine."Document No.");
+        SalesShipmentLine.SetFilter("No.", '%1|%2', SalesLine."No.", ItemNo);
+    end;
+
     local procedure ValidateLocationFields(var Location: Record Location; Bin: Record Bin)
     begin
         Location.Validate("Bin Mandatory", true);
@@ -6920,7 +6991,7 @@ codeunit 137405 "SCM Item Tracking"
         LibraryInventory.CreateItemJournalLine(
             ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
             ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
-        
+
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Validate("Bin Code", Bin.Code);
         ItemJournalLine.Modify(true);
