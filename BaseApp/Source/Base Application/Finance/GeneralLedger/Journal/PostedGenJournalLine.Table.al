@@ -1215,7 +1215,7 @@ table 181 "Posted Gen. Journal Line"
         Insert();
         Rec.CopyLinks(GenJournalLine);
 
-        OnAfterInsertFromGenJournalLine(GenJournalLine);
+        OnAfterInsertFromGenJournalLine(GenJournalLine, Rec);
     end;
 
     [IntegrationEvent(true, false)]
@@ -1224,7 +1224,7 @@ table 181 "Posted Gen. Journal Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterInsertFromGenJournalLine(GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnAfterInsertFromGenJournalLine(GenJournalLine: Record "Gen. Journal Line"; var PostedGenJournalLine: Record "Posted Gen. Journal Line")
     begin
     end;
 }

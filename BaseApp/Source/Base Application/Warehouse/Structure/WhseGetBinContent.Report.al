@@ -357,25 +357,22 @@ report 7391 "Whse. Get Bin Content"
 
     local procedure GetItemTracking(var BinContent: Record "Bin Content")
     var
-        ItemTrackingSetup: Record "Item Tracking Setup";
         WarehouseEntry: Record "Warehouse Entry";
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         WhseItemTrackingSetup: Record "Item Tracking Setup";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
         ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
         TransferLineReserve: Codeunit "Transfer Line-Reserve";
-        Direction: Enum "Transfer Direction";
-        TrackedQtyToEmptyBase: Decimal;
         TotalTrackedQtyBase: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetItemTracking(BinContent, IsHandled);
+        OnBeforeGetItemTracking(BinContent, IsHandled, QtyToEmptyBase, DestinationType2, ItemJournalLine, TransferLine);
         if IsHandled then
             exit;
 
-        Clear(ItemTrackingMgt);
-        if not ItemTrackingMgt.GetWhseItemTrkgSetup(BinContent."Item No.", WhseItemTrackingSetup) then
+        Clear(ItemTrackingManagement);
+        if not ItemTrackingManagement.GetWhseItemTrkgSetup(BinContent."Item No.", WhseItemTrackingSetup) then
             exit;
 
         WarehouseEntry.Reset();
@@ -395,37 +392,7 @@ report 7391 "Whse. Get Bin Content"
         OnGetItemTrackingOnAfterWarehouseEntrySetFilters(WarehouseEntry, "Bin Content");
         if WarehouseEntry.FindSet() then
             repeat
-                if WarehouseEntry.TrackingExists() then begin
-                    ItemTrackingSetup.CopyTrackingFromWhseEntry(WarehouseEntry);
-                    WarehouseEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup);
-
-                    TrackedQtyToEmptyBase := GetQtyToEmptyBase(ItemTrackingSetup);
-                    TotalTrackedQtyBase += TrackedQtyToEmptyBase;
-
-                    if TrackedQtyToEmptyBase > 0 then begin
-                        GetLocation(WarehouseEntry."Location Code", Location);
-                        ItemTrackingMgt.GetWhseExpirationDate(WarehouseEntry."Item No.", WarehouseEntry."Variant Code", Location, ItemTrackingSetup, WarehouseEntry."Expiration Date");
-
-                        case DestinationType2 of
-                            DestinationType2::MovementWorksheet:
-                                WhseWorksheetLine.SetItemTrackingLines(WarehouseEntry, TrackedQtyToEmptyBase);
-                            DestinationType2::WhseInternalPutawayHeader:
-                                WhseInternalPutawayLine.SetItemTrackingLines(WarehouseEntry, TrackedQtyToEmptyBase);
-                            DestinationType2::ItemJournalLine:
-                                ItemJnlLineReserve.InitFromItemJnlLine(TempTrackingSpecification, ItemJournalLine);
-                            DestinationType2::TransferHeader:
-                                TransferLineReserve.InitFromTransLine(TempTrackingSpecification, TransferLine, TransferLine."Shipment Date", Direction::Outbound);
-                            DestinationType2::InternalMovementHeader:
-                                InternalMovementLine.SetItemTrackingLines(WarehouseEntry, TrackedQtyToEmptyBase);
-                            else
-                                OnGetItemTrackingOnDestinationTypeCaseElse(DestinationType2, BinContent, WarehouseEntry, TrackedQtyToEmptyBase);
-                        end;
-                    end;
-                    WarehouseEntry.Find('+');
-                    WarehouseEntry.ClearTrackingFilter();
-                end;
-                if DestinationType2 in [DestinationType2::ItemJournalLine, DestinationType2::TransferHeader] then
-                    InsertTempTrackingSpecification(WarehouseEntry, TrackedQtyToEmptyBase, TempTrackingSpecification);
+                GetItemTracking(BinContent, WarehouseEntry, TotalTrackedQtyBase, TempTrackingSpecification);
             until WarehouseEntry.Next() = 0;
 
         if TotalTrackedQtyBase > QtyToEmptyBase then
@@ -437,6 +404,48 @@ report 7391 "Whse. Get Bin Content"
             DestinationType2::TransferHeader:
                 TransferLineReserve.RegisterBinContentItemTracking(TransferLine, TempTrackingSpecification);
         end;
+    end;
+
+    procedure GetItemTracking(var BinContent: Record "Bin Content"; var WarehouseEntry: Record "Warehouse Entry"; var TotalTrackedQtyBase: Decimal; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    var
+        ItemTrackingSetup: Record "Item Tracking Setup";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
+        TransferLineReserve: Codeunit "Transfer Line-Reserve";
+        Direction: Enum "Transfer Direction";
+        TrackedQtyToEmptyBase: Decimal;
+    begin
+        if WarehouseEntry.TrackingExists() then begin
+            ItemTrackingSetup.CopyTrackingFromWhseEntry(WarehouseEntry);
+            WarehouseEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup);
+
+            TrackedQtyToEmptyBase := GetQtyToEmptyBase(ItemTrackingSetup);
+            TotalTrackedQtyBase += TrackedQtyToEmptyBase;
+
+            if TrackedQtyToEmptyBase > 0 then begin
+                GetLocation(WarehouseEntry."Location Code", Location);
+                ItemTrackingManagement.GetWhseExpirationDate(WarehouseEntry."Item No.", WarehouseEntry."Variant Code", Location, ItemTrackingSetup, WarehouseEntry."Expiration Date");
+
+                case DestinationType2 of
+                    DestinationType2::MovementWorksheet:
+                        WhseWorksheetLine.SetItemTrackingLines(WarehouseEntry, TrackedQtyToEmptyBase);
+                    DestinationType2::WhseInternalPutawayHeader:
+                        WhseInternalPutawayLine.SetItemTrackingLines(WarehouseEntry, TrackedQtyToEmptyBase);
+                    DestinationType2::ItemJournalLine:
+                        ItemJnlLineReserve.InitFromItemJnlLine(TempTrackingSpecification, ItemJournalLine);
+                    DestinationType2::TransferHeader:
+                        TransferLineReserve.InitFromTransLine(TempTrackingSpecification, TransferLine, TransferLine."Shipment Date", Direction::Outbound);
+                    DestinationType2::InternalMovementHeader:
+                        InternalMovementLine.SetItemTrackingLines(WarehouseEntry, TrackedQtyToEmptyBase);
+                    else
+                        OnGetItemTrackingOnDestinationTypeCaseElse(DestinationType2, BinContent, WarehouseEntry, TrackedQtyToEmptyBase);
+                end;
+            end;
+            WarehouseEntry.Find('+');
+            WarehouseEntry.ClearTrackingFilter();
+        end;
+        if DestinationType2 in [DestinationType2::ItemJournalLine, DestinationType2::TransferHeader] then
+            InsertTempTrackingSpecification(WarehouseEntry, TrackedQtyToEmptyBase, TempTrackingSpecification);
     end;
 
     protected procedure GetLocation(LocationCode: Code[10]; var Location: Record Location)
@@ -527,7 +536,7 @@ report 7391 "Whse. Get Bin Content"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeGetItemTracking(var BinContent: Record "Bin Content"; var IsHandled: Boolean)
+    local procedure OnBeforeGetItemTracking(var BinContent: Record "Bin Content"; var IsHandled: Boolean; QtyToEmptyBase: Decimal; DestinationType2: Enum "Warehouse Destination Type 2"; var ItemJournalLine: Record "Item Journal Line"; var TransferLine: Record "Transfer Line")
     begin
     end;
 

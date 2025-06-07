@@ -26,7 +26,6 @@ codeunit 5005271 "Create Delivery Reminder"
         LineLevel: Integer;
         MaxLineLevel: Integer;
 
-    [Scope('OnPrem')]
     procedure Remind(PurchLine: Record "Purchase Line"; DeliveryReminderTerms: Record "Delivery Reminder Term"; var DeliveryReminderLevel: Record "Delivery Reminder Level"; DateOfTheCurrentDay: Date) RetValue: Boolean
     var
         DelivReminLedgerEntries: Record "Delivery Reminder Ledger Entry";
@@ -81,7 +80,6 @@ codeunit 5005271 "Create Delivery Reminder"
         exit(CalcDate(DeliveryReminderLevel."Due Date Calculation", RemindingDate) < DateOfTheCurrentDay);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateDelivReminHeader(var DeliveryReminderHeader: Record "Delivery Reminder Header"; PurchHeader: Record "Purchase Header"; DeliveryReminderTerms: Record "Delivery Reminder Term"; DeliveryReminderLevel: Record "Delivery Reminder Level"; DateOfTheCurrentDay: Date)
     begin
         DeliveryReminderHeader.Init();
@@ -95,7 +93,6 @@ codeunit 5005271 "Create Delivery Reminder"
         OnCreateDelivReminHeaderOnAfterDeliveryReminderHeaderModify(DeliveryReminderHeader, PurchHeader);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateDelivRemindLine(DeliveryReminderHeader: Record "Delivery Reminder Header"; PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; DeliveryReminderTerms: Record "Delivery Reminder Term"; DeliveryReminderLevel: Record "Delivery Reminder Level"; DateOfTheCurrentDay: Date)
     var
         DeliveryReminderLine: Record "Delivery Reminder Line";
@@ -153,7 +150,6 @@ codeunit 5005271 "Create Delivery Reminder"
         OnAfterDeliveryReminderLineInsert(DeliveryReminderLine, PurchLine);
     end;
 
-    [Scope('OnPrem')]
     procedure HeaderReminderLevelRefresh(var DeliveryReminderHeader: Record "Delivery Reminder Header")
     var
         DeliveryReminderLine: Record "Delivery Reminder Line";
@@ -170,7 +166,6 @@ codeunit 5005271 "Create Delivery Reminder"
         DeliveryReminderHeader.Modify();
     end;
 
-    [Scope('OnPrem')]
     procedure SuggestLines(var DeliveryReminderHeader: Record "Delivery Reminder Header")
     var
         PurchHeader: Record "Purchase Header";
@@ -311,7 +306,6 @@ codeunit 5005271 "Create Delivery Reminder"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure InsertBlankLine()
     begin
         NextLineNo := NextLineNo + LineOffset;

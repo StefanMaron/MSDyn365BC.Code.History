@@ -1004,6 +1004,8 @@ codeunit 138698 "AllProfile V2 Test"
     var
         AllProfile: Record "All Profile";
     begin
+        if AllProfile.Get(AllProfile.Scope::Tenant, AllProfile."App ID", ProfileId) then
+            AllProfile.Delete(); // This profile was already duplicated previously, clean it up before re-creating
         AllProfile.Scope := AllProfile.Scope::Tenant;
         AllProfile."Profile ID" := ProfileId;
         AllProfile."Role Center ID" := page::"Business Manager Role Center";

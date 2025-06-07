@@ -1565,6 +1565,10 @@ codeunit 138012 "O365 Templates Test"
 
         // [VERIFY] Verify: Values on Item record after applying Item Template
         VerifyItemDataNotEqualAfterApplyTemplate(Item, ItemTempl);
+
+        // [THEN] Enum values are updated from the template.
+        Assert.IsTrue(Item."Reordering Policy" = ItemTempl."Reordering Policy", InsertedItemErr);
+        Assert.IsTrue(Item."Replenishment System" = ItemTempl."Replenishment System", InsertedItemErr);
     end;
 
     [Test]
@@ -2778,8 +2782,6 @@ codeunit 138012 "O365 Templates Test"
         Assert.IsFalse(Item."Gen. Prod. Posting Group" = ItemTempl."Gen. Prod. Posting Group", InsertedItemErr);
         Assert.IsFalse(Item."Shelf No." = ItemTempl."Shelf No.", InsertedItemErr);
         Assert.IsFalse(Item."Lead Time Calculation" = ItemTempl."Lead Time Calculation", InsertedItemErr);
-        Assert.IsFalse(Item."Reordering Policy" = ItemTempl."Reordering Policy", InsertedItemErr);
-        Assert.IsFalse(Item."Replenishment System" = ItemTempl."Replenishment System", InsertedItemErr);
     end;
 
     local procedure VerifyItemAfterApplyTemplateWithPhysInvtCountingPeriod(Item: Record Item; ItemTempl: Record "Item Templ.")

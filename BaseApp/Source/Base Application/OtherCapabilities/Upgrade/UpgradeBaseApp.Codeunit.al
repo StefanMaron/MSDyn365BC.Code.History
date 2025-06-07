@@ -85,6 +85,9 @@ using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Setup;
 using Microsoft.Bank.Setup;
 using Microsoft.Bank.DirectDebit;
+#if not CLEANSCHEMA27
+using Microsoft.Finance.GeneralLedger.Ledger;
+#endif
 
 codeunit 104000 "Upgrade - BaseApp"
 {
@@ -92,6 +95,9 @@ codeunit 104000 "Upgrade - BaseApp"
     Permissions =
         TableData "User Group Plan" = rimd,
         TableData "Cust. Ledger Entry" = rm,
+#if not CLEANSCHEMA27
+        TableData "G/L Entry" = rm,
+#endif
         TableData "Employee Ledger Entry" = rm;
 
     var
@@ -222,6 +228,9 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocation();
         UpgradeIntegrationTableMappingTemplates();
         UpgradeICOutboxTransactionSourceType();
+#if not CLEANSCHEMA27        
+        UpgradeGLAmountFCYAndCurrencyCode();
+#endif
     end;
 
     local procedure ClearTemporaryTables()
@@ -273,6 +282,36 @@ codeunit 104000 "Upgrade - BaseApp"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetClearVATAmountLineTableUpgradeTag());
     end;
+
+#if not CLEANSCHEMA27
+    local procedure UpgradeGLAmountFCYAndCurrencyCode()
+    var
+        GLEntry: Record "G/L Entry";
+        GLAccount: Record "G/L Account";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        CHUpgradeTagDef: Codeunit "CH Upgrade Tag Def.";
+        GLEntryDataTransfer, GLAccountDataTransfer : DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(CHUpgradeTagDef.UpgradeGLAmountFCYAndCurrencyCode()) then
+            exit;
+
+        GLAccountDataTransfer.SetTables(Database::"G/L Account", Database::"G/L Account");
+        GLAccountDataTransfer.AddSourceFilter(GLAccount.FieldNo("Currency Code"), '<>''''');
+        GLAccountDataTransfer.AddSourceFilter(GLAccount.FieldNo("Source Currency Code"), '=''''');
+        GLAccountDataTransfer.AddFieldValue(GLAccount.FieldNo("Currency Code"), GLAccount.FieldNo("Source Currency Code"));
+        GLAccountDataTransfer.UpdateAuditFields := false;
+        GLAccountDataTransfer.CopyFields();
+
+        GLEntryDataTransfer.SetTables(Database::"G/L Entry", Database::"G/L Entry");
+        GLEntryDataTransfer.AddSourceFilter(GLEntry.FieldNo("Amount (FCY)"), '<>0');
+        GLEntryDataTransfer.AddSourceFilter(GLEntry.FieldNo("Source Currency Amount"), '=0');
+        GLEntryDataTransfer.AddFieldValue(GLEntry.FieldNo("Amount (FCY)"), GLEntry.FieldNo("Source Currency Amount"));
+        GLEntryDataTransfer.UpdateAuditFields := false;
+        GLEntryDataTransfer.CopyFields();
+
+        UpgradeTag.SetUpgradeTag(CHUpgradeTagDef.UpgradeGLAmountFCYAndCurrencyCode());
+    end;
+#endif
 
     local procedure UpgradeBankExportImportSetup()
     var
