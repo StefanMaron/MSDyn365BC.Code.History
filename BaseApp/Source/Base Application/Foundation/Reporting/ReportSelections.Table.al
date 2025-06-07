@@ -318,6 +318,7 @@ table 77 "Report Selections"
         RecordDoesNotMatchErr: Label 'The record that will be sent does not match the original record. The original record was changed or deleted. Please verify that the record exists, or try to re-send the remittance advice from the vendor ledger entries.';
         JobQueueParameterStringTok: Label '%1|%2|%3|%4|%5|%6', Locked = true;
         ReportSelectionsMustBeTemporaryErr: Label 'The Report Selections parameter must be temporary.';
+        ReminderAndSalesInvoiceErr: Label 'The Reminder report cannot be used with Sales Invoices';
 
     procedure NewRecord()
     begin
@@ -1376,6 +1377,9 @@ table 77 "Report Selections"
               ReportUsage.AsInteger(), RecordVariant, DefaultEmailAddress, TempAttachReportSelections, CustomReportSelection, Rec);
             OfficeAttachmentManager.IncrementCount(TempAttachReportSelections.Count - 1);
             repeat
+                if (TempAttachReportSelections."Report ID" = Report::Reminder) and (ReportUsage = "Report Selection Usage"::"S.Invoice") then
+                    Error(ReminderAndSalesInvoiceErr); 
+
                 IsHandled := false;
                 OnSendEmailDirectlyOnBeforeSendFileLoop(ReportUsage, RecordVariant, DocNo, DocName, DefaultEmailAddress, ShowDialog, TempAttachReportSelections, CustomReportSelection, IsHandled, ServerEmailBodyFilePath);
                 if not IsHandled then begin
@@ -1396,6 +1400,7 @@ table 77 "Report Selections"
                             AttachmentStream, '', ServerEmailBodyFilePath,
                             DocNo, EmailAddress, DocName, not ShowDialog, ReportUsage.AsInteger(),
                             SourceTableIDs, SourceIDs, SourceRelationTypes);
+                    OnSendEmailDirectlyOnAfterEmailWithAttachment(RecordVariant, TempAttachReportSelections, TempBlob, DocumentMailing, DocNo, DocName, EmailAddress, AllEmailsWereSuccessful);
                 end;
             until TempAttachReportSelections.Next() = 0;
         end;
@@ -2401,6 +2406,11 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConvertReportUsageToSalesDocumentType(var ReportSelections: Record "Report Selections"; var DocumentType: Enum "Sales Document Type"; ReportUsage: Enum "Report Selection Usage"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendEmailDirectlyOnAfterEmailWithAttachment(RecordVariant: Variant; var TempReportSelections: Record "Report Selections" temporary; var TempBlob: Codeunit "Temp Blob"; var DocumentMailing: Codeunit "Document-Mailing"; DocumentNo: Code[20]; DocumentName: Text[150]; EmailAddress: Text[250]; AllEmailsWereSuccessful: Boolean)
     begin
     end;
 }

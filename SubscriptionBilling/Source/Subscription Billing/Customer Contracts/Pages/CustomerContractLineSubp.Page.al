@@ -372,6 +372,14 @@ page 8068 "Customer Contract Line Subp."
                     Editable = false;
                     ToolTip = 'Specifies whether the Subscription Line is used as a basis for periodic invoicing or discounts.';
                 }
+                field("Create Contract Deferrals"; ServiceCommitment."Create Contract Deferrals")
+                {
+                    ToolTip = 'Specifies whether this Subscription Line should generate contract deferrals. If it is set to No, no deferrals are generated and the invoices are posted directly to profit or loss.';
+                    trigger OnValidate()
+                    begin
+                        UpdateServiceCommitmentOnPage(ServiceCommitment.FieldNo("Create Contract Deferrals"));
+                    end;
+                }
                 field("Price Binding Period"; ServiceCommitment."Price Binding Period")
                 {
                     Visible = false;

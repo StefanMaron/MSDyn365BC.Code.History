@@ -3284,6 +3284,40 @@
         Assert.ExpectedError(StrSubstNo(ChangeExtendedTextErr, PurchaseLine.FieldCaption(Type)));
     end;
 
+    [Test]
+    procedure VerifySourceCurrencyAmountForReverseCharge()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        CurrencyCode: Code[10];
+        GLAccountNo: Code[20];
+    begin
+        // [SCENARIO 572499] Wrong calculation in Source Currency Amount when VAT calculation type is Reverse Charge in VAT posting setup and the posting is done via Journal.
+        Initialize();
+
+        // [GIVEN] Create Currency with Exchange Rate
+        CurrencyCode := CreateCurrency();
+
+        // [GIVEN] Create VAT Posting Setup With Reverse Charge VAT and create new GL Account
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase);
+
+        // [GIVEN] Create Gen. Journal and assign the same currency created above
+        CreateGnlJnlLines(GenJournalLine, GLAccountNo, LibraryRandom.RandIntInRange(10000, 10000));
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Post Gen Journal Line
+        LibraryVariableStorage.Enqueue(GenJournalLine."Document No.");
+        LibraryVariableStorage.Enqueue(GenJournalLine.Amount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Verify Source Currency Amount for Reverse Charge VAT Account in GL Entry
+        VerifySourceCurrencyAmountInGLEntry(VATPostingSetup);
+        LibraryVariableStorage.Clear();
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";
@@ -4580,6 +4614,35 @@
         VATPostingSetup[2]."VAT Bus. Posting Group" := PurchaseHeader."VAT Bus. Posting Group";
         VATPostingSetup[2]."Reverse Chrg. VAT Acc." := LibraryERM.CreateGLAccountNo();
         VATPostingSetup[2].Insert();
+    end;
+
+    [Normal]
+    local procedure CreateGnlJnlLines(var GenJournalLine: Record "Gen. Journal Line"; GLAccountNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // Create General Journal Lines using newly created GL Account.
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount);
+    end;
+
+    local procedure VerifySourceCurrencyAmountInGLEntry(VATPostingSetup: Record "VAT Posting Setup")
+    var
+        GLEntry: Record "G/L Entry";
+        DocumentNo: Code[20];
+        LineAmount: Decimal;
+    begin
+        DocumentNo := LibraryVariableStorage.DequeueText();
+        LineAmount := LibraryVariableStorage.DequeueDecimal();
+
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", VATPostingSetup."Reverse Chrg. VAT Acc.");
+        GLEntry.FindFirst();
+
+        Assert.AreEqual(Abs(GLEntry."Source Currency Amount"), (LineAmount * VATPostingSetup."VAT %") / 100, GLEntry.FieldCaption("Source Currency Amount"));
     end;
 
     [MessageHandler]

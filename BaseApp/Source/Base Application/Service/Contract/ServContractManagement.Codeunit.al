@@ -626,6 +626,7 @@ codeunit 5940 ServContractManagement
                         if InvToDate > LatestInvToDate then
                             InvToDate := LatestInvToDate;
                     end;
+                    OnCreateServiceLineOnBeforeServLedgEntryToServiceLine(ServHeader, ServContractHeader, ServiceLedgerEntry, InvFromDate, InvToDate);
                     ServLedgEntryToServiceLine(
                       TotalServLine,
                       TotalServLineLCY,
@@ -637,6 +638,7 @@ codeunit 5940 ServContractManagement
                 until ServiceLedgerEntry.Next() = 0
         end else begin
             Clear(ServiceLedgerEntry);
+            OnCreateServiceLineOnBeforeServLedgEntryToServiceLine(ServHeader, ServContractHeader, ServiceLedgerEntry, InvFromDate, InvToDate);
             ServLedgEntryToServiceLine(
               TotalServLine,
               TotalServLineLCY,
@@ -3198,5 +3200,9 @@ codeunit 5940 ServContractManagement
     local procedure OnInsertMultipleServLedgEntriesOnAfterSetDueDate(Index: Integer; var DueDate: Date; ServiceLedgerEntry: Record "Service Ledger Entry"; CountOfEntryLoop: Integer; InvRoundedAmount: array[4] of Decimal; var NonDistrAmount: array[4] of Decimal; var ServiceHeader: Record "Service Header"; AmountRoundingPrecision: Decimal)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateServiceLineOnBeforeServLedgEntryToServiceLine(var ServiceHeader: Record "Service Header"; var ServiceContractHeader: Record "Service Contract Header"; var ServiceLedgerEntry: Record "Service Ledger Entry"; var InvFromDate: Date; var InvToDate: Date)
+    begin
+    end;
+}

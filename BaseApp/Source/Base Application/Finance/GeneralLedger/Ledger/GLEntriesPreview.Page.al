@@ -163,6 +163,12 @@ page 122 "G/L Entries Preview"
                     ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
                     Visible = false;
                 }
+                field("Src. Curr. Non-Ded. VAT Amount"; Rec."Src. Curr. Non-Ded. VAT Amount")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    ToolTip = 'Specifies the amount in source currency of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                }
                 field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;

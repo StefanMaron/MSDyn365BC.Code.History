@@ -3950,12 +3950,12 @@ codeunit 134483 "ERM Change Global Dimensions"
         if Field.FindSet() then
             repeat
                 if (TableID <> Field.TableNo) and not IsObsolete(Field.TableNo) then
-                    if PKContainsOneField(Field.TableNo) or TableContainsDimSetIDField(Field.TableNo) then begin
-                        ChangeGlobalDimLogEntry.Get(Field.TableNo);
-                        ChangeGlobalDimLogEntry.Delete();
-                        TableID := Field.TableNo;
-                        Result += 1;
-                    end;
+                    if PKContainsOneField(Field.TableNo) or TableContainsDimSetIDField(Field.TableNo) then
+                        if ChangeGlobalDimLogEntry.Get(Field.TableNo) then begin
+                            ChangeGlobalDimLogEntry.Delete();
+                            TableID := Field.TableNo;
+                            Result += 1;
+                        end;
             until Field.Next() = 0;
         ChangeGlobalDimLogEntry.SetFilter("Table ID", '<>0&<>%1', DATABASE::"Job Task");
         if ChangeGlobalDimLogEntry.FindFirst() then
