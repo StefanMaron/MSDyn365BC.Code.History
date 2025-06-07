@@ -2777,8 +2777,6 @@ page 6510 "Item Tracking Lines"
                 TempTrackingSpecification."Qty. per Unit of Measure" := ItemLedgerEntry."Qty. per Unit of Measure";
                 TempTrackingSpecification.InitQtyToShip();
 
-                if TempTrackingSpecification."Quantity (Base)" * CurrentSignFactor > Abs(MaxQtyBase - CurrentQtyBase) then
-                    TempTrackingSpecification."Quantity (Base)" := MaxQtyBase - CurrentQtyBase;
                 CurrentQtyBase += TempTrackingSpecification."Quantity (Base)";
 
                 OnBeforeCollectTempTrackingSpecificationInsert(TempTrackingSpecification, ItemLedgerEntry, TrackingSpecification);
