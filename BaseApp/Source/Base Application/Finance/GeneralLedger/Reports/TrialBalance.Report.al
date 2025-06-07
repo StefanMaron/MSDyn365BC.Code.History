@@ -479,7 +479,6 @@ report 6 "Trial Balance"
         TotalBalanceAtEnd: Decimal;
         TotalDebitAmtAtEnd: Decimal;
         TotalCreditAmtAtEnd: Decimal;
-        BalanceType: Decimal;
         OpenCreditAmt: Decimal;
         OpenDebitAmt: Decimal;
         CloseCreditAmt: Decimal;
@@ -517,6 +516,7 @@ report 6 "Trial Balance"
         NextPageGroupNo: Integer;
         PrintAllHavingBal: Boolean;
         PrintAmountsInAddCurrency: Boolean;
+        BalanceType: Decimal;
 
     [Scope('OnPrem')]
     procedure StartingPeriod(Date: Date): Date

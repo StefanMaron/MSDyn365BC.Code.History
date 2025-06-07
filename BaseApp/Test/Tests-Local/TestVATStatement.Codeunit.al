@@ -34,6 +34,7 @@ codeunit 147590 "Test VAT Statement"
         TotalECAmtTok: Label 'TotalECAmt';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
         AEATTransferenceValueErr: Label 'Value of 80 character should be accepted in AEATTransference File.';
+        ECPercentErr: Label 'EC % must be %1 in %2.', Comment = '%1= Field Value, %2= Table Caption.';
 
     [Test]
     [HandlerFunctions('TemplateSelectionModalPageHandler')]
@@ -2054,6 +2055,52 @@ codeunit 147590 "Test VAT Statement"
           AEATTransferenceFormat.Value,
           Format(GeneratedTextFromFile),
           AEATTransferenceValueErr);
+    end;
+
+    [Test]
+    procedure GetPostedDocumentLinesToReverseInPostedSalesShipmentBringSEquivalenceCharge()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        VATPostingSetupNormal: Record "VAT Posting Setup";
+        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
+        LinesNotCopied: Integer;
+        MissingExCostRevLink: Boolean;
+    begin
+        // [SCENARIO 566248] Get Posted Document Lines to Reverse action from the Posted Sales Shipment brings the Equivalence Charge correctly.
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup with "VAT %" and "EC %".
+        CreateVATPostingSetup(VATPostingSetupNormal);
+        VATPostingSetupNormal.Validate("VAT %", LibraryRandom.RandDecInRange(10, 20, 2));
+        VATPostingSetupNormal.Validate("EC %", LibraryRandom.RandDecInDecimalRange(5, 15, 2));
+        VATPostingSetupNormal.Modify(true);
+
+        // [GIVEN] Create Sales Invoice with VAT Posting Setup.
+        CreatePostSalesInvoice(SalesHeader, VATPostingSetupNormal);
+
+        // [GIVEN] Create Sales Credit Memo and Validate "VAT Bus. Posting Group".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
+        SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetupNormal."VAT Bus. Posting Group");
+        SalesHeader.Modify(true);
+
+        // [WHEN] "Get Posted Document Lines to Reverse" from Sales Credit Memo.
+        SalesShipmentLine.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        CopyDocumentMgt.SetProperties(false, false, false, false, true, true, false);
+        CopyDocumentMgt.CopySalesShptLinesToDoc(SalesHeader, SalesShipmentLine, LinesNotCopied, MissingExCostRevLink);
+
+        // [THEN] EC % must be populated in Sales Credit Memo Line.
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.SetRange(Type, SalesLine.Type::"G/L Account");
+        SalesLine.FindFirst();
+        Assert.AreEqual(
+          VATPostingSetupNormal."EC %",
+          SalesLine."EC %",
+          StrSubstNo(
+            ECPercentErr,
+            VATPostingSetupNormal."EC %",
+            SalesLine.TableCaption()));
     end;
 
     local procedure GetVATAmount(DocNo: Code[20]): Decimal

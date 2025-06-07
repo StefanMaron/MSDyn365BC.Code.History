@@ -779,6 +779,7 @@ table 254 "VAT Entry"
         NoTaxableEntry.ModifyAll("VAT Reporting Date", NewDate);
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"VAT Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";

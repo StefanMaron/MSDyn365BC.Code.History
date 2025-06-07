@@ -950,14 +950,11 @@ codeunit 90 "Purch.-Post"
         if IsHandled then
             exit;
 
-        if (PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) and
-           (PurchHeader."Document Type" <> PurchHeader."Document Type"::"Credit Memo") then
+        if PreviewMode then
             exit;
 
         GetPurchSetup();
-        if not PurchSetup."Check Doc. Total Amounts" then
-            exit;
-        if PreviewMode then
+        if not PurchSetup.ShouldDocumentTotalAmountsBeChecked(PurchHeader) then
             exit;
 
         PurchHeader.CalcFields(Amount, "Amount Including VAT");

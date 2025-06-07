@@ -123,6 +123,7 @@ table 45 "G/L Register"
 
     }
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"G/L Register", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";

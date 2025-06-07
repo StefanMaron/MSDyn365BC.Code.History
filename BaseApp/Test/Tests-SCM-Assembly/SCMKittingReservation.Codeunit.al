@@ -78,6 +78,7 @@ codeunit 137099 "SCM Kitting Reservation"
         ReservationEntryErr: Label 'Reservation Entry is not correct for %1.';
         QtyIsNotCorrectErr: Label 'Quantity is incorrect in Sales Invoice Line';
         IsBeforeWorkDateMsg: Label 'is before work date';
+        QtyBaseIsNotCorrectErr: Label 'Quantity(Base) is incorrect in Item Tracking Lines';
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler,ReservationPageHandler,ItemTrackingSummaryPageHandler')]
@@ -1284,6 +1285,55 @@ codeunit 137099 "SCM Kitting Reservation"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('VerifyItemTrackingLinesQuantityBasePageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyQuantityBaseUndoPostedAssemblyOrderWithLotTracking()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyItem: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        ComponentItemNo: Code[20];
+        ConsumedQty: Decimal;
+        LotNo: Code[50];
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 574824] Verify Quantity(Base) after Undo Posted Assembly Order with Lot Tracking.
+        Initialize();
+        Quantity := LibraryRandom.RandDecInRange(5, 5, 2);
+        ConsumedQty := LibraryRandom.RandDecInRange(3, 3, 2);
+        LotNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create Item Tracking Code.
+        CreateItemTrackingCode(ItemTrackingCode);
+
+        // [GIVEN] Create Assembly Item with Component Item.
+        ComponentItemNo := CreateAssemblyItemWithComponent(
+              AssemblyItem, AssemblyItem."Assembly Policy"::"Assemble-to-Stock", 1, ItemTrackingCode.Code, LibraryUtility.GetGlobalNoSeriesCode());
+
+        // [GIVEN] Create and Post Item Journal for Component Item.
+        CreateAndPostItemJournalLine(ComponentItemNo, Quantity, false);
+
+        // [GIVEN] Create Assembly Header and assign Quantity to Assemble.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime(), AssemblyItem."No.", '', Quantity, '');
+        AssemblyHeader.Validate("Quantity to Assemble", ConsumedQty);
+        AssemblyHeader.Modify(true);
+
+        // [GIVEN] Open Item Tracking Lines and Set Lot No. and Quantity(Base).
+        EnqueueValuesForItemTrackingLines(LotNo, ConsumedQty);
+        AssemblyHeader.OpenItemTrackingLines();
+
+        // [GIVEN] Post Assembly Header
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [WHEN] Undo Posted Assembly Order.
+        UndoPartialPostedAssemblyOrder(AssemblyHeader."No.");
+
+        // [THEN] Verify Item Tracking Lines Quantity(Base).
+        LibraryVariableStorage.Enqueue(ConsumedQty);
+        VerifyAssemblyOrderItemTracking(AssemblyHeader."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2230,6 +2280,27 @@ codeunit 137099 "SCM Kitting Reservation"
         Assert.AreEqual(Qty, SalesInvoiceLine.Quantity, QtyIsNotCorrectErr);
     end;
 
+    local procedure UndoPartialPostedAssemblyOrder(OrderNo: Code[20])
+    var
+        PostedAssemblyHeader: Record "Posted Assembly Header";
+    begin
+        PostedAssemblyHeader.SetRange("Order No.", OrderNo);
+        PostedAssemblyHeader.FindFirst();
+
+        LibraryVariableStorage.Enqueue(UndoPostedAssemblyOrderQst); // Enqueue for ConfirmHandler.
+        LibraryVariableStorage.Enqueue(true); // First time the answer is "Yes" for conform dialog.
+        CODEUNIT.Run(CODEUNIT::"Pstd. Assembly - Undo (Yes/No)", PostedAssemblyHeader);
+    end;
+
+    local procedure VerifyAssemblyOrderItemTracking(AssemblyOrderNo: Code[20])
+    var
+        AssemblyOrder: TestPage "Assembly Order";
+    begin
+        AssemblyOrder.OpenEdit();
+        AssemblyOrder.FILTER.SetFilter("No.", AssemblyOrderNo);
+        AssemblyOrder."Item Tracking Lines".Invoke();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -2375,6 +2446,40 @@ codeunit 137099 "SCM Kitting Reservation"
         PickSelectionTestPage.FILTER.SetFilter("Document Type", Format(WhsePickRequest."Document Type"::Shipment));
         PickSelectionTestPage.FILTER.SetFilter("Document No.", DocumentNo);
         PickSelectionTestPage.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure VerifyItemTrackingLinesQuantityBasePageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        ActualQuantity: Decimal;
+        ExpectedQuantity: Decimal;
+        DequeueVariable: Variant;
+        TrackingAction: Option;
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        if not DequeueVariable.IsDecimal then begin
+            TrackingAction := DequeueVariable;
+            case TrackingAction of
+                ItemTrackingMode::AssignLotNo:
+                    begin
+                        ItemTrackingLines."Assign Lot No.".Invoke();
+                        LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
+                    end;
+                ItemTrackingMode::SelectEntries:
+                    ItemTrackingLines."Select Entries".Invoke();
+                ItemTrackingMode::SetLotNo:
+                    begin
+                        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    end;
+            end;
+        end
+        else begin
+            ExpectedQuantity := DequeueVariable;
+            ActualQuantity := ItemTrackingLines."Quantity (Base)".AsDecimal();
+            Assert.AreEqual(ExpectedQuantity, ActualQuantity, QtyBaseIsNotCorrectErr);
+        end;
+        ItemTrackingLines.OK().Invoke();
     end;
 }
 

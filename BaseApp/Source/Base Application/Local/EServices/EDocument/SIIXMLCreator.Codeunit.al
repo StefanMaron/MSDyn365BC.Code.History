@@ -503,12 +503,14 @@ codeunit 10750 "SII XML Creator"
         DomesticCustomer: Boolean;
         RegimeCodes: array[3] of Code[2];
         IsHandled: Boolean;
+        ValueRefExternal: Text;
     begin
         GetCustomerByGLSetup(Customer, CustLedgerEntry);
         DomesticCustomer := SIIManagement.IsDomesticCustomer(Customer);
 
         SIIDocUploadState.GetSIIDocUploadStateByCustLedgEntry(CustLedgerEntry);
         if IsSalesInvoice(InvoiceType, SIIDocUploadState) then begin
+            OnPopulateXMLWithSalesInvoiceOnBeforeInitializeSalesXmlBody(CustLedgerEntry);
             InitializeSalesXmlBody(XMLNode, CustLedgerEntry."VAT Reporting Date");
             if SIIDocUploadState."First Summary Doc. No." = '' then
                 XMLDOMManagement.AddElementWithPrefix(
@@ -567,7 +569,9 @@ codeunit 10750 "SII XML Creator"
             FillOperationDescription(
               XMLNode, GetOperationDescriptionFromDocument(true, CustLedgerEntry."Document No."),
               CustLedgerEntry."Posting Date", CustLedgerEntry.Description);
-            FillRefExternaNode(XMLNode, Format(SIIDocUploadState."Entry No"));
+            ValueRefExternal := Format(SIIDocUploadState."Entry No");
+            OnPopulateXMLWithSalesInvoiceOnBeforeFillRefExternaNode(SIIDocUploadState, ValueRefExternal);
+            FillRefExternaNode(XMLNode, ValueRefExternal);
             FillSucceededCompanyInfo(XMLNode, SIIDocUploadState);
             if AddNodeForTotals then
                 FillMacrodatoNode(XMLNode, TotalAmount);
@@ -3125,6 +3129,16 @@ codeunit 10750 "SII XML Creator"
 
     [IntegrationEvent(false, false)]
     procedure OnPopulateXMLWithSalesInvoiceOnBeforeAddNodeForTotals(var AddNodeForTotals: Boolean; var CustLedgerEntry: Record "Cust. Ledger Entry"; var TotalBase: Decimal; var TotalNonExemptBase: Decimal; var TotalVATAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPopulateXMLWithSalesInvoiceOnBeforeFillRefExternaNode(var SIIDocUploadState: Record "SII Doc. Upload State"; var ValueRefExternal: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPopulateXMLWithSalesInvoiceOnBeforeInitializeSalesXmlBody(var CustLedgerEntry: Record "Cust. Ledger Entry");
     begin
     end;
 }

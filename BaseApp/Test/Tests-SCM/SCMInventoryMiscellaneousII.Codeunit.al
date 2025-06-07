@@ -1664,6 +1664,94 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     end;
 
     [Test]
+    procedure WarehouseRequestsForProductionOrder()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        // [FEATURE] [Inventory Pick] [Warehouse Request] [Production Order]
+        Initialize();
+
+        // [GIVEN] Item with production BOM
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Stock");
+        Item.Validate("Production BOM No.", LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, LibraryInventory.CreateItemNo(), LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10)));
+        Item.Modify(true);
+
+        // [GIVEN] Create location with picking and put-away enabled and manufacturing internal pick/put-away
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, false, false);
+
+        // [GIVEN] Create production order for Item and Location
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item,
+          Item."No.", LibraryRandom.RandInt(10));
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+
+        // [WHEN] refresh production order
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, true);
+
+        // [THEN] Warehouse Request for Production Order created
+        WarehouseRequest.SetRange("Source Type", Database::"Prod. Order Line", Database::"Prod. Order Component");
+        WarehouseRequest.SetRange("Source No.", ProductionOrder."No.");
+        Assert.AreEqual(2, WarehouseRequest.Count(), 'Warehouse Request for Production Order not created.');
+
+        // [WHEN] delete production order
+        ProductionOrder.Delete(true);
+
+        // [THEN] Warehouse Request for Production Order deleted
+        Assert.AreEqual(0, WarehouseRequest.Count(), 'Warehouse Request for Production Order not deleted.');
+    end;
+
+    [Test]
+    procedure WhsePickRequestsForProductionOrder()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        WhsePickRequest: Record "Whse. Pick Request";
+    begin
+        // [FEATURE] [Inventory Pick] [Warehouse Request] [Production Order]
+        Initialize();
+
+        // [GIVEN] Item with production BOM
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Stock");
+        Item.Validate("Production BOM No.", LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, LibraryInventory.CreateItemNo(), LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10)));
+        Item.Modify(true);
+
+        // [GIVEN] Create location with picking and put-away enabled and manufacturing pick/put-away
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, true, true);
+
+        // [GIVEN] Create production order for Item and Location
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item,
+          Item."No.", LibraryRandom.RandInt(10));
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+
+        // [WHEN] refresh production order
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, true);
+
+        // [THEN] Warehouse Request for Production Order created
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Production);
+        WhsePickRequest.SetRange("Document No.", ProductionOrder."No.");
+        Assert.AreEqual(1, WhsePickRequest.Count(), 'Warehouse Pick Request for Production Order not created.');
+
+        // [WHEN] delete production order
+        ProductionOrder.Delete(true);
+
+        // [THEN] Warehouse Request for Production Order deleted
+        Assert.AreEqual(0, WhsePickRequest.Count(), 'Warehouse Pick Request for Production Order not deleted.');
+    end;
+
+    [Test]
     [HandlerFunctions('CreateInvtPickRequestPageHandler,DummyMessageHandler')]
     procedure InventoryPickForPurchaseReturnOrderWithAdditionalFilters()
     var

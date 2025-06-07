@@ -129,6 +129,7 @@ report 7000087 "Batch Settl. Posted POs"
                                 GenJnlLine."Shortcut Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
                                 GenJnlLine."Shortcut Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
                                 GenJnlLine."Dimension Set ID" := VendLedgEntry."Dimension Set ID";
+                                GenJnlLine."Posting Group" := VendLedgEntry."Vendor Posting Group";
                                 OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, VendLedgEntry, PostedPmtOrd);
                                 GenJnlLine.Insert();
                                 SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";

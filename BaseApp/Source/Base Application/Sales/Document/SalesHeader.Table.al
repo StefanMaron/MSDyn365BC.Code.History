@@ -6896,8 +6896,12 @@ table 36 "Sales Header"
             TestSalesLineFieldsBeforeRecreate();
             ShouldValidateLocationCode := (SalesLine."Location Code" <> "Location Code") and not SalesLine.IsNonInventoriableItem();
             OnRecreateReservEntryReqLineOnAfterCalcShouldValidateLocationCode(Rec, xRec, SalesLine, ShouldValidateLocationCode);
-            if ShouldValidateLocationCode then
+            if ShouldValidateLocationCode then begin
                 SalesLine.Validate("Location Code", "Location Code");
+                if Rec."Document Type" in [Rec."Document Type"::Invoice, Rec."Document Type"::"Credit Memo"] then
+                    if SalesLine."Location Code" <> '' then
+                        SalesLine.CheckLocationOnWMS();
+            end;
             TempSalesLine := SalesLine;
             if SalesLine.Nonstock then begin
                 SalesLine.Nonstock := false;
