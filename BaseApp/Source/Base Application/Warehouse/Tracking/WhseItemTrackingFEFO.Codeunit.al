@@ -47,6 +47,8 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         SummarizeInventoryFEFO(Location, ItemNo, VariantCode, UnitofMeasureCode, UseExpDates);
         if UseExpDates then
             SummarizeAdjustmentBinFEFO(Location, ItemNo, VariantCode);
+
+        OnAfterCreateEntrySummaryFEFO(TempGlobalEntrySummary);
     end;
 
     local procedure SummarizeInventoryFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; HasExpirationDate: Boolean)
