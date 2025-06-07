@@ -12,7 +12,7 @@ codeunit 93 "Purch.-Quote to Order (Yes/No)"
         IsHandled: Boolean;
     begin
         Rec.TestField("Document Type", Rec."Document Type"::Quote);
-        if not ConfirmManagement.GetResponseOrDefault(ConvertQuoteToOrderQst, true) then
+        if not ConfirmConvertToOrder(Rec) then
             exit;
 
         IsHandled := false;
@@ -31,10 +31,26 @@ codeunit 93 "Purch.-Quote to Order (Yes/No)"
     end;
 
     var
-        ConvertQuoteToOrderQst: Label 'Do you want to convert the quote to an order?';
         PurchOrderHeader: Record "Purchase Header";
         PurchQuoteToOrder: Codeunit "Purch.-Quote to Order";
+        ConvertQuoteToOrderQst: Label 'Do you want to convert the quote to an order?';
         OpenNewOrderQst: Label 'The quote has been converted to order number %1. Do you want to open the new order?', Comment = '%1 - No. of new purchase order.';
+
+    local procedure ConfirmConvertToOrder(PurchaseHeader: Record "Purchase Header") Result: Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmConvertToOrder(PurchaseHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if not ConfirmManagement.GetResponseOrDefault(ConvertQuoteToOrderQst, true) then
+            exit(false);
+
+        exit(true);
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePurchOrder(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
@@ -43,6 +59,11 @@ codeunit 93 "Purch.-Quote to Order (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchQuoteToOrder(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmConvertToOrder(PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

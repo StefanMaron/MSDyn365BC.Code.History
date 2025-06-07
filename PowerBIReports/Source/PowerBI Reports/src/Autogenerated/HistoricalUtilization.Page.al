@@ -1,3 +1,4 @@
+#if not CLEAN26
 namespace Microsoft.PowerBIReports;
 
 using System.Integration.PowerBI;
@@ -11,8 +12,10 @@ page 37041 "Historical Utilization"
 #pragma warning restore AS0035
     Caption = 'Historical Utilization';
     AboutTitle = 'About Historical Utilization';
-    AboutText = 'View the historical Utilisation % by comparing Capacity Used vs Available Capacity in Hours viewed over a timeline you can define to see trends. View all or some Work Centres.';
-
+    AboutText = 'View the historical Utilization % by comparing Capacity Used vs Available Capacity in Hours viewed over a timeline you can define to see trends. View all or some Work Centers.';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The Power BI report has been changed/removed and this is no longer required.';
+    ObsoleteTag = '26.0';
     layout
     {
         area(Content)
@@ -55,4 +58,5 @@ page 37041 "Historical Utilization"
         ReportId := SetupHelper.GetReportIdAndEnsureSetup(CurrPage.Caption(), PowerBIReportsSetup.FieldNo("Manufacturing Report Id"));
     end;
 }
+#endif
 

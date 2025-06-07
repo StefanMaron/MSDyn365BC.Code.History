@@ -71,6 +71,7 @@
         UnitPriceMustMatchErr: Label 'Unit Price must match.';
         PlannedShipmentDateErr: Label 'Planned Shipment Date must be %1 in %2.', Comment = '%1= Value ,%2=Table Name.';
         ServiceChargeLineExist: Label 'Service Charge Line exist';
+        CorrectPostedSalesInvoiceErr: Label 'Cancelled must be %1 for %2', Comment = '%1= Value ,%2=Table Name';
 
     [Test]
     [Scope('OnPrem')]
@@ -5660,6 +5661,79 @@
 
         // [THEN] Verify Service Charge Line is not created.
         Assert.IsFalse(FindSalesServiceChargeLineexist(SalesLine, SalesHeader), ServiceChargeLineExist);
+    end;
+
+    [Test]
+    procedure CorrectPostedSalesInvoiceWithItemHasDimensionMandatory()
+    var
+        DefaultDimension: Record "Default Dimension";
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        SalesInvHeader: Record "Sales Invoice Header";
+        Item: Record Item;
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        Quantity: Decimal;
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 575341] Verify correct a Posted Invoice with an Item that has Dimension Code Mandatory 
+        Initialize();
+        Quantity := LibraryRandom.RandDecInRange(5, 5, 2);
+
+        // [GIVEN] Create Dimension and Dimension Value.
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+
+        // [GIVEN] Create an Item with Dimension and Value Posting as Code Mandatory.
+        LibraryInventory.CreateItem(Item);
+        LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, Item."No.", Dimension.Code, '');
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify(true);
+
+        // [GIVEN] Create Item Journal Line with Dimension Set ID.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, item."No.", '', '', LibraryRandom.RandDec(20, 2));
+        ItemJournalLine.Validate(
+          "Dimension Set ID",
+          LibraryDimension.CreateDimSet(ItemJournalLine."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code));
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post Item Joutnal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create Sales Header
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
+
+        // [GIVEN] Create first Sales Line with Dimension Set ID.
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::Item, Item."No.", Quantity);
+        SalesLine[1].Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine[1].Validate(
+        "Dimension Set ID",
+        LibraryDimension.CreateDimSet(SalesLine[1]."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code));
+        SalesLine[1].Modify(true);
+
+        // [GIVEN] Create Second Sales Line with Qty. to Ship, Qty. to Invoice as 0.
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::Item, Item."No.", Quantity);
+        SalesLine[2].Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine[2].Validate("Qty. to Ship", 0);
+        SalesLine[2].Validate("Qty. to Invoice", 0);
+        SalesLine[2].Modify(true);
+
+        // [GIVEN] Post Sales Order
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Correct Posted Sales Invoice        
+        SalesInvHeader.Get(DocumentNo);
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvHeader);
+
+        // [THEN] Verify Correction of Posted Sales Invoice done successfully. 
+        SalesInvHeader.CalcFields(Cancelled);
+        Assert.IsTrue(SalesInvHeader.Cancelled,
+             StrSubstNo(
+                CorrectPostedSalesInvoiceErr,
+                'TRUE',
+                SalesInvHeader.TableCaption()));
     end;
 
     local procedure Initialize()

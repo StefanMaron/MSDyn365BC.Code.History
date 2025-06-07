@@ -55,7 +55,7 @@ table 189 "VAT Setup"
         }
         field(5; "Use For Job Cost"; Boolean)
         {
-            Caption = 'Use For Job Cost';
+            Caption = 'Use For Project Cost';
         }
         field(10; "Show Non-Ded. VAT In Lines"; Boolean)
         {

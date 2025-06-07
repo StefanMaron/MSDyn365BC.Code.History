@@ -31,7 +31,7 @@ codeunit 5763 "Whse.-Post Shipment"
         Code();
         Rec := WhseShptLine;
 
-        OnAfterRun(Rec);
+        OnAfterRun(Rec, WhsePostParameters."Preview Posting");
     end;
 
     var
@@ -691,7 +691,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterRun(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    local procedure OnAfterRun(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; PreviewMode: Boolean)
     begin
     end;
 

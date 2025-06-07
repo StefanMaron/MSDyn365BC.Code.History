@@ -28,7 +28,7 @@ codeunit 453 "Job Queue - Enqueue"
             JobQueueEntry.Insert(true)
         else begin
             if CanScheduleTask(JobQueueEntry) then
-                JobQueueEntry.CancelTask(); // clears "System Task ID"
+                JobQueueEntry.CancelTask(false); // clears "System Task ID"
             JobQueueEntry.Modify();
         end;
 

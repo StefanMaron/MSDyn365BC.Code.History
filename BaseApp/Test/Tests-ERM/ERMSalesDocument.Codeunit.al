@@ -55,6 +55,7 @@
         AmountNotMatchedErr: Label 'Amount not matched.';
         AmountMustSameErr: Label 'Amount must be same';
         QtyHandleMustSameErr: Label 'Qty to handle must equal';
+        CannotRenameItemErr: Label 'You cannot rename %1 in a %2 because it is used in Sales Document lines.';
 
     [Test]
     [Scope('OnPrem')]
@@ -4816,6 +4817,57 @@
         Assert.AreEqual(ItemChargeAssignmentSales."Qty. to Handle", Quantity[2], QtyHandleMustSameErr);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RenameItemNoExistsInValueEntry()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        NewItemCode: Code[20];
+    begin
+        // [SCENARIO 574250] Verify Rename Item No. After Posting and Generating Value Entries with Variant Codes and blank Variant Code.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create  an Item Variant for Item.
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [GIVEN] Create and Post Item Journal with and without Variant Code.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name",
+          ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDecInRange(10, 20, 2));
+        ItemJournalLine.Validate("Variant Code", ItemVariant.Code);
+        ItemJournalLine.Modify(true);
+
+        LibraryInventory.CreateItemJournalLine(
+         ItemJournalLine, ItemJournalBatch."Journal Template Name",
+         ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDecInRange(10, 20, 2));
+
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Create and Post Sales Invoice with Variant Code.
+        LibrarySales.CreateSalesInvoice(SalesHeader, SalesLine, Item, '', ItemVariant.Code, LibraryRandom.RandDecInRange(5, 10, 2), WorkDate(), LibraryRandom.RandDecInRange(100, 200, 2));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Rename Item No. on Item. 
+        NewItemCode := LibraryUtility.GenerateRandomCode(Item.FieldNo("No."), Database::Item);
+        Item2.Get(Item."No.");
+        Item2.Rename(NewItemCode);
+
+        // [THEN] Verify Item No. should be renamed with new Item No.
+        Assert.AreEqual(NewItemCode, Item2."No.", StrSubstNo(CannotRenameItemErr, Item2.FieldCaption("No."), Item2.TableCaption()));
     end;
 
     local procedure Initialize()

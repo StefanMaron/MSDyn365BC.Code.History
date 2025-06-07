@@ -78,6 +78,7 @@ codeunit 1018 "Purchase Doc. From Job"
         JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
         if JobPlanningLine.IsEmpty() then
             exit;
+        JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
         JobPlanningLine.FindSet();
         RecRef.GetTable(JobPlanningLine);
         ContractEntryNoFilter := SelectionFilterMgt.GetSelectionFilter(RecRef, JobPlanningLine.FieldNo("Job Contract Entry No."));

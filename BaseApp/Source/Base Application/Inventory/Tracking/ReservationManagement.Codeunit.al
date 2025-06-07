@@ -2231,6 +2231,27 @@ codeunit 99000845 "Reservation Management"
         QtyThisLineBase := GetMinAbs(QtyThisLineBase, MaxReservQtyBasePerLotOrSerial) * GetSign(QtyThisLineBase);
     end;
 
+    procedure SetReservedQtyDownToTrackedQuantity(ReservEntry: Record "Reservation Entry"; RowID: Text[250]; var ReserveQty: Decimal)
+    var
+        FilterReservEntry: Record "Reservation Entry";
+        TempTrackingSpec: Record "Tracking Specification" temporary;
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+    begin
+        if not ReservEntry.TrackingExists() then
+            exit;
+
+        FilterReservEntry.SetPointer(RowID);
+        FilterReservEntry.SetPointerFilter();
+        FilterReservEntry.SetTrackingFilterFromReservEntry(ReservEntry);
+        FilterReservEntry.SetRange("Reservation Status", FilterReservEntry."Reservation Status"::Reservation);
+        ItemTrackingMgt.SumUpItemTracking(FilterReservEntry, TempTrackingSpec, true, true);
+
+        if TempTrackingSpec.IsEmpty then
+            ReserveQty := 0
+        else
+            ReserveQty := TempTrackingSpec."Quantity (Base)";
+    end;
+
     local procedure IsSpecialOrderOrDropShipment(ReservationEntry: Record "Reservation Entry"): Boolean
     var
         SalesLine: Record "Sales Line";

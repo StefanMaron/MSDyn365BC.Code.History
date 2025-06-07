@@ -1,9 +1,10 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Tracking;
 
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Manufacturing.Document;
@@ -16,33 +17,40 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
         ItemTrackingLines: Page "Item Tracking Lines";
         ItemTrackingManagement: Codeunit "Item Tracking Management";
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnAfterGetItemTrackingSetup', '', false, false)]
-    local procedure OnAfterGetItemTrackingSetup(var ItemTrackingCode: Record "Item Tracking Code"; var ItemTrackingSetup: Record "Item Tracking Setup"; EntryType: Enum "Item Ledger Entry Type"; Inbound: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnGetItemTrackingSetupOnSetSerialNoRequired', '', false, false)]
+    local procedure OnGetItemTrackingSetupOnSetSerialNoRequired(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemTrackingCode: Record "Item Tracking Code"; EntryType: Enum "Item Ledger Entry Type"; Inbound: Boolean)
     begin
-        if ItemTrackingCode."SN Specific Tracking" then
-            case EntryType of
-                EntryType::Consumption, EntryType::Output:
-                    if Inbound then
-                        ItemTrackingSetup."Serial No. Required" := ItemTrackingCode."SN Manuf. Inbound Tracking"
-                    else
-                        ItemTrackingSetup."Serial No. Required" := ItemTrackingCode."SN Manuf. Outbound Tracking";
-            end;
-        if ItemTrackingCode."Lot Specific Tracking" then
-            case EntryType of
-                EntryType::Consumption, EntryType::Output:
-                    if Inbound then
-                        ItemTrackingSetup."Lot No. Required" := ItemTrackingCode."Lot Manuf. Inbound Tracking"
-                    else
-                        ItemTrackingSetup."Lot No. Required" := ItemTrackingCode."Lot Manuf. Outbound Tracking";
-            end;
-        if ItemTrackingCode."Package Specific Tracking" then
-            case EntryType of
-                EntryType::Consumption, EntryType::Output:
-                    if Inbound then
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Manuf. Inb. Tracking"
-                    else
-                        ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Manuf. Outb. Tracking";
-            end;
+        case EntryType of
+            EntryType::Consumption, EntryType::Output:
+                if Inbound then
+                    ItemTrackingSetup."Serial No. Required" := ItemTrackingCode."SN Manuf. Inbound Tracking"
+                else
+                    ItemTrackingSetup."Serial No. Required" := ItemTrackingCode."SN Manuf. Outbound Tracking";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnGetItemTrackingSetupOnSetLotNoRequired', '', false, false)]
+    local procedure OnGetItemTrackingSetupOnSetLotNoRequired(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemTrackingCode: Record "Item Tracking Code"; EntryType: Enum "Item Ledger Entry Type"; Inbound: Boolean)
+    begin
+        case EntryType of
+            EntryType::Consumption, EntryType::Output:
+                if Inbound then
+                    ItemTrackingSetup."Lot No. Required" := ItemTrackingCode."Lot Manuf. Inbound Tracking"
+                else
+                    ItemTrackingSetup."Lot No. Required" := ItemTrackingCode."Lot Manuf. Outbound Tracking";
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnGetItemTrackingSetupOnSetPackageNoRequired', '', false, false)]
+    local procedure OnGetItemTrackingSetupOnSetPackageNoRequired(var ItemTrackingSetup: Record "Item Tracking Setup"; ItemTrackingCode: Record "Item Tracking Code"; EntryType: Enum "Item Ledger Entry Type"; Inbound: Boolean)
+    begin
+        case EntryType of
+            EntryType::Consumption, EntryType::Output:
+                if Inbound then
+                    ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Manuf. Inb. Tracking"
+                else
+                    ItemTrackingSetup."Package No. Required" := ItemTrackingCode."Package Manuf. Outb. Tracking";
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnAfterInitWhseWorksheetLine', '', false, false)]
@@ -396,4 +404,16 @@ codeunit 99000891 "Mfg. Item Tracking Mgt."
         LotSepecificTracking := ItemTrackingCode."Lot Manuf. Inbound Tracking" or ItemTrackingCode."Lot Manuf. Outbound Tracking";
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError, '', false, false)]
+    local procedure OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingError(var TempTrackingSpecification: Record "Tracking Specification" temporary; var QtyToHandleToNewRegister: Decimal; var QtyToHandleInItemTracking: Decimal; var QtyToHandleOnSourceDocLine: Decimal; var IsHandled: Boolean; var AllowWhseOverpick: Boolean)
+    var
+        Item: Record Item;
+    begin
+        if (TempTrackingSpecification."Source Type" <> Database::"Prod. Order Component") or (TempTrackingSpecification."Source Subtype" <> TempTrackingSpecification."Source Subtype"::"3") then
+            exit;
+
+        Item.SetLoadFields("Allow Whse. Overpick");
+        Item.Get(TempTrackingSpecification."Item No.");
+        AllowWhseOverpick := Item."Allow Whse. Overpick";
+    end;
 }

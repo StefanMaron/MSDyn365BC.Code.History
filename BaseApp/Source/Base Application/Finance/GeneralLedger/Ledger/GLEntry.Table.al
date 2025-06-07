@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Ledger;
 
 using Microsoft.Bank.BankAccount;
@@ -456,6 +460,11 @@ table 17 "G/L Entry"
             Caption = 'Non-Deductible VAT Amount ACY';
             AutoFormatType = 1;
         }
+        field(6202; "Src. Curr. Non-Ded. VAT Amount"; Decimal)
+        {
+            Caption = 'Source Currency Non-Deductible VAT Amount';
+            AutoFormatType = 1;
+        }
         field(8001; "Account Id"; Guid)
         {
             CalcFormula = lookup("G/L Account".SystemId where("No." = field("G/L Account No.")));
@@ -592,6 +601,7 @@ table 17 "G/L Entry"
         GLSetup: Record "General Ledger Setup";
         GLSetupRead: Boolean;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"G/L Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
@@ -599,6 +609,7 @@ table 17 "G/L Entry"
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"G/L Entry", 'r')]
     procedure GetLastEntry(var LastEntryNo: Integer; var LastTransactionNo: Integer)
     var
         FindRecordManagement: Codeunit "Find Record Management";
