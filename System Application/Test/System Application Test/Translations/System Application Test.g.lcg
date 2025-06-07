@@ -1582,7 +1582,7 @@
   </Item>
   <Item ItemId=";Codeunit 2606943756 - NamedType 3083749102" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Cannot open the specified record because it is from a different table than the Page Provider Summary Test table, which the current page is based on.]]></Val>
+      <Val><![CDATA[A RecordID from table 'Page Provider Summary Test2' cannot be used with a record from table 'Page Provider Summary Test'.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1812,6 +1812,60 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 and %2 are guid's]D;]A;(Namespace=System.Test.Reflection)(LookupHint=Codeunit Record Reference Test Impl. - NamedType IncorrectCallerAppIdErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1161963698 - NamedType 2651991986" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[https://localhost]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.RestClient)(LookupHint=Codeunit Mock Rest Client Service - NamedType BaseURLTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1161963698 - NamedType 3908868598" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[https://localhost/delete]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.RestClient)(LookupHint=Codeunit Mock Rest Client Service - NamedType DeleteUrlTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1161963698 - NamedType 1642214959" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[https://localhost/get]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.RestClient)(LookupHint=Codeunit Mock Rest Client Service - NamedType GetUrlTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1161963698 - NamedType 2482162367" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[https://localhost/patch]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.RestClient)(LookupHint=Codeunit Mock Rest Client Service - NamedType PatchUrlTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1161963698 - NamedType 1306381717" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[https://localhost/post]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.RestClient)(LookupHint=Codeunit Mock Rest Client Service - NamedType PostUrlTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1161963698 - NamedType 704156654" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[https://localhost/put]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.Test.RestClient)(LookupHint=Codeunit Mock Rest Client Service - NamedType PutUrlTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3984922275 - NamedType 867790944" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

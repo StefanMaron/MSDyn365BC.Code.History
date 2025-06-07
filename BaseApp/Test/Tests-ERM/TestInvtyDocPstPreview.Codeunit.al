@@ -21,9 +21,11 @@ codeunit 134786 "Test Invty. Doc. Pst Preview"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
+        LibraryNonDeductibleVAT: Codeunit "Library - NonDeductible VAT";
         IsInitialized: Boolean;
         WrongPostPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Caption , %2 = Expected Value , %3 = Table Caption';
+        ValueEntryCostAmountErr: Label 'Value entry - cost amount(actual) can not be 0';
         ItemTrackingAction: Option AssignSerialNo,SelectEntries,ManualSN;
 
     [Test]
@@ -658,6 +660,44 @@ codeunit 134786 "Test Invty. Doc. Pst Preview"
         Assert.RecordIsEmpty(PhysInvtOrderHeader);
     end;
 
+    [Test]
+    procedure CheckCostAmountActualInValueEntryAfterInventoryReceiptPost()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Item: Record Item;
+        ItemReceiptHeader: Record "Invt. Receipt Header";
+        Location: Record Location;
+        ValueEntry: Record "Value Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [SCENARIO 565840] Inventory Receipt posts zero cost if VAT Setup is set to use Non-deductible VAT.
+        Initialize();
+
+        // [GIVEN] Create a Non Deductible VAT Posting Setup.
+        CreateVATSetupForNonDeductible(VATPostingSetup);
+
+        // [GIVEN] Create Location With Inventory Posting Setup.
+        SetupForItemDocument(Location);
+
+        // [GIVEN] Create Item With Validate Unit Cost.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandInt(100));
+        Item.Modify(true);
+
+        // [GIVEN] Create Inventory Receipt Document.
+        CreateInvtDocumentWithLine(InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+
+        // [WHEN] Post Inventory Receipt Document.
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [WHEN] Get Value Entry FOr Posted Inventory Receipt.
+        GetItemReceiptHeaderAndValueEntry(InvtDocumentHeader."No.", ItemReceiptHeader, ValueEntry);
+
+        // [THEN] Verify Value Entry Field "Cost Amount (Actual)" Must Have Value.
+        Assert.AreNotEqual(0, ValueEntry."Cost Amount (Actual)", ValueEntryCostAmountErr);
+    end;
+
     local procedure Initialize()
     var
         ItemJournalLine: Record "Item Journal Line";
@@ -784,6 +824,38 @@ codeunit 134786 "Test Invty. Doc. Pst Preview"
     begin
         PhysInvtRecordHeader.Get(PhysInventoryOrderHeaderNo, PhysInvtRecordLine."Recording No.");
         Codeunit.Run(Codeunit::"Phys. Invt. Rec.-Finish (Y/N)", PhysInvtRecordHeader);
+    end;
+
+    local procedure CreateInvtDocumentWithLine(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; Item: Record Item; DocumentType: Enum "Invt. Doc. Document Type"; LocationCode: Code[10])
+    begin
+        CreateInvtDocumentWithLine(InvtDocumentHeader, InvtDocumentLine, Item, DocumentType, LocationCode, LibraryRandom.RandDec(10, 2));
+    end;
+
+    local procedure CreateInvtDocumentWithLine(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; Item: Record Item; DocumentType: Enum "Invt. Doc. Document Type"; LocationCode: Code[10]; Qty: Decimal)
+    begin
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, DocumentType, LocationCode);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", LibraryRandom.RandInt(100), Qty);
+    end;
+
+    local procedure SetupForItemDocument(var Location: Record Location)
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+    end;
+
+    local procedure GetItemReceiptHeaderAndValueEntry(No: Code[20]; var ItemReceiptHeader: Record "Invt. Receipt Header"; var ValueEntry: Record "Value Entry")
+    begin
+        ItemReceiptHeader.SetRange("Receipt No.", No);
+        ItemReceiptHeader.FindFirst();
+
+        ValueEntry.SetRange("Document No.", ItemReceiptHeader."No.");
+        ValueEntry.FindFirst();
+    end;
+
+    local procedure CreateVATSetupForNonDeductible(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        LibraryNonDeductibleVAT.EnableNonDeductibleVAT();
+        LibraryNonDeductibleVAT.SetUseForItemCost();
+        LibraryNonDeductibleVAT.CreateVATPostingSetupWithNonDeductibleDetail(VATPostingSetup, 19, 100);
     end;
 
     [ModalPageHandler]

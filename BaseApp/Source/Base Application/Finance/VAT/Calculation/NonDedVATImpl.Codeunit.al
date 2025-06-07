@@ -824,7 +824,7 @@ codeunit 6201 "Non-Ded. VAT Impl."
         BaseAmount := PurchaseLine.Amount;
         GeneralLedgerSetup.GetRecordOnce();
         AdjustVATAmountsWithNonDeductibleVATPct(VATAmount, BaseAmount, NonDeductibleVATAmount, NonDeductibleBaseAmount, PurchaseLine."Non-Deductible VAT %", GeneralLedgerSetup."Amount Rounding Precision", NDVATAmountRounding, NDVATBaseRounding);
-        NonDeductibleVATAmtPerUnitLCY := NonDeductibleVATAmount / PurchaseLine.Quantity;
+        NonDeductibleVATAmtPerUnitLCY := NonDeductibleVATAmount / PurchaseLine."Qty. to Invoice";
         if PurchaseLine."Currency Code" = '' then
             NonDeductibleVATAmtPerUnit := NonDeductibleVATAmtPerUnitLCY
         else

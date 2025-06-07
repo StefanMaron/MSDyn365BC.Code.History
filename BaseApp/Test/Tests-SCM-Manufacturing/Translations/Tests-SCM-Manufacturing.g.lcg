@@ -1310,6 +1310,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - Entry Type]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Order III - NamedType CannotHandleEntryTypeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 191131963 - NamedType 3634478829" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 is the last operation of Production Order %3. Reversal of this operation can only be performed from the %4.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Field Caption, %2 - Entry No., %3 - Production Order No., %4 - Item Ledger Entry table caption]D;]A;(Namespace=Microsoft.Manufacturing.Test)(LookupHint=Codeunit SCM Production Order III - NamedType CannotReverseLastOperationErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 191131963 - NamedType 240205518" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[If you enable the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.]]></Val>

@@ -475,6 +475,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
         MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumns;
         ProdBOM := NewProdBOM;
         ShowLevel := NewShowLevel;
+        OnAfterLoad(NewMatrixColumns, NewMatrixRecords, CurrentNoOfMatrixColumns, NewProdBOM, NewShowLevel);
     end;
 
     local procedure MATRIX_OnAfterGetRecord(MATRIX_ColumnOrdinal: Integer)
@@ -533,6 +534,11 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMATRIX_OnAfterGetRecord(var ProductionMatrixBOMLine: Record "Production Matrix BOM Line"; var ProductionBOMHeader: Record "Production BOM Header"; var MatrixRecords: array[32] of Record "Production BOM Version"; var MATRIX_CellData: array[32] of Decimal; MATRIX_ColumnOrdinal: Integer; var ComponentNeed: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLoad(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record "Production BOM Version"; CurrentNoOfMatrixColumns: Integer; NewProductionBOMHeader: Record "Production BOM Header"; NewShowLevel: Option Single,Multi)
     begin
     end;
 }
