@@ -199,6 +199,8 @@ codeunit 5407 "Prod. Order Status Management"
         TransReopenProdOrderCmtLine(ProdOrder);
         TransReopenProdOrderRtngCmtLn(ProdOrder);
         TransReopenProdOrderBOMCmtLine(ProdOrder);
+
+        OnAfterTransferRelatedTablesToReleasedProdOrder(ProdOrder);
     end;
 
     local procedure ShowReleasedProdOrderDocument(var ProdOrder: Record "Production Order")
@@ -230,6 +232,7 @@ codeunit 5407 "Prod. Order Status Management"
         TransferReopenProdOrderLine(ProdOrderLine);
         TransReopenProdOrderComp(ProdOrderLine);
         UpdateSourceSubtypeForPutAwayDocumentWhenStatusIsChanged(ProdOrderLine, ProdOrderLine.Status::Released);
+        OnProcessProdOrderLineForReopenOnBeforeDeleteUpdateProdOrderLine(ProdOrderLine);
         UpdateProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
         UpdateProdOrderLine.Delete();
     end;
@@ -243,6 +246,8 @@ codeunit 5407 "Prod. Order Status Management"
         ProductionOrder.Status := ProductionOrder.Status::Released;
         ProductionOrder."Reopened" := true;
         ProductionOrder.Insert();
+        
+        OnAfterTransferReopenProdOrder(ProductionOrder, FromProdOrder);
     end;
 
     local procedure TransferReopenProdOrderLine(FromProdOrderLine: Record "Prod. Order Line")
@@ -265,6 +270,8 @@ codeunit 5407 "Prod. Order Status Management"
         Item.Get(ProductionOrderLine."Item No.");
         Item."Cost is Adjusted" := false;
         Item.Modify();
+
+        OnAfterTransferReopenProdOrderLine(ProductionOrderLine, FromProdOrderLine);
     end;
 
     local procedure TransReopenProdOrderComp(FromProdOrderLine: Record "Prod. Order Line")
@@ -1908,6 +1915,26 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnErrorIfUnableToClearWIPOnAfterProdOrderLineSetFilters(ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferReopenProdOrderLine(ProdOrderLine: Record "Prod. Order Line"; FromProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferRelatedTablesToReleasedProdOrder(ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessProdOrderLineForReopenOnBeforeDeleteUpdateProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferReopenProdOrder(ProductionOrder: Record "Production Order"; FromProductionOrder: Record "Production Order")
     begin
     end;
 }

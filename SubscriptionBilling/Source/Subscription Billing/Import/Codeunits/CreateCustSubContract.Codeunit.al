@@ -68,7 +68,7 @@ codeunit 8008 "Create Cust. Sub. Contract"
         if ImportedCustomerContract."Assigned User ID" <> '' then
             CustomerContract.Validate("Assigned User ID", ImportedCustomerContract."Assigned User ID");
 
-        CustomerContract."Without Contract Deferrals" := ImportedCustomerContract."Without Contract Deferrals";
+        CustomerContract."Create Contract Deferrals" := ImportedCustomerContract."Create Contract Deferrals";
         CustomerContract."Detail Overview" := ImportedCustomerContract."Detail Overview";
         if ImportedCustomerContract."Payment Terms Code" <> '' then
             CustomerContract.Validate("Payment Terms Code", ImportedCustomerContract."Payment Terms Code");

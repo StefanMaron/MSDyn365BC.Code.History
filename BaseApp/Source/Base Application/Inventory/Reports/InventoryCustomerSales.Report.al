@@ -53,7 +53,7 @@ report 713 "Inventory - Customer Sales"
             dataitem("Item Ledger Entry"; "Item Ledger Entry")
             {
                 DataItemLink = "Item No." = field("No."), "Variant Code" = field("Variant Filter"), "Location Code" = field("Location Filter"), "Global Dimension 1 Code" = field("Global Dimension 1 Filter"), "Global Dimension 2 Code" = field("Global Dimension 2 Filter");
-                DataItemTableView = sorting("Source Type", "Source No.", "Item No.") where("Source Type" = const(Customer));
+                DataItemTableView = sorting("Item No.", "Source No.", "Posting Date", "Source Type") where("Source Type" = const(Customer));
                 RequestFilterFields = "Posting Date", "Source No.";
                 dataitem("Integer"; "Integer")
                 {

@@ -842,6 +842,8 @@ codeunit 99000778 OrderTrackingManagement
         TempOrderTrackingEntry.SetRange("From Prod. Order Line", TempOrderTrackingEntry."From Prod. Order Line");
         TempOrderTrackingEntry.SetRange("From Ref. No.", TempOrderTrackingEntry."From Ref. No.");
 
+        OnOrderTrackingEntryExistsOnBeforeFindTrackingEntry(TempOrderTrackingEntry);
+
         if TempOrderTrackingEntry.Find('-') then begin
             TempOrderTrackingEntry.Reset();
             exit(true);
@@ -959,6 +961,11 @@ codeunit 99000778 OrderTrackingManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnDerivePlanningFilterOnSetRequisitionLineFilters(var ToReservEntry: Record "Reservation Entry"; FilterReqLine: Record "Requisition Line"; var OK: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOrderTrackingEntryExistsOnBeforeFindTrackingEntry(var TempOrderTrackingEntry: Record "Order Tracking Entry" temporary)
     begin
     end;
 }
