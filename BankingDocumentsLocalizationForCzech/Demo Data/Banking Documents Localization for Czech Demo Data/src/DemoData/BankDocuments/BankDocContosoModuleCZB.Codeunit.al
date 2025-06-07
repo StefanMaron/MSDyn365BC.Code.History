@@ -17,10 +17,12 @@ codeunit 31428 "Bank. Doc. Contoso Module CZB" implements "Contoso Demo Data Mod
 
     procedure CreateSetupData()
     begin
+        Codeunit.Run(Codeunit::"Create Search Rule CZB");
     end;
 
     procedure CreateMasterData()
     begin
+        Codeunit.Run(Codeunit::"Create Bank Account CZB");
     end;
 
     procedure CreateTransactionalData()

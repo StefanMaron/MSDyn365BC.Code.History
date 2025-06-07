@@ -11,8 +11,8 @@ codeunit 31338 "Create Item CZ"
         CreateCurrencyExRateCZ: Codeunit "Create Currency Ex. Rate CZ";
     begin
         ValidateRecordFields(Rec,
-            Round(Rec."Unit Cost" / CreateCurrencyExRateCZ.GetLocalCurrencyFactor()),
-            Round(Rec."Unit Price" / CreateCurrencyExRateCZ.GetLocalCurrencyFactor()));
+            Round(Rec."Unit Cost" / CreateCurrencyExRateCZ.GetLocalCurrencyFactor(), 1),
+            Round(Rec."Unit Price" / CreateCurrencyExRateCZ.GetLocalCurrencyFactor(), 1));
     end;
 
     local procedure ValidateRecordFields(var Item: Record Item; UnitCost: Decimal; UnitPrice: Decimal)

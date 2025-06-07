@@ -575,6 +575,7 @@ codeunit 7018 "Price UX Management"
 
     procedure SetPriceListLineFilters(PriceAssetList: Codeunit "Price Asset List"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"): Boolean;
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         PriceListLine: Record "Price List Line";
         PriceSource: Record "Price Source";
         PriceListManagement: Codeunit "Price List Management";

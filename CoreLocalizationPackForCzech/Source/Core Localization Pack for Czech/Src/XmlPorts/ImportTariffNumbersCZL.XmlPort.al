@@ -61,33 +61,19 @@ xmlport 31106 "Import Tariff Numbers CZL"
                         TextType = Text;
                         XmlName = 'DO';
                     }
-                    textelement(mj_i)
-                    {
-                        MaxOccurs = Once;
-                        MinOccurs = Once;
-                        TextType = Text;
-                        XmlName = 'MJ_I';
-                    }
-                    textelement(trida)
-                    {
-                        MaxOccurs = Once;
-                        MinOccurs = Once;
-                        TextType = Text;
-                        XmlName = 'TRIDA';
-                    }
-                    textelement(tridarim)
-                    {
-                        MaxOccurs = Once;
-                        MinOccurs = Once;
-                        TextType = Text;
-                        XmlName = 'TRIDARIM';
-                    }
                     textelement(popis)
                     {
                         MaxOccurs = Once;
                         MinOccurs = Once;
                         TextType = Text;
                         XmlName = 'POPIS';
+                    }
+                    textelement(mj_i)
+                    {
+                        MaxOccurs = Once;
+                        MinOccurs = Once;
+                        TextType = Text;
+                        XmlName = 'MJ_I';
                     }
                     textelement(popisan)
                     {
@@ -107,8 +93,6 @@ xmlport 31106 "Import Tariff Numbers CZL"
                         LineDataDictionary.Add(GetValidFromToken(), platnost_od);
                         LineDataDictionary.Add(GetValidToToken(), platnost_do);
                         LineDataDictionary.Add(GetUoMToken(), mj_i);
-                        LineDataDictionary.Add(GetClassToken(), trida);
-                        LineDataDictionary.Add(GetClassRomanToken(), tridarim);
                         LineDataDictionary.Add(GetDescriptionToken(), popis);
                         LineDataDictionary.Add(GetDescriptionENToken(), popisan);
 
@@ -226,8 +210,10 @@ xmlport 31106 "Import Tariff Numbers CZL"
         ValidFromTok: Label 'platnost_od', Locked = true;
         ValidToTok: Label 'platnost_do', Locked = true;
         UoMTok: Label 'mj_i', Locked = true;
+#if not CLEAN27
         ClassTok: Label 'trida', Locked = true;
         ClassRomanTok: Label 'tridarim', Locked = true;
+#endif
         DescriptionTok: Label 'popis', Locked = true;
         DescriptionENTok: Label 'popisan', Locked = true;
 
@@ -298,16 +284,19 @@ xmlport 31106 "Import Tariff Numbers CZL"
     begin
         exit(UoMTok);
     end;
-
+#if not CLEAN27
+    [Obsolete('The element "trida" is not used in the XML port.', '27.0')]
     procedure GetClassToken(): Text
     begin
         exit(ClassTok);
     end;
 
+    [Obsolete('The element "tridarim" is not used in the XML port.', '27.0')]
     procedure GetClassRomanToken(): Text
     begin
         exit(ClassRomanTok);
     end;
+#endif
 
     procedure GetDescriptionToken(): Text
     begin

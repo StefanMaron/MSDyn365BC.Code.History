@@ -2297,6 +2297,104 @@
             until ValueEntry.Next() = 0;
     end;
 
+    [Test]
+    [HandlerFunctions('ItemJournalConfirmHandler,MessageHandler')]
+    procedure ItemJournalBatchPagePostWithInvalidLine()
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalBatchEmpty: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalTemplates: TestPage "Item Journal Templates";
+        ItemJournalBatches: TestPage "Item Journal Batches";
+    begin
+        // [FEATURE] [Item Journal Batch]
+        // [SCENARIO 557366] Posting item journal batch with an invalid line fails and sets the filter to the failed batch.
+        Initialize();
+
+        // [GIVEN] Two item journal batches - "A" and "B".
+        // [GIVEN] Create an item journal line in batch "A" and leave the other empty.
+        // [GIVEN] The item journal line cannot be posted because of the missing document no.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatchEmpty, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name",
+          ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        ItemJournalLine.Validate("Document No.", '');
+        ItemJournalLine.Modify(true);
+
+        Commit();
+
+        // [WHEN] Open the item journal batch page and post the batch "A".
+        ItemJournalTemplates.OpenEdit();
+        ItemJournalTemplates.GotoRecord(ItemJournalTemplate);
+        ItemJournalBatches.Trap();
+        ItemJournalTemplates.Batches.Invoke();
+
+        ItemJournalBatches.GotoRecord(ItemJournalBatch);
+        ItemJournalBatches."P&ost".Invoke();
+
+        // [THEN] The posting fails and the filter is set to the batch "A" with error.
+        // [THEN] The batch "B" is hidden now.
+        Assert.IsTrue(ItemJournalBatches.GoToRecord(ItemJournalBatch), 'Item Journal Batch page is not filtered to the batch with error.');
+        Assert.IsFalse(ItemJournalBatches.GoToRecord(ItemJournalBatchEmpty), 'Item Journal Batch page is not filtered to the batch with error.');
+
+        // [THEN] The "Failed to Post On/Off" action clears the filter and the batch "B" becomes visible again.
+        ItemJournalBatches.FailedToPostOnOff.Invoke();
+        Assert.IsTrue(ItemJournalBatches.GoToRecord(ItemJournalBatch), 'Item Journal Batch filters are not reset.');
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemJournalConfirmHandler,MessageHandler')]
+    procedure OnlySelectedItemJournalBatchIsPosted()
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: array[2] of Record "Item Journal Batch";
+        ItemJournalLine: array[2] of Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemJournalTemplates: TestPage "Item Journal Templates";
+        ItemJournalBatches: TestPage "Item Journal Batches";
+        i: Integer;
+    begin
+        // [FEATURE] [Item Journal Batch]
+        // [SCENARIO 557366] Post action on Item Journal Batch page posts only the selected batch.
+        Initialize();
+
+        // [GIVEN] Two item journal batches - "B1" and "B2".
+        // [GIVEN] Create an item journal line in each batch.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        for i := 1 to 2 do begin
+            LibraryInventory.CreateItemJournalBatch(ItemJournalBatch[i], ItemJournalTemplate.Name);
+            LibraryInventory.CreateItemJournalLine(
+              ItemJournalLine[i], ItemJournalBatch[i]."Journal Template Name",
+              ItemJournalBatch[i].Name, ItemJournalLine[i]."Entry Type"::"Positive Adjmt.", LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        end;
+
+        Commit();
+
+        // [WHEN] Open the item journal batch page and post the batch "A".
+        ItemJournalTemplates.OpenEdit();
+        ItemJournalTemplates.GotoRecord(ItemJournalTemplate);
+        ItemJournalBatches.Trap();
+        ItemJournalTemplates.Batches.Invoke();
+
+        ItemJournalBatches.GotoRecord(ItemJournalBatch[1]);
+        ItemJournalBatches."P&ost".Invoke();
+
+        // [THEN] The posting succeeds so no batches are hidden.
+        Assert.IsTrue(ItemJournalBatches.GoToRecord(ItemJournalBatch[1]), 'Unexpected filter on Item Journal Batch page.');
+        Assert.IsTrue(ItemJournalBatches.GoToRecord(ItemJournalBatch[2]), 'Unexpected filter on Item Journal Batch page.');
+
+        // [THEN] The item from batch "A" is posted.
+        ItemLedgerEntry.SetRange("Item No.", ItemJournalLine[1]."Item No.");
+        Assert.RecordIsNotEmpty(ItemLedgerEntry, '');
+
+        // [THEN] The item from batch "B" is not posted.
+        ItemLedgerEntry.SetRange("Item No.", ItemJournalLine[2]."Item No.");
+        Assert.RecordIsEmpty(ItemLedgerEntry, '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3004,6 +3102,11 @@
     begin
         // Overwrite Item Journal Line confirm handler.
         Reply := true;
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 
     [ModalPageHandler]

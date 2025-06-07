@@ -1559,6 +1559,142 @@ codeunit 134027 "ERM Invoice Discount And VAT"
                 PurchaseLineCorrection.TableCaption()));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoErrorWhenSalesLineAmountIsZeroWithMultiLinesInvoiceDiscount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[5] of Record "Sales Line";
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+        ItemNo: array[2] of Code[20];
+        InvoiceDiscountPerc: Integer;
+        SalesInvoicePage: TestPage "Sales Invoice";
+        UnitPrice: Decimal;
+    begin
+        // [SCENARIO 573759] No error of "Attempted to Divide by zero" error when Allow Invoice Discount set to false on a Sales Invoice where calculated Invoice Discounts are 
+        // redistributed to certain lines. Sales Invoice can be reopened.
+        Initialize();
+
+        // [GIVEN] Set Cal. Inv. Discount to false
+        LibrarySales.SetCalcInvDiscount(false);
+
+        // [GIVEN] Find VAT Posting Setup
+        LibraryERM.FindVATPostingSetup(VATPostingSetup[1], VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT");
+
+        // [GIVEN] Create Sales Header for Sales Invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(VATPostingSetup[1]."VAT Bus. Posting Group"));
+
+        // [GIVEN] Create new VAT Product Posting Group
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
+
+        // [GIVEN] Create VAT Posting Setup
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup[2], VATPostingSetup[1]."VAT Bus. Posting Group", VATProdPostingGroup.Code);
+
+        // [GIVEN] Create 2 items  
+        ItemNo[1] := CreateItem(true, VATPostingSetup[1]."VAT Prod. Posting Group");
+        ItemNo[2] := CreateItem(true, VATPostingSetup[2]."VAT Prod. Posting Group");
+
+        // [GIVEN] Save value to Unit Price and Invoice Discount Percent
+        UnitPrice := LibraryRandom.RandDec(1000, 2);
+        InvoiceDiscountPerc := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create multiple Sales Line
+        CreateSalesLine(SalesHeader, SalesLine[1], ItemNo[1], UnitPrice, 1);
+        CreateSalesLine(SalesHeader, SalesLine[2], ItemNo[2], UnitPrice, 1);
+        CreateSalesLine(SalesHeader, SalesLine[3], ItemNo[1], UnitPrice, -1);
+        CreateSalesLine(SalesHeader, SalesLine[4], ItemNo[2], UnitPrice, 1);
+        CreateSalesLine(SalesHeader, SalesLine[5], ItemNo[2], UnitPrice, -1);
+
+        // [GIVEN] Open Sales Invoice page
+        SalesInvoicePage.OpenEdit();
+        SalesInvoicePage.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [WHEN] Set Invoice Discount Percent
+        SalesInvoicePage.SalesLines."Invoice Disc. Pct.".SetValue(InvoiceDiscountPerc);
+
+        // [THEN] Verify Invoice Discount Amount calculated correctly
+        SalesInvoicePage.SalesLines.GoToRecord(SalesLine[4]);
+        SalesInvoicePage.SalesLines."Invoice Discount Amount".AssertEquals(UnitPrice * InvoiceDiscountPerc / 100);
+
+        // [WHEN] Set Allow Invoice Disc to false, no error will come
+        SalesLine[4]."Allow Invoice Disc." := false;
+        SalesLine[4].Modify();
+
+        // [THEN] Verify Invoice Discount Amount will 0 
+        SalesInvoicePage.SalesLines.GoToRecord(SalesLine[4]);
+        SalesInvoicePage.SalesLines."Invoice Discount Amount".AssertEquals(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoErrorWhenPurchaseLineAmountIsZeroWithMultiLinesInvoiceDiscount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[5] of Record "Purchase Line";
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+        ItemNo: array[2] of Code[20];
+        InvoiceDiscountPerc: Integer;
+        PurchaseInvoicePage: TestPage "Purchase Invoice";
+        UniCost: Decimal;
+        AmountBeforeDiscount: Decimal;
+    begin
+        // [SCENARIO 573759] No error of "Attempted to Divide by zero" error when Allow Invoice Discount set to false on a Purchase Invoice where calculated Invoice Discounts are 
+        // redistributed to certain lines. Purchase Invoice can be reopened.
+        Initialize();
+
+        // [GIVEN] Set Cal. Inv. Discount to false
+        LibraryPurchase.SetCalcInvDiscount(false);
+
+        // [GIVEN] Find VAT Posting Setup
+        LibraryERM.FindVATPostingSetup(VATPostingSetup[1], VATPostingSetup[1]."VAT Calculation Type"::"Normal VAT");
+
+        // [GIVEN] Create Purchase Header for Purchase Invoice
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, CreateVendorWithVATBusPostingGroup(VATPostingSetup[1]."VAT Bus. Posting Group"));
+
+        // [GIVEN] Create new VAT Product Posting Group
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
+
+        // [GIVEN] Create VAT Posting Setup
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup[2], VATPostingSetup[1]."VAT Bus. Posting Group", VATProdPostingGroup.Code);
+
+        // [GIVEN] Create 2 items  
+        ItemNo[1] := CreateItem(true, VATPostingSetup[1]."VAT Prod. Posting Group");
+        ItemNo[2] := CreateItem(true, VATPostingSetup[2]."VAT Prod. Posting Group");
+
+        // [GIVEN] Save value to Unit Cost and Invoice Discount Percent
+        UniCost := LibraryRandom.RandDec(1000, 2);
+        InvoiceDiscountPerc := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create multiple Purchase Line
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine[1], ItemNo[1], UniCost, 1);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine[2], ItemNo[2], UniCost, 1);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine[3], ItemNo[1], UniCost, -1);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine[4], ItemNo[2], UniCost, 1);
+        CreatePurchaseLine(PurchaseHeader, PurchaseLine[5], ItemNo[2], UniCost, -1);
+
+        // [GIVEN] Open Purchase Invoice page
+        PurchaseInvoicePage.OpenEdit();
+        PurchaseInvoicePage.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        // [WHEN] Set Invoice Discount Percent
+        PurchaseInvoicePage.PurchLines."Invoice Disc. Pct.".SetValue(InvoiceDiscountPerc);
+
+        // [THEN] Verify Invoice Discount Amount calculated correctly
+        PurchaseInvoicePage.PurchLines.GoToRecord(PurchaseLine[4]);
+        Evaluate(AmountBeforeDiscount, PurchaseInvoicePage.PurchLines.AmountBeforeDiscount.Value);
+        PurchaseInvoicePage.PurchLines.InvoiceDiscountAmount.AssertEquals(AmountBeforeDiscount * InvoiceDiscountPerc / 100);
+
+        // [WHEN] Set Allow Invoice Disc to false, no error will come
+        PurchaseLine[4]."Allow Invoice Disc." := false;
+        PurchaseLine[4].Modify();
+
+        // [THEN] Verify Invoice Discount Percent will be same as before 
+        PurchaseInvoicePage.PurchLines.GoToRecord(PurchaseLine[4]);
+        PurchaseInvoicePage.PurchLines."Invoice Disc. Pct.".AssertEquals(InvoiceDiscountPerc);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2210,7 +2346,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst();
-        SalesLine.Validate("Qty. to Ship", Round(SalesLine.Quantity / LibraryRandom.RandIntInRange(2,5), 1));
+        SalesLine.Validate("Qty. to Ship", Round(SalesLine.Quantity / LibraryRandom.RandIntInRange(2, 5), 1));
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;

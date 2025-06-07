@@ -117,6 +117,7 @@ table 11733 "Cash Document Line CZP"
                     CashDeskEventCZP.TestField("Account No.", "Account No.");
 
                 GetCashDocumentHeaderCZP();
+                OnValidateAccountNoOnBeforeUpdateCashDocumentHeader(Rec, CashDocumentHeaderCZP);
                 if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) and ("Account No." <> '') then
                     if CashDocumentHeaderCZP."Partner No." = '' then begin
                         case "Account Type" of
@@ -2302,6 +2303,11 @@ table 11733 "Cash Document Line CZP"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnAfterSetCashDocumentLineFilters(var CashDocumentLineCZP: Record "Cash Document Line CZP")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAccountNoOnBeforeUpdateCashDocumentHeader(var CashDocumentLineCZP: Record "Cash Document Line CZP"; var CashDocumentHeaderCZP: Record "Cash Document Header CZP");
     begin
     end;
 }

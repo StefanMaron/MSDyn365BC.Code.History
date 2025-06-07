@@ -978,6 +978,11 @@ table 337 "Reservation Entry"
         OnAfterNewTrackingExists(Rec, IsTrackingExists);
     end;
 
+    procedure IsReclass() Reclass: Boolean
+    begin
+        Reclass := ("Source Type" = Database::"Item Journal Line") and ("Source Subtype" = 4);
+    end;
+
     procedure TransferReservations(var OldReservEntry: Record "Reservation Entry"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; TransferAll: Boolean; TransferQty: Decimal; QtyPerUOM: Decimal; SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer)
     var
         NewReservEntry: Record "Reservation Entry";
