@@ -26,6 +26,7 @@ codeunit 134924 "ERM Cues"
         WrongValueErr: Label 'Wrong value of the field %1 in table %2.', Comment = '%1 = Field name, %2 = Table name';
         AverageDaysDelayedErr: Label 'Average Days Delayed is calculated incorrectly.';
         IsInitialized: Boolean;
+        InvtPutAwayFromProdErr: Label '%1 must be %2 in %3.', Comment = '%1= Field Caption, %2= Field Value ,%3= Table Caption.';
 
     [Test]
     [Scope('OnPrem')]
@@ -796,6 +797,42 @@ codeunit 134924 "ERM Cues"
 
         // [THEN] Verify A/R Accounts Balance is correct
         Assert.AreEqual(ActivitiesMgt.CalcARAccountsBalances(), AccountReceivablesKPIs."A/R Accounts Balance".AsDecimal(), ARAccountsBalanceErr);
+    end;
+
+    [Test]
+    procedure InventoryPickstoProductionManufacturingInManagerRole()
+    var
+        Location: Record Location;
+        ManufacturingCue: Record "Manufacturing Cue";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        // [SCENARIO 571594] The Invt. Picks to Production show correctly when using the Manufacturing Manager role.
+        Initialize();
+
+        // [GIVEN] Create a Warehouse Location.
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, true, true);
+
+        // [GIVEN] Create a Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [WHEN] Create Warehouse Activity Header of "Invt. Put-away" Type and "Prod. Output" Source Document.
+        WarehouseActivityHeader.Init();
+        WarehouseActivityHeader.Validate(Type, WarehouseActivityHeader.Type::"Invt. Put-away");
+        WarehouseActivityHeader.Validate("Location Code", WarehouseEmployee."Location Code");
+        WarehouseActivityHeader.Validate("Source Document", WarehouseActivityHeader."Source Document"::"Prod. Output");
+        WarehouseActivityHeader.Insert(true);
+
+        // [THEN] "Invt. Put-aways from Prod." must have a record.
+        ManufacturingCue.CalcFields("Invt. Put-aways from Prod.");
+        Assert.AreEqual(
+            1,
+            ManufacturingCue."Invt. Put-aways from Prod.",
+            StrSubstNo(
+                InvtPutAwayFromProdErr,
+                ManufacturingCue.FieldCaption("Invt. Put-aways from Prod."),
+                1,
+                ManufacturingCue.TableCaption()));
     end;
 
     local procedure Initialize()

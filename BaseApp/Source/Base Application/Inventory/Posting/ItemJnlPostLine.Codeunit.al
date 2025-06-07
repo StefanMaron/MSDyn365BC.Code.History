@@ -25,6 +25,7 @@ using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.Setup;
+using Microsoft.Finance.VAT.Setup;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Sales.History;
@@ -3356,11 +3357,16 @@ codeunit 22 "Item Jnl.-Post Line"
             if GLSetup."Additional Reporting Currency" <> '' then
                 CostAmtACY := ACYMgt.CalcACYAmt(CostAmt, ValueEntry."Posting Date", false);
         end else begin
-            CostAmt :=
-              ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity";
-            CostAmtACY :=
-              ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity";
-
+            if IsNondeductibleAndUseItemCost() then begin
+                CostAmt := ItemJnlLine.Amount;
+                CostAmtACY := ACYMgt.CalcACYAmt(CostAmt, ValueEntry."Posting Date", false);
+            end
+            else begin
+                CostAmt :=
+                  ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity";
+                CostAmtACY :=
+                  ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity";
+            end;
             if MustConsiderUnitCostRoundingOnRevaluation(ItemJnlLine) then begin
                 CostAmt += RoundingResidualAmount;
                 CostAmtACY += RoundingResidualAmountACY;
@@ -5002,6 +5008,12 @@ codeunit 22 "Item Jnl.-Post Line"
     var
         EntriesExist: Boolean;
     begin
+        if OldItemLedgEntry."Entry Type" = OldItemLedgEntry."Entry Type"::Sale then
+            if (OldItemLedgEntry."Serial No." <> '') and (OldItemLedgEntry."Serial No." = ItemJnlLine."Serial No.") and
+                ((-OldItemLedgEntry.Quantity) > 0)
+            then
+                CheckItemSerialNoForCorrILE(ItemJnlLine);
+
         if ItemLedgEntryNo = 0 then
             ItemLedgEntryNo := GlobalItemLedgEntry."Entry No.";
 
@@ -6763,6 +6775,22 @@ codeunit 22 "Item Jnl.-Post Line"
         end;
     end;
 
+    local procedure IsNondeductibleAndUseItemCost(): Boolean
+    var
+        VATSetup: Record "VAT Setup";
+    begin
+        if (VATSetup.Get()) and (VATSetup."Enable Non-Deductible VAT") and
+           (VATSetup."Use For Item Cost") and
+           (Item."Costing Method" <> Item."Costing Method"::Standard) and
+           (ItemJnlLine."Value Entry Type" = ItemJnlLine."Value Entry Type"::"Direct Cost") and
+           (ItemJnlLine."Item Charge No." = '') and
+           (ItemJnlLine."Applies-from Entry" = 0) and
+           not ItemJnlLine.Adjustment and (ItemJnlLine."Document Type" <> ItemJnlLine."Document Type"::"Inventory Receipt") then
+            exit(true);
+
+        exit(false);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAllowProdApplication(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var AllowApplication: Boolean)
     begin
@@ -8120,6 +8148,22 @@ codeunit 22 "Item Jnl.-Post Line"
                 InboundItemLedgerEntry.Get(ItemApplicationEntry."Inbound Item Entry No.");
                 InboundItemLedgerEntry.SetAppliedEntryToAdjust(true);
             until ItemApplicationEntry.Next() = 0;
+    end;
+
+    local procedure CheckItemSerialNoForCorrILE(ItemJnlLine: Record "Item Journal Line")
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        if SkipSerialNoQtyValidation then
+            exit;
+
+        ItemLedgerEntry.SetLoadFields(Quantity);
+        ItemLedgerEntry.SetRange("Item No.", ItemJnlLine."Item No.");
+        ItemLedgerEntry.SetRange("Variant Code", ItemJnlLine."Variant Code");
+        ItemLedgerEntry.SetTrackingFilterFromItemJournalLine(ItemJnlLine);
+        ItemLedgerEntry.CalcSums(Quantity);
+        if ItemLedgerEntry.Quantity > 0 then
+            Error(Text014, ItemJnlLine."Serial No.");
     end;
 
     [IntegrationEvent(false, false)]

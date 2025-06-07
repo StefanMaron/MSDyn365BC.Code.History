@@ -50,6 +50,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         WrongLocationCodeOnLineErr: Label 'Location code on the line must not be equal to location code on the header.';
         CannotCreateDocPrivacyBlockerErr: Label 'You cannot create this type of document when Vendor %1 is blocked for privacy.',
             Comment = '%1 = Vendor No. (You cannot create this type of document when Vendor GU0000000001 is blocked for privacy.)';
+        PurchaseOrderMustBeCreatedErr: Label 'Drop shipment purchase order must be created.';
 
     [Test]
     [HandlerFunctions('ItemTrackingPageHandler,ItemTrackingSummaryPageHandler,PostedItemTrackingLinesPageHandler')]
@@ -2362,6 +2363,60 @@ codeunit 137068 "SCM Inventory Orders-II"
         SalesHeader.TestField("Location Code", LocationRed.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('GetSalesOrdersReportHandler')]
+    procedure LocationHasBinMandatoryAndDropShipmentPurchaseOrderCreated()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        PurchaseOrderLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+        SKU: Record "Stockkeeping Unit";
+        GetSalesOrders: Report "Get Sales Orders";
+        SalesOrderNo: Code[20];
+    begin
+        // [SCENARIO 574692] Verify when a location has 'Bin Mandatory' enabled, no error occurs and a Drop Shipment Purchase Order is created.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create loction with Bin Mandory & Bin Content.
+        CreateLocationWithBinMandatory(Item, Location);
+
+        // [GIVEN] Create SKU with Replenishment System Transfer.
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, Location.Code, Item."No.", '');
+        SKU.Validate("Replenishment System", SKU."Replenishment System"::Transfer);
+        SKU.Modify(true);
+
+        // [GIVEN] Create a Drop shipment Sales Order.
+        SalesOrderNo := CreateSalesOrderWithDropShipment(Location.Code, Item."No.");
+
+        // [GIVEN] Assign template and batch to the requisition line.
+        CreateRequisitionLine(RequisitionLine);
+        Commit();
+
+        // [GIVEN] Run Get Sales Order Report.
+        LibraryVariableStorage.Enqueue(SalesOrderNo);
+        GetSalesOrders.SetReqWkshLine(RequisitionLine, 0); // Drop Shipment
+        GetSalesOrders.RunModal();
+        Commit();
+
+        // [GIVEN] Set "Vendor No." on the requisition lines.
+        RequisitionLine.SetRange("Sales Order No.", SalesOrderNo);
+        RequisitionLine.ModifyAll("Vendor No.", LibraryPurchase.CreateVendorNo(), true);
+
+        // [WHEN] Run Carry Out Action from requisition worksheet.
+        LibraryPlanning.CarryOutReqWksh(
+          RequisitionLine, RequisitionLine."Expiration Date",
+          RequisitionLine."Order Date", WorkDate(), WorkDate(), '');
+
+        // [THEN] The 'Bin Mandatory' error did not occur, and a drop shipment purchase order was created.
+        PurchaseOrderLine.SetRange(Type, PurchaseOrderLine.Type::Item);
+        PurchaseOrderLine.SetRange("No.", Item."No.");
+        Assert.IsFalse(PurchaseOrderLine.IsEmpty(), PurchaseOrderMustBeCreatedErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3810,6 +3865,38 @@ codeunit 137068 "SCM Inventory Orders-II"
         ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Journal Template Name", JournalTemplateName);
         ItemJournalLine.TestField("Journal Batch Name", JournalBatchName);
+    end;
+
+    local procedure CreateLocationWithBinMandatory(Item: Record Item; var Location: Record Location)
+    var
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Default, true);
+        BinContent.Validate(Fixed, true);
+        BinContent.Modify(true);
+    end;
+
+    local procedure CreateSalesOrderWithDropShipment(LocationCode: Code[20]; ItemNo: Code[20]): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
+        SalesLine.Validate("Drop Shipment", true);
+        SalesLine.Modify(true);
+
+        exit(SalesHeader."No.");
     end;
 
     [ModalPageHandler]
