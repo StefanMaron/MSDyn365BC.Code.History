@@ -1707,7 +1707,7 @@ codeunit 90 "Purch.-Post"
             else
                 ItemJnlLine.CopyDocumentFields(
                   ItemJnlLine."Document Type"::"Purchase Receipt",
-                  PurchRcptHeader."No.", PurchRcptHeader."Vendor Shipment No.", SrcCode, PurchRcptHeader."No. Series");
+                  PurchRcptHeader."No.", SetExternalDocumentNo(), SrcCode, PurchRcptHeader."No. Series");
             if QtyToBeInvoiced <> 0 then
                 if ItemJnlLine."Document No." = '' then
                     if PurchLine."Document Type" = PurchLine."Document Type"::"Credit Memo" then
@@ -9654,6 +9654,14 @@ codeunit 90 "Purch.-Post"
     begin
         ItemChargeAssgntPurch.SetFilter("Applies-to Doc. Line No.", '<>%1', ItemChargeAssgntPurch."Applies-to Doc. Line No.");
         ItemChargeAssgntPurch.DeleteAll();
+    end;
+
+    local procedure SetExternalDocumentNo(): Code[35]
+    begin
+        if PurchRcptHeader."Vendor Shipment No." <> '' then
+            exit(PurchRcptHeader."Vendor Shipment No.");
+
+        exit(GenJnlLineExtDocNo);
     end;
 
     [IntegrationEvent(false, false)]
