@@ -108,7 +108,7 @@ report 88 "VAT- VIES Declaration Disk"
                 VATRegNo := ConvertStr(CompanyInfo."VAT Registration No.", Text001, '    ');
                 VATFile.Write('#v' + FileVersion);
                 VATFile.Write('#ve' + FileVersion2);
-                VATFile.Write('Laenderkennzeichen,USt-IdNr.,Betrag(Euro),Art der Leistung,Importmeldung');
+                VATFile.Write('Umsatzsteuer-Identifikationsnummer (Ust-IdNr.),Betrag(Euro),Art der Leistung');
                 NoOfGrTotal := 0;
                 Period := GetRangeMax("VAT Reporting Date");
                 InternalReferenceNo := Format(Period, 4, 2) + '000000';
@@ -300,7 +300,7 @@ report 88 "VAT- VIES Declaration Disk"
         if CopyStr(VATRegNo, 1, StrLen(Country."EU Country/Region Code")) = Country."EU Country/Region Code" then
             VATRegNo := CopyStr(VATRegNo, StrLen(Country."EU Country/Region Code") + 1);
         VATFile.Write(
-          Format(Country."EU Country/Region Code", 2) + ',' +
+          Format(Country."EU Country/Region Code", 2) +
           Format(VATRegNo) + ',' +
           DelChr(Format(Round(ExportAmount, 1)), '=', '.,') + ',' +
           DLS);

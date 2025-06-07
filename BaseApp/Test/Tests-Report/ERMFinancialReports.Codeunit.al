@@ -1150,9 +1150,12 @@ codeunit 134982 "ERM Financial Reports"
         BillToCustomer: Record Customer;
         SellToCustomer: Record Customer;
         FileName: Text[1024];
+        ExpectedText: Text;
+        ExprectedTextNotFoundErr: Label 'Expected text not found in file';
     begin
         // [FEATURE] [VAT- VIES Declaration Disk]
         // [SCENARIO 300180] Export "VAT- VIES Declaration Disk" when Sell-To Customer does not have VAT Registration No. and Country/Region Code
+        // [SCENARIO 575302] Country/Region Code and VAT Registration No are not separated by a comma
         Initialize();
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." = "Sell-to/Buy-from No." in General Ledger Setup
@@ -1172,11 +1175,9 @@ codeunit 134982 "ERM Financial Reports"
         // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "BillCust"
         RunVATVIESDeclarationDisk(VATEntry, FileName);
 
-        // [THEN] Country/Region Code is exported as 'BE' and VAT Registration No. as 'BE123456789'
-        Assert.AreNotEqual(
-          '', LibraryTextFileValidation.FindLineContainingValue(FileName, 1, 2, CopyStr(SellToCustomer."Country/Region Code", 1, 2)), '');
-        Assert.AreNotEqual(
-          '', LibraryTextFileValidation.FindLineContainingValue(FileName, 4, 10, CopyStr(SellToCustomer."VAT Registration No.", 1, 10)), '');
+        // [THEN] Country/Region Code and VAT Registration No. are exported without a ',' separating them as a single value
+        ExpectedText := CopyStr(SellToCustomer."Country/Region Code", 1, 2) + CopyStr(SellToCustomer."VAT Registration No.", 1, 10);
+        Assert.IsTrue(LibraryTextFileValidation.DoesFileContainValue(FileName, ExpectedText), ExprectedTextNotFoundErr);
 
         FileManagement.DeleteServerFile(FileName);
     end;
@@ -1372,7 +1373,7 @@ codeunit 134982 "ERM Financial Reports"
         CustLedgerEntry.CalcFields(Amount);
         Assert.AreEqual(
           Format(Round(CustLedgerEntry.Amount - CustLedgerEntry."Original Pmt. Disc. Possible", 1)),
-          LibraryTextFileValidation.ReadValueFromLine(FileName, 4, 15, 3), '');
+          LibraryTextFileValidation.ReadValueFromLine(FileName, 4, 14, 3), '');
         FileManagement.DeleteServerFile(FileName);
     end;
 
@@ -1426,7 +1427,7 @@ codeunit 134982 "ERM Financial Reports"
         CustLedgerEntry.CalcFields(Amount);
         Assert.AreEqual(
           Format(Round(CustLedgerEntry.Amount - CustLedgerEntry."Original Pmt. Disc. Possible", 1)),
-          LibraryTextFileValidation.ReadValueFromLine(FileName, 4, 15, 3), '');
+          LibraryTextFileValidation.ReadValueFromLine(FileName, 4, 14, 3), '');
 
         FileManagement.DeleteServerFile(FileName);
     end;
