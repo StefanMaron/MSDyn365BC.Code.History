@@ -177,6 +177,12 @@ page 20 "General Ledger Entries"
                     Visible = SourceCurrencyVisible;
 #endif
                 }
+                field("Src. Curr. Non-Ded. VAT Amount"; Rec."Src. Curr. Non-Ded. VAT Amount")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    ToolTip = 'Specifies the amount in source currency of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                }
                 field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
