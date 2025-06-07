@@ -84,6 +84,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         PostedInvoicesQtyErr: Label 'There must be 2 Sales Invoices.';
         PostedShpmtsQtyErr: Label 'There must be 2 Sales Shipments.';
         ChangedBinCodeOnWhseShptTxt: Label 'You have changed Bin Code on the Warehouse Shipment Header';
+        WhseShipmentIsRequiredErr: Label 'Warehouse Shipment is required for Line No.';
 
     [Test]
     [HandlerFunctions('WhseItemTrackingLinesHandler,ItemTrackingPageHandler,ItemTrackingSummaryPageHandler,WhseSourceCreateDocumentHandler,MessageHandler')]
@@ -3743,6 +3744,42 @@ codeunit 137151 "SCM Warehouse - Shipping"
         WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.TestField(Quantity, Qty);
         WarehouseShipmentLine.TestField("Qty. to Ship", 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerForUndoPosetReceipt')]
+    procedure VerifyWareHouseShipmentRequiredWhenCustomerLocationDirectPutAwayAndPick()
+    var
+        Customer: Record Customer;
+        Customer2: Record Customer;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 573331] Verify WareHouse Shipment Required When Customer Location have Direct Put Away And Pick.
+        Initialize();
+
+        // [GIVEN] Create WMS Location .
+        LibraryWarehouse.CreateFullWMSLocation(Location, LibraryRandom.RandIntInRange(1, 5));
+
+        // [GIVEN] Create First Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Second Customer.
+        LibrarySales.CreateCustomer(Customer2);
+
+        // [GIVEN] Add location code in second customer.
+        Customer2.Validate("Location Code", Location.Code);
+        Customer2.Modify(true);
+
+        // [GIVEN] Create sales invoice with first customer.
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+        Commit();
+
+        // [WHEN] Change the customer from second customer to first customer.
+        asserterror SalesHeader.Validate("Sell-to Customer No.", Customer2."No.");
+
+        // [THEN] Verify warehouse shipment is required error occur.
+        Assert.ExpectedError(WhseShipmentIsRequiredErr);
     end;
 
     local procedure Initialize()

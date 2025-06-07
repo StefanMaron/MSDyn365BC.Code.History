@@ -25,7 +25,10 @@ page 10538 "MTD Web Client FP Headers"
                                 exit;
                             Initialized := true;
 
-                            CurrPage.FPHeadersControl.Run(PublicIPServiceURL);
+                            if TestExternalService then
+                                CurrPage.FPHeadersControl.TestExternalPublicIPService(PublicIPServiceURL)
+                            else
+                                CurrPage.FPHeadersControl.Run(PublicIPServiceURL);
                         end;
 
                         trigger Callback(headersJson: JsonObject)
@@ -33,6 +36,7 @@ page 10538 "MTD Web Client FP Headers"
                             MTDFraudPreventionMgt: Codeunit "MTD Fraud Prevention Mgt.";
                         begin
                             MTDFraudPreventionMgt.SetSessionFPHeadersFromJS(headersJson);
+                            MTDFraudPreventionMgt.LogClientPublicIPInfo(headersJson);
                             CurrPage.Close();
                         end;
                     }
@@ -45,14 +49,16 @@ page 10538 "MTD Web Client FP Headers"
         Initialized: Boolean;
         FirstPageVisible: Boolean;
         PublicIPServiceURL: Text;
+        TestExternalService: Boolean;
 
     trigger OnOpenPage()
     begin
         FirstPageVisible := true;
     end;
 
-    internal procedure SetPublicIPServiceURL(NewPublicIPServiceURL: Text)
+    internal procedure SetPublicIPServiceURL(NewPublicIPServiceURL: Text; NewTestExternalService: Boolean)
     begin
         PublicIPServiceURL := NewPublicIPServiceURL;
+        TestExternalService := NewTestExternalService;
     end;
 }
