@@ -38,6 +38,7 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.';
         DifferentCurrenciesErr: Label 'All entries in one application must be in the same currency.';
         SourceCurrAmtErr: Label '%1 must be %2 in %3', Comment = '%1 = Source Currency Amount, %2 = Amount, %3 = G/L Entry';
+        ClosedAtDateErr: Label 'Closed at Date must have value.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1291,6 +1292,54 @@ codeunit 134001 "ERM Apply Purchase/Payables"
                 GLEntry.FieldCaption("Source Currency Amount"),
                 -Amount,
                 GLEntry.TableCaption()));
+    end;
+
+    [Test]
+    procedure ValueInClosedAtDateMustHaveValueInVendorLedgerEntryPostApplication()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DocumentNo: Code[20];
+        DirectUnitCost: Decimal;
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 573806] The Closed at Date updates when applying entries on the Vendor Ledger Entries and Customer Ledger Entries.
+        Initialize();
+
+        // [GIVEN] Store Quantity and Direct Unit Cost in a Variable.
+        Quantity := LibraryRandom.RandDec(100, 2);
+        DirectUnitCost := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Create and Post Purchase Invoice.
+        CreateAndPostPurchaseDocument(
+            PurchaseHeader,
+            PurchaseLine,
+            PurchaseHeader."Document Type"::Invoice,
+            CreateVendor(),
+            CreateItem(),
+            DirectUnitCost,
+            Quantity);
+
+        // [GIVEN] Create and Post Purchase Credit Memo.
+        DocumentNo := CreateAndPostPurchaseDocument(
+            PurchaseHeader,
+            PurchaseLine,
+            PurchaseHeader."Document Type"::"Credit Memo",
+            PurchaseHeader."Buy-from Vendor No.",
+            PurchaseLine."No.",
+            DirectUnitCost,
+            Quantity);
+
+        // [WHEN] Apply Credit Memo with Invoice.
+        ApplyAndPostVendorEntry(PurchaseHeader."Document Type"::"Credit Memo", DocumentNo);
+
+        // [THEN] Closed at Date must have value in applying Vendor Leder Entry.
+        VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        VendorLedgerEntry.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.FindFirst();
+        Assert.AreNotEqual(0D, VendorLedgerEntry."Closed at Date", ClosedAtDateErr);
     end;
 
     local procedure Initialize()

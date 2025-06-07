@@ -5335,6 +5335,8 @@ table 5900 "Service Header"
         GenJournalLine."Ship-to/Order Address Code" := "Ship-to Code";
         GenJournalLine."EU 3-Party Trade" := "EU 3-Party Trade";
         GenJournalLine."Salespers./Purch. Code" := "Salesperson Code";
+        if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer then
+            GenJournalLine."Posting Group" := "Customer Posting Group";
         GeneralLedgerSetup.GetRecordOnce();
         if GeneralLedgerSetup."Journal Templ. Name Mandatory" then
             GenJournalLine."Journal Template Name" := "Journal Templ. Name";

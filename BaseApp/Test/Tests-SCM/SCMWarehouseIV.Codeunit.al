@@ -4038,6 +4038,92 @@ codeunit 137407 "SCM Warehouse IV"
         Assert.IsTrue(StocKkeepingUnitCard."Special Equipment Code".Visible(), SpecialEquipmentCodeVisibleErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler,CreatePutAwayFromPostedWhseSourceReportHandler,MessageHandler')]
+    procedure VerifyWhsePutAwayIsCreatedFromPostedWhseReceiptIfWhsePutAwayIsRegisteredPartially()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        UnitofMeasure: Record "Unit of Measure";
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        LotNo: Code[50];
+    begin
+        // [SCENARIO 571201]: There is Nothing to Handle error when creating putaway from Posted Warehouse Receipt after a partially registered putaway.
+
+        // [GIVEN] Initialize initials
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create Location with 'Bin Mandatory' and 'Require Put-away' set to true.
+        CreateFullWarehouseSetup(Location);
+
+        // [GIVEN] Item Tracking Code with Lot Purchase Tracking
+        CreateItemTrackingCode(ItemTrackingCode, true, false, false);
+
+        // [GIVEN] Create Unit of Measure Code
+        LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure);
+
+        // [GIVEN] Create a new Item and new Item Unit of Measure and specify 48 Quantity per UOM
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitofMeasure, Item."No.", UnitofMeasure.Code, LibraryRandom.RandIntInRange(48, 48));
+
+        // [GIVEN] Update Item with Item Tracking Code, Purchase UOM as new Item UOM and Put-away UOM as Item Base Unit of Measure
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Validate("Purch. Unit of Measure", ItemUnitofMeasure.Code);
+        Item.Validate("Put-away Unit of Measure Code", Item."Base Unit of Measure");
+        Item.Modify(true);
+
+        // [GIVEN] Create a new Purchase Order with Item Quantity as 2 
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(2, 2));
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create warehouse receipt from the purchase order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        EnqueueTrackingLotAndQty(ItemTrackingMode::AssignLotAndQty, LotNo, LibraryRandom.RandIntInRange(96, 96));
+
+        // [GIVEN] Assign Item Tracking Line to the Warehouse Receipt Line
+        WarehouseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        WarehouseReceiptLine.SetRange("Source Line No.", PurchaseLine."Line No.");
+        WarehouseReceiptLine.SetRange("Item No.", Item."No.");
+        WarehouseReceiptLine.FindFirst();
+        WarehouseReceiptLine.OpenItemTrackingLines();
+
+        // [GIVEN] Post Warehouse Receipt
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // [GIVEN] Open Warehouse Put Aways and change Qty.to Handle
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandIntInRange(1, 1));
+        UpdateWarehouseActivityLineQtyToHandle(WarehouseActivityLine, PurchaseHeader."No.", PurchaseLine."Line No.", PurchaseLine."No.", Enum::"Warehouse Activity Type"::"Put-away", ItemUnitofMeasure.Code);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandIntInRange(48, 48));
+        UpdateWarehouseActivityLineQtyToHandle(WarehouseActivityLine, PurchaseHeader."No.", PurchaseLine."Line No.", PurchaseLine."No.", Enum::"Warehouse Activity Type"::"Put-away", Item."Base Unit of Measure");
+
+        // [GIVEN] Register the Warehouse Put Away
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Delete the Warehouse Put Away Document
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.Delete(true);
+        Commit();
+
+        // [WHEN] Once Registered, go to Posted Whse. Receipts and Create Put Away
+        FindPostedWhseReceiptAndCreatePutAway(PurchaseHeader."No.", PurchaseLine."Line No.", PurchaseLine."No.");
+
+        // [THEN] Putaway is created for the 1 remaining bag to be putaway into pcs.
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         WarehouseSetup: Record "Warehouse Setup";
@@ -5329,6 +5415,39 @@ codeunit 137407 "SCM Warehouse IV"
         WarehouseActivityLine.Modify(true);
     end;
 
+    local procedure UpdateWarehouseActivityLineQtyToHandle(var WhseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceLineNo: Integer; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; UnitofMeasureCode: Code[10])
+    var
+        QtytoHandle: Decimal;
+    begin
+        QtytoHandle := LibraryVariableStorage.DequeueDecimal();
+
+        WhseActivityLine.SetRange("Activity Type", ActivityType);
+        WhseActivityLine.SetRange("Source No.", SourceNo);
+        WhseActivityLine.SetRange("Source Line No.", SourceLineNo);
+        WhseActivityLine.SetRange("Item No.", ItemNo);
+        WhseActivityLine.SetRange("Unit of Measure Code", UnitofMeasureCode);
+        if WhseActivityLine.FindSet() then
+            repeat
+                WhseActivityLine.Validate("Qty. to Handle", QtytoHandle);
+                WhseActivityLine.Modify();
+            until WhseActivityLine.Next() = 0;
+    end;
+
+    local procedure FindPostedWhseReceiptAndCreatePutAway(SourceNo: Code[20]; SourceLineNo: Integer; ItemNo: Code[20])
+    var
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
+        PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header";
+    begin
+        PostedWhseReceiptLine.SetRange("Source No.", SourceNo);
+        PostedWhseReceiptLine.SetRange("Source Line No.", SourceLineNo);
+        PostedWhseReceiptLine.SetRange("Item No.", ItemNo);
+        PostedWhseReceiptLine.FindFirst();
+
+        PostedWhseReceiptHeader.Get(PostedWhseReceiptLine."No.");
+
+        PostedWhseReceiptLine.CreatePutAwayDoc(PostedWhseReceiptLine, PostedWhseReceiptHeader."Assigned User ID");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerFalse(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -5609,5 +5728,11 @@ codeunit 137407 "SCM Warehouse IV"
         ItemTrackingSummary.OK().Invoke();
     end;
 
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreatePutAwayFromPostedWhseSourceReportHandler(var CreatePutAwayFromWhseSource: TestRequestPage "Whse.-Source - Create Document")
+    begin
+        CreatePutAwayFromWhseSource.OK().Invoke();
+    end;
 }
 
