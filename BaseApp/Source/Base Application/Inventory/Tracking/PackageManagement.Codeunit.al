@@ -202,13 +202,19 @@ codeunit 6516 "Package Management"
     [EventSubscriber(ObjectType::Table, Database::"Tracking Specification", 'OnAfterTestTrackingFieldsAreBlank', '', false, false)]
     local procedure TrackingSpecificationTestTrackingFieldsAreBlank(var TrackingSpecification: Record "Tracking Specification")
     begin
-        TrackingSpecification.TestField("Package No.");
+        TrackingSpecification.TestField("Package No.", '');
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Tracking Specification", 'OnAfterTrackingExist', '', false, false)]
     local procedure TrackingSpecificationTrackingExist(var TrackingSpecification: Record "Tracking Specification"; var IsTrackingExist: Boolean)
     begin
         IsTrackingExist := IsTrackingExist or (TrackingSpecification."Package No." <> '');
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Tracking Specification", 'OnAfterNewTrackingExist', '', false, false)]
+    local procedure TrackingSpecificationNewTrackingExist(var TrackingSpecification: Record "Tracking Specification"; var IsTrackingExist: Boolean)
+    begin
+        IsTrackingExist := IsTrackingExist or (TrackingSpecification."New Package No." <> '');
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Tracking Specification", 'OnAfterHasSameTracking', '', false, false)]

@@ -3,35 +3,35 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument;
-using Microsoft.eServices.EDocument.Processing.Import;
+
+using Microsoft.eServices.EDocument.Format;
 using Microsoft.eServices.EDocument.Processing.Interfaces;
-using Microsoft.EServices.EDocument.Format;
+using Microsoft.eServices.EDocument.Processing.Import;
 
 /// <summary>
-/// E-Document Data Storage Blob Type
-/// This enum specifies the type of the binary data stored in the E-Document Data Storage table.
+/// E-Doc. File Format
+/// This enum specifies the file format of the binary data stored in the E-Document Data Storage table.
 /// </summary>
-enum 6109 "E-Doc. Data Storage Blob Type" implements IBlobType
+enum 6134 "E-Doc. File Format" implements IEDocFileFormat
 {
-    Access = Public;
-    Extensible = true;
-    DefaultImplementation = IBlobType = "E-Doc. Default Blob Type";
-
     value(0; "Unspecified")
     {
         Caption = 'Unspecified';
+        Implementation = IEDocFileFormat = "E-Doc. Unspecified Impl.";
     }
     value(1; "PDF")
     {
         Caption = 'PDF';
-        Implementation = IBlobType = "E-Document ADI Handler";
+        Implementation = IEDocFileFormat = "E-Doc. PDF File Format";
     }
     value(2; "XML")
     {
         Caption = 'XML';
+        Implementation = IEDocFileFormat = "E-Doc. XML File Format";
     }
     value(3; "JSON")
     {
         Caption = 'JSON';
+        Implementation = IEDocFileFormat = "E-Doc. JSON File Format";
     }
 }

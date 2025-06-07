@@ -121,6 +121,9 @@ table 5409 "Prod. Order Routing Line"
 
                 SetRecalcStatus();
 
+                if ("No." = '') and ("Routing Status" = "Routing Status"::Finished) then
+                    FieldError("Routing Status");
+
                 if "No." = '' then
                     exit;
 

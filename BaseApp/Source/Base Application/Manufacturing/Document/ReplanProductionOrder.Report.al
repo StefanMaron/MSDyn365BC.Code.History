@@ -65,7 +65,7 @@ report 99001026 "Replan Production Order"
                                 "Ending Time" := "Prod. Order Line"."Ending Time";
                                 Modify();
                             end;
-                            CalcProdOrderRtngLine.CalculateRoutingLine("Prod. Order Routing Line", Direction, true);
+                            CalcProdOrderRtngLine.ReplanRoutingLine("Prod. Order Routing Line", Direction, true);
                         end;
                         Modify();
                     end;

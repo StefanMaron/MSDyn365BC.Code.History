@@ -847,7 +847,14 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     local procedure GetDefaultBin() BinCode: Code[20]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDefaultBin(ProdOrderComp, Location, Item, ProdOrderWarehouseMgt, BinCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if ProdOrderComp."Location Code" <> '' then begin
             if Location.Code <> ProdOrderComp."Location Code" then
                 Location.Get(ProdOrderComp."Location Code");
@@ -1278,6 +1285,11 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateOnBeforeCalcComponents(ProdOrderLine: Record "Prod. Order Line"; CalcComponents: Boolean; var SkipCalcComponents: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultBin(var ProdOrderComponent: Record "Prod. Order Component"; var Location: Record Location; var Item: Record Item; var ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt."; var BinCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

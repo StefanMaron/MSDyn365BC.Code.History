@@ -294,6 +294,7 @@ table 380 "Detailed Vendor Ledg. Entry"
         SetOriginalDocumentInfo();
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Detailed Vendor Ledg. Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";

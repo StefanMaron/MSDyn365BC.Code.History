@@ -55,7 +55,7 @@ table 5816 "Cost Adjustment Trace Log"
         field(13; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant";
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
         field(14; "Valuation Date"; Date)
         {

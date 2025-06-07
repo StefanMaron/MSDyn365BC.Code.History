@@ -109,7 +109,7 @@ codeunit 137079 "SCM Production Order III"
         RecreatePurchaseLineConfirmHandlerQst: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\\Do you want to continue?';
         WHHandlingIsRequiredErr: Label 'Warehouse handling is required for Entry Type = Output';
         QtyPickedBaseErr: Label 'Qty. Picked (Base) must not be 0 in Prod. Order Component';
-        ItemTrackingMode: Option AssignLotNo,AssignSerialNo,SelectEntries,SetValue,UpdateQuantityBase;
+        ItemTrackingMode: Option AssignLotNo,AssignSerialNo,SelectEntries,SetValue,UpdateQuantityBase,SetNewValue;
         LeaveProductionJournalQst: Label 'Do you want to leave the Production Journal?';
         QtyToHandleBaseInTrackingErr: Label 'It must be %1.';
         ProdOrderLineBinCodeErr: Label 'Wrong "Prod. Order Line" BinCode value';
@@ -134,6 +134,7 @@ codeunit 137079 "SCM Production Order III"
         ProductionOrderHasAlreadyBeenReopenedErr: Label 'This production order has already been reopened before. This can only be done once.';
         ItemMustBeEqualErr: Label '%1 must be equal to %2 for Item No. %3 in the %4.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Item No., %4 = Table Caption';
         ReservationEntryMustExistErr: Label '%1 must exist.', Comment = '%1 is Table Caption';
+        CannotReverseLastOperationErr: Label '%1 %2 is the last operation of Production Order %3. Reversal of this operation can only be performed from the %4.', Comment = '%1 - Field Caption, %2 - Entry No., %3 - Production Order No., %4 - Item Ledger Entry table caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -5446,19 +5447,19 @@ codeunit 137079 "SCM Production Order III"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation')]
-    procedure VerifyReverseCapacityLedgerEntryShouldBeCreatedWhenReverseIsExecuted()
+    [HandlerFunctions('ConfirmHandler')]
+    procedure VerifyReverseCapacityLedgerEntryShouldNotBeCreatedWhenReverseIsExecuted()
     var
         Item: Record Item;
         WorkCenter: Record "Work Center";
+        ItemLedgEntry: Record "Item Ledger Entry";
         ProductionOrder: Record "Production Order";
         CapacityLedgerEntry: Record "Capacity Ledger Entry";
-        CapacityLedgerEntry1: Record "Capacity Ledger Entry";
         CapacityLedgerEntries: TestPage "Capacity Ledger Entries";
         RunTime: Decimal;
         UnitCost: Decimal;
     begin
-        // [SCENARIO 327365] Verify Reverse Entry should be created of Capacity Ledger Entry when Reverse action is executed.
+        // [SCENARIO 327365] Verify a Reverse Entry should not be created for the last operation of the capacity ledger entry when the reverse action is executed.
         Initialize();
 
         // [GIVEN] Create Production item with routing.
@@ -5480,31 +5481,10 @@ codeunit 137079 "SCM Production Order III"
         CapacityLedgerEntries.Filter.SetFilter("Order No.", ProductionOrder."No.");
 
         // [WHEN] Invoke "Reverse" action.
-        CapacityLedgerEntries.Reverse.Invoke();
+        asserterror CapacityLedgerEntries.Reverse.Invoke();
 
-        // [THEN] Verify Reverse Entry should be created of Capacity Ledger Entry.
-        CapacityLedgerEntry1.Get(CapacityLedgerEntries."Entry No.".AsInteger());
-        FindLastCapacityLedgerEntry(CapacityLedgerEntry, "Inventory Order Type"::Production, CapacityLedgerEntry1."Order No.", CapacityLedgerEntry1."Order Line No.");
-        Assert.AreEqual(
-            -CapacityLedgerEntry1.Quantity,
-            CapacityLedgerEntry.Quantity,
-            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption(Quantity), -CapacityLedgerEntry1.Quantity, CapacityLedgerEntry.TableCaption()));
-        Assert.AreEqual(
-            -CapacityLedgerEntry1."Setup Time",
-            CapacityLedgerEntry."Setup Time",
-            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Setup Time"), -CapacityLedgerEntry1."Setup Time", CapacityLedgerEntry.TableCaption()));
-        Assert.AreEqual(
-            -CapacityLedgerEntry1."Run Time",
-            CapacityLedgerEntry."Run Time",
-            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Run Time"), -CapacityLedgerEntry1."Run Time", CapacityLedgerEntry.TableCaption()));
-        Assert.AreEqual(
-            -CapacityLedgerEntry1."Output Quantity",
-            CapacityLedgerEntry."Output Quantity",
-            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Output Quantity"), -CapacityLedgerEntry1."Output Quantity", CapacityLedgerEntry.TableCaption()));
-        Assert.AreEqual(
-            -CapacityLedgerEntry1."Scrap Quantity",
-            CapacityLedgerEntry."Scrap Quantity",
-            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Scrap Quantity"), -CapacityLedgerEntry1."Scrap Quantity", CapacityLedgerEntry.TableCaption()));
+        // [THEN] Verify Reverse Entry should not be created for last operation of Capacity Ledger Entry.
+        Assert.ExpectedError(StrSubstNo(CannotReverseLastOperationErr, CapacityLedgerEntry.FieldCaption("Entry No."), CapacityLedgerEntries."Entry No.", CapacityLedgerEntries."Order No.", ItemLedgEntry.TableCaption()));
     end;
 
     [Test]
@@ -7085,6 +7065,330 @@ codeunit 137079 "SCM Production Order III"
         // [THEN] Verify that the sales document was shipped successfully.
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyReverseCapacityLedgerEntryShouldBeCreatedWhenReverseIsExecutedWithOutputQuantity()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+        CapacityLedgerEntry1: Record "Capacity Ledger Entry";
+        CapacityLedgerEntries: TestPage "Capacity Ledger Entries";
+    begin
+        // [SCENARIO 569192] Verify Reverse production order transaction action in the capacity ledger entry revert the output quantity.
+        Initialize();
+
+        // [GIVEN] Create item with routing.
+        Item.Get(CreateItemSerialRoutingSeveralLines(LibraryRandom.RandIntInRange(3, 10)));
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '', '');
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", ProductionOrder.Quantity, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2), 0, ProductionOrder.Quantity, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Find Capacity Ledger Entry.
+        CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
+        CapacityLedgerEntry.SetRange("Order No.", ProductionOrder."No.");
+        CapacityLedgerEntry.FindFirst();
+
+        // [GIVEN] OpenEdit Capacity Ledger Entries.
+        CapacityLedgerEntries.OpenEdit();
+        CapacityLedgerEntries.Filter.SetFilter("Entry No.", Format(CapacityLedgerEntry."Entry No."));
+
+        // [WHEN] Invoke "Reverse" action.
+        CapacityLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Reverse production order transaction action in the capacity ledger entry revert the output quantity.
+        CapacityLedgerEntry1.Get(CapacityLedgerEntries."Entry No.".AsInteger());
+        FindLastCapacityLedgerEntry(CapacityLedgerEntry, "Inventory Order Type"::Production, CapacityLedgerEntry1."Order No.", CapacityLedgerEntry1."Order Line No.");
+        Assert.AreEqual(
+            -CapacityLedgerEntry1.Quantity,
+            CapacityLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption(Quantity), -CapacityLedgerEntry1.Quantity, CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry1."Setup Time",
+            CapacityLedgerEntry."Setup Time",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Setup Time"), -CapacityLedgerEntry1."Setup Time", CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry1."Run Time",
+            CapacityLedgerEntry."Run Time",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Run Time"), -CapacityLedgerEntry1."Run Time", CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry1."Output Quantity",
+            CapacityLedgerEntry."Output Quantity",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Output Quantity"), -CapacityLedgerEntry1."Output Quantity", CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry1."Scrap Quantity",
+            CapacityLedgerEntry."Scrap Quantity",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Scrap Quantity"), -CapacityLedgerEntry1."Scrap Quantity", CapacityLedgerEntry.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyReverseCapacityLedgerEntryShouldBeCreatedWhenReverseIsExecutedFromItemLedgerEntries()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        CapacityLedgerEntry: array[2] of Record "Capacity Ledger Entry";
+        ItemLedgerEntry: array[2] of Record "Item Ledger Entry";
+        CapacityLedgerEntry1: Record "Capacity Ledger Entry";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+    begin
+        // [SCENARIO 569192] Verify a reverse entry should be created for the last operation of the capacity ledger entry when the reverse action is executed from Item Ledger Entries.
+        Initialize();
+
+        // [GIVEN] Create item with routing.
+        Item.Get(CreateItemSerialRoutingSeveralLines(LibraryRandom.RandIntInRange(3, 10)));
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandIntInRange(10, 20), '', '');
+
+        // [GIVEN] Find Production Order Line.
+        FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithOutputQuantityAndUnitCost(
+            ProductionOrder."No.",
+            ProductionOrder.Quantity - 1,
+            ProductionOrder.Quantity - 1,
+            LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Find Last Capacity Ledger Entry.
+        FindLastCapacityLedgerEntry(CapacityLedgerEntry[1], "Inventory Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+
+        // [GIVEN] Find Last Item Ledger Entry.
+        FindLastItemLedgerEntry(ItemLedgerEntry[1], "Inventory Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.", "Item Ledger Entry Type"::Output);
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithOutputQuantityAndUnitCost(
+            ProductionOrder."No.",
+            ProductionOrder.Quantity + LibraryRandom.RandInt(10),
+            ProductionOrder.Quantity + LibraryRandom.RandInt(10),
+            LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Find Last Capacity Ledger Entry.
+        FindLastCapacityLedgerEntry(CapacityLedgerEntry[2], "Inventory Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+
+        // [GIVEN] Find Last Item Ledger Entry.
+        FindLastItemLedgerEntry(ItemLedgerEntry[2], "Inventory Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.", "Item Ledger Entry Type"::Output);
+
+        // [GIVEN] OpenEdit Capacity Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Entry No.", Format(ItemLedgerEntry[1]."Entry No."));
+
+        // [WHEN] Invoke "Reverse" action.
+        ItemLedgerEntries.Reverse.Invoke();
+        ItemLedgerEntries.Close();
+
+        // [THEN] Verify Reverse production order transaction action in the capacity ledger entry revert the output quantity from Item Ledger Entry.
+        FindLastCapacityLedgerEntry(CapacityLedgerEntry1, "Inventory Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+        Assert.AreEqual(
+            -CapacityLedgerEntry[1].Quantity,
+            CapacityLedgerEntry1.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption(Quantity), -CapacityLedgerEntry[1].Quantity, CapacityLedgerEntry[1].TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry[1]."Setup Time",
+            CapacityLedgerEntry1."Setup Time",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption("Setup Time"), -CapacityLedgerEntry[1]."Setup Time", CapacityLedgerEntry[1].TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry[1]."Run Time",
+            CapacityLedgerEntry1."Run Time",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption("Run Time"), -CapacityLedgerEntry[1]."Run Time", CapacityLedgerEntry[1].TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry[1]."Output Quantity",
+            CapacityLedgerEntry1."Output Quantity",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption("Output Quantity"), -CapacityLedgerEntry[1]."Output Quantity", CapacityLedgerEntry[1].TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry[1]."Scrap Quantity",
+            CapacityLedgerEntry1."Scrap Quantity",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption("Scrap Quantity"), -CapacityLedgerEntry[1]."Scrap Quantity", CapacityLedgerEntry[1].TableCaption()));
+
+        // [GIVEN] OpenEdit Capacity Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Entry No.", Format(ItemLedgerEntry[2]."Entry No."));
+
+        // [WHEN] Invoke "Reverse" action.
+        ItemLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Reverse production order transaction action in the capacity ledger entry revert the output quantity from Item Ledger Entry.
+        FindLastCapacityLedgerEntry(CapacityLedgerEntry1, "Inventory Order Type"::Production, ProductionOrder."No.", ProdOrderLine."Line No.");
+        Assert.AreEqual(
+            -CapacityLedgerEntry[2].Quantity,
+            CapacityLedgerEntry1.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption(Quantity), -CapacityLedgerEntry[2].Quantity, CapacityLedgerEntry[1].TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry[2]."Setup Time",
+            CapacityLedgerEntry1."Setup Time",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption("Setup Time"), -CapacityLedgerEntry[2]."Setup Time", CapacityLedgerEntry[1].TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry[2]."Run Time",
+            CapacityLedgerEntry1."Run Time",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption("Run Time"), -CapacityLedgerEntry[2]."Run Time", CapacityLedgerEntry[1].TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry[2]."Output Quantity",
+            CapacityLedgerEntry1."Output Quantity",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption("Output Quantity"), -CapacityLedgerEntry[2]."Output Quantity", CapacityLedgerEntry[1].TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry[2]."Scrap Quantity",
+            CapacityLedgerEntry1."Scrap Quantity",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry[1].FieldCaption("Scrap Quantity"), -CapacityLedgerEntry[2]."Scrap Quantity", CapacityLedgerEntry[1].TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalPageHandler3,ItemTrackingHandler,ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyReversalConsumptionWithLotTrackingShouldBeAppliedCorrectly()
+    var
+        ProdItem: Record Item;
+        ChildItem: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemTrackingCode: Record "Item Tracking Code";
+        ProductionOrder: Record "Production Order";
+        ProductionOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+        Quantity: Integer;
+        LotNo: array[3] of Code[50];
+        UnitCost: array[3] of Decimal;
+    begin
+        // [SCENARIO 573819] Verify Reversal of consumption with lot tracking is applied correctly to original consumption.
+        Initialize();
+
+        // // [GIVEN] Create Item with Lot Tracking.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        LibraryInventory.CreateTrackedItem(ChildItem, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
+
+        // [GIVEN] Generate Random Quantity, Lot No., Unit Cost.
+        Quantity := LibraryRandom.RandInt(100);
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
+        LotNo[3] := LibraryUtility.GenerateGUID();
+        UnitCost[1] := LibraryRandom.RandInt(100);
+        UnitCost[2] := LibraryRandom.RandInt(100);
+        UnitCost[3] := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create and Post Item with Lot No.
+        CreateAndPostInvtAdjustmentOfItemWithLot(ChildItem."No.", UnitCost[1], LotNo[1], Quantity);
+        CreateAndPostInvtAdjustmentOfItemWithLot(ChildItem."No.", UnitCost[2], LotNo[2], Quantity);
+        CreateAndPostInvtAdjustmentOfItemWithLot(ChildItem."No.", UnitCost[3], LotNo[3], Quantity);
+
+        // [GIVEN] Create a Prod item.
+        LibraryInventory.CreateItem(ProdItem);
+
+        // [GIVEN] Create Released Production Order.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProductionOrder."Source Type"::Item,
+            '',
+            0);
+
+        // [GIVEN] Create Released Production Order Line with Prod Item.
+        LibraryManufacturing.CreateProdOrderLine(ProductionOrderLine, ProductionOrder.Status, ProductionOrder."No.", ProdItem."No.", '', '', LibraryRandom.RandInt(1));
+
+        // [GIVEN] Create Released Production Order Component with Child Item.
+        LibraryManufacturing.CreateProductionOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", ProductionOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", ChildItem."No.");
+        ProdOrderComponent.Validate("Quantity per", Quantity * 2);
+        ProdOrderComponent.Modify();
+
+        // [GIVEN] Create Item Tracking Lines for Prod Order Component with Lot 2 ,3.
+        OpenItemTrackingLinesSetValue(ProdOrderComponent, LotNo[2], '', Quantity);
+        OpenItemTrackingLinesSetValue(ProdOrderComponent, LotNo[3], '', Quantity);
+
+        // [GIVEN] Post Producton Journal.
+        CreateAndPostProductionJnlWithLotNo(ProductionOrder, ProductionOrderLine."Line No.");
+
+        // [GIVEN] Execute Adjust Cost Item Entries.
+        LibraryCosting.AdjustCostItemEntries(ChildItem."No.", '');
+
+        // [GIVEN] OpenEdit Capacity Ledger Entries.
+        ItemLedgerEntries.OpenEdit();
+        ItemLedgerEntries.Filter.SetFilter("Item No.", ChildItem."No.");
+        ItemLedgerEntries.Filter.SetFilter("Entry Type", Format(ItemLedgerEntry."Entry Type"::Consumption));
+        ItemLedgerEntries.Filter.SetFilter("Lot No.", LotNo[2]);
+
+        // [WHEN] Invoke "Reverse" action.
+        ItemLedgerEntries.Reverse.Invoke();
+        LibraryCosting.AdjustCostItemEntries(ChildItem."No.", '');
+
+        // [THEN] Verify Reversal of consumption with lot tracking is applied correctly to original consumption.
+        FindLastItemLedgerEntry(ItemLedgerEntry, "Inventory Order Type"::Production, ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", "Item Ledger Entry Type"::Consumption);
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+        Assert.AreEqual(
+            -ItemLedgerEntries.Quantity.AsInteger(),
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -ItemLedgerEntries.Quantity.AsInteger(), ItemLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -ItemLedgerEntries."Cost Amount (Actual)".AsDecimal(),
+            ItemLedgerEntry."Cost Amount (Actual)",
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption("Cost Amount (Actual)"), -ItemLedgerEntries."Cost Amount (Actual)".AsDecimal(), ItemLedgerEntry.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandlerWithoutValidation')]
+    procedure VerifyReverseCapacityLedgerEntryShouldBeCreatedWhenReverseIsExecutedWithStopTime()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+        CapacityLedgerEntry1: Record "Capacity Ledger Entry";
+        CapacityLedgerEntries: TestPage "Capacity Ledger Entries";
+    begin
+        // [SCENARIO 574924] Verify Reverse production order transaction action in the capacity ledger entry revert the Stop time.
+        Initialize();
+
+        // [GIVEN] Create item with routing.
+        Item.Get(CreateItemSerialRoutingSeveralLines(LibraryRandom.RandIntInRange(3, 10)));
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), '', '');
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", ProductionOrder.Quantity, 0, 0, LibraryRandom.RandDec(10, 2), 0, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Find Capacity Ledger Entry.
+        CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Production);
+        CapacityLedgerEntry.SetRange("Order No.", ProductionOrder."No.");
+        CapacityLedgerEntry.FindFirst();
+
+        // [GIVEN] OpenEdit Capacity Ledger Entries.
+        CapacityLedgerEntries.OpenEdit();
+        CapacityLedgerEntries.Filter.SetFilter("Entry No.", Format(CapacityLedgerEntry."Entry No."));
+
+        // [WHEN] Invoke "Reverse" action.
+        CapacityLedgerEntries.Reverse.Invoke();
+
+        // [THEN] Verify Reverse production order transaction action in the capacity ledger entry revert the Stop Time.
+        CapacityLedgerEntry1.Get(CapacityLedgerEntries."Entry No.".AsInteger());
+        FindLastCapacityLedgerEntry(CapacityLedgerEntry, "Inventory Order Type"::Production, CapacityLedgerEntry1."Order No.", CapacityLedgerEntry1."Order Line No.");
+        Assert.AreEqual(
+            -CapacityLedgerEntry1.Quantity,
+            CapacityLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption(Quantity), -CapacityLedgerEntry1.Quantity, CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry1."Setup Time",
+            CapacityLedgerEntry."Setup Time",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Setup Time"), -CapacityLedgerEntry1."Setup Time", CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry1."Stop Time",
+            CapacityLedgerEntry."Stop Time",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Stop Time"), -CapacityLedgerEntry1."Stop Time", CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry1."Run Time",
+            CapacityLedgerEntry."Run Time",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Run Time"), -CapacityLedgerEntry1."Run Time", CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry1."Output Quantity",
+            CapacityLedgerEntry."Output Quantity",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Output Quantity"), -CapacityLedgerEntry1."Output Quantity", CapacityLedgerEntry.TableCaption()));
+        Assert.AreEqual(
+            -CapacityLedgerEntry1."Scrap Quantity",
+            CapacityLedgerEntry."Scrap Quantity",
+            StrSubstNo(ValueMustBeEqualErr, CapacityLedgerEntry.FieldCaption("Scrap Quantity"), -CapacityLedgerEntry1."Scrap Quantity", CapacityLedgerEntry.TableCaption()));
     end;
 
     local procedure Initialize()
@@ -9715,6 +10019,59 @@ codeunit 137079 "SCM Production Order III"
             StrSubstNo(ItemMustBeEqualErr, Item.FieldCaption("Rolled-up Mfg. Ovhd Cost"), RUMfgOvhdCost, Item."No.", Item.TableCaption()));
     end;
 
+    local procedure CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrderNo: Code[20]; OutputQuantity: Decimal; SetupTime: Decimal; RunTime: Decimal; StopTime: Decimal; ScrapQuantity: Decimal; UnitCost: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateOutputJournalWithExplodeRouting(ItemJournalLine, ProductionOrderNo);
+        ItemJournalLine.Validate("Output Quantity", OutputQuantity);
+        ItemJournalLine.Validate("Setup Time", SetupTime);
+        ItemJournalLine.Validate("Scrap Quantity", ScrapQuantity);
+        ItemJournalLine.Validate("Run Time", RunTime);
+        ItemJournalLine.Validate("Stop Time", StopTime);
+        ItemJournalLine.Validate("Unit Cost", UnitCost);
+        ItemJournalLine.Modify(true);
+
+        LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostOutputJournalWithOutputQuantityAndUnitCost(ProductionOrderNo: Code[20]; OutputQuantity: Decimal; ScrapQuantity: Decimal; UnitCost: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateOutputJournalWithExplodeRouting(ItemJournalLine, ProductionOrderNo);
+        if ItemJournalLine.FindFirst() then
+            repeat
+                ItemJournalLine.Validate("Output Quantity", OutputQuantity);
+                ItemJournalLine.Validate("Setup Time", LibraryRandom.RandInt(100));
+                ItemJournalLine.Validate("Scrap Quantity", ScrapQuantity);
+                ItemJournalLine.Validate("Run Time", LibraryRandom.RandInt(100));
+                ItemJournalLine.Validate("Unit Cost", UnitCost);
+                ItemJournalLine.Modify(true);
+            until ItemJournalLine.Next() = 0;
+        LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostInvtAdjustmentOfItemWithLot(ItemNo: Code[20]; UnitCost: Decimal; LotNo: Code[50]; Quantity: Decimal)
+    var
+        Item: Record Item;
+    begin
+        Item.Get(ItemNo);
+        Item."Unit Cost" := UnitCost;
+        Item.Modify();
+
+        CreateAndPostInvtAdjustmentOfItemWithLot(Item."No.", LotNo, Quantity);
+    end;
+
+    local procedure OpenItemTrackingLinesSetValue(var ProdOrderComponent: Record "Prod. Order Component"; LotNo: Code[50]; SerialNo: Code[50]; Quantity: Decimal)
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SetNewValue);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue(Quantity);
+        ProdOrderComponent.OpenItemTrackingLines();
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -9791,6 +10148,17 @@ codeunit 137079 "SCM Production Order III"
                 end;
             ItemTrackingMode::SetValue:
                 begin
+                    LotNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(LotNo));
+                    SerialNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(SerialNo));
+                    Quantity := LibraryVariableStorage.DequeueDecimal();
+
+                    ItemTrackingLines."Lot No.".SetValue(LotNo);
+                    ItemTrackingLines."Serial No.".SetValue(SerialNo);
+                    ItemTrackingLines."Quantity (Base)".SetValue(Quantity);
+                end;
+            ItemTrackingMode::SetNewValue:
+                begin
+                    ItemTrackingLines.New();
                     LotNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(LotNo));
                     SerialNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(SerialNo));
                     Quantity := LibraryVariableStorage.DequeueDecimal();
@@ -10006,6 +10374,12 @@ codeunit 137079 "SCM Production Order III"
     procedure ProductionJournalPageHandler2(var ProductionJournal: TestPage "Production Journal")
     begin
         ProductionJournal.ItemTrackingLines.Invoke();
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ProductionJournalPageHandler3(var ProductionJournal: TestPage "Production Journal")
+    begin
         ProductionJournal.Post.Invoke();
     end;
 }

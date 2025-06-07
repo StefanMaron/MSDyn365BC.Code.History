@@ -185,6 +185,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Batch Jobs - NamedType JobTaskNoErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2271570513 - NamedType 1001634818" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Value in Line Discount % must not be removed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Batch Jobs - NamedType LineDiscountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2271570513 - NamedType 3074671870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The field Project Planning Line No. of table Project Planning Line Invoice contains a value (%1) that cannot be found in the related table (Project Planning Line).]]></Val>
@@ -561,6 +570,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Invoicing - NamedType QtyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1338490621 - NamedType 1723393352" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[System Created Entry must not equal to %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= System Created Entry]D;]A;(LookupHint=Codeunit Job Invoicing - NamedType SystemCreatedEntryErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1338490621 - NamedType 4252704064" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
