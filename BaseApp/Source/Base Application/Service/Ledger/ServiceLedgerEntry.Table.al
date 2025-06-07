@@ -426,6 +426,7 @@ table 5907 "Service Ledger Entry"
         ServOrderMgt: Codeunit ServOrderManagement;
         DimMgt: Codeunit DimensionManagement;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Service Ledger Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";

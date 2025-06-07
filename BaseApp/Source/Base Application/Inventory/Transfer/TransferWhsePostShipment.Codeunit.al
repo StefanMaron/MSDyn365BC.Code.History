@@ -326,6 +326,7 @@ codeunit 5748 "Transfer Whse. Post Shipment"
         else begin
             TransferOrderPostShipment.SetWhseShptHeader(WhseShptHeader);
             TransferOrderPostShipment.SetSuppressCommit(WhsePostParameters."Suppress Commit" or WhsePostParameters."Preview Posting");
+            TransferOrderPostShipment.SetPreviewMode(WhsePostParameters."Preview Posting");
             TransferOrderPostShipment.RunWithCheck(TransHeader);
             CounterSourceDocOK := CounterSourceDocOK + 1;
         end;

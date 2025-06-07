@@ -26,6 +26,7 @@ codeunit 137046 "SCM Order Planning - I"
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         VerifyOnGlobal: Option RequisitionLine,Orders;
         DemandTypeGlobal: Option Sales,Production;
         IsInitialized: Boolean;
@@ -1025,6 +1026,79 @@ codeunit 137046 "SCM Order Planning - I"
         asserterror ItemCard."Replenishment System".Value(Format(Item."Replenishment System"::Transfer));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('OrderPromisingHandler')]
+    procedure PlanDelDateAndEarliestShptDateInOrderPromLinesIsSumOfLeadTimeCalcOfItemVendAndInvntSetupAndOrderPromSetup()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ItemVendor: Record "Item Vendor";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        OrderPromisingSetup: Record "Order Promising Setup";
+        SalesHeader: Record "Sales Header";
+        Salesline: Record "Sales Line";
+        Vendor: Record Vendor;
+        DateFormula: DateFormula;
+        PlannedDeliveryDate: Date;
+    begin
+        // [SCENARIO 568517] "Planned Delivery Date" and "Earliest Shipment Date" in Order Promising Lines is equal to the sum of "Lead Time Calculation" of ItemVendor, "Default Safety Lead Time" of Inventory Setup and "Offset (Time)" of Order Promising Setup.
+        Initialize();
+
+        // [GIVEN] Generate and save DateFormula in a variable.
+        Evaluate(DateFormula, StrSubstNo('%1D', LibraryRandom.RandIntInRange(1, 1)));
+
+        // [GIVEN] Validate "Default Safety Lead Time" in Manufacturing Setup.
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Default Safety Lead Time", DateFormula);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Validate "Offset (Time)" in Order Promising Setup.
+        OrderPromisingSetup.Get();
+        OrderPromisingSetup.Validate("Offset (Time)", DateFormula);
+        OrderPromisingSetup.Modify(true);
+
+        // [GIVEN] Generate and save DateFormula in a variable.
+        Evaluate(DateFormula, StrSubstNo('%1D', LibraryRandom.RandIntInRange(10, 10)));
+
+        // [GIVEN] Create a Vendor and Validate "Lead Time Calculation".
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Lead Time Calculation", DateFormula);
+        Vendor.Modify(true);
+
+        // [GIVEN] Generate and save DateFormula in a variable.
+        Evaluate(DateFormula, StrSubstNo('%1D', LibraryRandom.RandIntInRange(20, 20)));
+
+        // [GIVEN] Create an Item and Validate "Vendor No." and "Lead Time Calculation".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Vendor No.", Vendor."No.");
+        Item.Validate("Lead Time Calculation", DateFormula);
+        Item.Modify(true);
+
+        // [GIVEN] Create an ItemVendor.
+        CreateItemVendor(ItemVendor, Vendor."No.", Item."No.", '');
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create a Sales Line.
+        LibrarySales.CreateSalesLine(Salesline, SalesHeader, Salesline.Type::Item, Item."No.", LibraryRandom.RandIntInRange(2, 2));
+
+        // [GIVEN] Generate and save PlannedDeliveryDate in a Variable.
+        PlannedDeliveryDate := CalcDate('<' + Format(ItemVendor."Lead Time Calculation") + '+' + Format(ManufacturingSetup."Default Safety Lead Time") + '+' + Format(OrderPromisingSetup."Offset (Time)") + '>', WorkDate());
+
+        // [WHEN] Open Order Promising Page.
+        LibraryVariableStorage.Enqueue(PlannedDeliveryDate);
+        LibraryVariableStorage.Enqueue(PlannedDeliveryDate);
+        OpenOrderPromisingPage(SalesHeader."No.");
+
+        // [THEN] Run Capable-to-Promise action and "Planned Delivery Date" and "Earliest Shipment Date" 
+        // are equal to PlannedDeliveryDate in OrderPromisingHandler.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1874,11 +1948,41 @@ codeunit 137046 "SCM Order Planning - I"
         SalesReceivablesSetup.Modify(true);
     end;
 
+    local procedure OpenOrderPromisingPage(SalesHeaderNo: Code[20])
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenView();
+        SalesOrder.Filter.SetFilter("No.", SalesHeaderNo);
+        SalesOrder.SalesLines.OrderPromising.Invoke();
+    end;
+
+    local procedure CreateItemVendor(var ItemVendor: Record "Item Vendor"; VendorNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10])
+    begin
+        ItemVendor.Init();
+        ItemVendor."Vendor No." := VendorNo;
+        ItemVendor."Item No." := ItemNo;
+        ItemVendor."Variant Code" := VariantCode;
+        Evaluate(ItemVendor."Lead Time Calculation", StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(10, 10)));
+        ItemVendor."Vendor Item No." := LibraryUtility.GenerateGUID();
+        ItemVendor.Insert(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure MakeSupplyOrdersPageHandler(var MakeSupplyOrders: Page "Make Supply Orders"; var Response: Action)
     begin
         Response := ACTION::LookupOK;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderPromisingHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
+    begin
+        OrderPromisingLines.CapableToPromise.Invoke();
+        OrderPromisingLines.First();
+        OrderPromisingLines."Planned Delivery Date".AssertEquals(LibraryVariableStorage.DequeueDate());
+        OrderPromisingLines."Earliest Shipment Date".AssertEquals(LibraryVariableStorage.DequeueDate());
     end;
 
     [ConfirmHandler]

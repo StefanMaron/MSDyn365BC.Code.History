@@ -319,6 +319,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             end
         end;
 
+        OnAfterCreateNAVSalesOrder(CRMSalesorder, SalesHeader, SalesInvoiceHeader);
         exit(true);
     end;
 
@@ -934,6 +935,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitializeSalesOrderLineOnBeforeInitializeWriteInOrderLine(var SalesLine: Record "Sales Line"; var CRMSalesorderdetail: Record "CRM Salesorderdetail"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateNAVSalesOrder(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 }
