@@ -57,6 +57,7 @@ codeunit 137400 "SCM Inventory - Orders"
         AmountToAssignItemChargeErr: Label 'Amount to Assign does not correspond to Qty. to Assign on item charge assignment.';
         QtyToInvoiceMustHaveValueErr: Label 'Qty. to Invoice must have a value';
         DimensionErr: Label 'Dimension Value Code must be %1 in %2.', Comment = '%1 = Dimension Value Code, %2=Table Name';
+        DropShipmentDocumentExistsErr: Label 'You cannot use the cancel or correct functionality because the invoice line is associated with purchase order %1 via a Drop Shipment.', Comment = '%1 - Purchase Order No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2927,6 +2928,47 @@ codeunit 137400 "SCM Inventory - Orders"
                 DimensionErr,
                 DimensionValue[2].Code,
                 ItemJournalLine.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesListHandler,GetShipmentLinesPageHandler')]
+    procedure VerifyIfCreditMemoPostedInCaseOfDropShipment()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CorrectPstdSalesInvYesNo: Codeunit "Correct PstdSalesInv (Yes/No)";
+        PostedDocumentNo: Code[20];
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 566857] When creating a Credit Memo for a Sales invoice with Drop Shipment with "correct" the purchase order is not corrected and you cannot post the Sales Order afterwards.
+        Initialize();
+
+        // [GIVEN] Create Sales Order with one line has "Drop Shipment" purchasing code.
+        LibrarySales.CreateSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::Order, '');
+        CreateSalesLineWithPurchasingCode(SalesLine, SalesHeader[1]);
+
+        // [GIVEN] Create a purchase order associated with the sales order.
+        CreatePurchaseOrder(PurchaseHeader, SalesHeader[1]."Sell-to Customer No.");
+        GetDropShipmentLine(PurchaseLine, PurchaseHeader);
+
+        // [GIVEN] Receive the Purchase Order
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Create a Sales Invoice with Get Shipment Line
+        GetShipmentLineInSalesInvoice(SalesHeader[2], SalesHeader[1]."Sell-to Customer No.");
+
+        // [GIVEN] Post the Sales Invoice
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader[2], false, true);
+
+        // [WHEN] Open the Posted Sales Invoice
+        SalesInvoiceHeader.Get(PostedDocumentNo);
+
+        // [THEN] Create correct Credit Memo
+        asserterror CorrectPstdSalesInvYesNo.CorrectInvoice(SalesInvoiceHeader);
+        Assert.ExpectedError(StrSubstNo(DropShipmentDocumentExistsErr, PurchaseHeader."No."));
     end;
 
     local procedure Initialize()

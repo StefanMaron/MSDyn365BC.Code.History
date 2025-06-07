@@ -17,6 +17,7 @@ codeunit 134286 "Non. Ded. VAT Currency"
         LibraryNonDeductibleVAT: Codeunit "Library - NonDeductible VAT";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryJournals: Codeunit "Library - Journals";
+        Assert: Codeunit Assert;
         isInitialized: Boolean;
 
     [Test]
@@ -57,7 +58,8 @@ codeunit 134286 "Non. Ded. VAT Currency"
     procedure PurchInvWithdFCYAndTwoLines()
     var
         PurchHeader: Record "Purchase Header";
-        PurchLine: Record "Purchase Line";
+        PurchLine1: Record "Purchase Line";
+        PurchLine2: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
         CurrencyCode: Code[10];
         DocNo: Code[10];
@@ -73,28 +75,31 @@ codeunit 134286 "Non. Ded. VAT Currency"
         // [GIVEN] Currency code USD with exchange rate = 10
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 10, 10);
         // [GIVEN] USD Purchase invoice
-        CreatePurchaseInvoice(PurchHeader, PurchLine, VATPostingSetup, CurrencyCode);
+        CreatePurchaseInvoice(PurchHeader, PurchLine1, VATPostingSetup, CurrencyCode);
         // [GIVEN] First invoice line has amount = 1000
-        CalculateNDValues(Base[1], Amount[1], NDBase[1], NDAmount[1], PurchLine, VATPostingSetup, CurrencyCode, PurchHeader."Posting Date", 0.01);
+        CalculateNDValues(Base[1], Amount[1], NDBase[1], NDAmount[1], PurchLine1, VATPostingSetup, CurrencyCode, PurchHeader."Posting Date", 0.01);
         // [GIVEN] Second invoice line with the same VAT Identifier has amount = 2000
         LibraryPurchase.CreatePurchaseLine(
-            PurchLine, PurchHeader, PurchLine.Type::Item,
-            LibraryInventory.CreateItemWithVATProdPostingGroup(PurchLine."VAT Prod. Posting Group"), LibraryRandom.RandInt(100));
-        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
-        PurchLine.Modify(true);
-        CalculateNDValues(Base[2], Amount[2], NDBase[2], NDAmount[2], PurchLine, VATPostingSetup, CurrencyCode, PurchHeader."Posting Date", 0.01);
+            PurchLine2, PurchHeader, PurchLine2.Type::Item,
+            LibraryInventory.CreateItemWithVATProdPostingGroup(PurchLine1."VAT Prod. Posting Group"), LibraryRandom.RandInt(100));
+        PurchLine2.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchLine2.Modify(true);
+        CalculateNDValues(Base[2], Amount[2], NDBase[2], NDAmount[2], PurchLine2, VATPostingSetup, CurrencyCode, PurchHeader."Posting Date", 0.01);
         Base[1] += Base[2];
         Amount[1] += Amount[2];
         NDBase[1] += NDBase[2];
         NDAmount[1] += NDAmount[2];
+
         // [WHEN] Post Document
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+
         // [THEN] VAT Entry has the following values:
         // [THEN] Base ACY = 10000 + 20000 = 30000
         // [THEN] Amount ACY = 2000 + 4000 = 6000
         // [THEN] "Non-Deductible Base ACY" = 1000 + 2000 = 3000
         // [THEN] "Non-Deductible Amount ACY" = 100 + 200 = 300
         VerifyVATEntry(DocNo, PurchHeader."Posting Date", Base[1], Amount[1], NDBase[1], NDAmount[1]);
+        VerifyGLEntry(DocNo, PurchHeader."Posting Date", PurchLine1, PurchLine2);
     end;
 
     [Test]
@@ -223,8 +228,7 @@ codeunit 134286 "Non. Ded. VAT Currency"
         Amount := GenJournalLine."Amount (LCY)" - Base;
         BaseFCY := Round(GenJournalLine.Amount / (1 + VATPostingSetup."VAT %" / 100));
         VATAmountFCY := Round(GenJournalLine.Amount - BaseFCY);
-        NDBase :=
-            Round(Round(BaseFCY * GetNonDeductibleVATPctFromVATPostingSetup(VATPostingSetup) / 100) * CurrencyFactor);
+        NDBase := Round(Round(BaseFCY * GetNonDeductibleVATPctFromVATPostingSetup(VATPostingSetup) / 100) * CurrencyFactor);
         NDAmount := Round(VATAmountFCY * GetNonDeductibleVATPctFromVATPostingSetup(VATPostingSetup) / 100 * CurrencyFactor);
         Base -= NDBase;
         Amount -= NDAmount;
@@ -274,5 +278,20 @@ codeunit 134286 "Non. Ded. VAT Currency"
         VATEntry.TestField(Amount, Amount);
         VATEntry.TestField("Non-Deductible VAT Base", NDBase);
         VATEntry.TestField("Non-Deductible VAT Amount", NDAmount);
+    end;
+
+    local procedure VerifyGLEntry(DocumentNo: Code[20]; PostingDate: Date; PurchLine1: Record "Purchase Line"; PurchLine2: Record "Purchase Line")
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Posting Date", PostingDate);
+        GLEntry.FindFirst();
+
+        GLEntry.TestField("Source Currency Amount", PurchLine1.Amount + PurchLine2.Amount);
+        GLEntry.TestField("Source Currency VAT Amount",
+            PurchLine1."Amount Including VAT" - PurchLine1.Amount + PurchLine2."Amount Including VAT" - PurchLine2.Amount);
+        Assert.AreNearlyEqual(GLEntry."Src. Curr. Non-Ded. VAT Amount",
+            PurchLine1."Non-Deductible VAT Amount" + PurchLine2."Non-Deductible VAT Amount", 0.01, 'Incorrect Source Currency Non-Deductible VAT Amount');
     end;
 }

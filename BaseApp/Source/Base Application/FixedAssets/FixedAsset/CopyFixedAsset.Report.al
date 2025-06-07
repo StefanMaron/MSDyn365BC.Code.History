@@ -88,6 +88,7 @@ report 5685 "Copy Fixed Asset"
 
     trigger OnPreReport()
     begin
+        OnBeforePreReport(FANo, NumberofCopies, FirstFANo, UseFANoSeries);
         DefaultDim.LockTable();
         FADeprBook.LockTable();
         FA.LockTable();
@@ -179,6 +180,11 @@ report 5685 "Copy Fixed Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnOnPreReportOnBeforeFA2Insert(var FixedAsset2: Record "Fixed Asset"; var FixedAsset: Record "Fixed Asset")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreReport(FANo: Code[20]; NumberofCopies: Integer; FirstFANo: Code[20]; UseFANoSeries: Boolean)
     begin
     end;
 }

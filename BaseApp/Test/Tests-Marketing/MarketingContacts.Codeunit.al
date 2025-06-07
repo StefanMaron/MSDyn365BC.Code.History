@@ -3477,53 +3477,6 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [Test]
-    [HandlerFunctions('NotificationHandler')]
-    [Scope('OnPrem')]
-    procedure ShowSuggestCreateContForCustSaleRelationshipRoleCenter()
-    var
-        Customer: Record Customer;
-        SalesRelationshipMgrAct: TestPage "Sales & Relationship Mgr. Act.";
-    begin
-        // [FEATURE] [Notification] [Customer]
-        // [SCENARIO 216150] Notifications suggesting to create Contacts for Customer appear in Sales & Relationship Manager role center
-        Initialize();
-
-        // [GIVEN] Customer "C" exist with no Contact assigned
-        CreateCustomer(Customer);
-
-        // [WHEN] Sales & Relationship Manager role center is opened
-        SalesRelationshipMgrAct.OpenView();
-
-        // [THEN] Notification is shown
-        Assert.ExpectedMessage(YouCanGetContactFromCustTxt, LibraryVariableStorage.DequeueText());
-        Customer.Delete();
-        SalesRelationshipMgrAct.Close();
-    end;
-
-    [Test]
-    [HandlerFunctions('NotificationHandler')]
-    [Scope('OnPrem')]
-    procedure ShowSuggestCreateContForVendSaleRelationshipRoleCenter()
-    var
-        Vendor: Record Vendor;
-        Customer: Record Customer;
-        SalesRelationshipMgrAct: TestPage "Sales & Relationship Mgr. Act.";
-    begin
-        // [FEATURE] [Notification] [Vendor]
-        // [SCENARIO 216150] Notifications suggesting to create Contacts for Vendor appear in Sales & Relationship Manager role center
-        Initialize();
-        Customer.DeleteAll();
-        // [WHEN] Vendor "V" exist with no Contact assigned and Sales & Relationship Manager role center is opened
-        CreateVendor(Vendor);
-        SalesRelationshipMgrAct.OpenView();
-
-        // [THEN] Notification is shown
-        Assert.ExpectedMessage(YouCanGetContactFromVendTxt, LibraryVariableStorage.DequeueText());
-        Vendor.Delete();
-        SalesRelationshipMgrAct.Close();
-    end;
-
-    [Test]
     [HandlerFunctions('MyNotificationsModalPageHandler')]
     [Scope('OnPrem')]
     procedure DisabledContactNotificationsDontAppear()

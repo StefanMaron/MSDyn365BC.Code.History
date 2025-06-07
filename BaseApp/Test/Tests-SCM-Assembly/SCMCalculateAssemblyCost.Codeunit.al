@@ -43,6 +43,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         WorkDate2: Date;
         TEXT_PARENT: Label 'Parent';
         TEXT_CHILD: Label 'Child';
@@ -455,6 +456,54 @@ codeunit 137911 "SCM Calculate Assembly Cost"
           ComponentItem."Standard Cost", ComponentItem."Standard Cost" * CurrExchRate);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure VerifyAdjustCostItemEntriesMustBeExecutedForAssemblyItem()
+    var
+        AssemblyItem, ComponentItem, NonInvItem : Record Item;
+        ValueEntry: Record "Value Entry";
+    begin
+        // [SCENARIO 574360] Verify "Adjust Cost - Item Entries" must be executed for Assembly item which include non-Inventory item in Assembly BOM.
+        // When "Automatic Cost Posting" is false in Inventory Setup and "Inc. Non. Inv. Cost To Prod" is true in Mfg Setup.
+        Initialize();
+
+        // [GIVEN] Set Automatic Cost Posting to false.
+        LibraryInventory.SetAutomaticCostPosting(false);
+
+        // [GIVEN] Update "Inc. Non. Inv. Cost To Prod" in Manufacturing Setup.
+        LibraryManufacturing.UpdateNonInventoryCostToProductionInManufacturingSetup(true);
+
+        // [GIVEN] Create an Assembled item with "Costing Method"::Standard.
+        CreateItem(AssemblyItem, AssemblyItem."Costing Method"::Standard, AssemblyItem."Replenishment System"::Assembly, 0);
+
+        // [GIVEN] Create an Component item with "Costing Method"::FIFO.
+        CreateItem(ComponentItem, ComponentItem."Costing Method"::FIFO, ComponentItem."Replenishment System"::Purchase, LibraryRandom.RandIntInRange(100, 200));
+
+        // [GIVEN] Create Non-Inventory item with Unit Cost.
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvItem);
+        NonInvItem.Validate("Unit Cost", LibraryRandom.RandIntInRange(200, 500));
+        NonInvItem.Modify();
+
+        // [GIVEN] Post Positive Adjustment for Component item.
+        PostPositiveAdjustment(ComponentItem."No.", LibraryRandom.RandIntInRange(200, 500));
+
+        // [GIVEN] Create Assembly List for Component and Non-Inventory item.
+        CreateAssemblyListComponent(AssemblyItem."No.", ComponentItem."No.", 1);
+        CreateAssemblyListComponent(AssemblyItem."No.", NonInvItem."No.", 1);
+
+        // [GIVEN] Create and post Assembly Order.
+        CreateAndPostAssemblyHeader(AssemblyItem."No.", 1, WorkDate());
+
+        // [WHEN] Run "Adjust Cost - Item Entries"
+        LibraryCosting.AdjustCostItemEntries(AssemblyItem."No.", '');
+
+        // [THEN] Verify "Adjust Cost - Item Entries" must be executed for Assembly item.
+        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::"Assembly Output");
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost - Non Inventory");
+        ValueEntry.SetRange("Item No.", AssemblyItem."No.");
+        Assert.RecordCount(ValueEntry, 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Calculate Assembly Cost");
@@ -587,6 +636,11 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
         ItemLedgerEntry.TestField("Cost Amount (Actual)", ExpectedCostLCY);
         ItemLedgerEntry.TestField("Cost Amount (Actual) (ACY)", Round(ExpectedCostACY, Currency."Amount Rounding Precision"));
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 }
 
