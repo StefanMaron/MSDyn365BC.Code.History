@@ -1530,7 +1530,10 @@ codeunit 139020 "Test Job Queue SNAP"
         OrgTaskID := JobQueueCategory."Recovery Task Id";
 
         CreateFailingJobQueueEntry(JobQueueEntry);  // status = 'In Process'. Keep this one as is
+        JobQueueEntry."Object ID to Run" := Codeunit::"Job Queue Cleanup Tasks";
+        JobQueueEntry.Modify();
         CreateFailingJobQueueEntry(JobQueueEntry);  // status = 'In Process'
+        JobQueueEntry."Object ID to Run" := Codeunit::"Job Queue Cleanup Tasks";
         JobQueueEntry."Job Queue Category Code" := JobQueueCategory.Code;
         JobQueueEntry.Status := JobQueueEntry.Status::Waiting;
         JobQueueEntry.Modify();
@@ -1553,6 +1556,45 @@ codeunit 139020 "Test Job Queue SNAP"
 
         JobQueueCategory.Find(); // get updated record
         Assert.AreNotEqual(OrgTaskID, JobQueueCategory."Recovery Task Id", 'recovery task was not scheduled');
+    end;
+
+    [Test]
+    procedure RunCleanUpTaskWhenJobQueueRetriedByPlatform()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+    begin
+        // [SCENARIO] Job queue cleanup will update stale job after job queue is retried by platform
+
+        // [GIVEN] No job queue entries or logs
+        JobQueueEntry.DeleteAll();
+        JobQueueLogEntry.DeleteAll();
+
+        // [GIVEN] Job Queue Entry that is in process, simulating a JQ that is being retried
+        CreateFailingJobQueueEntry(JobQueueEntry);  // status = 'In Process'
+        JobQueueEntry."User Service Instance ID" := 1;
+        JobQueueEntry."User Session ID" := 2;
+        JobQueueEntry.Modify();
+
+        // [GIVEN] Job Queue Log Entry in process and different User Service Instance ID and User Session ID
+        // This JQLE is simulating a stale JQLE 
+        JobQueueLogEntry.Init();
+        JobQueueLogEntry.ID := JobQueueEntry.ID;
+        JobQueueLogEntry.Status := JobQueueLogEntry.Status::"In Process";
+        JobQueueLogEntry."User Service Instance ID" := 3;
+        JobQueueLogEntry."User Session ID" := 4;
+        JobQueueLogEntry.Insert();
+
+        // [THEN] We should have 1 record of JQE and JQLE
+        Assert.RecordCount(JobQueueEntry, 1);
+        Assert.RecordCount(JobQueueLogEntry, 1);
+
+        // [WHEN] The cleanup task is run, it will update the JQLE
+        Codeunit.Run(Codeunit::"Job Queue Cleanup Tasks", JobQueueEntry);
+
+        // [THEN] The job queue log entry is set to 'error'
+        JobQueueLogEntry.SetRange(Status, JobQueueLogEntry.Status::Error);
+        Assert.RecordCount(JobQueueLogEntry, 1);
     end;
 
     local procedure InitializeRecurringJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; MinutesBetween: Integer)

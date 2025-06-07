@@ -299,7 +299,7 @@ table 5407 "Prod. Order Component"
                 if ("Remaining Quantity" * "Expected Quantity") <= 0 then
                     "Remaining Quantity" := 0;
                 "Remaining Qty. (Base)" := CalcBaseQty("Remaining Quantity", FieldCaption("Remaining Quantity"), FieldCaption("Remaining Qty. (Base)"));
-                "Completely Picked" := "Qty. Picked" >= "Expected Quantity";
+                UpdateCompletelyPicked();
 
                 ProdOrderCompReserve.VerifyQuantity(Rec, xRec);
 
@@ -805,8 +805,7 @@ table 5407 "Prod. Order Component"
             begin
                 "Qty. Picked (Base)" :=
                     UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Picked", "Qty. per Unit of Measure");
-
-                "Completely Picked" := "Qty. Picked" >= "Expected Quantity";
+                UpdateCompletelyPicked();
             end;
         }
         field(7301; "Qty. Picked (Base)"; Decimal)
@@ -819,8 +818,7 @@ table 5407 "Prod. Order Component"
             begin
                 "Qty. Picked" :=
                   UOMMgt.CalcQtyFromBase("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Picked (Base)", "Qty. per Unit of Measure");
-
-                "Completely Picked" := "Qty. Picked" >= "Expected Quantity";
+                UpdateCompletelyPicked();
             end;
         }
         field(7302; "Completely Picked"; Boolean)
@@ -1076,6 +1074,11 @@ table 5407 "Prod. Order Component"
         exit(
           StrSubstNo('%1 %2 %3',
             "Prod. Order No.", ProdOrder.Description, ProdOrderLine."Item No."));
+    end;
+
+    local procedure UpdateCompletelyPicked()
+    begin
+        "Completely Picked" := ("Qty. Picked" >= "Expected Quantity") and ("Expected Quantity" >= 0);
     end;
 
     procedure ProdOrderNeeds(): Decimal

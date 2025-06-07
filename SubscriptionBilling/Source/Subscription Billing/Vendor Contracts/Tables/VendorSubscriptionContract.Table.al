@@ -689,6 +689,30 @@ table 8063 "Vendor Subscription Contract"
                 UpdatePayToVend("Pay-to Contact No.");
             end;
         }
+        field(8050; "Create Contract Deferrals"; Boolean)
+        {
+            Caption = 'Create Contract Deferrals';
+            InitValue = true;
+        }
+#if not CLEANSCHEMA30
+        field(8051; "Without Contract Deferrals"; Boolean)
+        {
+            Caption = 'Without Contract Deferrals';
+            ObsoleteReason = 'Removed in favor of Create Contract Deferrals.';
+#if not CLEAN27
+            ObsoleteState = Pending;
+            ObsoleteTag = '27.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '30.0';
+#endif
+        }
+#endif
+        field(8053; "Billing Rhythm Filter"; DateFormula)
+        {
+            Caption = 'Billing Rhythm Filter';
+            FieldClass = FlowFilter;
+        }
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
@@ -707,17 +731,8 @@ table 8063 "Vendor Subscription Contract"
 
             trigger OnValidate()
             begin
-                SetDefaultWithoutContractDeferralsFromContractType();
+                SetCreateContractDeferralsFromContractType();
             end;
-        }
-        field(8051; "Without Contract Deferrals"; Boolean)
-        {
-            Caption = 'Without Contract Deferrals';
-        }
-        field(8053; "Billing Rhythm Filter"; DateFormula)
-        {
-            Caption = 'Billing Rhythm Filter';
-            FieldClass = FlowFilter;
         }
     }
 
@@ -745,6 +760,8 @@ table 8063 "Vendor Subscription Contract"
         if "Purchaser Code" = '' then
             SetDefaultPurchaser();
 
+        GetServiceContractSetup();
+        Rec."Create Contract Deferrals" := ServiceContractSetup."Create Contract Deferrals" in [Enum::"Create Contract Deferrals"::"Contract-dependent", Enum::"Create Contract Deferrals"::Yes];
     end;
 
     trigger OnRename()
@@ -1656,13 +1673,13 @@ table 8063 "Vendor Subscription Contract"
         Message(UpdatedDeferralsMsg, DeferralCount);
     end;
 
-    local procedure SetDefaultWithoutContractDeferralsFromContractType()
+    local procedure SetCreateContractDeferralsFromContractType()
     var
         ContractType: Record "Subscription Contract Type";
     begin
         if not ContractType.Get(Rec."Contract Type") then
             exit;
-        Rec."Without Contract Deferrals" := ContractType."Def. Without Contr. Deferrals";
+        Rec."Create Contract Deferrals" := ContractType."Create Contract Deferrals";
     end;
 
     internal procedure CreateBillingProposal()
