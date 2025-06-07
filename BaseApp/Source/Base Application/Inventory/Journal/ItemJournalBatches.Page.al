@@ -107,18 +107,51 @@ page 262 "Item Journal Batches"
                     ApplicationArea = Basic, Suite;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    RunObject = Codeunit "Item Jnl.-B.Post";
                     ShortCutKey = 'F9';
-                    ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
+                    ToolTip = 'Post selected journal batches.';
+
+                    trigger OnAction()
+                    var
+                        ItemJournalBatch: Record "Item Journal Batch";
+                        ItemJnlBPost: Codeunit "Item Jnl.-B.Post";
+                    begin
+                        PrepareForPosting(Rec, ItemJournalBatch);
+                        ItemJnlBPost.Run(ItemJournalBatch);
+                        if ItemJnlBPost.JournalWithPostingErrors() then
+                            SetSelectionFilterOnRecord(ItemJournalBatch, Rec);
+                    end;
                 }
                 action("Post and &Print")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    RunObject = Codeunit "Item Jnl.-B.Post+Print";
                     ShortCutKey = 'Shift+F9';
-                    ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
+                    ToolTip = 'Post and print selected journal batches.';
+
+                    trigger OnAction()
+                    var
+                        ItemJournalBatch: Record "Item Journal Batch";
+                        ItemJnlBPostPrint: Codeunit "Item Jnl.-B.Post+Print";
+                    begin
+                        PrepareForPosting(Rec, ItemJournalBatch);
+                        ItemJnlBPostPrint.Run(ItemJournalBatch);
+                        if ItemJnlBPostPrint.JournalWithPostingErrors() then
+                            SetSelectionFilterOnRecord(ItemJournalBatch, Rec);
+                    end;
+                }
+                action(FailedToPostOnOff)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Failed to Post On/Off';
+                    Image = Change;
+                    ToolTip = 'Toggle between showing all journal batches and only those that failed to post.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.MarkedOnly(not Rec.MarkedOnly);
+                        CurrPage.Update(false);
+                    end;
                 }
             }
         }
@@ -176,6 +209,23 @@ page 262 "Item Journal Batches"
                 if Rec.GetRangeMin("Journal Template Name") = Rec.GetRangeMax("Journal Template Name") then
                     if ItemJnlTemplate.Get(Rec.GetRangeMin("Journal Template Name")) then
                         exit(ItemJnlTemplate.Name + ' ' + ItemJnlTemplate.Description);
+    end;
+
+    local procedure PrepareForPosting(var FromItemJournalBatch: Record "Item Journal Batch"; var ItemJournalBatchToBePosted: Record "Item Journal Batch")
+    begin
+        ItemJournalBatchToBePosted := FromItemJournalBatch;
+        ItemJournalBatchToBePosted.CopyFilters(FromItemJournalBatch);
+        CurrPage.SetSelectionFilter(ItemJournalBatchToBePosted);
+    end;
+
+    local procedure SetSelectionFilterOnRecord(var PostedItemJournalBatch: Record "Item Journal Batch"; var ToItemJournalBatch: Record "Item Journal Batch")
+    begin
+        if PostedItemJournalBatch.FindSet() then
+            repeat
+                if ToItemJournalBatch.Get(PostedItemJournalBatch."Journal Template Name", PostedItemJournalBatch.Name) then
+                    ToItemJournalBatch.Mark(true);
+            until PostedItemJournalBatch.Next() = 0;
+        ToItemJournalBatch.MarkedOnly(true);
     end;
 
     [IntegrationEvent(false, false)]

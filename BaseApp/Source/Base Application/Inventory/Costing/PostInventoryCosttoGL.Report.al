@@ -270,14 +270,16 @@ report 1002 "Post Inventory Cost to G/L"
                             MarkedOnly(true);
                             DeleteAll();
                         end;
-                        Window.Close();
+                        if GuiAllowed then
+                            Window.Close();
                     end;
 
                     trigger OnPreDataItem()
                     var
                         GLEntry: Record "G/L Entry";
                     begin
-                        Window.Open(ProcessingItemsTxt);
+                        if GuiAllowed then
+                            Window.Open(ProcessingItemsTxt);
                         if Post then begin
                             GLEntry.LockTable();
                             GLEntry.GetLastEntryNo();

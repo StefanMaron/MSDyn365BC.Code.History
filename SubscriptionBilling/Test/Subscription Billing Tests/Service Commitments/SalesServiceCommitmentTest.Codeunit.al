@@ -1635,6 +1635,7 @@ codeunit 139915 "Sales Service Commitment Test"
             SalesServiceCommitmentToTest.TestField("Sub. Line Start Formula", ServiceCommPackageLine."Sub. Line Start Formula");
             SalesServiceCommitmentToTest.TestField("Billing Rhythm", ServiceCommPackageLine."Billing Rhythm");
             SalesServiceCommitmentToTest.TestField("Customer Price Group", SourceSalesLine."Customer Price Group");
+            SalesServiceCommitmentToTest.TestField("Create Contract Deferrals", ServiceCommPackageLine."Create Contract Deferrals");
         until ServiceCommPackageLine.Next() = 0;
     end;
 
@@ -2083,6 +2084,7 @@ codeunit 139915 "Sales Service Commitment Test"
                     CurrExchRate.ExchangeAmtFCYToLCY(WorkDate(), Customer."Currency Code", SalesServiceCommitmentToTestWith."Unit Cost", ServiceCommitmentToTest."Currency Factor"));
         ServiceCommitmentToTest.TestField("Price Binding Period", SalesServiceCommitmentToTestWith."Price Binding Period");
         ServiceCommitmentToTest.TestField("Next Price Update", CalcDate(SalesServiceCommitmentToTestWith."Price Binding Period", ServiceCommitmentToTest."Subscription Line Start Date"));
+        ServiceCommitmentToTest.TestField("Create Contract Deferrals", SalesServiceCommitmentToTestWith."Create Contract Deferrals");
     end;
 
     local procedure TestServiceObjectWithSerialNoExists()

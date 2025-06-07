@@ -2192,6 +2192,36 @@ codeunit 136350 "UT T Job"
                 Job.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('CheckPurchOrderFromJobModalPageHandlerHaveLines')]
+    procedure CheckUnavailableItemQtyWhenAddProjectPlanningLinesBeforeThePreviousOne()
+    var
+        Item, Item2 : Record Item;
+        JobPlanningLines: TestPage "Job Planning Lines";
+    begin
+        // [SCENARIO 574938] Create Purchase Order from Project not working as expected if we add Project Planning Lines before the previous ones.
+        Initialize();
+
+        // [GIVEN] Create 2 New Item.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create Job X with Job Task and 2 Job Planning Lines.
+        CreateJobAndJobTask();
+        CreateJobPlanningLineWithItem(JobPlanningLine."Line Type"::"Both Budget and Billable", Item."No.", LibraryRandom.RandInt(100));
+        CreateJobPlanningLineBeforePreviousLine(JobPlanningLine."Line Type"::"Both Budget and Billable", Item2."No.", LibraryRandom.RandInt(100));
+
+        // [WHEN] Open Job Planning Lines.
+        JobPlanningLines.OpenEdit();
+        JobPlanningLines.GoToRecord(JobPlanningLine);
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(Item."No.");
+
+        // [WHEN] Create Purchase Order from Job Planning Lines.
+        JobPlanningLines.CreatePurchaseOrder.Invoke();//assert check
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2561,6 +2591,30 @@ codeunit 136350 "UT T Job"
         until DefaultDimension.Next() = 0;
     end;
 
+    local procedure CreateJobPlanningLineBeforePreviousLine(LineType: Enum "Job Planning Line Line Type"; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        JobPlanLine: Record "Job Planning Line";
+        LineNo: Integer;
+    begin
+        JobPlanLine.SetRange("Job No.", JobTask."Job No.");
+        JobPlanLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        if JobPlanLine.FindFirst() then;
+        LineNo := JobPlanLine."Line No." / 2;
+        JobPlanningLine.Init();
+        JobPlanningLine.Validate("Job No.", JobTask."Job No.");
+        JobPlanningLine.Validate("Job Task No.", JobTask."Job Task No.");
+        JobPlanningLine.Validate("Line No.", LineNo);
+        JobPlanningLine.Insert(true);
+
+        JobPlanningLine.Validate("Planning Date", WorkDate());
+        JobPlanningLine.Validate("Line Type", LineType);
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate(Description, LibraryUtility.GenerateGUID());
+        JobPlanningLine.Validate("No.", ItemNo);
+        JobPlanningLine.Validate(Quantity, Quantity);
+        JobPlanningLine.Modify(true);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Job", 'OnAfterModifyEvent', '', false, false)]
     local procedure InsertNameValueBufferOnJobModify(var Rec: Record Job; var xRec: Record Job; RunTrigger: Boolean)
     var
@@ -2663,6 +2717,13 @@ codeunit 136350 "UT T Job"
     begin
         PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
         PurchOrderFromSalesOrder.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure CheckPurchOrderFromJobModalPageHandlerHaveLines(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        //[THEN] Check Purch. Order From Sales Order Page have Record.
+        PurchOrderFromSalesOrder."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [MessageHandler]

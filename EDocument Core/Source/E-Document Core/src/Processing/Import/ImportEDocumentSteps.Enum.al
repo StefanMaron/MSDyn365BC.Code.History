@@ -18,10 +18,14 @@ enum 6114 "Import E-Document Steps"
         Caption = 'Structure received data';
     }
     // Readable
-    value(1; "Read into IR")
+#pragma warning disable AS0125
+#pragma warning disable AS0082
+    value(1; "Read into Draft")
     {
-        Caption = 'Read into IR';
+        Caption = 'Read into draft';
     }
+#pragma warning restore AS0125
+#pragma warning restore AS0082
     // Ready for draft
     value(2; "Prepare draft")
     {

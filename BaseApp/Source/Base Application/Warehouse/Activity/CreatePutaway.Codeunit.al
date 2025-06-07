@@ -724,6 +724,7 @@ codeunit 7313 "Create Put-away"
     local procedure GetWarehouseClassCode()
     begin
         WarehouseClassCode := CurrItem."Warehouse Class Code";
+        OnAfterGetWarehouseClassCode(WarehouseClassCode, CurrItem, CurrStockkeepingUnit);
     end;
 
     local procedure GetPutAwayUOM()
@@ -2015,6 +2016,11 @@ codeunit 7313 "Create Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnAssignPlaceBinZoneOnBeforeApplyBinCodeFilter(var BinCodeFilterText: Text[250]; var Location: Record Location; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetWarehouseClassCode(var WarehouseClassCode: Code[10]; Item: Record Item; StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
 }

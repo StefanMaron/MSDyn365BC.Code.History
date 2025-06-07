@@ -457,7 +457,7 @@ table 312 "Purchases & Payables Setup"
         field(11320; "Check Doc. Total Amounts"; Boolean)
         {
             Caption = 'Check Doc. Total Amounts';
-            ToolTip = 'Specifies if you want the Doc. Amount Incl. VAT field in purchase documents to be compared to the sum of the VAT amounts fields in the purchase lines. If the amounts are not the same, you will be notified when posting the document.';
+            ToolTip = 'Specifies if you want the Doc. Amount Incl. VAT field in Purchase Invoice and Purchase Credit Memo to be compared to the sum of the VAT amounts fields in the purchase lines. If the amounts are not the same, you will be notified when posting the document. The totals will always be checked for invoices received from e-documents.';
         }
 #if not CLEANSCHEMA25
         field(5005230; "Arch. Orders and Ret. Orders"; Boolean)
@@ -535,4 +535,49 @@ table 312 "Purchases & Payables Setup"
         Get();
         exit("Post with Job Queue" or "Post & Print with Job Queue");
     end;
+
+    procedure ShouldDocumentTotalAmountsBeChecked(PurchaseHeader: Record "Purchase Header"): Boolean
+    var
+        ValueFromExtension: Boolean;
+    begin
+        // Only invoices and credit memos are checked for document total amounts
+        if (PurchaseHeader."Document Type" <> PurchaseHeader."Document Type"::Invoice) and
+           (PurchaseHeader."Document Type" <> PurchaseHeader."Document Type"::"Credit Memo") then
+            exit(false);
+        // If the system is setup to check the document totals, we will check it regardless of the extensions
+        if Rec."Check Doc. Total Amounts" then
+            exit(true);
+        OnAfterShouldDocumentTotalAmountsBeChecked(PurchaseHeader, ValueFromExtension);
+        exit(ValueFromExtension);
+    end;
+
+    procedure CanDocumentTotalAmountsBeEdited(PurchaseHeader: Record "Purchase Header") ExitValue: Boolean
+    begin
+        // By default, if the amounts are shown in the document they can be edited, however we provide an event to allow extensions to change this behavior.
+        ExitValue := true;
+        OnCanDocumentTotalAmountsBeEditable(PurchaseHeader, ExitValue);
+    end;
+
+    /// <summary>
+    /// Event to customize whether the document total amounts should be checked or not. If the system is configured to check the document totals, it will be checked regardless of the code executed in this event.
+    /// When using this event, consider that it can have multiple subscribers: it's a good practice to check the value that ShouldDocumentTotalAmountsBeChecked has before changing it.
+    /// </summary>
+    /// <param name="PurchaseHeader">The Purchase Header that we want to know if we should check the totals of.</param>
+    /// <param name="ShouldDocumentTotalAmountsBeChecked">Out-parameter</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShouldDocumentTotalAmountsBeChecked(PurchaseHeader: Record "Purchase Header"; var ShouldDocumentTotalAmountsBeChecked: Boolean)
+    begin
+    end;
+
+    /// <summary>
+    /// Event to customize whether the document total amounts can be edited or not. By default, if the amounts are shown in the document they can be edited, however we provide an event to allow extensions to change this behavior. 
+    /// When using this event, consider that it can have multiple subscribers: it's a good practice to check the value that CanDocumentTotalAmountsBeEdited has before changing it.
+    /// </summary>
+    /// <param name="PurchaseHeader">The Purchase Header that we want to know if it can be edited.</param>
+    /// <param name="CanDocumentTotalAmountsBeEdited">Out-parameter</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnCanDocumentTotalAmountsBeEditable(PurchaseHeader: Record "Purchase Header"; var CanDocumentTotalAmountsBeEdited: Boolean)
+    begin
+    end;
+
 }

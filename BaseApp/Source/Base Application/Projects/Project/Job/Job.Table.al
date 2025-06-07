@@ -3029,12 +3029,10 @@ table 167 Job
         ReservationEntry.ReadIsolation(IsolationLevel::UpdLock);
         ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
         ReservationEntry.SetRange("Source ID", "No.");
-        if ReservationEntry.FindSet(true) then
-            repeat
-                ReservationEntry.Validate("Source Subtype", 2);
-                ReservationEntry.Validate("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
-                ReservationEntry.Modify();
-            until ReservationEntry.Next() = 0;
+        if ReservationEntry.FindSet(true) then begin
+            ReservationEntry.ModifyAll("Source Subtype", 2);
+            ReservationEntry.ModifyAll("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        end;
     end;
 
     [IntegrationEvent(true, false)]
