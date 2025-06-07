@@ -1145,6 +1145,167 @@ codeunit 137272 "SCM Reservation V"
         // [THEN] Verify Total Reserved Quantity field in the Reservation Order page using ReservationFromCurrentLine Handler.
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingTransferPageHandler,ConfirmYesHandler,AutoReservationFromCurrentLine,ItemTrackingListPageHandler')]
+    procedure VerifyTotalReservedQuantityInReservationPageForSalesOrderWhenLotIsConsumedFromTransferOrder()
+    var
+        Item: Record Item;
+        FromLocation, ToLocation, InTransitLocation : Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LotNo, LotNo1 : Code[50];
+    begin
+        // [SCENARIO 555111] Verify Total Reserved Quantity field in the Reservation Order page after you manually type in the Item Tracking of a Sales Line.
+        Initialize();
+
+        // [GIVEN] Generate Lot No.
+        LotNo := LibraryRandom.RandText(50);
+        LotNo1 := LibraryRandom.RandText(50);
+
+        // [GIVEN] Create Lot Item No.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Create two Locations and 1 In-Transit Location
+        LibraryWarehouse.CreateTransferLocations(FromLocation, ToLocation, InTransitLocation);
+
+        // [GIVEN] Create Positive Adjustment with two different Lot for Lot Item
+        CreateAndPostInventoryAdjustmentWithLotNo(Item, FromLocation.Code, LotNo, 50);
+        CreateAndPostInventoryAdjustmentWithLotNo(Item, FromLocation.Code, LotNo1, 50);
+
+        // [GIVEN] Create Transfer Order
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandIntInRange(100, 100));
+
+        // [GIVEN] Enqueue Lot No. and Quantity.
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(50);
+        LibraryVariableStorage.Enqueue(LotNo1);
+        LibraryVariableStorage.Enqueue(50);
+
+        // [GIVEN] Open Item Tracking Lines for Transfer Line.
+        TransferLine.OpenItemTrackingLines(Enum::"Transfer Direction"::Outbound);
+
+        // [GIVEN] Post Transfer Order with Shipment
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        // [GIVEN] Create Sales Order with Lot item.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(30, 30));
+        SalesLine.Validate("Location Code", ToLocation.Code);
+        SalesLine.Modify();
+
+        // [GIVEN] Enqueue Lot No. and Quantity for Sales Line.
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+
+        // [GIVEN] Open Item Tracking Lines for Sales Line.
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Enqueue Total Reserved Quantity and Total Available Quantity.
+        LibraryVariableStorage.Enqueue(30);
+        LibraryVariableStorage.Enqueue(20);
+
+        // [WHEN] Open Reservation page and Reserve from Current Line using ReservationFromCurrentLine Handler. 
+        SalesLine.ShowReservation();
+
+        // [THEN] Verify Total Reserved Quantity field in the Reservation Order page using ReservationFromCurrentLine Handler.
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingTransferPageHandler,ConfirmYesHandler,AutoReservationFromCurrentLine,ItemTrackingListPageHandler')]
+    procedure VerifyTotalReservedQuantityInReservationPageForSecondSalesLineWhenLotIsConsumedFromTransferOrder()
+    var
+        Item: Record Item;
+        FromLocation, ToLocation, InTransitLocation : Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine, SalesLine1 : Record "Sales Line";
+        LotNo, LotNo1 : Code[50];
+    begin
+        // [SCENARIO 555111] Verify Total Reserved Quantity field in the Reservation Order page after you manually type in the Item Tracking of a Sales Line.
+        Initialize();
+
+        // [GIVEN] Generate Lot No.
+        LotNo := LibraryRandom.RandText(50);
+        LotNo1 := LibraryRandom.RandText(50);
+
+        // [GIVEN] Create Lot Item No.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Create two Locations and 1 In-Transit Location
+        LibraryWarehouse.CreateTransferLocations(FromLocation, ToLocation, InTransitLocation);
+
+        // [GIVEN] Create Positive Adjustment with two different Lot for Lot Item
+        CreateAndPostInventoryAdjustmentWithLotNo(Item, FromLocation.Code, LotNo, 50);
+        CreateAndPostInventoryAdjustmentWithLotNo(Item, FromLocation.Code, LotNo1, 50);
+
+        // [GIVEN] Create Transfer Order
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandIntInRange(100, 100));
+
+        // [GIVEN] Enqueue Lot No. and Quantity.
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(50);
+        LibraryVariableStorage.Enqueue(LotNo1);
+        LibraryVariableStorage.Enqueue(50);
+
+        // [GIVEN] Open Item Tracking Lines for Transfer Line.
+        TransferLine.OpenItemTrackingLines(Enum::"Transfer Direction"::Outbound);
+
+        // [GIVEN] Post Transfer Order with Shipment
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        // [GIVEN] Create Sales Order with Lot item.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(30, 30));
+        SalesLine.Validate("Location Code", ToLocation.Code);
+        SalesLine.Modify();
+
+        // [GIVEN] Enqueue Lot No. and Quantity for Sales Line.
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+
+        // [GIVEN] Open Item Tracking Lines for Sales Line.
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Enqueue Total Reserved Quantity and Total Available Quantity.
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(30);
+        LibraryVariableStorage.Enqueue(20);
+
+        // [WHEN] Open Reservation page and Reserve from Current Line using ReservationFromCurrentLine Handler. 
+        SalesLine.ShowReservation();
+
+        // [GIVEN] Create new Sales Line with Same Item and second Lot No.
+        LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine1.Type::Item, Item."No.", 50);
+        SalesLine1.Validate("Location Code", ToLocation.Code);
+        SalesLine1.Modify();
+
+        // [GIVEN] Enqueue Lot No. and Quantity for Sales Line.
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(LotNo1);
+        LibraryVariableStorage.Enqueue(SalesLine1.Quantity);
+
+        // [GIVEN] Open Item Tracking Lines for Sales Line.
+        SalesLine1.OpenItemTrackingLines();
+
+        // [GIVEN] Enqueue Total Reserved Quantity and Total Available Quantity.
+        LibraryVariableStorage.Enqueue(50);
+        LibraryVariableStorage.Enqueue(0);
+
+        // [WHEN] Open Reservation page and Reserve from Current Line using ReservationFromCurrentLine Handler. 
+        SalesLine1.ShowReservation();
+
+        // [THEN] Verify Total Reserved Quantity field in the Reservation Order page using ReservationFromCurrentLine Handler.
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1785,6 +1946,20 @@ codeunit 137272 "SCM Reservation V"
         Assert.RecordIsNotEmpty(SalesShipmentHeader);
     end;
 
+    local procedure CreateAndPostInventoryAdjustmentWithLotNo(Item: Record Item; LocationCode: Code[10]; var LotNo: Code[50]; Quantity: Decimal)
+    var
+        ItemJnlLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        NoSeries: Codeunit "No. Series";
+    begin
+        if LotNo = '' then
+            LotNo := NoSeries.GetNextNo(Item."Lot Nos.", WorkDate(), true);
+
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, ItemJnlLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", Quantity, LocationCode);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', LotNo, Quantity);
+        LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -1918,6 +2093,37 @@ codeunit 137272 "SCM Reservation V"
     procedure ReservationFromCurrentLine(var Reservation: TestPage Reservation)
     begin
         Reservation."Reserve from Current Line".Invoke();
+        Reservation.TotalReservedQuantity.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Reservation.TotalAvailableQuantity.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Reservation.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingTransferPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        DequeueVariable: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        ItemTrackingLines."Lot No.".SetValue(DequeueVariable);
+
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
+
+        if ItemTrackingLines.CurrentSourceCaption.Value = 'Transfer Line' then begin
+            ItemTrackingLines.Next();
+            LibraryVariableStorage.Dequeue(DequeueVariable);
+            ItemTrackingLines."Lot No.".SetValue(DequeueVariable);
+
+            LibraryVariableStorage.Dequeue(DequeueVariable);
+            ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
+        end;
+    end;
+
+    [ModalPageHandler]
+    procedure AutoReservationFromCurrentLine(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Auto Reserve".Invoke();
         Reservation.TotalReservedQuantity.AssertEquals(LibraryVariableStorage.DequeueDecimal());
         Reservation.TotalAvailableQuantity.AssertEquals(LibraryVariableStorage.DequeueDecimal());
         Reservation.OK().Invoke();

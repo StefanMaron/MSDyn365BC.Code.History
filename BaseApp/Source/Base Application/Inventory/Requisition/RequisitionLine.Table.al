@@ -281,7 +281,8 @@ table 246 "Requisition Line"
                         OnValidateVendorNoOnBeforeSetVendorItemNoFromItemVend(Rec, IsHandled);
                         if not IsHandled then
                             "Vendor Item No." := ItemVend."Vendor Item No.";
-                        UpdateOrderReceiptDate(ItemVend."Lead Time Calculation");
+                        if not DoNotUpdateOrderReceiptDate then
+                            UpdateOrderReceiptDate(ItemVend."Lead Time Calculation");
                     end else begin
                         GetPlanningParameters.AtSKU(TempSKU, "No.", "Variant Code", "Location Code");
                         if "Vendor No." = TempSKU."Vendor No." then
@@ -1848,6 +1849,7 @@ table 246 "Requisition Line"
         WMSManagement: Codeunit "WMS Management";
         ConfirmManagement: Codeunit "Confirm Management";
         BlockReservation: Boolean;
+        DoNotUpdateOrderReceiptDate: Boolean;
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text028: Label 'The %1 on this %2 must match the %1 on the sales order line it is associated with.';
@@ -3571,11 +3573,12 @@ table 246 "Requisition Line"
             exit;
         if (Rec."Sales Order No." <> '') and Rec."Drop Shipment" then
             exit;
-        if ("Location Code" <> '') and ("No." <> '') then begin
-            GetLocation("Location Code");
-            if ("Bin Code" = '') and Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
-                WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
-        end;
+        if ("Location Code" <> '') and ("No." <> '') then
+            if not IsDropShipment() then begin
+                GetLocation("Location Code");
+                if ("Bin Code" = '') and Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
+                    WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
+            end;
     end;
 
     /// <summary>
@@ -4079,6 +4082,11 @@ table 246 "Requisition Line"
         "Description 2" := WorkCenterForDescription."Name 2";
 
         exit(true);
+    end;
+
+    procedure SetDoNotUpdateOrderReceiptDate(NewUpdateOrderReceiptDate: Boolean)
+    begin
+        DoNotUpdateOrderReceiptDate := NewUpdateOrderReceiptDate;
     end;
 
     [IntegrationEvent(false, false)]

@@ -1066,6 +1066,65 @@ codeunit 134284 "Non Ded. VAT Misc."
         Assert.AreEqual(JobLedgerEntry."Unit Cost", Cost[2], InCorrectProjLedgEntryAmtErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceNonDeductibleVAT()
+    var
+        FADepreciationBook: Record "FA Depreciation Book";
+        GLEntry: Record "G/L Entry";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: Record Vendor;
+        AcquisitionCostGLAccount: Code[20];
+        InvoiceNo: Code[20];
+        VATAmount: Decimal;
+        VATCalculationType: Enum "Tax Calculation Type";
+
+    begin
+        // [SCENARIO 562366] Posting a Purchase Invoice with Non-deductible VAT amount incorrectly posts to the depreciation expense account instead of the fixed asset cost account in the British version.
+        Initialize();
+
+        // [GIVEN] Enable "Use For Item Cost" on VAT Setup
+        LibraryNonDeductibleVAT.SetUseForFixedAssetCost();
+
+        // [GIVEN] Create VAT Posting Setup as VAT % 20 and Non-Deductible VAT % as 100. 
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType::"Normal VAT", 20);
+        VATPostingSetup."Allow Non-Deductible VAT" := VATPostingSetup."Allow Non-Deductible VAT"::Allow;
+        VATPostingSetup.Validate("Non-Deductible VAT %", 100);
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Create Vendor with VAT Posting Setup.
+        CreateVendor(Vendor, VATPostingSetup);
+
+        // [GIVEN] Create FA Depreciation with Acquired as True.
+        CreateFixedAssetDepreciation(FADepreciationBook, VATPostingSetup."VAT Prod. Posting Group", Vendor."No.", AcquisitionCostGLAccount);
+
+        // [GIVEN] Create Purchase Invoice Header
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, vendor."No.");
+
+        // [GIVEN] Create Purchase Invoice with Fixed Asset and Direct Unit Cost as 25702.50 and Depr. Acquisition Cost, Depr. until FA Posting Date as TRUE.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", fADepreciationBook."FA No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", 25702.50);
+        PurchaseLine.Validate("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Validate("Depr. Acquisition Cost", true);
+        PurchaseLine.Validate("Depr. until FA Posting Date", true);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Calculate VAT Amount
+        VATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine.Amount;
+
+        // [WHEN] Post Purchase Invoice
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify G/L Entry Account for VAT Amount.
+        GLEntry.SetRange("Document No.", InvoiceNo);
+        GLEntry.SetRange("G/L Account No.", AcquisitionCostGLAccount);
+        GLEntry.SetRange(Amount, VATAmount);
+        Assert.RecordIsNotEmpty(GLEntry);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1721,6 +1780,59 @@ codeunit 134284 "Non Ded. VAT Misc."
         GenJournalLine.Validate("Job Task No.", JobTaskNo);
         GenJournalLine.Validate("Job Quantity", Quantity);
         GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateFixedAssetDepreciation(var FADepreciationBook: Record "FA Depreciation Book"; VATProdPostingGroup: Code[20]; VendorNo: code[20]; var AcquisitionCostGL: Code[20])
+    var
+        FASubClass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+        FixedAsset: Record "Fixed Asset";
+        GLAccount: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DepreciationBook: Record "Depreciation Book";
+        LibraryFixedAsset: Codeunit "Library - Fixed Asset";
+    begin
+        DepreciationBook.Get(LibraryFixedAsset.GetDefaultDeprBook());
+        LibraryFixedAsset.CreateFASubclass(FASubClass);
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        FixedAsset.Validate("FA Subclass Code", FASubClass.Code);
+        FixedAsset.Modify(true);
+        FAPostingGroup.Get(FixedAsset."FA Posting Group");
+        AcquisitionCostGL := FAPostingGroup."Acquisition Cost Account";
+        if GLAccount.Get(FAPostingGroup."Acquisition Cost Account") then begin
+            GLAccount.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+            GLAccount.Modify(true);
+        end;
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", FixedAsset."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
+    local procedure CreateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; No: Code[20]; DepreciationBookCode: Code[10]; FAPostingGroup: Code[20])
+    var
+        LibraryFixedAsset: Codeunit "Library - Fixed Asset";
+    begin
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, No, DepreciationBookCode);
+        UpdateDateFADepreciationBook(FADepreciationBook, DepreciationBookCode);
+        FADepreciationBook.Validate("FA Posting Group", FAPostingGroup);
+        FADepreciationBook.Modify(true);
+    end;
+
+    local procedure UpdateDateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; DepreciationBookCode: Code[10])
+    begin
+        FADepreciationBook.Validate("Depreciation Book Code", DepreciationBookCode);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
+        FADepreciationBook.Validate("Depreciation Ending Date", CalculateDepreciationDateAfterOneYear());
+        FADepreciationBook.Modify(true);
+    end;
+
+    local procedure CalculateDepreciationDateAfterOneYear(): Date
+    begin
+        exit(CalcDate('<1Y>', WorkDate()));
     end;
 
     [ConfirmHandler]

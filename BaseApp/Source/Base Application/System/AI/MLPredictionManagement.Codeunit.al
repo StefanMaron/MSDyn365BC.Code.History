@@ -228,7 +228,7 @@ codeunit 2003 "ML Prediction Management"
                 Error(SomethingWentWrongErr, GetLastDetailedError());
 
             AzureMLConnector.GetOutput(1, 1, OutputValue);
-            SYSTEM.Evaluate(Quality, OutputValue, 9);
+            SYSTEM.Evaluate(Quality, OutputValue);
         end;
     end;
 

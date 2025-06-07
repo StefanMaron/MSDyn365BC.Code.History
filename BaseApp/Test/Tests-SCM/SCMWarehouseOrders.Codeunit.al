@@ -59,6 +59,7 @@ codeunit 137161 "SCM Warehouse Orders"
         InsufficientQtyItemTrkgErr: Label 'Item tracking defined for source line %1 of %2 %3 amounts to more than the quantity you have entered.';
         DialogCodeErr: Label 'Dialog';
         QtyToHandleErr: Label '%1 must be %2 in %3', Comment = '%1 = Qty. to Handle, %2 = Quantity * Qty. per Unit of Measure, %3 = Whse. Worksheet Line';
+        RoutingStatusFieldErr: Label 'Routing Status must not be %1 in Prod. Order Routing Line Status=''%2'',Prod. Order No.=''%3'',Routing Reference No.=''%4'',Routing No.=''%5'',Operation No.=''%6''';
 
     [Test]
     [HandlerFunctions('PartialReservationPageHandler,HandlePickSelectionPage')]
@@ -2360,6 +2361,65 @@ codeunit 137161 "SCM Warehouse Orders"
                 WhseWorksheetLine.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure NoInProdOrderRoutingLineGivesErrorWhenSetToBlankIfRoutingStatusIsFinished()
+    var
+        CompItem, ProdItem : Record Item;
+        ProductionBOMLine: Record "Production BOM Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        WorkCenter: Record "Work Center";
+    begin
+        // [SCENARIO 575724] "No." field in Prod. Order Routing Line gives error 
+        // when it is set to blank if "Routing Status" is Finished.
+        Initialize();
+
+        // [GIVEN] Create a Component Item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Create a Work Center.
+        CreateWorkCenter(WorkCenter);
+
+        // [GIVEN] Create and Certify Routing.
+        CreateAndCertifyRouting(RoutingHeader, WorkCenter);
+
+        // [GIVEN] Create and Certify Production BOM.
+        CreateAndCertifyProductionBOM(ProductionBOMLine, CompItem, LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Create a Production Item and Validate "Routing No." and "Production BOM No.".
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Routing No.", RoutingHeader."No.");
+        ProdItem.Validate("Production BOM No.", ProductionBOMLine."Production BOM No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProdItem."No.", LibraryRandom.RandIntInRange(50, 50), '', '');
+
+        // [GIVEN] Find Prod. Order Routing Line.
+        ProdOrderRoutingLine.SetRange("Routing No.", RoutingHeader."No.");
+        ProdOrderRoutingLine.FindFirst();
+
+        // [GIVEN] Validate "Routing Status" in Prod. Order Routing Line.
+        ProdOrderRoutingLine.Validate("Routing Status", ProdOrderRoutingLine."Routing Status"::Finished);
+        ProdOrderRoutingLine.Modify(true);
+
+        // [WHEN] Validate "No." in Prod. Order Routing Line.
+        asserterror ProdOrderRoutingLine.Validate("No.", '');
+
+        // [THEN] "Routing Status" field error is thrown.
+        Assert.ExpectedError(
+            StrSubstNo(
+                RoutingStatusFieldErr,
+                ProdOrderRoutingLine."Routing Status",
+                ProdOrderRoutingLine.Status,
+                ProdOrderRoutingLine."Prod. Order No.",
+                ProdOrderRoutingLine."Routing Reference No.",
+                ProdOrderRoutingLine."Routing No.",
+                ProdOrderRoutingLine."Operation No."));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Orders");
@@ -4204,6 +4264,40 @@ codeunit 137161 "SCM Warehouse Orders"
           WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesOrderNo,
           WarehouseActivityLine."Activity Type"::Pick);
         WarehouseActivityLine.TestField("Bin Code", BinCode);
+    end;
+
+    local procedure CreateWorkCenter(var WorkCenter: Record "Work Center")
+    begin
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        WorkCenter.Validate(Capacity, LibraryRandom.RandIntInRange(3, 3));
+        WorkCenter.Validate(Efficiency, LibraryRandom.RandIntInRange(100, 100));
+        WorkCenter.Modify(true);
+    end;
+
+    local procedure CreateAndCertifyRouting(var RoutingHeader: Record "Routing Header"; WorkCenter: Record "Work Center")
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandIntInRange(10, 10)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Setup Time", LibraryRandom.RandIntInRange(10, 10));
+        RoutingLine.Validate("Run Time", LibraryRandom.RandIntInRange(10, 10));
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure CreateAndCertifyProductionBOM(var ProductionBOMLine: Record "Production BOM Line"; Item: Record Item; Qty: Decimal)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", Qty);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
     end;
 
     [ConfirmHandler]
