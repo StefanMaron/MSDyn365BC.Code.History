@@ -158,7 +158,13 @@ page 1897 "Reminder Term Communication"
                         SelectedNewLanguage := false;
                     end;
 
-                    CurrPage.Update();
+                    ReminderAttachmentText.Reset();
+                    ReminderAttachmentText.SetRange(Id, Rec."Reminder Attachment Text");
+                    if ReminderAttachmentText.IsEmpty() then begin
+                        Clear(rec);
+                        CurrPage.Close()
+                    end else
+                        CurrPage.Update();
                 end;
             }
             action("Remove All Languages")
@@ -185,6 +191,7 @@ page 1897 "Reminder Term Communication"
                     if not ReminderEmailText.IsEmpty() then
                         ReminderEmailText.DeleteAll(true);
 
+                    Clear(rec);
                     CurrPage.Close();
                 end;
             }
@@ -243,15 +250,11 @@ page 1897 "Reminder Term Communication"
             LocalGuid := CreateGuid();
 
         // Check if the Reminder Attachment Text and Reminder Email Text has a value. If not, ask the customer to create a new one with the default content.
-        if IsNullGuid(Rec."Reminder Attachment Text") then
-            if Confirm(ConfirmDefaultCreationOfAttachmentTextMsg) then begin
+        if IsNullGuid(Rec."Reminder Attachment Text") and IsNullGuid(Rec."Reminder Email Text") then
+            if Confirm(ConfirmDefaultCreationofCommunicationTextMsg) then begin
                 ReminderAttachmentText.SetDefaultContentForNewLanguage(LocalGuid, Enum::"Reminder Text Source Type"::"Reminder Term");
-                Rec."Reminder Attachment Text" := LocalGuid;
-                Rec.Modify(true);
-            end;
-        if IsNullGuid(Rec."Reminder Email Text") then
-            if Confirm(ConfirmDefaultCreationOfEmailTextMsg) then begin
                 ReminderEmailText.SetDefaultContentForNewLanguage(LocalGuid, Enum::"Reminder Text Source Type"::"Reminder Term");
+                Rec."Reminder Attachment Text" := LocalGuid;
                 Rec."Reminder Email Text" := LocalGuid;
                 Rec.Modify(true);
             end;
@@ -271,10 +274,10 @@ page 1897 "Reminder Term Communication"
         DifferentOperatorTok: Label '%1&<>%2', Locked = true;
         NoLanguageTextErr: Label 'There are no communication texts for this reminder term for any language. Add a new entry if you want to personalize the communication with the customer.';
         NoTextForSelectedLanguageErr: Label 'There are no communication texts for the selected language %1. Add a new entry if you want to personalize the communication with the customer.', Comment = '%1 = Language Code';
-        ConfirmDefaultCreationOfAttachmentTextMsg: Label 'There are no attachment texts for this reminder term. Do you want to create a new attachment text for your current language?';
-        ConfirmDefaultCreationOfEmailTextMsg: Label 'There are no email texts for this reminder term. Do you want to create a new email text for your current language?';
         RemoveLanguageQst: Label 'Do you want to remove the communication texts for the selected language? This would remove the attachment texts and the email texts for language %1.', Comment = '%1 = Language Code';
         RemoveAllLanguagesQst: Label 'Do you want to remove all communication texts for all languages?';
+        ConfirmDefaultCreationofCommunicationTextMsg: Label 'There are no communication texts for this reminder term. Do you want to create a new communication text for your current language?';
+
 
     internal procedure SelectLanguageForSubpages(Id: Guid)
     var
