@@ -181,6 +181,14 @@ table 8059 "Subscription Line"
         field(16; "Invoicing via"; Enum "Invoicing Via")
         {
             Caption = 'Invoicing via';
+            trigger OnValidate()
+            begin
+                if "Invoicing via" = "Invoicing via"::Sales then
+                    "Create Contract Deferrals" := "Create Contract Deferrals"::No
+                else
+                    "Create Contract Deferrals" := "Create Contract Deferrals"::"Contract-dependent";
+
+            end;
         }
         field(17; "Invoicing Item No."; Code[20])
         {
@@ -364,6 +372,16 @@ table 8059 "Subscription Line"
             Editable = false;
             FieldClass = FlowField;
             CalcFormula = lookup("Subscription Header".Quantity where("No." = field("Subscription Header No.")));
+        }
+        field(40; "Create Contract Deferrals"; Enum "Create Contract Deferrals")
+        {
+            Caption = 'Create Contract Deferrals';
+
+            trigger OnValidate()
+            begin
+                if OpenDeferralsExist() then
+                    Error(DeferralsExistErr);
+            end;
         }
         field(42; "Customer Price Group"; Code[10])
         {
@@ -593,6 +611,7 @@ table 8059 "Subscription Line"
         BillingLineForServiceCommitmentExistErr: Label 'The contract line is in the current billing. Delete the billing line to be able to adjust the Subscription Line start date.';
         BillingLineArchiveForServiceCommitmentExistErr: Label 'The contract line has already been billed. The Subscription Line start date can no longer be changed.';
         NoManualEntryOfUnitCostLCYForVendorServCommErr: Label 'Please use the fields "Calculation Base Amount" and "Calculation Base %" in order to update the unit cost.';
+        DeferralsExistErr: Label 'The creation of contract deferrals cannot be changed as there are still unreleased deferrals for this contract line.';
 
     internal procedure CheckServiceDates()
     begin
@@ -965,6 +984,8 @@ table 8059 "Subscription Line"
                         Validate("Period Calculation", "Period Calculation");
                     FieldNo("Unit Cost (LCY)"):
                         Validate("Unit Cost (LCY)", "Unit Cost (LCY)");
+                    FieldNo("Create Contract Deferrals"):
+                        Validate("Create Contract Deferrals", "Create Contract Deferrals");
                 end;
                 Modify(true);
             end;
@@ -1177,6 +1198,7 @@ table 8059 "Subscription Line"
         Rec."Usage Based Billing" := SalesServiceCommitment."Usage Based Billing";
         Rec."Usage Based Pricing" := SalesServiceCommitment."Usage Based Pricing";
         Rec."Pricing Unit Cost Surcharge %" := SalesServiceCommitment."Pricing Unit Cost Surcharge %";
+        Rec."Create Contract Deferrals" := SalesServiceCommitment."Create Contract Deferrals";
         OnAfterCopyFromSalesSubscriptionLine(Rec, SalesServiceCommitment);
     end;
 
@@ -1848,6 +1870,29 @@ table 8059 "Subscription Line"
     begin
         if Rec.IsPartnerVendor() and (CurrentFieldNo = Rec.FieldNo("Unit Cost (LCY)")) then
             Error(NoManualEntryOfUnitCostLCYForVendorServCommErr);
+    end;
+
+    internal procedure OpenDeferralsExist(): Boolean
+    var
+        CustSubContractDeferral: Record "Cust. Sub. Contract Deferral";
+        VendSubContractDeferral: Record "Vend. Sub. Contract Deferral";
+    begin
+        if "Subscription Contract No." = '' then
+            exit(false);
+        case Partner of
+            Enum::"Service Partner"::Customer:
+                begin
+                    CustSubContractDeferral.SetRange(Released, false);
+                    CustSubContractDeferral.SetRange("Subscription Contract No.", "Subscription Contract No.");
+                    exit(not CustSubContractDeferral.IsEmpty());
+                end;
+            Enum::"Service Partner"::Vendor:
+                begin
+                    VendSubContractDeferral.SetRange(Released, false);
+                    VendSubContractDeferral.SetRange("Subscription Contract No.", "Subscription Contract No.");
+                    exit(not VendSubContractDeferral.IsEmpty());
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

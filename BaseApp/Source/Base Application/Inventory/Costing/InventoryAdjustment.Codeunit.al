@@ -1006,7 +1006,10 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
                     end;
             until InbndValueEntry.Next() = 0;
 
-            CalcNewAdjustedCost(AdjustedCostElementBuf, ItemApplnEntry.Quantity / InbndItemLedgEntry.Quantity);
+            IsHandled := false;
+            OnCalcInbndEntryAdjustedCostOnBeforeCalcNewAdjustedCost(AdjustedCostElementBuf, ItemApplnEntry, InbndItemLedgEntry, IsHandled);
+            if not IsHandled then
+                CalcNewAdjustedCost(AdjustedCostElementBuf, ItemApplnEntry.Quantity / InbndItemLedgEntry.Quantity);
 
             if AdjustAppliedCostEntry(ItemApplnEntry, InbndItemLedgEntryNo, Recursion) then
                 TempRndgResidualBuf.AddAdjustedCost(
@@ -3522,6 +3525,11 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment", "Cost Ad
 
     [IntegrationEvent(false, false)]
     local procedure OnIsOutputWithSelfConsumptionOnAfterGetItemApplicationTrace(var ItemApplicationTrace: Record "Item Application Trace")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCalcInbndEntryAdjustedCostOnBeforeCalcNewAdjustedCost(var CostElementBuffer: Record "Cost Element Buffer"; ItemApplicationEntry: Record "Item Application Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }
