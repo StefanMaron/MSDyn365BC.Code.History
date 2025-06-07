@@ -1735,7 +1735,7 @@ codeunit 90 "Purch.-Post"
             else
                 ItemJnlLine.CopyDocumentFields(
                   ItemJnlLine."Document Type"::"Purchase Receipt",
-                  PurchRcptHeader."No.", PurchRcptHeader."Vendor Shipment No.", SrcCode, PurchRcptHeader."No. Series");
+                  PurchRcptHeader."No.", SetExternalDocumentNo(), SrcCode, PurchRcptHeader."No. Series");
             if QtyToBeInvoiced <> 0 then
                 if ItemJnlLine."Document No." = '' then
                     if PurchLine."Document Type" = PurchLine."Document Type"::"Credit Memo" then
@@ -3713,7 +3713,9 @@ codeunit 90 "Purch.-Post"
                 end else begin
                     PurchLine.Amount := PurchLine.CalcLineAmount();
                     if FullGST and PurchLine."Prepayment Line" then
-                        PurchLine."VAT Base Amount" := Round(TempVATAmountLine."VAT Base", Currency."Amount Rounding Precision")
+                        PurchLine."VAT Base Amount" :=
+                            Round(
+                                TempVATAmountLine."VAT Base" * PurchLine.CalcLineAmount() / TempVATAmountLine.CalcLineAmount(), Currency."Amount Rounding Precision")
                     else
                         PurchLine."VAT Base Amount" :=
                           Round(
@@ -10434,6 +10436,14 @@ codeunit 90 "Purch.-Post"
     begin
         ItemChargeAssgntPurch.SetFilter("Applies-to Doc. Line No.", '<>%1', ItemChargeAssgntPurch."Applies-to Doc. Line No.");
         ItemChargeAssgntPurch.DeleteAll();
+    end;
+
+    local procedure SetExternalDocumentNo(): Code[35]
+    begin
+        if PurchRcptHeader."Vendor Shipment No." <> '' then
+            exit(PurchRcptHeader."Vendor Shipment No.");
+
+        exit(GenJnlLineExtDocNo);
     end;
 
     [IntegrationEvent(false, false)]
