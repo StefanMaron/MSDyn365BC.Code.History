@@ -2032,8 +2032,10 @@ table 1003 "Job Planning Line"
             else
                 if RetrieveCostPrice(CurrFieldNo) or (CurrFieldNo = FieldNo("Unit Price")) then begin
                     CalculateRetrievedCost(RetrievedCost);
-                    "Unit Cost" := ConvertAmountToFCY(RetrievedCost, UnitAmountRoundingPrecisionFCY);
-                    "Unit Cost (LCY)" := Round(RetrievedCost, UnitAmountRoundingPrecision);
+                    if not (CurrFieldNo = FieldNo("Unit Price")) then begin
+                        "Unit Cost" := ConvertAmountToFCY(RetrievedCost, UnitAmountRoundingPrecisionFCY);
+                        "Unit Cost (LCY)" := Round(RetrievedCost, UnitAmountRoundingPrecision);
+                    end;
                 end else
                     RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)")
         else
