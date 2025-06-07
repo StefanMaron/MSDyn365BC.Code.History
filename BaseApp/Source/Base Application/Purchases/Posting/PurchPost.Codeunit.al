@@ -3494,7 +3494,9 @@ codeunit 90 "Purch.-Post"
                 end else begin
                     PurchLine.Amount := PurchLine.CalcLineAmount();
                     if FullGST and PurchLine."Prepayment Line" then
-                        PurchLine."VAT Base Amount" := Round(TempVATAmountLine."VAT Base", Currency."Amount Rounding Precision")
+                        PurchLine."VAT Base Amount" :=
+                            Round(
+                                TempVATAmountLine."VAT Base" * PurchLine.CalcLineAmount() / TempVATAmountLine.CalcLineAmount(), Currency."Amount Rounding Precision")
                     else
                         PurchLine."VAT Base Amount" :=
                           Round(
