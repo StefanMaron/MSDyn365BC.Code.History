@@ -192,7 +192,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
             if WhseShip then
                 WhseShptLine.LockTable();
             TransHeader.LockTable();
-            if WhseShip then begin
+            if WhseShip and (not PreviewMode) then begin
                 WhsePostShpt.PostUpdateWhseDocuments(WhseShptHeader);
                 TempWhseShptHeader.Delete();
             end;
@@ -757,6 +757,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         TransLine.SetRange("Derived From Line No.", 0);
         TransLine.SetFilter(Quantity, '<>0');
         TransLine.SetFilter("Qty. to Ship", '<>0');
+        OnCheckLinesOnAfterTransLineSetFilters(TransLine);
         if TransLine.IsEmpty() then
             Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
@@ -1105,6 +1106,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferTrackingOnAfterTransferToTransfer(var TempHandlingTrackingSpecification: Record "Tracking Specification"; var FromTransferLine: Record "Transfer Line"; var ToTransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckLinesOnAfterTransLineSetFilters(var TransferLine: Record "Transfer Line")
     begin
     end;
 }

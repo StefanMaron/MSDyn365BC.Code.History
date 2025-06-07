@@ -28,6 +28,7 @@ report 5005340 "Create Delivery Reminder"
                     Window.Update(2, "Line No.");
 
                     VendorChanged := "Purchase Header"."Buy-from Vendor No." <> LastVendorNo;
+                    OnAfterGetVendorChanged("Purchase Header", "Purchase Line", VendorChanged);
                     if VendorChanged then
                         Clear(CreateDeliveryReminder);
                     if CreateDeliveryReminder.Remind("Purchase Line", DeliveryReminderTerms, DeliveryReminderLevel, DateOfTheCurrentDay) then begin
@@ -114,5 +115,10 @@ report 5005340 "Create Delivery Reminder"
         LastVendorNo: Code[20];
         VendorChanged: Boolean;
         DateOfTheCurrentDay: Date;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetVendorChanged(PurchaseHeader:Record "Purchase Header"; PurchaseLine:Record "Purchase Line"; var VendorChanged:Boolean)
+    begin
+    end;
 }
 

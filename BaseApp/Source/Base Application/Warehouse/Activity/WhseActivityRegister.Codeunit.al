@@ -945,7 +945,12 @@ codeunit 7307 "Whse.-Activity-Register"
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         WhseLocation: Record Location;
         BreakBulkQtyBaseToPlace: Decimal;
+        IsHandled: Boolean;
     begin
+        OnBeforeCheckBinContent(TempBinContentBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         TempBinContentBuffer.SetFilter("Qty. to Handle (Base)", '<>0');
         if TempBinContentBuffer.Find('-') then
             repeat
@@ -1158,10 +1163,11 @@ codeunit 7307 "Whse.-Activity-Register"
                     if QtyToRegisterBase > QtyAvailToRegisterBase then
                         QtyAvailToInsertBase -= QtyToRegisterBase - QtyAvailToRegisterBase;
                     OnBeforeCheckQtyAvailToInsertBase(TempWhseActivLine, QtyAvailToInsertBase);
-                    if QtyAvailToInsertBase < 0 then
-                        Error(
-                          InsufficientQtyItemTrkgErr, TempWhseActivLine."Source Line No.", TempWhseActivLine."Source Document",
-                          TempWhseActivLine."Source No.");
+                    if not CheckAllowWhseOverpick(TempWhseActivLine."Item No.") then
+                        if QtyAvailToInsertBase < 0 then
+                            Error(
+                              InsufficientQtyItemTrkgErr, TempWhseActivLine."Source Line No.", TempWhseActivLine."Source Document",
+                              TempWhseActivLine."Source No.");
 
                     if TempWhseActivLine.TrackingExists() then begin
                         WhseItemTrackingSetup.CopyTrackingFromWhseActivityLine(TempWhseActivLine);
@@ -2323,6 +2329,23 @@ codeunit 7307 "Whse.-Activity-Register"
             until WarehouseActivityLine.Next() = 0;
     end;
 
+    local procedure CheckAllowWhseOverpick(ItemNo: Code[20]): Boolean
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetLoadFields("Item No.");
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Prod. Consumption");
+        WarehouseActivityLine.SetRange("Whse. Document Type", WarehouseActivityLine."Whse. Document Type"::Production);
+        WarehouseActivityLine.SetRange("Source Type", Database::"Prod. Order Component");
+        WarehouseActivityLine.SetRange("Source Subtype", WarehouseActivityLine."Source Subtype"::"3");
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        if WarehouseActivityLine.FindFirst() then
+            GetItem(WarehouseActivityLine."Item No.");
+
+        exit(Item."Allow Whse. Overpick");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
@@ -2825,6 +2848,11 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckSourceDocumentForAvailableQty(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBinContent(var TempBinContentBuffer: Record "Bin Content Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
 }

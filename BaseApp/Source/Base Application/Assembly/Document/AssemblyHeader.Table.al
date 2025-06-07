@@ -2029,7 +2029,12 @@ table 900 "Assembly Header"
         AssemblyLine: Record "Assembly Line";
         Confirmed: Boolean;
     begin
+        Confirmed := false;
         AssemblyLine.SetRange("Document No.", "No.");
+        OnConfirmDeletionOnBeforeAssemblyLineLoop(AssemblyLine, Confirmed);
+        if Confirmed then
+            exit;
+
         if AssemblyLine.FindSet() then
             repeat
                 if AssemblyLine."Consumed Quantity" < AssemblyLine."Qty. Picked" then begin
@@ -2319,6 +2324,11 @@ table 900 "Assembly Header"
 
     [IntegrationEvent(false, false)]
     local procedure ChangeGenBusPostingGroupAssemblyLinesOnBeforeConfirm(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; HideValidationDialog: Boolean; var Confirmed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConfirmDeletionOnBeforeAssemblyLineLoop(var AssemblyLine: Record "Assembly Line"; var Confirmed: Boolean)
     begin
     end;
 }

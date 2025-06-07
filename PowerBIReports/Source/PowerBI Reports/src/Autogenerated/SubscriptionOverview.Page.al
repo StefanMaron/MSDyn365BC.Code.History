@@ -11,7 +11,7 @@ page 37068 "Subscription Overview"
 #pragma warning restore AS0035
     Caption = 'Subscription Overview';
     AboutTitle = 'About Subscription Overview';
-    AboutText = 'The Subscription Overview provides a comprehensive view of subscription performance, offering insights into mehtrics such as Monthly Recurring Revenue, Total Contract Value, Churn and top-performing customers or vendors.';
+    AboutText = 'The Subscription Overview provides a comprehensive view of subscription performance, offering insights into metrics such as Monthly Recurring Revenue, Total Contract Value, Churn and top-performing customers or vendors.';
 
     layout
     {

@@ -99,7 +99,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         OldEntryType: Enum "Item Ledger Entry Type";
         RaiseError: Boolean;
     begin
-        OnBeforeCode(ItemJnlLine);
+        OnBeforeCode(ItemJnlLine, ItemLedgEntry);
 
         ItemJnlLine.ReadIsolation(IsolationLevel::UpdLock);
         ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
@@ -1109,7 +1109,7 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCode(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnBeforeCode(var ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
