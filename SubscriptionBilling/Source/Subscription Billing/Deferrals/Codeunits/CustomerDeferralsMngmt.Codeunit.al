@@ -33,29 +33,25 @@ codeunit 8067 "Customer Deferrals Mngmt."
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Post Invoice Events", 'OnPrepareLineOnBeforeSetAccount', '', false, false)]
     local procedure OnPrepareLineOnBeforeSetAccount(SalesLine: Record "Sales Line"; var SalesAccount: Code[20])
     var
-        CustContractHeader: Record "Customer Subscription Contract";
         GeneralPostingSetup: Record "General Posting Setup";
-        BillingLine: Record "Billing Line";
     begin
-        BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromSalesDocumentType(SalesLine."Document Type"), SalesLine."Document No.", SalesLine."Line No.");
-        if not BillingLine.FindFirst() then
+        if not SalesLine.IsLineAttachedToBillingLine() then
             exit;
-        CustContractHeader.Get(BillingLine."Subscription Contract No.");
 
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
-        if CustContractHeader."Without Contract Deferrals" then begin
-            GeneralPostingSetup.TestField("Cust. Sub. Contract Account");
-            SalesAccount := GeneralPostingSetup."Cust. Sub. Contract Account";
-        end else begin
+        if SalesLine.CreateContractDeferrals() then begin
             GeneralPostingSetup.TestField("Cust. Sub. Contr. Def Account");
             SalesAccount := GeneralPostingSetup."Cust. Sub. Contr. Def Account";
+        end else begin
+            GeneralPostingSetup.TestField("Cust. Sub. Contract Account");
+            SalesAccount := GeneralPostingSetup."Cust. Sub. Contract Account";
         end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales Post Invoice Events", 'OnPrepareLineOnBeforeSetLineDiscAccount', '', false, false)]
     local procedure OnPrepareLineOnBeforeSetLineDiscAccount(SalesLine: Record "Sales Line"; GenPostingSetup: Record "General Posting Setup"; var InvDiscAccount: Code[20]; var IsHandled: Boolean)
     begin
-        if IsCustomerContractWithDeferrals(SalesLine) then begin
+        if SalesLine.CreateContractDeferrals() then begin
             InvDiscAccount := GenPostingSetup."Cust. Sub. Contr. Def Account";
             IsHandled := true;
         end;
@@ -98,14 +94,12 @@ codeunit 8067 "Customer Deferrals Mngmt."
             exit;
         if not (SalesLine."Document Type" in [Enum::"Sales Document Type"::Invoice, Enum::"Sales Document Type"::"Credit Memo"]) then
             exit;
+        if not SalesLine.CreateContractDeferrals() then
+            exit;
 
         BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromSalesDocumentType(SalesLine."Document Type"), SalesLine."Document No.", SalesLine."Line No.");
-        if not BillingLine.FindFirst() then
-            exit;
+        BillingLine.FindFirst();
         CustContractHeader.Get(BillingLine."Subscription Contract No.");
-        if CustContractHeader."Without Contract Deferrals" then
-            exit;
-
         GLSetup.Get();
 
         CustomerContractDeferral.Init();
@@ -338,19 +332,6 @@ codeunit 8067 "Customer Deferrals Mngmt."
                 TempCustomerContractDeferral.Insert(false); //Used for Preview Posting
             until InvoiceCustContractDeferral.Next() = 0;
         end;
-    end;
-
-    local procedure IsCustomerContractWithDeferrals(SalesLine: Record "Sales Line"): Boolean
-    var
-        CustomerContractHeader: Record "Customer Subscription Contract";
-        BillingLine: Record "Billing Line";
-    begin
-        BillingLine.FilterBillingLineOnDocumentLine(BillingLine.GetBillingDocumentTypeFromSalesDocumentType(SalesLine."Document Type"), SalesLine."Document No.", SalesLine."Line No.");
-        if not BillingLine.FindFirst() then
-            exit;
-
-        CustomerContractHeader.Get(BillingLine."Subscription Contract No.");
-        exit(not CustomerContractHeader."Without Contract Deferrals");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Preview Event Handler", OnAfterFillDocumentEntry, '', false, false)]

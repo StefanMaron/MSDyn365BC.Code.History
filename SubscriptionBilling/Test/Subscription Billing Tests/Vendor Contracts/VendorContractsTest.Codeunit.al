@@ -685,22 +685,24 @@ codeunit 148154 "Vendor Contracts Test"
     end;
 
     [Test]
-    procedure TestTransferOfDefaultWithoutContractDeferralsFromContractType()
+    procedure TransferCreateContractDeferralsFromContractType()
     begin
         // Create Vendor Contract with contract type
         // Create new Contract Type with field "Def. Without Contr. Deferrals" = true
         // Check that the field value has been transferred
         ClearAll();
         ContractTestLibrary.CreateVendorContractWithContractType(VendorContract, ContractType);
-        VendorContract.TestField("Without Contract Deferrals", ContractType."Def. Without Contr. Deferrals");
+        ContractType.TestField("Create Contract Deferrals", true);
+        VendorContract.TestField("Create Contract Deferrals", true);
         ContractTestLibrary.CreateContractType(ContractType);
-        ContractType."Def. Without Contr. Deferrals" := true;
+        ContractType."Create Contract Deferrals" := false;
         ContractType.Modify(false);
         VendorContract.Validate("Contract Type", ContractType.Code);
         VendorContract.Modify(false);
-        VendorContract.TestField("Without Contract Deferrals", ContractType."Def. Without Contr. Deferrals");
+        VendorContract.TestField("Create Contract Deferrals", false);
+
         // allow manually changing the value of the field
-        VendorContract.Validate("Without Contract Deferrals", false);
+        VendorContract.Validate("Create Contract Deferrals", true);
         VendorContract.Modify(false);
         VendorContract.TestField("Contract Type", ContractType.Code);
     end;

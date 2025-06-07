@@ -342,6 +342,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         GLAccount: Record "G/L Account";
         VATPostingSetup2: Record "VAT Posting Setup";
         TaxJurisdiction2: Record "Tax Jurisdiction";
+        IsHandled: Boolean;
     begin
         GetGLSetup();
         GLSetup.TestField("Additional Reporting Currency");
@@ -371,21 +372,24 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                 end;
             until VATPostingSetup2.Next() = 0;
 
-        if TaxJurisdiction2.Find('-') then
-            repeat
-                CheckExchRateAdjustment(
-                    TaxJurisdiction2."Tax Account (Purchases)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Tax Account (Purchases)"));
-                CheckExchRateAdjustment(
-                    TaxJurisdiction2."Reverse Charge (Purchases)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Reverse Charge (Purchases)"));
-                CheckExchRateAdjustment(
-                    TaxJurisdiction2."Unreal. Tax Acc. (Purchases)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Unreal. Tax Acc. (Purchases)"));
-                CheckExchRateAdjustment(
-                    TaxJurisdiction2."Unreal. Rev. Charge (Purch.)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Unreal. Rev. Charge (Purch.)"));
-                CheckExchRateAdjustment(
-                    TaxJurisdiction2."Tax Account (Sales)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Tax Account (Sales)"));
-                CheckExchRateAdjustment(
-                    TaxJurisdiction2."Unreal. Tax Acc. (Sales)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Unreal. Tax Acc. (Sales)"));
-            until TaxJurisdiction2.Next() = 0;
+        IsHandled := false;
+        OnSetAdditionalReportingCurrencyOnBeforeCheckTaxJurisdiction(TaxJurisdiction2, IsHandled);
+        if not IsHandled then
+            if TaxJurisdiction2.Find('-') then
+                repeat
+                    CheckExchRateAdjustment(
+                        TaxJurisdiction2."Tax Account (Purchases)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Tax Account (Purchases)"));
+                    CheckExchRateAdjustment(
+                        TaxJurisdiction2."Reverse Charge (Purchases)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Reverse Charge (Purchases)"));
+                    CheckExchRateAdjustment(
+                        TaxJurisdiction2."Unreal. Tax Acc. (Purchases)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Unreal. Tax Acc. (Purchases)"));
+                    CheckExchRateAdjustment(
+                        TaxJurisdiction2."Unreal. Rev. Charge (Purch.)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Unreal. Rev. Charge (Purch.)"));
+                    CheckExchRateAdjustment(
+                        TaxJurisdiction2."Tax Account (Sales)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Tax Account (Sales)"));
+                    CheckExchRateAdjustment(
+                        TaxJurisdiction2."Unreal. Tax Acc. (Sales)", TaxJurisdiction2.TableCaption(), TaxJurisdiction2.FieldCaption("Unreal. Tax Acc. (Sales)"));
+                until TaxJurisdiction2.Next() = 0;
 
         AddCurrCurrencyFactor :=
             CurrExchRate2.ExchangeRateAdjmt(ExchRateAdjmtParameters."Posting Date", GetAdditionalReportingCurrency());
@@ -1772,11 +1776,11 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                             GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code", 0, 0);
                 end;
             else
-                OnSetPostingDimensionsElseCase(GenJournalLine, DimensionSetEntry);
+                OnSetPostingDimensionsElseCase(GenJournalLine, DimensionSetEntry, ExchRateAdjmtParameters);
         end;
     end;
 
-    local procedure GetGlobalDimVal(GlobalDimCode: Code[20]; var DimSetEntry: Record "Dimension Set Entry"): Code[20]
+    procedure GetGlobalDimVal(GlobalDimCode: Code[20]; var DimSetEntry: Record "Dimension Set Entry"): Code[20]
     var
         DimVal: Code[20];
     begin
@@ -2990,7 +2994,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetPostingDimensionsElseCase(var GenJournalLine: Record "Gen. Journal Line"; var DimensionSetEntry: Record "Dimension Set Entry")
+    local procedure OnSetPostingDimensionsElseCase(var GenJournalLine: Record "Gen. Journal Line"; var DimensionSetEntry: Record "Dimension Set Entry"; var ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters" temporary)
     begin
     end;
 
@@ -3091,6 +3095,11 @@ codeunit 699 "Exch. Rate Adjmt. Process"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostAdjmtOnBeforePostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var TempDimSetEntry: Record "Dimension Set Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAdditionalReportingCurrencyOnBeforeCheckTaxJurisdiction(var TaxJurisdiction: Record "Tax Jurisdiction"; var IsHandled: Boolean);
     begin
     end;
 }

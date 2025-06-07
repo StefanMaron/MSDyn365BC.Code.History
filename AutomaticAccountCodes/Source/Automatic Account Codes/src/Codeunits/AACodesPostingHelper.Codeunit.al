@@ -230,4 +230,18 @@ codeunit 4850 "AA Codes Posting Helper"
         SalesLine."Automatic Account Group" := GLAccount."Automatic Account Group";
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Posted Gen. Journal Line", 'OnAfterInsertFromGenJournalLine', '', false, false)]
+    local procedure OnAfterInsertFromGenJournalLine(GenJournalLine: Record "Gen. Journal Line"; var PostedGenJournalLine: Record "Posted Gen. Journal Line")
+    begin
+        PostedGenJournalLine."Automatic Account Group" := GenJournalLine."Automatic Account Group";
+        PostedGenJournalLine.Modify();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Gen. Journal Mgt.", 'OnAfterInsertGenJournalLine', '', false, false)]
+    local procedure OnAfterInsertGenJournalLine(PostedGenJournalLine: Record "Posted Gen. Journal Line"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        GenJournalLine."Automatic Account Group" := PostedGenJournalLine."Automatic Account Group";
+        GenJournalLine.Modify();
+    end;
+
 }

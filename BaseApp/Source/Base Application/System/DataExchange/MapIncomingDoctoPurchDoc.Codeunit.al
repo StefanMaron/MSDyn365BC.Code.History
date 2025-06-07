@@ -114,7 +114,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         IntermediateDataImport.SetCurrentKey("Record No.");
 
         if not IntermediateDataImport.FindSet() then begin
-            OnProcessLinesIntermediateDataImportNotFound(DataExch, PurchaseHeader);
+            OnProcessLinesIntermediateDataImportNotFound(DataExch, PurchaseHeader, ParentRecordNo);
             exit;
         end;
 
@@ -687,7 +687,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnProcessLinesIntermediateDataImportNotFound(var DataExch: Record "Data Exch."; var PurchaseHeader: Record "Purchase Header")
+    local procedure OnProcessLinesIntermediateDataImportNotFound(var DataExch: Record "Data Exch."; var PurchaseHeader: Record "Purchase Header"; ParentRecordNo: Integer)
     begin
     end;
 }
