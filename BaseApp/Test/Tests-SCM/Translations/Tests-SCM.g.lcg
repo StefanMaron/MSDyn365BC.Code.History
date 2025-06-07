@@ -2705,6 +2705,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory - Orders - NamedType DocumentDateError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3222706049 - NamedType 3279289237" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use the cancel or correct functionality because the invoice line is associated with purchase order %1 via a Drop Shipment.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Purchase Order No.]D;]A;(LookupHint=Codeunit SCM Inventory - Orders - NamedType DropShipmentDocumentExistsErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3222706049 - NamedType 2077905568" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The Credit Memo doesn't have a Corrected Invoice No. Do you want to continue?]]></Val>
@@ -12369,6 +12378,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation - NamedType ValueEntriesWerePostedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1720286327 - NamedType 1294265689" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Action Message Entry exist for item %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Item No.]D;]A;(LookupHint=Codeunit SCM Reservation II - NamedType ActionMessageEntryExistErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1720286327 - NamedType 1362825650" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
