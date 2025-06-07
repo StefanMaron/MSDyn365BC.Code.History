@@ -6,12 +6,12 @@ namespace Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 using Microsoft.eServices.EDocument.Processing;
 using Microsoft.eServices.EDocument.Processing.Import;
+using Microsoft.Finance.Deferral;
+using Microsoft.Foundation.UOM;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.History;
-using Microsoft.Warehouse.Document;
-using Microsoft.Inventory.Posting;
 using Microsoft.eServices.EDocument;
 
 codeunit 6120 "E-Doc. Purchase Hist. Mapping"
@@ -24,15 +24,65 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
     var
         WrongVariantTypeErr: Label 'Only record types are allowed.';
 
-    procedure FindRelatedPurchaseLineMatch(Vendor: Record Vendor; EDocumentPurchaseLine: Record "E-Document Purchase Line"; var EDocPurchaseLineMatches: Record "E-Doc. Purchase Line History"): Boolean
+    procedure FindRelatedPurchaseHeaderInHistory(EDocument: Record "E-Document"; var EDocVendorAssignmentHistory: Record "E-Doc. Vendor Assign. History"): Boolean
+    var
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+    begin
+        EDocumentPurchaseHeader.GetFromEDocument(EDocument);
+        EDocVendorAssignmentHistory.SetCurrentKey(SystemCreatedAt);
+        EDocVendorAssignmentHistory.SetAscending(SystemCreatedAt, false);
+
+        if EDocumentPurchaseHeader."Vendor GLN" <> '' then begin
+            EDocVendorAssignmentHistory.SetRange("Vendor GLN", EDocumentPurchaseHeader."Vendor GLN");
+            if EDocVendorAssignmentHistory.FindFirst() then
+                exit(true);
+            EDocVendorAssignmentHistory.SetRange("Vendor GLN");
+        end;
+
+        if EDocumentPurchaseHeader."Vendor VAT Id" <> '' then begin
+            EDocVendorAssignmentHistory.SetRange("Vendor VAT Id", EDocumentPurchaseHeader."Vendor VAT Id");
+            if EDocVendorAssignmentHistory.FindFirst() then
+                exit(true);
+            EDocVendorAssignmentHistory.SetRange("Vendor VAT Id");
+        end;
+
+        if EDocumentPurchaseHeader."Vendor Company Name" <> '' then begin
+            EDocVendorAssignmentHistory.SetRange("Vendor Company Name", EDocumentPurchaseHeader."Vendor Company Name");
+            if EDocVendorAssignmentHistory.FindFirst() then
+                exit(true);
+            EDocVendorAssignmentHistory.SetRange("Vendor Company Name");
+        end;
+
+        if EDocumentPurchaseHeader."Vendor Address" <> '' then begin
+            EDocVendorAssignmentHistory.SetRange("Vendor Address", EDocumentPurchaseHeader."Vendor Address");
+            if EDocVendorAssignmentHistory.FindFirst() then
+                exit(true);
+        end;
+
+        exit(false);
+    end;
+
+    procedure UpdateMissingHeaderValuesFromHistory(EDocVendorAssignmentHistory: Record "E-Doc. Vendor Assign. History"; var EDocPurchaseHeader: Record "E-Document Purchase Header")
+    var
+        Vendor: Record Vendor;
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        if not PurchInvHeader.GetBySystemId(EDocVendorAssignmentHistory."Purch. Inv. Header SystemId") then
+            exit;
+        if EDocPurchaseHeader."[BC] Vendor No." = '' then
+            if Vendor.Get(PurchInvHeader."Buy-from Vendor No.") then
+                EDocPurchaseHeader."[BC] Vendor No." := Vendor."No.";
+    end;
+
+    procedure FindRelatedPurchaseLineInHistory(VendorNo: Code[20]; EDocumentPurchaseLine: Record "E-Document Purchase Line"; var EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History"): Boolean
     var
         SearchText: Text;
     begin
-        Clear(EDocPurchaseLineMatches);
+        Clear(EDocPurchaseLineHistory);
         if (EDocumentPurchaseLine."Product Code" = '') and (EDocumentPurchaseLine.Description = '') then
             exit(false);
 
-        if Vendor."No." = '' then
+        if VendorNo = '' then
             exit(false);
 
         // Searches for items by the specified description.
@@ -41,50 +91,62 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
         // (3) Look for lines that start with the description
         // (4) Look for lines that include the description
 
-        if EDocumentPurchaseLine."Product Code" <> '' then
-            EDocPurchaseLineMatches.SetRange("Product Code", EDocumentPurchaseLine."Product Code");
+        EDocPurchaseLineHistory.SetCurrentKey(SystemCreatedAt);
+        EDocPurchaseLineHistory.SetAscending(SystemCreatedAt, false);
+        EDocPurchaseLineHistory.SetRange("Vendor No.", VendorNo);
+        if EDocumentPurchaseLine."Product Code" <> '' then begin
+            EDocPurchaseLineHistory.SetRange("Product Code", EDocumentPurchaseLine."Product Code");
+            if EDocPurchaseLineHistory.FindFirst() then
+                exit(true);
+            EDocPurchaseLineHistory.SetRange("Product Code");
+        end;
 
-        if EDocPurchaseLineMatches.FindFirst() then
-            exit(true);
+        if EDocumentPurchaseLine.Description <> '' then begin
+            EDocPurchaseLineHistory.SetRange(Description, EDocumentPurchaseLine.Description);
+            if EDocPurchaseLineHistory.FindFirst() then
+                exit(true);
 
-        // Reset filter to search by description
-        EDocPurchaseLineMatches.SetRange("Product Code");
+            SearchText := '''@' + EDocumentPurchaseLine.Description + '*''';
+            EDocPurchaseLineHistory.SetFilter(Description, SearchText);
+            if EDocPurchaseLineHistory.FindFirst() then
+                exit(true);
 
-        EDocPurchaseLineMatches.SetRange(Description, EDocumentPurchaseLine.Description);
-        if EDocPurchaseLineMatches.FindFirst() then
-            exit(true);
-
-        // Reset range filter to search 
-        EDocPurchaseLineMatches.SetRange(Description);
-
-        SearchText := '''@' + EDocumentPurchaseLine.Description + '*''';
-        EDocPurchaseLineMatches.SetFilter(Description, SearchText);
-        if EDocPurchaseLineMatches.FindFirst() then
-            exit(true);
-
-        SearchText := '''@* ' + EDocumentPurchaseLine.Description + '*''';
-        EDocPurchaseLineMatches.SetFilter(Description, SearchText);
-        if EDocPurchaseLineMatches.FindFirst() then
-            exit(true);
-
+            SearchText := '''@* ' + EDocumentPurchaseLine.Description + '*''';
+            EDocPurchaseLineHistory.SetFilter(Description, SearchText);
+            if EDocPurchaseLineHistory.FindFirst() then
+                exit(true);
+        end;
     end;
 
-    procedure CopyLineMappingFromHistory(EDocPurchaseLineMatches: Record "E-Doc. Purchase Line History"; var EDocLineMapping: Record "E-Document Line Mapping")
+    procedure UpdateMissingLineValuesFromHistory(EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History"; var EDocumentPurchaseLine: Record "E-Document Purchase Line")
+    var
+        PurchInvLine: Record "Purch. Inv. Line";
+        DeferralTemplate: Record "Deferral Template";
+        UnitOfMeasure: Record "Unit of Measure";
     begin
-        if EDocPurchaseLineMatches."Deferral Code" <> '' then
-            EDocLineMapping."Deferral Code" := EDocPurchaseLineMatches."Deferral Code";
-        if EDocPurchaseLineMatches."Shortcut Dimension 1 Code" <> '' then
-            EDocLineMapping."Shortcut Dimension 1 Code" := EDocPurchaseLineMatches."Shortcut Dimension 1 Code";
-        if EDocPurchaseLineMatches."Shortcut Dimension 2 Code" <> '' then
-            EDocLineMapping."Shortcut Dimension 2 Code" := EDocPurchaseLineMatches."Shortcut Dimension 2 Code";
-        if EDocPurchaseLineMatches."Unit of Measure" <> '' then
-            EDocLineMapping."Unit of Measure" := EDocPurchaseLineMatches."Unit of Measure";
-        if EDocPurchaseLineMatches."Purchase Line Type" <> Enum::"Purchase Line Type"::" " then
-            EDocLineMapping."Purchase Line Type" := EDocPurchaseLineMatches."Purchase Line Type";
-        if EDocPurchaseLineMatches."Purchase Type No." <> '' then
-            EDocLineMapping."Purchase Type No." := EDocPurchaseLineMatches."Purchase Type No.";
+        if not PurchInvLine.GetBySystemId(EDocPurchaseLineHistory."Purch. Inv. Line SystemId") then
+            exit;
+        if EDocumentPurchaseLine."[BC] Deferral Code" = '' then
+            if DeferralTemplate.Get(PurchInvLine."Deferral Code") then
+                EDocumentPurchaseLine."[BC] Deferral Code" := PurchInvLine."Deferral Code";
+        if EDocumentPurchaseLine."[BC] Shortcut Dimension 1 Code" = '' then
+            if PurchInvLine."Shortcut Dimension 1 Code" <> '' then
+                EDocumentPurchaseLine."[BC] Shortcut Dimension 1 Code" := PurchInvLine."Shortcut Dimension 1 Code";
+        if EDocumentPurchaseLine."[BC] Shortcut Dimension 2 Code" = '' then
+            if PurchInvLine."Shortcut Dimension 2 Code" <> '' then
+                EDocumentPurchaseLine."[BC] Shortcut Dimension 2 Code" := PurchInvLine."Shortcut Dimension 2 Code";
+        if EDocumentPurchaseLine."[BC] Unit of Measure" = '' then
+            if UnitOfMeasure.Get(PurchInvLine."Unit of Measure") then
+                EDocumentPurchaseLine."[BC] Unit of Measure" := CopyStr(PurchInvLine."Unit of Measure", 1, MaxStrLen(EDocumentPurchaseLine."[BC] Unit of Measure"));
+        if EDocumentPurchaseLine."[BC] Purchase Line Type" = "Purchase Line Type"::" " then
+            if PurchInvLine.Type <> Enum::"Purchase Line Type"::" " then
+                EDocumentPurchaseLine."[BC] Purchase Line Type" := PurchInvLine.Type;
+        if EDocumentPurchaseLine."[BC] Purchase Type No." = '' then
+            if PurchInvLine."No." <> '' then
+                EDocumentPurchaseLine."[BC] Purchase Type No." := PurchInvLine."No.";
+        if EDocPurchaseLineHistory."Entry No." <> 0 then
+            EDocumentPurchaseLine."E-Doc. Purch. Line History Id" := EDocPurchaseLineHistory."Entry No.";
     end;
-
 
     /// <summary>
     /// Track header and line mapping between source and target records.
@@ -108,89 +170,106 @@ codeunit 6120 "E-Doc. Purchase Hist. Mapping"
         if EDocRecordLink.Insert() then;
     end;
 
-    procedure AddPurchaseLineToHistory(Vendor: Record Vendor; EDocumentPurchaseLine: Record "E-Document Purchase Line"; PurchInvLine: Record "Purch. Inv. Line")
+    procedure ApplyHistoryValuesToPurchaseLine(EDocumentPurchaseLine: Record "E-Document Purchase Line"; var PurchaseLine: Record "Purchase Line")
+    var
+        EDocPurchLineFieldSetup: Record "EDoc. Purch. Line Field Setup";
+        EDocPurchLineField: Record "E-Document Line - Field";
+        NewPurchLineRecordRef: RecordRef;
+        NewPurchLineFieldRef: FieldRef;
+    begin
+        if not EDocPurchLineFieldSetup.FindSet() then
+            exit;
+        NewPurchLineRecordRef.GetTable(PurchaseLine);
+        repeat
+            if EDocPurchLineFieldSetup.IsOmitted() then
+                continue;
+            EDocPurchLineField.Get(EDocumentPurchaseLine, EDocPurchLineFieldSetup);
+            NewPurchLineFieldRef := NewPurchLineRecordRef.Field(EDocPurchLineFieldSetup."Field No.");
+            NewPurchLineFieldRef.Validate(EDocPurchLineField.GetValue());
+        until EDocPurchLineFieldSetup.Next() = 0;
+        NewPurchLineRecordRef.SetTable(PurchaseLine);
+    end;
+
+    procedure OpenPageWithHistoricMatch(EDocumentPurchaseLine: Record "E-Document Purchase Line"): Boolean
     var
         EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History";
+        PurchaseInvoiceLine: Record "Purch. Inv. Line";
+        PurchaseInvoiceHeader: Record "Purch. Inv. Header";
     begin
-        // Vendor can be empty
+        if not EDocPurchaseLineHistory.Get(EDocumentPurchaseLine."E-Doc. Purch. Line History Id") then
+            exit(false);
+        if not PurchaseInvoiceLine.GetBySystemId(EDocPurchaseLineHistory."Purch. Inv. Line SystemId") then
+            exit(false);
+        if not PurchaseInvoiceHeader.Get(PurchaseInvoiceLine."Document No.") then
+            exit(false);
+        Page.Run(Page::"Posted Purchase Invoice", PurchaseInvoiceHeader);
+        exit(true);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", OnAfterPurchInvLineInsert, '', false, false)]
+    local procedure OnAfterPurchInvLineInsertUpdateTracking(PurchHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchLine: Record "Purchase Line"; var PurchInvLine: Record "Purch. Inv. Line")
+    begin
+        InsertPurchaseLineHistory(PurchInvHeader, PurchLine, PurchInvLine);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", OnAfterPostPurchaseDoc, '', false, false)]
+    local procedure OnAfterPostPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PurchInvHdrNo: Code[20])
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        if PurchInvHeader.Get(PurchInvHdrNo) then
+            InsertPurchaseHeaderHistory(PurchaseHeader, PurchInvHeader);
+    end;
+
+    local procedure InsertPurchaseHeaderHistory(PurchaseHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header")
+    var
+        EDocRecordLink: Record "E-Doc. Record Link";
+        Vendor: Record Vendor;
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+        EDocumentVendorAssignmentHistory: Record "E-Doc. Vendor Assign. History";
+    begin
+        if IsNullGuid(PurchInvHeader.SystemId) then
+            exit;
+        if not Vendor.Get(PurchaseHeader."Buy-from Vendor No.") then
+            exit;
+        EDocRecordLink.SetRange("Target Table No.", Database::"Purchase Header");
+        EDocRecordLink.SetRange("Target SystemId", PurchaseHeader.SystemId);
+        if not EDocRecordLink.FindFirst() then
+            exit;
+        if not EDocumentPurchaseHeader.GetBySystemId(EDocRecordLink."Source SystemId") then
+            exit;
+        EDocumentVendorAssignmentHistory."Vendor Company Name" := EDocumentPurchaseHeader."Vendor Company Name";
+        EDocumentVendorAssignmentHistory."Vendor Address" := EDocumentPurchaseHeader."Vendor Address";
+        EDocumentVendorAssignmentHistory."Vendor VAT Id" := EDocumentPurchaseHeader."Vendor VAT Id";
+        EDocumentVendorAssignmentHistory."Vendor GLN" := EDocumentPurchaseHeader."Vendor GLN";
+        EDocumentVendorAssignmentHistory."Purch. Inv. Header SystemId" := PurchInvHeader.SystemId;
+        EDocumentVendorAssignmentHistory.Insert();
+        EDocRecordLink.DeleteAll();
+    end;
+
+    local procedure InsertPurchaseLineHistory(PurchInvHeader: Record "Purch. Inv. Header"; PurchLine: Record "Purchase Line"; PurchInvLine: Record "Purch. Inv. Line")
+    var
+        EDocumentPurchaseLine: Record "E-Document Purchase Line";
+        EDocRecordLink: Record "E-Doc. Record Link";
+        EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History";
+        Vendor: Record Vendor;
+    begin
+        if IsNullGuid(PurchInvLine.SystemId) then
+            exit;
+        if not Vendor.Get(PurchInvHeader."Buy-from Vendor No.") then
+            exit;
+        EDocRecordLink.SetRange("Target Table No.", Database::"Purchase Line");
+        EDocRecordLink.SetRange("Target SystemId", PurchLine.SystemId);
+        if not EDocRecordLink.FindFirst() then
+            exit;
+        if not EDocumentPurchaseLine.GetBySystemId(EDocRecordLink."Source SystemId") then
+            exit;
         EDocPurchaseLineHistory."Vendor No." := Vendor."No.";
         EDocPurchaseLineHistory."Product Code" := EDocumentPurchaseLine."Product Code";
         EDocPurchaseLineHistory."Description" := EDocumentPurchaseLine.Description;
-
-        // THis has to happen once we post:
-        EDocPurchaseLineHistory."Purchase Line Type" := PurchInvLine.Type;
-        EDocPurchaseLineHistory."Purchase Type No." := PurchInvLine."No.";
-        EDocPurchaseLineHistory."Unit of Measure" := PurchInvLine."Unit of Measure Code";
-        EDocPurchaseLineHistory."Deferral Code" := PurchInvLine."Deferral Code";
-        EDocPurchaseLineHistory."Shortcut Dimension 1 Code" := PurchInvLine."Shortcut Dimension 1 Code";
-        EDocPurchaseLineHistory."Shortcut Dimension 2 Code" := PurchInvLine."Shortcut Dimension 2 Code";
-        EDocPurchaseLineHistory."E-Doc. Purchase Line SystemId" := EDocumentPurchaseLine.SystemId;
         EDocPurchaseLineHistory."Purch. Inv. Line SystemId" := PurchInvLine.SystemId;
-
-        if EDocPurchaseLineHistory.Insert(true) then;
+        if EDocPurchaseLineHistory.Insert() then;
+        EDocRecordLink.DeleteAll();
     end;
-
-
-    local procedure IsTracked(Record: Variant): Boolean
-    var
-        EDocRecordLink: Record "E-Doc. Record Link";
-        RecordRef: RecordRef;
-    begin
-        if not Record.IsRecord() then
-            exit(false);
-
-        RecordRef.GetTable(Record);
-
-        EDocRecordLink.SetRange("Target Table No.", RecordRef.Number());
-        EDocRecordLink.SetRange("Target SystemId", RecordRef.Field(RecordRef.SystemIdNo).Value());
-        exit(not EDocRecordLink.IsEmpty());
-    end;
-
-    local procedure UpdateHistoryToPosted(Vendor: Record Vendor; OpenRecord: Variant; PostedRecord: Variant)
-    var
-        EDocRecordLink: Record "E-Doc. Record Link";
-        EDocumentPurchaseLine: Record "E-Document Purchase Line";
-        FromRef: RecordRef;
-        ToRef: RecordRef;
-    begin
-        if (not OpenRecord.IsRecord()) or (not PostedRecord.IsRecord()) then
-            exit;
-
-        FromRef.GetTable(OpenRecord);
-        ToRef.GetTable(PostedRecord);
-
-        // For any tracked open record, we are going to add the history for the counterpart record (posted).
-        EDocRecordLink.SetRange("Target Table No.", FromRef.Number());
-        EDocRecordLink.SetRange("Target SystemId", FromRef.Field(FromRef.SystemIdNo).Value());
-        if EDocRecordLink.FindSet() then
-            repeat
-                case EDocRecordLink."Source Table No." of
-                    Database::"E-Document Purchase Line":
-                        if EDocumentPurchaseLine.GetBySystemId(EDocRecordLink."Source SystemId") then
-                            AddPurchaseLineToHistory(Vendor, EDocumentPurchaseLine, PostedRecord);
-                    Database::"E-Document Purchase Header":
-                        continue;
-                end;
-            until EDocRecordLink.Next() = 0;
-    end;
-
-    #region Subscribers
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", OnAfterPurchInvLineInsert, '', false, false)]
-    local procedure OnAfterPurchInvLineInsertUpdateTracking(var PurchInvLine: Record "Purch. Inv. Line"; PurchInvHeader: Record "Purch. Inv. Header"; PurchLine: Record "Purchase Line"; ItemLedgShptEntryNo: Integer; WhseShip: Boolean; WhseReceive: Boolean; CommitIsSupressed: Boolean; PurchHeader: Record "Purchase Header"; PurchRcptHeader: Record "Purch. Rcpt. Header"; TempWhseRcptHeader: Record "Warehouse Receipt Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
-    var
-        Vendor: Record Vendor;
-    begin
-        if not IsTracked(PurchLine) then
-            exit;
-
-        if not Vendor.Get(PurchInvHeader."Buy-from Vendor No.") then
-            exit;
-
-        UpdateHistoryToPosted(Vendor, PurchLine, PurchInvLine);
-    end;
-
-    #endregion
-
 
 }

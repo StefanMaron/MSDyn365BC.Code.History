@@ -52,33 +52,40 @@ codeunit 99000792 "Create Prod. Order from Sale"
         ProdOrder."Starting Date" := WorkDate();
         ProdOrder."Creation Date" := WorkDate();
         ProdOrder."Low-Level Code" := 0;
-        if OrderType = OrderType::ProjectOrder then begin
-            ProdOrder."Source Type" := ProdOrder."Source Type"::"Sales Header";
-            ProdOrder.Validate("Source No.", SalesLine."Document No.");
-            ProdOrder."Due Date" := SalesLine."Shipment Date";
-            ProdOrder."Ending Date" :=
-              LeadTimeMgt.GetPlannedEndingDate(
-                SalesLine."No.", SalesLine."Location Code", '', ProdOrder."Due Date", '', "Requisition Ref. Order Type"::"Prod. Order");
-        end else begin
-            OnCreateProductionOrderOnBeforeItemOrder(ProdOrder, SalesLine);
-            ProdOrder."Due Date" := SalesLine."Shipment Date";
-            ProdOrder."Source Type" := ProdOrder."Source Type"::Item;
-            ProdOrder."Location Code" := SalesLine."Location Code";
-            ProdOrder."Bin Code" := SalesLine."Bin Code";
-            ProdOrder.Validate("Source No.", SalesLine."No.");
-            ProdOrder.Validate("Variant Code", SalesLine."Variant Code");
-            ProdOrder.Validate(Description, SalesLine.Description);
-            if SalesLine."Description 2" <> '' then
-                ProdOrder.Validate("Description 2", SalesLine."Description 2");
-            SalesLine.CalcFields("Reserved Qty. (Base)");
-            ProdOrder.Quantity := SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)";
+        case OrderType of
+            OrderType::ProjectOrder:
+                begin
+                    ProdOrder."Source Type" := ProdOrder."Source Type"::"Sales Header";
+                    ProdOrder.Validate("Source No.", SalesLine."Document No.");
+                    ProdOrder."Due Date" := SalesLine."Shipment Date";
+                    ProdOrder."Ending Date" :=
+                      LeadTimeMgt.GetPlannedEndingDate(
+                        SalesLine."No.", SalesLine."Location Code", '', ProdOrder."Due Date", '', "Requisition Ref. Order Type"::"Prod. Order");
+                end;
+            OrderType::ItemOrder:
+                begin
+                    OnCreateProductionOrderOnBeforeItemOrder(ProdOrder, SalesLine);
+                    ProdOrder."Due Date" := SalesLine."Shipment Date";
+                    ProdOrder."Source Type" := ProdOrder."Source Type"::Item;
+                    ProdOrder."Location Code" := SalesLine."Location Code";
+                    ProdOrder."Bin Code" := SalesLine."Bin Code";
+                    ProdOrder.Validate("Source No.", SalesLine."No.");
+                    ProdOrder.Validate("Variant Code", SalesLine."Variant Code");
+                    ProdOrder.Validate(Description, SalesLine.Description);
+                    if SalesLine."Description 2" <> '' then
+                        ProdOrder.Validate("Description 2", SalesLine."Description 2");
+                    SalesLine.CalcFields("Reserved Qty. (Base)");
+                    ProdOrder.Quantity := SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)";
+                end;
+            else
+                OnCreateProductionOrderOnOrderTypeElse(ProdOrder, SalesLine);
         end;
         OnAfterCreateProdOrderFromSalesLine(ProdOrder, SalesLine);
         ProdOrder.Modify();
         ProdOrder.SetRange("No.", ProdOrder."No.");
 
         IsHandled := false;
-        OnBeforeCreateProdOrderLines(ProdOrder, SalesLine, IsHandled);
+        OnBeforeCreateProdOrderLines(ProdOrder, SalesLine, IsHandled, OrderType);
         if not IsHandled then begin
             CreateProdOrderLines.SetSalesLine(SalesLine);
             CreateProdOrderLines.Copy(ProdOrder, 1, SalesLine."Variant Code", false);
@@ -161,7 +168,7 @@ codeunit 99000792 "Create Prod. Order from Sale"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateProdOrderLines(var ProdOrder: Record "Production Order"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateProdOrderLines(var ProdOrder: Record "Production Order"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean; OrderType: Enum "Create Production Order Type")
     begin
     end;
 
@@ -197,6 +204,11 @@ codeunit 99000792 "Create Prod. Order from Sale"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateProductionOrderOnBeforeItemOrder(var ProdOrder: Record "Production Order"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateProductionOrderOnOrderTypeElse(var ProductionOrder: Record "Production Order"; var SalesLine: Record "Sales Line")
     begin
     end;
 }

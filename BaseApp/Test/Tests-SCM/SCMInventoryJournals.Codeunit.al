@@ -41,6 +41,7 @@ codeunit 137275 "SCM Inventory Journals"
         SerialNoError: Label 'Serial No. %1 is already on inventory.';
         AvailabilityWarning: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         SerialNoConfirmaton: Label 'Do you want to overwrite the existing information?';
+        LotNoConfirmatonQst: Label 'Do you want to overwrite the existing information?';
         LotNoListPageCaption: Label 'Lot No. Information List';
         LotNoInformationError: Label 'Do you want to overwrite the existing information?';
         LocationErr: Label 'Wrong Location Code in Item Journal Line.';
@@ -157,6 +158,41 @@ codeunit 137275 "SCM Inventory Journals"
 
         // [THEN] Verify Serial Number on Item Ledger Entry.
         VerifySerialNoOnItemLedgerEntry();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandlerWithAssignTo,InvokeLotNoInformationListPageHander,LotNumberConfirmationHandler')]
+    [Scope('OnPrem')]
+    procedure PostItemReclassJournalAssignItemTracking()
+    var
+        ReclassificationItemJournalLine: Record "Item Journal Line";
+        Item: Record Item;
+    begin
+        // [SCENARIO] Posting of Item Reclass. Journal to assign item tracking.
+
+        // [GIVEN] Create and post Purchase Order without Item Tracking and Item with Expiration Calculation and create Reclassification Journal with Item Tracking.
+        Initialize();
+        PostPurchaseOrderWithoutItemTracking(0);
+        Item.Get(GlobalItemNo);
+        Item.Validate("Item Tracking Code", FindItemTrackingCode(false, false));
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Modify(true);
+
+        LibraryInventory.ClearItemJournal(ReclassificationItemJournalTemplate, ReclassificationItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ReclassificationItemJournalLine, ReclassificationItemJournalBatch."Journal Template Name",
+          ReclassificationItemJournalBatch.Name, ReclassificationItemJournalLine."Entry Type"::Transfer, GlobalItemNo,
+          GlobalOriginalQuantity);
+        GlobalItemTrackingAction := GlobalItemTrackingAction::EditItemTrackingLotNo;
+
+        ReclassificationItemJournalLine.OpenItemTrackingLines(true);
+
+        // [WHEN] Post Item Reclass. Journal.
+        LibraryInventory.PostItemJournalLine(
+          ReclassificationItemJournalLine."Journal Template Name", ReclassificationItemJournalLine."Journal Batch Name");
+
+        // [THEN] Verify Lot Number on Item Ledger Entry.
+        VerifyLotNoAndExpirationOnItemLedgerEntry();
     end;
 
     [Test]
@@ -2136,6 +2172,21 @@ codeunit 137275 "SCM Inventory Journals"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
+    local procedure PostPurchaseOrderWithoutItemTracking(Quantity: Decimal)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+    begin
+        GlobalItemNo := LibraryInventory.CreateItem(Item);
+        if Quantity = 0 then
+            // Random Integer value greater than 1 required for test. Assign it to Global Variable.
+            GlobalOriginalQuantity := 1 + LibraryRandom.RandInt(10)
+        else
+            GlobalOriginalQuantity := Quantity;
+        CreatePurchaseOrder(PurchaseHeader, GlobalItemNo, '', GlobalOriginalQuantity);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+    end;
+
     local procedure PostTwoSymmetricAdjustments(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     var
         Qty: Integer;
@@ -2350,6 +2401,18 @@ codeunit 137275 "SCM Inventory Journals"
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
         ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Lot No.");
+    end;
+
+    local procedure VerifyLotNoAndExpirationOnItemLedgerEntry()
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Item No.", GlobalItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.SetFilter("Lot No.", '<>%1', '');
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.TestField("Lot No.");
+        ItemLedgerEntry.TestField("Expiration Date", WorkDate());
     end;
 
     local procedure FilterItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[20]; BinCode: Code[20])
@@ -2618,6 +2681,32 @@ codeunit 137275 "SCM Inventory Journals"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure ItemTrackingPageHandlerWithAssignTo(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        LotNoInformation: Record "Lot No. Information";
+        TrackingSpecification: Record "Tracking Specification";
+    begin
+        Commit();
+        case GlobalItemTrackingAction of
+            GlobalItemTrackingAction::EditItemTrackingLotNo:
+                begin
+                    ItemTrackingLines.Last();
+                    ItemTrackingLines."New Lot No.".SetValue(
+                      LibraryUtility.GenerateRandomCode(TrackingSpecification.FieldNo("New Lot No."), DATABASE::"Tracking Specification"));
+                    ItemTrackingLines."New Expiration Date".SetValue(LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate()));
+                    FindItemLedgerEntry(ItemLedgerEntry);
+                    ItemTrackingLines."Quantity (Base)".SetValue(ItemLedgerEntry.Quantity);
+                    ItemTrackingLines."Appl.-to Item Entry".SetValue(ItemLedgerEntry."Entry No.");
+                    LibraryItemTracking.CreateLotNoInformation(LotNoInformation, GlobalItemNo, '', ItemTrackingLines."New Lot No.".Value);
+                    UpdateAndVerifyLotNoInformationAndComments(ItemTrackingLines);
+                end;
+        end;
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure InvokeSerialNoInformationListPageHander(var SerialNoInformationList: TestPage "Serial No. Information List")
     begin
         SerialNoInformationList.OK().Invoke();
@@ -2658,6 +2747,14 @@ codeunit 137275 "SCM Inventory Journals"
     procedure SerialNumberConfirmationHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
     begin
         Assert.IsTrue(StrPos(ConfirmMessage, StrSubstNo(SerialNoConfirmaton)) > 0, ConfirmMessage);
+        Reply := true
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure LotNumberConfirmationHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.IsTrue(StrPos(ConfirmMessage, StrSubstNo(LotNoConfirmatonQst)) > 0, ConfirmMessage);
         Reply := true
     end;
 

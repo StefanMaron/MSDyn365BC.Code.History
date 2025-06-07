@@ -678,6 +678,7 @@ table 5601 "FA Ledger Entry"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"FA Ledger Entry", 'r')]
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";

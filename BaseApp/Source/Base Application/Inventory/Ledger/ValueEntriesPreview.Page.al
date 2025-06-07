@@ -413,6 +413,13 @@ page 5807 "Value Entries Preview"
                 Rec := TempValueEntry;
                 Rec.Insert();
             until TempValueEntry.Next() = 0;
+
+        OnAfterSet(Rec, TempValueEntry);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSet(var ValueEntry: Record "Value Entry"; var TempValueEntry: Record "Value Entry" temporary)
+    begin
     end;
 }
 
