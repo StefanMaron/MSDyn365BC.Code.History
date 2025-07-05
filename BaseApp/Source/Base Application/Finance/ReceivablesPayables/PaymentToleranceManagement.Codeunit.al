@@ -26,6 +26,7 @@ codeunit 426 "Payment Tolerance Management"
 
     var
         CurrExchRate: Record "Currency Exchange Rate";
+        GenJnlLineGlobal: Record "Gen. Journal Line";
         AccTypeOrBalAccTypeIsIncorrectErr: Label 'The value in either the Account Type field or the Bal. Account Type field is wrong.\\ The value must be %1.', Comment = '%1 = Customer or Vendor';
         SuppressCommit: Boolean;
         SuppressWarning: Boolean;
@@ -221,6 +222,7 @@ codeunit 426 "Payment Tolerance Management"
         NewCustLedgEntry.Amount := GenJnlLine.Amount;
         NewCustLedgEntry."Remaining Amount" := GenJnlLine.Amount;
         NewCustLedgEntry."Document Type" := GenJnlLine."Document Type";
+        GenJnlLineGlobal := GenJnlLine;
         exit(
           PmtTolCustLedgEntry(NewCustLedgEntry, GenJnlLine."Account No.", GenJnlLine."Posting Date",
             GenJnlLine."Document No.", GenJnlLineApplID, GenJnlLine."Applies-to Doc. No.",
@@ -2190,7 +2192,11 @@ codeunit 426 "Payment Tolerance Management"
                                 NewCustLedgEntry."Posting Date");
                         AppliedAmount := AppliedAmount + AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
                         AmountToApply := AmountToApply + AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
-                    end
+                    end else begin
+                        NewCustLedgEntry.Amount += AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
+                        UpdateGenJournalLineAmount(NewCustLedgEntry.Amount);
+                        AdjustRemainingAmount(NewCustLedgEntry, AppliedCustLedgEntry."Remaining Amount");
+                    end;
                 end else begin
                     DelCustPmtTolAcc(NewCustLedgEntry, GenJnlLineApplID);
                     exit(false);
@@ -2345,6 +2351,47 @@ codeunit 426 "Payment Tolerance Management"
             Sign := ExpectedEntryTolAmount / Abs(ExpectedEntryTolAmount);
 
         AcceptedEntryTolAmount := Sign * Math.Min(Abs(ExpectedEntryTolAmount), Abs(MaxPmtTolAmount));
+    end;
+
+    local procedure UpdateGenJournalLineAmount(NewAmount: Decimal)
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+    begin
+        if (GenJnlLineGlobal."Journal Template Name" = '') or (GenJnlLineGlobal."Journal Batch Name" = '') then
+            exit;
+
+        GenJnlLine.Get(
+            GenJnlLineGlobal."Journal Template Name",
+            GenJnlLineGlobal."Journal Batch Name",
+            GenJnlLineGlobal."Line No.");
+
+        GenJnlLine.Amount := NewAmount;
+
+        if GenJnlLine."Currency Code" = '' then
+            GenJnlLine."Amount (LCY)" := GenJnlLine.Amount
+        else
+            GenJnlLine."Amount (LCY)" := Round(
+                CurrExchRate.ExchangeAmtFCYToLCY(
+                    GenJnlLine."Posting Date",
+                    GenJnlLine."Currency Code",
+                    GenJnlLine.Amount,
+                    GenJnlLine."Currency Factor"));
+
+        GenJnlLine.Validate("Amount");
+        GenJnlLine.Modify(true);
+    end;
+
+    local procedure AdjustRemainingAmount(var CustLedgEntry: Record "Cust. Ledger Entry"; AppliedRemainingAmount: Decimal)
+    begin
+        if CustLedgEntry."Remaining Amount" <> 0 then begin
+            CustLedgEntry."Remaining Amount" += AppliedRemainingAmount;
+
+            if (CustLedgEntry."Remaining Amount" > 0) and (AppliedRemainingAmount < 0) then
+                CustLedgEntry."Remaining Amount" := 0;
+
+            if (CustLedgEntry."Remaining Amount" < 0) and (AppliedRemainingAmount > 0) then
+                CustLedgEntry."Remaining Amount" := 0;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
