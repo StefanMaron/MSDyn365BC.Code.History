@@ -888,7 +888,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4088.31 (5000/1.223)
         // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4634.78 (-5000/1.0788)
         AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[1]);
         AmtBank := Round(SettleAmount / CurrencyExchRate[4]);
         VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtBank - AmtInv);
         VerifySettleGLEntries(
@@ -936,7 +936,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4088.31 (5000/1.223)
         // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4634.78 (-5000/1.0788)
         AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[1]);
         AmtBank := Round(SettleAmount / CurrencyExchRate[4]);
         VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtBank - AmtInv);
         VerifySettleGLEntries(
@@ -987,7 +987,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         AmtBank := Round(SettleAmount / CurrencyExchRate[4]);
         VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtBank - AmtInv);
         VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtBank, -AmtBank);
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtInv, -AmtBank);
     end;
 #endif
 
@@ -1034,7 +1034,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         AmtBank := Round(SettleAmount / CurrencyExchRate[4]);
         VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtBank - AmtInv);
         VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtBank, -AmtBank);
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtInv, -AmtBank);
     end;
 
 #if not CLEAN23
@@ -1074,7 +1074,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4634.78 (5000/1.0788)
         // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4634.78 (-5000/1.0788)
         AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[1]);
         AmtBank := Round(SettleAmount / CurrencyExchRate[4]);
         VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtBank - AmtInv);
         VerifySettleGLEntries(
@@ -1118,7 +1118,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [THEN] 'Invoices in  Pmt. Ord. Acc.' in Payment G/L Entry = 4634.78 (5000/1.0788)
         // [THEN] Bank's 'G/L Account No.' in Payment G/L Entry = -4634.78 (-5000/1.0788)
         AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
-        AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[1]);
         AmtBank := Round(SettleAmount / CurrencyExchRate[4]);
         VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtBank - AmtInv);
         VerifySettleGLEntries(
@@ -1165,7 +1165,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
         VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtPay - AmtInv);
         VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtInv, -AmtPay);
     end;
 #endif
 
@@ -1208,7 +1208,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
         VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtPay - AmtInv);
         VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtInv, -AmtPay);
     end;
 
 #if not CLEAN23
@@ -1254,7 +1254,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
         VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtPay - AmtInv);
         VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtInv, -AmtPay);
     end;
 #endif
 
@@ -1300,7 +1300,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         AmtPay := Round(SettleAmount / CurrencyExchRate[3]);
         VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtPay - AmtInv);
         VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtInv, -AmtPay);
     end;
 
 #if not CLEAN23
@@ -1350,7 +1350,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
         VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtPay - AmtInv);
         VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtInv, -AmtPay);
     end;
 #endif
 
@@ -1400,7 +1400,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         AmtPay := Round(SettleAmount / CurrencyExchRate[4]);
         VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtPay - AmtInv);
         VerifySettleGLEntries(
-          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
+          PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtInv, -AmtPay);
     end;
 
     [Test]
@@ -1469,6 +1469,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PaymentOrder: Record "Payment Order";
         VendorPostingGroupCode: Code[20];
         PostingDate: array[3] of Date;
+        AmtPay: Decimal;
     begin
         // [SCENARIO 294053] Settle posted payment order in FCY for different exchange rates
         Initialize();
@@ -1481,6 +1482,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [GIVEN] Posted Purchase Invoice (PPI) in CURR on D1
         // [GIVEN] Posted Payment Order (PPO) in CURR on D3
         CreatePostedPaymentOrderFCY(PaymentOrder, VendorPostingGroupCode, PostingDate);
+
+        // [GIVEN] Dequeue the Inv value
+        AmtPay := LibraryVariableStorage.DequeueDecimal();
+
         // [GIVEN] New exchange rate on D2
         // [GIVEN] Adjusted PPI on D2
         LibraryERM.CreateExchangeRate(PaymentOrder."Currency Code", PostingDate[2], 0.09, 0.09);
@@ -1494,7 +1499,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [THEN] PPO is settled
         VerifySettleGLEntries(
           PaymentOrder."No.", VendorPostingGroupCode, PaymentOrder."Bank Account No.",
-          -Round(1000 / 0.08 - 1000 / 0.08 - 1000 / 0.09), -12500);
+          Round(AmtPay), -12500);
     end;
 #endif
 
@@ -1506,6 +1511,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PaymentOrder: Record "Payment Order";
         VendorPostingGroupCode: Code[20];
         PostingDate: array[3] of Date;
+        AmtPay: Decimal;
     begin
         // [SCENARIO 294053] Settle posted payment order in FCY for different exchange rates
         Initialize();
@@ -1518,6 +1524,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [GIVEN] Posted Purchase Invoice (PPI) in CURR on D1
         // [GIVEN] Posted Payment Order (PPO) in CURR on D3
         CreatePostedPaymentOrderFCY(PaymentOrder, VendorPostingGroupCode, PostingDate);
+
+        // [GIVEN] Dequeue the Inv value
+        AmtPay := LibraryVariableStorage.DequeueDecimal();
+
         // [GIVEN] New exchange rate on D2
         // [GIVEN] Adjusted PPI on D2
         LibraryERM.CreateExchangeRate(PaymentOrder."Currency Code", PostingDate[2], 0.09, 0.09);
@@ -1531,7 +1541,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [THEN] PPO is settled
         VerifySettleGLEntries(
           PaymentOrder."No.", VendorPostingGroupCode, PaymentOrder."Bank Account No.",
-          -Round(1000 / 0.08 - 1000 / 0.08 - 1000 / 0.09), -12500);
+          Round(AmtPay), -12500);
     end;
 
     [Test]
@@ -1992,6 +2002,57 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleInvoiceAfterPaymentOrderWithDiffRateAndExchRateAdjustment()
+    var
+        Vendor: Record Vendor;
+        PaymentOrder: Record "Payment Order";
+        CurrencyCode: Code[10];
+        PostingDate: array[4] of Date;
+        CurrencyExchRate: array[4] of Decimal;
+        SettleAmount: Decimal;
+        AmtInv: Decimal;
+        AmtPay: Decimal;
+        AmtBank: Decimal;
+    begin
+        // [SCENARIO 573478] Adjust Exchange Rate work as expected in case of Posting/Settlement of a Payment Order in Currencies
+        Initialize();
+
+        // [GIVEN] Create Currency with Currency Factors
+        CurrencyCode := CreateCurrencyForPaymentOrder();
+
+        // [GIVEN] Set Exchange Rates and Posting Dates
+        SetScenarioRatesDates(CurrencyExchRate, PostingDate);
+
+        // [GIVEN] Create different Exchange Rates for the Currency
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
+        //LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[4], CurrencyExchRate[4], CurrencyExchRate[4]);
+
+        // [GIVEN] Create Invoice and Payment Order, then post Payment Order 
+        CreateAndPostPaymentOrderFromInvoice(Vendor, PaymentOrder, SettleAmount, CurrencyCode, PostingDate[1], PostingDate[2] + 1);
+
+        // [GIVEN] Run Adjust Exchange Rates on Date3
+        RunExchRateAdjustment(CurrencyCode, PostingDate[3]);
+        Commit();
+
+        // [WHEN] Run TotalSettlement on Date4
+        RunSettleDocInPostedPO(PaymentOrder."No.", PostingDate[4]);
+
+        // [THEN] Verify that the Payment Order is settled
+        AmtInv := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtPay := Round(SettleAmount / CurrencyExchRate[1]);
+        AmtBank := Round(SettleAmount / CurrencyExchRate[4]);
+
+        // [THEN] Verify that the G/L Entries for Realized gain loss  created correctly
+        VerifyPostedRealizedGainOnPayment(PaymentOrder."No.", CurrencyCode, AmtBank - AmtInv);
+
+        // [THEN] Verify that the G/L Entries for Payment Order and Bank Account are created correctly
+        VerifySettleGLEntries(PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtBank);
+    end;
+
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
@@ -2419,6 +2480,8 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PaymentOrder.Validate("Export Electronic Payment", false);
         PaymentOrder.Modify(true);
         AddCarteraDocumentToPaymentOrder(PaymentOrder."No.", DocumentNo);
+        PaymentOrder.CalcFields("Amount (LCY)");
+        LibraryVariableStorage.Enqueue(PaymentOrder."Amount (LCY)");
         LibraryCarteraPayables.PostCarteraPaymentOrder(PaymentOrder);
     end;
 

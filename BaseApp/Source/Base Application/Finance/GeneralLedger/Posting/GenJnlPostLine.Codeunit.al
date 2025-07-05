@@ -178,6 +178,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OriginalEntryExist: Boolean;
         TotalAmountForTax: Decimal;
         ForceDocBalance: Boolean;
+        BillSettlementGainLoss: Boolean;
         Text1100013: Label 'You do not have permissions to apply or unapply documents in the Cartera Module.';
 
         NeedsRoundingErr: Label '%1 needs to be rounded', Comment = '%1 - amount';
@@ -2178,6 +2179,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     local procedure UpdateGLEntrySourceCurrencyFields(var GLEntry: Record "G/L Entry"; var GenJnlLine: Record "Gen. Journal Line")
+    var
+        GLAccount: Record "G/L Account";
     begin
         if GenJnlLine."Source Currency Code" = '' then
             exit;
@@ -2201,6 +2204,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
         then
             exit;
 
+        if GLEntry."G/L Account No." <> '' then begin
+            GLAccount.Get(GLEntry."G/L Account No.");
+            GenJnlCheckLine.CheckGLAccountSourceCurrency(GLAccount, GenJnlLine."Source Currency Code");
+        end;
+
         GLEntry."Source Currency Code" := GenJnlLine."Source Currency Code";
         case GenJnlLine."VAT Calculation Type" of
             GenJnlLine."VAT Calculation Type"::"Sales Tax":
@@ -2223,31 +2231,32 @@ codeunit 12 "Gen. Jnl.-Post Line"
         SourceCurrency: Record Currency;
     begin
         if (LastSourceCurrencyNonDedTaxAmount <> 0) and (TempGLEntry."Debit Amount" <> 0) then begin // Non Deductible VAT case
-            TempGLEntry."Source Currency Amount" := LastSourceCurrencyTaxAmount - LastSourceCurrencyNonDedTaxAmount;
+            TempGLEntry."Source Currency Amount" := UpdateAmountSign(LastSourceCurrencyTaxAmount - LastSourceCurrencyNonDedTaxAmount, TempGLEntry.Amount > 0);
             TempGLEntry."Source Currency VAT Amount" := 0;
             LastSourceCurrencyNonDedTaxAmountCredit := -LastSourceCurrencyNonDedTaxAmount;
             LastSourceCurrencyTaxAmount := LastSourceCurrencyNonDedTaxAmount;
             LastSourceCurrencyNonDedTaxAmount := 0;
         end else
             if (LastSourceCurrencyNonDedTaxAmountCredit <> 0) and (TempGLEntry."Credit Amount" <> 0) then begin
-                TempGLEntry."Source Currency Amount" := LastSourceCurrencyTaxAmountCredit - LastSourceCurrencyNonDedTaxAmountCredit;
+                TempGLEntry."Source Currency Amount" := UpdateAmountSign(LastSourceCurrencyTaxAmountCredit - LastSourceCurrencyNonDedTaxAmountCredit, TempGLEntry.Amount > 0);
                 TempGLEntry."Source Currency VAT Amount" := 0;
                 LastSourceCurrencyTaxAmountCredit := LastSourceCurrencyNonDedTaxAmountCredit;
                 LastSourceCurrencyNonDedTaxAmountCredit := 0;
             end else
                 if (LastSourceCurrencyTaxAmount <> 0) and (TempGLEntry."Debit Amount" <> 0) then begin // VAT case
-                    TempGLEntry."Source Currency Amount" := LastSourceCurrencyTaxAmount;
+                    TempGLEntry."Source Currency Amount" := UpdateAmountSign(LastSourceCurrencyTaxAmount, TempGLEntry.Amount > 0);
                     TempGLEntry."Source Currency VAT Amount" := 0;
                     if ReverseCharge then
                         LastSourceCurrencyTaxAmountCredit := -LastSourceCurrencyTaxAmount;
                     LastSourceCurrencyTaxAmount := 0;
                 end else
                     if (LastSourceCurrencyTaxAmountCredit <> 0) and (TempGLEntry."Credit Amount" <> 0) then begin
-                        TempGLEntry."Source Currency Amount" := LastSourceCurrencyTaxAmountCredit;
+                        TempGLEntry."Source Currency Amount" := UpdateAmountSign(LastSourceCurrencyTaxAmountCredit, TempGLEntry.Amount > 0);
                         TempGLEntry."Source Currency VAT Amount" := 0;
                         LastSourceCurrencyTaxAmountCredit := 0;
                     end else begin
                         LastSourceCurrencyTaxAmount := TempGLEntry."Source Currency VAT Amount";
+                        LastSourceCurrencyTaxAmountCredit := -TempGLEntry."Source Currency VAT Amount";
                         if TempGLEntry."VAT Amount" <> 0 then begin
                             SourceCurrency.Get(TempGLEntry."Source Currency Code");
                             SourceCurrency.TestField("Amount Rounding Precision");
@@ -2256,6 +2265,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                     TempGLEntry."Source Currency VAT Amount" * TempGLEntry."Non-Deductible VAT Amount" / TempGLEntry."VAT Amount",
                                     SourceCurrency."Amount Rounding Precision", SourceCurrency.VATRoundingDirection());
                             LastSourceCurrencyNonDedTaxAmount := TempGLEntry."Src. Curr. Non-Ded. VAT Amount";
+                            LastSourceCurrencyNonDedTaxAmountCredit := -TempGLEntry."Src. Curr. Non-Ded. VAT Amount";
                         end;
                         if TempGLEntry."Source Currency Amount" = 0 then begin // Sales Tax case
                             TempGLEntry."Source Currency Amount" := TempGLEntry."Source Currency VAT Amount";
@@ -5372,7 +5382,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
             ExistDtldCVLedgEntryBuf := not DetailedCVLedgEntryBuffer.IsEmpty();
             DtldLedgEntryInserted := not DetailedCVLedgEntryBuffer.IsEmpty();
 
+            CheckIfRealisedGainLossSettlement(AdjAmount);
             AccNo := GetVendCarteraAccountNo(GenJournalLine, VendPostingGr);
+            BillSettlementGainLoss := false;
 
             CalcPostingBufferTotals(TempDimensionPostingBuffer);
             PayableAccAmtLCY := TempDimensionPostingBuffer.Amount - (DocAmountLCY + CollDocAmountLCY);
@@ -5425,9 +5437,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
             AccNo := VendPostingGr."Bills Account";
         end else begin
             VendPostingGr.TestField("Payables Account");
-            AccNo := VendPostingGr."Payables Account";
+            AccNo := VendPostingGr.GetPayablesAccount();
         end;
-        if CollDocAmountLCY <> 0 then
+        if (CollDocAmountLCY <> 0) and (not BillSettlementGainLoss) then
             case GenJnlLine."Applies-to Doc. Type" of
                 GenJnlLine."Applies-to Doc. Type"::Bill:
                     AccNo := VendPostingGr.GetBillsInPmtOrderAccount();
@@ -9757,6 +9769,19 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end;
         
         exit(GetVendorPayablesAccount(GenJournalLine, VendPostingGr));
+    end;
+
+    local procedure CheckIfRealisedGainLossSettlement(AdjAmount: array[4] of Decimal)
+    var
+        i: Integer;
+    begin
+        if not FromBillSettlement then
+            exit;
+        BillSettlementGainLoss := false;
+
+        for i := 1 to ArrayLen(AdjAmount) do
+            if AdjAmount[i] <> 0 then
+                BillSettlementGainLoss := true;
     end;
 
     [IntegrationEvent(true, false)]

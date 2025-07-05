@@ -525,6 +525,9 @@ codeunit 10752 "SII Doc. Upload Management"
         TempSIIHistory: Record "SII History" temporary;
     begin
         TempXMLBuffer[1].LoadFromText(ResponseText);
+        TempXMLBuffer[1].SetFilter(Name, 'CSV');
+        if TempXMLBuffer[1].FindFirst() then
+            TempSIIHistoryBuffer.ModifyAll("CSV Response", TempXMLBuffer[1].Value);
         TempXMLBuffer[1].SetFilter(Name, 'RespuestaLinea');
         if TempXMLBuffer[1].FindSet() then
             repeat

@@ -229,6 +229,12 @@ table 10752 "SII Doc. Upload State"
             DataClassification = SystemMetadata;
             Editable = false;
         }
+        field(82; "CSV Response"; Text[250])
+        {
+            Caption = 'CSV Response';
+            DataClassification = SystemMetadata;
+            Editable = false;
+        }
     }
 
     keys

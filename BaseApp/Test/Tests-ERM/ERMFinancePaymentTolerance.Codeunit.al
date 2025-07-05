@@ -2238,6 +2238,52 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         VendorLedgerEntryCreditMemo.TestField(Open, true);
     end;
 
+    [Test]
+    [HandlerFunctions('ToleranceWarningPageHandler')]
+    procedure VerifyPaymentDiscountToleranceWarningOnPayment()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        PaymentTerms: Record "Payment Terms";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        Amount: Decimal;
+    begin
+        // [SCENARIO 563299] When selecting "Post as Payment Discount Tolerance" in the Cash Receipt Journal, the system incorrectly suggests the full invoice amount instead of applying the 5% discount — leading to overposting instead of discount deduction.
+
+        // [GIVEN] Create Setups for Application under General Ledger Setup
+        Initialize();
+        UpdatePmtToleranceFieldsInGeneralLedgerSetup();
+
+        // [GIVEN] Set the payment term code to 1M due date calculation, 8D discount date calculation and 5% discount.
+        CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(8), LibraryRandom.RandDec(5, 2));
+
+        // [GIVEN] Create Customer and attach Payment Terms
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Post a Sales Invoice
+        Amount := LibraryRandom.RandDecInDecimalRange(100, 100, 0);  // Taking Random value for Amount.
+        CreateGenJournalLine(GenJournalLine, Customer."No.", '', GenJournalLine."Document Type"::Invoice, Amount, CalcDate('<-1Y>', WorkDate()));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create a Payment Entry and apply to the Invoice
+        CreateGenJournalLine(GenJournalLine2, Customer."No.", '', GenJournalLine2."Document Type"::Payment, 0,
+          CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", CalcDate('<-1Y>', WorkDate()))));
+
+        // [WHEN] Apply Payment Entry to the Invoice And Post the Gen. Journal Line
+        FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Account No.", CustLedgerEntry."Document Type"::Invoice);
+        ApplyAndPostGenJnlLineWithPmtDiscWarning(CustLedgerEntry, GenJournalLine2, Amount);
+
+        // [THEN] Verify Remaining Amount in Customer Ledger. Verify Payment Tolerance Discount in Detailed Customer Ledger.
+        VerifyRemainingAmount(CustLedgerEntry, 100);
+        VerifyDetldCustomerLedgerEntry(
+          GenJournalLine2,
+          DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance", -CustLedgerEntry."Original Pmt. Disc. Possible");
+    end;
+
     [Normal]
     local procedure AmountToApplyInCustomerLedger(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
@@ -2493,6 +2539,37 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
         DetailedCustLedgEntry.FindSet();
+    end;
+
+    local procedure UpdatePmtToleranceFieldsInGeneralLedgerSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PaymentDiscountGracePeriod: DateFormula;
+        GracePeriodDays: Integer;
+    begin
+        GeneralLedgerSetup.Get();
+
+        GeneralLedgerSetup.Validate("Pmt. Disc. Tolerance Posting", GeneralLedgerSetup."Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts");
+        GeneralLedgerSetup.Validate("Payment Tolerance Posting", GeneralLedgerSetup."Payment Tolerance Posting"::"Payment Tolerance Accounts");
+        GracePeriodDays := LibraryRandom.RandIntInRange(4, 4);
+        Evaluate(
+          PaymentDiscountGracePeriod, '<' + Format(GracePeriodDays) + 'D>');
+        GeneralLedgerSetup.Validate("Payment Discount Grace Period", PaymentDiscountGracePeriod);
+        GeneralLedgerSetup.Validate("Payment Tolerance Warning", true);
+        GeneralLedgerSetup.Validate("Pmt. Disc. Tolerance Warning", true);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
+    local procedure ApplyAndPostGenJnlLineWithPmtDiscWarning(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; GenJournalLineAmount: Decimal)
+    var
+        DifferenceAmount: Decimal;
+    begin
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
+        SetAppliesToIDGenJournalLine(GenJournalLine);
+
+        // Use for partial Payment Tolerance Warning.
+        DifferenceAmount := CustLedgerEntry."Remaining Pmt. Disc. Possible";
+        PostGeneralJournalLine(GenJournalLine, -(GenJournalLineAmount - DifferenceAmount));
     end;
 
     [Normal]

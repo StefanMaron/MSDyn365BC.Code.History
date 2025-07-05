@@ -68,6 +68,7 @@
         PurchInvLineCountErr: label 'Expected %1 purchase invoice lines but found %2';
         PurchInvLineQuantityErr: label 'Expected quantity of 1 on purchase invoice line but found %1';
         PurchInvLineVendorNoErr: label 'Expected "Buy-from Vendor No." to be %1 on purchase invoice line but found %2';
+        PurchasingCodeOnSalesInvoiceErr: Label 'The Purchasing Code should be blank for item %1 on the sales invoice because it is used only for the drop shipment process.', Comment = '%1= Item No.';
 
 #if not CLEAN25
     [Test]
@@ -2784,10 +2785,40 @@
         // [THEN] No error occurs.
     end;
 
+    [Test]
+    procedure SalesLineWithDocumentTypeInvoiceCannotCreateWithTypeItemHDefaultPurchasingCodeDropShipment()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchasingCode: Code[10];
+    begin
+        // [SCENARIO 574904] Verify that a sales line with the document type 'Invoice' cannot be created with Type 'Item' for an Item No. that has a default Purchasing Code of 'Drop Shipment'.
+        Initialize();
+
+        // [GIVEN] Create Purchasing Code and Set Drop Shipment true.
+        PurchasingCode := CreatePurchasingCode(true, false); // Drop Shipment
+
+        // [GIVEN] Create an item and assign a Purchasing Code to it.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Purchasing Code", PurchasingCode);
+        Item.Modify(true);
+
+        // [GIVEN] Create a sales header with the document type set to 'Invoice'.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+
+        // [WHEN] A sales line with the document type 'Invoice' was inserted using an item that has a Purchasing Code.
+        asserterror LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [THEN] An error occurred because a sales line with the document type 'Invoice' was inserted using an item that has a Purchasing Code.
+        Assert.ExpectedError(StrSubstNo(PurchasingCodeOnSalesInvoiceErr, Item."No."));
+    end;
+
     local procedure Initialize()
     var
-        InstructionMgt: Codeunit "Instruction Mgt.";
         PriceListLine: Record "Price List Line";
+        InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders IV");
         LibrarySetupStorage.Restore();
