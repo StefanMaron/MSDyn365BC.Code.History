@@ -107,7 +107,7 @@ codeunit 30171 "Shpfy Create Item"
         ItemNo: Text;
         VariantCode: Text;
     begin
-        if (not ShopifyProduct."Has Variants" and not (Shop."SKU Mapping" = Shop."SKU Mapping"::"Variant Code")) or ((ShopifyVariant."UoM Option Id" = 1) and (ShopifyVariant."Option 2 Name" = '')) then begin
+        if (not ShopifyProduct."Has Variants") or ((ShopifyVariant."UoM Option Id" = 1) and (ShopifyVariant."Option 2 Name" = '')) then begin
             Clear(ItemVariant);
             CreateReferences(ShopifyProduct, ShopifyVariant, Item, ItemVariant);
             if IsNullGuid(ShopifyVariant."Item SystemId") then begin
@@ -383,7 +383,6 @@ codeunit 30171 "Shpfy Create Item"
         IsHandled: Boolean;
     begin
         ProductEvents.OnBeforeFindItemTemplate(Shop, ShopifyProduct, ShopifyVariant, Result, IsHandled);
-        if not IsHandled then
         if not IsHandled then begin
             Shop.TestField("Item Templ. Code");
             Result := Shop."Item Templ. Code";

@@ -789,7 +789,7 @@ table 5994 "Service Cr.Memo Header"
         field(9001; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
-        }	
+        }
         field(10018; "STE Transaction ID"; Text[20])
         {
             Caption = 'STE Transaction ID';
@@ -956,6 +956,12 @@ table 5994 "Service Cr.Memo Header"
                 if SATAddress.LookupSATAddress(SATAddress, Rec."Ship-to Country/Region Code", Rec."Bill-to Country/Region Code") then
                     Rec."SAT Address ID" := SATAddress.Id;
             end;
+        }
+        field(27012; "CFDI Certificate of Origin No."; Text[50])
+        {
+            Caption = 'CFDI Certificate of Origin No.';
+            DataClassification = CustomerContent;
+            Description = 'NumCertificadoOrigen';
         }
     }
 
