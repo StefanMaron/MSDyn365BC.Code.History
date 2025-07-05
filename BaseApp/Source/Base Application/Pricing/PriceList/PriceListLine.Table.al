@@ -21,6 +21,7 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Setup;
+using Microsoft.Service.Pricing;
 using Microsoft.Utilities;
 
 table 7001 "Price List Line"
@@ -524,7 +525,9 @@ table 7001 "Price List Line"
             else
             if ("Asset Type" = const("Resource Group")) "Resource Group"
             else
-            if ("Asset Type" = const("Item Discount Group")) "Item Discount Group";
+            if ("Asset Type" = const("Item Discount Group")) "Item Discount Group"
+            else
+            if ("Asset Type" = const("Service Cost")) "Service Cost";
             ValidateTableRelation = false;
 
             trigger OnValidate()

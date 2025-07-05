@@ -922,9 +922,14 @@ table 7302 "Bin Content"
             then begin
                 if "Max. Qty." <> 0 then begin
                     QtyAvailToPutAwayBase := CalcQtyAvailToPutAway(DeductQtyBase);
-                    WMSMgt.CheckPutAwayAvailability(
-                        "Bin Code", WhseActivLine.FieldCaption("Qty. (Base)"), TableCaption(), QtyBase, Math.Min(QtyAvailToPutAwayBase, "Max. Qty."),
-                        (Location."Bin Capacity Policy" = Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
+                    if Location."Bin Capacity Policy" = Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap." then
+                        WMSMgt.CheckPutAwayAvailability(
+                            "Bin Code", WhseActivLine.FieldCaption("Qty. (Base)"), TableCaption(), QtyBase, Math.Min(QtyAvailToPutAwayBase, "Max. Qty."),
+                            (Location."Bin Capacity Policy" = Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting)
+                    else
+                        WMSMgt.CheckPutAwayAvailability(
+                            "Bin Code", WhseActivLine.FieldCaption("Qty. (Base)"), TableCaption(), QtyBase, Math.Min(QtyAvailToPutAwayBase, ("Max. Qty." * "Qty. per Unit of Measure")),
+                            (Location."Bin Capacity Policy" = Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
                 end;
                 if Location."Bin Capacity Policy" in [Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.", Location."Bin Capacity Policy"::"Allow More Than Max. Capacity"] then begin
                     GetBin("Location Code", "Bin Code");

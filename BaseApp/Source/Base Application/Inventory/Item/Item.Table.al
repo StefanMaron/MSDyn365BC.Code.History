@@ -2720,12 +2720,14 @@ table 27 Item
         PurchaseLine: Record "Purchase Line";
         TransferLine: Record "Transfer Line";
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+        JobPlanningLine: Record "Job Planning Line";
     begin
         SalesLine.RenameNo(SalesLine.Type::Item, xRec."No.", "No.");
         PurchaseLine.RenameNo(PurchaseLine.Type::Item, xRec."No.", "No.");
         TransferLine.RenameNo(xRec."No.", "No.");
         DimMgt.RenameDefaultDim(DATABASE::Item, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Item, xRec."No.", "No.");
+        JobPlanningLine.RenameNo(JobPlanningLine.Type::Item, xRec."No.", "No.");
 
         ApprovalsMgmt.OnRenameRecordInApprovalRequest(xRec.RecordId, RecordId);
         ItemAttributeValueMapping.RenameItemAttributeValueMapping(xRec."No.", "No.");
