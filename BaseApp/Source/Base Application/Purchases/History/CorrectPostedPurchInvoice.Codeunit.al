@@ -110,6 +110,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         SkipLbl: Label 'Skip';
         CreateCreditMemoLbl: Label 'Create credit memo anyway';
         ShowEntriesLbl: Label 'Show applied entries';
+        CreateCreditMemoQst: Label 'The invoice was posted from an order. A Purchase Credit memo will be created which you complete and post manually. The quantities will be corrected in the existing Purchase Order.\ \Do you want to continue?';
 
     procedure CancelPostedInvoice(var PurchInvHeader: Record "Purch. Inv. Header"): Boolean
     begin
@@ -179,11 +180,19 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     end;
 
     procedure CreateCreditMemoCopyDocument(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header"): Boolean
+    var
+        PurchHeader: Record "Purchase Header";
     begin
         if not PurchInvHeader.IsFullyOpen() then begin
             ShowInvoiceAppliedNotification(PurchInvHeader);
             exit(false);
         end;
+        PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Order);
+        PurchHeader.SetRange("No.", PurchInvHeader."Order No.");
+        if not PurchHeader.IsEmpty then
+            if not Confirm(CreateCreditMemoQst) then
+                exit(false);
+
         CreateCopyDocument(PurchInvHeader, PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", false);
         exit(true);
     end;

@@ -334,7 +334,10 @@ codeunit 6102 "E-Doc. Export"
         if not EDocumentCreate.Run() then
             EDocumentErrorHelper.LogSimpleErrorMessage(EDocument, GetLastErrorText());
 
-        EDocumentCreate.GetSource(EDocument);
+        EDocumentCreate.GetBlob(TempBlob);
+
+        // After interface call, reread the EDocument for the latest values.
+        EDocument.Get(EDocument."Entry No");
         Telemetry.LogMessage('0000LBG', EDocTelemetryCreateScopeEndLbl, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All);
     end;
 

@@ -79,6 +79,8 @@ pageextension 11740 "Purchase Credit Memo CZL" extends "Purchase Credit Memo"
                 trigger OnAssistEdit()
                 begin
                     Clear(ChangeExchangeRate);
+                    if Rec."Additional Currency Factor CZL" = 0 then
+                        Rec.UpdateAddCurrencyFactorCZL();
                     ChangeExchangeRate.SetParameter(GeneralLedgerSetup.GetAdditionalCurrencyCode(), Rec."Additional Currency Factor CZL", Rec."Posting Date");
                     if ChangeExchangeRate.RunModal() = Action::OK then
                         Rec."Additional Currency Factor CZL" := ChangeExchangeRate.GetParameter();

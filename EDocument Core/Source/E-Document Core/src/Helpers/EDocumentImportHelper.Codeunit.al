@@ -466,17 +466,13 @@ codeunit 6109 "E-Document Import Helper"
     procedure FindVendorByVATRegistrationNo(VATRegistrationNo: Text[20]): Code[20]
     var
         Vendor: Record Vendor;
+        VendorNo: Code[20];
     begin
         if VATRegistrationNo = '' then
             exit('');
 
-        Vendor.SetLoadFields("VAT Registration No.", "Country/Region Code");
-        Vendor.SetFilter("VAT Registration No.", StrSubstNo(VATRegistrationNoFilterTxt, CopyStr(VATRegistrationNo, 1, MaxStrLen(VATRegistrationNo))));
-        if Vendor.FindSet() then
-            repeat
-                if ExtractVatRegNo(Vendor."VAT Registration No.", Vendor."Country/Region Code") = ExtractVatRegNo(VATRegistrationNo, Vendor."Country/Region Code") then
-                    exit(Vendor."No.");
-            until Vendor.Next() = 0;
+        VendorNo := Vendor.FindVendorByVATRegistrationNo(VATRegistrationNo);
+        exit(VendorNo);
     end;
 
     /// <summary>
@@ -955,5 +951,4 @@ codeunit 6109 "E-Document Import Helper"
         TotalsMismatchErr: Label 'The total amount %1 on the created document is different than the total amount %2 in the electronic document.', Comment = '%1 total amount, %2 expected total amount';
         VendorNotFoundErr: Label 'Cannot find vendor ''%1'' based on the vendor''s name, address or VAT registration number on the electronic document. Make sure that a card for the vendor exists with the corresponding name, address or VAT Registration No.', Comment = '%1 Vendor name (e.g. London Postmaster)';
         NotSpecifiedUnitOfMeasureTxt: Label '<NONE>';
-        VATRegistrationNoFilterTxt: Label '*%1', Comment = '%1 - Filter value', Locked = true;
 }

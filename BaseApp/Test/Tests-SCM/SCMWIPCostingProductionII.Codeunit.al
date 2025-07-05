@@ -786,6 +786,17 @@ codeunit 137004 "SCM WIP Costing Production-II"
             ProductionBOMHeader, ComponentItemNos[1], ComponentItemNos[2], 1); // value important.
         ParentItemNo := CreateItem(CostingMethod, Enum::"Reordering Policy"::"Lot-for-Lot", FlushingMethod, RoutingNo, ProductionBOMNo);
 
+        if AdjustExchangeRatesGLSetup then begin
+            UpdateExchangeRate(CurrencyCode);
+#if not CLEAN23
+            LibraryERM.RunAdjustExchangeRates(
+              CurrencyCode, WorkDate(), WorkDate(), PurchaseHeader."No.", WorkDate(), LibraryUtility.GenerateGUID(), true);
+#else
+            LibraryERM.RunExchRateAdjustment(
+              CurrencyCode, WorkDate(), WorkDate(), PurchaseHeader."No.", WorkDate(), LibraryUtility.GenerateGUID(), true);
+#endif
+        end;
+
         // Calculate Standard Cost for Parent Item, if Costing Method is Standard.
         // Calculate Calendar for Work Center with dates having a difference of 5 weeks.
         // Create and Post Purchase Order as Receive and Invoice.
@@ -799,17 +810,6 @@ codeunit 137004 "SCM WIP Costing Production-II"
         else
             CreatePurchaseOrderAddnlCurr(PurchaseHeader, CurrencyCode, ComponentItemNos[1], ComponentItemNos[2], ComponentItemNos[3],
               LibraryRandom.RandIntInRange(10, 100) + 10, UpdateProductionComponent);
-
-        if AdjustExchangeRatesGLSetup then begin
-            UpdateExchangeRate(CurrencyCode);
-#if not CLEAN23
-            LibraryERM.RunAdjustExchangeRates(
-              CurrencyCode, WorkDate(), WorkDate(), PurchaseHeader."No.", WorkDate(), LibraryUtility.GenerateGUID(), true);
-#else
-            LibraryERM.RunExchRateAdjustment(
-              CurrencyCode, WorkDate(), WorkDate(), PurchaseHeader."No.", WorkDate(), LibraryUtility.GenerateGUID(), true);
-#endif
-        end;
 
         // Create and Refresh Production Order.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);

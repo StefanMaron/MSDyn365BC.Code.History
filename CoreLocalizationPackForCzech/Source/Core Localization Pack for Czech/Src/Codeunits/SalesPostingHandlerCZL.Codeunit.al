@@ -575,6 +575,7 @@ codeunit 31038 "Sales Posting Handler CZL"
     local procedure SetGLCorrectionOnPostItemJnlLineOnBeforeInitAmount(var ItemJournalLine: Record "Item Journal Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
         ItemJournalLine."G/L Correction CZL" := SalesHeader.Correction xor SalesLine."Negative CZL";
+        ItemJournalLine."Additional Currency Factor CZL" := SalesHeader."Additional Currency Factor CZL";
     end;
 
     [IntegrationEvent(false, false)]
