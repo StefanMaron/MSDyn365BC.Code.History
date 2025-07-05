@@ -495,9 +495,13 @@ codeunit 7250 "Bank Rec. AI Matching Impl."
                     BankRecLineDescription := BankAccReconciliationLine.Description;
                     if BankAccReconciliationLine."Additional Transaction Info" <> '' then
                         BankRecLineDescription += (' ' + BankAccReconciliationLine."Additional Transaction Info");
+                    if BankAccReconciliationLine."Payment Reference No." <> '' then
+                        BankRecLineDescription += (' ' + BankAccReconciliationLine."Payment Reference No.");
+                    if BankAccReconciliationLine."Document No." <> '' then
+                        BankRecLineDescription += (' ' + BankAccReconciliationLine."Document No.");
 
                     EntryAddedToTop5 := false;
-                    SimilarityScore := ComputeStringNearness(TempBankAccLedgerEntryMatchingBuffer."Description" + ' ' + TempBankAccLedgerEntryMatchingBuffer."Document No.", CopyStr(BankRecLineDescription, 1, 250));
+                    SimilarityScore := ComputeStringNearness(TempBankAccLedgerEntryMatchingBuffer."Description" + ' ' + TempBankAccLedgerEntryMatchingBuffer."Document No." + ' ' + TempBankAccLedgerEntryMatchingBuffer."External Document No.", CopyStr(BankRecLineDescription, 1, 250));
                     AmountEquals := (TempBankAccLedgerEntryMatchingBuffer."Remaining Amount" = BankAccReconciliationLine.Difference);
 
                     for i := 1 to 5 do
