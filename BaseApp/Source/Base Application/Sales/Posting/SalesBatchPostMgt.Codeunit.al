@@ -326,7 +326,7 @@ codeunit 1371 "Sales Batch Post Mgt."
     begin
         if (not ReplacePostingDate) or (SalesHeader."Currency Code" = '') then
             exit;
-        if SalesHeader."Posting Date" = PostingDate then
+        if (SalesHeader."Posting Date" = PostingDate) and (not ManualReopen) then
             exit;
         if not SalesHeader.Invoice and not (SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order]) then
             exit;

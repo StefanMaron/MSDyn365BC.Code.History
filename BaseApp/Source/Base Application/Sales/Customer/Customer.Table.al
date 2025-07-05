@@ -2708,8 +2708,9 @@ table 18 Customer
         Customer.SetFilter(Name, CustomerFilterFromStart);
         OnGetCustNoOpenCardOnAfterOnAfterCustomerFilterFromStart(Customer);
 
-        if Customer.FindFirst() and (Customer.Count() = 1) then
-            exit(Customer."No.");
+        if Customer.FindFirst() then
+            if Customer.Count() = 1 then
+                exit(Customer."No.");
 
         CustomerFilterContains := '''@*' + CustomerWithoutQuote + '*''';
 
