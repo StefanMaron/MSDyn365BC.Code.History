@@ -18,6 +18,7 @@ codeunit 144011 "ERM Bank Account FR"
     end;
 
     var
+        Assert: Codeunit Assert;
         LibraryFRLocalization: Codeunit "Library - FR Localization";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
@@ -26,6 +27,7 @@ codeunit 144011 "ERM Bank Account FR"
         BankBranchNoTxt: Label '12000';
         AgencyCodeTxt: Label '03100';
         BankAccountNoTxt: Label '00012123003';
+        DocumentNoErr: Label 'Document No. must %1 in %2.', Comment = '%1= Field Value, %2= Table Name.';
 
     [Test]
     [HandlerFunctions('ConfirmHandler,PaymentClassListPageHandler')]
@@ -73,6 +75,44 @@ codeunit 144011 "ERM Bank Account FR"
         GLEntry.SetRange("Document No.", PaymentLine."Document No.");
         GLEntry.FindFirst();
         GLEntry.TestField(Amount, -PaymentLine.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('PaymentClassListPageHandler')]
+    procedure LastNoUsedUpdatesOnPaymentSlipLinesEnteredManually()
+    var
+        PaymentHeader: Record "Payment Header";
+        PaymentLine: Record "Payment Line";
+        PaymentClass: Record "Payment Class";
+        NoSeriesMgt: Codeunit "No. Series";
+        NoSeriesCode: Code[20];
+    begin
+        // [SCENARIO 575798] The Last No. Used in No. Series Line does update when the Payment Slip Lines are entered manually.
+
+        // [GIVEN] Create a Payment Header.
+        CreatePaymentHeader(PaymentHeader, PaymentClass.Suggestions::Vendor);
+
+        // [GIVEN] Create a Payment Line and Validate Account Type, Account No. and Amount.
+        LibraryFRLocalization.CreatePaymentLine(PaymentLine, PaymentHeader."No.");
+        PaymentLine.Validate("Account Type", PaymentLine."Account Type"::Vendor);
+        PaymentLine.Validate("Account No.", CreateVendor());
+        PaymentLine.Validate(Amount, LibraryRandom.RandDec(10, 2));
+        PaymentLine.Modify(true);
+
+        // [GIVEN] Find Payment Class.
+        PaymentClass.Get(PaymentHeader."Payment Class");
+
+        // [GIVEN] Find and store Last No. Used.
+        NoSeriesCode := NoSeriesMgt.GetLastNoUsed(PaymentClass."Line No. Series");
+
+        // [THEN] Document No. in Payment Line must be same as Last No. Used.
+        Assert.AreEqual(
+            NoSeriesCode,
+            PaymentLine."Document No.",
+            StrSubstNo(
+                DocumentNoErr,
+                NoSeriesCode,
+                PaymentLine.TableName()));
     end;
 
     local procedure PaymentSlipPost(var PaymentHeader: Record "Payment Header"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Suggestions: Option)
