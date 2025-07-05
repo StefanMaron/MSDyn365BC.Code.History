@@ -550,6 +550,7 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure VerifySustainabilityLedgerEntryShouldBeKnockedOffWhenCorrectiveCreditMemoIsPosted()
     var
         SustainabilityLedgerEntry: Record "Sustainability Ledger Entry";
@@ -951,7 +952,7 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 
     [Test]
-    [HandlerFunctions('PurchaseInvoiceStatisticsPageHandler')]
+    [HandlerFunctions('PurchaseInvoiceStatisticsPageHandler,ConfirmHandler')]
     procedure VerifySustainabilityFieldsInPurchaseCrMemoStatistics()
     var
         SustainabilityAccount: Record "Sustainability Account";
@@ -1140,7 +1141,7 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 
     [Test]
-    [HandlerFunctions('PurchaseInvoiceStatisticsPageHandler')]
+    [HandlerFunctions('PurchaseInvoiceStatisticsPageHandler,ConfirmHandler')]
     procedure VerifySustainabilityFieldsInPurchaseCrMemoSubFormPage()
     var
         SustainabilityAccount: Record "Sustainability Account";

@@ -21,6 +21,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryErrorMessage: Codeunit "Library - Error Message";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         IsInitialized: Boolean;
         QtyErr: Label '%1 is wrong';
@@ -31,6 +32,9 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         PurchaseBlockedGLAccountErr: Label 'You cannot correct this posted purchase invoice because G/L Account %1 is blocked.';
         WMSLocationCancelCorrectErr: Label 'You cannot cancel or correct this posted sales invoice because Warehouse Receive is required';
         NoShouldNotBeBlankErr: Label 'No. should not be blank.';
+        TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
+        CancelPostedPurchaseInvoiceQst: Label 'This invoice was posted from a purchase order. To cancel it, a purchase credit memo will be created and posted. The quantities from the original purchase order will be restored, provided the purchase order still exists.\ \Do you want to continue?';
+        CancelPostedSalesInvoiceQst: Label 'This invoice was posted from a sales order. To cancel it, a sales credit memo will be created and posted. The quantities from the original sales order will be restored, provided the sales order still exists.\ \Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -1912,6 +1916,177 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         Assert.AreNotEqual('', PurchCrMemoHdr."No.", NoShouldNotBeBlankErr);
     end;
 
+    [Test]
+    procedure SalesInvoiceShouldNotPostWithIncorrectDeferralScheduleValues()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralTemplate: Record "Deferral Template";
+        GLAccount: Record "G/L Account";
+        DeferralHeader: Record "Deferral Header";
+        DeferralLine: Record "Deferral Line";
+#if not CLEAN23
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
+    begin
+        // [SCENARIO 504969] Incorrect Deferral Schedule Values are wrongly kept if you refresh the page or close the browser.
+        Initialize();
+
+#if not CLEAN23
+        if not FeatureKeyManagement.IsExtensibleInvoicePostingEngineEnabled() then
+            exit;
+#endif
+
+        // [GIVEN] Create Deferral Template with "Calculation Method" = "User-Defined","Start Date" ="Beginning of Next Calendar Year" and No. of Periods is 4.
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate, DeferralTemplate."Calc. Method"::"User-Defined",
+          DeferralTemplate."Start Date"::"Beginning of Next Calendar Year", LibraryRandom.RandIntInRange(4, 4));
+
+        // [GIVEN] Create Sales Invoice withG/L Account and Deferral Template applied in line.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        CreateGLAccountWithVATPostSetup(GLAccount, SalesHeader."VAT Bus. Posting Group", LibraryRandom.RandIntInRange(5, 20));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandIntInRange(1, 1));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(1000, 1000));
+        SalesLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
+        SalesLine.Modify(true);
+
+        // [GIVEN] Update Amount in Deferral Schedule Line.
+        DeferralHeader.Get(DeferralHeader."Deferral Doc. Type"::Sales, '', '', SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
+        UpdateDeferralScheduleForNMonth(
+          "Deferral Document Type"::Sales, SalesHeader."Document Type".AsInteger(), SalesHeader."No.",
+          SalesLine."Line No.", DeferralHeader."Start Date", SalesLine."Unit Price", DeferralTemplate."No. of Periods", 1);
+
+        // [WHEN] Update Deferral Amounts.
+        FindDeferralSalesLine(DeferralLine, SalesLine);
+        DeferralLine.Validate(Amount, LibraryRandom.RandDecInDecimalRange(500, 1000, 2));
+        DeferralLine.Modify(true);
+
+        // [VERIFY] Verify: Expected Error - The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        Assert.ExpectedError(TotalToDeferErr);
+    end;
+
+    [Test]
+    procedure PurchaseInvoiceShouldNotPostWithIncorrectDeferralScheduleValues()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DeferralTemplate: Record "Deferral Template";
+        DeferralHeader: Record "Deferral Header";
+        DeferralLine: Record "Deferral Line";
+#if not CLEAN23
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
+    begin
+        // [SCENARIO 504969] Incorrect Deferral Schedule Values are wrongly kept if you refresh the page or close the browser.
+        Initialize();
+
+#if not CLEAN23
+        if not FeatureKeyManagement.IsExtensibleInvoicePostingEngineEnabled() then
+            exit;
+#endif
+
+        // [GIVEN] Create Deferral Template with "Calculation Method" = "User-Defined","Start Date" ="Beginning of Next Calendar Year" and No. of Periods is 4.
+        LibraryERM.CreateDeferralTemplate(
+          DeferralTemplate, DeferralTemplate."Calc. Method"::"User-Defined",
+          DeferralTemplate."Start Date"::"Beginning of Next Calendar Year", LibraryRandom.RandIntInRange(4, 4));
+
+        // [GIVEN] Create Purchase Invoice withG/L Account and Deferral Template applied in line.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(),
+          LibraryRandom.RandIntInRange(1, 1));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 1000));
+        PurchaseLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Update Amount in Deferral Schedule Line.
+        DeferralHeader.Get("Deferral Document Type"::Purchase, '', '', PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No.");
+        UpdateDeferralScheduleForNMonth(
+          "Deferral Document Type"::Purchase, PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.",
+          PurchaseLine."Line No.", DeferralHeader."Start Date", PurchaseLine."Direct Unit Cost", DeferralTemplate."No. of Periods", 1);
+
+        // [WHEN] Update Deferral Amounts.
+        FindDeferralPurchaseLine(DeferralLine, PurchaseLine);
+        DeferralLine.Validate(Amount, LibraryRandom.RandDecInDecimalRange(500, 1000, 2));
+        DeferralLine.Modify(true);
+
+        // [VERIFY] Verify: Expected Error - The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        Assert.ExpectedError(TotalToDeferErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerSalesVerifyQuestion')]
+    procedure VerifyConfirmMessageWhenCorrectedThePostedSalesInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 578414] Verify the expected confirmation message appears upon canceling the posted sales invoice.
+        Initialize();
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesHeaderWithItemWithType(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order, SalesLine.Type::Item);
+
+        // [GIVEN] Modify the 'Qty to Ship' field.
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity - 1);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post the Sales Order partially.
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        Commit();
+
+        // [GIVEN] Open the posted sales invoice page.
+        PostedSalesInvoice.OpenEdit();
+        PostedSalesInvoice.Filter.SetFilter("No.", InvoiceNo);
+
+        // [WHEN] Cancel the posted sales invoice.
+        PostedSalesInvoice.CancelInvoice.Invoke();
+
+        // [THEN] Verify the expected confirmation message appears upon canceling the posted sales invoice.
+        Assert.AreEqual(CancelPostedSalesInvoiceQst, LibraryVariableStorage.DequeueText(), 'Invalid confirmation question');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerPurchaseVerifyQuestion')]
+    procedure VerifyConfirmMessageWhenCorrectedThePostedPurchaseInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 578414] Verify the expected confirmation message appears upon canceling the posted purchase invoice. 
+        Initialize();
+
+        // [GIVEN] Create a Purchase Order.
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [GIVEN] Modify the 'Qty to Receive' field.
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity - 1);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post the Purchase Order partially.
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        Commit();
+
+        // [GIVEN] Open the posted purchase invoice page.
+        PostedPurchaseInvoice.OpenEdit();
+        PostedPurchaseInvoice.Filter.SetFilter("No.", InvoiceNo);
+
+        // [WHEN] Cancel the posted purchase invoice.
+        PostedPurchaseInvoice.CancelInvoice.Invoke();
+
+        // [THEN] Verify the expected confirmation message appears upon canceling the posted purchase invoice.
+        Assert.AreEqual(CancelPostedPurchaseInvoiceQst, LibraryVariableStorage.DequeueText(), 'Invalid confirmation question');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purch. Correct. Docs");
@@ -2447,6 +2622,75 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
                 LibraryRandom.RandInt(10));
     end;
 
+    local procedure CreateGLAccountWithVATPostSetup(var GLAccount: Record "G/L Account"; VATBusPostGrCode: Code[20]; VATPct: Decimal)
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        CreateVATPostingSetup(VATBusPostGrCode, VATProductPostingGroup.Code, VATPct);
+        GLAccount.Validate("VAT Bus. Posting Group", VATBusPostGrCode);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        GLAccount.Modify(true);
+    end;
+
+    local procedure CreateVATPostingSetup(VATBusPostGr: Code[20]; VATProdPostGr: Code[20]; VATPct: Decimal)
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostGr, VATProdPostGr);
+        VATPostingSetup."VAT Identifier" := VATProdPostGr;
+        VATPostingSetup.Validate("VAT %", VATPct);
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure UpdateDeferralScheduleForNMonth(DefDocType: Enum "Deferral Document Type"; DocType: Option; DocNo: Code[20]; DocLineNo: Integer; StartDateDeferralHeader: Date; DefAmount1: Decimal; NoOfPeriod: Integer; LineNo: Integer)
+    var
+        DeferralLine: Record "Deferral Line";
+    begin
+        DeferralLine.SetRange("Posting Date", StartDateDeferralHeader);
+        LibraryERM.FindDeferralLine(DeferralLine, DefDocType, '', '', DocType, DocNo, DocLineNo);
+        UpdateDefScheduleLine(DeferralLine, (DefAmount1 / NoOfPeriod), Format(LineNo) + '1');
+        DeferralLine.SetRange("Posting Date", CalcDate('<-CM+1M>', StartDateDeferralHeader));
+        DeferralLine.FindFirst();
+        UpdateDefScheduleLine(DeferralLine, (DefAmount1 / NoOfPeriod), Format(LineNo) + '2');
+        DeferralLine.SetRange("Posting Date", CalcDate('<-CM+2M>', StartDateDeferralHeader));
+        DeferralLine.FindFirst();
+        UpdateDefScheduleLine(DeferralLine, (DefAmount1 / NoOfPeriod), Format(LineNo) + '3');
+        DeferralLine.SetRange("Posting Date", CalcDate('<-CM+3M>', StartDateDeferralHeader));
+        DeferralLine.FindFirst();
+        UpdateDefScheduleLine(DeferralLine, (DefAmount1 / NoOfPeriod), Format(LineNo) + '4');
+    end;
+
+    local procedure UpdateDefScheduleLine(var DeferralLine: Record "Deferral Line"; DefAmount: Decimal; DefLineDescr: Text[100])
+    begin
+        DeferralLine.Validate(Description, PadStr(DefLineDescr, MaxStrLen(DeferralLine.Description), '0'));
+        DeferralLine.Validate(Amount, DefAmount);
+        DeferralLine.Modify(true);
+    end;
+
+    local procedure FindDeferralSalesLine(var DeferralLine: Record "Deferral Line"; SalesLine: Record "Sales Line")
+    begin
+        DeferralLine.SetRange("Deferral Doc. Type", DeferralLine."Deferral Doc. Type"::Sales);
+        DeferralLine.SetRange("Gen. Jnl. Template Name", '');
+        DeferralLine.SetRange("Gen. Jnl. Batch Name", '');
+        DeferralLine.SetRange("Document Type", SalesLine."Document Type");
+        DeferralLine.SetRange("Document No.", SalesLine."Document No.");
+        DeferralLine.FindFirst();
+    end;
+
+    local procedure FindDeferralPurchaseLine(var DeferralLine: Record "Deferral Line"; PurchaseLine: Record "Purchase Line")
+    begin
+        DeferralLine.SetRange("Deferral Doc. Type", DeferralLine."Deferral Doc. Type"::Purchase);
+        DeferralLine.SetRange("Gen. Jnl. Template Name", '');
+        DeferralLine.SetRange("Gen. Jnl. Batch Name", '');
+        DeferralLine.SetRange("Document Type", PurchaseLine."Document Type");
+        DeferralLine.SetRange("Document No.", PurchaseLine."Document No.");
+        DeferralLine.FindFirst();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetShipmentLinesHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
@@ -2476,6 +2720,20 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         ItemTrackingLines."Qty. to Handle (Base)".SetValue(2);
         ItemTrackingLines."Qty. to Invoice (Base)".SetValue(0);
         ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerSalesVerifyQuestion(Question: Text[1024]; var Reply: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(Question);
+        Reply := false;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerPurchaseVerifyQuestion(Question: Text[1024]; var Reply: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(Question);
+        Reply := false;
     end;
 }
 

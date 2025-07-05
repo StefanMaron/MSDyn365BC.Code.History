@@ -315,7 +315,7 @@ codeunit 2000020 DomiciliationJnlManagement
     end;
 
     [Scope('OnPrem')]
-    procedure CreateReference(CustLedgEntry: Record "Cust. Ledger Entry"): Text[12]
+    procedure CreateReference(CustLedgEntry: Record "Cust. Ledger Entry"): Text[16]
     var
         ReferenceDecimal: Decimal;
         ReferenceCheckSum: Decimal;
@@ -328,7 +328,7 @@ codeunit 2000020 DomiciliationJnlManagement
             ReferenceDecimal := ReferenceDecimal * 100 + 97
         else
             ReferenceDecimal := ReferenceDecimal * 100 + ReferenceCheckSum;
-        exit(PaymJnlManagement.DecimalNumeralZeroFormat(ReferenceDecimal, 12));
+        exit(PaymJnlManagement.DecimalNumeralZeroFormat(ReferenceDecimal, 16));
     end;
 
     [Scope('OnPrem')]

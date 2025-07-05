@@ -117,7 +117,7 @@ codeunit 144007 "Alt. Cust. VAT Doc. BE Tests"
         // [WHEN] Choose Ship-To Address with country BE, but do not confirm changes
         asserterror SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
         // [THEN] Sales order does not have "Enterprise No."
-        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."Enterprise No.");
+        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."Enterprise No.", Customer."VAT Registration No.");
         // [THEN] Sales order does not have "Alt. Enterprise No."
         VerifySalesDocAltVATReg(SalesHeader, false);
         LibraryLowerPermissions.SetOutsideO365Scope();
@@ -152,7 +152,7 @@ codeunit 144007 "Alt. Cust. VAT Doc. BE Tests"
         // [WHEN] Clear Ship-To Address
         SalesHeader.Validate("Ship-to Code", '');
         // [THEN] Sales order does not have "Enterprise No."
-        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."Enterprise No.");
+        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."Enterprise No.", Customer."VAT Registration No.");
         // [THEN] Sales order does not have "Alt. Enterprise No."
         VerifySalesDocAltVATReg(SalesHeader, false);
         LibraryVariableStorage.AssertEmpty();
@@ -191,7 +191,7 @@ codeunit 144007 "Alt. Cust. VAT Doc. BE Tests"
         // [WHEN] Change Ship-To Address to the new one
         SalesHeader.Validate("Ship-to Code", SimpleShipToAddress.Code);
         // [THEN] Sales order does not have "Enterprise No."
-        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."Enterprise No.");
+        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."Enterprise No.", Customer."VAT Registration No.");
         // [THEN] Sales order does not have "Alt. Enterprise No."
         VerifySalesDocAltVATReg(SalesHeader, false);
         LibraryVariableStorage.AssertEmpty();
@@ -300,7 +300,7 @@ codeunit 144007 "Alt. Cust. VAT Doc. BE Tests"
         // [THEN] Set VAT Country code to DE
         SalesHeader.Validate("VAT Country/Region Code", NewVATCountryCode);
         // [THEN] Sales order does not have "Enterprise No."
-        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."Enterprise No.");
+        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."Enterprise No.", Customer."VAT Registration No.");
         // [THEN] Sales order does not have "Alt. Enterprise No."
         VerifySalesDocAltVATReg(SalesHeader, false);
         // [THEN] Notification thrown with the message "The VAT Country Code is different from the country code of the customer. In case if you need an alternative customer VAT registration for, click Add."
@@ -380,7 +380,7 @@ codeunit 144007 "Alt. Cust. VAT Doc. BE Tests"
         // [WHEN] Clear Ship-To Address
         SalesHeader.Validate("Ship-to Code", '');
         // [THEN] Sales order does not have "Enteprise No."
-        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."Enterprise No.");
+        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."Enterprise No.", Customer."VAT Registration No.");
         // [THEN] Sales order does not have "Alt. Enterprise No."
         VerifySalesDocAltVATReg(SalesHeader, false);
         LibraryVariableStorage.AssertEmpty();
@@ -465,7 +465,7 @@ codeunit 144007 "Alt. Cust. VAT Doc. BE Tests"
         // [WHEN] Set "Bill-to Customer No." to "B"
         SalesHeader.Validate("Bill-to Customer No.", BillToCustomer."No.");
         // [THEN] Sales order does not have "Enterprise No."
-        VerifyVATRegDataInSalesHeader(SalesHeader, BillToCustomer."Enterprise No.");
+        VerifyVATRegDataInSalesHeader(SalesHeader, BillToCustomer."Enterprise No.", BillToCustomer."VAT Registration No.");
         // [THEN] Sales order does not have "Alt. Enterprise No."
         VerifySalesDocAltVATReg(SalesHeader, false);
         LibraryVariableStorage.AssertEmpty();
@@ -512,7 +512,7 @@ codeunit 144007 "Alt. Cust. VAT Doc. BE Tests"
         // [WHEN] Change "Bill-to Customer No." back to "A"
         SalesHeader.Validate("Bill-to Customer No.", Customer."No.");
         // [THEN] Sales order does not have "Enterprise No."
-        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."Enterprise No.");
+        VerifyVATRegDataInSalesHeader(SalesHeader, Customer."Enterprise No.", Customer."VAT Registration No.");
         // [THEN] Sales order does not have "Alt. Enterprise No."
         VerifySalesDocAltVATReg(SalesHeader, false);
         LibraryVariableStorage.AssertEmpty();
@@ -562,6 +562,37 @@ codeunit 144007 "Alt. Cust. VAT Doc. BE Tests"
         LibraryLowerPermissions.SetOutsideO365Scope();
     end;
 
+    [Test]
+    [HandlerFunctions('NoNotificationOtherThanShipToAddressSendNotificationHandler')]
+    procedure ClearEntepriseNoWhenGettingVATRegNoFromAltCustVATRegConnectedToShipToAddress()
+    var
+        ShipToAddress: Record "Ship-to Address";
+        AltCustVATReg: Record "Alt. Cust. VAT Reg.";
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+    begin
+        // [SCENARIO 565627] "Enterprise No." is cleared when VAT Registration Number is copied to the sales header from the Alternative Customer VAT Registration setup connected to the ship-to address
+
+        Initialize();
+        // [GIVEN] Customer with country BE and "Enterprise No." = 0996000057
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsCreate();
+        // [GIVEN] Ship-To Address with country FR
+        CreateShipToAddressWithForeignCountryCode(ShipToAddress, Customer."No.");
+        // [GIVEN] Alternative Customer VAT Reg. with country FR, "VAT Registration No." = FR12345678
+        CreateAlternativeCustVATRegWithVATRegNo(AltCustVATReg, Customer."No.", ShipToAddress."Country/Region Code");
+        // [GIVEN] Sales order with the customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        // [WHEN] Choose Ship-To Address with country FR
+        SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        // [THEN] Sales order has "VAT Registration No." = FR12345678 and blank "Enterprise No."
+        VerifyVATRegDataInSalesHeader(SalesHeader, '', AltCustVATReg."VAT Registration No.");
+        // [THEN] Sales order does not have "Alt. Enterprise No."
+        VerifySalesDocAltVATReg(SalesHeader, false);
+        LibraryLowerPermissions.SetOutsideO365Scope();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -601,10 +632,25 @@ codeunit 144007 "Alt. Cust. VAT Doc. BE Tests"
         AltCustVATReg.Insert(true);
     end;
 
+    procedure CreateAlternativeCustVATRegWithVATRegNo(var AltCustVATReg: Record "Alt. Cust. VAT Reg."; CustNo: Code[20]; CountryCode: Code[10]);
+    begin
+        AltCustVATReg.Validate("Customer No.", CustNo);
+        AltCustVATReg.Validate("VAT Country/Region Code", CountryCode);
+        AltCustVATReg."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CountryCode);
+        AltCustVATReg.Insert(true);
+    end;
+
     procedure CreateShipToAddressWithDomesticCountryCode(var ShipToAddress: Record "Ship-to Address"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateShipToAddress(ShipToAddress, CustomerNo);
         ShipToAddress.Validate("Country/Region Code", GetDomesticCountryCode());
+        ShipToAddress.Modify(true);
+    end;
+
+    procedure CreateShipToAddressWithForeignCountryCode(var ShipToAddress: Record "Ship-to Address"; CustomerNo: Code[20])
+    begin
+        LibrarySales.CreateShipToAddress(ShipToAddress, CustomerNo);
+        ShipToAddress.Validate("Country/Region Code", LibraryERM.CreateCountryRegion());
         ShipToAddress.Modify(true);
     end;
 
@@ -635,7 +681,13 @@ codeunit 144007 "Alt. Cust. VAT Doc. BE Tests"
 
     local procedure VerifyVATRegDataInSalesHeader(SalesHeader: Record "Sales Header"; EnterpriseNo: Text[50])
     begin
+        VerifyVATRegDataInSalesHeader(SalesHeader, EnterpriseNo, '');  // 565627: "VAT Registration No." is cleared when "Enterprise No." is set
+    end;
+
+    local procedure VerifyVATRegDataInSalesHeader(SalesHeader: Record "Sales Header"; EnterpriseNo: Text[50]; VATRegNo: Text[20])
+    begin
         SalesHeader.TestField("Enterprise No.", EnterpriseNo);
+        SalesHeader.TestField("VAT Registration No.", VATRegNo);
     end;
 
     procedure VerifySalesDocAltVATReg(SalesHeader: Record "Sales Header"; DiffEnterpriseNo: Boolean)

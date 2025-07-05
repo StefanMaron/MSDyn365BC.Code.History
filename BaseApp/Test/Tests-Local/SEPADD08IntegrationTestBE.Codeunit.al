@@ -18,6 +18,7 @@ codeunit 144011 "SEPADD08 IntegrationTest - BE"
         LibraryRandom: Codeunit "Library - Random";
         LibraryXMLRead: Codeunit "Library - XML Read";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        DomiciliationJnlManagement: Codeunit DomiciliationJnlManagement;
         ServerFileName: Text;
         MandateIDErr: Label 'Direct Debit Mandate ID is not transferred to Domiciliation Journal Line.';
         AppliestoErr: Label 'Applies to Entry shoud not be blank.';
@@ -533,6 +534,82 @@ codeunit 144011 "SEPADD08 IntegrationTest - BE"
           '/Document/CstmrDrctDbtInitn/PmtInf/DrctDbtTxInf/RmtInf/Ustrd', ExpectedValue);
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestDomiciliationsRequestPageHandler,DomiciliationJournalTemplateHandler')]
+    [Scope('OnPrem')]
+    procedure ReferenceNoIssueForLengthGreaterThan12WhileSuggestLinesOnDomiciliationJournal()
+    var
+        DomiciliationJournalLine: Record "Domiciliation Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SuggestDomiciliations: Report "Suggest domicilations";
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 571303] Issue when suggesting domiciliation in the domiciliation journal results in the error message: "It is not possible to display in a field with a length of 12."
+
+        // [GIVEN] Create Customer and Post invoice from Gen. Journal
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        CreateAndPostGeneralJournalLineWithBalancingAccount(
+            'FSE' + Format(LibraryRandom.RandIntInRange(2, 2)) + '-' +
+            Format(LibraryRandom.RandIntInRange(40, 40)) + '-' + Format(LibraryRandom.RandIntInRange(60009999, 60009999)),
+            "Gen. Journal Document Type"::Invoice, "Gen. Journal Account Type"::Customer,
+            CustomerNo, LibraryRandom.RandDecInDecimalRange(100, 100, 2));
+
+        // [GIVEN] Enqueue values for suggest domiciliation journal.
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindFirst();
+        LibraryVariableStorage.Enqueue(CustLedgerEntry."Due Date" + 10);
+        LibraryVariableStorage.Enqueue(CustLedgerEntry."Posting Date" + 30);
+        LibraryVariableStorage.Enqueue(CustLedgerEntry."Customer No.");
+
+        // [WHEN] Run suggest lines on Domiciliations journal
+        CreateFilteredSimpleDomicilation(DomiciliationJournalLine);
+        SuggestDomiciliations.SetJournal(DomiciliationJournalLine);
+        Commit();
+        SuggestDomiciliations.Run();
+
+        // [THEN] Domiciliation line created with reference length greater than 12
+        DomiciliationJournalLine.SetRange("Journal Template Name", DomiciliationJournalLine."Journal Template Name");
+        DomiciliationJournalLine.SetRange("Journal Batch Name", DomiciliationJournalLine."Journal Batch Name");
+        DomiciliationJournalLine.FindFirst();
+        Assert.IsTrue(DomiciliationJournalLine.Reference <> '', NoRecordsErr);
+        Assert.IsTrue(StrLen(DomiciliationJournalLine.Reference) > 12, NoRecordsErr);
+    end;
+
+    local procedure CreateAndPostGeneralJournalLineWithBalancingAccount(
+        DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type";
+        AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Posting Date", (Today - 20));
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.validate("External Document No.", DocumentNo);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateFilteredSimpleDomicilation(var DomiciliationJournalLine: Record "Domiciliation Journal Line")
+    var
+        DomiciliationJournalTemplate: Record "Domiciliation Journal Template";
+        JnlSelected: Boolean;
+        CurrentJnlBatchName: Code[10];
+    begin
+        DomiciliationJnlManagement.TemplateSelection(DomiciliationJournalLine, JnlSelected);
+        DomiciliationJnlManagement.OpenJournal(CurrentJnlBatchName, DomiciliationJournalLine);
+
+        DomiciliationJournalTemplate.FindFirst();
+        DomiciliationJournalLine."Journal Template Name" := DomiciliationJournalTemplate.Name;
+        DomiciliationJournalLine."Journal Batch Name" := CurrentJnlBatchName;
+    end;
+
     local procedure CreateBankExportImportSetup(var BankExportImportSetup: Record "Bank Export/Import Setup"; ProcessingCodeunitId: Integer; ProcessingXmlPortId: Integer; CheckExportCodeunitID: Integer)
     begin
         BankExportImportSetup.Init();
@@ -734,6 +811,14 @@ codeunit 144011 "SEPADD08 IntegrationTest - BE"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure DomiciliationJournalTemplateHandler(var DomicilJournalTemplates: TestPage "Domicil. Journal Templates")
+    begin
+        DomicilJournalTemplates.First();
+        DomicilJournalTemplates.OK().Invoke();
     end;
 }
 

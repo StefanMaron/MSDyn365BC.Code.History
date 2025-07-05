@@ -134,7 +134,9 @@ table 2000022 "Domiciliation Journal Line"
         {
             Caption = 'Message 2';
         }
-        field(10; Reference; Text[12])
+#pragma warning disable AS0086
+        field(10; Reference; Text[16])
+#pragma warning restore AS0086
         {
             Caption = 'Reference';
         }
