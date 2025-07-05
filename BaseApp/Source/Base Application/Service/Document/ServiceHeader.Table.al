@@ -313,9 +313,9 @@ table 5900 "Service Header"
 
                 if not SkipBillToContact then
                     UpdateBillToCont("Bill-to Customer No.");
-		    
+
                 if Rec."Customer No." <> Rec."Bill-to Customer No." then
-                    UpdateShipToSalespersonCode();		    
+                    UpdateShipToSalespersonCode();
 
                 if xRec."Bill-to Customer No." <> "Bill-to Customer No." then
                     CopyCFDIFieldsFromCustomer();
@@ -2675,6 +2675,12 @@ table 5900 "Service Header"
                     Rec."SAT Address ID" := SATAddress.Id;
             end;
         }
+        field(27012; "CFDI Certificate of Origin No."; Text[50])
+        {
+            Caption = 'CFDI Certificate of Origin No.';
+            DataClassification = CustomerContent;
+            Description = 'NumCertificadoOrigen';
+        }
     }
 
     keys
@@ -4103,7 +4109,7 @@ table 5900 "Service Header"
         SetResponsibilityCenter();
 
         "Doc. No. Occurrence" := ServiceDocumentArchiveMgmt.GetNextOccurrenceNo(DATABASE::"Service Header", Rec."Document Type", Rec."No.");
-        
+
         OnAfterInitRecord(Rec);
     end;
 
