@@ -79,7 +79,10 @@ permissionset 1001 "LOCAL"
                   tabledata "No. Series Line Sales" = RIMD,
 #endif
                   tabledata "Payment Lines" = RIMD,
+#if not CLEAN27
                   tabledata "Periodic Settlement VAT Entry" = RIMD,
+#endif
+                  tabledata "Periodic VAT Settlement Entry" = RIMD,
                   tabledata "Posted Payment Lines" = RIMD,
                   tabledata "Posted Vendor Bill Header" = RIMD,
                   tabledata "Posted Vendor Bill Line" = RIMD,

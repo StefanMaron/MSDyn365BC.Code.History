@@ -10,6 +10,9 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
 
     Subtype = Test;
     TestPermissions = Disabled;
+#if not CLEAN27
+    EventSubscriberInstance = Manual;
+#endif
 
     trigger OnRun()
     begin
@@ -296,6 +299,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         VATPostingSetup: Record "VAT Posting Setup";
         CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
         GLAccountCode: Code[20];
+        SavedLastSettlementDate: Date;
         PurchAmount: Decimal;
     begin
         // [FEATURE] [Report] [VAT Settlement]
@@ -303,7 +307,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         Initialize();
 
         // [GIVEN] Set VAT Plafond Period
-        InitLastSettlementDate(CalcDate('<1M-1D>', CalcDate('<-CY-1Y>', WorkDate())));
+        SavedLastSettlementDate := InitLastSettlementDate(CalcDate('<1M-1D>', CalcDate('<-CY-1Y>', WorkDate())));
         InitVATPlafondPeriod(CalcDate('<-CY-1Y>', WorkDate()), 0);
 
         // [GIVEN] Set VAT Posting Setup with 'Deductible %'=20 and 'VAT %'=10, created G/L Account
@@ -334,6 +338,9 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         // [THEN] In the report 'Next Period Input VAT'=2 and 'Next Period Output VAT'=0
         VerifyCalcAndPostVATSettlementReportCreditDebitExistence(
           0, CalcDeductVATAmount(PurchAmount, VATPostingSetup."Deductible %", VATPostingSetup."VAT %"));
+
+        // Clean-up
+        SetLastSettlementDate(SavedLastSettlementDate);
     end;
 
     [Test]
@@ -343,7 +350,11 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     var
         VATPostingSetup: Record "VAT Posting Setup";
         Vendor: Record Vendor;
+#if not CLEAN27
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+#else
+        PeriodicSettlementVATEntry: Record "Periodic VAT Settlement Entry";
+#endif
         PurchAmount: Decimal;
         AdvancedAmount: Decimal;
         PostingDate: Date;
@@ -397,11 +408,16 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     var
         Vendor: Record Vendor;
         VATPostingSetup: Record "VAT Posting Setup";
+#if not CLEAN27
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+#else
+        PeriodicSettlementVATEntry: Record "Periodic VAT Settlement Entry";
+#endif
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATEntry: Record "VAT Entry";
         PurchAmount: Decimal;
         ExpectedVATAmount: Decimal;
+        SavedLastSettlementDate: Date;
         VATPeriod: Code[10];
     begin
         // [SCENARIO 477305] Verify VAT settlement when you "calculate and Post a VAT Settlement" for a month with a zero VAT amount 
@@ -409,7 +425,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         Initialize();
 
         // [GIVEN] Update the Last Settlement Date in General Ledger Setup.
-        InitLastSettlementDate(CalcDate('<1M-1D>', CalcDate('<-CY-1Y>', WorkDate())));
+        SavedLastSettlementDate := InitLastSettlementDate(CalcDate('<1M-1D>', CalcDate('<-CY-1Y>', WorkDate())));
 
         // [GIVEN] Delete the Periodic Settlement VAT Entry.
         PeriodicSettlementVATEntry.DeleteAll();
@@ -459,6 +475,194 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
                 PeriodicSettlementVATEntry.FieldCaption("VAT Settlement"),
                 ExpectedVATAmount,
                 PeriodicSettlementVATEntry.TableCaption()));
+
+        // Clean-up
+        SetLastSettlementDate(SavedLastSettlementDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MultipleActivityCodes_OutputCreditDebitAmountPurchSalesInv()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
+        VATAmount, ExpectedSettlementAmount : array[3] of Decimal;
+        ActivityCode: array[3] of Code[10];
+        PostingDate: Date;
+        GLAccountCode: Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 467985] Calc. and Post VAT Settlement with multiple activity codes produces separate entries for each activity code
+        Initialize();
+
+#if not CLEAN27
+        BindSubscription(this);
+#endif
+        // [GIVEN] Posting Date after the last settlement date.
+        PostingDate := GetPostingDate();
+
+        // [GIVEN] VAT Posting Setup exists
+        CreateNonDeductibleVATPostingSetup(VATPostingSetup);
+        GLAccountCode := CreateGLAccountForSettlement();
+
+        // [GIVEN] Clear previous Periodic VAT Settlement Entries and Activity Codes and close VAT Entries to avoid instability
+        ClearEverything();
+
+        // [GIVEN] Use Activity Code is Enabled in General Ledger Setup.
+        SetUseActivityCode(true);
+
+        // [GIVEN] VAT Settlement Entry per Activity Code is Enabled in VAT Setup.
+        SetVATSettlementEntryPerActivityCode(true);
+
+        // [GIVEN] Create Activity Codes
+        for i := 1 to 3 do
+            ActivityCode[i] := CreateActivityCode();
+
+        // [GIVEN] Create and Post Sales Invoices with Activity Codes.
+        for i := 1 to 3 do begin
+            VATAmount[i] -= CreateAndPostSalesInvoice(VATPostingSetup, PostingDate, ActivityCode[i], LibraryRandom.RandDecInRange(1000, 10000, 2));
+
+            ExpectedSettlementAmount[i] := VATAmount[i];
+        end;
+
+        // [GIVEN] Initialized Calc. and Post VAT Settlement report
+        VATPostingSetup.SetRecFilter();
+        CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
+        CalcAndPostVATSettlement.InitializeRequest(PostingDate, CalculateEndDate(PostingDate), CalculateEndDate(PostingDate), LibraryUtility.GenerateGUID(), GLAccountCode, GLAccountCode, GLAccountCode, false, true);
+
+        // [WHEN] Run Calc. and Post VAT Settlement report
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+        CalcAndPostVATSettlement.SaveAsExcel(LibraryReportValidation.GetFileName());
+
+        // [THEN] Verify Periodic VAT Settlement Entries for each Activity Code.
+        for i := 1 to 3 do
+            VerifyPeriodicVATSettlementEntry(ActivityCode[i], PostingDate, ExpectedSettlementAmount[i], 0, 0);
+
+#if not CLEAN27
+        UnbindSubscription(this);
+#endif
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MultipleActivityCodes_PreviousPeriodEntryExists_SplitError()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
+        PostingDate: Date;
+        GLAccountCode: Code[20];
+        ActivityCode: array[3] of Code[10];
+        i: Integer;
+        ExpectedErr: Label 'Before using Per Activity Code Settlement Entry, you must split the previous entries amounts per activity code manually using "Split Periodic Entry" action on Periodic VAT Settlemnt List page.';
+    begin
+        // [SCENARIO 467985] Calc. and Post VAT Settlement with multiple activity codes doesn't work if previous period entry exists and no split was done
+        Initialize();
+
+#if not CLEAN27
+        BindSubscription(this);
+#endif
+
+        // [GIVEN] Use Activity Code is Enabled in General Ledger Setup.
+        SetUseActivityCode(true);
+
+        // [GIVEN] VAT Settlement Entry per Activity Code is Enabled in VAT Setup.
+        SetVATSettlementEntryPerActivityCode(true);
+
+        // [GIVEN] Posting Date after the last settlement date.
+        PostingDate := GetPostingDate();
+
+        // [GIVEN] Create Activity Codes
+        for i := 1 to 3 do
+            ActivityCode[i] := CreateActivityCode();
+
+        // [GIVEN] VAT Posting Setup exists
+        CreateNonDeductibleVATPostingSetup(VATPostingSetup);
+        GLAccountCode := CreateGLAccountForSettlement();
+
+        // [GIVEN] Periodic VAT Settlement Entry exists for current period with amounts saved from previous period
+        MockPeriodicVATSettlementEntry(PostingDate, '', LibraryRandom.RandDecInRange(1000, 10000, 2), 0);
+
+        // [GIVEN] Initialized Calc. and Post VAT Settlement report
+        VATPostingSetup.SetRecFilter();
+        CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
+        CalcAndPostVATSettlement.InitializeRequest(PostingDate, CalculateEndDate(PostingDate), CalculateEndDate(PostingDate), LibraryUtility.GenerateGUID(), GLAccountCode, GLAccountCode, GLAccountCode, false, true);
+
+        // [WHEN] Run Calc. and Post VAT Settlement report
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+        asserterror CalcAndPostVATSettlement.SaveAsExcel(LibraryReportValidation.GetFileName());
+
+        // [THEN] Verify the report fails with an error message
+        Assert.ExpectedError(ExpectedErr);
+
+#if not CLEAN27
+        UnbindSubscription(this);
+#endif
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MultipleActivityCodes_PreviousPeriodEntryExists_SplitSuccess()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
+        PostingDate: Date;
+        GLAccountCode: Code[20];
+        ActivityCode: array[3] of Code[10];
+        Amount: Decimal;
+        SplitAmount: array[3] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 467985] Calc. and Post VAT Settlement with multiple activity codes works if previous period entry exists and split was done
+        Initialize();
+
+#if not CLEAN27
+        BindSubscription(this);
+#endif
+
+        // [GIVEN] Use Activity Code is Enabled in General Ledger Setup.
+        SetUseActivityCode(true);
+
+        // [GIVEN] VAT Settlement Entry per Activity Code is Enabled in VAT Setup.
+        SetVATSettlementEntryPerActivityCode(true);
+
+        // [GIVEN] Posting Date after the last settlement date.
+        PostingDate := GetPostingDate();
+
+        // [GIVEN] Create Activity Codes
+        for i := 1 to 3 do
+            ActivityCode[i] := CreateActivityCode();
+
+        // [GIVEN] Calculate the Amount to be split
+        for i := 1 to 3 do begin
+            SplitAmount[i] := LibraryRandom.RandDecInRange(1000, 10000, 2);
+            Amount += SplitAmount[i];
+        end;
+
+        // [GIVEN] VAT Posting Setup exists
+        CreateNonDeductibleVATPostingSetup(VATPostingSetup);
+        GLAccountCode := CreateGLAccountForSettlement();
+
+        // [GIVEN] Periodic VAT Settlement Entry exists for current period with amounts saved from previous period
+        MockPeriodicVATSettlementEntry(PostingDate, '', Amount, 0);
+
+        // [GIVEN] Proper split for VAT Settlement Entry and each Activity Code exists
+        for i := 1 to 3 do
+            MockPeriodicVATSettlementEntry(PostingDate, ActivityCode[i], SplitAmount[i], 0);
+
+        // [GIVEN] Initialized Calc. and Post VAT Settlement report
+        VATPostingSetup.SetRecFilter();
+        CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
+        CalcAndPostVATSettlement.InitializeRequest(PostingDate, CalculateEndDate(PostingDate), CalculateEndDate(PostingDate), LibraryUtility.GenerateGUID(), GLAccountCode, GLAccountCode, GLAccountCode, false, true);
+
+        // [WHEN] Run Calc. and Post VAT Settlement report
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+        CalcAndPostVATSettlement.SaveAsExcel(LibraryReportValidation.GetFileName());
+
+        // [THEN] Report has run successfully
+
+#if not CLEAN27
+        UnbindSubscription(this);
+#endif
     end;
 
     local procedure Initialize()
@@ -466,11 +670,12 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         LibraryVariableStorage.Clear();
     end;
 
-    local procedure InitLastSettlementDate(InitialDate: Date)
+    local procedure InitLastSettlementDate(InitialDate: Date) SavedLastSettlementDate: Date
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
+        SavedLastSettlementDate := GeneralLedgerSetup."Last Settlement Date";
         GeneralLedgerSetup."Last Settlement Date" := CalcDate('<1M>', InitialDate);
         GeneralLedgerSetup.Modify();
     end;
@@ -482,6 +687,15 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Use Activity Code", NewValue);
         GeneralLedgerSetup.Modify();
+    end;
+
+    local procedure SetVATSettlementEntryPerActivityCode(NewValue: Boolean)
+    var
+        VATSetup: Record "VAT Setup";
+    begin
+        VATSetup.Get();
+        VATSetup.Validate("Per Activity Code Settl. Entry", NewValue);
+        VATSetup.Modify();
     end;
 
     local procedure InitVATPlafondPeriod(InitialDate: Date; CalculatedAmount: Decimal)
@@ -496,6 +710,19 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         VATPlafondPeriod.Insert();
     end;
 
+    local procedure ClearEverything()
+    var
+        ActivityCode: Record "Activity Code";
+        AccountingPeriod: Record "Accounting Period";
+        PeriodicVATSettlementEntry: Record "Periodic VAT Settlement Entry";
+        VATEntry: Record "VAT Entry";
+    begin
+        ActivityCode.DeleteAll();
+        AccountingPeriod.DeleteAll();
+        PeriodicVATSettlementEntry.DeleteAll();
+        VATEntry.ModifyAll(Closed, true);
+    end;
+
     local procedure CreateGLAccountWithPostingGroups(VATPostingSetup: Record "VAT Posting Setup"): Code[20]
     var
         GLAccount: Record "G/L Account";
@@ -507,6 +734,17 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         GLAccount.Validate("Gen. Prod. Posting Group", GenProdPostingGroup.Code);
         GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
+    end;
+
+    local procedure CreateGLAccountForSettlement(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::" ");
+        GLAccount.Validate("Direct Posting", true);
         GLAccount.Modify(true);
         exit(GLAccount."No.");
     end;
@@ -550,7 +788,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         NoSeriesLine.ModifyAll("Last Date Used", 0D);
     end;
 
-    local procedure CreateAndPostPurchInvoice(VendorNo: Code[20]; PostingDate: Date; GLAccountNo: Code[20]; UnitCost: Decimal; ActivityCode: Code[6])
+    local procedure CreateAndPostPurchInvoice(VendorNo: Code[20]; PostingDate: Date; GLAccountNo: Code[20]; UnitCost: Decimal; ActivityCode: Code[6]) VATAmount: Decimal
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -568,9 +806,35 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         PurchaseHeader.Validate("Check Total", PurchaseLine."Amount Including VAT");
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        VATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine.Amount;
     end;
 
-    local procedure CreateAndPostSalesInvoice(Customer: Record Customer; PostingDate: Date; UnitPrice: Decimal; GLAccountNo: Code[20]; ActivityCode: Code[6]): Decimal
+    local procedure CalculateEndDate(StartDate: Date) EndingDate: Date
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DateRecord: Record Date;
+    begin
+        case GeneralLedgerSetup."VAT Settlement Period" of
+            GeneralLedgerSetup."VAT Settlement Period"::Month:
+                DateRecord."Period Type" := DateRecord."Period Type"::Month;
+            GeneralLedgerSetup."VAT Settlement Period"::Quarter:
+                DateRecord."Period Type" := DateRecord."Period Type"::Quarter;
+        end;
+
+        if DateRecord.Get(DateRecord."Period Type", StartDate) then
+            EndingDate := DateRecord."Period End";
+    end;
+
+    local procedure CreateAndPostSalesInvoice(VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date; ActivityCode: Code[6]; Amount: Decimal) VATAmount: Decimal
+    var
+        Customer: Record Customer;
+        DummyGLAccount: Record "G/L Account";
+    begin
+        Customer.Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        VATAmount := CreateAndPostSalesInvoice(Customer, PostingDate, Amount, LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Sale), ActivityCode);
+    end;
+
+    local procedure CreateAndPostSalesInvoice(Customer: Record Customer; PostingDate: Date; UnitPrice: Decimal; GLAccountNo: Code[20]; ActivityCode: Code[6]) VATAmount: Decimal
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -590,7 +854,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        exit(SalesLine."Amount Including VAT" - SalesLine.Amount);
+        VATAmount := SalesLine."Amount Including VAT" - SalesLine.Amount;
     end;
 
     local procedure FindAndUpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -629,6 +893,32 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         LibraryReportDataset.AssertCurrentRowValueEquals('CreditNextPeriod', CreditNextPeriodAmount);
     end;
 
+    local procedure VerifyPeriodicVATSettlementEntry(ActivityCode: Code[6]; PostingDate: Date; ExpectedVATSettlement: Decimal; ExpectedPriorPeriodInputVAT: Decimal; ExpectedPriorPeriodOutputVAT: Decimal)
+    var
+        PeriodicVATSettlementEntry: Record "Periodic VAT Settlement Entry";
+        VATPeriod: Code[10];
+    begin
+        VATPeriod := Format(Date2DMY(PostingDate, 3)) + '/' + ConvertStr(Format(Date2DMY(PostingDate, 2), 2), ' ', '0');
+        PeriodicVATSettlementEntry.Get(VATPeriod, ActivityCode);
+        PeriodicVATSettlementEntry.TestField("VAT Settlement", ExpectedVATSettlement);
+        PeriodicVATSettlementEntry.TestField("Prior Period Input VAT", ExpectedPriorPeriodInputVAT);
+        PeriodicVATSettlementEntry.TestField("Prior Period Output VAT", ExpectedPriorPeriodOutputVAT);
+    end;
+
+    local procedure MockPeriodicVATSettlementEntry(PeriodDate: Date; ActivityCode: Code[6]; InputAmount: Decimal; OutputAmount: Decimal)
+    var
+        PeriodicVATSettlementEntry: Record "Periodic VAT Settlement Entry";
+        VATPeriod: Code[10];
+    begin
+        PeriodicVATSettlementEntry.Init();
+        VATPeriod := Format(Date2DMY(PeriodDate, 3)) + '/' + ConvertStr(Format(Date2DMY(PeriodDate, 2), 2), ' ', '0');
+        PeriodicVATSettlementEntry.Validate("Activity Code", ActivityCode);
+        PeriodicVATSettlementEntry.Validate("VAT Period", VATPeriod);
+        PeriodicVATSettlementEntry.Validate("Prior Period Input VAT", InputAmount);
+        PeriodicVATSettlementEntry.Validate("Prior Period Output VAT", OutputAmount);
+        PeriodicVATSettlementEntry.Insert(true);
+    end;
+
     local procedure CreateActivityCode(): Code[10]
     var
         ActivityCode: Record "Activity Code";
@@ -644,21 +934,28 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         exit(ActivityCode.Code);
     end;
 
-    local procedure GetPostingDate(): Date
+    local procedure GetPostingDate() PostingDate: Date
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        exit(CalcDate('<+1D>', GeneralLedgerSetup."Last Settlement Date"))
+        PostingDate := CalcDate('<+1D>', GeneralLedgerSetup."Last Settlement Date");
+        if PostingDate = 0D then
+            PostingDate := WorkDate();
     end;
 
     local procedure RunAndVerifyCalcAndPostVATSettlement(PostingDate: Date; CreditNextPeriodAmount: Decimal; DebitNextPeriodAmount: Decimal; VATPostingSetup: Record "VAT Posting Setup")
     begin
+        RunCalcAndPostVATSettlement(PostingDate, VATPostingSetup);
+
+        VerifyCalcAndPostVATStatementDebitCredit(CreditNextPeriodAmount, DebitNextPeriodAmount);
+    end;
+
+    local procedure RunCalcAndPostVATSettlement(PostingDate: Date; VATPostingSetup: Record "VAT Posting Setup")
+    begin
         LibraryVariableStorage.Enqueue(PostingDate);
         VATPostingSetup.SetRecFilter();
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement", true, false, VATPostingSetup);
-
-        VerifyCalcAndPostVATStatementDebitCredit(CreditNextPeriodAmount, DebitNextPeriodAmount);
     end;
 
     local procedure CalcDeductVATAmount(Amount: Decimal; DeductPct: Decimal; VATPct: Decimal): Decimal
@@ -691,19 +988,29 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
 
     local procedure SetupVATPeriod(PostingDate: Date; var VATPeriod: Code[10])
     var
+#if not CLEAN27
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+#else
+        PeriodicSettlementVATEntry: Record "Periodic VAT Settlement Entry";
+#endif
     begin
-        VatPeriod :=
-            Format(Date2DMY(CalcDate('<1M>', PostingDate), 3)) + '/' +
-            ConvertStr(Format(Date2DMY(CalcDate('<1M>', PostingDate), 2), 2), ' ', '0');
-        PeriodicSettlementVATEntry.Get(VatPeriod);
-        PeriodicSettlementVATEntry.Delete();
-        VatPeriod :=
-            Format(Date2DMY(PostingDate, 3)) + '/' +
-            ConvertStr(Format(Date2DMY(PostingDate, 2), 2), ' ', '0');
-        PeriodicSettlementVATEntry.Get(VatPeriod);
-        PeriodicSettlementVATEntry.Validate("VAT Period Closed", false);
-        PeriodicSettlementVATEntry.Modify(TRUE);
+        VatPeriod := Format(Date2DMY(CalcDate('<1M>', PostingDate), 3)) + '/' + ConvertStr(Format(Date2DMY(CalcDate('<1M>', PostingDate), 2), 2), ' ', '0');
+        if PeriodicSettlementVATEntry.Get(VatPeriod) then
+            PeriodicSettlementVATEntry.Delete();
+        VatPeriod := Format(Date2DMY(PostingDate, 3)) + '/' + ConvertStr(Format(Date2DMY(PostingDate, 2), 2), ' ', '0');
+        if PeriodicSettlementVATEntry.Get(VatPeriod) then begin
+            PeriodicSettlementVATEntry.Validate("VAT Period Closed", false);
+            PeriodicSettlementVATEntry.Modify(true);
+        end;
+    end;
+
+    local procedure SetLastSettlementDate(LastSettlementDate: Date)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Last Settlement Date", LastSettlementDate);
+        GeneralLedgerSetup.Modify();
     end;
 
     [RequestPageHandler]
@@ -720,5 +1027,13 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     begin
         Reply := true;
     end;
+
+#if not CLEAN27
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management IT", OnAfterCheckVATSettlementPerActivityCodeFeatureEnabled, '', false, false)]
+    local procedure OnAfterCheckVATSettlementPerActivityCodeFeatureEnabled(var IsEnabled: Boolean)
+    begin
+        IsEnabled := true;
+    end;
+#endif
 }
 

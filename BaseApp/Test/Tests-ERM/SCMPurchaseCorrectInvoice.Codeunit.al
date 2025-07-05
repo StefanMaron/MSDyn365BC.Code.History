@@ -26,12 +26,14 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         LibraryRandom: Codeunit "Library - Random";
         ItemTrackingMode: Option "Assign Lot No.","Select Entries";
         IsInitialized: Boolean;
+        WasConfirmShown: Boolean;
         CancelledDocExistsErr: Label 'Cancelled document exists.';
         CannotAssignNumbersAutoErr: Label 'It is not possible to assign numbers automatically. If you want the program to assign numbers automatically, please activate Default Nos.';
         CorrectPostedInvoiceFromSingleOrderQst: Label 'The invoice was posted from an order. The invoice will be cancelled, and the order will open so that you can make the correction.\ \Do you want to continue?';
         TransactionTypeErr: Label 'Transaction Type are not equal';
         TransportMethodErr: Label 'Transport Method are not equal';
         CommentCountErr: Label 'Wrong Purchase Line Count';
+        ConfirmDialogErr: Label 'Expected confirm dialog was not shown';
 
     [Test]
     [Scope('OnPrem')]
@@ -1010,6 +1012,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure NoDuplicateCommentLineWhenUsingCorrectiveCreditMemoOnPostedPurchInv()
     var
         PurchaseHeaderOrder: Record "Purchase Header";
@@ -1061,6 +1064,46 @@ codeunit 137025 "SCM Purchase Correct Invoice"
 
         // [THEN] Two Comments Lines should be created in the Purchase Line.
         CheckCommentsOnCreditLine(PurchHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure CheckCorrectiveCreditMemoConfirmDialogOnPostedPurchaseInv()
+    var
+        Item: Record Item;
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        Vendor: Record Vendor;
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [SCENARIO 578461] Message when using "Create corrective Credit Memo" on a partial sales or purchase invoice related to an 
+        // existing Order needs to inform that the Order Quantities will be changed.
+        Initialize();
+
+        // [GIVEN] Create a Item with a Price
+        CreateItemWithCost(Item, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Create a Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Purchase Order
+        CreatePurchaseOrderForItem(Vendor, Item, 10, PurchaseHeaderOrder, PurchaseLine);
+        PurchaseLine.Validate("Qty. to Receive", 5);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post a Purchase Order
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
+
+        // [GIVEN] Get Posted Purchase Invoice. 
+        GetPostedInvoice(PurchInvHeader, PurchaseHeaderOrder);
+
+        // [WHEN] Correct the posted Purchase Invoice.
+        CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchHeader);
+
+        // [THEN] Assert that confirm was called.
+        Assert.IsTrue(WasConfirmShown, ConfirmDialogErr);
     end;
 
     local procedure Initialize()
@@ -1398,10 +1441,17 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         Assert.AreEqual(2, PurchLineCount, CommentCountErr);
     end;
 
+    local procedure GetPostedInvoice(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeaderOrder: Record "Purchase Header")
+    begin
+        PurchInvHeader.SetRange("Order No.", PurchaseHeaderOrder."No.");
+        PurchInvHeader.FindFirst();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
+        WasConfirmShown := true;
         Reply := true;
     end;
 

@@ -2,12 +2,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+#if not CLEAN27
 namespace Microsoft.Finance.VAT.Reporting;
 
 page 12123 "Periodic VAT Settlement Card"
 {
     Caption = 'Periodic VAT Settlement Card';
     DelayedInsert = true;
+    ObsoleteReason = 'Replaced by page 12110 "Periodic VAT Settl. Card".';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
     PageType = Card;
     SourceTable = "Periodic Settlement VAT Entry";
 
@@ -156,4 +160,4 @@ page 12123 "Periodic VAT Settlement Card"
         }
     }
 }
-
+#endif

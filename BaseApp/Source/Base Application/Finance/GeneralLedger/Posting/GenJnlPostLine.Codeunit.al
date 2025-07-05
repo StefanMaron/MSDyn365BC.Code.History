@@ -42,6 +42,9 @@ using System.Telemetry;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.WithholdingTax;
 using Microsoft.Bank.Payment;
+#if not CLEAN27
+using System.Environment.Configuration;
+#endif
 
 codeunit 12 "Gen. Jnl.-Post Line"
 {
@@ -1601,7 +1604,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
             Iterations := Iterations + 1;
             OnPostVendOnBeforeInitVendLedgEntry(GenJournalLine, VendLedgEntry, CVLedgEntryBuf, TempDtldCVLedgEntryBuf, VendPostingGr);
             InitVendLedgEntry(GenJournalLine, VendLedgEntry);
-            VendLedgEntry."Document Occurrence" := Iterations;
+            if (GenJournalLine."Applies-to Occurrence No." <> 0) and (GenJournalLine."Applies-to Doc. No." = '') then begin
+                VendLedgEntry."Document Occurrence" := GenJournalLine."Applies-to Occurrence No.";
+                GenJournalLine."Applies-to Occurrence No." := 0;
+            end else
+                VendLedgEntry."Document Occurrence" := Iterations;
             VendLedgEntry."Applies-to Occurrence No." := GenJournalLine."Applies-to Occurrence No.";
             VendLedgEntry."Due Date" := PaymentTermsLine."Due Date";
             VendLedgEntry."Pmt. Discount Date" := PaymentTermsLine."Pmt. Discount Date";
@@ -2344,6 +2351,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     local procedure UpdateGLEntrySourceCurrencyFields(var GLEntry: Record "G/L Entry"; var GenJnlLine: Record "Gen. Journal Line")
+    var
+        GLAccount: Record "G/L Account";
     begin
         if GenJnlLine."Source Currency Code" = '' then
             exit;
@@ -2367,6 +2376,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
         then
             exit;
 
+        if GLEntry."G/L Account No." <> '' then begin
+            GLAccount.Get(GLEntry."G/L Account No.");
+            GenJnlCheckLine.CheckGLAccountSourceCurrency(GLAccount, GenJnlLine."Source Currency Code");
+        end;
+
         GLEntry."Source Currency Code" := GenJnlLine."Source Currency Code";
         case GenJnlLine."VAT Calculation Type" of
             GenJnlLine."VAT Calculation Type"::"Sales Tax":
@@ -2389,31 +2403,32 @@ codeunit 12 "Gen. Jnl.-Post Line"
         SourceCurrency: Record Currency;
     begin
         if (LastSourceCurrencyNonDedTaxAmount <> 0) and (TempGLEntry."Debit Amount" <> 0) then begin // Non Deductible VAT case
-            TempGLEntry."Source Currency Amount" := LastSourceCurrencyTaxAmount - LastSourceCurrencyNonDedTaxAmount;
+            TempGLEntry."Source Currency Amount" := UpdateAmountSign(LastSourceCurrencyTaxAmount - LastSourceCurrencyNonDedTaxAmount, TempGLEntry.Amount > 0);
             TempGLEntry."Source Currency VAT Amount" := 0;
             LastSourceCurrencyNonDedTaxAmountCredit := -LastSourceCurrencyNonDedTaxAmount;
             LastSourceCurrencyTaxAmount := LastSourceCurrencyNonDedTaxAmount;
             LastSourceCurrencyNonDedTaxAmount := 0;
         end else
             if (LastSourceCurrencyNonDedTaxAmountCredit <> 0) and (TempGLEntry."Credit Amount" <> 0) then begin
-                TempGLEntry."Source Currency Amount" := LastSourceCurrencyTaxAmountCredit - LastSourceCurrencyNonDedTaxAmountCredit;
+                TempGLEntry."Source Currency Amount" := UpdateAmountSign(LastSourceCurrencyTaxAmountCredit - LastSourceCurrencyNonDedTaxAmountCredit, TempGLEntry.Amount > 0);
                 TempGLEntry."Source Currency VAT Amount" := 0;
                 LastSourceCurrencyTaxAmountCredit := LastSourceCurrencyNonDedTaxAmountCredit;
                 LastSourceCurrencyNonDedTaxAmountCredit := 0;
             end else
                 if (LastSourceCurrencyTaxAmount <> 0) and (TempGLEntry."Debit Amount" <> 0) then begin // VAT case
-                    TempGLEntry."Source Currency Amount" := LastSourceCurrencyTaxAmount;
+                    TempGLEntry."Source Currency Amount" := UpdateAmountSign(LastSourceCurrencyTaxAmount, TempGLEntry.Amount > 0);
                     TempGLEntry."Source Currency VAT Amount" := 0;
                     if ReverseCharge then
                         LastSourceCurrencyTaxAmountCredit := -LastSourceCurrencyTaxAmount;
                     LastSourceCurrencyTaxAmount := 0;
                 end else
                     if (LastSourceCurrencyTaxAmountCredit <> 0) and (TempGLEntry."Credit Amount" <> 0) then begin
-                        TempGLEntry."Source Currency Amount" := LastSourceCurrencyTaxAmountCredit;
+                        TempGLEntry."Source Currency Amount" := UpdateAmountSign(LastSourceCurrencyTaxAmountCredit, TempGLEntry.Amount > 0);
                         TempGLEntry."Source Currency VAT Amount" := 0;
                         LastSourceCurrencyTaxAmountCredit := 0;
                     end else begin
                         LastSourceCurrencyTaxAmount := TempGLEntry."Source Currency VAT Amount";
+                        LastSourceCurrencyTaxAmountCredit := -TempGLEntry."Source Currency VAT Amount";
                         if TempGLEntry."VAT Amount" <> 0 then begin
                             SourceCurrency.Get(TempGLEntry."Source Currency Code");
                             SourceCurrency.TestField("Amount Rounding Precision");
@@ -2422,6 +2437,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                     TempGLEntry."Source Currency VAT Amount" * TempGLEntry."Non-Deductible VAT Amount" / TempGLEntry."VAT Amount",
                                     SourceCurrency."Amount Rounding Precision", SourceCurrency.VATRoundingDirection());
                             LastSourceCurrencyNonDedTaxAmount := TempGLEntry."Src. Curr. Non-Ded. VAT Amount";
+                            LastSourceCurrencyNonDedTaxAmountCredit := -TempGLEntry."Src. Curr. Non-Ded. VAT Amount";
                         end;
                         if TempGLEntry."Source Currency Amount" = 0 then begin // Sales Tax case
                             TempGLEntry."Source Currency Amount" := TempGLEntry."Source Currency VAT Amount";
@@ -8019,14 +8035,35 @@ codeunit 12 "Gen. Jnl.-Post Line"
     [Scope('OnPrem')]
     procedure CheckIfVATPeriodClosed(PostingDate: Date)
     var
+#if not CLEAN27
         SettlementVATEntry: Record "Periodic Settlement VAT Entry";
+        VATSettlementEntry: Record "Periodic VAT Settlement Entry";
+        FeatureManagementIT: Codeunit "Feature Management IT";
+#else
+        VATSettlementEntry: Record "Periodic VAT Settlement Entry";
+#endif
         VATPeriod: Code[10];
     begin
         VATPeriod :=
           Format(Date2DMY(PostingDate, 3)) + '/' +
           ConvertStr(Format(Date2DMY(PostingDate, 2), 2), ' ', '0');
-        if SettlementVATEntry.Get(VATPeriod) then
-            SettlementVATEntry.TestField("VAT Period Closed", false);
+#if not CLEAN27
+        if FeatureManagementIT.IsVATSettlementPerActivityCodeFeatureEnabled() then begin
+            VATSettlementEntry.SetRange("VAT Period", VATPeriod);
+            if VATSettlementEntry.FindSet() then
+                repeat
+                    VATSettlementEntry.TestField("VAT Period Closed", false);
+                until VATSettlementEntry.Next() = 0;
+        end else
+            if SettlementVATEntry.Get(VATPeriod) then
+                SettlementVATEntry.TestField("VAT Period Closed", false);
+#else
+        VATSettlementEntry.SetRange("VAT Period", VATPeriod);
+        if VATSettlementEntry.FindSet() then
+            repeat
+                VATSettlementEntry.TestField("VAT Period Closed", false);
+            until VATSettlementEntry.Next() = 0;
+#endif
     end;
 
     [Scope('OnPrem')]

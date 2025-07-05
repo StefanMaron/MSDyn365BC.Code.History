@@ -573,9 +573,13 @@ codeunit 144077 "UT REP Extra VAT"
 
     local procedure FindPeriodicSettlementVATEntry(PeriodDate: Date): Decimal
     var
+#if not CLEAN27
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+#else
+        PeriodicSettlementVATEntry: Record "Periodic VAT Settlement Entry";
+#endif
     begin
-        // Periodic Settlement VAT Entry is created after running the Report - Calc. and Post VAT Settlement.
+        // Periodic VAT Settlement Entry is created after running the Report - Calc. and Post VAT Settlement.
         PeriodicSettlementVATEntry.SetRange(
           "VAT Period", Format(Date2DMY(PeriodDate, 3)) + '/' + ConvertStr(Format(Date2DMY(PeriodDate, 2), 2), ' ', '0'));  // Calculation is given in OnPostDataItem - VAT Posting Setup of Report - Calc. and Post VAT Settlement.
         PeriodicSettlementVATEntry.FindFirst();

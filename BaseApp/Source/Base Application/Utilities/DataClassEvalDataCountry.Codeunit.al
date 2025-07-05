@@ -77,7 +77,10 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Item Cost History");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Item Costing Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Before Start Item Cost");
+#if not CLEAN27
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Periodic Settlement VAT Entry");
+#endif
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Periodic VAT Settlement Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Purch. Withh. Contribution");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Identifier");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Book Entry");

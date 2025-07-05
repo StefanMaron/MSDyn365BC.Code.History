@@ -20,6 +20,8 @@ codeunit 60 "Sales-Calc. Discount"
         SalesLine.Copy(Rec);
 
         TempSalesHeader.Get(Rec."Document Type", Rec."Document No.");
+        if TempSalesHeader.Status = TempSalesHeader.Status::"Pending Approval" then
+            TempSalesHeader.TestField(Status, TempSalesHeader.Status::Open);
         UpdateHeader := true;
 
         IsHandled := false;
