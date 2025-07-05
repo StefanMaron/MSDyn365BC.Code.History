@@ -2020,13 +2020,13 @@ table 1003 "Job Planning Line"
         GetJob();
         if (Type = Type::Item) and Item.Get("No.") then
             if Item."Costing Method" = Item."Costing Method"::Standard then
-                if RetrieveCostPrice(CurrFieldNo) or (CurrFieldNo = FieldNo("Unit Price")) then begin
+                if RetrieveCostPrice(CurrFieldNo) then begin
                     if GetSKU() then
                         "Unit Cost (LCY)" := Round(SKU."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision)
                     else
                         "Unit Cost (LCY)" := Round(Item."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision);
-                    if not (CurrFieldNo = FieldNo("Unit Price")) then
-                        "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
+
+                    "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
                 end else
                     RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)")
             else
@@ -2242,9 +2242,12 @@ table 1003 "Job Planning Line"
 
         if (xRec."Currency Factor" <> "Currency Factor") and
            (Amount = xAmount) and (JobExchCalculation = JobExchCalculation::"Fixed LCY")
-        then
-            Amount := ConvertAmountToFCY(AmountLCY, UnitAmountRoundingPrecisionFCY)
-        else
+        then begin
+            Amount := ConvertAmountToFCY(AmountLCY, UnitAmountRoundingPrecisionFCY);
+            exit;
+        end;
+
+        if (Amount <> xAmount) then
             AmountLCY := ConvertAmountToLCY(Amount, UnitAmountRoundingPrecision);
     end;
 
