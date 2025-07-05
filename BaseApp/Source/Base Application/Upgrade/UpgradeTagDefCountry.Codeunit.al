@@ -33,5 +33,10 @@ codeunit 9997 "Upgrade Tag Def - Country"
     begin
         exit('MS-471519-NoSeriesITUpgradeTag-20230606')
     end;
+
+    internal procedure GetPeriodicVATSettlementEntryUpgradeTag(): Code[250]
+    begin
+        exit('MS-495201-PeriodicVATSettlementEntryUpgradeTag-20250423')
+    end;
 }
 

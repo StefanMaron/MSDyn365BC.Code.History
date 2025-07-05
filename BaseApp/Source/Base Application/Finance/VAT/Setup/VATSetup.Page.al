@@ -33,6 +33,11 @@ page 187 "VAT Setup"
                     Editable = false;
                     Visible = false;
                 }
+                field("Per Activity Code Settl. Entry"; Rec."Per Activity Code Settl. Entry")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if Calculate and Post VAT Settlement produces separate entries for each activity code.';
+                }
             }
             group(VATDate)
             {

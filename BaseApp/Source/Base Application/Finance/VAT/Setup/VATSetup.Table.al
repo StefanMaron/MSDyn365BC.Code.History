@@ -82,6 +82,10 @@ table 189 "VAT Setup"
                 UserSetupManagement.CheckAllowedVATDatesRange("Allow VAT Date From", "Allow VAT Date To", 0, Database::"General Ledger Setup");
             end;
         }
+        field(24; "Per Activity Code Settl. Entry"; Boolean)
+        {
+            Caption = 'Per Activity Code Settlement Entry';
+        }
     }
 
     keys
