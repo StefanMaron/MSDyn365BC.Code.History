@@ -603,6 +603,44 @@ codeunit 139683 "Statistical Account Test"
             StrSubstNo(BalanceMustBeEqualErr, ExpectedAmount));
     end;
 
+    [Test]
+    [HandlerFunctions('MessageDialogHandler,ConfirmationDialogHandler')]
+    procedure VerifyStatisticalAccountBalanceWithExcludeAndBalanceAtDate()
+    var
+        StatisticalAccount: Record "Statistical Account";
+        TempStatisticalAccountLedgerEntries: Record "Statistical Ledger Entry" temporary;
+        StatAccountBalance: TestPage "Stat. Account Balance";
+        StatisticalAccountCard: TestPage "Statistical Account Card";
+        StatisticalAccountsJournal: TestPage "Statistical Accounts Journal";
+        AmountType: Enum "Analysis Amount Type";
+        ClosingEntryFilter: Option Include,Exclude;
+    begin
+        // [SCENARIO 573611] Verify statistical account balance generates with exclude closing entries and view as Balance at date.
+        Initialize();
+
+        // [GIVEN] Create Statistical Account with transactions .
+        CreateStatisticalAccountWithDimensions(StatisticalAccount);
+        CreateTransactions(StatisticalAccount, 4, TempStatisticalAccountLedgerEntries);
+        CreateJournal(StatisticalAccountsJournal, TempStatisticalAccountLedgerEntries);
+
+        RegisterJournal(StatisticalAccountsJournal);
+        StatisticalAccountsJournal.Close();
+
+        // [GIVEN] Open Statistical Account Card
+        StatisticalAccountCard.OpenEdit();
+        StatisticalAccountCard.GoToRecord(StatisticalAccount);
+
+        // [GIVEN] Open Statistical Account Balance
+        StatAccountBalance.Trap();
+        StatisticalAccountCard.StatisticalAccountBalance.Invoke();
+
+        // [WHEN] Set Closing Entries as Exclude and View as Balance at Date
+        StatAccountBalance.ClosingEntryFilter.SetValue(ClosingEntryFilter::Exclude);
+        StatAccountBalance.AmountType.SetValue(AmountType::"Balance at Date");
+
+        // [THEN] No error message should appear.
+    end;
+
     local procedure SetupFinancialReport()
     var
         AccScheduleLine: Record "Acc. Schedule Line";

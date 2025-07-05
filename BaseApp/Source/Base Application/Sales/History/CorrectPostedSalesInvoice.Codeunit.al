@@ -120,6 +120,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         ShowEntriesLbl: Label 'Show applied entries';
         WMSLocationCancelCorrectErr: Label 'You cannot cancel or correct this posted sales invoice because Warehouse Receive is required for Line No. = %1.', Comment = '%1 - line number';
         DropShipmentDocumentExistsErr: Label 'You cannot use the cancel or correct functionality because the invoice line is associated with purchase order %1 via a Drop Shipment.', Comment = '%1 - Purchase Order No.';
+        CreateCreditMemoQst: Label 'The invoice was posted from an order. A Sales Credit memo will be created which you complete and post manually. The quantities will be corrected in the existing Sales Order.\ \Do you want to continue?';
 
     procedure CancelPostedInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
     begin
@@ -185,6 +186,8 @@ codeunit 1303 "Correct Posted Sales Invoice"
     end;
 
     procedure CreateCreditMemoCopyDocument(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"): Boolean
+    var
+        SalesHdr: Record "Sales Header";
     begin
         OnBeforeCreateCreditMemoCopyDocument(SalesInvoiceHeader);
         TestNoFixedAssetInSalesInvoice(SalesInvoiceHeader);
@@ -194,6 +197,12 @@ codeunit 1303 "Correct Posted Sales Invoice"
             ShowInvoiceAppliedNotification(SalesInvoiceHeader);
             exit(false);
         end;
+        SalesHdr.SetRange("Document Type", SalesHdr."Document Type"::Order);
+        SalesHdr.SetRange("No.", SalesInvoiceHeader."Order No.");
+        if not SalesHdr.IsEmpty then
+            if not Confirm(CreateCreditMemoQst) then
+                exit(false);
+
         CreateCopyDocument(SalesInvoiceHeader, SalesHeader, SalesHeader."Document Type"::"Credit Memo", false);
 
         if SalesInvoiceLinesContainJob(SalesInvoiceHeader."No.") then
@@ -968,11 +977,11 @@ codeunit 1303 "Correct Posted Sales Invoice"
                 Clear(SalesInvoiceLine);
                 SalesCrMemoLine.GetSalesInvoiceLine(SalesInvoiceLine);
                 if SalesInvoiceLine."Line No." <> 0 then
-                    UpdateSalesOrderLinesFromCreditMemo(SalesInvoiceLine);
+                    UpdateSalesOrderLinesFromCreditMemo(SalesInvoiceLine, SalesCrMemoLine);
             until SalesCrMemoLine.Next() = 0;
     end;
 
-    local procedure UpdateSalesOrderLinesFromCreditMemo(SalesInvoiceLine: Record "Sales Invoice Line")
+    local procedure UpdateSalesOrderLinesFromCreditMemo(SalesInvoiceLine: Record "Sales Invoice Line"; SalesCrMemoLine: Record "Sales Cr.Memo Line")
     var
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
         SalesLine: Record "Sales Line";
@@ -980,7 +989,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     begin
         if SalesLine.Get(SalesLine."Document Type"::Order, SalesInvoiceLine."Order No.", SalesInvoiceLine."Order Line No.") then begin
             SalesInvoiceLine.GetItemLedgEntries(TempItemLedgerEntry, false);
-            UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesInvoiceLine.Quantity, SalesInvoiceLine."Quantity (Base)");
+            UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesCrMemoLine.Quantity, SalesCrMemoLine."Quantity (Base)");
             UpdateSalesOrderLinePrepmtAmount(SalesInvoiceLine);
             if SalesLine."Qty. to Ship" = 0 then
                 UpdateWhseRequest(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Location Code");
