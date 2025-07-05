@@ -14,6 +14,7 @@ codeunit 139628 "E-Doc. Receive Test"
         PurchaseHeader, CreatedPurchaseHeader : Record "Purchase Header";
         PurchaseLine, CreatedPurchaseLine : Record "Purchase Line";
         Vendor: Record Vendor;
+        CountryRegion: Record "Country/Region";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         LibraryEDoc: Codeunit "Library - E-Document";
@@ -1176,6 +1177,7 @@ codeunit 139628 "E-Doc. Receive Test"
         Clear(PurchaseHeader);
         Clear(LibraryVariableStorage);
         PurchaseHeader.DeleteAll();
+        LibraryERM.FindCountryRegion(CountryRegion);
     end;
 
     local procedure CheckPurchaseHeadersAreEqual(var PurchHeader1: Record "Purchase Header"; var PurchHeader2: Record "Purchase Header")
