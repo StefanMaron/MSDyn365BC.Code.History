@@ -28,9 +28,11 @@ codeunit 137019 "SCM Correct Invoice"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         ItemTrackingMode: Option "Assign Lot","Verify Lot";
         IsInitialized: Boolean;
+        WasConfirmShown: Boolean;
         CancelledDocExistsErr: Label 'Cancelled document exists.';
         CannotAssignNumbersAutoErr: Label 'It is not possible to assign numbers automatically. If you want the program to assign numbers automatically, please activate Default Nos.';
         CommentCountErr: Label 'Wrong Sales Line Count';
+        ConfirmDialogErr: Label 'Expected confirm dialog was not shown';
 
     [Test]
     [Scope('OnPrem')]
@@ -1121,6 +1123,7 @@ codeunit 137019 "SCM Correct Invoice"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
     procedure NoDuplicateCommentLineWhenUsingCorrectiveCreditMemoOnPostedSalesInv()
     var
         SalesHeader: Record "Sales Header";
@@ -1168,6 +1171,46 @@ codeunit 137019 "SCM Correct Invoice"
 
         // [THEN] Two Comments Lines should be created in the Sales Line.
         CheckCommentsOnCreditLine(SalesHeaderCorrection);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure CheckCorrectiveCreditMemoConfirmDialogOnPostedSalesInv()
+    var
+        Cust: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesHeaderCorrection: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [SCENARIO 578461] Message when using "Create corrective Credit Memo" on a partial sales or purchase invoice related to an 
+        // existing Order needs to inform that the Order Quantities will be changed.
+        Initialize();
+
+        // [GIVEN] Create a Item with a Price
+        CreateItemWithPrice(Item, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Create a Customer
+        LibrarySales.CreateCustomer(Cust);
+
+        // [GIVEN] Create a Sales Order
+        CreateSalesOrderForItem(Cust, Item, 10, SalesHeader, SalesLine);
+        SalesLine.Validate("Qty. to Ship", 5);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post a Sales Order.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Get Posted Sales Invoice. 
+        GetPostedInvoice(SalesInvoiceHeader, SalesHeader);
+
+        // [WHEN] Correct the posted Sales Invoice.
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeaderCorrection);
+
+        // [THEN] Assert that confirm was called.
+        Assert.IsTrue(WasConfirmShown, ConfirmDialogErr);
     end;
 
     local procedure Initialize()
@@ -1500,6 +1543,12 @@ codeunit 137019 "SCM Correct Invoice"
         Assert.AreEqual(2, SalesLineCount, CommentCountErr);
     end;
 
+    local procedure GetPostedInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header")
+    begin
+        SalesInvoiceHeader.SetRange("Order No.", SalesHeader."No.");
+        SalesInvoiceHeader.FindFirst();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
@@ -1545,6 +1594,13 @@ codeunit 137019 "SCM Correct Invoice"
                 end;
         end;
         ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        WasConfirmShown := true;
+        Reply := true;
     end;
 }
 
