@@ -198,6 +198,10 @@ page 55 "Purch. Invoice Subform"
 
                     trigger OnValidate()
                     begin
+                        if (xRec."VAT Prod. Posting Group" <> '') and (Rec."VAT Prod. Posting Group" <> xRec."VAT Prod. Posting Group") then begin
+                            CurrPage.SaveRecord();
+                            Rec.RecalculateAmounts(Rec."Document Type", Rec."Document No.", Rec."Line No.");
+                        end;
                         DeltaUpdateTotals();
                     end;
                 }

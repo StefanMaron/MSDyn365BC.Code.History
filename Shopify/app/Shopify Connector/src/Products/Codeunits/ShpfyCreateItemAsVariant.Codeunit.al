@@ -13,8 +13,8 @@ codeunit 30343 "Shpfy Create Item As Variant"
         CreateProduct: Codeunit "Shpfy Create Product";
         VariantApi: Codeunit "Shpfy Variant API";
         ProductApi: Codeunit "Shpfy Product API";
-        DefaultVariantId: BigInteger;
-        Options: Dictionary of [Text, Text];
+        OptionId: BigInteger;
+        OptionName: Text;
 
     trigger OnRun()
     begin
@@ -29,16 +29,23 @@ codeunit 30343 "Shpfy Create Item As Variant"
     var
         TempShopifyVariant: Record "Shpfy Variant" temporary;
     begin
+        if Item.SystemId = ShopifyProduct."Item SystemId" then
+            exit;
+
         CreateProduct.CreateTempShopifyVariantFromItem(Item, TempShopifyVariant);
-        TempShopifyVariant."Product Id" := ShopifyProduct."Id";
         TempShopifyVariant.Title := Item."No.";
-        if Options.Count = 1 then
-            TempShopifyVariant."Option 1 Name" := CopyStr(Options.Values.Get(1), 1, MaxStrLen(TempShopifyVariant."Option 1 Name"))
-        else
+
+        if not ShopifyProduct."Has Variants" and (OptionName = 'Title') then begin
+            // Shopify automatically deletes the default variant (Title) when adding a new one so first we need to update the default variant to have a different name (Variant)
+            UpdateProductOption('Variant');
             TempShopifyVariant."Option 1 Name" := 'Variant';
+        end else
+            TempShopifyVariant."Option 1 Name" := CopyStr(OptionName, 1, MaxStrLen(TempShopifyVariant."Option 1 Name"));
         TempShopifyVariant."Option 1 Value" := Item."No.";
 
-        if VariantApi.AddProductVariant(TempShopifyVariant) then begin
+        TempShopifyVariant.Modify();
+
+        if VariantApi.AddProductVariant(TempShopifyVariant, ShopifyProduct.Id, "Shpfy Variant Create Strategy"::DEFAULT) then begin
             ShopifyProduct."Has Variants" := true;
             ShopifyProduct.Modify(true);
         end;
@@ -52,6 +59,8 @@ codeunit 30343 "Shpfy Create Item As Variant"
     /// </summary>
     internal procedure CheckProductAndShopSettings()
     var
+        CommunicationMgt: Codeunit "Shpfy Communication Mgt.";
+        Options: Dictionary of [Text, Text];
         MultipleOptionsErr: Label 'The product has more than one option. Items cannot be added as variants to a product with multiple options.';
         UOMAsVariantEnabledErr: Label 'Items cannot be added as variants to a product with the "%1" setting enabled for this store.', Comment = '%1 - UoM as Variant field caption';
     begin
@@ -62,34 +71,9 @@ codeunit 30343 "Shpfy Create Item As Variant"
 
         if Options.Count > 1 then
             Error(MultipleOptionsErr);
-    end;
 
-    /// <summary>
-    /// Finds the default variant ID for the product if the product has no variants.
-    /// If new variants will be added, the default variant will be removed.
-    /// </summary>
-    internal procedure FindDefaultVariantId()
-    var
-        ProductVariantIds: Dictionary of [BigInteger, DateTime];
-    begin
-        if not ShopifyProduct."Has Variants" then begin
-            VariantApi.RetrieveShopifyProductVariantIds(ShopifyProduct, ProductVariantIds);
-            DefaultVariantId := ProductVariantIds.Keys.Get(1);
-        end;
-    end;
-
-    /// <summary>
-    /// Removes the default variant if new variants were added to the product.
-    /// </summary>
-    internal procedure RemoveDefaultVariant()
-    var
-        ShopifyVariant: Record "Shpfy Variant";
-    begin
-        if (DefaultVariantId <> 0) and ShopifyProduct."Has Variants" then begin
-            VariantApi.DeleteProductVariant(DefaultVariantId);
-            if ShopifyVariant.Get(DefaultVariantId) then
-                ShopifyVariant.Delete(true);
-        end;
+        OptionId := CommunicationMgt.GetIdOfGId(Options.Keys.Get(1));
+        OptionName := Options.Values.Get(1);
     end;
 
     /// <summary>
@@ -100,6 +84,11 @@ codeunit 30343 "Shpfy Create Item As Variant"
     begin
         ShopifyProduct.Get(ShopifyProductId);
         SetShop(ShopifyProduct."Shop Code");
+    end;
+
+    local procedure UpdateProductOption(NewOptionName: Text)
+    begin
+        ProductApi.UpdateProductOption(ShopifyProduct.Id, OptionId, NewOptionName);
     end;
 
     local procedure SetShop(ShopCode: Code[20])
