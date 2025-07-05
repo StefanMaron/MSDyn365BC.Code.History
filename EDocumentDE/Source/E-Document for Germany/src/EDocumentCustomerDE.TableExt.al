@@ -3,11 +3,18 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.Formats;
-using Microsoft.eServices.EDocument;
-enumextension 13914 "XRechnung Format" extends "E-Document Format"
+using Microsoft.Sales.Customer;
+
+tableextension 13914 "E-Document Customer DE" extends Customer
 {
-    value(13914; "XRechnung")
+    fields
     {
-        Implementation = "E-Document" = "XRechnung Format";
+#pragma warning disable AS0125
+        field(13914; "E-Invoice Routing No."; Text[50])
+        {
+            Caption = 'E-Invoice Routing No.';
+            DataClassification = CustomerContent;
+        }
+#pragma warning restore AS0125
     }
 }

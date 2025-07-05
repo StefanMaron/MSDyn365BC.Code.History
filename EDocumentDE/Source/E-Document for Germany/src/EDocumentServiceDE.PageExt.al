@@ -5,12 +5,13 @@
 namespace Microsoft.eServices.EDocument.Formats;
 using Microsoft.eServices.EDocument;
 
-pageextension 13915 "XRechnung-Edocument Service" extends "E-Document Service"
+pageextension 13915 "E-Document Service DE" extends "E-Document Service"
 {
     layout
     {
         addafter(ImportParamenters)
         {
+#pragma warning disable AS0125
             group(Export)
             {
                 field("Buyer Reference Mandatory"; Rec."Buyer Reference Mandatory")
@@ -22,6 +23,7 @@ pageextension 13915 "XRechnung-Edocument Service" extends "E-Document Service"
                     ApplicationArea = All;
                 }
             }
+#pragma warning restore AS0125
         }
     }
 }

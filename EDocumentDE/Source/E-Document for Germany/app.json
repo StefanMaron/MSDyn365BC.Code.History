@@ -1,10 +1,10 @@
 {
   "id": "fdeb586e-beff-49d8-947d-1e73ce980b34",
-  "name": "E-Document format for XRechnung",
+  "name": "E-Document for Germany",
   "publisher": "Microsoft",
-  "brief": "E-Document format for XRechnung.",
-  "description": ": XRechnung is a customization for Germany business requirements. This app supports XRechnung 3.0.2 format for working with E-documents app.",
-  "version": "25.8.34727.0",
+  "brief": "E-Document formats for Germany.",
+  "description": "This app provides support for various e-document formats used in German localization, for example XRechnung 3.0.2. It integrates with E-documents app to meet German business requirements.",
+  "version": "25.9.36001.0",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://go.microsoft.com/fwlink/?linkid=2305711",
@@ -16,7 +16,7 @@
       "id": "e1d97edc-c239-46b4-8d84-6368bdf67c8b",
       "name": "E-Document Core",
       "publisher": "Microsoft",
-      "version": "25.8.0.0"
+      "version": "25.9.0.0"
     }
   ],
   "screenshots": [],
@@ -25,6 +25,10 @@
     {
       "from": 13914,
       "to": 13917
+    },
+    {
+      "from": 11035,
+      "to": 11042
     }
   ],
   "resourceExposurePolicy": {
@@ -32,7 +36,7 @@
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "application": "25.8.0.0",
+  "application": "25.9.0.0",
   "target": "Cloud",
   "features": [
     "TranslationFile"

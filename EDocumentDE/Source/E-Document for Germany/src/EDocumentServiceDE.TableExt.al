@@ -5,10 +5,11 @@
 namespace Microsoft.eServices.EDocument.Formats;
 using Microsoft.eServices.EDocument;
 
-tableextension 13915 "XRechnung-Edocument Service" extends "E-Document Service"
+tableextension 13915 "E-Document Service DE" extends "E-Document Service"
 {
     fields
     {
+#pragma warning disable AS0125
         field(13914; "Buyer Reference"; Enum "E-Document Buyer Reference")
         {
             Caption = 'Buyer Reference';
@@ -21,5 +22,6 @@ tableextension 13915 "XRechnung-Edocument Service" extends "E-Document Service"
             DataClassification = SystemMetadata;
             ToolTip = 'Specifies whether the buyer reference is mandatory for the document.';
         }
+#pragma warning restore AS0125
     }
 }

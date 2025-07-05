@@ -3,15 +3,15 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.eServices.EDocument.Formats;
-using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
 
-tableextension 13914 "XRechnung-Customer" extends Customer
+tableextension 11036 "E-Doc Sales Header DE" extends "Sales Header"
 {
     fields
     {
-        field(13914; "E-Invoice Routing No."; Text[50])
+        field(11035; "Buyer Reference"; Text[100])
         {
-            Caption = 'E-Invoice Routing No.';
+            Caption = 'Buyer Reference';
             DataClassification = CustomerContent;
         }
     }

@@ -1251,6 +1251,7 @@ codeunit 99000774 "Calculate Routing Line"
         OnCalculateRoutingLineOnBeforeProdOrderCapNeedReset(ProdOrderRoutingLine, ProdOrderRoutingLine2);
 
         ProdOrderCapNeed.Reset();
+        ProdOrderCapNeed.SetLoadFields(Status, "Prod. Order No.", "Requested Only", "Routing No.", "Routing Reference No.", "Operation No.");
         ProdOrderCapNeed.SetRange(Status, ProdOrderRoutingLine.Status);
         ProdOrderCapNeed.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
         ProdOrderCapNeed.SetRange("Requested Only", false);
@@ -2099,6 +2100,112 @@ codeunit 99000774 "Calculate Routing Line"
         CalendarEntry.SetCapacityFilters(CapacityType, WorkMachineCenterNo);
         CalendarEntry.SetRange("Starting Date-Time", 0DT, CreateDateTime(DateValue, TimeValue));
         CalendarEntry.SetRange("Ending Date-Time", 0DT, CreateDateTime(DateValue + 1, TimeValue));
+    end;
+
+    procedure ReplanRoutingLine(var ProdOrderRoutingLine2: Record "Prod. Order Routing Line"; Direction: Option Forward,Backward; CalcStartEndDate: Boolean)
+    var
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        CostCalcMgt: Codeunit "Cost Calculation Management";
+        ActualOperOutput: Decimal;
+        TotalQtyPerOperation: Decimal;
+        TotalCapacityPerOperation: Decimal;
+    begin
+        MfgSetup.Get();
+
+        ProdOrderRoutingLine := ProdOrderRoutingLine2;
+
+        WaitTimeOnly :=
+          (ProdOrderRoutingLine."Setup Time" = 0) and (ProdOrderRoutingLine."Run Time" = 0) and
+          (ProdOrderRoutingLine."Move Time" = 0);
+
+        if ProdOrderRoutingLine."Ending Time" = 0T then
+            ProdOrderRoutingLine."Ending Time" := 000000T;
+
+        if ProdOrderRoutingLine."Starting Time" = 0T then
+            ProdOrderRoutingLine."Starting Time" := 000000T;
+
+        ProdOrderRoutingLine."Expected Operation Cost Amt." := 0;
+        ProdOrderRoutingLine."Expected Capacity Ovhd. Cost" := 0;
+        ProdOrderRoutingLine."Expected Capacity Need" := 0;
+
+        ProdOrderCapacityNeed.Reset();
+        ProdOrderCapacityNeed.SetLoadFields(Status, "Prod. Order No.", "Requested Only", "Routing No.", "Routing Reference No.", "Operation No.");
+        ProdOrderCapacityNeed.SetRange(Status, ProdOrderRoutingLine.Status);
+        ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
+        ProdOrderCapacityNeed.SetRange("Requested Only", false);
+        ProdOrderCapacityNeed.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+        ProdOrderCapacityNeed.SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+        ProdOrderCapacityNeed.SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+        ProdOrderCapacityNeed.DeleteAll();
+
+        NextCapNeedLineNo := 1;
+
+        ProdOrderRoutingLine.TestField("Work Center No.");
+
+        CurrentWorkCenterNo := '';
+        Workcenter.Get(ProdOrderRoutingLine."Work Center No.");
+        if ProdOrderRoutingLine.Type = ProdOrderRoutingLine.Type::"Machine Center" then begin
+            MachineCenter.Get(ProdOrderRoutingLine."No.");
+            Workcenter."Queue Time" := MachineCenter."Queue Time";
+            Workcenter."Queue Time Unit of Meas. Code" := MachineCenter."Queue Time Unit of Meas. Code";
+        end;
+        if not CalcStartEndDate then
+            Clear(Workcenter."Queue Time");
+        ProdOrder.Get(ProdOrderRoutingLine.Status, ProdOrderRoutingLine."Prod. Order No.");
+
+        ProdOrderQty := 0;
+        TotalLotSize := 0;
+        ProdOrderLine.SetRange(Status, ProdOrderRoutingLine.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
+        ProdOrderLine.SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+        ProdOrderLine.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+        ProdOrderLine.SetLoadFields("Quantity (Base)", "Scrap %", "Prod. Order No.", "Line No.", Status, "Routing No.", "Routing Version Code", "Ending Date", "Ending Time");
+        if ProdOrderLine.FindFirst() then
+            ProdOrderLine.CalcSums("Quantity (Base)", "Scrap %");
+        ActualOperOutput := CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRoutingLine);
+        ProdOrderQty := ProdOrderLine."Quantity (Base)" - ActualOperOutput;
+        if ProdOrderQty < 0 then
+            ProdOrderQty := 0;
+
+        MaxLotSize :=
+          ProdOrderQty *
+          (1 + ProdOrderRoutingLine."Scrap Factor % (Accumulated)") *
+          (1 + ProdOrderLine."Scrap %" / 100) +
+          ProdOrderRoutingLine."Fixed Scrap Qty. (Accum.)";
+
+        ProdOrderRoutingLine."Input Quantity" := MaxLotSize;
+
+        if ActualOperOutput > 0 then
+            TotalQtyPerOperation :=
+              ProdOrderLine."Quantity (Base)" *
+              (1 + ProdOrderRoutingLine."Scrap Factor % (Accumulated)") *
+              (1 + ProdOrderLine."Scrap %" / 100) +
+              ProdOrderRoutingLine."Fixed Scrap Qty. (Accum.)"
+        else
+            TotalQtyPerOperation := MaxLotSize;
+
+        TotalCapacityPerOperation :=
+          Round(
+            TotalQtyPerOperation *
+            ProdOrderRoutingLine.RunTimePer() *
+            CalendarMgt.QtyperTimeUnitofMeasure(
+              ProdOrderRoutingLine."Work Center No.", ProdOrderRoutingLine."Run Time Unit of Meas. Code"),
+            UOMMgt.QtyRndPrecision());
+
+        if MfgSetup."Cost Incl. Setup" then
+            CalcCostInclSetup(ProdOrderRoutingLine, TotalCapacityPerOperation);
+
+        CalcExpectedCost(ProdOrderRoutingLine, TotalQtyPerOperation, TotalCapacityPerOperation);
+
+        if ProdOrderRoutingLine."Schedule Manually" then
+            CalculateRoutingLineFixed()
+        else
+            if Direction = Direction::Backward then
+                CalcRoutingLineBack(CalcStartEndDate)
+            else
+                CalcRoutingLineForward(CalcStartEndDate);
+
+        ProdOrderRoutingLine2 := ProdOrderRoutingLine;
     end;
 
     [IntegrationEvent(false, false)]
