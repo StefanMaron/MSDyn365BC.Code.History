@@ -1,6 +1,7 @@
 namespace Microsoft.SubscriptionBilling;
 
 using System.Security.User;
+using Microsoft.Sales.Pricing;
 using Microsoft.Utilities;
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.Customer;
@@ -41,6 +42,7 @@ codeunit 139912 "Customer Deferrals Test"
         GeneralPostingSetup: Record "General Posting Setup";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         ContractTestLibrary: Codeunit "Contract Test Library";
+        LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         AssertThat: Codeunit Assert;
         PostingDate: Date;
@@ -53,6 +55,7 @@ codeunit 139912 "Customer Deferrals Test"
         DeferralBaseAmount: Decimal;
         TotalNumberOfMonths: Integer;
         PrevGLEntry: Integer;
+        ConfirmQuestionLbl: Label 'If you change Quantity Decimal, only the Amount for existing service commitments will be recalculated.\\Do you want to continue?', Comment = '%1= Changed Field Name.';
 
     local procedure CreateCustomerContractWithDeferrals(BillingDateFormula: Text; IsCustomerContractLCY: Boolean)
     begin
@@ -838,4 +841,63 @@ codeunit 139912 "Customer Deferrals Test"
         GetGLEntryAmountFromAccountNo(FinalGLAmount, GeneralPostingSetup."Cust. Contr. Deferral Account");
         AssertThat.AreEqual(StartingGLAmount, FinalGLAmount, 'Released Contract Deferrals where not reversed properly.');
     end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure ConfirmQuestionPriceListsServiceQuantityChanged()
+    var
+        CustomerPriceGroup: Record "Customer Price Group";
+    begin
+        // [SCENARIO 572340] Confirm Question on Price Lists in Service Objects when Quantity is Changed.
+
+        // [GIVEN] Check Service Package Line and delete all.
+        if not ServiceCommPackageLine.IsEmpty() then
+            ServiceCommPackageLine.DeleteAll(false);
+
+        // [GIVEN] Create Service Object Item with Service Commitments.
+        ContractTestLibrary.CreateServiceObjectItemWithServiceCommitments(Item);
+        ServiceCommPackageLine.FindFirst();
+
+        // [GIVEN] Validate Calculation Base Type, Invoicing Item in Service Package Line.
+        ServiceCommPackageLine.Validate("Calculation Base Type", ServiceCommPackageLine."Calculation Base Type"::"Document Price");
+        ServiceCommPackageLine."Invoicing Item No." := Item."No.";
+        ServiceCommPackageLine.Validate("Calculation Base %", 100);
+        ServiceCommPackageLine.Modify(true);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Customer Price Group.
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        Customer.Validate("Customer Price Group", CustomerPriceGroup.Code);
+        Customer.Modify(false);
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create a Sales Line.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Enum::"Sales Line Type"::Item, Item."No.", LibraryRandom.RandInt(100));
+        SalesLine."Qty. to Invoice" := 0;
+        SalesLine."Variant Code" := CopyStr(LibraryRandom.RandText(MaxStrLen(SalesLine."Variant Code")), 1, MaxStrLen(SalesLine."Variant Code"));
+        SalesLine.Modify(false);
+
+        // [GIVEN] Post the Sales Document
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Find Service Object and modify Quantity Decimal.
+        ServiceObject.SetRange("Item No.", Item."No.");
+        ServiceObject.FindFirst();
+        ServiceObject.Validate("Quantity Decimal", LibraryRandom.RandInt(2));
+        ServiceObject.Modify(true);
+
+        // [THEN] New Confirm Message should be displayed.
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        AssertThat.ExpectedConfirm(ConfirmQuestionLbl, Question);
+        Reply := true;
+    end;
+
 }

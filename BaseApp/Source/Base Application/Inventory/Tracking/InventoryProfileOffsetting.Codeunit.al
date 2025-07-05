@@ -1036,6 +1036,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
         CanBeRescheduled: Boolean;
         ItemInventoryExists: Boolean;
     begin
+        if CheckDemandAndSupplyQuantityAreEqual(SupplyInvtProfile, DemandInvtProfile) then
+            exit;
+
         xDemandInvtProfile.CopyFilters(DemandInvtProfile);
         xSupplyInvtProfile.CopyFilters(SupplyInvtProfile);
         ItemInventoryExists := CheckItemInventoryExists(SupplyInvtProfile);
@@ -1149,6 +1152,31 @@ codeunit 99000854 "Inventory Profile Offsetting"
         SupplyInvtProfile.CopyFilters(xSupplyInvtProfile);
 
         OnAfterMatchAttributes(SupplyInvtProfile, DemandInvtProfile, TempTrkgReservEntry);
+    end;
+
+    local procedure CheckDemandAndSupplyQuantityAreEqual(var SupplyInvtProfile: Record "Inventory Profile"; var DemandInvtProfile: Record "Inventory Profile"): Boolean
+    var
+        TotalDemandQty: Decimal;
+        TotalSupplyQty: Decimal;
+    begin
+        if (SupplyInvtProfile."Source Type" <> 5406) or // Database::"Prod. Order Line"
+           (DemandInvtProfile."Source Type" <> 5407) // Database::"Prod. Order Component"
+        then
+            exit(false);
+
+        DemandInvtProfile.ReadIsolation(IsolationLevel::ReadUncommitted);
+        DemandInvtProfile.CalcSums(Quantity);
+        TotalDemandQty := DemandInvtProfile.Quantity;
+
+        if (TotalDemandQty <= 0) then
+            exit(false);
+
+        SupplyInvtProfile.ReadIsolation(IsolationLevel::ReadUncommitted);
+        SupplyInvtProfile.CalcSums(Quantity);
+        TotalSupplyQty := SupplyInvtProfile.Quantity;
+
+        if TotalSupplyQty = TotalDemandQty then
+            exit(true);
     end;
 
     local procedure DecreaseQtyForMaxQty(var SupplyInvtProfile: Record "Inventory Profile"; ReduceQty: Decimal)
