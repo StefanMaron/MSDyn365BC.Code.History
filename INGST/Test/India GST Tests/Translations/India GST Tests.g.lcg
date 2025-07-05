@@ -113,6 +113,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit GST Bonded Warehouse Tests - NamedType InTransitLocationLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1059961450 - NamedType 2776104403" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[InventoryValueZero]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit GST Bonded Warehouse Tests - NamedType InventoryValueZeroLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1059961450 - NamedType 3130292671" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[LocationStateCode]]></Val>
@@ -2217,6 +2226,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit GST Sales Ship To Addr Tests - NamedType ExemptedLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2797871145 - NamedType 954161428" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[FOC]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit GST Sales Ship To Addr Tests - NamedType FOCLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2797871145 - NamedType 3099601210" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

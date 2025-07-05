@@ -137,7 +137,12 @@ codeunit 18390 "GST Transfer Order Receipt"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnAfterInsertTransRcptLineOnBeforePostDeferredValue', '', false, false)]
     local procedure OnAfterInsertTransRcptLinePostRevaluation(var TransLine: Record "Transfer Line"; TransRcptHeader: Record "Transfer Receipt Header"; TransRcptLine: Record "Transfer Receipt Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
+    var
+        Item: Record Item;
     begin
+        if Item.Get(TransRcptLine."Item No.") then
+            if Item."Inventory Value Zero" then
+                exit;
         PostRevaluationEntryGST(TransLine, TransRcptHeader, TransRcptLine, ItemJnlPostLine);
     end;
 
