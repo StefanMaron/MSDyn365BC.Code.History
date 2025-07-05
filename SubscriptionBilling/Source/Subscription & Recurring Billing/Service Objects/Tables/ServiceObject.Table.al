@@ -1995,11 +1995,14 @@ table 8057 "Service Object"
     local procedure GetRecalculateLinesDialog(ChangedFieldName: Text): Text
     var
         RecalculateLinesQst: Label 'If you change %1, the existing service commitments prices will be recalculated.\\Do you want to continue?', Comment = '%1: FieldCaption';
+        RecalculateLinesFromQuantityQst: Label 'If you change %1, only the Amount for existing service commitments will be recalculated.\\Do you want to continue?', Comment = '%1= Changed Field Name.';
         RecalculateLinesFromVariantCodeQst: Label 'The %1 has been changed.\\Do you want to update the price and description?';
     begin
         case ChangedFieldName of
             Rec.FieldName(Rec."Variant Code"):
                 exit(StrSubstNo(RecalculateLinesFromVariantCodeQst, ChangedFieldName));
+            Rec.FieldName(Rec."Quantity Decimal"):
+                exit(StrSubstNo(RecalculateLinesFromQuantityQst, ChangedFieldName));
             else
                 exit(StrSubstNo(RecalculateLinesQst, ChangedFieldName));
         end;
