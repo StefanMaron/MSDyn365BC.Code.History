@@ -1716,14 +1716,14 @@ table 23 Vendor
             NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(PurchSetup."Vendor Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
             if not IsHandled then begin
 #endif
-            "No. Series" := PurchSetup."Vendor Nos.";
-            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                "No. Series" := xRec."No. Series";
-            "No." := NoSeries.GetNextNo("No. Series");
-            Vendor.ReadIsolation(IsolationLevel::ReadUncommitted);
-            Vendor.SetLoadFields("No.");
-            while Vendor.Get("No.") do
+                "No. Series" := PurchSetup."Vendor Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
+                Vendor.ReadIsolation(IsolationLevel::ReadUncommitted);
+                Vendor.SetLoadFields("No.");
+                while Vendor.Get("No.") do
+                    "No." := NoSeries.GetNextNo("No. Series");
 #if not CLEAN24
                 NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."Vendor Nos.", 0D, "No.");
             end;
@@ -2577,6 +2577,35 @@ table 23 Vendor
             PaymentTerms.GetBySystemId("Payment Terms Id");
 
         Validate("Payment Terms Code", PaymentTerms.Code);
+    end;
+
+    procedure FindVendorByVATRegistrationNo(VATRegistrationNo: Text[20]): Code[20]
+    var
+        Vendor: Record Vendor;
+        VATRegistrationNoFilterTxt: Label '*%1', Comment = '%1 - Filter value', Locked = true;
+    begin
+        Vendor.SetLoadFields("VAT Registration No.", "Country/Region Code");
+        Vendor.SetFilter("VAT Registration No.", StrSubstNo(VATRegistrationNoFilterTxt, CopyStr(VATRegistrationNo, 1, MaxStrLen(VATRegistrationNo))));
+        if Vendor.FindSet() then
+            repeat
+                if ExtractVatRegNo(Vendor."VAT Registration No.", Vendor."Country/Region Code") = ExtractVatRegNo(VATRegistrationNo, Vendor."Country/Region Code") then
+                    exit(Vendor."No.");
+            until Vendor.Next() = 0;
+    end;
+
+    local procedure ExtractVatRegNo(VatRegNo: Text; CountryRegionCode: Text): Text
+    var
+        CompanyInformation: Record Microsoft.Foundation.Company."Company Information";
+    begin
+        if CountryRegionCode = '' then begin
+            CompanyInformation.Get();
+            CountryRegionCode := CompanyInformation."Country/Region Code";
+        end;
+        VatRegNo := UpperCase(VatRegNo);
+        VatRegNo := DelChr(VatRegNo, '=', DelChr(VatRegNo, '=', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'));
+        if StrPos(VatRegNo, UpperCase(CountryRegionCode)) = 1 then
+            VatRegNo := DelStr(VatRegNo, 1, StrLen(CountryRegionCode));
+        exit(VatRegNo);
     end;
 
     local procedure UpdatePaymentMethodCode()
