@@ -1462,6 +1462,7 @@ page 47 "Sales Invoice Subform"
             exit;
 
         SalesHeader.Get(Rec."Document Type", Rec."Document No.");
+        SalesHeader.TestField(Status, SalesHeader.Status::Open);
         SalesCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
         DocumentTotals.SalesDocTotalsNotUpToDate();
         CurrPage.Update(false);
