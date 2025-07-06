@@ -26,6 +26,7 @@ codeunit 5815 "Undo Sales Shipment Line"
                   TableData "Item Application Entry" = rmd,
                   TableData "Item Entry Relation" = ri;
     TableNo = "Sales Shipment Line";
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     var
@@ -61,6 +62,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
         AssemblyPost: Codeunit "Assembly-Post";
         UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
+        ItemsToAdjust: List of [Code[20]];
         ATOWindowDialog: Dialog;
         NextLineNo: Integer;
 
@@ -117,6 +119,7 @@ codeunit 5815 "Undo Sales Shipment Line"
 
         OnAfterCheckSalesShipmentLines(SalesShipmentLine, UndoSalesShptLineParams);
 
+        BindSubscription(this);
         SalesShipmentLine.Find('-');
         repeat
             OnCodeOnBeforeUndoLoop(SalesShipmentLine);
@@ -175,6 +178,7 @@ codeunit 5815 "Undo Sales Shipment Line"
 
             UndoFinalizePostATO(SalesShipmentLine);
         until SalesShipmentLine.Next() = 0;
+        UnbindSubscription(this);
 
         MakeInventoryAdjustment();
 
@@ -318,7 +322,7 @@ codeunit 5815 "Undo Sales Shipment Line"
                 OnPostItemJnlLineOnBeforeRunItemJnlPostLine(ItemJournalLine, ItemLedgerEntryNotInvoiced, SalesShipmentLine2, SalesShipmentHeader, IsHandled);
                 if not IsHandled then
                     ItemJnlPostLine.Run(ItemJournalLine);
-                OnPostItemJnlLineOnAfterRunItemJnlPostLine(ItemJournalLine);
+                OnPostItemJnlLineOnAfterRunItemJnlPostLine(ItemJournalLine, SalesShipmentLine2, SalesShipmentHeader, ItemJnlPostLine);
                 RemQtyBase -= ItemJournalLine.Quantity;
                 if ItemLedgerEntryNotInvoiced.Next() = 0 then;
             until (RemQtyBase = 0);
@@ -573,14 +577,22 @@ codeunit 5815 "Undo Sales Shipment Line"
 
     local procedure MakeInventoryAdjustment()
     var
-        InventorySetup: Record "Inventory Setup";
         InventoryAdjustmentHandler: Codeunit "Inventory Adjustment Handler";
     begin
-        InventorySetup.Get();
-        if InventorySetup."Automatic Cost Adjustment" <> InventorySetup."Automatic Cost Adjustment"::Never then begin
-            InventoryAdjustmentHandler.SetJobUpdateProperties(true);
-            InventoryAdjustmentHandler.MakeInventoryAdjustment(true, InventorySetup."Automatic Cost Posting");
-        end;
+        InventoryAdjustmentHandler.SetJobUpdateProperties(true);
+        InventoryAdjustmentHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem', '', false, false)]
+    local procedure OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem(var Item2: Record Item)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        if InventorySetup.UseLegacyPosting() then
+            exit;
+
+        if not ItemsToAdjust.Contains(Item2."No.") then
+            ItemsToAdjust.Add(Item2."No.");
     end;
 
     [IntegrationEvent(false, false)]
@@ -709,7 +721,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnAfterRunItemJnlPostLine(var ItemJnlLine: Record "Item Journal Line")
+    local procedure OnPostItemJnlLineOnAfterRunItemJnlPostLine(var ItemJnlLine: Record "Item Journal Line"; var SalesShipmentLine: Record "Sales Shipment Line"; var SalesShipmentHeader: Record "Sales Shipment Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
     end;
 

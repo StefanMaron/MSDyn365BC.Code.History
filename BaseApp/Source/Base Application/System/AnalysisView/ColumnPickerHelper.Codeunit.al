@@ -22,6 +22,7 @@ codeunit 9640 "Column Picker Helper"
             // Filter the pages and fields shown in the repeater control
             FilterRelatedPagesAndFields(PageTableField);
             PageTableField.SetCurrentKey(Name);
+            PageTableField.FindFirst();
         end;
     end;
 

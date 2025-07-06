@@ -11844,7 +11844,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopySalesCrMemoLinesToDocOnAfterFillSalesLineBuffer(ToSalesHeader: Record "Sales Header"; var FromSalesLineBuf: Record "Sales Line" temporary)
+    local procedure OnCopySalesCrMemoLinesToDocOnAfterFillSalesLineBuffer(var ToSalesHeader: Record "Sales Header"; var FromSalesLineBuf: Record "Sales Line" temporary)
     begin
     end;
 

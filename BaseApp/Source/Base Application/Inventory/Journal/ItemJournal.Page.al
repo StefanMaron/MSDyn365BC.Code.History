@@ -1052,6 +1052,9 @@ page 40 "Item Journal"
             ItemTrackingEditable := not Rec.ReservEntryExist();
 
         ExpirationDateEditable := SetExpirationDateVisibility();
+
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
+            SetItemTrackingFieldsEditabilityForOData();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1080,13 +1083,12 @@ page 40 "Item Journal"
     begin
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
+            exit;
 
         SetDimensionsVisibility();
 
         OpenJournal();
-
-        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
-            ItemTrackingEditable := CanSelectItemTrackingOnLines;
     end;
 
     var
@@ -1238,6 +1240,17 @@ page 40 "Item Journal"
         Item.SetLoadFields("Item Tracking Code");
         Item.Get(Rec."Item No.");
         Item.TestField("Item Tracking Code");
+    end;
+
+    local procedure SetItemTrackingFieldsEditabilityForOData()
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        if ItemJournalBatch.Get(Rec."Journal Template Name", Rec."Journal Batch Name") then begin
+            CanSelectItemTrackingOnLines := ItemJournalBatch."Item Tracking on Lines";
+            ItemTrackingEditable := CanSelectItemTrackingOnLines;
+            CurrPage.Update(false);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

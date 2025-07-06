@@ -11,8 +11,7 @@ using Microsoft.Purchases.Vendor;
 
 report 99000789 "Subcontractor - Dispatch List"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Manufacturing/Reports/SubcontractorDispatchList.rdlc';
+    DefaultRenderingLayout = WordLayout;
     ApplicationArea = Manufacturing;
     Caption = 'Subcontractor - Dispatch List';
     UsageCategory = ReportsAndAnalysis;
@@ -24,54 +23,72 @@ report 99000789 "Subcontractor - Dispatch List"
             DataItemTableView = sorting("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
+            column(TodayFormatted; Format(Today, 0, 4))
+            {
+            }
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(No_Vendor; "No.")
             {
             }
+#if not CLEAN26
+            // RDLC Only
             column(Name_VendorCaption; FieldCaption(Name))
             {
             }
+            // RDLC Only
             column(No_VendorCaption; FieldCaption("No."))
             {
             }
             column(Name_Vendor; Name)
             {
             }
+            // RDLC Only
             column(OprtnNo_ProdOrderRtngLineCaption; "Prod. Order Routing Line".FieldCaption("Operation No."))
             {
             }
+            // RDLC Only
             column(PONo_ProdOrderRtngLineCaption; "Prod. Order Routing Line".FieldCaption("Prod. Order No."))
             {
             }
+            // RDLC Only
             column(Desc_ProdOrderRtngLineCaption; "Prod. Order Routing Line".FieldCaption(Description))
             {
             }
+            // RDLC Only
             column(RemaingQty_ProdOrderLineCaption; "Prod. Order Line".FieldCaption("Remaining Quantity"))
             {
             }
+            // RDLC Only
             column(UOMCode_ProdOrderLineCaption; "Prod. Order Line".FieldCaption("Unit of Measure Code"))
             {
             }
+            // RDLC Only
             column(SubcntrctrDispatchistCapt; SubcntrctrDispatchistCaptLbl)
             {
             }
+            // RDLC Only
             column(CurrReportPageNoCaption; CurrReportPageNoCaptionLbl)
             {
             }
+            // RDLC Only
             column(ProdOrdRtngLnStrtDtCapt; ProdOrdRtngLnStrtDtCaptLbl)
             {
             }
+            // RDLC Only
             column(ProdOrdRtngLnEndDtCapt; ProdOrdRtngLnEndDtCaptLbl)
             {
             }
+            // RDLC Only
             column(PurchLineDocNoCaption; PurchLineDocNoCaptionLbl)
             {
             }
+            // RDLC Only
             column(PurchLineOutstandgQtyCapt; PurchLineOutstandgQtyCaptLbl)
             {
             }
+#endif
             dataitem("Work Center"; "Work Center")
             {
                 DataItemLink = "Subcontractor No." = field("No.");
@@ -84,9 +101,11 @@ report 99000789 "Subcontractor - Dispatch List"
                 column(Name_WorkCenter; Name)
                 {
                 }
+                // RDLC Only
                 column(No_WorkCenterCaption; FieldCaption("No."))
                 {
                 }
+                // RDLC Only
                 column(Name_WorkCenterCaption; FieldCaption(Name))
                 {
                 }
@@ -153,10 +172,12 @@ report 99000789 "Subcontractor - Dispatch List"
                             column(PONo_ProdOrderComp; "Prod. Order No.")
                             {
                             }
+#if not CLEAN26
+                            // RDLC Only
                             column(ComponentsneededCaption; ComponentsneededCaptionLbl)
                             {
                             }
-
+#endif
                             trigger OnPreDataItem()
                             begin
                                 if "Prod. Order Routing Line"."Previous Operation No." <> '' then begin
@@ -197,22 +218,108 @@ report 99000789 "Subcontractor - Dispatch List"
 
     requestpage
     {
-
+        AboutTitle = 'About Subcontractor - Dispatch List';
+        AboutText = 'Helps you manage and track subcontracting activities efficiently.';
         layout
         {
+            area(content)
+            {
+                group(Options)
+                {
+                    Caption = 'Options';
+                    Visible = false;
+                    // Used to set the date filter on the report header across multiple languages
+                    field(RequestDateFilter; DateFilter)
+                    {
+                        ApplicationArea = Manufacturing;
+                        Caption = 'Date Filter';
+                        ToolTip = 'Specifies the Date Filter applied to the Subcontractor - Dispatch List Report.';
+                        Visible = false;
+                    }
+                }
+            }
         }
 
         actions
         {
         }
+
+        trigger OnClosePage()
+        begin
+            DateFilter := "Prod. Order Routing Line".GetFilter("Starting Date") + '..' + "Prod. Order Routing Line".GetFilter("Ending Date");
+            if DateFilter = '..' then
+                DateFilter := '';
+        end;
+    }
+
+    rendering
+    {
+        layout(WordLayout)
+        {
+            Type = Word;
+            LayoutFile = './Manufacturing/Reports/SubcontractorDispatchList.docx';
+        }
+        layout(ExcelLayout)
+        {
+            Type = Excel;
+            LayoutFile = './Manufacturing/Reports/SubcontractorDispatchList.xlsx';
+        }
+#if not CLEAN26
+        layout(RDLCLayout)
+        {
+            Type = RDLC;
+            LayoutFile = './Manufacturing/Reports/SubcontractorDispatchList.rdlc';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
+            ObsoleteTag = '27.0';
+        }
+#endif
     }
 
     labels
     {
+        SubDispatchList = 'Subcontractor Dispatch List';
+        SubDispatchListPrint = 'Subc. Dispatch List (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        SubDispatchListAnalysis = 'Subc. Dispatch List (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        PeriodLabel = 'Period:';
+        // Excel/Word layout field captions. To be replaced with the IncludeCaption property in a future release along with RDLC layout removal.
+        No_VendorLbl = 'No.';
+        Name_VendorLbl = 'Name';
+        No_WorkCenterLbl = 'No.';
+        Name_WorkCenterLbl = 'Name';
+        PONo_ProdOrderRtngLineLbl = 'Prod. Order No.';
+        OprtnNo_ProdOrderRtngLineLbl = 'Operation No.';
+        Desc_ProdOrderRtngLineLbl = 'Description';
+        StrtDt_ProdOrderRtngLineLbl = 'Starting Date';
+        EndDate_ProdOrderRtngLineLbl = 'Ending Date';
+        ItemNo_ProdOrderLineLbl = 'Item No.';
+        Desc_ProdOrderLineLbl = 'Description';
+        RemaingQty_ProdOrderLineLbl = 'Remaining Quantity';
+        PurchLineDocNoLbl = 'Purch. Order No.';
+        PurchLineOutstandingQtyLbl = 'Qty. on Purch. Order';
+        UOMCode_ProdOrderLineLbl = 'Unit of Measure Code';
+        ItemNo_ProdOrderCompLbl = 'Component Item No.';
+        Desc_ProdOrderCompLbl = 'Component Item Description';
+        PONo_ProdOrderCompLbl = 'Component Purch. Order No.';
+        RemaingQty_ProdOrderCompLbl = 'Component Remaining Quantity';
+        UOMCode_ProdOrderCompLbl = 'Component Unit of Measure Code';
+        DataRetrieved = 'Data retrieved:';
+        // About the report labels
+        AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
+        EnvironmentLabel = 'Environment';
+        CompanyLabel = 'Company';
+        UserLabel = 'User';
+        RunOnLabel = 'Run on';
+        ReportNameLabel = 'Report name';
+        DocumentationLabel = 'Documentation';
+        TimezoneLabel = 'UTC';
     }
 
     var
         PurchLine: Record "Purchase Line";
+        DateFilter: Text;
+#if not CLEAN26
+        // RDLC Only layout field captions. To be removed in a future release along with the RDLC layout.
         SubcntrctrDispatchistCaptLbl: Label 'Subcontractor Dispatch List';
         CurrReportPageNoCaptionLbl: Label 'Page';
         ProdOrdRtngLnStrtDtCaptLbl: Label 'Starting Date';
@@ -220,5 +327,5 @@ report 99000789 "Subcontractor - Dispatch List"
         PurchLineDocNoCaptionLbl: Label 'Purch. Order No.';
         PurchLineOutstandgQtyCaptLbl: Label 'Qty. on Purch. Order';
         ComponentsneededCaptionLbl: Label 'Components needed';
+#endif
 }
-

@@ -19,7 +19,10 @@ codeunit 6174 "E-Document ADI Handler" implements IStructureReceivedEDocument, I
     Access = Internal;
 
     var
+        EDocumentJsonHelper: Codeunit "EDocument Json Helper";
         StructuredData: Text;
+        FileFormat: Enum "E-Doc. File Format";
+        ReadIntoDraftImpl: Enum "E-Doc. Read into Draft";
 
     procedure StructureReceivedEDocument(EDocumentDataStorage: Record "E-Doc. Data Storage"): Interface IStructuredDataType
     var
@@ -39,12 +42,20 @@ codeunit 6174 "E-Document ADI Handler" implements IStructureReceivedEDocument, I
         FromTempBlob.CreateInStream(InStream, TextEncoding::UTF8);
         Data := Base64Convert.ToBase64(InStream);
         StructuredData := AzureDocumentIntelligence.AnalyzeInvoice(Data);
+        // If the call to ADI fails the system module will return an empty string, in such case we want to carry on with a blank draft
+        if StructuredData = '' then begin
+            FileFormat := "E-Doc. File Format"::Unspecified;
+            ReadIntoDraftImpl := "E-Doc. Read into Draft"::"Blank Draft";
+        end else begin
+            FileFormat := "E-Doc. File Format"::JSON;
+            ReadIntoDraftImpl := "E-Doc. Read into Draft"::ADI;
+        end;
         exit(this);
     end;
 
     procedure GetFileFormat(): Enum "E-Doc. File Format"
     begin
-        exit("E-Doc. File Format"::JSON);
+        exit(this.FileFormat);
     end;
 
     procedure GetContent(): Text
@@ -54,7 +65,7 @@ codeunit 6174 "E-Document ADI Handler" implements IStructureReceivedEDocument, I
 
     procedure GetReadIntoDraftImpl(): Enum "E-Doc. Read into Draft"
     begin
-        exit("E-Doc. Read into Draft"::ADI);
+        exit(this.ReadIntoDraftImpl);
     end;
 
     procedure ReadIntoDraft(EDocument: Record "E-Document"; TempBlob: Codeunit "Temp Blob"): Enum "E-Doc. Process Draft"
@@ -74,14 +85,18 @@ codeunit 6174 "E-Document ADI Handler" implements IStructureReceivedEDocument, I
         EDocumentPurchaseHeader := TempEDocPurchaseHeader;
         EDocumentPurchaseHeader."E-Document Entry No." := EDocument."Entry No";
         EDocumentPurchaseHeader.Insert();
+        OnInsertedEDocumentPurchaseHeader(EDocument, EDocumentPurchaseHeader);
 
-        if TempEDocPurchaseLine.FindSet() then
+        if TempEDocPurchaseLine.FindSet() then begin
             repeat
                 EDocumentPurchaseLine := TempEDocPurchaseLine;
                 EDocumentPurchaseLine."E-Document Entry No." := EDocument."Entry No";
                 EDocumentPurchaseLine."Line No." := EDocumentPurchaseLine.GetNextLineNo(EDocument."Entry No");
                 EDocumentPurchaseLine.Insert();
             until TempEDocPurchaseLine.Next() = 0;
+
+            OnInsertedEDocumentPurchaseLines(EDocument, EDocumentPurchaseHeader, EDocumentPurchaseLine);
+        end;
 
         exit(Enum::"E-Doc. Process Draft"::"Purchase Document");
     end;
@@ -175,6 +190,8 @@ codeunit 6174 "E-Document ADI Handler" implements IStructureReceivedEDocument, I
         EDocumentJsonHelper.SetStringValueInField('description', MaxStrLen(TempEDocPurchaseLine.Description), FieldsJsonObject, TempEDocPurchaseLine.Description);
         EDocumentJsonHelper.SetCurrencyValueInField('unitPrice', FieldsJsonObject, TempEDocPurchaseLine."Unit Price", TempEDocPurchaseLine."Currency Code");
         EDocumentJsonHelper.SetNumberValueInField('quantity', FieldsJsonObject, TempEDocPurchaseLine.Quantity);
+        if TempEDocPurchaseLine.Quantity = 0 then
+            TempEDocPurchaseLine.Quantity := 1;
         EDocumentJsonHelper.SetStringValueInField('productCode', MaxStrLen(TempEDocPurchaseLine."Product Code"), FieldsJsonObject, TempEDocPurchaseLine."Product Code");
         EDocumentJsonHelper.SetStringValueInField('unit', MaxStrLen(TempEDocPurchaseLine."Unit of Measure"), FieldsJsonObject, TempEDocPurchaseLine."Unit of Measure");
         EDocumentJsonHelper.SetDateValueInField('date', FieldsJsonObject, TempEDocPurchaseLine.Date);
@@ -183,7 +200,13 @@ codeunit 6174 "E-Document ADI Handler" implements IStructureReceivedEDocument, I
     end;
 #pragma warning restore AA0139
 
-    var
-        EDocumentJsonHelper: Codeunit "EDocument Json Helper";
+    [InternalEvent(false, false)]
+    local procedure OnInsertedEDocumentPurchaseHeader(EDocument: Record "E-Document"; EDocumentPurchaseHeader: Record "E-Document Purchase Header")
+    begin
+    end;
 
+    [InternalEvent(false, false)]
+    local procedure OnInsertedEDocumentPurchaseLines(EDocument: Record "E-Document"; EDocumentPurchaseHeader: Record "E-Document Purchase Header"; EDocumentPurchaseLine: Record "E-Document Purchase Line")
+    begin
+    end;
 }

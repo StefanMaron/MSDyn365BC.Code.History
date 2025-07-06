@@ -6,9 +6,7 @@ page 37087 "Water and Waste Analysis"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Water and Waste Analysis';
     AboutTitle = 'About Water and Waste Analysis';
     AboutText = 'The Water and Waste Analysis allows you to effectively monitor your water and waste usage by different metrics such as Water Type, Intensity Type, and Responsibility Center.';
@@ -25,7 +23,7 @@ page 37087 "Water and Waste Analysis"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

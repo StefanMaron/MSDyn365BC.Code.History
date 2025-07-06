@@ -25,6 +25,7 @@ codeunit 426 "Payment Tolerance Management"
 
     var
         CurrExchRate: Record "Currency Exchange Rate";
+        GenJnlLineGlobal: Record "Gen. Journal Line";
         AccTypeOrBalAccTypeIsIncorrectErr: Label 'The value in either the Account Type field or the Bal. Account Type field is wrong.\\ The value must be %1.', Comment = '%1 = Customer or Vendor';
         SuppressCommit: Boolean;
         SuppressWarning: Boolean;
@@ -220,6 +221,7 @@ codeunit 426 "Payment Tolerance Management"
         NewCustLedgEntry.Amount := GenJnlLine.Amount;
         NewCustLedgEntry."Remaining Amount" := GenJnlLine.Amount;
         NewCustLedgEntry."Document Type" := GenJnlLine."Document Type";
+        GenJnlLineGlobal := GenJnlLine;
         exit(
           PmtTolCustLedgEntry(NewCustLedgEntry, GenJnlLine."Account No.", GenJnlLine."Posting Date",
             GenJnlLine."Document No.", GenJnlLineApplID, GenJnlLine."Applies-to Doc. No.",
@@ -819,8 +821,15 @@ codeunit 426 "Payment Tolerance Management"
         exit(false);
     end;
 
-    local procedure CheckPmtTolCust(NewDocType: Enum "Gen. Journal Document Type"; OldCustLedgEntry: Record "Cust. Ledger Entry"): Boolean
+    local procedure CheckPmtTolCust(NewDocType: Enum "Gen. Journal Document Type"; OldCustLedgEntry: Record "Cust. Ledger Entry") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPmtTolCust(NewDocType, OldCustLedgEntry, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         if ((NewDocType = NewDocType::Payment) and
             (OldCustLedgEntry."Document Type" = OldCustLedgEntry."Document Type"::Invoice)) or
            ((NewDocType = NewDocType::Refund) and
@@ -1212,6 +1221,7 @@ codeunit 426 "Payment Tolerance Management"
                     CustLedgEntry.SetFilter("Document Type", '%1|%2',
                       CustLedgEntry."Document Type"::Invoice,
                       CustLedgEntry."Document Type"::"Credit Memo");
+                    OnCalcGracePeriodCVLedgEntryOnAfterCustLedgEntrySetFilters(CustLedgEntry);
 
                     if CustLedgEntry.Find('-') then
                         repeat
@@ -1488,7 +1498,13 @@ codeunit 426 "Payment Tolerance Management"
     local procedure DelCustPmtTolAcc2(CustledgEntry: Record "Cust. Ledger Entry"; CustEntryApplID: Code[50])
     var
         AppliedCustLedgEntry: Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDelCustPmtTolAcc2(CustledgEntry, CustEntryApplID, IsHandled);
+        if IsHandled then
+            exit;
+
         if CustEntryApplID <> '' then begin
             AppliedCustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
             AppliedCustLedgEntry.SetRange("Customer No.", CustledgEntry."Customer No.");
@@ -1594,7 +1610,14 @@ codeunit 426 "Payment Tolerance Management"
     end;
 
     local procedure GetCustPositiveFilter(DocumentType: Enum "Gen. Journal Document Type"; TempAmount: Decimal) PositiveFilter: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCustPositiveFilter(DocumentType, TempAmount, IsHandled, PositiveFilter);
+        if IsHandled then
+            exit(PositiveFilter);
+
         PositiveFilter := TempAmount <= 0;
         if ((TempAmount > 0) and (DocumentType = DocumentType::Refund) or (DocumentType = DocumentType::Invoice) or
             (DocumentType = DocumentType::"Credit Memo"))
@@ -2050,7 +2073,11 @@ codeunit 426 "Payment Tolerance Management"
                                 NewCustLedgEntry."Posting Date");
                         AppliedAmount := AppliedAmount + AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
                         AmountToApply := AmountToApply + AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
-                    end
+                    end else begin
+                        NewCustLedgEntry.Amount += AppliedCustLedgEntry."Remaining Pmt. Disc. Possible";
+                        UpdateGenJournalLineAmount(NewCustLedgEntry.Amount);
+                        AdjustRemainingAmount(NewCustLedgEntry, AppliedCustLedgEntry."Remaining Amount");
+                    end;
                 end else begin
                     DelCustPmtTolAcc(NewCustLedgEntry, GenJnlLineApplID);
                     exit(false);
@@ -2205,6 +2232,47 @@ codeunit 426 "Payment Tolerance Management"
             Sign := ExpectedEntryTolAmount / Abs(ExpectedEntryTolAmount);
 
         AcceptedEntryTolAmount := Sign * Math.Min(Abs(ExpectedEntryTolAmount), Abs(MaxPmtTolAmount));
+    end;
+
+    local procedure UpdateGenJournalLineAmount(NewAmount: Decimal)
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+    begin
+        if (GenJnlLineGlobal."Journal Template Name" = '') or (GenJnlLineGlobal."Journal Batch Name" = '') then
+            exit;
+
+        GenJnlLine.Get(
+            GenJnlLineGlobal."Journal Template Name",
+            GenJnlLineGlobal."Journal Batch Name",
+            GenJnlLineGlobal."Line No.");
+
+        GenJnlLine.Amount := NewAmount;
+
+        if GenJnlLine."Currency Code" = '' then
+            GenJnlLine."Amount (LCY)" := GenJnlLine.Amount
+        else
+            GenJnlLine."Amount (LCY)" := Round(
+                CurrExchRate.ExchangeAmtFCYToLCY(
+                    GenJnlLine."Posting Date",
+                    GenJnlLine."Currency Code",
+                    GenJnlLine.Amount,
+                    GenJnlLine."Currency Factor"));
+
+        GenJnlLine.Validate("Amount");
+        GenJnlLine.Modify(true);
+    end;
+
+    local procedure AdjustRemainingAmount(var CustLedgEntry: Record "Cust. Ledger Entry"; AppliedRemainingAmount: Decimal)
+    begin
+        if CustLedgEntry."Remaining Amount" <> 0 then begin
+            CustLedgEntry."Remaining Amount" += AppliedRemainingAmount;
+
+            if (CustLedgEntry."Remaining Amount" > 0) and (AppliedRemainingAmount < 0) then
+                CustLedgEntry."Remaining Amount" := 0;
+
+            if (CustLedgEntry."Remaining Amount" < 0) and (AppliedRemainingAmount > 0) then
+                CustLedgEntry."Remaining Amount" := 0;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -2409,6 +2477,26 @@ codeunit 426 "Payment Tolerance Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnPmtTolVendLedgEntryOnBeforeWarning(var VendledgEntry: Record "Vendor Ledger Entry"; GLSetup: Record "General Ledger Setup"; var AppliedAmount: Decimal; var ApplyingAmount: Decimal; var AmounttoApply: Decimal; var PmtDiscAmount: Decimal; var MaxPmtTolAmount: Decimal; VendEntryApplID: Code[50]; var ApplnRoundingPrecision: Decimal; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPmtTolCust(var NewDocType: Enum "Gen. Journal Document Type"; var OldCustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDelCustPmtTolAcc2(CustledgEntry: Record "Cust. Ledger Entry"; CustEntryApplID: Code[50]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCustPositiveFilter(DocumentType: Enum "Gen. Journal Document Type"; TempAmount: Decimal; var IsHandled: Boolean; var PositiveFilter: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcGracePeriodCVLedgEntryOnAfterCustLedgEntrySetFilters(var CustLedgEntry: Record "Cust. Ledger Entry");
     begin
     end;
 }

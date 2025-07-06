@@ -6,9 +6,7 @@ page 37089 "CO2e Analysis"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'CO2e Analysis';
     AboutTitle = 'About CO2e Analysis';
     AboutText = 'The CO2e Analysis report provides detailed insight into you CO2e Emissions and how you are purchasing Carbon Credit.';
@@ -25,7 +23,7 @@ page 37089 "CO2e Analysis"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);
