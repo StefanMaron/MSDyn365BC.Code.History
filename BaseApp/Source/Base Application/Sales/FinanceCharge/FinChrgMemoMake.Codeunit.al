@@ -94,6 +94,7 @@ codeunit 394 "FinChrgMemo-Make"
                     if TempCurrency2.Get(tempCurrency.Code) then
                         MakeFinChrgMemo(TempCurrency.Code);
                 until TempCurrency.Next() = 0;
+        OnAfterCode(FinChrgMemoLine, FinChrgMemoHeader, CustLedgEntry);
         exit(true);
     end;
 
@@ -307,6 +308,11 @@ codeunit 394 "FinChrgMemo-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(Customer: Record Customer; var CustLedgerEntry: Record "Cust. Ledger Entry"; FinanceChargeMemoHeaderReq: Record "Finance Charge Memo Header"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(var FinChrgMemoLine: Record "Finance Charge Memo Line"; var FinChrgMemoHeader: Record "Finance Charge Memo Header"; var CustLedgEntry: Record "Cust. Ledger Entry");
     begin
     end;
 }

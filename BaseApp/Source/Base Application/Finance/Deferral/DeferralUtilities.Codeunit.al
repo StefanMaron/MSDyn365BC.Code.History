@@ -850,7 +850,13 @@ codeunit 1720 "Deferral Utilities"
         DeferralCount: Integer;
         TotalAmountLCY: Decimal;
         TotalDeferralCount: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRoundDeferralAmount(DeferralHeader, CurrencyCode, CurrencyFactor, PostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
         // Calculate the LCY amounts for posting
         if PostingDate = 0D then
             UseDate := WorkDate()
@@ -1330,6 +1336,11 @@ codeunit 1720 "Deferral Utilities"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRemoveOrSetDeferralSchedule(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; Amount: Decimal; PostingDate: Date; Description: Text[100]; CurrencyCode: Code[10]; AdjustStartDate: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRoundDeferralAmount(var DeferralHeader: Record "Deferral Header"; CurrencyCode: Code[10]; CurrencyFactor: Decimal; PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

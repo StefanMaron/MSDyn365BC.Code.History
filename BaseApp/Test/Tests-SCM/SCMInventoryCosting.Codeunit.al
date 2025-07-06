@@ -39,6 +39,7 @@ codeunit 137007 "SCM Inventory Costing"
         RolledUpCapacityDoNotMatchErr: Label 'Rolled-Up Capacity values must match.';
         MinutesLbl: Label 'MINUTES';
         PCSLbl: Label 'PCS';
+        ItemCardErr: Label 'Item Card must be enabled.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1490,6 +1491,36 @@ codeunit 137007 "SCM Inventory Costing"
         ExpectedValue := Round(((RoutingLine1."Setup Time" + (RoutingLine1."Run Time" * QtyPerBOMLine2)) * WorkCenter."Direct Unit Cost"), 0.001, '>');
         ActualValue := Round(RolledUpCapacity, 0.001, '>');
         Assert.AreEqual(ExpectedValue, ActualValue, RolledUpCapacityDoNotMatchErr);
+    end;
+
+    [Test]
+    procedure NewActionToOpenSelectedItemCardInItemAvailabilityByBOMLevel()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemAvailabilityByBOMLevel: TestPage "Item Availability by BOM Level";
+    begin
+        // [SCENARIO 574240] New action to Open Selected Item Card in Item Availability by BOM Level.
+        Initialize();
+
+        // [GIVEN] Create Item Setup with Parent Item and Child Item.
+        CreateItemsSetup(Item, ChildItem);
+
+        // [GIVEN] Create and Refresh Released Production Order
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.");
+
+        // [GIVEN] Find Production Line.
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [WHEN] Open Item Availability By BOM Level page.
+        ItemAvailabilityByBOMLevel.OpenEdit();
+        ItemAvailabilityByBOMLevel.Filter.SetFilter("No.", ProdOrderLine."Item No.");
+
+        // [THEN] Item Action should be enabled.
+        Assert.IsTrue(ItemAvailabilityByBOMLevel."Item Card".Enabled(), ItemCardErr);
     end;
 
     local procedure Initialize()

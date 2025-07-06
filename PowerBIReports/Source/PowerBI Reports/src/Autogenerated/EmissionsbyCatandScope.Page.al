@@ -6,11 +6,9 @@ page 37088 "Emissions by Cat and Scope"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
-    Caption = 'Emissions by Cat and Scope';
-    AboutTitle = 'About Emissions by Cat and Scope';
+    Caption = 'Emissions by Category and Scope';
+    AboutTitle = 'About Emissions by Category and Scope';
     AboutText = 'The Emissions by Scope report breakdowns each emission type and showcases this based on the Account Category and the Scope so you can see how each account and scope is tracking.';
 
     layout
@@ -25,7 +23,7 @@ page 37088 "Emissions by Cat and Scope"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

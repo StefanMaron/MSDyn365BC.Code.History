@@ -2407,12 +2407,14 @@ table 27 Item
         PurchaseLine: Record "Purchase Line";
         TransferLine: Record "Transfer Line";
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+        JobPlanningLine: Record "Job Planning Line";
     begin
         SalesLine.RenameNo(SalesLine.Type::Item, xRec."No.", "No.");
         PurchaseLine.RenameNo(PurchaseLine.Type::Item, xRec."No.", "No.");
         TransferLine.RenameNo(xRec."No.", "No.");
         DimMgt.RenameDefaultDim(DATABASE::Item, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Item, xRec."No.", "No.");
+        JobPlanningLine.RenameNo(JobPlanningLine.Type::Item, xRec."No.", "No.");
 
         ApprovalsMgmt.OnRenameRecordInApprovalRequest(xRec.RecordId, RecordId);
         ItemAttributeValueMapping.RenameItemAttributeValueMapping(xRec."No.", "No.");
@@ -3347,6 +3349,7 @@ table 27 Item
         NonAdjustedItemLedgEntryExists: Boolean;
         NonAdjustedAvgCostAdjmtEntryPointExists: Boolean;
         NonAdjustedInventoryAdjmtEntryOrderExists: Boolean;
+        CostIsAdjusted: Boolean;
     begin
         ItemLedgerEntry.SetRange("Item No.", "No.");
         ItemLedgerEntry.SetRange("Applied Entry to Adjust", true);
@@ -3365,8 +3368,11 @@ table 27 Item
         InventoryAdjmtEntryOrder.SetRange("Is Finished", true);
         NonAdjustedInventoryAdjmtEntryOrderExists := NonAdjustedInventoryAdjmtEntryOrderExists or not InventoryAdjmtEntryOrder.IsEmpty();
 
-        "Cost is Adjusted" := not (NonAdjustedItemLedgEntryExists or NonAdjustedAvgCostAdjmtEntryPointExists or NonAdjustedInventoryAdjmtEntryOrderExists);
-        Modify();
+        CostIsAdjusted := not (NonAdjustedItemLedgEntryExists or NonAdjustedAvgCostAdjmtEntryPointExists or NonAdjustedInventoryAdjmtEntryOrderExists);
+        if CostIsAdjusted <> "Cost is Adjusted" then begin
+            "Cost is Adjusted" := CostIsAdjusted;
+            Modify();
+        end;
     end;
 
     procedure UpdateReplenishmentSystem() Result: Boolean

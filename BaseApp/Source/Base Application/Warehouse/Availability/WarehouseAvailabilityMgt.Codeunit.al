@@ -866,7 +866,9 @@ codeunit 7314 "Warehouse Availability Mgt."
         end else
             AvailQtyBase := CalcInvtAvailQty(Item, Location, WhseWorksheetLine."Variant Code", TempWhseActivLine);
 
-        if Location."Require Pick" then
+        if Location."Require Pick" or
+           (Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)")
+        then
             QtyReservedOnPickShip := CalcReservQtyOnPicksShips(WhseWorksheetLine."Location Code", WhseWorksheetLine."Item No.", WhseWorksheetLine."Variant Code", TempWhseActivLine);
 
         QtyReservedForCurrLine :=

@@ -303,13 +303,17 @@ page 147 "Posted Purchase Credit Memos"
             {
                 Caption = '&Cr. Memo';
                 Image = CreditMemo;
+#if not CLEAN27
                 action(Statistics)
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseCrMemoStatistics and PurchaseCrMemoStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
 
                     trigger OnAction()
                     begin
@@ -318,6 +322,37 @@ page 147 "Posted Purchase Credit Memos"
                         else
                             PAGE.RunModal(PAGE::"Purch. Credit Memo Stats.", Rec, Rec."No.");
                     end;
+                }
+#endif
+                action(PurchaseCrMemoStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+#if CLEAN27
+                    Visible = not PurchaseCrMemoStatsVisible;
+#else
+                    Visible = false;
+#endif
+                    RunObject = Page "Purch. Credit Memo Statistics";
+                    RunPageOnRec = true;
+                }
+                action(PurchaseCrMemoStats)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+#if CLEAN27
+                    Visible = PurchaseCrMemoStatsVisible;
+#else
+                    Visible = false;
+#endif
+                    RunObject = Page "Purch. Credit Memo Stats.";
+                    RunPageOnRec = true;
                 }
                 action("Co&mments")
                 {
@@ -524,9 +559,21 @@ page 147 "Posted Purchase Credit Memos"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN27
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the PurchaseCrMemoStatistics and PurchaseCrMemoStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#else
+                actionref(PurchaseCrMemoStatistics_Promoted; PurchaseCrMemoStatistics)
+                {
+                }
+                actionref(PurchaseCrMemoStats_Promoted; PurchaseCrMemoStats)
+                {
+                }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -565,6 +612,7 @@ page 147 "Posted Purchase Credit Memos"
         if HasFilters and not Rec.Find() then
             if Rec.FindFirst() then;
         IsOfficeAddin := OfficeMgt.IsAvailable();
+        PurchaseCrMemoStatsVisible := Rec."Tax Area Code" <> '';
     end;
 
     local procedure DoDrillDown()
@@ -579,9 +627,11 @@ page 147 "Posted Purchase Credit Memos"
     var
         IsOfficeAddin: Boolean;
 
+    protected var
+        PurchaseCrMemoStatsVisible: Boolean;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     begin
     end;
 }
-

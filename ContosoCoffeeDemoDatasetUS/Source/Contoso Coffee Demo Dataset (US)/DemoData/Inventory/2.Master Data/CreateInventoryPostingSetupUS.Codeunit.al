@@ -5,6 +5,17 @@ codeunit 10497 "Create InventoryPostingSetupUS"
     trigger OnRun()
     var
         ContosoPostingSetup: Codeunit "Contoso Posting Setup";
+        CreateInvPostingGroup: Codeunit "Create Inventory Posting Group";
+        CreateUSGLAccounts: Codeunit "Create US GL Accounts";
+    begin
+        ContosoPostingSetup.SetOverwriteData(true);
+        ContosoPostingSetup.InsertInventoryPostingSetup('', CreateInvPostingGroup.Resale(), CreateUSGLAccounts.FinishedGoods(), '');
+        ContosoPostingSetup.SetOverwriteData(false);
+    end;
+
+    procedure UpdateInventoryPosting()
+    var
+        ContosoPostingSetup: Codeunit "Contoso Posting Setup";
         CreateLocation: Codeunit "Create Location";
         CreateInvPostingGroup: Codeunit "Create Inventory Posting Group";
         CreateUSGLAccounts: Codeunit "Create US GL Accounts";

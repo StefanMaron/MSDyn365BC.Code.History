@@ -21,6 +21,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryErrorMessage: Codeunit "Library - Error Message";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         IsInitialized: Boolean;
         QtyErr: Label '%1 is wrong';
@@ -32,6 +33,8 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         WMSLocationCancelCorrectErr: Label 'You cannot cancel or correct this posted sales invoice because Warehouse Receive is required';
         NoShouldNotBeBlankErr: Label 'No. should not be blank.';
         TotalToDeferErr: Label 'The sum of the deferred amounts must be equal to the amount in the Amount to Defer field.';
+        CancelPostedPurchaseInvoiceQst: Label 'This invoice was posted from a purchase order. To cancel it, a purchase credit memo will be created and posted. The quantities from the original purchase order will be restored, provided the purchase order still exists.\ \Do you want to continue?';
+        CancelPostedSalesInvoiceQst: Label 'This invoice was posted from a sales order. To cancel it, a sales credit memo will be created and posted. The quantities from the original sales order will be restored, provided the sales order still exists.\ \Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -1997,6 +2000,77 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         Assert.ExpectedError(TotalToDeferErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerSalesVerifyQuestion')]
+    procedure VerifyConfirmMessageWhenCorrectedThePostedSalesInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 578414] Verify the expected confirmation message appears upon canceling the posted sales invoice.
+        Initialize();
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesHeaderWithItemWithType(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order, SalesLine.Type::Item);
+
+        // [GIVEN] Modify the 'Qty to Ship' field.
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity - 1);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post the Sales Order partially.
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        Commit();
+
+        // [GIVEN] Open the posted sales invoice page.
+        PostedSalesInvoice.OpenEdit();
+        PostedSalesInvoice.Filter.SetFilter("No.", InvoiceNo);
+
+        // [WHEN] Cancel the posted sales invoice.
+        PostedSalesInvoice.CancelInvoice.Invoke();
+
+        // [THEN] Verify the expected confirmation message appears upon canceling the posted sales invoice.
+        Assert.AreEqual(CancelPostedSalesInvoiceQst, LibraryVariableStorage.DequeueText(), 'Invalid confirmation question');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerPurchaseVerifyQuestion')]
+    procedure VerifyConfirmMessageWhenCorrectedThePostedPurchaseInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 578414] Verify the expected confirmation message appears upon canceling the posted purchase invoice. 
+        Initialize();
+
+        // [GIVEN] Create a Purchase Order.
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [GIVEN] Modify the 'Qty to Receive' field.
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity - 1);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post the Purchase Order partially.
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        Commit();
+
+        // [GIVEN] Open the posted purchase invoice page.
+        PostedPurchaseInvoice.OpenEdit();
+        PostedPurchaseInvoice.Filter.SetFilter("No.", InvoiceNo);
+
+        // [WHEN] Cancel the posted purchase invoice.
+        PostedPurchaseInvoice.CancelInvoice.Invoke();
+
+        // [THEN] Verify the expected confirmation message appears upon canceling the posted purchase invoice.
+        Assert.AreEqual(CancelPostedPurchaseInvoiceQst, LibraryVariableStorage.DequeueText(), 'Invalid confirmation question');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purch. Correct. Docs");
@@ -2630,6 +2704,20 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         ItemTrackingLines."Qty. to Handle (Base)".SetValue(2);
         ItemTrackingLines."Qty. to Invoice (Base)".SetValue(0);
         ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerSalesVerifyQuestion(Question: Text[1024]; var Reply: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(Question);
+        Reply := false;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerPurchaseVerifyQuestion(Question: Text[1024]; var Reply: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(Question);
+        Reply := false;
     end;
 }
 

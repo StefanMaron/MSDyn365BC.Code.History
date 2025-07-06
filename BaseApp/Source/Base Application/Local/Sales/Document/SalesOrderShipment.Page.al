@@ -12,7 +12,9 @@ using Microsoft.Sales.Comment;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Posting;
+#if not CLEAN27
 using Microsoft.Sales.Setup;
+#endif
 using Microsoft.Warehouse.Setup;
 using System.Automation;
 using System.Security.User;
@@ -355,6 +357,7 @@ page 10026 "Sales Order Shipment"
             {
                 Caption = 'O&rder';
                 Image = "Order";
+#if not CLEAN27
                 action(Statistics)
                 {
                     ApplicationArea = Basic, Suite;
@@ -362,6 +365,10 @@ page 10026 "Sales Order Shipment"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesOrderStatistics and SalesOrderStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
+
 
                     trigger OnAction()
                     begin
@@ -376,6 +383,37 @@ page 10026 "Sales Order Shipment"
                         else
                             PAGE.RunModal(PAGE::"Sales Order Stats.", Rec)
                     end;
+                }
+#endif
+                action(SalesOrderStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+#if CLEAN27
+                    Visible = not SalesOrderStatsVisible;
+#else
+                    Visible = false;
+#endif
+                    RunObject = Page "Sales Order Statistics";
+                    RunPageOnRec = true;
+                }
+                action(SalesOrderStats)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+#if CLEAN27
+                    Visible = not SalesOrderStatsVisible;
+#else
+                    Visible = false;
+#endif
+                    RunObject = Page "Sales Order Stats.";
+                    RunPageOnRec = true;
                 }
                 action(Card)
                 {
@@ -496,7 +534,9 @@ page 10026 "Sales Order Shipment"
 
                     trigger OnAction()
                     begin
+#if not CLEAN27
                         OnBeforeCalculateSalesTaxStatistics(Rec, false);
+#endif
                         ReportPrint.PrintSalesHeader(Rec);
                     end;
                 }
@@ -574,7 +614,18 @@ page 10026 "Sales Order Shipment"
                 actionref("Post and &Print_Promoted"; "Post and &Print")
                 {
                 }
+#if not CLEAN27
                 actionref(Statistics_Promoted; Statistics)
+                {
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesOrderStatistics and SalesOrderStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
+                }
+#endif
+                actionref(SalesOrderStatistics_Promoted; SalesOrderStatistics)
+                {
+                }
+                actionref(SalesOrderStats_Promoted; SalesOrderStats)
                 {
                 }
             }
@@ -628,13 +679,16 @@ page 10026 "Sales Order Shipment"
         end;
 
         Rec.SetRange("Date Filter", 0D, WorkDate() - 1);
+        SalesOrderStatsVisible := Rec."Tax Area Code" <> '';
     end;
 
     var
         Text000: Label 'Unable to run this function while in View mode.';
         SalesLine: Record "Sales Line";
         ReportPrint: Codeunit "Test Report-Print";
+#if not CLEAN27
         SalesSetup: Record "Sales & Receivables Setup";
+#endif
         UserMgt: Codeunit "User Setup Management";
         Text001: Label 'There are non posted Prepayment Amounts on %1 %2.';
         Text002: Label 'There are unpaid Prepayment Invoices related to %1 %2.';
@@ -659,6 +713,7 @@ page 10026 "Sales Order Shipment"
 
     protected var
         FreightAmount: Decimal;
+        SalesOrderStatsVisible: Boolean;
 
     procedure UpdateAllowed(): Boolean
     begin
@@ -704,10 +759,11 @@ page 10026 "Sales Order Shipment"
 
         OrderOnHold(Rec."On Hold" <> '');
     end;
-
+#if not CLEAN27
+    [Obsolete('The statistics action will be replaced with the SalesOrderStatistics and SalesOrderStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxStatistics(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
     end;
+#endif
 }
-

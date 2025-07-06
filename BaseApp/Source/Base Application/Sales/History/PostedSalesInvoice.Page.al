@@ -918,6 +918,7 @@ page 132 "Posted Sales Invoice"
             {
                 Caption = '&Invoice';
                 Image = Invoice;
+#if not CLEAN27
                 action(Statistics)
                 {
                     ApplicationArea = Suite;
@@ -925,6 +926,9 @@ page 132 "Posted Sales Invoice"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesInvoiceStatistics and SalesInvoiceStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
 
                     trigger OnAction()
                     begin
@@ -934,6 +938,37 @@ page 132 "Posted Sales Invoice"
                         else
                             PAGE.RunModal(PAGE::"Sales Invoice Stats.", Rec, Rec."No.");
                     end;
+                }
+#endif
+                action(SalesInvoiceStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+#if CLEAN27
+                    Visible = not SalesInvoiceStatsVisible;
+#else
+                    Visible = false;
+#endif
+                    RunObject = Page "Sales Invoice Statistics";
+                    RunPageOnRec = true;
+                }
+                action(SalesInvoiceStats)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+#if CLEAN27
+                    Visible = not SalesInvoiceStatsVisible;
+#else
+                    Visible = false;
+#endif
+                    RunObject = Page "Sales Invoice Stats.";
+                    RunPageOnRec = true;
                 }
                 action("Co&mments")
                 {
@@ -1479,9 +1514,21 @@ page 132 "Posted Sales Invoice"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN27
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesInvoiceStatistics and SalesInvoiceStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#else
+                actionref(SalesInvoiceStatistics_Promoted; SalesInvoiceStatistics)
+                {
+                }
+                actionref(SalesInvoiceStats_Promoted; SalesInvoiceStats)
+                {
+                }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -1622,6 +1669,7 @@ page 132 "Posted Sales Invoice"
         GLSetup.SetLoadFields("Multiple SAT Certificates");
         GLSetup.Get();
         SATCertInLocationEnabled := EInvoiceMgt.IsPACEnvironmentEnabled() and GLSetup."Multiple SAT Certificates";
+        SalesInvoiceStatsVisible := Rec."Tax Area Code" <> '';
     end;
 
     var
@@ -1652,6 +1700,7 @@ page 132 "Posted Sales Invoice"
     protected var
         SalesInvHeader: Record "Sales Invoice Header";
         IsOfficeAddin: Boolean;
+        SalesInvoiceStatsVisible: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1680,11 +1729,13 @@ page 132 "Posted Sales Invoice"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The statistics action will be replaced with the SalesInvoiceStatistics and SalesInvoiceStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxStatistics(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateCreditMemoOnAction(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
@@ -1695,4 +1746,3 @@ page 132 "Posted Sales Invoice"
     begin
     end;
 }
-

@@ -393,6 +393,7 @@ page 143 "Posted Sales Invoices"
             {
                 Caption = '&Invoice';
                 Image = Invoice;
+#if not CLEAN27
                 action(Statistics)
                 {
                     ApplicationArea = Suite;
@@ -402,6 +403,9 @@ page 143 "Posted Sales Invoices"
                     AboutTitle = 'Your profit from a sale';
                     AboutText = 'Go here to see statistics about the selected invoice, your profit, and associated taxes.';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesInvoiceStatistics and SalesInvoiceStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
 
                     trigger OnAction()
                     begin
@@ -411,6 +415,41 @@ page 143 "Posted Sales Invoices"
                         else
                             PAGE.RunModal(PAGE::"Sales Invoice Stats.", Rec, Rec."No.");
                     end;
+                }
+#endif
+                action(SalesInvoiceStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    AboutTitle = 'Your profit from a sale';
+                    AboutText = 'Go here to see statistics about the selected invoice, your profit, and associated taxes.';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+#if CLEAN27
+                    Visible = not SalesInvoiceStatsVisible;
+#else
+                    Visible = false;
+#endif
+                    RunObject = Page "Sales Invoice Statistics";
+                    RunPageOnRec = true;
+                }
+                action(SalesInvoiceStats)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    AboutTitle = 'Your profit from a sale';
+                    AboutText = 'Go here to see statistics about the selected invoice, your profit, and associated taxes.';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+#if CLEAN27
+                    Visible = not SalesInvoiceStatsVisible;
+#else
+                    Visible = false;
+#endif
+                    RunObject = Page "Sales Invoice Stats.";
+                    RunPageOnRec = true;
                 }
                 action("Co&mments")
                 {
@@ -843,9 +882,21 @@ page 143 "Posted Sales Invoices"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN27
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesInvoiceStatistics and SalesInvoiceStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#else
+                actionref(SalesInvoiceStatistics_Promoted; SalesInvoiceStatistics)
+                {
+                }
+                actionref(SalesInvoiceStats_Promoted; SalesInvoiceStats)
+                {
+                }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -968,6 +1019,7 @@ page 143 "Posted Sales Invoices"
         SalesInvoiceHeader.CopyFilters(Rec);
         SalesInvoiceHeader.SetFilter("Document Exchange Status", '<>%1', Rec."Document Exchange Status"::"Not Sent");
         DocExchStatusVisible := not SalesInvoiceHeader.IsEmpty();
+        SalesInvoiceStatsVisible := Rec."Tax Area Code" <> '';
     end;
 
     local procedure DoDrillDown()
@@ -988,11 +1040,16 @@ page 143 "Posted Sales Invoices"
         HasPostedSalesInvoices: Boolean;
         ProcessingInvoiceMsg: Label 'Processing record #1#######', Comment = '%1 = Record no';
 
+    protected var
+        SalesInvoiceStatsVisible: Boolean;
+
+#if not CLEAN27
+    [Obsolete('The statistics action will be replaced with the SalesInvoiceStatistics and SalesInvoiceStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxStatistics(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
-
+#endif
     [IntegrationEvent(true, false)]
     local procedure OnOpenPageOnAfterSetFilters(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
@@ -1008,4 +1065,3 @@ page 143 "Posted Sales Invoices"
     begin
     end;
 }
-

@@ -405,6 +405,7 @@
           'VATAmountLine__VAT_Amount_', Round(PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100));
     end;
 
+#if not CLEAN27
     [Test]
     [HandlerFunctions('ServiceOrderStatsTestPageHandler')]
     [Scope('OnPrem')]
@@ -449,6 +450,54 @@
 
         // Exercise.
         ServiceInvoice.Statistics.Invoke();
+
+        // Verify: Verify Tax Amount on Service Invoice Statistics. Verification done in ServiceStatsTestPageHandler.
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('ServiceOrderStatsTestPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure StatisticsServiceOrderTaxAmountNM()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceOrder: TestPage "Service Order";
+        TaxAmount: Decimal;
+    begin
+        // Verify Tax Amount on Service Order Statistics.
+
+        // Setup: Create Service Order and open Service Order page.
+        Initialize();
+        TaxAmount := CreateServiceDocumentWithCurrency(ServiceHeader, ServiceHeader."Document Type"::Order);
+        LibraryVariableStorage.Enqueue(ServiceHeader."Currency Code");
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        OpenServiceOrderPage(ServiceHeader, ServiceOrder);
+
+        // Exercise.
+        ServiceOrder.ServiceOrderStats.Invoke();
+
+        // Verify: Verify Tax Amount on Service Order Statistics. Verification done in ServiceOrderStatsTestPageHandler.
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceStatsTestPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure StatisticsServiceInvoiceTaxAmountNM()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceInvoice: TestPage "Service Invoice";
+        TaxAmount: Decimal;
+    begin
+        // Verify Tax Amount on Service Invoice Statistics.
+
+        // Setup: Create Service Invoice and open Service Invoice page.
+        Initialize();
+        TaxAmount := CreateServiceDocumentWithCurrency(ServiceHeader, ServiceHeader."Document Type"::Invoice);
+        LibraryVariableStorage.Enqueue(ServiceHeader."Currency Code");
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        OpenServiceInvoicePage(ServiceHeader, ServiceInvoice);
+
+        // Exercise.
+        ServiceInvoice.ServiceStats.Invoke();
 
         // Verify: Verify Tax Amount on Service Invoice Statistics. Verification done in ServiceStatsTestPageHandler.
     end;
@@ -5458,7 +5507,7 @@
         exit(Vendor."No.");
     end;
 
-    local procedure CreateSalesTaxAmountDifference(TaxDetail: Record "Tax Detail"; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; TaxAreaCode: Code[20]; DocumentProductArea: Enum "Sales Tax Document Area")
+    local procedure CreateSalesTaxAmountDifference(TaxDetail: Record "Tax Detail"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; TaxAreaCode: Code[20]; DocumentProductArea: Enum "Sales Tax Document Area")
     var
         SalesTaxAmountDifference: Record "Sales Tax Amount Difference";
     begin
@@ -6949,7 +6998,7 @@
         LibraryVariableStorage.Dequeue(TaxAmount);
         PurchaseStats.TaxAmount.AssertEquals(TaxAmount);
     end;
-
+#if not CLEAN27
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceOrderStatsTestPageHandler(var ServiceOrderStats: TestPage "Service Order Stats.")
@@ -6978,7 +7027,34 @@
         Currency.Get(CurrencyCode);
         Assert.AreNearlyEqual(TaxAmount, ServiceStats.VATAmount.AsDecimal(), Currency."Amount Rounding Precision", TaxAmountMustMatchErr);
     end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceOrderStatsTestPageHandlerNM(var ServiceOrderStats: TestPage "Service Order Stats.")
+    var
+        Currency: Record Currency;
+        CurrencyCode: Variant;
+        TaxAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(CurrencyCode);
+        LibraryVariableStorage.Dequeue(TaxAmount);
+        Currency.Get(CurrencyCode);
+        Assert.AreNearlyEqual(TaxAmount, ServiceOrderStats.TaxAmount.AsDecimal(), Currency."Amount Rounding Precision", TaxAmountMustMatchErr);
+    end;
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceStatsTestPageHandlerNM(var ServiceStats: TestPage "Service Stats.")
+    var
+        Currency: Record Currency;
+        CurrencyCode: Variant;
+        TaxAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(CurrencyCode);
+        LibraryVariableStorage.Dequeue(TaxAmount);
+        Currency.Get(CurrencyCode);
+        Assert.AreNearlyEqual(TaxAmount, ServiceStats.VATAmount.AsDecimal(), Currency."Amount Rounding Precision", TaxAmountMustMatchErr);
+    end;
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [ModalPageHandler]
