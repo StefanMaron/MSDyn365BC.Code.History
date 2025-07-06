@@ -336,6 +336,7 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyEmailMessageAttachment();
         ClassifyEmailRelatedAttachments();
         ClassifyEmailLookup();
+        ClassifyEmailRetry();
         ClassifyPostedGenJournalLine();
         ClassifyWordTemplate();
         ClassifyBatchProcessingSessionMap();
@@ -2448,6 +2449,15 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(8900, 2); // Subject
         SetFieldToPersonal(8900, 3); // Body
         SetFieldToPersonal(8900, 7); // External message id
+    end;
+
+    local procedure ClassifyEmailRetry()
+    begin
+        SetFieldToCompanyConfidential(8890, 3); // "Account Id"
+        SetFieldToPersonal(8890, 5); // "User Security ID"
+        SetFieldToPersonal(8890, 6); // Description
+        SetFieldToPersonal(8890, 12); // Send From
+        SetFieldToPersonal(8890, 13); // "Error Message
     end;
 
     local procedure ClassifyEmailRecipient()

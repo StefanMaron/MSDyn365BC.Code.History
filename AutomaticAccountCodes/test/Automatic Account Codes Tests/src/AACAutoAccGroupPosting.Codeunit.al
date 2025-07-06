@@ -26,8 +26,8 @@ codeunit 139598 "AAC Auto. Acc. Group Posting"
         CopyFromOption: Option AccGroup,GenJournal,AccGroupAndGenJnl;
         DimensionDoesNotExistsErr: Label 'Dimension value %1 %2 does not exists for G/L Entry No. %3.', Comment = '%1 = Dimension Code, %2 = DimensionValue Code, %3 = GLEntry Entry No';
         WrongValueErr: Label 'Wrong value of field %1 in table %2, entry no. %3.', Comment = '%1 = Additional-Currency Amount, %2 =  GLEntry TableCaption, %3 = GLEntry Entry No';
-
         WrongAmountGLEntriesErr: Label 'Wrong Amount in G/L Entry.';
+        GLEntryCountErr: Label 'Posted g/l entry count not match with expected count';
 
     [Test]
     [Scope('OnPrem')]
@@ -754,6 +754,31 @@ codeunit 139598 "AAC Auto. Acc. Group Posting"
 
         // [THEN] The whole register copied to general journal (2 entries copied)
         VerifyCopiedGenJnlLines(GenJournalBatch, GenJournalBatch, 2);
+    end;
+
+    [Test]
+    procedure PostGenJnlLineWithAmountDivisionWithAccGroup()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        AutoAccGroupNo: Code[10];
+        CurrencyCode: Code[10];
+        GLAccountNo: array[3] of Code[20];
+    begin
+        // [SCENARIO 575346] Rounding issue leading to "Inconsistency" error when trying to post with different currency and automatic accounting in Swedish localisation.
+        Initialize();
+
+        // [GIVEN] Currency with specific exchange rates.
+        CurrencyCode := CreateCurrencyAndExchangeRate(1, 10.97223, WorkDate());
+
+        // [GIVEN] Created Auto Account Group With 3 GL Account with Allocation 50,50,-100.
+        AutoAccGroupNo := CreateAutoAccGroupWithThreeLines(GLAccountNo[1], GLAccountNo[2], GLAccountNo[3]);
+
+        // [WHEN] "General Journal Line" - "GJL", GJL."Auto Acc. Group" = AAG, GJL."Amount" = "A"
+        CreateAndPostTwoGenJnlLineWithAutoAccGroup(CurrencyCode, GenJournalBatch, GenJnlLine, AutoAccGroupNo, GLAccountNo[2], GLAccountNo[3]);
+
+        // [THEN] Check Posted GL Entry count Match with Expected.
+        CountGLEntryLines(GenJnlLine);//assert
     end;
 
     local procedure Initialize()
@@ -1536,6 +1561,82 @@ codeunit 139598 "AAC Auto. Acc. Group Posting"
                 GenJournalLine.SetRange("Account No.", PostedGenJournalLine."Account No.");
                 Assert.RecordCount(GenJournalLine, 1);
             until PostedGenJournalLine.Next() = 0;
+    end;
+
+    local procedure CreateCurrencyAndExchangeRate(Rate: Decimal; RelationalRate: Decimal; FromDate: Date): Code[10]
+    var
+        Currency: Record Currency;
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.SetCurrencyGainLossAccounts(Currency);
+        Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
+        Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
+        Currency.Modify(true);
+        CreateExchangeRate(Currency.Code, Rate, RelationalRate, FromDate);
+        exit(Currency.Code);
+    end;
+
+    local procedure CreateExchangeRate(CurrencyCode: Code[10]; Rate: Decimal; RelationalRate: Decimal; FromDate: Date)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, FromDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", Rate);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", Rate);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalRate);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalRate);
+        CurrencyExchangeRate.Modify(true);
+    end;
+
+    local procedure CreateAndPostTwoGenJnlLineWithAutoAccGroup(CurrencyCode: Code[20]; var GenJournalBatch: Record "Gen. Journal Batch"; var GenJnlLine: Record "Gen. Journal Line"; AutoAccGroupNo: Code[10]; GLAccountNo2: Code[20]; GLAccountNo3: Code[20])
+    var
+        DocNo: Code[20];
+    begin
+        CreateGenJournalTemplateAndBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(GenJnlLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJnlLine."Document Type"::Invoice,
+            GenJnlLine."Account Type"::"G/L Account", GLAccountNo2, GenJnlLine."Bal. Account Type"::"G/L Account", '', 480);
+        GenJnlLine.Validate("Automatic Account Group", AutoAccGroupNo);
+        GenJnlLine.Validate("Currency Code", CurrencyCode);
+        GenJnlLine.Modify(true);
+        DocNo := GenJnlLine."Document No.";
+
+        LibraryJournals.CreateGenJournalLine(GenJnlLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJnlLine."Document Type"::Invoice,
+            GenJnlLine."Account Type"::"G/L Account", GLAccountNo3, GenJnlLine."Bal. Account Type"::"G/L Account", '', -480);
+        GenJnlLine.Validate("Document No.", DocNo);
+        GenJnlLine.Validate("Currency Code", CurrencyCode);
+        GenJnlLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+    end;
+
+    local procedure CreateAutoAccGroupWithThreeLines(var GLAccountNo1: Code[20]; var GLAccountNo2: Code[20]; var GLAccountNo3: Code[20]) AutoAccGroupNo: Code[10]
+    begin
+        GLAccountNo1 := LibraryERM.CreateGLAccountNo();
+        GLAccountNo2 := LibraryERM.CreateGLAccountNo();
+        GLAccountNo3 := LibraryERM.CreateGLAccountNo();
+        AutoAccGroupNo := CreateAutomaticAccGroupWithTwoLinesAndBalanceLine(GLAccountNo1, GLAccountNo2, GLAccountNo3);
+    end;
+
+    local procedure CreateAutomaticAccGroupWithTwoLinesAndBalanceLine(GLAccountNo1: Code[20]; GLAccountNo2: Code[20]; GLAccountNo3: Code[20]): Code[10]
+    var
+        AutomaticAccountHeader: Record "Automatic Account Header";
+    begin
+        LibraryAAC.CreateAutomaticAccountHeader(AutomaticAccountHeader);
+
+        CreateAutoAccLine(AutomaticAccountHeader."No.", GLAccountNo1, 50, '');
+        CreateAutoAccLine(AutomaticAccountHeader."No.", GLAccountNo2, 50, '');
+        CreateAutoAccLine(AutomaticAccountHeader."No.", GLAccountNo3, -100, '');
+        Commit();
+        exit(AutomaticAccountHeader."No.");
+    end;
+
+    local procedure CountGLEntryLines(GenJnlLine: Record "Gen. Journal Line")
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", GenJnlLine."Document No.");
+        GLEntry.FindSet();
+        Assert.AreEqual(5, GLEntry.Count, GLEntryCountErr);
     end;
 
     [ModalPageHandler]

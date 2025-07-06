@@ -38,7 +38,7 @@ codeunit 134776 "Document Attachment Tests"
         DeleteAttachmentsConfirmQst: Label 'Do you want to delete the attachments for this document?';
         ConfirmOpeningNewOrderAfterQuoteToOrderQst: Label 'Do you want to open the new order?';
         AttachedDateInvalidErr: Label 'Attached date is invalid';
-        AttachmentNotdeletedErr: Label 'Attachment is not deleted';
+        AttachmentNotDeletedErr: Label 'Attachment is not deleted';
         OpenInDetailNotEnabledErr: Label 'OpenInDetail button must be enabled in FactBox %1 of page %2', Comment = '%1=FactBox PageName, %2= PageName';
         ExpectedFieldNotVisibleErr: Label 'Expected field %1 is not visible in %2', Comment = '%1=FieldName, %2=PageName';
         ExpectedFieldNotEditableErr: Label 'Expected field %1 is not editable in %2', Comment = '%1=FieldName, %2=PageName';
@@ -95,9 +95,10 @@ codeunit 134776 "Document Attachment Tests"
 
         // [GIVEN] Image file
         // [WHEN] Save attachment function is called
-        // [THEN] No errors. Verfiy document attachment properties on sucessful save
+        // [THEN] No errors. Verify document attachment properties on successful save
         // Initialize
         Initialize();
+        LibrarySales.CreateCustomer(Customer);
         DocumentAttachment.Init();
 
         RecRef.GetTable(Customer);
@@ -109,7 +110,7 @@ codeunit 134776 "Document Attachment Tests"
         Assert.AreEqual('Image', Format(DocumentAttachment."File Type"::Image), 'File type is not equal to image.');
 
         // Verify user security id
-        Assert.AreEqual(UserSecurityId(), DocumentAttachment."Attached By", 'AttachedBy is not eqal to USERSECURITYID');
+        Assert.AreEqual(UserSecurityId(), DocumentAttachment."Attached By", 'AttachedBy is not equal to USERSECURITYID');
 
         // Verify file type
         Assert.AreEqual(1, DocumentAttachment."File Type", 'File type is not image.');
@@ -229,6 +230,7 @@ codeunit 134776 "Document Attachment Tests"
         // Initialize
         Initialize();
         DocumentAttachment.Init();
+        LibrarySales.CreateCustomer(Customer);
         CreateTempBLOBWithImageOfType(TempBlob, 'jpeg');
 
         RecRef.GetTable(Customer);
@@ -258,6 +260,7 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] Second attachment has been renamed.
         // Initialize
         Initialize();
+        LibrarySales.CreateCustomer(Customer);
         DocumentAttachment.DeleteAll();
         DocumentAttachment.Init();
         DocumentAttachment2.Init();
@@ -285,6 +288,34 @@ codeunit 134776 "Document Attachment Tests"
 
     [Test]
     [Scope('OnPrem')]
+    procedure EnsureAttachmentsCannotBeUploadedWithUnSavedRecord()
+    var
+        Customer: Record Customer;
+        DocumentAttachment: Record "Document Attachment";
+        TempBlob: Codeunit "Temp Blob";
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO] [Bug 574712] Upload file to a unsaved record should not be allowed. 
+
+        // [GIVEN] An unsaved customer record is created 
+        Initialize();
+        DocumentAttachment.DeleteAll();
+        DocumentAttachment.Init();
+        Customer.Init();
+        RecRef.GetTable(Customer);
+
+        // [GIVEN] One image file is created
+        CreateTempBLOBWithImageOfType(TempBlob, 'jpeg');
+
+        // [WHEN] The image is saved as an attachment
+        asserterror DocumentAttachment.SaveAttachment(RecRef, 'test.jpeg', TempBlob);
+
+        // [THEN] An error is shown that the record reference is empty
+        Assert.ExpectedError('The record reference is empty. Please save the record before attaching files.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure EnsureDuplicateFileWithSameNameAndDifferentExtSaved()
     var
         Customer: Record Customer;
@@ -300,7 +331,7 @@ codeunit 134776 "Document Attachment Tests"
         // Initialize
         Initialize();
         DocumentAttachment.Init();
-
+        LibrarySales.CreateCustomer(Customer);
         RecRef.GetTable(Customer);
 
         CreateTempBLOBWithImageOfType(TempBlob, 'jpeg');
@@ -4081,8 +4112,8 @@ codeunit 134776 "Document Attachment Tests"
         ProductionOrder.Delete(true);
 
         // [THEN] Verify that there should be no attachments for the Production Order.
-        Assert.AreEqual(false, CheckIfDocAttachExist(Database::"Production Order", DocNo[4], 0), AttachmentNotdeletedErr);
-        Assert.AreEqual(false, CheckIfDocAttachExist(Database::"Prod. Order Line", DocNo[4], LineNo), AttachmentNotdeletedErr);
+        Assert.AreEqual(false, CheckIfDocAttachExist(Database::"Production Order", DocNo[4], 0), AttachmentNotDeletedErr);
+        Assert.AreEqual(false, CheckIfDocAttachExist(Database::"Prod. Order Line", DocNo[4], LineNo), AttachmentNotDeletedErr);
 
         // [GIVEN] Uncertify Production BOM.
         ProdBOMHeader.Status := ProdBOMHeader.Status::New;
@@ -4096,19 +4127,19 @@ codeunit 134776 "Document Attachment Tests"
         Item.Delete(true);
 
         // [THEN] Verify that there should be no attachments for the Item.
-        Assert.AreEqual(false, CheckIfDocAttachExist(Database::Item, DocNo[1], 0), AttachmentNotdeletedErr);
+        Assert.AreEqual(false, CheckIfDocAttachExist(Database::Item, DocNo[1], 0), AttachmentNotDeletedErr);
 
         // [WHEN] Deleting Production BOM Header.
         ProdBOMHeader.Delete(true);
 
         // [THEN] VVerify that there are no attachments for the Production BOM Header.
-        Assert.AreEqual(false, CheckIfDocAttachExist(Database::"Production BOM Header", DocNo[3], 0), AttachmentNotdeletedErr);
+        Assert.AreEqual(false, CheckIfDocAttachExist(Database::"Production BOM Header", DocNo[3], 0), AttachmentNotDeletedErr);
 
         // [WHEN] Deleting the Routing Header.
         RoutingHeader.Delete(true);
 
         // [THEN] Verify that there are no attachments for the Routing Header.
-        Assert.AreEqual(false, CheckIfDocAttachExist(Database::"Routing Header", DocNo[2], 0), AttachmentNotdeletedErr);
+        Assert.AreEqual(false, CheckIfDocAttachExist(Database::"Routing Header", DocNo[2], 0), AttachmentNotDeletedErr);
     end;
 
     [Test]

@@ -100,7 +100,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
 
                 trigger OnBeforePassVariable()
                 begin
-                    BuyerReference := SalesHeader."Your Reference";
+                    BuyerReference := PEPPOLMgt.GetBuyerReference(SalesHeader);
                     if BuyerReference = '' then
                         currXMLport.Skip();
                 end;

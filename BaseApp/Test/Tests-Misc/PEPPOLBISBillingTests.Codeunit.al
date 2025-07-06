@@ -10,6 +10,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
 
     var
         LibraryService: Codeunit "Library - Service";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
@@ -1456,6 +1457,34 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         LibraryXMLRead.VerifyNodeValueInSubtree('cac:Attachment', 'cbc:EmbeddedDocumentBinaryObject', Base64Convert.ToBase64('Test'));
     end;
 
+    [Test]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoice_CheckTaxTotalWhenUnitPriceZero()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        XMLFilePath: Text;
+        VatPer: Decimal;
+    begin
+        // [SCENARIO 580032] Peppol invoice with zero amount not generated correctly and does not pass validation.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice.
+        Customer.Get(CreateCustomerWithAddressAndVATRegNo());
+        CreateSalesDocWithItemAndZeroUnitOrice(SalesHeader, SalesLine, Customer."No.", SalesHeader."Document Type"::Invoice, CreateCurrencyCode());
+        VatPer := SalesLine."VAT %";
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter();
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice());
+
+        // [THEN] Verify Tax Total Amounts
+        LibraryXMLRead.Initialize(XMLFilePath);
+        VerifyTaxTotalAmounts(0, VatPer, 0, 0);
+    end;
+
     local procedure Initialize()
     var
         CompanyInfo: Record "Company Information";
@@ -1992,6 +2021,17 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         ElectronicDocumentFormat.SendElectronically(TempBlob, ClientFileName, DocumentVariant, FormatCode);
         exit(ClientFileName);
+    end;
+
+    local procedure CreateSalesDocWithItemAndZeroUnitOrice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10])
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        CreateSalesHeader(SalesHeader, CustomerNo, DocumentType, CurrencyCode);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", 0);
+        SalesLine.Modify(true);
     end;
 }
 

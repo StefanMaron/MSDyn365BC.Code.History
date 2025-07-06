@@ -6,9 +6,7 @@ page 37105 "Return Order Overview"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Return Order Overview';
     AboutTitle = 'About Return Order Overview';
     AboutText = 'The Return Order Overview tracks and analyzes return orders, providing insights into return amounts, quantities,  reasons for return, and the financial impact on the organization.';
@@ -25,7 +23,7 @@ page 37105 "Return Order Overview"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

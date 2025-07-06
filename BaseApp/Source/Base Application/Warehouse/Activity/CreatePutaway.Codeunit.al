@@ -17,6 +17,8 @@ using System.Telemetry;
 
 codeunit 7313 "Create Put-away"
 {
+    Permissions = tabledata "Production Order" = rm,
+                  tabledata "Prod. Order Line" = rm;
     TableNo = "Posted Whse. Receipt Line";
 
     trigger OnRun()

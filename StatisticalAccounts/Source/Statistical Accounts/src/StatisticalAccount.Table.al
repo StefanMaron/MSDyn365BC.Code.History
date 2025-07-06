@@ -98,7 +98,7 @@ table 2632 "Statistical Account"
             CalcFormula = sum("Statistical Ledger Entry".Amount where("Statistical Account No." = field("No."),
                                                         "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                        "Posting Date" = field(upperlimit("Date Filter")),
+                                                        "Posting Date" = field("Date Filter"),
                                                         "Dimension Set ID" = field("Dimension Set ID Filter")));
             Caption = 'Balance';
             Editable = false;

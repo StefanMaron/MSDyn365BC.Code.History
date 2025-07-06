@@ -706,6 +706,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         Item.TestField("Cost is Adjusted", true);
     end;
 
+#if not CLEAN27
     [Test]
     [HandlerFunctions('PostedServiceInvoiceStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -1148,6 +1149,452 @@ codeunit 137285 "SCM Inventory Batch Jobs"
 
         // Verify: Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics.
         VerifyCostOnPostedServiceInvoiceStatistics(
+            ServiceLine."Document No.", '', GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
+            GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('PostedServiceInvoiceStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure PstdServInvStatisticsUsingServOrderNM()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics after posting Service Order.
+
+        // Setup: Create Item, create and post Purchase Order, create Service Order.
+        Initialize();
+        CreatePurchaseOrder(
+          PurchaseLine, CreateVendor(), CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        PostPurchaseDocument(PurchaseLine, true);
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
+        ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
+
+        // Exercise: Post Service Order as ship and invoice.
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // Verify: Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics.
+        VerifyCostOnPostedServiceInvoiceStatisticsNM(
+          ServiceLine."Document No.", '',
+          GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
+          GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedServiceInvoiceStatisticsPageHandlerNM')]
+    procedure PstdServInvStatisticsWithRevAndAdjmtNM()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        UnitCostRevalued: Decimal;
+    begin
+        // Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics after posting Revaluation Journal and running Adjust Cost Item Entries.
+
+        // Setup: Create Item, create and post Purchase Order, Service Order and Revaluation Journal.
+        CreatePurchaseOrder(
+          PurchaseLine, CreateVendor(), CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        PostPurchaseDocument(PurchaseLine, true);
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), PurchaseLine.Quantity / 2);  // Take Partial Quantity.
+        ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+        FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Purchase, PurchaseLine."No.", true);
+        UnitCostRevalued :=
+            GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) + LibraryRandom.RandDec(10, 2);  // Add random value to Unit Cost to make positive Revaluation.
+        CreateAndPostRevaluationJournal(
+          PurchaseLine."No.", ItemLedgerEntry."Entry No.", LibraryRandom.RandDec(100, 2), UnitCostRevalued);  // Use Random value for Inventory Value Revalued and 0 for Unit Cost Revalued.
+
+        // Exercise: Run Adjust Cost Item Entries.
+        LibraryCosting.AdjustCostItemEntries(PurchaseLine."No.", '');  // Blank value for Item Category.
+
+        // Verify: Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics.
+        VerifyCostOnPostedServiceInvoiceStatisticsNM(
+            ServiceLine."Document No.", '',
+            GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
+            UnitCostRevalued * ServiceLine.Quantity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedServiceCreditMemoStatisticsPageHandlerNM')]
+    procedure PstdServCrMemoStatisticsWithAdjmtNM()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        ServiceLine: Record "Service Line";
+    begin
+        // Verify Original Cost and Adjusted Cost on posted Services Credit Memo Statistics after posting Service Credit Memo and running Adjust Cost Item Entries.
+
+        // Setup: Create Item, create and post Purchase Order, Service Credit Memo.
+        Initialize();
+        CreatePurchaseOrder(
+          PurchaseLine, CreateVendor(), CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        PostPurchaseDocument(PurchaseLine, true);
+        CreateAndPostServiceCreditMemo(ServiceLine, PurchaseLine."No.", LibrarySales.CreateCustomerNo());
+
+        // Exercise: Run Adjust Cost Item Entries.
+        LibraryCosting.AdjustCostItemEntries(PurchaseLine."No.", '');  // Blank value for Item Category.
+
+        // Verify: Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics.
+        VerifyCostOnPostedServiceCreditMemoStatisticsNM(
+          ServiceLine."Document No.", GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
+          GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
+    end;
+
+#if not CLEAN25
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedServiceInvoiceStatisticsPageHandlerNM')]
+    procedure PstdServInvStatisticsUsingServOrderWithLineDiscNM()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ServiceLine: Record "Service Line";
+        SalesLineDiscount: Record "Sales Line Discount";
+    begin
+        // Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics after posting Service Order When Line Discount is defined for Item.
+
+        // Setup: Create Item with Sales Line Discount, create and post Purchase Order, create Service Order.
+        Initialize();
+        CreateItemWithSalesLineDiscount(SalesLineDiscount);
+        CreateAndPostPurchaseDocument(PurchaseLine, SalesLineDiscount.Code, LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
+        CreateServiceDocumentAndUpdateServiceLine(
+          ServiceLine, SalesLineDiscount.Code, SalesLineDiscount."Sales Code", LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
+
+        // Exercise: Post Service Order as ship and invoice.
+        PostServiceOrder(ServiceLine, true, false);
+
+        // Verify: Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics.
+        VerifyCostOnPostedServiceInvoiceStatisticsNM(
+          ServiceLine."Document No.", '', GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
+          GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedServiceInvoiceStatisticsPageHandlerNM')]
+    procedure PstdServInvStatisticsWithRevAndWithoutAdjmtNM()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ServiceLine: Record "Service Line";
+        SalesLineDiscount: Record "Sales Line Discount";
+    begin
+        // Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics after posting Revaluation Journal When Line Discount is defined for Item.
+
+        // Setup: Create Item with Sales Line Discount, create and post Purchase Order, Service Order and Revaluation Journal.
+        Initialize();
+        CreateItemWithSalesLineDiscount(SalesLineDiscount);
+        CreateAndPostPurchaseDocument(PurchaseLine, SalesLineDiscount.Code, LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
+        CreateServiceDocumentAndUpdateServiceLine(
+          ServiceLine, SalesLineDiscount.Code, SalesLineDiscount."Sales Code", PurchaseLine.Quantity - 1);  // Take less Quantity than Purchase Line.
+        PostServiceOrder(ServiceLine, true, false);
+
+        // Exercise: Create and post Revaluation Journal.
+        CreateItemJournalForRevaluation(SalesLineDiscount.Code);
+
+        // Verify: Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics.
+        VerifyCostOnPostedServiceInvoiceStatisticsNM(
+          ServiceLine."Document No.", '',
+          GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
+          GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedServiceCreditMemoStatisticsPageHandlerNM')]
+    procedure PstdServCrMemoStatisticsWithoutAdjmtNM()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ServiceLine: Record "Service Line";
+        SalesLineDiscount: Record "Sales Line Discount";
+    begin
+        // Verify Original Cost and Adjusted Cost on posted Services Credit Memo Statistics after posting Service Credit Memo When Line Discount is defined for Item..
+
+        // Setup: Create Item with Sales Line Discount, create and post Purchase Order, Service Credit Memo.
+        Initialize();
+        CreateItemWithSalesLineDiscount(SalesLineDiscount);
+        CreateAndPostPurchaseDocument(PurchaseLine, SalesLineDiscount.Code, LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
+
+        // Exercise: Create and post Service Credit Memo.
+        CreateAndPostServiceCreditMemo(ServiceLine, SalesLineDiscount.Code, SalesLineDiscount."Sales Code");
+
+        // Verify: Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics.
+        VerifyCostOnPostedServiceCreditMemoStatisticsNM(
+          ServiceLine."Document No.", GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
+          GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('ServiceOrderStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure ServOrderStatisticsPostingServOrderAsShipNM()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        ServiceLine: Record "Service Line";
+    begin
+        // Verify Original Cost and Adjusted Cost on Services Order Statistics after posting Service Order as Ship.
+
+        // Setup: Create Item, create and post Purchase Order, Create Service Order.
+        Initialize();
+        CreateAndPostPurchaseDocument(PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+
+        // Exercise: Post Service Order as ship.
+        PostServiceOrder(ServiceLine, false, false);
+
+        // Verify: Verify Original Cost and Adjusted Cost on Services Order Statistics.
+        VerifyServiceOrderStatisticsNM(
+          ServiceLine."Document No.", GetItemCost(PurchaseLine."No.") * ServiceLine.Quantity,
+          GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceOrderStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure ServOrderStatisticsPostingServOrderAsShipWithAdjmtNM()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        ServiceLine: Record "Service Line";
+        DirectUnitCost: Decimal;
+        AdjustedCost: Decimal;
+    begin
+        // Verify Original Cost and Adjusted Cost on Services Order Statistics after posting Service Order as Ship and running Adjust Cost Item Entries.
+
+        // Setup: Create Item, create and post Purchase Order, Service Order.
+        Initialize();
+        CreatePurchaseOrder(PurchaseLine, CreateVendor(), CreateItem('', Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        DirectUnitCost := PurchaseLine."Direct Unit Cost";
+        PostPartialPurchLineWithUpdate(PurchaseLine);
+        AdjustedCost :=
+          PurchaseLine."Quantity Invoiced" * DirectUnitCost + PurchaseLine."Qty. to Invoice" * PurchaseLine."Direct Unit Cost";
+        PostPurchaseDocument(PurchaseLine, true);
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), PurchaseLine.Quantity);
+        PostServiceOrder(ServiceLine, false, false);
+
+        // Exercise: Run Adjust Cost Item Entries.
+        LibraryCosting.AdjustCostItemEntries(PurchaseLine."No.", '');  // Blank value for Item Category.
+
+        // Verify: Verify Original Cost and Adjusted Cost on Services Order Statistics.
+        VerifyServiceOrderStatisticsNM(ServiceLine."Document No.", DirectUnitCost * ServiceLine.Quantity, AdjustedCost);
+    end;
+
+    [Test]
+    [HandlerFunctions('ShipmentLinePageHandler,PostedServiceInvoiceStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure PstdServInvStatisticsUsingGetShipmentLinesNM()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        ServiceLine: Record "Service Line";
+        OrderNo: Text[20];
+    begin
+        // Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics after posting Service Order using Get Service Shipment Lines.
+
+        // Setup: Create Item, create and post Purchase Order, create Service Invoice using Get Shipment Lines.
+        Initialize();
+        CreateAndPostPurchaseDocument(PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        OrderNo := ServiceLine."Document No.";
+        PostServiceOrder(ServiceLine, false, false);
+        LibraryVariableStorage.Enqueue(ServiceLine."Document No.");  // Enqueue value for 'ShipmentLinePageHandler'.
+        CreateServiceInvoiceFromGetShipmentLines(ServiceLine, ServiceLine."Customer No.");
+
+        // Exercise: Post Service Invoice.
+        PostServiceOrder(ServiceLine, true, false);
+
+        // Verify: Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics.
+        VerifyCostOnPostedServiceInvoiceStatisticsNM(
+          OrderNo, ServiceLine."Document No.", GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
+          GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceOrderStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure ServOrderStatisticsPostingServOrderAsConsumeNM()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        ServiceLine: Record "Service Line";
+    begin
+        // Verify Original Cost and Adjusted Cost on Services Order Statistics after posting Service Order as ship and consume.
+
+        // Setup: Create Item, create and post Purchase Order, Service Order.
+        Initialize();
+        CreateAndPostPurchaseDocument(
+          PurchaseLine, CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2), true);  // Use TRUE for Invoice and Random value for Quantity.
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        UpdateQtyToConsumeOnServiceLine(ServiceLine, ServiceLine."Qty. to Ship" * LibraryUtility.GenerateRandomFraction());
+
+        // Exercise: Post Service Order as ship and consume.
+        PostServiceOrder(ServiceLine, false, true);
+
+        // Verify: Verify Original Cost and Adjusted Cost on Services Order Statistics.
+        VerifyServiceOrderStatisticsNM(
+          ServiceLine."Document No.", GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
+          GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ServiceOrderStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure ServOrderStatisticsAfterUndoShipmentWithAdjmtNM()
+    begin
+        // Verify Original Cost and Adjusted Cost on Services Order Statistics when undo Shipment Lines and running Adjust Cost Item Entries.
+        ServiceOrderStatisticsAfterUndoShipmentLineNM(0, false);  // 0 for Quantity To Consume and FALSE for Consume.
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ServiceOrderStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure ServOrderStatisticsAfterUndoConsumptionWithAdjmtNM()
+    begin
+        // Verify Original Cost and Adjusted Cost on Services Order Statistics when undo consumption Line and running Adjust Cost Item Entries.
+        ServiceOrderStatisticsAfterUndoShipmentLineNM(LibraryRandom.RandInt(10), true);  // Use random for Quantity to Consume and TRUE for Consume.
+    end;
+
+    local procedure ServiceOrderStatisticsAfterUndoShipmentLineNM(Quantity: Decimal; Consume: Boolean)
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        ServiceLine: Record "Service Line";
+    begin
+        // Setup: Create Item, create and post Purchase Order, Service Order and undo Shipment Line.
+        Initialize();
+        CreateAndPostPurchaseDocument(
+          PurchaseLine, CreateItem('', Item."Costing Method"::FIFO), Quantity + LibraryRandom.RandInt(10), true);  // Use TRUE for Invoice and Random value for Quantity.
+        CreateServiceDocumentAndUpdateServiceLine(
+          ServiceLine, PurchaseLine."No.", CreateCustomer(), Quantity + LibraryRandom.RandInt(10));  // Use Random Quantity greater than Quantity To Consume.
+        UpdateQtyToConsumeOnServiceLine(ServiceLine, Quantity);
+        PostServiceOrder(ServiceLine, false, Consume);
+        if Consume then
+            UndoServiceConsumptionLine(ServiceLine."Document No.")
+        else
+            UndoServiceShipmentLine(ServiceLine."Document No.");
+
+        // Exercise: Run Adjust Cost Item Entries.
+        LibraryCosting.AdjustCostItemEntries(ServiceLine."No.", '');  // Blank value for Item Category.
+
+        // Verify: Verify Original Cost and Adjusted Cost on Services Order Statistics.
+        VerifyServiceOrderStatisticsNM(
+            ServiceLine."Document No.", GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
+            GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedServiceInvoiceStatisticsPageHandlerNM')]
+    procedure PstdServInvStatisticsWithChargeAssignmentNM()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ServiceLine: Record "Service Line";
+    begin
+        // Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics after posting Service Order and Purchase Order with Charge Assignment.
+
+        // Setup: Create and post Purchase Order with charge Assignment, create Service Order.
+        Initialize();
+        PostChargeOnPurchaseDocument(PurchaseLine);
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+
+        // Exercise: Post Service Order as ship.
+        PostServiceOrder(ServiceLine, true, false);
+
+        // Verify: Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics.
+        VerifyCostOnPostedServiceInvoiceStatisticsNM(
+            ServiceLine."Document No.", '', GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
+            GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedServiceCreditMemoStatisticsPageHandlerNM')]
+    procedure PstdServCrMemoStatisticsWithChargeAssignmentNM()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ServiceLine: Record "Service Line";
+    begin
+        // Verify Original Cost and Adjusted Cost on posted Services Credit Memo Statistics after posting Service Credit Memo and Purchase Order with Charge Assignment.
+
+        // Setup: Create and post Purchase Order with charge Assignment.
+        Initialize();
+        PostChargeOnPurchaseDocument(PurchaseLine);
+
+        // Exercise: Create and post Service Credit Memo.
+        CreateAndPostServiceCreditMemo(ServiceLine, PurchaseLine."No.", CreateCustomer());
+
+        // Verify: Verify Original Cost and Adjusted Cost on posted Services Credit Memo Statistics
+        VerifyCostOnPostedServiceCreditMemoStatisticsNM(
+          ServiceLine."Document No.", GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
+          GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('ShipmentLinePageHandler,PostedServiceInvoiceStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure PstdServInvStatisticsUsingGetShipmentLinesWithChrgAssgntNM()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ServiceLine: Record "Service Line";
+        OrderNo: Text[20];
+    begin
+        // Verify Original Cost and Adjusted Cost on on posted Services Invoice Statistics after posting Service Invoice using Get Service Shipment Lines and Purchase Order with Charge Assignment.
+
+        // Setup: Create and post Purchase Order with charge Assignment, create Service Invoice using Get Shipment Lines.
+        Initialize();
+        PostChargeOnPurchaseDocument(PurchaseLine);
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        OrderNo := ServiceLine."Document No.";
+        PostServiceOrder(ServiceLine, false, false);
+        LibraryVariableStorage.Enqueue(ServiceLine."Document No.");  // Enqueue value for 'ShipmentLinePageHandler'.
+        CreateServiceInvoiceFromGetShipmentLines(ServiceLine, ServiceLine."Customer No.");
+
+        // Exercise: Post Service Invoice.
+        PostServiceOrder(ServiceLine, true, false);
+
+        // Verify: Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics.
+        VerifyCostOnPostedServiceInvoiceStatisticsNM(
+            OrderNo, ServiceLine."Document No.", GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
+            GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedServiceInvoiceStatisticsPageHandlerNM')]
+    procedure PstdServInvStatisticsWithChargeAssignmentWithAdjmtNM()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        ServiceLine: Record "Service Line";
+    begin
+        // Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics after posting Service Order and Purchase Invoice with Charge Assignment, running Adjust Cost Item Entries.
+
+        // Setup: Create and post Purchase Order.
+        Initialize();
+        CreatePurchaseOrder(
+          PurchaseLine, CreateVendor(), CreateItem('', Item."Costing Method"::Standard), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        PostPurchaseDocument(PurchaseLine, false);
+
+        // Create Purchase Invoice for Charge Item and assign it to previous Posted Receipt, create and post Service Order.
+        CreateAndPostChargeItemPurchaseDocument(
+          PurchaseLine2, PurchaseLine."Buy-from Vendor No.", PurchaseLine."Document No.", PurchaseLine."No.",
+          LibraryInventory.CreateItemChargeNo());
+        CreateServiceDocumentAndUpdateServiceLine(ServiceLine, PurchaseLine."No.", CreateCustomer(), LibraryRandom.RandDec(10, 2));  // Use Random value for Quantity.
+        PostServiceOrder(ServiceLine, true, false);
+
+        // Exercise: Run Adjust Cost Item Entries.
+        LibraryCosting.AdjustCostItemEntries(PurchaseLine."No.", '');  // Blank value for Item Category.
+
+        // Verify: Verify Original Cost and Adjusted Cost on posted Services Invoice Statistics.
+        VerifyCostOnPostedServiceInvoiceStatisticsNM(
             ServiceLine."Document No.", '', GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity,
             GetItemCostLCY(PurchaseLine."No.", PurchaseLine."Currency Code", PurchaseLine.GetDate()) * ServiceLine.Quantity);
     end;
@@ -1860,6 +2307,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ItemLedgerEntry.TestField("Item Category Code", ItemCategoryCode);
     end;
 
+#if not CLEAN27
     local procedure VerifyCostOnPostedServiceInvoiceStatistics(OrderNo: Code[20]; PreAssignedNo: Code[20]; CostLCY: Decimal; TotalAdjCostLCY: Decimal)
     var
         ServiceInvHeader: Record "Service Invoice Header";
@@ -1900,6 +2348,47 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ServiceOrder.FILTER.SetFilter("No.", No);
         ServiceOrder.Statistics.Invoke();
     end;
+#endif
+    local procedure VerifyCostOnPostedServiceInvoiceStatisticsNM(OrderNo: Code[20]; PreAssignedNo: Code[20]; CostLCY: Decimal; TotalAdjCostLCY: Decimal)
+    var
+        ServiceInvHeader: Record "Service Invoice Header";
+        PostedServiceInvoice: TestPage "Posted Service Invoice";
+    begin
+        LibraryVariableStorage.Enqueue(CostLCY);
+        LibraryVariableStorage.Enqueue(TotalAdjCostLCY);
+        ServiceInvHeader.SetRange("Order No.", OrderNo);
+        ServiceInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        ServiceInvHeader.FindFirst();
+        PostedServiceInvoice.OpenView();
+        PostedServiceInvoice.GotoRecord(ServiceInvHeader);
+        PostedServiceInvoice.ServiceStatistics.Invoke();
+    end;
+
+    local procedure VerifyCostOnPostedServiceCreditMemoStatisticsNM(ServiceDocNo: Code[20]; CostLCY: Decimal; TotalAdjCostLCY: Decimal)
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        PostedServiceCreditMemo: TestPage "Posted Service Credit Memo";
+    begin
+        LibraryVariableStorage.Enqueue(CostLCY);
+        LibraryVariableStorage.Enqueue(TotalAdjCostLCY);
+        ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceDocNo);
+        ServiceCrMemoHeader.FindFirst();
+        PostedServiceCreditMemo.OpenView();
+        PostedServiceCreditMemo.GotoRecord(ServiceCrMemoHeader);
+        PostedServiceCreditMemo.ServiceStatistics.Invoke();
+    end;
+
+    local procedure VerifyServiceOrderStatisticsNM(No: Code[20]; OriginalCost: Decimal; AdjustedCost: Decimal)
+    var
+        ServiceOrder: TestPage "Service Order";
+    begin
+        // Enqueue values for 'ServiceOrderStatisticsPageHandler' and verification done in 'ServiceOrderStatisticsPageHandler'.
+        LibraryVariableStorage.Enqueue(OriginalCost);
+        LibraryVariableStorage.Enqueue(AdjustedCost);
+        ServiceOrder.OpenView();
+        ServiceOrder.FILTER.SetFilter("No.", No);
+        ServiceOrder.ServiceOrderStatistics.Invoke();
+    end;
 
     [ConfirmHandler]
     [Scope('OnPrem')]
@@ -1930,6 +2419,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         GetServiceShipmentLines.GetShipmentLines();
     end;
 
+#if not CLEAN27
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceOrderStatisticsPageHandler(var ServiceOrderStatistics: TestPage "Service Order Statistics")
@@ -1975,5 +2465,50 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ServiceCreditMemoStatistics.CostLCY.AssertEquals(CostLCY);
         ServiceCreditMemoStatistics.TotalAdjCostLCY.AssertEquals(TotalAdjCostLCY);
     end;
-}
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceOrderStatisticsPageHandlerNM(var ServiceOrderStatistics: TestPage "Service Order Statistics")
+    var
+        CostLCY: Variant;
+        TotalAdjCostLCY: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(CostLCY);
+        LibraryVariableStorage.Dequeue(TotalAdjCostLCY);
+        Assert.AreNearlyEqual(
+          CostLCY, ServiceOrderStatistics.OriginalCostLCY.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(FieldValidationErr, CostLbl, CostLCY));
+        Assert.AreNearlyEqual(
+          TotalAdjCostLCY, ServiceOrderStatistics.AdjustedCostLCY.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(FieldValidationErr, CostLbl, TotalAdjCostLCY));
+    end;
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PostedServiceInvoiceStatisticsPageHandlerNM(var ServiceInvoiceStatistics: TestPage "Service Invoice Statistics")
+    var
+        CostLCY: Variant;
+        TotalAdjCostLCY: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(CostLCY);
+        LibraryVariableStorage.Dequeue(TotalAdjCostLCY);
+        Assert.AreNearlyEqual(
+          CostLCY, ServiceInvoiceStatistics.CostLCY.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(FieldValidationErr, CostLbl, CostLCY));
+        Assert.AreNearlyEqual(
+          TotalAdjCostLCY, ServiceInvoiceStatistics.TotalAdjCostLCY.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(FieldValidationErr, CostLbl, TotalAdjCostLCY));
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PostedServiceCreditMemoStatisticsPageHandlerNM(var ServiceCreditMemoStatistics: TestPage "Service Credit Memo Statistics")
+    var
+        CostLCY: Variant;
+        TotalAdjCostLCY: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(CostLCY);
+        LibraryVariableStorage.Dequeue(TotalAdjCostLCY);
+        ServiceCreditMemoStatistics.CostLCY.AssertEquals(CostLCY);
+        ServiceCreditMemoStatistics.TotalAdjCostLCY.AssertEquals(TotalAdjCostLCY);
+    end;
+}
