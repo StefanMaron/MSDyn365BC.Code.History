@@ -1249,6 +1249,36 @@ codeunit 18131 "GST On Purchase Tests"
         VerifyGSTLedgerEntriesAmount(DocumentNo);
     end;
 
+    [Test]
+    [HandlerFunctions('TaxRatePageHandler,ApplyDistributionEntries,ConfirmationHandler,DimensionHandler,NoSeriesHandler')]
+    procedure PostInterStateInvDistributionITCToITCWithLocationDistNo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GSTVendorType: Enum "GST Vendor Type";
+        LineType: Enum "Purchase Line Type";
+        DocumentType: Enum "Purchase Document Type";
+        GSTGroupType: Enum "GST Group Type";
+        DocType: Enum "BankCharges DocumentType";
+        DistGSTCredit: Enum "GST Credit";
+        RcptGSTCredit: Enum "GST Credit";
+    begin
+        // [SCENARIO]Check if the system is handling Interstate Distribution of Invoice with Input Tax Credit to Recipient location as Input Tax Credit is available
+        // [FEATURE] [ITC Distribution] [InterState Input Distribution]
+
+        // [GIVEN] Created GST Setup and tax rates for registered Vendor where input tax credit is available with GST Group Code type is Service
+        CreateGSTSetup(GSTVendorType::Registered, GSTGroupType::Service, false, false);
+        InitializeShareStep(true, false, false);
+        UpdateInputServiceDistributer(true);
+        Storage.Set(NoOfLineLbl, '1');
+
+        // [WHEN] Create and Post Purchase Order with GST and Line Type as Services for Interstate Transactions.
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseLine, LineType::"G/L Account", DocumentType::Order);
+
+        // [THEN] Create and Post Distribution Document with Document type Inoivce and Distribution GST Credit is Availment and Receipt GST Credit is Availment
+        CreateAndPostDistributionDocumentNo(DocType::Invoice, DistGSTCredit::Availment, RcptGSTCredit::Availment, false);
+    end;
+
     local procedure VerifyTaxTransactionValueExist(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     var
         PurchaseLineArchive: Record "Purchase Line Archive";
@@ -1820,6 +1850,33 @@ codeunit 18131 "GST On Purchase Tests"
         SetupGSTComponentMapping();
     end;
 
+    local procedure CreateInitialSetupForGSTDistributionLine()
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        SourceCode: Record "Source Code";
+        PostingNoSeries: Record "Posting No. Series";
+    begin
+        if SourceCodeSetup."GST Distribution" = '' then begin
+            SourceCode.Init();
+            SourceCode.Code := (LibraryRandom.RandText(10));
+            SourceCode.Insert();
+
+            SourceCodeSetup."GST Distribution" := SourceCode.Code;
+            SourceCodeSetup.Modify();
+        end;
+
+        PostingNoSeries.SetRange("Document Type", PostingNoSeries."Document Type"::"GST Distribution Line");
+        PostingNoSeries.SetFilter("Posting No. Series", '<>%1', '');
+        if not PostingNoSeries.FindFirst() then begin
+            PostingNoSeries.Init();
+            PostingNoSeries.Validate("Document Type", PostingNoSeries."Document Type"::"GST Distribution Line");
+            PostingNoSeries.Validate("Posting No. Series", LibraryERM.CreateNoSeriesCode());
+            PostingNoSeries.Insert(true);
+        end;
+
+        SetupGSTComponentMapping();
+    end;
+
     local procedure SetupGSTComponentMapping()
     var
         GSTComponentDistribution: Record "GST Component Distribution";
@@ -1936,6 +1993,59 @@ codeunit 18131 "GST On Purchase Tests"
         DocumentNo: Code[20];
     begin
         CreateInitialSetupForGSTDistribution();
+        GSTDistributionHeader.Init();
+        GSTDistributionHeader.Insert(true);
+        GSTDistributionHeader.Validate("Posting Date", WorkDate());
+        if Reversal then begin
+            GSTDistributionHeader.Validate(Reversal, Reversal);
+            GSTDistributionHeader.Validate("Reversal Invoice No.", Storage.Get(PostedDistributionNoLbl));
+        end else begin
+            if DocType = DocType::Invoice then
+                GSTDistributionHeader.Validate("ISD Document Type", GSTDistributionHeader."ISD Document Type"::Invoice)
+            else
+                GSTDistributionHeader.Validate("ISD Document Type", GSTDistributionHeader."ISD Document Type"::"Credit Memo");
+            GSTDistributionHeader.Validate("From Location Code", Storage.Get(LocationCodeLbl));
+            GSTDistributionHeader.Validate("Dist. Document Type", DocType);
+            GSTDistributionHeader.Validate("Dist. Credit Type", DistGSTCredit);
+        end;
+        GSTDistributionHeader.Modify(true);
+
+        if not Reversal then begin
+            GSTDistributionLine.Init();
+            GSTDistributionLine.Validate("Distribution No.", GSTDistributionHeader."No.");
+            GSTDistributionLine.Validate("To Location Code", CreateToLocation());
+            GSTDistributionLine.Validate("Rcpt. Credit Type", RcptGSTCredit);
+            GSTDistributionLine.Validate("Distribution %", 100);
+            GSTDistributionLine.Insert(true);
+        end;
+
+        DimensionValue.SetRange("Global Dimension No.", 1);
+        if DimensionValue.FindFirst() then
+            GSTDistributionHeader.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
+
+        DimensionValue.SetRange("Global Dimension No.", 2);
+        if DimensionValue.FindFirst() then
+            GSTDistributionHeader.Validate("Shortcut Dimension 2 Code", DimensionValue.Code);
+        GSTDistributionHeader.Modify(true);
+
+        DocumentNo := GSTDistributionHeader."No.";
+        ApplyAndPostEntries(GSTDistributionHeader."No.", Reversal);
+        VerifyGSTDistribution(DocumentNo);
+    end;
+
+    local procedure CreateAndPostDistributionDocumentNo(
+            DocType: Enum "BankCharges DocumentType";
+                         DistGSTCredit: Enum "GST Credit";
+                         RcptGSTCredit: Enum "GST Credit";
+                         Reversal: Boolean)
+    var
+        GSTDistributionHeader: Record "GST Distribution Header";
+        GSTDistributionLine: Record "GST Distribution Line";
+        DimensionValue: Record "Dimension Value";
+        DocumentNo: Code[20];
+    begin
+        CreateInitialSetupForGSTDistribution();
+        CreateInitialSetupForGSTDistributionLine();
         GSTDistributionHeader.Init();
         GSTDistributionHeader.Insert(true);
         GSTDistributionHeader.Validate("Posting Date", WorkDate());

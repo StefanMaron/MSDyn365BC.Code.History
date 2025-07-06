@@ -6,9 +6,7 @@ page 37092 "Sustainability Report"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Sustainability Report';
     AboutTitle = 'About Sustainability Report';
     AboutText = 'The Sustainability Report offers a view of all Sustainability report pages embedded into a single page for easy access. ';
@@ -25,7 +23,7 @@ page 37092 "Sustainability Report"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

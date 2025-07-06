@@ -6,9 +6,7 @@ page 37098 "Production Order Overview"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = Manufacturing;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Production Order Overview';
     AboutTitle = 'About Production Order Overview';
     AboutText = 'The Production Order Overview dashboard presents key metrics and charts including a breakdown of total actual costs, the number of production orders by status, and the completion percentages for each source item.';
@@ -25,7 +23,7 @@ page 37098 "Production Order Overview"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

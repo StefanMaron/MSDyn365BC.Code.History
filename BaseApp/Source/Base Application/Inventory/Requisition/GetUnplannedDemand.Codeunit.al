@@ -137,6 +137,7 @@ codeunit 5520 "Get Unplanned Demand"
         ItemPlanningLine.SetRange("Job No.", IncludeMetDemandForSpecificJobNo);
         ItemPlanningLine.SetRange(Status, ItemPlanningLine.Status::Order);
         ItemPlanningLine.SetRange(Type, ItemPlanningLine.Type::Item);
+        ItemPlanningLine.SetFilter("No.", '<>%1', '');
         ItemPlanningLine.SetLoadFields("No.");
 
         if ItemPlanningLine.FindSet() then begin
