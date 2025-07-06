@@ -49,6 +49,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         NoOfPicksCreatedMsg: Label 'Number of Invt. Pick activities created';
         WhseHandlingRequiredErr: Label 'Warehouse handling is required';
         InventoryMovementIsNotRegisteredErr: Label 'Inventory Movement is not registered.';
+        InventoryPickNotFoundErr: Label 'Warehouse Activity Header not found for Production Order Components.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2132,6 +2133,88 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         Assert.IsTrue(RegisteredInvMovementHdr.Count > 0, InventoryMovementIsNotRegisteredErr);
     end;
 
+    [Test]
+    [HandlerFunctions('DummyMessageHandler,ReservationPageHandler,PickSelectionPageHandlerSingleDoc,CreatePickPageHandlerForPerWhsDoc')]
+    [Scope('OnPrem')]
+    procedure NoErrorOfAvailabilityWhenCreatePickFromPickWorkSheetForProductionOrder()
+    var
+        Bin, Bin2, Bin3 : Record Bin;
+        CompItem, ProdItem : Record Item;
+        Location: Record Location;
+        ProductionOrder: array[2] of Record "Production Order";
+        ProductionBOMHeader: Record "Production BOM Header";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WareHouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        // [SCENARIO 575862] No availability error when creating pick from pick worksheet with location setup Bin mandatory and the item reserved on the related production order
+        Initialize();
+
+        // [GIVEN] Reset Warehouse Employee Default Location.
+        ResetWarehouseEmployeeDefaultLocation();
+
+        // [GIVEN] Create Location with WMS enabled Bin mandatory
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Create Warehouse Employee for Location.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create Bins for Location.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, '', '');
+        LibraryWarehouse.CreateBin(Bin2, Location.Code, Bin2.Code, '', '');
+        LibraryWarehouse.CreateBin(Bin3, Location.Code, Bin3.Code, '', '');
+
+        // [GIVEN] Set "Prod. Consump. Whse. Handling" = "Warehouse Pick (mandatory)" and assign Bins to "To-Production Bin Code" and "From-Production Bin Code".
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
+        Location.Validate("To-Production Bin Code", Bin.Code);
+        Location.Validate("From-Production Bin Code", Bin2.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Component Item with "Replenishment System" = "Purchase" and "Flushing Method" = "Manual".
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Replenishment System", CompItem."Replenishment System"::Purchase);
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::Manual);
+        CompItem.Modify();
+
+        // [GIVEN] Create Production BOM for Component Item.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Stock");
+        ProdItem.Validate("Flushing Method", ProdItem."Flushing Method"::Manual);
+        ProdItem.Validate("Production BOM No.", LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1));
+        ProdItem.Modify();
+
+        // [GIVEN] Create Inventory for Component Item.
+        CreateInventory(CompItem, 3, Location.Code, Bin3.Code, 0);
+
+        // [GIVEN] Create first Production Orders for Production Item of quantity 2
+        LibraryManufacturing.CreateProductionOrder(
+           ProductionOrder[1], ProductionOrder[1].Status::Released, ProductionOrder[1]."Source Type"::Item, ProdItem."No.", 2);
+        ProductionOrder[1].Validate("Location Code", Location.Code);
+        ProductionOrder[1].Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder[1], false, true, true, true, false);
+
+        // [GIVEN] Reserve Component Item on Production Order 1
+        ReserveQuantityOnComponent(CompItem."No.", ProductionOrder[1]."No.");
+
+        // [GIVEN] Create second Production Order for Production Item of quantity 1
+        LibraryManufacturing.CreateProductionOrder(
+           ProductionOrder[2], ProductionOrder[2].Status::Released, ProductionOrder[2]."Source Type"::Item, ProdItem."No.", 1);
+        ProductionOrder[2].Validate("Location Code", Location.Code);
+        ProductionOrder[2].Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder[2], false, true, true, true, false);
+
+        // [GIVEN] Reserve Component Item on Production Order 2
+        ReserveQuantityOnComponent(CompItem."No.", ProductionOrder[2]."No.");
+
+        // [WHEN] Create Pick Worksheet for Production Order Components.
+        GetWarehouseDocumentFromPickWorksheet(ProductionOrder);
+
+        // [THEN] Verify Warehouse Activity Header for Production Order Components.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WareHouseActivityHeader.FindSet();
+        Assert.IsTrue(WareHouseActivityHeader.Count = 2, InventoryPickNotFoundErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3796,6 +3879,50 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         VerifyInventoryPickLine(SalesOrderNo, LotNos[2], Lot2Qty);
     end;
 
+    local procedure GetWarehouseDocumentFromPickWorksheet(ProductionOrder: array[2] of Record "Production Order")
+    var
+        PickWorksheet: TestPage "Pick Worksheet";
+    begin
+        LibraryVariableStorage.Enqueue(ProductionOrder[1]."No.");  // Enqueue for PickSelectionPageHandler.
+        LibraryVariableStorage.Enqueue(ProductionOrder[1]."Location Code");  // Enqueue PickSelectionPageHandler.
+        PickWorksheet.OpenEdit();
+        PickWorksheet."Get Warehouse Documents".Invoke();
+
+        LibraryVariableStorage.Enqueue(ProductionOrder[2]."No.");  // Enqueue for PickSelectionPageHandler.
+        LibraryVariableStorage.Enqueue(ProductionOrder[2]."Location Code");  // Enqueue PickSelectionPageHandler.
+        PickWorksheet."Get Warehouse Documents".Invoke();
+        Commit();
+
+        PickWorksheet.CreatePick.Invoke();
+        PickWorksheet.OK().Invoke();
+    end;
+
+    local procedure ReserveQuantityOnComponent(ItemNo: code[20]; ProdOrderno: Code[20])
+    var
+        ProdOrderComponents: TestPage "Prod. Order Components";
+    begin
+        ProdOrderComponents.OpenEdit();
+        ProdOrderComponents.FILTER.SetFilter("Item No.", ItemNo);
+        ProdOrderComponents.FILTER.SetFilter("Prod. Order No.", ProdOrderno);
+        ProdOrderComponents.Reserve.Invoke();
+        ProdOrderComponents.Close();
+    end;
+
+    local procedure CreateInventory(Item: Record Item; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20]; UnitAmount: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, '', WorkDate(),
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Quantity, UnitAmount);
+        ItemJournalLine.Validate("Bin Code", BinCode);
+        ItemJournalLine.Modify();
+
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure DummyMessageHandler(Message: Text[1024])
@@ -3816,6 +3943,37 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReservationPageHandler(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreatePickPageHandlerForPerWhsDoc(var CreatePick: TestRequestPage "Create Pick")
+    begin
+        CreatePick.PerWhseDoc.SetValue(true);
+        CreatePick.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PickSelectionPageHandlerSingleDoc(var PickSelection: TestPage "Pick Selection")
+    var
+        DocumentNo: Variant;
+        LocationCode: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DocumentNo);  // Dequeue Variable.
+        LibraryVariableStorage.Dequeue(LocationCode);  // Dequeue Variable.
+        PickSelection.Filter.SetFilter("Document No.", DocumentNo);
+        PickSelection."Document No.".AssertEquals(DocumentNo);
+        PickSelection."Location Code".AssertEquals(LocationCode);
+        PickSelection.OK().Invoke();
     end;
 }
 

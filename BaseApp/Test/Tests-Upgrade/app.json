@@ -2,14 +2,14 @@
   "id": "d0e99b97-089b-449f-a0f5-a2ab994dbfd7",
   "name": "Tests-Upgrade",
   "publisher": "Microsoft",
-  "version": "26.2.34746.34832",
+  "version": "26.3.36158.36321",
   "platform": "26.0.0.0",
   "dependencies": [
     {
       "id": "dd0be2ea-f733-4d65-bb34-a28f4624fb14",
       "name": "Library Assert",
       "publisher": "Microsoft",
-      "version": "26.2.0.0"
+      "version": "26.3.0.0"
     }
   ],
   "target": "OnPrem",
@@ -28,6 +28,6 @@
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "application": "26.2.0.0",
+  "application": "26.3.0.0",
   "brief": "Tests-Upgrade (W1)"
 }

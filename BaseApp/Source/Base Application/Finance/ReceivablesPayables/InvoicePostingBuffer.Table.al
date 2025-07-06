@@ -619,7 +619,14 @@ table 55 "Invoice Posting Buffer"
     end;
 
     procedure UpdateEntryDescription(CopyLineDescrToGLEntry: Boolean; LineNo: Integer; LineDescription: text[100]; HeaderDescription: Text[100])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateEntryDescription(Rec, HeaderDescription, LineDescription, IsHandled);
+        if IsHandled then
+            exit;
+
         if CopyLineDescrToGLEntry and (Type = type::"G/L Account") then begin
             "Entry Description" := LineDescription;
             "Fixed Asset Line No." := LineNo;
@@ -870,6 +877,11 @@ table 55 "Invoice Posting Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReverseAmounts(var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateEntryDescription(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var HeaderDescription: Text[100]; var LineDescription: Text[100]; var IsHandled: Boolean)
     begin
     end;
 }

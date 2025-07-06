@@ -338,7 +338,7 @@ table 8061 "Billing Line"
             PurchaseDocumentType := PurchaseDocumentType::"Credit Memo";
     end;
 
-    internal procedure GetSalesDocumentTypeFromBillingDocumentType() SalesDocumentType: Enum "Sales Document Type"
+    procedure GetSalesDocumentTypeFromBillingDocumentType() SalesDocumentType: Enum "Sales Document Type"
     begin
         case "Document Type" of
             "Document Type"::Invoice:
@@ -348,7 +348,7 @@ table 8061 "Billing Line"
         end;
     end;
 
-    internal procedure GetPurchaseDocumentTypeFromBillingDocumentType() PurchaseDocumentType: Enum "Purchase Document Type"
+    procedure GetPurchaseDocumentTypeFromBillingDocumentType() PurchaseDocumentType: Enum "Purchase Document Type"
     begin
         case "Document Type" of
             "Document Type"::Invoice:
@@ -388,7 +388,13 @@ table 8061 "Billing Line"
     local procedure OpenSalesDocumentCard()
     var
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenSalesDocumentCard(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesHeader.Get(GetSalesDocumentTypeFromBillingDocumentType(), "Document No.") then
             PageManagement.PageRunModal(SalesHeader);
     end;
@@ -502,5 +508,10 @@ table 8061 "Billing Line"
         UsageDataBilling.SetRange("Document Type", "Usage Based Billing Doc. Type"::None);
         UsageDataBilling.SetRange(Rebilling, true);
         exit(not UsageDataBilling.IsEmpty());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenSalesDocumentCard(BillingLine: Record "Billing Line"; var IsHandled: Boolean)
+    begin
     end;
 }

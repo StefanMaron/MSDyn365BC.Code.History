@@ -388,7 +388,7 @@ codeunit 139883 "E-Doc Process Test"
     [Test]
     procedure AdditionalFieldsAreConsideredWhenCreatingPurchaseInvoice()
     var
-        EDocPurchLineFieldSetup: Record "EDoc. Purch. Line Field Setup";
+        EDocPurchLineFieldSetup: Record "ED Purchase Line Field Setup";
         PurchaseLine: Record "Purchase Line";
         PurchaseInvoiceLine: Record "Purch. Inv. Line";
         EDocument: Record "E-Document";
@@ -439,7 +439,7 @@ codeunit 139883 "E-Doc Process Test"
     [Test]
     procedure AdditionalFieldsShouldNotBeConsideredIfNotConfigured()
     var
-        EDocPurchLineFieldSetup: Record "EDoc. Purch. Line Field Setup";
+        EDocPurchLineFieldSetup: Record "ED Purchase Line Field Setup";
         PurchaseLine: Record "Purchase Line";
         PurchaseInvoiceLine: Record "Purch. Inv. Line";
         EDocument: Record "E-Document";
@@ -496,7 +496,7 @@ codeunit 139883 "E-Doc Process Test"
         EDocDataStorage: Record "E-Doc. Data Storage";
         EDocumentsSetup: Record "E-Documents Setup";
         EDocumentServiceStatus: Record "E-Document Service Status";
-        EDocPurchLineFieldSetup: Record "EDoc. Purch. Line Field Setup";
+        EDocPurchLineFieldSetup: Record "ED Purchase Line Field Setup";
         PurchInvHeader: Record "Purch. Inv. Header";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         Currency: Record Currency;

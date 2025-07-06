@@ -4064,13 +4064,13 @@
       <Cmt Name="Dev"><![CDATA[%1=File Name]D;]A;(LookupHint=Codeunit Document Attachment Tests - NamedType AttachmentFileNameLbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2785749549 - NamedType 1225707280" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2785749549 - NamedType 1443517424" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Attachment is not deleted]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType AttachmentNotdeletedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType AttachmentNotDeletedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2785749549 - NamedType 3900149378" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -479,13 +479,15 @@ page 740 "VAT Report"
         MarkAsSubmitControllerStatus: Boolean;
         ReleaseControllerStatus: Boolean;
         ReopenControllerStatus: Boolean;
-        IsEditable: Boolean;
         DownloadSubmissionControllerStatus: Boolean;
         DownloadResponseControllerStatus: Boolean;
         CalcAndPostVATStatus: Boolean;
         ReturnPeriodDueDate: Date;
         ReturnPeriodStatus: Option Open,Closed;
         ReturnPeriodEnabled: Boolean;
+
+    protected var
+        IsEditable: Boolean;
 
     local procedure InitPageControllers()
     var

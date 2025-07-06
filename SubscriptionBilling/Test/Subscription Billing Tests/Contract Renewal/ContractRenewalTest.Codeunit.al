@@ -22,6 +22,7 @@ codeunit 139692 "Contract Renewal Test"
         ContractRenewalMgt: Codeunit "Sub. Contract Renewal Mgt.";
         ContractTestLibrary: Codeunit "Contract Test Library";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         AddVendorServices: Boolean;
         ConfirmOption: Boolean;
         BaseCalculationPercentage: Decimal;
@@ -676,6 +677,7 @@ codeunit 139692 "Contract Renewal Test"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Contract Renewal Test");
         ClearAll();
         ContractTestLibrary.InitContractsApp();
     end;
