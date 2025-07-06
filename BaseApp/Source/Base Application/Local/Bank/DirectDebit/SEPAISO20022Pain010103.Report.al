@@ -43,6 +43,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
             begin
                 if "Payment History".FindSet(true) then;
                 CompanyInfo.Get();
+                OnPaymentHistoryOnPreDataItemOnAfterGetCompanyInfo(CompanyInfo);
                 GLSetup.Get();
             end;
         }
@@ -80,7 +81,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
     trigger OnPreReport()
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";     
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";
     begin
         FeatureTelemetry.LogUptake('0000N2N', SEPACTExportFile.FeatureName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000N2O', SEPACTExportFile.FeatureName(), 'Report (NL) SEPA ISO20022 Pain 001.001.03');
@@ -516,6 +517,11 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
 
     [IntegrationEvent(false, false)]
     local procedure OnExportSEPAFileOnBeforeFileMgtDownloadHandler(ServerTempFileName: Text; ExportFileName: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPaymentHistoryOnPreDataItemOnAfterGetCompanyInfo(var CompanyInfo: Record "Company Information")
     begin
     end;
 }

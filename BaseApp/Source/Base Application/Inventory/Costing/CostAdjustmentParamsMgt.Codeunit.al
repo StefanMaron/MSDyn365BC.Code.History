@@ -13,6 +13,7 @@ codeunit 5824 "Cost Adjustment Params Mgt."
         CurrentAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
         CurrentInventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         CurrentParameter: Variant;
+        CurrentItemsToAdjust: List of [Code[20]];
 
     procedure SetParameters(var CostAdjustmentParameter: Record "Cost Adjustment Parameter")
     begin
@@ -42,6 +43,16 @@ codeunit 5824 "Cost Adjustment Params Mgt."
     procedure GetInventoryAdjmtEntryOrder(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
     begin
         InventoryAdjmtEntryOrder.Copy(CurrentInventoryAdjmtEntryOrder);
+    end;
+
+    procedure SetItemsToAdjust(var ItemsToAdjust: List of [Code[20]])
+    begin
+        CurrentItemsToAdjust := ItemsToAdjust;
+    end;
+
+    procedure GetItemsToAdjust(var ItemsToAdjust: List of [Code[20]])
+    begin
+        ItemsToAdjust := CurrentItemsToAdjust;
     end;
 
     procedure SetParameter(var Parameter: Variant)

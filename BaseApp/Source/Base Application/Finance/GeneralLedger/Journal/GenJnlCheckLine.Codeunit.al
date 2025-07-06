@@ -1046,7 +1046,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         end;
     end;
 
-    local procedure CheckGLAccountSourceCurrency(var GLAccount: Record "G/L Account"; CurrencyCode: Code[10])
+    internal procedure CheckGLAccountSourceCurrency(var GLAccount: Record "G/L Account"; CurrencyCode: Code[10])
     var
         GLAccountSourceCurrency: Record "G/L Account Source Currency";
     begin

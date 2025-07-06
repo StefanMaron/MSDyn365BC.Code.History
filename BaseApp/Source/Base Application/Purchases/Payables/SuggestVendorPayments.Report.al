@@ -488,6 +488,7 @@ report 393 "Suggest Vendor Payments"
     end;
 
     protected var
+        GenJnlLine2: Record "Gen. Journal Line";
         LastDueDateToPayReq: Date;
         UsePaymentDisc: Boolean;
         UsePriority: Boolean;
@@ -508,7 +509,6 @@ report 393 "Suggest Vendor Payments"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
         DimSetEntry: Record "Dimension Set Entry";
-        GenJnlLine2: Record "Gen. Journal Line";
         VendLedgEntry: Record "Vendor Ledger Entry";
         GLAcc: Record "G/L Account";
         BankAcc: Record "Bank Account";
@@ -1336,7 +1336,7 @@ report 393 "Suggest Vendor Payments"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateGnlJnlLineDimensionsFromVendorPaymentBuffer(var GenJournalLine: Record "Gen. Journal Line"; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; SummarizePerVend: Boolean; DocNoPerLine: Boolean; var NextDocNo: Code[20])
     begin
     end;
@@ -1351,7 +1351,7 @@ report 393 "Suggest Vendor Payments"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnInsertGenJournalLineOnBeforeAssignDocumentNo(var GenJournalLine: record "Gen. Journal Line"; GenJournalLine2: record "Gen. Journal Line"; GenJournalBatch: record "Gen. Journal Batch"; TempVendorPaymentBuffer: record "Vendor Payment Buffer" temporary; var NextDocNo: Code[20]; BankPmtType: Enum "Bank Payment Type"; DocNoPerLine: Boolean; var TempOldVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; SummarizePerVend: Boolean; var IsHandled: Boolean)
     begin
     end;

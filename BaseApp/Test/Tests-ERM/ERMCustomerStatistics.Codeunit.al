@@ -28,6 +28,7 @@ codeunit 134389 "ERM Customer Statistics"
         FieldIsNotHiddenErr: Label 'Field is hidden';
         EntryNoMustMatchErr: Label 'Entry No. must match.';
         PaymentsLCYAndAmountLCYMustMatchErr: Label 'Payemnts (LCY) and Amount (LCY) must match.';
+        CustomerCardFactboxTotalErr: Label 'Customer card factbox total is not Correct';
 
     [Test]
     [Scope('OnPrem')]
@@ -964,6 +965,44 @@ codeunit 134389 "ERM Customer Statistics"
         CustomerCard.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('GetShipmentLinesPageHandler')]
+    procedure CheckCustomerCardStatisticsTotalOnFactBox()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 574648] Check Customer Card Statistics Total On FactBox When Sales Order Only Shiped and Sales Invoice 
+        // Created By GetShipmentLines without Posting.
+        Initialize();
+
+        // [GIVEN] Created New Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Created New Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Created Item Inventory By Posting Item Journal With Qty 10.
+        CreateItemInventory(Item, 10);
+
+        // [WHEN] Created New Sales Order With Qty 10.
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.", WorkDate());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 10);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 0));
+        SalesLine.Modify(true);
+
+        // [WHEN] "SO" Post invoked with "Shipped" selected.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Create New Sales Invoice And Get Shipment Line Through GetShipmentLines.
+        CreateAndReleaseSalesInvoiceUsingGetShipmentLines(SalesHeader."Sell-to Customer No.");
+
+        // [THEN] Check Customer Card Statistics Total is Equal To SalesLine."Amount Including VAT" and Not Multiply.
+        Assert.AreEqual(SalesLine."Amount Including VAT", Customer.GetTotalAmountLCY(), CustomerCardFactboxTotalErr);
+    end;
+
     local procedure Initialize()
     var
         Currency: Record Currency;
@@ -1400,6 +1439,31 @@ codeunit 134389 "ERM Customer Statistics"
         DetailedCustLedgEntry.Insert();
     end;
 
+    local procedure CreateAndReleaseSalesInvoiceUsingGetShipmentLines(CustomerNo: Code[20])
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        LibrarySales.GetShipmentLines(SalesLine);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure CreateItemInventory(var Item: Record Item; Qty: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name",
+            ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Message: Text; var Response: Boolean)
@@ -1449,6 +1513,12 @@ codeunit 134389 "ERM Customer Statistics"
         CreditLimitNotification.CreditLimitDetails."Balance (LCY)".AssertEquals(Customer."Balance (LCY)");
         CreditLimitNotification.CreditLimitDetails.OverdueBalance.AssertEquals(Customer."Balance Due (LCY)");
         CreditLimitNotification.CreditLimitDetails."Credit Limit (LCY)".AssertEquals(Customer."Credit Limit (LCY)");
+    end;
+
+    [ModalPageHandler]
+    procedure GetShipmentLinesPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
+    begin
+        GetShipmentLines.OK().Invoke();
     end;
 }
 

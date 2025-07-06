@@ -6,11 +6,9 @@ page 37099 "Prod. Order Routings Gantt"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = Manufacturing;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
-    Caption = 'Prod. Order Routings Gantt';
-    AboutTitle = 'About Prod. Order Routings Gantt';
+    Caption = 'Production Order Routings Gantt';
+    AboutTitle = 'About Production Order Routings Gantt';
     AboutText = 'Visualize the schedules of each work and machine center with a Gantt chart, detailing production order routing lines. Highlight the duration of each production order on a timeline for better planning and management.';
 
     layout
@@ -25,7 +23,7 @@ page 37099 "Prod. Order Routings Gantt"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

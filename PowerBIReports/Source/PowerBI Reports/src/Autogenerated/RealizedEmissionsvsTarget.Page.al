@@ -6,11 +6,9 @@ page 37085 "Realized Emissions vs Target"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
-    Caption = 'Realized Emissions vs Target';
-    AboutTitle = 'About Realized Emissions vs Target';
+    Caption = 'Realized Emissions vs. Target';
+    AboutTitle = 'About Realized Emissions vs. Target';
     AboutText = 'The Realized Emissions by Target report breaks down your carbon emissions and allows for comparison against the target. This allows you to effectively monitor planned progress and drive continuous improvement to sustainability goals.';
 
     layout
@@ -25,7 +23,7 @@ page 37085 "Realized Emissions vs Target"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

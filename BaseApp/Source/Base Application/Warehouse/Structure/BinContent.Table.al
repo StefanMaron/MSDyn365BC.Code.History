@@ -923,9 +923,14 @@ table 7302 "Bin Content"
                 GetBin("Location Code", "Bin Code");
                 if "Max. Qty." <> 0 then begin
                     QtyAvailToPutAwayBase := CalcQtyAvailToPutAway(DeductQtyBase);
-                    WMSMgt.CheckPutAwayAvailability(
-                        "Bin Code", WhseActivLine.FieldCaption("Qty. (Base)"), TableCaption(), QtyBase, Math.Min(QtyAvailToPutAwayBase, "Max. Qty."),
-                        (Location."Bin Capacity Policy" = Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
+                    if Location."Bin Capacity Policy" = Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap." then
+                        WMSMgt.CheckPutAwayAvailability(
+                            "Bin Code", WhseActivLine.FieldCaption("Qty. (Base)"), TableCaption(), QtyBase, Math.Min(QtyAvailToPutAwayBase, "Max. Qty."),
+                            (Location."Bin Capacity Policy" = Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting)
+                    else
+                        WMSMgt.CheckPutAwayAvailability(
+                            "Bin Code", WhseActivLine.FieldCaption("Qty. (Base)"), TableCaption(), QtyBase, Math.Min(QtyAvailToPutAwayBase, ("Max. Qty." * "Qty. per Unit of Measure")),
+                            (Location."Bin Capacity Policy" = Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.") and CalledbyPosting);
                 end;
                 if (Bin."Maximum Cubage" <> 0) or (Bin."Maximum Weight" <> 0) then begin
                     Bin.CalcCubageAndWeight(AvailableCubage, AvailableWeight, CalledbyPosting);

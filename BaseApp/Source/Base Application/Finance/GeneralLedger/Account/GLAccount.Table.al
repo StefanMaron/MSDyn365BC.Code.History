@@ -23,6 +23,7 @@ using Microsoft.Foundation.ExtendedText;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.PriceList;
+using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Utilities;
@@ -898,11 +899,13 @@ table 15 "G/L Account"
     var
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
+        JobPlanningLine: Record "Job Planning Line";
     begin
         SalesLine.RenameNo(SalesLine.Type::"G/L Account", xRec."No.", "No.");
         PurchaseLine.RenameNo(PurchaseLine.Type::"G/L Account", xRec."No.", "No.");
         DimMgt.RenameDefaultDim(DATABASE::"G/L Account", xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::"G/L Account", xRec."No.", "No.");
+        JobPlanningLine.RenameNo(JobPlanningLine.Type::"G/L Account", xRec."No.", "No.");
 
         SetLastModifiedDateTime();
 

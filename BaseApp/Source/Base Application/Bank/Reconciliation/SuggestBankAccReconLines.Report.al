@@ -35,6 +35,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                 BankAccLedgEntry.SetRange("Statement Status", BankAccLedgEntry."Statement Status"::Open);
                 if ExcludeReversedEntries then
                     BankAccLedgEntry.SetRange(Reversed, false);
+                OnBankAccountOnAfterGetRecordOnAfterSetFilters(BankAccLedgEntry, "Bank Account");
                 EOFBankAccLedgEntries := not BankAccLedgEntry.Find('-');
 
                 while not EOFBankAccLedgEntries do begin
@@ -196,6 +197,11 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
     procedure OnPreDataItemBankAccount(var ExcludeReversedEntries: Boolean)
     begin
         // ExcludeReversedEntries = FALSE by default
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBankAccountOnAfterGetRecordOnAfterSetFilters(var BankAccLedgEntry: Record "Bank Account Ledger Entry"; var BankAccount: Record "Bank Account")
+    begin
     end;
 }
 

@@ -1135,6 +1135,52 @@ codeunit 134284 "Non Ded. VAT Misc."
         Assert.RecordIsNotEmpty(GLEntry);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobJnlLineWithNonDeductNormalVATInFCYFromGenJnlLine()
+    var
+        Customer: Record Customer;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJnlLine: Record "Gen. Journal Line";
+        JobJnlLine: Record "Job Journal Line";
+        JobTransferLine: Codeunit "Job Transfer Line";
+        DeductiblePercent: Decimal;
+    begin
+        // [FEATURE] [Normal VAT] [UT]
+        // [SCENARIO 575793] Job journal line with FCY built from the general journal line includes non deductible VAT in "Unit Cost"
+        Initialize();
+        LibraryNonDeductibleVAT.SetUseForJobCost();
+        // [GIVEN] VAT Posting Setup, where "Tax Calculation Type"::"Normal VAT", 'Deductible %' is '60'
+        DeductiblePercent := LibraryRandom.RandInt(90);
+        CreateNonDeductibleVATPostingSetup(VATPostingSetup, "Tax Calculation Type"::"Normal VAT", '', DeductiblePercent);
+        // [GIVEN] Job "X" with currency which factor is 0.5
+        LibrarySales.CreateCustomer(Customer);
+        LibraryJob.CreateJob(Job, Customer."No.");
+        Job.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        // [GIVEN] General journal line where line contains "Non-Deductible VAT Amount" = 100, "Job No." = "X" "Job Line Type" = 'Billable'
+        // [GIVEN] "Job Quantity" = 2, "Job Unit Cost" = 50
+        CreateJobGLJournalLine(GenJnlLine, JobTask, VATPostingSetup);
+
+        // [WHEN] Run FromGenJnlLineToJnlLine
+        JobTransferLine.FromGenJnlLineToJnlLine(GenJnlLine, JobJnlLine);
+
+        // [THEN] JobJnlLine contains "Unit Cost LCY" = ("Job Unit Cost" + "Non-Deductible VAT Amount") * "Currency Factor" / "Job Quantity" = (50 + 100) * 0.5 / 2 = 37.5
+        Assert.AreEqual(
+            Round(JobJnlLine."Unit Cost (LCY)"),
+            Round(GenJnlLine."Job Total Cost (LCY)" / GenJnlLine."Job Quantity") +
+            Round(Round(GenJnlLine."Non-Deductible VAT Amount" * GenJnlLine."Job Currency Factor") / GenJnlLine."Job Quantity"),
+            'Unit Cost (LCY) with Non-Deductible VAT amount is not correct in Job Journal Line');
+        // [THEN] JobJnlLine contains "Total Unit Cost" = ("Job Unit Cost" + "Non-Deductible VAT Amount") * "Currency Factor" = (50 + 100) * 0.5 = 75
+        Assert.AreEqual(
+            Round(JobJnlLine."Total Cost (LCY)"),
+            Round(GenJnlLine."Job Total Cost (LCY)" + Round(GenJnlLine."Non-Deductible VAT Amount" * GenJnlLine."Job Currency Factor")),
+            'Total Cost (LCY) with Non-Deductible VAT amount is not correct in Job Journal Line');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1361,6 +1407,15 @@ codeunit 134284 "Non Ded. VAT Misc."
         LibrarySales.CreateCustomer(Customer);
         LibraryJob.CreateJob(Job, Customer."No.");  // Blank value for Currency Code.
         LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobGLJournalLine(GenJournalLine."Job Line Type"::Billable, JobTask, GenJournalLine);
+        GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::Purchase);
+        GenJournalLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GenJournalLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateJobGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JobTask: Record "Job Task"; VATPostingSetup: Record "VAT Posting Setup")
+    begin
         LibraryJob.CreateJobGLJournalLine(GenJournalLine."Job Line Type"::Billable, JobTask, GenJournalLine);
         GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::Purchase);
         GenJournalLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");

@@ -457,6 +457,74 @@ codeunit 136403 "Resource Journal"
         Assert.RecordIsEmpty(RecordLink);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure ResourceJournalCannotBePostedWithoutDocumentNo()
+    var
+        ResJournalBatch: Record "Res. Journal Batch";
+        Resource: Record Resource;
+        ResourceJournal: TestPage "Resource Journal";
+    begin
+        // [SCENARIO 579390] Verify that the Resource Journal cannot be posted without a Document No.
+        Initialize();
+
+        // [GIVEN] Create a resource.
+        Resource.Get(CreateResource());
+
+        // [GIVEN] Create Resource Journal Template And Batch.
+        FindResourceJournalBatch(ResJournalBatch);
+
+        // [GIVEN] Open Resource Journal Page.
+        ResourceJournal.OpenEdit();
+
+        // [GIVEN] Create Resource Journal Line.
+        CreateResourceJournalLineByPage(ResourceJournal, ResJournalBatch.Name, Resource."No.", '');
+
+        // [WHEN] Document No. field is blank in the Resource Journal.
+        ResourceJournal."Document No.".SetValue('');
+
+        // [THEN] Resource Journal does not post and shows an error that Document No. must have a value .
+        asserterror ResourceJournal.Post.Invoke();
+        ResourceJournal.OK().Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    procedure VerifyTheResourceLedgerEntryHasDocumentNo()
+    var
+        ResJournalBatch: Record "Res. Journal Batch";
+        ResLedgerEntry: Record "Res. Ledger Entry";
+        Resource: Record Resource;
+        DocumentNo: Text;
+        ResourceJournal: TestPage "Resource Journal";
+    begin
+        // [SCENARIO 579390] Ensure that the Resource Ledger Entry includes a Document No.
+        Initialize();
+
+        // [GIVEN] Create a resource.
+        Resource.Get(CreateResource());
+
+        // [GIVEN] Create Resource Journal Template And Batch.
+        FindResourceJournalBatch(ResJournalBatch);
+
+        // [GIVEN] Open Resource Journal Page.
+        ResourceJournal.OpenEdit();
+
+        // [GIVEN] Create Resource Journal Line.
+        CreateResourceJournalLineByPage(ResourceJournal, ResJournalBatch.Name, Resource."No.", '');
+
+        // [GIVEN] Save the document no. value.
+        DocumentNo := ResourceJournal."Document No.".Value();
+
+        // [WHEN] Post the Resource Journal.
+        ResourceJournal.Post.Invoke();
+        Commit();
+        ResourceJournal.OK().Invoke();
+
+        // [THEN] Verify that the Resource Ledger Entry has a Document No.
+        FindResourceLedgerEntry(ResLedgerEntry, DocumentNo, ResJournalBatch.Name, Resource."No.");
+    end;
+
     local procedure ClearResourceJournalLines(var ResJournalBatch: Record "Res. Journal Batch")
     var
         ResJournalLine: Record "Res. Journal Line";

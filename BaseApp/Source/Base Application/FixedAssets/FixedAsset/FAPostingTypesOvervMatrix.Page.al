@@ -603,16 +603,10 @@ page 9277 "FA Posting Types Overv. Matrix"
                     AboutTitle = 'Review Fixed Asset Statistics';
                     AboutText = 'Review the asset-wise Statistics details for main and component assets.';
                     ToolTip = 'View detailed historical information about the fixed asset.';
-
-                    trigger OnAction()
-                    var
-                        FADeprBook: Record "FA Depreciation Book";
-                    begin
-                        FADeprBook.SetRange("FA No.", Rec."FA No.");
-                        FADeprBook.SetRange("Depreciation Book Code", Rec."Depreciation Book Code");
-
-                        PAGE.Run(PAGE::"Fixed Asset Statistics", FADeprBook);
-                    end;
+                    RunObject = Page "Fixed Asset Statistics";
+                    RunPageLink = "FA No." = field("FA No."),
+                                  "Depreciation Book Code" = field("Depreciation Book Code");
+                    RunPageOnRec = true;
                 }
                 action("Main &Asset Statistics")
                 {
@@ -620,16 +614,10 @@ page 9277 "FA Posting Types Overv. Matrix"
                     Caption = 'Main &Asset Statistics';
                     Image = StatisticsDocument;
                     ToolTip = 'View statistics for all the components that make up the main asset for the selected book. The left side of the General FastTab displays the main asset''s book value, depreciable basis and any maintenance expenses posted to the components that comprise the main asset. The right side shows the number of components for the main asset, the first date on which an acquisition and/or disposal entry was posted to one of the assets that comprise the main asset.';
-
-                    trigger OnAction()
-                    var
-                        FADeprBook: Record "FA Depreciation Book";
-                    begin
-                        FADeprBook.SetRange("FA No.", Rec."FA No.");
-                        FADeprBook.SetRange("Depreciation Book Code", Rec."Depreciation Book Code");
-
-                        PAGE.Run(PAGE::"Main Asset Statistics", FADeprBook);
-                    end;
+                    RunObject = Page "Main Asset Statistics";
+                    RunPageLink = "FA No." = field("FA No."),
+                                  "Depreciation Book Code" = field("Depreciation Book Code");
+                    RunPageOnRec = true;
                 }
             }
         }
@@ -994,4 +982,3 @@ page 9277 "FA Posting Types Overv. Matrix"
     begin
     end;
 }
-
