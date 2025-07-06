@@ -334,11 +334,10 @@ page 5666 "FA Depreciation Books Subform"
                     PromotedCategory = Process;
                     ShortCutKey = 'F7';
                     ToolTip = 'View detailed historical information about the fixed asset.';
-
-                    trigger OnAction()
-                    begin
-                        ShowStatistics();
-                    end;
+                    RunObject = Page "Fixed Asset Statistics";
+                    RunPageLink = "FA No." = field("FA No."),
+                                  "Depreciation Book Code" = field("Depreciation Book Code");
+                    RunPageOnRec = true;
                 }
                 action("Main &Asset Statistics")
                 {
@@ -346,11 +345,10 @@ page 5666 "FA Depreciation Books Subform"
                     Caption = 'Main &Asset Statistics';
                     Image = StatisticsDocument;
                     ToolTip = 'View statistics for all the components that make up the main asset for the selected book. ';
-
-                    trigger OnAction()
-                    begin
-                        ShowMainAssetStatistics();
-                    end;
+                    RunObject = Page "Main Asset Statistics";
+                    RunPageLink = "FA No." = field("FA No."),
+                                  "Depreciation Book Code" = field("Depreciation Book Code");
+                    RunPageOnRec = true;
                 }
             }
         }
@@ -375,7 +373,6 @@ page 5666 "FA Depreciation Books Subform"
         GLSetup: Record "General Ledger Setup";
         FALedgEntry: Record "FA Ledger Entry";
         MaintenanceLedgEntry: Record "Maintenance Ledger Entry";
-        FADeprBook: Record "FA Depreciation Book";
         DepreciationCalc: Codeunit "Depreciation Calculation";
         ChangeExchangeRate: Page "Change Exchange Rate";
         AddCurrCodeIsFound: Boolean;
@@ -409,20 +406,6 @@ page 5666 "FA Depreciation Books Subform"
         MaintenanceLedgEntry.SetRange("FA No.", Rec."FA No.");
         MaintenanceLedgEntry.SetRange("Depreciation Book Code", Rec."Depreciation Book Code");
         PAGE.Run(PAGE::"Maintenance Ledger Entries", MaintenanceLedgEntry);
-    end;
-
-    local procedure ShowStatistics()
-    begin
-        FADeprBook.SetRange("FA No.", Rec."FA No.");
-        FADeprBook.SetRange("Depreciation Book Code", Rec."Depreciation Book Code");
-        PAGE.Run(PAGE::"Fixed Asset Statistics", FADeprBook);
-    end;
-
-    local procedure ShowMainAssetStatistics()
-    begin
-        FADeprBook.SetRange("FA No.", Rec."FA No.");
-        FADeprBook.SetRange("Depreciation Book Code", Rec."Depreciation Book Code");
-        PAGE.Run(PAGE::"Main Asset Statistics", FADeprBook);
     end;
 
     local procedure GetBookValue(): Decimal

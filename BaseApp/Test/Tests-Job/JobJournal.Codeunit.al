@@ -2938,6 +2938,35 @@ codeunit 136305 "Job Journal"
         Assert.AreNotEqual(GenJournalLine."Job Total Cost (LCY)", PreviousProjectTotalCostLCY, ProjectTotalCostErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    procedure CheckUnitCostAndPriceNotZeroInRecurringJobJnlAfterPosting()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        Resource: Record Resource;
+        RecurringJobJnl: TestPage "Recurring Job Jnl.";
+    begin
+        // [SCENARIO 575092] Verify that the Unit Price and Unit Cost are not 0 in the recurring job journal after posting.
+        Initialize();
+
+        // [GIVEN] Create a Resource.
+        FindResource(Resource);
+
+        // [GIVEN] Create Job, job task & multiple Job planning line.
+        CreateFullJob(Job, JobTask, Resource);
+
+        // [GIVEN] Create Recurring Job Journal.
+        OpenRecurringJobJnl(RecurringJobJnl, JobTask, Resource."No.");
+
+        // [WHEN] Post Recurring Job Journal.
+        PostRecurringJobJnl(RecurringJobJnl);
+
+        // [THEN] Verify that the Unit Price and Unit Cost are not zero in the recurring job journal after posting.
+        RecurringJobJnl."Unit Price".AssertEquals(Resource."Unit Price");
+        RecurringJobJnl."Unit Cost".AssertEquals(Resource."Unit Cost");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3915,6 +3944,51 @@ codeunit 136305 "Job Journal"
         // Verify auto calc field is reset
         JobJnlLine.Find();
         JobJnlLine.TestField("Reserved Qty. (Base)", 0);
+    end;
+
+    local procedure FindResource(var Resource: Record Resource)
+    begin
+        Resource.Get(LibraryJob.CreateConsumable("Job Planning Line Type"::Resource));
+        Resource.Validate(Type, Resource.Type::Person);
+        Resource.Validate("Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        Resource.Validate("Unit Price", LibraryRandom.RandIntInRange(300, 500));
+        Resource.Modify(true);
+    end;
+
+    local procedure CreateFullJob(var Job: Record Job; var JobTask: Record "Job Task"; Resource: Record Resource)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        LibraryJob.CreateJobPlanningLine(
+            JobTask, JobPlanningLine."Line Type"::"Both Budget and Billable",
+            JobPlanningLine.Type::Resource, Resource."No.", LibraryRandom.RandInt(10), JobPlanningLine);
+    end;
+
+    local procedure OpenRecurringJobJnl(var RecurringJobJnl: TestPage "Recurring Job Jnl."; JobTask: Record "Job Task"; ResourceNo: Code[20])
+    var
+        JobJournalLineType: Enum "Job Journal Line Type";
+        RecurringMethod: Option ,Fixed,Variable;
+    begin
+        RecurringJobJnl.OpenEdit();
+        RecurringJobJnl."Recurring Method".SetValue(Format(RecurringMethod::Variable));
+        RecurringJobJnl."Recurring Frequency".SetValue('10D');
+        RecurringJobJnl."Document No.".SetValue(JobTask."Job No.");
+        RecurringJobJnl."Job No.".SetValue(JobTask."Job No.");
+        RecurringJobJnl."Job Task No.".SetValue(JobTask."Job Task No.");
+        RecurringJobJnl.Type.SetValue(Format(JobJournalLineType::Resource));
+        RecurringJobJnl."No.".SetValue(ResourceNo);
+        RecurringJobJnl.Quantity.SetValue(Format(LibraryRandom.RandInt(5)));
+        RecurringJobJnl.Close();
+    end;
+
+    local procedure PostRecurringJobJnl(var RecurringJobJnl: TestPage "Recurring Job Jnl.")
+    begin
+        RecurringJobJnl.OpenEdit();
+        RecurringJobJnl."P&ost".Invoke();
+        Commit();
     end;
 
     [ModalPageHandler]

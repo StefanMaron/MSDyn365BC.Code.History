@@ -6,9 +6,7 @@ page 37104 "Sales Quote Overview"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Sales Quote Overview';
     AboutTitle = 'About Sales Quote Overview';
     AboutText = 'The Sales Quote Overview provides detailed information on sales quotes, including the number of quotes, total value, profit rates, and sales quote amount over time.';
@@ -25,7 +23,7 @@ page 37104 "Sales Quote Overview"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

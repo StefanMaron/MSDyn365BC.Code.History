@@ -37,6 +37,7 @@ codeunit 148158 "Link Subscription To SO Test"
         LibraryRandom: Codeunit "Library - Random";
         UsageBasedBTestLibrary: Codeunit "Usage Based B. Test Library";
         UsageBasedBillingMgmt: Codeunit "Usage Based Billing Mgmt.";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         RecordRef: RecordRef;
         ColumnSeparator: Option " ",Tab,Semicolon,Comma,Space,Custom;
         FileEncoding: Option "MS-DOS","UTF-8","UTF-16",WINDOWS;
@@ -243,6 +244,7 @@ codeunit 148158 "Link Subscription To SO Test"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Link Subscription To SO Test");
         ClearAll();
         ServiceCommitmentTemplate.Reset();
         ServiceCommitmentTemplate.DeleteAll(false);

@@ -68,7 +68,24 @@ codeunit 6140 "E-Doc. Import"
     internal procedure ProcessIncomingEDocument(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; EDocImportParameters: Record "E-Doc. Import Parameters"): Boolean
     var
         ImportEDocumentProcess: Codeunit "Import E-Document Process";
-        PreviousStatus, CurrentStatus, DesiredStatus : Enum "Import E-Doc. Proc. Status";
+        StatusBefore, StatusAfter : Enum "Import E-Doc. Proc. Status";
+    begin
+        if EDocImportParameters."Step to Run / Desired Status" = EDocImportParameters."Step to Run / Desired Status"::"Desired E-Document Status" then
+            exit(GetEDocumentToDesiredStatus(EDocument, EDocumentService, EDocImportParameters."Desired E-Document Status", EDocImportParameters))
+        else begin
+            StatusBefore := ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", true);
+            StatusAfter := ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false);
+            if not GetEDocumentToDesiredStatus(EDocument, EDocumentService, StatusBefore, EDocImportParameters) then
+                exit(false);
+            exit(GetEDocumentToDesiredStatus(EDocument, EDocumentService, StatusAfter, EDocImportParameters));
+        end;
+    end;
+
+    local procedure GetEDocumentToDesiredStatus(EDocument: Record "E-Document"; EDocumentService: Record "E-Document Service"; DesiredStatus: Enum "Import E-Doc. Proc. Status"; EDocImportParameters: Record "E-Doc. Import Parameters"): Boolean
+    var
+        ImportEDocumentProcess: Codeunit "Import E-Document Process";
+        EDocImpSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
+        Status, CurrentStatus : Enum "Import E-Doc. Proc. Status";
         StepToDo, StepToUndo : Enum "Import E-Document Steps";
         StatusIndex: Integer;
     begin
@@ -78,34 +95,39 @@ codeunit 6140 "E-Doc. Import"
 
         EDocument.CalcFields("Import Processing Status");
         CurrentStatus := EDocument."Import Processing Status";
-        DesiredStatus := ImportEDocumentProcess.GetStatusForStep(EDocImportParameters."Step to Run", false);
 
-        // We undo all the steps that have been done, if CurrentStatus = DesiredStatus we undo the last step to redo it
-        for StatusIndex := ImportEDocumentProcess.StatusStepIndex(CurrentStatus) downto ImportEDocumentProcess.StatusStepIndex(DesiredStatus) do
-            if StatusIndex > 0 then begin
-                PreviousStatus := ImportEDocumentProcess.IndexToStatus(StatusIndex - 1);
-                StepToUndo := ImportEDocumentProcess.GetNextStep(PreviousStatus);
-                ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToUndo, EDocImportParameters, true);
-                if not RunConfiguredImportStep(ImportEDocumentProcess, EDocument) then
-                    exit(false);
-            end;
+        EDocImpSessionTelemetry.SetSession(CurrentStatus, DesiredStatus);
+        EDocImpSessionTelemetry.SetBool('Success', true);
+
+        // We undo all the steps that have been done, if CurrentStatus = DesiredStatus we don't need to undo anything
+        for StatusIndex := ImportEDocumentProcess.StatusStepIndex(CurrentStatus) downto ImportEDocumentProcess.StatusStepIndex(DesiredStatus) + 1 do
+            if ImportEDocumentProcess.IndexToStatus(StatusIndex, Status) then
+                if ImportEDocumentProcess.GetPreviousStep(Status, StepToUndo) then begin
+                    ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToUndo, EDocImportParameters, true);
+                    if not RunConfiguredImportStep(ImportEDocumentProcess, EDocument) then
+                        exit(false);
+                end;
 
         EDocument.CalcFields("Import Processing Status");
         CurrentStatus := EDocument."Import Processing Status";
+
         // We run all the steps that need to be done to reach the desired state
         for StatusIndex := ImportEDocumentProcess.StatusStepIndex(CurrentStatus) to ImportEDocumentProcess.StatusStepIndex(DesiredStatus) - 1 do
-            if StatusIndex < ImportEDocumentProcess.StatusStepIndex("Import E-Doc. Proc. Status"::Processed) then begin
-                StepToDo := ImportEDocumentProcess.GetNextStep(ImportEDocumentProcess.IndexToStatus(StatusIndex));
-                ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToDo, EDocImportParameters, false);
-                if not RunConfiguredImportStep(ImportEDocumentProcess, EDocument) then
-                    exit(false);
-            end;
+            if ImportEDocumentProcess.IndexToStatus(StatusIndex, Status) then
+                if ImportEDocumentProcess.GetNextStep(Status, StepToDo) then begin
+                    ImportEDocumentProcess.ConfigureImportRun(EDocument, StepToDo, EDocImportParameters, false);
+                    if not RunConfiguredImportStep(ImportEDocumentProcess, EDocument) then
+                        exit(false);
+                end;
+
+        EDocImpSessionTelemetry.Emit(EDocument);
         OnAfterProcessIncomingEDocument(EDocument, EDocImportParameters, CurrentStatus, DesiredStatus);
         exit(true);
     end;
 
     local procedure RunConfiguredImportStep(var ImportEDocumentProcess: Codeunit "Import E-Document Process"; EDocument: Record "E-Document"): Boolean
     var
+        EDocDraftSessionTelemetry: Codeunit "E-Doc. Imp. Session Telemetry";
         EDocumentErrorHelper: Codeunit "E-Document Error Helper";
     begin
         EDocumentErrorHelper.ClearErrorMessages(EDocument);
@@ -119,6 +141,8 @@ codeunit 6140 "E-Doc. Import"
             EDocumentLog.InsertLog(Enum::"E-Document Service Status"::"Imported Document Processing Error", EDocument."Import Processing Status");
             EDocumentProcessing.ModifyServiceStatus(EDocument, EDocument.GetEDocumentService(), Enum::"E-Document Service Status"::"Imported Document Processing Error");
             EDocumentProcessing.ModifyEDocumentStatus(EDocument);
+            EDocDraftSessionTelemetry.SetText('Step', Format(ImportEDocumentProcess.GetStep()));
+            EDocDraftSessionTelemetry.SetBool('Success', false);
             exit(false);
         end;
         exit(true);
@@ -140,7 +164,7 @@ codeunit 6140 "E-Doc. Import"
         EDocumentLog.SetFields(EDocument, EDocumentService);
         EDocumentLog.SetBlob(CopyStr(FileName, 1, 256), EDocFileFormat, InStr);
 
-        EDocLog := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Unprocessed);
+        EDocLog := EDocumentLog.InsertLog(Enum::"E-Document Service Status"::Imported, Enum::"Import E-Doc. Proc. Status"::Unprocessed, false);
         EDocumentProcessing.InsertServiceStatus(EDocument, EDocumentService, Enum::"E-Document Service Status"::Imported);
 
         EDocument."Unstructured Data Entry No." := EDocLog."E-Doc. Data Storage Entry No.";

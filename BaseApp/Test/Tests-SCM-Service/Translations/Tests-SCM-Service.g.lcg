@@ -3170,7 +3170,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType AdjProfitLCYErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is a document number.]D;]A;(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType AdjProfitLCYErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1925620420 - NamedType 978336109" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3179,34 +3179,34 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType AdjProfitPctErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is a document number.]D;]A;(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType AdjProfitPctErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1925620420 - NamedType 3420941840" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1925620420 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount %1 must be equal to %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType AmountError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 are amounts.]D;]A;(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1925620420 - NamedType 2535164967" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1925620420 - NamedType 2397568144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Invoice Discount Amount.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType InvoiceDiscountAmountErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType IncorrectInvoiceDiscountAmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1925620420 - NamedType 2974750132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1925620420 - NamedType 2535164967" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Invoice Discount Amount %1 must be equal to %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType InvoiceDiscountAmountError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 are invoice discount amounts.]D;]A;(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType InvoiceDiscountAmountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1925620420 - NamedType 2636958426" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3215,7 +3215,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType OrigProfitLCYErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is a document number.]D;]A;(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType OrigProfitLCYErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1925620420 - NamedType 3440287529" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3224,34 +3224,34 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType OrigProfitPctErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is a document number.]D;]A;(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType OrigProfitPctErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1925620420 - NamedType 1089266298" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1925620420 - NamedType 3437762533" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Sales(LCY) %1 must be equal to %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType SalesLCYError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 are sales amounts.]D;]A;(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType SalesLCYErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1925620420 - NamedType 177781297" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1925620420 - NamedType 3499056126" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VAT Amount %1 must be equal to %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType VATAmountError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 are VAT amounts.]D;]A;(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType VATAmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1925620420 - NamedType 2561667934" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1925620420 - NamedType 3421966017" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VAT Base Amount %1 must be equal to %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType VATBaseAmountError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 are amounts.]D;]A;(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Statistics - NamedType VATBaseAmountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3585925765 - NamedType 1314462029" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

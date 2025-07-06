@@ -2124,7 +2124,6 @@ codeunit 99000774 "Calculate Routing Line"
     var
         ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
         MfgCostCalcMgt: Codeunit "Mfg. Cost Calculation Mgt.";
-        ExpectedOperOutput: Decimal;
         ActualOperOutput: Decimal;
         TotalQtyPerOperation: Decimal;
         TotalCapacityPerOperation: Decimal;
@@ -2148,6 +2147,7 @@ codeunit 99000774 "Calculate Routing Line"
         ProdOrderRoutingLine."Expected Capacity Need" := 0;
 
         ProdOrderCapacityNeed.Reset();
+        ProdOrderCapacityNeed.SetLoadFields(Status, "Prod. Order No.", "Requested Only", "Routing No.", "Routing Reference No.", "Operation No.");
         ProdOrderCapacityNeed.SetRange(Status, ProdOrderRoutingLine.Status);
         ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
         ProdOrderCapacityNeed.SetRange("Requested Only", false);
@@ -2172,38 +2172,32 @@ codeunit 99000774 "Calculate Routing Line"
         ProdOrder.Get(ProdOrderRoutingLine.Status, ProdOrderRoutingLine."Prod. Order No.");
 
         ProdOrderQty := 0;
-        TotalScrap := 0;
         TotalLotSize := 0;
         ProdOrderLine.SetRange(Status, ProdOrderRoutingLine.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
         ProdOrderLine.SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
         ProdOrderLine.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
         ProdOrderLine.SetLoadFields("Quantity (Base)", "Scrap %", "Prod. Order No.", "Line No.", Status, "Routing No.", "Routing Version Code", "Ending Date", "Ending Time");
-        if ProdOrderLine.Find('-') then begin
-            ExpectedOperOutput := 0;
-            repeat
-                ExpectedOperOutput := ExpectedOperOutput + ProdOrderLine."Quantity (Base)";
-                TotalScrap := TotalScrap + ProdOrderLine."Scrap %";
-            until ProdOrderLine.Next() = 0;
-            ActualOperOutput := MfgCostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRoutingLine);
-            ProdOrderQty := ExpectedOperOutput - ActualOperOutput;
-            if ProdOrderQty < 0 then
-                ProdOrderQty := 0;
-        end;
+        if ProdOrderLine.FindFirst() then
+            ProdOrderLine.CalcSums("Quantity (Base)", "Scrap %");
+        ActualOperOutput := MfgCostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, ProdOrderRoutingLine);
+        ProdOrderQty := ProdOrderLine."Quantity (Base)" - ActualOperOutput;
+        if ProdOrderQty < 0 then
+            ProdOrderQty := 0;
 
         MaxLotSize :=
           ProdOrderQty *
           (1 + ProdOrderRoutingLine."Scrap Factor % (Accumulated)") *
-          (1 + TotalScrap / 100) +
+          (1 + ProdOrderLine."Scrap %" / 100) +
           ProdOrderRoutingLine."Fixed Scrap Qty. (Accum.)";
 
         ProdOrderRoutingLine."Input Quantity" := MaxLotSize;
 
         if ActualOperOutput > 0 then
             TotalQtyPerOperation :=
-              ExpectedOperOutput *
+              ProdOrderLine."Quantity (Base)" *
               (1 + ProdOrderRoutingLine."Scrap Factor % (Accumulated)") *
-              (1 + TotalScrap / 100) +
+              (1 + ProdOrderLine."Scrap %" / 100) +
               ProdOrderRoutingLine."Fixed Scrap Qty. (Accum.)"
         else
             TotalQtyPerOperation := MaxLotSize;

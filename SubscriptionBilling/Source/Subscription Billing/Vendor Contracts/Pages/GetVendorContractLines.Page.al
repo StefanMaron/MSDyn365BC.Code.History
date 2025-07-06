@@ -101,7 +101,7 @@ page 8095 "Get Vendor Contract Lines"
                     trigger OnValidate()
                     begin
                         Rec.Selected := true;
-                        Evaluate(Rec."Billing Base Period", Format(BillingToDate - Rec."Next Billing Date" + 1) + 'D');
+                        Evaluate(Rec."Billing Base Period", '<' + Format(BillingToDate - Rec."Next Billing Date" + 1) + 'D>');
                         Rec."Billing Rhythm" := Rec."Billing Base Period";
                     end;
                 }

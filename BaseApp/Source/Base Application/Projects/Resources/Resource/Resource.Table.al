@@ -769,11 +769,13 @@ table 156 Resource
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
         PriceListLine: Record "Price List Line";
+        JobPlanningLine: Record "Job Planning Line";
     begin
         SalesLine.RenameNo(SalesLine.Type::Resource, xRec."No.", "No.");
         PurchaseLine.RenameNo(PurchaseLine.Type::Resource, xRec."No.", "No.");
         PriceListLine.RenameNo(PriceListLine."Asset Type"::Resource, xRec."No.", "No.");
         DimMgt.RenameDefaultDim(DATABASE::Resource, xRec."No.", "No.");
+        JobPlanningLine.RenameNo(JobPlanningLine.Type::Resource, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Resource, xRec."No.", "No.");
         "Last Date Modified" := Today;
 

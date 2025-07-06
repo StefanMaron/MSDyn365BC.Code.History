@@ -3253,6 +3253,156 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
                 ReservationEntry.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLotPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryPick_AllowsPartialLotShipment()
+    var
+        ComPItem, FinishItem : Record Item;
+        FromLocation, ToLocation : Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        WorkCenter: Record "Work Center";
+        TransferRoute: Record "Transfer Route";
+        SKU: array[2] of Record "Stockkeeping Unit";
+        ProductionOrder: Record "Production Order";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        RoutingNo: Code[20];
+        FinishItemNo: Code[20];
+        LotNo: Code[50];
+    begin
+        // [SCENARIO 580075] Inventory Pick allows partial shipment of Sales Line with Lot tracking.
+        Initialize();
+
+        // [GIVEN] Create locations.
+        LibraryWarehouse.CreateLocationWMS(FromLocation, false, false, false, false, false);
+        LibraryWarehouse.CreateLocationWMS(ToLocation, false, false, true, false, false);
+
+        // [GIVEN] Create warehouse employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, FromLocation.Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, ToLocation.Code, false);
+
+        // [GIVEN] Create transfer route.
+        LibraryInventory.CreateAndUpdateTransferRoute(TransferRoute, FromLocation.Code, ToLocation.Code, LocationInTransit.Code, '', '');
+
+        // [GIVEN] Create work center with calendar.
+        CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create component item with Purchase Replenishment System.
+        LibraryInventory.CreateItem(ComPItem);
+        ComPItem.Validate("Replenishment System", ComPItem."Replenishment System"::Purchase);
+        ComPItem.Modify();
+
+        // [GIVEN] Create inventory for component item.
+        CreateInventory(ComPItem, 1000, '', 1);
+
+        // [GIVEN] Create finished item with Lot tracking.
+        FinishItemNo := CreateItemWithLotTracking();
+        FinishItem.Get(FinishItemNo);
+        FinishItem.Validate("Lot Nos.", '');
+        FinishItem.Modify();
+
+        // [GIVEN] Create routing with work center.
+        RoutingNo := CreateRoutingWithWorkCenter(WorkCenter."No.", 10, 10, 0);
+
+        // [GIVEN] Create and certify production BOM for finished item.
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, FinishItem."Base Unit of Measure", ComPItem."No.");
+
+        // [GIVEN] Update production BOM and routing number on finished item.
+        UpdateProductionBOMAndRoutingNoOnItem(FinishItem, ProductionBOMHeader."No.", RoutingNo);
+
+        // [GIVEN] Set replenishment system, manufacturing policy, reordering policy, and order tracking policy for finished item.
+        FinishItem.Validate("Replenishment System", ComPItem."Replenishment System"::"Prod. Order");
+        FinishItem.Validate("Manufacturing Policy", FinishItem."Manufacturing Policy"::"Make-to-Order");
+        FinishItem.Validate("Reordering Policy", FinishItem."Reordering Policy"::" ");
+        FinishItem.Validate("Order Tracking Policy", FinishItem."Order Tracking Policy"::None);
+        FinishItem.Modify(true);
+
+        // [GIVEN] Create stockkeeping units for finished item at FromLocation
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU[1], FromLocation.Code, FinishItem."No.", '');
+        SKU[1].Validate("Replenishment System", SKU[1]."Replenishment System"::"Prod. Order");
+        SKU[1].Validate("Reordering Policy", SKU[1]."Reordering Policy"::Order);
+        SKU[1].Modify(true);
+
+        // [GIVEN] Create stockkeeping unit for finished item at ToLocation.
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU[2], ToLocation.Code, FinishItem."No.", '');
+        SKU[2].Validate("Replenishment System", SKU[1]."Replenishment System"::Transfer);
+        SKU[2].Validate("Reordering Policy", SKU[1]."Reordering Policy"::Order);
+        SKU[2].Validate("Transfer-From Code", FromLocation.Code);
+        SKU[2].Modify(true);
+
+        // [GIVEN] Sales Order for 500 at ToLocation
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, FinishItem."No.", ToLocation.Code, 10, true);
+
+        // [GIVEN] Generate a random Lot No. for tracking.
+        LotNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create and release production order for 2 units of FinishItem
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, FinishItem."No.", FromLocation.Code, '', 2);
+        LibraryVariableStorage.Enqueue(AssignTracking::GivenLotNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(2);
+
+        // [GIVEN] Post output journal with tracking for the production order.
+        CreateAndPostOutputJournalWithTracking(ProductionOrder."No.");
+
+        // [GIVEN] Create transfer order for 10 units of FinishItem from FromLocation to ToLocation.
+        CreateAndReleaseTransferOrder(TransferHeader, TransferLine, FromLocation.Code, ToLocation.Code, FinishItem."No.", 10);
+
+        // [GIVEN] Add item tracking to transfer line with Lot No. and quantity 2.
+        TransferLine.Validate("Qty. to Ship", 2);
+        TransferLine.Modify();
+        AddItemTrackingToTransferLine(TransferLine, LotNo, 2);
+
+        // [GIVEN] Post transfer header with item tracking.
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true);
+
+        // [GIVEN] Create and Refresh released production order for FinishItem for 1 unit.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, FinishItem."No.", FromLocation.Code, '', 1);
+        LibraryVariableStorage.Enqueue(AssignTracking::GivenLotNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(1);
+
+        // [GIVEN] Post output journal with tracking for the production order.
+        CreateAndPostOutputJournalWithTracking(ProductionOrder."No.");
+
+        // [GIVEN] Sales Line is set to be shipped partially ("Qty. to Ship" = "X").
+        SalesLine.Validate("Qty. to Ship", 2);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Binding in Reservation Entries of Sale is set to "Order-to-Order".
+        LibraryVariableStorage.Enqueue(AssignTracking::GivenLotNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(2);
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Create Inventory Pick for Sales Line
+        CreateInventoryPick(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.");
+
+        // [WHEN] Post Inventory Pick.
+        PostInventoryActivity(
+            SalesLine."Document No.",
+            WarehouseActivityLine."Source Document"::"Sales Order",
+            ToLocation.Code,
+            FinishItem."No.",
+            WarehouseActivityLine."Activity Type"::"Invt. Pick"
+        );
+
+        // [VERIFY] Quantity Shipped on Sales Line = 2
+        SalesLine.Find();
+        Assert.AreEqual(
+            2, SalesLine."Quantity Shipped",
+            StrSubstNo(
+                IncorrectShippedQtyMsg,
+                SalesLine.FieldCaption("Quantity Shipped"),
+                SalesLine.FieldCaption("Qty. to Ship"))
+        );
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3284,6 +3434,38 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM RTAM Item Tracking-II");
+    end;
+
+    local procedure CreateWorkCenterWithCalendar(var WorkCenter: Record "Work Center")
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Work Center Group Code", '1');
+        WorkCenter.Validate("Direct Unit Cost", 50);
+        WorkCenter.Validate("Unit of Measure Code", 'HOURS');
+        WorkCenter.Validate(Capacity, 1);
+        WorkCenter.Validate(Efficiency, 100);
+        WorkCenter.Validate("Shop Calendar Code", '1');
+        WorkCenter.Modify(true);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1Y>', WorkDate()), CalcDate('<2M>', WorkDate()));
+    end;
+
+    local procedure CreateRoutingWithWorkCenter(WorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; LotSize: Decimal): Code[20]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenterNo);
+        RoutingLine.Validate("Setup Time", SetupTime);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Validate("Lot Size", LotSize);
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+        exit(RoutingHeader."No.");
     end;
 
     local procedure ClearGlobals()
@@ -4813,7 +4995,6 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Assert.RecordIsNotEmpty(ReservationEntry);
     end;
 
-
     local procedure PostItemJournalLineWithItemTracking(
         Location: Record Location;
         Item: Record Item;
@@ -4830,6 +5011,26 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         CreateAndPostItemJournalLineWithTracking(
             ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Location.Code,
             LotQty, 0, AssignTracking::GivenLotNo);
+    end;
+
+    local procedure UpdateProductionBOMAndRoutingNoOnItem(var Item: Record Item; ProductionBOMNo: Code[20]; RoutingNo: Code[20])
+    begin
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Validate("Routing No.", RoutingNo);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateInventory(Item: Record Item; Quantity: Decimal; LocationCode: Code[10]; UnitAmount: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, LocationCode, '', WorkDate(),
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Quantity, UnitAmount);
+
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
     [ModalPageHandler]

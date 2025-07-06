@@ -38,7 +38,9 @@ codeunit 7307 "Whse.-Activity-Register"
                   TableData "Posted Whse. Receipt Header" = rm,
                   TableData "Posted Whse. Receipt Line" = rm,
                   TableData "Registered Invt. Movement Hdr." = ri,
-                  TableData "Registered Invt. Movement Line" = ri;
+                  TableData "Registered Invt. Movement Line" = ri,
+                  tabledata "Production Order" = rm,
+                  tabledata "Prod. Order Line" = rm;
     TableNo = "Warehouse Activity Line";
 
     trigger OnRun()
