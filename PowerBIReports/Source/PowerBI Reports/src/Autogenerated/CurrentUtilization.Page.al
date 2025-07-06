@@ -7,9 +7,7 @@ page 37040 "Current Utilization"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = Manufacturing;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Current Utilization';
     AboutTitle = 'About Current Utilization';
     AboutText = 'View the current Weeks Utilization % by comparing Capacity Used to Available Capacity in Hours. View all or some Work Centers to measure throughput and efficiency.';
@@ -28,7 +26,7 @@ page 37040 "Current Utilization"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

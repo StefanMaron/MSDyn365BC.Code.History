@@ -88,7 +88,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
                     Visible = HasAdditionalColumns;
                     trigger OnDrillDown()
                     begin
-                        Page.Run(Page::"E-Doc Line Values.", Rec);
+                        Page.RunModal(Page::"E-Doc Line Values.", Rec);
                     end;
                 }
             }
@@ -146,17 +146,16 @@ page 6183 "E-Doc. Purchase Draft Subform"
         HistoryCantBeRetrievedErr: Label 'The purchase invoice that matched historically with this line can''t be opened.';
 
     trigger OnOpenPage()
-    var
-        EDocPurchLineFieldSetup: Record "EDoc. Purch. Line Field Setup";
     begin
         SetDimensionsVisibility();
-        HasAdditionalColumns := not EDocPurchLineFieldSetup.IsEmpty();
     end;
 
     trigger OnAfterGetRecord()
     begin
         if EDocumentPurchaseLine.Get(Rec."E-Document Entry No.", Rec."Line No.") then;
         AdditionalColumns := Rec.AdditionalColumnsDisplayText();
+
+        SetHasAdditionalColumns();
     end;
 
     local procedure SetDimensionsVisibility()
@@ -169,6 +168,30 @@ page 6183 "E-Doc. Purchase Draft Subform"
 
         DimMgt.UseShortcutDims(
           DimVisible1, DimVisible2, DimOther, DimOther, DimOther, DimOther, DimOther, DimOther);
+    end;
+
+    local procedure SetHasAdditionalColumns()
+    var
+        EDocPurchLineFieldSetup: Record "ED Purchase Line Field Setup";
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+    begin
+        if EDocPurchLineFieldSetup.IsEmpty() then begin
+            HasAdditionalColumns := false;
+            exit;
+        end;
+
+        EDocumentPurchaseHeader.Get(Rec."E-Document Entry No.");
+        if EDocumentPurchaseHeader."[BC] Vendor No." = '' then begin
+            HasAdditionalColumns := false;
+            exit;
+        end;
+
+        if Rec."E-Doc. Purch. Line History Id" = 0 then begin
+            HasAdditionalColumns := false;
+            exit;
+        end;
+
+        HasAdditionalColumns := true;
     end;
 
 }

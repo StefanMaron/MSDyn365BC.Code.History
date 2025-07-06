@@ -146,6 +146,7 @@ codeunit 5923 "Service-Quote to Order"
         ServOrderHeader."Starting Time" := 0T;
         ServOrderHeader."Finishing Date" := 0D;
         ServOrderHeader."Finishing Time" := 0T;
+        ServOrderHeader."Posting Date" := 0D;
 
         IsHandled := false;
         OnMakeOrderOnBeforeTestNoSeries(ServOrderHeader, IsHandled);

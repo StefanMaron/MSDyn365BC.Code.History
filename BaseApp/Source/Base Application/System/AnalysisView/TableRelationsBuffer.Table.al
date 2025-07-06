@@ -108,7 +108,7 @@ table 9640 "Table Relations Buffer"
                             if not Rec.Insert() then;
                     end;
             until TableRelationsMetadata.Next() = 0;
-        Rec.SetCurrentKey("Table Name");
+        Rec.SetCurrentKey("Related Table Name");
     end;
 
     local procedure CheckValidTable(TableId: Integer): Boolean
@@ -123,7 +123,15 @@ table 9640 "Table Relations Buffer"
               (TableMetadata.Access = TableMetadata.Access::Public) and
               (TableMetadata.ObsoleteState <> TableMetadata.ObsoleteState::Removed) and
               ((TableMetadata.Scope = TableMetadata.Scope::Cloud) or EnvironmentInformation.IsOnPrem()) and
-              DoesTheTableHavePages(TableId));
+              DoesTheTableHavePages(TableId) and HasReadPermission(TableId));
+    end;
+
+    local procedure HasReadPermission(TableId: Integer): Boolean
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.Open(TableId);
+        exit(RecRef.ReadPermission());
     end;
 
     local procedure DoesTheTableHavePages(TableId: Integer): Boolean

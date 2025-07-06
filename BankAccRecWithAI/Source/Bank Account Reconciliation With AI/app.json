@@ -2,7 +2,7 @@
   "id": "63c9fbe6-d4f3-458c-8c25-644c90a0874a",
   "name": "Bank Account Reconciliation With AI",
   "publisher": "Microsoft",
-  "version": "26.2.34746.34832",
+  "version": "26.3.36158.36321",
   "brief": "Bank Account Reconciliation With AI",
   "description": "Bank Account Reconciliation With AI",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -33,7 +33,7 @@
     "includeSourceInSymbolFile": false
   },
   "target": "OnPrem",
-  "application": "26.2.0.0",
+  "application": "26.3.0.0",
   "features": [
     "TranslationFile",
     "GenerateCaptions"

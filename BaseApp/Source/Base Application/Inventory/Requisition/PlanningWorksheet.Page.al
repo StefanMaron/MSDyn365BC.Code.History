@@ -999,7 +999,7 @@ page 99000852 "Planning Worksheet"
         // if called from API (such as edit-in-excel), do not filter 
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
-        OpenedFromBatch := (Rec."Journal Batch Name" <> '') and (Rec."Worksheet Template Name" = '');
+        OpenedFromBatch := (Rec."Journal Batch Name" <> '') and (Rec."Worksheet Template Name" <> '');
         if OpenedFromBatch then begin
             CurrentWkshBatchName := Rec."Journal Batch Name";
             ReqJnlManagement.OpenJnl(CurrentWkshBatchName, Rec);
