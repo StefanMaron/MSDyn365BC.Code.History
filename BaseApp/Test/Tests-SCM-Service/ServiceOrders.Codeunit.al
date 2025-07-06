@@ -5370,6 +5370,44 @@ codeunit 136101 "Service Orders"
             Assert.AreEqual(CustPostGroup."Receivables Account", GLEntry."G/L Account No.", '');
     end;
 
+    [Test]
+    procedure ValidatingCustomerNoInitializesNewServiceOrder()
+    var
+        ServiceHeader: Record "Service Header";
+    begin
+        // [FEATURE] [Service Order] [UT]
+        // [SCENARIO 575369] Validating "Customer No." initializes new Service Order.
+        Initialize();
+
+        ServiceHeader.Init();
+        ServiceHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo());
+
+        ServiceHeader.TestField("Document Date", WorkDate());
+        ServiceHeader.TestField("Posting Date", WorkDate());
+    end;
+
+    [Test]
+    procedure NonBlankDocumentAndPostingDatesOnServiceOrderAreNotReset()
+    var
+        ServiceHeader: Record "Service Header";
+        NewDate: Date;
+    begin
+        // [FEATURE] [Service Order] [UT]
+        // [SCENARIO 575369] Non-blank "Document Date" and "Posting Date" on Service Order are not reset on insert.
+        Initialize();
+        NewDate := WorkDate() + 1;
+
+        ServiceHeader.Init();
+        ServiceHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo());
+        ServiceHeader.Validate("Document Date", NewDate);
+        ServiceHeader.Validate("Posting Date", NewDate);
+
+        ServiceHeader.Insert(true);
+
+        ServiceHeader.TestField("Document Date", NewDate);
+        ServiceHeader.TestField("Posting Date", NewDate);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -2222,6 +2222,62 @@ codeunit 136350 "UT T Job"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('PurchOrderFromJobModalPageHandlerSetVendorsOnLines')]
+    procedure CreatePurchaseOrderWithoutErrorWhenJobPlanningLineHasNumberFieldBlank()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        JobCard: TestPage "Job Card";
+        JobPlanningLines: TestPage "Job Planning Lines";
+    begin
+        // [SCENARIO 568657] No error should occurs when creating purchase order on a project planning lines]
+        Initialize();
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Job X with Job Task and Job Planning Line
+        CreateJobAndJobTask();
+        CreateJobPlanningLineWithItem(JobPlanningLine."Line Type"::"Both Budget and Billable", Item."No.", 1);
+
+        Clear(Job);
+        Clear(JobTask);
+        Clear(JobPlanningLine);
+
+        // [GIVEN] Create Job Y with Job Task and Job Planning Line
+        CreateJobAndJobTask();
+        CreateJobPlanningLineWithItem(JobPlanningLine."Line Type"::"Both Budget and Billable", Item."No.", 1);
+
+        // [GIVEN] Create JOb Planning Line with Description and No. blank
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate(Description, LibraryRandom.RandText(10));
+        JobPlanningLine.Modify(true);
+
+        // [WHEN] Create Purchase Order from Job Planning Lines for Job Y
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        JobPlanningLine.CalcFields("Reserved Qty. (Base)");
+        LibraryVariableStorage.Enqueue(JobPlanningLine."Remaining Qty. (Base)" - JobPlanningLine."Reserved Qty. (Base)");
+        PurchaseOrder.Trap();
+        JobPlanningLines.Trap();
+        JobCard.OpenEdit();
+        JobCard.GotoRecord(Job);
+        JobCard.JobTaskLines.JobPlanningLines.Invoke();
+        JobPlanningLines.CreatePurchaseOrder.Invoke();
+
+        // [THEN] Dedicated Purchase line created        
+        PurchaseLine.SetRange("Job No.", Job."No.");
+        PurchaseLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        Assert.IsFalse(PurchaseLine.IsEmpty, 'Purchase Line not created for Job Task' + JobTask."Job Task No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2726,6 +2782,15 @@ codeunit 136350 "UT T Job"
         PurchOrderFromSalesOrder."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
+    [ModalPageHandler]
+    procedure PurchOrderFromJobModalPageHandlerSetVendorsOnLines(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
+        PurchOrderFromSalesOrder.Next();
+        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
+        PurchOrderFromSalesOrder.OK().Invoke();
+    end;
+
     [MessageHandler]
     procedure MessageHandler(Message: Text[1024])
     var
@@ -2752,4 +2817,3 @@ codeunit 136350 "UT T Job"
     begin
     end;
 }
-

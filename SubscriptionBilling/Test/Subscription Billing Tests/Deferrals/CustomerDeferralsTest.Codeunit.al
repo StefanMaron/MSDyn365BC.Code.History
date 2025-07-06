@@ -43,6 +43,7 @@ codeunit 139912 "Customer Deferrals Test"
         ContractTestLibrary: Codeunit "Contract Test Library";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         CorrectedDocumentNo: Code[20];
         PostedDocumentNo: Code[20];
@@ -55,6 +56,7 @@ codeunit 139912 "Customer Deferrals Test"
         PrevGLEntry: Integer;
         TotalNumberOfMonths: Integer;
         IsInitialized: Boolean;
+        ConfirmQuestionLbl: Label 'If you change Quantity, only the Amount for existing service commitments will be recalculated.\\Do you want to continue?', Comment = '%1= Changed Field Name.';
 
     #region Tests
 
@@ -706,6 +708,37 @@ codeunit 139912 "Customer Deferrals Test"
         Assert.IsTrue(SalesLine.CreateContractDeferrals(), FunctionReturnedWrongResultErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure ConfirmQuestionPriceListsServiceQuantityChanged()
+    var
+        SalesLine: Record "Sales Line";
+        BillingLine: Record "Billing Line";
+        SubscriptionHeader: Record "Subscription Header";
+        SubscriptionLine: Record "Subscription Line";
+        CustomerSubscriptionContract: Record "Customer Subscription Contract";
+    begin
+        // [SCENARIO 572340] Confirm Question on Price Lists in Service Objects when Quantity is Changed.
+        Initialize();
+
+        // [GIVEN] Mock Subscription Contract.
+        MockSubscriptionContract(CustomerSubscriptionContract);
+
+        // [GIVEN] Mock Sales Line.
+        MockSalesLine(SalesLine);
+
+        // [GIVEN] Mock Subscription Line for Contract.
+        MockSubscriptionLineForContract(SubscriptionLine, CustomerSubscriptionContract."No.");
+
+        // [GIVEN] Mock Billing Line for Sales and Subscription Line.
+        MockBillingLineForSalesLineAndSubscriptionLine(BillingLine, SalesLine, SubscriptionLine);
+
+        // [WHEN] Find and Validate Quantity on Subscription Header.
+        SubscriptionHeader.Get(SubscriptionLine."Subscription Header No.");
+        SubscriptionHeader.Validate(Quantity, SubscriptionHeader.Quantity + LibraryRandom.RandInt(2));
+        SubscriptionHeader.Modify(true);
+    end;
+
     #endregion Tests
 
     #region Procedures
@@ -1013,6 +1046,13 @@ codeunit 139912 "Customer Deferrals Test"
         ContractDeferralsRelease.PostingDateReq.SetValue(PostingDate);
         ContractDeferralsRelease.PostUntilDateReq.SetValue(PostingDate);
         ContractDeferralsRelease.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedConfirm(ConfirmQuestionLbl, Question);
+        Reply := true;
     end;
 
     #endregion Handlers

@@ -2355,6 +2355,8 @@ table 18 Customer
         AdditionalAmountLCY: Decimal;
         IsHandled: Boolean;
         TotalAmountLCY: Decimal;
+        ShippedFromOrderLCY: Decimal;
+        ShippedOutstandingInvoicesLCY: Decimal;
     begin
         IsHandled := false;
         OnBeforeGetTotalAmountLCYCommon(Rec, AdditionalAmountLCY, IsHandled);
@@ -2364,10 +2366,13 @@ table 18 Customer
         SalesOutstandingAmountFromShipment := SalesLine.OutstandingInvoiceAmountFromShipment("No.");
         InvoicedPrepmtAmountLCY := GetInvoicedPrepmtAmountLCY();
         RetRcdNotInvAmountLCY := GetReturnRcdNotInvAmountLCY();
+        ShippedFromOrderLCY := GetShippedFromOrderLCYAmountLCY();
+        ShippedOutstandingInvoicesLCY := GetShippedOutstandingInvoicesAmountLCY();
 
         TotalAmountLCY :=
-            "Balance (LCY)" + "Outstanding Orders (LCY)" + "Shipped Not Invoiced (LCY)" + "Outstanding Invoices (LCY)" +
-            SalesOutstandingAmountFromShipment - InvoicedPrepmtAmountLCY - RetRcdNotInvAmountLCY + AdditionalAmountLCY;
+            "Balance (LCY)" + "Outstanding Orders (LCY)" + ("Shipped Not Invoiced (LCY)" - ShippedFromOrderLCY) +
+            ("Outstanding Invoices (LCY)" - ShippedOutstandingInvoicesLCY) + SalesOutstandingAmountFromShipment -
+            InvoicedPrepmtAmountLCY - RetRcdNotInvAmountLCY + AdditionalAmountLCY;
 
         OnAfterGetTotalAmountLCYCommon(Rec, TotalAmountLCY);
         exit(TotalAmountLCY);
@@ -2687,8 +2692,9 @@ table 18 Customer
         Customer.SetFilter(Name, CustomerFilterFromStart);
         OnGetCustNoOpenCardOnAfterOnAfterCustomerFilterFromStart(Customer);
 
-        if Customer.FindFirst() and (Customer.Count() = 1) then
-            exit(Customer."No.");
+        if Customer.FindFirst() then
+            if Customer.Count() = 1 then
+                exit(Customer."No.");
 
         CustomerFilterContains := '''@*' + CustomerWithoutQuote + '*''';
 
@@ -3459,6 +3465,33 @@ table 18 Customer
         VATRegNo := "VAT Registration No.";
 
         OnAfterGetVATRegistrationNo(Rec, VATRegNo);
+    end;
+
+    procedure GetShippedOutstandingInvoicesAmountLCY(): Decimal
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Bill-to Customer No.", "No.");
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetFilter("Shipment No.", '<>%1', '');
+        SalesLine.SetFilter("Shipment Line No.", '<>%1', 0);
+        SalesLine.CalcSums("Outstanding Amount (LCY)");
+        exit(SalesLine."Outstanding Amount (LCY)");
+    end;
+
+    procedure GetShippedFromOrderLCYAmountLCY(): Decimal
+    var
+        SalesShippedNotInvoicedLCY: Query "Sales Shipped Not Invoiced LCY";
+        ShippedFromOrderLCY: Decimal;
+    begin
+        ShippedFromOrderLCY := 0;
+        SalesShippedNotInvoicedLCY.SetRange(BillToCustomerNo, "No.");
+        SalesShippedNotInvoicedLCY.SetFilter(OrderNo, '<>%1', '');
+        SalesShippedNotInvoicedLCY.SetFilter(OrderLineNo, '<>%1', 0);
+        if SalesShippedNotInvoicedLCY.Open() then
+            while SalesShippedNotInvoicedLCY.Read() do
+                ShippedFromOrderLCY += SalesShippedNotInvoicedLCY.ShippedNotInvoicedLCY;
+        exit(ShippedFromOrderLCY);
     end;
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"My Customer", 'rm')]
