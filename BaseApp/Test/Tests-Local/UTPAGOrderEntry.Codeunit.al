@@ -1288,9 +1288,13 @@ codeunit 142073 "UT PAG Order Entry"
         Assert.IsTrue(SalesOrderShipment."Shipping Advice".Enabled(), '');
         Assert.IsTrue(SalesOrderShipment."Shipping Advice".Visible(), '');
 
+#if not CLEAN27
         Assert.IsTrue(SalesOrderShipment.Statistics.Enabled(), '');
         Assert.IsTrue(SalesOrderShipment.Statistics.Visible(), '');
-
+#else
+        Assert.IsTrue(SalesOrderShipment.SalesOrderStatistics.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.SalesOrderStatistics.Visible(), '');
+#endif
         Assert.IsTrue(SalesOrderShipment.Card.Enabled(), '');
         Assert.IsTrue(SalesOrderShipment.Card.Visible(), '');
 
@@ -1454,10 +1458,13 @@ codeunit 142073 "UT PAG Order Entry"
 
         Assert.IsTrue(SalesOrderShipment."Shipping Advice".Enabled(), '');
         Assert.IsTrue(SalesOrderShipment."Shipping Advice".Visible(), '');
-
+#if not CLEAN27
         Assert.IsTrue(SalesOrderShipment.Statistics.Enabled(), '');
         Assert.IsTrue(SalesOrderShipment.Statistics.Visible(), '');
-
+#else
+        Assert.IsTrue(SalesOrderShipment.SalesOrderStatistics.Enabled(), '');
+        Assert.IsTrue(SalesOrderShipment.SalesOrderStatistics.Visible(), '');
+#endif
         Assert.IsTrue(SalesOrderShipment.Card.Enabled(), '');
         Assert.IsTrue(SalesOrderShipment.Card.Visible(), '');
 
@@ -2024,4 +2031,3 @@ codeunit 142073 "UT PAG Order Entry"
     begin
     end;
 }
-

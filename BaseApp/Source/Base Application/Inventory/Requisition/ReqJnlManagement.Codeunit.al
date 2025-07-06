@@ -98,7 +98,10 @@ codeunit 330 ReqJnlManagement
     begin
         OnBeforeOpenJnl(CurrentJnlBatchName, ReqLine);
 
-        CheckTemplateName(ReqLine.GetRangeMax("Worksheet Template Name"), CurrentJnlBatchName);
+        if (ReqLine."Worksheet Template Name" <> '') and (ReqLine.GetFilter("Journal Batch Name") = '') then
+            CheckTemplateName(ReqLine."Worksheet Template Name", CurrentJnlBatchName)
+        else
+            CheckTemplateName(ReqLine.GetRangeMax("Worksheet Template Name"), CurrentJnlBatchName);
         ReqLine.FilterGroup := 2;
         ReqLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
         ReqLine.FilterGroup := 0;

@@ -1017,6 +1017,7 @@ codeunit 142065 "Job Reports NA"
         ResJournalLine.Validate("Posting Date", PostingDate);
         ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Usage);
         ResJournalLine.Validate("Resource No.", ResourceNo);
+        ResJournalLine.Validate("Document No.", ResourceNo);
         ResJournalLine.Validate("Work Type Code", '');
         ResJournalLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Use random value for Quantity.
         ResJournalLine.Modify(true);

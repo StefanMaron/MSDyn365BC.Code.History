@@ -618,7 +618,8 @@ codeunit 6501 "Item Tracking Data Collection"
             if TempReservEntry."Reservation Status" = TempReservEntry."Reservation Status"::Reservation then
                 TempGlobalEntrySummary."Total Reserved Quantity" += TempReservEntry."Quantity (Base)";
         end else begin
-            TempGlobalEntrySummary."Total Requested Quantity" -= TempReservEntry."Quantity (Base)";
+            if TempReservEntry."Qty. to Handle (Base)" <> 0 then
+                TempGlobalEntrySummary."Total Requested Quantity" -= TempReservEntry."Quantity (Base)";
             if TempReservEntry.HasSamePointerWithSpec(TempTrackingSpecification) then begin
                 if TempReservEntry."Reservation Status" = TempReservEntry."Reservation Status"::Reservation then
                     TempGlobalEntrySummary."Current Reserved Quantity" -= TempReservEntry."Quantity (Base)";

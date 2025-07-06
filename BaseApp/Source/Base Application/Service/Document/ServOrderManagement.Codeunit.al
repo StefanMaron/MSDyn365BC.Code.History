@@ -804,7 +804,13 @@ codeunit 5900 ServOrderManagement
     var
         Item: Record Item;
         ItemVariant: Record "Item Variant";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckItemServiceBlocked(ServiceItemLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServiceItemLine."Item No." = '' then
             exit;
 
@@ -932,6 +938,11 @@ codeunit 5900 ServOrderManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateCustFromTemplateOnBeforeCustInsert(var Customer: Record Customer; CustomerTempl: Record "Customer Templ."; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemServiceBlocked(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
     begin
     end;
 }

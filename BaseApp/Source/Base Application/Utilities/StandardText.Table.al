@@ -5,6 +5,7 @@
 namespace Microsoft.Utilities;
 
 using Microsoft.Foundation.ExtendedText;
+using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 
@@ -50,9 +51,11 @@ table 7 "Standard Text"
     var
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
+        JobPlanningLine: Record "Job Planning Line";
     begin
         SalesLine.RenameNo(SalesLine.Type::" ", xRec.Code, Code);
         PurchaseLine.RenameNo(PurchaseLine.Type::" ", xRec.Code, Code);
+        JobPlanningLine.RenameNo(JobPlanningLine.Type::Text, xRec.Code, Code);
     end;
 
     var

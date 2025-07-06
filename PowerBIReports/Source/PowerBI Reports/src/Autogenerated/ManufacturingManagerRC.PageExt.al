@@ -40,7 +40,7 @@ pageextension 36964 "Manufacturing Manager RC" extends "Manufacturing Manager RC
                 action("Prod. Order - List (Power BI)")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Prod. Order - List (Power BI)';
+                    Caption = 'Production Order - List (Power BI)';
                     Image = "PowerBI";
                     RunObject = page "Prod. Order - List";
                     Tooltip = 'Open the Power BI report that lists all production orders and analyzes detailed production order information, including status, due date, and planned versus finished quantities.';
@@ -56,7 +56,7 @@ pageextension 36964 "Manufacturing Manager RC" extends "Manufacturing Manager RC
                 action("Prod. Order Routings Gantt (Power BI)")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Prod. Order Routings Gantt (Power BI)';
+                    Caption = 'Production Order Routings Gantt (Power BI)';
                     Image = "PowerBI";
                     RunObject = page "Prod. Order Routings Gantt";
                     Tooltip = 'Open the Power BI report that visualizes the schedules of each work and machine center with a Gantt chart, detailing production order routing lines.';
@@ -96,10 +96,10 @@ pageextension 36964 "Manufacturing Manager RC" extends "Manufacturing Manager RC
             action("Finished Prod. Order Breakdown (Power BI)")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Finished Prod. Order Breakdown (Power BI)';
+                Caption = 'Finished Production Order Breakdown (Power BI)';
                 Image = "PowerBI";
                 RunObject = page "Finished Prod. Order Breakdown";
-                Tooltip = 'Open a Power BI Report to view Expected Quantities and Cost vs Actual Quantities and Costs over time, analyze the detail per item and drill down to the Production Order to track where variances are occurring.';
+                Tooltip = 'Open a Power BI Report to view Expected Quantities and Cost vs. Actual Quantities and Costs over time, analyze the detail per item and drill down to the Production Order to track where variances are occurring.';
             }
             action("Average Productions Times (Power BI)")
             {
@@ -115,7 +115,7 @@ pageextension 36964 "Manufacturing Manager RC" extends "Manufacturing Manager RC
                 Caption = 'Released Production Orders (Power BI)';
                 Image = "PowerBI";
                 RunObject = page "PowerBI Released Prod. Orders";
-                Tooltip = 'Open a Power BI Report to view how your released production orders are tracking by comparing Expected Quantity vs Finished Quantity';
+                Tooltip = 'Open a Power BI Report to view how your released production orders are tracking by comparing Expected Quantity vs. Finished Quantity';
             }
 
         }
@@ -142,7 +142,7 @@ pageextension 36964 "Manufacturing Manager RC" extends "Manufacturing Manager RC
                 Caption = 'Historical Utilization (Power BI)';
                 Image = "PowerBI";
                 RunObject = page "Historical Utilization";
-                Tooltip = 'Open a Power BI Report to view the historical Utilization % by comparing Capacity Used vs Available Capacity in Hours viewed over a timeline you can define to see trends. View all or some Work Centers.';
+                Tooltip = 'Open a Power BI Report to view the historical Utilization % by comparing Capacity Used vs. Available Capacity in Hours viewed over a timeline you can define to see trends. View all or some Work Centers.';
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The Power BI report has been changed/removed and this is no longer required.';
                 ObsoleteTag = '26.0';
@@ -155,7 +155,7 @@ pageextension 36964 "Manufacturing Manager RC" extends "Manufacturing Manager RC
                 Caption = 'Work Center Load (Power BI)';
                 Image = "PowerBI";
                 RunObject = page "PowerBI Work Center Load";
-                Tooltip = 'Open a Power BI Report to view the percentage of production order time assigned vs Available Capacity for each Work Centre Group and/or Work Centre in a specified period. Allows you to determine if a Work Centre is overloaded and requires rescheduling.';
+                Tooltip = 'Open a Power BI Report to view the percentage of production order time assigned vs. Available Capacity for each Work Centre Group and/or Work Centre in a specified period. Allows you to determine if a Work Centre is overloaded and requires rescheduling.';
             }
             action("Allocated Hours (Power BI)")
             {

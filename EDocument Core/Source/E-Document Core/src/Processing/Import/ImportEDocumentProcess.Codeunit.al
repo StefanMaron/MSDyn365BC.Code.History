@@ -9,6 +9,7 @@ using Microsoft.eServices.EDocument.Processing.Interfaces;
 using System.Utilities;
 using System.IO;
 using Microsoft.Purchases.Vendor;
+using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 /// <summary>
 /// This codeunit executes a single step of the import process, it can be configured with the step to run, whether to undo the step or not, and the E-Document to process.
@@ -36,7 +37,7 @@ codeunit 6104 "Import E-Document Process"
 
         NewStatus := GetStatusForStep(Step, UndoStep);
         EDocumentLog.SetFields(EDocument, EDocument.GetEDocumentService());
-        EDocumentLog.ConfigureLogToInsert(Enum::"E-Document Service Status"::Imported, NewStatus);
+        EDocumentLog.ConfigureLogToInsert(Enum::"E-Document Service Status"::Imported, NewStatus, UndoStep);
 
         if UndoStep then
             UndoProcessingStep(EDocument, Step)
@@ -65,6 +66,7 @@ codeunit 6104 "Import E-Document Process"
     var
         EDocumentDataStorage: Record "E-Doc. Data Storage";
         FileManagement: Codeunit "File Management";
+        EDocErrorHelper: Codeunit "E-Document Error Helper";
         IStructuredDataType: Interface IStructuredDataType;
         IStructureReceivedEDocument: Interface IStructureReceivedEDocument;
         IFileFormat: Interface IEDocFileFormat;
@@ -90,6 +92,12 @@ codeunit 6104 "Import E-Document Process"
             EDocumentLog.SetBlob(Name, IStructuredDataType.GetFileFormat(), IStructuredDataType.GetContent());
             EDocumentLog.InsertLog();
             EDocument."Structured Data Entry No." := EDocumentLog.GetLog()."E-Doc. Data Storage Entry No.";
+
+            if IStructuredDataType.GetReadIntoDraftImpl() = Enum::"E-Doc. Read into Draft"::ADI then
+                OnADIProcessingCompleted(EDocument, EDocumentDataStorage);
+
+            if EDocument."Structured Data Entry No." = 0 then
+                EDocErrorHelper.LogWarningMessage(EDocument, EDocument, EDocument.FieldNo("Structured Data Entry No."), NoStructuredDataErr);
         end
         else
             EDocument."Structured Data Entry No." := EDocument."Unstructured Data Entry No.";
@@ -110,9 +118,8 @@ codeunit 6104 "Import E-Document Process"
         FromBlob: Codeunit "Temp Blob";
         IStructuredFormatReader: Interface IStructuredFormatReader;
     begin
-        EDocument.TestField("Structured Data Entry No.");
-        EDocumentDataStorage.Get(EDocument."Structured Data Entry No.");
-        FromBlob := EDocumentDataStorage.GetTempBlob();
+        if EDocumentDataStorage.Get(EDocument."Structured Data Entry No.") then
+            FromBlob := EDocumentDataStorage.GetTempBlob();
 
         // If at this point the E-Document does not have a Read into Draft implementation, we take the one specified by the E-Document service
         if EDocument."Read into Draft Impl." = "E-Doc. Read into Draft"::Unspecified then
@@ -126,14 +133,26 @@ codeunit 6104 "Import E-Document Process"
     local procedure PrepareDraft(EDocument: Record "E-Document"; EDocImportParameters: Record "E-Doc. Import Parameters")
     var
         Vendor: Record Vendor;
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
         IProcessStructuredData: Interface IProcessStructuredData;
+        VendNo: Code[20];
     begin
         IProcessStructuredData := EDocument."Process Draft Impl.";
         EDocument."Document Type" := IProcessStructuredData.PrepareDraft(EDocument, EDocImportParameters);
 
-        if Vendor.Get(IProcessStructuredData.GetVendor(EDocument, EDocImportParameters."Processing Customizations")."No.") then begin
-            EDocument."Bill-to/Pay-to Name" := Vendor.Name;
-            EDocument."Bill-to/Pay-to No." := Vendor."No.";
+        VendNo := IProcessStructuredData.GetVendor(EDocument, EDocImportParameters."Processing Customizations")."No.";
+        if VendNo = '' then begin
+            EDocumentPurchaseHeader.GetFromEDocument(EDocument);
+            VendNo := EDocumentPurchaseHeader."[BC] Vendor No.";
+        end;
+
+        if VendNo <> '' then begin
+            if Vendor.Get(VendNo) then begin
+                EDocument."Bill-to/Pay-to Name" := Vendor.Name;
+                EDocument."Bill-to/Pay-to No." := Vendor."No.";
+            end;
+
+            OnFoundVendorNo(EDocument, VendNo);
         end;
         EDocument.Modify();
     end;
@@ -159,6 +178,8 @@ codeunit 6104 "Import E-Document Process"
                 begin
                     IEDocumentFinishDraft := EDocument."Document Type";
                     IEDocumentFinishDraft.RevertDraftActions(EDocument);
+                    Clear(EDocument."Document Record ID");
+                    EDocument.Modify();
                 end;
             Step::"Prepare draft":
                 begin
@@ -237,34 +258,53 @@ codeunit 6104 "Import E-Document Process"
         end;
     end;
 
-    procedure IndexToStatus(Index: Integer) Status: Enum "Import E-Doc. Proc. Status"
+    procedure IndexToStatus(Index: Integer; var Status: Enum "Import E-Doc. Proc. Status"): Boolean
     begin
         case Index of
             0:
-                exit(Status::Unprocessed);
+                Status := Status::Unprocessed;
             1:
-                exit(Status::Readable);
+                Status := Status::Readable;
             2:
-                exit(Status::"Ready for draft");
+                Status := Status::"Ready for draft";
             3:
-                exit(Status::"Draft ready");
+                Status := Status::"Draft ready";
             4:
-                exit(Status::Processed);
+                Status := Status::Processed;
+            else
+                exit(false);
         end;
+        exit(true)
     end;
 
-    procedure GetNextStep(Status: Enum "Import E-Doc. Proc. Status") Step: Enum "Import E-Document Steps"
+    procedure GetNextStep(Status: Enum "Import E-Doc. Proc. Status"; var NextStep: Enum "Import E-Document Steps"): Boolean
+    var
+        NextStatus: Enum "Import E-Doc. Proc. Status";
     begin
+        if not IndexToStatus(StatusStepIndex(Status) + 1, NextStatus) then
+            exit(false);
         case Status of
             Status::Unprocessed:
-                exit(Step::"Structure received data");
+                NextStep := Step::"Structure received data";
             Status::Readable:
-                exit(Step::"Read into Draft");
+                NextStep := Step::"Read into Draft";
             Status::"Ready for draft":
-                exit(Step::"Prepare draft");
+                NextStep := Step::"Prepare draft";
             Status::"Draft ready":
-                exit(Step::"Finish draft");
+                NextStep := Step::"Finish draft";
         end;
+        exit(true);
+    end;
+
+    procedure GetPreviousStep(Status: Enum "Import E-Doc. Proc. Status"; var PreviousStep: Enum "Import E-Document Steps"): Boolean
+    var
+        PreviousStatus: Enum "Import E-Doc. Proc. Status";
+    begin
+        if not IndexToStatus(StatusStepIndex(Status) - 1, PreviousStatus) then
+            exit(false);
+        if not GetNextStep(PreviousStatus, PreviousStep) then
+            exit(false);
+        exit(true);
     end;
 
     procedure GetStatusForStep(Step: Enum "Import E-Document Steps"; StepBefore: Boolean) Status: Enum "Import E-Doc. Proc. Status"
@@ -279,6 +319,11 @@ codeunit 6104 "Import E-Document Process"
             Step::"Finish draft":
                 exit(StepBefore ? Status::"Draft ready" : Status::Processed);
         end;
+    end;
+
+    procedure GetStatusCount(): Integer
+    begin
+        exit(StatusStepIndex("Import E-Doc. Proc. Status"::Processed) + 1);
     end;
 
     procedure OpenTermsAndConditions(TermsNotification: Notification)
@@ -305,6 +350,21 @@ codeunit 6104 "Import E-Document Process"
         exit(TermsAndConditionsTxt);
     end;
 
+    internal procedure GetStep(): Enum "Import E-Document Steps"
+    begin
+        exit(Step);
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnADIProcessingCompleted(EDocument: Record "E-Document"; EDocumentDataStorage: Record "E-Doc. Data Storage")
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnFoundVendorNo(EDocument: Record "E-Document"; VendNo: Code[20])
+    begin
+    end;
+
     var
         EDocument: Record "E-Document";
         EDocImportParameters: Record "E-Doc. Import Parameters";
@@ -313,5 +373,6 @@ codeunit 6104 "Import E-Document Process"
         UndoStep: Boolean;
         AIGeneratedContentTxt: Label 'Data was read from a PDF - check for accuracy. AI-generated content may be incorrect.​';
         TermsAndConditionsTxt: Label 'Terms and Conditions';
+        NoStructuredDataErr: Label 'No structured data is associated with this E-Document. Verify that the source document is in valid format.';
         TermsAndConditionsHyperlinkTxt: Label 'https://www.microsoft.com/en-us/business-applications/legal/supp-powerplatform-preview', Locked = true;
 }

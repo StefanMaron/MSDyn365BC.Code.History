@@ -43,7 +43,7 @@ codeunit 8060 "Create Billing Documents"
 
     local procedure ProcessBillingLines(var BillingLine: Record "Billing Line")
     begin
-        OnBeforeProcessBillingLines(BillingLine);
+        OnBeforeProcessBillingLines(BillingLine, DocumentDate, PostingDate, CustomerRecurringBillingGrouping, VendorRecurringBillingGrouping, PostDocuments);
         CreateTempBillingLines(BillingLine);
         case BillingLine.Partner of
             BillingLine.Partner::Customer:
@@ -79,7 +79,7 @@ codeunit 8060 "Create Billing Documents"
         OnCreateSalesDocumentsPerContractBeforeTempBillingLineFindSet(TempBillingLine);
         if TempBillingLine.FindSet(true) then
             repeat
-                if TempBillingLine."Subscription Contract No." <> PreviousContractNo then begin
+                if IsNewHeaderNeededPerContract(PreviousContractNo) then begin
                     TestPreviousDocumentTotalInvoiceAmount(true, DiscountLineExists, PreviousContractNo);
                     CustomerContract.Get(TempBillingLine."Subscription Contract No.");
                     CreateSalesHeaderFromContract(CustomerContract);
@@ -107,7 +107,7 @@ codeunit 8060 "Create Billing Documents"
         OnCreatePurchaseDocumentsPerContractBeforeTempBillingLineFindSet(TempBillingLine);
         if TempBillingLine.FindSet() then
             repeat
-                if TempBillingLine."Subscription Contract No." <> PreviousContractNo then begin
+                if IsNewHeaderNeededPerContract(PreviousContractNo) then begin
                     TestPreviousDocumentTotalInvoiceAmount(false, DiscountLineExists, PreviousContractNo);
                     VendorContract.Get(TempBillingLine."Subscription Contract No.");
                     CreatePurchaseHeaderFromContract(VendorContract);
@@ -244,7 +244,7 @@ codeunit 8060 "Create Billing Documents"
             ErrorIfItemUnitOfMeasureCodeDoesNotExist(SalesLine."No.", ServiceObject);
         SalesLine.Validate("Unit of Measure Code", ServiceObject."Unit of Measure");
         SalesLine.Validate(Quantity, TempBillingLine.GetSign() * ServiceObject.Quantity);
-        SalesLine.Validate("Unit Price", GetSalesDocumentSign(SalesLine."Document Type") * TempBillingLine."Unit Price");
+        SalesLine.Validate("Unit Price", SalesLine.GetSalesDocumentSign() * TempBillingLine."Unit Price");
         SalesLine.Validate("Line Discount %", TempBillingLine."Discount %");
         SalesLine.Validate("Unit Cost (LCY)", TempBillingLine."Unit Cost (LCY)");
         SalesLine."Recurring Billing from" := TempBillingLine."Billing from";
@@ -323,7 +323,8 @@ codeunit 8060 "Create Billing Documents"
             NewSalesLineQuantity := UsageDataBilling.Quantity;
 
         SalesLine.Validate(Quantity, NewSalesLineQuantity);
-        SalesLine.Validate("Unit Price", NewSalesLineAmount / NewSalesLineQuantity);
+        SalesLine.Validate("Unit Price", SalesLine.GetSalesDocumentSign() * NewSalesLineAmount / NewSalesLineQuantity);
+        SalesLine.Validate("Line Discount %", ServiceCommitment."Discount %");
     end;
 
     local procedure InsertPurchaseLineFromTempBillingLine()
@@ -355,7 +356,7 @@ codeunit 8060 "Create Billing Documents"
         SubContractsItemManagement.SetAllowInsertOfInvoicingItem(false);
         PurchaseLine.Validate("Unit of Measure Code", ServiceObject."Unit of Measure");
         PurchaseLine.Validate(Quantity, TempBillingLine.GetSign() * ServiceObject.Quantity);
-        PurchaseLine.Validate("Direct Unit Cost", GetPurchaseDocumentSign(PurchaseLine."Document Type") * TempBillingLine."Unit Price");
+        PurchaseLine.Validate("Direct Unit Cost", PurchaseLine.GetPurchaseDocumentSign() * TempBillingLine."Unit Price");
         PurchaseLine.Validate("Line Discount %", TempBillingLine."Discount %");
         PurchaseLine."Recurring Billing from" := TempBillingLine."Billing from";
         PurchaseLine."Recurring Billing to" := TempBillingLine."Billing to";
@@ -419,7 +420,8 @@ codeunit 8060 "Create Billing Documents"
             NewPurchaseLineQuantity := UsageDataBilling.Quantity;
 
         PurchLine.Validate(Quantity, NewPurchaseLineQuantity);
-        PurchLine.Validate("Direct Unit Cost", NewPurchaseLineAmount / NewPurchaseLineQuantity);
+        PurchLine.Validate("Direct Unit Cost", PurchLine.GetPurchaseDocumentSign() * NewPurchaseLineAmount / NewPurchaseLineQuantity);
+        PurchLine.Validate("Line Discount %", ServiceCommitment."Discount %");
     end;
 
     local procedure GetBillingLineNo(BillingDocumentType: Enum "Rec. Billing Document Type"; ServicePartner: Enum "Service Partner"; DocumentNo: Code[20]; ContractNo: Code[20]; ContractLineNo: Integer): Integer
@@ -993,20 +995,6 @@ codeunit 8060 "Create Billing Documents"
         ServiceContractSetupFetched := true;
     end;
 
-    local procedure GetSalesDocumentSign(SalesDocumentType: Enum "Sales Document Type"): Integer
-    begin
-        if SalesDocumentType = "Sales Document Type"::"Credit Memo" then
-            exit(-1);
-        exit(1);
-    end;
-
-    local procedure GetPurchaseDocumentSign(PurchaseDocumentType: Enum "Purchase Document Type"): Integer
-    begin
-        if PurchaseDocumentType = "Purchase Document Type"::"Credit Memo" then
-            exit(-1);
-        exit(1);
-    end;
-
     internal procedure SetHideProcessingFinishedMessage()
     begin
         HideProcessingFinishedMessage := true;
@@ -1027,6 +1015,13 @@ codeunit 8060 "Create Billing Documents"
                                 (TempBillingLine."Currency Code" <> PreviousCurrencyCode);
 
         OnAfterIsNewSalesHeaderNeeded(CreateNewSalesHeader, TempBillingLine, PreviousCustomerNo, LastDetailOverview, PreviousCurrencyCode, PreviousContractNo);
+    end;
+
+    local procedure IsNewHeaderNeededPerContract(PreviousSubContractNo: Code[20]) CreateNewHeader: Boolean
+    begin
+        CreateNewHeader := TempBillingLine."Subscription Contract No." <> PreviousSubContractNo;
+
+        OnAfterIsNewHeaderNeededPerContract(CreateNewHeader, TempBillingLine, PreviousSubContractNo);
     end;
 
     internal procedure ErrorIfItemUnitOfMeasureCodeDoesNotExist(ItemNo: Code[20]; ServiceObject: Record "Subscription Header")
@@ -1111,7 +1106,7 @@ codeunit 8060 "Create Billing Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeProcessBillingLines(var BillingLine: Record "Billing Line")
+    local procedure OnBeforeProcessBillingLines(var BillingLine: Record "Billing Line"; var DocumentDate: Date; var PostingDate: Date; var CustomerRecBillingGrouping: Enum "Customer Rec. Billing Grouping"; var VendorRecBillingGrouping: Enum "Vendor Rec. Billing Grouping"; var PostDocuments: Boolean)
     begin
     end;
 
@@ -1127,6 +1122,11 @@ codeunit 8060 "Create Billing Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsNewSalesHeaderNeeded(var CreateNewSalesHeader: Boolean; TempBillingLine: Record "Billing Line" temporary; PreviousCustomerNo: Code[20]; LastDetailOverview: Enum "Contract Detail Overview"; PreviousCurrencyCode: Code[20]; PreviousContractNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsNewHeaderNeededPerContract(var CreateNewSalesHeader: Boolean; TempBillingLine: Record "Billing Line" temporary; PreviousSubContractNo: Code[20])
     begin
     end;
 

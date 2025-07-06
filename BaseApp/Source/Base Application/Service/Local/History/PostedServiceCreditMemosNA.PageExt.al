@@ -138,10 +138,44 @@ pageextension 10013 "Posted Service Credit Memos NA" extends "Posted Service Cre
             end;
         }
 #endif
+        addafter(ServiceStatistics)
+        {
+            action(ServiceStats)
+            {
+                ApplicationArea = Service;
+                Caption = 'Statistics';
+                Image = Statistics;
+                ShortCutKey = 'F7';
+                ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+#if CLEAN27
+                    Visible = SalesTaxStatisticsVisible;
+#else
+                Visible = false;
+#endif
+                RunObject = Page "Service Credit Memo Stats.";
+                RunPageOnRec = true;
+            }
+        }
+#if CLEAN27
+        addafter(ServiceStatistics_Promoted)
+        {
+            actionref(ServiceStats_Promoted; ServiceStats)
+            {
+            }
+        }
+#endif
     }
+
+    trigger OnOpenPage()
+    begin
+        SalesTaxStatisticsVisible := Rec."Tax Area Code" <> '';
+    end;
 
     var
         ProcessingInvoiceMsg: Label 'Processing record #1#######', Comment = '%1 = Record no';
+
+    protected var
+        SalesTaxStatisticsVisible: Boolean;
 
 #if not CLEAN25
     [Obsolete('Moved to procedure OpenStatistics in table ServiceCrMemoHeader', '25.0')]

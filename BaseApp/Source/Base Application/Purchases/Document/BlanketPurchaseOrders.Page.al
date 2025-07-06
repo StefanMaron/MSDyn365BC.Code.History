@@ -259,7 +259,7 @@ page 9310 "Blanket Purchase Orders"
                     Visible = not SalesTaxStatisticsVisible;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Order Statistics";
                     RunPageOnRec = true;
@@ -275,7 +275,7 @@ page 9310 "Blanket Purchase Orders"
                     Visible = SalesTaxStatisticsVisible;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Order Stats.";
                     RunPageOnRec = true;
@@ -549,7 +549,7 @@ page 9310 "Blanket Purchase Orders"
                     ObsoleteState = Pending;
                     ObsoleteTag = '26.0';
                 }
-#else                
+#else
                 actionref(PurchaseOrderStatistics_Promoted; PurchaseOrderStatistics)
                 {
                 }
@@ -583,7 +583,7 @@ page 9310 "Blanket Purchase Orders"
         Rec.SetSecurityFilterOnRespCenter();
 
         Rec.CopyBuyFromVendorFilter();
-        SalesTaxStatisticsVisible := Rec.GetStatisticsPageID() = Page::"Purchase Order Stats.";
+        SalesTaxStatisticsVisible := Rec."Tax Area Code" <> '';
     end;
 
     var

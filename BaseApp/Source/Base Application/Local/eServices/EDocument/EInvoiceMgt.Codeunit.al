@@ -6284,7 +6284,13 @@ codeunit 10145 "E-Invoice Mgt."
         if IsTransferDocument(DocumentHeader."Document Table ID") then
             AddAttribute(XMLDoc, XMLCurrNode, 'MotivoTraslado', DocumentHeader."SAT Transfer Reason");
         AddAttribute(XMLDoc, XMLCurrNode, 'ClaveDePedimento', 'A1');
-        AddAttribute(XMLDoc, XMLCurrNode, 'CertificadoOrigen', '0');
+
+        if DocumentHeader."CFDI Certificate of Origin No." <> '' then begin
+            AddAttribute(XMLDoc, XMLCurrNode, 'CertificadoOrigen', '1');
+            AddAttribute(XMLDoc, XMLCurrNode, 'NumCertificadoOrigen', DelChr(DocumentHeader."CFDI Certificate of Origin No.", '<>'));
+        end else
+            AddAttribute(XMLDoc, XMLCurrNode, 'CertificadoOrigen', '0');
+
         AddAttribute(XMLDoc, XMLCurrNode, 'Incoterm', DocumentHeader."SAT International Trade Term");
 
         CurrencyFactor :=

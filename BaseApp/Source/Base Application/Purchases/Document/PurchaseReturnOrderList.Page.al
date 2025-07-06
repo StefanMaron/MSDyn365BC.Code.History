@@ -362,7 +362,7 @@ page 9311 "Purchase Return Order List"
                     Visible = not SalesTaxStatisticsVisible;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Order Statistics";
                     RunPageOnRec = true;
@@ -378,7 +378,7 @@ page 9311 "Purchase Return Order List"
                     Visible = SalesTaxStatisticsVisible;
 #else
                     Visible = false;
-#endif                     
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Purchase Order Stats.";
                     RunPageOnRec = true;
@@ -943,7 +943,7 @@ page 9311 "Purchase Return Order List"
                     ObsoleteState = Pending;
                     ObsoleteTag = '26.0';
                 }
-#else                
+#else
                 actionref(PurchaseOrderStatistics_Promoted; PurchaseOrderStatistics)
                 {
                 }
@@ -987,7 +987,8 @@ page 9311 "Purchase Return Order List"
         JobQueueActive := PurchasesPayablesSetup.JobQueueActive();
 
         Rec.CopyBuyFromVendorFilter();
-        SalesTaxStatisticsVisible := Rec.GetStatisticsPageID() = Page::"Purchase Order Stats.";
+        SalesTaxStatisticsVisible := Rec."Tax Area Code" <> '';
+        ;
     end;
 
     var

@@ -201,6 +201,9 @@ table 6101 "E-Document Purchase Line"
         {
             Clustered = true;
         }
+        key(Key1; "[BC] Purchase Type No.")
+        {
+        }
     }
 
     var
@@ -222,7 +225,7 @@ table 6101 "E-Document Purchase Line"
     /// <returns></returns>
     internal procedure AdditionalColumnsDisplayText() AdditionalColumns: Text
     var
-        EDocPurchLineFieldSetup: Record "EDoc. Purch. Line Field Setup";
+        EDocPurchLineFieldSetup: Record "ED Purchase Line Field Setup";
         EDocPurchLineField: Record "E-Document Line - Field";
         Field: Record Field;
         AdditionalColumnValue: Text;

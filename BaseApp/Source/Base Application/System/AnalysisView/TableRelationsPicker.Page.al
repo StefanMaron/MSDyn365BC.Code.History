@@ -24,10 +24,6 @@ page 9642 "Table Relations Picker"
         {
             repeater(GroupName)
             {
-                field("Table Name"; Rec."Table Name")
-                {
-                    ToolTip = 'Specifies the table name.';
-                }
                 field("Related Table Name"; Rec."Related Table Name")
                 {
                     ToolTip = 'Specifies the related table name.';
@@ -46,8 +42,13 @@ page 9642 "Table Relations Picker"
 
     trigger OnOpenPage()
     begin
+        CurrPage.Caption := StrSubstNo(SelectRelatedTableMsg, Rec."Table Name");
         if Rec.IsEmpty() then
             Rec.PopulateFields(Rec."Table ID");
         CurrPage.Update();
     end;
+
+    var
+        SelectRelatedTableMsg: Label 'Choose a table related to %1', Comment = '%1 = The table name.';
+
 }

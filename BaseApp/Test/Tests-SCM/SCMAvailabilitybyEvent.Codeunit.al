@@ -24,6 +24,7 @@ codeunit 137009 "SCM Availability by Event"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryPatterns: Codeunit "Library - Patterns";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -531,6 +532,62 @@ codeunit 137009 "SCM Availability by Event"
         TempInvtPageData.TestField("Remaining Forecast", -ForecastQty + SalesQty);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemAvailabilityByEventPageHandler,PlanningWorksheetModalPageHandler')]
+    procedure LookupItemAvailabilityByEventOnItemCardOpenTheCorrectPlanningWorksheetBatch()
+    var
+        Item: Record Item;
+        NewPlanningWorkSheetBatchName: Code[10];
+        OldPlanningWorkSheetBatchName: Code[10];
+        ItemCard: TestPage "Item Card";
+        PlanningWorksheet: TestPage "Planning Worksheet";
+    begin
+        // [SCENARIO 575726] Verify that the 'Lookup Item Availability by Event' on the item card opens the correct planning worksheet batch.
+        Initialize();
+
+        // [GIVEN] Create a Item.
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(Item."No.");
+
+        // [GIEVN] Get old planning worksheet batch name.
+        OldPlanningWorkSheetBatchName := GetRequisitionWkshBatch();
+
+        // [GIVEN] Open planning worksheet batch.
+        PlanningWorksheet.OpenEdit();
+        PlanningWorksheet.New();
+
+        // [GIVEN] Set the old planning worksheet batch name.
+        PlanningWorksheet.CurrentWkshBatchName.SetValue(OldPlanningWorkSheetBatchName);
+        LibraryVariableStorage.Enqueue(OldPlanningWorkSheetBatchName);
+
+        // [GIVEN] Set the item number and quantity in the planning worksheet.
+        PlanningWorksheet."No.".SetValue(Item."No.");
+        PlanningWorksheet.Quantity.SetValue(LibraryRandom.RandIntInRange(10, 20));
+        PlanningWorksheet.Close();
+
+        // [GIVEN] Set new planning worksheet batch.
+        NewPlanningWorkSheetBatchName := CreateRequisitionWkshBatch();
+        PlanningWorksheet.OpenEdit();
+        PlanningWorksheet.CurrentWkshBatchName.SetValue(NewPlanningWorkSheetBatchName);
+        PlanningWorksheet.Close();
+
+        // [THEN] Verify the current planning worksheet batch name.
+        PlanningWorksheet.OpenView();
+        Assert.Equal(NewPlanningWorkSheetBatchName, PlanningWorksheet.CurrentWkshBatchName.Value);
+
+        // [GIVEN] Open Item Card.
+        ItemCard.OpenEdit();
+        ItemCard.GoToRecord(Item);
+
+        // [WHEN] Invoke Item Availability by Event Action.
+        ItemCard."<Action110>".Invoke();
+        ItemCard.Close();
+
+        // [THEN] Verify Lookup Item Availability by Event on the item card opens the correct planning worksheet batch.
+        // It was verified on the PlanningWorksheetModalPageHandler. 
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure AutoReservePurchaseLine(PurchaseLine: Record "Purchase Line")
     var
         ReservMgt: Codeunit "Reservation Management";
@@ -671,6 +728,35 @@ codeunit 137009 "SCM Availability by Event"
         ProdOrderComponent.Insert();
     end;
 
+    local procedure GetRequisitionWkshBatch(): Code[10]
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        RequisitionWkshName.SetRange("Template Type", RequisitionWkshName."Template Type"::Planning);
+        RequisitionWkshName.FindFirst();
+
+        exit(RequisitionWkshName.Name);
+    end;
+
+    local procedure GetRequisitionWkshTemplate(): Code[10]
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        RequisitionWkshName.SetRange("Template Type", RequisitionWkshName."Template Type"::Planning);
+        RequisitionWkshName.FindFirst();
+
+        exit(RequisitionWkshName."Worksheet Template Name");
+    end;
+
+    local procedure CreateRequisitionWkshBatch(): Code[10]
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, GetRequisitionWkshTemplate());
+
+        exit(RequisitionWkshName.Name);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemAvailabilityByLocationPageHandler(var ItemAvailabilitybyLocation: TestPage "Item Availability by Location")
@@ -721,6 +807,29 @@ codeunit 137009 "SCM Availability by Event"
     procedure ConfirmHadlerYes(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    procedure ItemAvailabilityByEventPageHandler(var ItemAvailabilitybyEvent: TestPage "Item Availability by Event")
+    var
+        InventoryPageDataType: Enum "Inventory Page Data Type";
+    begin
+        ItemAvailabilitybyEvent.IncludePlanningSuggestions.SetValue(true);
+        ItemAvailabilitybyEvent.Filter.SetFilter(Type, Format(InventoryPageDataType::Plan));
+        ItemAvailabilitybyEvent."Show Document".Invoke();
+        ItemAvailabilitybyEvent.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PlanningWorksheetModalPageHandler(var PlanningWorksheet: TestPage "Planning Worksheet")
+    var
+        CurrentWkshBatchName: Variant;
+        ItemNo: Variant;
+    begin
+        ItemNo := LibraryVariableStorage.DequeueText();
+        CurrentWkshBatchName := LibraryVariableStorage.DequeueText();
+        PlanningWorksheet.CurrentWkshBatchName.AssertEquals(CurrentWkshBatchName);
+        PlanningWorksheet."No.".AssertEquals(ItemNo);
     end;
 }
 
