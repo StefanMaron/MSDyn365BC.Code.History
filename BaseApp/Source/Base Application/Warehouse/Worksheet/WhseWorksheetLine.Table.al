@@ -943,7 +943,7 @@ table 7326 "Whse. Worksheet Line"
             if Inbound then begin
                 if Location."Bin Capacity Policy" <> Location."Bin Capacity Policy"::"Never Check Capacity" then begin
                     WMSMgt.CalcCubageAndWeight(
-                      "Item No.", "From Unit of Measure Code", "Qty. to Handle", Cubage, Weight);
+                      "Item No.", "Unit of Measure Code", "Qty. to Handle", Cubage, Weight);
                     CheckIncreaseBin(BinCode, Cubage, Weight);
                 end else
                     if Location."Check Whse. Class" then

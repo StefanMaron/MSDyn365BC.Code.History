@@ -1734,7 +1734,7 @@ codeunit 8614 "Config. XML Exchange"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFormatFieldValueOnBeforeExitInnerText(var FieldRef: FieldRef; ConfigPackage: Record "Config. Package"; InnerText: Text)
+    local procedure OnFormatFieldValueOnBeforeExitInnerText(var FieldRef: FieldRef; ConfigPackage: Record "Config. Package"; var InnerText: Text)
     begin
     end;
 }

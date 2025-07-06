@@ -2441,7 +2441,7 @@ codeunit 137101 "SCM Kitting"
         AssemblyBOM: TestPage "Assembly BOM";
         AssemblyOrder: TestPage "Assembly Order";
     begin
-        // [SCENARIO 461537] Verify Consumed Qty. is kept on Assembly Lines on Refresh Line action 
+        // [SCENARIO 461537] Verify Consumed Qty. is kept on Assembly Lines on Refresh Line action
         Initialize();
 
         // [GIVEN] Create an assembled item "I" with two components
@@ -4012,7 +4012,8 @@ codeunit 137101 "SCM Kitting"
     begin
         PostedAsmOrderStatistics.Trap();
         FindPostedAssemblyHeader(PostedAssemblyHeader, AssemblyHeaderNo, ItemNo);
-        PostedAssemblyHeader.ShowStatistics();
+        PostedAssemblyHeader.TestField("Item No.");
+        PAGE.Run(PAGE::"Posted Asm. Order Statistics", PostedAssemblyHeader);
         FindPostedAssemblyResourceLine(PostedAssemblyLine, PostedAssemblyHeader."No.", ResourceNo);
 
         // Verify Expected Resource Cost and Expected Total Cost.
@@ -4030,7 +4031,8 @@ codeunit 137101 "SCM Kitting"
         AssemblyOrderStatistics: TestPage "Assembly Order Statistics";
     begin
         AssemblyOrderStatistics.Trap();
-        AssemblyHeader.ShowStatistics();
+        AssemblyHeader.TestField("Item No.");
+        PAGE.Run(PAGE::"Assembly Order Statistics", AssemblyHeader);
 
         // Verify Expected Material Cost.
         FindAssemblyOrderLine(AssemblyLine, AssemblyHeader."No.", ItemNo);
@@ -4330,4 +4332,3 @@ codeunit 137101 "SCM Kitting"
         AsmAvailability.AssemblyLineAvail.ExpectedAvailableInventory.AssertEquals(ExpectedInventory);
     end;
 }
-

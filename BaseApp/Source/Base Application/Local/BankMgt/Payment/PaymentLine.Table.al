@@ -577,10 +577,7 @@ table 10866 "Payment Line"
                 "Document No." := Statement."No."
             else
                 if "Document No." = '' then
-                    if BottomLine then
-                        "Document No." := IncStr(LastGenJnlLine."Document No.")
-                    else
-                        "Document No." := NoSeries.GetNextNo(PaymentClass."Line No. Series", "Posting Date");
+                    "Document No." := NoSeries.GetNextNo(PaymentClass."Line No. Series", "Posting Date");
         end;
         "Due Date" := Statement."Posting Date";
 

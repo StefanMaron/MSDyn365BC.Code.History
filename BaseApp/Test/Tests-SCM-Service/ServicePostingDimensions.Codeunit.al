@@ -2548,6 +2548,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceLine.TestField("Dimension Set ID", ServiceItemLine."Dimension Set ID");
     end;
 
+#if not CLEAN27
     [Test]
     [HandlerFunctions('ServiceOrderStatisticsMPH')]
     [Scope('OnPrem')]
@@ -2581,6 +2582,47 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
         ServiceOrder.Statistics.Invoke();
+        ServiceOrder.Close();
+
+        // [THEN] Dimension Set Tree Node for "DV" has not been created
+        DimensionSetTreeNode.Init();
+        DimensionSetTreeNode.SetRange("Dimension Value ID", DimValueId);
+        Assert.RecordIsEmpty(DimensionSetTreeNode);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('ServiceOrderStatisticsMPH_NM')]
+    [Scope('OnPrem')]
+    procedure NewDimOnInvoiceRoungingGLAccountNM()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        DimensionSetTreeNode: Record "Dimension Set Tree Node";
+        ServiceOrder: TestPage "Service Order";
+        InvoiceRoundingGLAccountNo: Code[20];
+        DimValueId: Integer;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 380919] Dimension Set ID is not updated on Temporary Service Line on open Statistic page
+        Initialize();
+
+        // [GIVEN] Enabled "Invoice Rounding" in "Sales & Receivables Setup"
+        // [GIVEN] "Invoice Rounding Precision" = 1
+        InitRoundingSetup();
+
+        // [GIVEN] Customer posting group "CPG" with Invoice Rounding G/L Account = "A"
+        // [GIVEN] New Dimension Value "DV" added to "A"
+        // [GIVEN] Customer "C" with posting group "CPG"
+        // [GIVEN] Service order for "C" with line having = 123.17 (the amount causes invoice rounding calculation for the service line)
+        LibrarySales.CreateCustomer(Customer);
+        InvoiceRoundingGLAccountNo := CreateGLAccountForInvoiceRounding(Customer."Customer Posting Group");
+        DimValueId := CreateDimOnGLAccount(InvoiceRoundingGLAccountNo);
+        CreateServiceOrderWithItemLine(ServiceHeader, Customer."No.");
+
+        // [WHEN] Open service order's statistics page
+        ServiceOrder.OpenEdit();
+        ServiceOrder.GotoRecord(ServiceHeader);
+        ServiceOrder.ServiceOrderStatistics.Invoke();
         ServiceOrder.Close();
 
         // [THEN] Dimension Set Tree Node for "DV" has not been created
@@ -2717,7 +2759,7 @@ codeunit 136118 "Service Posting - Dimensions"
         // [GIVEN] Create Customer with default global dimension value
         CreateCustomerWithDefaultGlobalDimValue(Customer, DimensionValue);
 
-        // [GIVEN] Create Service Item        
+        // [GIVEN] Create Service Item
         ServiceItemNo := CreateServiceItem(Customer."No.", CreateServiceItemGroup());
 
         // [GIVEN] Create Location without Default Dimension
@@ -4458,11 +4500,18 @@ codeunit 136118 "Service Posting - Dimensions"
         DimensionSetEntry.TestField("Dimension Value Code", LibraryVariableStorage.DequeueText());
     end;
 
+#if not CLEAN27
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceOrderStatisticsMPH(var ServiceOrderStatistics: TestPage "Service Order Statistics")
     begin
         ServiceOrderStatistics.OK().Invoke();
     end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceOrderStatisticsMPH_NM(var ServiceOrderStatistics: TestPage "Service Order Statistics")
+    begin
+        ServiceOrderStatistics.OK().Invoke();
+    end;
 }
-

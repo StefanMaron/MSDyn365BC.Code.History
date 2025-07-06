@@ -17,6 +17,8 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Foundation.Company;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Job;
 
 /// <summary>
 /// Defines the implementation of Non-Deductible VAT
@@ -434,6 +436,36 @@ codeunit 6201 "Non-Ded. VAT Impl."
     procedure CopyNonDedVATFromGenJnlLineToFALedgEntry(var FALedgEntry: Record "FA Ledger Entry"; GenJnlLine: Record "Gen. Journal Line")
     begin
         FALedgEntry."Non-Ded. VAT FA Cost" := GenJnlLine."Non-Ded. VAT FA Cost";
+    end;
+
+    procedure CopyNonDedVATFromGenJnlLineToJobJnlLine(var JobJnlLine: Record "Job Journal Line"; GenJnlLine: Record "Gen. Journal Line")
+    var
+        Job: Record Job;
+        CurrencyFactor, NonDedVATAmountLCY, UnitCost, UnitCostLCY, TotalCost, TotalCostLCY : Decimal;
+    begin
+        if not UseNonDeductibleVATAmountForJobCost() then
+            exit;
+        if not Job.Get(JobJnlLine."Job No.") then
+            exit;
+        NonDedVATAmountLCY := GenJnlLine."Non-Deductible VAT Amount LCY";
+        if GenJnlLine."Currency Code" <> Job."Currency Code" then begin
+            CurrencyFactor := GenJnlLine.GetGenJnlLineToJobCurrencyFactor();
+            NonDedVATAmountLCY := Round(GenJnlLine."Non-Deductible VAT Amount" * CurrencyFactor);
+        end;
+        UnitCostLCY := Round(NonDedVATAmountLCY / JobJnlLine.Quantity);
+        UnitCost := Round(GenJnlLine."Non-Deductible VAT Amount" / JobJnlLine.Quantity);
+        TotalCostLCY := NonDedVATAmountLCY;
+        TotalCost := GenJnlLine."Non-Deductible VAT Amount";
+        if JobJnlLine."Unit Cost" > 0 then begin
+            UnitCostLCY := Abs(UnitCostLCY);
+            UnitCost := Abs(UnitCost);
+            TotalCostLCY := Abs(TotalCostLCY);
+            TotalCost := Abs(TotalCost);
+        end;
+        JobJnlLine."Unit Cost (LCY)" += UnitCostLCY;
+        JobJnlLine."Unit Cost" += UnitCost;
+        JobJnlLine."Total Cost (LCY)" += TotalCostLCY;
+        JobJnlLine."Total Cost" += TotalCost;
     end;
 
     procedure CheckPrepmtWithNonDeductubleVATInPurchaseLine(PurchaseLine: Record "Purchase Line")
