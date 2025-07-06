@@ -6,9 +6,7 @@ page 37090 "Journey to Net Zero Carbon"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Journey to Net Zero Carbon';
     AboutTitle = 'About Journey to Net Zero Carbon';
     AboutText = 'The Journey to Net Zero highlights the journey to net zero within an organization.';
@@ -25,7 +23,7 @@ page 37090 "Journey to Net Zero Carbon"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

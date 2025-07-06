@@ -26,6 +26,7 @@
         LibraryJournals: Codeunit "Library - Journals";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryCFDI: Codeunit "Library - CFDI";
         SATUtilities: Codeunit "SAT Utilities";
         MXCFDI: Codeunit "MX CFDI";
         isInitialized: Boolean;
@@ -1682,11 +1683,13 @@
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CustLedgerEntryInv: array[3] of Record "Cust. Ledger Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        InvAppliedAmt: array[3] of Decimal;
         OriginalStr: Text;
         FileName: Text;
         CustomerNo: Code[20];
         PaymentNo: Code[20];
         PmtAmount: Decimal;
+        PaidAmtTotal: Decimal;
         i: Integer;
     begin
         // [FEATURE] [Sales]
@@ -1700,10 +1703,14 @@
             CreateAndPostSalesInvoice(CustLedgerEntryInv[i], CustomerNo);
             GetPostedSalesInvoice(SalesInvoiceHeader, CustLedgerEntryInv[i]."Document No.");
         end;
-        PmtAmount := CustLedgerEntryInv[1].Amount / 2 + CustLedgerEntryInv[2].Amount + CustLedgerEntryInv[3].Amount / 2;
+        InvAppliedAmt[1] := Round(CustLedgerEntryInv[1].Amount / 2) - 10;
+        InvAppliedAmt[2] := Round(CustLedgerEntryInv[2].Amount);
+        InvAppliedAmt[3] := Round(CustLedgerEntryInv[3].Amount / 2) - 10;
+        PmtAmount := InvAppliedAmt[1] + InvAppliedAmt[2] + InvAppliedAmt[3];
+        PaidAmtTotal := InvAppliedAmt[1] + PmtAmount;
 
-        // [GIVEN] Payment "Pmt1" with amount of -50 is applied to first invoice
-        PaymentNo := CreatePostPayment(CustomerNo, '', -CustLedgerEntryInv[1].Amount / 2, '');
+        // [GIVEN] Payment "Pmt1" with amount of -40 is applied to first invoice
+        PaymentNo := CreatePostPayment(CustomerNo, '', -InvAppliedAmt[1], '');
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
         CustLedgerEntry."Date/Time Stamped" := Format(WorkDate());
         CustLedgerEntry."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
@@ -1712,7 +1719,7 @@
           CustLedgerEntry."Document Type"::Payment, CustLedgerEntryInv[1]."Document Type"::Invoice,
           PaymentNo, CustLedgerEntryInv[1]."Document No.");
 
-        // [GIVEN] Payment "Pmt2" with amount = 400 is applied to all documents (50 + 200 + 150 respectively)
+        // [GIVEN] Payment "Pmt2" with amount = 380 is applied to all documents (40 + 200 + 140 respectively)
         PaymentNo := CreatePostPayment(CustomerNo, '', -PmtAmount, '');
         for i := 1 to ArrayLen(CustLedgerEntryInv) do
             LibraryERM.ApplyCustomerLedgerEntries(
@@ -1723,17 +1730,17 @@
         RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
         ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
 
-        // [THEN] First invoice line has NumParcialidad='2' ImpSaldoAnt='50' ImpPagado='50' ImpSaldoInsoluto='0.00'
+        // [THEN] First invoice line has NumParcialidad='2' ImpSaldoAnt='60' ImpPagado='60' ImpSaldoInsoluto='0.00'
         // [THEN] Second invoice line has NumParcialidad='1' ImpSaldoAnt='200' ImpPagado='200' ImpSaldoInsoluto='0.00'
-        // [THEN] Third invoice line has NumParcialidad='1' ImpSaldoAnt='300' ImpPagado='150' ImpSaldoInsoluto='150'
+        // [THEN] Third invoice line has NumParcialidad='1' ImpSaldoAnt='300' ImpPagado='180' (100 + 200 + 300 - (40 + 380)) ImpSaldoInsoluto='120'
         InitXMLReaderForPagos20(FileName);
         InitOriginalStringFromCustLedgerEntry(CustLedgerEntry, OriginalStr);
 
         SalesInvoiceHeader.Get(CustLedgerEntryInv[1]."Document No.");
         VerifyComplementoPago(
           OriginalStr,
-          CustLedgerEntryInv[1].Amount - Round(CustLedgerEntryInv[1].Amount / 2),
-          CustLedgerEntryInv[1].Amount - Round(CustLedgerEntryInv[1].Amount / 2), 0,
+          CustLedgerEntryInv[1].Amount - InvAppliedAmt[1],
+          CustLedgerEntryInv[1].Amount - InvAppliedAmt[1], 0,
           SalesInvoiceHeader."Fiscal Invoice Number PAC", '2', 0);
 
         SalesInvoiceHeader.Get(CustLedgerEntryInv[2]."Document No.");
@@ -1746,8 +1753,8 @@
         CustLedgerEntryInv[3].CalcFields("Remaining Amount");
         VerifyComplementoPago(
           OriginalStr,
-          CustLedgerEntryInv[3].Amount, CustLedgerEntryInv[3].Amount / 2, CustLedgerEntryInv[3]."Remaining Amount",
-          SalesInvoiceHeader."Fiscal Invoice Number PAC", '1', 2);
+          CustLedgerEntryInv[3].Amount, PaidAmtTotal - CustLedgerEntryInv[1].Amount - CustLedgerEntryInv[2].Amount,
+          CustLedgerEntryInv[3]."Remaining Amount", SalesInvoiceHeader."Fiscal Invoice Number PAC", '1', 2);
     end;
 
     [Test]
@@ -4929,8 +4936,8 @@
         SalesLine.FindFirst();
         SalesLineDisc := SalesLine;
         SalesLineDisc."Line No." := 0;
-        SalesLineDisc.Validate(Quantity, LibraryRandom.RandIntInRange(3, 5));
-        SalesLineDisc.Validate("Line Discount %", LibraryRandom.RandIntInRange(5, 10));
+        SalesLineDisc.Validate(Quantity, 2);
+        SalesLineDisc.Validate("Line Discount %", 5);
         SalesLineDisc.Insert(true);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
@@ -5697,13 +5704,13 @@
         VerifyRetentionAmountLine(
           OriginalStr,
           SalesLine."Amount Including VAT", SalesLineRetention."Amount Including VAT",
-          SalesLineRetention."Retention VAT %", GetTaxCodeRetention(SalesLineRetention."VAT %"), 42, 0);
+          SalesLineRetention."Retention VAT %", GetTaxCodeRetention(SalesLineRetention."Retention VAT %"), 42, 0);
 
         // [THEN] 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has attributes 'Importe' = 0, 'TipoFactor' = 'Tasa', 'Impuesto' = '002'.
         // [THEN] 'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion' has attributes 'Importe' = 100, 'Impuesto' = '002'.
         VerifyVATTotalLine(OriginalStr, 0, 0, '002', 0, 1, 8);
         VerifyRetentionTotalLine(
-          OriginalStr, -SalesLineRetention."Amount Including VAT", GetTaxCodeRetention(SalesLineRetention."VAT %"), 43, 0);
+          OriginalStr, -SalesLineRetention."Amount Including VAT", GetTaxCodeRetention(SalesLineRetention."Retention VAT %"), 43, 0);
 
         // [THEN] Total Impuestos:  'cfdi:Impuestos/TotalImpuestosTrasladados' = 0, 'cfdi:Impuestos/TotalImpuestosRetenidos' = 100
         VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', 0, 50);
@@ -7140,7 +7147,7 @@
         PostCode: Record "Post Code";
     begin
         LibrarySetupStorage.Restore();
-        SetupPACService();
+        SetupCFDI();
         LibraryVariableStorage.Clear();
 
         NameValueBuffer.SetRange(Name, Format(CODEUNIT::"MX CFDI"));
@@ -7148,7 +7155,7 @@
         if NameValueBuffer.Get(CODEUNIT::"MX CFDI") then
             NameValueBuffer.Delete();
         PostCode.ModifyAll("Time Zone", '');
-        SetupCompanyInformation();
+        LibraryCFDI.SetupCompanyInformation();
         ClearLastError();
 
         if isInitialized then
@@ -7157,7 +7164,7 @@
         LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
-        SATUtilities.PopulateSATInformation();
+        LibraryCFDI.PopulateSATInformation();
         isInitialized := true;
         Commit();
     end;
@@ -7399,8 +7406,8 @@
         SalesHeader.Validate("Payment Method Code", PaymentMethodCode);
         SalesHeader.Validate("Bill-to Address", SalesHeader."Sell-to Customer No.");
         SalesHeader.Validate("Bill-to Post Code", SalesHeader."Sell-to Customer No.");
-        SalesHeader.Validate("CFDI Purpose", CreateCFDIPurpose());
-        SalesHeader.Validate("CFDI Relation", CreateCFDIRelation());
+        SalesHeader.Validate("CFDI Purpose", LibraryCFDI.CreateCFDIPurpose());
+        SalesHeader.Validate("CFDI Relation", LibraryCFDI.CreateCFDIRelation());
         SalesHeader.Modify(true);
     end;
 
@@ -7524,8 +7531,8 @@
         ServiceHeader.Validate("Bill-to Address", ServiceHeader."Customer No.");
         ServiceHeader.Validate("Bill-to Post Code", ServiceHeader."Customer No.");
         ServiceHeader.Validate("Payment Method Code", PaymentMethodCode);
-        ServiceHeader.Validate("CFDI Purpose", CreateCFDIPurpose());
-        ServiceHeader.Validate("CFDI Relation", CreateCFDIRelation());
+        ServiceHeader.Validate("CFDI Purpose", LibraryCFDI.CreateCFDIPurpose());
+        ServiceHeader.Validate("CFDI Relation", LibraryCFDI.CreateCFDIRelation());
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceLine(
           ServiceLine, ServiceHeader, ServiceLine.Type::Item, CreateItem());
@@ -7570,7 +7577,7 @@
         Customer.Validate("Country/Region Code", GetCountryRegion());
         Customer."SAT Tax Regime Classification" :=
           LibraryUtility.GenerateRandomCode(Customer.FieldNo("SAT Tax Regime Classification"), DATABASE::Customer);
-        Customer.Validate("CFDI Export Code", CreateCFDIExportCode());
+        Customer.Validate("CFDI Export Code", LibraryCFDI.CreateCFDIExportCode());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -7649,7 +7656,7 @@
         LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
         TransferHeader."Transfer-to Address" := LibraryUtility.GenerateGUID();
         TransferHeader."Trsf.-to Country/Region Code" := 'TEST';
-        TransferHeader.Validate("CFDI Export Code", CreateCFDIExportCode());
+        TransferHeader.Validate("CFDI Export Code", LibraryCFDI.CreateCFDIExportCode());
         TransferHeader.Modify(true);
         LibraryInventory.CreateTransferLine(
           TransferHeader, TransferLine, ItemNo, LibraryRandom.RandIntInRange(1, 10));
@@ -7742,36 +7749,6 @@
         SATPaymentTerm.Code := PaymentTerms."SAT Payment Term";
         SATPaymentTerm.Insert();
         exit(PaymentTerms.Code);
-    end;
-
-    local procedure CreateCFDIExportCode(): Code[10]
-    var
-        CFDIExportCode: Record "CFDI Export Code";
-    begin
-        CFDIExportCode.Code := '01';
-        if CFDIExportCode.Insert() then;
-        exit(CFDIExportCode.Code);
-    end;
-
-    local procedure CreateCFDIPurpose(): Code[10]
-    var
-        SATUseCode: Record "SAT Use Code";
-    begin
-        SATUseCode.Init();
-        SATUseCode."SAT Use Code" := LibraryUtility.GenerateRandomCode(SATUseCode.FieldNo("SAT Use Code"), DATABASE::"SAT Use Code");
-        SATUseCode.Insert();
-        exit(SATUseCode."SAT Use Code");
-    end;
-
-    local procedure CreateCFDIRelation(): Code[10]
-    var
-        SATRelationshipType: Record "SAT Relationship Type";
-    begin
-        SATRelationshipType.Init();
-        SATRelationshipType."SAT Relationship Type" :=
-          LibraryUtility.GenerateRandomCode(SATRelationshipType.FieldNo("SAT Relationship Type"), DATABASE::"SAT Relationship Type");
-        SATRelationshipType.Insert();
-        exit(SATRelationshipType."SAT Relationship Type");
     end;
 
     [Scope('OnPrem')]
@@ -8250,61 +8227,13 @@
         GLSetup.Modify(true)
     end;
 
-    local procedure SetupPACService()
+    local procedure SetupCFDI()
     var
-        GLSetup: Record "General Ledger Setup";
-        PACWebService: Record "PAC Web Service";
-        PACWebServiceDetail: Record "PAC Web Service Detail";
-        ReportSelections: Record "Report Selections";
+        PACWebServiceCode: Code[10];
     begin
-        PACWebService.Init();
-        PACWebService.Validate(Code, LibraryUtility.GenerateRandomCode(PACWebService.FieldNo(Code), DATABASE::"PAC Web Service"));
-        PACWebService.Validate(Name, PACWebService.Code);
-        PACWebService.Certificate := CreateIsolatedCertificate();
-        PACWebService.Insert(true);
-
-        PACWebServiceDetail.Init();
-        PACWebServiceDetail.Validate("PAC Code", PACWebService.Code);
-        PACWebServiceDetail.Validate(Environment, PACWebServiceDetail.Environment::Test);
-
-        PACWebServiceDetail.Validate("Method Name", LibraryUtility.GenerateRandomCode(PACWebServiceDetail.FieldNo("Method Name"), DATABASE::"PAC Web Service Detail"));
-        PACWebServiceDetail.Validate(Address, LibraryUtility.GenerateRandomCode(PACWebServiceDetail.FieldNo(Address), DATABASE::"PAC Web Service Detail"));
-
-        PACWebServiceDetail.Validate(Type, PACWebServiceDetail.Type::"Request Stamp");
-        PACWebServiceDetail.Insert(true);
-
-        PACWebServiceDetail.Validate(Type, PACWebServiceDetail.Type::Cancel);
-        PACWebServiceDetail.Insert(true);
-
-        GLSetup.Get();
-        GLSetup.Validate("PAC Code", PACWebService.Code);
-        GLSetup.Validate("PAC Environment", PACWebServiceDetail.Environment);
-        GLSetup.Validate("Sim. Signature", true);
-        GLSetup.Validate("Sim. Send", true);
-        GLSetup.Validate("Sim. Request Stamp", true);
-        GLSetup.Validate("Send PDF Report", true);
-        GLSetup."SAT Certificate" := CreateIsolatedCertificate();
-        GLSetup."CFDI Enabled" := true;
-        GLSetup.Modify(true);
-
-        SetupReportSelection(ReportSelections.Usage::"S.Invoice", 10477);
-        SetupReportSelection(ReportSelections.Usage::"S.Cr.Memo", 10476);
-        SetupReportSelection(ReportSelections.Usage::"SM.Invoice", 10479);
-        SetupReportSelection(ReportSelections.Usage::"SM.Credit Memo", 10478);
-    end;
-
-    local procedure SetupReportSelection(UsageOption: Enum "Report Selection Usage"; ReportID: Integer)
-    var
-        ReportSelections: Record "Report Selections";
-    begin
-        ReportSelections.SetRange(Usage, UsageOption);
-        ReportSelections.DeleteAll(true);
-        ReportSelections.Init();
-        ReportSelections.Validate(Usage, UsageOption);
-        ReportSelections.Validate(Sequence, '1');
-        ReportSelections.Validate("Report ID", ReportID);
-        ReportSelections.Validate("Use for Email Attachment", true);
-        ReportSelections.Insert(true);
+        PACWebServiceCode := LibraryCFDI.CreatePACService();
+        LibraryCFDI.InitGLSetup(PACWebServiceCode);
+        LibraryCFDI.SetupReportSelection();
     end;
 
     local procedure Verify(TableNo: Integer; PostedDocumentNo: Code[20]; ExpectedStatus: Option; NoOfEmailsSent: Integer)

@@ -592,7 +592,7 @@
   </Item>
   <Item ItemId=";Codeunit 1338490621 - NamedType 430733052" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The posted sales invoice will be canceled, and a sales credit memo will be created and posted, which reverses the posted sales invoice.\ \Do you want to continue?]]></Val>
+      <Val><![CDATA[This invoice was posted from a sales order. To cancel it, a sales credit memo will be created and posted. The quantities from the original sales order will be restored, provided the sales order still exists.\ \Do you want to continue?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -601,7 +601,7 @@
   </Item>
   <Item ItemId=";Codeunit 1338490621 - NamedType 1554664300" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The posted sales invoice will be canceled, and a new version of the sales invoice will be created so that you can make the correction.\ \Do you want to continue?]]></Val>
+      <Val><![CDATA[The posted sales invoice will be canceled, and a new version of the sales invoice will automatically be created by the system so that you can make the correction.\ \Do you want to continue?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

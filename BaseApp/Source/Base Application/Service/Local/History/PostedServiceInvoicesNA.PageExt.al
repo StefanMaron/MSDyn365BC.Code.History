@@ -147,10 +147,44 @@ pageextension 10015 "Posted Service Invoices NA" extends "Posted Service Invoice
             end;
         }
 #endif
+        addafter(ServiceStatistics)
+        {
+            action(ServiceStats)
+            {
+                ApplicationArea = Service;
+                Caption = 'Statistics';
+                Image = Statistics;
+                ShortCutKey = 'F7';
+                ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+#if CLEAN27
+                    Visible = SalesTaxStatisticsVisible;
+#else
+                Visible = false;
+#endif
+                RunObject = Page "Service Invoice Stats.";
+                RunPageOnRec = true;
+            }
+        }
+#if CLEAN27
+        addafter(ServiceStatistics_Promoted)
+        {
+            actionref(ServiceStats_Promoted; ServiceStats)
+            {
+            }
+        }
+#endif
     }
+
+    trigger OnOpenPage()
+    begin
+        SalesTaxStatisticsVisible := Rec."Tax Area Code" <> '';
+    end;
 
     var
         ProcessingInvoiceMsg: Label 'Processing record #1#######', Comment = '%1 = Record no';
+
+    protected var
+        SalesTaxStatisticsVisible: Boolean;
 
 #if not CLEAN25
     [Obsolete('Moved to procedure OpenStatistics in table ServiceInvoiceHeader', '25.0')]

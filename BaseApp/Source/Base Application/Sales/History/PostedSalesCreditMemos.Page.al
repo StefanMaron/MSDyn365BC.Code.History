@@ -436,13 +436,17 @@ page 144 "Posted Sales Credit Memos"
                         PAGE.Run(PAGE::"Posted Sales Credit Memo", Rec)
                     end;
                 }
+#if not CLEAN27
                 action(Statistics)
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesCrMemoStatistics and SalesCrMemoStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
 
                     trigger OnAction()
                     begin
@@ -452,6 +456,37 @@ page 144 "Posted Sales Credit Memos"
                         else
                             PAGE.RunModal(PAGE::"Sales Credit Memo Stats.", Rec, Rec."No.");
                     end;
+                }
+#endif
+                action(SalesCrMemoStatistics)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+#if CLEAN27
+                    Visible = not SalesCrMemoStatsVisible;
+#else
+                    Visible = false;
+#endif
+                    RunObject = PAGE "Sales Credit Memo Statistics";
+                    RunPageOnRec = true;
+                }
+                action(SalesCrMemoStats)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+#if CLEAN27
+                    Visible = SalesCrMemoStatsVisible;
+#else
+                    Visible = false;
+#endif
+                    RunObject = PAGE "Sales Credit Memo Stats.";
+                    RunPageOnRec = true;
                 }
                 action("Co&mments")
                 {
@@ -713,9 +748,21 @@ page 144 "Posted Sales Credit Memos"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN27
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the SalesCrMemoStatistics and SalesCrMemoStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#else
+                actionref(SalesCrMemoStatistics_Promoted; SalesCrMemoStatistics)
+                {
+                }
+                actionref(SalesCrMemoStats_Promoted; SalesCrMemoStats)
+                {
+                }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -784,6 +831,7 @@ page 144 "Posted Sales Credit Memos"
         SalesCrMemoHeader.CopyFilters(Rec);
         SalesCrMemoHeader.SetFilter("Document Exchange Status", '<>%1', Rec."Document Exchange Status"::"Not Sent");
         DocExchStatusVisible := not SalesCrMemoHeader.IsEmpty();
+        SalesCrMemoStatsVisible := Rec."Tax Area Code" <> '';
     end;
 
     local procedure DoDrillDown()
@@ -801,14 +849,18 @@ page 144 "Posted Sales Credit Memos"
         IsOfficeAddin: Boolean;
         ProcessingInvoiceMsg: Label 'Processing record #1#######', Comment = '%1 = Record no';
 
+    protected var
+        SalesCrMemoStatsVisible: Boolean;
+
+#if not CLEAN27
+    [Obsolete('The statistics action will be replaced with the SalesCrMemoStatistics and SalesCrMemoStats actions. The new actions use RunObject and do not run the action trigger. Use a page extension to modify the behaviour.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxStatistics(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 }
-

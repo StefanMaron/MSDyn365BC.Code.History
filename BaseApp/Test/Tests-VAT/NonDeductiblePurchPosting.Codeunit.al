@@ -479,6 +479,157 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         Assert.AreEqual(JobLedgerEntry."Unit Cost", PurchLine."Direct Unit Cost" + VATEntry."Non-Deductible VAT Amount", JobLedgerEntry.FieldCaption("Unit Cost"));
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestItemChargeAssignmentPageHandler')]
+    procedure ValueEntryItemChargeIncludesNonDeductibleVATAmountInCostAmount()
+    var
+        ItemCharge: Record "Item Charge";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ValueEntry: array[2] of Record "Value Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DocumentNo: Code[20];
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 573517] Cost Amount Actual posted in Value Entries for Item Charge includes Non-deductible VAT.
+        Initialize();
+
+        // [GIVEN] Enable "Use For Item Cost" on VAT Setup.
+        LibraryNonDeductibleVAT.SetUseForItemCost();
+
+        // [GIVEN] Create VAT Posting Setup with Non Deductible Detail.
+        LibraryNonDeductibleVAT.CreateVATPostingSetupWithNonDeductibleDetail(
+            VATPostingSetup,
+            LibraryRandom.RandIntInRange(25, 25),
+            LibraryRandom.RandIntInRange(90, 90));
+
+        // [GIVEN] Create an Item with VAT Prod. Posting Group and save it in a Variable.
+        ItemNo := LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Create an Item Charge and Validate VAT Prod. Posting Group.
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        ItemCharge.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        ItemCharge.Modify(true);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::Order,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Validate Prices Including VAT to true in Purchase Header.
+        PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Line for Item.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            ItemNo, LibraryRandom.RandInt(0));
+
+        // [GIVEN]  Validate Direct Unit Cost in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Create a Purchase Line for Charge Item.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::"Charge (Item)",
+            ItemCharge."No.",
+            LibraryRandom.RandInt(0));
+
+        // [GIVEN]  Validate Direct Unit Cost in Purchase Line.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Assign Item Charge to Item.
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
+        PurchaseLine.FindFirst();
+        PurchaseLine.ShowItemChargeAssgnt();
+
+        // [GIVEN] Post Purchase Document.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Find Value Entry for Type Item.
+        ValueEntry[1].SetRange("Document No.", DocumentNo);
+        ValueEntry[1].SetRange("Item No.", ItemNo);
+        ValueEntry[1].FindFirst();
+
+        // [WHEN] Find Value Entry of Item Charge.
+        ValueEntry[2].SetRange("Document No.", DocumentNo);
+        ValueEntry[2].SetRange("Item Charge No.", ItemCharge."No.");
+        ValueEntry[2].FindFirst();
+
+        // [THEN] Cost Amount (Actual) in Value Entries must be same.
+        Assert.AreEqual(
+            ValueEntry[1]."Cost Amount (Actual)",
+            ValueEntry[2]."Cost Amount (Actual)",
+            StrSubstNo(
+                CostAmountActualErr,
+                ValueEntry[1].FieldCaption("Cost Amount (Actual)"),
+                ValueEntry[1]."Cost Amount (Actual)",
+                ValueEntry[1].TableCaption()));
+    end;
+
+    [Test]
+    procedure ReverseChargeNonDeductibleAmountsAfterPostingPurchaseOrder()
+    var
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        GLEntry: Record "G/L Entry";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 562638] Non-Deductible VAT rounding when using Reverse Charge VAT.
+        Initialize();
+
+        // [GIVEN] Create Currency and Currency Exchange Rate.
+        CreateCurrencyWithExchangeRateFor492296(CurrencyExchangeRate, Currency);
+
+        // [GIVEN] Setup Use For Item Cost.
+        LibraryNonDeductibleVAT.SetUseForItemCost();
+
+        // [GIVEN] Create Non Deductible Reverse Charge in VAT Posting Setup.
+        LibraryNonDeductibleVAT.CreateNonDeductibleReverseChargeVATPostingSetup(VATPostingSetup);
+
+        // [GIVEN] Create Purchase Header and Validate Currency Code.
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        PurchaseHeader.Validate("Currency Code", Currency.Code);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create Purchase Line with Vat Product Posting Group
+        CreatePurchLineItemWithVATProdPostingGroup(PurchaseLine, PurchaseHeader, VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Post purchase document
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Find VAT Entry.
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("Bill-to/Pay-to No.", PurchaseHeader."Buy-from Vendor No.");
+        VATEntry.FindFirst();
+
+        // [GIVEN] Find General Posting Setup.
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+
+        // [THEN] Non deductible VAT Amount must be correct.
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLEntry.FindFirst();
+        Assert.AreEqual(GLEntry."Non-Deductible VAT Amount", VATEntry."Non-Deductible VAT Amount", AmountMustBeEqualErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -707,12 +707,14 @@ report 1408 "Bank Acc. Recon. - Test"
 
                         RemainingAmt := LedgEntryRemainingAmount - OutstandingBankTransaction.GetAppliedAmount(BankAccountLedgerEntry."Entry No.");
                         if RemainingAmt <> 0 then begin
+                            OnBeforeCopyFromBankAccLedgerEntryOnRemainingAmt(
+                            "Bank Acc. Reconciliation", BankAccountLedgerEntry, OutstandingBankTransaction, TempOutstandingBankTransaction);
                             OutstandingBankTransaction.CreateTheDepositHeaderLine(
-                              OutstandingBankTransaction, TempOutstandingBankTransaction, BankAccountLedgerEntry);
+                            OutstandingBankTransaction, TempOutstandingBankTransaction, BankAccountLedgerEntry);
                             OutstandingBankTransaction.CopyFromBankAccLedgerEntry(BankAccountLedgerEntry,
-                              OutstandingBankTransaction.Type::"Bank Account Ledger Entry",
-                              "Bank Acc. Reconciliation"."Statement Type".AsInteger(), "Bank Acc. Reconciliation"."Statement No.",
-                              RemainingAmt, OutstandingBankTransaction.Indentation);
+                            OutstandingBankTransaction.Type::"Bank Account Ledger Entry",
+                            "Bank Acc. Reconciliation"."Statement Type".AsInteger(), "Bank Acc. Reconciliation"."Statement No.",
+                            RemainingAmt, OutstandingBankTransaction.Indentation);
                         end;
                     end;
             until BankAccountLedgerEntry.Next() = 0;
@@ -873,6 +875,11 @@ report 1408 "Bank Acc. Recon. - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitReport(var ShouldShowOutstandingBankTransactions: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromBankAccLedgerEntryOnRemainingAmt(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var OutstandingBankTransaction: Record "Outstanding Bank Transaction"; var TempOutstandingBankTransaction: Record "Outstanding Bank Transaction" temporary)
     begin
     end;
 }

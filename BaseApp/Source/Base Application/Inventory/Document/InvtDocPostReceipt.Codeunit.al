@@ -219,9 +219,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
 
         OnRunOnAfterInvtDocPost(InvtDocHeader, InvtDocLine);
 
-        InvtSetup.Get();
-        if InvtSetup.AutomaticCostAdjmtRequired() then
-            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+        InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust);
 
         InvtDocHeader.LockTable();
 
@@ -260,6 +258,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ReserveInvtDocLine: Codeunit "Invt. Doc. Line-Reserve";
         PostponedValueEntries: List of [Integer];
+        ItemsToAdjust: List of [Code[20]];
         SourceCode: Code[10];
         HideValidationDialog: Boolean;
         PreviewMode: Boolean;
@@ -492,6 +491,16 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
             exit;
         PostponedValueEntries.Add(ValueEntry."Entry No.");
         IsHandled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem', '', false, false)]
+    local procedure OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem(var Item2: Record Item)
+    begin
+        if InvtSetup.UseLegacyPosting() then
+            exit;
+
+        if not ItemsToAdjust.Contains(Item2."No.") then
+            ItemsToAdjust.Add(Item2."No.");
     end;
 
     [IntegrationEvent(false, false)]

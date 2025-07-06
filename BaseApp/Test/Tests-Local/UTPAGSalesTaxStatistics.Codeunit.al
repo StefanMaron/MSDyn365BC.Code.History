@@ -83,7 +83,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // [THEN] The field Positive in the SalesTaxAmountLine table is properly updated
         Assert.AreEqual(true, SalesTaxAmountLine.Positive, 'The field Positive in the table SalesTaxAmountLine should be true');
     end;
-
+#if not CLEAN27
     [Test]
     [HandlerFunctions('ServiceStatisticsPageHandler')]
     [Scope('OnPrem')]
@@ -141,6 +141,68 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Exercise & Verify: Invokes Action - Statistics on Page Service Credit Memos and verify the Tax Amount and Amount Incl. Tax on Statistics page in ServiceStatsPageHandler.
         OpenStatisticsPageForServiceCreditMemo(ServiceLine."Document No.");
+
+        // Tear Down.
+        UpdateInvoiceRoundingOnSalesReceivablesSetup(OldInvoiceRounding);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('ServiceStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsServiceCreditMemosNM()
+    var
+        ServiceLine: Record "Service Line";
+        VATAmount: Decimal;
+        AmountIncVAT: Decimal;
+        OldInvoiceRounding: Boolean;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9320, Service Credit Memos without Tax Area.
+
+        // Setup: Create Service Credit Memo. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        OldInvoiceRounding := UpdateInvoiceRoundingOnSalesReceivablesSetup(false);  // Update Invoice Rounding to FALSE on Sales & Receivables Setup.
+        CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::"Credit Memo", '', '', false);  // Blank Tax Area and Tax Liable FALSE.
+        VATAmount := ServiceLine.Quantity * ServiceLine."Unit Price" * ServiceLine."VAT %" / 100;
+        AmountIncVAT := ServiceLine.Quantity * ServiceLine."Unit Price" + VATAmount;
+
+        // Enqueue values for use in ServiceStatisticsPageHandler.
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(AmountIncVAT);
+
+        // Exercise & Verify: Invokes Action - Statistics on Page Service Credit Memos and verify the VAT Amount and Amount Incl. VAT on Statistics page in ServiceStatisticsPageHandler.
+        OpenStatisticsPageForServiceCreditMemoNM(ServiceLine."Document No.");
+
+        // Tear Down.
+        UpdateInvoiceRoundingOnSalesReceivablesSetup(OldInvoiceRounding);
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceStatsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsWithTaxAreaServiceCreditMemosNM()
+    var
+        TaxDetail: Record "Tax Detail";
+        ServiceLine: Record "Service Line";
+        TaxAmount: Decimal;
+        AmountIncTax: Decimal;
+        OldInvoiceRounding: Boolean;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction trigger of the Page ID: 9320, Service Credit Memos with Tax Area.
+
+        // Setup: Create Tax Setup and Service Credit Memo. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        OldInvoiceRounding := UpdateInvoiceRoundingOnSalesReceivablesSetup(false);  // Update Invoice Rounding to FALSE on Sales & Receivables Setup.
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
+        CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::"Credit Memo", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);  // Tax Liable TRUE.
+        TaxAmount := ServiceLine.Quantity * ServiceLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
+        AmountIncTax := ServiceLine.Quantity * ServiceLine."Unit Price" + TaxAmount;
+
+        // Enqueue values for use in ServiceStatsPageHandler.
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        LibraryVariableStorage.Enqueue(AmountIncTax);
+
+        // Exercise & Verify: Invokes Action - Statistics on Page Service Credit Memos and verify the Tax Amount and Amount Incl. Tax on Statistics page in ServiceStatsPageHandler.
+        OpenStatsPageForServiceCreditMemoNM(ServiceLine."Document No.");
 
         // Tear Down.
         UpdateInvoiceRoundingOnSalesReceivablesSetup(OldInvoiceRounding);
@@ -1423,7 +1485,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Exercise and Verify: Invokes Action - Statistics on Page Purchase Invoices and verify VAT Amount and Amount Inclusive VAT on PurchStatisticsPageHandler.
         OpenPurchaseStatisticsPageForPurchaseInvoice(PurchaseLine."Document No.");
     end;
-
+#if not CLEAN27
     [Test]
     [HandlerFunctions('ServiceStatsPageHandler')]
     [Scope('OnPrem')]
@@ -1481,6 +1543,68 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Exercise and Verify: Invokes Action - Statistics on Page Service Invoices and verify VAT Amount and Amount Inclusive VAT on ServiceStatisticsPageHandler.
         OpenStatisticsPageForServiceInvoice(ServiceLine."Document No.");
+
+        // Tear Down.
+        UpdateInvoiceRoundingOnSalesReceivablesSetup(OldInvoiceRounding);
+    end;
+#endif
+    [Test]
+    [HandlerFunctions('ServiceStatsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsWithTaxAreaServiceInvoicesNM()
+    var
+        ServiceLine: Record "Service Line";
+        TaxDetail: Record "Tax Detail";
+        TaxAmount: Decimal;
+        AmountIncTax: Decimal;
+        OldInvoiceRounding: Boolean;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9319 Service Invoices.
+
+        // Setup: Create Service Invoice with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        OldInvoiceRounding := UpdateInvoiceRoundingOnSalesReceivablesSetup(false);  // Update Invoice Rounding to FALSE on Sales & Receivables Setup.
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
+        CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Invoice, CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
+        TaxAmount := ServiceLine."Unit Price" * ServiceLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
+        AmountIncTax := ServiceLine."Unit Price" * ServiceLine.Quantity + TaxAmount;
+
+        // Enqueue required inside ServiceStatsPageHandler.
+        LibraryVariableStorage.Enqueue(TaxAmount);
+        LibraryVariableStorage.Enqueue(AmountIncTax);
+
+        // Exercise and Verify: Invokes Action - Statistics on Page Service Invoices and verify Tax Amount and Amount Inclusive Tax on ServiceStatsPageHandler.
+        OpenStatsPageForServiceInvoiceNM(ServiceLine."Document No.");
+
+        // Tear Down.
+        UpdateInvoiceRoundingOnSalesReceivablesSetup(OldInvoiceRounding);
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceStatisticsPageHandlerNM')]
+    [Scope('OnPrem')]
+    procedure OnActionStatisticsServiceInvoicesNM()
+    var
+        ServiceLine: Record "Service Line";
+        VATAmount: Decimal;
+        AmountIncVAT: Decimal;
+        OldInvoiceRounding: Boolean;
+    begin
+        // Purpose of the test is to validate Statistics - OnAction Trigger of Page ID - 9319 Service Invoices.
+
+        // Setup: Create Service Invoice without Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
+        Initialize();
+        OldInvoiceRounding := UpdateInvoiceRoundingOnSalesReceivablesSetup(false);  // Update Invoice Rounding to FALSE on Sales & Receivables Setup.
+        CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Invoice, '', '', false);  // Blank for Tax Area Code and Tax Group Code, Tax Liable - FALSE.
+        VATAmount := ServiceLine."Unit Price" * ServiceLine.Quantity * ServiceLine."VAT %" / 100;
+        AmountIncVAT := ServiceLine."Unit Price" * ServiceLine.Quantity + VATAmount;
+
+        // Enqueue required inside ServiceStatisticsPageHandler.
+        LibraryVariableStorage.Enqueue(VATAmount);
+        LibraryVariableStorage.Enqueue(AmountIncVAT);
+
+        // Exercise and Verify: Invokes Action - Statistics on Page Service Invoices and verify VAT Amount and Amount Inclusive VAT on ServiceStatisticsPageHandler.
+        OpenStatisticsPageForServiceInvoiceNM(ServiceLine."Document No.");
 
         // Tear Down.
         UpdateInvoiceRoundingOnSalesReceivablesSetup(OldInvoiceRounding);
@@ -2358,6 +2482,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         exit(GLAccount."No.");
     end;
 
+#if not CLEAN27
     local procedure OpenStatisticsPageForServiceCreditMemo(No: Code[20])
     var
         ServiceCreditMemos: TestPage "Service Credit Memos";
@@ -2365,6 +2490,26 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         ServiceCreditMemos.OpenEdit();
         ServiceCreditMemos.FILTER.SetFilter("No.", No);
         ServiceCreditMemos.Statistics.Invoke();  // Opens Handler - ServiceStatisticsPageHandler and ServiceStatsPageHandler.
+        ServiceCreditMemos.Close();
+    end;
+#endif
+    local procedure OpenStatisticsPageForServiceCreditMemoNM(No: Code[20])
+    var
+        ServiceCreditMemos: TestPage "Service Credit Memos";
+    begin
+        ServiceCreditMemos.OpenEdit();
+        ServiceCreditMemos.FILTER.SetFilter("No.", No);
+        ServiceCreditMemos.ServiceStatistics.Invoke();  // Opens Handler - ServiceStatisticsPageHandler.
+        ServiceCreditMemos.Close();
+    end;
+
+    local procedure OpenStatsPageForServiceCreditMemoNM(No: Code[20])
+    var
+        ServiceCreditMemos: TestPage "Service Credit Memos";
+    begin
+        ServiceCreditMemos.OpenEdit();
+        ServiceCreditMemos.FILTER.SetFilter("No.", No);
+        ServiceCreditMemos.ServiceStats.Invoke();  // Opens Handler - ServiceStatsPageHandler.
         ServiceCreditMemos.Close();
     end;
 
@@ -2638,7 +2783,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 #endif
 
 #if not CLEAN26
-	[Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
+    [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
     local procedure OpenPurchaseStatisticsPageForPurchaseQuote(No: Code[20])
     var
         PurchaseQuotes: TestPage "Purchase Quotes";
@@ -2763,7 +2908,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         PurchaseInvoices.PurchaseStats.Invoke();  // Opens Handler - PurchaseStatsPageHandler and PurchaseStatisticsPageHandler.
         PurchaseInvoices.Close();
     end;
-
+#if not CLEAN27
     local procedure OpenStatisticsPageForServiceInvoice(No: Code[20])
     var
         ServiceInvoices: TestPage "Service Invoices";
@@ -2771,6 +2916,26 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         ServiceInvoices.OpenEdit();
         ServiceInvoices.FILTER.SetFilter("No.", No);
         ServiceInvoices.Statistics.Invoke();  // Opens Handler - ServiceStatsPageHandler and ServiceStatisticsPageHandler.
+        ServiceInvoices.Close();
+    end;
+#endif
+    local procedure OpenStatsPageForServiceInvoiceNM(No: Code[20])
+    var
+        ServiceInvoices: TestPage "Service Invoices";
+    begin
+        ServiceInvoices.OpenEdit();
+        ServiceInvoices.FILTER.SetFilter("No.", No);
+        ServiceInvoices.ServiceStats.Invoke();  // Opens Handler - ServiceStatsPageHandler.
+        ServiceInvoices.Close();
+    end;
+
+    local procedure OpenStatisticsPageForServiceInvoiceNM(No: Code[20])
+    var
+        ServiceInvoices: TestPage "Service Invoices";
+    begin
+        ServiceInvoices.OpenEdit();
+        ServiceInvoices.FILTER.SetFilter("No.", No);
+        ServiceInvoices.ServiceStatistics.Invoke();  // Opens Handler - ServiceStatisticsPageHandler.
         ServiceInvoices.Close();
     end;
 
@@ -2951,7 +3116,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         VerifyTaxOnStatisticsPage(SalesOrderStatistics.VATAmount.AsDecimal(), SalesOrderStatistics."TotalAmount2[1]".AsDecimal());
         SalesOrderStatistics.OK().Invoke();
     end;
-
+#if not CLEAN27
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceStatsPageHandler(var ServiceStats: TestPage "Service Stats.")
@@ -2963,6 +3128,22 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceStatisticsPageHandler(var ServiceStatistics: TestPage "Service Statistics")
+    begin
+        VerifyTaxOnStatisticsPage(ServiceStatistics."VAT Amount_General".AsDecimal(), ServiceStatistics."Total Incl. VAT_General".AsDecimal());
+        ServiceStatistics.OK().Invoke();
+    end;
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceStatsPageHandlerNM(var ServiceStats: TestPage "Service Stats.")
+    begin
+        VerifyTaxOnStatisticsPage(ServiceStats.VATAmount.AsDecimal(), ServiceStats."TotalAmount2[1]".AsDecimal());
+        ServiceStats.OK().Invoke();
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceStatisticsPageHandlerNM(var ServiceStatistics: TestPage "Service Statistics")
     begin
         VerifyTaxOnStatisticsPage(ServiceStatistics."VAT Amount_General".AsDecimal(), ServiceStatistics."Total Incl. VAT_General".AsDecimal());
         ServiceStatistics.OK().Invoke();
@@ -3015,7 +3196,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         VerifyTaxOnStatisticsPage(PurchaseOrderStatistics."VATAmount[1]".AsDecimal(), PurchaseOrderStatistics.TotalInclVAT_General.AsDecimal());
         PurchaseOrderStatistics.OK().Invoke();
     end;
-#endif    
+#endif
 
     [PageHandler]
     [Scope('OnPrem')]

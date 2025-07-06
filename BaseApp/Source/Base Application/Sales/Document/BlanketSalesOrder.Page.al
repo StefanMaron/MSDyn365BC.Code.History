@@ -924,7 +924,7 @@ page 507 "Blanket Sales Order"
                     Visible = SalesTaxStatisticsVisible;
 #else
                     Visible = false;
-#endif                    
+#endif
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     RunObject = Page "Sales Order Stats.";
                     RunPageOnRec = true;
@@ -1406,7 +1406,7 @@ page 507 "Blanket Sales Order"
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
         IsSalesLinesEditable := Rec.SalesLinesEditable();
 
-        SalesTaxStatisticsVisible := Rec.GetStatisticsPageID() = Page::"Sales Order Stats.";
+        SalesTaxStatisticsVisible := Rec."Tax Area Code" <> '';
         IsCustomerOrContactNotEmpty := (Rec."Sell-to Customer No." <> '') or (Rec."Sell-to Contact No." <> '');
     end;
 

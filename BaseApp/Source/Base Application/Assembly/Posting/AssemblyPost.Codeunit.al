@@ -43,6 +43,7 @@ codeunit 900 "Assembly-Post"
                   TableData "G/L Entry" = r;
 
     TableNo = "Assembly Header";
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     var
@@ -72,7 +73,9 @@ codeunit 900 "Assembly-Post"
         Window.Update(1, StrSubstNo('%1 %2', Rec."Document Type", Rec."No."));
 
         InitPost(AssemblyHeader);
+        BindSubscription(this); // To collect value entries for GLPosting
         Post(AssemblyHeader, ItemJnlPostLine, ResJnlPostLine, WhseJnlRegisterLine, false);
+        UnBindSubscription(this);
         FinalizePost(AssemblyHeader);
         if not (SuppressCommit or PreviewMode) then
             Commit();
@@ -98,6 +101,7 @@ codeunit 900 "Assembly-Post"
         UOMMgt: Codeunit "Unit of Measure Management";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         Window: Dialog;
+        ItemsToAdjust: List of [Code[20]];
         PostingDate: Date;
         SourceCode: Code[10];
         PostingDateExists: Boolean;
@@ -217,7 +221,7 @@ codeunit 900 "Assembly-Post"
     begin
         OnBeforeFinalizePost(AssemblyHeader);
 
-        MakeInvtAdjmt();
+        MakeInventoryAdjustment(AssemblyHeader);
 
         if not PreviewMode then
             DeleteAssemblyDocument(AssemblyHeader);
@@ -383,7 +387,7 @@ codeunit 900 "Assembly-Post"
     begin
         AssemblyLine.LockTable();
         AssemblyHeader.LockTable();
-        if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
+        if InvSetup.UseLegacyPosting() and not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
             GLEntry.GetLastEntryNo();
         end;
@@ -1077,7 +1081,7 @@ codeunit 900 "Assembly-Post"
     var
         AsmHeader: Record "Assembly Header";
     begin
-        MakeInvtAdjmt();
+        MakeInventoryAdjustment();
 
         if AsmHeader.Get(AsmHeader."Document Type"::Order, PostedAsmHeader."Order No.") then
             UpdateAsmOrderWithUndo(PostedAsmHeader)
@@ -1478,14 +1482,21 @@ codeunit 900 "Assembly-Post"
             UndoFinalizePost(PostedAsmHeader, false);
     end;
 
-    local procedure MakeInvtAdjmt()
+    local procedure MakeInventoryAdjustment()
     var
-        InvtSetup: Record "Inventory Setup";
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
     begin
-        InvtSetup.Get();
-        if InvtSetup.AutomaticCostAdjmtRequired() then
-            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+        InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust);
+    end;
+
+    local procedure MakeInventoryAdjustment(AssemblyHeader: Record "Assembly Header")
+    var
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+    begin
+        InventoryAdjmtEntryOrder.SetRange("Order Type", InventoryAdjmtEntryOrder."Order Type"::Assembly);
+        InventoryAdjmtEntryOrder.SetRange("Order No.", AssemblyHeader."No.");
+        InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust, InventoryAdjmtEntryOrder);
     end;
 
     local procedure DeleteWhseRequest(AssemblyHeader: Record "Assembly Header")
@@ -1587,6 +1598,18 @@ codeunit 900 "Assembly-Post"
             WhseItemTrackingLine.Delete();
             exit(true);
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem', '', false, false)]
+    local procedure OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem(var Item2: Record Item)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        if InventorySetup.UseLegacyPosting() then
+            exit;
+
+        if not ItemsToAdjust.Contains(Item2."No.") then
+            ItemsToAdjust.Add(Item2."No.");
     end;
 
     [IntegrationEvent(false, false)]

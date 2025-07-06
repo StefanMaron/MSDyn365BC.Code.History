@@ -168,6 +168,7 @@ page 122 "G/L Entries Preview"
                     ApplicationArea = VAT;
                     Editable = false;
                     ToolTip = 'Specifies the amount in source currency of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                    Visible = false;
                 }
                 field("Bal. Account Type"; Rec."Bal. Account Type")
                 {

@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.DemoData.Service;
+
+using Microsoft.Service.Setup;
+
 codeunit 5103 "Create Svc Setup"
 {
     InherentEntitlements = X;
@@ -30,8 +39,6 @@ codeunit 5103 "Create Svc Setup"
         ContosoService.InsertBaseCalendar(DefaultBaseCalendar(), DefaultBaseCalendar());
 
         CreateServiceSetup();
-        CreateInventoryPostingSetup();
-
         CreateSkillCodes();
         CreateServiceOrderTypes();
         CreateFaultReasonCodes();
@@ -79,17 +86,6 @@ codeunit 5103 "Create Svc Setup"
         ServiceMgtSetup.Modify(true);
     end;
 
-    local procedure CreateInventoryPostingSetup()
-    var
-        SvcDemoDataSetup: Record "Service Module Setup";
-        ContosoPostingSetup: Codeunit "Contoso Posting Setup";
-        CommonPostingGroup: Codeunit "Create Common Posting Group";
-        CommonGLAccount: Codeunit "Create Common GL Account";
-    begin
-        SvcDemoDataSetup.Get();
-
-        ContosoPostingSetup.InsertInventoryPostingSetup(SvcDemoDataSetup."Service Location", CommonPostingGroup.Resale(), CommonGLAccount.Resale(), CommonGLAccount.ResaleInterim());
-    end;
 
     local procedure CreateSkillCodes()
     begin

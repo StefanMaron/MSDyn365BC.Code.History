@@ -683,6 +683,7 @@ codeunit 2580 "Dimension Correction Mgt"
                 repeat
                     TempNewDimensionSetEntry.TransferFields(TempDimensionSetEntry, true);
                     TempNewDimensionSetEntry."Dimension Set ID" := 0;
+                    OnTransformDimensionSetOnBeforeInsertTempNewDimensionSetEntry(TempNewDimensionSetEntry);
                     TempNewDimensionSetEntry.Insert(true);
                 until TempDimensionSetEntry.Next() = 0;
 
@@ -1370,6 +1371,11 @@ codeunit 2580 "Dimension Correction Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterVerifyIfDimensionCanBeChanged(var DimCorrectionChange: Record "Dim Correction Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransformDimensionSetOnBeforeInsertTempNewDimensionSetEntry(var TempNewDimensionSetEntry: Record "Dimension Set Entry" temporary)
     begin
     end;
 
