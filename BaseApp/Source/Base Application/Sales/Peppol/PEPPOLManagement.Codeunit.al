@@ -183,6 +183,12 @@ codeunit 1605 "PEPPOL Management"
           AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments);
     end;
 
+    procedure GetBuyerReference(SalesHeader: Record "Sales Header") BuyerReference: Text
+    begin
+        BuyerReference := SalesHeader."Your Reference";
+        OnAfterGetBuyerReference(SalesHeader, BuyerReference);
+    end;
+
     /// <summary>
     /// Generates a PDF attachment from report set in Report Selections.
     /// </summary>
@@ -193,7 +199,7 @@ codeunit 1605 "PEPPOL Management"
     /// <param name="Filename">Filename generated in format 'DocumentType_DocumentNo.pdf'.</param>
     /// <param name="MimeCode">The MimeCode is set to application/pdf.</param>
     /// <param name="EmbeddedDocumentBinaryObject">Text output parameter that contains the Base64 encoded PDF content.</param>
-    internal procedure GeneratePDFAttachmentAsAdditionalDocRef(SalesHeader: Record "Sales Header"; var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var Filename: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text)
+    procedure GeneratePDFAttachmentAsAdditionalDocRef(SalesHeader: Record "Sales Header"; var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var Filename: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text)
     var
         Base64Convert: Codeunit "Base64 Convert";
         TempBlob: Codeunit "Temp Blob";
@@ -1680,6 +1686,11 @@ codeunit 1605 "PEPPOL Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountingSupplierPartyIdentificationID(SalesHeader: Record "Sales Header"; var PartyIdentificationID: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetBuyerReference(SalesHeader: Record "Sales Header"; var BuyerReference: Text)
     begin
     end;
 }

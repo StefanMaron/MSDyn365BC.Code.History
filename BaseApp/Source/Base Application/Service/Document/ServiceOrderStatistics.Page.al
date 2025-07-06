@@ -1237,12 +1237,27 @@ page 5914 "Service Order Statistics"
     end;
 
     trigger OnOpenPage()
+    var
+        ServiceLine: Record "Service Line";
     begin
         SalesSetup.Get();
+
+#if not CLEAN27
+        if not Rec.SkipStatisticsPreparation() then
+#endif
+            if SalesSetup."Calc. Inv. Discount" then begin
+                ServiceLine.SetRange("Document Type", Rec."Document Type");
+                ServiceLine.SetRange("Document No.", Rec."No.");
+                if ServiceLine.FindFirst() then begin
+                    CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServiceLine);
+                    Commit();
+                end;
+            end;
+#if not CLEAN27
+        Rec.ResetSkipStatisticsPreparationFlag();
+#endif
         AllowInvDisc := not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists(Rec."Invoice Disc. Code"));
-        AllowVATDifference :=
-          SalesSetup."Allow VAT Difference" and
-          (Rec."Document Type" <> Rec."Document Type"::Quote);
+        AllowVATDifference := SalesSetup."Allow VAT Difference" and (Rec."Document Type" <> Rec."Document Type"::Quote);
         VATLinesFormIsEditable := AllowVATDifference or AllowInvDisc;
         CurrPage.Editable := VATLinesFormIsEditable;
     end;

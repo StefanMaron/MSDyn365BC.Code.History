@@ -451,6 +451,60 @@ codeunit 134778 "Test Invt. Pick Post Preview"
         GLPostingPreview.OK().Invoke();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,CreateInvtPickRequestPageHandler')]
+    procedure ShelfNoOnWhsePickLinesPickedFromSKU()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        SKU: Record "Stockkeeping Unit";
+        ItemJournalLine: Record "Item Journal Line";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Location: Record Location;
+    begin
+        // [SCENARIO 580053] Issue while creating Inventory Pick - Shelf No. value is taken from Stockkeeping Unit, as it takes priority over Item
+        Initialize();
+
+        // [GIVEN] Location for Inventory Pick where the 'Require Pick' is true
+        // [GIVEN] Warehouse Employee setup for User and Location
+        CreateLocationWMSWithWhseEmployee(Location, false, false, true, false, false);
+
+        // [GIVEN] Create item "A" and set Shelf No. = S1
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Shelf No.", LibraryUtility.GenerateGUID());
+        Item.Modify(true);
+
+        // [GIVEN] Create a stockkeeping unit, set Shelf No. = "S2" on the new SKU.
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, Location.Code, Item."No.", '');
+        SKU.Validate("Shelf No.", LibraryUtility.GenerateGUID());
+        SKU.Modify(true);
+
+        // [GIVEN] Post item "A" to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', LibraryRandom.RandIntInRange(10, 20));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create sales order for item "A"
+        CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Item."No.");
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify(true);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.FindFirst();
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [WHEN] Inventory Pick created
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        Commit();
+        SalesHeader.CreateInvtPutAwayPick();
+
+        // [THEN] "Shelf No." = "S2" on the pick line for Item "A".
+        FindWarehouseActivityLine(WarehouseActivityLine, DATABASE::"Sales Line", SalesHeader."No.", WarehouseActivityHeader.Type::"Invt. Pick");
+        WarehouseActivityLine.TestField("Shelf No.", SKU."Shelf No.");
+    end;
+
     local procedure Initialize()
     var
         WarehouseEmployee: Record "Warehouse Employee";

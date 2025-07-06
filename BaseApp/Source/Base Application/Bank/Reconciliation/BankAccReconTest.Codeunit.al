@@ -38,7 +38,7 @@ codeunit 380 "Bank Acc. Recon. Test"
         end;
     end;
 
-    internal procedure SetOutstandingFilters(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    procedure SetOutstandingFilters(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccountLedgerEntry.SetRange(Reversed, false);
@@ -105,7 +105,7 @@ codeunit 380 "Bank Acc. Recon. Test"
             until BankAccountLedgerEntry.Next() = 0;
     end;
 
-    internal procedure CheckBankAccountLedgerEntryFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; StatementNo: Code[20]; StatementDate: Date): Boolean
+    procedure CheckBankAccountLedgerEntryFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; StatementNo: Code[20]; StatementDate: Date): Boolean
     begin
         if (not BankAccountLedgerEntry.Open) and (BankAccountLedgerEntry."Closed at Date" = 0D) then
             exit(false);

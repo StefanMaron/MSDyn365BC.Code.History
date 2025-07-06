@@ -1620,6 +1620,21 @@ table 1003 "Job Planning Line"
         OnAfterCopyFieldsFromJob(Rec, xRec, Job);
     end;
 
+    /// <summary>
+    /// Renames all Job Planning Line "No." values for the specified LineType and OldNo to NewNo.
+    /// </summary>
+    /// <param name="LineType">The type of the job planning line.</param>
+    /// <param name="OldNo">The old number to be replaced.</param>
+    /// <param name="NewNo">The new number to set.</param>
+    procedure RenameNo(LineType: Enum "Job Planning Line Type"; OldNo: Code[20]; NewNo: Code[20])
+    begin
+        Reset();
+        SetRange(Type, LineType);
+        SetRange("No.", OldNo);
+        if not Rec.IsEmpty() then
+            ModifyAll("No.", NewNo, true);
+    end;
+
     local procedure CheckQuantityPosted()
     var
         IsHandled: Boolean;
@@ -2037,13 +2052,13 @@ table 1003 "Job Planning Line"
         GetJob();
         if (Type = Type::Item) and Item.Get("No.") then
             if Item."Costing Method" = Item."Costing Method"::Standard then
-                if RetrieveCostPrice(CurrFieldNo) or (CurrFieldNo = FieldNo("Unit Price")) then begin
+                if RetrieveCostPrice(CurrFieldNo) then begin
                     if GetSKU() then
                         "Unit Cost (LCY)" := Round(SKU."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision)
                     else
                         "Unit Cost (LCY)" := Round(Item."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision);
-                    if not (CurrFieldNo = FieldNo("Unit Price")) then
-                        "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
+
+                    "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
                 end else
                     RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)")
             else
@@ -2259,9 +2274,12 @@ table 1003 "Job Planning Line"
 
         if (xRec."Currency Factor" <> "Currency Factor") and
            (Amount = xAmount) and (JobExchCalculation = JobExchCalculation::"Fixed LCY")
-        then
-            Amount := ConvertAmountToFCY(AmountLCY, UnitAmountRoundingPrecisionFCY)
-        else
+        then begin
+            Amount := ConvertAmountToFCY(AmountLCY, UnitAmountRoundingPrecisionFCY);
+            exit;
+        end;
+
+        if (Amount <> xAmount) then
             AmountLCY := ConvertAmountToLCY(Amount, UnitAmountRoundingPrecision);
     end;
 

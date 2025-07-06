@@ -453,14 +453,10 @@ page 900 "Assembly Order"
                     ApplicationArea = Assembly;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    RunPageOnRec = true;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
-
-                    trigger OnAction()
-                    begin
-                        Rec.ShowStatistics();
-                    end;
+                    RunObject = Page "Assembly Order Statistics";
+                    RunPageOnRec = true;
                 }
             }
             group(Warehouse)
@@ -1063,4 +1059,3 @@ page 900 "Assembly Order"
     begin
     end;
 }
-

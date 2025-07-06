@@ -83,6 +83,7 @@ codeunit 137150 "SCM Warehouse UOM"
         UoMIsStillUsedError: Label 'You cannot delete the unit of measure because it is assigned to one or more records.';
         ItemTrackingQtyHandledErr: Label 'The Qty Handled (Base) is incorrect on the Item Tracking line.';
         QtyToHandleBaseErr: Label 'The Qty. to Handle (Base) is incorrect.';
+        BinContentQtyErr: Label 'The quantity in the bin content was not updated.';
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler')]
@@ -3956,6 +3957,124 @@ codeunit 137150 "SCM Warehouse UOM"
         Assert.IsTrue(WarehouseActivityLinePlace."Qty. to Handle (Base)" = 35, QtyToHandleBaseErr);
     end;
 
+    [Test]
+    procedure QtyPerUnitofMeasureFieldInBinContentPageDefaultsTo1ForAnItemHasDifferentUOMWithQuantityForThisWhenManuallyAddingLine()
+    var
+        Item: Record Item;
+        BaseUnitOfMeasure: Record "Unit of Measure";
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemCard: TestPage "Item Card";
+        BinContentPage: TestPage "Bin Content";
+        QtyOfUOMPerUOM: Decimal;
+    begin
+        // [SCENARIO 575737] 'Qty. Per Unit of Measure' field in the Bin Content Page defaults to 1 for an Item that has different UOM with quantity for this field greater than 1, when manually adding a Bin Content Line
+        Initialize();
+
+        //[GIVEN] Create Item with Multiple Unit of Measure
+        QtyOfUOMPerUOM := 2 + LibraryRandom.RandInt(3);
+        CreateItemWithMultipleUOM(Item, BaseUnitOfMeasure, UnitOfMeasure, QtyOfUOMPerUOM);
+
+        //[GIVEN] Update sales unit of Measure And Purch. unit of Measure field
+        Item."Sales Unit of Measure" := UnitOfMeasure.Code;
+        Item."Purch. Unit of Measure" := UnitOfMeasure.Code;
+        Item.Modify();
+
+        //[WHEN] Insert New line in Bin Content
+        ItemCard.OpenView();
+        ItemCard.GoToRecord(Item);
+        BinContentPage.Trap();
+        ItemCard."&Bin Contents".Invoke();
+        BinContentPage."Location Code".SetValue('Silver');
+        BinContentPage."Bin Code".SetValue('S-01-0001');
+        BinContentPage."Unit of Measure Code".SetValue(UnitOfMeasure.Code);
+        BinContentPage.New();
+
+        //[THEN] Verify 'Qty. per Unit of Measure' field have xRec value in new line
+    end;
+
+    [Test]
+    procedure WarningMessageWhenMaxQuantityExceedsForQtyAndCubage()
+    var
+        Bin, Bin2 : Record Bin;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Location: Record Location;
+        UnitOfMeasure: array[3] of Record "Unit of Measure";
+        Zone: array[3] of Record Zone;
+        i: Integer;
+    begin
+        // [SCENARIO 571432] When calculating Bin Replenishment in a movement worksheet wrong capacity warnings appear due to wrong calculation.
+        Initialize();
+
+        // [GIVEN] Create 3 Units Of Measure.
+        for i := 1 to 3 do
+            LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[i]);//PCS,PACK,BOX
+
+        // [GIVEN] Create Full Warehouse Location and Validate Bin Capacity Policy.
+        LibraryWarehouse.CreateFullWMSLocation(Location, LibraryRandom.RandInt(2));
+        Location.Validate("Bin Capacity Policy", Location."Bin Capacity Policy"::"Allow More Than Max. Capacity");
+        Location.Validate("Always Create Put-away Line", true);
+        Location.Modify(true);
+
+        // [GIVEN] Create 2 Zone for Pick And PutAway
+        LibraryWarehouse.CreateZone(Zone[1], '', Location.Code, LibraryWarehouse.SelectBinType(false, false, false, true), '', '', 0, false);
+        LibraryWarehouse.CreateZone(Zone[2], '', Location.Code, LibraryWarehouse.SelectBinType(false, false, true, false), '', '', 0, false);
+
+        // [GIVEN] Create Bin For Zone Pick
+        FindZone(Zone[3], Location.Code, LibraryWarehouse.SelectBinType(false, false, false, true));
+        LibraryWarehouse.CreateBin(Bin, Zone[3]."Location Code", LibraryUtility.GenerateGUID(), Zone[3].Code, Zone[3]."Bin Type Code");
+        Bin.Validate("Maximum Cubage", LibraryRandom.RandIntInRange(6250000, 7250000));
+        Bin.Validate("Maximum Weight", LibraryRandom.RandIntInRange(150, 750));
+        Bin.Modify(true);
+
+        // [GIVEN] Create Bin For Zone PutAway
+        Zone[3].Reset();
+        FindZone(Zone[3], Location.Code, LibraryWarehouse.SelectBinType(false, false, true, false));
+        LibraryWarehouse.CreateBin(Bin2, Zone[3]."Location Code", LibraryUtility.GenerateGUID(), Zone[3].Code, Zone[3]."Bin Type Code");
+        Bin2.Validate("Maximum Weight", LibraryRandom.RandIntInRange(1000, 2000));
+        Bin2.Modify(true);
+
+        // [GIVEN] Create an Item and Validate Base Unit of Measure.
+        CreateItem(Item, '');
+        Item.Validate("Base Unit of Measure", UnitOfMeasure[1].Code);
+        Item.Modify(true);
+
+        // [GIVEN] Create 3 Item Unit Of Measure.
+        ItemUnitOfMeasure.SetRange("Item No.", Item."No.");
+        ItemUnitOfMeasure.FindFirst();
+        UpdateItemUnitOfMeasure(ItemUnitOfMeasure, 5, 5, 5);
+        ItemUnitOfMeasure.Reset();
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure[2].Code, 10);
+        UpdateItemUnitOfMeasure(ItemUnitOfMeasure, 50, 50, 50);
+        ItemUnitOfMeasure.Reset();
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure[3].Code, 100);
+        UpdateItemUnitOfMeasure(ItemUnitOfMeasure, 500, 500, 500);
+
+        // [GIVEN] Create two Bin Content for Item with MaxQty And MinQty.
+        CreateBinContent(BinContent, Bin, Item."No.", UnitOfMeasure[2].Code, 24, 50, true, false);
+        CreateBinContent(BinContent, Bin2, Item."No.", UnitOfMeasure[3].Code, 0, 0, false, true);
+
+        // [GIVEN] Create 2 Warehouse Item Journal Lines.
+        CreateWarehouseJournalBatch(WarehouseJournalBatch, Location.Code);
+        CreateWarehouseItemJournalLine(Location.Code, Item."No.", WorkDate(), Bin, 5, UnitOfMeasure[2].Code, WarehouseJournalBatch);
+        CreateWarehouseItemJournalLine(Location.Code, Item."No.", WorkDate(), Bin2, 10, UnitOfMeasure[3].Code, WarehouseJournalBatch);
+
+        // [WHEN] Register Whse. Journal Line ,Calculate Warehouse Adjustment and Post Item Journal Lines.
+        LibraryWarehouse.RegisterWhseJournalLine(WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Location.Code, true);
+        CalculateWhseAdjustment(ItemJournalBatch, Item);
+        FindItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, Item."No.");
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [WHEN] Run Calculate Bin Replenishment Report.
+        RunCalculateBinReplenishmentReport(Location.Code, Item."No.");
+
+        // [THEN] Check Bin Content have Updated Quantity and Calculate Bin Replenishment without Confirmation Message for Quantity and Cubage.
+        CheckBinContent(BinContent, Location.Code, Item."No.");//Assert 
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6466,6 +6585,108 @@ codeunit 137150 "SCM Warehouse UOM"
         CreatePick.SetTempWhseItemTrkgLine(WarehouseShipmentLine."No.", DATABASE::"Warehouse Shipment Line", '', 0, WarehouseShipmentLine."Line No.", WarehouseShipmentLine."Location Code");
         CreatePick.CreateTempLine(WarehouseShipmentLine."Location Code", WarehouseShipmentLine."Item No.", '', '', '', WarehouseShipmentLine."Bin Code", 1, WarehouseShipmentLine.Quantity, WarehouseShipmentLine."Qty. (Base)");
         CreatePick.CreateWhseDocument(FirstWhseDocNo, WhsePickNo, true);
+    end;
+
+    local procedure CreateItemWithMultipleUOM(var Item: Record Item; var BaseUnitOfMeasure: Record "Unit of Measure"; var UnitOfMeasure: Record "Unit of Measure"; QtyPerUnitOfMeasure: Decimal)
+    var
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUnitOfMeasure);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", BaseUnitOfMeasure.Code, 1);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, QtyPerUnitOfMeasure);
+    end;
+
+    local procedure RunCalculateBinReplenishmentReport(LocationCode: Code[20]; ItemNo: code[20])
+    var
+        BinContent: Record "Bin Content";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        CalculateBinReplenishmentReport: Report "Calculate Bin Replenishment";
+    begin
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
+        LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
+        CalculateBinReplenishmentReport.InitializeRequest(WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name,
+            LocationCode, true, true, false);
+        BinContent.SetRange("Item No.", ItemNo);
+        BinContent.FindSet();
+        CalculateBinReplenishmentReport.SetTableView(BinContent);
+        CalculateBinReplenishmentReport.UseRequestPage(false);
+        CalculateBinReplenishmentReport.Run();
+    end;
+
+    local procedure CheckBinContent(var BinContent: Record "Bin Content"; LocationCode: Code[20]; ItemNo: code[20])
+    begin
+        BinContent.Reset();
+        BinContent.SetRange("Location Code", LocationCode);
+        BinContent.SetRange("Item No.", ItemNo);
+        if BinContent.FindSet() then
+            repeat
+                BinContent.CalcFields(Quantity);
+                Assert.AreNotEqual(0, BinContent.Quantity, BinContentQtyErr);
+            until BinContent.Next() = 0;
+    end;
+
+    local procedure FindItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; ItemNo: Code[20])
+    begin
+        FilterItemJournalLine(ItemJournalLine, JournalTemplateName, JournalBatchName, ItemNo);
+        ItemJournalLine.FindSet();
+    end;
+
+    local procedure FilterItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; ItemNo: Code[20])
+    begin
+        ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
+        ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
+        ItemJournalLine.SetRange("Item No.", ItemNo);
+    end;
+
+    local procedure CalculateWhseAdjustment(var ItemJournalBatch: Record "Item Journal Batch"; var Item: Record Item)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item, true);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
+    end;
+
+    local procedure CreateWarehouseItemJournalLine(LocationCode: Code[10]; ItemNo: Code[20]; RegisteringDate: Date; Bin: Record Bin; Qty: Decimal; UnitOfMesureCode: Code[10]; WarehouseJournalBatchRec: Record "Warehouse Journal Batch")
+    var
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+    begin
+        LibraryWarehouse.CreateWhseJournalLine(WarehouseJournalLine, WarehouseJournalBatchRec."Journal Template Name",
+            WarehouseJournalBatchRec.Name, LocationCode, Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Qty);
+        WarehouseJournalLine.Validate("Registering Date", RegisteringDate);
+        WarehouseJournalLine.Validate("Unit of Measure Code", UnitOfMesureCode);
+        WarehouseJournalLine.Modify(true);
+    end;
+
+    local procedure CreateWarehouseJournalBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; LocationCode: Code[10])
+    var
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+    begin
+        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
+        LibraryWarehouse.CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, LocationCode);
+    end;
+
+    local procedure CreateBinContent(var BinContent: Record "Bin Content"; Bin: Record Bin; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; MinQty: Decimal; MaxQty: Decimal; Fixed: Boolean; Default: Boolean)
+    begin
+        LibraryWarehouse.CreateBinContent(BinContent, Bin."Location Code", Bin."Zone Code", Bin.Code, ItemNo, '', UnitOfMeasureCode);
+        BinContent.Validate(Fixed, Fixed);
+        BinContent.Validate(Default, Default);
+        BinContent.Validate("Bin Type Code", Bin."Bin Type Code");
+        BinContent.Validate("Bin Ranking", Bin."Bin Ranking");
+        BinContent.Validate("Min. Qty.", MinQty);
+        BinContent.Validate("Max. Qty.", MaxQty);
+        BinContent.Modify(true);
+    end;
+
+    local procedure UpdateItemUnitOfMeasure(Var ItemUnitOfMeasure: Record "Item Unit of Measure"; Height: Decimal; Width: Decimal; Length: Decimal)
+    begin
+        ItemUnitOfMeasure.Validate(Height, Height);
+        ItemUnitOfMeasure.Validate(Width, Width);
+        ItemUnitOfMeasure.Validate(Length, Length);
+        ItemUnitOfMeasure.Modify(true);
     end;
 
     [ModalPageHandler]

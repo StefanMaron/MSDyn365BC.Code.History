@@ -273,6 +273,7 @@ codeunit 560 "CrossIntercompany Connector"
 
         HttpResponseMessage.Content().ReadAs(ErrorMsg);
         FriendlyErrorMsg := StrSubstNo(HttpErrorMsg, HttpResponseMessage.HttpStatusCode(), FriendlyErrorMsg);
+        FriendlyErrorMsg := FriendlyErrorMsg + ', ' + ErrorMsg;
         Session.LogMessage('0000KZG', StrSubstNo(HttpErrorMsg, HttpResponseMessage.HttpStatusCode(), ErrorMsg), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrossIntercompanyTok);
         Error(FriendlyErrorMsg);
     end;
