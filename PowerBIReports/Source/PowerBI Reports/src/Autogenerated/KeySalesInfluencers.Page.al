@@ -6,9 +6,7 @@ page 37102 "Key Sales Influencers"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Key Sales Influencers';
     AboutTitle = 'About Key Sales Influencers';
     AboutText = 'The Key Sales Influencers report identifies the key factors driving sales performance, highlighting the most impactful variables and trends based on the sales data like items, customers and dimensions.';
@@ -25,7 +23,7 @@ page 37102 "Key Sales Influencers"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

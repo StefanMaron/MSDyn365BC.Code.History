@@ -5,6 +5,7 @@
 namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Setup;
 
 codeunit 5894 "Inventory Adjustment Handler"
 {
@@ -57,6 +58,55 @@ codeunit 5894 "Inventory Adjustment Handler"
         OnMakeInventoryAdjustmentOnAfterSetParameters(CostAdjustmentParamsMgt);
 
         MakeInventoryAdjustment(CostAdjustmentParamsMgt);
+    end;
+
+    procedure MakeAutomaticInventoryAdjustment(var ItemsToAdjust: List of [Code[20]])
+    var
+        InventorySetup: Record "Inventory Setup";
+        CostAdjustmentParameter: Record "Cost Adjustment Parameter";
+        CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.";
+    begin
+        InventorySetup.GetRecordOnce();
+        if not InventorySetup.AutomaticCostAdjmtRequired() then
+            exit;
+
+        CostAdjustmentParameter."Post to G/L" := InventorySetup."Automatic Cost Posting";
+        CostAdjustmentParameter."Online Adjustment" := true;
+        CostAdjustmentParameter."Skip Job Item Cost Update" := SkipJobUpdate;
+        if not InventorySetup.UseLegacyPosting() then
+            CostAdjustmentParamsMgt.SetItemsToAdjust(ItemsToAdjust);
+        CostAdjustmentParamsMgt.SetParameters(CostAdjustmentParameter);
+        MakeInventoryAdjustment(CostAdjustmentParamsMgt);
+    end;
+
+    procedure MakeAutomaticInventoryAdjustment(var ItemsToAdjust: List of [Code[20]]; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    var
+        InventorySetup: Record "Inventory Setup";
+        CostAdjustmentParameter: Record "Cost Adjustment Parameter";
+        PartiallyAdjustedItem: Record Item;
+        CostAdjustmentParamsMgt: Codeunit "Cost Adjustment Params Mgt.";
+        ItemNo: Code[20];
+    begin
+        InventorySetup.GetRecordOnce();
+        if not InventorySetup.AutomaticCostAdjmtRequired() then
+            exit;
+
+        CostAdjustmentParameter."Post to G/L" := InventorySetup."Automatic Cost Posting";
+        CostAdjustmentParameter."Online Adjustment" := true;
+        CostAdjustmentParameter."Skip Job Item Cost Update" := SkipJobUpdate;
+        if not InventorySetup.UseLegacyPosting() then begin
+            CostAdjustmentParamsMgt.SetItemsToAdjust(ItemsToAdjust);
+            CostAdjustmentParamsMgt.SetInventoryAdjmtEntryOrder(InventoryAdjmtEntryOrder);
+        end;
+        CostAdjustmentParamsMgt.SetParameters(CostAdjustmentParameter);
+        MakeInventoryAdjustment(CostAdjustmentParamsMgt);
+
+        if not InventorySetup.UseLegacyPosting() then
+            foreach ItemNo in ItemsToAdjust do begin
+                PartiallyAdjustedItem.SetLoadFields("No.", "Cost Is Adjusted");
+                if PartiallyAdjustedItem.Get(ItemNo) then
+                    PartiallyAdjustedItem.UpdateCostIsAdjusted();
+            end;
     end;
 
     procedure SetJobUpdateProperties(SkipJobUpdate: Boolean)

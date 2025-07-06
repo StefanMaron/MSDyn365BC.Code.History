@@ -509,6 +509,7 @@ codeunit 99000856 "Planning Transparency"
         if FromInvProfileTrack."Warning Level" = 0 then
             exit;
         if TempPlanningWarning.Get('', '', FromInvProfileTrack."Line No.", FromInvProfileTrack."Sequence No.") then begin
+            OnTransferWarningSourceTextOnBeforeSetSourceToUntrackedPlanningElement(ToUntrackedPlanningElement, TempPlanningWarning);
             ToUntrackedPlanningElement.Source := TempPlanningWarning.Source;
             TempPlanningWarning.Delete();
         end;
@@ -570,6 +571,11 @@ codeunit 99000856 "Planning Transparency"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindReasonOnAfterSetSurplusType(var DemandInventoryProfile: Record "Inventory Profile"; var SurplusType: Enum "Planning Surplus Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferWarningSourceTextOnBeforeSetSourceToUntrackedPlanningElement(var ToUntrackedPlanningElement: Record "Untracked Planning Element"; var TempUntrackedPlanningElement: Record "Untracked Planning Element" temporary)
     begin
     end;
 }

@@ -41,6 +41,7 @@ codeunit 137140 "SCM Inventory Documents"
         SpecialEquipmentCodeShouldBeVisibleErr: Label 'Special Equipment Code should be visible.';
         DueDateBeforeWorkDateMsg: Label 'is before work date';
         TransferOrderErr: Label 'Transfer Order has not been posted successfully.';
+        ReserveMustNotBeNeverErr: Label 'Reserve must not be Never';
 
     [Test]
     [Scope('OnPrem')]
@@ -2067,6 +2068,44 @@ codeunit 137140 "SCM Inventory Documents"
         // [THEN] Verify Direct TransferOrder Posted Successfully.
         DirectTransHeader.SetRange("Transfer Order No.", TransferOrderNo);
         Assert.IsTrue(DirectTransHeader.FindFirst(), TransferOrderErr);
+    end;
+
+    [Test]
+    procedure ReservationShouldNotPossibleOnTransferOrderIfItemReserveSetAsNever()
+    var
+        Item: Record Item;
+        LocationA: Record Location;
+        LocationB: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+    begin
+        // [SCENARIO 578318] Reservation of an Item possible with in a Transfer order if the item is set to reserve=never
+        Initialize();
+
+        // [GIVEN] Create Two locations: "A" and "B" without Warehouse Setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationA);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationB);
+
+        // [GIVEN] Create an Item with Reserve = Never
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Never);
+        Item.Modify();
+
+        // [GIVEN] Create and Post Item Journal Line
+        CreateAndPostItemJournalLine(Item."No.", LocationA.Code, '');
+
+        // [GIVEN] Create a Direct Transfer Order from Location "A" to location "B" and Reserve From Inventory
+        CreateDirectTransferHeader(TransferHeader, LocationA.code, LocationB.Code);
+        TransferHeader.Validate("Posting Date", WorkDate());
+        TransferHeader.Modify(true);
+
+        // [WHEN] Create transfer line with Item with Reserve set as Never and Show Reservation
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 10);
+        asserterror TransferLine.ShowReservation();
+
+        // [THEN] Verify Reserve must not be Never error
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(ReserveMustNotBeNeverErr);
     end;
 
     local procedure PostWhseShipmentFromTO(DocumentNo: Code[20])
