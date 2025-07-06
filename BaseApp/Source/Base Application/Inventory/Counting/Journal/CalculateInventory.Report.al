@@ -136,15 +136,22 @@ report 790 "Calculate Inventory"
             dataitem("Warehouse Entry"; "Warehouse Entry")
             {
                 DataItemLink = "Item No." = field("No."), "Variant Code" = field("Variant Filter"), "Location Code" = field("Location Filter");
+                DataItemTableView = sorting("Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type", Dedicated, "Package No.", "Bin Type Code", "SIFT Bucket No.");
+
+                trigger OnPreDataItem()
+                begin
+                    if not "Item Ledger Entry".IsEmpty() then
+                        CurrReport.Break(); // Skip if item has any record in Item Ledger Entry.                    
+                end;
 
                 trigger OnAfterGetRecord()
                 var
                     ItemVariant: Record "Item Variant";
                 begin
                     if not "Item Ledger Entry".IsEmpty() then
-                        CurrReport.Skip();   // Skip if item has any record in Item Ledger Entry.
+                        CurrReport.Break();   // Skip if item has any record in Item Ledger Entry.
 
-                    if "Warehouse Entry"."Variant Code" = '' then begin
+                    if "Warehouse Entry"."Variant Code" <> '' then begin
                         ItemVariant.SetLoadFields(Blocked);
                         if ItemVariant.Get("Item No.", "Variant Code") and ItemVariant.Blocked then
                             CurrReport.Skip();

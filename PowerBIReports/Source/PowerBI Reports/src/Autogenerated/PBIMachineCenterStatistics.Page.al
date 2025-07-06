@@ -6,9 +6,7 @@ page 37095 "PBI Machine Center Statistics"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = Manufacturing;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Machine Center Statistics';
     AboutTitle = 'About Machine Center Statistics';
     AboutText = 'View your machine center statistics and discover detailed metrics on total and effective capacity, expected and actual efficiency, scrap rates, and output.';

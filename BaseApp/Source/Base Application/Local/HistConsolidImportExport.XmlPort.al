@@ -183,11 +183,11 @@ xmlport 10700 "Hist. Consolid. Import/Export"
                     }
                 }
             }
-#endif
             trigger OnAfterAssignVariable()
             begin
                 NextGLEntryNo := 1;
             end;
+#endif
         }
     }
 
@@ -207,7 +207,9 @@ xmlport 10700 "Hist. Consolid. Import/Export"
         CurrentProduct: Label 'Microsoft Dynamics NAV';
         CurrentProductVersion: Label '4.00';
         CurrentFormatVersion: Label '1.00';
+#if not CLEAN25
         NextGLEntryNo: Integer;
+#endif
 
     [Scope('OnPrem')]
     procedure SetGlobals(NewCompanyName: Text[30]; NewCurrencyLCY: Code[10]; NewCurrencyACY: Code[10]; NewCurrencyPCY: Code[10]; NewCheckSum: Decimal; NewStartingDate: Date; NewEndingDate: Date)

@@ -2,7 +2,6 @@ namespace Microsoft.SubscriptionBilling;
 
 enum 8056 "Item Service Commitment Type"
 {
-
     value(0; "Sales without Service Commitment")
     {
         Caption = 'No Subscription';

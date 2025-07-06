@@ -195,6 +195,8 @@ page 7304 "Bin Content"
             Rec."Location Code" := xRec."Location Code";
         if xRec."Unit of Measure Code" <> '' then
             Rec."Unit of Measure Code" := xRec."Unit of Measure Code";
+        if xRec."Qty. per Unit of Measure" > 1 then
+            Rec."Qty. per Unit of Measure" := xRec."Qty. per Unit of Measure";
         Rec.SetUpNewLine();
     end;
 }

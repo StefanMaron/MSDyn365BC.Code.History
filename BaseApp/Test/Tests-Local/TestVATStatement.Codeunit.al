@@ -19,6 +19,7 @@ codeunit 147590 "Test VAT Statement"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVATStatement: Codeunit "Library VAT Statement";
+        LibraryInventory: Codeunit "Library - Inventory";
         FileManagement: Codeunit "File Management";
         Assert: Codeunit Assert;
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
@@ -2103,6 +2104,69 @@ codeunit 147590 "Test VAT Statement"
             SalesLine.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('TransferenceTXTWithDateFilterRequestPageHandler,TransferenceTXTModalPageHandlerSimple')]
+    procedure TestTransferenceTXTVATEntryTotalingWithVATSetup()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        AEATTransferenceFormat: Record "AEAT Transference Format";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        FileName: Text[1024];
+        PadString: Text[1];
+        VendorNo: Code[20];
+        ItemNo: Code[20];
+        VATReportingDate: Date;
+    begin
+        // [SCENARIO 576379] Generate txt file from VAT statement filters by Posting Date and not by VAT Date in the Spanish version.
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup With 21%
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 21);
+
+        // [GIVEN] Create Vendor and Item
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        ItemNo := LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Create Purchase Header with Invoice Document Type and change the VAT Date to next month
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        VATReportingDate := CalcDate('<1M>', PurchaseHeader."VAT Reporting Date");
+        PurchaseHeader.Validate("VAT Reporting Date", VATReportingDate);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create the Purchase Line with 1000 Unit Cost
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine, PurchaseHeader, ItemNo, 1000, 1);
+
+        // [GIVEN] Post the Purchase Document
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Create VAT Statement Template, Declaration and VAT Statement Line
+        PadString := '0';
+        CreateVATStatement(VATStatementName);
+        CreateVATStatementLineVATTotalling(VATStatementLine, VATStatementName, '1',
+          VATPostingSetup, VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Base, '1');
+        CreateVATStatementLineVATTotalling(VATStatementLine, VATStatementName, '2',
+          VATPostingSetup, VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, '2');
+
+        // [GIVEN] Design the Text File Transference Format
+        LibraryVATStatement.CreateAEATTransreferenceFormatTxt(AEATTransferenceFormat, VATStatementName.Name,
+          1, 1, 17, AEATTransferenceFormat.Type::Numerical, AEATTransferenceFormat.Subtype::"Integer and Decimal Part",
+          '', '1');
+        LibraryVATStatement.CreateAEATTransreferenceFormatTxt(AEATTransferenceFormat, VATStatementName.Name,
+          2, 18, 35, AEATTransferenceFormat.Type::Numerical, AEATTransferenceFormat.Subtype::"Integer and Decimal Part",
+          '', '2');
+
+        // [WHEN] Run the Telematic VAT Declaration Report with Date Filter
+        FileName := CopyStr(RunTelematicVATDeclarationWithDateFilter(VATStatementLine, 0, 1, false, Format(VATReportingDate)), 1, 1024);
+
+        // [THEN] Verify - check the account amount printed in file
+        Assert.AreEqual(PadDecimalToString(1000, 2, 17, PadString, false, false),
+          Format(LibraryTextFileValidation.ReadValueFromLine(FileName, 1, 1, 17)),
+          'Amount is not set correctly.');
+    end;
+
     local procedure GetVATAmount(DocNo: Code[20]): Decimal
     var
         VATEntry: Record "VAT Entry";
@@ -2774,7 +2838,7 @@ codeunit 147590 "Test VAT Statement"
         TelematicVATDeclaration.EntryType.SetValue(EntryType);
         TelematicVATDeclaration.EntryPeriod.SetValue(EntryPeriod);
         TelematicVATDeclaration.AddtnlCurrency.SetValue(Currency);
-
+        
         TelematicVATDeclaration.OK().Invoke(); // code will "jump" to TransferenceTXTModalPageHandlerWithVerify
     end;
 
@@ -2888,6 +2952,49 @@ codeunit 147590 "Test VAT Statement"
         CalcAndPostVATSettlement.DocumentNo.SetValue(LibraryVariableStorage.DequeueText());
         CalcAndPostVATSettlement.SettlementAcc.SetValue(LibraryVariableStorage.DequeueText());
         CalcAndPostVATSettlement.OK().Invoke();
+    end;
+
+    local procedure RunTelematicVATDeclarationWithDateFilter(var VATStatementLine: Record "VAT Statement Line"; EntryType: Option; EntryPeriod: Option; AddtnlCurrency: Boolean; LineDateFilter: Text[100]) ServerFileName: Text
+    var
+        TelematicVATDeclaration: Report "Telematic VAT Declaration";
+    begin
+        ServerFileName := FileManagement.ServerTempFileName('txt');
+
+        TelematicVATDeclaration.CurrentAsign(VATStatementLine);
+        TelematicVATDeclaration.SetSilentMode(ServerFileName);
+
+        // enqueue for the modal request page
+        LibraryVariableStorage.Enqueue(EntryType); // open entries
+        LibraryVariableStorage.Enqueue(EntryPeriod); // before and within period
+        LibraryVariableStorage.Enqueue(AddtnlCurrency); // additional currency
+        LibraryVariableStorage.Enqueue(LineDateFilter);
+        // enqueue for the modal page handler
+        LibraryVariableStorage.Enqueue(VATStatementLine."Statement Name");
+
+        Commit();
+        TelematicVATDeclaration.RunModal();
+        Clear(TelematicVATDeclaration);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure TransferenceTXTWithDateFilterRequestPageHandler(var TelematicVATDeclaration: TestRequestPage "Telematic VAT Declaration")
+    var
+        EntryType: Variant;
+        EntryPeriod: Variant;
+        Currency: Variant;
+        LineDateFilter: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(EntryType);
+        LibraryVariableStorage.Dequeue(EntryPeriod);
+        LibraryVariableStorage.Dequeue(Currency);
+        LibraryVariableStorage.Dequeue(LineDateFilter);
+
+        TelematicVATDeclaration.EntryType.SetValue(EntryType);
+        TelematicVATDeclaration.EntryPeriod.SetValue(EntryPeriod);
+        TelematicVATDeclaration.AddtnlCurrency.SetValue(Currency);
+        TelematicVATDeclaration."VAT Declaration Line".SetFilter("Date Filter", LineDateFilter);
+        TelematicVATDeclaration.OK().Invoke(); // code will "jump" to TransferenceTXTModalPageHandlerWithVerify
     end;
 }
 

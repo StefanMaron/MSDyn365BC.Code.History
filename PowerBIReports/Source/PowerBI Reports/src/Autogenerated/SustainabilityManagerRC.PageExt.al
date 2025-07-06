@@ -32,18 +32,18 @@ pageextension 36966 "Sustainability Manager RC" extends "Sustainability Manager 
                 action("Realized Emissions vs Target (Power BI)")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Realized Emissions vs Target (Power BI)';
+                    Caption = 'Realized Emissions vs. Target (Power BI)';
                     Image = "PowerBI";
                     RunObject = page "Realized Emissions vs Target";
-                    Tooltip = 'Open the Power BI Report page Realized Emissions vs Target which highlights an organization''''s emissions and compares them against the predefined targets.';
+                    Tooltip = 'Open the Power BI Report page Realized Emissions vs. Target which highlights an organization''''s emissions and compares them against the predefined targets.';
                 }
                 action("Realized Emissions vs Baseline (Power BI)")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Realized Emissions vs Baseline (Power BI)';
+                    Caption = 'Realized Emissions vs. Baseline (Power BI)';
                     Image = "PowerBI";
                     RunObject = page "Realized Emissions vs Baseline";
-                    Tooltip = 'Open the Power BI Report page Realized Emissions vs Bassline which showcases the differences between an organization''''s emissions and the baseline they have set.';
+                    Tooltip = 'Open the Power BI Report page Realized Emissions vs. Bassline which showcases the differences between an organization''''s emissions and the baseline they have set.';
                 }
                 action("Water and Waste Analysis (Power BI)")
                 {

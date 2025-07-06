@@ -188,6 +188,9 @@ page 20 "General Ledger Entries"
                     ApplicationArea = VAT;
                     Editable = false;
                     ToolTip = 'Specifies the amount in source currency of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
                 }
                 field("Add.-Currency Debit Amount"; Rec."Add.-Currency Debit Amount")
                 {

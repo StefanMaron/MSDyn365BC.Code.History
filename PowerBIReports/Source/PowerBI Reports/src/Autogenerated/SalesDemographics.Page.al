@@ -6,9 +6,7 @@ page 37100 "Sales Demographics"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Sales Demographics';
     AboutTitle = 'About Sales Demographics';
     AboutText = 'The Sales Demographics report analyzes sales performance across different demographic segments, providing insights into customer behavior and preferences.';
@@ -25,7 +23,7 @@ page 37100 "Sales Demographics"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

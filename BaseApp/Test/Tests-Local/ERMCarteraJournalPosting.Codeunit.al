@@ -37,8 +37,11 @@ codeunit 144013 "ERM Cartera Journal Posting"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryCarteraPayables: Codeunit "Library - Cartera Payables";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         ValueMustBeEqualMsg: Label 'Value Must Be Equal.';
         WrongNoOfCustLedgEntryErr: Label 'Wrong number of Customer Ledger Entry.';
+        ExportedToPaymentFileError: Label 'Vendor Ledger Entry should not be exported to Payment File.';
 
     [Test]
     [Scope('OnPrem')]
@@ -228,6 +231,42 @@ codeunit 144013 "ERM Cartera Journal Posting"
         Assert.IsTrue(PayablesCarteraDocs."Cust./Vendor Bank Acc. Code".Visible(), '');
         PayablesCarteraDocs.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [HandlerFunctions('TemplateSelectHandler')]
+    [Scope('OnPrem')]
+    procedure ExportOneBillOnPaymentJournalWhenMultipleLinesPostedOnCarteraJournal()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Amount: Decimal;
+        VendorNo: Code[20];
+        VendorPreferredBankAccountCode: Code[20];
+    begin
+        // [SCENARIO 575499] Exported to Payment File field is set to True in all Bills with the same document number when only one bill entry is exported in the payment journal
+
+        // [GIVEN] Setup: Create vendor with preferred bank account and random amount
+        VendorNo := CreateVendorWithPreferredBankAccount(VendorPreferredBankAccountCode);
+        Amount := LibraryRandom.RandDecInDecimalRange(200, 200, 2);
+
+        // [GIVEN] Create and Post Cartera Journal with multiple Lines.
+        CreateAndPostMultipleCarteraJournalLines(GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
+
+        // [GIVEN] Find Vendor Ledger Entry.
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Bill);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindFirst();
+
+        // [WHEN] Create General Journal Line with Export Payments to File.
+        CreateGenJournalLineWithExportPaymentsToFile(VendorNo, VendorPreferredBankAccountCode, Amount / 2, VendorLedgerEntry);
+
+        // [THEN] Find Vendor Ledger Entry and verify that "Exported to Payment File" is false.
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Bill);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Exported to Payment File", false);
+        VendorLedgerEntry.FindFirst();
+        Assert.IsTrue(VendorLedgerEntry."Exported to Payment File" = false, ExportedToPaymentFileError);
     end;
 
     local procedure ApplyPaymentToSalesInvoice(DocumentNo: Code[20]; AmountToApply: Decimal)
@@ -498,6 +537,150 @@ codeunit 144013 "ERM Cartera Journal Posting"
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Bill);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         Assert.AreEqual(ExpectedBillCount, CustLedgerEntry.Count, WrongNoOfCustLedgEntryErr);
+    end;
+
+    local procedure CreateVendorWithPreferredBankAccount(var PreferredBankAccountCode: Code[20]): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        PreferredBankAccountCode := CreateVendorBankAccountNo(Vendor."No.");
+        Vendor.Validate("Preferred Bank Account Code", PreferredBankAccountCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
+    end;
+
+    local procedure CreateVendorBankAccountNo(VendorNo: Code[20]): Code[20]
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
+        VendorBankAccount.IBAN := LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo(IBAN), Database::"Vendor Bank Account");
+        VendorBankAccount.Modify(true);
+        exit(VendorBankAccount.Code);
+    end;
+
+    local procedure CreateGenJournalLineWithExportPaymentsToFile(VendorNo: Code[20]; VendorPreferredBankAccountCode: Code[20]; Amount: Decimal; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        LibraryCarteraPayables.CreateBankAccount(BankAccount, '');
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Payments);
+        GenJournalTemplate.Modify(true);
+
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Validate("Recipient Bank Account", VendorPreferredBankAccountCode);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Bill);
+        GenJournalLine.Validate("Applies-to Doc. No.", VendorLedgerEntry."Document No.");
+        GenJournalLine.Validate("Applies-to Bill No.", VendorLedgerEntry."Bill No.");
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccount(FindSEPACTExportFormat()));
+        GenJournalLine.Modify(true);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+
+        PaymentJournal.OpenEdit();
+        PaymentJournal.GotoRecord(GenJournalLine);
+        PaymentJournal.ExportPaymentsToFile.Invoke();
+        PaymentJournal.Close();
+    end;
+
+    local procedure FindSEPACTExportFormat(): Code[20]
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+    begin
+        BankExportImportSetup.SetRange("Processing Codeunit ID", CODEUNIT::"SEPA CT-Export File");
+        BankExportImportSetup.FindFirst();
+        exit(BankExportImportSetup.Code);
+    end;
+
+    local procedure CreateBankAccount(PaymentExportFormat: Code[20]): Code[20]
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        LibraryCarteraPayables.CreateBankAccount(BankAccount, ''); // blank currency code
+        BankAccount.IBAN := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(IBAN), DATABASE::"Bank Account");
+        BankAccount."SWIFT Code" := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("SWIFT Code"), DATABASE::"Bank Account");
+        BankAccount.Validate("Payment Export Format", PaymentExportFormat);
+        BankAccount.Validate("Credit Transfer Msg. Nos.", CreateNoSeries());
+        BankAccount.Validate("E-Pay Export File Path", '');
+        BankAccount.Validate("Last E-Pay Export File Name", 'ABC001.txt');
+        BankAccount.Validate("Last Remittance Advice No.", '1');
+        BankAccount.Modify(true);
+        exit(BankAccount."No.");
+    end;
+
+    local procedure CreateNoSeries(): Code[20]
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', ''); // numbering is not important
+        exit(NoSeries.Code);
+    end;
+
+    local procedure CreateAndPostMultipleCarteraJournalLines(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GLAccount: Record "G/L Account";
+        DocumentNo: Code[20];
+    begin
+        // Create Multiple General Journal Line.
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Cartera);
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        GenJournalBatch.SetRange("Template Type", GenJournalBatch."Template Type"::Cartera);
+        LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateGeneralJournalLineWithBalancingAccount(
+            GenJournalLine, GenJournalBatch, DocumentNo, GenJournalLine."Document Type"::Invoice, AccountType,
+            AccountNo, FindPaymentMethod(false, true), -Amount, '', GLAccount."No.");
+        CreateGeneralJournalLineWithBalancingAccount(
+            GenJournalLine, GenJournalBatch, DocumentNo, GenJournalLine."Document Type"::Bill, AccountType,
+            AccountNo, FindPaymentMethod(true, false), -Amount / 2, '1', GLAccount."No.");
+        CreateGeneralJournalLineWithBalancingAccount(
+            GenJournalLine, GenJournalBatch, DocumentNo, GenJournalLine."Document Type"::Bill, AccountType,
+            AccountNo, FindPaymentMethod(true, false), -Amount / 2, '2', GLAccount."No.");
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateGeneralJournalLineWithBalancingAccount(
+        var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; var DocumentNo: Code[20];
+        DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type";
+        AccountNo: Code[20]; PaymentMethodCode: Code[10]; Amount: Decimal; BillNo: Code[20]; BalancingAccountNo: Code[20])
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          DocumentType, AccountType, AccountNo, Amount);
+        if DocumentNo = '' then
+            DocumentNo := GenJournalLine."Document No."
+        else begin
+            GenJournalLine.Validate("Document No.", DocumentNo);
+            GenJournalLine.validate("External Document No.", DocumentNo);
+        end;
+        GenJournalLine.Validate("Payment Method Code", PaymentMethodCode);
+        GenJournalLine.Validate("Bill No.", BillNo);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", BalancingAccountNo);
+        GenJournalLine.Modify(true);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure TemplateSelectHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 }
 

@@ -27,7 +27,9 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         PostRestrictionErr: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Sales Header 10000 for this action.';
         RecordIsRestrictedErr: Label 'You cannot use %1 for this action.', Comment = '%1=Record Id';
         ApprovalShouldBeHandledErr: Label 'The approval process must be cancelled or completed to reopen this document.';
+        InvoiceDiscExpectedErr: Label 'Validation error for THE Field: Invoice Disc. Pct., Message = Status must be equal to Open in Sales Header: Document Type=Invoice, No.=%1. Current value is Pending Approval';
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        WorkflowSetup: Codeunit "Workflow Setup";
         IsInitialized: Boolean;
 
     [Test]
@@ -869,6 +871,64 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         Assert.RecordIsEmpty(RestrictedRecord);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CheckSalesInvoiceDiscountFieldDisableifSalesInvoiceWorkflowIsEnabled()
+    var
+        ApprovalEntry: Record "Approval Entry";
+        ApproverUserSetup: Record "User Setup";
+        CurrentUserSetup: Record "User Setup";
+        SalesHeader: Record "Sales Header";
+        Workflow: Record Workflow;
+        SalesInvoicePage: TestPage "Sales Invoice";
+        ErrorText: Text;
+    begin
+        // [SCENARIO 578451] Invoice Discount can be modified without restrictions after sending the 
+        // approval request and with Pending Approval status in the document.
+        Initialize();
+
+        // [GIVEN] Create User Setup.
+        CreateUserSetupWithAdminApproval();
+
+        // [GIVEN] Sales Invoice Approval Workflow that has Approver code as the approver and Direct Approver as the limit type.
+        clear(WorkflowSetup);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
+        LibraryWorkflow.SetWorkflowChainApprover(Workflow.Code);
+        LibraryWorkflow.EnableWorkflow(Workflow);
+
+        // [GIVEN] Setup - Create 2 usersetups
+        LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId());
+        LibraryDocumentApprovals.CreateMockupUserSetup(ApproverUserSetup);
+
+        // [GIVEN] Setup - Direct approver
+        LibraryDocumentApprovals.SetApprover(CurrentUserSetup, ApproverUserSetup);
+
+        // [GIVEN] Setup - Create Sales invoice
+        CreateSalesInvWithLine(SalesHeader, LibraryRandom.RandInt(5000));
+
+        // [WHEN] Sales Invoice is sent for approval.
+        SendSalesInvoiceForApproval(SalesHeader);
+
+        // [WHEN] Verify - Sales invoice status is set to Pending Approval
+        VerifySalesInvIsPendingApproval(SalesHeader);
+
+        // [THEN] Approval Request is created for the Approver.
+        GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
+        Assert.AreEqual(1, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
+
+        // [THEN] Verify Approval Entry is Open, Verify Approval Entry SenderID, Verify Approval Entry ApproverID.
+        VerifyApprovalEntryIsOpen(ApprovalEntry);
+        VerifyApprovalEntrySenderID(ApprovalEntry, CurrentUserSetup."User ID");
+        VerifyApprovalEntryApproverID(ApprovalEntry, ApproverUserSetup."User ID");
+
+        // [THEN] Verify ExpectedError.
+        SalesInvoicePage.OpenEdit();
+        SalesInvoicePage.FILTER.SetFilter("No.", SalesHeader."No.");
+        asserterror SalesInvoicePage.SalesLines."Invoice Disc. Pct.".Value(Format(10));
+        ErrorText := GetLastErrorText();
+        assert.Equal(StrSubstNo(InvoiceDiscExpectedErr, SalesHeader."No."), ErrorText);
+    end;
+
     local procedure Initialize()
     var
         UserSetup: Record "User Setup";
@@ -1130,6 +1190,28 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         SalesInvoiceList.GotoRecord(SalesHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, SalesInvoiceList.CancelApprovalRequest.Enabled(), 'Wrong state for the Cancel action');
         SalesInvoiceList.Close();
+    end;
+
+    local procedure GetApprovalEntries(var ApprovalEntry: Record "Approval Entry"; RecordID: RecordID)
+    begin
+        ApprovalEntry.SetRange("Record ID to Approve", RecordID);
+        ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
+        ApprovalEntry.FindSet();
+    end;
+
+    local procedure CreateUserSetupWithAdminApproval()
+    var
+        UserSetup: Record "User Setup";
+    begin
+        if Not UserSetup.Get(UserId()) then
+            LibraryDocumentApprovals.CreateUserSetupWithEmail(UserSetup, CopyStr(UserId(), 1, 50), '', CopyStr(RandomEmail(), 1, MaxStrLen(UserSetup."E-Mail")));
+        UserSetup."Approval Administrator" := true;
+        UserSetup.Modify(true);
+    end;
+
+    local procedure RandomEmail(): Text[250]
+    begin
+        exit(StrSubstNo('%1@contoso.com', CreateGuid()));
     end;
 
     [MessageHandler]

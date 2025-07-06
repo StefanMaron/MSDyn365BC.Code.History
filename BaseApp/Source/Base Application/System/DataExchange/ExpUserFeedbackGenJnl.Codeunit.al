@@ -81,6 +81,9 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
             if GenJnlLine."Applies-to ID" <> '' then
                 VendLedgerEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
 
+            if GenJnlLine."Applies-to Bill No." <> '' then
+                VendLedgerEntry.SetRange("Bill No.", GenJnlLine."Applies-to Bill No.");
+
             if VendLedgerEntry.FindSet() then
                 repeat
                     VendLedgerEntry.Validate("Exported to Payment File", Flag);

@@ -371,6 +371,7 @@ codeunit 414 "Release Sales Document"
     begin
         PreviewMode := Preview;
         SalesHeader.Copy(SalesHdr);
+        OnReleaseSalesHeaderOnAfterCopySalesHeader(SalesHdr, SalesHeader);
         LinesWereModified := Code();
         SalesHdr := SalesHeader;
     end;
@@ -581,6 +582,11 @@ codeunit 414 "Release Sales Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterCopy(var SalesHeader: Record "Sales Header"; var SalesHeaderCopy: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReleaseSalesHeaderOnAfterCopySalesHeader(var SalesHeader: Record "Sales Header"; var SalesHeaderCopy: Record "Sales Header")
     begin
     end;
 }

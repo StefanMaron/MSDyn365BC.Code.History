@@ -1490,6 +1490,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Unapply - NamedType UnapplyBlankedDocTypeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4164090883 - NamedType 2176669094" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Vendor Ledger Entry should not be exported to Payment File.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cartera Journal Posting - NamedType ExportedToPaymentFileError)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4164090883 - NamedType 3148959106" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Value Must Be Equal.]]></Val>

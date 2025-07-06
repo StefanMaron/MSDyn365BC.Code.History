@@ -440,6 +440,8 @@ table 5902 "Service Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 CheckQtyToShipPositive();
 
@@ -470,12 +472,15 @@ table 5902 "Service Line"
                         Validate("Qty. to Consume", 0);
                 end;
 
-                OnValidateQtyToShipOnBeforeQtyToShipCheck(Rec);
-                if not CanShipQty() then
-                    Error(Text016, "Outstanding Quantity");
+                IsHandled := false;
+                OnValidateQtyToShipOnBeforeQtyToShipCheck(Rec, xRec, CurrFieldNo, IsHandled);
+                if not IsHandled then begin
+                    if not CanShipQty() then
+                        Error(Text016, "Outstanding Quantity");
 
-                if not CanShipBaseQty() then
-                    Error(Text017, "Outstanding Qty. (Base)");
+                    if not CanShipBaseQty() then
+                        Error(Text017, "Outstanding Qty. (Base)");
+                end;
             end;
         }
         field(22; "Unit Price"; Decimal)
@@ -4455,6 +4460,9 @@ table 5902 "Service Line"
             "Qty. Shipped Not Invoiced" := "Quantity Shipped" - "Quantity Invoiced" - "Quantity Consumed";
             "Qty. Shipped Not Invd. (Base)" := "Qty. Shipped (Base)" - "Qty. Invoiced (Base)" - "Qty. Consumed (Base)";
         end;
+
+        OnInitOutstandingOnAfterInitOutstandingQuantity(Rec);
+
         CalcFields("Reserved Quantity");
         Planned := "Reserved Quantity" = "Outstanding Quantity";
         "Completely Shipped" := (Quantity <> 0) and ("Outstanding Quantity" = 0);
@@ -7258,7 +7266,7 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateQtyToShipOnBeforeQtyToShipCheck(var ServiceLine: Record "Service Line")
+    local procedure OnValidateQtyToShipOnBeforeQtyToShipCheck(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -7454,6 +7462,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeUpdateVATAmountLine(var ServiceLine: Record "Service Line"; var VATAmountLine: Record "VAT Amount Line"; var TotalVATAmount: Decimal; Currency: Record Currency; var RoundingLineInserted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitOutstandingOnAfterInitOutstandingQuantity(var ServiceLine: Record "Service Line")
     begin
     end;
 }

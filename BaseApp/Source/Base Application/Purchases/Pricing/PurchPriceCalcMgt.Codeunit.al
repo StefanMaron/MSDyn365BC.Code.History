@@ -299,7 +299,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcBestDirectUnitCost(PurchPrice, BestPurchPrice, BestPurchPriceFound, IsHandled);
+        OnBeforeCalcBestDirectUnitCost(PurchPrice, BestPurchPrice, BestPurchPriceFound, IsHandled, SKU, Item);
         if IsHandled then
             exit;
 
@@ -989,7 +989,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcBestDirectUnitCost(var PurchPrice: Record "Purchase Price"; var BestPurchPrice: Record "Purchase Price"; var BestPurchPriceFound: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCalcBestDirectUnitCost(var PurchPrice: Record "Purchase Price"; var BestPurchPrice: Record "Purchase Price"; var BestPurchPriceFound: Boolean; var IsHandled: Boolean; var StockkeepingUnit: Record "Stockkeeping Unit"; var Item: Record Item)
     begin
     end;
 

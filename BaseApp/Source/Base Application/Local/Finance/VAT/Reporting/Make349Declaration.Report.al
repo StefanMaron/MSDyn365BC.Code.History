@@ -165,7 +165,14 @@ report 10710 "Make 349 Declaration"
             end;
 
             trigger OnPostDataItem()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnVendorWarningsOnBeforeOnPostDataItem(CustVendWarning349, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if CustVendWarning349.FindFirst() then
                     if not Confirm(Text1100008, false) then
                         Message(Text1100009)
@@ -1982,6 +1989,11 @@ report 10710 "Make 349 Declaration"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIncludeIn349(VATEntry: Record "VAT Entry"; var SkipEntry: Boolean; var AmountIn349: Decimal; var LocationDifferentCountryCode: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVendorWarningsOnBeforeOnPostDataItem(var CustVendWarning349: Record "Customer/Vendor Warning 349"; var IsHandled: Boolean)
     begin
     end;
 }

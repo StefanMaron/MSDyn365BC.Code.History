@@ -299,9 +299,9 @@ report 10715 "Telematic VAT Declaration"
                         VATEntry.SetRange(Type, VATStatementLine2."Gen. Posting Type");
                         if "VAT Declaration Line".GetFilter("Date Filter") <> '' then
                             if PeriodSelected = PeriodSelected::"Before and Within Period" then
-                                VATEntry.SetRange("Posting Date", 0D, "VAT Declaration Line".GetRangeMax("Date Filter"))
+                                VATEntry.SetRange("VAT Reporting Date", 0D, "VAT Declaration Line".GetRangeMax("Date Filter"))
                             else
-                                "VAT Declaration Line".CopyFilter("Date Filter", VATEntry."Posting Date");
+                                "VAT Declaration Line".CopyFilter("Date Filter", VATEntry."VAT Reporting Date");
                         SetSelectionFilterOnVATEntry(VATEntry, Selection);
                         if VATEntry.FindFirst() then;
                     end;

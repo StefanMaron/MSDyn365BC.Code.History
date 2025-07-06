@@ -465,7 +465,10 @@ codeunit 5407 "Prod. Order Status Management"
 
     local procedure MakeMultiLevelAdjmt(ProdOrder: Record "Production Order")
     var
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        ItemLedgerEntry: Record "Item Ledger Entry";
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+        ItemsToAdjust: List of [Code[20]];
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -473,9 +476,20 @@ codeunit 5407 "Prod. Order Status Management"
         if IsHandled then
             exit;
 
-        InventorySetup.Get();
-        if InventorySetup.AutomaticCostAdjmtRequired() then
-            InvtAdjmtHandler.MakeInventoryAdjustment(true, InventorySetup."Automatic Cost Posting");
+        ItemLedgerEntry.ReadIsolation := IsolationLevel::ReadUncommitted;
+        ItemLedgerEntry.SetCurrentKey("Order Type", "Order No.");
+        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
+        ItemLedgerEntry.SetRange("Order No.", ProdOrder."No.");
+        ItemLedgerEntry.SetLoadFields("Item No.");
+        if ItemLedgerEntry.FindSet() then
+            repeat
+                if not ItemsToAdjust.Contains(ItemLedgerEntry."Item No.") then
+                    ItemsToAdjust.Add(ItemLedgerEntry."Item No.");
+            until ItemLedgerEntry.Next() = 0;
+
+        InventoryAdjmtEntryOrder.SetRange("Order Type", InventoryAdjmtEntryOrder."Order Type"::Production);
+        InventoryAdjmtEntryOrder.SetRange("Order No.", ProdOrder."No.");
+        InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust, InventoryAdjmtEntryOrder);
     end;
 
     procedure TransProdOrder(var FromProdOrder: Record "Production Order")
@@ -1012,7 +1026,11 @@ codeunit 5407 "Prod. Order Status Management"
                 if NewStatus = NewStatus::Released then
                     QtyToPost := ProdOrderComp.GetNeededQty(1, false)
                 else begin
-                    QtyToPost := ProdOrderComp.GetNeededQty(0, false);
+                    if ProdOrder.Reopened then
+                        QtyToPost := ProdOrderComp.GetNeededQty(0, true)
+                    else
+                        QtyToPost := ProdOrderComp.GetNeededQty(0, false);
+
                     if SuppliedByProdOrderLine.Get(ProdOrderComp.Status, ProdOrderComp."Prod. Order No.", ProdOrderComp."Supplied-by Line No.") and
                        (SuppliedByProdOrderLine."Remaining Quantity" = 0) and
                        (SuppliedByProdOrderLine.Quantity = SuppliedByProdOrderLine."Finished Quantity")
