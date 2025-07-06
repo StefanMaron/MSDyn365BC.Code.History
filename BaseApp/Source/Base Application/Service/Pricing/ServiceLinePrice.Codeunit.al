@@ -257,9 +257,9 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
                 end;
             AmountType::Discount:
                 case ServiceLine.Type of
-                    ServiceLine.Type::Item, ServiceLine.Type::Resource:
+                    ServiceLine.Type::Item, ServiceLine.Type::Resource, ServiceLine.Type::Cost:
                         ServiceLine."Line Discount %" := PriceListLine."Line Discount %";
-                    ServiceLine.Type::Cost, ServiceLine.Type::"G/L Account":
+                    ServiceLine.Type::"G/L Account":
                         begin
                             ServiceLine."Line Discount %" := 0;
                             ServiceLine."Line Discount Amount" := 0;

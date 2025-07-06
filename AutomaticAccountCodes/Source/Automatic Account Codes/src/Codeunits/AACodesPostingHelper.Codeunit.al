@@ -71,12 +71,14 @@ codeunit 4850 "AA Codes Posting Helper"
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         NoOfAutoAccounts: Decimal;
         TotalAmount: Decimal;
+        TotalAltAmountLCY: Decimal;
         SourceCurrBaseAmount: Decimal;
         AccLine: Integer;
     begin
         GLSetup.Get();
         GenJnlLine.TestField("Account Type", GenJnlLine."Account Type"::"G/L Account");
         Clear(TotalAmount);
+        Clear(TotalAltAmountLCY);
         AccLine := 0;
         TotalAmount := 0;
         AutoAccHeader.Get(GenJnlLine."Automatic Account Group");
@@ -115,8 +117,11 @@ codeunit 4850 "AA Codes Posting Helper"
                 CopyDimensionFromAutoAccLine(GenJnlLine2, AutomaticAccountLine);
                 AccLine := AccLine + 1;
                 TotalAmount := TotalAmount + GenJnlLine2.Amount;
+                TotalAltAmountLCY := TotalAltAmountLCY + GenJnlLine2."Amount (LCY)";
                 if (AccLine = NoOfAutoAccounts) and (TotalAmount <> 0) then
                     GenJnlLine2.Validate(Amount, GenJnlLine2.Amount - TotalAmount);
+                if (AccLine = NoOfAutoAccounts) and (TotalAltAmountLCY <> 0) and (TotalAmount = 0) then
+                    GenJnlLine2.Validate("Amount (LCY)", GenJnlLine2."Amount (LCY)" - TotalAltAmountLCY);
 
                 GenJnlCheckLine.RunCheck(GenJnlLine2);
 

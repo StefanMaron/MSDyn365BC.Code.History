@@ -6,9 +6,7 @@ page 37094 "PBI Work Center Statistics"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = Manufacturing;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Work Center Statistics';
     AboutTitle = 'About Work Center Statistics';
     AboutText = 'View your work center statistics and explore detailed metrics on total and effective capacity, expected and actual efficiency, actual need, cost, and allocated time.';

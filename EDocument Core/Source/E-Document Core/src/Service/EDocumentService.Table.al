@@ -299,6 +299,17 @@ table 6103 "E-Document Service"
             ToolTip = 'Specifies whether you want to automatically create a PDF based on Report Selection, as a background process, and embed it into the E-Document export file when posting the document.';
             DataClassification = SystemMetadata;
         }
+
+        #region [60-80] are reserved for purchase draft document settings.
+        field(60; "Verify Purch. Total Amounts"; Boolean)
+        {
+            Caption = 'Verify purchase invoice total amounts';
+            ToolTip = 'Specifies whether the document totals of the purchase document should be verified.';
+            InitValue = true;
+            DataClassification = SystemMetadata;
+        }
+        #endregion [60-80] are reserved for purchase draft document settings.
+
     }
     keys
     {
@@ -324,6 +335,7 @@ table 6103 "E-Document Service"
         EDocBackgroundJobs.RemoveJob(Rec."Import Recurrent Job Id");
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"E-Document Service", 'I')]
     internal procedure GetPDFReaderService()
     begin
         if Rec.Get(AzureDocumentIntelligenceTok) then
@@ -334,6 +346,7 @@ table 6103 "E-Document Service"
         Rec."Import Process" := "Import Process"::"Version 2.0";
         Rec.Description := AzureDocumentIntelligenceServiceTxt;
         Rec."Automatic Import Processing" := "E-Doc. Automatic Processing"::No;
+        Rec."Verify Purch. Total Amounts" := true;
         Rec.Insert(true);
     end;
 
@@ -365,7 +378,12 @@ table 6103 "E-Document Service"
             EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft";
             EDocImportParameters."Create Document V1 Behavior" := IsAutomaticProcessingEnabled();
         end else
-            EDocImportParameters."Step to Run" := IsAutomaticProcessingEnabled() ? "Import E-Document Steps"::"Finish draft" : "Import E-Document Steps"::"Prepare draft";
+            if IsAutomaticProcessingEnabled() then
+                EDocImportParameters."Step to Run" := "Import E-Document Steps"::"Finish draft"
+            else begin
+                EDocImportParameters."Step to Run / Desired Status" := EDocImportParameters."Step to Run / Desired Status"::"Desired E-Document Status";
+                EDocImportParameters."Desired E-Document Status" := EDocImportParameters."Desired E-Document Status"::Unprocessed;
+            end;
     end;
 
     internal procedure ToString(): Text

@@ -693,17 +693,19 @@ codeunit 7017 "Price List Management"
                 else
                     PriceListLine.SetRange("Variant Code");
                 OnBuildAssetFiltersOnBeforeFindLines(PriceListLine, PriceAsset);
-                if PriceListLine.FindSet() then begin
+                if not PriceListLine.IsEmpty() then begin
                     if SearchIfPriceExists then begin
                         ClearAssetFilters(PriceListLine);
                         PriceListLine.SetLoadFields();
                         PriceIsFound := true;
                         exit;
-                    end else
-                        if not MarkingIsUsed then begin
-                            PriceListLine.SetLoadFields();
-                            exit;
-                        end;
+                    end;
+
+                    PriceListLine.FindSet();
+                    if not MarkingIsUsed then begin
+                        PriceListLine.SetLoadFields();
+                        exit;
+                    end;
                     repeat
                         PriceListLine.Mark(true);
                     until PriceListLine.Next() = 0;
