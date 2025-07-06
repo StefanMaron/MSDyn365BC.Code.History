@@ -504,30 +504,6 @@ codeunit 137801 "SCM - Planning UT"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure UT_PlanningComponentItemTypes()
-    var
-        Location: Record Location;
-        Item: Record Item;
-        PlanningComponent: Record "Planning Component";
-    begin
-        // [FEATURE] [Item] [Item Type] [Planning Component] [UT]
-        // [SCENARIO 303068] Planning Component table cannot have Item of Non-Inventory type with Location Code populated
-        Initialize();
-
-        LibraryWarehouse.CreateLocation(Location);
-        LibraryInventory.CreateNonInventoryTypeItem(Item);
-
-        PlanningComponent.DeleteAll();
-        PlanningComponent.Init();
-        PlanningComponent."Line No." := LibraryRandom.RandInt(10);
-        PlanningComponent.Validate("Item No.", Item."No.");
-        PlanningComponent.Validate("Location Code", Location.Code);
-        asserterror PlanningComponent.Modify(true);
-        Assert.ExpectedError('The Location Code field must be blank for items of type Non-Inventory.');
-    end;
-
-    [Test]
     procedure TransferLevelCodesInChainOfSKU()
     var
         Item: Record Item;

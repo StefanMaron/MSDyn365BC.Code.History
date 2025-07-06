@@ -18,6 +18,7 @@ codeunit 136503 "RES Time Sheets Creation"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryERM: Codeunit "Library - ERM";
         Text001Err: Label 'Rolling back changes...';
         NonExistentUserErr: Label 'NON EXISTENT USER ID';
         ErrorGeneratedIncorrectErr: Label 'Incorrect Error Message';
@@ -871,6 +872,8 @@ codeunit 136503 "RES Time Sheets Creation"
         ResJournalTemplate.SetRange(Recurring, false);
         LibraryResource.FindResJournalTemplate(ResJournalTemplate);
         LibraryResource.FindResJournalBatch(ResJournalBatch, ResJournalTemplate.Name);
+        ResJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
+        ResJournalBatch.Modify(true);
     end;
 
     local procedure SetupTSResourceUserID(var Resource: Record Resource; UserSetup: Record "User Setup")

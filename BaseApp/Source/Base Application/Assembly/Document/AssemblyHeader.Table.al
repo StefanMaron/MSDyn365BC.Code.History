@@ -1223,12 +1223,14 @@ table 900 "Assembly Header"
         OnAfterShowDimensions(Rec);
     end;
 
+#if not CLEAN27
+    [Obsolete('the statistics action is refactored to use the RunObject property', '27.0')]
     procedure ShowStatistics()
     begin
         TestField("Item No.");
         PAGE.Run(PAGE::"Assembly Order Statistics", Rec);
     end;
-
+#endif
     procedure UpdateUnitCost()
     var
         CalculateAssemblyCost: Codeunit "Calculate Assembly Cost";

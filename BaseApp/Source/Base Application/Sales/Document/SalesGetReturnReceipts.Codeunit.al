@@ -72,7 +72,7 @@ codeunit 6638 "Sales-Get Return Receipts"
             repeat
                 if ReturnRcptHeader."No." <> ReturnRcptLine2."Document No." then begin
                     ReturnRcptHeader.Get(ReturnRcptLine2."Document No.");
-                    ReturnRcptHeader.TestField("Bill-to Customer No.", ReturnRcptLine2."Bill-to Customer No.");
+                    CheckReturnReceiptBillToCustomerNo(ReturnRcptHeader, SalesHeader, ReturnRcptLine2);
                     DifferentCurrencies := false;
                     if ReturnRcptHeader."Currency Code" <> SalesHeader."Currency Code" then begin
                         Message(Text001,
@@ -115,6 +115,18 @@ codeunit 6638 "Sales-Get Return Receipts"
     begin
         SalesHeader.Get(SalesHeader2."Document Type", SalesHeader2."No.");
         SalesHeader.TestField("Document Type", SalesHeader."Document Type"::"Credit Memo");
+    end;
+
+    local procedure CheckReturnReceiptBillToCustomerNo(ReturnReceiptHeader: Record "Return Receipt Header"; SalesHeader2: Record "Sales Header"; ReturnReceiptLine: Record "Return Receipt Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckReturnReceiptBillToCustomerNo(ReturnReceiptHeader, SalesHeader2, ReturnReceiptLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReturnReceiptHeader.TestField("Bill-to Customer No.", ReturnReceiptLine."Bill-to Customer No.");
     end;
 
     procedure GetItemChargeAssgnt(var ReturnRcptLine: Record "Return Receipt Line"; QtyToInv: Decimal)
@@ -268,6 +280,11 @@ codeunit 6638 "Sales-Get Return Receipts"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInvLinesOnBeforeLoopReturnRcptLines(var ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line"; var ReturnReceiptHeader: Record "Return Receipt Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckReturnReceiptBillToCustomerNo(ReturnReceiptHeader: Record "Return Receipt Header"; SalesHeader: Record "Sales Header"; var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1592,6 +1592,8 @@ table 5741 "Transfer Line"
             exit;
 
         TestField("Item No.");
+        Item.Get("Item No.");
+        Item.TestField(Reserve);
         Clear(Reservation);
         OptionNumber := StrMenu(Text011);
         if OptionNumber > 0 then begin

@@ -1333,9 +1333,14 @@ codeunit 7322 "Create Inventory Pick/Movement"
             CurrBin.Get(LocationCode, BinCode)
     end;
 
-    local procedure GetShelfNo(ItemNo: Code[20]): Code[10]
+    local procedure GetShelfNo(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]): Code[10]
+    var
+        StockkeepingUnit: Record "Stockkeeping Unit";
     begin
         GetItem(ItemNo);
+        StockkeepingUnit.SetLoadFields("Shelf No.");
+        if StockkeepingUnit.Get(LocationCode, ItemNo, VariantCode) then
+            exit(StockkeepingUnit."Shelf No.");
         exit(CurrItem."Shelf No.");
     end;
 
@@ -2159,7 +2164,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
             end;
             NewWarehouseActivityLine."Special Equipment Code" := GetSpecEquipmentCode(NewWarehouseActivityLine."Item No.", NewWarehouseActivityLine."Variant Code", NewWarehouseActivityLine."Location Code", TakeBinCode);
         end else
-            NewWarehouseActivityLine."Shelf No." := GetShelfNo(NewWarehouseActivityLine."Item No.");
+            NewWarehouseActivityLine."Shelf No." := GetShelfNo(NewWarehouseActivityLine."Item No.", NewWarehouseActivityLine."Variant Code", NewWarehouseActivityLine."Location Code");
         NewWarehouseActivityLine."Qty. to Handle" := 0;
         NewWarehouseActivityLine."Qty. to Handle (Base)" := 0;
         NewWarehouseActivityLine."Qty. Rounding Precision" := 0;
