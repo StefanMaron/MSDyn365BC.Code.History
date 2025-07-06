@@ -559,6 +559,7 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure VerifySustainabilityLedgerEntryShouldBeKnockedOffWhenCorrectiveCreditMemoIsPosted()
     var
         SustainabilityLedgerEntry: Record "Sustainability Ledger Entry";
@@ -1100,7 +1101,7 @@ codeunit 148184 "Sustainability Posting Test"
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
-    [HandlerFunctions('PurchaseInvoiceStatisticsPageHandler')]
+    [HandlerFunctions('PurchaseInvoiceStatisticsPageHandler,ConfirmHandler')]
     procedure VerifySustainabilityFieldsInPurchaseCrMemoStatistics()
     var
         SustainabilityAccount: Record "Sustainability Account";
@@ -1180,7 +1181,7 @@ codeunit 148184 "Sustainability Posting Test"
 #endif
 
     [Test]
-    [HandlerFunctions('PurchInvoiceStatisticsPageHandler')]
+    [HandlerFunctions('PurchInvoiceStatisticsPageHandler,ConfirmHandler')]
     procedure VerifySustainabilityFieldsInPurchCrMemoStatistics()
     var
         SustainabilityAccount: Record "Sustainability Account";
@@ -1371,7 +1372,7 @@ codeunit 148184 "Sustainability Posting Test"
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the PurchaseStatistics action. The new action uses RunObject and does not run the action trigger', '26.0')]
     [Test]
-    [HandlerFunctions('PurchaseInvoiceStatisticsPageHandler')]
+    [HandlerFunctions('PurchaseInvoiceStatisticsPageHandler,ConfirmHandler')]
     procedure VerifySustainabilityFieldsInPurchaseCrMemoSubFormPage()
     var
         SustainabilityAccount: Record "Sustainability Account";
@@ -1462,7 +1463,7 @@ codeunit 148184 "Sustainability Posting Test"
 #endif
 
     [Test]
-    [HandlerFunctions('PurchInvoiceStatisticsPageHandler')]
+    [HandlerFunctions('PurchInvoiceStatisticsPageHandler,ConfirmHandler')]
     procedure VerifySustainabilityFieldsInPurchCrMemoSubFormPage()
     var
         SustainabilityAccount: Record "Sustainability Account";
@@ -2484,6 +2485,7 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure VerifySustainabilityLedgerEntryShouldBeKnockedOffWhenCorrectiveSalesCreditMemoIsPosted()
     var
         SustainabilityLedgerEntry: Record "Sustainability Ledger Entry";
@@ -2937,7 +2939,7 @@ codeunit 148184 "Sustainability Posting Test"
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [Test]
-    [HandlerFunctions('SalesInvoiceStatisticsPageHandler')]
+    [HandlerFunctions('SalesInvoiceStatisticsPageHandler,ConfirmHandler')]
     procedure VerifySustainabilityFieldsInSalesCrMemoStatistics()
     var
         SustainabilityAccount: Record "Sustainability Account";
@@ -3007,7 +3009,7 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 #endif
     [Test]
-    [HandlerFunctions('SalesInvoiceSalesStatisticsPageHandler')]
+    [HandlerFunctions('SalesInvoiceSalesStatisticsPageHandler,ConfirmHandler')]
     procedure VerifySustainabilityFieldsInSalesCrMemoSalesStatistics()
     var
         SustainabilityAccount: Record "Sustainability Account";
@@ -3183,7 +3185,7 @@ codeunit 148184 "Sustainability Posting Test"
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the SalesStatistics action. The new action uses RunObject and does not run the action trigger.', '26.0')]
     [Test]
-    [HandlerFunctions('SalesInvoiceStatisticsPageHandler')]
+    [HandlerFunctions('SalesInvoiceStatisticsPageHandler,ConfirmHandler')]
     procedure VerifySustainabilityFieldsInSalesCrMemoSubFormPage()
     var
         SustainabilityAccount: Record "Sustainability Account";
@@ -3259,7 +3261,7 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 #endif
     [Test]
-    [HandlerFunctions('SalesInvoiceSalesStatisticsPageHandler')]
+    [HandlerFunctions('SalesInvoiceSalesStatisticsPageHandler,ConfirmHandler')]
     procedure VerifySustainabilityFieldsInSalesCrMemoSubFormPageSalesStatistics()
     var
         SustainabilityAccount: Record "Sustainability Account";
@@ -4280,6 +4282,7 @@ codeunit 148184 "Sustainability Posting Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure VerifySustainabilityEntriesIfEnableValueChainTrackingIsFalseWhenPostPurchaseCrMemo()
     var
         PurchaseHeader: Record "Purchase Header";

@@ -2551,7 +2551,7 @@ table 8052 "Customer Subscription Contract"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateServicesDates(CustomerSubscriptionContract: Record "Customer Subscription Contract"; CustSubContractLine: Record "Cust. Sub. Contract Line")
+    local procedure OnBeforeUpdateServicesDates(CustomerSubscriptionContract: Record "Customer Subscription Contract"; var CustSubContractLine: Record "Cust. Sub. Contract Line")
     begin
     end;
 }

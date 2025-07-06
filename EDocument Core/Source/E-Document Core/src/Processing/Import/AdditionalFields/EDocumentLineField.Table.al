@@ -74,6 +74,13 @@ table 6110 "E-Document Line - Field"
             ToolTip = 'Specifies the custom integer value.';
             DataClassification = CustomerContent;
         }
+        field(10; "E-Document Service"; Code[20])
+        {
+            Caption = 'E-Document Service';
+            ToolTip = 'Specifies the E-Document Service that this field setup belongs to.';
+            FieldClass = FlowField;
+            CalcFormula = lookup("E-Document".Service where("Entry No" = field("E-Document Entry No.")));
+        }
     }
     keys
     {
@@ -93,7 +100,7 @@ table 6110 "E-Document Line - Field"
     /// <param name="EDocumentLineMapping">The draft line that will get its' value loaded</param>
     /// <param name="PurchaseLineFieldSetup:">The Purchase Invoice Line field that we want to load</param>
     /// <returns>The source that was used to load the values, Customized, Historic or Default</returns>
-    procedure Get(EDocumentPurchaseLine: Record "E-Document Purchase Line"; PurchaseLineFieldSetup: Record "EDoc. Purch. Line Field Setup") Source: Option Customized,Historic,Default
+    procedure Get(EDocumentPurchaseLine: Record "E-Document Purchase Line"; PurchaseLineFieldSetup: Record "ED Purchase Line Field Setup") Source: Option Customized,Historic,Default
     var
         EDocPurchaseLineHistory: Record "E-Doc. Purchase Line History";
         PurchaseInvoiceLineRecordRef: RecordRef;

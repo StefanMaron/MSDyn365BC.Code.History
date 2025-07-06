@@ -6,9 +6,7 @@ page 37106 "Project Timeline"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Project Timeline';
     AboutTitle = 'About Project Timeline';
     AboutText = 'The Project Timeline report monitors project timelines to ensure timely delivery, with insights into task durations, start and end dates, and critical paths.';
@@ -25,7 +23,7 @@ page 37106 "Project Timeline"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

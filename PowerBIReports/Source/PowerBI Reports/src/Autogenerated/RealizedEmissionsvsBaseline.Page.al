@@ -6,11 +6,9 @@ page 37086 "Realized Emissions vs Baseline"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
-    Caption = 'Realized Emissions vs Baseline';
-    AboutTitle = 'About Realized Emissions vs Baseline';
+    Caption = 'Realized Emissions vs. Baseline';
+    AboutTitle = 'About Realized Emissions vs. Baseline';
     AboutText = 'The Realized Emissions by Bassline report breaks down your carbon emissions and allows for comparison against a defined baseline period. This allows you to track your progress against the baseline and monitor trends against a previous period.';
 
     layout
@@ -25,7 +23,7 @@ page 37086 "Realized Emissions vs Baseline"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

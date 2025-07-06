@@ -503,6 +503,15 @@ codeunit 10 "Type Helper"
         exit(Value);
     end;
 
+    [NonDebuggable]
+    procedure UrlEncodeSecret(var Value: Text): Text
+    var
+        HttpUtility: DotNet HttpUtility;
+    begin
+        Value := HttpUtility.UrlEncode(Value);
+        exit(Value);
+    end;
+
     procedure UrlDecode(var Value: Text): Text
     var
         HttpUtility: DotNet HttpUtility;

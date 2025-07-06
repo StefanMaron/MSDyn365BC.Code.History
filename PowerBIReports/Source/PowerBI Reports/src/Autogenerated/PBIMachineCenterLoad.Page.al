@@ -6,9 +6,7 @@ page 37096 "PBI Machine Center Load"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = Manufacturing;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Machine Center Load';
     AboutTitle = 'About Machine Center Load';
     AboutText = 'View your machine center load and usage, including allocated time and availability for each machine center, helping you optimize resource allocation and improve operational efficiency.';
