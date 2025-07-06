@@ -1729,7 +1729,14 @@ table 5409 "Prod. Order Routing Line"
     end;
 
     local procedure ShowMessage(MessageText: Text)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowMessage(Rec, MessageText, IsHandled);
+        if IsHandled then
+            exit;
+
         TempErrorMessage.SetContext(Rec);
         if TempErrorMessage.FindRecord(RecordId, 0, TempErrorMessage."Message Type"::Warning, MessageText) = 0 then begin
             TempErrorMessage.LogMessage(Rec, 0, TempErrorMessage."Message Type"::Warning, MessageText);
@@ -2001,6 +2008,11 @@ table 5409 "Prod. Order Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWorkCenterTransferFields(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var SkipUpdateDescription: Boolean; xProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowMessage(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var MessageText: Text; var IsHandled: Boolean)
     begin
     end;
 }

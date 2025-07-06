@@ -230,6 +230,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Dimension Code, %2 = Customer no.]D;]A;(LookupHint=Codeunit ERM Auto Payment - NamedType DimensionCodeMissingErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3748939737 - NamedType 930329495" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The %1 field value is not equal to the expected value %2 in the %3 table.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Auto Payment - NamedType DocumentOccurrenceErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3748939737 - NamedType 1473052445" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The lines of G/L Book Entry is not correct after Reverse.]]></Val>
@@ -2442,6 +2451,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value , %3 = Table Caption]D;]A;(LookupHint=Codeunit IT - Calc. And Post VAT Settl. - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3213551793 - Method 4095615755 - NamedType 3651045205" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Before using Per Activity Code Settlement Entry, you must split the previous entries amounts per activity code manually using "Split Periodic Entry" action on Periodic VAT Settlemnt List page.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - Calc. And Post VAT Settl. - Method MultipleActivityCodes_PreviousPeriodEntryExists_SplitError - NamedType ExpectedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2709192724 - NamedType 2916310800" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

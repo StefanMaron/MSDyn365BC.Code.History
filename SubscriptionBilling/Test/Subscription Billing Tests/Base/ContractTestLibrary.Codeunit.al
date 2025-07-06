@@ -28,8 +28,6 @@ using Microsoft.Foundation.AuditCodes;
 
 codeunit 139685 "Contract Test Library"
 {
-    Access = Internal;
-
     var
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
@@ -527,6 +525,13 @@ codeunit 139685 "Contract Test Library"
         ServiceCommitmentPackage.Code := ServiceCommitmentPackageCode;
         ServiceCommitmentPackage.Description := ServiceCommitmentPackageCode;
         ServiceCommitmentPackage.Insert(true)
+    end;
+
+    procedure CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplateCode: Code[20]; var ServiceCommitmentPackage: Record "Subscription Package")
+    var
+        ServiceCommPackageLine: Record "Subscription Package Line";
+    begin
+        CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplateCode, ServiceCommitmentPackage, ServiceCommPackageLine);
     end;
 
     procedure CreateServiceCommitmentPackageWithLine(ServiceCommitmentTemplateCode: Code[20]; var ServiceCommitmentPackage: Record "Subscription Package"; var ServiceCommPackageLine: Record "Subscription Package Line")

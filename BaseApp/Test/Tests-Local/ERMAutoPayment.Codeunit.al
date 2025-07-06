@@ -129,6 +129,7 @@ codeunit 144050 "ERM Auto Payment"
         DimensionCodeMissingErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.', Comment = '%1 = Dimension Code, %2 = Customer no.';
         ContactNoSeriesErr: Label 'No. Series should be assigned from selected Series from Assist Edit.';
         AnalysisViewErr: Label 'Last Entry No. must be %1 in %2.', Comment = '%1= Field Value ,%2= Table Name.';
+        DocumentOccurrenceErr: Label 'The %1 field value is not equal to the expected value %2 in the %3 table.';
 
     [Test]
     [HandlerFunctions('BankSheetPrintRequestPageHandler')]
@@ -1486,6 +1487,56 @@ codeunit 144050 "ERM Auto Payment"
                 AnalysisView.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('ManualVendorPaymentLinePageHandlerForInvoice,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DocumentOccurrenceUpdatedForManual()
+    var
+        BillPostingGroup: Record "Bill Posting Group";
+        Vendor: Record Vendor;
+        VendorBillHeader: Record "Vendor Bill Header";
+        ManualDocumentNo: Code[20];
+        TotalAmount: Decimal;
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 580570] Document Occurrence is updated for manual vendor bill line
+        Initialize();
+
+        // [GIVEN] Create Bill Posting Group with Payment Method and Bank Account No.
+        CreateBillPostingGroupWithPmtMethodAndBill(BillPostingGroup);
+
+        // [GIVEN] Create Vendor 
+        VendorNo := CreateVendor(BillPostingGroup."Payment Method");
+        Vendor.Get(VendorNo);
+
+        // [GIVEN] Total Amount for Vendor Bill Line
+        TotalAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        // [GIVEN] Create Vendor Bill Header with Bill Posting Group and update Bank Account No. and Payment Method Code.
+        LibraryITLocalization.CreateVendorBillHeader(VendorBillHeader);
+        VendorBillHeader.Validate("Bank Account No.", BillPostingGroup."No.");
+        VendorBillHeader.Validate("Payment Method Code", BillPostingGroup."Payment Method");
+        VendorBillHeader.Modify(true);
+
+        // [GIVEN] Create Manual Document No. for Vendor Bill Line
+        ManualDocumentNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Insert two Vendor Bill Lines manually with same details.
+        LibraryVariableStorage.Enqueue(ManualDocumentNo);
+        InsertVendorBillLineManual(VendorNo, '', TotalAmount, VendorBillHeader."No.");
+        LibraryVariableStorage.Enqueue(ManualDocumentNo);
+        InsertVendorBillLineManual(VendorNo, '', TotalAmount, VendorBillHeader."No.");
+
+        // [WHEN] Issue Vendor Bill
+        LibraryITLocalization.IssueVendorBill(VendorBillHeader);
+
+        // [WHEN] Post Vendor Bill List
+        PostVendorBillList(VendorBillHeader."Vendor Bill List No.");
+
+        // [THEN] Verify Document Occurrence for Vendor Ledger Entry
+        VerifyDocumentOccurrenceVendorLedgerEntry(VendorNo, VendorBillHeader."Vendor Bill List No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2538,6 +2589,34 @@ codeunit 144050 "ERM Auto Payment"
         exit(Dimension.Code);
     end;
 
+    local procedure CreateVendor(PaymentMethodCode: Code[20]): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Payment Method Code", PaymentMethodCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
+    end;
+
+    local procedure VerifyDocumentOccurrenceVendorLedgerEntry(VendorNo: Code[20]; DocumentNo: Code[20])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Iteration: Integer;
+    begin
+        VendorLedgerEntry.SetCurrentKey("Vendor No.", "Document No.", "Document Type", "Document Occurrence");
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindSet();
+        repeat
+            Iteration := Iteration + 1;
+            Assert.AreEqual(
+              Iteration, VendorLedgerEntry."Document Occurrence",
+              StrSubstNo(DocumentOccurrenceErr, VendorLedgerEntry.FieldCaption("Document Occurrence"), Iteration, VendorLedgerEntry.TableCaption()));
+        until VendorLedgerEntry.Next() = 0;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
@@ -2643,6 +2722,29 @@ codeunit 144050 "ERM Auto Payment"
         ManualVendorPaymentLine.WithholdingTaxCode.SetValue(WithholdingTaxCode);
         ManualVendorPaymentLine.DocumentType.SetValue(VendorLedgerEntry."Document Type"::Payment);
         ManualVendorPaymentLine.DocumentNo.SetValue(LibraryUtility.GenerateGUID());
+        ManualVendorPaymentLine.DocumentDate.SetValue(WorkDate());
+        ManualVendorPaymentLine.TotalAmount.SetValue(TotalAmount);
+        ManualVendorPaymentLine.InsertLine.Invoke();
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ManualVendorPaymentLinePageHandlerForInvoice(var ManualVendorPaymentLine: TestPage "Manual vendor Payment Line")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorNo: Variant;
+        TotalAmount: Variant;
+        WithholdingTaxCode: Variant;
+        DocumentNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DocumentNo);
+        LibraryVariableStorage.Dequeue(VendorNo);
+        LibraryVariableStorage.Dequeue(WithholdingTaxCode);
+        LibraryVariableStorage.Dequeue(TotalAmount);
+        ManualVendorPaymentLine.VendorNo.SetValue(VendorNo);
+        ManualVendorPaymentLine.WithholdingTaxCode.SetValue(WithholdingTaxCode);
+        ManualVendorPaymentLine.DocumentType.SetValue(VendorLedgerEntry."Document Type"::Invoice);
+        ManualVendorPaymentLine.DocumentNo.SetValue(DocumentNo);
         ManualVendorPaymentLine.DocumentDate.SetValue(WorkDate());
         ManualVendorPaymentLine.TotalAmount.SetValue(TotalAmount);
         ManualVendorPaymentLine.InsertLine.Invoke();

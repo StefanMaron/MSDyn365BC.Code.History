@@ -32,22 +32,33 @@ codeunit 99000817 "Manu. Print Report"
         ReportSelections.PrintWithCheckForCust(ConvertUsage(Usage), ProductionOrder, 0);
     end;
 
-    local procedure ConvertUsage(Usage: Option M1,M2,M3,M4): Enum "Report Selection Usage"
+    local procedure ConvertUsage(Usage: Option): Enum "Report Selection Usage"
+    var
+        ResultReportSelectionUsage: Enum "Report Selection Usage";
     begin
         case Usage of
-            Usage::M1:
-                exit(ReportSelections.Usage::M1);
-            Usage::M2:
-                exit(ReportSelections.Usage::M2);
-            Usage::M3:
-                exit(ReportSelections.Usage::M3);
-            Usage::M4:
-                exit(ReportSelections.Usage::M4);
+            0:
+                exit(ResultReportSelectionUsage::M1);
+            1:
+                exit(ResultReportSelectionUsage::M2);
+            2:
+                exit(ResultReportSelectionUsage::M3);
+            3:
+                exit(ResultReportSelectionUsage::M4);
+            else begin
+                OnConvertUsageOnUsageCaseElse(Usage, ResultReportSelectionUsage);
+                exit(ResultReportSelectionUsage);
+            end;
         end;
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintProductionOrder(NewProductionOrder: Record "Production Order"; Usage: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnConvertUsageOnUsageCaseElse(Usage: Option; var ReportSelectionUsage: Enum "Report Selection Usage")
     begin
     end;
 }

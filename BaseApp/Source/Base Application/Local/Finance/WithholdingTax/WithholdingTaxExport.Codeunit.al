@@ -92,6 +92,7 @@ codeunit 12132 "Withholding Tax Export"
     begin
         WithholdingTax.SetCurrentKey("Vendor No.", Reason, "Non-Taxable Income Type");
         WithholdingTax.SetRange(Year, ReportingYearStart, ReportingYearEnd);
+        OnCalculateWithholdingTaxPerVendorOnAfterWithholdingTaxSetFilter(WithholdingTax);
         if WithholdingTax.FindSet() then begin
             repeat
                 if not LinesExistForEntryNo(WithholdingTax."Entry No.") then begin
@@ -690,5 +691,10 @@ codeunit 12132 "Withholding Tax Export"
         TempWithholdingTax."Non-Taxable Income Type" := WithholdingTaxLine."Non-Taxable Income Type";
         TempWithholdingTax."Base - Excluded Amount" := WithholdingTaxLine."Base - Excluded Amount";
         TempWithholdingTax.Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateWithholdingTaxPerVendorOnAfterWithholdingTaxSetFilter(var WithholdingTax: record "Withholding Tax")
+    begin
     end;
 }

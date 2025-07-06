@@ -265,5 +265,6 @@ page 740 "VAT Report"
     var
         VATReportMediator: Codeunit "VAT Report Mediator";
         ReportPrintable: Boolean;
+
 }
 

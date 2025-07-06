@@ -1299,7 +1299,7 @@ page 9020 "Small Business Owner RC"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Periodic VAT Settlement List';
-                RunObject = Page "Periodic VAT Settlement List";
+                RunObject = Page "Periodic VAT Settl. List";
                 ToolTip = 'View the list of periodic VAT settlements.';
             }
             separator(Action1130037)

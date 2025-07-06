@@ -51,6 +51,7 @@ codeunit 12173 "Vendor Bill List - Post"
         VendLedgEntry: Record "Vendor Ledger Entry";
         VendorBillHeader: Record "Vendor Bill Header";
         VendorBillLine: Record "Vendor Bill Line";
+        TempVendorBillLine: Record "Vendor Bill Line" temporary;
         PostedVendorBillHeader: Record "Posted Vendor Bill Header";
         TempWithholdingSocSec: Record "Tmp Withholding Contribution" temporary;
         VendBillWithhTax: Record "Vendor Bill Withholding Tax";
@@ -75,47 +76,52 @@ codeunit 12173 "Vendor Bill List - Post"
         Window.Open(Text1130011 + Text1130012);
 
         InsertPostedBillHeader(PostedVendorBillHeader, VendorBillHeader, VendorBillHeader."Vendor Bill List No.", VendorBillHeader."No.");
+        InsertTempVendorBillLine(VendorBillLine, TempVendorBillLine);
+        if VendorBillLine.FindSet() then
+            repeat
+                LineNo := LineNo + 1;
+                Window.Update(1, LineNo);
+                BalanceAmount := BalanceAmount + VendorBillLine."Amount to Pay";
 
-        repeat
-            LineNo := LineNo + 1;
-            Window.Update(1, LineNo);
-            BalanceAmount := BalanceAmount + VendorBillLine."Amount to Pay";
+                if not VendorBillLine."Manual Line" then begin
+                    VendLedgEntry.Get(VendorBillLine."Vendor Entry No.");
+                    VendLedgEntry.CalcFields("Remaining Amount");
+                    if VendLedgEntry."Remaining Amount" + VendorBillLine."Remaining Amount" <> 0 then
+                        Error(Text12100,
+                          VendLedgEntry.FieldCaption("Remaining Amount"),
+                          VendLedgEntry.FieldCaption("Document No."),
+                          VendLedgEntry."Document No.",
+                          VendLedgEntry.FieldCaption("Document Occurrence"),
+                          VendLedgEntry."Document Occurrence",
+                          Abs(VendLedgEntry."Remaining Amount"));
+                end;
+                if not VendorBillLine."Manual Line" then
+                    PostVendorBillLine(GenJnlLine, VendorBillHeader, VendorBillLine, VendLedgEntry, BillCode, AmountLCY)
+                else begin
+                    TempVendorBillLine.Get(VendorBillLine."Vendor Bill List No.", VendorBillLine."Line No.");
+                    PostVendorBillLine(GenJnlLine, VendorBillHeader, TempVendorBillLine, VendLedgEntry, BillCode, AmountLCY);
+                end;
 
-            if not VendorBillLine."Manual Line" then begin
-                VendLedgEntry.Get(VendorBillLine."Vendor Entry No.");
-                VendLedgEntry.CalcFields("Remaining Amount");
-                if VendLedgEntry."Remaining Amount" + VendorBillLine."Remaining Amount" <> 0 then
-                    Error(Text12100,
-                      VendLedgEntry.FieldCaption("Remaining Amount"),
-                      VendLedgEntry.FieldCaption("Document No."),
-                      VendLedgEntry."Document No.",
-                      VendLedgEntry.FieldCaption("Document Occurrence"),
-                      VendLedgEntry."Document Occurrence",
-                      Abs(VendLedgEntry."Remaining Amount"));
-            end;
+                BalanceAmountLCY := BalanceAmountLCY + GenJnlLine."Amount (LCY)";
+                if VendBillWithhTax.Get(VendorBillLine."Vendor Bill List No.", VendorBillLine."Line No.") then begin
+                    if (VendBillWithhTax."Withholding Tax Code" <> '') and (VendBillWithhTax."Withholding Tax Amount" <> 0) then
+                        PostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType::Withhold);
+                    if (VendBillWithhTax."Social Security Code" <> '') and (VendBillWithhTax."Free-Lance Amount" <> 0) then
+                        PostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType::"Free Lance");
+                    if (VendBillWithhTax."Social Security Code" <> '') and (VendBillWithhTax."Company Amount" <> 0) then
+                        PostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType::Company);
 
-            PostVendorBillLine(GenJnlLine, VendorBillHeader, VendorBillLine, VendLedgEntry, BillCode, AmountLCY);
+                    OnAfterPostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType);
 
-            BalanceAmountLCY := BalanceAmountLCY + GenJnlLine."Amount (LCY)";
-            if VendBillWithhTax.Get(VendorBillLine."Vendor Bill List No.", VendorBillLine."Line No.") then begin
-                if (VendBillWithhTax."Withholding Tax Code" <> '') and (VendBillWithhTax."Withholding Tax Amount" <> 0) then
-                    PostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType::Withhold);
-                if (VendBillWithhTax."Social Security Code" <> '') and (VendBillWithhTax."Free-Lance Amount" <> 0) then
-                    PostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType::"Free Lance");
-                if (VendBillWithhTax."Social Security Code" <> '') and (VendBillWithhTax."Company Amount" <> 0) then
-                    PostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType::Company);
+                    TempWithholdingSocSec.TransferFields(VendBillWithhTax);
+                    WithholdingSocSec.PostPayments(TempWithholdingSocSec, GenJnlLine, true);
+                end;
 
-                OnAfterPostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType);
-
-                TempWithholdingSocSec.TransferFields(VendBillWithhTax);
-                WithholdingSocSec.PostPayments(TempWithholdingSocSec, GenJnlLine, true);
-            end;
-
-            IsHandled := false;
-            OnBeforeInsertPostedBillLine(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType, PostedVendorBillHeader, BalanceAmountLCY, IsHandled);
-            if not IsHandled then
-                InsertPostedBillLine(VendorBillLine, PostedVendorBillHeader."No.", VendorBillLine."Vendor Bill No.");
-        until VendorBillLine.Next() = 0;
+                IsHandled := false;
+                OnBeforeInsertPostedBillLine(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType, PostedVendorBillHeader, BalanceAmountLCY, IsHandled);
+                if not IsHandled then
+                    InsertPostedBillLine(VendorBillLine, PostedVendorBillHeader."No.", VendorBillLine."Vendor Bill No.");
+            until VendorBillLine.Next() = 0;
 
         PostBalanceAccount(GenJnlLine, VendorBillHeader, VendorBillLine, VendLedgEntry, BillCode);
 
@@ -126,7 +132,7 @@ codeunit 12173 "Vendor Bill List - Post"
 
         VendorBillLine.DeleteAll(true);
         VendorBillHeader.Delete(true);
-
+        TempVendorBillLine.Delete(true);
         Window.Close();
         Commit();
 
@@ -187,7 +193,8 @@ codeunit 12173 "Vendor Bill List - Post"
         if not VendorBillLine."Manual Line" then begin
             GenJnlLine.Validate("Salespers./Purch. Code", VendLedgEntry."Purchaser Code");
             ApplyInvAndUpdateLedgEntry(GenJnlLine, VendorBillLine, Tax::" ");
-        end;
+        end else
+            GenJnlLine."Applies-to Occurrence No." := VendorBillLine."Document Occurrence";
         GenJnlLine.Description := Bill.Description;
         GenJnlLine."Source Code" := Bill."Vend. Bill Source Code";
         GenJnlLine."System-Created Entry" := true;
@@ -347,6 +354,44 @@ codeunit 12173 "Vendor Bill List - Post"
             VendLedgEntry."Vendor Bill No." := '';
             VendLedgEntry.Modify();
         end;
+    end;
+
+    local procedure InsertTempVendorBillLine(VendorBillLine: Record "Vendor Bill Line"; var TempVendorBillLine: Record "Vendor Bill Line" temporary)
+    begin
+        TempVendorBillLine.DeleteAll(true);
+        if not VendorBillLine.FindSet() then
+            exit;
+
+        repeat
+            TempVendorBillLine.Copy(VendorBillLine);
+            TempVendorBillLine.Insert();
+
+            UpdateDocumentOccurrenceForManualLine(TempVendorBillLine, VendorBillLine);
+        until VendorBillLine.Next() = 0;
+
+    end;
+
+    local procedure UpdateDocumentOccurrenceForManualLine(var TempVendorBillLine: Record "Vendor Bill Line"; VendorBillLine: Record "Vendor Bill Line")
+    var
+        Iterations: Integer;
+    begin
+        if not VendorBillLine."Manual Line" then
+            exit;
+
+        TempVendorBillLine.SetCurrentKey("Vendor Bill List No.", "Vendor No.", "Due Date");
+        TempVendorBillLine.SetRange("Manual Line", true);
+        TempVendorBillLine.SetRange("Vendor No.", VendorBillLine."Vendor No.");
+        TempVendorBillLine.SetRange("Vendor Bill List No.", VendorBillLine."Vendor Bill List No.");
+        TempVendorBillLine.SetFilter("Due Date", '<>%1', 0D);
+        TempVendorBillLine.SetRange("Document Type", VendorBillLine."Document Type");
+        TempVendorBillLine.SetRange("Document No.", VendorBillLine."Document No.");
+        TempVendorBillLine.SetRange("External Document No.", VendorBillLine."External Document No.");
+        if TempVendorBillLine.FindSet() then
+            repeat
+                Iterations := Iterations + 1;
+                TempVendorBillLine."Document Occurrence" := Iterations;
+                TempVendorBillLine.Modify(true);
+            until TempVendorBillLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

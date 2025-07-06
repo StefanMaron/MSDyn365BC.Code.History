@@ -1372,7 +1372,11 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
 
     local procedure GetAdvancedAmountFromPeriodicVATEntry(PeriodDate: Date): Decimal
     var
+#if not CLEAN27
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+#else
+        PeriodicSettlementVATEntry: Record "Periodic VAT Settlement Entry";
+#endif
     begin
         PeriodicSettlementVATEntry.Get(GetVATPeriodFromDate(PeriodDate));
         exit(PeriodicSettlementVATEntry."Advanced Amount");
@@ -1389,7 +1393,11 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
 
     local procedure GetLastVATSettlementEndDate(): Date
     var
+#if not CLEAN27
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+#else
+        PeriodicSettlementVATEntry: Record "Periodic VAT Settlement Entry";
+#endif
     begin
         PeriodicSettlementVATEntry.FindLast();
         exit(GetEndDateFromVATPeriod(PeriodicSettlementVATEntry."VAT Period"));
@@ -1414,7 +1422,11 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
 
     local procedure MockPeriodicVATSettlementEntry(PeriodDate: Date)
     var
+#if not CLEAN27
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+#else
+        PeriodicSettlementVATEntry: Record "Periodic VAT Settlement Entry";
+#endif
     begin
         PeriodicSettlementVATEntry.Init();
         PeriodicSettlementVATEntry."VAT Period" := GetVATPeriodFromDate(PeriodDate);

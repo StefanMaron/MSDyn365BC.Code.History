@@ -1721,6 +1721,7 @@ codeunit 139624 "E-Doc E2E Test"
         Vendor: Record Vendor;
         Currency: Record Currency;
         LibraryERM: Codeunit "Library - ERM";
+        Date: Date;
     begin
         LibraryLowerPermission.SetOutsideO365Scope();
         LibraryVariableStorage.Clear();
@@ -1742,8 +1743,10 @@ codeunit 139624 "E-Doc E2E Test"
         // Set a currency that can be used across all localizations
         Currency.Init();
         Currency.Validate(Code, 'XYZ');
-        if Currency.Insert(true) then
-            LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1.0, 1.0);
+        if Currency.Insert(true) then begin
+            Date := DWY2Date(1, 1, 2025); // Ensure date is before any documents that are loaded in the tests.
+            LibraryERM.CreateExchangeRate(Currency.Code, Date, 1.0, 1.0);
+        end;
 
         TransformationRule.DeleteAll();
         TransformationRule.CreateDefaultTransformations();

@@ -79,7 +79,10 @@ permissionset 1002 "LOCAL READ"
                   tabledata "No. Series Line Sales" = R,
 #endif
                   tabledata "Payment Lines" = R,
+#if not CLEAN27
                   tabledata "Periodic Settlement VAT Entry" = R,
+#endif
+                  tabledata "Periodic VAT Settlement Entry" = R,
                   tabledata "Posted Payment Lines" = R,
                   tabledata "Posted Vendor Bill Header" = R,
                   tabledata "Posted Vendor Bill Line" = R,

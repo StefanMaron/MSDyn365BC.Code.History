@@ -783,7 +783,7 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindAndMarkReminderCandidates(CustLedgEntry: Record "Cust. Ledger Entry"; ReminderLevel: Record "Reminder Level"; CustAmount: Decimal; MakeDoc: Boolean; MaxReminderLevel: Integer; MaxLineLevel: Integer; var IsHandled: Boolean; var Result: Boolean)
+    local procedure OnAfterFindAndMarkReminderCandidates(CustLedgEntry: Record "Cust. Ledger Entry"; ReminderLevel: Record "Reminder Level"; var CustAmount: Decimal; MakeDoc: Boolean; MaxReminderLevel: Integer; MaxLineLevel: Integer; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
