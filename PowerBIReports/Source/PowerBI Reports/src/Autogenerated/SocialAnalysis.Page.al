@@ -6,9 +6,7 @@ page 37091 "Social Analysis"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Social Analysis';
     AboutTitle = 'About Social Analysis';
     AboutText = 'The Social Analysis report displays employee details as part of Social reporting for ESG. ';
@@ -25,7 +23,7 @@ page 37091 "Social Analysis"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

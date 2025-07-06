@@ -245,7 +245,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
         Notify: Notification;
         RecID: RecordId;
         NotAllLinesShownMsg: Label 'Note: Some lines are not valid for a renewal and are not shown here. Possible reasons can be a missing Ending Date or a pending planned Subscription Line.';
-        DontShowAgainActionLbl: Label 'Don''t show again';
+        DoNotShowAgainActionLbl: Label 'Don''t show again';
     begin
         if not NotificationIsActiveForLinesNotShown() then
             exit;
@@ -255,7 +255,7 @@ codeunit 8003 "Sub. Contract Renewal Mgt."
         CustomerContractLine2.FilterOnServiceObjectContractLineType();
         CustomerContractLine2.SetRange(Closed, false);
         if CustomerContractLine2.Count() <> CustomerContractLine.Count() then begin
-            PrepareNotification(Notify, GetNotificationIDForInvalidLinesHidden(), NotAllLinesShownMsg, 'HideNotificationActiveForLinesNotShownForCurrentUser', DontShowAgainActionLbl);
+            PrepareNotification(Notify, GetNotificationIDForInvalidLinesHidden(), NotAllLinesShownMsg, 'HideNotificationActiveForLinesNotShownForCurrentUser', DoNotShowAgainActionLbl);
             RecID := CustomerContractLine.RecordId;
             NotificationLifecycleMgt.SendNotification(Notify, RecID);
         end;

@@ -133,7 +133,7 @@ codeunit 6485 "Serv. Get Demand To Reserve"
                 begin
                     ServiceHeader.SetLoadFields("Document Type", "No.");
                     ServiceHeader.Get(ReservationWkshLine."Source Subtype", ReservationWkshLine."Source ID");
-                    ServiceHeader.OpenOrderStatistics();
+                    Page.Run(Page::"Service Order Statistics", ServiceHeader);
                 end;
         end;
     end;

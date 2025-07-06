@@ -49,6 +49,7 @@
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('SelectionFirstVendorFromVendorListModalPageHandler')]
     procedure TestGetVendorNoGetVendorByStartNo()
     var
         Vendor1: Record Vendor;
@@ -115,6 +116,7 @@
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('SelectionFirstVendorFromVendorListModalPageHandler')]
     procedure TestGetVendorNoGetVendorByStartOfName()
     var
         Vendor1: Record Vendor;

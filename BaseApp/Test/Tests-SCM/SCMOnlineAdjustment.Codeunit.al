@@ -318,6 +318,7 @@ codeunit 137001 "SCM Online Adjustment"
 
         // [WHEN] Adjust cost-item entries is run.
         LibraryCosting.AdjustCostItemEntries(ProductionOrder."Source No.", '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // [THEN] Unit cost and value entries for parent item are correct.
         CheckOutputValueEntries(PurchInvHeader, PurchInvHeader1, ProductionOrder, TempItemJournalLine);
@@ -660,6 +661,7 @@ codeunit 137001 "SCM Online Adjustment"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Online Adjustment");

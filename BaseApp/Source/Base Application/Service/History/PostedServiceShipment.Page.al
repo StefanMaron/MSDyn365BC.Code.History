@@ -687,6 +687,7 @@ page 5975 "Posted Service Shipment"
                     RunPageView = sorting(Status, "Document Type", "Document No.", "Service Item Line No.", "Allocation Date", "Starting Time", Posted);
                     ToolTip = 'View allocation of resources, such as technicians, to service items in service orders.';
                 }
+#if not CLEAN27
                 action("S&tatistics")
                 {
                     ApplicationArea = Service;
@@ -694,11 +695,30 @@ page 5975 "Posted Service Shipment"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View information about the physical contents of the shipment, such as quantity of the shipped items, resource hours or costs, and weight and volume of the shipped items.';
+                    ObsoleteReason = 'The statistics action will be replaced with the ServiceStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
 
                     trigger OnAction()
                     begin
                         Rec.OpenStatistics();
                     end;
+                }
+#endif
+                action("ServiceS&tatistics")
+                {
+                    ApplicationArea = Service;
+                    Caption = 'S&tatistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View information about the physical contents of the shipment, such as quantity of the shipped items, resource hours or costs, and weight and volume of the shipped items.';
+#if CLEAN27
+                    Visible = true;
+#else
+                    Visible = false;
+#endif
+                    RunObject = Page "Service Shipment Statistics";
+                    RunPageOnRec = true;
                 }
                 action("Co&mments")
                 {
@@ -838,9 +858,18 @@ page 5975 "Posted Service Shipment"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
+#if not CLEAN27
                 actionref("S&tatistics_Promoted"; "S&tatistics")
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the ServiceStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#else
+                actionref("ServiceStatistics_Promoted"; "ServiceS&tatistics")
+                {
+                }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -905,4 +934,3 @@ page 5975 "Posted Service Shipment"
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
     end;
 }
-

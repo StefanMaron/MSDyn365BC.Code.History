@@ -6,9 +6,7 @@ page 37101 "Sales Decomposition"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
     Caption = 'Sales Decomposition';
     AboutTitle = 'About Sales Decomposition';
     AboutText = 'The Sales Decomposition report breaks down sales metrics into its key contributing components to help users understand what is driving changes in sales and why.';
@@ -25,7 +23,7 @@ page 37101 "Sales Decomposition"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

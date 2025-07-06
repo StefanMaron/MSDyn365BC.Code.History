@@ -4963,16 +4963,7 @@ table 81 "Gen. Journal Line"
         TempJobJnlLine.Validate("No.", "Account No.");
         TempJobJnlLine.Validate(Quantity, "Job Quantity");
 
-        if "Currency Factor" = 0 then begin
-            if "Job Currency Factor" = 0 then
-                TmpJobJnlOverallCurrencyFactor := 1
-            else
-                TmpJobJnlOverallCurrencyFactor := "Job Currency Factor";
-        end else
-            if "Job Currency Factor" = 0 then
-                TmpJobJnlOverallCurrencyFactor := 1 / "Currency Factor"
-            else
-                TmpJobJnlOverallCurrencyFactor := "Job Currency Factor" / "Currency Factor";
+        TmpJobJnlOverallCurrencyFactor := GetGenJnlLineToJobCurrencyFactor();
 
         UpdateAmountsOnTempJobJnlLine(TmpJobJnlOverallCurrencyFactor);
 
@@ -7658,6 +7649,22 @@ table 81 "Gen. Journal Line"
         if GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then
             if ApprovalsMgmt.IsGeneralJournalBatchApprovalsWorkflowEnabled(GenJournalBatch) then
                 RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, RestrictBatchUsageDetailsTxt);
+    end;
+
+    /// <summary>
+    /// Calculates the currency factor for the general journal line based on the job currency factor and the journal line currency factor.
+    /// </summary>
+    /// <returns>Resulted currency factor</returns>
+    procedure GetGenJnlLineToJobCurrencyFactor(): Decimal
+    begin
+        if "Currency Factor" = 0 then begin
+            if "Job Currency Factor" = 0 then
+                exit(1);
+            exit("Job Currency Factor");
+        end;
+        if "Job Currency Factor" = 0 then
+            exit(1 / "Currency Factor");
+        exit("Job Currency Factor" / "Currency Factor");
     end;
 
     /// <summary>

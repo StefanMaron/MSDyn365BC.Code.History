@@ -627,14 +627,8 @@ table 99000829 "Planning Component"
     end;
 
     trigger OnModify()
-    var
-        Item2: Record Item;
     begin
         ReservePlanningComponent.VerifyChange(Rec, xRec);
-
-        if "Location Code" <> '' then
-            if Item2.Get("Item No.") and (Item2.Type = Item2.Type::"Non-Inventory") then
-                Error(LocationCodeMustBeBlankErr);
     end;
 
     trigger OnRename()
@@ -653,7 +647,6 @@ table 99000829 "Planning Component"
         GLSetupRead: Boolean;
         CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 - Planning Component';
         CannotChangeErr: Label 'You cannot change %1 when %2 is %3.', Comment = '%1 - FieldCaption("Unit Cost"), %2 - Item.FieldCaption("Costing Method"), %3 - Item."Costing Method"';
-        LocationCodeMustBeBlankErr: Label 'The Location Code field must be blank for items of type Non-Inventory.';
         WrongPrecisionItemAndUOMExpectedQtyErr: Label 'The value in the %1 field on the %2 page, and %3 field on the %4 page, are causing the rounding precision for the %5 field to be incorrect.', Comment = '%1 = field caption, %2 = table caption, %3 field caption, %4 = table caption, %5 = field caption';
         WrongPrecOnUOMExpectedQtyErr: Label 'The value in the %1 field on the %2 page is causing the rounding precision for the %3 field to be incorrect.', Comment = '%1 = field caption, %2 = table caption, %3 field caption';
 
@@ -835,7 +828,14 @@ table 99000829 "Planning Component"
     end;
 
     procedure GetDefaultBin()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDefaultBin(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if (Quantity * xRec.Quantity > 0) and
            ("Item No." = xRec."Item No.") and
            ("Location Code" = xRec."Location Code") and
@@ -1178,6 +1178,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetToBinOnBeforeGetWMSDefaultCode(var PlanningComponent: Record "Planning Component"; var BinCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultBin(var PlanningComponent: Record "Planning Component"; var xPlanningComponent: Record "Planning Component"; var IsHandled: Boolean)
     begin
     end;
 }
