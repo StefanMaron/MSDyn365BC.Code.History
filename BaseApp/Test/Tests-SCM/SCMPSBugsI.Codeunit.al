@@ -41,6 +41,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ConsumptionIsMissingQst: Label 'Some consumption is still missing. Do you still want to finish the order?';
         UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
         OustandingPickLineExistsErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.';
+        QuantityErr: Label 'Quantity update should be possible in %1.', Comment = '%1= Table Name.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1154,6 +1155,78 @@ codeunit 137035 "SCM PS Bugs-I"
         // [THEN] No warning is raised.
         // [THEN] The production order is finished.
         ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+    end;
+
+    [Test]
+    procedure PlanningComponentsChangingQuantityPossibleNonInventoryItem()
+    var
+        Item: array[2] of Record Item;
+        Location: Record Location;
+        PlanningComponent: Record "Planning Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 575511] Planning worksheet in the planning Components when changing Quantity is possible on non inventory Item.
+        Initialize();
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create an Item and Validate Replenishment System and Policy.
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Validate("Reordering Policy", Item[1]."Reordering Policy"::"Lot-for-Lot");
+
+        // [GIVEN] Create an Item with Type Non Inventory.
+        LibraryInventory.CreateNonInventoryTypeItem(Item[2]);
+
+        // [GIVEN] Create Certified Production BOM.
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, Item[2]."No.", LibraryRandom.RandInt(1));
+
+        // [GIVEN] Validate Production BOM No. in Item.
+        Item[1].Validate(Item[1]."Production BOM No.", ProductionBOMHeader."No.");
+        Item[1].Modify(true);
+
+        // [GIVEN] Create Sales Document with Item.
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader,
+            SalesLine,
+            SalesHeader."Document Type"::Order,
+            '',
+            Item[1]."No.",
+            LibraryRandom.RandInt(2),
+            Location.Code,
+            0D);
+
+        // [GIVEN] Create a Requisition Line.
+        CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Template Type"::Planning);
+
+        // [GIVEN] Run Calculate Regenerative plan for Item.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item[1], CalcDate('<-1M>', WorkDate()), CalcDate('<+1M>', WorkDate()));
+
+        // [GIVEN] Store a Quantity in Variable.
+        Quantity := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Find Planning Component.
+        PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningComponent.SetRange("Item No.", Item[2]."No.");
+        PlanningComponent.FindFirst();
+
+        // [WHEN] Validate new Quantity in Planning Componenet.
+        PlanningComponent.Validate(Quantity, Quantity);
+        PlanningComponent.Modify(true);
+
+        // [THEN] Quantity should be able to updated when Item is Non-Inventory.
+        Assert.AreEqual(
+            Quantity, 
+            PlanningComponent.Quantity, 
+            StrSubstNo(
+                QuantityErr, 
+                PlanningComponent.TableName()));
     end;
 
     local procedure Initialize()

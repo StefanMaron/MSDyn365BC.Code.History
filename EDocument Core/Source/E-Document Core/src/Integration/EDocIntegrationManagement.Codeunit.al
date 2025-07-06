@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -410,7 +410,7 @@ codeunit 6134 "E-Doc. Integration Management"
         SendRunner: Codeunit "Send Runner";
         ErrorText: Text;
         TelemetryDimensions: Dictionary of [Text, Text];
-        Sucecss: Boolean;
+        Success: Boolean;
     begin
         // Commit needed for "if codeunit run" pattern when catching errors.
         Commit();
@@ -419,13 +419,13 @@ codeunit 6134 "E-Doc. Integration Management"
 
         SendRunner.SetDocumentAndService(EDocuments, EDocumentService);
         SendRunner.SetContext(SendContext);
-        Sucecss := SendRunner.Run();
+        Success := SendRunner.Run();
 
         // Check filter exists
         if EDocuments.GetFilter("Entry No") = '' then
             Error(EDocNoFilterOnBatchSendErr);
 
-        if not Sucecss then begin
+        if not Success then begin
             ErrorText := GetLastErrorText();
             EDocuments.FindSet();
             repeat
@@ -457,8 +457,10 @@ codeunit 6134 "E-Doc. Integration Management"
         ReceiveDocs.SetService(EDocumentService);
         ReceiveDocs.SetContext(ReceiveContext);
         ReceiveDocs.SetDocuments(Documents);
-        if not ReceiveDocs.Run() then
+        if not ReceiveDocs.Run() then begin
+            Telemetry.LogMessage('0000PKE', 'Failed to receive documents from E-Document Service', Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
             exit;
+        end;
 
         // After interface call, reread the EDocumentService for the latest values.
         EDocumentService.Get(EDocumentService.Code);
@@ -472,7 +474,7 @@ codeunit 6134 "E-Doc. Integration Management"
     begin
         // Commit needed for "if codeunit run" pattern when catching errors.
         Commit();
-        Telemetry.LogMessage('0000O0C', EDocTelemetryReciveDownloadDocScopeStartLbl, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, TelemetryDimensions);
+        Telemetry.LogMessage('0000O0C', EDocTelemetryReceiveDownloadDocScopeStartLbl, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, TelemetryDimensions);
 
         DownloadDoc.SetInstance(IDocumentReceiver);
         DownloadDoc.SetContext(ReceiveContext);
@@ -483,7 +485,7 @@ codeunit 6134 "E-Doc. Integration Management"
         // After interface call, reread the EDocument and EDocumentService for the latest values.
         EDocument.Get(EDocument."Entry No");
         EDocumentService.Get(EDocumentService.Code);
-        Telemetry.LogMessage('0000O0D', EDocTelemetryReciveDownloadDocScopeEndLbl, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All);
+        Telemetry.LogMessage('0000O0D', EDocTelemetryReceiveDownloadDocScopeEndLbl, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All);
     end;
 
     local procedure RunMarkFetched(var EDocument: Record "E-Document"; var EDocumentService: Record "E-Document Service"; DocumentBlob: Codeunit "Temp Blob"; IDocumentReceiver: Interface IDocumentReceiver; ReceiveContext: Codeunit ReceiveContext)
@@ -586,7 +588,7 @@ codeunit 6134 "E-Doc. Integration Management"
         EDocumentErrorHelper: Codeunit "E-Document Error Helper";
         Telemetry: Codeunit Telemetry;
         EDocumentSendErr: Label 'E-document is %1 and can not be sent in this state.', Comment = '%1 - Status';
-        EDocumentBlobErr: Label 'Failed to get exported blob from EDocument %1', Comment = '%1 - The Edocument entry number';
+        EDocumentBlobErr: Label 'Failed to get exported blob from EDocument %1', Comment = '%1 - The E-Document entry number';
         EDocTelemetrySendScopeStartLbl: Label 'E-Document Send: Start Scope', Locked = true;
         EDocTelemetrySendScopeEndLbl: Label 'E-Document Send: End Scope', Locked = true;
         EDocTelemetryActionScopeStartLbl: Label 'E-Document Action: Start Scope', Locked = true;
@@ -595,8 +597,8 @@ codeunit 6134 "E-Doc. Integration Management"
         EDocTelemetrySendBatchScopeEndLbl: Label 'E-Document Send Batch: End Scope', Locked = true;
         EDocTelemetryReceiveDocsScopeStartLbl: Label 'E-Document Receive Docs: Start Scope', Locked = true;
         EDocTelemetryReceiveDocsScopeEndLbl: Label 'E-Document Receive Docs: End Scope', Locked = true;
-        EDocTelemetryReciveDownloadDocScopeStartLbl: Label 'E-Document Receive Download Doc: Start Scope', Locked = true;
-        EDocTelemetryReciveDownloadDocScopeEndLbl: Label 'E-Document Receive Download Doc: End Scope', Locked = true;
+        EDocTelemetryReceiveDownloadDocScopeStartLbl: Label 'E-Document Receive Download Doc: Start Scope', Locked = true;
+        EDocTelemetryReceiveDownloadDocScopeEndLbl: Label 'E-Document Receive Download Doc: End Scope', Locked = true;
         EDocTelemetryMarkFetchedScopeStartLbl: Label 'E-Document Mark Fetched: Start Scope', Locked = true;
         EDocTelemetryMarkFetchedScopeEndLbl: Label 'E-Document Mark Fetched: End Scope', Locked = true;
         EDocNoFilterOnBatchSendErr: Label 'No Entry No. filter is set on the E-Document for batch to sending';

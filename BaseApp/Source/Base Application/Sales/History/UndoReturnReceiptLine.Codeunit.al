@@ -21,6 +21,7 @@ codeunit 5816 "Undo Return Receipt Line"
                   TableData "Whse. Item Entry Relation" = rimd,
                   TableData "Return Receipt Line" = rimd;
     TableNo = "Return Receipt Line";
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     var
@@ -50,6 +51,7 @@ codeunit 5816 "Undo Return Receipt Line"
         UndoPostingMgt: Codeunit "Undo Posting Management";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         WhseUndoQty: Codeunit "Whse. Undo Quantity";
+        ItemsToAdjust: List of [Code[20]];
         HideDialog: Boolean;
         NextLineNo: Integer;
 
@@ -94,6 +96,7 @@ codeunit 5816 "Undo Return Receipt Line"
                 CheckReturnRcptLine(ReturnRcptLine);
             until ReturnRcptLine.Next() = 0;
 
+            BindSubscription(this);
             ReturnRcptLine.Find('-');
             repeat
                 TempGlobalItemLedgEntry.Reset();
@@ -149,6 +152,7 @@ codeunit 5816 "Undo Return Receipt Line"
                 ReturnRcptLine.Modify();
                 OnAfterReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine, DocLineNo, HideDialog);
             until ReturnRcptLine.Next() = 0;
+            UnbindSubscription(this);
 
             MakeInventoryAdjustment();
 
@@ -268,6 +272,7 @@ codeunit 5816 "Undo Return Receipt Line"
 
         if ReturnRcptLine."Item Rcpt. Entry No." <> 0 then begin
             ItemJnlPostLine.Run(ItemJnlLine);
+            OnPostItemJnlLineOnAfterRunItemJnlPostLine(ItemJnlLine, ReturnRcptLine, ReturnRcptHeader, ItemJnlPostLine);
             exit(ItemJnlLine."Item Shpt. Entry No.");
         end;
 
@@ -349,14 +354,22 @@ codeunit 5816 "Undo Return Receipt Line"
 
     local procedure MakeInventoryAdjustment()
     var
-        InvtSetup: Record "Inventory Setup";
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
     begin
-        InvtSetup.Get();
-        if InvtSetup."Automatic Cost Adjustment" <> InvtSetup."Automatic Cost Adjustment"::Never then begin
-            InvtAdjmtHandler.SetJobUpdateProperties(true);
-            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
-        end;
+        InvtAdjmtHandler.SetJobUpdateProperties(true);
+        InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem', '', false, false)]
+    local procedure OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem(var Item2: Record Item)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        if InventorySetup.UseLegacyPosting() then
+            exit;
+
+        if not ItemsToAdjust.Contains(Item2."No.") then
+            ItemsToAdjust.Add(Item2."No.");
     end;
 
     [IntegrationEvent(false, false)]
@@ -446,6 +459,11 @@ codeunit 5816 "Undo Return Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeCallCheckReturnRcptLine(var ReturnReceiptLine: Record "Return Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnAfterRunItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; ReturnReceiptLine: Record "Return Receipt Line"; ReturnReceiptHeader: Record "Return Receipt Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
     end;
 }

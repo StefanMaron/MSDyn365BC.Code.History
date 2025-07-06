@@ -4,7 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT;
 using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Clause;
 using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using System.Reflection;
 
 codeunit 6486 "Serv. VAT Specification Mgt."
 {
@@ -37,6 +40,25 @@ codeunit 6486 "Serv. VAT Specification Mgt."
             if VATAmountLine.GetAnyLineModified() then begin
                 ServiceLine.UpdateVATOnLines(0, ServiceHeader, ServiceLine, VATAmountLine);
                 ServiceLine.UpdateVATOnLines(1, ServiceHeader, ServiceLine, VATAmountLine);
+            end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"VAT Clause", 'OnGetDocumentTypeAndLanguageCode', '', false, false)]
+    local procedure OnGetDocumentTypeAndLanguageCode(VATClause: Record "VAT Clause"; RecRelatedVariant: Variant; var DocumentType: Enum "VAT Clause Document Type"; var LanguageCode: Code[10]; var IsHandled: Boolean)
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        DataTypeManagement: Codeunit "Data Type Management";
+        RecRef: RecordRef;
+    begin
+        if DataTypeManagement.GetRecordRef(RecRelatedVariant, RecRef) then
+            case RecRef.Number of
+                Database::"Service Invoice Header":
+                    begin
+                        RecRef.SetTable(ServiceInvoiceHeader);
+                        DocumentType := DocumentType::Invoice;
+                        LanguageCode := ServiceInvoiceHeader."Language Code";
+                        IsHandled := true;
+                    end;
             end;
     end;
 }

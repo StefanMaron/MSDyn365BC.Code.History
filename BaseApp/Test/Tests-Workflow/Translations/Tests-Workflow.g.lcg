@@ -932,6 +932,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Inv. Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1256062315 - NamedType 1538334841" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Validation error for THE Field: Invoice Disc. Pct., Message = Status must be equal to Open in Sales Header: Document Type=Invoice, No.=%1. Current value is Pending Approval]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Inv. Approvals - NamedType InvoiceDiscExpectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1256062315 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>

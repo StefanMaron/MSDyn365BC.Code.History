@@ -132,7 +132,7 @@ codeunit 139629 "Library - E-Document"
         CountryRegion: Record "Country/Region";
         ItemReference: Record "Item Reference";
         UnitOfMeasure: Record "Unit of Measure";
-        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ExtraItem: Record "Item";
         WorkflowSetup: Codeunit "Workflow Setup";
         LibraryItemReference: Codeunit "Library - Item Reference";
     begin
@@ -155,9 +155,7 @@ codeunit 139629 "Library - E-Document"
         // Create Item 
         if StandardItem."No." = '' then begin
             VATPostingSetup.TestField("VAT Prod. Posting Group");
-            CreateGenericItem(StandardItem);
-            StandardItem."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-            StandardItem.Modify();
+            CreateGenericItem(StandardItem, VATPostingSetup."VAT Prod. Posting Group");
         end;
 
         UnitOfMeasure.Init();
@@ -165,13 +163,12 @@ codeunit 139629 "Library - E-Document"
         UnitOfMeasure.Code := 'PCS';
         if UnitOfMeasure.Insert() then;
 
-        ItemUnitOfMeasure.Init();
-        ItemUnitOfMeasure.Validate("Item No.", StandardItem."No.");
-        ItemUnitOfMeasure.Validate(Code, UnitOfMeasure.Code);
-        ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
-        if ItemUnitOfMeasure.Insert() then;
-
+        CreateItemUnitOfMeasure(StandardItem."No.", UnitOfMeasure.Code);
         LibraryItemReference.CreateItemReference(ItemReference, StandardItem."No.", '', 'PCS', Enum::"Item Reference Type"::Vendor, Vendor."No.", '1000');
+
+        CreateGenericItem(ExtraItem, VATPostingSetup."VAT Prod. Posting Group");
+        CreateItemUnitOfMeasure(ExtraItem."No.", UnitOfMeasure.Code);
+        LibraryItemReference.CreateItemReference(ItemReference, ExtraItem."No.", '', 'PCS', Enum::"Item Reference Type"::Vendor, Vendor."No.", '2000');
     end;
 
     procedure PostInvoice(var Customer: Record Customer) SalesInvHeader: Record "Sales Invoice Header";
@@ -349,6 +346,13 @@ codeunit 139629 "Library - E-Document"
             SalesHeader.Validate("Shipment Date", WorkDate());
 
         SalesHeader.Modify(true);
+    end;
+
+    procedure CreateGenericItem(var Item: Record Item; VATProdPostingGroupCode: Code[20])
+    begin
+        CreateGenericItem(Item);
+        Item."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        Item.Modify();
     end;
 
     procedure CreateGenericItem(var Item: Record Item)
@@ -881,6 +885,17 @@ codeunit 139629 "Library - E-Document"
         EDocMapping."Find Value" := CopyStr(FindValue, 1, LibraryUtility.GetFieldLength(DATABASE::"E-Doc. Mapping", EDocMapping.FieldNo("Find Value")));
         EDocMapping."Replace Value" := CopyStr(ReplaceValue, 1, LibraryUtility.GetFieldLength(DATABASE::"E-Doc. Mapping", EDocMapping.FieldNo("Replace Value")));
         EDocMapping.Insert();
+    end;
+
+    local procedure CreateItemUnitOfMeasure(ItemNo: Code[20]; UnitOfMeasureCode: Code[10])
+    var
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        ItemUnitOfMeasure.Init();
+        ItemUnitOfMeasure.Validate("Item No.", ItemNo);
+        ItemUnitOfMeasure.Validate(Code, UnitOfMeasureCode);
+        ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
+        if ItemUnitOfMeasure.Insert() then;
     end;
 
     procedure TempBlobToTxt(var TempBlob: Codeunit "Temp Blob"): Text

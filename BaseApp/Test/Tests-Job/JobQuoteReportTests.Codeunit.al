@@ -209,6 +209,43 @@ codeunit 136314 "Job Quote Report Tests"
         Assert.AreEqual(LibraryReportValidation.CheckIfDecimalValueExists(JobPlanningLine."Total Price"), true, ValueNotFoundErr);
     end;
 
+    [HandlerFunctions('PostandSendPageHandlerYes,EmailEditorHandler,CloseEmailEditorHandler')]
+    [Test]
+    [Scope('OnPrem')]
+    Procedure SendProjectTaskQuoteFromProjectTaskCardDoesNotProvideWithTheSsameFileNameAsSendProjectQuotefromProjectCard()
+    var
+        JobTaskLine: Record "Job Task";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryJob: Codeunit "Library - Job";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
+        JobTaskCard: TestPage "Job Task Card";
+    begin
+        // [SCENARIO 578185] Send Project Task Quote from Project Task Card while using Multiple Customers Task Billing Method does not provide with the same file name structure as Send Project Quote from Project Card
+        Initialize();
+
+        //[GIVEN] Setup Email
+        LibraryWorkflow.SetUpEmailAccount();
+
+        // [GIVEN] Create Job
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandInt(5), LibraryRandom.RandInt(5)));
+        Job."Task Billing Method" := Job."Task Billing Method"::"Multiple customers";
+        Job.Modify();
+
+        // [GIVEN] Create Job Task Line
+        LibraryJob.CreateJobTask(Job, JobTaskLine);
+        JobTaskLine."Bill-to Customer No." := Job."Bill-to Customer No.";
+        JobTaskLine.Modify();
+        JobTaskCard.Trap();
+        PAGE.Run(PAGE::"Job Task Card", JobTaskLine);
+
+        // [WHEN] Run "Send Job Quote" action
+        JobTaskCard."Send Job Task Quote".Invoke();
+
+        //[THEN] Verify Project Task Quote Report Name
+    end;
+
     procedure SendJobQuoteFromJobCardInternal()
     var
         JobPlanningLine: Record "Job Planning Line";

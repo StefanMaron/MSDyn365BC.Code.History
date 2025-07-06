@@ -44,6 +44,7 @@ codeunit 452 "Report Distribution Management"
         PurchaseBlanketOrderDocTypeTxt: Label 'Purchase Blanket Order';
         PurchaseReturnOrderDocTypeTxt: Label 'Purchase Return Order';
         JobQuoteDocTypeTxt: Label 'Project Quote';
+        JobTaskQuoteDocTypeTxt: Label 'Project No %1 Project Task';
         IssuedReminderDocTypeTxt: Label 'Issued Reminder';
         IssuedFinChargeMemoDocTypeTxt: Label 'Issued Finance Charge Memo';
 
@@ -98,6 +99,7 @@ codeunit 452 "Report Distribution Management"
 
     procedure GetFullDocumentTypeText(DocumentVariant: Variant) DocumentTypeText: Text[50]
     var
+        JobTask: Record "Job Task";
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
         TranslationHelper: Codeunit "Translation Helper";
@@ -166,6 +168,11 @@ codeunit 452 "Report Distribution Management"
                             DocumentTypeText := PurchaseReturnOrderDocTypeTxt;
                     end;
                 end;
+            DATABASE::"Job Task":
+                begin
+                    DocumentRecordRef.SetTable(JobTask);
+                    DocumentTypeText := (StrSubstNo(JobTaskQuoteDocTypeTxt, JobTask."Job No."));
+                end;
             else
                 OnGetFullDocumentTypeTextElseCase(DocumentRecordRef, DocumentTypeText);
         end;
@@ -182,6 +189,7 @@ codeunit 452 "Report Distribution Management"
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
         Job: Record Job;
+        JobTask: Record "Job Task";
         DocumentRecordRef: RecordRef;
     begin
         if DocumentVariant.IsRecord then
@@ -215,6 +223,11 @@ codeunit 452 "Report Distribution Management"
                 begin
                     DocumentRecordRef.SetTable(Job);
                     exit(Job."Language Code");
+                end;
+            DATABASE::"Job Task":
+                begin
+                    DocumentRecordRef.SetTable(JobTask);
+                    exit(JobTask."Language Code");
                 end;
             else
                 OnGetDocumentLanguageCodeCaseElse(DocumentRecordRef, LanguageCode);
