@@ -999,6 +999,8 @@ table 5992 "Service Invoice Header"
         end;
     end;
 
+#if not CLEAN27
+    [Obsolete('The statistics action will be replaced with the ServiceStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '27.0')]
     procedure OpenStatistics()
     var
         StatPageID: Integer;
@@ -1007,7 +1009,7 @@ table 5992 "Service Invoice Header"
         OnOpenStatisticsOnAfterSetStatPageID(Rec, StatPageID);
         Page.RunModal(StatPageID, Rec);
     end;
-
+#endif
     procedure ShowActivityLog()
     var
         ActivityLog: Record "Activity Log";
@@ -1080,14 +1082,15 @@ table 5992 "Service Invoice Header"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The statistics action will be replaced with the ServiceStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnOpenStatisticsOnAfterSetStatPageID(var ServiceInvoiceHeader: Record "Service Invoice Header"; var StatPageID: Integer);
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDelete(var ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
     end;
 }
-

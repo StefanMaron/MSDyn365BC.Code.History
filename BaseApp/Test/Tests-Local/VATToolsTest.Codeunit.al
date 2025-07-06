@@ -991,6 +991,54 @@ codeunit 144001 "VAT Tools Test"
             Round(VATEntry.Amount * (100 / VATPostingSetup."Proportional Deduction VAT %" - 1)), TotalNDAmount, 'Incorrect amount');
     end;
 
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementHandler,ConfirmHandler')]
+    procedure VATCalculationFromReverseChargeAndWithNormalVAT()
+    var
+        VATPostingSetup, VATPostingSetup1 : Record "VAT Posting Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
+        DocNo, SettlementDocNo : Code[20];
+    begin
+        // [SCENARIO 575707] Issue with VAT Calculation from Reverse Charge and Partial Deduction on Mixed-Invoice Scenarios in Norwegian version
+        Initialize();
+
+        // [GIVEN] Setup VAT Posting Setup with Reverse Charge as 25 VAT %, Calc. Prop. Deduction VAT as true and Proportional Deduction VAT % as 10.63
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandIntInRange(25, 25));
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Calc. Prop. Deduction VAT", true);
+        VATPostingSetup.Validate("Proportional Deduction VAT %", 10.63);
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Setup VAT Posting Setup with Normal VAT and 0 VAT %
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup1, VATPostingSetup1."VAT Calculation Type"::"Normal VAT", 0);
+
+        // [GIVEN] Create General Journal line with first line as account type vendor
+        DocNo := LibraryRandom.RandText(20);
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        CreateGenJournalLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice, DocNo, GenJournalLine."Account Type"::Vendor, LibraryPurch.CreateVendor(Vendor), -257632.33, GenJournalLine."Gen. Posting Type"::" ", '', '');
+
+        // [GIVEN] Create General Journal line with second line as account type G/L Account and VAT as normal charge
+        CreateGenJournalLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice, DocNo, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 5360.33, GenJournalLine."Gen. Posting Type"::Purchase, VATPostingSetup1."VAT Bus. Posting Group", VATPostingSetup1."VAT Prod. Posting Group");
+
+        // [GIVEN] Create General Journal line with third line as account type G/L Account and VAT as reverse charge
+        CreateGenJournalLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice, DocNo, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 252272.00, GenJournalLine."Gen. Posting Type"::Purchase, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Post General Journal Line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Run the Calculate and Post VAT Settlement report and Post the VAT Settlement
+        SettlementDocNo := LibraryRandom.RandText(20);
+        CalcAndPostVATSettlementWithDocumentNo(WorkDate(), WorkDate(), WorkDate(), SettlementDocNo, true);
+
+        // [THEN] The amount deducted from Reverse Charge VAT Posting G/L account should match the actual VAT calculated.
+        Assert.AreEqual(GetGLEntryAmount(DocNo, VATPostingSetup."Reverse Chrg. VAT Acc."), GetGLEntryAmount(SettlementDocNo, VATPostingSetup."Reverse Chrg. VAT Acc."), 'Incorrect Amount');
+    end;
+
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
@@ -1464,6 +1512,39 @@ codeunit 144001 "VAT Tools Test"
     begin
         if UserSetup.Get(UserId) then
             UserSetup.Delete();
+    end;
+
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; GenPostingType: Enum "General Posting Type"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
+    begin
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, JournalTemplateName, JournalBatchName, DocumentType, AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Document No.", DocNo);
+        GenJournalLine.Validate("Gen. Posting Type", GenPostingType);
+        GenJournalLine.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        GenJournalLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CalcAndPostVATSettlementWithDocumentNo(StartingDate: Date; EndingDate: Date; PostingDate: Date; SettlementDocNo: Code[20]; Post: Boolean)
+    var
+        GLAccount: Record "G/L Account";
+        CalcPostVATSettlement: Report "Calc. and Post VAT Settlement";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        CalcPostVATSettlement.InitializeRequest(
+          StartingDate, EndingDate, PostingDate, SettlementDocNo, GLAccount."No.", false, Post);
+        CalcPostVATSettlement.SetInitialized(false);
+        Commit();
+        CalcPostVATSettlement.Run();
+    end;
+
+    local procedure GetGLEntryAmount(DocumentNo: Code[20]; GLAccountNo: Code[20]): Decimal
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        if GLEntry.FindFirst() then
+            exit(Abs(GLEntry.Amount));
     end;
 
     [RequestPageHandler]

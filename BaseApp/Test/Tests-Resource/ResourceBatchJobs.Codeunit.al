@@ -280,6 +280,7 @@ codeunit 136402 "Resource Batch Jobs"
         ResJournalLine.Validate("Posting Date", StartDate);
         ResJournalLine.Validate("Resource No.", ResourceNo);
         ResJournalLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Value is not important here.
+        ResJournalLine.Validate("Document No.", ResourceNo);
         ResJournalLine.Modify(true);
         LibraryResource.PostResourceJournalLine(ResJournalLine);
         LibraryFiscalYear.CloseFiscalYear();

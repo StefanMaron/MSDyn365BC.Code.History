@@ -321,8 +321,6 @@ page 1173 "Document Attachment Details"
         DownloadEnabled: Boolean;
         ViewEnabled: Boolean;
         FlowFieldsEditable: Boolean;
-        EmailHasAttachments: Boolean;
-        IsOfficeAddin: Boolean;
         IsMultiSelect: Boolean;
         FlowToPurchTxt: Label 'Flow to Purch. Trx';
         FlowToSalesTxt: Label 'Flow to Sales Trx';
@@ -333,14 +331,16 @@ page 1173 "Document Attachment Details"
 
     protected var
         FromRecRef: RecordRef;
+        IsOfficeAddin: Boolean;
+        EmailHasAttachments: Boolean;
 
-    local procedure InitiateAttachFromEmail()
+    procedure InitiateAttachFromEmail()
     begin
         OfficeMgmt.InitiateSendToAttachments(FromRecRef);
         CurrPage.Update(true);
     end;
 
-    local procedure InitiateUploadFile()
+    procedure InitiateUploadFile()
     var
         DocumentAttachment: Record "Document Attachment";
         TempBlob: Codeunit "Temp Blob";

@@ -30,6 +30,8 @@ codeunit 134391 "ERM Sales Batch Posting"
         GLInterCompanyZipFileNamePatternTok: Label 'General Journal IC Batch - %1.zip', Comment = '%1 - today date, Sample: Sales IC Batch - 23-01-2024.zip';
         NotificationMsg: Label 'An error or warning occured during operation Batch processing of Sales Header records.';
         DefaultCategoryCodeLbl: Label 'SALESBCKGR';
+        NothingToPostErr: Label 'There is nothing to post because the document does not contain a quantity or amount.';
+        SalesOrderStatusMsg: Label 'Sales Order Status must be released.';
 
     [Test]
     [HandlerFunctions('RequestPageHandlerBatchPostSalesInvoices,MessageHandler')]
@@ -1674,6 +1676,37 @@ codeunit 134391 "ERM Sales Batch Posting"
         VerifyPostedSalesInvoiceAmount(SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Posting Date" + 10, Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('RequestPageHandlerBatchPostSalesOrderShipmentCompleted,MessageHandler')]
+    procedure VerifySalesOrderStatusBatchPostSaleOrderWithReplacePostingDateAndCurrencyCode()
+    var
+        Currency: Record Currency;
+        SalesHeader: Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 578963] Verify Sales Order Status When Batch posting with Replace Posting Date and different currency.
+        Initialize();
+
+        // [GIVEN] Set Post with Job queue on Sales & Receivables Setup
+        LibrarySales.SetPostWithJobQueue(true);
+
+        // [GIVEN] Bind subscription and do not handle Job queue event as true
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Create Release Sales Order with Currency Code.
+        CreateSalesDocumentWithCurrency(SalesHeader, Currency, SalesHeader."Document Type"::Order, false);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Run Post Batch with Replace Posting Date, Replace Document Date & Replace VAT Date options.
+        RunBatchPostSales(SalesHeader."Document Type", SalesHeader."No.", SalesHeader."Posting Date" + 10, false);
+        asserterror LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
+
+        // [THEN] An Error Message appear and verify Sales Header Status as Released.
+        Assert.ExpectedError(NothingToPostErr);
+        VerifySalesOrderStatus(SalesHeader."Document Type", SalesHeader."No.")
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2039,6 +2072,14 @@ codeunit 134391 "ERM Sales Batch Posting"
         SalesInvoiceLine.SetFilter("Document No.", SalesInvoiceHeader."No.");
         SalesInvoiceLine.FindFirst();
         Assert.Equal(Amount, SalesInvoiceLine."Amount Including VAT");
+    end;
+
+    local procedure VerifySalesOrderStatus(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.Get(DocumentType, DocumentNo);
+        Assert.AreEqual(SalesHeader.Status::Released, SalesHeader.Status, SalesOrderStatusMsg);
     end;
 
     [RequestPageHandler]

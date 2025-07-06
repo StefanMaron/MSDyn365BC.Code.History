@@ -1886,10 +1886,11 @@ page 46 "Sales Order Subform"
 
     local procedure SetOpenPage()
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        Location: Record Location;
         ServerSetting: Codeunit "Server Setting";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
-        Location: Record Location;
     begin
         OnBeforeSetOpenPage();
 

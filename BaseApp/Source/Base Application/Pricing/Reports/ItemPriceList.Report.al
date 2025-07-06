@@ -391,6 +391,7 @@ report 7050 "Item Price List"
 
                         trigger OnLookup(var Text: Text) Result: Boolean
                         begin
+                            PriceSource.Validate("Source Type", SalesSourceType.AsInteger());
                             Result := PriceSource.LookupNo();
                             if Result then begin
                                 SalesSourceNo := PriceSource."Source No.";

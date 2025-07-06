@@ -279,6 +279,8 @@ codeunit 139694 "Usage Based Rebilling Test"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Usage Based Rebilling Test");
+
         if Initialized then
             exit;
 
@@ -641,6 +643,7 @@ codeunit 139694 "Usage Based Rebilling Test"
         ContractTestLibrary: Codeunit "Contract Test Library";
         LibraryRandom: Codeunit "Library - Random";
         UBBTestLibrary: Codeunit "Usage Based B. Test Library";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         RRef: RecordRef;
         Initialized: Boolean;
         PostDocument: Boolean;

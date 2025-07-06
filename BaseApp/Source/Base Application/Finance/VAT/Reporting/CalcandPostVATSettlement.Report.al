@@ -17,7 +17,6 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
-using Microsoft.Purchases.Payables;
 using System.Utilities;
 
 report 20 "Calc. and Post VAT Settlement"
@@ -934,7 +933,6 @@ report 20 "Calc. and Post VAT Settlement"
 
     local procedure GetVATAmountOfPropDeduct(VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"): Decimal
     var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
         OriginalAmount: Decimal;
     begin
         if not VATPostingSetup."Calc. Prop. Deduction VAT" then
@@ -944,14 +942,7 @@ report 20 "Calc. and Post VAT Settlement"
         if VATPostingSetup."Proportional Deduction VAT %" = 0 then
             exit(Round(VATEntry.Base * VATPostingSetup."VAT %" / 100));
 
-        VendorLedgerEntry.SetRange("Document No.", VATEntry."Document No.");
-        VendorLedgerEntry.SetRange("Posting Date", VATEntry."Posting Date");
-        VendorLedgerEntry.SetRange("Transaction No.", VATEntry."Transaction No.");
-        if VendorLedgerEntry.FindFirst() then begin
-            VendorLedgerEntry.CalcFields("Original Amt. (LCY)");
-            OriginalAmount := -VendorLedgerEntry."Original Amt. (LCY)";
-        end else
-            OriginalAmount := Round(VATEntry.Base / (VATPostingSetup."Proportional Deduction VAT %" / 100));
+        OriginalAmount := VATEntry."Base Before Pmt. Disc.";
         exit(Round(OriginalAmount * VATPostingSetup."VAT %" / 100));
     end;
 

@@ -62,6 +62,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
         CreatePutaway: Codeunit "Create Put-away";
         Window: Dialog;
+        ItemsToAdjust: List of [Code[20]];
         PostponedValueEntries: List of [Integer];
         ItemRegNo: Integer;
         WhseRegNo: Integer;
@@ -168,10 +169,7 @@ codeunit 23 "Item Jnl.-Post Batch"
 
         ItemJnlPostLine.PostDeferredValueEntriesToGL(PostponedValueEntries);
 
-        InvtSetup.SetLoadFields("Automatic Cost Adjustment", "Automatic Cost Posting");
-        InvtSetup.Get();
-        if InvtSetup.AutomaticCostAdjmtRequired() then
-            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+        MakeInventoryAdjustment();
 
         // Update/delete lines
         OnBeforeUpdateDeleteLines(ItemJnlLine, ItemRegNo);
@@ -1004,6 +1002,11 @@ codeunit 23 "Item Jnl.-Post Batch"
         ItemJournalLine.ClearDates();
     end;
 
+    local procedure MakeInventoryAdjustment()
+    begin
+        InvtAdjmtHandler.MakeAutomaticInventoryAdjustment(ItemsToAdjust);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostValueEntryToGL', '', false, false)]
     local procedure OnBeforePostValueEntryToGL(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
     begin
@@ -1046,6 +1049,16 @@ codeunit 23 "Item Jnl.-Post Batch"
     begin
         if WarehouseEntry."Warehouse Register No." > WhseRegNo then
             WhseRegNo := WarehouseEntry."Warehouse Register No.";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem', '', false, false)]
+    local procedure OnSetItemAdjmtPropertiesOnBeforeCheckModifyItem(var Item2: Record Item)
+    begin
+        if InvtSetup.UseLegacyPosting() then
+            exit;
+
+        if not ItemsToAdjust.Contains(Item2."No.") then
+            ItemsToAdjust.Add(Item2."No.");
     end;
 
     [IntegrationEvent(false, false)]

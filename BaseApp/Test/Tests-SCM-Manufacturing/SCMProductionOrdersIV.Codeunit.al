@@ -4054,6 +4054,185 @@ codeunit 137083 "SCM Production Orders IV"
         VerifyCostFieldsInSKU(StockkeepingUnit, RevaluedUnitCost, RevaluedUnitCost, RevaluedUnitCost, 0, 0, 0, 0);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,ReleasedProdOrderPageHandler')]
+    procedure VerifyConsumptionMustNotBePostedIfComponentHaveBackwardFlushingWhenReopenProductionOrder()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        FinishedProductionOrder: TestPage "Finished Production Order";
+        QuantityPer: Decimal;
+        Quantity: Decimal;
+        PartialQuantity: Decimal;
+    begin
+        // [SCENARIO 574905] Verify consumption must not be posted if the component has a backward flushing method When Status is changed from Released to Finished after Reopen the production Order.
+        Initialize();
+
+        // [GIVEN] Set location code in Manufacturing Setup.
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", '');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Generate "Quantity Per", Quantity and Partial Quantity.
+        QuantityPer := LibraryRandom.RandIntInRange(2, 5);
+        Quantity := LibraryRandom.RandIntInRange(10, 20);
+        PartialQuantity := LibraryRandom.RandIntInRange(1, 5);
+
+        // [GIVEN] Create an Item with BOM and Routing.
+        CreateItemWithBOMAndRouting(Item, ChildItem, QuantityPer);
+
+        // [GIVEN] Update Routing Link Code in Prod BOM Line and Routing Line.
+        UpdateRoutingLinkCodeInProdBOMAndRouting(Item, ChildItem, '');
+
+        // [GIVEN] Create and Post Item Journal Line for Component item with Unit Cost.
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine, ChildItem."No.", LibraryRandom.RandIntInRange(100, 200), '', '', LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", Quantity, '', '');
+
+        // [GIVEN] Find Released Production Order Line.
+        FindProdOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrder."No.");
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", PartialQuantity, 0, 0);
+
+        // [WHEN] Change Status From Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] Verify Consumption Entry must be created with Output Quantity as Component has backward flushing Method.
+        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
+        ItemLedgerEntry.SetRange("Order No.", ProductionOrder."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        ItemLedgerEntry.SetRange("Item No.", ChildItem."No.");
+        ItemLedgerEntry.CalcSums(Quantity);
+        Assert.RecordCount(ItemLedgerEntry, 1);
+        Assert.AreEqual(
+            -PartialQuantity * QuantityPer,
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -PartialQuantity * QuantityPer, ItemLedgerEntry.TableCaption()));
+
+        // [GIVEN] Get Finished Production Order.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [GIVEN] Execute "ReopenFinishProdOrder" action.
+        FinishedProductionOrder.OpenEdit();
+        FinishedProductionOrder.GoToRecord(ProductionOrder);
+        FinishedProductionOrder.ReopenFinishedProdOrder.Invoke();
+
+        // [WHEN] Change Status From Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] Verify Consumption Entry must not be created with Output Quantity again as consumption is already posted.
+        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
+        ItemLedgerEntry.SetRange("Order No.", ProductionOrder."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        ItemLedgerEntry.SetRange("Item No.", ChildItem."No.");
+        ItemLedgerEntry.CalcSums(Quantity);
+        Assert.RecordCount(ItemLedgerEntry, 1);
+        Assert.AreEqual(
+            -PartialQuantity * QuantityPer,
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -PartialQuantity * QuantityPer, ItemLedgerEntry.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,ReleasedProdOrderPageHandler')]
+    procedure VerifyConsumptionMustBePostedIfComponentHaveBackwardFlushingWhenReopenProductionOrder()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        FinishedProductionOrder: TestPage "Finished Production Order";
+        QuantityPer: Decimal;
+        Quantity: Decimal;
+        PartialQuantity: Decimal;
+    begin
+        // [SCENARIO 574905] Verify consumption must be posted if the component has a backward flushing method for remaining Finished Quantity When Status is changed from Released to Finished after Reopen the production Order.
+        Initialize();
+
+        // [GIVEN] Set location code in Manufacturing Setup.
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", '');
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Generate "Quantity Per", Quantity and Partial Quantity.
+        QuantityPer := LibraryRandom.RandIntInRange(2, 5);
+        Quantity := LibraryRandom.RandIntInRange(10, 20);
+        PartialQuantity := LibraryRandom.RandIntInRange(1, 5);
+
+        // [GIVEN] Create an Item with BOM and Routing.
+        CreateItemWithBOMAndRouting(Item, ChildItem, QuantityPer);
+
+        // [GIVEN] Update Routing Link Code in Prod BOM Line and Routing Line.
+        UpdateRoutingLinkCodeInProdBOMAndRouting(Item, ChildItem, '');
+
+        // [GIVEN] Create and Post Item Journal Line for Component item with Unit Cost.
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine, ChildItem."No.", LibraryRandom.RandIntInRange(100, 200), '', '', LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", Quantity, '', '');
+
+        // [GIVEN] Find Released Production Order Line.
+        FindProdOrderLine(ProdOrderLine, ProdOrderLine.Status::Released, ProductionOrder."No.");
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", PartialQuantity, 0, 0);
+
+        // [WHEN] Change Status From Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] Verify Consumption Entry must be created with Output Quantity as Component has backward flushing Method.
+        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
+        ItemLedgerEntry.SetRange("Order No.", ProductionOrder."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        ItemLedgerEntry.SetRange("Item No.", ChildItem."No.");
+        ItemLedgerEntry.CalcSums(Quantity);
+        Assert.RecordCount(ItemLedgerEntry, 1);
+        Assert.AreEqual(
+            -PartialQuantity * QuantityPer,
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -PartialQuantity * QuantityPer, ItemLedgerEntry.TableCaption()));
+
+        // [GIVEN] Get Finished Production Order.
+        ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
+
+        // [GIVEN] Execute "ReopenFinishProdOrder" action.
+        FinishedProductionOrder.OpenEdit();
+        FinishedProductionOrder.GoToRecord(ProductionOrder);
+        FinishedProductionOrder.ReopenFinishedProdOrder.Invoke();
+
+        // [GIVEN] Create and Post Output Journal.
+        CreateAndPostOutputJournalWithRunTimeAndUnitCost(ProductionOrder."No.", Quantity - PartialQuantity, 0, 0);
+
+        // [WHEN] Change Status From Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] Verify Consumption Entry must be created with remaining Output Quantity.
+        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
+        ItemLedgerEntry.SetRange("Order No.", ProductionOrder."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        ItemLedgerEntry.SetRange("Item No.", ChildItem."No.");
+        ItemLedgerEntry.CalcSums(Quantity);
+        Assert.RecordCount(ItemLedgerEntry, 2);
+        Assert.AreEqual(
+            -Quantity * QuantityPer,
+            ItemLedgerEntry.Quantity,
+            StrSubstNo(ValueMustBeEqualErr, ItemLedgerEntry.FieldCaption(Quantity), -Quantity * QuantityPer, ItemLedgerEntry.TableCaption()));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Production Orders IV");
@@ -4797,6 +4976,27 @@ codeunit 137083 "SCM Production Orders IV"
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Location Code", LocationCode);
         ItemLedgerEntry.FindFirst();
+    end;
+
+    local procedure UpdateRoutingLinkCodeInProdBOMAndRouting(Item: Record Item; ChildItem: Record Item; RoutingLinkCode: Code[10])
+    var
+        RoutingLine: Record "Routing Line";
+        ProdBOMLine: Record "Production BOM Line";
+    begin
+        FindProdBOMLine(ProdBOMLine, Item."Production BOM No.", ChildItem."No.");
+        FindRoutingLine(RoutingLine, Item."Routing No.", ProdBOMLine."Routing Link Code");
+        RoutingLine."Routing Link Code" := RoutingLinkCode;
+        RoutingLine.Modify();
+
+        ProdBOMLine."Routing Link Code" := RoutingLinkCode;
+        ProdBOMLine.Modify();
+    end;
+
+    local procedure FindRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; RoutingLinkCode: Code[10]);
+    begin
+        RoutingLine.SetRange("Routing No.", RoutingNo);
+        RoutingLine.SetRange("Routing Link Code", RoutingLinkCode);
+        RoutingLine.FindFirst();
     end;
 
     [ConfirmHandler]

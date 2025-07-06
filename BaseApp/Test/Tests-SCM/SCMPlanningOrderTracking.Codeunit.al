@@ -861,6 +861,69 @@
         // [THEN] Order Tracking page is opened with 2 lines for Item "I" and quantity = 1(checked in OrderTrackingWithLinesModalPageHandler handler)
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReqLineIsNotCreatedWhenCalcRegenPlanForCompItemPresentInRelProdOrder()
+    var
+        Item: array[4] of Record Item;
+        ProductionBOMHeader: array[2] of Record "Production BOM Header";
+        productionBOMLine: array[3] of Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 563946] Requition Line is not created when Stan runs Calculate Regenerative 
+        // Plan action for Component Item if the that Item is present in a Released Production Order 
+        // with required Quantity in its Prod. Order Line.
+        Initialize();
+
+        // [GIVEN] Create four Items.
+        CreateItem(Item[1]);
+        CreateItem(Item[2]);
+        CreateItem(Item[3]);
+        CreateItem(Item[4]);
+
+        // [GIVEN] Create a Production BOM for Item [2] and Item [3].
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[1], Item[2]."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader[1], ProductionBOMLine[1], '', ProductionBOMLine[1].Type::Item, Item[2]."No.", LibraryRandom.RandIntInRange(1, 1));
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader[1], ProductionBOMLine[2], '', ProductionBOMLine[2].Type::Item, Item[3]."No.", LibraryRandom.RandIntInRange(1, 1));
+
+        // [GIVEN] Validate "Status" in Production BOM Header [1].
+        ProductionBOMHeader[1].Validate("Status", ProductionBOMHeader[1].Status::Certified);
+        ProductionBOMHeader[1].Modify(true);
+
+        // [GIVEN] Create a Production BOM for Item [4].
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[2], Item[4]."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader[2], ProductionBOMLine[3], '', ProductionBOMLine[3].Type::Item, Item[4]."No.", LibraryRandom.RandIntInRange(1, 1));
+
+        // [GIVEN] Validate "Status" in Production BOM Header [2].
+        ProductionBOMHeader[2].Validate("Status", ProductionBOMHeader[2].Status::Certified);
+        ProductionBOMHeader[2].Modify(true);
+
+        // [GIVEN] Validate "Production BOM No." in Item [1].
+        Item[1].Validate("Production BOM No.", ProductionBOMHeader[1]."No.");
+        Item[1].Modify(true);
+
+        // [GIVEN] Validate "Production BOM No." in Item [2].
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader[2]."No.");
+        Item[2].Modify(true);
+
+        // [GIVEN] Validate "Production BOM No." in Item [3].
+        Item[3].Validate("Production BOM No.", ProductionBOMHeader[2]."No.");
+        Item[3].Modify(true);
+
+        // [GIVEN] Create and Refresh Released Production Order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item[1]."No.", LibraryRandom.RandIntInRange(1, 1));
+
+        // [GIVEN] Calculate Regenerative Plan for Planning Worksheet.
+        CalculateRegenPlanForPlanningWorksheet(Item[4]);
+
+        // [WHEN] Find Requisition Line.
+        RequisitionLine.SetRange("No.", Item[4]."No.");
+
+        // [THEN] Requisition Line is not found.
+        Assert.IsTrue(RequisitionLine.IsEmpty(), StrSubstNo(ReqLineShouldNotExistErr, ''));
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -1604,6 +1667,15 @@
         ReservationEntry.Quantity := Quantity;
         ReservationEntry."Quantity (Base)" := Quantity;
         ReservationEntry.Insert();
+    end;
+
+    local procedure CreateItem(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
+        Item.Modify(true);
     end;
 
     [RequestPageHandler]
