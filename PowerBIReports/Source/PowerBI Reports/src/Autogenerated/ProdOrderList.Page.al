@@ -6,11 +6,9 @@ page 37097 "Prod. Order - List"
 {
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = Manufacturing;
-#pragma warning disable AS0035 // Changed from Card to UserControlHost
     PageType = UserControlHost;
-#pragma warning restore AS0035
-    Caption = 'Prod. Order - List';
-    AboutTitle = 'About Prod. Order - List';
+    Caption = 'Production Order - List';
+    AboutTitle = 'About Production Order - List';
     AboutText = 'View all production orders and analyze detailed production order information, including status, due date, and planned versus finished quantities.';
 
     layout
@@ -25,7 +23,7 @@ page 37097 "Prod. Order - List"
                 begin
                     SetupHelper.InitializeEmbeddedAddin(CurrPage.PowerBIAddin, ReportId, ReportPageLbl);
                 end;
-                
+
                 trigger ReportLoaded(ReportFilters: Text; ActivePageName: Text; ActivePageFilters: Text; CorrelationId: Text)
                 begin
                     SetupHelper.LogReportLoaded(CorrelationId);

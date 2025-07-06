@@ -308,8 +308,14 @@ table 7317 "Warehouse Receipt Line"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                ShouldGetUseCrossDock: Boolean;
             begin
-                CrossDockMgt.GetUseCrossDock(UseCrossDock, "Location Code", "Item No.");
+                ShouldGetUseCrossDock := true;
+                OnValidateQtyToCrossDockOnBeforeGetUseCrossDock(Rec, CurrFieldNo, ShouldGetUseCrossDock, UseCrossDock);
+                if ShouldGetUseCrossDock then
+                    CrossDockMgt.GetUseCrossDock(UseCrossDock, "Location Code", "Item No.");
+
                 if not UseCrossDock then
                     Error(Text006, Item.TableCaption(), Location.TableCaption());
                 if "Qty. to Cross-Dock" > "Qty. to Receive" then
@@ -906,6 +912,11 @@ table 7317 "Warehouse Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitNewLine(DocumentNo: Code[20]; var SkipLocking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQtyToCrossDockOnBeforeGetUseCrossDock(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; CallingFieldNo: Integer; var ShouldGetUseCrossDock: Boolean; var UseCrossDock: Boolean)
     begin
     end;
 }

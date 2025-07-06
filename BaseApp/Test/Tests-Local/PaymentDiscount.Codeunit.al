@@ -533,6 +533,7 @@ codeunit 144001 "Payment Discount"
         TempPrepmtInvLineBuf.TestField("VAT Base Amount", Round(SalesLine.Amount * (1 - (SalesHeader."Payment Discount %" / 100))));
     end;
 
+#if not CLEAN27
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('ServiceInvoiceStatisticsPageHandler')]
@@ -590,6 +591,69 @@ codeunit 144001 "Payment Discount"
         PostedServiceCreditMemo.OpenEdit();
         PostedServiceCreditMemo.GotoRecord(ServiceCrMemoHeader);
         PostedServiceCreditMemo.Statistics.Invoke();
+        PostedServiceCreditMemo.Close();
+
+        // [THEN] "VAT Base (Lowered)" equals to 980, calculated as 1000 * (1 - 0,02)
+        // Validation in page handler
+    end;
+#endif
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ServiceInvoiceStatisticsPageHandlerNM')]
+    procedure PaymentDiscInVATAmtLineOfServInvoiceNM()
+    var
+        ServHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        PostedServiceInvoice: TestPage "Posted Service Invoice";
+        ExpectedAmount: Decimal;
+    begin
+        // [FEATURE] [Service Invoice]
+        // [SCENARIO 375681] "VAT Base (Lowered)" should be shown in Statistics of Posted Service Invoice and contain VAT Base excluding Payment Discount
+
+        // [GIVEN] Posted Service Invoice having 1000 VAT Base and 2% Payment Discount
+        CreateServDocWithPricesInclVAT(ServHeader, ServHeader."Document Type"::Order, false);
+        ExpectedAmount :=
+          Round(GetServVATBase(ServHeader) * (1 - ServHeader."Payment Discount %" / 100), LibraryERM.GetAmountRoundingPrecision());
+        LibraryService.PostServiceOrder(ServHeader, true, false, true);
+        ServiceInvoiceHeader.SetFilter("Order No.", ServHeader."No.");
+        ServiceInvoiceHeader.FindFirst();
+
+        // [WHEN] Open Posted Service Invoice Statistics
+        LibraryVariableStorage.Enqueue(ExpectedAmount);
+        PostedServiceInvoice.OpenEdit();
+        PostedServiceInvoice.GotoRecord(ServiceInvoiceHeader);
+        PostedServiceInvoice.ServiceStatistics.Invoke();
+        PostedServiceInvoice.Close();
+
+        // [THEN] "VAT Base (Lowered)" equals to 980, calculated as 1000 * (1 - 0,02)
+        // Validation in page handler
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ServiceCreditMemoStatisticsPageHandlerNM')]
+    procedure PaymentDiscInVATAmtLineOfServCrMemoNM()
+    var
+        ServHeader: Record "Service Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        PostedServiceCreditMemo: TestPage "Posted Service Credit Memo";
+        ExpectedAmount: Decimal;
+    begin
+        // [FEATURE] [Service Cr Memo]
+        // [SCENARIO 375789] "VAT Base (Lowered)" should be shown in Statistics of Posted Service Credit Memo and contain VAT Base excluding Payment Discount
+
+        // [GIVEN] Posted Service Credit Memo having 1000 VAT Base and 2% VAT Base Discount
+        CreateServCrMemo(ServHeader);
+        ExpectedAmount :=
+          Round(GetServVATBase(ServHeader) * (1 - ServHeader."VAT Base Discount %" / 100), LibraryERM.GetAmountRoundingPrecision());
+        LibraryService.PostServiceOrder(ServHeader, true, false, true);
+        ServiceCrMemoHeader.Get(ServHeader."Last Posting No.");
+
+        // [WHEN] Open Posted Service Credit Memo Statistics
+        LibraryVariableStorage.Enqueue(ExpectedAmount);
+        PostedServiceCreditMemo.OpenEdit();
+        PostedServiceCreditMemo.GotoRecord(ServiceCrMemoHeader);
+        PostedServiceCreditMemo.ServiceStatistics.Invoke();
         PostedServiceCreditMemo.Close();
 
         // [THEN] "VAT Base (Lowered)" equals to 980, calculated as 1000 * (1 - 0,02)
@@ -1257,7 +1321,7 @@ codeunit 144001 "Payment Discount"
         VATEntry.FindFirst();
         VATEntry.TestField("Base Before Pmt. Disc.", Amount);
     end;
-
+#if not CLEAN27
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceInvoiceStatisticsPageHandler(var ServiceInvoiceStatistics: TestPage "Service Invoice Statistics")
@@ -1277,5 +1341,24 @@ codeunit 144001 "Payment Discount"
         LibraryVariableStorage.Dequeue(ExpectedAmount);
         ServiceCreditMemoStatistics.Subform."VAT Base (Lowered)".AssertEquals(ExpectedAmount);
     end;
-}
+#endif
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceStatisticsPageHandlerNM(var ServiceInvoiceStatistics: TestPage "Service Invoice Statistics")
+    var
+        ExpectedAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ExpectedAmount);
+        ServiceInvoiceStatistics.Subform."VAT Base (Lowered)".AssertEquals(ExpectedAmount);
+    end;
 
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceCreditMemoStatisticsPageHandlerNM(var ServiceCreditMemoStatistics: TestPage "Service Credit Memo Statistics")
+    var
+        ExpectedAmount: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ExpectedAmount);
+        ServiceCreditMemoStatistics.Subform."VAT Base (Lowered)".AssertEquals(ExpectedAmount);
+    end;
+}

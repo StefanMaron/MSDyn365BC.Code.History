@@ -15,6 +15,7 @@ using Microsoft.FixedAssets.Ledger;
 using Microsoft.Foundation.Enums;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
+using Microsoft.Projects.Project.Journal;
 
 /// <summary>
 /// Provides an interface of the Non-Deductible VAT functionality.
@@ -428,6 +429,11 @@ codeunit 6200 "Non-Deductible VAT"
     procedure CopyNonDedVATFromGenJnlLineToFALedgEntry(var FALedgEntry: Record "FA Ledger Entry"; GenJnlLine: Record "Gen. Journal Line")
     begin
         NonDedVATImpl.CopyNonDedVATFromGenJnlLineToFALedgEntry(FALedgEntry, GenJnlLine);
+    end;
+
+    procedure CopyNonDedVATFromGenJnlLineToJobJnlLine(var JobJnlLine: Record "Job Journal Line"; GenJnlLine: Record "Gen. Journal Line")
+    begin
+        NonDedVATImpl.CopyNonDedVATFromGenJnlLineToJobJnlLine(JobJnlLine, GenJnlLine);
     end;
 
     /// <summary>

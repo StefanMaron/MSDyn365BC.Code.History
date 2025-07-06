@@ -262,6 +262,7 @@ codeunit 136613 "Res. Jnl. Error Handling"
         ResJournalLine.Validate("Posting Date", WorkDate());
         ResJournalLine.Validate("Resource No.", LibraryResource.CreateResourceNo());
         ResJournalLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
+        ResJournalLine.Validate("Document No.", ResJournalLine."Resource No.");
         ResJournalLine.Modify();
     end;
 
@@ -272,6 +273,7 @@ codeunit 136613 "Res. Jnl. Error Handling"
         ResJournalLine.Validate("Posting Date", WorkDate());
         ResJournalLine.Validate("Resource No.", LibraryResource.CreateResourceNo());
         ResJournalLine.Validate(Quantity, LibraryRandom.RandIntInRange(2, 10));
+        ResJournalLine.Validate("Document No.", ResJournalLine."Resource No.");
         ResJournalLine."Gen. Prod. Posting Group" := '';
         ResJournalLine.Modify();
     end;
@@ -286,6 +288,7 @@ codeunit 136613 "Res. Jnl. Error Handling"
         ResJournalLine.Validate("Posting Date", WorkDate());
         ResJournalLine.Validate("Resource No.", LibraryResource.CreateResourceNo());
         ResJournalLine.Validate(Quantity, LibraryRandom.RandIntInRange(2, 10));
+        ResJournalLine.Validate("Document No.", ResJournalLine."Resource No.");
         ResJournalLine."Gen. Prod. Posting Group" := '';
         ResJournalLine.Modify();
     end;

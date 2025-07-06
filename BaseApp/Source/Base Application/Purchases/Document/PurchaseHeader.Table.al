@@ -4199,8 +4199,12 @@ table 38 "Purchase Header"
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
         OldDimSetID: Integer;
+        IsHandled: Boolean;
     begin
-        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
+        IsHandled := false;
+        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
 
         OldDimSetID := "Dimension Set ID";
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
@@ -5477,7 +5481,6 @@ table 38 "Purchase Header"
         exit(PAGE::"Purchase Statistics");
     end;
 #endif
-
     [IntegrationEvent(true, false)]
     procedure OnCheckPurchasePostRestrictions()
     begin
@@ -8257,7 +8260,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShortcutDimCode(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    local procedure OnBeforeValidateShortcutDimCode(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

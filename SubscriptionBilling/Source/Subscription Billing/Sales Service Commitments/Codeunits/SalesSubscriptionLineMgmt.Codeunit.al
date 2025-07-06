@@ -73,13 +73,16 @@ codeunit 8069 "Sales Subscription Line Mgmt."
             exit;
         if SalesLine.IsContractRenewal() then
             Error(NoAddServicesForContractRenewalAllowedErr);
-        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        ServiceCommitmentPackage.SetRange("Price Group", SalesHeader."Customer Price Group");
-        if ServiceCommitmentPackage.IsEmpty then
-            ServiceCommitmentPackage.SetRange("Price Group");
 
         PackageFilter := ItemServCommitmentPackage.GetPackageFilterForItem(SalesLine, RemoveExistingPackageFromFilter);
         ServiceCommitmentPackage.FilterCodeOnPackageFilter(PackageFilter);
+
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        if SalesHeader."Customer Price Group" <> '' then
+            ServiceCommitmentPackage.SetFilter("Price Group", '%1|%2', SalesHeader."Customer Price Group", '');
+        if ServiceCommitmentPackage.IsEmpty() then
+            ServiceCommitmentPackage.SetRange("Price Group");
+
         OnAddAdditionalSalesSubscriptionLinesForSalesLineAfterApplyFilters(ServiceCommitmentPackage, SalesLine);
 
         ShowAssignServiceCommitments := not ServiceCommitmentPackage.IsEmpty();
@@ -129,7 +132,7 @@ codeunit 8069 "Sales Subscription Line Mgmt."
         exit(IsSalesLineWithSalesServiceCommitments(SalesLine, SkipTemporaryCheck, false));
     end;
 
-    internal procedure IsSalesLineWithServiceCommitmentItem(var SalesLine: Record "Sales Line"; SkipTemporaryCheck: Boolean): Boolean
+    procedure IsSalesLineWithServiceCommitmentItem(var SalesLine: Record "Sales Line"; SkipTemporaryCheck: Boolean): Boolean
     begin
         exit(IsSalesLineWithSalesServiceCommitments(SalesLine, SkipTemporaryCheck, true));
     end;

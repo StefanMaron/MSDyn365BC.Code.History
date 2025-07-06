@@ -463,6 +463,7 @@ table 17 "G/L Entry"
         field(6202; "Src. Curr. Non-Ded. VAT Amount"; Decimal)
         {
             Caption = 'Source Currency Non-Deductible VAT Amount';
+            AutoFormatExpression = Rec."Source Currency Code";
             AutoFormatType = 1;
         }
         field(8001; "Account Id"; Guid)

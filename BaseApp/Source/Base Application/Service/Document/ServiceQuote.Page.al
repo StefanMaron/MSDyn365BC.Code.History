@@ -788,6 +788,7 @@ page 5964 "Service Quote"
                                   Type = const(General);
                     ToolTip = 'View or add comments for the record.';
                 }
+#if not CLEAN27
                 action(Statistics)
                 {
                     ApplicationArea = Service;
@@ -795,11 +796,30 @@ page 5964 "Service Quote"
                     Image = Statistics;
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                    ObsoleteReason = 'The statistics action will be replaced with the ServiceStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
 
                     trigger OnAction()
                     begin
                         Rec.OpenStatistics();
                     end;
+                }
+#endif
+                action(ServiceStatistics)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Statistics';
+                    Image = Statistics;
+                    ShortCutKey = 'F7';
+                    ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+#if CLEAN27
+                    Visible = true;
+#else
+                    Visible = false;
+#endif
+                    RunObject = Page "Service Statistics";
+                    RunPageOnRec = true;
                 }
                 action("Customer Card")
                 {
@@ -967,9 +987,18 @@ page 5964 "Service Quote"
                 actionref("&Dimensions_Promoted"; "&Dimensions")
                 {
                 }
+#if not CLEAN27
                 actionref(Statistics_Promoted; Statistics)
                 {
+                    ObsoleteReason = 'The statistics action will be replaced with the ServiceStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
                 }
+#else
+                actionref(ServiceStatistics_Promoted; ServiceStatistics)
+                {
+                }
+#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
@@ -1092,4 +1121,3 @@ page 5964 "Service Quote"
         CurrPage.Update(true);
     end;
 }
-

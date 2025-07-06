@@ -2223,6 +2223,240 @@ codeunit 136353 "UT T Job Planning Line"
                 JobPlanningLine.TableCaption()));
     end;
 
+    [Test]
+    procedure UnitCostIsNotUpdatedWhenUnitPriceIsChangedInJobPlanningLine()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        JobPlanningLines: TestPage "Job Planning Lines";
+        UnitCost: Decimal;
+        UnitCostLCY: Decimal;
+    begin
+        // [SCENARIO 561139] Unit Cost in Job Planning Line is not changed when Unit Price is changed.
+        Initialize();
+
+        // [GIVEN] Create an Item and Validate Costing Method and Unit Cost.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Validate("Unit Cost", LibraryRandom.RandInt(100));
+        Item.Modify(true);
+
+        // [GIVEN] Create a Job and a Job task.
+        CreateJobAndJobTask(Job, JobTask, false, CreateCurrency());
+
+        // [GIVEN] Generate and save Unit Cost in a Variable.
+        UnitCost := LibraryRandom.RandInt(50);
+
+        // [GIVEN] Create a Job Planning Line and Validate Type and No.
+        CreateSimpleJobPlanningLine(JobPlanningLine, JobTask);
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate("Unit Cost", UnitCost);
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Save value in variable
+        UnitCostLCY := JobPlanningLine."Unit Cost (LCY)";
+
+        // [GIVEN] Find Job Planning Line.
+        JobPlanningLine.Get(
+            JobPlanningLine."Job No.",
+            JobPlanningLine."Job Task No.",
+            JobPlanningLine."Line No.");
+
+        // [GIVEN] Open Job Planning Lines page and set value in Unit Price.
+        JobPlanningLines.OpenEdit();
+        JobPlanningLines.GoToRecord(JobPlanningLine);
+        JobPlanningLines."Unit Price".SetValue(LibraryRandom.RandInt(100));
+        JobPlanningLines.Close();
+
+        // [WHEN] Find Job Planning Line.
+        JobPlanningLine.Get(
+            JobPlanningLine."Job No.",
+            JobPlanningLine."Job Task No.",
+            JobPlanningLine."Line No.");
+
+        // [THEN] Unit Cost of Job Planning Line is equal to UnitCost.
+        Assert.AreEqual(
+            UnitCost,
+            JobPlanningLine."Unit Cost",
+            StrSubstNo(
+                UnitCostErr,
+                JobPlanningLine.FieldCaption("Unit Cost"),
+                UnitCost,
+                JobPlanningLine.TableCaption()));
+
+        // [THEN] Unit Cost (LCY) of Job Planning Line is equal to Unit Cost of Item.
+        Assert.AreEqual(
+            UnitCostLCY,
+            JobPlanningLine."Unit Cost (LCY)",
+            StrSubstNo(
+                UnitCostLCYErr,
+                JobPlanningLine.FieldCaption("Unit Cost (LCY)"),
+                UnitCostLCY,
+                JobPlanningLine.TableCaption()));
+    end;
+
+    [Test]
+    procedure RenameItemUpdateJobPlanningLine()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        NewItemNo: Code[20];
+    begin
+        // [SCENARIO 574025] When Renaming an Item, the Job Planning Line is updated with the new Item No.
+        Initialize();
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobAndJobTask(Job, JobTask, false, '');
+
+        // [GIVEN] Create Job Planning Line and Validate No.
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
+            JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Modify(true);
+
+        // [WHEN] Rename Item No.
+        RenameItem(Item."No.", NewItemNo);
+
+        // [THEN] Find Job Planning Line and validate No.
+        FindJobPlanningLine(JobPlanningLine, JobTask, Job, JobPlanningLine.Type::Item);
+        Assert.AreEqual(
+            NewItemNo,
+            JobPlanningLine."No.",
+            StrSubstNo(
+                NoJobPlanningLineErr,
+                JobPlanningLine.FieldCaption("No."),
+                NewItemNo,
+                JobPlanningLine.TableCaption()));
+    end;
+
+    [Test]
+    procedure RenameResourceUpdateJobPlanningLine()
+    var
+        Resource: Record Resource;
+        VATPostingSetup: Record "VAT Posting Setup";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        NewResourceNo: Code[20];
+    begin
+        // [SCENARIO 574025] Renaming a Resource updates the Job Planning Line with the new Resource No.
+        Initialize();
+
+        // [GIVEN] Create Resource
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryResource.CreateResource(Resource, VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobAndJobTask(Job, JobTask, false, '');
+
+        // [GIVEN] Create Job Planning Line and Validate No.
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
+            JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", Resource."No.");
+        JobPlanningLine.Modify(true);
+
+        // [WHEN] Rename Resource No.
+        RenameResource(Resource."No.", NewResourceNo);
+
+        // [THEN] Find Job Planning Line and validate No.
+        FindJobPlanningLine(JobPlanningLine, JobTask, Job, JobPlanningLine.Type::Resource);
+        Assert.AreEqual(
+            NewResourceNo,
+            JobPlanningLine."No.",
+            StrSubstNo(
+                NoJobPlanningLineErr,
+                JobPlanningLine.FieldCaption("No."),
+                NewResourceNo,
+                JobPlanningLine.TableCaption()));
+    end;
+
+    [Test]
+    procedure RenameGLAccountUpdateJobPlanningLine()
+    var
+        GLAccount: Record "G/L Account";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        NewGLAccountNo: Code[20];
+    begin
+        // [SCENARIO 574025] Renaming a GLAccount updates the Job Planning Line with the new GLAccount No.
+        Initialize();
+
+        // [GIVEN] Create GLAccount
+        NewGLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
+        GLAccount.Get(NewGLAccountNo);
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobAndJobTask(Job, JobTask, false, '');
+
+        // [GIVEN] Create Job Planning Line and Validate No.
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
+            JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", GLAccount."No.");
+        JobPlanningLine.Modify(true);
+
+        // [WHEN] Rename GLAccount No.
+        RenameGLAccount(GLAccount."No.", NewGLAccountNo);
+
+        // [THEN] Find Job Planning Line and validate No.
+        FindJobPlanningLine(JobPlanningLine, JobTask, Job, JobPlanningLine.Type::"G/L Account");
+        Assert.AreEqual(
+            NewGLAccountNo,
+            JobPlanningLine."No.",
+            StrSubstNo(
+                NoJobPlanningLineErr,
+                JobPlanningLine.FieldCaption("No."),
+                NewGLAccountNo,
+                JobPlanningLine.TableCaption()));
+    end;
+
+    [Test]
+    procedure RenameStandardTextUpdateJobPlanningLine()
+    var
+        StandardText: Record "Standard Text";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        NewStandardTextNo: Code[20];
+    begin
+        // [SCENARIO 574025] Renaming a StandardText updates the Job Planning Line with the new StandardText No.
+        Initialize();
+
+        // [GIVEN] Create ResStandardTextource
+        LibrarySales.CreateStandardText(StandardText);
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobAndJobTask(Job, JobTask, false, '');
+
+        // [GIVEN] Create Job Planning Line and Validate No.
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
+            JobPlanningLine.Type::Text, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", StandardText.Code);
+        JobPlanningLine.Modify(true);
+
+        // [WHEN] Rename Resource No.
+        RenameStandardText(StandardText.Code, NewStandardTextNo);
+
+        // [THEN] Find Job Planning Line and validate No.
+        FindJobPlanningLine(JobPlanningLine, JobTask, Job, JobPlanningLine.Type::Text);
+        Assert.AreEqual(
+            NewStandardTextNo,
+            JobPlanningLine."No.",
+            StrSubstNo(
+                NoJobPlanningLineErr,
+                JobPlanningLine.FieldCaption("No."),
+                NewStandardTextNo,
+                JobPlanningLine.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2556,6 +2790,42 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, ItemNo);
         ExtendedTextHeader.Validate("All Language Codes", true);
         ExtendedTextHeader.Modify(true);
+    end;
+
+    local procedure RenameItem(ItemCode: Code[20]; var NewKey: Code[20])
+    var
+        Item: Record Item;
+    begin
+        Item.Get(ItemCode);
+        NewKey := CopyStr(LibraryRandom.RandText(20), 1, 20);
+        Item.Rename(NewKey);
+    end;
+
+    local procedure RenameResource(ResourceCode: Code[20]; var NewKey: Code[20])
+    var
+        Resource: Record Resource;
+    begin
+        Resource.Get(ResourceCode);
+        NewKey := CopyStr(LibraryRandom.RandText(20), 1, 20);
+        Resource.Rename(NewKey);
+    end;
+
+    local procedure RenameGLAccount(GLAccountCode: Code[20]; var NewKey: Code[20])
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.Get(GLAccountCode);
+        NewKey := CopyStr(LibraryRandom.RandText(20), 1, 20);
+        GLAccount.Rename(NewKey);
+    end;
+
+    local procedure RenameStandardText(StandardTextCode: Code[20]; var NewKey: Code[20])
+    var
+        StandardText: Record "Standard Text";
+    begin
+        StandardText.Get(StandardTextCode);
+        NewKey := CopyStr(LibraryRandom.RandText(20), 1, 20);
+        StandardText.Rename(NewKey);
     end;
 
     [ModalPageHandler]

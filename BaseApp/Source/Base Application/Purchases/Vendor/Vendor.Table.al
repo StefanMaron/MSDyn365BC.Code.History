@@ -2177,8 +2177,9 @@ table 23 Vendor
 
         Vendor.SetFilter(Name, '''@' + VendorWithoutQuote + '''');
         OnGetVendorNoOpenCardOnAfterSetVendorWithoutQuote(Vendor);
-        if Vendor.FindFirst() and (Vendor.Count() = 1) then
-            exit(Vendor."No.");
+        if Vendor.FindFirst() then
+            if Vendor.Count() = 1 then
+                exit(Vendor."No.");
         Vendor.SetRange(Name);
 
         VendorFilterFromStart := '''@' + VendorWithoutQuote + '*''';
@@ -2188,7 +2189,8 @@ table 23 Vendor
         Vendor.SetFilter(Name, VendorFilterFromStart);
         OnGetVendorNoOpenCardOnAfterVendorSetFilterFromStart(Vendor);
         if Vendor.FindFirst() then
-            exit(Vendor."No.");
+            if Vendor.Count() = 1 then
+                exit(Vendor."No.");
 
         VendorFilterContains := '''@*' + VendorWithoutQuote + '*''';
 
@@ -2589,6 +2591,50 @@ table 23 Vendor
             PaymentTerms.GetBySystemId("Payment Terms Id");
 
         Validate("Payment Terms Code", PaymentTerms.Code);
+    end;
+
+    procedure FindVendorByVATRegistrationNo(VATRegistrationNo: Text[20]): Code[20]
+    var
+        Vendor: Record Vendor;
+        CountryRegion: Record "Country/Region";
+        VATRegistrationNoFilterTxt: Label '*%1', Comment = '%1 - Filter value', Locked = true;
+    begin
+        if VATRegistrationNo = '' then
+            exit('');
+
+        Vendor.SetLoadFields("VAT Registration No.", "Enterprise No.", "Country/Region Code");
+
+        Vendor.SetFilter("Enterprise No.", StrSubstNo(VATRegistrationNoFilterTxt, CopyStr(VATRegistrationNo, 1, MaxStrLen(VATRegistrationNo))));
+        if Vendor.FindSet() then
+            repeat
+                if CountryRegion.DetermineCountry(Vendor."Country/Region Code") then
+                    if ExtractVatRegNo(Vendor."Enterprise No.", Vendor."Country/Region Code") = ExtractVatRegNo(VATRegistrationNo, Vendor."Country/Region Code") then
+                        exit(Vendor."No.");
+            until Vendor.Next() = 0;
+
+        Clear(Vendor);
+        Vendor.SetFilter("VAT Registration No.", StrSubstNo(VATRegistrationNoFilterTxt, CopyStr(VATRegistrationNo, 1, MaxStrLen(VATRegistrationNo))));
+        if Vendor.FindSet() then
+            repeat
+                if not CountryRegion.DetermineCountry(Vendor."Country/Region Code") then
+                    if ExtractVatRegNo(Vendor."VAT Registration No.", Vendor."Country/Region Code") = ExtractVatRegNo(VATRegistrationNo, Vendor."Country/Region Code") then
+                        exit(Vendor."No.");
+            until Vendor.Next() = 0;
+    end;
+
+    local procedure ExtractVatRegNo(VatRegNo: Text; CountryRegionCode: Text): Text
+    var
+        CompanyInformation: Record Microsoft.Foundation.Company."Company Information";
+    begin
+        if CountryRegionCode = '' then begin
+            CompanyInformation.Get();
+            CountryRegionCode := CompanyInformation."Country/Region Code";
+        end;
+        VatRegNo := UpperCase(VatRegNo);
+        VatRegNo := DelChr(VatRegNo, '=', DelChr(VatRegNo, '=', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'));
+        if StrPos(VatRegNo, UpperCase(CountryRegionCode)) = 1 then
+            VatRegNo := DelStr(VatRegNo, 1, StrLen(CountryRegionCode));
+        exit(VatRegNo);
     end;
 
     local procedure UpdatePaymentMethodCode()

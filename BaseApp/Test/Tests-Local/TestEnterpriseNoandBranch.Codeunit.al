@@ -155,6 +155,32 @@ codeunit 144025 "Test Enterprise No and Branch"
 
     [Test]
     [Scope('OnPrem')]
+    procedure FindVEndorByEnterpriseNo()
+    var
+        Vendor: Record Vendor;
+        LibraryBEHelper: Codeunit "Library - BE Helper";
+        EnterpriseNo: Code[20];
+        VendorNoToFind: Code[20];
+
+    begin
+        // [GIVEN] A Vendor with a valid Enterprise No.
+        Initialize();
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Country/Region Code", GetCountryBE());
+        Vendor.Modify();
+
+        Vendor.Validate("Enterprise No.", LibraryBEHelper.CreateEnterpriseNo());
+        EnterpriseNo := Vendor."Enterprise No.";
+        Vendor.Modify();
+
+        // [When] Find Vendor by Enterprise No.
+        VendorNoToFind := Vendor.FindVendorByVATRegistrationNo(EnterpriseNo);
+
+        Assert.AreEqual(EnterpriseNo, Vendor."Enterprise No.", 'Enterprise number is not set.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VATNoCanBeSetOnNonBelgianCustomer()
     var
         Customer: Record Customer;

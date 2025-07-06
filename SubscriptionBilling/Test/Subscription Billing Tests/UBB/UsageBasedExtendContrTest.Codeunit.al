@@ -44,6 +44,7 @@ codeunit 148159 "Usage Based Extend Contr. Test"
         UsageBasedBTestLibrary: Codeunit "Usage Based B. Test Library";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         RecordRef: RecordRef;
         i: Integer;
         ColumnSeparator: Option " ",Tab,Semicolon,Comma,Space,Custom;
@@ -205,6 +206,7 @@ codeunit 148159 "Usage Based Extend Contr. Test"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Usage Based Extend Contr. Test");
         ClearAll();
         ImportedServiceObject.Reset();
         ImportedServiceObject.DeleteAll(false);
