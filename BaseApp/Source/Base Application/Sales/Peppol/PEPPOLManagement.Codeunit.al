@@ -134,6 +134,12 @@ codeunit 1605 "PEPPOL Management"
           AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType);
     end;
 
+    procedure GetBuyerReference(SalesHeader: Record "Sales Header") BuyerReference: Text
+    begin
+        BuyerReference := SalesHeader."Your Reference";
+        OnAfterGetBuyerReference(SalesHeader, BuyerReference);
+    end;
+
     procedure GetAccountingSupplierPartyInfo(var SupplierEndpointID: Text; var SupplierSchemeID: Text; var SupplierName: Text)
     begin
         GetAccountingSupplierPartyInfoByFormat(SupplierEndpointID, SupplierSchemeID, SupplierName, false);
@@ -1563,5 +1569,9 @@ codeunit 1605 "PEPPOL Management"
     local procedure OnAfterGetAccountingSupplierPartyIdentificationID(SalesHeader: Record "Sales Header"; var PartyIdentificationID: Text)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetBuyerReference(SalesHeader: Record "Sales Header"; var BuyerReference: Text)
+    begin
+    end;
+}
