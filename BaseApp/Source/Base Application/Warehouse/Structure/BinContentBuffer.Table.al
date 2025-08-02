@@ -109,6 +109,11 @@ table 7330 "Bin Content Buffer"
             Caption = 'CD No.';
             DataClassification = SystemMetadata;
         }
+        field(7382; Dedicated; Boolean)
+        {
+            Caption = 'Dedicated';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
