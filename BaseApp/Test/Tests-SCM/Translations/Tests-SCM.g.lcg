@@ -12326,6 +12326,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders II - NamedType ItemLedgerEntryMustBeFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3590079757 - NamedType 1797050089" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Lot No. Caption, %2 = Expected Lot No., %3 = Warehouse Activity Line Table]D;]A;(LookupHint=Codeunit SCM Production Orders II - NamedType LotNoMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3590079757 - NamedType 1794134907" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Nothing to handle]]></Val>
@@ -13476,6 +13485,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation V - NamedType WrongQuantityErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1767918677 - NamedType 917089156" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You have changed Location Code on the sales header, but it has not been changed on the existing sales lines.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation Worksheet - NamedType ChangeLocationMessage)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1767918677 - NamedType 2987122714" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
