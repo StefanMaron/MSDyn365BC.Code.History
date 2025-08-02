@@ -9,11 +9,14 @@ using Microsoft.Service.Document;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Worksheet;
 using Microsoft.Service.Item;
+using Microsoft.Service.History;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Purchases.Document;
 using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.History;
+using System.TestLibraries.Utilities;
 
 codeunit 136144 "Service Order Warehouse Pick"
 {
@@ -33,6 +36,7 @@ codeunit 136144 "Service Order Warehouse Pick"
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
         ERR_ShipmentAndWorksheetLinesNotEqual: Label 'Number of shipment lines are not equal to number of worksheet lines added for warehouse shipment';
         ERR_SourceLineNoMismatchedInShipmentLineAndWorksheetLine: Label '"Source Line No." of shipment line is different from that of worksheet line for warehouse shipment';
@@ -141,6 +145,74 @@ codeunit 136144 "Service Order Warehouse Pick"
     begin
         CreateAndReleaseWhseShipment(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 3);
         WhsePickRequest.Get(WhsePickRequest."Document Type"::Shipment, WhsePickRequest."Document Subtype"::"0", WarehouseShipmentHeader."No.", GetWhiteLocation());
+    end;
+
+    [Test]
+    [HandlerFunctions('HandleRequestPageCreatePick,HandleConfirm,HandleMessage,HandlePickSelectionPage,ServiceShipmentModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostedSourceDocumentLinksToServiceShipment()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        PostedWhseShipmentHeader: Record "Posted Whse. Shipment Header";
+        PostedWhseShipment: TestPage "Posted Whse. Shipment";
+        WhsePostShipment: Codeunit "Whse.-Post Shipment";
+    begin
+        // [SCENARIO 582403] Posted Source Document of a Service Order incorrectly links to a blank Posted Sales Shipment instead of the expected Posted Service Shipment
+
+        // [GIVEN] A service order is created with warehouse location
+        DeleteExistingWhsWorksheetPickLines();
+        CreatePickWorksheet(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 1);
+        LibraryVariableStorage.Enqueue(ServiceHeader."No.");
+        ReceiveItemStockInWarehouse(ServiceLine, GetWhiteLocation());
+        Commit();
+        GetLatestWhseWorksheetLines(WarehouseShipmentHeader, WhseWorksheetLine);
+        repeat
+            WhseWorksheetLine.Validate("Qty. to Handle", WhseWorksheetLine.Quantity);
+            WhseWorksheetLine.Modify(true);
+        until WhseWorksheetLine.Next() <= 0;
+        Commit();
+
+        // [GIVEN] Create Warehouse pick document.
+        Codeunit.Run(Codeunit::"Whse. Create Pick", WhseWorksheetLine);
+
+        // [GIVEN] The warehouse pick is registered from the page
+        RegisterWarehousePickFromPage(ServiceHeader."No.", GetWhiteLocation(), true);
+
+        // [WHEN] The warehouse shipment is posted as ship
+        WhsePostShipment.SetPostingSettings(false); // Post as ship: Invoice = FALSE
+        WhsePostShipment.Run(WarehouseShipmentLine);
+
+        // [THEN] A posted warehouse shipment header is created
+        PostedWhseShipmentHeader.SetRange("Whse. Shipment No.", WarehouseShipmentLine."No.");
+        Assert.IsTrue(PostedWhseShipmentHeader.FindFirst(), 'Posted Whse Shipment Header should exist');
+
+        // [THEN] Verify A posted warehouse shipment source document is opening the Posted Service Shipment page
+        // Verification is done in ModalPageHandler
+        PostedWhseShipment.OpenView();
+        PostedWhseShipment.GoToRecord(PostedWhseShipmentHeader);
+        PostedWhseShipment.WhseShptLines."Posted Source Document".Invoke();
+    end;
+
+    local procedure RegisterWarehousePickFromPage(ServiceOrderNo: Code[20]; LocationCode: Code[10]; AutoFillQtyToHandle: Boolean)
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehousePickPage: TestPage "Warehouse Pick";
+    begin
+        WarehouseActivityLine.SetRange("Source Document", WarehouseActivityHeader."Source Document"::"Service Order");
+        WarehouseActivityLine.SetRange("Source No.", ServiceOrderNo);
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+        WarehousePickPage.OpenEdit();
+        WarehousePickPage.GoToRecord(WarehouseActivityHeader);
+        if AutoFillQtyToHandle then
+            WarehousePickPage."Autofill Qty. to Handle".Invoke();
+        WarehousePickPage.RegisterPick.Invoke(); //Needs confirmation handler
     end;
 
     [Normal]
@@ -302,6 +374,15 @@ codeunit 136144 "Service Order Warehouse Pick"
     procedure HandleRequestPageCreatePick(var CreatePickTestPage: TestRequestPage "Create Pick")
     begin
         CreatePickTestPage.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ServiceShipmentModalPageHandler(var PostedServiceShipment: TestPage "Posted Service Shipment")
+    var
+        ServiceOrderNo: Code[20];
+    begin
+        ServiceOrderNo := LibraryVariableStorage.DequeueText();
+        PostedServiceShipment."Order No.".AssertEquals(ServiceOrderNo);
     end;
 
     local procedure Initialize()

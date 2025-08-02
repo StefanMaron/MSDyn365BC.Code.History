@@ -27,7 +27,7 @@ codeunit 38506 "Opportunities External Events"
 
 #if not CLEAN23
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('OpportunityQuoted', 'Quote created for opportunity', 'This business event is triggered when a quote is created for an opportunity as part of the Quote to Cash process.', EventCategory::Opportunities)]
+    [ExternalBusinessEvent('OpportunityQuoted', '[OBSOLETE] Quote created for opportunity', 'This business event is triggered when a quote is created for an opportunity as part of the Quote to Cash process.', EventCategory::Opportunities)]
     local procedure OpportunityQuoted(OpportunitiesId: Guid; SalesQuoteId: Guid; Url: Text[250])
     begin
     end;
@@ -71,13 +71,13 @@ codeunit 38506 "Opportunities External Events"
 
 #if not CLEAN23
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('OpportunityWon', 'Winning quote converted into sales order', 'This business event is triggered when a winning quote for an opportunity is converted into a sales order as part of the Quote to Cash process.', EventCategory::Opportunities)]
+    [ExternalBusinessEvent('OpportunityWon', '[OBSOLETE] Winning quote converted into sales order', 'This business event is triggered when a winning quote for an opportunity is converted into a sales order as part of the Quote to Cash process.', EventCategory::Opportunities)]
     local procedure OpportunityWon(OpportunitiesId: Guid; Status: Enum "Opportunity Status"; Url: Text[250])
     begin
     end;
 
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('OpportunityLost', 'Opportunity closed as lost', 'This business event is triggered when a lost opportunity is closed as part of the Quote to Cash process.', EventCategory::Opportunities)]
+    [ExternalBusinessEvent('OpportunityLost', '[OBSOLETE] Opportunity closed as lost', 'This business event is triggered when a lost opportunity is closed as part of the Quote to Cash process.', EventCategory::Opportunities)]
     local procedure OpportunityLost(OpportunitiesId: Guid; Status: Enum "Opportunity Status"; Url: Text[250])
     begin
     end;
@@ -113,7 +113,7 @@ codeunit 38506 "Opportunities External Events"
 
 #if not CLEAN23
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('OpportunityActivated', 'Opportunity activated', 'This business event is triggered when an opportunity is activated as part of the Quote to Cash process.', EventCategory::Opportunities)]
+    [ExternalBusinessEvent('OpportunityActivated', '[OBSOLETE] Opportunity activated', 'This business event is triggered when an opportunity is activated as part of the Quote to Cash process.', EventCategory::Opportunities)]
     local procedure OpportunityActivated(OpportunitiesId: Guid; Url: Text[250])
     begin
     end;
