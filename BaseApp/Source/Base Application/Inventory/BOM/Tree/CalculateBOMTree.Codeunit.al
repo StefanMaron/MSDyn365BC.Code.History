@@ -285,7 +285,6 @@ codeunit 5870 "Calculate BOM Tree"
         ParentBOMBuffer: Record "BOM Buffer";
         UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
-        CostCalculationMgt: Codeunit "Cost Calculation Management";
         LotSize: Decimal;
         BomQtyPerUom: Decimal;
         IsHandled: Boolean;
@@ -356,8 +355,6 @@ codeunit 5870 "Calculate BOM Tree"
                                         BOMBuffer."Qty. per Parent" := ProdBOMLine."Quantity per";
 
                                     BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", ProdBOMLine."Scrap %");
-                                    if CostCalculationMgt.FindRountingLine(RoutingLine, ProdBOMLine, WorkDate(), ParentItem."Routing No.") then
-                                        BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", RoutingLine."Scrap Factor % (Accumulated)" * 100);
                                     BOMBuffer."Scrap %" := Round(BOMBuffer."Scrap %", 0.00001);
 
                                     OnAfterTransferFromProdBOM(BOMBuffer, ProdBOMLine);

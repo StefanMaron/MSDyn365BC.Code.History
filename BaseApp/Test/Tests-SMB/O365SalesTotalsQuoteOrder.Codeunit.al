@@ -478,6 +478,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
 
         SalesInvoice.Trap();
         OpenSalesQuote(SalesHeader, SalesQuote);
+        SalesQuote.SalesLines."Invoice Disc. Pct.".SetValue(DiscPct);
 
         AnswerYesToAllConfirmDialogs();
         SalesQuote.MakeInvoice.Invoke();

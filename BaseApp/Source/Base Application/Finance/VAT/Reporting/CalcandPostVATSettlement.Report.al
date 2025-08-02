@@ -1034,6 +1034,8 @@ report 20 "Calc. and Post VAT Settlement"
         
         InitializeTotals();
 #endif
+        if PostSettlement then
+            GenJnlPostLine.SetIgnoreJournalTemplNameMandatoryCheck();
         OnAfterPreReport("VAT Entry");
     end;
 
@@ -1268,6 +1270,7 @@ report 20 "Calc. and Post VAT Settlement"
             GenJnlLine, 0, DefaultDimSource, GenJnlLine."Source Code",
             GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code", 0, 0);
         OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJnlLine);
+        GenJnlPostLine.SetIgnoreJournalTemplNameMandatoryCheck();
         GenJnlPostLine.Run(GenJnlLine);
     end;
 
