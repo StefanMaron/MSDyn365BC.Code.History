@@ -455,6 +455,7 @@ codeunit 7314 "Warehouse Availability Mgt."
             if Location."Bin Mandatory" and WhseItemTrackingSetup.TrackingExists() then begin
                 GetOutboundBinsOnBasicWarehouseLocation(
                   TempBinContentBuffer, LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup);
+                ExcludeDedicatedBinContentFromTempBinContentBuffer(TempBinContentBuffer, ExcludeDedicatedBinContent);
                 TempBinContentBuffer.CalcSums("Qty. Outstanding (Base)");
                 QtyOnOutboundBins := TempBinContentBuffer."Qty. Outstanding (Base)";
             end else begin
@@ -495,6 +496,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         WarehouseEntry: Record "Warehouse Entry";
         QtyInBin: Decimal;
     begin
+        TempBinContentBuffer.Reset();
         TempBinContentBuffer.DeleteAll();
 
         Location.Get(LocationCode);
@@ -517,7 +519,7 @@ codeunit 7314 "Warehouse Availability Mgt."
             WarehouseEntry."Whse. Document Type"::Job);
         WarehouseEntry.SetRange("Reference Document", WarehouseEntry."Reference Document"::Pick);
         WarehouseEntry.SetFilter("Qty. (Base)", '>%1', 0);
-        WarehouseEntry.SetLoadFields("Bin Code");
+        WarehouseEntry.SetLoadFields("Bin Code", Dedicated);
         if WarehouseEntry.FindSet() then
             repeat
                 WarehouseEntry.SetRange("Bin Code", WarehouseEntry."Bin Code");
@@ -526,6 +528,7 @@ codeunit 7314 "Warehouse Availability Mgt."
                     TempBinContentBuffer.Init();
                     TempBinContentBuffer."Location Code" := LocationCode;
                     TempBinContentBuffer."Bin Code" := WarehouseEntry."Bin Code";
+                    TempBinContentBuffer.Dedicated := WarehouseEntry.Dedicated;
                     TempBinContentBuffer."Item No." := ItemNo;
                     TempBinContentBuffer."Variant Code" := VariantCode;
                     TempBinContentBuffer."Qty. Outstanding (Base)" := QtyInBin;
@@ -1052,6 +1055,14 @@ codeunit 7314 "Warehouse Availability Mgt."
             AvailabilityType::UOM:
                 ItemAvailabilityFormsMgt.ShowItemAvailabilityByUOM(Item, WhseActivLine.FieldCaption(WhseActivLine."Unit of Measure Code"), WhseActivLine."Unit of Measure Code", NewUnitOfMeasureCode);
         end;
+    end;
+
+     local procedure ExcludeDedicatedBinContentFromTempBinContentBuffer(var TempBinContentBuffer: Record "Bin Content Buffer" temporary; ExcludeDedicatedBinContent: Boolean)
+    begin
+        if not ExcludeDedicatedBinContent then
+            exit;
+
+        TempBinContentBuffer.SetRange(Dedicated, false);
     end;
 
     [IntegrationEvent(false, false)]
