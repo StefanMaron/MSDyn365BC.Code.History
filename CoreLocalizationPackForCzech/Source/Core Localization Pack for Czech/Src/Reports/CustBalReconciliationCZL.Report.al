@@ -489,8 +489,6 @@ report 11723 "Cust.- Bal. Reconciliation CZL"
         Employee: Record Employee;
         LanguageMgt: Codeunit Language;
         CustomerVendorBalanceCZL: Codeunit "Customer Vendor Balance CZL";
-        ReturnDate: Date;
-        ReconcileDate: Date;
         PrintOnlyNotZero: Boolean;
         PrintAmountsInCurrency: Boolean;
         VendorNo: Code[20];
@@ -502,7 +500,6 @@ report 11723 "Cust.- Bal. Reconciliation CZL"
         LCYEntriesOnly: Boolean;
         IncludeVendBalance: Boolean;
         PrintDetails: Boolean;
-        EmployeeNo: Code[20];
         ResponsibleEmployee: Text;
         EmptyReturnDateErr: Label 'You must specify Return Date';
         EmptyReconcileDateErr: Label 'You must specify Reconcile Date';
@@ -547,6 +544,9 @@ report 11723 "Cust.- Bal. Reconciliation CZL"
 
     protected var
         TempCVLedgerEntryBuffer: Record "CV Ledger Entry Buffer" temporary;
+        EmployeeNo: Code[20];
+        ReturnDate: Date;
+        ReconcileDate: Date;
 
     procedure CalcDebitCredit(TotalAmt: Decimal)
     begin

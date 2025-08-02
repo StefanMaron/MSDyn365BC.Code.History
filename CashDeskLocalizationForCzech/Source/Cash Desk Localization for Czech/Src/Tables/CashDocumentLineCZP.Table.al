@@ -82,6 +82,8 @@ table 11733 "Cash Document Line CZP"
                 "Document Type" := CashDocumentHeaderCZP."Document Type";
                 "Account Type" := TempCashDocumentLineCZP."Account Type";
                 "Cash Desk Event" := TempCashDocumentLineCZP."Cash Desk Event";
+                OnValidateAccountTypeOnAfterInitRec(Rec, xRec, TempCashDocumentLineCZP);
+
                 UpdateAmounts();
                 UpdateDocumentType();
             end;
@@ -1127,7 +1129,7 @@ table 11733 "Cash Document Line CZP"
         DimensionManagement.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center", FieldNo = Rec.FieldNo("Responsibility Center"));
         DimensionManagement.AddDimSource(DefaultDimSource, Database::"Cash Desk Event CZP", Rec."Cash Desk Event", FieldNo = Rec.FieldNo("Cash Desk Event"));
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
@@ -1968,7 +1970,7 @@ table 11733 "Cash Document Line CZP"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var CashDocumentLineCZP: Record "Cash Document Line CZP"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var CashDocumentLineCZP: Record "Cash Document Line CZP"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 
@@ -2049,6 +2051,11 @@ table 11733 "Cash Document Line CZP"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDimensions(var CashDocumentLineCZP: Record "Cash Document Line CZP"; xCashDocumentLineCZP: Record "Cash Document Line CZP"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateAccountTypeOnAfterInitRec(var Rec: Record "Cash Document Line CZP"; var xRec: Record "Cash Document Line CZP"; TempCashDocumentLineCZP: Record "Cash Document Line CZP" temporary);
     begin
     end;
 }
