@@ -440,13 +440,21 @@ page 576 "VAT Specification Subform"
                PostingDate, GLSetup."Additional Reporting Currency");
 
         Rec."VAT Amount (ACY)" :=
-          Round(
+            Round(
             CurrExchRate.ExchangeAmtLCYToFCY(
-             PostingDate, GLSetup."Additional Reporting Currency",
-              Round(CurrExchRate.ExchangeAmtFCYToLCY(
-                  PostingDate, HeaderCurrencyCode, Rec."VAT Amount",
-                  HeaderCurrencyFactor), AddCurrency."Amount Rounding Precision"), CurrencyFactor),
+                PostingDate, GLSetup."Additional Reporting Currency",
+                Round(CurrExchRate.ExchangeAmtFCYToLCY(
+                    PostingDate, HeaderCurrencyCode, Rec."VAT Amount",
+                    HeaderCurrencyFactor), AddCurrency."Amount Rounding Precision"), CurrencyFactor),
             AddCurrency."Amount Rounding Precision");
+        Rec."Calculated VAT Amount (ACY)" :=
+            Round(
+                CurrExchRate.ExchangeAmtLCYToFCY(
+                PostingDate, GLSetup."Additional Reporting Currency",
+                Round(CurrExchRate.ExchangeAmtFCYToLCY(
+                    PostingDate, HeaderCurrencyCode, Rec."Calculated VAT Amount",
+                    HeaderCurrencyFactor), AddCurrency."Amount Rounding Precision"), CurrencyFactor),
+                AddCurrency."Amount Rounding Precision");
         Rec."VAT Difference (ACY)" := Rec."VAT Amount (ACY)" - Rec."Calculated VAT Amount (ACY)";
     end;
 
