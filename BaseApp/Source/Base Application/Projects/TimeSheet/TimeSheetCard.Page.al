@@ -10,6 +10,7 @@ using System.Security.User;
 page 973 "Time Sheet Card"
 {
     PageType = Document;
+    RefreshOnActivate = true;
     SourceTable = "Time Sheet Header";
     Caption = 'Time Sheet';
     InsertAllowed = false;
