@@ -43,7 +43,7 @@ codeunit 38503 "AP External Events"
 
 #if not CLEAN23
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('PurchasePaymentPosted', 'Purchase payment posted', 'This business event is triggered when a vendor payment is posted as part of the Procure to Pay process.', EventCategory::"Accounts Payable")]
+    [ExternalBusinessEvent('PurchasePaymentPosted', '[OBSOLETE] Purchase payment posted', 'This business event is triggered when a vendor payment is posted as part of the Procure to Pay process.', EventCategory::"Accounts Payable")]
     local procedure EventPurchasePaymentPosted(VendorId: Guid; Url: Text[250])
     begin
     end;
@@ -106,19 +106,19 @@ codeunit 38503 "AP External Events"
 
 #if not CLEAN23
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('PurchaseInvoicePosted', 'Purchase invoice posted', 'This business event is triggered when a vendor invoice is posted as part of the Procure to Pay process.', EventCategory::"Accounts Payable")]
+    [ExternalBusinessEvent('PurchaseInvoicePosted', '[OBSOLETE] Purchase invoice posted', 'This business event is triggered when a vendor invoice is posted as part of the Procure to Pay process.', EventCategory::"Accounts Payable")]
     local procedure MyBusinessEventPurchaseInvoicePosted(PurchaseInvoiceId: Guid; Url: Text[250])
     begin
     end;
 
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('PurchaseCreditMemoPosted', 'Purchase credit memo posted', 'This business event is triggered when a purchase credit memo is posted.', EventCategory::"Accounts Payable")]
+    [ExternalBusinessEvent('PurchaseCreditMemoPosted', '[OBSOLETE] Purchase credit memo posted', 'This business event is triggered when a purchase credit memo is posted.', EventCategory::"Accounts Payable")]
     local procedure EventCreditMemoInvoicePosted(PurchaseInvoiceId: Guid; Url: Text[250])
     begin
     end;
 
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('PurchaseReceiptPosted', 'Purchase receipt posted', 'This business event is triggered when goods from a purchase order are received by the internal warehouse/external logistics company. This can trigger Finance Department to post a purchase invoice.', EventCategory::"Accounts Payable")]
+    [ExternalBusinessEvent('PurchaseReceiptPosted', '[OBSOLETE] Purchase receipt posted', 'This business event is triggered when goods from a purchase order are received by the internal warehouse/external logistics company. This can trigger Finance Department to post a purchase invoice.', EventCategory::"Accounts Payable")]
     local procedure EventPurchaseReceivedPosted(PurchaseInvoiceId: Guid; Url: Text[250])
     begin
     end;

@@ -1780,6 +1780,8 @@ page 52 "Purchase Credit Memo"
         if PostingCodeunitID <> CODEUNIT::"Purch.-Post (Yes/No)" then
             exit;
 
+        Rec.UpdatePurchaseOrderLineIfExist();
+
         case Navigate of
             Enum::"Navigate After Posting"::"Posted Document":
                 if IsOfficeAddin then begin
