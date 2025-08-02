@@ -67,19 +67,19 @@ codeunit 38502 "AR External Events"
 
 #if not CLEAN23
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('SalesInvoicePosted', 'Sales invoice posted ', 'This business event is triggered when a sales invoice is posted as part of the Quote to Cash process.', EventCategory::"Accounts Receivable")]
+    [ExternalBusinessEvent('SalesInvoicePosted', '[OBSOLETE] Sales invoice posted ', 'This business event is triggered when a sales invoice is posted as part of the Quote to Cash process.', EventCategory::"Accounts Receivable")]
     procedure SalesInvoicePosted(SalesInvoiceId: Guid; Url: Text[250])
     begin
     end;
 
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('SalesCreditMemoPosted', 'Sales credit memo posted', 'This business event is triggered when a sales credit memo is posted.', EventCategory::"Accounts Receivable")]
+    [ExternalBusinessEvent('SalesCreditMemoPosted', '[OBSOLETE] Sales credit memo posted', 'This business event is triggered when a sales credit memo is posted.', EventCategory::"Accounts Receivable")]
     procedure SalesCreditMemoPosted(SalesCreditMemoId: Guid; Url: Text[250])
     begin
     end;
 
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('SalesShipmentPosted', 'Sales shipment posted', 'This business event is triggered when goods from a sales order are shipped by the internal warehouse/external logistics company. This can trigger Finance Department to post a sales invoice.', EventCategory::"Accounts Receivable")]
+    [ExternalBusinessEvent('SalesShipmentPosted', '[OBSOLETE] Sales shipment posted', 'This business event is triggered when goods from a sales order are shipped by the internal warehouse/external logistics company. This can trigger Finance Department to post a sales invoice.', EventCategory::"Accounts Receivable")]
     procedure SalesShipmentPosted(SalesShipmentId: Guid; Url: Text[250])
     begin
     end;
@@ -129,13 +129,13 @@ codeunit 38502 "AR External Events"
 
 #if not CLEAN23
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('CustomerBlocked', 'Customer blocked', 'This business event is triggered when a customer is blocked for shipping/invoicing.', EventCategory::"Accounts Receivable")]
+    [ExternalBusinessEvent('CustomerBlocked', '[OBSOLETE] Customer blocked', 'This business event is triggered when a customer is blocked for shipping/invoicing.', EventCategory::"Accounts Receivable")]
     local procedure CustomerBlocked(CustomerId: Guid; Blocked: enum "Customer Blocked"; Url: Text[250])
     begin
     end;
 
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('CustomerUnBlocked', 'Customer unblocked', 'This business event is triggered when a customer is unblocked for shipping/invoicing.', EventCategory::"Accounts Receivable")]
+    [ExternalBusinessEvent('CustomerUnBlocked', '[OBSOLETE] Customer unblocked', 'This business event is triggered when a customer is unblocked for shipping/invoicing.', EventCategory::"Accounts Receivable")]
     local procedure CustomerUnBlocked(CustomerId: Guid; Blocked: enum "Customer Blocked"; Url: Text[250])
     begin
     end;
@@ -190,13 +190,13 @@ codeunit 38502 "AR External Events"
 
 #if not CLEAN23
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('SalesPaymentPosted', 'Sales payment posted', 'This business event is triggered when a customer payment is posted as part of the Quote to Cash process.', EventCategory::"Accounts Receivable")]
+    [ExternalBusinessEvent('SalesPaymentPosted', '[OBSOLETE] Sales payment posted', 'This business event is triggered when a customer payment is posted as part of the Quote to Cash process.', EventCategory::"Accounts Receivable")]
     local procedure EventSalesPaymentPosted(CustomerId: Guid; Url: Text[250])
     begin
     end;
 
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('SalesCreditLimitExceeded', 'Sales credit limit exceeded', 'This business event is triggered when the credit limit for a customer is exceeded due to a posted sales invoice/changed credit limit for that customer.', EventCategory::"Accounts Receivable")]
+    [ExternalBusinessEvent('SalesCreditLimitExceeded', '[OBSOLETE] Sales credit limit exceeded', 'This business event is triggered when the credit limit for a customer is exceeded due to a posted sales invoice/changed credit limit for that customer.', EventCategory::"Accounts Receivable")]
     local procedure EventSalesCreditLimitExceeded(CustomerId: Guid; Url: Text[250])
     begin
     end;
