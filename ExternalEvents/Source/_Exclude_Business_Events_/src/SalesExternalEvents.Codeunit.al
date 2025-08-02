@@ -30,7 +30,7 @@ codeunit 38504 "Sales External Events"
 
 #if not CLEAN23
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('SalesOrderReleased', 'Sales order released', 'This business event is triggered when a sales order is released to the internal warehouse/external logistics company, so they''re ready to pick and ship goods. This trigger occurs when the Release button is clicked on Sales Order page in Business Central.', EventCategory::Sales)]
+    [ExternalBusinessEvent('SalesOrderReleased', '[OBSOLETE] Sales order released', 'This business event is triggered when a sales order is released to the internal warehouse/external logistics company, so they''re ready to pick and ship goods. This trigger occurs when the Release button is clicked on Sales Order page in Business Central.', EventCategory::Sales)]
     local procedure SalesOrderReleased(SalesOrderId: Guid; Url: Text[250])
     begin
     end;
