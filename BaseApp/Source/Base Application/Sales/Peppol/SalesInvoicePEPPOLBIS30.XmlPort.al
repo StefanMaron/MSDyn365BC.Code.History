@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Peppol;
 
 using Microsoft.Finance.VAT.Calculation;
@@ -190,6 +194,12 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                 {
                     NamespacePrefix = 'cbc';
                     XmlName = 'DocumentType';
+
+                    trigger OnBeforePassVariable()
+                    begin
+                        if additionaldocrefdocumenttype = '' then
+                            currXMLport.Skip();
+                    end;
                 }
                 textelement(Attachment)
                 {
@@ -226,23 +236,46 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                         textelement(URI)
                         {
                             NamespacePrefix = 'cbc';
+
+                            trigger OnBeforePassVariable()
+                            begin
+                                if URI = '' then
+                                    currXMLport.Skip();
+                            end;
                         }
+
+                        trigger OnBeforePassVariable()
+                        begin
+                            if URI = '' then
+                                currXMLport.Skip();
+                        end;
                     }
                 }
 
                 trigger OnAfterGetRecord()
                 begin
-                    PEPPOLMgt.GetAdditionalDocRefInfo(
-                        additionaldocrefloop.Number,
-                        DocumentAttachments,
-                        SalesHeader,
-                        AdditionalDocumentReferenceID,
-                        AdditionalDocRefDocumentType,
-                        URI,
-                        filename,
-                        mimeCode,
-                        EmbeddedDocumentBinaryObject,
-                        ProcessedDocType.AsInteger());
+                    if (AdditionalDocRefLoop.Number <= DocumentAttachments.Count()) then
+                        PEPPOLMgt.GetAdditionalDocRefInfo(
+                            additionaldocrefloop.Number,
+                            DocumentAttachments,
+                            SalesHeader,
+                            AdditionalDocumentReferenceID,
+                            AdditionalDocRefDocumentType,
+                            URI,
+                            filename,
+                            mimeCode,
+                            EmbeddedDocumentBinaryObject,
+                            ProcessedDocType.AsInteger())
+                    else
+                        if GeneratePDF then
+                            PEPPOLMgt.GeneratePDFAttachmentAsAdditionalDocRef(
+                            SalesHeader,
+                            AdditionalDocumentReferenceID,
+                            AdditionalDocRefDocumentType,
+                            URI,
+                            filename,
+                            mimeCode,
+                            EmbeddedDocumentBinaryObject);
 
                     if AdditionalDocumentReferenceID = '' then
                         currXMLport.Skip();
@@ -253,8 +286,12 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     NumberRangeEnd: Integer;
                 begin
                     NumberRangeEnd := DocumentAttachments.Count();
-                    // Make sure range end it never 0
-                    if DocumentAttachments.IsEmpty() then
+
+                    if GeneratePDF then
+                        NumberRangeEnd += 1;
+
+                    // Make sure range end is never 0
+                    if NumberRangeEnd = 0 then
                         NumberRangeEnd := 1;
                     AdditionalDocRefLoop.SetRange(Number, 1, NumberRangeEnd);
                 end;
@@ -594,7 +631,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                                 currXMLport.Skip();
                         end;
                     }
-                    textelement(custoemerpartyname)
+                    textelement(customerpartyname)
                     {
                         NamespacePrefix = 'cac';
                         XmlName = 'PartyName';
@@ -808,11 +845,12 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                       CustomerIdentificationCode,
                       DummyVar);
 
-                    PEPPOLMgt.GetAccountingCustomerPartyTaxSchemeBIS(
+                    PEPPOLMgt.GetAccountingCustomerPartyTaxSchemeBIS30(
                       SalesHeader,
                       CustPartyTaxSchemeCompanyID,
                       CustPartyTaxSchemeCompIDSchID,
-                      CustTaxSchemeID);
+                      CustTaxSchemeID,
+                      TempVATAmtLine);
 
                     PEPPOLMgt.GetAccountingCustomerPartyLegalEntityBIS(
                       SalesHeader,
@@ -1208,6 +1246,90 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                         currXMLport.Skip();
                 end;
             }
+            tableelement(allowancechargepaymentdiscountloop; Integer)
+            {
+                NamespacePrefix = 'cac';
+                XmlName = 'AllowanceCharge';
+                SourceTableView = sorting(Number) where(Number = filter(1 ..));
+                textelement(ChargeIndicatorPaymentDiscount)
+                {
+                    XmlName = 'ChargeIndicator';
+                    NamespacePrefix = 'cbc';
+                }
+                textelement(AllowanceChargeReasonCodePaymentDiscount)
+                {
+                    XmlName = 'AllowanceChargeReasonCode';
+                    NamespacePrefix = 'cbc';
+                }
+                textelement(AllowanceChargeReasonPaymentDiscount)
+                {
+                    XmlName = 'AllowanceChargeReason';
+                    NamespacePrefix = 'cbc';
+                }
+                textelement(AmountPaymentDiscount)
+                {
+                    XmlName = 'Amount';
+                    NamespacePrefix = 'cbc';
+                    textattribute(allowancechargecurrencyidPaymentDiscount)
+                    {
+                        XmlName = 'currencyID';
+                    }
+                }
+                textelement(TaxCategoryPaymentDiscount)
+                {
+                    XmlName = 'TaxCategory';
+                    NamespacePrefix = 'cac';
+                    textelement(taxcategoryidPaymentDiscount)
+                    {
+                        NamespacePrefix = 'cbc';
+                        XmlName = 'ID';
+                    }
+                    textelement(PercentPaymentDiscount)
+                    {
+                        XmlName = 'Percent';
+                        NamespacePrefix = 'cbc';
+
+                        trigger OnBeforePassVariable()
+                        begin
+                            if PercentPaymentDiscount = '' then
+                                currXMLport.Skip();
+                        end;
+                    }
+                    textelement(TaxSchemePaymentDiscount)
+                    {
+                        XmlName = 'TaxScheme';
+                        NamespacePrefix = 'cac';
+                        textelement(allowancechargetaxschemeidPaymentDiscount)
+                        {
+                            NamespacePrefix = 'cbc';
+                            XmlName = 'ID';
+                        }
+                    }
+                }
+
+                trigger OnAfterGetRecord()
+                begin
+                    if not FindNextVATAmtRec(TempVATAmtLine, AllowanceChargePaymentDiscountLoop.Number) then
+                        currXMLport.Break();
+
+                    PEPPOLMgt.GetAllowanceChargeInfoPaymentDiscount(
+                      TempVATAmtLine,
+                      SalesHeader,
+                      ChargeIndicatorPaymentDiscount,
+                      AllowanceChargeReasonCodePaymentDiscount,
+                      DummyVar,
+                      AllowanceChargeReasonPaymentDiscount,
+                      AmountPaymentDiscount,
+                      AllowanceChargeCurrencyIDPaymentDiscount,
+                      TaxCategoryIDPaymentDiscount,
+                      DummyVar,
+                      PercentPaymentDiscount,
+                      AllowanceChargeTaxSchemeIDPaymentDiscount);
+
+                    if ChargeIndicatorPaymentDiscount = '' then
+                        currXMLport.Skip();
+                end;
+            }
             textelement(TaxTotal)
             {
                 NamespacePrefix = 'cac';
@@ -1282,7 +1404,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                         TransactionCurrencyTaxAmount: Text;
                         TransCurrTaxAmtCurrencyID: Text;
                     begin
-                        if not FindNextVATAmtRec(TempVATAmtLine, TaxSubtotalLoop.Number) then
+                        if (not FindNextVATAmtRec(TempVATAmtLine, TaxSubtotalLoop.Number)) and (TaxSubtotalLoop.Number > 1) then
                             currXMLport.Break();
 
                         PEPPOLMgt.GetTaxSubtotalInfo(
@@ -1956,6 +2078,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     if not FindNextInvoiceLineRec(InvoiceLineLoop.Number) then
                         currXMLport.Break();
 
+                    OnInvoiceLineLoopOnAfterGetRecordOnBeforeGetLineGeneralInfo(SalesInvoiceLine, SalesLine);
                     PEPPOLMgt.GetLineGeneralInfo(
                       SalesLine,
                       SalesHeader,
@@ -2036,6 +2159,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
         SpecifyASalesInvoiceNoErr: Label 'You must specify a sales invoice number.';
         UnSupportedTableTypeErr: Label 'The %1 table is not supported.', Comment = '%1 is the table.';
         ProcessedDocType: Enum "PEPPOL Processing Type";
+        GeneratePDF: Boolean;
 
     local procedure GetTotals()
     begin
@@ -2046,6 +2170,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     if SalesInvoiceLine.FindSet() then
                         repeat
                             SalesLine.TransferFields(SalesInvoiceLine);
+                            OnGetTotalsOnBeforeGetSalesLineTotals(SalesInvoiceLine, SalesLine);
                             PEPPOLMgt.GetTotals(SalesLine, TempVATAmtLine);
                             PEPPOLMgt.GetTaxCategories(SalesLine, TempVATProductPostingGroup);
                         until SalesInvoiceLine.Next() = 0;
@@ -2096,9 +2221,12 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     SalesInvoiceHeader.SetRecFilter();
                     SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
                     SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
+                    OnBeforeFindSalesInvoiceLine(SalesInvoiceLine);
+
                     if SalesInvoiceLine.FindSet() then
                         repeat
                             SalesLine.TransferFields(SalesInvoiceLine);
+                            OnInitializeOnBeforeGetInvoiceRoundingLine(SalesInvoiceLine, SalesLine);
                             PEPPOLMgt.GetInvoiceRoundingLine(TempSalesLineRounding, SalesLine);
                         until SalesInvoiceLine.Next() = 0;
                     if TempSalesLineRounding."Line No." <> 0 then
@@ -2116,6 +2244,15 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                     Error(UnSupportedTableTypeErr, SourceRecRef.Number);
             end;
         end;
+    end;
+
+    /// <summary>
+    /// Controls whether a PDF document should be generated and included as an additional document reference.
+    /// </summary>
+    /// <param name="GeneratePDFValue">If true, generates a PDF based on Report Selection settings.</param>
+    procedure SetGeneratePDF(GeneratePDFValue: Boolean)
+    begin
+        this.GeneratePDF := GeneratePDFValue;
     end;
 
     local procedure GetCustomizationID(): Text
@@ -2147,5 +2284,24 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
     local procedure OnFindNextInvoiceLineRec(Position: Integer; var SalesLine: Record "Sales Line"; var Found: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetTotalsOnBeforeGetSalesLineTotals(var SalesInvoiceLine: Record "Sales Invoice Line"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInvoiceLineLoopOnAfterGetRecordOnBeforeGetLineGeneralInfo(var SalesInvoiceLine: Record "Sales Invoice Line"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitializeOnBeforeGetInvoiceRoundingLine(var SalesInvoiceLine: Record "Sales Invoice Line"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+}
