@@ -68,6 +68,7 @@
         QuantityErr: Label '%1 must be %2 in %3', Comment = '%1: Quantity, %2: Consumption Quantity Value, %3: Item Ledger Entry';
         ILENoOfRecordsMustNotBeZeroErr: Label 'Item Ledger Entry No. of Records must not be zero.';
         ItemLedgerEntryMustBeFoundErr: Label 'Item Ledger Entry must be found.';
+        LotNoMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Lot No. Caption, %2 = Expected Lot No., %3 = Warehouse Activity Line Table';
 
     [Test]
     [Scope('OnPrem')]
@@ -5012,6 +5013,89 @@
                 ItemLedgerEntry.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandlerWithExpiration,WhseSourceCreateDocPageHandler,MessageHandlerNoText')]
+    procedure WarehousePickWithBinsAndLotTrackingForProduction()
+    var
+        Bin: array[5] of Record Bin;
+        Item: array[2] of Record Item;
+        Location: Record Location;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: Code[50];
+    begin
+        // [SCENARIO 578385] Verify Warehouse Pick with Bins have Lot tracking for Production Order when Quantity is limited
+        Initialize();
+
+        // [GIVEN] Create a Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+
+        // [GIVEN] Create three bins.
+        CreateBin(Bin, Location.Code);
+
+        // [GIVEN] Assign two bins as dedicated bins
+        Bin[1].Validate(Dedicated, true);
+        Bin[1].Modify();
+        Bin[2].Validate(Dedicated, true);
+        Bin[2].Modify();
+
+        // [GIVEN] Set Bins in Location and Pick According to FEFO.
+        Location.Get(Location.Code);
+        Location.Validate("Pick According to FEFO", true);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+        Location.Validate("Open Shop Floor Bin Code", Bin[1].Code);
+        Location.Validate("To-Production Bin Code", Bin[2].Code);
+        Location.Validate("From-Production Bin Code", Bin[3].Code);
+        Location.Validate("Shipment Bin Code", Bin[4].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Lot tracked item with Use Expiration Date
+        CreateLotTrackedItemWithUseExpirationDate(Item[1]);
+
+        // [GIVEN] Set Lot No.
+        LotNo := LibraryRandom.RandText(50);
+
+        // [GIVEN] Create and Post Item Journal Line with Lot No. and Expiration Date.
+        CreateAndPostItemJournalLineWithManualLotExpiration(Item[1]."No.", LibraryRandom.RandIntInRange(10, 10), Bin[5].Code, Location.Code, LotNo, true);
+
+        // [GIVEN] Create a Production BOM Header with Qty. per.
+        CreateProductionBOMWithQtyPer(Item[1], ProductionBOMHeader, 1);
+
+        // [GIVEN] Create production item and validate Production BOM No.
+        CreateItemWithProductionBOM(Item[2], ProductionBOMHeader."No.");
+
+        // [GIVEN] Create Released Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item[2]."No.", LibraryRandom.RandIntInRange(6, 6), Location.Code, Bin[3].Code);
+
+        // [GIVEN] Create warehouse pick from released production order.
+        OpenReleasedProdOrderPageAndCreateWarehousePick(ProductionOrder);
+
+        // [GIVEN] Find Warehouse Activity Line. and register Pick
+        WarehouseActivityLine.SetRange("Item No.", Item[1]."No.");
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released, Item[2]."No.", LibraryRandom.RandIntInRange(4, 4), Location.Code, Bin[3].Code);
+
+        // [WHEN] Release Prod . Order and Create Warehouse Pick.
+        OpenReleasedProdOrderPageAndCreateWarehousePick(ProductionOrder);
+
+        // [THEN] Find and verify Lot No. in Warehouse Activity Line.
+        WarehouseActivityLine.SetRange("Item No.", Item[1]."No.");
+        WarehouseActivityLine.FindFirst();
+
+        // [THEN] Lot No. in Warehouse Activity Line must be equal to Lot No. in Item Journal Line.
+        Assert.AreEqual(WarehouseActivityLine."Lot No.", LotNo,
+                        StrSubstNo(LotNoMustBeEqualErr, WarehouseActivityLine.FieldCaption("Lot No."), LotNo, WarehouseActivityLine.TableCaption));
+        WarehouseActivityLine.FindLast();
+        Assert.AreEqual(WarehouseActivityLine."Lot No.", LotNo,
+                        StrSubstNo(LotNoMustBeEqualErr, WarehouseActivityLine.FieldCaption("Lot No."), LotNo, WarehouseActivityLine.TableCaption));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6839,6 +6923,75 @@
         LibraryInventory.CreateItemUnitOfMeasureCode(ProdItemUnitOfMeasure[2], ProdItem."No.", Qty);
     end;
 
+    local procedure CreateProductionBOMWithQtyPer(Item: Record Item; var ProductionBOMHeader: Record "Production BOM Header"; QtyPer: Decimal)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", QtyPer);
+
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+    end;
+
+    local procedure CreateLotTrackedItemWithUseExpirationDate(var Item: Record Item)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        ItemTrackingCode.Validate("Lot Specific Tracking", true);
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateBin(var Bin: array[5] of Record Bin; LocationCode: Code[10])
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(Bin) do
+            LibraryWarehouse.CreateBin(Bin[i], LocationCode, Bin[i].Code, '', '');
+    end;
+
+    local procedure CreateAndPostItemJournalLineWithManualLotExpiration(ItemNo: Code[20]; Quantity: Decimal; BinCode: Code[20]; LocationCode: Code[10]; LotNo: Code[50]; Tracking: Boolean)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLine(ItemJournalLine, ItemNo, Quantity, BinCode, LocationCode);
+        if Tracking then begin
+            LibraryVariableStorage.Enqueue(ItemTrackingMode::"Manual Lot No.");
+            LibraryVariableStorage.Enqueue(LotNo);
+            LibraryVariableStorage.Enqueue(Quantity);// Assign Quantity.
+            LibraryVariableStorage.Enqueue(CalcDate('<+1Y>', WorkDate()));
+            ItemJournalLine.OpenItemTrackingLines(false);  // Invokes ItemTrackingPageHandler.
+        end;
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateItemWithProductionBOM(var Item: Record Item; ProductionBOMNo: Code[20])
+    begin
+        LibraryInventory.CreateItem(Item);
+
+        Item.Validate("Costing Method", Item."Costing Method"::FIFO);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Modify(true);
+    end;
+
+    local procedure OpenReleasedProdOrderPageAndCreateWarehousePick(ProductionOrder: Record "Production Order")
+    var
+        ReleasedProductionOrder: TestPage "Released Production Order";
+    begin
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+        ReleasedProductionOrder."Create Warehouse Pick".Invoke(); //Create Warehouse Pick
+        Commit();
+        ReleasedProductionOrder.Close();
+    end;
+
     [ModalPageHandler]
     procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
     begin
@@ -7063,6 +7216,44 @@
     procedure AllLevelsStrMenuHandler(StrMenuText: Text; var Choice: Integer; InstructionText: Text)
     begin
         Choice := 2; // All levels
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingPageHandlerWithExpiration(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        DequeueVariable: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);  // Dequeue variable.
+        ItemTrackingMode := DequeueVariable;
+        case ItemTrackingMode of
+            ItemTrackingMode::"Assign Lot No.":
+                ItemTrackingLines."Assign Lot No.".Invoke();
+            ItemTrackingMode::"Select Entries":
+                ItemTrackingLines."Select Entries".Invoke();
+            ItemTrackingMode::"Update Quantity":
+                begin
+                    LibraryVariableStorage.Dequeue(DequeueVariable);
+                    ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
+                end;
+            ItemTrackingMode::"Manual Lot No.":
+                begin
+                    LibraryVariableStorage.Dequeue(DequeueVariable);
+                    ItemTrackingLines."Lot No.".SetValue(DequeueVariable);
+                    LibraryVariableStorage.Dequeue(DequeueVariable);
+                    ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
+                    LibraryVariableStorage.Dequeue(DequeueVariable);
+                    ItemTrackingLines."Expiration Date".SetValue(DequeueVariable);
+                end;
+        end;
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseSourceCreateDocPageHandler(var WhseSourceCreateDocument: TestRequestPage "Whse.-Source - Create Document")
+    begin
+        WhseSourceCreateDocument.OK().Invoke();
     end;
 }
 

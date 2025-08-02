@@ -30,7 +30,7 @@ codeunit 38505 "Purchases External Events"
 
 #if not CLEAN23
     [Obsolete('This event is obsolete. Use version 1.0 instead.', '23.0')]
-    [ExternalBusinessEvent('PurchaseOrderReleased', 'Purchase order released', 'This business event is triggered when a purchase order is released to the internal warehouse/external logistics company, so they''re ready to receive goods coming their way. This trigger occurs when the Release button is clicked on Purchase Order page in Business Central.', EventCategory::Purchasing)]
+    [ExternalBusinessEvent('PurchaseOrderReleased', '[OBSOLETE] Purchase order released', 'This business event is triggered when a purchase order is released to the internal warehouse/external logistics company, so they''re ready to receive goods coming their way. This trigger occurs when the Release button is clicked on Purchase Order page in Business Central.', EventCategory::Purchasing)]
     local procedure MyBusinessEventPurchaseOrderReleased(PurchaseOrderId: Guid; Url: Text[250])
     begin
     end;

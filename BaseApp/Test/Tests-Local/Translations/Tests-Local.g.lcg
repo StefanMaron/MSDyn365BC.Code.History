@@ -1931,15 +1931,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM ES Check PMPE - NamedType WeightedAmtCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 986823918 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be %2 in %3]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Amount, %2 = Amount Value, %3 = Gl Entry]D;]A;(LookupHint=Codeunit ERM ES Income Statement - NamedType AmountErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 986823918 - NamedType 2451953032" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The journal lines have successfully been created.]]></Val>
@@ -1947,15 +1938,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM ES Income Statement - NamedType ExpectedMessageMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 986823918 - NamedType 2149160784" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[GL Entry must be found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM ES Income Statement - NamedType GLEntryMustBeFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 986823918 - NamedType 345349299" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
