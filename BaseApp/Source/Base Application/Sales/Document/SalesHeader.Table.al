@@ -9230,14 +9230,10 @@ table 36 "Sales Header"
 
     internal procedure UpdateSalesOrderLineIfExist()
     var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         IsHandled: Boolean;
     begin
-        SalesInvoiceHeader.SetLoadFields("No.");
-        if (not SalesInvoiceHeader.Get(Rec."Applies-to Doc. No.")) and (Rec."Applies-to ID" = '') then
-            exit;
         SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.", "Cust. Ledger Entry No.");
         SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
         if not SalesCreditMemoHeader.FindFirst() then
