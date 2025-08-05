@@ -612,6 +612,7 @@ page 7005 "Price List Line Review"
         AmountTypeIsVisible := ViewAmountType = ViewAmountType::Any;
         DiscountVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Discount];
         PriceVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Price];
+        ResourceAsset := Rec.IsAssetResource();
         IsSalesPrice := PriceType = PriceType::Sale;
         IsPurchPrice := PriceType = PriceType::Purchase;
         SalesPriceVisible := PriceVisible and IsSalesPrice;
