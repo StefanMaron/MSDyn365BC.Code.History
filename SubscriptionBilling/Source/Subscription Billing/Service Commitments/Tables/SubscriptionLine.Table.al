@@ -531,6 +531,7 @@ table 8059 "Subscription Line"
             FieldClass = FlowField;
             CalcFormula = lookup("Subscription Header"."Source No." where("No." = field("Subscription Header No.")));
         }
+#if not CLEANSCHEMA29
         field(8009; "Item No."; Code[20])
         {
             Caption = 'Item No.';
@@ -546,6 +547,7 @@ table 8059 "Subscription Line"
             ObsoleteTag = '29.0';
 #endif
         }
+#endif
         field(8010; "Subscription Description"; Text[100])
         {
             Caption = 'Subscription Description';

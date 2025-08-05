@@ -506,6 +506,8 @@ codeunit 99000831 "Reservation Engine Mgt."
             ReservEntry2."Warranty Date" := TrackingSpecification."Warranty Date";
             ReservEntry2."Expiration Date" := TrackingSpecification."Expiration Date";
             ReservEntry2."Entry No." := LastEntryNo;
+            if ReservEntry2."Serial No." <> '' then
+                ReservEntry2."Untracked Surplus" := false;
             OnBeforeUpdateItemTracking(ReservEntry2, TrackingSpecification);
             ReservEntry2.UpdateItemTracking();
             if EntryMismatch then begin
@@ -551,6 +553,8 @@ codeunit 99000831 "Reservation Engine Mgt."
             ReservEntry1.CopyTrackingFromSpec(TrackingSpecification);
             ReservEntry1."Warranty Date" := TrackingSpecification."Warranty Date";
             ReservEntry1."Expiration Date" := TrackingSpecification."Expiration Date";
+            if ReservEntry1."Serial No." <> '' then
+                ReservEntry1."Untracked Surplus" := false;
             if ReservEntry1.Positive then
                 ReservEntry1."Appl.-from Item Entry" := TrackingSpecification."Appl.-from Item Entry"
             else

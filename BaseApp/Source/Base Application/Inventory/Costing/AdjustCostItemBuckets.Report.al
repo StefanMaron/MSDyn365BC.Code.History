@@ -46,16 +46,26 @@ report 5804 "Adjust Cost - Item Buckets"
             end;
 
             trigger OnPostDataItem()
+            var
+                CostAdjSessionScheduler: Codeunit "Cost Adj. Session Scheduler";
             begin
                 Commit();
-                if TaskScheduler.CanCreateTask() then
+                if TaskScheduler.CanCreateTask() and not RunForeground then
                     TaskScheduler.CreateTask(Codeunit::"Cost Adj. Session Scheduler", 0, true, CompanyName(), CurrentDateTime())
-                else
-                    Codeunit.Run(Codeunit::"Cost Adj. Session Scheduler");
+                else begin
+                    CostAdjSessionScheduler.SetRunForeground(RunForeground);
+                    CostAdjSessionScheduler.Run();
+                end;
             end;
         }
     }
 
     var
+        RunForeground: Boolean;
         TaskIsRunningErr: Label 'The cost adjustment is now running. Please wait until it is finished.';
+
+    procedure SetRunForeground(NeedRunForeground: Boolean)
+    begin
+        RunForeground := NeedRunForeground;
+    end;
 }

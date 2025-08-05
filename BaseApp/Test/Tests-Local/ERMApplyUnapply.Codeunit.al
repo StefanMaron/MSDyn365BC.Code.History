@@ -2041,6 +2041,90 @@ codeunit 147310 "ERM Apply Unapply"
         Assert.AreEqual(4, CountGLEntries, '');
     end;
 
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesPageHandler,PostApplicationHandler,MessageHandler')]
+    procedure CheckTwoGeneralJouranlApplyBillPmtsWithDifferentPostingGroups()
+    var
+        DetailedVendorLedgerEntry: Record "Detailed Vendor Ledg. Entry";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PaymentMethod: Record "Payment Method";
+        Vendor: Record Vendor;
+        VendorPostingGroup: array[2] of Record "Vendor Posting Group";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        LibraryCarteraCommon: Codeunit "Library - Cartera Common";
+        LibraryCarteraPayables: Codeunit "Library - Cartera Payables";
+        VendorLedgerEntryPage: TestPage "Vendor Ledger Entries";
+        TotalAmount: Decimal;
+    begin
+        // [SCENARIO 576372] Application of Vendor Ledger Entries with Alternative Posting Groups using Blank Document Type creates General Ledger Entries.
+        Initialize();
+
+        // [GIVEN] Create two Vendor Posting Groups and a Payment Method.
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup[1]);
+
+        // [GIVEN] Create a Payment Method with Invoices to Cartera.
+        LibraryCarteraCommon.CreatePaymentMethod(PaymentMethod, true, false);
+
+        // [GIVEN] Create a Vendor with Allow Multiple Posting Groups and Vendor Posting Group.
+        LibraryCarteraPayables.CreateCarteraVendor(Vendor, '', PaymentMethod.Code);
+        Vendor.Validate("Vendor Posting Group", VendorPostingGroup[1].Code);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Modify();
+
+        // [GIVEN] Create and store a random Total Amount.
+        TotalAmount := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Create a second Vendor Posting Group and an Alternate Vendor Posting Group.
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup[2]);
+        LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup[1].Code, VendorPostingGroup[2].Code);
+
+        // [GIVEN] Create a General Journal Batch.
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+
+        // [GIVEN] Create two General Journal Lines with the same Document No. and different Vendor Posting Groups.
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine[1],
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine[1]."Document Type"::" ",
+            GenJournalLine[1]."Account Type"::Vendor,
+            Vendor."No.",
+            TotalAmount);
+        GenJournalLine[1].Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine[1].Validate("Posting Group", VendorPostingGroup[1].Code);
+        GenJournalLine[1].Modify();
+
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine[2],
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine[2]."Document Type"::" ",
+            GenJournalLine[2]."Account Type"::Vendor,
+            Vendor."No.",
+            -TotalAmount);
+        GenJournalLine[2].Validate("Document No.", GenJournalLine[1]."Document No.");
+        GenJournalLine[2].Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine[2].Validate("Posting Group", VendorPostingGroup[2].Code);
+        GenJournalLine[2].Modify(true);
+
+        // [GIVEN] Post the two General Journal Lines.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine[1]);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine[2]);
+
+        // [GIVEN] Apply the two Vendor Ledger Entries using the Vendor Ledger Entries page.
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Gen. Journal Document Type"::" ", GenJournalLine[1]."Document No.");
+        VendorLedgerEntryPage.OpenEdit();
+        VendorLedgerEntryPage.GoToRecord(VendorLedgerEntry);
+        VendorLedgerEntryPage.ActionApplyEntries.Invoke();
+
+        // [THEN] Detailed Vendor Ledger Entry is created for the Vendor with the Application Type as 'Application'.
+        DetailedVendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        DetailedVendorLedgerEntry.SetRange("Entry Type", DetailedVendorLedgerEntry."Entry Type"::Application);
+        DetailedVendorLedgerEntry.FindFirst();
+        Assert.RecordIsNotEmpty(DetailedVendorLedgerEntry);
+    end;
+
     local procedure SumGLEntryAmountsForPayablesAccounts(var PayablesAccountCodes: List of [Code[20]]): Decimal
     var
         GLEntry: Record "G/L Entry";
@@ -2981,6 +3065,14 @@ codeunit 147310 "ERM Apply Unapply"
     procedure PostApplicationHandler(var PostApplication: TestPage "Post Application")
     begin
         PostApplication.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyVendorEntriesPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    begin
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.ActionPostApplication.Invoke();
     end;
 }
 

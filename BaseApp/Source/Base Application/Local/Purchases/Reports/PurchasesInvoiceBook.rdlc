@@ -3204,6 +3204,7 @@
                                   <Value>=Code.BlankZero(Fields!VATEntry7_NonDeductibleVAT.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
+                                    <Format>=Fields!VATEntry7_NonDeductibleVATFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -3267,6 +3268,7 @@
                                   <Value>=Code.BlankZero(Fields!VATEntry7_NonDeductibleVATBase.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
+                                    <Format>=Fields!VATEntry7_NonDeductibleVATBaseFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -3330,6 +3332,7 @@
                                   <Value>=Code.BlankZero(Fields!VATEntry7_NonDeductibleVATAmt.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
+                                    <Format>=Fields!VATEntry7_NonDeductibleVATAmtFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -3706,6 +3709,7 @@
                                   <Value>=Code.BlankZero(Fields!VATEntry2_NonDeductibleVAT.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
+                                    <Format>=Fields!VATEntry2_NonDeductibleVATFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -3769,6 +3773,7 @@
                                   <Value>=Code.BlankZero(Fields!VATEntry2_NonDeductibleVATBase.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
+                                    <Format>=Fields!VATEntry2_NonDeductibleVATBaseFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -3832,6 +3837,7 @@
                                   <Value>=Code.BlankZero(Fields!VATEntry2_NonDeductibleVATAmt.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
+                                    <Format>=Fields!VATEntry2_NonDeductibleVATAmtFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -3894,7 +3900,7 @@
                                   <Value>=Fields!VATBuffer2_Base_VATBuffer2_Amount.Value+Fields!VATEntry2_NonDeductibleVATBase.Value+Fields!VATEntry2_NonDeductibleVATAmt.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!VATBuffer2_Base_VATBuffer2_Amount.Value</Format>
+                                    <Format>0.00;(0.00)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -4203,6 +4209,7 @@
                                   <Value>=Code.BlankZero(Fields!VATEntry4_NonDeductibleVAT.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
+                                    <Format>=Fields!VATEntry4_NonDeductibleVATFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -4265,6 +4272,7 @@
                                   <Value>=Code.BlankZero(Fields!VATEntry4_NonDeductibleVATBase.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
+                                    <Format>=Fields!VATEntry4_NonDeductibleVATBaseFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -4327,6 +4335,7 @@
                                   <Value>=Code.BlankZero(Fields!VATEntry4_NonDeductibleVATAmt.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
+                                    <Format>=Fields!VATEntry4_NonDeductibleVATAmtFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -5060,6 +5069,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
+                                    <Format>=Last(Fields!VATEntry2_NonDeductibleVATBaseFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -5119,6 +5129,7 @@
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
+                                    <Format>=Last(Fields!VATEntry2_NonDeductibleVATAmtFormat.Value)</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>

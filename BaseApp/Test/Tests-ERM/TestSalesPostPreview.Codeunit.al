@@ -25,6 +25,7 @@ codeunit 134763 "Test Sales Post Preview"
         LibraryJournals: Codeunit "Library - Journals";
         IsInitialized: Boolean;
         SalesHeaderPostingNo: Code[20];
+        DocumentNos: Dictionary of [Text, Text];
         NoRecordsErr: Label 'There are no preview records to show.';
         WrongPostPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = '%1 You cannot use Customer 10000 for this action.';
@@ -778,7 +779,7 @@ codeunit 134763 "Test Sales Post Preview"
     end;
 
     [Test]
-    [HandlerFunctions('GLPostingPreviewPageHandler')]
+    [HandlerFunctions('GLPostingPreviewPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure PmtDiscToleranceConsidersOnPostingPreview()
     var
@@ -793,6 +794,7 @@ codeunit 134763 "Test Sales Post Preview"
         // [SCENARIO 277573] Payment Discount Tolerance considers when preview application of payment to invoice
 
         Initialize();
+        if Confirm('') then; // test instability caused by the confirmation dialog's reliance on the working date.
 
         // [GIVEN] Posted payment and invoice with possible payment discount tolerance
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText(Format(LibraryRandom.RandIntInRange(3, 10)) + 'D');
@@ -1056,12 +1058,9 @@ codeunit 134763 "Test Sales Post Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [FEATURE] [Invoice]
-        // [SCENARIO 406700] When SalesSetup has same values for Invoice Nos. and Posted Invoice Nos. the creating SalesInvoiceHeader.No. = "***"
+        // [SCENARIO 406700] "Posting No." on sales header is not populated on preview posting.
         Initialize();
         BindSubscription(TestSalesPostPreview);
-
-        // [GIVEN] Set Sales Setup "Invoice Nos." = "III" and "Posted Invoice Nos." = "III"
-        UpdateSalesSetupPostedInvoiceNos();
 
         // [GIVEN] Create sales invoice
         LibrarySales.CreateSalesDocumentWithItem(
@@ -1075,8 +1074,8 @@ codeunit 134763 "Test Sales Post Preview"
         asserterror SalesPostYesNo.Preview(SalesHeader);
         GLPostingPreview.Close();
 
-        // [THEN] Sales Header "Posting No." = "***"
-        Assert.IsSubstring(TestSalesPostPreview.GetSalesHeaderPostingNo(), '{');
+        // [THEN] Sales Header "Posting No." = <blank>
+        Assert.AreEqual('', TestSalesPostPreview.GetSalesHeaderPostingNo(), '');
     end;
 
     [Test]
@@ -1155,6 +1154,337 @@ codeunit 134763 "Test Sales Post Preview"
 
         // [THEN] Posting preview has not failed
         Assert.IsTrue(GenJnlPostPreview.IsSuccess(), 'Preview has failed');
+    end;
+
+    [Test]
+    procedure ShippingNoOnSalesOrderIsNotAssignedOnPostingPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        TestSalesPostPreview: Codeunit "Test Sales Post Preview";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [SCENARIO 581285] Shipping No. on Sales Order is not assigned during Posting Preview.
+        Initialize();
+
+        BindSubscription(TestSalesPostPreview);
+
+        // [GIVEN] Sales Order with Shipping No. = ''.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
+        SalesHeader.Validate("Shipping No.", '');
+        SalesHeader.Modify(true);
+        Commit();
+
+        // [WHEN] Run posting preview.
+        GLPostingPreview.Trap();
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        GLPostingPreview.Close();
+
+        // [THEN] Sales Header "Shipping No." remains ''.
+        Assert.AreEqual('', TestSalesPostPreview.GetDocumentNos().Get('Shipping No.'), '');
+
+        UnBindSubscription(TestSalesPostPreview);
+    end;
+
+    [Test]
+    procedure PostingNoOnSalesOrderIsNotAssignedOnPostingPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        TestSalesPostPreview: Codeunit "Test Sales Post Preview";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [SCENARIO 581285] Posting No. on Sales Order is not assigned during Posting Preview.
+        Initialize();
+
+        BindSubscription(TestSalesPostPreview);
+
+        // [GIVEN] Sales Order with Posting No. = ''.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
+        SalesHeader.Validate("Posting No.", '');
+        SalesHeader.Modify(true);
+        Commit();
+
+        // [WHEN] Run posting preview.
+        GLPostingPreview.Trap();
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        GLPostingPreview.Close();
+
+        // [THEN] Sales Header "Posting No." = ''.
+        Assert.AreEqual('', TestSalesPostPreview.GetDocumentNos().Get('Posting No.'), '');
+
+        UnBindSubscription(TestSalesPostPreview);
+    end;
+
+    [Test]
+    procedure PostingNoOnSalesInvoiceIsNotAssignedOnPostingPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        TestSalesPostPreview: Codeunit "Test Sales Post Preview";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [SCENARIO 581285] Posting No. on Sales Invoice is not assigned during Posting Preview.
+        Initialize();
+
+        BindSubscription(TestSalesPostPreview);
+
+        // [GIVEN] Sales Invoice with Posting No. = ''.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
+        SalesHeader.Validate("Posting No.", '');
+        SalesHeader.Modify(true);
+        Commit();
+
+        // [WHEN] Run posting preview.
+        GLPostingPreview.Trap();
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        GLPostingPreview.Close();
+
+        // [THEN] Sales Header "Posting No." = ''.
+        Assert.AreEqual('', TestSalesPostPreview.GetDocumentNos().Get('Posting No.'), '');
+
+        UnBindSubscription(TestSalesPostPreview);
+    end;
+
+    [Test]
+    procedure PostingNoOnSalesCreditMemoIsNotAssignedOnPostingPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        TestSalesPostPreview: Codeunit "Test Sales Post Preview";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [SCENARIO 581285] Posting No. on Sales Credit Memo is not assigned during Posting Preview.
+        Initialize();
+
+        BindSubscription(TestSalesPostPreview);
+
+        // [GIVEN] Sales Credit Memo with Posting No. = ''.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
+        SalesHeader.Validate("Posting No.", '');
+        SalesHeader.Modify(true);
+        Commit();
+
+        // [WHEN] Run posting preview.
+        GLPostingPreview.Trap();
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        GLPostingPreview.Close();
+
+        // [THEN] Sales Header "Posting No." = ''.
+        Assert.AreEqual('', TestSalesPostPreview.GetDocumentNos().Get('Posting No.'), '');
+
+        UnBindSubscription(TestSalesPostPreview);
+    end;
+
+    [Test]
+    procedure ReturnReceiptNoOnSalesReturnOrderIsNotAssignedOnPostingPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        TestSalesPostPreview: Codeunit "Test Sales Post Preview";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [SCENARIO 581285] Return Receipt No. on Sales Return Order is not assigned during Posting Preview.
+        Initialize();
+
+        BindSubscription(TestSalesPostPreview);
+
+        // [GIVEN] Sales Return Order with Return Receipt No. = ''.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
+        SalesHeader.Validate("Return Receipt No.", '');
+        SalesHeader.Modify(true);
+        Commit();
+
+        // [WHEN] Run posting preview.
+        GLPostingPreview.Trap();
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        GLPostingPreview.Close();
+
+        // [THEN] Sales Header "Return Receipt No." = ''.
+        Assert.AreEqual('', TestSalesPostPreview.GetDocumentNos().Get('Return Receipt No.'), '');
+
+        UnBindSubscription(TestSalesPostPreview);
+    end;
+
+    [Test]
+    procedure PostedShipmentNoStartsWithAsterisksOnPostingPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        TestSalesPostPreview: Codeunit "Test Sales Post Preview";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [SCENARIO 581285] Posted Shipment No. starts with '***' during Posting Preview.
+        Initialize();
+
+        BindSubscription(TestSalesPostPreview);
+
+        // [GIVEN] Sales Order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
+        Commit();
+
+        // [WHEN] Run posting preview.
+        GLPostingPreview.Trap();
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        GLPostingPreview.Close();
+
+        // [THEN] Posted Shipment No. starts with '***'.
+        Assert.IsTrue(TestSalesPostPreview.GetDocumentNos().Get('Posted Shipment No.').StartsWith('***'), '');
+
+        UnBindSubscription(TestSalesPostPreview);
+    end;
+
+    [Test]
+    procedure PostedInvoiceNoStartsWithAsterisksOnPostingPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        TestSalesPostPreview: Codeunit "Test Sales Post Preview";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [SCENARIO 581285] Posted Invoice No. starts with '***' during Posting Preview.
+        Initialize();
+
+        BindSubscription(TestSalesPostPreview);
+
+        // [GIVEN] Sales Invoice.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
+        Commit();
+
+        // [WHEN] Run posting preview.
+        GLPostingPreview.Trap();
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        GLPostingPreview.Close();
+
+        // [THEN] Posted Invoice No. starts with '***'.
+        Assert.IsTrue(TestSalesPostPreview.GetDocumentNos().Get('Posted Invoice No.').StartsWith('***'), '');
+
+        UnBindSubscription(TestSalesPostPreview);
+    end;
+
+    [Test]
+    procedure PostedCrMemoNoStartsWithAsterisksOnPostingPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        TestSalesPostPreview: Codeunit "Test Sales Post Preview";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [SCENARIO 581285] Posted Cr.Memo No. starts with '***' during Posting Preview.
+        Initialize();
+
+        BindSubscription(TestSalesPostPreview);
+
+        // [GIVEN] Sales Credit Memo.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
+        Commit();
+
+        // [WHEN] Run posting preview.
+        GLPostingPreview.Trap();
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        GLPostingPreview.Close();
+
+        // [THEN] Posted Cr.Memo No. starts with '***'.
+        Assert.IsTrue(TestSalesPostPreview.GetDocumentNos().Get('Posted Cr.Memo No.').StartsWith('***'), '');
+
+        UnBindSubscription(TestSalesPostPreview);
+    end;
+
+    [Test]
+    procedure PostedReturnReceiptNoStartsWithAsterisksOnPostingPreview()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        TestSalesPostPreview: Codeunit "Test Sales Post Preview";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [SCENARIO 581285] Posted Return Receipt No. starts with '***' during Posting Preview.
+        Initialize();
+
+        BindSubscription(TestSalesPostPreview);
+
+        // [GIVEN] Sales Return Order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
+        Commit();
+
+        // [WHEN] Run posting preview.
+        GLPostingPreview.Trap();
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        GLPostingPreview.Close();
+
+        // [THEN] Posted Return Receipt No. starts with '***'.
+        Assert.IsTrue(TestSalesPostPreview.GetDocumentNos().Get('Posted Return Receipt No.').StartsWith('***'), '');
+
+        UnBindSubscription(TestSalesPostPreview);
+    end;
+
+    [Test]
+    procedure PreviewPostingTokInPostingNoFieldsIsReset()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        TestSalesPostPreview: Codeunit "Test Sales Post Preview";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [SCENARIO 581285] Preview Posting Token in Shipping No., Posting No., Return Receipt No. fields is reset and not transferred to Last Shipping No., Last Posting No., and Last Return Receipt No. during Posting Preview.
+        Initialize();
+
+        BindSubscription(TestSalesPostPreview);
+
+        // [GIVEN] Sales Order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
+        SalesHeader."Shipping No." := '***123456';
+        SalesHeader."Posting No." := '***234567';
+        SalesHeader."Return Receipt No." := '***345678';
+        SalesHeader.Modify(true);
+        Commit();
+
+        // [WHEN] Run posting preview.
+        GLPostingPreview.Trap();
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        GLPostingPreview.Close();
+
+        // [THEN] Preview Posting Token in fields is reset.
+        Assert.AreEqual('', TestSalesPostPreview.GetDocumentNos().Get('Shipping No.'), '');
+        Assert.AreEqual('', TestSalesPostPreview.GetDocumentNos().Get('Posting No.'), '');
+        Assert.AreEqual('', TestSalesPostPreview.GetDocumentNos().Get('Return Receipt No.'), '');
+
+        // [AND] Last Shipping No., Last Posting No., and Last Return Receipt No. are not set.
+        Assert.AreEqual('', TestSalesPostPreview.GetDocumentNos().Get('Last Shipping No.'), '');
+        Assert.AreEqual('', TestSalesPostPreview.GetDocumentNos().Get('Last Posting No.'), '');
+        Assert.AreEqual('', TestSalesPostPreview.GetDocumentNos().Get('Last Return Receipt No.'), '');
+
+        UnBindSubscription(TestSalesPostPreview);
     end;
 
     local procedure Initialize()
@@ -1401,15 +1731,6 @@ codeunit 134763 "Test Sales Post Preview"
         CustomerEntriesPreview.OK().Invoke();
     end;
 
-    local procedure UpdateSalesSetupPostedInvoiceNos()
-    var
-        SalesSetup: Record "Sales & Receivables Setup";
-    begin
-        SalesSetup.Get();
-        SalesSetup."Posted Invoice Nos." := SalesSetup."Invoice Nos.";
-        SalesSetup.Modify();
-    end;
-
     local procedure VerifyGLPostingPreviewLine(GLPostingPreview: TestPage "G/L Posting Preview"; TableName: Text; ExpectedEntryCount: Integer)
     begin
         Assert.AreEqual(TableName, GLPostingPreview."Table Name".Value, StrSubstNo('A record for Table Name %1 was not found.', TableName));
@@ -1422,10 +1743,35 @@ codeunit 134763 "Test Sales Post Preview"
         exit(SalesHeaderPostingNo);
     end;
 
+    procedure GetDocumentNos(): Dictionary of [Text, Text]
+    begin
+        exit(DocumentNos);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterUpdatePostingNos', '', false, false)]
     local procedure OnAfterUpdatePostingNos(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean)
     begin
         SalesHeaderPostingNo := SalesHeader."Posting No.";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterFinalizePostingOnBeforeCommit', '', false, false)]
+    local procedure CheckSalesDocumentsBeforeCommit(var SalesHeader: Record "Sales Header";
+                                                    var SalesShipmentHeader: Record "Sales Shipment Header";
+                                                    var SalesInvoiceHeader: Record "Sales Invoice Header";
+                                                    var SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+                                                    var ReturnReceiptHeader: Record "Return Receipt Header")
+    begin
+        Clear(DocumentNos);
+        DocumentNos.Add('Shipping No.', SalesHeader."Shipping No.");
+        DocumentNos.Add('Posting No.', SalesHeader."Posting No.");
+        DocumentNos.Add('Return Receipt No.', SalesHeader."Return Receipt No.");
+        DocumentNos.Add('Last Shipping No.', SalesHeader."Last Shipping No.");
+        DocumentNos.Add('Last Posting No.', SalesHeader."Last Posting No.");
+        DocumentNos.Add('Last Return Receipt No.', SalesHeader."Last Return Receipt No.");
+        DocumentNos.Add('Posted Shipment No.', SalesShipmentHeader."No.");
+        DocumentNos.Add('Posted Invoice No.', SalesInvoiceHeader."No.");
+        DocumentNos.Add('Posted Cr.Memo No.', SalesCrMemoHeader."No.");
+        DocumentNos.Add('Posted Return Receipt No.', ReturnReceiptHeader."No.");
     end;
 
     [ConfirmHandler]

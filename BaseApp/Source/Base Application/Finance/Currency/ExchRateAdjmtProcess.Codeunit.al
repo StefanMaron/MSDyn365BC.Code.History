@@ -34,6 +34,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                   TableData "Employee Ledger Entry" = rimd,
                   TableData "Exch. Rate Adjmt. Reg." = rimd,
                   TableData "Exch. Rate Adjmt. Ledg. Entry" = rimd,
+                  TableData Currency = rim,
                   TableData "VAT Entry" = rimd,
                   TableData "Detailed Cust. Ledg. Entry" = rimd,
                   TableData "Detailed Vendor Ledg. Entry" = rimd,

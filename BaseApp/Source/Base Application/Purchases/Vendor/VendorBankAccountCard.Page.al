@@ -81,6 +81,22 @@ page 425 "Vendor Bank Account Card"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the relevant currency code for the bank account.';
                 }
+                field("Bank Branch No."; Rec."Bank Branch No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Bank Branch No.';
+                    Importance = Promoted;
+                    ToolTip = 'Specifies a number of the bank branch.';
+                    Visible = false;
+                }
+                field("Bank Account No."; Rec."Bank Account No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Bank Account No.';
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the number used by the bank for the bank account.';
+                    Visible = false;
+                }
                 field("Transit No."; Rec."Transit No.")
                 {
                     ApplicationArea = Basic, Suite;

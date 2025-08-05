@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.Purchases.History;
 
+using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
@@ -16,6 +17,7 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
+using Microsoft.Warehouse.Request;
 using Microsoft.Utilities;
 using System.Environment.Configuration;
 
@@ -889,6 +891,152 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         ItemChargeAssgnt.SetFilter("Qty. Assigned", '<>%1', 0);
         if ItemChargeAssgnt.FindFirst() then
             ItemChargeAssignment.ReverseItemChargeAssgnt(ItemChargeAssgnt, CancelledQuantity);
+    end;
+
+    internal procedure UpdatePurchaseOrderLineIfExist(PurchaseCreditMemoNo: Code[20])
+    var
+        PurchCrMemoLine: Record "Purch. Cr. Memo Line";
+    begin
+        PurchCrMemoLine.SetLoadFields("Document No.", Type, "No.", Quantity);
+        PurchCrMemoLine.SetRange("Document No.", PurchaseCreditMemoNo);
+        PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::Item);
+        PurchCrMemoLine.SetFilter("No.", '<>%1', '');
+        PurchCrMemoLine.SetFilter(Quantity, '<>%1', 0);
+        if PurchCrMemoLine.FindSet() then
+            repeat
+                GetPurchInvLineAndUpdatePurchaseOrderLines(PurchCrMemoLine);
+            until PurchCrMemoLine.Next() = 0;
+    end;
+
+    local procedure GetPurchInvLineAndUpdatePurchaseOrderLines(PurchCrMemoLine: Record "Purch. Cr. Memo Line")
+    var
+        PurchInvLine: Record "Purch. Inv. Line";
+    begin
+        PurchCrMemoLine.GetPurchaseInvoiceLine(PurchInvLine);
+        if PurchInvLine."Line No." <> 0 then
+            UpdatePurchaseOrderLinesFromCreditMemo(PurchInvLine, PurchCrMemoLine);
+    end;
+
+    local procedure UpdatePurchaseOrderLinesFromCreditMemo(PurchInvLine: Record "Purch. Inv. Line"; PurchCrMemoLine: Record "Purch. Cr. Memo Line")
+    var
+        PurchaseLine: Record "Purchase Line";
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+        UndoPostingManagement: Codeunit "Undo Posting Management";
+    begin
+        if not PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchInvLine."Order No.", PurchInvLine."Order Line No.") then
+            exit;
+
+        PurchInvLine.GetItemLedgEntries(TempItemLedgerEntry, false);
+        UpdatePurchaseOrderLineInvoicedQuantity(PurchaseLine, PurchCrMemoLine.Quantity, PurchCrMemoLine."Quantity (Base)");
+        UpdatePurchaseOrderLinePrepmtAmount(PurchInvLine);
+
+        if PurchaseLine."Qty. to Receive" = 0 then
+            UpdateWhseRequest(Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Location Code");
+
+        TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
+        UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, PurchInvLine."Posting Date", true);
+    end;
+
+    local procedure UpdatePurchaseOrderLinePrepmtAmount(PurchInvLine: Record "Purch. Inv. Line")
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Currency: Record Currency;
+    begin
+        if not PurchaseLine.Get(
+            PurchaseLine."Document Type"::Order,
+            PurchInvLine."Order No.",
+            PurchInvLine."Order Line No.")
+        then
+            exit;
+
+        if (PurchaseLine."Prepayment Amount" = 0) or PurchInvLine."Prepayment Line" then
+            exit;
+
+        PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
+        Currency.Initialize(PurchaseHeader."Currency Code", true);
+
+        if PurchaseHeader."Currency Code" <> '' then
+            ValidatePrepmtAmountsWithCurrency(PurchaseLine, PurchaseHeader, PurchInvLine, Currency)
+        else
+            ValidatePrepmtAmountsFromPurchInv(PurchaseLine, PurchInvLine, Currency);
+
+        PurchaseLine.Validate(
+            "Prepmt Amt Deducted",
+            PurchaseLine."Prepmt Amt Deducted" -
+                Round(
+                    PurchInvLine.Quantity * (PurchaseLine."Prepmt. Line Amount" / PurchaseLine.Quantity),
+                    Currency."Amount Rounding Precision"));
+
+        PurchaseLine.Validate(
+            "Prepmt Amt to Deduct",
+            PurchaseLine."Prepmt Amt to Deduct" +
+                Round(
+                    PurchInvLine.Quantity * (PurchaseLine."Prepmt. Line Amount" / PurchaseLine.Quantity),
+                    Currency."Amount Rounding Precision"));
+
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure ValidatePrepmtAmountsWithCurrency(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; PurchInvLine: Record "Purch. Inv. Line"; Currency: Record Currency)
+    var
+        CurrExchRate: Record "Currency Exchange Rate";
+    begin
+        PurchaseLine.Validate(
+            "Prepmt. Amount Inv. (LCY)",
+            PurchaseLine."Prepmt. Amount Inv. (LCY)" +
+                Round(
+                    CurrExchRate.ExchangeAmtFCYToLCY(
+                        PurchaseHeader."Posting Date",
+                        PurchaseHeader."Currency Code",
+                        Round(
+                            PurchInvLine.Quantity * (PurchaseLine."Prepayment Amount" / PurchaseLine.Quantity),
+                            Currency."Amount Rounding Precision"),
+                        PurchaseHeader."Currency Factor"),
+                    Currency."Amount Rounding Precision"));
+
+        PurchaseLine.Validate(
+            "Prepmt. VAT Amount Inv. (LCY)",
+            PurchaseLine."Prepmt. VAT Amount Inv. (LCY)" +
+            Round(
+                CurrExchRate.ExchangeAmtFCYToLCY(
+                    PurchaseHeader."Posting Date",
+                    PurchaseHeader."Currency Code",
+                    Round(
+                        PurchInvLine.Quantity * ((PurchaseLine."Prepmt. Amt. Incl. VAT" - PurchaseLine."Prepmt. VAT Base Amt.") / PurchaseLine.Quantity),
+                        Currency."Amount Rounding Precision"),
+                    PurchaseHeader."Currency Factor"),
+                Currency."Amount Rounding Precision"));
+    end;
+
+    local procedure ValidatePrepmtAmountsFromPurchInv(var PurchaseLine: Record "Purchase Line"; PurchInvLine: Record "Purch. Inv. Line"; Currency: Record Currency)
+    begin
+        PurchaseLine.Validate(
+            "Prepmt. Amount Inv. (LCY)",
+            PurchaseLine."Prepmt. Amount Inv. (LCY)" +
+                Round(
+                    PurchInvLine.Quantity * (PurchaseLine."Prepayment Amount" / PurchaseLine.Quantity),
+                    Currency."Amount Rounding Precision"));
+
+        PurchaseLine.Validate(
+            "Prepmt. VAT Amount Inv. (LCY)",
+            PurchaseLine."Prepmt. VAT Amount Inv. (LCY)" +
+                Round(
+                    PurchInvLine.Quantity * ((PurchaseLine."Prepmt. Amt. Incl. VAT" - PurchaseLine."Prepmt. VAT Base Amt.") / PurchaseLine.Quantity),
+                    Currency."Amount Rounding Precision"));
+    end;
+
+    local procedure UpdateWhseRequest(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; LocationCode: Code[10])
+    var
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WarehouseRequest.SetSourceFilter(SourceType, SourceSubType, SourceNo);
+        WarehouseRequest.SetRange("Location Code", LocationCode);
+        if WarehouseRequest.FindFirst() and WarehouseRequest."Completely Handled" then begin
+            WarehouseRequest."Completely Handled" := false;
+            WarehouseRequest.Modify();
+        end;
     end;
 
     [IntegrationEvent(false, false)]

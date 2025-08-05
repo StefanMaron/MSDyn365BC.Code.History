@@ -26,6 +26,7 @@ codeunit 134825 "UT Customer Table"
         DialogErr: Label 'Dialog';
         PhoneNoCannotContainLettersErr: Label '%1 must not contain letters in %2 %3=''%4''.';
         DocumentTypeFilterTxt: Label '<=%1', Locked = true, Comment = '%1 = document type';
+        ContactNoShouldNotBeEmpty: Label 'Contact No. should not be empty';
 
     [Test]
     [Scope('OnPrem')]
@@ -741,8 +742,8 @@ codeunit 134825 "UT Customer Table"
         // [WHEN] Function GetPrimaryConact is being run with parameter "CONT"
         Customer.GetPrimaryContact(Customer."No.", Contact);
 
-        // [THEN] Variable Contact is empty
-        Contact.TestField("No.", '');
+        // [THEN] Variable Contact exists without customer contact
+        Assert.IsTrue(Contact."No." <> '', ContactNoShouldNotBeEmpty);
     end;
 
     [Test]

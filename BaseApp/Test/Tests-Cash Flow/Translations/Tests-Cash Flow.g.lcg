@@ -230,6 +230,15 @@
       <Cmt Name="Dev"><![CDATA[Unexpected Cash Flow journal line count within filter: Cash Flow No.: Cash Flow No, Document No.: Sales Order No, Purchase Order No, Service Order No.]D;]A;(LookupHint=Codeunit ERM Cash Flow - Filling II - NamedType UnexpectedCFWorksheetLineCountForMultipleSourcesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2327756101 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value , %3 = Table Caption]D;]A;(LookupHint=Codeunit ERM Cash Flow - Filling II - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1410012192 - NamedType 1008014686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Counters dosn't match: before: %1 and after: %2.]]></Val>

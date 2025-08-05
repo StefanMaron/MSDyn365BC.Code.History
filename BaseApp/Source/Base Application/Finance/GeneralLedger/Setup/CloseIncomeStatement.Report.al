@@ -112,7 +112,6 @@ report 94 "Close Income Statement"
                 trigger OnPostDataItem()
                 var
                     TempDimBuf2: Record "Dimension Buffer" temporary;
-                    GLAccount: Record "G/L Account";
                     GlobalDimVal1: Code[20];
                     GlobalDimVal2: Code[20];
                     NewDimensionID: Integer;
@@ -157,14 +156,6 @@ report 94 "Close Income Statement"
                                 if ClosePerGlobalDim2 then
                                     GenJnlLine."Shortcut Dimension 2 Code" := GlobalDimVal2;
                                 OnPostDataItemOnAfterGenJnlLineDimUpdated(GenJnlLine, ClosePerGlobalDim1, ClosePerGlobalDim2);
-
-                                if (RetainedEarningsGLAcc."No." <> '') then
-                                    if GLAccount.Get(GenJnlLine."Account No.") then
-                                        if GLAccount."Income Stmt. Bal. Acc." = RetainedEarningsGLAcc."No." then begin
-                                            GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"G/L Account";
-                                            GenJnlLine."Bal. Account No." := RetainedEarningsGLAcc."No.";
-                                            GenJnlLine.UpdateLineBalance();
-                                        end;
 
                                 HandleGenJnlLine();
                                 UpdateBalAcc();
