@@ -2485,6 +2485,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 ReservEntry.UpdateItemTracking();
                 UpdateAppliedItemEntry(ReservEntry);
                 ReservEntry.Insert();
+                OnCommitTrackingOnAfterInsertReservationEntry(ReservEntry);
                 PrevTempEntryNo := TempTrkgReservEntry."Entry No.";
                 PrevInsertedEntryNo := ReservEntry."Entry No.";
                 TempTrkgReservEntry.Delete();
@@ -3683,6 +3684,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
             end;
 
         LeadTimeEndDate := AtDate;
+
+        OnCreateSupplyForwardOnBeforeLoopQtyToOrderMoreThanZero(TempSKU, QtyToOrder, SupplyWithinLeadtime, TempSupplyInvtProfile);
 
         while QtyToOrder > 0 do begin
             // In case of max order the new supply could be split in several new supplies:
@@ -6225,6 +6228,16 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnScheduleAllOutChangesSequenceOnBeforeCheckIfRescheduleIsNeeded(SupplyInventoryProfile: Record "Inventory Profile"; var NextRecExists: Integer; var IsHandled: Boolean; NewDate: Date; var NumberofSupplies: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSupplyForwardOnBeforeLoopQtyToOrderMoreThanZero(var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var QtoToOrder: Decimal; SupplyWithinLeadtime: Decimal; var SupplyInvtProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCommitTrackingOnAfterInsertReservationEntry(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 }

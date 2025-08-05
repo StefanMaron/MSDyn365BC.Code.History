@@ -40,6 +40,7 @@ permissionset 3814 "D365 IC, VIEW"
                   tabledata "IC Inbox Transaction" = R,
                   tabledata "IC Inbox/Outbox Jnl. Line Dim." = R,
                   tabledata "IC Outbox Jnl. Line" = R,
+                  tabledata "IC Outbox Transaction" = R,
                   tabledata "IC Outbox Purchase Header" = R,
                   tabledata "IC Outbox Purchase Line" = R,
                   tabledata "IC Outbox Sales Header" = R,

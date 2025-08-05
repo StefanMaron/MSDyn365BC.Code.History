@@ -1389,7 +1389,7 @@ table 5965 "Service Contract Header"
                 if ("Bill-to Customer No." <> '') and ("Bill-to Contact No." <> '') then begin
                     Cont.Get("Bill-to Contact No.");
                     if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, "Bill-to Customer No.") then
-                        if ContBusinessRelation."Contact No." <> Cont."Company No." then
+                        if (ContBusinessRelation."Contact No." <> Cont."Company No.") and (Cont.Type = Cont.Type::Company) then
                             Error(Text045, Cont."No.", Cont.Name, "Bill-to Customer No.");
                 end;
 
@@ -2251,6 +2251,7 @@ table 5965 "Service Contract Header"
         ContBusinessRelation: Record "Contact Business Relation";
         Cust: Record Customer;
         Cont: Record Contact;
+        ContactBusinessRelationFound: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2262,13 +2263,18 @@ table 5965 "Service Contract Header"
             "Contact No." := Cont."No.";
             "Phone No." := Cont."Phone No.";
             "E-Mail" := Cont."E-Mail";
-            if Cont.Type = Cont.Type::Person then
-                "Contact Name" := Cont.Name
-            else
+            if Cont.Type = Cont.Type::Person then begin
+                "Contact Name" := Cont.Name;
+                ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."No.");
+            end else begin
+                if not ContactBusinessRelationFound then
+                    ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");
+
                 if Cust.Get("Customer No.") then
                     "Contact Name" := Cust.Contact
                 else
                     "Contact Name" := ''
+            end;
         end else begin
             "Contact Name" := '';
             "Phone No." := '';
@@ -2276,7 +2282,7 @@ table 5965 "Service Contract Header"
             exit;
         end;
 
-        if ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.") then begin
+        if ContactBusinessRelationFound then begin
             if ("Customer No." <> '') and
                ("Customer No." <> ContBusinessRelation."No.")
             then
@@ -2300,23 +2306,29 @@ table 5965 "Service Contract Header"
         ContBusinessRelation: Record "Contact Business Relation";
         Cust: Record Customer;
         Cont: Record Contact;
+        ContactBusinessRelationFound: Boolean;
     begin
         if Cont.Get(ContactNo) then begin
             "Bill-to Contact No." := Cont."No.";
-            if Cont.Type = Cont.Type::Person then
-                "Bill-to Contact" := Cont.Name
-            else
+            if Cont.Type = Cont.Type::Person then begin
+                "Bill-to Contact" := Cont.Name;
+                ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."No.");
+            end else begin
+                if not ContactBusinessRelationFound then
+                    ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.");
+
                 if Cust.Get("Bill-to Customer No.") then
                     "Bill-to Contact" := Cust.Contact
                 else
                     "Bill-to Contact" := '';
+            end;
         end else begin
             "Bill-to Contact" := '';
             exit;
         end;
 
         OnUpdateBillToCustOnBeforeContBusinessRelationFindByContact(Rec, Cust, Cont);
-        if ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.") then begin
+        if ContactBusinessRelationFound then begin
             if "Bill-to Customer No." = '' then begin
                 SkipBillToContact := true;
                 Validate("Bill-to Customer No.", ContBusinessRelation."No.");

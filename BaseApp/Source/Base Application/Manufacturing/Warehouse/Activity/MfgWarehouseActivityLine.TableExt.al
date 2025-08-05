@@ -33,5 +33,12 @@ tableextension 99000771 "Mfg. Warehouse Activity Line" extends "Warehouse Activi
         "Serial No." := TempProdOrdLineTrackingBuff."Serial No.";
         "Lot No." := TempProdOrdLineTrackingBuff."Lot No.";
         "Package No." := TempProdOrdLineTrackingBuff."Package No.";
+
+        OnAfterCopyTrackingFromProdOrderLineTrackingBuffer(Rec, TempProdOrdLineTrackingBuff);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromProdOrderLineTrackingBuffer(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempProdOrdLineTrackingBuff: Record "Prod. Ord. Line Tracking Buff." temporary)
+    begin
     end;
 }
