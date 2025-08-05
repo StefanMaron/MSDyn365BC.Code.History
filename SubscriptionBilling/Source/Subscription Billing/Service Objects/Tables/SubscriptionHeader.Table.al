@@ -313,6 +313,7 @@ table 8057 "Subscription Header"
             Caption = 'Ship-to Contact';
             DataClassification = EndUserIdentifiableInformation;
         }
+#if not CLEANSCHEMA29
         field(20; "Item No."; Code[20])
         {
             Caption = 'Item No.';
@@ -327,6 +328,7 @@ table 8057 "Subscription Header"
 #endif
 
         }
+#endif
         field(21; Description; Text[100])
         {
             Caption = 'Description';

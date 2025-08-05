@@ -55,7 +55,7 @@ page 5775 "Warehouse Setup"
                 field("Shipment Posting Policy"; Rec."Shipment Posting Policy")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies what should happen if errors occur when warehouse shipments are posted.';
+                    ToolTip = 'Specifies what should happen if errors occur when warehouse shipments are posted per source document.';
                 }
                 field("Copy Item Descr. to Entries"; Rec."Copy Item Descr. to Entries")
                 {

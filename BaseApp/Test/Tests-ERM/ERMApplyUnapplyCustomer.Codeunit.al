@@ -2081,6 +2081,122 @@
         Assert.AreEqual(VATEntryCountAtPmtApplication, VATEntryCountAtPmtUnApplication, VATEntryCntLbl);
     end;
 
+    [Test]
+    procedure CheckAdditionalCurrencyInGLEntryPostingCashReceiptWithAlternatePostingGroupWithCurrencyCode()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Customer: Record Customer;
+        CustomerPostingGroup: array[2] of Record "Customer Posting Group";
+        GenJournalLine, GenJournalLine2 : Record "Gen. Journal Line";
+        GlEntry: Record "G/L Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CurrencyCode: Code[10];
+        PaymentDocNo: Code[20];
+        VATCalculationType: Enum "Tax Calculation Type";
+    begin
+        // [SCENARIO 575520] Check Additional Reporting Currency not working when posting through alternate posting group.
+        Initialize();
+
+        // [GIVEN] Currency with specific exchange rates and set as Additional Reporting Currency.
+        GlEntry.SetCurrentKey("Posting Date");
+        GlEntry.FindFirst();
+        CurrencyCode := CreateCurrencyAndExchangeRate(1, 1.1302, WorkDate());
+        CreateExchangeRate(CurrencyCode, 100, 101.7599, GlEntry."Posting Date");
+        UpdateRunAddnReportingCurrency(CurrencyCode, LibraryRandom.RandText(10));
+
+        // [GIVEN] Set Allow Multiple Posting Groups in Sales & Receivables Setup.
+        SetSalesAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create Customer Posting Group One And Alternative Customer Posting Group.
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[1]);
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[2]);
+        LibrarySales.CreateAltCustomerPostingGroup(CustomerPostingGroup[1].Code, CustomerPostingGroup[2].Code);
+
+        // [GIVEN] Create VAT Posting Setup.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType::"Normal VAT", 25);
+
+        // [GIVEN Create Customer With Allow Multiple Posting Groups.
+        CreateCustomerWithAllowMultiplePostingGroups(Customer, CustomerPostingGroup[1].Code, VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create Cash Receipt Journal Invoice Line for the customer And Post.
+        CreateCashReceiptJnlLine(GenJournalLine, Customer."No.");
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Find Openned Customer Ledger Entries for New Customer Created For "Apply Entries".
+        FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, Customer."No.");
+
+        // [WHEN] Payment is applied to the invoice.
+        CreateCashReceiptJnlLinePayment(GenJournalLine2, Customer."No.", CustLedgerEntry, CustomerPostingGroup[2].Code, CurrencyCode);
+        PaymentDocNo := GenJournalLine2."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine2);
+
+        // [THEN] Check General Ledger Entry All Lines Must have Value in "Additional-Currency Amount" Field.
+        GlEntry.Reset();
+        GlEntry.SetRange("Document No.", PaymentDocNo);
+        GlEntry.SetRange("Additional-Currency Amount", 0);
+        Assert.RecordCount(GlEntry, 0);
+    end;
+
+    [Test]
+    procedure CheckAdditionalCurrencyInGLEntryPostingCashReceiptWithAlternatePostingGroupWithOutCurrencyCode()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Customer: Record Customer;
+        CustomerPostingGroup: array[2] of Record "Customer Posting Group";
+        GenJournalLine, GenJournalLine2 : Record "Gen. Journal Line";
+        GlEntry: Record "G/L Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        CurrencyCode: Code[10];
+        PaymentDocNo: Code[20];
+        VATCalculationType: Enum "Tax Calculation Type";
+    begin
+        // [SCENARIO 575520] Check Additional Reporting Currency not working when posting through alternate posting group.
+        Initialize();
+
+        // [GIVEN] Currency with specific exchange rates and set as Additional Reporting Currency.
+        GlEntry.SetCurrentKey("Posting Date");
+        GlEntry.FindFirst();
+        CurrencyCode := CreateCurrencyAndExchangeRate(1, 1.1302, WorkDate());
+        CreateExchangeRate(CurrencyCode, 100, 101.7599, GlEntry."Posting Date");
+        UpdateRunAddnReportingCurrency(CurrencyCode, LibraryRandom.RandText(10));
+
+        // [GIVEN] Set Allow Multiple Posting Groups in Sales & Receivables Setup.
+        SetSalesAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create Customer Posting Group One And Alternative Customer Posting Group.
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[1]);
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[2]);
+        LibrarySales.CreateAltCustomerPostingGroup(CustomerPostingGroup[1].Code, CustomerPostingGroup[2].Code);
+
+        // [GIVEN] Create VAT Posting Setup.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType::"Normal VAT", 25);
+
+        // [GIVEN Create Customer With Allow Multiple Posting Groups.
+        CreateCustomerWithAllowMultiplePostingGroups(Customer, CustomerPostingGroup[1].Code, VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create Cash Receipt Journal Invoice Line for the customer And Post.
+        CreateCashReceiptJnlLine(GenJournalLine, Customer."No.");
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Find Openned Customer Ledger Entries for New Customer Created For "Apply Entries".
+        FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, Customer."No.");
+
+        // [WHEN] Payment is applied to the invoice.
+        CreateCashReceiptJnlLinePayment(GenJournalLine2, Customer."No.", CustLedgerEntry, CustomerPostingGroup[2].Code, '');
+        PaymentDocNo := GenJournalLine2."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine2);
+
+        // [THEN] Check General Ledger Entry All Lines Must have Value in "Additional-Currency Amount" Field.
+        GlEntry.Reset();
+        GlEntry.SetRange("Document No.", PaymentDocNo);
+        GlEntry.SetRange("Additional-Currency Amount", 0);
+        Assert.RecordCount(GlEntry, 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3265,6 +3381,87 @@
             VATEntry.SetRange("Posting Date", UnapplyDate);
         end;
         exit(VATEntry.Count());
+    end;
+
+    procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; CustNo: Code[20])
+    begin
+        // Finds the matching Customer Ledger Entry from a General Journal Line.
+        CustLedgerEntry.SetRange("Document Type", DocumentType);
+        CustLedgerEntry.SetRange(Open, true);
+        CustLedgerEntry.SetRange("Customer No.", CustNo);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields(CustLedgerEntry."Remaining Amount");
+    end;
+
+    local procedure CreateCashReceiptJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::"Cash Receipts");
+        GenJournalTemplate.Modify(true);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, AccountNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 100);
+    end;
+
+    local procedure CreateCashReceiptJnlLinePayment(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerPostingGroup: Code[20]; CurrencyCode: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::"Cash Receipts");
+        GenJournalTemplate.Modify(true);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, AccountNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 100);
+
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate("Posting Group", CustomerPostingGroup);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", CustLedgerEntry."Document No.");
+        GenJournalLine.Validate(Amount, -(CustLedgerEntry."Remaining Amount" - CustLedgerEntry."Remaining Pmt. Disc. Possible"));
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure UpdateRunAddnReportingCurrency(CurrencyCode: Code[10]; DocumentNo: Code[20])
+    begin
+        LibraryERM.SetAddReportingCurrency(CurrencyCode);
+        RunAdditionalReportingCurrency(CurrencyCode, DocumentNo);
+    end;
+
+    local procedure RunAdditionalReportingCurrency(CurrencyCode: Code[10]; DocumentNo: Code[20])
+    var
+        AdjustAddReportingCurrency: Report "Adjust Add. Reporting Currency";
+    begin
+        AdjustAddReportingCurrency.SetAddCurr(CurrencyCode);
+        AdjustAddReportingCurrency.InitializeRequest(DocumentNo, LibraryERM.CreateGLAccountNo());
+        AdjustAddReportingCurrency.UseRequestPage(false);
+        AdjustAddReportingCurrency.Run();
+    end;
+
+    local procedure CreateCustomerWithAllowMultiplePostingGroups(var Customer: Record Customer; CustomerPostingGroupCode: Code[20]; VATBusPostGroupCode: Code[20])
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Allow Multiple Posting Groups", true);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
+        Customer.Validate("Customer Posting Group", CustomerPostingGroupCode);
+        Customer.Modify(true);
+    end;
+
+    local procedure SetSalesAllowMultiplePostingGroups(AllowMultiplePostingGroups: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Allow Multiple Posting Groups" := AllowMultiplePostingGroups;
+        SalesReceivablesSetup.Modify();
     end;
 
     [ModalPageHandler]
