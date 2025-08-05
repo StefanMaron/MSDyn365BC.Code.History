@@ -674,6 +674,7 @@ codeunit 31142 "Purch. Adv. Letter-Post CZZ"
                 PurchAdvLetterEntryCZZ2."Entry Type"::"VAT Usage":
                     begin
                         AdvancePostingParametersCZZ2.InitNew(AdvancePostingParametersCZZ);
+                        AdvancePostingParametersCZZ2."External Document No." := PurchAdvLetterEntryCZZ2."External Document No.";
                         AdvancePostingParametersCZZ2."Currency Code" := PurchAdvLetterEntryCZZ2."Currency Code";
                         AdvancePostingParametersCZZ2."Currency Factor" := PurchAdvLetterEntryCZZ2."Currency Factor";
 

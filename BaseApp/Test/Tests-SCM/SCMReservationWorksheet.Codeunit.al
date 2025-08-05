@@ -25,6 +25,7 @@ codeunit 137023 "SCM Reservation Worksheet"
         DefaultBatchTok: Label 'DEFAULT';
         QtyCannotExceedErr: Label 'Qty. to Reserve cannot exceed';
         DateSequenceErr: Label 'Start Date Formula must be less than or equal to End Date Formula';
+        ChangeLocationMessage: Label 'You have changed Location Code on the sales header, but it has not been changed on the existing sales lines.';
 
     [Test]
     [HandlerFunctions('GetDemandToReserveRequestPageHandler')]
@@ -1033,6 +1034,65 @@ codeunit 137023 "SCM Reservation Worksheet"
         VerifySalesLineQuantityIsReserved(SalesHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageVerifyHandler,GetDemandToReserveRequestPageHandler,CarryOutReservationRequestPageHandler,ItemTrackingLinesModalPageHandler,QuantityToCreatePageHandler')]
+    procedure ReservationWorksheetGetDemandNoErrorForWarehousePickDoc()
+    var
+        Bin: array[5] of Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        Qty: Integer;
+        SerialNos: List of [Code[50]];
+    begin
+        // [SCENARIO 575904] When calculating the demand in the reservation worksheet for Sales order with Serial No. item, System will not show any error
+        Initialize();
+        Qty := 2;
+
+        // [GIVEN] Reset Warehouse Employee Default Location.
+        ResetWarehouseEmployeeDefaultLocation();
+
+        // [GIVEN] Create Location with WMS enabled Bin mandatory
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+
+        // [GIVEN] Create Warehouse Employee for Location.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create Bins for Location.
+        CreateBins(Bin, Location.Code);
+
+        // [GIVEN] Assign Bins to "To-Production Bin Code","From-Production Bin Code",
+        // "Receipt Bin Code", "Shipment Bin Code" fields on Location.
+        Location.Validate("To-Production Bin Code", Bin[1].Code);
+        Location.Validate("From-Production Bin Code", Bin[2].Code);
+        Location.Validate("Receipt Bin Code", Bin[3].Code);
+        Location.Validate("Shipment Bin Code", Bin[4].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Item with Serial no.-tracked item and post it to inventory.
+        CreateSerialTrackedItem(Item, true);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin[5].Code, Qty);
+        LibraryVariableStorage.Enqueue(0);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        GetListOfPostedSerialNos(SerialNos, Item."No.");
+
+        // [GIVEN] Create Sales Order with Item and Location.
+        CreateSalesDocumentWithLocation(SalesHeader, SalesHeader."Document Type"::Order, Item."No.", Location.Code, Qty);
+
+        // [GIVEN] Create Warehouse Shipment Header and Register the Pick
+        CreatePickAndRegisterWhseShipment(WarehouseShipmentHeader, SalesHeader."No.", SalesHeader."Location Code", SerialNos);
+
+        // [WHEN] Make reservation from reservation worksheet by Create Demand
+        MakeReservationOnReservationWorkSheet(SalesHeader."No.", Item."No.");
+
+        //  [THEN] Verify each Sales Line have reservation
+        VerifySalesLineQuantityIsReserved(SalesHeader);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Reservation Worksheet");
@@ -1231,6 +1291,149 @@ codeunit 137023 "SCM Reservation Worksheet"
         until SalesLine.Next() = 0;
     end;
 
+    local procedure CreateSalesDocumentWithLocation(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibraryVariableStorage.Enqueue(ChangeLocationMessage);  // Enqueue ConfirmHandler.
+        CreateSalesDocument(SalesHeader, DocumentType, SalesLine.Type::Item, CreateCustomer(), ItemNo, Quantity);  // Use Random value.
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Modify(true);
+        UpdateLocationCodeOnSalesLine(SalesHeader, LocationCode);
+    end;
+
+    local procedure UpdateLocationCodeOnSalesLine(SalesHeader: Record "Sales Header"; LocationCode: Code[10])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        FindSalesLine(SalesLine, SalesHeader);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+    end;
+
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; SellToCustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, SellToCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNo, Quantity);
+    end;
+
+    local procedure CreateCustomer(): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateBins(var Bin: array[5] of Record Bin; LocationCode: Code[10])
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(Bin) do
+            LibraryWarehouse.CreateBin(Bin[i], LocationCode, Bin[i].Code, '', '');
+    end;
+
+    local procedure ResetWarehouseEmployeeDefaultLocation()
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        WarehouseEmployee.SetRange("User ID", UserId());
+        WarehouseEmployee.SetRange(Default, true);
+        WarehouseEmployee.ModifyAll(Default, false);
+    end;
+
+    local procedure CreateSerialTrackedItem(var Item: Record Item; WMSSpecific: Boolean)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryItemTracking.AddSerialNoTrackingInfo(Item);
+        if WMSSpecific then begin
+            ItemTrackingCode.Get(Item."Item Tracking Code");
+            ItemTrackingCode.Validate("SN Warehouse Tracking", true);
+            ItemTrackingCode.Modify(true);
+        end;
+    end;
+
+    local procedure GetListOfPostedSerialNos(var SerialNos: List of [Code[50]]; ItemNo: Code[20])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        Clear(SerialNos);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange(Positive, true);
+        ItemLedgerEntry.SetFilter("Serial No.", '<>%1', '');
+        ItemLedgerEntry.FindSet();
+        repeat
+            SerialNos.Add(ItemLedgerEntry."Serial No.");
+        until ItemLedgerEntry.Next() = 0;
+    end;
+
+    local procedure CreatePickAndRegisterWhseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; DocumentNo: Code[20]; LocationCode: Code[10]; SerialNos: List of [Code[50]])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        CreateWarehouseShipmentFromSO(DocumentNo);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, LocationCode);
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+        RegisterWarehouseActivity(DocumentNo, WarehouseActivityLine."Activity Type"::Pick, SerialNos);
+    end;
+
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; SerialNos: List of [Code[50]])
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        SerialNoCode: array[2] of Code[50];
+        i: Integer;
+    begin
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceNo, ActivityType);
+        for i := 1 to SerialNos.Count do
+            SerialNoCode[i] := SerialNos.Get(i);
+
+        i := 1;
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Serial No.", SerialNoCode[i]);
+            WarehouseActivityLine.Modify();
+            if WarehouseActivityLine."Action Type" = WarehouseActivityLine."Action Type"::Place then
+                i += 1;
+        until WarehouseActivityLine.Next() = 0;
+
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    begin
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindFirst();
+    end;
+
+    local procedure CreateWarehouseShipmentFromSO(DocumentNo: Code[20])
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.Get(SalesHeader."Document Type"::Order, DocumentNo);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+    end;
+
+    local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LocationCode: Code[10])
+    begin
+        WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
+        WarehouseShipmentHeader.FindFirst();
+    end;
+
     [RequestPageHandler]
     procedure GetDemandToReserveRequestPageHandler(var GetDemandToReserve: TestRequestPage "Get Demand To Reserve")
     begin
@@ -1267,6 +1470,43 @@ codeunit 137023 "SCM Reservation Worksheet"
     [MessageHandler]
     procedure MessageHandler(Message: Text)
     begin
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            0:
+                ItemTrackingLines."Assign &Serial No.".Invoke();
+            1:
+                ItemTrackingLines."Select Entries".Invoke();
+            2:
+                begin
+                    ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(1);
+                    ItemTrackingLines.Next();
+                    ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(1);
+                end;
+        end;
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantityToCreate.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageVerifyHandler(Message: Text[1024])
+    var
+        ExpectedMessage: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ExpectedMessage);  // Dequeue Variable.
+        Assert.IsTrue(StrPos(Message, ExpectedMessage) > 0, Message);
     end;
 }
 

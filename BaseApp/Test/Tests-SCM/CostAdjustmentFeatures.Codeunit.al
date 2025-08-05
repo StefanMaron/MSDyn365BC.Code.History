@@ -11,6 +11,7 @@ codeunit 137085 "Cost Adjustment Features"
     end;
 
     var
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryCosting: Codeunit "Library - Costing";
@@ -21,17 +22,21 @@ codeunit 137085 "Cost Adjustment Features"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Cost Adjustment Features");
         LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
 
         if Initialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Cost Adjustment Features");
 
         SetManualCostAdjustmentParameters();
 
         LibrarySetupStorage.Save(Database::"Inventory Setup");
 
         Initialized := true;
+        Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Cost Adjustment Features");
     end;
 
     // TEST CASES:
@@ -53,6 +58,7 @@ codeunit 137085 "Cost Adjustment Features"
     // 3.3. Force adjustment on the Item Ledger Entries page for average cost item, entries not direct-applied - only reopens item
     // 3.4. Force adjustment on the Item Ledger Entries page for average cost item, entries direct-applied - reopens item and entry
     // 3.5. Outbound Entry is Updated on the Item Application Entries page - all applied outbound entries are updated
+    // 3.6. Set/Reset Cost Application on the Item Application Entries page
 
     // 4. Item-by-item committing:
     // 4.1. Adjust two items - second fails, check that first is adjusted and second is not
@@ -597,6 +603,41 @@ codeunit 137085 "Cost Adjustment Features"
 
         // [THEN] Check that the two negative item ledger entries are not marked as "Outbound Entry is Updated".
         Assert.RecordCount(FilteredItemApplicationEntry, 0);
+    end;
+
+    [Test]
+    procedure T36_SetResetCostApplicationForItemApplicationEntry()
+    var
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
+    begin
+        Initialize();
+
+        // [GIVEN] Average cost item.
+        CreateItem(Item, Item."Costing Method"::Average);
+
+        // [GIVEN] Post two entries: +10, -10.
+        // [GIVEN] The negative entry is applied to the positive entry.
+        PostItemJournalLine(Item."No.", 10, 10, WorkDate());
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.", WorkDate());
+        PostItemJournalLine(Item."No.", '', -10, 0, WorkDate(), ItemLedgerEntry."Entry No.");
+
+        // [GIVEN] Find the item application entries. Check that the Cost Application is true.
+        ItemApplicationEntry.SetRange("Inbound Item Entry No.", ItemLedgerEntry."Entry No.");
+        ItemApplicationEntry.SetFilter("Outbound Item Entry No.", '<>0');
+        ItemApplicationEntry.FindFirst();
+        ItemApplicationEntry.TestField("Cost Application", true);
+
+        // [WHEN] Reset the Cost Application.
+        // [THEN] Check that the Cost Application is false.
+        ItemApplicationEntry.SetCostApplication(false);
+        ItemApplicationEntry.TestField("Cost Application", false);
+
+        // [THEN] Set the Cost Application back to true.
+        // [THEN] Check that the Cost Application is true.
+        ItemApplicationEntry.SetCostApplication(true);
+        ItemApplicationEntry.TestField("Cost Application", true);
     end;
 
     [Test]

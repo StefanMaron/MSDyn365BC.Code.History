@@ -1307,6 +1307,43 @@ codeunit 137297 "SCM Inventory Misc. V"
         ItemCard."Costing Method".AssertEquals(CostingMethod::Standard);
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionBOMPageHandler')]
+    procedure ItemListItemDetailsReplenishmentFactboxOpenCorrectBOMNo()
+    var
+        CompItem, ProdItem : Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemReplenishmentFactBox: TestPage "Item Replenishment FactBox";
+    begin
+        // [SCENARIO 581642] Verify that in the item list Page, the 'Item Details - Replenishment' factbox opens the correct BOM No.
+        Initialize();
+
+        // [GIVEN] Create Main Item.
+        ProdItem.Get(CreateAndModifyItem('', ProdItem."Flushing Method"::Manual, ProdItem."Replenishment System"::"Prod. Order"));
+
+        // [GIVEN] Create Component Item.
+        CompItem.Get(CreateAndModifyItem('', CompItem."Flushing Method"::Manual, CompItem."Replenishment System"::Purchase));
+
+        // [GIVEN] Create Certify Production BOM.
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ProdItem."Base Unit of Measure", CompItem."No.", '');
+
+        // Update the Production BOM No. in Main Item.
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+        ItemReplenishmentFactBox.Trap();
+
+        // [GIVEN] Run the Item Replenishment FactBox Page.
+        Page.Run(Page::"Item Replenishment FactBox", ProdItem);
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+
+        // [WHEN] In the 'Item Replenishment FactBox', the Production BOM No. field was drilldown.
+        ItemReplenishmentFactBox."Production BOM No.".Drilldown();
+
+        // [THEN] Ensure that the system opens the selected BOM rather than defaulting to the last BOM in alphabetical order.
+        // The verification was done in the ProductionBOMPageHandler.
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         WarehouseSetup: Record "Warehouse Setup";
@@ -1984,6 +2021,13 @@ codeunit 137297 "SCM Inventory Misc. V"
     procedure NoSeriesPageHandler(var NoSeriesPage: TestPage "No. Series")
     begin
         NoSeriesPage.OK().Invoke();
+    end;
+
+    [PageHandler]
+    procedure ProductionBOMPageHandler(var ProductionBOM: TestPage "Production BOM")
+    begin
+        ProductionBOM."No.".AssertEquals(LibraryVariableStorage.DequeueText());
+        ProductionBOM.OK().Invoke();
     end;
 }
 

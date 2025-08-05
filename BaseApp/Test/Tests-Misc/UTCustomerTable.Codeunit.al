@@ -25,6 +25,7 @@ codeunit 134825 "UT Customer Table"
         DeleteCustomerSalesDocExistsErr: Label 'You cannot delete %1 %2 because there is at least one outstanding Sales %3 for this customer.';
         DialogErr: Label 'Dialog';
         PhoneNoCannotContainLettersErr: Label '%1 must not contain letters in %2 %3=''%4''.';
+        ContactNoShouldNotBeEmpty: Label 'Contact No. should not be empty';
 
     [Test]
     [Scope('OnPrem')]
@@ -740,8 +741,8 @@ codeunit 134825 "UT Customer Table"
         // [WHEN] Function GetPrimaryConact is being run with parameter "CONT"
         Customer.GetPrimaryContact(Customer."No.", Contact);
 
-        // [THEN] Variable Contact is empty
-        Contact.TestField("No.", '');
+        // [THEN] Variable Contact exists without customer contact
+        Assert.IsTrue(Contact."No." <> '', ContactNoShouldNotBeEmpty);
     end;
 
     [Test]

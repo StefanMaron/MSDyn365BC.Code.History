@@ -51,6 +51,18 @@ xmlport 5875 "Export Phys. Invt. Recording"
                 fieldelement(ShelfNo; "Phys. Invt. Record Line"."Shelf No.")
                 {
                 }
+                fieldelement(Quantity; "Phys. Invt. Record Line".Quantity)
+                {
+                }
+                fieldelement(PersonRecorded; "Phys. Invt. Record Line"."Person Recorded")
+                {
+                }
+                fieldelement(DateRecorded; "Phys. Invt. Record Line"."Date Recorded")
+                {
+                }
+                fieldelement(TimeRecorded; "Phys. Invt. Record Line"."Time Recorded")
+                {
+                }
 
                 trigger OnPreXmlItem()
                 begin
