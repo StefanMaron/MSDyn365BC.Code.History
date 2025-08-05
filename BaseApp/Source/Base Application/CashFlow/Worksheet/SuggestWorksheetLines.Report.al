@@ -1239,6 +1239,7 @@ report 840 "Suggest Worksheet Lines"
             Job.Get("Job Planning Line"."Job No.");
             CFWorksheetLine2."Shortcut Dimension 1 Code" := Job."Global Dimension 1 Code";
             CFWorksheetLine2."Shortcut Dimension 2 Code" := Job."Global Dimension 2 Code";
+            CheckCashFlowAccountNo(CFSetup."Job CF Account No.");
             CFWorksheetLine2."Cash Flow Account No." := CFSetup."Job CF Account No.";
             CFWorksheetLine2.Description :=
               CopyStr(
@@ -1740,6 +1741,13 @@ report 840 "Suggest Worksheet Lines"
             until SalesInvoiceHeader.Next() = 0;
 
         exit(RemainingAmount);
+    end;
+
+    local procedure CheckCashFlowAccountNo(CashFlowAccountNo: Code[20])
+    var
+        CashFlowAccount: Record "Cash Flow Account";
+    begin
+        CashFlowAccount.Get(CashFlowAccountNo);
     end;
 
     [IntegrationEvent(false, false)]

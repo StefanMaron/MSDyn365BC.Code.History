@@ -104,4 +104,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Phys. Invt. Order-Test UT REP - NamedType ValueSpecifiedWarningTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2513940864 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption , %2 = Expected Value , %3 = Table Caption]D;]A;(LookupHint=Codeunit Phys. Invt. Recording UT REP - NamedType ValueMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

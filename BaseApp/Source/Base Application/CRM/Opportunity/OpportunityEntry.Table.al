@@ -328,10 +328,7 @@ table 5093 "Opportunity Entry"
         OpportunityEntryInserted: Record "Opportunity Entry";
         EntryNo: Integer;
     begin
-        if OpportunityEntryInserted.FindLast() then
-            EntryNo := OpportunityEntryInserted."Entry No."
-        else
-            EntryNo := 0;
+        EntryNo := OpportunityEntryInserted.GetLastEntryNo();
         OpportunityEntryInserted.SetCurrentKey(Active, "Opportunity No.");
         OpportunityEntryInserted.SetRange(Active, true);
         OpportunityEntryInserted.SetRange("Opportunity No.", OpportunityEntryToInsert."Opportunity No.");
