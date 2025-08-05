@@ -13,6 +13,7 @@ codeunit 137124 "Cost Adjust Action Msg. Tests"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
 
     [Test]
     [Scope('OnPrem')]
@@ -189,6 +190,8 @@ codeunit 137124 "Cost Adjust Action Msg. Tests"
         CostAdjmtActionMessage: Record "Cost Adjmt. Action Message";
         InventorySetup: Record "Inventory Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Cost Adjust Action Msg. Tests");
+
         // Enable cost adjustment signal logging
         InventorySetup.GetRecordOnce();
         InventorySetup."Disable Cost Adjmt. Signals" := false;
@@ -196,6 +199,8 @@ codeunit 137124 "Cost Adjust Action Msg. Tests"
 
         // Delete all signals
         CostAdjmtActionMessage.DeleteAll();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Cost Adjust Action Msg. Tests");
     end;
 
     local procedure CreateAvgCostAdjmtEntryPoint(NoOfEntries: Integer; ItemNo: Code[20]; CostIsAdjusted: Boolean)

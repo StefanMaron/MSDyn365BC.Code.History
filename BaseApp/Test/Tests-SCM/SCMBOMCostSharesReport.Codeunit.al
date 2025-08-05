@@ -755,6 +755,66 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         BOMCostShares.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('BOMCostSharesHandler')]
+    [Scope('OnPrem')]
+    procedure QtyPerParentInCostSharesIncludeFixedScrpQtyOfRoutingEvenIfCompIsOfSubProdBOM()
+    var
+        ProdItem: Record Item;
+        CompItem: array[3] of Record Item;
+        ProductionBOMHeader: array[2] of Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+        QtyPerParent: Decimal;
+    begin
+        // [SCENARIO 305392] 
+        Initialize();
+
+        // [GIVEN] Create a Production Item.
+        CreateItem(ProdItem);
+
+        // [GIVEN] Create three Component Items.
+        CreateItem(CompItem[1]);
+        CreateItem(CompItem[2]);
+        CreateItem(CompItem[3]);
+
+        // [GIVEN] Create a Work Center.
+        CreateWorkCenter(WorkCenter);
+
+        // [GIVEN] Create and Certify Routing.
+        CreateAndCertifyRouting(RoutingHeader, RoutingLine, WorkCenter);
+
+        // [GIVEN] Create and Certify Production BOM.
+        CreateAndCertifyProductionBOM(ProductionBOMHeader[1], ProductionBOMHeader[2], CompItem[1], CompItem[2], CompItem[3]);
+
+        // [GIVEN] Find Production BOM Line.
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader[1]."No.");
+        ProductionBOMLine.FindFirst();
+
+        // [GIVEN] Generate and save Qty. per Parent in a Variable.
+        QtyPerParent := ProductionBOMLine."Quantity per" + RoutingLine."Fixed Scrap Quantity" + ProductionBOMLine."Scrap %" / 100;
+
+        // [GIVEN] Validate "Costing Method", "Unit Cost", "Routing No." and 
+        // "Production BOM No." in ProdItem.
+        ProdItem.Validate("Costing Method", ProdItem."Costing Method"::FIFO);
+        ProdItem.Validate("Unit Cost", 0);
+        ProdItem.Validate("Routing No.", RoutingHeader."No.");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader[2]."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Run BOM Cost Shares page.
+        LibraryVariableStorage.Enqueue(QtyPerParent);
+        LibraryVariableStorage.Enqueue(Format(CompItem[1]."No."));
+        LibraryVariableStorage.Enqueue(Format(CompItem[2]."No."));
+        LibraryVariableStorage.Enqueue(Format(CompItem[3]."No."));
+        RunBOMCostSharesPage(ProdItem);
+
+        // [THEN] "Qty. per Parent" of all Component Items in BOM Cost Shares page
+        // is equal to QtyPerParent in BOMCostSharesHandler.
+    end;
+
     local procedure CreateRoutingWithWorkCenter(WorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; LotSize: Decimal): Code[20]
     var
         RoutingHeader: Record "Routing Header";
@@ -983,6 +1043,68 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         BOMCostShares."Total Cost".AssertEquals(ExpectedTotalCost);
     end;
 
+    local procedure CreateItem(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Validate("Unit Cost", LibraryRandom.RandIntInRange(1, 1));
+        Item.Modify(true);
+    end;
+
+    local procedure CreateWorkCenter(var WorkCenter: Record "Work Center")
+    begin
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        WorkCenter.Validate(Capacity, LibraryRandom.RandIntInRange(3, 3));
+        WorkCenter.Validate(Efficiency, LibraryRandom.RandIntInRange(100, 100));
+        WorkCenter.Modify(true);
+    end;
+
+    local procedure CreateAndCertifyRouting(var RoutingHeader: Record "Routing Header"; var RoutingLine: Record "Routing Line"; WorkCenter: Record "Work Center")
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandIntInRange(10, 10)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Setup Time", LibraryRandom.RandIntInRange(10, 10));
+        RoutingLine.Validate("Run Time", LibraryRandom.RandIntInRange(10, 10));
+        RoutingLine.Validate("Fixed Scrap Quantity", LibraryRandom.RandIntInRange(5, 5));
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMHeader2: Record "Production BOM Header"; Item: Record Item; Item2: Record Item; Item3: Record Item)
+    var
+        ProductionBOMLine: array[4] of Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine[1], '', ProductionBOMLine[1].Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 1));
+        ProductionBOMLine[1].Validate("Scrap %", LibraryRandom.RandIntInRange(5, 5));
+        ProductionBOMLine[1].Modify(true);
+
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine[2], '', ProductionBOMLine[2].Type::Item, Item2."No.", LibraryRandom.RandIntInRange(1, 1));
+        ProductionBOMLine[2].Validate("Scrap %", LibraryRandom.RandIntInRange(5, 5));
+        ProductionBOMLine[2].Modify(true);
+
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader2, Item3."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader2, ProductionBOMLine[3], '', ProductionBOMLine[3].Type::"Production BOM", ProductionBOMHeader."No.", LibraryRandom.RandIntInRange(1, 1));
+
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader2, ProductionBOMLine[4], '', ProductionBOMLine[4].Type::Item, Item3."No.", LibraryRandom.RandIntInRange(1, 1));
+        ProductionBOMLine[4].Validate("Scrap %", LibraryRandom.RandIntInRange(5, 5));
+        ProductionBOMLine[4].Modify(true);
+
+        ProductionBOMHeader2.Validate(Status, ProductionBOMHeader2.Status::Certified);
+        ProductionBOMHeader2.Modify(true);
+    end;
+
     [StrMenuHandler]
     [Scope('OnPrem')]
     procedure CalcStdCostMenuHandler(Option: Text[1024]; var Choice: Integer; Instruction: Text[1024])
@@ -1022,6 +1144,40 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         LibraryVariableStorage.Enqueue(true);
         BOMCostShares."BOM Cost Share Distribution".Invoke(); // Call BOM Cost Shares distribution report for code coverage purposes.
         BOMCostShares.OK().Invoke();
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure BOMCostSharesHandler(var BOMCostShares: TestPage "BOM Cost Shares")
+    var
+        BOMBuffer: Record "BOM Buffer";
+        Variant: Variant;
+        CompItemNo: array[3] of Code[20];
+        QtyPerParent: Decimal;
+    begin
+        LibraryVariableStorage.Dequeue(Variant);
+        QtyPerParent := Variant;
+        LibraryVariableStorage.Dequeue(Variant);
+        CompItemNo[1] := Variant;
+        LibraryVariableStorage.Dequeue(Variant);
+        CompItemNo[2] := Variant;
+        LibraryVariableStorage.Dequeue(Variant);
+        CompItemNo[3] := Variant;
+
+        BOMCostShares.Filter.SetFilter(Type, Format(BOMBuffer.Type::Item));
+        BOMCostShares.Filter.SetFilter("No.", CompItemNo[1]);
+        BOMCostShares.First();
+        BOMCostShares."Qty. per Parent".AssertEquals(QtyPerParent);
+
+        BOMCostShares.Filter.SetFilter(Type, Format(BOMBuffer.Type::Item));
+        BOMCostShares.Filter.SetFilter("No.", CompItemNo[2]);
+        BOMCostShares.First();
+        BOMCostShares."Qty. per Parent".AssertEquals(QtyPerParent);
+
+        BOMCostShares.Filter.SetFilter(Type, Format(BOMBuffer.Type::Item));
+        BOMCostShares.Filter.SetFilter("No.", CompItemNo[3]);
+        BOMCostShares.First();
+        BOMCostShares."Qty. per Parent".AssertEquals(QtyPerParent);
     end;
 
     [MessageHandler]

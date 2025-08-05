@@ -482,6 +482,8 @@ report 321 "Vendor - Balance to Date"
                       RemainingAmt,
                       0,
                       Counter1);
+
+                OnCalcTotalVendorAmountOnAfterUpdateCurrencyTotalBuffer(TempVendorLedgerEntry, TempCurrencyTotalBuffer, Counter1, RemainingAmt, ShowEntriesWithZeroBalance)
             until TempVendorLedgerEntry.Next() = 0;
     end;
 
@@ -576,6 +578,11 @@ report 321 "Vendor - Balance to Date"
 
     [IntegrationEvent(true, false)]
     local procedure OnVendorOnAfterGetRecordOnAfterCalcShouldSkipVendor(var Vendor: Record Vendor; var ShouldSkipVendor: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcTotalVendorAmountOnAfterUpdateCurrencyTotalBuffer(var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; var TempCurrencyTotalBuffer: Record "Currency Total Buffer" temporary; Counter1: Integer; RemainingAmt: Decimal; ShowEntriesWithZeroBalance: Boolean)
     begin
     end;
 }

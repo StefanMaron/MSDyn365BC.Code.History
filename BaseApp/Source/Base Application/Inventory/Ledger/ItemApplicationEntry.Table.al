@@ -784,6 +784,14 @@ table 339 "Item Application Entry"
     end;
 #endif
 
+    procedure SetCostApplication(NewCostApplication: Boolean)
+    begin
+        if NewCostApplication <> "Cost Application" then begin
+            "Cost Application" := NewCostApplication;
+            Modify();
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFixed(ItemApplicationEntry: Record "Item Application Entry"; var Result: Boolean; var IsHandled: Boolean)
     begin

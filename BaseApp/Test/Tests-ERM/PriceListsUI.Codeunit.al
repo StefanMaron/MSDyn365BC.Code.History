@@ -4396,6 +4396,49 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue((PriceListHeader."Amount Type" = PriceListHeader."Amount Type"::Discount), 'The field "Amount Type" has changed after closing the page "Sales Price List"');
     end;
 
+    [Test]
+    procedure UnitCostFieldDoesAppearinPriceListLineReviewPageForResource()
+    var
+        Resource: Record Resource;
+        PriceListLine: Record "Price List Line";
+        LibraryRandom: Codeunit "Library - Random";
+        ResourceList: TestPage "Resource List";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [SCENARIO] Unit Cost is Not Visible in Price List Lines because ResourceAsset variable is not initialized
+        Initialize(true);
+
+        // [GIVEN] Feature is On
+        // [GIVEN] Resource 'R' with 1 price list lines for purchase:
+        LibraryResource.CreateResource(Resource, '');
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Vendors", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLine.Validate("Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+
+        // [WHEN] Open "Resource List"
+        ResourceList.OpenView();
+        ResourceList.Filter.SetFilter("No.", Resource."No.");
+
+        // [THEN] NoOfResCosts is 1
+        ResourceList.Control1907012907.NoOfResCosts.AssertEquals(1);
+
+        // [WHEN] Drill down NoOfResPrices
+        PriceListLineReview.Trap();
+        ResourceList.Control1907012907.NoOfResPrices.Drilldown();
+
+        // [WHEN] Drill down NoOfResCosts
+        PriceListLineReview.Trap();
+        ResourceList.Control1907012907.NoOfResCosts.Drilldown();
+
+        // [THEN] Open list with the purchase price line for resource
+        Assert.Istrue(PriceListLineReview.First(), 'not found the first purch price line');
+        PriceListLineReview."Source Type".AssertEquals(PriceListLine."Source Type");
+        PriceListLineReview."Asset Type".AssertEquals(PriceListLine."Asset Type");
+        PriceListLineReview."Unit Cost".AssertEquals(PriceListLine."Unit Cost");
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         PriceListHeader: Record "Price List Header";
