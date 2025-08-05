@@ -4263,6 +4263,66 @@ codeunit 137077 "SCM Supply Planning -IV"
         VerifyWareHouseEntry(PurchaseLine."No.")
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure UndoReceiptFromPostedPurchaseReceiptForSubcontractPurchaseOrderOnAverageCosting()
+    var
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        PurchaseLine: Record "Purchase Line";
+        RoutingHeader: Record "Routing Header";
+        PurchRcptLine: array[2] of Record "Purch. Rcpt. Line";
+    begin
+        // [SCENARIO 579253] Undoing Receipt from a Posted Purchase Receipt for a Subcontract Purchase Order Using Average Costing.
+        Initialize();
+
+        // [GIVEN] Create Item with routing with Subcontractor and Workcenter.
+        CreateItemWithChildReplenishmentPurchaseAsProdBOM(Item);
+
+        // [GIVEN] Validate Costing Method into Item.
+        Item.Validate("Costing Method", Item."Costing Method"::Average);
+        Item.Modify(true);
+
+        // [GIVEN] Create Routing Setup.
+        CreateRoutingSetup(WorkCenter, RoutingHeader);
+
+        // [GIVEN] Update an Item Routing No.
+        UpdateItemRoutingNo(Item, RoutingHeader."No.");
+
+        // [GIVEN] Refreshed released production order for "Q" pcs of item "I".
+        CreateAndRefreshReleasedProductionOrderWithLocationAndBin(ProductionOrder, Item."No.", '', '');
+
+        // [GIVEN] Set "Unit Cost" = "X" on the Production Order Line.
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+        ProdOrderLine.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        ProdOrderLine.Modify(true);
+
+        // [GIVEN] Calculate subcontracts for "W".
+        CalculateSubcontractOrder(WorkCenter);
+
+        // [GIVEN] Carry out action messages for Subcontracting Worksheet with creation of Purchase Order.
+        CarryOutActionMessageSubcontractWksh(Item."No.");
+
+        // [GIVEN] Post the Purchase Order as Receive but not as Invoice.
+        SelectPurchaseOrderLine(PurchaseLine, Item."No.");
+        PostPurchaseDocument(PurchaseLine, false);
+
+        // [GIVEN] Find Purchase Recipt Line.
+        PurchRcptLine[1].SetRange("Order No.", PurchaseLine."Document No.");
+        PurchRcptLine[1].FindFirst();
+
+        // [WHEN] Undo Purchase Receipt Line.
+        LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine[1]);
+
+        // [THEN] New Purchase Recipt Line with Negative Quantity is created.
+        PurchRcptLine[2].SetRange("Document No.", PurchRcptLine[1]."Document No.");
+        PurchRcptLine[2].SetRange(Quantity, -PurchRcptLine[1].Quantity);
+        Assert.RecordIsNotEmpty(PurchRcptLine[2]);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";

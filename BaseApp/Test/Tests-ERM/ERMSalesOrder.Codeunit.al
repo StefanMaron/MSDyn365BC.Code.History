@@ -73,6 +73,7 @@
         ServiceChargeLineExist: Label 'Service Charge Line exist';
         CorrectPostedSalesInvoiceErr: Label 'Cancelled must be %1 for %2', Comment = '%1= Value ,%2=Table Name';
         SalesLineQtyErr: Label 'Sales Line %1 must be equal to %2', Comment = '%1= Field ,%2= Value';
+        OptionString: Option PostedReturnReceipt,PostedInvoices,PostedShipments,PostedCrMemo;
 
     [Test]
     [Scope('OnPrem')]
@@ -5904,6 +5905,55 @@
         VerifySalesOrderAfterPartialPostCorrectiveCreditMemo(SalesHeader."No.", 10);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,PostedSalesDocumentLinesHandler')]
+    procedure VerifyManuallyCreatedSalesCrMemoUpdateExistingSalesOrder()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [SCENARIO 578454] Verify manually created Sales Credit Memo with get posted document lines to reverse should update the existing Sales Order.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create Sales Line with Quanity as 10.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(10, 10));
+
+        // [GIVEN] Update Qty To Ship in Sales Line.
+        SalesLine.Validate("Qty. to Ship", LibraryRandom.RandIntInRange(5, 5));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post the Sales Order.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Create Sales Credit Memo
+        LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::"Credit Memo", Customer."No.");
+
+        // [GIVEN] Run Get Document Lines to Reverse and copy from posted sales invoice
+        GetPostedDocumentLines(SalesHeader2."No.", OptionString::PostedInvoices);
+        FindSalesLine(SalesLine, SalesHeader2."Document Type", SalesHeader2."No.", SalesLine.Type::Item);
+
+        // [WHEN] Post the Credit Memo
+        SalesCreditMemo.OpenView();
+        SalesCreditMemo.GotoRecord(SalesHeader2);
+        SalesCreditMemo.Post.Invoke();
+
+        // [THEN] Verify Sales Order Qty. to Ship and Qty. to Invoice are updated as 10 in the sales line.
+        VerifySalesOrderQuantityforManualSalesCreditMemo(SalesHeader."No.", 10);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -8102,6 +8152,39 @@
         until SalesLine.Next() = 0;
     end;
 
+    local procedure GetPostedDocumentLines(No: Code[20]; OptionString: Option)
+    var
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        LibraryVariableStorage.Enqueue(OptionString);
+        SalesCreditMemo.OpenEdit();
+        SalesCreditMemo.FILTER.SetFilter("No.", No);
+        SalesCreditMemo.GetPostedDocumentLinesToReverse.Invoke();
+    end;
+
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; Type: Enum "Sales Line Type")
+    begin
+        SalesLine.SetRange("Document Type", DocumentType);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.SetRange(Type, Type);
+        SalesLine.FindFirst();
+    end;
+
+    local procedure VerifySalesOrderQuantityforManualSalesCreditMemo(SalesHeaderNo: Code[20]; ExpectedQuantity: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document No.", SalesHeaderNo);
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.FindSet();
+        repeat
+            Assert.AreEqual(ExpectedQuantity, SalesLine."Qty. to Ship", StrSubstNo(
+                SalesLineQtyErr, SalesLine.FieldName("Qty. to Ship"), ExpectedQuantity));
+            Assert.AreEqual(ExpectedQuantity, SalesLine."Qty. to Invoice", StrSubstNo(
+                SalesLineQtyErr, SalesLine.FieldName("Qty. to Invoice"), ExpectedQuantity));
+        until SalesLine.Next() = 0;
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]
     local procedure OnBeforePostUpdateOrderLineModifyTempLineHandler(var TempSalesLine: Record "Sales Line" temporary; WhseShip: Boolean; WhseReceive: Boolean; CommitIsSuppressed: Boolean)
     var
@@ -8278,5 +8361,23 @@
     procedure ItemSubstitutionEntriesOKModalPageHandler(var ItemSubstitution: TestPage "Item Substitution Entries")
     begin
         ItemSubstitution.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PostedSalesDocumentLinesHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
+    var
+        DocumentType: Option "Posted Shipments","Posted Invoices","Posted Return Receipts","Posted Cr. Memos";
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            OptionString::PostedReturnReceipt:
+                PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(DocumentType::"Posted Return Receipts"));
+            OptionString::PostedInvoices:
+                PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(DocumentType::"Posted Invoices"));
+            OptionString::PostedShipments:
+                PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(DocumentType::"Posted Shipments"));
+            OptionString::PostedCrMemo:
+                PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(DocumentType::"Posted Cr. Memos"));
+        end;
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 }

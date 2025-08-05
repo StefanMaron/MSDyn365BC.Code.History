@@ -1507,7 +1507,7 @@ codeunit 137305 "SCM Warehouse Reports"
         RunCombineShipments(StrSubstNo('%1|%2', CustomerSell."No.", CustomerBill."No."), false, false, false, false);
 
         // [THEN] Two sales invoices are generated, each for two shipment lines.
-        VerifySalesInvoices(CustomerSell."No.", CustomerBill."No.", 1);
+        VerifySalesInvoice(CustomerSell."No.", CustomerBill."No.", 2);
         VerifySalesInvoice(CustomerBill."No.", CustomerBill."No.", 2);
     end;
 
@@ -3421,23 +3421,6 @@ codeunit 137305 "SCM Warehouse Reports"
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         Assert.RecordCount(SalesLine, ExpectedCount);
-    end;
-
-    local procedure VerifySalesInvoices(SellToCustomerNo: Code[20]; BillToCustomerNo: Code[20]; ExpectedCount: Integer)
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.FindSet();
-        repeat
-            SalesLine.SetRange("Document No.", SalesHeader."No.");
-            SalesLine.SetRange(Type, SalesLine.Type::Item);
-            SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
-            Assert.RecordCount(SalesLine, ExpectedCount);
-        until SalesHeader.Next() = 0;
     end;
 
     local procedure CreateWarehouseReceiptFromPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var WhseRcptLine: Record "Warehouse Receipt Line"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)

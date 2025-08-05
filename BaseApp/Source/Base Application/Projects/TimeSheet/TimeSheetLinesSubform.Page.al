@@ -820,7 +820,7 @@ page 974 "Time Sheet Lines Subform"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnProcessOnBeforeProcessTimeSheetLines(var TimeSheetLine: Record "Time Sheet Line"; var TempTimeSheetLine: Record "Time Sheet Line" temporary; "Action": Option "Submit Selected","Submit All","Reopen Selected","Reopen All"; ProcessAll: Boolean)
+    local procedure OnProcessOnBeforeProcessTimeSheetLines(var TimeSheetLine: Record "Time Sheet Line"; var TempTimeSheetLine: Record "Time Sheet Line" temporary; "Action": Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject; ProcessAll: Boolean)
     begin
     end;
 }
