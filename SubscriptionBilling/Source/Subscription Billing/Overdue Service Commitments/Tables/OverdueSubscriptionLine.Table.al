@@ -49,6 +49,7 @@ table 8007 "Overdue Subscription Line"
         {
             Caption = 'Amount';
         }
+#if not CLEANSCHEMA29
         field(11; "Item No."; Code[20])
         {
             Caption = 'Item No.';
@@ -62,6 +63,7 @@ table 8007 "Overdue Subscription Line"
 #endif
             TableRelation = Item;
         }
+#endif
         field(12; "Subscription Contract Type"; Code[10])
         {
             Caption = 'Subscription Contract Type';

@@ -6556,7 +6556,8 @@
                   <Group Name="list1_Details_Group">
                     <GroupExpressions>
                       <GroupExpression>=Fields!Name_GenJournalTemplate.Value</GroupExpression>
-                      <GroupExpression>=Fields!ReportFilter.Value</GroupExpression>
+                      <GroupExpression>=CSTR(Fields!Loop2PurchaseLedgerCaption.Value)&amp;CStr(Fields!PurchaseLedgerSummaryCaption.Value)&amp;CStr(Fields!PurchaseLedgerCaption.Value)
+&amp;CSTR(Fields!Loop2ReportFilter.Value)&amp;(Fields!ReportFilter.Value)</GroupExpression>
                     </GroupExpressions>
                     <PageBreak>
                       <BreakLocation>Between</BreakLocation>

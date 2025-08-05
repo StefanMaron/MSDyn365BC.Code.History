@@ -564,6 +564,36 @@ codeunit 137212 "SCM Copy Document Mgt."
     end;
 
     [Test]
+    procedure CopyPostedInvoiceToPurchaseOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Copy Document]
+        // [GIVEN] Posted Purchase Order with Vendor Order No. and Vendor Invoice No. and Vendor Cr. Memo No. and Vendor Shipment No.
+        CreatePurchaseOrder(PurchaseHeader);
+        if PurchaseHeader."Vendor Order No." = '' then
+            PurchaseHeader.Validate("Vendor Order No.", LibraryUtility.GenerateGUID());
+        if PurchaseHeader."Vendor Invoice No." = '' then
+            PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        if PurchaseHeader."Vendor Cr. Memo No." = '' then
+            PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
+        if PurchaseHeader."Vendor Shipment No." = '' then
+            PurchaseHeader.Validate("Vendor Shipment No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify();
+        PurchInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Create new Purchase Order by copying the posted invoice of the Purchase "P".
+        CopyPurchDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PurchInvoiceNo);
+
+        // [THEN] Vendor Invoice No. and Vendor Order No. and Vendor Cr. Memo No. and Vendor Shipment No. are empty in the new Purchase Order.
+        PurchaseHeader.TestField("Vendor Order No.", '');
+        PurchaseHeader.TestField("Vendor Invoice No.", '');
+        PurchaseHeader.TestField("Vendor Cr. Memo No.", '');
+        PurchaseHeader.TestField("Vendor Shipment No.", '');
+    end;
+
+    [Test]
     [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQuantityToCreateModalPageHandler,PostedSalesDocumentLinesModalPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure SalesReturnOrderCanBePopulatedFromPostedInvoiceWithATOAndItemTracking()
@@ -1646,7 +1676,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         CreateEmptyPurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         CopyDocumentMgt.SetProperties(true, false, false, false, true, false, false);
-        CopyDocumentMgt.CopyPurchDoc(SourceType, SourceNo, PurchaseHeader);
+        CopyDocumentMgt.CopyPurchDoc(SourceType, SourceNo, PurchaseHeader, true);
     end;
 
     local procedure CopyDimensionsSalesDocument(RecalculateLines: Boolean)
@@ -2610,6 +2640,19 @@ codeunit 137212 "SCM Copy Document Mgt."
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         exit(DocumentNo);
+    end;
+
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header")
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDecInRange(1, 100, 2), LibraryRandom.RandDecInRange(1, 100, 2));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
     end;
 
     local procedure VerifyPurchaseDocumentCaption(var PurchaseInvoice: TestPage "Purchase Invoice")

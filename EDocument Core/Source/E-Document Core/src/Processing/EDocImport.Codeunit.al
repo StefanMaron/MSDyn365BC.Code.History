@@ -20,7 +20,7 @@ using Microsoft.eServices.EDocument.Processing.Import.Purchase;
 codeunit 6140 "E-Doc. Import"
 {
     Permissions =
-        tabledata "E-Document" = im,
+        tabledata "E-Document" = imd,
         tabledata "E-Doc. Imported Line" = imd;
 
     procedure ReceiveAndProcessAutomatically(EDocumentService: Record "E-Document Service"): Boolean

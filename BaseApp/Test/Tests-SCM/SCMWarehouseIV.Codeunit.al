@@ -4120,6 +4120,109 @@ codeunit 137407 "SCM Warehouse IV"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsUpdateTotalVATHandler,VATAmountLinesHandler,MessageHandler')]
+    procedure SalesOrderWithVATCorrectionWhenInventoryPickIsPosted()
+    var
+        CustomerPostingGroup: Record "Customer Posting Group";
+        GLAccount: Record "G/L Account";
+        Item: Record Item;
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: Record Vendor;
+        WarehouseEmployee: Record "Warehouse Employee";
+        LibraryERM: Codeunit "Library - ERM";
+        SalesOrder: Testpage "Sales Order";
+        MaxVATDifference: Decimal;
+        VATDifference: Decimal;
+        GLAccountCode: Code[20];
+    begin
+        // [SCENARIO 575983] Corrected VAT Amount is set back when inventory pick was posted.
+        Initialize();
+
+        // [GIVEN] "Sales & Receivables Setup"."Allow VAT Difference" = TRUE
+        // [GIVEN] "General Ledger Setup"."Max. VAT Difference Allowed" = "D"
+        MaxVATDifference := EnableVATDiffAmount();
+        VATDifference := LibraryRandom.RandDecInDecimalRange(0.01, MaxVATDifference, 2);
+        LibraryVariableStorage.Enqueue(VATDifference);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Location with required Warehouse Setup and Warehouse Employee.
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, false, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create Bin and Bin Content.
+        CreateBinAndBinContent(Location.Code, Item);
+
+        // [GIVEN] Create Purchase Order with Quantity as 1 and Release Purchase Order.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendor(Vendor),
+            Item."No.", 1, Location.Code, WorkDate());
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Inventory Put-Away and Find Warehouse Activity Line.
+        CreateInventoryPut(PurchaseLine, false, false, Location.Code);
+
+        // [GIVEN] Post Inventory Put-Away for receipt.
+        PostInventoryPut(PurchaseHeader."No.");
+
+        // [GIVEN] Create VATPostingSetup with Vat % as 20.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 20);
+
+        // [GIVEN] Create G/L Account with VAT Posting Setup.
+        GLAccountCode := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
+
+        // [GIVEN] Create Sales Header
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify(true);
+
+        // Assign G/L Account on Customer Posting Group.
+        CustomerPostingGroup.Get(SalesHeader."Customer Posting Group");
+        CustomerPostingGroup."Invoice Rounding Account" := GLAccountCode;
+        CustomerPostingGroup.Modify(true);
+
+        // [GIVEN] Validate VAT Prod. Posting Group on Item.
+        Item.Get(Item."No.");
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        // [GIVEN] Create Sales Line with Quantity as 1.
+        LibrarySales.CreateSalesLineWithUnitPrice(SalesLine, SalesHeader, Item."No.", LibraryRandom.RandDecInRange(200, 400, 2), 1);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Sales Order is opened on Sales Order page.
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [GIVEN] Add VAT Difference in Sales Order Statistic Handler.
+        SalesOrder.SalesOrderStatistics.Invoke();
+
+        // [GIVEN] Create Inventory Pick and Find Warehouse Activity Line.
+        CreateInventoryPick(SalesLine, Location.Code);
+
+        // [WHEN] Post Shipment from Inventory-Pick.
+        PostInventoryPick(SalesHeader."No.", false);
+
+        // [THEN] Verify Sales Header Status as Released and Sales Line with VAT Difference.
+        SalesHeader.TestField(Status, SalesHeader.Status::Released);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("No.", Item."No.");
+        SalesLine.FindFirst();
+        SalesLine.TestField("VAT Difference", VATDifference);
+    end;
+
     local procedure Initialize()
     var
         WarehouseSetup: Record "Warehouse Setup";
@@ -5444,6 +5547,28 @@ codeunit 137407 "SCM Warehouse IV"
         PostedWhseReceiptLine.CreatePutAwayDoc(PostedWhseReceiptLine, PostedWhseReceiptHeader."Assigned User ID");
     end;
 
+    local procedure EnableVATDiffAmount() Result: Decimal
+    var
+        LibraryERM: Codeunit "Library - ERM";
+    begin
+        Result := LibraryRandom.RandDec(2, 2);  // Use any Random decimal value between 0.01 and 1.99, value is not important.
+        LibraryERM.SetMaxVATDifferenceAllowed(Result);
+        LibrarySales.SetAllowVATDifference(true);
+    end;
+
+    local procedure CreateBinAndBinContent(LocationCode: Code[10]; Item: Record Item)
+    var
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+    begin
+        LibraryWarehouse.CreateBin(Bin, LocationCode, '', '', '');
+        LibraryWarehouse.CreateBinContent(BinContent, LocationCode, '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Quantity, 1);
+        BinContent.Validate(Fixed, true);
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerFalse(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -5683,6 +5808,19 @@ codeunit 137407 "SCM Warehouse IV"
         ItemTrackingSummary.OK().Invoke();
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VATAmountLinesHandler(var VATAmountLine: TestPage "VAT Amount Lines")
+    var
+        VATAmount: Decimal;
+    begin
+        // Modal Page Handler.
+        VATAmount := VATAmountLine."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal();
+        LibraryVariableStorage.Enqueue(VATAmount);
+        VATAmountLine."VAT Amount".SetValue(VATAmount);
+        VATAmountLine.OK().Invoke();
+    end;
+
     [RequestPageHandler]
     procedure CreateStockkeepingUnitRequestPageHandler(var CreateStockkeepingUnit: TestRequestPage "Create Stockkeeping Unit")
     begin
@@ -5729,6 +5867,14 @@ codeunit 137407 "SCM Warehouse IV"
     procedure CreatePutAwayFromPostedWhseSourceReportHandler(var CreatePutAwayFromWhseSource: TestRequestPage "Whse.-Source - Create Document")
     begin
         CreatePutAwayFromWhseSource.OK().Invoke();
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsUpdateTotalVATHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
+        SalesOrderStatistics.OK().Invoke();
     end;
 }
 

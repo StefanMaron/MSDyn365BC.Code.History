@@ -77,6 +77,7 @@ codeunit 134387 "ERM Sales Documents III"
         UniCostLCYErr: Label 'Unit Cost (LCY) must be zero.';
         AdjustExchRateDefaultDescTxt: Label 'Adjmt. of %1 %2, Ex.Rate Adjust.', Locked = true;
         AccountBalanceErrLbl: Label 'G/L Account %1 is not balanced', Comment = '%1 = G/L Account No';
+        PaymentTermsDueDateNotUpdatedErr: Label '%1 must be %2 in %3.', Comment = '%1= Field Caption, %2= Field Value, %3=Table Caption.';
 
     [Test]
     [Scope('OnPrem')]
@@ -6448,6 +6449,62 @@ codeunit 134387 "ERM Sales Documents III"
 
         // [THEN] Verify G/L Entries for Payable Account are Balanced.
         VerifyGLEntryForAccount(CustomerPostingGroup, ActualAmount);
+    end;
+
+    [Test]
+    procedure QuoteToInvoiceAutomaticSalesInvoiceRespectsWorkDate()
+    var
+        PaymentTerms: Record "Payment Terms";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesQuoteToInvoice: Codeunit "Sales-Quote to Invoice";
+    begin
+        // [SCENARIO 571490] Document Date and Due Date is updated with Posting Date from Sales Quote to Sales Invoice
+        Initialize();
+
+        // [GIVEN] Validate Link Doc. Date To Posting Date and Default Posting Date in Sales and Receivables Setup.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Validate("Default Posting Date", SalesReceivablesSetup."Default Posting Date"::"Work Date");
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Create new Sales Quote for a Customer.
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader[1], LibrarySales.CreateCustomerNo());
+        SalesHeader[1].Validate("Document Date", WorkDate() - 1);
+        SalesHeader[1].Modify();
+
+        // [GIVEN] Create Payment Terms Code.
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+
+        // [GIVEN] Validate Payment Terms Code in Sales Header.
+        SalesHeader[1].Validate(SalesHeader[1]."Payment Terms Code", PaymentTerms.Code);
+        SalesHeader[1].Modify(true);
+
+        // [WHEN] Run Sales-Invoice to Order.
+        SalesQuoteToInvoice.Run(SalesHeader[1]);
+
+        // [THEN] Invoice created with no errors.
+        SalesQuoteToInvoice.GetSalesInvoiceHeader(SalesHeader[2]);
+
+        // [THEN] Document Date should be updated as per Work Date.
+        Assert.AreEqual(
+            WorkDate(),
+            SalesHeader[2]."Document Date",
+            StrSubstNo(
+                PaymentTermsDueDateNotUpdatedErr,
+                SalesHeader[2].FieldCaption("Document Date"),
+                WorkDate(),
+                SalesHeader[2].TableCaption()));
+
+        // [THEN] Due Date should be updated as per Work Date.
+        Assert.AreEqual(
+            CalcDate(PaymentTerms."Due Date Calculation", WorkDate()),
+            SalesHeader[2]."Due Date",
+            StrSubstNo(
+                PaymentTermsDueDateNotUpdatedErr,
+                SalesHeader[2].FieldCaption("Document Date"),
+                WorkDate(),
+                SalesHeader[2].TableCaption()));
     end;
 
     local procedure Initialize()

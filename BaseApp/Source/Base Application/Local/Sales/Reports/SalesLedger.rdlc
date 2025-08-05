@@ -60,7 +60,7 @@
                                   <TextRuns>
                                     <TextRun>
                                       <Value>=First(Fields!SalesLedgCaption.Value) + Chr(177) +
-Fields!GenJnlTempName.Value</Value>
+Fields!GenJnlTempName.Value + Chr(177) + Fields!ReportFilter.Value</Value>
                                       <Style>
                                         <Color>#ff0000</Color>
                                       </Style>
@@ -6001,7 +6001,7 @@ Fields!GenJnlTempName_Loop2.Value</Value>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=IIF(IsNothing(First(Fields!ReportFilter.Value, "DataSet_Result")),"",First(Fields!ReportFilter.Value, "DataSet_Result"))</Value>
+                      <Value>=Code.GetData(3)</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>

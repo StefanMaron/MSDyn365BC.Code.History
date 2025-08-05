@@ -32,6 +32,7 @@ codeunit 1605 "PEPPOL Management"
         ProcessedDocType: Enum "PEPPOL Processing Type";
         SalespersonTxt: Label 'Salesperson';
         InvoiceDisAmtTxt: Label 'Invoice Discount Amount';
+        PaymentDisAmtTxt: Label 'Payment Discount Amount';
         LineDisAmtTxt: Label 'Line Discount Amount';
         GLNTxt: Label 'GLN', Locked = true;
         VATTxt: Label 'VAT', Locked = true;
@@ -40,6 +41,7 @@ codeunit 1605 "PEPPOL Management"
         LocalPaymentSchemeIDTxt: Label 'LOCAL', Locked = true;
         BICTxt: Label 'BIC', Locked = true;
         AllowanceChargeReasonCodeTxt: Label '104', Locked = true;
+        AllowanceChargePaymentDiscountReasonCodeTxt: Label '95', Locked = true;
         PaymentMeansFundsTransferCodeTxt: Label '31', Locked = true;
         GTINTxt: Label '0160', Locked = true;
         UoMforPieceINUNECERec20ListIDTxt: Label 'EA', Locked = true;
@@ -438,6 +440,22 @@ codeunit 1605 "PEPPOL Management"
           SalesHeader, CustPartyTaxSchemeCompanyID, CustPartyTaxSchemeCompIDSchID, CustTaxSchemeID, true);
     end;
 
+    /// <summary>
+    /// Gets the accounting customer party tax scheme fields values
+    /// </summary>
+    /// <param name="SalesHeader">The sales header used for PEPPOL file creation</param>
+    /// <param name="CustPartyTaxSchemeCompanyID">Return value: The customer party tax scheme company ID</param>
+    /// <param name="CustPartyTaxSchemeCompIDSchID">Return value: The customer company ID's scheme ID</param>
+    /// <param name="CustTaxSchemeID">Return value: The customer tax scheme ID</param>
+    /// <param name="TempVATAmountLine">The temporary VAT amount line used for PEPPOL file creation</param>
+    procedure GetAccountingCustomerPartyTaxSchemeBIS30(SalesHeader: Record "Sales Header"; var CustPartyTaxSchemeCompanyID: Text; var CustPartyTaxSchemeCompIDSchID: Text; var CustTaxSchemeID: Text; var TempVATAmountLine: Record "VAT Amount Line" temporary)
+    begin
+        TempVATAmountLine.SetFilter("Tax Category", '<>%1', GetTaxCategoryO());
+        if not TempVATAmountLine.IsEmpty() then
+            GetAccountingCustomerPartyTaxSchemeByFormat(SalesHeader, CustPartyTaxSchemeCompanyID, CustPartyTaxSchemeCompIDSchID, CustTaxSchemeID, true);
+        TempVATAmountLine.SetRange("Tax Category");
+    end;
+
     local procedure GetAccountingCustomerPartyTaxSchemeByFormat(SalesHeader: Record "Sales Header"; var CustPartyTaxSchemeCompanyID: Text; var CustPartyTaxSchemeCompIDSchID: Text; var CustTaxSchemeID: Text; IsBISBilling: Boolean)
     begin
         CustPartyTaxSchemeCompanyID :=
@@ -677,6 +695,25 @@ codeunit 1605 "PEPPOL Management"
         AllowanceChargeTaxSchemeID := VATTxt;
     end;
 
+    procedure GetAllowanceChargeInfoPaymentDiscount(VATAmtLine: Record "VAT Amount Line"; SalesHeader: Record "Sales Header"; var ChargeIndicator: Text; var AllowanceChargeReasonCode: Text; var AllowanceChargeListID: Text; var AllowanceChargeReason: Text; var Amount: Text; var AllowanceChargeCurrencyID: Text; var TaxCategoryID: Text; var TaxCategorySchemeID: Text; var Percent: Text; var AllowanceChargeTaxSchemeID: Text)
+    begin
+        if VATAmtLine."Pmt. Discount Amount" = 0 then begin
+            ChargeIndicator := '';
+            exit;
+        end;
+
+        ChargeIndicator := 'false';
+        AllowanceChargeReasonCode := AllowanceChargePaymentDiscountReasonCodeTxt;
+        AllowanceChargeListID := GetUNCL4465ListID();
+        AllowanceChargeReason := PaymentDisAmtTxt;
+        Amount := Format(VATAmtLine."Pmt. Discount Amount", 0, 9);
+        AllowanceChargeCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
+        TaxCategoryID := VATAmtLine."Tax Category";
+        TaxCategorySchemeID := '';
+        Percent := Format(VATAmtLine."VAT %", 0, 9);
+        AllowanceChargeTaxSchemeID := VATTxt;
+    end;
+
     procedure GetAllowanceChargeInfoBIS(VATAmtLine: Record "VAT Amount Line"; SalesHeader: Record "Sales Header"; var ChargeIndicator: Text; var AllowanceChargeReasonCode: Text; var AllowanceChargeListID: Text; var AllowanceChargeReason: Text; var Amount: Text; var AllowanceChargeCurrencyID: Text; var TaxCategoryID: Text; var TaxCategorySchemeID: Text; var Percent: Text; var AllowanceChargeTaxSchemeID: Text)
     begin
         GetAllowanceChargeInfo(
@@ -716,7 +753,7 @@ codeunit 1605 "PEPPOL Management"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        TaxableAmount := Format(VATAmtLine."VAT Base", 0, 9);
+        TaxableAmount := Format(VATAmtLine."VAT Base" - VATAmtLine."Pmt. Discount Amount", 0, 9);
         TaxAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         SubtotalTaxAmount := Format(VATAmtLine."VAT Amount", 0, 9);
         TaxSubtotalCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
@@ -784,13 +821,13 @@ codeunit 1605 "PEPPOL Management"
               Format(VATAmtLine."Amount Including VAT" - Round(VATAmtLine."Amount Including VAT", 0.01), 0, 9);
             PayableRndingAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
 
-            PayableAmount := Format(Round(VATAmtLine."Amount Including VAT", 0.01), 0, 9);
+            PayableAmount := Format(Round(VATAmtLine."Amount Including VAT" - VATAmtLine."Pmt. Discount Amount", 0.01), 0, 9);
             PayableAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         end else begin
             PayableRoundingAmount := Format(TempSalesLine."Amount Including VAT", 0, 9);
             PayableRndingAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
 
-            PayableAmount := Format(Round(VATAmtLine."Amount Including VAT" + TempSalesLine."Amount Including VAT", 0.01), 0, 9);
+            PayableAmount := Format(Round(VATAmtLine."Amount Including VAT" + TempSalesLine."Amount Including VAT" - VATAmtLine."Pmt. Discount Amount", 0.01), 0, 9);
             PayableAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         end;
 
@@ -805,13 +842,13 @@ codeunit 1605 "PEPPOL Management"
         LineExtensionAmount := Format(Round(VATAmtLine."VAT Base", 0.01) + Round(VATAmtLine."Invoice Discount Amount", 0.01), 0, 9);
         LegalMonetaryTotalCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
 
-        TaxExclusiveAmount := Format(Round(VATAmtLine."VAT Base", 0.01), 0, 9);
+        TaxExclusiveAmount := Format(Round(VATAmtLine."VAT Base" - VATAmtLine."Pmt. Discount Amount", 0.01), 0, 9);
         TaxExclusiveAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
 
-        TaxInclusiveAmount := Format(Round(VATAmtLine."Amount Including VAT", 0.01, '>'), 0, 9); // Should be two decimal places
+        TaxInclusiveAmount := Format(Round(VATAmtLine."Amount Including VAT" - VATAmtLine."Pmt. Discount Amount", 0.01, '>'), 0, 9); // Should be two decimal places
         TaxInclusiveAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
 
-        AllowanceTotalAmount := Format(Round(VATAmtLine."Invoice Discount Amount", 0.01), 0, 9);
+        AllowanceTotalAmount := Format(Round(VATAmtLine."Invoice Discount Amount" + VATAmtLine."Pmt. Discount Amount", 0.01), 0, 9);
         AllowanceTotalAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         TaxInclusiveAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
 
@@ -824,7 +861,7 @@ codeunit 1605 "PEPPOL Management"
         InvoiceLineID := Format(SalesLine."Line No.", 0, 9);
         InvoiceLineNote := DelChr(Format(SalesLine.Type), '<>');
         InvoicedQuantity := Format(SalesLine.Quantity, 0, 9);
-        InvoiceLineExtensionAmount := Format(SalesLine."VAT Base Amount" + SalesLine."Inv. Discount Amount", 0, 9);
+        InvoiceLineExtensionAmount := Format(SalesLine."Line Amount", 0, 9);
         LineExtensionAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         InvoiceLineAccountingCost := '';
 
@@ -1077,6 +1114,7 @@ codeunit 1605 "PEPPOL Management"
         if SalesLine."Allow Invoice Disc." then
             VATAmtLine."Inv. Disc. Base Amount" := SalesLine."Line Amount";
         VATAmtLine."Invoice Discount Amount" := SalesLine."Inv. Discount Amount";
+        VATAmtLine."Pmt. Discount Amount" += SalesLine."Pmt. Discount Amount";
 
         IsHandled := false;
         OnGetTotalsOnBeforeInsertVATAmtLine(SalesLine, VATAmtLine, VATPostingSetup, IsHandled);
@@ -1202,11 +1240,19 @@ codeunit 1605 "PEPPOL Management"
         exit(CountryRegion."VAT Scheme");
     end;
 
+    /// <summary>
+    /// Get the tax category VAT reverse charge
+    /// </summary>
+    /// <returns>Text: AE</returns>
     local procedure GetTaxCategoryAE(): Text
     begin
         exit('AE');
     end;
 
+    /// <summary>
+    /// Get the tax category exempt from tax
+    /// </summary>
+    /// <returns>Text: E</returns>
     local procedure GetTaxCategoryE(): Text
     begin
         exit('E');
@@ -1217,17 +1263,80 @@ codeunit 1605 "PEPPOL Management"
         exit('G');
     end;
 
+    /// <summary>
+    /// Get the tax category VAT exempt for EEA intra-community supply of goods and services
+    /// </summary>
+    /// <returns>Text: K</returns>
     local procedure GetTaxCategoryK(): Text
     begin
         exit('K');
     end;
 
+    /// <summary>
+    /// Get the tax category outside the scope of VAT
+    /// </summary>
+    /// <returns>Text: O</returns>
     local procedure GetTaxCategoryO(): Text
     begin
         exit('O');
     end;
 
-    local procedure FormatVATRegistrationNo(VATRegistrationNo: Text; CountryCode: Code[10]; IsBISBilling: Boolean; IsPartyTaxScheme: Boolean): Text
+    /// <summary>
+    /// Get the tax category zero rated items
+    /// </summary>
+    /// <returns>Text: Z</returns>
+    local procedure GetTaxCategoryZ(): Text
+    begin
+        exit('Z');
+    end;
+
+    /// <summary>
+    /// Get the tax category for standard rated items
+    /// </summary>
+    /// <returns>Text: S</returns>
+    local procedure GetTaxCategoryS(): Text
+    begin
+        exit('S');
+    end;
+
+    /// <summary>
+    /// Check if the VAT category is one of the categories with 0% VAT
+    /// </summary>
+    /// <param name="TaxCategory">Tax category code</param>
+    /// <returns>True if category is one of Z, E, AE, K or G</returns>
+    procedure IsZeroVatCategory(TaxCategory: Code[10]): Boolean
+    begin
+        exit(TaxCategory in [
+            GetTaxCategoryZ(), // Zero rated goods
+            GetTaxCategoryE(), // Exempt from tax
+            GetTaxCategoryAE(), // VAT reverse charge
+            GetTaxCategoryK(), // VAT exempt for EEA intra-community supply of goods and services
+            GetTaxCategoryG(), // Free export item, tax not charged
+            GetTaxCategoryO() // Outside the scope of VAT
+        ]);
+    end;
+
+    /// <summary>
+    /// Check if the VAT category is standard rated
+    /// </summary>
+    /// <param name="TaxCategory">Tax category code</param>
+    /// <returns>True if category is S</returns>
+    procedure IsStandardVATCategory(TaxCategory: Code[10]): Boolean
+    begin
+        exit(TaxCategory = GetTaxCategoryS());
+    end;
+
+    /// <summary>
+    /// Check if the VAT category is outside the scope of VAT
+    /// </summary>
+    /// <param name="TaxCategory">Tax category code</param>
+    /// <returns>True if category is O</returns>
+    procedure IsOutsideScopeVATCategory(TaxCategory: Code[10]): Boolean
+    begin
+        exit(TaxCategory = GetTaxCategoryO());
+    end;
+
+    internal procedure FormatVATRegistrationNo(VATRegistrationNo: Text; CountryCode: Code[10]; IsBISBilling: Boolean; IsPartyTaxScheme: Boolean): Text
     var
         CountryRegion: Record "Country/Region";
     begin
