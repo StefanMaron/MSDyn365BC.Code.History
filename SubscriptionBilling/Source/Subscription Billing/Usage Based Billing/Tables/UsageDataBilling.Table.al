@@ -104,6 +104,7 @@ table 8006 "Usage Data Billing"
         {
             Caption = 'Charge Start Date';
         }
+#if not CLEANSCHEMA29
         field(17; "Charge Start Time"; Time)
         {
             Caption = 'Charge Start Time';
@@ -116,10 +117,12 @@ table 8006 "Usage Data Billing"
 #endif
             ObsoleteReason = 'No longer needed as the time component is not relevant for processing of usage data.';
         }
+#endif
         field(18; "Charge End Date"; Date)
         {
             Caption = 'Charge End Date';
         }
+#if not CLEANSCHEMA29
         field(19; "Charge End Time"; Time)
         {
             Caption = 'Charge End Time';
@@ -132,10 +135,12 @@ table 8006 "Usage Data Billing"
 #endif
             ObsoleteReason = 'No longer needed as the time component is not relevant for processing of usage data.';
         }
+#endif
         field(20; "Charged Period (Days)"; Decimal)
         {
             Caption = 'Charged Period (Days)';
         }
+#if not CLEANSCHEMA29
         field(21; "Charged Period (Hours)"; Decimal)
         {
             Caption = 'Charged Period (Hours)';
@@ -148,6 +153,7 @@ table 8006 "Usage Data Billing"
 #endif
             ObsoleteReason = 'No longer needed as the time component is not relevant for processing of usage data.';
         }
+#endif
         field(22; Quantity; Decimal)
         {
             Caption = 'Quantity';

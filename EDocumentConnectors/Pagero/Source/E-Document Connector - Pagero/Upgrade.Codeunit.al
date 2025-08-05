@@ -18,6 +18,7 @@ codeunit 6370 Upgrade
 {
     Access = Internal;
     Subtype = Upgrade;
+    Permissions = tabledata "E-Document Service" = rm;
 
     trigger OnUpgradePerCompany()
     var

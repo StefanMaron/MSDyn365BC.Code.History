@@ -24,7 +24,7 @@ report 9091 "Combine Service Shipments"
     {
         dataitem(ServiceOrderHeader; "Service Header")
         {
-            DataItemTableView = sorting("Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name") where("Document Type" = const(Order), "Combine Shipments" = const(true));
+            DataItemTableView = sorting("Document Type", "Combine Shipments", "Customer No.", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name") where("Document Type" = const(Order), "Combine Shipments" = const(true));
             RequestFilterFields = "Customer No.", "Bill-to Customer No.";
             RequestFilterHeading = 'Service Order';
             dataitem("Service Shipment Header"; "Service Shipment Header")

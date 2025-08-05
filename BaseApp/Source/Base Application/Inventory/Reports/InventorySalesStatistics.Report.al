@@ -179,6 +179,8 @@ report 712 "Inventory - Sales Statistics"
             ItemStatisticsBuffer.SetFilter("Global Dimension 1 Filter", Item.GetFilter("Global Dimension 1 Filter"));
         if Item.GetFilter("Global Dimension 2 Filter") <> '' then
             ItemStatisticsBuffer.SetFilter("Global Dimension 2 Filter", Item.GetFilter("Global Dimension 2 Filter"));
+
+        OnPreReportOnAfterItemStatisticsBufferSetFilters(ItemStatisticsBuffer, Item);
     end;
 
     var
@@ -215,6 +217,8 @@ report 712 "Inventory - Sales Statistics"
         SalesAmount := CalcSalesAmount();
         COGSAmount := CalcCostAmount() + CalcCostAmountNonInvnt();
         ItemProfit := SalesAmount + COGSAmount;
+
+        OnCalculateOnAfterCalcAmounts(Item, SalesQty, SalesAmount, COGSAmount, ItemProfit);
 
         if SalesAmount <> 0 then
             ItemProfitPct := Round(100 * ItemProfit / SalesAmount, 0.1)
@@ -263,6 +267,16 @@ report 712 "Inventory - Sales Statistics"
         if Qty <> 0 then
             exit(Round(Amount / Abs(Qty), GeneralLedgerSetup."Unit-Amount Rounding Precision"));
         exit(0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreReportOnAfterItemStatisticsBufferSetFilters(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnAfterCalcAmounts(var Item: Record Item; var SalesQty: Decimal; var SalesAmount: Decimal; var COGSAmount: Decimal; var ItemProfit: Decimal)
+    begin
     end;
 }
 

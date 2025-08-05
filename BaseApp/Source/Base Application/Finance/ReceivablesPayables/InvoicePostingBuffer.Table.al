@@ -659,7 +659,7 @@ table 55 "Invoice Posting Buffer"
         end;
     end;
 
-    internal procedure ApplyRoundingForFinalPosting()
+    procedure ApplyRoundingForFinalPosting()
     begin
         ApplyRoundingValueForFinalPosting(TempInvoicePostingBufferRounding.Amount, Amount);
         ApplyRoundingValueForFinalPosting(TempInvoicePostingBufferRounding."VAT Amount", "VAT Amount");
