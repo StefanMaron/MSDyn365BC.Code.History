@@ -11,6 +11,7 @@ codeunit 137103 "Cost Adjustment Parallel Run"
     end;
 
     var
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -23,15 +24,19 @@ codeunit 137103 "Cost Adjustment Parallel Run"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Cost Adjustment Parallel Run");
         LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
 
         if Initialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Cost Adjustment Parallel Run");
 
         LibrarySetupStorage.Save(Database::"Inventory Setup");
 
         Initialized := true;
+        Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Cost Adjustment Parallel Run");
     end;
 
     [Test]

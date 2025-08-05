@@ -9,6 +9,8 @@ codeunit 134347 "ERM Document Line Tracking"
     end;
 
     var
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
@@ -35,6 +37,7 @@ codeunit 134347 "ERM Document Line Tracking"
         ArchivedPurchaseReturnOrderLinesTxt: Label 'Archived Purchase Return Order Lines';
         PostedReturnShipmentLinesTxt: Label 'Posted Return Shipment Lines';
         PostedPurchaseCreditMemoLinesTxt: Label 'Posted Purchase Credit Memo Lines';
+        LotNoErr: Label 'Lot No. should have value.';
         IsInitialized: Boolean;
 
     [Test]
@@ -513,6 +516,84 @@ codeunit 134347 "ERM Document Line Tracking"
 
         // [THEN] DocumentLineTracking Action was invoked & Verify Document Line Tracking for Blanket Purchase Order.
         BlanketPurchaseOrderArchive.PurchLinesArchive.DocumentLineTracking.Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,GetShipmentLinesPageHandler')]
+    procedure QuantityReducedInSalesInvoiceAfterGenShipmentLineReservesTrackingInformation()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Quantity: Integer;
+    begin
+        // [SCENARIO 576049] When the quantity in a Sales Invoices was changed after using 'Get Shipment lines' and an item with item tracking lines and reserve always has the tracking information.
+        Initialize();
+
+        // [GIVEN] Created New Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Item Tracking Code and Validate Trackings.
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        ItemTrackingCode.Validate("Lot Specific Tracking", false);
+        ItemTrackingCode.Validate("SN Specific Tracking", false);
+        ItemTrackingCode.Validate("SN Sales Inbound Tracking", true);
+        ItemTrackingCode.Validate("SN Sales Outbound Tracking", true);
+        ItemTrackingCode.Validate("Lot Sales Inbound Tracking", true);
+        ItemTrackingCode.Validate("Lot Sales Outbound Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Created New Item and Validate Item Tracking Code, Serial Nos, Reserve.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Validate("Lot Nos.", LibraryERM.CreateNoSeriesCode());
+        Item.Validate("Serial Nos.", LibraryERM.CreateNoSeriesCode());
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        // [GIVEN] Store quantity in Variable.
+        Quantity := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Created Item Inventory By Posting Item Journal.
+        CreateItemInventory(Item, Quantity);
+
+        // [GIVEN] Create new Sales Header.
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.", WorkDate());
+
+        // [GIVEN] Create Sales line and Validate Unit Price.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Quantity);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 0));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Enqueue Quantity and assign Tracking Lines
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(Quantity);
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Post Sales Order invoked with "Shipped" selected.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Create New Sales Invoice And Get Shipment Line Through GetShipmentLines.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        LibrarySales.GetShipmentLines(SalesLine);
+
+        // [GIVEN] Find the Sales Line.
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.FindFirst();
+
+        // [WHEN] Validate Quantity with random integer less than previous quantity.
+        SalesLine.Validate(Quantity, LibraryRandom.RandInt(5));
+        SalesLine.Modify(true);
+
+        // [THEN] Tracking Lines is not deleted.
+        LibraryVariableStorage.Enqueue(false);
+        SalesLine.OpenItemTrackingLines();
     end;
 
     local procedure Initialize()
@@ -1049,6 +1130,26 @@ codeunit 134347 "ERM Document Line Tracking"
         VerifyDocumentLineTrackingLine(DocumentLineTracking, PurchaseOrderLinesTxt, 1, 3);
     end;
 
+    local procedure CreateItemInventory(var Item: Record Item; Qty: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name",
+            ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SellToCustomerNo: Code[20]; PostingDate: Date)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, SellToCustomerNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -1104,6 +1205,34 @@ codeunit 134347 "ERM Document Line Tracking"
     procedure DocumentLineTrackingPageHandler2(var DocumentLineTracking: TestPage "Document Line Tracking")
     begin
         VerifyDocumentLineTrackingForBlanketPurchaseOrderArchive(DocumentLineTracking);
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        AssignSerial: Boolean;
+    begin
+        AssignSerial := LibraryVariableStorage.DequeueBoolean();
+        if AssignSerial then
+            ItemTrackingLines."Assign Serial No.".Invoke();
+
+        if not AssignSerial then
+            Assert.IsTrue(ItemTrackingLines."Lot No.".Value() <> '', LotNoErr);
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure EnterQuantityToCreatePageHandler(var EnterQuantitytoCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantitytoCreate.QtyToCreate.SetValue(LibraryVariableStorage.DequeueInteger());
+        EnterQuantitytoCreate.CreateNewLotNo.SetValue(true);
+        EnterQuantitytoCreate.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure GetShipmentLinesPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
+    begin
+        GetShipmentLines.OK().Invoke();
     end;
 }
 

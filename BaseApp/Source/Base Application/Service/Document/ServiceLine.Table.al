@@ -2161,6 +2161,8 @@ table 5902 "Service Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if CurrFieldNo = FieldNo("Qty. to Consume") then
                     CheckWarehouse();
@@ -2184,18 +2186,21 @@ table 5902 "Service Line"
                     "Qty. to Invoice (Base)" := 0;
                 end;
 
-                if ("Qty. to Consume" * Quantity < 0) or
-                   (Abs("Qty. to Consume") > Abs(MaxQtyToConsume()))
-                then
-                    Error(
-                      Text028,
-                      MaxQtyToConsume());
-                if ("Qty. to Consume (Base)" * "Quantity (Base)" < 0) or
-                   (Abs("Qty. to Consume (Base)") > Abs(MaxQtyToConsumeBase()))
-                then
-                    Error(
-                      Text032,
-                      MaxQtyToConsumeBase());
+                OnValidateQtyToConsumeOnBeforeQtyToConsumeCheck(Rec, xRec, CurrFieldNo, IsHandled);
+                if not IsHandled then begin
+                    if ("Qty. to Consume" * Quantity < 0) or
+                       (Abs("Qty. to Consume") > Abs(MaxQtyToConsume()))
+                    then
+                        Error(
+                          Text028,
+                          MaxQtyToConsume());
+                    if ("Qty. to Consume (Base)" * "Quantity (Base)" < 0) or
+                       (Abs("Qty. to Consume (Base)") > Abs(MaxQtyToConsumeBase()))
+                    then
+                        Error(
+                          Text032,
+                          MaxQtyToConsumeBase());
+                end;
 
                 if (xRec."Qty. to Consume" <> "Qty. to Consume") or
                    (xRec."Qty. to Consume (Base)" <> "Qty. to Consume (Base)")
@@ -7406,6 +7411,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeUpdateVATAmountLine(var ServiceLine: Record "Service Line"; var VATAmountLine: Record "VAT Amount Line"; var TotalVATAmount: Decimal; Currency: Record Currency; var RoundingLineInserted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQtyToConsumeOnBeforeQtyToConsumeCheck(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

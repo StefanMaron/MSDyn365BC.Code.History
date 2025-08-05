@@ -17,6 +17,7 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
@@ -5620,6 +5621,39 @@ codeunit 136101 "Service Orders"
         Assert.AreEqual(Customer[2]."Country/Region Code", ServiceHeader."VAT Country/Region Code", VATCountryRegionLbl);
     end;
 
+    [Test]
+    [HandlerFunctions('ServiceOrderReportRequestPageHandler')]
+    procedure PrintServiceOrderWithWorkDescription()
+    var
+        Item: Record Item;
+        ServiceHeader: Record "Service Header";
+        ServiceItem: Record "Service Item";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+        ServiceOrder: TestPage "Service Order";
+    begin
+        // [SCENARIO 575369] Verify Printing Service Order with Work Description does not throw error.
+        Initialize();
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Service Order with Work Description
+        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo());
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+
+        // [WHEN] Open Service Order Card and click Print
+        CreateCustomReportSelectionForCustomer(ServiceHeader."Customer No.", "Report Selection Usage"::"SM.Order", 5900);
+        ServiceOrder.OpenEdit();
+        ServiceOrder.GotoRecord(ServiceHeader);
+        ServiceOrder.WorkDescription.SetValue(LibraryRandom.RandText(20));
+        ServiceOrder."&Print".Invoke();
+
+        // [THEN] Verify no transaction error should occur.
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTRUE(Question: Text[1024]; var Reply: Boolean)
@@ -7923,6 +7957,23 @@ codeunit 136101 "Service Orders"
             exit(ServiceInvoiceHeader."No.");
     end;
 
+    local procedure CreateCustomReportSelectionForCustomer(CustomerNo: Code[20]; ReportSelectionUsage: Enum "Report Selection Usage"; ReportID: Integer)
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        CustomReportLayout: Record "Custom Report Layout";
+    begin
+        CustomReportSelection.Init();
+        CustomReportSelection.Validate("Source Type", Database::Customer);
+        CustomReportSelection.Validate("Source No.", CustomerNo);
+        CustomReportSelection.Validate(Usage, ReportSelectionUsage);
+        CustomReportSelection.Validate(Sequence, 1);
+        CustomReportSelection.Validate("Report ID", ReportID);
+        CustomReportSelection.Validate("Use for Email Body", true);
+        CustomReportSelection.Validate(
+            "Email Body Layout Code", CustomReportLayout.InitBuiltInLayout(CustomReportSelection."Report ID", CustomReportLayout.Type::Word.AsInteger()));
+        CustomReportSelection.Insert(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmMessageHandler(Question: Text[1024]; var Reply: Boolean)
@@ -8255,6 +8306,12 @@ codeunit 136101 "Service Orders"
         // Enqueue amounts from handler to verify in test body
         LibraryVariableStorage.Enqueue(CreditLimitNotification.CreditLimitDetails.OutstandingAmtLCY.Value);
         LibraryVariableStorage.Enqueue(CreditLimitNotification.CreditLimitDetails.TotalAmountLCY.Value);
+    end;
+
+    [RequestPageHandler]
+    procedure ServiceOrderReportRequestPageHandler(var ServiceOrder: TestRequestPage "Service Order")
+    begin
+        ServiceOrder.Cancel().Invoke();
     end;
 }
 

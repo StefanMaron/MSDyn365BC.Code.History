@@ -686,7 +686,6 @@ codeunit 136905 "Service Reports - II"
 
     [Test]
     [HandlerFunctions('StandardSalesProFormaInvRequestPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure VerifyTaxAmountOnStandardSalesProFormaInv()
     var
