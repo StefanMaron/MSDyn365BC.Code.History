@@ -2,7 +2,7 @@
   "id": "f8555f70-8cfe-46a2-b961-444c8af4cf4f",
   "name": "Finnish language (Finland)",
   "publisher": "Microsoft",
-  "version": "26.3.36158.36321",
+  "version": "26.4.37194.37206",
   "dependencies": [],
   "target": "Cloud",
   "showMyCode": true,
@@ -13,5 +13,5 @@
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://go.microsoft.com/fwlink/?linkid=2115116",
   "url": "https://www.microsoft.com/en-us/dynamics365/contact-us",
-  "application": "26.3.0.0"
+  "application": "26.4.0.0"
 }

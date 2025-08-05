@@ -3289,8 +3289,8 @@ Fields!No1_SalesHeader.Value + Chr(177) + Fields!ShipmentDate_SalesHeader.Value)
               <Top>1.74603cm</Top>
               <Left>12.83068cm</Left>
               <Height>0.423cm</Height>
-              <Width>3.15cm</Width>
-              <ZIndex>14</ZIndex>
+              <Width>2.515cm</Width>
+              <ZIndex>13</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -3313,8 +3313,8 @@ Fields!No1_SalesHeader.Value + Chr(177) + Fields!ShipmentDate_SalesHeader.Value)
               <Top>2.16903cm</Top>
               <Left>12.83068cm</Left>
               <Height>0.423cm</Height>
-              <Width>3.15cm</Width>
-              <ZIndex>15</ZIndex>
+              <Width>2.515cm</Width>
+              <ZIndex>14</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
@@ -3338,15 +3338,16 @@ Fields!No1_SalesHeader.Value + Chr(177) + Fields!ShipmentDate_SalesHeader.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.16903cm</Top>
-              <Left>15.98068cm</Left>
+              <Left>15.34568cm</Left>
               <Height>0.423cm</Height>
-              <Width>2.07683cm</Width>
-              <ZIndex>16</ZIndex>
+              <Width>2.71183cm</Width>
+              <ZIndex>15</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
             <Textbox Name="SalesHeaderNo1">
+              <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -3365,10 +3366,10 @@ Fields!No1_SalesHeader.Value + Chr(177) + Fields!ShipmentDate_SalesHeader.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>1.74603cm</Top>
-              <Left>15.98068cm</Left>
+              <Left>15.34568cm</Left>
               <Height>0.423cm</Height>
-              <Width>2.1cm</Width>
-              <ZIndex>17</ZIndex>
+              <Width>2.735cm</Width>
+              <ZIndex>16</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>

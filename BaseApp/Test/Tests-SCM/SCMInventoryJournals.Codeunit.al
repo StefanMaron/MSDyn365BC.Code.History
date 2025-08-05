@@ -1800,6 +1800,54 @@ codeunit 137275 "SCM Inventory Journals"
         Codeunit.Run(Codeunit::"Item Jnl.-Post Batch", ItemJournalLine);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemReclassJournalUnitOfMeasureUpdatedWhenItemChanged()
+    var
+        Item: array[2] of Record Item;
+        UnitOfMeasure: array[2] of Record "Unit of Measure";
+        ItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemReclassJournal: TestPage "Item Reclass. Journal";
+        i: Integer;
+    begin
+        // [SCENARIO 581983] Unit of Measure Code should be updated automatically when Item No. is changed in Item Reclassification Journal
+        Initialize();
+
+        // [GIVEN] Create two items with different base unit of measure codes
+        for i := 1 to 2 do begin
+            LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[i]);
+            LibraryInventory.CreateItem(Item[i]);
+            LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure[i], Item[i]."No.", UnitOfMeasure[i].Code, 1);
+            Item[i].Validate("Base Unit of Measure", UnitOfMeasure[i].Code);
+            Item[i].Modify(true);
+        end;
+
+        // [GIVEN] Setup Item Reclassification Journal template and batch
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Transfer);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Transfer, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+
+        // [WHEN] Open Item Reclassification Journal page
+        ItemReclassJournal.OpenEdit();
+        ItemReclassJournal.CurrentJnlBatchName.SetValue(ItemJournalBatch.Name);
+
+        // [WHEN] Enter first item no. and verify unit of measure is set
+        ItemReclassJournal."Item No.".SetValue(Item[1]."No.");
+        ItemReclassJournal."Unit of Measure Code".AssertEquals(UnitOfMeasure[1].Code);
+
+        // [WHEN] Change item no. to second item
+        ItemReclassJournal."Item No.".SetValue(Item[2]."No.");
+
+        // [THEN] Verify unit of measure code is updated to second item's base unit of measure
+        ItemReclassJournal."Unit of Measure Code".AssertEquals(UnitOfMeasure[2].Code);
+
+        // [THEN] Verify no error occurs when changing item number
+        // This test verifies the fix for the bug where changing Item No. with different Unit of Measure Codes caused validation errors
+        ItemReclassJournal.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

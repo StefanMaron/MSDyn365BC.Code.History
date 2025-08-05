@@ -950,6 +950,8 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         WarehouseActivityLine."Whse. Document Type" := WarehouseActivityLine."Whse. Document Type"::Production;
         WarehouseActivityLine."Whse. Document No." := ProdOrderLine."Prod. Order No.";
         WarehouseActivityLine."Whse. Document Line No." := ProdOrderLine."Line No.";
+
+        OnAfterTransferFromOutputLine(WarehouseActivityLine, ProdOrderLine);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1409,6 +1411,11 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFromProdOrderCompLineCreateWhseWkshLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; ProdOrderComponent: Record "Prod. Order Component"; LocationCode: Code[10]; ToBinCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromOutputLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 }

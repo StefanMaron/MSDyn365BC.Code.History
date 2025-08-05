@@ -1169,23 +1169,24 @@ table 5405 "Production Order"
 
     procedure CreatePick(AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean)
     var
-        ProdOrderCompLine: Record "Prod. Order Component";
+        ProdOrderComponent: Record "Prod. Order Component";
 #if not CLEAN26
         ManufacturingSetup: Record "Manufacturing Setup";
 #endif
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
     begin
-        ProdOrderCompLine.Reset();
-        ProdOrderCompLine.SetRange(Status, Status);
-        ProdOrderCompLine.SetRange("Prod. Order No.", "No.");
-        if ProdOrderCompLine.Find('-') then
+        ProdOrderComponent.Reset();
+        ProdOrderComponent.SetRange(Status, Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", "No.");
+        OnCreatePickOnBeforeFindProdOrderComponent(ProdOrderComponent);
+        if ProdOrderComponent.FindSet() then
             repeat
-                ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
-                  Enum::"Warehouse Worksheet Document Type"::Production, ProdOrderCompLine."Prod. Order No.",
-                  ProdOrderCompLine."Prod. Order Line No.", Database::"Prod. Order Component",
-                  ProdOrderCompLine.Status.AsInteger(), ProdOrderCompLine."Prod. Order No.",
-                  ProdOrderCompLine."Prod. Order Line No.", ProdOrderCompLine."Line No.");
-            until ProdOrderCompLine.Next() = 0;
+                ItemTrackingManagement.InitItemTrackingForTempWhseWorksheetLine(
+                  Enum::"Warehouse Worksheet Document Type"::Production, ProdOrderComponent."Prod. Order No.",
+                  ProdOrderComponent."Prod. Order Line No.", Database::"Prod. Order Component",
+                  ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.",
+                  ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.");
+            until ProdOrderComponent.Next() = 0;
         Commit();
 
         TestField(Status, Status::Released);
@@ -1193,28 +1194,29 @@ table 5405 "Production Order"
         if "Completely Picked" then
             Error(Text008);
 
-        ProdOrderCompLine.Reset();
-        ProdOrderCompLine.SetRange(Status, Status);
-        ProdOrderCompLine.SetRange("Prod. Order No.", "No.");
+        ProdOrderComponent.Reset();
+        ProdOrderComponent.SetRange(Status, Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", "No.");
 
 #if not CLEAN26
         if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
-            ProdOrderCompLine.SetFilter(
+            ProdOrderComponent.SetFilter(
               "Flushing Method", '%1|%2|%3|%4',
-              ProdOrderCompLine."Flushing Method"::Manual,
-              ProdOrderCompLine."Flushing Method"::"Pick + Manual",
-              ProdOrderCompLine."Flushing Method"::"Pick + Forward",
-              ProdOrderCompLine."Flushing Method"::"Pick + Backward")
+              ProdOrderComponent."Flushing Method"::Manual,
+              ProdOrderComponent."Flushing Method"::"Pick + Manual",
+              ProdOrderComponent."Flushing Method"::"Pick + Forward",
+              ProdOrderComponent."Flushing Method"::"Pick + Backward")
         else
 #endif
-            ProdOrderCompLine.SetFilter(
+            ProdOrderComponent.SetFilter(
               "Flushing Method", '%1|%2|%3',
-              ProdOrderCompLine."Flushing Method"::"Pick + Manual",
-              ProdOrderCompLine."Flushing Method"::"Pick + Forward",
-              ProdOrderCompLine."Flushing Method"::"Pick + Backward");
-        ProdOrderCompLine.SetRange("Planning Level Code", 0);
-        ProdOrderCompLine.SetFilter("Expected Quantity", '>0');
-        if ProdOrderCompLine.Find('-') then
+              ProdOrderComponent."Flushing Method"::"Pick + Manual",
+              ProdOrderComponent."Flushing Method"::"Pick + Forward",
+              ProdOrderComponent."Flushing Method"::"Pick + Backward");
+        ProdOrderComponent.SetRange("Planning Level Code", 0);
+        ProdOrderComponent.SetFilter("Expected Quantity", '>0');
+        OnCreatePickOnBeforeRunCreatePickFromWhseSource(ProdOrderComponent);
+        if not ProdOrderComponent.IsEmpty() then
             RunCreatePickFromWhseSource(AssignedUserID, SortingMethod, SetBreakBulkFilter, DoNotFillQtyToHandle, PrintDocument)
         else
             if not HideValidationDialog then
@@ -1851,5 +1853,14 @@ table 5405 "Production Order"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePickOnBeforeFindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePickOnBeforeRunCreatePickFromWhseSource(var ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
 }
 
