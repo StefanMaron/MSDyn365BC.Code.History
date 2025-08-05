@@ -587,6 +587,55 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         Assert.AreEqual(ReminderFinChargeEntry."Due Date", CustLedgerEntry."Due Date", ReminderDueDateErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyEmailOnReminderPageWhenCustomerHasNoContacts()
+    var
+        Customer: Record Customer;
+        ReminderLevel: Record "Reminder Level";
+        ReminderText: Record "Reminder Text";
+        ReminderHeader: Record "Reminder Header";
+        ReminderPage: TestPage Reminder;
+        CustomerCard: TestPage "Customer Card";
+        EMail: Text[80];
+        DueDate: Date;
+        DocumentDate: Date;
+    begin
+        // [SCENARIO 581797] [ALL-E] Field Email on Reminder is empty when customer does not have any contacts
+        Initialize();
+
+        // [GIVEN] Create Customer with E-Mail and Reminder Terms Code.
+        CreateCustomer(Customer, '');
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms());
+        EMail := 'test1@test.com';
+        Customer.Modify(true);
+
+        CustomerCard.OpenEdit();
+        CustomerCard.GoToRecord(Customer);
+        CustomerCard."E-Mail".SetValue(EMail);
+        CustomerCard.Close();
+
+        // [GIVEN] Create Reminder Level with Random Grace Period and Random Additional Fee.
+        ReminderLevel.SetRange("Reminder Terms Code", Customer."Reminder Terms Code");
+        ReminderLevel.FindFirst();
+        LibraryERM.CreateReminderText(
+            ReminderText, Customer."Reminder Terms Code",
+            ReminderLevel."No.", ReminderText.Position::Ending, ReminderEndingText);
+
+        // [WHEN] Post Sales Invoice and Create Reminder.
+        DueDate := CreateAndPostSalesInvoice(Customer."No.", '');
+        DocumentDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', CalcDate(ReminderLevel."Grace Period", DueDate));
+        CreateReminder(Customer."No.", DocumentDate, false);
+
+        // [THEN] Find Reminder Header for Customer and open Reminder Page.
+        FindReminderHeader(ReminderHeader, Customer."No.");
+        ReminderPage.OpenEdit();
+        ReminderPage.GoToRecord(ReminderHeader);
+
+        // [THEN] Verify E-Mail on Reminder Page.
+        ReminderPage.ContactEmail.AssertEquals(EMail);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
