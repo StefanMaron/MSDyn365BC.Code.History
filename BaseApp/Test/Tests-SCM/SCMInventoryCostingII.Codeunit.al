@@ -2536,6 +2536,7 @@ codeunit 137287 "SCM Inventory Costing II"
         LibraryERM.CreateReasonCode(ReasonCode);
         PurchaseHeader.Find();
         PurchaseHeader.Validate("Reason Code", ReasonCode.Code);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
 
         // [WHEN] Post Purchase Credit Memo

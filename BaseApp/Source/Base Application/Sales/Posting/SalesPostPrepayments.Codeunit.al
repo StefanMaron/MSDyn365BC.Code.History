@@ -1704,6 +1704,10 @@ codeunit 442 "Sales-Post Prepayments"
             if SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", PrepmtInvLineBuffer."Line No.") then
                 SalesInvLine."Description 2" := SalesLine."Description 2";
 
+        if SalesHeader."Compress Prepayment" then
+            if SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", LineNo) then
+                SalesInvLine."Unit of Measure Code" := SalesLine."Unit of Measure Code";
+
         SalesInvLine.Quantity := 1;
         if SalesInvHeader."Prices Including VAT" then begin
             SalesInvLine."Unit Price" := PrepmtInvLineBuffer."Amount Incl. VAT";
@@ -2256,7 +2260,7 @@ codeunit 442 "Sales-Post Prepayments"
     local procedure OnCodeOnBeforeCheckPrepmtDoc(var SalesHeader: Record "Sales Header"; var DocumentType: Option Invoice,"Credit Memo")
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPrepmtAccNo(VATPostingSetup: Record "VAT Posting Setup"; var PrepmtAccNo: Code[20])
     begin

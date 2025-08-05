@@ -10,6 +10,8 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Contact;
 using Microsoft.Inventory.Item;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Customer;
@@ -42,6 +44,7 @@ codeunit 136102 "Service Contracts"
     var
         ServiceContractHeader2: Record "Service Contract Header";
         Assert: Codeunit Assert;
+        LibraryMarketing: Codeunit "Library - Marketing";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
@@ -3563,6 +3566,49 @@ codeunit 136102 "Service Contracts"
         Assert.Equal('', Format(ServiceContractHeader."Last Invoice Period End"));
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,SignContractConfirmHandler,ServContrctTemplateListHandler')]
+    [Scope('OnPrem')]
+    procedure ChangeCustomerOfTypePeronInServiceContract()
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+        Contact: Record Contact;
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ShiptoAddress: Record "Ship-to Address";
+        ServContractManagement: Codeunit ServContractManagement;
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [SCENARIO 578655] Change Customer No. on Service Contract of Customer type Person.
+        Initialize();
+
+        // [GIVEN] Create Contact of type Person.
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [GIVEN] Open Contact Card and invoke Create Customer.
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+        ContactCard.CreateCustomer.Invoke();
+
+        // [GIVEN] Create Service Contract Header and Service Contract Line.
+        CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
+        ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
+
+        // [GIVEN] Find Contact Business Relation of the Contact.
+        ContactBusinessRelation.SetRange("Contact No.", Contact."No.");
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.FindFirst();
+
+        // [GIVEN] Create Ship to Address.
+        LibrarySales.CreateShipToAddress(ShiptoAddress, ContactBusinessRelation."No.");
+
+        // [WHEN] Change Customer No. in Service Contract.
+        ServContractManagement.ChangeCustNoOnServContract(ShiptoAddress."Customer No.", ShiptoAddress.Code, ServiceContractHeader);
+
+        // [THEN] Check Customer No. is updated.
+        CheckChangeCustomerNo(ServiceContractHeader, ContactBusinessRelation."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5356,6 +5402,11 @@ codeunit 136102 "Service Contracts"
         MessageText := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(MessageText));
         if (StrPos(Message, MessageText) = 0) and (StrPos(Message, OrderCreationMsg) = 0) then
             Error(MessageText);
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 
     [ConfirmHandler]

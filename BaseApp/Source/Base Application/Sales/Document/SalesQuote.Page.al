@@ -284,6 +284,13 @@ page 41 "Sales Quote"
                     Importance = Additional;
                     ToolTip = 'Specifies how long the quote is valid.';
                 }
+                field("Due Date"; Rec."Due Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Promoted;
+                    Visible = false;
+                    ToolTip = 'Specifies when the related sales invoice must be paid.';
+                }
                 field("Requested Delivery Date"; Rec."Requested Delivery Date")
                 {
                     ApplicationArea = Basic, Suite;

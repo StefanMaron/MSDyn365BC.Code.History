@@ -1701,7 +1701,8 @@ page 6510 "Item Tracking Lines"
           TrackingSpecification."Source ID", TrackingSpecification."Source Ref. No.", true);
         ReservEntry.SetSourceFilter(
           TrackingSpecification."Source Batch Name", TrackingSpecification."Source Prod. Order Line");
-        ReservEntry.SetRange("Untracked Surplus", false);
+        if CheckTrackingSpecificationSource(TrackingSpecification) then
+            ReservEntry.SetRange("Untracked Surplus", false);
 
         // Transfer Receipt gets special treatment:
         SetSourceSpecForTransferReceipt(TrackingSpecification, ReservEntry, TempTrackingSpecification2);
@@ -3828,6 +3829,18 @@ page 6510 "Item Tracking Lines"
             (ItemTrackingLine."Quantity (Base)" <> ItemTrackingLine."Qty. to Invoice (Base)");
 
         OnAfterQtyToHandleOrInvoiceDifferFromQuantity(ItemTrackingLine, HasChanged);
+    end;
+
+    local procedure CheckTrackingSpecificationSource(TrackingSpecification: Record "Tracking Specification"): Boolean
+    begin
+        if not ((TrackingSpecification."Source Type" = Database::"Sales Line") and (TrackingSpecification."Source Subtype" = TrackingSpecification."Source Subtype"::"1")) then
+            exit(true);
+
+        if ((TrackingSpecification."Source Type" = Database::"Sales Line") and (TrackingSpecification."Source Subtype" = TrackingSpecification."Source Subtype"::"1") and
+           (TrackingSpecification."Lot No." <> '')) then
+            exit(true)
+        else
+            exit(false);
     end;
 
     [IntegrationEvent(false, false)]

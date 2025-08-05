@@ -47,14 +47,6 @@ page 99000768 "Manufacturing Setup"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies whether to run the MRP engine to detect if planned shipment dates cannot be met.';
                 }
-                field("Inc. Non. Inv. Cost To Prod"; Rec."Inc. Non. Inv. Cost To Prod")
-                {
-                    ApplicationArea = Manufacturing;
-                }
-                field("Load SKU Cost on Manufacturing"; Rec."Load SKU Cost on Manufacturing")
-                {
-                    ApplicationArea = Manufacturing;
-                }
                 field("Doc. No. Is Prod. Order No."; Rec."Doc. No. Is Prod. Order No.")
                 {
                     ApplicationArea = Manufacturing;
@@ -69,6 +61,14 @@ page 99000768 "Manufacturing Setup"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies whether the setup times are to be included in the cost calculation of the Standard Cost field.';
+                }
+                field("Inc. Non. Inv. Cost To Prod"; Rec."Inc. Non. Inv. Cost To Prod")
+                {
+                    ApplicationArea = Manufacturing;
+                }
+                field("Load SKU Cost on Manufacturing"; Rec."Load SKU Cost on Manufacturing")
+                {
+                    ApplicationArea = Manufacturing;
                 }
                 field("Finish Order without Output"; Rec."Finish Order without Output")
                 {

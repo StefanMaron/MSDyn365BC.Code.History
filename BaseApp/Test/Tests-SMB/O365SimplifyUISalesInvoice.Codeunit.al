@@ -4550,6 +4550,11 @@
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Transaction Specification"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Prepayment No. Series"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Prepmt. Cr. Memo No. Series"));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Vendor Invoice No."));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Vendor Order No."));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Vendor Cr. Memo No."));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Vendor Shipment No."));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Recalculate Invoice Disc."));
 
         OnAfterFillPurchaseHeaderExcludedFieldList(FieldListToExclude);
     end;

@@ -309,6 +309,13 @@ page 42 "Sales Order"
                     QuickEntry = false;
                     ToolTip = 'Specifies the date the order was created. The order date is also used to determine the prices and discounts on the document.';
                 }
+                field("Due Date"; Rec."Due Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Promoted;
+                    Visible = false;
+                    ToolTip = 'Specifies when the related sales invoice must be paid.';
+                }
                 field("Requested Delivery Date"; Rec."Requested Delivery Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -475,6 +482,12 @@ page 42 "Sales Order"
                     ApplicationArea = VAT;
                     Importance = Additional;
                     ToolTip = 'Specifies the VAT registration number for customers.';
+                }
+                field("Prices Including VAT"; Rec."Prices Including VAT")
+                {
+                    ApplicationArea = VAT;
+                    Visible = false;
+                    ToolTip = 'Specifies if the Unit Price and Line Amount fields on document lines should be shown with or without VAT.';
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {

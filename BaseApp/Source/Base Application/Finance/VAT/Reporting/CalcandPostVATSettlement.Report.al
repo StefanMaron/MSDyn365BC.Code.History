@@ -530,9 +530,7 @@ report 20 "Calc. and Post VAT Settlement"
                             "VAT Posting Setup"."VAT Calculation Type"::"Reverse Charge VAT",
                             "VAT Posting Setup"."VAT Calculation Type"::"Full VAT":
                                 begin
-                                    VATEntry.SetCurrentKey(
-                                        Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
-                                        "Tax Jurisdiction Code", "Use Tax", "Tax Liable", "VAT Period", "Operation Occurred Date");
+                                    VATEntry.SetCurrentKey(Type, Closed, "Tax Liable", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Operation Occurred Date", "VAT Period");
                                     if FindFirstEntry then begin
                                         if not VATEntry.Find('-') then
                                             repeat
@@ -1034,6 +1032,8 @@ report 20 "Calc. and Post VAT Settlement"
         
         InitializeTotals();
 #endif
+        if PostSettlement then
+            GenJnlPostLine.SetIgnoreJournalTemplNameMandatoryCheck();
         OnAfterPreReport("VAT Entry");
     end;
 
@@ -1268,6 +1268,7 @@ report 20 "Calc. and Post VAT Settlement"
             GenJnlLine, 0, DefaultDimSource, GenJnlLine."Source Code",
             GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code", 0, 0);
         OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJnlLine);
+        GenJnlPostLine.SetIgnoreJournalTemplNameMandatoryCheck();
         GenJnlPostLine.Run(GenJnlLine);
     end;
 

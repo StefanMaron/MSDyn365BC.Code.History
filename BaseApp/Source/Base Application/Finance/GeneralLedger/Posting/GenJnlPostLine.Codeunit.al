@@ -148,6 +148,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         MultiplePostingGroups: Boolean;
         SourceCodeSetupRead: Boolean;
         IsGLRegInserted: Boolean;
+        IgnoreJournalTemplNameMandatoryCheck: Boolean;
 
         EntryAmount: Decimal;
         EntryAmountLCY: Decimal;
@@ -371,6 +372,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if CheckLine then begin
             if OverrideDimErr then
                 GenJnlCheckLine.SetOverDimErr();
+            if IgnoreJournalTemplNameMandatoryCheck then
+                GenJnlCheckLine.SetIgnoreJournalTemplNameMandatoryCheck();
             OnCheckGenJnlLineOnBeforeRunCheck(GenJournalLine);
             GenJnlCheckLine.RunCheck(GenJournalLine);
         end else
@@ -2396,6 +2399,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     GLEntry."Source Currency Amount" := GetSourceCurrencyAmount(GenJnlLine, GLEntry.Amount > 0, true)
                 else
                     GLEntry."Source Currency Amount" := GetSourceCurrencyAmount(GenJnlLine, GLEntry.Amount > 0, false);
+                if (GLEntry."Source Currency Code" = AddCurrencyCode) and (GLEntry."Additional-Currency Amount" = 0) and MultiplePostingGroups then
+                    GLEntry."Additional-Currency Amount" := GLEntry."Source Currency Amount";
             end;
         end;
     end;
@@ -2659,6 +2664,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         GLEntry: Record "G/L Entry";
     begin
+        if (AddCurrencyCode <> '') and MultiplePostingGroups then
+            UseAmountAddCurr := true;
         if UseAmountAddCurr then
             InitGLEntry(GenJnlLine, GLEntry, AccNo, Amount, AmountAddCurr, true, true)
         else begin
@@ -6103,6 +6110,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
               NewCVLedgEntryBuf, OldCVLedgEntryBuf, OldCVLedgEntryBuf2,
               AppliedAmount, AppliedAmountLCY, OldAppliedAmount, ApplnRoundingPrecision, GenJnlLine);
 
+            OnPostApplyOnAfterFindAmtForApplnOnBeforeCalcCurrencyUnrealizedGainLoss(
+              NewCVLedgEntryBuf, OldCVLedgEntryBuf, OldCVLedgEntryBuf2, AppliedAmount,
+              AppliedAmountLCY, OldAppliedAmount, AmountRoundingPrecision, VATEntry);
+
             CalcCurrencyUnrealizedGainLoss(
               OldCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine, -OldAppliedAmount, OldRemainingAmtBeforeAppln);
 
@@ -7574,6 +7585,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
               DimMgt.GetDimValuePostingErr());
 
         Error(DimMgt.GetDimValuePostingErr());
+    end;
+
+    /// <summary>
+    /// Sets the global variable IgnoreJournalTemplNameMandatoryCheck for the current instance of the codeunit.
+    /// If IgnoreJournalTemplNameMandatoryCheck is not set "Journal Templ. Name Mandatory" check is performed before gen. journal line 
+    /// </summary>
+    procedure SetIgnoreJournalTemplNameMandatoryCheck()
+    begin
+        IgnoreJournalTemplNameMandatoryCheck := true;
     end;
 
     local procedure IsGainLossAccount(CurrencyCode: Code[10]; GLAccNo: Code[20]): Boolean
@@ -11779,6 +11799,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIncrNextEntryNo(var NextEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostApplyOnAfterFindAmtForApplnOnBeforeCalcCurrencyUnrealizedGainLoss(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var AppliedAmount: Decimal; var AppliedAmountLCY: Decimal; var OldAppliedAmount: Decimal; var ApplnRoundingPrecision: Decimal; var VATEntry: Record "VAT Entry")
     begin
     end;
 }

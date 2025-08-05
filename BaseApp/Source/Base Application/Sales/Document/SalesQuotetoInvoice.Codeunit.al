@@ -130,6 +130,7 @@ codeunit 1305 "Sales-Quote to Invoice"
             SalesInvoiceHeader."Posting Date" := WorkDate();
         SalesInvoiceHeader.InitFromSalesHeader(SalesQuoteHeader);
         SalesInvoiceHeader."VAT Reporting Date" := GLSetup.GetVATDate(SalesInvoiceHeader."Posting Date", SalesInvoiceHeader."Document Date");
+        SalesInvoiceHeader.Validate("Posting Date");
 
         OnBeforeInsertSalesInvoiceHeader(SalesInvoiceHeader, SalesQuoteHeader);
         SalesInvoiceHeader.Modify();
