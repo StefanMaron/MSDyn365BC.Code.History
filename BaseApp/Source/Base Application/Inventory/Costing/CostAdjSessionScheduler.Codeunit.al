@@ -9,6 +9,9 @@ using System.Text;
 
 codeunit 5809 "Cost Adj. Session Scheduler"
 {
+    var
+        RunForeground: Boolean;
+
     trigger OnRun()
     begin
         Code();
@@ -17,7 +20,6 @@ codeunit 5809 "Cost Adj. Session Scheduler"
     procedure Code()
     var
         CostAdjItemBucket: Record "Cost Adj. Item Bucket";
-        NewSessionId: Integer;
     begin
         if CostAdjItemBucket.FindSet() then
             repeat
@@ -31,12 +33,7 @@ codeunit 5809 "Cost Adj. Session Scheduler"
                     CostAdjItemBucket.Modify();
                     Commit();
 
-                    NewSessionId := 0;
-                    StartSession(
-                      NewSessionId, Codeunit::"Cost Adjustment Runner",
-                      CostAdjItemBucket."Timeout (Minutes)" * 60 * 1000, CompanyName(), CostAdjItemBucket);
-                    while IsSessionActive(NewSessionId) do
-                        Sleep(1000);
+                    RunCostAdjustment(CostAdjItemBucket);
 
                     CostAdjItemBucket.Get(CostAdjItemBucket."Line No.");
                     if CostAdjItemBucket.Status = CostAdjItemBucket.Status::Running then
@@ -50,6 +47,27 @@ codeunit 5809 "Cost Adj. Session Scheduler"
                         Reschedule(CostAdjItemBucket);
                 end;
             until CostAdjItemBucket.Next() = 0;
+    end;
+
+    local procedure RunCostAdjustment(var CostAdjItemBucket: Record "Cost Adj. Item Bucket")
+    var
+        NewSessionId: Integer;
+        Timeout: Duration;
+    begin
+        if RunForeground then begin
+            Codeunit.Run(Codeunit::"Cost Adjustment Runner", CostAdjItemBucket);
+            exit;
+        end;
+
+        NewSessionId := 0;
+        Timeout := CostAdjItemBucket."Timeout (Minutes)" * 60 * 1000;
+        if CostAdjItemBucket.Trace then
+            Timeout := Timeout * 2; // to leave time for rollback
+
+        StartSession(NewSessionId, Codeunit::"Cost Adjustment Runner", Timeout, CompanyName(), CostAdjItemBucket);
+
+        while IsSessionActive(NewSessionId) do
+            Sleep(1000);
     end;
 
     local procedure Reschedule(var CurrentCostAdjItemBucket: Record "Cost Adj. Item Bucket")
@@ -128,5 +146,10 @@ codeunit 5809 "Cost Adj. Session Scheduler"
         Clear(CostAdjItemBucket."Last Error Call Stack");
         Clear(CostAdjItemBucket."Failed Item No.");
         CostAdjItemBucket.Insert();
+    end;
+
+    procedure SetRunForeground(NeedRunForeground: Boolean)
+    begin
+        RunForeground := NeedRunForeground;
     end;
 }

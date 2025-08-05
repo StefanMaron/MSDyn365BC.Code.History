@@ -77,6 +77,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM FA Derogatory Depreciation - NamedType GroupTotalsCap)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 963467282 - NamedType 1665040906" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Group Totals: %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption]D;]A;(LookupHint=Codeunit ERM FA Derogatory Depreciation - NamedType GroupTotalsTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 963467282 - NamedType 2830245879" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Group Total:]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM FA Derogatory Depreciation - NamedType GroupTotalTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 963467282 - NamedType 3751779542" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[NetChangeAmt1]]></Val>

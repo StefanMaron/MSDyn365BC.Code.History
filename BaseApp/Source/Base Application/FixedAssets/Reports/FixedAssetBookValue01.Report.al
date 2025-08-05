@@ -352,6 +352,10 @@ report 5605 "Fixed Asset - Book Value 01"
                           FAGenReport.CalcFAPostedAmount(
                             "No.", PostingType, Period2, StartingDate, EndingDate,
                             DeprBookCode, BeforeAmount, EndingAmount, false, true);
+                        StartAmounts[i] :=
+                          FAGenReport.CalcFAPostedAmount(
+                            "No.", PostingType, Period1, StartingDate,
+                            EndingDate, DeprBookCode, BeforeAmount, EndingAmount, false, true);
                     end;
                     if GetPeriodDisposal() then
                         DisposalAmounts[i] := -(StartAmounts[i] + NetChangeAmounts[i])

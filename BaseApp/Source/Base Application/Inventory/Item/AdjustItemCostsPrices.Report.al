@@ -27,16 +27,18 @@ report 794 "Adjust Item Costs/Prices"
                 Window.Update(1, "No.");
 
                 case Selection of
-                    Selection::"Unit Price":
+                    ItemCostPriceFieldOption::"Unit Price":
                         OldFieldValue := "Unit Price";
-                    Selection::"Profit %":
+                    ItemCostPriceFieldOption::"Profit %":
                         OldFieldValue := "Profit %";
-                    Selection::"Indirect Cost %":
+                    ItemCostPriceFieldOption::"Indirect Cost %":
                         OldFieldValue := "Indirect Cost %";
-                    Selection::"Last Direct Cost":
+                    ItemCostPriceFieldOption::"Last Direct Cost":
                         OldFieldValue := "Last Direct Cost";
-                    Selection::"Standard Cost":
+                    ItemCostPriceFieldOption::"Standard Cost":
                         OldFieldValue := "Standard Cost";
+                    else
+                        OnAfterGetRecordOnSetOldFieldOnCaseElse(Item, Selection, OldFieldValue);
                 end;
                 NewFieldValue := OldFieldValue * AdjFactor;
 
@@ -57,16 +59,18 @@ report 794 "Adjust Item Costs/Prices"
                     NewFieldValue := Round(NewFieldValue, GLSetup."Unit-Amount Rounding Precision");
 
                 case Selection of
-                    Selection::"Unit Price":
+                    ItemCostPriceFieldOption::"Unit Price":
                         Validate("Unit Price", NewFieldValue);
-                    Selection::"Profit %":
+                    ItemCostPriceFieldOption::"Profit %":
                         Validate("Profit %", NewFieldValue);
-                    Selection::"Indirect Cost %":
+                    ItemCostPriceFieldOption::"Indirect Cost %":
                         Validate("Indirect Cost %", NewFieldValue);
-                    Selection::"Last Direct Cost":
+                    ItemCostPriceFieldOption::"Last Direct Cost":
                         Validate("Last Direct Cost", NewFieldValue);
-                    Selection::"Standard Cost":
+                    ItemCostPriceFieldOption::"Standard Cost":
                         Validate("Standard Cost", NewFieldValue);
+                    else
+                        OnAfterGetRecordOnValidateFieldOnCaseElse(Item, Selection, NewFieldValue);
                 end;
                 Modify();
             end;
@@ -92,9 +96,9 @@ report 794 "Adjust Item Costs/Prices"
                 Window.Update(3, "Variant Code");
 
                 case Selection of
-                    Selection::"Last Direct Cost":
+                    ItemCostPriceFieldOption::"Last Direct Cost":
                         OldFieldValue := "Last Direct Cost";
-                    Selection::"Standard Cost":
+                    ItemCostPriceFieldOption::"Standard Cost":
                         OldFieldValue := "Standard Cost";
                 end;
                 NewFieldValue := OldFieldValue * AdjFactor;
@@ -115,9 +119,9 @@ report 794 "Adjust Item Costs/Prices"
                     NewFieldValue := Round(NewFieldValue, 0.00001);
 
                 case Selection of
-                    Selection::"Last Direct Cost":
+                    ItemCostPriceFieldOption::"Last Direct Cost":
                         Validate("Last Direct Cost", NewFieldValue);
-                    Selection::"Standard Cost":
+                    ItemCostPriceFieldOption::"Standard Cost":
                         Validate("Standard Cost", NewFieldValue);
                 end;
                 Modify();
@@ -167,17 +171,18 @@ report 794 "Adjust Item Costs/Prices"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Adjust Field';
-                        OptionCaption = 'Unit Price,Profit %,Indirect Cost %,Last Direct Cost,Standard Cost';
                         ToolTip = 'Specifies which field should be adjusted.';
 
                         trigger OnValidate()
                         begin
-                            if Selection = Selection::"Indirect Cost %" then
-                                IndirectCost37SelectionOnValid();
-                            if Selection = Selection::"Profit %" then
-                                Profit37SelectionOnValidate();
-                            if Selection = Selection::"Unit Price" then
-                                UnitPriceSelectionOnValidate();
+                            case Selection of
+                                ItemCostPriceFieldOption::"Indirect Cost %":
+                                    IndirectCost37SelectionOnValid();
+                                ItemCostPriceFieldOption::"Profit %":
+                                    Profit37SelectionOnValidate();
+                                ItemCostPriceFieldOption::"Unit Price":
+                                    UnitPriceSelectionOnValidate();
+                            end;
                         end;
                     }
                     field(AdjustmentFactor; AdjFactor)
@@ -234,22 +239,18 @@ report 794 "Adjust Item Costs/Prices"
         RoundingMethod: Record "Rounding Method";
         GLSetup: Record "General Ledger Setup";
         FilteredItem: Record Item;
+        Selection: Enum ItemCostPriceFieldOption;
         Window: Dialog;
         NewFieldValue: Decimal;
         OldFieldValue: Decimal;
-        PriceIsRnded: Boolean;
-        GLSetupRead: Boolean;
         AdjFactor: Decimal;
-        Selection: Option "Unit Price","Profit %","Indirect Cost %","Last Direct Cost","Standard Cost";
         AdjustCard: Option "Item Card","Stockkeeping Unit Card";
         Selection1Enable: Boolean;
         Selection2Enable: Boolean;
         Selection3Enable: Boolean;
-#pragma warning disable AA0470
-        SelectionErr: Label '%1 is not a valid selection.';
-#pragma warning restore AA0470
-        SelectionTxt: Label 'Unit Price,Profit %,Indirect Cost %,Last Direct Cost,Standard Cost';
-
+        PriceIsRnded: Boolean;
+        GLSetupRead: Boolean;
+        SelectionErr: Label '%1 is not a valid selection.', Comment = '%1 = Selection';
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'Processing items  #1##########';
@@ -274,26 +275,26 @@ report 794 "Adjust Item Costs/Prices"
     local procedure PageUpdateEnabled()
     begin
         if AdjustCard = AdjustCard::"Stockkeeping Unit Card" then
-            if Selection < 3 then
-                Selection := 3;
+            if Selection.AsInteger() < 3 then
+                Selection := ItemCostPriceFieldOption.FromInteger(3);
     end;
 
     local procedure UnitPriceSelectionOnValidate()
     begin
         if not Selection1Enable then
-            Error(SelectionErr, SelectStr(Selection + 1, SelectionTxt));
+            Error(SelectionErr, Format(Selection));
     end;
 
     local procedure Profit37SelectionOnValidate()
     begin
         if not Selection2Enable then
-            Error(SelectionErr, SelectStr(Selection + 1, SelectionTxt));
+            Error(SelectionErr, Format(Selection));
     end;
 
     local procedure IndirectCost37SelectionOnValid()
     begin
         if not Selection3Enable then
-            Error(SelectionErr, SelectStr(Selection + 1, SelectionTxt));
+            Error(SelectionErr, Format(Selection));
     end;
 
     local procedure SkipNoneExistingItem(ItemNo: Code[20])
@@ -303,6 +304,16 @@ report 794 "Adjust Item Costs/Prices"
             if FilteredItem.IsEmpty() then
                 CurrReport.Skip();
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnSetOldFieldOnCaseElse(var Item: Record Item; Selection: Enum ItemCostPriceFieldOption; var OldFieldValue: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnValidateFieldOnCaseElse(var Item: Record Item; Selection: Enum ItemCostPriceFieldOption; var NewFieldValue: Decimal)
+    begin
     end;
 }
 

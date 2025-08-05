@@ -5786,6 +5786,59 @@ codeunit 134902 "ERM Account Schedule"
         // [THEN] Account schedule report inherits negative amount format as parentheses
     end;
 
+    [Test]
+    procedure AccScheduleWithTotalingTypeAccountCategory()
+    var
+        ParentGLAccCat: Record "G/L Account Category";
+        ChildGLAccCat: Record "G/L Account Category";
+        GLAccount: Record "G/L Account";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        Amount: Decimal;
+        FinancialReports: TestPage "Financial Reports";
+        AccountScheduleOverview: TestPage "Acc. Schedule Overview";
+        ChartOfAccounts: TestPage "Chart of Accounts (G/L)";
+    begin
+        // [SCENARIO] Completing a drill-down on Financial Reports Overview calculated value that's derived using an Analysis View and an Account Category for Totaling Type on the Row Definition does not filter the accounts presented on the page.
+
+        // [GIVEN] An account category
+        ParentGLAccCat.Init();
+        ParentGLAccCat."Entry No." := 0;
+        ParentGLAccCat."System Generated" := false;
+        ParentGLAccCat.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(ParentGLAccCat.Description)));
+        ParentGLAccCat.Insert();
+
+        // [GIVEN] A subcategory of that category
+        ChildGLAccCat.Init();
+        ChildGLAccCat."Entry No." := 0;
+        ChildGLAccCat."System Generated" := false;
+        ChildGLAccCat."Parent Entry No." := ParentGLAccCat."Entry No.";
+        ChildGLAccCat.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(ChildGLAccCat.Description)));
+        ChildGLAccCat.Insert();
+
+        // [GIVEN] A G/L entry belonging to the child category
+        MockGLAccountWithGLEntries(GLAccount, Amount);
+        GLAccount.Validate("Income/Balance", ChildGLAccCat."Income/Balance");
+        GLAccount.Validate("Account Subcategory Entry No.", ChildGLAccCat."Entry No.");
+        GLAccount.Modify(true);
+
+        // [GIVEN] A Acc Sched Line with totaling type "account category" and totaling these two categories
+        CreateAccountScheduleAndLineWithoutFormula(AccScheduleLine, Format(ParentGLAccCat."Entry No.") + '|' + Format(ChildGLAccCat."Entry No."));
+
+        // [WHEN] Visiting the account schedule page
+        AccountScheduleOverview.OpenView();
+
+        // [THEN] We should be able to open this line
+        FinancialReports.OpenEdit();
+        FinancialReports.Filter.SetFilter(Name, AccScheduleLine."Schedule Name");
+        AccountScheduleOverview.Trap();
+        FinancialReports.Overview.Invoke();
+        AccountScheduleOverview.DateFilter.SetValue(WorkDate());
+
+        // [THEN] We should be able to do a drilldown
+        ChartOfAccounts.Trap();
+        AccountScheduleOverview.ColumnValues1.Drilldown();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AccountScheduleSetNegativeFormatRequestHandler(var AccountSchedule: TestRequestPage "Account Schedule")
