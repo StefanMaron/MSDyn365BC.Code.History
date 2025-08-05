@@ -286,6 +286,8 @@ codeunit 5821 "Cost Adjustment Subscribers"
             TempCostAdjustmentDetailedLog.Modify();
         end else begin
             TempCostAdjustmentDetailedLog."Starting Date-Time" := CurrentDateTime();
+            TempCostAdjustmentDetailedLog."Ending Date-Time" := 0DT;
+            TempCostAdjustmentDetailedLog.Duration := 0;
             TempCostAdjustmentDetailedLog."Interim Date-Time" := TempCostAdjustmentDetailedLog."Starting Date-Time";
             TempCostAdjustmentDetailedLog.Insert();
         end;
@@ -461,22 +463,6 @@ codeunit 5821 "Cost Adjustment Subscribers"
     end;
 
     /// <summary>
-    /// Logs the event of assessing if a value entry should be excluded from the average cost calculation of the current outbound entry.
-    /// </summary>
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Adjustment", OnExcludeAvgCostOnValuationDate, '', false, false)]
-    local procedure OnExcludeAvgCostOnValuationDate(var ExcludedValueEntry: Record "Value Entry")
-    var
-        CustomDimensions: Dictionary of [Text, Text];
-    begin
-        if not Trace then
-            exit;
-
-        LogAppend(
-          'OnExcludeAvgCostOnValuationDate', ItemCostSourceRecipient::Recipient, Database::"Value Entry", ExcludedValueEntry."Item Ledger Entry No.",
-          ExcludedValueEntry."Item No.", ExcludedValueEntry."Location Code", ExcludedValueEntry."Variant Code", ExcludedValueEntry."Valuation Date", ExcludedValueEntry."Posting Date", CustomDimensions);
-    end;
-
-    /// <summary>
     /// Logs the event of beginning iterating over the outbound average entries.
     /// </summary>
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Adjustment", OnBeforeIteratingOverOutbndAvgEntries, '', false, false)]
@@ -542,6 +528,19 @@ codeunit 5821 "Cost Adjustment Subscribers"
         LogAppend(
           'OnBeforeIsExcludeFromAvgCostForRevalPoint', ItemCostSourceRecipient::" ", Database::Integer, 0,
           RevaluationCheckValueEntry."Item No.", RevaluationCheckValueEntry."Location Code", RevaluationCheckValueEntry."Variant Code", 0D, 0D, CustomDimensions);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Adjustment", OnAdjustOutbndAvgEntryOnBeforeForwardAvgCostToInbndEntries, '', false, false)]
+    local procedure OnAdjustOutbndAvgEntryOnBeforeForwardAvgCostToInbndEntries(var OutbndItemLedgEntry: Record "Item Ledger Entry")
+    var
+        CustomDimensions: Dictionary of [Text, Text];
+    begin
+        if not Trace then
+            exit;
+
+        LogAppend(
+          'OnAdjustOutbndAvgEntryOnBeforeForwardAvgCostToInbndEntries', ItemCostSourceRecipient::Recipient, Database::"Item Ledger Entry", OutbndItemLedgEntry."Entry No.",
+          OutbndItemLedgEntry."Item No.", OutbndItemLedgEntry."Location Code", OutbndItemLedgEntry."Variant Code", 0D, OutbndItemLedgEntry."Posting Date", CustomDimensions);
     end;
 
     local procedure ClearTraceLog()

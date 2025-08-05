@@ -15,6 +15,7 @@ table 5221 "Employee Posting Group"
         field(1; "Code"; Code[20])
         {
             Caption = 'Code';
+            NotBlank = true;
         }
         field(2; "Payables Account"; Code[20])
         {

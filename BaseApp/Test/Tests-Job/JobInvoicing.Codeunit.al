@@ -4082,6 +4082,50 @@ codeunit 136306 "Job Invoicing"
         Assert.IsFalse(JobPlanningLine."System-Created Entry", StrSubstNo(SystemCreatedEntryErr, JobPlanningLine."System-Created Entry"));
     end;
 
+    [Test]
+    procedure PostPurchaseCreditMemoWithNonInventoryItemLinkedToProject()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        Vendor: Record Vendor;
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 580434] Error when posting a Purchase Credit Memo for 'Non-Inventory' item with Project No. selected
+        Initialize();
+
+        // [GIVEN] Create Non-Inventory Item
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+
+        // [GIVEN] Create Job with Customer
+        CreateJobWithCustomer(Job);
+
+        // [GIVEN] Create Job Task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Purchase Credit Memo
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+
+        // [GIVEN] Set Job No., Job Task No. and Job Line Type as Billable
+        PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::Billable);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Credit Memo
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] No error should come, as posting for Non-Inventory Item.
+        PurchCrMemoHdr.Get(DocumentNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
