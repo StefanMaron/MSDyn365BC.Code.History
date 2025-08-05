@@ -2303,7 +2303,22 @@ table 18 Customer
     begin
         Clear(PrimaryContact);
         if Customer.Get(CustomerNo) then
-            if PrimaryContact.Get(Customer."Primary Contact No.") then;
+            if not PrimaryContact.Get(Customer."Primary Contact No.") then
+                GetContact(CustomerNo, PrimaryContact);
+    end;
+
+    local procedure GetContact(CustomerNo: Code[20]; var PrimaryContact: Record Contact)
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        ContactBusinessRelation.SetCurrentKey("Link to Table", "No.");
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.SetRange("No.", CustomerNo);
+        if ContactBusinessRelation.FindSet() then
+            repeat
+                if PrimaryContact.Get(ContactBusinessRelation."Contact No.") then
+                    exit;
+            until ContactBusinessRelation.Next() = 0;
     end;
 
     local procedure GetCustomerPriceGroupPriceCalcMethod(): Enum "Price Calculation Method";

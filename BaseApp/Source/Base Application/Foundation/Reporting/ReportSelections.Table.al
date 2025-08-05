@@ -582,8 +582,11 @@ table 77 "Report Selections"
 
                 IsHandled := false;
                 OnBeforePrintDocument(TempReportSelections, IsGUI, RecVarToPrint, IsHandled);
-                if not IsHandled then
+                if not IsHandled then begin
+                    if IsGUI then
+                        Commit();
                     REPORT.RunModal(TempReportSelections."Report ID", IsGUI, false, RecVarToPrint);
+                end;
 
                 OnAfterPrintDocument(TempReportSelections, IsGUI, RecVarToPrint, IsHandled);
 

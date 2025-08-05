@@ -1334,6 +1334,18 @@ codeunit 137099 "SCM Kitting Reservation"
         VerifyAssemblyOrderItemTracking(AssemblyHeader."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ReservationPageHandler,ItemTrackingSummaryPageHandler')]
+    [Scope('OnPrem')]
+    procedure ExpirationDateDisappearsFromItemTrackingLineAfterAddingOrModifyingThePromisedDeliveryDate()
+    begin
+        // [SCENARIO 580018] Expiration date disappears from item tracking lines after adding / modifying the "Promised Delivery date"
+        Initialize();
+
+        // [GIVEN] Create Assembly and Sales Order and check Expiration Date not chnaged
+        CreateAssemblyOrderAndSalesOrderWithLot();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2299,6 +2311,40 @@ codeunit 137099 "SCM Kitting Reservation"
         AssemblyOrder.OpenEdit();
         AssemblyOrder.FILTER.SetFilter("No.", AssemblyOrderNo);
         AssemblyOrder."Item Tracking Lines".Invoke();
+    end;
+
+    local procedure CreateAssemblyOrderAndSalesOrderWithLot()
+    var
+        ReservationEntry: Record "Reservation Entry";
+        AssemblyHeader: Record "Assembly Header";
+        SalesHeader: Record "Sales Header";
+        LotNo: Code[50];
+        OldStockOutWarning: Boolean;
+    begin
+        // Update Stock Out Warning on Assembly Setup. Create Assembly Order with Tracking. Create and Post Item Journal Line.
+        OldStockOutWarning := UpdateStockOutWarningOnAssemblySetup(false);
+
+        // [GIVEN] Create Assembly Order with Tracking and Post Item Journal
+        CreateAssemblyOrderWithLotItemTracking(AssemblyHeader, true);
+        LotNo := CreateAndPostItemJournalLine(AssemblyHeader."Item No.", AssemblyHeader.Quantity, true);  // Use Tracking as TRUE.
+
+        // [GIVEN] Create sales Order with Tracking and update Expiration Date
+        CreateSalesOrderWithReservationAndLotTracking(SalesHeader, AssemblyHeader);
+        ReservationEntry.SetRange("Item No.", AssemblyHeader."Item No.");
+        if ReservationEntry.FindSet() then
+            repeat
+                ReservationEntry."Expiration Date" := WorkDate();
+                ReservationEntry.Modify();
+            until ReservationEntry.Next() = 0;
+        UpdateStockOutWarningOnAssemblySetup(OldStockOutWarning);
+
+        //[WHEN] Update Expiration Date on Sales Header
+        SalesHeader."Promised Delivery Date" := 20270129D;
+        SalesHeader.Modify();
+
+        //[THEN] Check Expiration Date must not be blank.
+        ReservationEntry.SetRange("Item No.", AssemblyHeader."Item No.");
+        Assert.AreEqual(WorkDate(), ReservationEntry."Expiration Date", '');
     end;
 
     [ConfirmHandler]

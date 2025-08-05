@@ -2,20 +2,20 @@
   "id": "1fb2e583-f2c3-4484-a8d4-387e3adce46d",
   "name": "Tests-Bank",
   "publisher": "Microsoft",
-  "version": "26.3.36158.36321",
+  "version": "26.4.37194.37206",
   "platform": "26.0.0.0",
   "dependencies": [
     {
       "id": "5d86850b-0d76-4eca-bd7b-951ad998e997",
       "name": "Tests-TestLibraries",
       "publisher": "Microsoft",
-      "version": "26.3.0.0"
+      "version": "26.4.0.0"
     },
     {
       "id": "5095f467-0a01-4b99-99d1-9ff1237d286f",
       "publisher": "Microsoft",
       "name": "Library Variable Storage",
-      "version": "26.3.0.0"
+      "version": "26.4.0.0"
     }
   ],
   "target": "OnPrem",
@@ -24,6 +24,6 @@
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "application": "26.3.0.0",
+  "application": "26.4.0.0",
   "brief": "Tests-Bank (W1)"
 }

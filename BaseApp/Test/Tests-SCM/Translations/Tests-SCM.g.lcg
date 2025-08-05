@@ -626,6 +626,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Bugfixes - NamedType ReservEntryNotDeletedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2956518560 - NamedType 1907029354" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The change will not affect existing entries]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Bugfixes - NamedType TrackingMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2956518560 - NamedType 446952341" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You can use In-Transit location %1 for transfer orders only.]]></Val>
@@ -6746,6 +6755,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Shipment Date, %2 = Shipment Date value, %3 = Work Date value]D;]A;(LookupHint=Codeunit SCM Orders IV - NamedType ShipmentDateBeforeWorkDateMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1204784329 - NamedType 3189634262" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Ship-to Address on Return Order should be company address]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Orders IV - NamedType ShipToAddressErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1204784329 - NamedType 2751571763" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Starting Date cannot be after Ending Date]]></Val>
@@ -9014,6 +9032,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation II - NamedType ProductionOrderCreatedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1720286327 - NamedType 1473162410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity must be equal to %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Quantity]D;]A;(LookupHint=Codeunit SCM Reservation II - NamedType QuantityErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1720286327 - NamedType 2791695496" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Would you like to run the low-level code calculation as a background job?]]></Val>
@@ -9372,6 +9399,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation V - NamedType WrongQuantityErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1767918677 - NamedType 917089156" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You have changed Location Code on the sales header, but it has not been changed on the existing sales lines.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation Worksheet - NamedType ChangeLocationMessage)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1767918677 - NamedType 2987122714" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

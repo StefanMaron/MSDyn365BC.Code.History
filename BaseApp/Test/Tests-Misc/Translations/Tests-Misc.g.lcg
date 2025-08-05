@@ -7664,6 +7664,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Factboxes Test - NamedType TestSecurityGroupNameTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 436666293 - NamedType 304908537" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Contact No. should not be empty]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT Customer Table - NamedType ContactNoShouldNotBeEmpty)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 436666293 - NamedType 2103980160" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This customer is not registered. To continue, choose one of the following options:]]></Val>

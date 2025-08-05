@@ -34,6 +34,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         UnitPriceIsChangedErr: Label 'Unit Price is changed on Quantity update.';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
         TotalRecordCountErr: Label 'Total record count must be equal to %1', Comment = '%1 = Record Count.';
+        SalesOrderLineMustBeFoundErr: Label 'Sales Order Line must be found.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1413,6 +1414,140 @@ codeunit 134377 "ERM Sales Blanket Order"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    [Test]
+    procedure ExtendedTextOfItemHavingQtyToShipInBlanketSOIsPopulatedToSOWhenRunMakeOrder()
+    var
+        Customer: Record Customer;
+        Item: array[2] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[6] of Record "Sales Line";
+        SalesOrderLine: array[6] of Record "Sales Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        OrderNo: array[2] of Code[20];
+        NoOfRecords: Integer;
+    begin
+        // [SCENARIO 578066] Extended Texts of Item [2] are populated to Sales Order 
+        // from Blanket Sales Order when Stan runs Make Order action second time from 
+        // the same Blanket Sales Order having Item [1] also.
+        Initialize();
+
+        // [GIVEN] Create two Items with two Extended Texts for each.
+        CreateItemWithTwoExtendedTexts(Item[1]);
+        CreateItemWithTwoExtendedTexts(Item[2]);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Blanket Sales Order.
+        CreateBlanketSalesOrder(Customer, Item[1], Item[2]);
+
+        // [GIVEN] Find Sales Line [1].
+        SalesLine[1].SetRange("No.", Item[1]."No.");
+        SalesLine[1].FindFirst();
+
+        // [GIVEN] Validate "Qty. to Ship" in Sales Line [1].
+        SalesLine[1].Validate("Qty. to Ship", LibraryRandom.RandIntInRange(3, 3));
+        SalesLine[1].Modify(true);
+
+        // [GIVEN] Find Sales Line [2].
+        SalesLine[2].SetRange("No.", Item[2]."No.");
+        SalesLine[2].FindFirst();
+
+        // [GIVEN] Validate "Qty. to Ship" in Sales Line [2].
+        SalesLine[2].Validate("Qty. to Ship", 0);
+        SalesLine[2].Modify(true);
+
+        // [GIVEN] Find Sales Header.
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Blanket Order");
+        SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesHeader.FindFirst();
+
+        // [GIVEN] Run Make Order for Blanket Sales Order.
+        OrderNo[1] := LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
+
+        // [GIVEN] Find Sales Line [3].
+        SalesLine[3].SetRange("Document Type", SalesLine[3]."Document Type"::"Blanket Order");
+        SalesLine[3].SetRange("Document No.", SalesLine[1]."Document No.");
+        SalesLine[3].SetRange("Attached to Line No.", SalesLine[1]."Line No.");
+        SalesLine[3].FindFirst();
+
+        // [WHEN] Find Sales Order Line [1].
+        SalesOrderLine[1].SetRange("Document Type", SalesOrderLine[1]."Document Type"::Order);
+        SalesOrderLine[1].SetRange("Document No.", OrderNo[1]);
+        SalesOrderLine[1].SetRange(Description, SalesLine[3].Description);
+
+        // [THEN] Sales Order Line [1] is found.
+        Assert.IsFalse(SalesOrderLine[1].IsEmpty(), SalesOrderLineMustBeFoundErr);
+
+        // [GIVEN] Find Sales Line [4].
+        SalesLine[4].SetRange("Document Type", SalesLine[4]."Document Type"::"Blanket Order");
+        SalesLine[4].SetRange("Document No.", SalesLine[1]."Document No.");
+        SalesLine[4].SetRange("Attached to Line No.", SalesLine[1]."Line No.");
+        SalesLine[4].FindLast();
+
+        // [WHEN] Find Sales Order Line [2].
+        SalesOrderLine[2].SetRange("Document Type", SalesOrderLine[2]."Document Type"::Order);
+        SalesOrderLine[2].SetRange("Document No.", OrderNo[1]);
+        SalesOrderLine[2].SetRange(Description, SalesLine[4].Description);
+
+        // [THEN] Sales Order Line [2] is found.
+        Assert.IsFalse(SalesOrderLine[2].IsEmpty(), SalesOrderLineMustBeFoundErr);
+
+        // [GIVEN] Validate "Qty. to Ship" in Sales Line [2].
+        SalesLine[2].Validate("Qty. to Ship", LibraryRandom.RandIntInRange(4, 4));
+        SalesLine[2].Modify(true);
+
+        // [GIVEN] Run Make Order for Blanket Sales Order.
+        OrderNo[2] := LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
+
+        // [GIVEN] Find Sales Line [5].
+        SalesLine[5].SetRange("Document Type", SalesLine[5]."Document Type"::"Blanket Order");
+        SalesLine[5].SetRange("Document No.", SalesLine[2]."Document No.");
+        SalesLine[5].SetRange("Attached to Line No.", SalesLine[2]."Line No.");
+        SalesLine[5].FindFirst();
+
+        // [WHEN] Find Sales Order Line [3].
+        SalesOrderLine[3].SetRange("Document Type", SalesOrderLine[3]."Document Type"::Order);
+        SalesOrderLine[3].SetRange("Document No.", OrderNo[2]);
+        SalesOrderLine[3].SetRange(Description, SalesLine[5].Description);
+
+        // [THEN] Sales Order Line [3] is found.
+        Assert.IsFalse(SalesOrderLine[3].IsEmpty(), SalesOrderLineMustBeFoundErr);
+
+        // [GIVEN] Find Sales Line [6].
+        SalesLine[6].SetRange("Document Type", SalesLine[6]."Document Type"::"Blanket Order");
+        SalesLine[6].SetRange("Document No.", SalesLine[2]."Document No.");
+        SalesLine[6].SetRange("Attached to Line No.", SalesLine[2]."Line No.");
+        SalesLine[6].FindLast();
+
+        // [WHEN] Find Sales Order Line [4].
+        SalesOrderLine[4].SetRange("Document Type", SalesOrderLine[4]."Document Type"::Order);
+        SalesOrderLine[4].SetRange("Document No.", OrderNo[2]);
+        SalesOrderLine[4].SetRange(Description, SalesLine[6].Description);
+
+        // [THEN] Sales Order Line [4] is found.
+        Assert.IsFalse(SalesOrderLine[4].IsEmpty(), SalesOrderLineMustBeFoundErr);
+
+        // [GIVEN] Generate and save No of Records in a Variable.
+        NoOfRecords := LibraryRandom.RandIntInRange(3, 3);
+
+        // [WHEN] Find Sales Order Line [5].
+        SalesOrderLine[5].SetRange("Document Type", SalesOrderLine[5]."Document Type"::Order);
+        SalesOrderLine[5].SetRange("Document No.", OrderNo[1]);
+
+        // [THEN] Count of Sales Order Line [5] is equal to NoOfRecords.
+        Assert.IsTrue(SalesOrderLine[5].Count() = NoOfRecords, '');
+
+        // [WHEN] Find Sales Order Line [6].
+        SalesOrderLine[6].SetRange("Document Type", SalesOrderLine[6]."Document Type"::Order);
+        SalesOrderLine[6].SetRange("Document No.", OrderNo[2]);
+
+        // [THEN] Count of Sales Order Line [6] is equal to NoOfRecords.
+        Assert.IsTrue(SalesOrderLine[6].Count() = NoOfRecords, '');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -1805,6 +1940,47 @@ codeunit 134377 "ERM Sales Blanket Order"
         BlanketSalesLine.SetRange("Document No.", BlanketSalesOrder."No.");
 
         exit(BlanketSalesLine.Count);
+    end;
+
+    local procedure CreateBlanketSalesOrder(Customer: Record Customer; Item: Record Item; Item2: Record Item)
+    var
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+    begin
+        BlanketSalesOrder.OpenNew();
+        BlanketSalesOrder."Sell-to Customer No.".SetValue(Customer."No.");
+        BlanketSalesOrder.SalesLines.First();
+        BlanketSalesOrder.SalesLines.Type.SetValue("Sales Line Type"::Item);
+        BlanketSalesOrder.SalesLines."No.".SetValue(Item."No.");
+        BlanketSalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(3, 3));
+        Commit();
+        BlanketSalesOrder.SalesLines.Next();
+        BlanketSalesOrder.SalesLines.Next();
+        BlanketSalesOrder.SalesLines.Next();
+        BlanketSalesOrder.SalesLines.Type.SetValue("Sales Line Type"::Item);
+        BlanketSalesOrder.SalesLines."No.".SetValue(Item2."No.");
+        BlanketSalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(4, 4));
+        Commit();
+        BlanketSalesOrder.SalesLines.Next();
+        BlanketSalesOrder.Close();
+    end;
+
+    local procedure CreateItemWithTwoExtendedTexts(var Item: Record Item)
+    var
+        ExtendedTextHeader: Record "Extended Text Header";
+        ExtendedTextLine: array[2] of Record "Extended Text Line";
+    begin
+        Item.Get(CreateItem());
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+
+        LibraryInventory.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine[1], ExtendedTextHeader);
+        ExtendedTextLine[1].Validate(Text, LibraryUtility.GenerateRandomText(MaxStrLen(Item."No.")));
+        ExtendedTextLine[1].Modify(true);
+
+        LibraryInventory.CreateExtendedTextLineItem(ExtendedTextLine[2], ExtendedTextHeader);
+        ExtendedTextLine[2].Validate(Text, LibraryUtility.GenerateRandomText(MaxStrLen(Item."No.")));
+        ExtendedTextLine[2].Modify(true);
     end;
 
     [MessageHandler]

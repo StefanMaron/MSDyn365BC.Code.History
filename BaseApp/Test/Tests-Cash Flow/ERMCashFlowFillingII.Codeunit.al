@@ -35,6 +35,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         DescriptionTxt: Label 'Taxes from VAT Entries';
         AmountZeroErr: Label 'Amount must be zero.';
         TaxAmountErr: Label 'Tax Amount must be equal.';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Caption , %2 = Expected Value , %3 = Table Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -2170,6 +2171,58 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         VerifyTaxEntries(CashFlowForecast."No.", Customer."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestWorksheetLinesProjectsPageHandler')]
+    procedure VerifyCFWorksheetLinesCannotBeCreatedIfCFAccountNumberNotExist()
+    var
+        CashFlowAccount: Record "Cash Flow Account";
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CashFlowSetup: Record "Cash Flow Setup";
+        CashFlowWorksheetLine: Record "Cash Flow Worksheet Line";
+        CashFlowWorksheet: TestPage "Cash Flow Worksheet";
+    begin
+        // [SCENARIO 591567] Verify Cash Flow Worksheet Lines cannot be created if the Cash Flow Account Number does not exist in the Chart of Cash Flow Accounts.
+        Initialize();
+
+        // [GIVEN] Create Cash Flow Chart of Account.
+        CreateCashFlowChartOfAccount(CashFlowAccount);
+
+        // [GIVEN] Create Cash Flow Forecast.
+        LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
+
+        // [GIVEN] Set the 'Job CF Account No.' field value in the Cash Flow Setup.
+        CashFlowSetup.Get();
+        UpdateCashFlowSetup(CashFlowSetup, CashFlowAccount."No.");
+
+        // [GIEVN] Open Cash Flow Worksheet.
+        OpenCashFlowWorkSheet(CashFlowWorksheet, CashFlowForecast."No.");
+
+        // [WHEN] 'Suggest Worksheet Lines' action was invoked from the Cash Flow Worksheet.
+        CashFlowWorksheet.SuggestWorksheetLines.Invoke();
+        CashFlowWorksheet.Close();
+
+        // [THEN] Verify that Cash Flow Worksheet lines have been created and that the new Cash Flow Account No. exists.
+        CashFlowWorksheetLine.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
+        CashFlowWorksheetLine.SetRange("Cash Flow Account No.", CashFlowAccount."No.");
+        CashFlowWorksheetLine.FindFirst();
+        Assert.AreEqual(
+            CashFlowAccount."No.", CashFlowWorksheetLine."Cash Flow Account No.",
+            StrSubstNo(
+               ValueMustBeEqualErr, CashFlowWorksheetLine."Cash Flow Account No.",
+               CashFlowAccount."No.", CashFlowWorksheetLine.TableCaption()));
+
+        // [GIVEN] Delete the Cash Flow Account.
+        CashFlowAccount.Delete(true);
+
+        // [GIEVN] Open Cash Flow Worksheet.
+        OpenCashFlowWorkSheet(CashFlowWorksheet, CashFlowForecast."No.");
+
+        // [WHEN] 'Suggest Worksheet Lines' action was invoked from the Cash Flow Worksheet.
+        // [THEN] An error occurs because the Cash Flow Account does not exist in the Cash Flow Account table.
+        asserterror CashFlowWorksheet.SuggestWorksheetLines.Invoke();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2703,6 +2756,26 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Assert.AreEqual(VatEntry.Amount, CashFlowWorksheetLine."Amount (LCY)", TaxAmountErr);
     end;
 
+    local procedure CreateCashFlowChartOfAccount(var CashFlowAccount: Record "Cash Flow Account")
+    begin
+        LibraryCashFlowForecast.CreateCashFlowAccount(CashFlowAccount, CashFlowAccount."Account Type"::Entry);
+        CashFlowAccount.Validate("Source Type", CashFlowAccount."Source Type"::Job);
+        CashFlowAccount.Modify(true);
+    end;
+
+    local procedure UpdateCashFlowSetup(var CashFlowSetup: Record "Cash Flow Setup"; CashFlowAccNo: Code[20])
+    begin
+        CashFlowSetup.Validate("Job CF Account No.", CashFlowAccNo);
+        CashFlowSetup.Modify(true);
+    end;
+
+    local procedure OpenCashFlowWorkSheet(var CashFlowWorksheet: TestPage "Cash Flow Worksheet"; CashFlowForecastNo: Code[20])
+    begin
+        LibraryVariableStorage.Enqueue(CashFlowForecastNo);  // Enqueue SuggestWorksheetLinesReqPageHandler.
+        CashFlowWorksheet.OpenEdit();
+        Commit();  // Commit Required for Report.Run
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure AccountScheduleOverviewPageHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
@@ -2875,6 +2948,30 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         PurchaseOrderList.Next();
         PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
         PurchaseOrderList.Close();
+    end;
+
+    [RequestPageHandler]
+    procedure SuggestWorksheetLinesProjectsPageHandler(var SuggestWorksheetLines: TestRequestPage "Suggest Worksheet Lines")
+    var
+        CashFlowAccountNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(CashFlowAccountNo);
+        SuggestWorksheetLines.CashFlowNo.SetValue(CashFlowAccountNo);
+        SuggestWorksheetLines."ConsiderSource[SourceType::Job]".SetValue(true);  // Jobs/Projects
+
+        SuggestWorksheetLines."ConsiderSource[SourceType::Tax]".SetValue(false);  // Tax
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Liquid Funds""]".SetValue(false);  // Liquid Funds
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Service Orders""]".SetValue(false);
+        SuggestWorksheetLines."ConsiderSource[SourceType::Receivables]".SetValue(false);  // Receivables.
+        SuggestWorksheetLines."ConsiderSource[SourceType::Payables]".SetValue(false);  // Payables.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Purchase Order""]".SetValue(false);  // Purchase Order.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Cash Flow Manual Revenue""]".SetValue(false);  // Cash Flow Manual Revenue.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Sales Order""]".SetValue(false);  // Sales Order.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Budgeted Fixed Asset""]".SetValue(false);  // Budgeted Fixed Asset.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Cash Flow Manual Expense""]".SetValue(false);  // Cash Flow Manual Expense.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Sale of Fixed Asset""]".SetValue(false);  // Sale of Fixed Asset.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""G/L Budget""]".SetValue(false);  // G/L Budget.
+        SuggestWorksheetLines.OK().Invoke();
     end;
 }
 
