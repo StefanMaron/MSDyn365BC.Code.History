@@ -9,9 +9,13 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
     end;
 
     var
-        LibraryUTUtility: Codeunit "Library UT Utility";
+        Assert: Codeunit Assert;
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Caption , %2 = Expected Value , %3 = Table Caption';
 
     [Test]
     [HandlerFunctions('PhysInvtRecordingRequestPageHandler')]
@@ -125,6 +129,70 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
         until PstdPhysInvtRecordHdr.Next() = 0;
     end;
 
+    [Test]
+    [HandlerFunctions('MakePhysInvtRecordingRequestPageHandler,MessageHandler')]
+    procedure PhysInvtRecordingNotThrowAnyErrorWhenImportingTxtFile()
+    var
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        FileManagement: Codeunit "File Management";
+        PhysInventoryRecording: TestPage "Phys. Inventory Recording";
+        InitialQty, FinalQty : Decimal;
+        ServerFileName: text;
+    begin
+        // [SCENARIO 579922] Verify that the Physical Inventory Recording does not produce any errors when importing a .txt file
+        Initialize();
+
+        // [GIVEN] Create physical inventory order.
+        CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine);
+        LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");
+
+        // [GIVEN] Create a physical inventory record header via MakeNewRecordingAction from the physical inventory order page.
+        PhysInvtRecordHeader := CreatePhysInvtRecordHeader(PhysInvtOrderHeader);
+
+        // [GIEVN] Open the physical inventory recording order page and set the value.
+        OpenPhysInvRecoringOrderPage(PhysInventoryRecording, PhysInvtRecordHeader);
+
+        // [GIVEN] Set the quantity in the physical inventory recording line.
+        InitialQty := LibraryRandom.RandIntInRange(10, 20);
+        PhysInventoryRecording.Lines.First();
+        PhysInventoryRecording.Lines.Quantity.SetValue(InitialQty);
+        PhysInventoryRecording.Close();
+
+        // [GIVEN] Export the physical inventory recording.
+        ServerFileName := FileManagement.ServerTempFileName('.txt');
+        ExportPhyInvtRecording(ServerFileName, PhysInvtRecordHeader);
+
+        // [WHEN] After exporting, change the quantity in the physical inventory recording line.
+        FinalQty := InitialQty + LibraryRandom.RandIntInRange(1, 10);
+        PhysInventoryRecording.OpenEdit();
+        PhysInventoryRecording.GoToRecord(PhysInvtRecordHeader);
+        PhysInventoryRecording.Lines.First();
+        PhysInventoryRecording.Lines.Quantity.SetValue(FinalQty);
+        PhysInventoryRecording.Lines.Recorded.SetValue(false);
+        PhysInventoryRecording.Close();
+
+        // [THEN] Verify that the file was imported successfully.
+        ImportPhyInvRecording(ServerFileName, PhysInvtRecordHeader);
+
+        // [WHEN] Find the physical inventory recording line.
+        PhysInvtRecordLine.SetRange("Order No.", PhysInvtRecordHeader."Order No.");
+        PhysInvtRecordLine.SetRange("Recording No.", PhysInvtRecordHeader."Recording No.");
+        PhysInvtRecordLine.FindFirst();
+
+        // [THEN] After importing, verify that the quantity has also changed in the physical inventory recording line.
+        Assert.AreEqual(
+           InitialQty, PhysInvtRecordLine.Quantity,
+           StrSubstNo(
+               ValueMustBeEqualErr,
+               PhysInvtRecordLine.FieldCaption(Quantity),
+               InitialQty,
+               PhysInvtRecordLine.TableCaption()));
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -150,6 +218,78 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
         PstdPhysInvtRecordHdr."Recording No." := 1;
         PstdPhysInvtRecordHdr.Description := 'Description';
         PstdPhysInvtRecordHdr.Insert();
+    end;
+
+    local procedure CreatePhysInventoryOrder(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode();
+        PhysInvtOrderHeader.Insert();
+
+        PhysInvtOrderLine."Document No." := PhysInvtOrderHeader."No.";
+        PhysInvtOrderLine."Line No." := 1;
+        PhysInvtOrderLine.Validate("Item No.", Item."No.");
+        PhysInvtOrderLine.Insert();
+    end;
+
+    local procedure CreatePhysInvtRecordHeader(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"): Record "Phys. Invt. Record Header";
+    var
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+        PhysicalInventoryOrder: TestPage "Physical Inventory Order";
+    begin
+        PhysicalInventoryOrder.OpenEdit();
+        PhysicalInventoryOrder.GoToRecord(PhysInvtOrderHeader);
+        Commit();
+        PhysicalInventoryOrder.MakeNewRecording.Invoke();
+        PhysicalInventoryOrder.Close();
+
+        PhysInvtRecordHeader.Get(PhysInvtOrderHeader."No.", 1);
+        exit(PhysInvtRecordHeader);
+    end;
+
+    local procedure OpenPhysInvRecoringOrderPage(var PhysInventoryRecording: TestPage "Phys. Inventory Recording"; PhysInvtRecordHeader: Record "Phys. Invt. Record Header")
+    var
+        Employee: Record Employee;
+    begin
+        PhysInventoryRecording.OpenEdit();
+        PhysInventoryRecording.GoToRecord(PhysInvtRecordHeader);
+        Employee.FindFirst();
+        PhysInventoryRecording."Person Recorded".SetValue(Employee."No.");
+        PhysInventoryRecording."Date Recorded".SetValue(Today());
+        PhysInventoryRecording."Time Recorded".SetValue(Time());
+    end;
+
+    local procedure ExportPhyInvtRecording(ServerFileName: Text; PhysInvtRecordHeader: Record "Phys. Invt. Record Header")
+    var
+        ExportPhysInvtRecording: XmlPort "Export Phys. Invt. Recording";
+        ExportFile: File;
+        OutStream: OutStream;
+    begin
+        ExportFile.WriteMode := true;
+        ExportFile.TextMode := true;
+        ExportFile.Create(ServerFileName);
+        ExportFile.CreateOutStream(OutStream);
+        ExportPhysInvtRecording.Set(PhysInvtRecordHeader);
+        ExportPhysInvtRecording.SetDestination(OutStream);
+        ExportPhysInvtRecording.TextEncoding(TextEncoding::UTF8);
+        ExportPhysInvtRecording.Export();
+        ExportFile.Close();
+    end;
+
+    local procedure ImportPhyInvRecording(ServerFileName: Text; PhysInvtRecordHeader: Record "Phys. Invt. Record Header")
+    var
+        ImportPhysInvtRecording: XmlPort "Import Phys. Invt. Recording";
+        ImportFile: File;
+        InStream: InStream;
+    begin
+        ImportFile.Open(ServerFileName);
+        ImportFile.CreateInStream(InStream);
+        ImportPhysInvtRecording.Set(PhysInvtRecordHeader);
+        ImportPhysInvtRecording.TextEncoding(TextEncoding::UTF8);
+        ImportPhysInvtRecording.SetSource(InStream);
+        ImportPhysInvtRecording.Import();
     end;
 
     [RequestPageHandler]
@@ -192,6 +332,21 @@ codeunit 137456 "Phys. Invt. Recording UT REP"
     procedure PostedPhysInvtRecordingWithoutFilterRequestPageHandler(var PostedPhysInvtRecording: TestRequestPage "Posted Phys. Invt. Recording")
     begin
         PostedPhysInvtRecording.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    Procedure MakePhysInvtRecordingRequestPageHandler(var MakePhysInvtRecording: TestRequestPage "Make Phys. Invt. Recording")
+    var
+        PhysInvtRecordHeaderOrderNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(PhysInvtRecordHeaderOrderNo);
+        MakePhysInvtRecording."Phys. Invt. Order Header".SetFilter("No.", PhysInvtRecordHeaderOrderNo);
+        MakePhysInvtRecording.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 }
 

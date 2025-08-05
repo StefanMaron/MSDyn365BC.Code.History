@@ -67,7 +67,7 @@ codeunit 5822 "Cost Adjustment Bucket Runner"
         CostAdjustmentParameter."Post to G/L" := CostAdjItemBucket."Post to G/L";
         CostAdjustmentParameter."Item-By-Item Commit" := false;
         if CostAdjItemBucket.Trace then
-            CostAdjustmentParameter."Max Duration" := CostAdjItemBucket."Timeout (Minutes)" * 60 * 1000 - 5000; // 5 seconds less than the timeout
+            CostAdjustmentParameter."Max Duration" := CostAdjItemBucket."Timeout (Minutes)" * 60 * 1000;
         OnAfterSetCostAdjustmentParameter(CostAdjustmentParameter);
 
         CostAdjustmentParamsMgt.SetParameters(CostAdjustmentParameter);
