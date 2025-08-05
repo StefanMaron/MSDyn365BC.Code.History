@@ -913,6 +913,39 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetHeader.TestField("Resource Name");
     end;
 
+    [Test]
+    procedure TimeSheetStatusFactboxIsNotUpdatedWhenACommentIsAdded()
+    var
+        Resource: Record Resource;
+        TimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
+        TimeSheetCard: TestPage "Time Sheet Card";
+    begin
+        // [SCENARIO 591266] Times Sheet Status Factbox Is Not Updated When A Comment Is Added
+        Initialize();
+
+        // [GIVEN] Create Resource
+        CreateTimeSheetResource(Resource, true);
+
+        // [GIVEN] Create Time Sheet
+        LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, true);
+
+        // [GIVEN] Open Time Sheet card 
+        TimeSheetCard.OpenEdit();
+        TimeSheetCard.Filter.SetFilter("No.", TimeSheetHeader."No.");
+        TimeSheetCard.TimeSheetComments.Invoke();
+        TimeSheetHeader.CalcFields(Comment);
+
+        //[WHEN] Add Comment on Time sheet Comment sheet Page
+        TimeSheetCommentSheet.OpenEdit();
+        TimeSheetCommentSheet.Filter.SetFilter("No.", TimeSheetHeader."No.");
+        TimeSheetCommentSheet.New();
+        TimeSheetCommentSheet.Comment.SetValue('Test');
+        TimeSheetCommentSheet.Close();
+
+        // [THEN] Check Comment Should be updated on the Factbox without refresh the page after adding comment
+    end;
+
     local procedure Initialize()
     var
         UserSetup: Record "User Setup";

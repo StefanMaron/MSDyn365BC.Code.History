@@ -4631,6 +4631,11 @@
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Posting Description"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("No. Series"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Transaction Specification"));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Vendor Invoice No."));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Vendor Order No."));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Vendor Cr. Memo No."));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Vendor Shipment No."));
+        FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Recalculate Invoice Disc."));
 
         OnAfterFillPurchaseHeaderExcludedFieldList(FieldListToExclude);
     end;

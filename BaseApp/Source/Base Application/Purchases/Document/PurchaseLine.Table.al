@@ -1677,7 +1677,7 @@ table 39 "Purchase Line"
                 CheckLineAmount(MaxLineAmount);
 
                 IsHandled := false;
-                OnValidateLineAmountBeforeValidateLineDiscountAmount(Rec, Currency, IsHandled);
+                OnValidateLineAmountBeforeValidateLineDiscountAmount(Rec, Currency, IsHandled, CurrFieldNo);
                 if not IsHandled then
                     Validate("Line Discount Amount", MaxLineAmount - "Line Amount");
             end;
@@ -11274,7 +11274,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLineAmountBeforeValidateLineDiscountAmount(var PurchLine: Record "Purchase Line"; Currency: Record Currency; var IsHandled: Boolean)
+    local procedure OnValidateLineAmountBeforeValidateLineDiscountAmount(var PurchLine: Record "Purchase Line"; Currency: Record Currency; var IsHandled: Boolean; CurrFieldNo: Integer)
     begin
     end;
 
