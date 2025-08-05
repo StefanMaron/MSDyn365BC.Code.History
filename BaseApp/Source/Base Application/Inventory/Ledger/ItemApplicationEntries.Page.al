@@ -92,26 +92,90 @@ page 506 "Item Application Entries"
     {
         area(Processing)
         {
-            action("Outbound Not Updated")
+            group(Edit)
             {
-                Image = ResetStatus;
-                Caption = 'Reset Outbound Entry is Updated';
-                ToolTip = 'Reset the Outbound Entry is Updated field to allow the cost adjustment routine to update the related outbound item entry.';
+                Caption = 'Edit';
 
-                trigger OnAction()
-                var
-                    ItemLedgerEntry: Record "Item Ledger Entry";
-                begin
-                    ItemLedgerEntry.Get(Rec."Inbound Item Entry No.");
-                    Rec.SetOutboundsNotUpdated(ItemLedgerEntry);
+                action("Outbound Not Updated")
+                {
+                    Image = ResetStatus;
+                    Caption = 'Reset Outbound Entry is Updated';
+                    ToolTip = 'Reset the Outbound Entry is Updated field to allow the cost adjustment routine to update the related outbound item entry.';
 
-                    CurrPage.Update(false);
-                end;
+                    trigger OnAction()
+                    var
+                        ItemLedgerEntry: Record "Item Ledger Entry";
+                    begin
+                        ItemLedgerEntry.Get(Rec."Inbound Item Entry No.");
+                        Rec.SetOutboundsNotUpdated(ItemLedgerEntry);
+
+                        CurrPage.Update(false);
+                    end;
+                }
+                action("Set/Reset Cost Application")
+                {
+                    Image = ApplyEntries;
+                    Caption = 'Set/Reset Cost Application';
+                    ToolTip = 'Set or reset the Cost Application field to indicate whether the cost of the related outbound item entry should be forwarded or simply included in an average cost calculation.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.SetCostApplication(not Rec."Cost Application");
+
+                        CurrPage.Update(false);
+                    end;
+                }
+            }
+            group(Traverse)
+            {
+                Caption = 'Traverse';
+
+                action(FilterByInbound)
+                {
+                    Caption = 'Filter by Inbound';
+                    ToolTip = 'Filter the list to show only item application entries with the current inbound item entry number.';
+                    Image = MoveDown;
+
+                    trigger OnAction()
+                    begin
+                        Rec.Reset();
+                        if Rec."Inbound Item Entry No." <> 0 then
+                            Rec.SetRange("Inbound Item Entry No.", Rec."Inbound Item Entry No.");
+                        CurrPage.Update(false);
+                    end;
+                }
+                action(FilterByOutbound)
+                {
+                    Caption = 'Filter by Outbound';
+                    ToolTip = 'Filter the list to show only item application entries with the current outbound item entry number.';
+                    Image = MoveUp;
+
+                    trigger OnAction()
+                    begin
+                        Rec.Reset();
+                        if Rec."Outbound Item Entry No." <> 0 then
+                            Rec.SetRange("Outbound Item Entry No.", Rec."Outbound Item Entry No.");
+                        CurrPage.Update(false);
+                    end;
+                }
             }
         }
         area(Promoted)
         {
-            actionref("Outbound Not Updated_Promoted"; "Outbound Not Updated") { }
+            group(Category_Category4)
+            {
+                Caption = 'Edit';
+
+                actionref("Outbound Not Updated_Promoted"; "Outbound Not Updated") { }
+                actionref("Set/Reset Cost Application_Promoted"; "Set/Reset Cost Application") { }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Traverse';
+
+                actionref(FilterByInbound_Promoted; FilterByInbound) { }
+                actionref(FilterByOutbound_Promoted; FilterByOutbound) { }
+            }
         }
     }
 }

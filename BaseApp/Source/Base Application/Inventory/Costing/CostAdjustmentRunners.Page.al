@@ -128,6 +128,21 @@ page 5811 "Cost Adjustment Runners"
 
                 RunObject = report "Adjust Cost - Item Buckets";
             }
+            action(RunForeground)
+            {
+                Caption = 'Run in Foreground';
+                ToolTip = 'Run the cost adjustment for all not started item batches in the foreground.';
+                Image = Start;
+                Enabled = not IsRunning;
+
+                trigger OnAction()
+                var
+                    AdjustCostItemBuckets: Report "Adjust Cost - Item Buckets";
+                begin
+                    AdjustCostItemBuckets.SetRunForeground(true);
+                    AdjustCostItemBuckets.Run();
+                end;
+            }
             action(Stop)
             {
                 Caption = 'Stop';
@@ -186,6 +201,7 @@ page 5811 "Cost Adjustment Runners"
             actionref("Refresh_Promoted"; Refresh) { }
             actionref("Add Missing Items_Promoted"; "Add Missing Items") { }
             actionref("Run_Promoted"; Run) { }
+            actionref("Run Foreground_Promoted"; RunForeground) { }
             actionref("Stop_Promoted"; Stop) { }
             actionref("Cancel_Promoted"; Cancel) { }
             actionref("Reset_Promoted"; Reset) { }

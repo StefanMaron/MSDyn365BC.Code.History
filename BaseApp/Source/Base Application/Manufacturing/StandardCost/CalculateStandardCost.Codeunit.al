@@ -588,7 +588,7 @@ codeunit 5812 "Calculate Standard Cost"
             if Item."Lot Size" <> 0 then
                 LotSize := Item."Lot Size";
             MfgItemQtyBase := MfgCostCalcMgt.CalcQtyAdjdForBOMScrap(LotSize, Item."Scrap %");
-            OnCalcMfgItemOnBeforeCalcRtngCost(Item, Level, LotSize, MfgItemQtyBase);
+            OnCalcMfgItemOnBeforeCalcRtngCost(Item, Level, LotSize, MfgItemQtyBase, SLCap);
             CalcRtngCost(Item."Routing No.", MfgItemQtyBase, SLCap, SLSub, SLCapOvhd, Item);
             CalcProdBOMCost(
               Item, Item."Production BOM No.", Item."Routing No.",
@@ -1423,7 +1423,7 @@ codeunit 5812 "Calculate Standard Cost"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcMfgItemOnBeforeCalcRtngCost(var Item: Record Item; Level: Integer; var LotSize: Decimal; var MfgItemQtyBase: Decimal)
+    local procedure OnCalcMfgItemOnBeforeCalcRtngCost(var Item: Record Item; Level: Integer; var LotSize: Decimal; var MfgItemQtyBase: Decimal; var SLCap: Decimal)
     begin
     end;
 

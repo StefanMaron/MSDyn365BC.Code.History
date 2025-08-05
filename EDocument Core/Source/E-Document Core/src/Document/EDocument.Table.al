@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -24,6 +24,14 @@ table 6121 "E-Document"
     LookupPageId = "E-Documents";
     DrillDownPageId = "E-Documents";
     DataClassification = CustomerContent;
+
+    Permissions =
+        tabledata "E-Document" = i,
+        tabledata "E-Document Service Status" = d,
+        tabledata "E-Document Log" = d,
+        tabledata "E-Document Integration Log" = d,
+        tabledata "E-Doc. Mapping Log" = d;
+
 
     fields
     {
@@ -316,11 +324,8 @@ table 6121 "E-Document"
     /// <summary>
     /// Inserts a new E-Document record with the specified parameters.
     /// </summary>
-    internal procedure Create(
-        EDocumentDirection: Enum "E-Document Direction";
-                                EDocumentType: Enum "E-Document Type";
-                                EDocumentService: Record "E-Document Service"
-    )
+    [InherentPermissions(PermissionObjectType::TableData, Database::"E-Document", 'i')]
+    internal procedure Create(EDocumentDirection: Enum "E-Document Direction"; EDocumentType: Enum "E-Document Type"; EDocumentService: Record "E-Document Service")
     begin
         Rec."Entry No" := 0;
         Rec.Direction := EDocumentDirection;
@@ -333,7 +338,6 @@ table 6121 "E-Document"
     internal procedure IsDuplicate(ShowMessage: Boolean): Boolean
     var
         EDocument: Record "E-Document";
-
     begin
         EDocument.ReadIsolation := EDocument.ReadIsolation::ReadUncommitted;
         EDocument.SetRange("Incoming E-Document No.", Rec."Incoming E-Document No.");
@@ -478,6 +482,7 @@ table 6121 "E-Document"
     begin
         exit(GetEDocumentServiceStatus()."Import Processing Status");
     end;
+
     internal procedure ToString(): Text
     begin
         exit(StrSubstNo(ToStringLbl, SystemId, "Document Record ID", "Workflow Step Instance ID", "Job Queue Entry ID"));

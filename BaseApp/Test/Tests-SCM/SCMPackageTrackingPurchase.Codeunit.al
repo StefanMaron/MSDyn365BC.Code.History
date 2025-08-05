@@ -778,6 +778,8 @@ codeunit 137265 "SCM Package Tracking Purchase"
         CopyPurchaseDocument.Run();
 
         PurchaseHeader.Find();
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", Location.Code, '', '', PackageNo, -24);
@@ -839,6 +841,8 @@ codeunit 137265 "SCM Package Tracking Purchase"
         CopyPurchaseDocument.Run();
 
         PurchaseHeader.Find();
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify();
 
         ReservationEntry.SetRange("Package No.", PackageNo[2]);
         ReservationEntry.FindLast();
