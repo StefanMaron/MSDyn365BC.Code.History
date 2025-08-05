@@ -234,6 +234,8 @@ page 397 "Sales Invoice Statistics"
             AmountLCY := CustLedgEntry."Sales (LCY)";
         end;
 
+        OnAfterGetRecordOnBeforeCalculateProfitLCY(Rec, AmountLCY, CustAmount, InvDiscAmount, CostLCY);
+
         ProfitLCY := AmountLCY - CostLCY;
         if AmountLCY <> 0 then
             ProfitPct := Round(100 * ProfitLCY / AmountLCY, 0.1);
@@ -361,6 +363,11 @@ page 397 "Sales Invoice Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateTotalsOnAfterAddLineTotals(var SalesInvLine: Record "Sales Invoice Line"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnBeforeCalculateProfitLCY(var SalesInvoiceHeader: Record "Sales Invoice Header"; var AmountLCY: Decimal; var CustAmount: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal)
     begin
     end;
 }

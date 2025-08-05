@@ -607,8 +607,11 @@ table 77 "Report Selections"
 
                 IsHandled := false;
                 OnBeforePrintDocument(TempReportSelections, IsGUI, RecVarToPrint, IsHandled);
-                if not IsHandled then
+                if not IsHandled then begin
+                    if IsGUI then
+                        Commit();
                     PrintTempReportSelection(TempReportSelections, IsGUI, RecVarToPrint, DocumentPrintBuffer);
+                end;
 
                 OnAfterPrintDocument(TempReportSelections, IsGUI, RecVarToPrint, IsHandled);
 

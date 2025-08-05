@@ -16,7 +16,7 @@ permissionset 6212 "Sustainability Admin"
     IncludedPermissionSets = "Sustainability Edit";
 
     Permissions =
-        tabledata "Sustainability Setup" = M,
+        tabledata "Sustainability Setup" = IMD,
         tabledata "Sustainability Account" = IMD,
         tabledata "Sustain. Account Category" = IMD,
         tabledata "Sustain. Account Subcategory" = IMD,
