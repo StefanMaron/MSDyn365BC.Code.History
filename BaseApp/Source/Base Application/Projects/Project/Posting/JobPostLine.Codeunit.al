@@ -477,6 +477,9 @@ codeunit 1001 "Job Post-Line"
         if IsHandled then
             exit;
 
+        if PurchaseLine.IsNonInventoriableItem() then
+            exit;
+
         Job.Get(PurchaseLine."Job No.");
         if Job.GetQuantityAvailable(PurchaseLine."No.", PurchaseLine."Location Code", PurchaseLine."Variant Code", 0, 2) <
            -PurchaseLine."Return Qty. to Ship (Base)"

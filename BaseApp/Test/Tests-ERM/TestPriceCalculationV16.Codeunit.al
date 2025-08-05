@@ -5517,6 +5517,70 @@ codeunit 134159 "Test Price Calculation - V16"
         SalesPriceList.Lines."Product No.".AssertEquals(ServiceCost.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandlerOK,GetPriceLineHandler')]
+    procedure VerifySalesPriceInSalesLineWhenSalesPriceIsUpdatedViaGetPriceFunction()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PriceListHeader: array[2] of Record "Price List Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        UnitPrice: array[2] of Decimal;
+        FirstDayOfYear, LastDayOfYear : Date;
+    begin
+        // [SCENARIO 580007] Confirm sales price in sales line when sales price is updated via GetPrice function.
+        Initialize();
+
+        // [GIVEN] Calculate the first and last day of the year.
+        FirstDayOfYear := CalcDate('<-CY>', WorkDate());
+        LastDayOfYear := CalcDate('<CY>', WorkDate());
+
+        // [GIVEN] Create an Item and customer.
+        CreateItemAndCustomer(Item, Customer);
+
+        // [GIVEN] Create First Sales Price.
+        UnitPrice[1] := CreatePriceListHeader(
+            PriceListHeader[1], Customer."No.", Item."No.", FirstDayOfYear, LastDayOfYear);
+
+        // [GIVEN] Create Second Sales Price.
+        UnitPrice[2] := CreatePriceListHeader(
+            PriceListHeader[2], Customer."No.", Item."No.",
+            CalcDate('<6M>', FirstDayOfYear), LastDayOfYear);
+
+        // [GIVEN] Set WorkDate.
+        WorkDate := CalcDate('<5M>', FirstDayOfYear);
+
+        // [GIVEN] Create a sales order.
+        CreateSalesOrder(SalesHeader, Customer."No.", Item."No.");
+        LibraryVariableStorage.Enqueue(PriceListHeader[2]."Starting Date");
+
+        // [GIVEN] Open Sales Order page.
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+
+        // [GIVEN] Change Posting Date and Order Date value.
+        SalesOrder."Posting Date".SetValue(CalcDate('<2M>', WorkDate()));
+        SalesOrder."Order Date".SetValue(CalcDate('<2M>', WorkDate()));
+
+        // [WHEN] Get Prices Action was invoked.
+        SalesOrder.SalesLines.GetPrices.Invoke();
+
+        // [GIVEN] Find Updated Sales Line.
+        FindSalesLine(SalesLine, SalesHeader."No.", Item."No.");
+
+        // [THEN] No error occurred and the unit price is updating in the sales line from the sales price.
+        Assert.AreEqual(
+            UnitPrice[2], SalesLine."Unit Price",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                SalesLine.FieldCaption("Unit Price"),
+                UnitPrice[2],
+                SalesLine.TableCaption()));
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6320,6 +6384,70 @@ codeunit 134159 "Test Price Calculation - V16"
         ServiceLine.Modify(true);
     end;
 
+    local procedure CreateItemAndCustomer(var Item: Record Item; var Customer: Record Customer)
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Modify(true);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Validate("Allow Line Disc.", false);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreatePriceListHeader(var PriceListHeader: Record "Price List Header"; CustomerNo: Code[20]; ItemNo: Code[20]; FirstDayOfYear: Date; LastDayOfYear: Date): Decimal
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::Customer, CustomerNo);
+        PriceListHeader.Validate("Starting Date", FirstDayOfYear);
+        PriceListHeader.Validate("Ending Date", LastDayOfYear);
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify(true);
+
+        CreatePriceListLine(PriceListLine, PriceListHeader, ItemNo, FirstDayOfYear);
+        PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+        PriceListHeader.Modify(true);
+
+        exit(PriceListLine."Unit Price");
+    end;
+
+    local procedure CreatePriceListLine(var PriceListLine: Record "Price List Line"; var PriceListHeader: Record "Price List Header"; ItemNo: Code[20]; FirstDayOfYear: Date)
+    begin
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code,
+            PriceListHeader."Source Type", PriceListHeader."Source No.",
+            PriceListLine."Asset Type"::Item, ItemNo);
+        PriceListLine.Validate("Minimum Quantity", 1);
+        PriceListLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        PriceListLine.Validate("Starting Date", FirstDayOfYear);
+        PriceListLine.Modify(true);
+    end;
+
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; ItemNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
+    end;
+
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesOrdertNo: Code[20]; ItemNo: Code[20])
+    begin
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesOrdertNo);
+        SalesLine.SetRange("No.", ItemNo);
+        SalesLine.FindFirst();
+    end;
+
     [RequestPageHandler]
     procedure ImplementStandardCostChangesHandler(var ImplementStandardCostChange: TestRequestPage "Implement Standard Cost Change")
     var
@@ -6445,5 +6573,17 @@ codeunit 134159 "Test Price Calculation - V16"
     begin
         ResPriceList.Handler.SetValue("Price Calculation Handler"::"Business Central (Version 16.0)");
         ResPriceList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [MessageHandler]
+    procedure MessageHandlerOK(Msg: Text[1024])
+    begin
+    end;
+
+    [ModalPageHandler]
+    procedure GetPriceLineHandler(var GetPriceLine: TestPage "Get Price Line")
+    begin
+        GetPriceLine.Filter.SetFilter("Starting Date", Format(LibraryVariableStorage.DequeueDate()));
+        GetPriceLine.OK().Invoke();
     end;
 }
