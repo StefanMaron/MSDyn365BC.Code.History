@@ -40,7 +40,7 @@ codeunit 137402 "SCM Costing Batch"
         DecreaseQuantity: Decimal;
         CalculationDate: Date;
         Adjust: Option "Item Card","Stockkeeping Unit Card";
-        AdjustField: Option "Unit Price","Profit %","Indirect Cost %","Last Direct Cost","Standard Cost";
+        AdjustField: Enum ItemCostPriceFieldOption;
         AdjustmentFactor: Integer;
         InvalidColumnCaptionError: Label 'Period in columns caption were not updated according to the view by filter.';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
@@ -1979,7 +1979,7 @@ codeunit 137402 "SCM Costing Batch"
         StandardCostWorksheet.DeleteAll(true);
     end;
 
-    local procedure DefineGlobalValues(AdjustOption: Option; AdjustFieldOption: Option; Factor: Decimal; RoundingMethod: Code[10])
+    local procedure DefineGlobalValues(AdjustOption: Option; AdjustFieldOption: Enum ItemCostPriceFieldOption; Factor: Decimal; RoundingMethod: Code[10])
     begin
         Adjust := AdjustOption; // This variable is made Global as it is used in the handler.
         AdjustField := AdjustFieldOption; // This variable is made Global as it is used in the handler.

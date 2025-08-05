@@ -28,6 +28,7 @@ codeunit 137045 "SCM Bugfixes"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryAssembly: Codeunit "Library - Assembly";
+        ItemTrackingHandlerAction: Option AssignRandomSN,AssignSpecificLot;
         isInitialized: Boolean;
         LocationCodesArr: array[3] of Code[10];
         ConfirmMessageQst: Label 'Do you want to change ';
@@ -39,6 +40,7 @@ codeunit 137045 "SCM Bugfixes"
         UseInTransitLocationErr: Label 'You can use In-Transit location %1 for transfer orders only.', Comment = '%1: Location code';
         PurchaseOrderErr: Label 'Unexpected new purchase order created';
         AssemblyCommentLineErr: Label 'Comment/Description not Transfered to Assembly Order while Running Carry Out Action Message';
+        TrackingMsg: Label 'The change will not affect existing entries';
 
     [Test]
     [Scope('OnPrem')]
@@ -1138,6 +1140,41 @@ codeunit 137045 "SCM Bugfixes"
         Assert.AreEqual(2.63, TotalVATAmount, 'Mismatch in Total VAT Amount Value');
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandlerOrderTracking,ItemTrackingLinesPageHandler')]
+    procedure CheckDefaultUntrackedSurplusReservationEntriesUpdatedWhenSerialNoAllocated()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Qty: Decimal;
+    begin
+        // [SCENARIO 575956] Check Default Untracked Surplus Reservation Entries Updated When Serial No Allocated from Item Tracking Lines and 
+        // not Created duplicate lines.
+        Initialize();
+
+        // [GIVEN] Created Lot Tracked Item.
+        CreateTrackedItemWithOrderTrackingPolicy(Item);
+
+        // [GIVEN] Created Sales Order with 1 Item and 3 quantity.
+        Qty := 3;
+        LibraryWarehouse.CreateLocation(Location);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] From Item tracking lines (Sales Order), add a SN to the item.
+        // [WHEN] Assign random serial numbers.
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::AssignRandomSN);
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+        SalesLine.OpenItemTrackingLines(); // ItemTrackingLinesPageHandler required.
+
+        // [THEN] After recalculation, a new reservation entry should NOT be created for the SO.
+        AssertReservationEntryCountForSales(SalesHeader, 3);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1858,6 +1895,27 @@ codeunit 137045 "SCM Bugfixes"
         Assert.RecordCount(ReservationEntry, ExpectedCount);
     end;
 
+    local procedure CreateTrackedItemWithOrderTrackingPolicy(var Item: Record Item)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        CreateItemTrackingCodeWithLotSpecTracking(ItemTrackingCode);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
+        LibraryVariableStorage.Enqueue(TrackingMsg);  // Enqueue value for message handler.
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking & Action Msg.");
+        Item.Modify(true);
+    end;
+
+    local procedure AssertReservationEntryCountForSales(SalesHeader: Record "Sales Header"; ExpectedCount: Integer)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Source Type", Database::"Sales Line");
+        ReservationEntry.SetRange("Source ID", SalesHeader."No.");
+        Assert.RecordCount(ReservationEntry, ExpectedCount);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ContactListModalPageHandler(var ContactLookup: Page "Contact List"; var Response: Action)
@@ -1918,10 +1976,52 @@ codeunit 137045 "SCM Bugfixes"
         OrderPromisingLines.CapableToPromise.Invoke()
     end;
 
+    [ModalPageHandler]
+    procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        ActionOption: Integer;
+        LotNo: Text;
+        HowMany: Integer;
+        Counter: Integer;
+    begin
+        ActionOption := LibraryVariableStorage.DequeueInteger();
+        case ActionOption of
+            ItemTrackingHandlerAction::AssignRandomSN:
+                begin
+                    HowMany := LibraryVariableStorage.DequeueInteger();
+                    if HowMany > 0 then begin
+                        ItemTrackingLines.First();
+                        for Counter := 1 to HowMany do begin
+                            ItemTrackingLines."Serial No.".SetValue(LibraryRandom.RandText(5));
+                            ItemTrackingLines."Quantity (Base)".SetValue(1);
+                            ItemTrackingLines.Next();
+                        end;
+                    end;
+                end;
+            ItemTrackingHandlerAction::AssignSpecificLot:
+                begin
+                    LotNo := LibraryVariableStorage.DequeueText();
+                    ItemTrackingLines.First();
+                    ItemTrackingLines."Lot No.".SetValue(LotNo);
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                end;
+        end;
+        ItemTrackingLines.OK().Invoke();
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [MessageHandler]
+    procedure MessageHandlerOrderTracking(Message: Text[1024])
+    var
+        QueuedMessage: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(QueuedMessage);  // Dequeue variable.
+        Assert.IsTrue(StrPos(Message, QueuedMessage) > 0, Message);
     end;
 }
 

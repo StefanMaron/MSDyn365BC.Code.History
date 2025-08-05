@@ -195,7 +195,7 @@ codeunit 148091 "Swiss QR-Bill Test BillingInfo"
         SwissQRBillBillingInfo."Payment Terms" := true;
         SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, SwissQRBillTestLibrary.CreatePaymentTerms(1, 2), '');
         Assert.AreEqual(
-            '//S1/40/1:2,' + GetPaymentTermsDueDateCalculation(SalesInvoiceHeader."Payment Terms Code", SalesInvoiceHeader."Document Date"),
+            '//S1/40/1:2;' + GetPaymentTermsDueDateCalculation(SalesInvoiceHeader."Payment Terms Code", SalesInvoiceHeader."Document Date"),
             SwissQRBillBillingInfo.GetBillingInformation(SalesInvoiceHeader."Cust. Ledger Entry No."), 'payment terms option');
     end;
 
@@ -212,7 +212,7 @@ codeunit 148091 "Swiss QR-Bill Test BillingInfo"
         SwissQRBillBillingInfo."Payment Terms" := true;
         SwissQRBillTestLibrary.CreatePostSalesInvoice(SalesInvoiceHeader, '', 100, SwissQRBillTestLibrary.CreatePaymentTerms(0, 2), '');
         Assert.AreEqual(
-            '//S1/40/0:2,' + GetPaymentTermsDueDateCalculation(SalesInvoiceHeader."Payment Terms Code", SalesInvoiceHeader."Document Date"),
+            '//S1/40/0:2;' + GetPaymentTermsDueDateCalculation(SalesInvoiceHeader."Payment Terms Code", SalesInvoiceHeader."Document Date"),
             SwissQRBillBillingInfo.GetBillingInformation(SalesInvoiceHeader."Cust. Ledger Entry No."), 'payment terms option');
     end;
 
@@ -233,7 +233,7 @@ codeunit 148091 "Swiss QR-Bill Test BillingInfo"
                 '/11/' + SwissQRBillBillingInfoMgt.FormatDate(SalesInvoiceHeader."Document Date") +
                 '/30/' + SwissQRBillBillingInfoMgt.FormatVATRegNo(CompanyInformation."VAT Registration No.") +
                 '/31/' + SwissQRBillBillingInfoMgt.FormatDate(SalesInvoiceHeader."Posting Date") +
-                '/32/10/40/1:2,' + GetPaymentTermsDueDateCalculation(SalesInvoiceHeader."Payment Terms Code", SalesInvoiceHeader."Document Date"),
+                '/32/10/40/1:2;' + GetPaymentTermsDueDateCalculation(SalesInvoiceHeader."Payment Terms Code", SalesInvoiceHeader."Document Date"),
             SwissQRBillBillingInfo.GetBillingInformation(SalesInvoiceHeader."Cust. Ledger Entry No."),
             'all neabled option');
     end;
@@ -428,7 +428,7 @@ codeunit 148091 "Swiss QR-Bill Test BillingInfo"
             '', SwissQRBillBillingInfoMgt.GetDocumentPaymentTerms(SwissQRBillTestLibrary.CreatePaymentTerms(0, 0), WorkDate()), 'no discount');
         PaymentTermCode := SwissQRBillTestLibrary.CreatePaymentTerms(1, 2);
         Assert.AreEqual(
-            '1:2,' + GetPaymentTermsDueDateCalculation(PaymentTermCode, WorkDate()), SwissQRBillBillingInfoMgt.GetDocumentPaymentTerms(PaymentTermCode, WorkDate()), 'discount');
+            '1:2;' + GetPaymentTermsDueDateCalculation(PaymentTermCode, WorkDate()), SwissQRBillBillingInfoMgt.GetDocumentPaymentTerms(PaymentTermCode, WorkDate()), 'discount');
     end;
 
     [Test]
