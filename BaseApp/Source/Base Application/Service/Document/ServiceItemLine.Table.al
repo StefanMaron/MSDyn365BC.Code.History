@@ -201,6 +201,10 @@ table 5901 "Service Item Line"
                     UseServItemLineAsxRec := true;
                     Modify(true);
                 end;
+
+                if Rec."Repair Status Code" <> '' then
+                    Validate("Repair Status Code", Rec."Repair Status Code");
+
                 OnAfterValidateServiceItemNoOnBeforeUpdateResponseTimeHours(Rec, xRec);
                 UpdateResponseTimeHours();
                 CreateDimFromDefaultDim(0);

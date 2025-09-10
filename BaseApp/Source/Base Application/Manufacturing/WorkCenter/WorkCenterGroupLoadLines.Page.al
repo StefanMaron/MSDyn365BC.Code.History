@@ -136,12 +136,12 @@ page 99000892 "Work Center Group Load Lines"
         MfgSetup: Record "Manufacturing Setup";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
-        PeriodType: Enum "Analysis Period Type";
-        AmountType: Enum "Analysis Amount Type";
 
     protected var
         WorkCenterGroup: Record "Work Center Group";
         CapacityUoM: Code[10];
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
     procedure SetLines(var NewWorkCenterGroup: Record "Work Center Group"; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type"; NewCapUoM: Code[10])
     begin

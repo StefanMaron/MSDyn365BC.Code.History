@@ -90,7 +90,6 @@ report 99000780 "Capacity Task List"
                 column(EndingDateTime; Format("Ending Date-Time"))
                 {
                 }
-#if not CLEAN26
                 // RDLC Only
                 column(CapacityTaskListCapt; CapacityTaskListCaptLbl)
                 {
@@ -115,7 +114,6 @@ report 99000780 "Capacity Task List"
                 column(ProdOrderRtngLnEndTimeCapt; ProdOrderRtngLnEndTimeCaptLbl)
                 {
                 }
-#endif
                 column(ExpectedCapacityNeed; "Expected Capacity Need" / CalcExpectedCapacityNeed())
                 {
                     DecimalPlaces = 0 : 5;
@@ -284,16 +282,13 @@ report 99000780 "Capacity Task List"
         UnitOfMeasureCode: Code[10];
         FoundWorkCenter: List of [Code[20]];
         FoundMachineCenter: List of [Code[20]];
-#if not CLEAN26
-        // RDLC Only layout field captions. To be removed in a future release along with the RDLC layout.
-
         CapacityTaskListCaptLbl: Label 'Capacity Task List';
         CurrReportPageNoCaptLbl: Label 'Page';
         ProdOrderRtngLnStrtDtCaptLbl: Label 'Starting Date';
         ProdOrderRtngLnEndDtCaptLbl: Label 'Ending Date';
         ProdOrderRtngLnStrtTimeCaptLbl: Label 'Starting Time';
         ProdOrderRtngLnEndTimeCaptLbl: Label 'Ending Time';
-#endif
+
     local procedure CalcExpectedCapacityNeed(): Decimal
     var
         WorkCenter: Record "Work Center";
