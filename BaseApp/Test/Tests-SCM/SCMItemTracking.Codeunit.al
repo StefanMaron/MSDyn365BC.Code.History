@@ -2262,6 +2262,65 @@ codeunit 137405 "SCM Item Tracking"
     end;
 
     [Test]
+    [HandlerFunctions('ItemTrackingLinesLotAndSerialHanlder')]
+    [Scope('OnPrem')]
+    procedure WhsPickShipmentSNAndLotTrackedItemWithExpirationDate()
+    var
+        Item: Record Item;
+        Location: array[2] of Record Location;
+        Bin: Record Bin;
+        TransferHeader: Record "Transfer Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        I: Integer;
+        Qty: Integer;
+        LotNo: Code[50];
+        SerialNos: array[10] of Code[20];
+        ExpirationDate: Date;
+    begin
+        Initialize();
+
+        // [GIVEN] Item "I" tracked by both serial and lot nos.
+        CreateItem(Item, CreateItemTrackingCodeLotSerial(), '', '');
+
+        // [GIVEN] Location "L1" with shipment and pick
+        CreateLocationWithBins(Location[1], Bin);
+
+        // [GIVEN] Location "L2" with base settings
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
+
+        // [GIVEN] Post item stock for x pcs of item "I", serial no. "S1", lot no. "L1", expiration date 
+        LotNo := LibraryUtility.GenerateGUID();
+        ExpirationDate := LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20);
+
+        Qty := LibraryRandom.RandIntInRange(5, 10);
+        for I := 1 to Qty do begin
+            SerialNos[I] := LibraryUtility.GenerateGUID();
+            PostItemJnlLineWithLotSerialExpDate(Item."No.", Location[1].Code, Bin.Code, LotNo, SerialNos[I], ExpirationDate);
+        end;
+
+        // [GIVEN] Create a transfer order, create a warehouse shipment and pick
+        CreateAndReleaseTransferOrder(TransferHeader, Location[1].Code, Location[2].Code, Item."No.", Qty);
+        CreateWhseShipmentAndPickFromTransferOrder(WarehouseShipmentHeader, TransferHeader);
+
+        // [GIVEN] Update pick lines with serial no.
+        for I := 1 to Qty do begin
+            UpdateSerialNoOnWhseActivityLine(WarehouseShipmentHeader."No.", WarehouseActivityLine."Action Type"::Take, SerialNos[I]);
+            UpdateSerialNoOnWhseActivityLine(WarehouseShipmentHeader."No.", WarehouseActivityLine."Action Type"::Place, SerialNos[I]);
+        end;
+
+        // [WHEN] Post the warehouse pick
+        RegisterWhseActivity(WarehouseShipmentHeader."No.");
+
+        // [THEN] Post warehouse shipment is possible
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] Transfer order receipt can be posted
+        TransferHeader.Find();
+        LibraryWarehouse.PostTransferOrder(TransferHeader, false, true);
+    end;
+
+    [Test]
     [HandlerFunctions('OpenItemTrackingHandler')]
     [Scope('OnPrem')]
     procedure RetrieveDocumentItemTrackingFromPurchaseReceipt()
