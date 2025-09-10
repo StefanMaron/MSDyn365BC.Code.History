@@ -6602,15 +6602,14 @@
         TempBankStatementMatchingBuffer.SetRange("Line No.", StatementLineNo);
         TempBankStatementMatchingBuffer.FindFirst();
 
-        Assert.AreEqual(TempBankPmtApplRule.GetTextMapperScore(),
-          TempBankStatementMatchingBuffer.Quality, 'Matching is wrong for statement line ' + Format(StatementLineNo));
+        Assert.IsTrue((TempBankStatementMatchingBuffer.Quality >= TempBankPmtApplRule.GetTextMapperScore()) and (TempBankStatementMatchingBuffer.Quality <= TempBankPmtApplRule.GetMaxTextMapperScore()), 'Matching is wrong for statement line ' + Format(StatementLineNo));
     end;
 
     local procedure VerifyTextEntryConsidered(StatementLineNo: Integer)
     begin
         TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Line No.", StatementLineNo);
-        TempBankStatementMatchingBuffer.SetRange(Quality, TempBankPmtApplRule.GetTextMapperScore());
+        TempBankStatementMatchingBuffer.SetRange(Quality, TempBankPmtApplRule.GetTextMapperScore(), TempBankPmtApplRule.GetMaxTextMapperScore());
 
         Assert.IsTrue(TempBankStatementMatchingBuffer.FindFirst(), 'Text mapper should have been considered.');
     end;
@@ -7037,14 +7036,20 @@
           BankAccReconciliationLine."Account No.", AccountNo, 'Account Type was not set on the BankAccReconciliationLine correctly');
         Assert.AreEqual(
           BankAccReconciliationLine."Applied Entries", ExpectedNoOfEntries, 'Applied Entries are not set to a correct value');
-        Assert.AreEqual(BankAccReconciliationLine."Match Quality", Quality, 'Match Quality is not set correctly');
+        if Quality = TempBankPmtApplRule.GetTextMapperScore() then
+            Assert.IsTrue((BankAccReconciliationLine."Match Quality" >= Quality) and (BankAccReconciliationLine."Match Quality" <= TempBankPmtApplRule.GetMaxTextMapperScore()), 'Match Quality is not set correctly')
+        else
+            Assert.AreEqual(BankAccReconciliationLine."Match Quality", Quality, 'Match Quality is not set correctly')
     end;
 
     local procedure VerifyMultipleApplicationsAppliedEntries(AppliedPaymentEntry: Record "Applied Payment Entry"; Quality: Integer; ExpectedAppliedAmount: Decimal; ExpectedAppliesToEntryNo: Integer)
     begin
         Assert.AreEqual(AppliedPaymentEntry."Applied Amount", ExpectedAppliedAmount, 'Wrong amount set');
         Assert.AreEqual(AppliedPaymentEntry."Applies-to Entry No.", ExpectedAppliesToEntryNo, 'Wrong Applies-to Entry No. value is set');
-        Assert.AreEqual(AppliedPaymentEntry.Quality, Quality, 'Wrong quality is set');
+        if Quality = TempBankPmtApplRule.GetTextMapperScore() then
+            Assert.IsTrue((AppliedPaymentEntry.Quality >= Quality) and (AppliedPaymentEntry.Quality <= TempBankPmtApplRule.GetMaxTextMapperScore()), 'Wrong quality is set')
+        else
+            Assert.AreEqual(AppliedPaymentEntry.Quality, Quality, 'Wrong quality is set')
     end;
 }
 

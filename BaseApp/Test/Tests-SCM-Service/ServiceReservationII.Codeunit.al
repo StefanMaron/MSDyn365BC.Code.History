@@ -17,6 +17,8 @@ using Microsoft.Sales.Document;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Service.Item;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Setup;
 using System.TestLibraries.Utilities;
 
 codeunit 136143 "Service Reservation II"
@@ -42,6 +44,7 @@ codeunit 136143 "Service Reservation II"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryERM: Codeunit "Library - ERM";
         isInitialized: Boolean;
         ExpectedDateError: Label 'The change leads to a date conflict with existing reservations.';
         ErrorMustBeSame: Label 'Error must be same.';
@@ -538,6 +541,117 @@ codeunit 136143 "Service Reservation II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderWithVendorNoModalPageHandler,ItemTrackingPageHandler,StrMenuHandler,MessageHandler')]
+    procedure CheckSerialNumberInServiceItemWhenPostingShipment()
+    var
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ServiceItemGroup: Record "Service Item Group";
+        Vendor: Record Vendor;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+        WarehouseShipment: TestPage "Warehouse Shipment";
+    begin
+        // [SCENARIO 592530] Check that Serial numbers are not missing on automatically created Service Items when posting partial shipment with Item Tracking set for 
+        // Serial Specific Tracking on a Warehouse Shipment.
+        Initialize();
+
+        // [GIVEN] create service item group with "Create Service Item" setting = TRUE.
+        LibraryService.CreateServiceItemGroup(ServiceItemGroup);
+        ServiceItemGroup.Validate("Create Service Item", true);
+        ServiceItemGroup.Modify(true);
+
+        // [GIVEN] create serial-no. tracked item with "Service Item Group" = Service Item Group created above.
+        LibraryItemTracking.CreateSerialItem(Item);
+        Item.Validate("Service Item Group", ServiceItemGroup.Code);
+        Item.Validate("Serial Nos.", '');
+        Item.Modify(true);
+
+        // [GIVEN] create item tracking code with "Create SN Info on Posting" = TRUE and "Use Expiration Dates" = TRUE.
+        ItemTrackingCode.Get(Item."Item Tracking Code");
+        ItemTrackingCode.Validate("Create SN Info on Posting", true);
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Create Location with "Require Receive" = TRUE, "Require Shipment" = TRUE and "Require Pick" = FALSE.
+        LibraryWarehouse.CreateLocation(Location);
+        Location.Validate("Require Receive", true);
+        Location.Validate("Require Shipment", true);
+        Location.Validate(Location."Require Pick", false);
+        Location.Modify(true);
+
+        // [GIVEN] Create warehouse employee with "Location Code" = Location created above.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+
+        // [GIVEN] Create sales order for 5 pcs. of the item, reserve from the inventory.
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+            Item."No.", 5, Location.Code, WorkDate());
+
+        // [GIVEN] Create purchase order from sales order with vendor created above.
+        PurchaseOrder.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.CreatePurchaseOrder.Invoke();
+        LibraryVariableStorage.Enqueue(10);
+        SalesOrder.Close();
+        PurchaseOrder.Close();
+
+        // [GIVEN] modify purchase order and create item tracking lines with serial no. "SN001" to "SN010".
+        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item."No.");
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder.PurchLines."Qty. to Receive".SetValue(0);
+        PurchaseOrder.PurchLines."Qty. to Invoice".SetValue(0);
+        PurchaseOrder.PurchLines."Item Tracking Lines".Invoke();
+        PurchaseOrder.Close();
+        PurchaseOrder.Trap();
+        Commit();
+
+        // [GIVEN] release purchase order and create warehouse receipt.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [GIVEN] find warehouse receipt header by source document and post warehouse receipt.
+        WarehouseReceiptHeader.Get(LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
+            Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
+        CreateInventoryPostingSetup(Location, Item);
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // [WHEN] Auto Reserve sales line and create warehouse shipment.
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."Location Code");
+
+        // [WHEN] open warehouse shipment, set "Qty. to Ship" = 3 and open item tracking lines.
+        WarehouseShipment.OpenEdit();
+        WarehouseShipment.Filter.SetFilter("No.", WarehouseShipmentHeader."No.");
+        WarehouseShipment.WhseShptLines."Qty. to Ship".SetValue(3);
+        LibraryVariableStorage.Enqueue(3);
+        WarehouseShipment.WhseShptLines.ItemTrackingLines.Invoke();
+
+        // [WHEN] post shipment.
+        WarehouseShipment."P&ost Shipment".Invoke();
+        WarehouseShipment.Close();
+
+        // [THEN] verify that service item must have Serial No.
+        AssertServiceItemCountForBlankSerialNo(Item, 0);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -756,6 +870,46 @@ codeunit 136143 "Service Reservation II"
         ServiceLine.TestField("Reserved Quantity", Quantity);
     end;
 
+    local procedure AssertServiceItemCountForBlankSerialNo(Item: Record Item; ExpectedCount: Integer)
+    var
+        ServiceItem: Record "Service Item";
+    begin
+        ServiceItem.SetRange("Item No.", Item."No.");
+        ServiceItem.SetRange("Serial No.", '');
+        Assert.RecordCount(ServiceItem, ExpectedCount);
+    end;
+
+    local procedure CreateInventoryPostingSetup(Location: Record Location; Item: Record Item)
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+    begin
+        if not InventoryPostingSetup.Get(Location.Code, Item."Inventory Posting Group") then begin
+            LibraryInventory.CreateInventoryPostingSetup(
+                InventoryPostingSetup,
+                Location.Code,
+                Item."Inventory Posting Group");
+            InventoryPostingSetup.Validate("Inventory Account", LibraryERM.CreateGLAccountNo());
+            InventoryPostingSetup.Modify(true);
+        end else begin
+            InventoryPostingSetup.Validate("Inventory Account", LibraryERM.CreateGLAccountNo());
+            InventoryPostingSetup.Modify(true);
+        end;
+    end;
+
+    local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LocationCode: Code[10])
+    begin
+        WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
+        WarehouseShipmentHeader.FindFirst();
+    end;
+
+    local procedure FindPurchaseDocumentByItemNo(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
+    begin
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", ItemNo);
+        PurchaseLine.FindFirst();
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
@@ -864,6 +1018,43 @@ codeunit 136143 "Service Reservation II"
     procedure ItemTrackingSummaryModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
         ItemTrackingSummary.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        SNNo: Code[50];
+        i: Integer;
+        x: Integer;
+    begin
+        Commit();
+        x := LibraryVariableStorage.DequeueInteger();
+        if x = 3 then
+            SNNo := 'SN006'
+        else
+            SNNo := 'SN000';
+        for i := 1 to x do begin
+
+            SNNo := IncStr(SNNo);
+            ItemTrackingLines."Serial No.".SetValue(SNNo);
+            ItemTrackingLines."Quantity (Base)".SetValue(1);
+            ItemTrackingLines.Next();
+        end;
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PurchOrderFromSalesOrderWithVendorNoModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
+    begin
+        PurchOrderFromSalesOrder.Vendor.SetValue(LibraryVariableStorage.DequeueText());
+        PurchOrderFromSalesOrder.Quantity.SetValue(10);
+        PurchOrderFromSalesOrder.OK().Invoke();
+    end;
+
+    [StrMenuHandler]
+    procedure StrMenuHandler(Options: Text; var Choice: Integer; Instructions: Text)
+    begin
+        Choice := 1;
     end;
 }
 

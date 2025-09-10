@@ -311,7 +311,13 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
             trigger OnValidate()
             var
                 ProdOrderComponent: Record "Prod. Order Component";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateProdOrderCompLineNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Prod. Order Comp. Line No." <> xRec."Prod. Order Comp. Line No." then begin
                     if ("Order Type" = "Order Type"::Production) and ("Prod. Order Comp. Line No." <> 0) then begin
                         ProdOrderComponent.Get(
@@ -1076,6 +1082,11 @@ tableextension 99000758 "Mfg. Item Journal Line" extends "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateOutputQuantityBase(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateProdOrderCompLineNo(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

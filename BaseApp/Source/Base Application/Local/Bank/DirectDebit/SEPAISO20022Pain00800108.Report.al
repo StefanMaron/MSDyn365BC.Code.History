@@ -106,7 +106,7 @@ report 11000015 "SEPA ISO20022 Pain 008.001.08"
     begin
         XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8"?><Document></Document>', XMLDomDoc);
         XMLRootElement := XMLDomDoc.DocumentElement;
-        XMLRootElement.SetAttribute('xmlns', 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02');
+        XMLRootElement.SetAttribute('xmlns', 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.08');
         XMLRootElement.SetAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchemainstance');
         XMLNodeCurr := XMLDomDoc.SelectSingleNode('Document');
         AddElement(XMLNodeCurr, 'CstmrDrctDbtInitn', '', '', XMLNewChild);

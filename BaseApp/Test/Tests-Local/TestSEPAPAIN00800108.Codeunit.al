@@ -922,6 +922,45 @@ codeunit 144104 "Test SEPA PAIN 008.001.08"
             XMLReadHelper.VerifyNodeValue('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:Dbtr/ns:PstlAdr/ns:TwnNm', TownName);
     end;
 
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
+    procedure VerifySEPAISO20022Pain00800108ExportTheCorrectVersion()
+    var
+        BankAccount: Record "Bank Account";
+        Customer: Record Customer;
+        DirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        PaymentHistory: Record "Payment History";
+    begin
+        // [GIVEN 592595] Ensure the SEPA ISO 20022 PAIN.008.001.08 file exports the correct version in the XML File.
+        Initialize();
+
+        // [GIVEN] Create Export Protocol for SEPA ISO 20022 PAIN.008.001.08
+        NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.08';
+        CreateExportProtocol(Report::"SEPA ISO20022 Pain 008.001.08");
+
+        // [GIVEN] Set up the SEPA environment
+        SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
+
+        // [GIVEN] Create and post sales invoice
+        CreateAndPostSalesInvoice(Customer."No.", false);
+
+        // [WHEN] Get the proposal entries.
+        GetEntries(BankAccount."No.");
+
+        // [WHEN] Process the proposals lines.
+        ProcessProposals(BankAccount."No.");
+
+        // [THEN] Export the SEPA file.
+        ExportSEPAFile(BankAccount."No.");
+
+        // [GIVEN] Find the Payment History for the Bank Account.
+        FindPaymentHistory(BankAccount."No.", PaymentHistory);
+
+        // [THEN] Verify the exported SEPA file and check the default namespace contains SEPA version pain.008.001.08
+        XMLReadHelper.Initialize(PaymentHistory."File on Disk", NameSpace);
+        XMLReadHelper.VerifyAttributeValue('//ns:Document', 'xmlns', NameSpace);
+    end;
+
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";

@@ -21,6 +21,7 @@ codeunit 137263 "SCM Tracking Package Base"
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
         PostedItemDocumentShowTrackingErr: Label 'Can''t show Posted Item Tracking Page.';
+        UnitAmountErr: Label '%1 is should be modifiable in Inventory Receipt with Item Tracking.', Comment = '%1 = Field Name';
 
     [Test]
     [Scope('OnPrem')]
@@ -438,6 +439,72 @@ codeunit 137263 "SCM Tracking Package Base"
 
         ItemTrackingCode."Package Warehouse Tracking" := false;
         Assert.IsFalse(ItemTrackingCode.IsWarehouseTracking(), '')
+    end;
+
+    [Test]
+    procedure UnitAmountModifiableInInventoryReceiptWithItemTracking()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Item: Record Item;
+        Location: Record Location;
+        ItemTrackingCode: Record "Item Tracking Code";
+        ReservationEntry: Record "Reservation Entry";
+        InvtReceiptSubform: TestPage "Invt. Receipt Subform";
+        InvtDocType: Enum "Invt. Doc. Document Type";
+        Qty: Decimal;
+        UnitAmount: Decimal;
+    begin
+        // [SCENARIO 592752] In Inventory Receipts with an Item Tracked Item, adjusting the Unit Amount is allowed.
+        Initialize();
+
+        // [GIVEN] Create Item Tracking Code.
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        ItemTrackingCode.Validate("SN Specific Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN]  Create Item with Item Tracking Code.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Modify(true);
+
+        // [GIVEN] Create Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Invt. Document Receipt.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocType::Receipt, Location.Code);
+
+        // [GIVEN] Create Quantity for Invt. Document Line.
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Create Invt. Document Line.
+        LibraryInventory.CreateInvtDocumentLine(
+            InvtDocumentHeader,
+            InvtDocumentLine,
+            Item."No.",
+            LibraryRandom.RandDec(100, 2),
+            Qty);
+
+        // [GIVEN] Create Item Receipt Item Tracking.
+        LibraryItemTracking.CreateItemReceiptItemTracking(ReservationEntry, InvtDocumentLine, LibraryUtility.GenerateGUID(), '', '', LibraryRandom.RandIntInRange(1, 1));
+
+        // [GIVEN] Store the Unit Amount to be assigned.
+        UnitAmount := LibraryRandom.RandDecInDecimalRange(500, 1000, 2);
+
+        // [WHEN] Assign the Dimension Value to Invt. Document Line
+        InvtReceiptSubform.OpenEdit();
+        InvtReceiptSubform.GoToRecord(InvtDocumentLine);
+        InvtReceiptSubform."Unit Amount".SetValue(UnitAmount);
+
+        // [THEN] Unit Amount should be modifiable in Inventory Receipt with Item Tracking.
+        Assert.AreEqual(
+            UnitAmount,
+            InvtReceiptSubform."Unit Amount".AsDecimal(),
+            StrSubstNo(
+                UnitAmountErr,
+                InvtDocumentLine.FieldCaption("Unit Amount")));
     end;
 
     local procedure Initialize()

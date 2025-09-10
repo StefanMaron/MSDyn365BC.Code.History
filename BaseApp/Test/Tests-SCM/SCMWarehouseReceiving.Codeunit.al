@@ -4302,6 +4302,63 @@ codeunit 137152 "SCM Warehouse - Receiving"
         VerifyWarehouseActivityLineWithBin(Item."No.", Bin[3].Code, Bin[1].Code);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure RegisterPutAwayWithBreakBulkFilterShouldRegisterAllLines()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        UOM: Record "Unit of Measure";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseEntry: Record "Warehouse Entry";
+        PutAwayPage: TestPage "Warehouse Put-away";
+        ExpectedLinesCount: Integer;
+    begin
+        // [SCENARIO 592107] Verify all put away lines are registered, when register a warehouse put away with the break bulk filter set to yes
+        Initialize();
+
+        // [GIVEN] Create Warehouse Employee for location WHITE.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, true);
+
+        // [GIVEN] Create an Item and assign Put-away Unit of Measure Code.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Put-away Unit of Measure Code", Item."Base Unit of Measure");
+        Item.Modify(true);
+
+        // [GIVEN] Create Unit of Measure and Item Unit of Measure with Qty. per Unit of Measure as 48.
+        LibraryInventory.CreateUnitOfMeasureCode(UOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UOM.Code, 48);
+
+        // [GIVEN] Create Purchase Order and Post Warehouse Receipt.
+        CreatePurchaseOrderAndPostWarehouseReceipt(
+            PurchaseHeader, LocationWhite.Code, Item."No.", LibraryRandom.RandDec(10, 2), UOM.Code);
+
+        // [GIVEN] Find Warehouse Put-away
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Put-away");
+        WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Purchase Order");
+        WarehouseActivityLine.SetRange("Source No.", PurchaseHeader."No.");
+        WarehouseActivityLine.FindSet();
+        ExpectedLinesCount := WarehouseActivityLine.Count();
+
+        // [GIVEN] Open Warehouse Put-away page
+        PutAwayPage.OpenEdit();
+        PutAwayPage.FILTER.SetFilter("No.", WarehouseActivityLine."No.");
+
+        // [GIVEN] Set Break Bulk filter = Yes
+        PutAwayPage."Breakbulk Filter".SetValue(true);
+
+        // [WHEN] Register Warehouse Put-Away.
+        PutAwayPage."&Register Put-away".Invoke();
+
+        // [THEN] Verify Put-Away should be registered and all lines should be posted in Warehouse Entry table
+        WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::Movement);
+        WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"P. Order");
+        WarehouseEntry.SetRange("Source No.", PurchaseHeader."No.");
+        Assert.RecordCount(WarehouseEntry, ExpectedLinesCount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
