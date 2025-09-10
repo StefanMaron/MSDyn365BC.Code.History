@@ -1616,7 +1616,8 @@ codeunit 22 "Item Jnl.-Post Line"
             if (ProdOrderLine."Remaining Qty. (Base)" = OutputQtyBase) and
                (ProdOrderComp."Remaining Quantity" <> 0) and
                (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") <= CompItem."Rounding Precision") and
-               (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") < 1)
+               (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") < 1) or
+               (OutputQtyBase = Round(ProdOrderComp."Remaining Qty. (Base)", 1))
             then
                 QtyToPost := ProdOrderComp."Remaining Quantity";
         end else
@@ -3251,7 +3252,7 @@ codeunit 22 "Item Jnl.-Post Line"
                                 CalcCostPerUnit(CostAmtACY, ValueEntry."Valued Quantity", true);
                     end;
                 end else
-                    if not ItemJnlLine.Adjustment then
+                    if (not ItemJnlLine.Adjustment) and not (ItemJnlLine."Document Type" in [ItemJnlLine."Document Type"::"Purchase Credit Memo"]) then
                         CalcOutboundCostAmt(ValueEntry, CostAmt, CostAmtACY)
                     else begin
                         CostAmt := ItemJnlLine.Amount;
@@ -3710,7 +3711,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 end;
             end;
             IsHandled := false;
-            OnUpdateItemLedgEntryOnBeforeUpdateOutboundItemLedgEntry(ValueEntry, IsHandled);
+            OnUpdateItemLedgEntryOnBeforeUpdateOutboundItemLedgEntry(ValueEntry, IsHandled, ItemJnlLine);
             if not IsHandled then
                 if ItemJnlLine."Applies-from Entry" <> 0 then
                     UpdateOutboundItemLedgEntry(ItemJnlLine."Applies-from Entry");
@@ -4768,9 +4769,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 TempTrackingSpecification.TestField("Expiration Date", ExistingExpirationDate);
 
             if (ItemJnlLine2."Entry Type" = ItemJnlLine2."Entry Type"::Transfer) and (ItemJnlLine2."Order Type" = ItemJnlLine2."Order Type"::Transfer) then begin
-                ItemTrackingSetup.CopyTrackingFromNewTrackingSpec(TempTrackingSpecification);
-                ExistingExpirationDate :=
-                    ItemTrackingMgt.ExistingExpirationDateAndQty(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", ItemTrackingSetup, SumOfEntries);
+                GetExistingExpirationDateFromILE(ItemTrackingSetup, ExistingExpirationDate, SumOfEntries);
 
                 if TempTrackingSpecification."New Serial No." <> '' then
                     SumLot := SignFactor * ItemTrackingMgt.SumNewLotOnTrackingSpec(TempTrackingSpecification)
@@ -4784,11 +4783,7 @@ codeunit 22 "Item Jnl.-Post Line"
             end;
         end else   // Demand
             if ItemJnlLine2."Entry Type" = ItemJnlLine2."Entry Type"::Transfer then begin
-                ItemTrackingSetup.CopyTrackingFromNewTrackingSpec(TempTrackingSpecification);
-                ExistingExpirationDate :=
-                  ItemTrackingMgt.ExistingExpirationDateAndQty(
-                    TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code",
-                    ItemTrackingSetup, SumOfEntries);
+                GetExistingExpirationDateFromILE(ItemTrackingSetup, ExistingExpirationDate, SumOfEntries);
 
                 if (ItemJnlLine2."Order Type" = ItemJnlLine2."Order Type"::Transfer) and
                    (ItemJnlLine2."Order No." <> '')
@@ -4806,7 +4801,8 @@ codeunit 22 "Item Jnl.-Post Line"
                         SumLot := SignFactor * TempTrackingSpecification."Quantity (Base)";
                     OnCheckExpirationDateOnAfterCalcSumLot(SumLot, SignFactor, TempTrackingSpecification);
                     if (SumOfEntries > 0) and
-                       ((SumOfEntries <> SumLot) or (TempTrackingSpecification."New Lot No." <> TempTrackingSpecification."Lot No."))
+                       ((SumOfEntries <> SumLot) or (TempTrackingSpecification."New Lot No." <> TempTrackingSpecification."Lot No.")
+                       or (TempTrackingSpecification."New Package No." <> TempTrackingSpecification."Package No."))
                     then
                         TempTrackingSpecification.TestField("New Expiration Date", ExistingExpirationDate);
                     ItemTrackingMgt.TestExpDateOnTrackingSpecNew(TempTrackingSpecification);
@@ -7987,6 +7983,27 @@ codeunit 22 "Item Jnl.-Post Line"
             Error(Text014, ItemJnlLine."Serial No.");
     end;
 
+    local procedure GetExistingExpirationDateFromILE(var ItemTrackingSetup: Record "Item Tracking Setup"; var ExistingExpirationDate: Date; var SumOfEntries: Decimal)
+    begin
+        ItemTrackingSetup.CopyTrackingFromNewTrackingSpec(TempTrackingSpecification);
+        ExistingExpirationDate :=
+          ItemTrackingMgt.ExistingExpirationDateAndQty(
+            TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code",
+            ItemTrackingSetup, SumOfEntries);
+
+        if ((ExistingExpirationDate = 0D) and (SumOfEntries = 0)) and
+           ((TempTrackingSpecification."New Lot No." = TempTrackingSpecification."Lot No.") and
+            (TempTrackingSpecification."New Package No." <> TempTrackingSpecification."Package No."))
+        then begin
+            ItemTrackingSetup.CopyTrackingFromTrackingSpec(TempTrackingSpecification);
+            ExistingExpirationDate := ItemTrackingMgt.ExistingExpirationDateAndQty(
+              TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code",
+              ItemTrackingSetup, SumOfEntries);
+            if (ExistingExpirationDate = 0D) and (SumOfEntries > 0) then
+                SumOfEntries := 0;
+        end;
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sequence No. Mgt.", 'OnPreviewableLedgerEntry', '', false, false)]
     local procedure OnPreviewableLedgerEntry(TableNo: Integer; var IsPreviewable: Boolean)
     begin
@@ -8303,7 +8320,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateItemLedgEntryOnBeforeUpdateOutboundItemLedgEntry(ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    local procedure OnUpdateItemLedgEntryOnBeforeUpdateOutboundItemLedgEntry(ValueEntry: Record "Value Entry"; var IsHandled: Boolean; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
