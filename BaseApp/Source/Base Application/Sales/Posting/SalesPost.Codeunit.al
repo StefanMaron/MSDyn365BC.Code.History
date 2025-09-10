@@ -1377,7 +1377,7 @@ codeunit 80 "Sales-Post"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeProcessAssocItemJnlLine(SalesLine, IsHandled);
+        OnBeforeProcessAssocItemJnlLine(SalesLine, IsHandled, SalesHeader, TempDropShptPostBuffer);
         if IsHandled then
             exit;
 
@@ -2782,7 +2782,7 @@ codeunit 80 "Sales-Post"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdatePostingNo(SalesHeader, PreviewMode, ModifyHeader, IsHandled);
+        OnBeforeUpdatePostingNo(SalesHeader, PreviewMode, ModifyHeader, IsHandled, DateOrderSeriesUsed);
         if IsHandled then
             exit;
 
@@ -3557,7 +3557,7 @@ codeunit 80 "Sales-Post"
         IsHandled := false;
         OnRoundAmountOnAfterAssignSalesLines(xSalesLine, SalesLineACY, SalesHeader, IsHandled, TotalSalesLine, TotalSalesLineLCY, SalesLine);
         if not IsHandled then
-            if SalesHeader."Currency Code" <> '' then begin
+            if (SalesHeader."Currency Code" <> '') and (SalesLine.Type <> SalesLine.Type::" ") then begin
                 CurrencyFactor := GetCurrencyFactorACY(SalesHeader, AddCurrency);
                 NoVAT := SalesLine.Amount = SalesLine."Amount Including VAT";
                 SalesLine."Amount Including VAT" :=
@@ -8431,7 +8431,7 @@ codeunit 80 "Sales-Post"
         exit(Condition);
     end;
 
-    local procedure PostUpdateOrderLine(SalesHeader: Record "Sales Header")
+    procedure PostUpdateOrderLine(SalesHeader: Record "Sales Header")
     var
         TempSalesLine: Record "Sales Line" temporary;
         SetDefaultQtyBlank: Boolean;
@@ -9664,7 +9664,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeProcessAssocItemJnlLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeProcessAssocItemJnlLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var SalesHeader: Record "Sales Header"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
     begin
     end;
 
@@ -10252,7 +10252,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdatePostingNo(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var ModifyHeader: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeUpdatePostingNo(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var ModifyHeader: Boolean; var IsHandled: Boolean; var DateOrderSeriesUsed: Boolean)
     begin
     end;
 

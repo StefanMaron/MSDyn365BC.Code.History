@@ -6521,7 +6521,7 @@ codeunit 134902 "ERM Account Schedule"
         FinancialReports.OpenView();
         FinancialReports.FILTER.SetFilter(Name, ScheduleName);
         AccScheduleOverview.Trap();
-        FinancialReports.Name.Drilldown();
+        FinancialReports.Name.AssistEdit();
         AccScheduleOverview.UseAmtsInAddCurr.SetValue(true);
         AccScheduleOverview.OK().Invoke();
     end;

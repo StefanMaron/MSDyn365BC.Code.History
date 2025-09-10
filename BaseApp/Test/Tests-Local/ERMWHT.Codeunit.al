@@ -1796,6 +1796,58 @@ codeunit 141012 "ERM WHT"
         Assert.RecordIsEmpty(LastWHTEntry);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostMultipleWHTInvoiceWithPayment()
+    var
+        GenJournalLine: array[3] of Record "Gen. Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        VendorNo: array[3] of Code[20];
+        PostedInvoiceNo: array[3] of Code[20];
+        PostedCreditMemoNo: Code[20];
+        GLAccountNo: Code[20];
+        Amount: array[3] of Decimal;
+        WHTAmount: array[3] of Decimal;
+    begin
+        // [SCENARIO 597840] Stan has posted multiple Withholding tax invoices for different vendors and post credit memo for one of the invoices and when
+        // posting payment journal for all of the invoices, WHT calculation should be correct.
+        Initialize();
+
+        // [GIVEN] Enable WHT
+        UpdateGeneralLedgerSetup(false, true, false);  // False - Enable GST, Round Amount for WHT Calc and True as Enable WHT.
+
+        // [GIVEN] Find VATPosting setup and WHT posting setup
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        FindWHTPostingSetup(WHTPostingSetup);
+
+        // [GIVEN] Create multiple vendors
+        CreateMultipleVendors(VendorNo, VATPostingSetup);
+
+        // [GIVEN] Create G/L Account
+        GLAccountNo := CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Create multiple purchase invoices for multiples Vendors
+        PostMultiplePurchaseInvoice(VendorNo, PostedInvoiceNo, WHTAmount, WHTPostingSetup, GLAccountNo);
+
+        // [GIVEN] Create and post partial Purchase Credit Memo for second invoice posted with WHT
+        PostedCreditMemoNo := PostPurchaseCreditMemoWithWHT(WHTPostingSetup, VendorNo[2], GLAccountNo, PostedInvoiceNo[2]);
+
+        // [GIVEN] Update WHTAmount of second invoice after posting Purchase Credit Memo
+        WHTAmount[2] := WHTAmount[2] + GetWHTEntryUnrealizedAmount(PostedCreditMemoNo);
+
+        // [GIVEN] Get Remaining Amount from Vendor Ledger Entry for all invoices
+        GetRemainingAmountFromVendorLedgerEntry(PostedInvoiceNo, Amount);
+
+        // [WHEN] Create and Post Payment Journal with WHT
+        CreateAndPostMultipleGeneralJournalLineWithCurrency(
+          GenJournalLine, WHTPostingSetup, GenJournalLine[1]."Account Type"::Vendor, GenJournalLine[1]."Document Type"::Payment,
+          VendorNo, PostedInvoiceNo, '', Amount);
+
+        // [THEN] Verify WHT Amount on G/L Entry
+        VerifyWHTAmountOnGlEntry(GenJournalLine, WHTAmount, WHTPostingSetup."Payable WHT Account Code");
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2731,6 +2783,103 @@ codeunit 141012 "ERM WHT"
         VerifyAmountOnGLEntry(InvoiceNo, PurchAccountNo[1], PurchaseLine[1]."Line Amount");
         VerifyAmountOnGLEntry(InvoiceNo, PurchAccountNo[2], PurchaseLine[2]."Line Amount");
         VerifyAmountAndBaseOnWHTEntry(InvoiceNo, WHTAmount, PurchaseLine[1]."Line Amount");
+    end;
+
+    local procedure CreateMultipleVendors(var VendorNo: array[3] of Code[20]; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(VendorNo) do
+            VendorNo[i] := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+    end;
+
+    local procedure PostMultiplePurchaseInvoice(VendorNo: array[3] of Code[20]; var PostedInvoiceNo: array[3] of Code[20]; var WHTAmount: array[3] of Decimal; WHTPostingSetup: Record "WHT Posting Setup"; GLAccountNo: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        i: Integer;
+    begin
+        for i := 1 to 3 do begin
+            PostedInvoiceNo[i] := CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup,
+             PurchaseHeader."Document Type"::Invoice, VendorNo[i], GLAccountNo, LibraryRandom.RandIntInRange(i * 1000, i * 1000 + 1000));
+            WHTAmount[i] := GetWHTEntryUnrealizedAmount(PostedInvoiceNo[i]);
+        end;
+    end;
+
+    local procedure PostPurchaseCreditMemoWithWHT(WHTPostingSetup: Record "WHT Posting Setup"; VendorNo: Code[20]; GLAccountNo: Code[20]; PostedInvoiceNo: Code[20]) PostedCreditMemoNo: Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        CreatePurchaseDocument(PurchaseLine, WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo", VendorNo, GLAccountNo, '');
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseHeader.Validate("Applies-to Doc. Type", PurchaseHeader."Applies-to Doc. Type"::Invoice);
+        PurchaseHeader.Validate("Applies-to Doc. No.", PostedInvoiceNo);
+        PurchaseHeader.Modify(true);
+
+        PurchaseLine.Validate(Quantity, 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(500, 1000));
+        PurchaseLine.Modify(true);
+        PostedCreditMemoNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
+    local Procedure GetRemainingAmountFromVendorLedgerEntry(PostedInvoiceNo: array[3] of Code[20]; var Amount: array[3] of Decimal)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(PostedInvoiceNo) do begin
+            LibraryERM.FindVendorLedgerEntry(
+                VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, PostedInvoiceNo[i]);
+            VendorLedgerEntry.CalcFields("Remaining Amount");
+            Amount[i] := Abs(VendorLedgerEntry."Remaining Amount");
+        end;
+    end;
+
+    local procedure VerifyWHTAmountOnGlEntry(GenJournalLine: array[3] of Record "Gen. Journal Line"; WHTAmount: array[3] of Decimal; PayableWHTAccountCode: Code[20])
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(GenJournalLine) do
+            VerifyAmountOnGLEntry(GenJournalLine[i]."Document No.", PayableWHTAccountCode, -Round(WHTAmount[i]));
+    end;
+
+    local procedure CreateAndPostMultipleGeneralJournalLineWithCurrency(
+      var GenJournalLine: array[3] of Record "Gen. Journal Line";
+      WHTPostingSetup: Record "WHT Posting Setup";
+      AccountType: Enum "Gen. Journal Account Type";
+      DocumentType: Enum "Gen. Journal Document Type";
+      AccountNo: array[3] of Code[20];
+      AppliesToDocNo: array[3] of Code[20];
+      CurrencyCode: Code[10];
+      Amount: array[3] of Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        NoSeriesBatch: Codeunit "No. Series - Batch";
+        BankAccountCode: Code[20];
+        i: Integer;
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        BankAccountCode := CreateBankAccount(CurrencyCode);
+        for i := 1 to ArrayLen(GenJournalLine) do begin
+            CreateGeneralJnlLine(
+                     GenJournalLine[i], GenJournalBatch, WHTPostingSetup, DocumentType, AccountType, AccountNo[i], AppliesToDocNo[i], CurrencyCode, Amount[i]);
+            GenJournalLine[i].Validate("Document No.", NoSeriesBatch.GetNextNo(GenJournalBatch."No. Series"));
+            GenJournalLine[i].Validate("Bal. Account Type", GenJournalLine[i]."Bal. Account Type"::"Bank Account");
+            GenJournalLine[i].Validate("Bal. Account No.", BankAccountCode);
+            GenJournalLine[i].Modify(true);
+        end;
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine[1]);
+    end;
+
+    local procedure GetWHTEntryUnrealizedAmount(DocumentNo: Code[20]): Decimal
+    var
+        WHTEntry: Record "WHT Entry";
+    begin
+        WHTEntry.SetRange("Document No.", DocumentNo);
+        WHTEntry.FindFirst();
+        exit(WHTEntry."Unrealized Amount");
     end;
 
     [ModalPageHandler]
