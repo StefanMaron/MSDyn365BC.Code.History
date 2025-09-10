@@ -432,8 +432,19 @@ report 2000021 "File Domiciliations"
     end;
 
     trigger OnPostReport()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        FileMgt: Codeunit "File Management";
+        InStream: InStream;
+        IsHandled: Boolean;
     begin
-        Download(FromFile, '', '', AllFilesDescriptionTxt, FullFileName);
+        FileMgt.BLOBImportFromServerFile(TempBlob, FromFile);
+        IsHandled := false;
+        OnPostReportOnBeforeDownloadXmlFile(TempBlob, IsHandled);
+        if not IsHandled then begin
+            TempBlob.CreateInStream(InStream);
+            FileMgt.DownloadFromStreamHandler(InStream, '', '', AllFilesDescriptionTxt, FullFileName);
+        end;
     end;
 
     trigger OnPreReport()
@@ -706,6 +717,11 @@ report 2000021 "File Domiciliations"
         LastGenJnlLine := NewLastGenJnlLine;
         GenJnlBatch := NewGenJnlBatch;
         DocumentNo := NewDocumentNo;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostReportOnBeforeDownloadXmlFile(var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean);
+    begin
     end;
 }
 

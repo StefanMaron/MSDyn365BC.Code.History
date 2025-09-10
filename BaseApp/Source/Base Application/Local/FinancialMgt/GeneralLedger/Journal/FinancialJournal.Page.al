@@ -828,7 +828,6 @@ page 11300 "Financial Journal"
         GLReconcile: Page Reconciliation;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
-        ShortcutDimCode: array[8] of Code[20];
         Total: Decimal;
         Currency: Boolean;
         OpenedFromBatch: Boolean;
@@ -838,6 +837,7 @@ page 11300 "Financial Journal"
         ImportBankStatementBalanceMsg: Label 'The Statement Ending Balance field may not show the actual balance according to the imported bank statement.';
 
     protected var
+        ShortcutDimCode: array[8] of Code[20];
         AccName: Text[100];
         BalAccName: Text[100];
         CurrentJnlBatchName: Code[10];

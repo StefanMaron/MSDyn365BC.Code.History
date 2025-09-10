@@ -1144,17 +1144,18 @@ codeunit 1255 "Match Bank Payments"
         exit(FindTextMappings(BankAccReconciliationLine, TempTextToAccMapping, false));
     end;
 
-    local procedure SubstringMatchPercentage(ToMatchString: Text; OtherString: Text): Integer;
+    local procedure SubstringMatchPercentage(ToMatchString: Text; OtherString: Text; var LongestCommonSubstringLength: Integer): Integer;
     var
         RecordMatchMgt: Codeunit "Record Match Mgt.";
         CommonSubstring: Text;
         MinLength: Integer;
     begin
         CommonSubstring := RecordMatchMgt.GetLongestCommonSubstring(ToMatchString, OtherString);
+        LongestCommonSubstringLength := StrLen(CommonSubstring);
         MinLength := (StrLen(ToMatchString) + StrLen(OtherString) - Abs(StrLen(ToMatchString) - StrLen(OtherString))) / 2;
-        if (MinLength = 0) or (StrLen(CommonSubstring) < StrLen(ToMatchString)) then
+        if (MinLength = 0) or (LongestCommonSubstringLength < StrLen(ToMatchString)) then
             exit(0);
-        exit(GetNormalizingFactor() * StrLen(CommonSubstring) div MinLength);
+        exit(GetNormalizingFactor() * LongestCommonSubstringLength div MinLength);
     end;
 
     local procedure FindTextMappings(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempTextToAccMapping: Record "Text-to-Account Mapping" temporary; TrackApplicableRules: Boolean): Boolean
@@ -1162,7 +1163,7 @@ codeunit 1255 "Match Bank Payments"
         TextToAccMapping: Record "Text-to-Account Mapping";
         BankAccLedgerEntry: Record "Bank Account Ledger Entry";
         RecordMatchMgt: Codeunit "Record Match Mgt.";
-        Nearness: Integer;
+        Nearness, LongestCommonSubstringLength : Integer;
         Score: Integer;
         AccountType: Enum "Gen. Journal Account Type";
         AccountNo: Code[20];
@@ -1175,7 +1176,7 @@ codeunit 1255 "Match Bank Payments"
                 Nearness := 0;
                 OnFindTextMappingsOnBeforeCalculateStringNearness(BankAccReconciliationLine, TextToAccMapping, Nearness);
                 if Nearness = 0 then
-                    Nearness := SubstringMatchPercentage(RecordMatchMgt.Trim(TextToAccMapping."Mapping Text"), BankAccReconciliationLine."Transaction Text");
+                    Nearness := SubstringMatchPercentage(RecordMatchMgt.Trim(TextToAccMapping."Mapping Text"), BankAccReconciliationLine."Transaction Text", LongestCommonSubstringLength);
 
                 case TextToAccMapping."Bal. Source Type" of
                     TextToAccMapping."Bal. Source Type"::"G/L Account":
@@ -1188,17 +1189,16 @@ codeunit 1255 "Match Bank Payments"
                 end;
 
                 if Nearness >= GetExactMatchTreshold() then begin
+                    Score := TempBankPmtApplRule.GetTextMapperScore(LongestCommonSubstringLength, LowerCase(BankAccReconciliationLine."Transaction Text").Contains(LowerCase(RecordMatchMgt.Trim(TextToAccMapping."Mapping Text"))));
                     // Customers could post the expense via Journal. In this case there is a risk that we will create double entries.
                     // We will seach for existing bank ledger entries with similar text in the similar range and mapp to that
                     if FindBankAccLedgerEntry(BankAccLedgerEntry, BankAccReconciliationLine, TextToAccMapping, AccountNo) then begin
                         EntryNo := BankAccLedgerEntry."Entry No.";
                         AccountType := TempBankStatementMatchingBuffer."Account Type"::"Bank Account";
                         AccountNo := BankAccLedgerEntry."Bank Account No.";
-                        Score := TempBankPmtApplRule.GetTextMapperScore();
                     end else begin
                         EntryNo := -TextToAccMapping."Line No."; // mark negative to identify text-mapper
                         AccountType := Enum::"Gen. Journal Account Type".FromInteger(TextToAccMapping."Bal. Source Type");
-                        Score := TempBankPmtApplRule.GetTextMapperScore();
                     end;
 
                     TextMapperMatched := true;

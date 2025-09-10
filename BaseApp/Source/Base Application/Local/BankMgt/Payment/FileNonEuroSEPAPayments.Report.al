@@ -19,6 +19,7 @@ using System;
 using System.Environment;
 using System.IO;
 using System.Telemetry;
+using System.Utilities;
 using System.Xml;
 
 report 2000006 "File Non Euro SEPA Payments"
@@ -209,15 +210,26 @@ report 2000006 "File Non Euro SEPA Payments"
     }
 
     trigger OnPostReport()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        FileMgt: Codeunit "File Management";
+        OutStream: OutStream;
+        InStream: InStream;
+        IsHandled: Boolean;
     begin
         FinishGroupHeader();
-        XMLDomDoc.Save(SaveToFileName);
+        TempBlob.CreateOutStream(OutStream);
+        XMLDomDoc.Save(OutStream);
+        IsHandled := false;
+        OnPostReportOnBeforeDownloadXmlFile(TempBlob, IsHandled);
+        if not IsHandled then begin
+            TempBlob.CreateInStream(InStream);
 
-        if SaveToFileName = '' then
-            SaveToFileName := NonEuroSEPAPaymentsTxt;
+            if SaveToFileName = '' then
+                SaveToFileName := NonEuroSEPAPaymentsTxt;
 
-        Download(SaveToFileName, '', '', AllFilesDescriptionTxt, FileName);
-
+            FileMgt.DownloadFromStreamHandler(InStream, '', '', AllFilesDescriptionTxt, SaveToFileName);
+        end;
         Clear(XMLDomDoc);
     end;
 
@@ -438,7 +450,8 @@ report 2000006 "File Non Euro SEPA Payments"
         AddElement(XMLNodeCurr, 'FinInstnId', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
-        AddElement(XMLNodeCurr, 'BIC', CopyStr(DelChr(BankAcc."SWIFT Code"), 1, 11), '', XMLNewChild);
+        if AddBICTag(BankAcc."SWIFT Code") then
+            AddElement(XMLNodeCurr, 'BIC', CopyStr(DelChr(BankAcc."SWIFT Code"), 1, 11), '', XMLNewChild);
         XMLNodeCurr := XMLNodeCurr.ParentNode;
         XMLNodeCurr := XMLNodeCurr.ParentNode;
 
@@ -502,7 +515,8 @@ report 2000006 "File Non Euro SEPA Payments"
         AddElement(XMLNodeCurr, 'FinInstnId', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
-        AddElement(XMLNodeCurr, 'BIC', CopyStr(DelChr(PmtJnlLine."SWIFT Code"), 1, 11), '', XMLNewChild);
+        if AddBICTag(PmtJnlLine."SWIFT Code") then
+            AddElement(XMLNodeCurr, 'BIC', CopyStr(DelChr(PmtJnlLine."SWIFT Code"), 1, 11), '', XMLNewChild);
         case PmtJnlLine."Account Type" of
             PmtJnlLine."Account Type"::Vendor:
                 begin
@@ -862,6 +876,12 @@ report 2000006 "File Non Euro SEPA Payments"
             Error(Text002, GenJnlTemplate.Name);
     end;
 
+    local procedure AddBICTag(SwiftCode: Code[20]) AddTag: Boolean
+    begin
+        AddTag := true;
+        OnAddBICTag(SwiftCode, AddTag);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckNewGroup(PaymentJournalLine: Record "Payment Journal Line"; ConsolidatedPaymentJournalLine: Record "Payment Journal Line"; var ReturnValue: Boolean)
     begin
@@ -899,6 +919,16 @@ report 2000006 "File Non Euro SEPA Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePreDataItemSeparatePmtJnlLine(var PaymentJournalLine: Record "Payment Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostReportOnBeforeDownloadXmlFile(var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddBICTag(SwiftCode: Code[20]; var AddTag: Boolean)
     begin
     end;
 }
