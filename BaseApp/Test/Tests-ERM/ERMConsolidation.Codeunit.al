@@ -761,6 +761,65 @@ codeunit 134092 "ERM Consolidation"
         ConsolidateWizard.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('DimensionSelectionMultiplePageHandler')]
+    [Scope('OnPrem')]
+    procedure ConsolidationWizardClearsDimensionsOnSecondRun()
+    var
+        BusinessUnit: Record "Business Unit";
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        ConsolidateWizard: TestPage "Consolidate Wizard";
+        DimensionCode: Code[20];
+        StartingDate: Date;
+        EndingDate: Date;
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 578672] Dimensions to Transfer field should be cleared when opening Consolidate Wizard for the second time
+        Initialize();
+        CreateFiscalYear();
+
+        // [GIVEN] Create a new dimension that can be selected
+        LibraryDimension.CreateDimension(Dimension);
+        DimensionCode := Dimension.Code;
+        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
+
+        // [GIVEN] Create and setup Business Unit
+        CreateBusinessUnit(BusinessUnit, BusinessUnit."Data Source"::"Local Curr. (LCY)");
+        BusinessUnit.Consolidate := true;
+        BusinessUnit."Starting Date" := CalcDate('<-1M>', CurrentDateTime().Date);
+        BusinessUnit."Ending Date" := CalcDate('<+1M>', CurrentDateTime().Date);
+        BusinessUnit.Modify(true);
+
+        // [GIVEN] Setup consolidation parameters
+        StartingDate := BusinessUnit."Starting Date";
+        EndingDate := BusinessUnit."Ending Date";
+        DocumentNo := LibraryUtility.GenerateGUID();
+
+        // [WHEN] Open Consolidate Wizard first time and select dimensions
+        ConsolidateWizard.OpenNew();
+        ConsolidateWizard.StartingDate.SetValue(StartingDate);
+        ConsolidateWizard.EndingDate.SetValue(EndingDate);
+        ConsolidateWizard.DocumentNo.SetValue(DocumentNo);
+
+        // [THEN] Select dimensions using AssistEdit
+        LibraryVariableStorage.Enqueue(DimensionCode); // For dimension selection handler
+        ConsolidateWizard.TransferedDimensions.AssistEdit();
+
+        // [GIVEN] Navigate through wizard steps
+        ConsolidateWizard.ActionNext.Invoke();
+        ConsolidateWizard.ActionNext.Invoke();
+        ConsolidateWizard.Close();
+
+        // [WHEN] Open Consolidate Wizard second time
+        ConsolidateWizard.OpenNew();
+
+        // [THEN] Verify that Dimensions to Transfer field is cleared (empty)
+        ConsolidateWizard.TransferedDimensions.AssertEquals('');
+        ConsolidateWizard.Close();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryReportValidation: Codeunit "Library - Report Validation";
@@ -776,6 +835,16 @@ codeunit 134092 "ERM Consolidation"
 
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         IsInitialized := true;
+    end;
+
+    local procedure CreateFiscalYear()
+    var
+        AccountingPeriod: Record "Accounting Period";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+    begin
+        AccountingPeriod.DeleteAll();
+        WorkDate := DMY2Date(1, 1, 2025);
+        LibraryFiscalYear.CreateFiscalYear();
     end;
 
     local procedure ClearGLEntriesOnPostingDate(PostingDate: Date)
@@ -1085,6 +1154,24 @@ codeunit 134092 "ERM Consolidation"
         ExportConsolidation.FileFormat.SetValue(2); // Version F&O
         ExportConsolidation."F&O Legal Entity ID".SetValue(LibraryVariableStorage.DequeueText());
         ExportConsolidation.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure DimensionSelectionMultiplePageHandler(var DimensionSelectionMultiple: TestPage "Dimension Selection-Multiple")
+    var
+        DimensionCode: Code[20];
+    begin
+        DimensionCode := LibraryVariableStorage.DequeueText();
+        DimensionSelectionMultiple.FILTER.SetFilter(Code, DimensionCode);
+        DimensionSelectionMultiple.Selected.SetValue(true);
+        DimensionSelectionMultiple.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]

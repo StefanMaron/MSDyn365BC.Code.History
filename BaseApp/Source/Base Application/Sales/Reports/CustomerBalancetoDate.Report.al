@@ -365,7 +365,6 @@ report 121 "Customer - Balance to Date"
 
     var
         AutoFormat: Codeunit "Auto Format";
-        Counter1: Integer;
         DtldCustLedgEntryNum: Integer;
         OK: Boolean;
         DateFilterTxt: Text;
@@ -396,6 +395,7 @@ report 121 "Customer - Balance to Date"
         OriginalAmt: Decimal;
         Amt: Decimal;
         RemainingAmt: Decimal;
+        Counter1: Integer;
 
     procedure InitializeRequest(NewPrintAmountInLCY: Boolean; NewPrintOnePrPage: Boolean; NewPrintUnappliedEntries: Boolean; NewEndingDate: Date)
     begin
