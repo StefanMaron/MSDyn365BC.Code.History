@@ -10,7 +10,6 @@ using Microsoft.eServices.EDocument;
 using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Purchases.Vendor;
-using Microsoft.eServices.EDocument.OrderMatch.Copilot;
 using System.Telemetry;
 
 page 6181 "E-Document Purchase Draft"
@@ -360,19 +359,13 @@ page 6181 "E-Document Purchase Draft"
     trigger OnOpenPage()
     var
         EDocumentsSetup: Record "E-Documents Setup";
-        ImportEDocumentProcess: Codeunit "Import E-Document Process";
         EDocumentNotification: Codeunit "E-Document Notification";
     begin
         if not EDocumentsSetup.IsNewEDocumentExperienceActive() then
             Error('');
 
-        if EDocumentPurchaseHeader.Get(Rec."Entry No") then
-            if Rec."Read into Draft Impl." = "E-Doc. Read into Draft"::ADI then begin
-                HasPDFSource := true;
-                AIGeneratedContentNotification.Message(ImportEDocumentProcess.AIGeneratedContentText());
-                AIGeneratedContentNotification.AddAction(ImportEDocumentProcess.TermsAndConditionsText(), Codeunit::"Import E-Document Process", 'OpenTermsAndConditions');
-                AIGeneratedContentNotification.Send();
-            end;
+        if EDocumentPurchaseHeader.Get(Rec."Entry No") then;
+        HasPDFSource := Rec."Read into Draft Impl." = "E-Doc. Read into Draft"::ADI;
         EDocumentServiceStatus := Rec.GetEDocumentServiceStatus();
         HasErrorsOrWarnings := false;
         HasErrors := false;
@@ -484,7 +477,7 @@ page 6181 "E-Document Purchase Draft"
         EDocImportParameters: Record "E-Doc. Import Parameters";
         EDocImport: Codeunit "E-Doc. Import";
     begin
-        Session.LogMessage('0000PCO', FinalizeDraftInvokedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
+        Session.LogMessage('0000PCO', FinalizeDraftInvokedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocumentPurchaseHeader.FeatureName());
 
         if not EDocumentHelper.EnsureInboundEDocumentHasService(Rec) then
             exit;
@@ -499,8 +492,8 @@ page 6181 "E-Document Purchase Draft"
         PageEditable := IsEditable();
         CurrPage.Lines.Page.Update();
         CurrPage.Update();
-        Session.LogMessage('0000PCP', FinalizeDraftPerformedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocPOCopilotMatching.FeatureName());
-        FeatureTelemetry.LogUsage('0000PCU', EDocPOCopilotMatching.FeatureName(), 'Finalize draft');
+        Session.LogMessage('0000PCP', FinalizeDraftPerformedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', EDocumentPurchaseHeader.FeatureName());
+        FeatureTelemetry.LogUsage('0000PCU', EDocumentPurchaseHeader.FeatureName(), 'Finalize draft');
         Rec.ShowRecord();
     end;
 
@@ -581,11 +574,9 @@ page 6181 "E-Document Purchase Draft"
         EDocumentServiceStatus: Record "E-Document Service Status";
         EDocumentErrorHelper: Codeunit "E-Document Error Helper";
         EDocumentProcessing: Codeunit "E-Document Processing";
-        EDocPOCopilotMatching: Codeunit "E-Doc. PO Copilot Matching";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         EDocumentHelper: Codeunit "E-Document Helper";
         ErrorsAndWarningsNotification: Notification;
-        AIGeneratedContentNotification: Notification;
         RecordLinkTxt, StyleStatusTxt, ServiceStatusStyleTxt, VendorName, DataCaption : Text;
         HasErrorsOrWarnings, HasErrors : Boolean;
         ShowFinalizeDraftAction: Boolean;

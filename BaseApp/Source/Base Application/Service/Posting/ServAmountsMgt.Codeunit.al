@@ -147,7 +147,10 @@ codeunit 5986 "Serv-Amounts Mgt."
                         ServiceLine."Line Discount Amount" := LineDiscountAmountExpected;
                 end;
 
-                ServiceLine."Line Amount" := ServiceLine."Line Amount" - ServiceLine."Line Discount Amount";
+                if ServiceLine."Line Discount %" = 100 then
+                    ServiceLine."Line Amount" := 0
+                else
+                    ServiceLine."Line Amount" := ServiceLine."Line Amount" - ServiceLine."Line Discount Amount";
 
                 if ServiceLine."Allow Invoice Disc." and (TempVATAmountLine."Inv. Disc. Base Amount" <> 0) then
                     if QtyType = QtyType::Invoicing then

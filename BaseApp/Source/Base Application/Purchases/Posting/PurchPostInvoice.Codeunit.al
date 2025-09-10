@@ -232,8 +232,12 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         end;
 
         PurchPostInvoiceEvents.RunOnPrepareLineOnBeforeAdjustTotalAmounts(PurchLine, TotalAmount, TotalAmountACY, PurchHeader.GetUseDate());
-        DeferralUtilities.AdjustTotalAmountForDeferrals(
-          PurchLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY, PurchLine."Inv. Discount Amount" + PurchLine."Line Discount Amount", PurchLineACY."Inv. Discount Amount" + PurchLineACY."Line Discount Amount");
+        if PurchSetup."Discount Posting" = PurchSetup."Discount Posting"::"No Discounts" then
+            DeferralUtilities.AdjustTotalAmountForDeferralsNoBase(
+          PurchLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY, 0, 0)
+        else
+            DeferralUtilities.AdjustTotalAmountForDeferralsNoBase(
+              PurchLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY, PurchLine."Inv. Discount Amount" + PurchLine."Line Discount Amount", PurchLineACY."Inv. Discount Amount" + PurchLineACY."Line Discount Amount");
 
         IsHandled := false;
         PurchPostInvoiceEvents.RunOnPrepareLineOnBeforeSetAmounts(
@@ -285,6 +289,11 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         if PurchLine."Deferral Code" <> '' then begin
             PurchPostInvoiceEvents.RunOnPrepareLineOnBeforePrepareDeferralLine(
                 PurchLine, InvoicePostingBuffer, PurchHeader.GetUseDate(), InvDefLineNo, DeferralLineNo, SuppressCommit);
+            if PurchSetup."Discount Posting" = PurchSetup."Discount Posting"::"No Discounts" then
+                PrepareDeferralLine(
+                    PurchHeader, PurchLine, InvoicePostingBuffer.Amount, InvoicePostingBuffer."Amount (ACY)",
+                    AmtToDefer, AmtToDeferACY, DeferralAccount, PurchAccount, 0, 0)
+            else
             PrepareDeferralLine(
                 PurchHeader, PurchLine, InvoicePostingBuffer.Amount, InvoicePostingBuffer."Amount (ACY)",
                 AmtToDefer, AmtToDeferACY, DeferralAccount, PurchAccount, PurchLine."Inv. Discount Amount" + PurchLine."Line Discount Amount", PurchLineACY."Inv. Discount Amount" + PurchLineACY."Line Discount Amount");
@@ -909,6 +918,11 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
                             PurchPostInvoiceEvents.RunOnCalculateVATAmountInBufferOnBeforeTempInvoicePostingBufferAssign(VATAmount, VATAmountACY, TempInvoicePostingBuffer);
                             TempInvoicePostingBufferReverseCharge := InvoicePostingBuffer;
                             if TempInvoicePostingBufferReverseCharge.Find() then begin
+                                if VATPostingSetup."VAT %" = 0 then begin
+                                    VATAmountRemainder := VATAmount;
+                                    VATAmountACYRemainder := VATAmountACY;
+                                end;
+
                                 VATAmountRemainder += VATAmount;
                                 InvoicePostingBuffer."VAT Amount" := Round(VATAmountRemainder, CurrencyDocument."Amount Rounding Precision");
                                 VATAmountRemainder -= InvoicePostingBuffer."VAT Amount";

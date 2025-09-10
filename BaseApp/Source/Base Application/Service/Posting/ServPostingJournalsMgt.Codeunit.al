@@ -259,7 +259,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                 CheckApplFromItemEntry := ServiceLine.Quantity < 0;
 
         ShouldCreateWhseJnlLine := true;
-        OnPostItemJnlLineOnBeforeCreateWhseJnlLine(ItemJnlLine, ServiceHeader, ShouldCreateWhseJnlLine, ServShptHeader, ServiceLine, TempWhseJnlLine, WhsePosting);
+        OnPostItemJnlLineOnBeforeCreateWhseJnlLine(ItemJnlLine, ServiceHeader, ShouldCreateWhseJnlLine, ServShptHeader, ServiceLine, TempWhseJnlLine, WhsePosting, CheckApplFromItemEntry);
 
         if ShouldCreateWhseJnlLine and (ServiceLine."Location Code" <> '') and (ServiceLine.Type = ServiceLine.Type::Item) and ServiceLine.IsInventoriableItem() and (ItemJnlLine.Quantity <> 0) then begin
             GetLocation(ServiceLine."Location Code", Location);
@@ -838,7 +838,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnBeforeCreateWhseJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceHeader: Record "Service Header"; var ShouldCreateWhseJnlLine: Boolean; ServiceShipmentHeader: Record "Service Shipment Header"; var ServiceLine: Record "Service Line"; var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; var WhsePosting: Boolean);
+    local procedure OnPostItemJnlLineOnBeforeCreateWhseJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceHeader: Record "Service Header"; var ShouldCreateWhseJnlLine: Boolean; ServiceShipmentHeader: Record "Service Shipment Header"; var ServiceLine: Record "Service Line"; var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; var WhsePosting: Boolean; var CheckApplFromItemEntry: Boolean);
     begin
     end;
 

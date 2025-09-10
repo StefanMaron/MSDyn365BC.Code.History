@@ -2385,6 +2385,64 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // [VERIFY] Verification has been done in handler PurchaseInvoiceStatsModalPageHandler
     end;
 
+    [Test]
+    procedure TestGLEntryConsistencyErrorIfCommentLineBetweenItem()
+    var
+        Currency: Record Currency;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine, SalesLine1, SalesLine2, SalesLine3 : Record "Sales Line";
+        SalesInvocieHeader: Record "Sales Invoice Header";
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        TaxDetail: Record "Tax Detail";
+        ItemNo: Code[20];
+        PostedDocumentNo: Code[20];
+        UnitPrice: Decimal;
+    begin
+        //[SCENARIO 597331] G/L Entry inconsistency when posting Sales Invoice with specific amounts and comment
+        Initialize();
+
+        // [GIVEN] Create Currency and set the new exchange rate from working date, Exch Rate Amt as 1, Relational Exch Rate Amt as 1.3691
+        LibraryERM.CreateCurrency(Currency);
+        CreateCurrencyExchangeRate(Currency.Code, WorkDate(), 1, 1.3691);
+
+        // [GIVEN] Create Sales Tax and set Tax Below Max = 3.0 
+        LibraryERM.CreateTaxArea(TaxArea);
+        LibraryERM.CreateTaxGroup(TaxGroup);
+        CreateTaxAreaSetupWithValues(TaxDetail, TaxArea.Code, TaxGroup.Code, 3);
+
+        // [GIVEN] Create Customer with Currency and Tax Area Code
+        CreateCustomerWithCurrencyAndTaxArea(Customer, Currency.Code, TaxArea.Code);
+
+        // [GIVEN] Create Item with Tax Group Code
+        ItemNo := CreateItem(TaxGroup.Code);
+
+        // [GIVEN] Create Sales Invoice Document
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] Create first line with Item - Quantity as 1 and Unit Price as 730.991
+        UnitPrice := 730.991;
+        LibrarySales.CreateSalesLineWithUnitPrice(SalesLine, SalesHeader, ItemNo, UnitPrice, 1);
+
+        // [GIVEN] Create second line with Item - Quantity as 1 and Unit Price as 730.991
+        LibrarySales.CreateSalesLineWithUnitPrice(SalesLine1, SalesHeader, ItemNo, UnitPrice, 1);
+
+        // [GIVEN] Create third line with Type as blank and Random Description
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine.Type::" ", '', 0);
+        SalesLine2.Validate(Description, LibraryRandom.RandText(100));
+        SalesLine2.Modify(true);
+
+        // [GIVEN] Create fourth line with Item - Quantity as 1 and Unit Price as 730.991
+        LibrarySales.CreateSalesLineWithUnitPrice(SalesLine3, SalesHeader, ItemNo, UnitPrice, 1);
+
+        // [WHEN] Post the sales document
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] No error of G/L Consistency should come
+        SalesInvocieHeader.Get(PostedDocumentNo);
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";
@@ -3218,6 +3276,44 @@ codeunit 142053 "ERM Sales/Purchase Document"
         GLAccount.Get(GLAccountNo);
         GLAccount.Validate("Gen. Prod. Posting Group", NewGenProdPostingGroupCode);
         GLAccount.Modify(true);
+    end;
+
+    local procedure CreateCurrencyExchangeRate(CurrencyCode: Code[10]; StartingDate: Date; ExchangeRateAmount: Decimal; RelationalExchRateAmount: Decimal)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", ExchangeRateAmount);  // Magic exchange rate
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalExchRateAmount);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
+        CurrencyExchangeRate.Modify(true);
+    end;
+
+    local procedure CreateTaxAreaSetupWithValues(var TaxDetail: Record "Tax Detail"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxBelowMax: Decimal)
+    var
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxAreaLine: Record "Tax Area Line";
+    begin
+        LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
+        TaxJurisdiction.Validate("Tax Account (Purchases)", LibraryERM.CreateGLAccountNo());
+        TaxJurisdiction.Modify(true);
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
+        TaxDetail.Validate("Tax Below Maximum", TaxBelowMax);
+        TaxDetail.Modify(true);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdiction.Code);
+    end;
+
+    local procedure CreateCustomerWithCurrencyAndTaxArea(var Customer: Record Customer; CurrencyCode: Code[10]; TaxAreaCode: Code[20])
+    var
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Validate("Tax Area Code", TaxAreaCode);
+        Customer.Validate("Tax Liable", true);
+        Customer.Validate("VAT Bus. Posting Group", '');
+        Customer.Modify(true);
     end;
 
     local procedure VerifyErrorOnSalesCommentLine(DocumentType: Enum "Sales Comment Document Type"; DocumentNo: Code[20]; LineNo: Integer)
