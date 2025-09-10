@@ -60,7 +60,7 @@ report 94 "Close Income Statement"
                     if (Amount <> 0) or ("Additional-Currency Amount" <> 0) then begin
                         if not GroupSum() then begin
                             TotalAmount += Amount;
-                            if GLSetup."Additional Reporting Currency" <> '' then
+                            if (GLSetup."Additional Reporting Currency" <> '') or ("Additional-Currency Amount" <> 0) then
                                 TotalAmountAddCurr += "Additional-Currency Amount";
 
                             GetGLEntryDimensions("Entry No.", TempDimBuf, "Dimension Set ID");
@@ -144,6 +144,8 @@ report 94 "Close Income Statement"
                                 GenJnlLine."System-Created Entry" := true;
                                 if not AddSourceCurrencyFields() then
                                     GenJnlLine."Source Currency Amount" := -TempEntryNoAmountBuffer.Amount2;
+                                if "Source Currency Code" <> '' then
+                                    GenJnlLine."Source Currency Code" := TempEntryNoAmountBuffer."Source Currency Code";
                                 GenJnlLine."Business Unit Code" := TempEntryNoAmountBuffer."Business Unit Code";
 
                                 TempDimBuf2.DeleteAll();

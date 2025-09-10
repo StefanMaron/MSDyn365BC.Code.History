@@ -1747,7 +1747,14 @@ table 270 "Bank Account"
     procedure IsInLocalCurrency(): Boolean
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsInLocalCurrency(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if "Currency Code" = '' then
             exit(true);
 
@@ -2235,6 +2242,19 @@ table 270 "Bank Account"
 
     [IntegrationEvent(false, false)]
     procedure OnBeforeGetBankExportImportSetup(var BankExportImportSetup: Record "Bank Export/Import Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+
+    /// <summary>
+    /// Integration event raised before determining if bank account is in local currency.
+    /// Enables custom logic for determining local currency status.
+    /// </summary>
+    /// <param name="Rec">Bank account record being checked</param>
+    /// <param name="Result">Result value to return (if handled)</param>
+    /// <param name="IsHandled">Set to true if event is handled by subscriber</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsInLocalCurrency(var Rec: Record "Bank Account"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

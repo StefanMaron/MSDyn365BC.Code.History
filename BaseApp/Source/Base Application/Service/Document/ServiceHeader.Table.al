@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -3253,6 +3253,7 @@ table 5900 "Service Header"
 
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
     var
+        xServiceLine: Record "Service Line";
         ConfirmManagement: Codeunit "Confirm Management";
         NewDimSetID: Integer;
         IsHandled: Boolean;
@@ -3281,10 +3282,14 @@ table 5900 "Service Header"
                 OnUpdateAllLineDimOnBeforeGetServLineNewDimSetID(ServLine, NewParentDimSetID, OldParentDimSetID);
                 NewDimSetID := DimMgt.GetDeltaDimSetID(ServLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
                 if ServLine."Dimension Set ID" <> NewDimSetID then begin
+                    xServiceLine := ServLine;
                     ServLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       ServLine."Dimension Set ID", ServLine."Shortcut Dimension 1 Code", ServLine."Shortcut Dimension 2 Code");
+
+                    OnUpdateAllLineDimOnBeforeServiceLineModify(ServLine, xServiceLine);
                     ServLine.Modify();
+                    OnUpdateAllLineDimOnAfterServiceLineModify(ServLine);
                 end;
             until ServLine.Next() = 0;
 
@@ -4463,7 +4468,7 @@ table 5900 "Service Header"
 #endif
                     if ServiceMgtSetup."Shipment on Invoice" then
 #if CLEAN24
-                    if NoSeries.IsAutomatic(ServiceMgtSetup."Posted Service Shipment Nos.") then
+                        if NoSeries.IsAutomatic(ServiceMgtSetup."Posted Service Shipment Nos.") then
                             "Shipping No. Series" := ServiceMgtSetup."Posted Service Shipment Nos.";
 #else
 #pragma warning disable AL0432
@@ -6601,6 +6606,16 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateResponseDateTime(var ServiceHeader: Record "Service Header"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforeServiceLineModify(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnAfterServiceLineModify(var ServiceLine: Record "Service Line")
     begin
     end;
 }

@@ -16,6 +16,7 @@ codeunit 147590 "Test VAT Statement"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVATStatement: Codeunit "Library VAT Statement";
@@ -2167,6 +2168,80 @@ codeunit 147590 "Test VAT Statement"
           'Amount is not set correctly.');
     end;
 
+    [Test]
+    [HandlerFunctions('TemplateSelectionModalPageHandler,TransferenceTXTRequestPageHandler,TransferenceTXTModalPageHandlerSimple')]
+    [Scope('OnPrem')]
+    procedure NonDeductibleVATAmountinTransferenceTxtFile()
+    var
+        VATSetup: Record "VAT Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        AEATTransferenceFormat: Record "AEAT Transference Format";
+        TelematicVATDeclaration: Report "Telematic VAT Declaration";
+        VendorNo: Code[20];
+        ItemNo: Code[20];
+        NonDeductibleVATAmount: Decimal;
+        GeneratedTextFromFile: BigText;
+        FileName: Text[1024];
+    begin
+        // [SCENARIO 592275] Test Non-Deductible VAT shown in txt file
+        Initialize();
+
+        // [GIVEN] Enable Non-Deductible VAT in VAT Setup 
+        VATSetup.Get();
+        VATSetup."Enable Non-Deductible VAT" := true;
+        VATSetup."Show Non-Ded. VAT In Lines" := true;
+        VATSetup.Modify();
+
+        // [GIVEN] Create VAT VAT Posting Setup with Non-Deductible VAT
+        CreateVATPostingSetupWithNonDeductibleVAT(VATPostingSetup);
+
+        // [GIVEN] Create Vendor with VAT Bus Posting Group 
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create Item with VAT Product Posting Group 
+        ItemNo := LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Create and post Purchase Invoice 
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 100));
+        PurchaseLine.Modify();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create VAT Statement Name '103' 
+        CreateVATStatement(VATStatementName);
+        VATStatementName.Validate("Template Type", VATStatementName."Template Type"::"One Column Report");
+        VATStatementName.Modify();
+
+        // [GIVEN] Create two VAT Statement Lines for Non-Deductible VAT Amount
+        CreateVATStatementLineVATTotalling(VATStatementLine, VATStatementName, '1', VATPostingSetup,
+            VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::"Non-Deductible Amount", '1');
+
+        // [GIVEN] Create Transference Format 
+        LibraryVATStatement.CreateAEATTransreferenceFormatTxt(AEATTransferenceFormat, VATStatementName.Name,
+            1, 1, 17, AEATTransferenceFormat.Type::Numerical, AEATTransferenceFormat.Subtype::"Integer and Decimal Part", '00000000000000000', '1');
+
+        // [GIVEN] Get Non-Deductible VAT Amount from VAT Statement Preview
+        NonDeductibleVATAmount := GetNonDeductibelVATAmountfromPreview(VATStatementName."Statement Template Name");
+
+        // [GIVEN] Load Non-Deductible VAT Amount into AEAT Transference Format
+        TelematicVATDeclaration.LoadValue(AEATTransferenceFormat, NonDeductibleVATAmount);
+
+        // [WHEN] Run Telematic VAT Declaration Report
+        FileName := CopyStr(RunTelematicVATDeclaration(VATStatementLine, 0, 0, false), 1, 1024);
+
+        // [THEN] Verify - check the Non-Deductible VAT Amount printed in file
+        LibraryTextFileValidation.ReadTextFile(FileName, GeneratedTextFromFile);
+        Assert.AreEqual(
+          AEATTransferenceFormat.Value,
+          Format(GeneratedTextFromFile),
+          AEATTransferenceValueErr);
+    end;
+
     local procedure GetVATAmount(DocNo: Code[20]): Decimal
     var
         VATEntry: Record "VAT Entry";
@@ -2192,9 +2267,11 @@ codeunit 147590 "Test VAT Statement"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
+        LibrarySetupStorage.SaveVATSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         GLSetup.Get();
@@ -2785,6 +2862,7 @@ codeunit 147590 "Test VAT Statement"
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
         VATPostingSetup.Validate("VAT %", LibraryRandom.RandIntInRange(2, 2));
+        VATPostingSetup.Validate("VAT Identifier", LibraryRandom.RandText(10));
         VATPostingSetup.Validate("Allow Non-Deductible VAT", VATPostingSetup."Allow Non-Deductible VAT"::Allow);
         VATPostingSetup.Validate("Non-Deductible VAT %", LibraryRandom.RandIntInRange(3, 3));
         VATPostingSetup.Validate("Non-Ded. Purchase VAT Account", LibraryERM.CreateGLAccountNo());
@@ -2807,6 +2885,22 @@ codeunit 147590 "Test VAT Statement"
         NonDeductibleVATBase := PurchaseLine."Non-Deductible VAT Base";
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+    end;
+
+    local procedure GetNonDeductibelVATAmountfromPreview(StatementTemplateName: Code[10]): Decimal
+    var
+        VATStatement: TestPage "VAT Statement";
+        VATStatementPreview: TestPage "VAT Statement Preview";
+        NonDeductibleVATAmount: Decimal;
+    begin
+        LibraryVariableStorage.Enqueue(StatementTemplateName);
+        VATStatement.OpenEdit();
+        VATStatementPreview.Trap();
+        VATStatement."P&review".Invoke();
+        Evaluate(NonDeductibleVATAmount, VATStatementPreview.VATStatementLineSubForm.ColumnValue.Value);
+        VATStatementPreview.Close();
+
+        exit(NonDeductibleVATAmount);
     end;
 
     [ModalPageHandler]

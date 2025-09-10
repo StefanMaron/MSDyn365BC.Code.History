@@ -2102,6 +2102,15 @@
       <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Orders - NamedType ServiceOrderErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3297607540 - NamedType 1560106547" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Service Header Status should have changed when adding Service Item]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=Microsoft.Service.Test)(LookupHint=Codeunit Service Orders - NamedType ServiceOrderStatusShouldChangedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3297607540 - NamedType 730596098" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot delete Service Item %1,because it is attached to a service order.]]></Val>

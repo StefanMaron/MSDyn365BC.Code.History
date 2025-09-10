@@ -34,6 +34,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         DocumentOutOfBalanceErr: Label 'Document No. %1 is out of balance', Locked = true;
         AllocAccountImportWrongAccTypeErr: Label 'Import from Allocation Account is only allowed for G/L Account Destination account type.', Locked = true;
         AllocationDimensionErr: Label 'Allocation dimension is not correct';
+        PostingDateErr: Label '%1 is not within your range of allowed posting dates in Gen. Journal Line Journal Template Name=''%2'',Journal Batch Name=''%3'',Line No.=''%4''.', Comment = '%1= Field Name, %2= Field Value, %3= Field Value, %4= Field Value.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1341,6 +1342,73 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [THEN] There are 2 Gen Journal Allocations with the same Dimension as in Allocation Account
         VerifyGenJnlAllocationDimension(GenJnlAllocation, GenJournalLine, GLAccounts[1], DimensionSetID[1]);
         VerifyGenJnlAllocationDimension(GenJnlAllocation, GenJournalLine, GLAccounts[2], DimensionSetID[2]);
+    end;
+
+    [Test]
+    procedure RecurringJournalLineGLSetupNotAllowedPostingPeriod()
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        RecurringFrequency: DateFormula;
+        Amount: Decimal;
+        AllowedDate: Date;
+    begin
+        // [SCENARIO 221154] Lines with posting date outside GL Setup allowed posting period are not posted in Recurring Journal
+        Initialize();
+
+        // [GIVEN] General Journal Batch
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Date when posting is allowed "D"
+        AllowedDate := LibraryRandom.RandDate(-10);
+
+        // [GIVEN] Admin User with "D" as allowed posting period
+        CreateGLSetupWithAllowedPostingPeriod(AllowedDate - 10, AllowedDate + 10);
+
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        Amount := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Recurring Journal with 3 lines: "Posting Date" is more, less and equal to "DPA", "Expiration Date" is always more than "Posting Date"
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine[1],
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine[1]."Document Type"::" ",
+            GenJournalLine[1]."Account Type"::"G/L Account",
+            GLAccount."No.",
+            Amount);
+        GenJournalLine[1].Validate("Posting Date", AllowedDate - 11);
+        GenJournalLine[1].Validate("Recurring Method", GenJournalLine[1]."Recurring Method"::"RV Reversing Variable");
+        Evaluate(RecurringFrequency, '<' + Format(LibraryRandom.RandIntInRange(1, 1)) + 'M >');
+        GenJournalLine[1].Validate("Recurring Frequency", RecurringFrequency);
+        GenJournalLine[1].Modify(true);
+
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine[2],
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine[2]."Document Type"::" ",
+            GenJournalLine[2]."Account Type"::"G/L Account",
+            GLAccount."No.",
+            -Amount);
+        GenJournalLine[2].Validate("Posting Date", AllowedDate - 11);
+        GenJournalLine[2].Validate("Document No.", GenJournalLine[1]."Document No.");
+        GenJournalLine[2].Validate("Recurring Method", GenJournalLine[2]."Recurring Method"::"RV Reversing Variable");
+        GenJournalLine[2].Validate("Recurring Frequency", GenJournalLine[1]."Recurring Frequency");
+        GenJournalLine[2].Modify(true);
+
+        // [WHEN] Post Recurring Journal
+        asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine[1]);
+
+        Assert.ExpectedError(
+            StrSubstNo(
+                PostingDateErr,
+                GenJournalLine[1].FieldCaption("Posting Date"),
+                GenJournalLine[1]."Journal Template Name",
+                GenJournalLine[1]."Journal Batch Name",
+                GenJournalLine[1]."Line No."));
     end;
 
     local procedure Initialize()

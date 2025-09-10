@@ -672,12 +672,17 @@ codeunit 134924 "ERM Cues"
         SalesOrderList: TestPage "Sales Order List";
         SalesHeaderNo: Code[20];
     begin
-        //avd
         // [SCENARIO 481603] Activities Cue "Completely Reserved from Stock" number corresponds to completely reserved sales orders.
         Initialize();
+
+        // [GIVEN] Initialize Activity Cue or reset "Last Date/Time Modified" field in order to recalculate reserved from stock value.
         if not ActivitiesCue.Get() then begin
             ActivitiesCue.Init();
             ActivitiesCue.Insert();
+        end else begin
+            ActivitiesCue."Last Date/Time Modified" := 0DT;
+            ActivitiesCue.Modify();
+            Commit();
         end;
 
         LibraryInventory.CreateItem(Item);
@@ -765,7 +770,7 @@ codeunit 134924 "ERM Cues"
         AccountReceivablesKPIs.OpenView();
 
         // [THEN] Verify the average collection days value is correct
-        Assert.AreEqual(ActivitiesMgt.CalcAverageCollectionDays(), AccountReceivablesKPIs."Average Collection Days".AsDecimal(), AverageCollectionDaysErr);
+        Assert.AreEqual(ActivitiesMgt.CalcAverageCollectionDays(false), AccountReceivablesKPIs."Average Collection Days".AsDecimal(), AverageCollectionDaysErr);
     end;
 
     [Test]
