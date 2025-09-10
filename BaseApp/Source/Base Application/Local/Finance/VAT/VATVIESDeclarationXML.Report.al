@@ -487,9 +487,9 @@ report 11108 "VAT - VIES Declaration XML"
                 DelChr(Format(Round(Amount * -100, 100) / 100, 11, '<Sign><integer>'), '<>', ' ')));
             case ColumnNo of
                 3:
-                    XMLFile.Write(StrSubstNo('<SOLEI>%1</SOLEI>', 1));
+                    XMLFile.Write(StrSubstNo('<SOLEI>%1</SOLEI>', 'J'));
                 2:
-                    XMLFile.Write(StrSubstNo('<DREIECK>%1</DREIECK>', 1));
+                    XMLFile.Write(StrSubstNo('<DREIECK>%1</DREIECK>', 'J'));
             end;
             XMLFile.Write('</ZM>');
         end else
