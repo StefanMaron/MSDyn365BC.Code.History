@@ -1368,6 +1368,58 @@ codeunit 144078 "ERM Extra VAT"
         VerifySeveralRealizedVATEntries(VATEntry, UnrealVATEntryNo, Amount, -1);
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsChangeVATAmountPageHandler')]
+    procedure DeductibleVATDetailOnPurchaseStatistics()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATAmountLine: Record "VAT Amount Line";
+        PurchaseInvoicePage: TestPage "Purchase Invoice";
+        NonDeductibleBase: Decimal;
+        NonDeductibleAmount: Decimal;
+    begin
+        // [SCENARIO 580117] “Deductible %”, “Nondeductible Base” and “Nondeductible Amount” are correctly filled in “Purchase Invoice Statistics” page.
+        Initialize();
+
+        // [GIVEN] Unrealized deductible VAT Posting Setup with "Deductible %" = 50
+        UpdateDeductibleVATPostingSetup(VATPostingSetup, 50);
+
+        // [GIVEN] Purchase invoice with one G/L Account line with "Amount Including VAT" = 1000, "VAT Base Amount" = 800
+        CreatePurchaseInvoice(
+         PurchaseLine, VATPostingSetup."VAT Bus. Posting Group", '', '', PurchaseLine.Type::"G/L Account",
+         CreateGLAccount(VATPostingSetup));
+
+        // [GIVEN] Save NonDeductibleBase and NonDeductibleAmount
+        NonDeductibleBase := PurchaseLine."VAT Base Amount" * (VATPostingSetup."Deductible %" / 100);
+        NonDeductibleAmount := (PurchaseLine."Amount Including VAT" - PurchaseLine.Amount) * (VATPostingSetup."Deductible %" / 100);
+
+        // [GIVEN] Get Purchase Header
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+
+        // [GIVEN] Save "Deductible %" to LibraryVariableStorage
+        LibraryVariableStorage.Enqueue(VATPostingSetup."Deductible %");
+
+        // [WHEN] Open purchase invoice page
+        PurchaseInvoicePage.OpenEdit();
+        PurchaseInvoicePage.Filter.SetFilter("No.", PurchaseHeader."No.");
+
+        // [WHEN] Open statistics of the invoice and verify the "Deductible %"
+        PurchaseInvoicePage.PurchaseStatistics.Invoke();
+
+        // [WHEN] Calculate VatAmountLines
+        PurchaseLine.CalcVATAmountLines(0, PurchaseHeader, PurchaseLine, VATAmountLine);
+
+        // [THEN] Check Deductible % and NonDeductible Base and Amount are correct in VATAmountLine
+        Assert.AreEqual(VATPostingSetup."Deductible %", VATAmountLine."Deductible %", StrSubstNo(VATFieldErr, VATAmountLine.FieldCaption("Deductible %")));
+        Assert.AreNearlyEqual(NonDeductibleBase, VATAmountLine."Nondeductible Base", 0.01, StrSubstNo(VATFieldErr, VATAmountLine.FieldCaption("Nondeductible Base")));
+        Assert.AreNearlyEqual(NonDeductibleAmount, VATAmountLine."Nondeductible Amount", 0.01, StrSubstNo(VATFieldErr, VATAmountLine.FieldCaption("Nondeductible Amount")));
+
+        // [THEN] Check that LibraryVariableStorage is empty
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2027,6 +2079,15 @@ codeunit 144078 "ERM Extra VAT"
         SalesLine.Modify(true);
     end;
 
+    local procedure UpdateDeductibleVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; DeductiblePct: Decimal)
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 30));
+        VATPostingSetup.Get(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATPostingSetup.Validate("Deductible %", DeductiblePct);
+        VATPostingSetup.Modify(true);
+    end;
+
     local procedure UpdateSalesLine(var SalesLine: Record "Sales Line"; NewUnitPrice: Decimal; VATPostingSetup: Record "VAT Posting Setup")
     begin
         SalesLine.Validate("Unit Price", NewUnitPrice);
@@ -2641,5 +2702,14 @@ codeunit 144078 "ERM Extra VAT"
         GLPostingPreview."No. of Records".AssertEquals(LibraryVariableStorage.DequeueInteger());
         GLPostingPreview.OK().Invoke();
     end;
-}
 
+    [PageHandler]
+    procedure PurchaseStatisticsChangeVATAmountPageHandler(var PurchaseStatisticsPage: TestPage "Purchase Statistics")
+    var
+        DeductiblePer: Decimal;
+    begin
+        DeductiblePer := LibraryVariableStorage.DequeueDecimal();
+        PurchaseStatisticsPage.SubForm."Deductible %".AssertEquals(DeductiblePer);
+        PurchaseStatisticsPage.Close();
+    end;
+}

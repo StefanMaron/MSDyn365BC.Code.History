@@ -1676,4 +1676,3 @@ codeunit 134658 "Edit Posted Documents"
         Reply := true;
     end;
 }
-

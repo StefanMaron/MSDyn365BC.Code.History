@@ -7192,6 +7192,7 @@ table 39 "Purchase Line"
         VATAmountLine."Tax Group Code" := PurchaseLine."Tax Group Code";
         VATAmountLine."Use Tax" := PurchaseLine."Use Tax";
         VATAmountLine."VAT %" := PurchaseLine."VAT %";
+        VATAmountLine."Deductible %" := PurchaseLine."Deductible %";
         VATAmountLine.Modified := true;
         VATAmountLine.Positive := PurchaseLine."Line Amount" >= 0;
         VATAmountLine."Includes Prepayment" := false;
@@ -11961,7 +11962,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLocationCodeOnBeforeSetInboundWhseHandlingTime(CurrFieldNo: Integer; PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnValidateLocationCodeOnBeforeSetInboundWhseHandlingTime(CurrFieldNo: Integer; var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

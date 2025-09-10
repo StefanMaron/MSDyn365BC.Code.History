@@ -5,6 +5,8 @@
 #if not CLEAN27
 namespace Microsoft.Finance.VAT.Reporting;
 
+using System.Environment.Configuration;
+
 page 12121 "Periodic VAT Settlement List"
 {
     ApplicationArea = Basic, Suite;
@@ -124,5 +126,17 @@ page 12121 "Periodic VAT Settlement List"
     actions
     {
     }
+
+
+    trigger OnOpenPage()
+    var
+        FeatureManagementIT: Codeunit "Feature Management IT";
+    begin
+        if FeatureManagementIT.IsVATSettlementPerActivityCodeFeatureEnabled() then begin
+            Page.Run(Page::"Periodic VAT Settl. List");
+            Error('');
+        end;
+    end;
+
 }
 #endif

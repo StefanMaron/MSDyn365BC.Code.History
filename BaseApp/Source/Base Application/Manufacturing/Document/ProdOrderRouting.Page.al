@@ -77,11 +77,6 @@ page 99000817 "Prod. Order Routing"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the routing link.';
                 }
-                field("Standard Task Code"; Rec."Standard Task Code")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the standard task.';
-                }
                 field("Flushing Method"; Rec."Flushing Method")
                 {
                     ApplicationArea = Manufacturing;
@@ -347,6 +342,12 @@ page 99000817 "Prod. Order Routing"
                 field("Posted Setup Time"; Rec."Posted Setup Time")
                 {
                     ApplicationArea = Manufacturing;
+                    Visible = false;
+                }
+                field("Standard Task Code"; Rec."Standard Task Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the standard task code that applies to the operation.';
                     Visible = false;
                 }
             }

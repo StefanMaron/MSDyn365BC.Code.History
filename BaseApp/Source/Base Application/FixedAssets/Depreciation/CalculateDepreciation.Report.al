@@ -208,7 +208,7 @@ report 5692 "Calculate Depreciation"
                 if TempGenJnlLine.Find('-') then
                     repeat
                         GenJnlLine.Init();
-                        OnBeforeGenJnlLineCreate(TempGenJnlLine, GenJnlLine);
+                        OnBeforeGenJnlLineCreate(TempGenJnlLine, GenJnlLine, AutoDocumentNo);
                         GenJnlLine."Line No." := 0;
                         FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
                         LineNo := LineNo + 1;
@@ -785,7 +785,7 @@ report 5692 "Calculate Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGenJnlLineCreate(var TempGenJournalLine: Record "Gen. Journal Line" temporary; var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnBeforeGenJnlLineCreate(var TempGenJournalLine: Record "Gen. Journal Line" temporary; var GenJournalLine: Record "Gen. Journal Line"; var AutoDocumentNo: Code[20])
     begin
     end;
 }

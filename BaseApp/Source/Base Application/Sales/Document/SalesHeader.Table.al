@@ -721,7 +721,7 @@ table 36 "Sales Header"
                     exit;
 
                 PaymentLines.CreatePaymentLinesSales(Rec);
-                CalcFields("Payment %");
+                CalcFields("Payment %"); 
             end;
         }
         field(24; "Due Date"; Date)
@@ -7630,6 +7630,8 @@ table 36 "Sales Header"
     var
         SellToCustomerNo: Code[20];
     begin
+        OnBeforeSetSellToCustomerFromFilter(Rec);
+
         SellToCustomerNo := GetSellToCustomerFromFilter();
 
         if SellToCustomerNo <> '' then
@@ -7665,6 +7667,7 @@ table 36 "Sales Header"
         SellToCustomerFilter: Text;
     begin
         SellToCustomerFilter := GetFilter("Sell-to Customer No.");
+        OnCopySellToCustomerFilterOnAfterGetSellToCustomerFilter(Rec, SellToCustomerFilter);
         if SellToCustomerFilter <> '' then begin
             FilterGroup(2);
             SetFilter("Sell-to Customer No.", SellToCustomerFilter);
@@ -9513,6 +9516,8 @@ table 36 "Sales Header"
         Customer.SetFilter("Date Filter", GetFilter("Date Filter"));
         if "Sell-to Customer No." <> '' then
             Customer.Get("Sell-to Customer No.");
+
+        OnLookupSellToCustomerNameOnBeforeSelectCustomer(Rec, Customer, CustomerName);
 
         if Customer.SelectCustomer(Customer) then begin
             if Rec."Sell-to Customer Name" = Customer.Name then
@@ -12046,6 +12051,21 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePrepmtNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopySellToCustomerFilterOnAfterGetSellToCustomerFilter(var SalesHeader: Record "Sales Header"; var SellToCustomerFilter: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSellToCustomerFromFilter(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupSellToCustomerNameOnBeforeSelectCustomer(SalesHeader: Record "Sales Header"; var Customer: Record Customer; var CustomerName: Text)
     begin
     end;
 }
