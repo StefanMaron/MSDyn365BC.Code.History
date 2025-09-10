@@ -44,6 +44,7 @@ codeunit 134982 "ERM Financial Reports"
         BlankLinesQtyErr: Label 'Wrong blank lines quantity in dataset.';
         SourceBalanceErr: Label 'Source Currency Balance Must be 0';
         JournalLineCreatedMsg: Label 'The journal lines have successfully been created.';
+        SourceCurrencyCodeErr: Label 'Source Currency Amount should not be zero after reversing and closing income statement.';
         CurrentSaveValuesId: Integer;
 
     [Test]
@@ -1488,6 +1489,101 @@ codeunit 134982 "ERM Financial Reports"
         Assert.AreEqual(0, GLAccount2."Source Currency Balance", SourceBalanceErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    procedure SourceCurrencyAmountHasValueWhenClosingIncomeStatementAfterReversal()
+    var
+        AccountingPeriod: Record "Accounting Period";
+        Currency: array[3] of Record Currency;
+        Customer: Record Customer;
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        GLRegister: Record "G/L Register";
+        GenJournalLine: Record "Gen. Journal Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        ReversalEntry: Record "Reversal Entry";
+        CloseIncomeStatement: Report "Close Income Statement";
+    begin
+        // [SCENARIO 580078] G/L Currency revaluation is not closing of source currency amounts.
+        Initialize();
+
+        // [GIVEN] Create three Currencies with Exchange Rates.
+        Currency[1].Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDecInDecimalRange(0.85, 0.85, 2), LibraryRandom.RandDecInDecimalRange(0.85, 0.85, 2)));
+        Currency[2].Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDecInDecimalRange(0.75, 0.75, 2), LibraryRandom.RandDecInDecimalRange(0.75, 0.75, 2)));
+        Currency[3].Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDecInDecimalRange(0.95, 0.95, 2), LibraryRandom.RandDecInDecimalRange(0.95, 0.95, 2)));
+
+        // [GIVEN] Create LCY Code.
+        LibraryERM.SetLCYCode(Currency[1].Code);
+
+        // [GIVEN] Additional Reporting Currency is set in General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Additional Reporting Currency" := Currency[2].Code;
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create an Item with Unit Price.]
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        Item.Modify(true);
+
+        // [GIVEN] Create and Post Sales Invoices for Customer in different Currencies.
+        CreateAndPostSalesInvoice(Customer."No.", Item."No.", Currency[1].Code);
+        CreateAndPostSalesInvoice(Customer."No.", Item."No.", Currency[2].Code);
+        CreateAndPostSalesInvoice(Customer."No.", Item."No.", Currency[3].Code);
+
+        // [GIVEN] Find Genral Posting Setup for Customer and Item.
+        GeneralPostingSetup.Get(Customer."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+
+        // [GIVEN] Close Fiscal Year.
+        LibraryFiscalYear.CloseFiscalYear();
+
+        // [GIVEN] Create a G/L Account for Income Statement.
+        LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
+
+        // [GIVEN] Create General Journal Line for G/L Account.
+        CreateGeneralJournalLine(
+            GenJournalLine,
+            GenJournalLine."Account Type"::"G/L Account",
+            GLAccount."No.",
+            LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Run "Close Income Statement" for G/L Account.
+        LibraryERM.FindGLAccount(GLAccount);
+        CloseIncomeStatement.InitializeRequestTest(AccountingPeriod.GetFiscalYearEndDate(WorkDate()), GenJournalLine, GLAccount, true);
+        CloseIncomeStatement.UseRequestPage(false);
+        CloseIncomeStatement.Run();
+
+        // [GIVEN] Find the Last GL Register Entry and reverse it.
+        GLRegister.FindLast();
+        ReversalEntry.SetHideDialog(true);
+        ReversalEntry.ReverseRegister(GLRegister."No.");
+
+        // [GIVEN] Remove the Additional Reporting Currency in General Ledger Setup.
+        GeneralLedgerSetup.Validate("Additional Reporting Currency", '');
+        GeneralLedgerSetup.Modify(true);
+
+        // [GIVEN] Close Income Statement again for G/L Account.
+        CloseIncomeStatement.InitializeRequestTest(AccountingPeriod.GetFiscalYearEndDate(WorkDate()), GenJournalLine, GLAccount, true);
+        CloseIncomeStatement.UseRequestPage(false);
+        CloseIncomeStatement.Run();
+
+        // [WHEN] Post General Journal Line created by Close Income Statement.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Source Currency Amount in G/L Entry is not zero.
+        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        GLEntry.SetRange("Source Currency Code", Currency[2].Code);
+        GLEntry.SetRange("G/L Account No.", GeneralPostingSetup."Sales Account");
+        GLEntry.FindLast();
+        Assert.AreNotEqual(0, GLEntry."Source Currency Amount", SourceCurrencyCodeErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2446,6 +2542,21 @@ codeunit 134982 "ERM Financial Reports"
     begin
         // Generate Dummy message. Required for executing the test case successfully in ES.
         Message(JournalLineCreatedMsg);
+    end;
+
+    local procedure CreateAndPostSalesInvoice(CustomerNo: Code[20]; ItemNo: Code[20]; CurrencyCode: Code[10])
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesHeader.Validate("Posting Date", WorkDate());
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(1));
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
     [ConfirmHandler]

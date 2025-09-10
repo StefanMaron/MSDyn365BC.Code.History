@@ -324,6 +324,86 @@ codeunit 134904 "ERM Reminder For Additinal Fee"
         Assert.AreEqual(Dim2CodeValue, ShortcutDimCode[2], StrSubstNo(DimensionValueErr, Dim2CodeValue));
     end;
 
+    [Test]
+    procedure DimensionsInGeneralLedgerEntriesWhenDimensionsModifiedInReminderBeforeIssuing();
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        DefaultDimension: array[2] of Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        ReminderHeader: Record "Reminder Header";
+        ReminderLevel: Record "Reminder Level";
+        ReminderTerms: Record "Reminder Terms";
+        SalesHeader: Record "Sales Header";
+        GetShortcutDimValues: Codeunit "Get Shortcut Dimension Values";
+        Dim1CodeValue: array[2] of Code[20];
+        Dim2CodeValue: Code[20];
+        IssuedReminderNo: Code[20];
+        ShortcutDimCode: array[8] of Code[20];
+    begin
+        // [SCENARIO 590674] Dimensions assigned to General Ledger Entries when the Dimensions are modified in the Reminder before issuing it.
+        Initialize();
+
+        // [GIVEN] Create two Dimension Values for Global Dimension 1 Code.
+        Dim1CodeValue[1] := LibraryUtility.GenerateGUID();
+        Dim1CodeValue[2] := Dim1CodeValue[1] + '1';
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, Dim1CodeValue[1], LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, Dim1CodeValue[2], LibraryERM.GetGlobalDimensionCode(1));
+
+        // [GIVEN] Create Dimension Value for Global Dimension 2 Code and assign it.
+        Dim2CodeValue := LibraryUtility.GenerateGUID();
+        LibraryDimension.CreateDimensionValueWithCode(DimensionValue, Dim2CodeValue, LibraryERM.GetGlobalDimensionCode(2));
+
+        // [GIVEN] Create Reminder Terms with Post Additional Fee = True.
+        CreateReminderTerms(ReminderLevel, '');
+        ReminderTerms.Get(ReminderLevel."Reminder Terms Code");
+        ReminderTerms."Post Additional Fee" := true;
+        ReminderTerms.Modify(true);
+
+        // [GIVEN] Create Customer with Reminder Terms and Customer Posting Group.
+        Customer.Get(CreateCustomer(ReminderLevel."Reminder Terms Code", ''));
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+
+        // [GIVEN] Create Default Dimension for Customer with global Dimension 1 Code.
+        LibraryDimension.CreateDefaultDimensionWithNewDimValue(
+            DefaultDimension[1], DATABASE::Customer, Customer."No.",
+            DefaultDimension[1]."Value Posting"::"Code Mandatory");
+
+        // [GIVEN] Find GL Account for Additional Fee Account and assign Global Dimension 1 Code and Global Dimension 2 Code.
+        GLAccount.Get(CustomerPostingGroup."Additional Fee Account");
+        GLAccount.ValidateShortcutDimCode(1, Dim1CodeValue[1]);
+        GLAccount.ValidateShortcutDimCode(2, Dim2CodeValue);
+        GLAccount.Modify(true);
+
+        // [GIVEN] Validate Customer Posting Group in Customer.
+        Customer.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Posted Sales Invoice and Run Suggested Reminder with Additional Fee line.
+        CreateAndPostSalesInvoice(SalesHeader, Customer."No.");
+        ReminderHeader.Get(
+          CreateAndSuggestReminder(
+            SalesHeader."Sell-to Customer No.",
+            CalcDate('<1D>', CalcDate(ReminderLevel."Grace Period", SalesHeader."Due Date"))));
+        ReminderHeader.Validate("Shortcut Dimension 1 Code", Dim1CodeValue[2]);
+        ReminderHeader.Modify(true);
+
+        // [WHEN] Reminder is issued
+        IssuedReminderNo := IssueReminderAndGetIssuedNo(ReminderHeader."No.");
+
+        // [THEN] Find G/L Entry for Reminder with GL Account.
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Reminder);
+        GLEntry.SetRange("Document No.", IssuedReminderNo);
+        GLEntry.SetRange("G/L Account No.", GLAccount."No.");
+        GLEntry.FindFirst();
+
+        // [THEN] G/L Entry contains Global Dimension 1 Code as updated in Reminder Header.
+        GetShortcutDimValues.GetShortcutDimensions(GLEntry."Dimension Set ID", ShortcutDimCode);
+        Assert.AreEqual(Dim1CodeValue[2], ShortcutDimCode[1], StrSubstNo(DimensionValueErr, Dim1CodeValue[2]));
+    end;
+
     [Scope('OnPrem')]
     procedure InterestAmountWithBeginningText()
     var
