@@ -1833,6 +1833,7 @@ codeunit 8 AccSchedManagement
         if DimCode = '' then
             exit(DimTotaling);
 
+        DimVal.SecurityFiltering := DimVal.SecurityFiltering::Filtered;
         DimVal.SetRange("Dimension Code", DimCode);
         DimVal.SetFilter(Code, DimTotaling);
         if DimVal.Find('-') then

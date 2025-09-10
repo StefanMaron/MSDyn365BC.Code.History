@@ -17,6 +17,7 @@ codeunit 134931 "Journal Management Tests"
         LibraryCostAccounting: Codeunit "Library - Cost Accounting";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryPlanning: Codeunit "Library - Planning";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         TemplateFilterErr: Label 'Wrong filter for Field: %1, in %2 with FILTERGROUP: %3.';
 
@@ -529,6 +530,39 @@ codeunit 134931 "Journal Management Tests"
           InsuranceJournalBatch, InsuranceJournalBatch.FieldNo("Journal Template Name"), ExpectedTemplateName, 2);
     end;
 
+    [Test]
+    [HandlerFunctions('ReqWkshNamesPageHandler,PlanningWorksheetPageHandler')]
+    procedure VerifyReqWkshNamesPageOpensCorrectPlanningWorksheetBatches()
+    var
+        RequisitionWkshName: array[3] of Record "Requisition Wksh. Name";
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        ReqWorksheetTemplates: Testpage "Req. Worksheet Templates";
+        i: Integer;
+    begin
+        // [SCENARIO 597476] Verify that the 'Req. Wksh. Names' page opens the correct planning worksheet batches.
+
+        // [GIVEN] Create Requisition Worksheet Template.
+        CreateReqWorksheetTemplateWithType(ReqWkshTemplate, ReqWkshTemplate.Type::Planning);
+
+        // [GIVEN] Create Requisition Worksheet Batches.
+        for i := 1 to 3 do begin
+            LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName[i], ReqWkshTemplate.Name);
+            LibraryVariableStorage.Enqueue(RequisitionWkshName[i].Name);
+        end;
+
+        // [GIVEN] Opening the Requisition Worksheet Templates page.
+        ReqWorksheetTemplates.OpenEdit();
+        ReqWorksheetTemplates.GoToRecord(ReqWkshTemplate);
+
+        // [WHEN] Invoke 'Requisition Worksheet Names' Action.
+        ReqWorksheetTemplates."Requisition Worksheet Names".Invoke();
+        ReqWorksheetTemplates.OK().Invoke();
+
+        // [THEN] Verify that the 'Req. Wksh. Names' page opens the correct planning worksheet batches when the 'EditWorksheet' action is invoked. 
+        // It was verified on the PlanningWorksheetPageHandler.
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure CreateReqWorksheetTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template")
     begin
         ReqWkshTemplate.Init();
@@ -557,6 +591,39 @@ codeunit 134931 "Journal Management Tests"
           ExpectedJournalTemplateName[1],
           TemplateFieldRef.GetFilter,
           StrSubstNo(TemplateFilterErr, TemplateFieldRef.Name, RecRef.Name, RecRef.FilterGroup));
+    end;
+
+    local procedure CreateReqWorksheetTemplateWithType(var ReqWkshTemplate: Record "Req. Wksh. Template"; TemplateType: Enum "Req. Worksheet Template Type")
+    begin
+        CreateReqWorksheetTemplate(ReqWkshTemplate);
+        ReqWkshTemplate.Validate(Type, TemplateType);
+        ReqWkshTemplate.Validate("Page ID");
+        ReqWkshTemplate.Modify(true);
+    end;
+
+    [PageHandler]
+    procedure ReqWkshNamesPageHandler(var ReqWkshNames: TestPage "Req. Wksh. Names")
+    begin
+        ReqWkshNames.First();
+        ReqWkshNames.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        ReqWkshNames.Next();
+        ReqWkshNames.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        ReqWkshNames.Last();
+        ReqWkshNames.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+
+        ReqWkshNames.Previous();
+        LibraryVariableStorage.Enqueue(ReqWkshNames.Name.Value);
+        ReqWkshNames."Edit Worksheet".Invoke();
+        Commit();
+
+        ReqWkshNames.OK().Invoke();
+    end;
+
+    [PageHandler]
+    procedure PlanningWorksheetPageHandler(var PlanningWorksheet: TestPage "Planning Worksheet")
+    begin
+        PlanningWorksheet.CurrentWkshBatchName.AssertEquals(LibraryVariableStorage.DequeueText());
+        PlanningWorksheet.OK().Invoke();
     end;
 }
 

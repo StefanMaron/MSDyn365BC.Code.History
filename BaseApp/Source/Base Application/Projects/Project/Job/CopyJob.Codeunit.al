@@ -152,7 +152,7 @@ codeunit 1006 "Copy Job"
             exit;
         NextPlanningLineNo := 0;
         SourceJobPlanningLine.SetRange("Line No.", 0, SourceJobPlanningLine."Line No.");
-        OnCopyJobPlanningLinesOnAfterSourceJobPlanningLineSetFilters(SourceJobPlanningLine);
+        OnCopyJobPlanningLinesOnAfterSourceJobPlanningLineSetFilters(SourceJobPlanningLine, CopyPrices);
         if SourceJobPlanningLine.FindSet() then
             repeat
                 IsHandled := false;
@@ -464,7 +464,7 @@ codeunit 1006 "Copy Job"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyJobPlanningLinesOnAfterSourceJobPlanningLineSetFilters(var SourceJobPlanningLine: Record "Job Planning Line")
+    local procedure OnCopyJobPlanningLinesOnAfterSourceJobPlanningLineSetFilters(var SourceJobPlanningLine: Record "Job Planning Line"; CopyPrices: Boolean)
     begin
     end;
 

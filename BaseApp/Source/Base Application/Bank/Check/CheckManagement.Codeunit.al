@@ -152,7 +152,9 @@ codeunit 367 CheckManagement
                         GenJnlLine2.Validate(Amount);
                         GenJnlLine2."Bank Payment Type" := GenJnlLine."Bank Payment Type";
                     end;
-                    GenJnlLine2."Document No." := '';
+
+                    if GenJnlLine."Bal. Account No." <> '' then
+                        GenJnlLine2."Document No." := '';
                     GenJnlLine2."Document Date" := 0D;
                     GenJnlLine2."Check Printed" := false;
                     GenJnlLine2.UpdateSource();

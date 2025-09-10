@@ -118,8 +118,6 @@ report 10412 "Check (Check/Stub/Stub)"
                     BankCurrencyCode := BankAcc2."Currency Code";
                 end;
 
-                if TestPrint then
-                    CurrReport.Break();
                 BankAcc2.Get(BankAcc2."No.");
                 BankCurrencyCode := BankAcc2."Currency Code";
 
@@ -1530,7 +1528,7 @@ report 10412 "Check (Check/Stub/Stub)"
         BlockedEmplForCheckErr: Label 'You cannot print check because employee %1 is blocked due to privacy.', Comment = '%1 - Employee no.';
 
     protected var
-    
+
         PreprintedStub: Boolean;
         OneCheckPrVendor: Boolean;
         ApplyMethod: Option Payment,OneLineOneEntry,OneLineID,MoreLinesOneEntry;
