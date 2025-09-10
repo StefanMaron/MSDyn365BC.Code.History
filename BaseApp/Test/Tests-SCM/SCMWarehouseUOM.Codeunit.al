@@ -4075,6 +4075,79 @@ codeunit 137150 "SCM Warehouse UOM"
         CheckBinContent(BinContent, Location.Code, Item."No.");//Assert 
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTheSystemDoesNotDisplayWarningWhenCubageOrWeightInformationIsMissingForItem()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        SecondBin: Record Bin;
+        BinContent: Record "Bin Content";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Location: Record Location;
+        UnitOfMeasure: array[3] of Record "Unit of Measure";
+        Zone: array[3] of Record Zone;
+        i: Integer;
+    begin
+        // [SCENARIO 591790] Check that the system does not display a warning when cubage or weight information is missing for the item
+        Initialize();
+
+        // [GIVEN] Create 3 Units Of Measure.
+        for i := 1 to 3 do
+            LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[i]);
+
+        // [GIVEN] Create Warehouse Location and Validate Bin Capacity Policy.
+        LibraryWarehouse.CreateFullWMSLocation(Location, LibraryRandom.RandInt(2));
+        Location.Validate("Bin Capacity Policy", Location."Bin Capacity Policy"::"Allow More Than Max. Capacity");
+        Location.Validate("Always Create Put-away Line", true);
+        Location.Modify(true);
+
+        // [GIVEN] Create 2 Zone
+        LibraryWarehouse.CreateZone(Zone[1], '', Location.Code, LibraryWarehouse.SelectBinType(false, false, false, true), '', '', 0, false);
+        LibraryWarehouse.CreateZone(Zone[2], '', Location.Code, LibraryWarehouse.SelectBinType(false, false, true, false), '', '', 0, false);
+        FindZone(Zone[3], Location.Code, LibraryWarehouse.SelectBinType(false, false, false, true));
+        LibraryWarehouse.CreateBin(Bin, Zone[3]."Location Code", LibraryUtility.GenerateGUID(), Zone[3].Code, Zone[3]."Bin Type Code");
+        Bin.Validate("Maximum Cubage", LibraryRandom.RandIntInRange(6250000, 7250000));
+        Bin.Validate("Maximum Weight", LibraryRandom.RandIntInRange(150, 750));
+        Bin.Modify(true);
+
+        // [GIVEN] Create Bin For Zone PutAway
+        Zone[3].Reset();
+        FindZone(Zone[3], Location.Code, LibraryWarehouse.SelectBinType(false, false, true, false));
+        LibraryWarehouse.CreateBin(SecondBin, Zone[3]."Location Code", LibraryUtility.GenerateGUID(), Zone[3].Code, Zone[3]."Bin Type Code");
+        SecondBin.Validate("Maximum Weight", LibraryRandom.RandIntInRange(1000, 2000));
+        SecondBin.Modify(true);
+
+        // [GIVEN] Create an Item and Validate Base Unit of Measure.
+        CreateItem(Item, '');
+        Item.Validate("Base Unit of Measure", UnitOfMeasure[1].Code);
+        Item.Modify(true);
+
+        // [GIVEN] Create 3 Item Unit Of Measure.
+        ItemUnitOfMeasure.SetRange("Item No.", Item."No.");
+        ItemUnitOfMeasure.FindFirst();
+        UpdateItemUnitOfMeasure(ItemUnitOfMeasure, 5, 5, 5);
+        ItemUnitOfMeasure.Reset();
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure[2].Code, 10);
+        UpdateItemUnitOfMeasure(ItemUnitOfMeasure, 50, 50, 50);
+        ItemUnitOfMeasure.Reset();
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure[3].Code, 100);
+        UpdateItemUnitOfMeasure(ItemUnitOfMeasure, 500, 500, 500);
+
+        // [GIVEN] Create Bin Content for Item with MaxQty And MinQty.
+        CreateBinContent(BinContent, Bin, Item."No.", UnitOfMeasure[2].Code, 24, 50, true, false);
+
+        // [GIVEN] Create Warehouse Item Journal Line and Register
+        CreateWarehouseJournalBatch(WarehouseJournalBatch, Location.Code);
+        CreateWarehouseItemJournalLine(Location.Code, Item."No.", WorkDate(), Bin, 5, UnitOfMeasure[2].Code, WarehouseJournalBatch);
+        LibraryWarehouse.RegisterWhseJournalLine(WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Location.Code, true);
+
+        // [When] Create Bin Content for Item with MaxQty And MinQty.
+        CreateBinContent(BinContent, SecondBin, Item."No.", UnitOfMeasure[3].Code, 1, 10, false, true);
+
+        // [THEN] Check that warning message not appears when trying to set Max Qty for Bin Content.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

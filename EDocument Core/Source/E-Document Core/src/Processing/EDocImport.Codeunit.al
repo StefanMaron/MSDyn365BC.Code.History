@@ -120,7 +120,8 @@ codeunit 6140 "E-Doc. Import"
                         exit(false);
                 end;
 
-        EDocImpSessionTelemetry.Emit(EDocument);
+        if CurrentStatus <> DesiredStatus then
+            EDocImpSessionTelemetry.Emit(EDocument);
         OnAfterProcessIncomingEDocument(EDocument, EDocImportParameters, CurrentStatus, DesiredStatus);
         exit(true);
     end;

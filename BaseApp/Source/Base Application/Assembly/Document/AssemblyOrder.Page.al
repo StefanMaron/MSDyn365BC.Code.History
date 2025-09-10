@@ -1031,7 +1031,6 @@ page 900 "Assembly Order"
     begin
         IsUnitCostEditable := true;
         IsAsmToOrderEditable := true;
-        Rec.UpdateWarningOnLines();
     end;
 
     var

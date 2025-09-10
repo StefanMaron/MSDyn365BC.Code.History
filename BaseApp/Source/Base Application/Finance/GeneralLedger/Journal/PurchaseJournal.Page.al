@@ -225,6 +225,12 @@ page 254 "Purchase Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of transaction.';
                     Visible = not IsSimplePage;
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.SaveRecord();
+                    end;
+
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
@@ -288,6 +294,7 @@ page 254 "Purchase Journal"
                     trigger OnValidate()
                     begin
                         DocumentAmount := Abs(Rec.Amount);
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Amount (LCY)"; Rec."Amount (LCY)")
@@ -386,6 +393,7 @@ page 254 "Purchase Journal"
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         Rec.ShowShortcutDimCode(ShortcutDimCode);
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Bal. VAT Number"; Rec."Bal. VAT Number")
@@ -399,12 +407,22 @@ page 254 "Purchase Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general posting type associated with the balancing account that will be used when you post the entry on the journal line.';
                     Visible = not IsSimplePage;
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.SaveRecord();
+                    end;
                 }
                 field("Bal. Gen. Bus. Posting Group"; Rec."Bal. Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general business posting group code associated with the balancing account that will be used when you post the entry.';
                     Visible = not IsSimplePage;
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.SaveRecord();
+                    end;
                 }
                 field("Bal. Gen. Prod. Posting Group"; Rec."Bal. Gen. Prod. Posting Group")
                 {

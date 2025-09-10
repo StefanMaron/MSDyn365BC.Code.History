@@ -244,6 +244,7 @@ codeunit 427 ICInboxOutboxMgt
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
+        OnCreateOutboxSalesDocTransOnBeforeLoop(SalesLine);
         if SalesLine.Find('-') then
             repeat
                 ICOutBoxSalesLine.Init();
@@ -3834,6 +3835,11 @@ codeunit 427 ICInboxOutboxMgt
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOutboxJnlLineToInbox(var ICInboxTransaction: Record "IC Inbox Transaction"; var ICOutboxJnlLine: Record "IC Outbox Jnl. Line"; var ICInboxJnlLine: Record "IC Inbox Jnl. Line"; var ICPartner: Record "IC Partner"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOutboxSalesDocTransOnBeforeLoop(var SalesLine: Record "Sales Line")
     begin
     end;
 }

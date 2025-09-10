@@ -8805,6 +8805,75 @@
         VerifyPurchaseOrderAfterPartialPostCorrectiveCreditMemo(PurchaseHeader."No.", 10);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentPurchModalPageHandler')]
+    procedure ItemChargeAssignmentWithPartialWarehouseReceipt()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        PurchaseSetup: Record "Purchases & Payables Setup";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        ItemChargeNo: Code[20];
+    begin
+        // [SCENARIO 573822] Verify Warehouse Receipt should be posted successfully if Item Charge is assigned and Partial Receipt is Posted.
+        Initialize();
+
+        // [GIVEN] Assign Auto Post Non-Int. Via Whse. as Attached/Assigned in Purchases & Payables Setup.
+        PurchaseSetup.Get();
+        PurchaseSetup."Auto Post Non-Invt. via Whse." := PurchaseSetup."Auto Post Non-Invt. via Whse."::"Attached/Assigned";
+        PurchaseSetup.Modify(true);
+
+        // [GIVEN] Create Location with required Warehouse Setup and Warehouse Employee.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, true, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create Item and Item Charge.
+        LibraryInventory.CreateItem(Item);
+        ItemChargeNo := LibraryInventory.CreateItemChargeNo();
+
+        // [GIVEN] Create Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create first Purchase Line with Type as Item and Quantity as 100.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[1], PurchaseHeader, PurchaseLine[1].Type::Item, Item."No.", 100);
+        PurchaseLine[1].Validate("Location Code", Location.Code);
+        PurchaseLine[1].Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine[1].Modify(true);
+
+        // [GIVEN] Create second Purchase Line with Type as Charge (Item) and Quantity as 1.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::"Charge (Item)", ItemChargeNo, 1);
+        PurchaseLine[2].Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(50, 50, 2));
+        PurchaseLine[2].Modify(true);
+
+        // [GIVEN] Update Qty. to Assign on Item Charge Assignment
+        LibraryVariableStorage.Enqueue(1);
+        PurchaseLine[2].ShowItemChargeAssgnt();
+        PurchaseLine[2].Modify(true);
+
+        // [GIVEN] Release Purchase Document.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Warehouse Receipt.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        WarehouseReceiptHeader.Get(
+                  LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
+                    DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
+
+        // [GIVEN] Modify Warehouse Receipt Line with Quantity as 50 and post the  partial warehouse Document
+        ModifyQtyToReceiveOnWarehouseReceiptLine(PurchaseHeader."No.", PurchaseLine[1]."No.", 50);
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // [WHEN] Post the remaining warehouse Document.
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // [THEN] No error should appear and Warehouse Receipt should be posted successfully.
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -12254,6 +12323,17 @@
         until PurchaseLine.Next() = 0;
     end;
 
+    local procedure ModifyQtyToReceiveOnWarehouseReceiptLine(SourceNo: Code[20]; ItemNo: Code[20]; Qty: Decimal)
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        WarehouseReceiptLine.SetRange("Source No.", SourceNo);
+        WarehouseReceiptLine.SetRange("Item No.", ItemNo);
+        WarehouseReceiptLine.FindFirst();
+        WarehouseReceiptLine.Validate("Qty. to Receive", Qty);
+        WarehouseReceiptLine.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure StandardVendorPurchCodesHndlr(var StandardVendorPurchaseCodes: TestPage "Standard Vendor Purchase Codes")
@@ -12660,6 +12740,14 @@
     begin
         if LibraryVariableStorage.DequeueBoolean() then
             ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
+        ItemChargeAssignmentPurch.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentPurchModalPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    begin
+        ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
         ItemChargeAssignmentPurch.OK().Invoke();
     end;
 
