@@ -1050,7 +1050,7 @@ codeunit 5812 "Calculate Standard Cost"
                         StdCostWksh."New Standard Cost", StdCostWksh."New Overhead Rate", StdCostWksh."New Indirect Cost %");
                 end;
 
-            OnGetWorkCenterOnBeforeAssignWorkCenterToTemp(WorkCenter, TempItem);
+            OnGetWorkCenterOnBeforeAssignWorkCenterToTemp(WorkCenter, TempItem, StdCostWkshName);
             TempWorkCenter := WorkCenter;
             TempWorkCenter.Insert();
         end;
@@ -1458,7 +1458,7 @@ codeunit 5812 "Calculate Standard Cost"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetWorkCenterOnBeforeAssignWorkCenterToTemp(var WorkCenter: Record "Work Center"; var TempItem: Record Item temporary)
+    local procedure OnGetWorkCenterOnBeforeAssignWorkCenterToTemp(var WorkCenter: Record "Work Center"; var TempItem: Record Item temporary; StdCostWkshName: Text[50])
     begin
     end;
 

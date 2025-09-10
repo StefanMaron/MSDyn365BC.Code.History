@@ -26,6 +26,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPlanning: Codeunit "Library - Planning";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         TrackingOption: Option AssignSerialLot,AssignLotNo,SelectEntries,SetLotNo,SetQuantity,SetLotNoAndQty,SetSerialNoAndQty,SelectAndApplyToItemEntry,SetEntriesToInvoice,InvokeOK,AssignLotNoManual;
         isInitialized: Boolean;
         TrackingOptionWithTwoLots: Option AssignLotNoWithQtyToHandle,ChangeQtyToInvoice,OrderDocument,ReturnOrderDocument;
@@ -3342,6 +3343,37 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ItemTrackingLinesPageHandlerTrackingOption,ItemTracingSpecificationRequestPageHandler')]
+    procedure ItemDescUpto50CharactersIsPrintedInItemTracingReport()
+    var
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemTracingBuffer: Record "Item Tracing Buffer";
+        ItemTracing: TestPage "Item Tracing";
+        TraceMethod: Option "Origin -> Usage","Usage -> Origin";
+    begin
+        // [SCENARIO 591447] Item Description upto 50 characters is displayed in 
+        // Item Tracing Specification report.
+        Initialize();
+
+        // [GIVEN] Create and Post Purchase Order with Tracked Item.
+        CreateAndPostPurchOrderWithTrackedItem(ItemLedgerEntry, Item, TrackingOption::AssignLotNo, false, true);
+
+        // [GIVEN] Open Item Tracing page.
+        OpenItemTracingPage(ItemTracing, '', '', ItemLedgerEntry."Lot No.", TraceMethod::"Origin -> Usage");
+
+        // [WHEN] Run Print action from Item Tracing page.
+        ItemTracing."Item Description".AssertEquals(Item.Description);
+        LibraryVariableStorage.Enqueue(ItemTracingBuffer.FieldNo("Item Description"));
+        ItemTracing.Print.Invoke();
+
+        // [THEN] Item Description is displayed in BodyText1 column of Item Tracing Specification report.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('BodyText1', CopyStr(Item.Description, LibraryRandom.RandIntInRange(1, 1), LibraryRandom.RandIntInRange(50, 50)));
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -4819,9 +4851,11 @@ codeunit 137262 "SCM Invt Item Tracking III"
     local procedure SelectApplyToItemEntry(ItemTrackingLines: TestPage "Item Tracking Lines")
     var
         ItemLedgEntry: Record "Item Ledger Entry";
-        EntryNo: Variant;
+        EntryNo: Integer;
+        EntryNoVar: Variant;
     begin
-        LibraryVariableStorage.Dequeue(EntryNo);
+        LibraryVariableStorage.Dequeue(EntryNoVar);
+        EntryNo := EntryNoVar;
         ItemLedgEntry.Get(EntryNo);
         ItemTrackingLines."Lot No.".SetValue(ItemLedgEntry."Lot No.");
         ItemTrackingLines."Quantity (Base)".SetValue(ItemLedgEntry.Quantity);
@@ -5172,6 +5206,23 @@ codeunit 137262 "SCM Invt Item Tracking III"
         LibraryInventory.SelectItemJournalBatchName(ConsumptionItemJournalBatch, ConsumptionItemJournalTemplate.Type, ConsumptionItemJournalTemplate.Name);
     end;
 
+    local procedure CreateAndPostPurchOrderWithTrackedItem(var ItemLedgerEntry: Record "Item Ledger Entry"; var Item: Record Item; TrackingOption: Option; SNSpecific: Boolean; LotSpecific: Boolean)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        Item.Get(
+            CreateTrackedItem(
+                LibraryUtility.GetGlobalNoSeriesCode(),
+                LibraryUtility.GetGlobalNoSeriesCode(),
+                CreateItemTrackingCode(SNSpecific, LotSpecific)));
+
+        Item.Validate(Description, LibraryUtility.GenerateRandomText(LibraryRandom.RandIntInRange(60, 60)));
+        Item.Modify(true);
+
+        CreateAndPostPurchaseOrderWithIT(PurchaseLine, Item."No.", '', TrackingOption);
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
@@ -5400,5 +5451,12 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemTrackingLines.OK().Invoke();
     end;
 
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTracingSpecificationRequestPageHandler(var ItemTracingSpecification: TestRequestPage "Item Tracing Specification")
+    begin
+        ItemTracingSpecification."FldNo[1]".SetValue(LibraryVariableStorage.DequeueInteger());
+        ItemTracingSpecification.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
 }
 
