@@ -32,7 +32,6 @@ report 99000789 "Subcontractor - Dispatch List"
             column(No_Vendor; "No.")
             {
             }
-#if not CLEAN26
             // RDLC Only
             column(Name_VendorCaption; FieldCaption(Name))
             {
@@ -88,7 +87,6 @@ report 99000789 "Subcontractor - Dispatch List"
             column(PurchLineOutstandgQtyCapt; PurchLineOutstandgQtyCaptLbl)
             {
             }
-#endif
             dataitem("Work Center"; "Work Center")
             {
                 DataItemLink = "Subcontractor No." = field("No.");
@@ -172,12 +170,10 @@ report 99000789 "Subcontractor - Dispatch List"
                             column(PONo_ProdOrderComp; "Prod. Order No.")
                             {
                             }
-#if not CLEAN26
                             // RDLC Only
                             column(ComponentsneededCaption; ComponentsneededCaptionLbl)
                             {
                             }
-#endif
                             trigger OnPreDataItem()
                             begin
                                 if "Prod. Order Routing Line"."Previous Operation No." <> '' then begin
@@ -318,8 +314,6 @@ report 99000789 "Subcontractor - Dispatch List"
     var
         PurchLine: Record "Purchase Line";
         DateFilter: Text;
-#if not CLEAN26
-        // RDLC Only layout field captions. To be removed in a future release along with the RDLC layout.
         SubcntrctrDispatchistCaptLbl: Label 'Subcontractor Dispatch List';
         CurrReportPageNoCaptionLbl: Label 'Page';
         ProdOrdRtngLnStrtDtCaptLbl: Label 'Starting Date';
@@ -327,5 +321,4 @@ report 99000789 "Subcontractor - Dispatch List"
         PurchLineDocNoCaptionLbl: Label 'Purch. Order No.';
         PurchLineOutstandgQtyCaptLbl: Label 'Qty. on Purch. Order';
         ComponentsneededCaptionLbl: Label 'Components needed';
-#endif
 }

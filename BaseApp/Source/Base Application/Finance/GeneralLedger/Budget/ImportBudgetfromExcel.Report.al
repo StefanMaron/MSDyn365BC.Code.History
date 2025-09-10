@@ -512,32 +512,39 @@ report 81 "Import Budget from Excel"
                                             TempGlobalExcelBuf."Cell Value as Text",
                                             1, MaxStrLen(TempLocalBudgetBuf."Dimension Value Code 8"));
                                     Text014:
-                                        if TempLocalBudgetBuf."G/L Account No." <> '' then begin
-                                            BudgetBuf := TempLocalBudgetBuf;
-                                            if GLBudgetEntry.GetFilter("Global Dimension 1 Code") <> '' then
-                                                Evaluate(BudgetBuf."Dimension Value Code 1", GLBudgetEntry.GetFilter("Global Dimension 1 Code"));
-                                            if GLBudgetEntry.GetFilter("Global Dimension 2 Code") <> '' then
-                                                Evaluate(BudgetBuf."Dimension Value Code 2", GLBudgetEntry.GetFilter("Global Dimension 2 Code"));
-                                            if GLBudgetEntry.GetFilter("Budget Dimension 1 Code") <> '' then
-                                                Evaluate(BudgetBuf."Dimension Value Code 3", GLBudgetEntry.GetFilter("Budget Dimension 1 Code"));
-                                            if GLBudgetEntry.GetFilter("Budget Dimension 2 Code") <> '' then
-                                                Evaluate(BudgetBuf."Dimension Value Code 4", GLBudgetEntry.GetFilter("Budget Dimension 2 Code"));
-                                            if GLBudgetEntry.GetFilter("Budget Dimension 3 Code") <> '' then
-                                                Evaluate(BudgetBuf."Dimension Value Code 5", GLBudgetEntry.GetFilter("Budget Dimension 3 Code"));
-                                            if GLBudgetEntry.GetFilter("Budget Dimension 4 Code") <> '' then
-                                                Evaluate(BudgetBuf."Dimension Value Code 6", GLBudgetEntry.GetFilter("Budget Dimension 4 Code"));
-                                            if GLBudgetEntry.GetFilter("Business Unit Code") <> '' then
-                                                Evaluate(BudgetBuf."Dimension Value Code 7", GLBudgetEntry.GetFilter("Business Unit Code"));
-                                            Evaluate(BudgetBuf.Date, TempExcelBuf."Cell Value as Text");
-                                            Evaluate(BudgetBuf.Amount, TempGlobalExcelBuf."Cell Value as Text");
-                                            if not BudgetBuf.Find('=') then
-                                                BudgetBuf.Insert()
-                                            else begin
+                                        begin
+                                            if TempLocalBudgetBuf."G/L Account No." <> '' then begin
+                                                BudgetBuf := TempLocalBudgetBuf;
+                                                if GLBudgetEntry.GetFilter("Global Dimension 1 Code") <> '' then
+                                                    Evaluate(BudgetBuf."Dimension Value Code 1", GLBudgetEntry.GetFilter("Global Dimension 1 Code"));
+                                                if GLBudgetEntry.GetFilter("Global Dimension 2 Code") <> '' then
+                                                    Evaluate(BudgetBuf."Dimension Value Code 2", GLBudgetEntry.GetFilter("Global Dimension 2 Code"));
+                                                if GLBudgetEntry.GetFilter("Budget Dimension 1 Code") <> '' then
+                                                    Evaluate(BudgetBuf."Dimension Value Code 3", GLBudgetEntry.GetFilter("Budget Dimension 1 Code"));
+                                                if GLBudgetEntry.GetFilter("Budget Dimension 2 Code") <> '' then
+                                                    Evaluate(BudgetBuf."Dimension Value Code 4", GLBudgetEntry.GetFilter("Budget Dimension 2 Code"));
+                                                if GLBudgetEntry.GetFilter("Budget Dimension 3 Code") <> '' then
+                                                    Evaluate(BudgetBuf."Dimension Value Code 5", GLBudgetEntry.GetFilter("Budget Dimension 3 Code"));
+                                                if GLBudgetEntry.GetFilter("Budget Dimension 4 Code") <> '' then
+                                                    Evaluate(BudgetBuf."Dimension Value Code 6", GLBudgetEntry.GetFilter("Budget Dimension 4 Code"));
+                                                if GLBudgetEntry.GetFilter("Business Unit Code") <> '' then
+                                                    Evaluate(BudgetBuf."Dimension Value Code 7", GLBudgetEntry.GetFilter("Business Unit Code"));
+                                                Evaluate(BudgetBuf.Date, TempExcelBuf."Cell Value as Text");
+                                                Evaluate(BudgetBuf.Amount, TempGlobalExcelBuf."Cell Value as Text");
+                                                
                                                 IsHandled := false;
-                                                OnAnalyzeDataOnBeforeCombinationMustBeUniqueError(BudgetBuf, IsHandled);
+                                                OnAnalyzeDataOnBeforeInsertBudgetBuf(BudgetBuf, IsHandled);
                                                 if not IsHandled then
-                                                    Error(Text023 + Text024 + Format(BudgetBuf.RecordId()));
+                                                    if not BudgetBuf.Find('=') then
+                                                        BudgetBuf.Insert()
+                                                    else begin
+                                                        IsHandled := false;
+                                                        OnAnalyzeDataOnBeforeCombinationMustBeUniqueError(BudgetBuf, IsHandled);
+                                                    if not IsHandled then
+                                                        Error(Text023 + Text024 + Format(BudgetBuf.RecordId()));
+                                                end;
                                             end;
+                                            OnAnalyzeDataOnAfterCaseText014(BudgetBuf);
                                         end;
                                 end;
                         end;
@@ -764,6 +771,16 @@ report 81 "Import Budget from Excel"
 
     [IntegrationEvent(false, false)]
     local procedure OnAnalyzeDataOnAfterConditionalTempExcelBufInsert(var TempExcelBuf: Record "Excel Buffer" temporary; var TempDim: Record Dimension temporary; var CountDim: Integer; var DimCode: array[8] of Code[20]; var TestDateTime: DateTime)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAnalyzeDataOnBeforeInsertBudgetBuf(var BudgetBuf: Record "Budget Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAnalyzeDataOnAfterCaseText014(var BudgetBuf: Record "Budget Buffer")
     begin
     end;
 }

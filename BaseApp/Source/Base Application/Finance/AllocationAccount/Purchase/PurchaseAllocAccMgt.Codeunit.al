@@ -371,6 +371,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         MoveAmounts(PurchaseLine, AllocationPurchaseLine, AllocationLine, AllocationAccount);
         MoveQuantities(PurchaseLine, AllocationPurchaseLine);
 
+        PurchaseLine."VAT Difference" := AllocationLine.Percentage * AllocationPurchaseLine."VAT Difference" / 100;
         PurchaseLine."Deferral Code" := AllocationPurchaseLine."Deferral Code";
         CopyDeferralSchedule(PurchaseLine, AllocationPurchaseLine);
         TransferDimensionSetID(PurchaseLine, AllocationLine, AllocationPurchaseLine."Alloc. Acc. Modified by User");

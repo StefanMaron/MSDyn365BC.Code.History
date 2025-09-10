@@ -2242,6 +2242,7 @@ codeunit 7307 "Whse.-Activity-Register"
             if Item."Reserved Qty. on Inventory" > 0 then begin
                 xReservedQty := Item."Reserved Qty. on Inventory";
                 WhseActivityItemTrackingSetup.CopyTrackingFromWhseActivityLine(WhseActivLine);
+                RemoveNonSpecificReservations(WhseActivLine, WhseItemTrackingSetup, QtyToRelease);
                 LateBindingMgt.ReleaseForReservation(
                   WhseActivLine."Item No.", WhseActivLine."Variant Code", WhseActivLine."Location Code",
                   WhseActivityItemTrackingSetup, QtyToRelease);
@@ -2347,6 +2348,40 @@ codeunit 7307 "Whse.-Activity-Register"
 
         exit(Item."Allow Whse. Overpick");
     end;
+
+    local procedure RemoveNonSpecificReservations(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; QtyToRelease: Decimal)
+    var
+        ReservationEntry: Record "Reservation Entry";
+        SalesLine: Record "Sales Line";
+        QtyToPick: Decimal;
+    begin
+        if not WhseItemTrackingSetup.TrackingRequired() then
+            exit;
+        if not (WhseActivLine."Source Type" = Database::"Sales Line") then
+            exit;
+
+        QtyToPick := QtyToRelease;
+        SalesLine.Get(WhseActivLine."Source Subtype", WhseActivLine."Source No.", WhseActivLine."Source Line No.");
+        ReservationEntry.SetSourceFilter(WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.", WhseActivLine."Source Line No.", true);
+        ReservationEntry.SetRange(Positive, false);
+        if ReservationEntry.FindSet() then
+            repeat
+                DeleteNonSpecificReservationEntries(ReservationEntry, SalesLine, QtyToPick);
+            until (ReservationEntry.Next() = 0) or (QtyToPick >= 0);
+    end;
+
+    local procedure DeleteNonSpecificReservationEntries(ReservationEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line"; var QtyToPick: Decimal)
+    var
+        ReservationManagement: Codeunit "Reservation Management";
+    begin
+        if ReservationEntry.TrackingExists() then
+            exit;
+
+        ReservationManagement.SetReservSource(SalesLine);
+        ReservationManagement.DeleteReservEntries(false, ReservationEntry."Quantity (Base)");
+        QtyToPick += ReservationEntry."Quantity (Base)"
+    end;
+
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var WarehouseActivityLine: Record "Warehouse Activity Line")

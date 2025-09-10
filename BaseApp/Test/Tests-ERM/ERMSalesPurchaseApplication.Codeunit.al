@@ -33,6 +33,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         TemplateLogicErrorMsg: Label 'Expected to find SALES1 general journal template but didn''t';
         RemainingAmountErr: Label 'Remaining Amount must be 0.';
         CustLedgerEntryOpenErr: Label 'Cust. Ledger Entry must be Close.';
+        SalesPurchErr: Label 'Sales/Purch. (LCY) must be the same as Amount (LCY).';
 
     [Test]
     [HandlerFunctions('ApplyCustEntryPageHandler')]
@@ -1405,6 +1406,78 @@ codeunit 134918 "ERM Sales/Purchase Application"
                 PurchaseJournal.DocumentAmount.AsDecimal()));
     end;
 
+    [Test]
+    procedure CheckSalesPurchaseLCYWhenlineAmountLessThanVATAmount()
+    var
+        Customer: Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+        VatPostingSetup: Record "VAT Posting Setup";
+        DocumnetNo: Code[20];
+    begin
+        // [SCENARIO 575956] Issue preventing General Journal posting when a line amount is less than the VAT amount triggering the error: 'Sales/Purch. (LCY) 
+        // must have the same sign as Amount.
+        Initialize();
+
+        // [GIVEN] Create a Customer and Find VAT Posting Setup that have VAT 25%.
+        LibrarySales.CreateCustomer(Customer);
+        FindVATPostingSetup(VatPostingSetup);
+
+        // [GIVEN] Create two G/L Accounts with Direct Posting enabled.
+        GLAccount.Get(LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GLAccount.Validate("VAT Bus. Posting Group", VatPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VatPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        GLAccount2.Get(LibraryERM.CreateGLAccountNoWithDirectPosting());
+
+        // [GIVEN] Create document number for General Journal Line and Select General Journal Batch.
+        DocumnetNo := LibraryRandom.RandText(20);
+        SelectGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create First General Journal Line with Document Type = Invoice, Gen. Posting Type = Sale, Amount = -1000, VAT Bus. Posting Group and VAT Prod. Posting Group.
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, GLAccount."No.", GenJournalLine."Document Type"::Invoice,
+            -1000, '', GenJournalLine."Account Type"::"G/L Account");
+        GenJournalLine.Validate("Document No.", DocumnetNo);
+        GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::Sale);
+        ValidateGenProdPostingGroup(GenJournalLine, VatPostingSetup);
+        GenJournalLine.Validate("VAT Bus. Posting Group", VatPostingSetup."VAT Bus. Posting Group");
+        GenJournalLine.Validate("VAT Prod. Posting Group", VatPostingSetup."VAT Prod. Posting Group");
+        GenJournalLine.Validate("Bal. Account No.", '');
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Create Second General Journal Line with Document Type = Invoice, Gen. Posting Type = Sale, Amount = 850, VAT Bus. Posting Group and VAT Prod. Posting Group.
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, GLAccount2."No.", GenJournalLine."Document Type"::Invoice,
+            850, '', GenJournalLine."Account Type"::"G/L Account");
+        GenJournalLine.Validate("Document No.", DocumnetNo);
+        GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::Sale);
+        ValidateGenProdPostingGroup(GenJournalLine, VatPostingSetup);
+        GenJournalLine.Validate("VAT Bus. Posting Group", '');
+        GenJournalLine.Validate("VAT Prod. Posting Group", VatPostingSetup."VAT Prod. Posting Group");
+        if Not VatPostingSetup.Get(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group") then
+            LibraryERM.CreateVATPostingSetup(VatPostingSetup, GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group");
+        GenJournalLine.Validate("VAT %", 0);
+        GenJournalLine.Validate("Bal. Account No.", '');
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Create Third General Journal Line with Document Type = Invoice, Gen. Posting Type = Sale, Amount = 150, VAT Bus. Posting Group and VAT Prod. Posting Group.
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, Customer."No.", GenJournalLine."Document Type"::Invoice,
+            150, '', GenJournalLine."Account Type"::Customer);
+        GenJournalLine.Validate("Document No.", DocumnetNo);
+        GenJournalLine.Validate("Bal. Account No.", '');
+        GenJournalLine.Modify(true);
+
+        // [THEN] Check that Sales/Purch. (LCY) is the same as Amount (LCY) And Post General journal Lines without error.
+        Assert.AreEqual(
+            Round(GenJournalLine."Amount (LCY)" - GenJournalLine."VAT Amount (LCY)", 0.01), GenJournalLine."Sales/Purch. (LCY)", SalesPurchErr);
+        GenJournalLine2.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine2.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine2.FindSet();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine2);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1810,6 +1883,31 @@ codeunit 134918 "ERM Sales/Purchase Application"
             Assert.AreEqual(0, CustLedgerEntry."Remaining Amount", RemainingAmountErr);
             Assert.AreEqual(false, CustLedgerEntry.Open, CustLedgerEntryOpenErr);
         until CustLedgerEntry.Next() = 0;
+    end;
+
+    procedure FindVATPostingSetup(var VatPostingSetup: Record "VAT Posting Setup")
+    begin
+        // Find VAT Posting Setup for the test.
+        VatPostingSetup.SetRange("VAT %", 25);
+        if not VatPostingSetup.FindFirst() then
+            LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 25);
+    end;
+
+    local procedure ValidateGenProdPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; VatPostingSetup: Record "VAT Posting Setup")
+    var
+        GenProdPosting: Record "Gen. Product Posting Group";
+    begin
+        if GenJournalLine."Gen. Prod. Posting Group" = '' then begin
+            GenProdPosting.setrange("Def. VAT Prod. Posting Group", VatPostingSetup."VAT Prod. Posting Group");
+            if GenProdPosting.FindFirst() then
+                GenJournalLine.Validate("Gen. Prod. Posting Group", GenProdPosting.Code)
+            else begin
+                LibraryERM.CreateGenProdPostingGroup(GenProdPosting);
+                GenProdPosting.Validate("Def. VAT Prod. Posting Group", VatPostingSetup."VAT Prod. Posting Group");
+                GenProdPosting.Modify(true);
+                GenJournalLine.Validate("Gen. Prod. Posting Group", GenProdPosting.Code);
+            end;
+        end;
     end;
 
     [ModalPageHandler]

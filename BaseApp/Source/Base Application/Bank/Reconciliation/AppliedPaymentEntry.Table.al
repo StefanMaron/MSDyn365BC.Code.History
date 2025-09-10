@@ -405,7 +405,14 @@ table 1294 "Applied Payment Entry"
     var
         RemAmtToApply: Decimal;
         LineRemAmtToApply: Decimal;
+        IsHandled: Boolean;
+        Result: Decimal;
     begin
+        IsHandled := false;
+        OnBeforeSuggestAmtToApply(Rec, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         RemAmtToApply := GetRemAmt() - GetAmtAppliedToOtherStmtLines();
         LineRemAmtToApply := GetStmtLineRemAmtToApply() + "Applied Pmt. Discount";
 
@@ -1180,6 +1187,11 @@ table 1294 "Applied Payment Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetVendLedgEntryRemAmtOnBeforeCalcFields(AppliedPaymentEntry: Record "Applied Payment Entry"; var IsHandled: Boolean; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSuggestAmtToApply(var AppliedPaymentEntry: Record "Applied Payment Entry"; var IsHandled: Boolean; var Result: Decimal)
     begin
     end;
 }

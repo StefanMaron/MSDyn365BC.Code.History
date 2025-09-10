@@ -346,8 +346,6 @@ page 940 "Blanket Assembly Order"
     begin
         IsUnitCostEditable := true;
         IsAsmToOrderEditable := true;
-
-        Rec.UpdateWarningOnLines();
     end;
 
     var

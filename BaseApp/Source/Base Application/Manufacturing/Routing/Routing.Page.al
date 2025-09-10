@@ -254,7 +254,15 @@ page 99000766 Routing
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+        Result := false;
+        IsHandled := false;
+        OnBeforeOnQueryClosePage(Rec, xRec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not CurrPage.Editable() then
             exit(true);
 
@@ -287,6 +295,11 @@ page 99000766 Routing
         VersionManagement: Codeunit VersionManagement;
     begin
         ActiveVersionCode := VersionManagement.GetRtngVersion(Rec."No.", WorkDate(), true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnQueryClosePage(var RoutingHeader: Record "Routing Header"; var xRoutingHeader: Record "Routing Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

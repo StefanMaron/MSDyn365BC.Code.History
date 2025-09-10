@@ -666,6 +666,8 @@ codeunit 5920 ServItemManagement
     local procedure CopyReservationEntryLine(var SalesLine: Record "Sales Line")
     var
         ReservEntry: Record "Reservation Entry";
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -683,6 +685,9 @@ codeunit 5920 ServItemManagement
         ReservEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
         ReservEntry.SetRange("Source Batch Name", '');
         ReservEntry.SetRange("Source Prod. Order Line", 0);
+        if Item.Get(SalesLine."No.") then
+            if (Item."Item Tracking Code" <> '') and ItemTrackingCode.Get(Item."Item Tracking Code") and ItemTrackingCode."SN Specific Tracking" then
+                ReservEntry.SetFilter("Serial No.", '<>%1', '');
         ReservEntry.SetFilter("Qty. to Handle (Base)", '<>%1', 0);
 
         OnCopyReservationEntryLineOnBeforeReservationEntryFindSet(SalesLine, ReservEntry);

@@ -5581,6 +5581,39 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure SalesPriceListViewColumnforFilterIsNotChangedOnClosePage()
+    var
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [SCENARIO 592500] Sales Price List View Column for Filter Is Changed OnClosePage
+        Initialize();
+
+        // [GIVEN] Create Item and Sales Price List Header and Line
+        LibraryInventory.CreateItem(Item);
+        LibraryPriceCalculation.CreatePriceHeader(
+                   PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::Item, Item."No.");
+        PriceListHeader.Status := PriceListHeader.Status::Active;
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open "Sales Price List" page
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [WHEN] Change Amount Type in "Sales Price List" page
+        SalesPriceList.AmountType.SetValue("Price Amount Type"::Price);
+        SalesPriceList.Close();
+
+        // [THEN] Check Amount Type Field value saved after chnge the value
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
