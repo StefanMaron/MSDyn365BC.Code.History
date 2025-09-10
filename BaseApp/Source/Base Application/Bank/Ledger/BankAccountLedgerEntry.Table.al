@@ -454,19 +454,19 @@ table 271 "Bank Account Ledger Entry"
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
-        CheckLedgerEntry.SetRange("Bank Account No.", Rec."Bank Account No.");
+        if ((Rec."Statement Status" = Rec."Statement Status"::"Bank Acc. Entry Applied") and
+           (Rec."Statement No." <> '') and (Rec."Statement Line No." <> 0)) then
+            exit(Rec."Statement No.");
+        CheckLedgerEntry.SetLoadFields("Statement No.");
+        CheckLedgerEntry.SetCurrentKey("Bank Account Ledger Entry No.");
         CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", Rec."Entry No.");
+        CheckLedgerEntry.SetRange("Bank Account No.", Rec."Bank Account No.");
         CheckLedgerEntry.SetRange(Open, true);
         CheckLedgerEntry.SetRange("Statement Status", CheckLedgerEntry."Statement Status"::"Check Entry Applied");
         CheckLedgerEntry.SetFilter("Statement No.", '<>%1', '');
         CheckLedgerEntry.SetFilter("Statement Line No.", '<>%1', 0);
-        if not CheckLedgerEntry.IsEmpty() then
+        if CheckLedgerEntry.FindFirst() then
             exit(CheckLedgerEntry."Statement No.");
-
-        if ((Rec."Statement Status" = Rec."Statement Status"::"Bank Acc. Entry Applied") and
-           (Rec."Statement No." <> '') and (Rec."Statement Line No." <> 0)) then
-            exit(Rec."Statement No.");
-
         exit('');
     end;
 

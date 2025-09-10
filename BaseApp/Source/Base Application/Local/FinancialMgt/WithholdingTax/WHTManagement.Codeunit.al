@@ -4295,6 +4295,7 @@ codeunit 28040 WHTManagement
                 end;
 
         TotalWHTAmount := 0;
+        TempRemAmt := 0;
         PaymentAmount := GenJnlLine.Amount;
         PaymentAmount1 := GenJnlLine.Amount;
         PaymentAmountLCY := GenJnlLine."Amount (LCY)";

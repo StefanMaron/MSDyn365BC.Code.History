@@ -17,6 +17,7 @@ codeunit 145403 "AU Feature Bugs"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         AmountMustBeZeroMsg: Label 'Amount must be zero.';
+        WHTAmountErr: Label 'WHT amount should match with %1', Comment = '%1 = Expected Amount';
 
     [Test]
     [Scope('OnPrem')]
@@ -196,6 +197,88 @@ codeunit 145403 "AU Feature Bugs"
         // [VERIFY] Verify the Budget Amount on xml will be same.
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalBudgetAmount', BudgetAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateWHTSetupAndPostPurchaseOrderWithMultipleLines()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTBusinessPostingGroup: Record "WHT Business Posting Group";
+        WHTProductPostingGroup: Record "WHT Product Posting Group";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+        PostedDocumentNo: Code[20];
+        VendorNo: Code[20];
+        DirectUnitCost: Decimal;
+    begin
+        // [SCENARIO 592550] No inconsistency when posting purchase invoice partially with WHT calculation rule = Invoice
+        // [GIVEN] Enable WHT and disable GST on General Ledger Setup
+        GeneralLedgerSetup.Get();
+        UpdateGeneralLedgerSetup(true, true, true, true);
+
+        // [GIVEN] Disable GST Australia on General Ledger Setup
+        UpdateGSTAusOnGenLedgSetup(false);
+
+        // [GIVEN] Find VAT Posting Setup
+        FindAndUpdateVATPostingSetup(VATPostingSetup);
+
+        // [GIVEN] Assign random Direct Unit Cost
+        DirectUnitCost := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Create WHT Business Posting Group 
+        LibraryAPACLocalization.CreateWHTBusinessPostingGroup(WHTBusinessPostingGroup);
+
+        // [GIVEN] Create WHT Product Posting Group 
+        LibraryAPACLocalization.CreateWHTProductPostingGroup(WHTProductPostingGroup);
+
+        // [GIVEN] Create WHT Posting Setup
+        CreateWHTPostingSetupWithSpecificGroups(WHTPostingSetup, WHTBusinessPostingGroup.Code, WHTProductPostingGroup.Code, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create vendor with WHT setup
+        VendorNo := CreateVendor(VATPostingSetup."VAT Bus. Posting Group", WHTBusinessPostingGroup.Code);
+
+        // [GIVEN] Create Purchase Order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+
+        // [GIVEN] Add first purchase line
+        CreatePurchaseLineWithGLAccount(PurchaseHeader, PurchaseLine[1], VATPostingSetup."VAT Prod. Posting Group", WHTProductPostingGroup.Code, DirectUnitCost);
+
+        // [GIVEN] Add second purchase line and set quantity to receive as 0
+        CreatePurchaseLineWithGLAccount(PurchaseHeader, PurchaseLine[2], VATPostingSetup."VAT Prod. Posting Group", WHTProductPostingGroup.Code, DirectUnitCost);
+        PurchaseLine[2].Validate("Qty. to Receive", 0);
+        PurchaseLine[2].Modify();
+
+        // [WHEN] Post first Purchase line in Purchase Order
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify successful posting of first Purchase line
+        VerifyPostedPurchaseInvoiceExists(PostedDocumentNo);
+
+        // [THEN] Verify WHT Amount in WHT Entry
+        VerifyWHTCalculations(PostedDocumentNo, WHTPostingSetup."WHT %");
+
+        // [GIVEN] Update Purchase Header with Vendor Invoice No.
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryRandom.RandText(10));
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Post second Purchase line in Purchase Order
+        PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify successful posting
+        VerifyPostedPurchaseInvoiceExists(PostedDocumentNo);
+
+        // [THEN] Verify WHT Amount in WHT Entry
+        VerifyWHTCalculations(PostedDocumentNo, WHTPostingSetup."WHT %");
+
+        // [TEAR DOWN] Roll back VAT Posting Setup and General Ledger Setup
+        UpdateVATPostingSetup(
+            VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup."Unrealized VAT Type");
+        UpdateGeneralLedgerSetup(
+            GeneralLedgerSetup."Enable Tax Invoices", GeneralLedgerSetup."Enable WHT",
+            GeneralLedgerSetup."Print Tax Invoices on Posting", GeneralLedgerSetup."Unrealized VAT");
     end;
 
     local procedure CreateAndPostGeneralJournalLine(): Code[20]
@@ -447,6 +530,83 @@ codeunit 145403 "AU Feature Bugs"
         GLBudgetEntry.Modify(true);
         GLBudgetEntry.TestField("Last Date Modified");
         exit(GLBudgetEntry."Entry No.");
+    end;
+
+    local procedure CreatePurchaseLineWithGLAccount(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VATProdPostingGroup: Code[20]; WHTProductPostingGroup: Code[20]; DirectUnitCost: Decimal)
+    var
+        GLAccountNo: Code[20];
+    begin
+        GLAccountNo := CreateGLAccount(VATProdPostingGroup, WHTProductPostingGroup);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateWHTPostingSetupWithSpecificGroups(
+        var WHTPostingSetup: Record "WHT Posting Setup";
+        WHTBusinessPostingGroup: Code[20];
+        WHTProductPostingGroup: Code[20];
+        WHTPercent: Integer)
+    var
+        GLAccount1: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+        GLAccount3: Record "G/L Account";
+        GLAccount4: Record "G/L Account";
+        BankAccount: Record "Bank Account";
+        WHTRevenueTypes: Record "WHT Revenue Types";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount1);
+        LibraryERM.CreateGLAccount(GLAccount2);
+        LibraryERM.CreateGLAccount(GLAccount3);
+        LibraryERM.CreateGLAccount(GLAccount4);
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryAPACLocalization.CreateWHTRevenueTypes(WHTRevenueTypes);
+
+        LibraryAPACLocalization.CreateWHTPostingSetup(WHTPostingSetup, WHTBusinessPostingGroup, WHTProductPostingGroup);
+        WHTPostingSetup.Validate("WHT Calculation Rule", WHTPostingSetup."WHT Calculation Rule"::"Greater than");
+        WHTPostingSetup.Validate("WHT %", WHTPercent);
+        WHTPostingSetup.Validate("Realized WHT Type", WHTPostingSetup."Realized WHT Type"::Invoice);
+        WHTPostingSetup.Validate("Revenue Type", WHTRevenueTypes.Code);
+        WHTPostingSetup.Validate("Prepaid WHT Account Code", GLAccount1."No.");
+        WHTPostingSetup.Validate("Payable WHT Account Code", GLAccount2."No.");
+        WHTPostingSetup.Validate("Bal. Prepaid Account No.", BankAccount."No.");
+        WHTPostingSetup.Validate("Bal. Payable Account No.", BankAccount."No.");
+        WHTPostingSetup.Validate("Purch. WHT Adj. Account No.", GLAccount3."No.");
+        WHTPostingSetup.Validate("Sales WHT Adj. Account No.", GLAccount4."No.");
+        WHTPostingSetup.Modify(true);
+    end;
+
+    local procedure VerifyPostedPurchaseInvoiceExists(DocumentNo: Code[20])
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        PurchInvHeader.Get(DocumentNo);
+        PurchInvHeader.TestField("No.", DocumentNo);
+    end;
+
+    local procedure VerifyWHTCalculations(DocumentNo: Code[20]; ExpectedWHTPercent: Decimal)
+    var
+        WHTEntry: Record "WHT Entry";
+        PurchInvLine: Record "Purch. Inv. Line";
+        ExpectedWHTAmount: Decimal;
+        TotalLineAmount: Decimal;
+    begin
+        // Calculate expected WHT amount
+        PurchInvLine.SetRange("Document No.", DocumentNo);
+        PurchInvLine.SetFilter("WHT Product Posting Group", '<>%1', '');
+        PurchInvLine.FindSet();
+        repeat
+            TotalLineAmount += PurchInvLine."Line Amount";
+        until PurchInvLine.Next() = 0;
+
+        ExpectedWHTAmount := TotalLineAmount * ExpectedWHTPercent / 100;
+
+        // Verify WHT Entry amount
+        WHTEntry.SetRange("Document No.", DocumentNo);
+        WHTEntry.SetRange("Document Type", WHTEntry."Document Type"::Invoice);
+        WHTEntry.FindFirst();
+        Assert.AreNearlyEqual(ExpectedWHTAmount, Abs(WHTEntry.Amount), 0.01, StrSubstNo(WHTAmountErr, ExpectedWHTAmount));
     end;
 
     [ConfirmHandler]
