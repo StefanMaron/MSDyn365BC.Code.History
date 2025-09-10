@@ -809,11 +809,20 @@ table 254 "VAT Entry"
     procedure CheckGLAccountNoFilled()
     var
         VATEntryLocal: Record "VAT Entry";
+        GLEntryVATLink: Record "G/L Entry - VAT Entry Link";
     begin
         VATEntryLocal.Copy(Rec);
         VATEntryLocal.SetRange("G/L Acc. No.", '');
-        if not VATEntryLocal.IsEmpty() then
-            Error(NoGLAccNoOnVATEntriesErr, VATEntryLocal.GetFilters());
+        if not VATEntryLocal.FindSet() then
+            exit;
+
+        repeat
+            GLEntryVATLink.Reset();
+            GLEntryVATLink.SetRange("VAT Entry No.", VATEntryLocal."Entry No.");
+            GLEntryVATLink.SetFilter("G/L Entry No.", '<>%1', 0);
+            if not GLEntryVATLink.IsEmpty() then
+                Error(NoGLAccNoOnVATEntriesErr, VATEntryLocal.GetFilters());
+        until VATEntryLocal.Next() = 0;
     end;
 
     local procedure AdjustGLAccountNoOnRec(var VATEntry: Record "VAT Entry")

@@ -1572,7 +1572,8 @@ codeunit 22 "Item Jnl.-Post Line"
             if (ProdOrderLine."Remaining Qty. (Base)" = OutputQtyBase) and
                (ProdOrderComp."Remaining Quantity" <> 0) and
                (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") <= CompItem."Rounding Precision") and
-               (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") < 1)
+               (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") < 1) or
+               (OutputQtyBase = Round(ProdOrderComp."Remaining Qty. (Base)", 1))
             then
                 QtyToPost := ProdOrderComp."Remaining Quantity";
         end else
