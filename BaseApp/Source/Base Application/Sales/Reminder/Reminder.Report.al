@@ -719,7 +719,7 @@ report 117 Reminder
                             end else
                                 BodyTxt := ReminderEmailText.GetBodyLbl();
                         end;
-                        OnLetterTextOnPreDataItemOnAfterSetAmtDueTxt("Issued Reminder Header", AmtDueTxt);
+                        OnLetterTextOnPreDataItemOnAfterSetAmtDueTxt("Issued Reminder Header", AmtDueTxt, GreetingTxt, BodyTxt, ClosingTxt, DescriptionTxt);
                     end;
                 }
             }
@@ -1072,7 +1072,7 @@ report 117 Reminder
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLetterTextOnPreDataItemOnAfterSetAmtDueTxt(var IssuedReminderHeader: Record "Issued Reminder Header"; var AmtDueTxt: Text)
+    local procedure OnLetterTextOnPreDataItemOnAfterSetAmtDueTxt(var IssuedReminderHeader: Record "Issued Reminder Header"; var AmtDueTxt: Text; var GreetingTxt: Text; var BodyTxt: Text; var ClosingTxt: Text; var DescriptionTxt: Text)
     begin
     end;
 }

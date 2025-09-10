@@ -424,6 +424,56 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         Assert.AreEqual(GeneralJournalTestPage.IncomingDocAttachFactBox.UploadMainAttachment.Enabled(), true, MainAttachmentErr);
     end;
 
+    [Test]
+    [HandlerFunctions('GLPostingPreviewHandler')]
+    procedure PaymentJournalPreviewPostingWithMainAttachmentInOneLineAndSupportingAttachmentOnOtherLine()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentJournalPage: TestPage "Payment Journal";
+        DocumentNo: Text;
+    begin
+        // [SCENARIO 596981] Verify Payment Journal Preview Posting without any error when Main Attachment in One Line and Supporting Attachment on Other Line.
+
+        // [GIVEN] Create General Journal Batch.
+        CreateGeneralJournalBatch(GenJournalLine, GenJournalTemplate.Type::Payments);
+        DocumentNo := LibraryRandom.RandText(9) + Format(LibraryRandom.RandIntInRange(1, 1));
+        PaymentJournalPage.Trap();
+        Page.Run(Page::"Payment Journal", GenJournalLine);
+
+        // [GIVEN] Create First Line.
+        PaymentJournalPage."Document No.".SetValue(DocumentNo);
+        PaymentJournalPage."Account Type".SetValue(GenJournalLine."Account Type"::Vendor);
+        PaymentJournalPage."Account No.".SetValue(LibraryPurchase.CreateVendorNo());
+        PaymentJournalPage."Bal. Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
+        PaymentJournalPage."Bal. Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
+        PaymentJournalPage.Amount.SetValue(LibraryRandom.RandInt(10000));
+
+        // [GIVEN] Run Import New action from Incoming Doc Attach FactBox.
+        PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
+        PaymentJournalPage.IncomingDocAttachFactBox.UploadMainAttachment.Invoke();
+
+        // [GIVEN] Create Second Line.
+        PaymentJournalPage.New();
+        PaymentJournalPage."Document No.".SetValue(IncStr(DocumentNo));
+        PaymentJournalPage."Account Type".SetValue(GenJournalLine."Account Type"::Vendor);
+        PaymentJournalPage."Account No.".SetValue(LibraryPurchase.CreateVendorNo());
+        PaymentJournalPage."Bal. Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
+        PaymentJournalPage."Bal. Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
+        PaymentJournalPage.Amount.SetValue(LibraryRandom.RandInt(10000));
+
+        // [WHEN] Run Import New action from Incoming Doc Attach FactBox.
+        PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
+        PaymentJournalPage.IncomingDocAttachFactBox.UploadMainAttachment.Invoke();
+
+        // [THEN] Go to the next line.
+        // No Error occured.
+        PaymentJournalPage.Next();
+
+        // No errors occur when previewing a posting in the Payment Journal, with the main attachment on one line and the supporting attachment on another line.
+        PaymentJournalPage.Preview.Invoke();
+    end;
+
     local procedure CreateGeneralJournalBatch(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplateType: Enum "Gen. Journal Template Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -503,6 +553,12 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
     procedure YesConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [PageHandler]
+    procedure GLPostingPreviewHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
+    begin
+        GLPostingPreview.OK().Invoke();
     end;
 }
 
