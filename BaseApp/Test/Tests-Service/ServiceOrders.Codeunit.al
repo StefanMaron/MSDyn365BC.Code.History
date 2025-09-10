@@ -5523,6 +5523,46 @@ codeunit 136101 "Service Orders"
         Assert.AreEqual(Customer[2]."Country/Region Code", ServiceHeader."VAT Country/Region Code", VATCountryRegionLbl);
     end;
 
+    [Test]
+    [HandlerFunctions('ServiceStatisticsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceStatisticsShouldZeroWIth100PctLineDiscount()
+    var
+        Customer: Record Customer;
+        Resource: Record Resource;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // [SCENARIO 575012] Negative invoice amount when posting a service invoice with 100% line discount
+        Initialize();
+
+        // [GIVEN] Create new customer and resource
+        LibrarySales.CreateCustomer(Customer);
+        LibraryResource.CreateResourceNew(Resource);
+
+        // [GIVEN] Create Service Header with Document Type = Invoice
+        CreateServiceDocumentWithResourceWith100PctDisc(
+            ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice, Customer."No.",
+            Resource."No.", LibraryRandom.RandIntInRange(1, 1), LibraryRandom.RandDecInDecimalRange(0.01, 0.01, 2));
+
+        // [THEN] Open Service Statistics.
+        PAGE.RunModal(PAGE::"Service Statistics", ServiceHeader);
+
+        // Verify: Verify VAT Amount and "Amount Including VAT" on VAT Amount Lines and VAT Amount on Service Statistics using ServiceStatisticsPageHandler .
+    end;
+
+    local procedure CreateServiceDocumentWithResourceWith100PctDisc(
+       var ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type";
+       CustomerNo: Code[20]; ResourceNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    begin
+        LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
+        ServiceLine.Validate(Quantity, Quantity);
+        ServiceLine.Validate("Unit Price", UnitPrice);
+        ServiceLine.Validate("Line Discount %", 100);
+        ServiceLine.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTRUE(Question: Text[1024]; var Reply: Boolean)
