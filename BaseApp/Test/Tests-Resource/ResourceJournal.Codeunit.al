@@ -525,6 +525,51 @@ codeunit 136403 "Resource Journal"
         FindResourceLedgerEntry(ResLedgerEntry, DocumentNo, ResJournalBatch.Name, Resource."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    procedure ResLedgerEntryHaveDocumentNoGeneratedFromResJournalBatchPostingNoSeries()
+    var
+        ResJournalBatch: Record "Res. Journal Batch";
+        ResLedgerEntry: Record "Res. Ledger Entry";
+        Resource: Record Resource;
+        ResourceJournal: TestPage "Resource Journal";
+        LastNoUsed, PostingNoSeries : Code[20];
+    begin
+        // [SCENARIO 581954] Ensure that the Resource Ledger Entry includes a Document No. generated from the Resource Journal Batch Posting No. Series.
+        Initialize();
+
+        // [GIVEN] Create Posting No. Series.
+        PostingNoSeries := LibraryUtility.GetGlobalNoSeriesCode();
+
+        // [GIVEN] Create a resource.
+        Resource.Get(CreateResource());
+
+        // [GIVEN] Create Resource Journal Template And Batch.
+        FindResourceJournalBatch(ResJournalBatch);
+
+        // [GIVEN] Set Posting No. Series in Resource Journal Batch.
+        ResJournalBatch.Validate("Posting No. Series", PostingNoSeries);
+        ResJournalBatch.Modify(true);
+
+        // [GIVEN] Open Resource Journal Page.
+        ResourceJournal.OpenEdit();
+
+        // [GIVEN] Create Resource Journal Line.
+        CreateResourceJournalLineByPage(ResourceJournal, ResJournalBatch.Name, Resource."No.", '');
+
+        // [GIVEN] Set Document No. value blank in resource journal.
+        ResourceJournal."Document No.".SetValue('');
+
+        // [WHEN] Post the Resource Journal.
+        ResourceJournal.Post.Invoke();
+        Commit();
+        ResourceJournal.OK().Invoke();
+
+        // [THEN] Verify that the Resource Ledger Entry has a Document No. from the Resource Journal Batch Posting No. Series. 
+        LastNoUsed := FindLastNoUsed(PostingNoSeries);
+        FindResourceLedgerEntry(ResLedgerEntry, LastNoUsed, ResJournalBatch.Name, Resource."No.");
+    end;
+
     local procedure ClearResourceJournalLines(var ResJournalBatch: Record "Res. Journal Batch")
     var
         ResJournalLine: Record "Res. Journal Line";
@@ -837,6 +882,16 @@ codeunit 136403 "Resource Journal"
         Resource2.TestField("Unit Price", Resource."Unit Price");
         Resource2.TestField("Gen. Prod. Posting Group", Resource."Gen. Prod. Posting Group");
         Resource2.TestField("VAT Prod. Posting Group", Resource."VAT Prod. Posting Group");
+    end;
+
+    local procedure FindLastNoUsed(SeriesCode: Code[20]): Code[20]
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        NoSeriesLine.SetRange("Series Code", SeriesCode);
+        NoSeriesLine.FindFirst();
+
+        exit(NoSeriesLine."Last No. Used");
     end;
 
     [MessageHandler]

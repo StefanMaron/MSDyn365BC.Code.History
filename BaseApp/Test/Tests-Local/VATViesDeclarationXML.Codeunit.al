@@ -56,7 +56,7 @@ codeunit 142077 "VAT - Vies Declaration XML"
         XMLDOMManagement.LoadXMLDocumentFromFile(ExportedFileName, XmlDoc);
         // TFS ID 340090: DREIECK node should not be exported blank
         Assert.IsTrue(VerifyElementDoesNotExistInXMLDoc('DREIECK', ''), StrSubstNo(XMLHasElementErr, 'DREIECK', ''));
-        Assert.IsTrue(VerifyElementInXMLDoc('DREIECK', '1'), StrSubstNo(XMLErr, 'DREIECK', '1'));
+        Assert.IsTrue(VerifyElementInXMLDoc('DREIECK', 'J'), StrSubstNo(XMLErr, 'DREIECK', 'J'));
         Assert.IsTrue(VerifyElementInXMLDoc('SOLEI', 'J'), StrSubstNo(XMLErr, 'SOLEI', 'J'));
     end;
 

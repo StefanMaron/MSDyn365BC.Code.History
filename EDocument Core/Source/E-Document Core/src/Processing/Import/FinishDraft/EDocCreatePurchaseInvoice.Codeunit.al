@@ -53,8 +53,7 @@ codeunit 6117 "E-Doc. Create Purchase Invoice" implements IEDocumentFinishDraft,
         DocumentAttachmentMgt.CopyAttachments(EDocument, PurchaseHeader);
 
         // Post document validation - Silently emit telemetry
-        if not TryValidateDocumentTotals(PurchaseHeader) then
-            EDocImpSessionTelemetry.SetBool('Totals Validation Failed', true);
+        EDocImpSessionTelemetry.SetBool('Totals Validation', TryValidateDocumentTotals(PurchaseHeader));
 
         exit(PurchaseHeader.RecordId);
     end;
