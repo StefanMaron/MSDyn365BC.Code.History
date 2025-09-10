@@ -1621,7 +1621,7 @@ codeunit 398 "Sales Tax Calculate"
                         if TempSalesTaxAmountLine."Tax Type" = TempSalesTaxAmountLine."Tax Type"::"Sales and Use Tax" then begin
                             Amount := (PurchLine."Line Amount" - PurchLine."Inv. Discount Amount");
                             OnDistTaxOverPurchLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(TempSalesTaxAmountLine, PurchLine, PurchHeader, Amount);
-                            if TempSalesTaxAmountLine."Tax Difference" <> 0 then
+                            if (TempSalesTaxAmountLine."Tax Difference" <> 0) and (PurchLine."Selected Alloc. Account No." = '') then
                                 TaxAmount := Amount * TempSalesTaxAmountLine."Tax Amount" / TempSalesTaxAmountLine."Tax Base Amount"
                             else
                                 TaxAmount := Amount * TempSalesTaxAmountLine."Tax %" / 100;

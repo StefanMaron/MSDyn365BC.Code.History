@@ -33,6 +33,7 @@ codeunit 134500 "ERM Cash Manager"
         StatementEndingBalanceErrorErr: Label '%1 must be equal to Total Balance.', Comment = 'Statement Ending Balance';
         UnknownErrorErr: Label 'Unknown Error.';
         SameCurrencyErrorMsg: Label 'The Bank Account and the General Journal Line must have the same currency';
+        CanadianCheckErrorMsg: Label 'You cannot use the <blank> %1 option with a Canadian style check. Please check %2 %3.', Comment = '%1=Field caption for "Check Date Format" field, %2=Caption for table "Bank Account", %3=Bank Account number';
 
     [Test]
     [Scope('OnPrem')]
@@ -1063,6 +1064,43 @@ codeunit 134500 "ERM Cash Manager"
         BankAccount.TestField("Last Check No.", IncStr(LastCheckNo));
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('TestPrintCheckCheckStubStubRequestPageHandler')]
+    procedure PrintCanadianStyleCheckWithBlankCheckDateFormat_ShouldError()
+    var
+        Vendor: Record Vendor;
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        CheckDateFormatFieldCaption: Text[100];
+    begin
+        // [SCENARIO 581286] Printing check with "Test Print" doesn't throw an error if "Check Date Format" is not specified on the vendor
+        Initialize();
+
+        // [GIVEN] Bank Account with Last Check No = 10
+        CreateBankAccountLastCheckNo(BankAccount);
+        BankAccount.Validate("Country/Region Code", 'CA');
+        BankAccount.Modify(true);
+
+        // [GIVEN] Gen. Journal Line with Bank Account for print Check
+        PrepareGenJnlLineForCheckPrinting(GenJournalLine, BankAccount."No.");
+
+        // [WHEN] Run report "Check (Check/Stub/Stub)" with TestPrint option enabled
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
+        LibraryVariableStorage.Enqueue(true);
+        Commit();
+
+        // [THEN] Assert error for Canadian style check with blank Check Date Format
+        Vendor.Get(GenJournalLine."Account No.");
+        CheckDateFormatFieldCaption := Vendor.FieldCaption("Check Date Format");
+        asserterror REPORT.Run(REPORT::"Check (Check/Stub/Stub)", true, false, GenJournalLine);
+        Assert.ExpectedError(
+            StrSubstNo(CanadianCheckErrorMsg,
+                CheckDateFormatFieldCaption,
+                Vendor.TableCaption(),
+                Vendor."No."));
     end;
 
     local procedure Initialize()

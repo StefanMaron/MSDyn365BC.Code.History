@@ -4509,6 +4509,305 @@
       </Page>
     </ReportSection>
   </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="SubDispatchList">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SubDispatchList</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SubDispatchList</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SubDispatchListPrint">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SubDispatchListPrint</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SubDispatchListPrint</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SubDispatchListAnalysis">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SubDispatchListAnalysis</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SubDispatchListAnalysis</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PeriodLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>PeriodLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>PeriodLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="No_VendorLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>No_VendorLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>No_VendorLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Name_VendorLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Name_VendorLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Name_VendorLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="No_WorkCenterLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>No_WorkCenterLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>No_WorkCenterLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Name_WorkCenterLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Name_WorkCenterLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Name_WorkCenterLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PONo_ProdOrderRtngLineLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>PONo_ProdOrderRtngLineLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>PONo_ProdOrderRtngLineLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="OprtnNo_ProdOrderRtngLineLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>OprtnNo_ProdOrderRtngLineLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>OprtnNo_ProdOrderRtngLineLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Desc_ProdOrderRtngLineLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Desc_ProdOrderRtngLineLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Desc_ProdOrderRtngLineLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="StrtDt_ProdOrderRtngLineLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>StrtDt_ProdOrderRtngLineLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>StrtDt_ProdOrderRtngLineLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EndDate_ProdOrderRtngLineLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EndDate_ProdOrderRtngLineLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EndDate_ProdOrderRtngLineLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ItemNo_ProdOrderLineLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ItemNo_ProdOrderLineLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ItemNo_ProdOrderLineLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Desc_ProdOrderLineLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Desc_ProdOrderLineLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Desc_ProdOrderLineLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RemaingQty_ProdOrderLineLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RemaingQty_ProdOrderLineLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RemaingQty_ProdOrderLineLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PurchLineDocNoLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>PurchLineDocNoLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>PurchLineDocNoLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PurchLineOutstandingQtyLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>PurchLineOutstandingQtyLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>PurchLineOutstandingQtyLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UOMCode_ProdOrderLineLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UOMCode_ProdOrderLineLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UOMCode_ProdOrderLineLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ItemNo_ProdOrderCompLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ItemNo_ProdOrderCompLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ItemNo_ProdOrderCompLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Desc_ProdOrderCompLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Desc_ProdOrderCompLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Desc_ProdOrderCompLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PONo_ProdOrderCompLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>PONo_ProdOrderCompLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>PONo_ProdOrderCompLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RemaingQty_ProdOrderCompLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RemaingQty_ProdOrderCompLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RemaingQty_ProdOrderCompLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UOMCode_ProdOrderCompLbl">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UOMCode_ProdOrderCompLbl</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UOMCode_ProdOrderCompLbl</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DataRetrieved">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DataRetrieved</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DataRetrieved</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="AboutTheReportLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AboutTheReportLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AboutTheReportLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EnvironmentLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EnvironmentLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EnvironmentLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompanyLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompanyLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompanyLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UserLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UserLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UserLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RunOnLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RunOnLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RunOnLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReportNameLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ReportNameLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ReportNameLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocumentationLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocumentationLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocumentationLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="TimezoneLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>TimezoneLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>TimezoneLabel</Prompt>
+    </ReportParameter>
+  </ReportParameters>
   <Code>Public Function BlankZero(ByVal Value As Decimal)
     if Value = 0 then
         Return ""
@@ -4551,6 +4850,9 @@ End Function
   <DataSets>
     <DataSet Name="DataSet_Result">
       <Fields>
+        <Field Name="TodayFormatted">
+          <DataField>TodayFormatted</DataField>
+        </Field>
         <Field Name="CompanyName">
           <DataField>CompanyName</DataField>
         </Field>
