@@ -287,7 +287,7 @@ page 7001 "Price List Lines"
                     EditinExcelFilters: Codeunit "Edit in Excel Filters";
                 begin
                     EditinExcelFilters.AddFieldV2('Price_List_Code', Enum::"Edit in Excel Filter Type"::Equal, Rec."Price List Code", Enum::"Edit in Excel Edm Type"::"Edm.String");
-                    EditinExcel.EditPageInExcel(CopyStr(CurrPage.Caption, 1, 240), Page::"Price List Lines", EditinExcelFilters, StrSubstNo(ExcelFileNameTxt, Rec."Price List Code"));
+                    EditinExcel.EditPageInExcel('Price List Lines', Page::"Price List Lines", EditinExcelFilters, StrSubstNo(ExcelFileNameTxt, Rec."Price List Code"));
                 end;
             }
         }

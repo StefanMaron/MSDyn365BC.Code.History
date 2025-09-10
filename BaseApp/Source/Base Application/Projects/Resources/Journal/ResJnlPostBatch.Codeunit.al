@@ -133,11 +133,12 @@ codeunit 213 "Res. Jnl.-Post Batch"
             if not ResJnlLine.EmptyLine() then
                 LastDocNo2 := ResJnlLine."Document No.";
             MakeRecurringTexts(ResJnlLine);
-            if ResJnlLine."Posting No. Series" = '' then
-                ResJnlLine."Posting No. Series" := ResJnlBatch."No. Series"
-            else
+            if ResJnlLine."Posting No. Series" = '' then begin
+                ResJnlLine."Posting No. Series" := ResJnlBatch."No. Series";
+                ResJnlLine.TestField("Document No.");
+            end else
                 if not ResJnlLine.EmptyLine() then
-                    if ResJnlLine."Document No." = LastDocNo then
+                    if (ResJnlLine."Document No." = LastDocNo) and (ResJnlLine."Document No." <> '') then
                         ResJnlLine."Document No." := LastPostedDocNo
                     else begin
                         LastDocNo := ResJnlLine."Document No.";

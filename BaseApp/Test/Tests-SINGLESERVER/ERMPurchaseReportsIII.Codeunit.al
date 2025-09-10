@@ -1952,10 +1952,13 @@ codeunit 134988 "ERM Purchase Reports III"
         Vendor: Record Vendor;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        PeriodLength: DateFormula;
         DocumentNo: Code[20];
         Amount: Decimal;
-        AsofDate: Date;
-        PeriodLength: DateFormula;
+        ReportEndingDate: Date;
+        PostingDate: Date;
+        EarlyPostingDate: Date;
+        LaterPostingDate: Date;
     begin
         //[SCENARIO 574822] Aged Account Receivables and Aged Account Payable Reports Prioritize Most Recent Posting Date Rather than Posting Date on Latest Entry Causing Faulty Reports
 
@@ -1964,35 +1967,39 @@ codeunit 134988 "ERM Purchase Reports III"
         // [GIVEN] Create Vendor
         LibraryPurchase.CreateVendor(Vendor);
 
+        // [GIVEN] Posting Dates and Report Ending Date
+        PostingDate := WorkDate();
+        EarlyPostingDate := CalcDate('<-1M>', PostingDate);
+        LaterPostingDate := CalcDate('<+1M>', PostingDate);
+        ReportEndingDate := DMY2Date(31, 12, Date2DMY(LaterPostingDate, 3));
+
         //[GIVEN] Create and Post Purchase Invoice
         Amount := 12000;
-        DocumentNo :=
-        CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", 'Test', Amount, 0D);
+        DocumentNo := CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", 'Test', Amount, 1, 0D, EarlyPostingDate);
 
         // [GIVEN] Create Payment Journal and post for Purchase Invoice
         CreateGeneralJournalLine(GenJournalLine, 1, Vendor."No.", GenJournalLine."Document Type"::Payment, Amount);
-        GenJournalLine.Validate("Posting Date", 20241101D);
+        GenJournalLine.Validate("Posting Date", PostingDate);
         UpdateGenJournalLine(GenJournalLine, '', DocumentNo, Amount);
         LibraryLowerPermissions.SetAccountPayables();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [GIVEN] Unapply The Payment for Purchase Invoice
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, DocumentNo);
-        UnapplyVendorLedgerEntry(VendorLedgerEntry, 20250201D);
+        UnapplyVendorLedgerEntry(VendorLedgerEntry, LaterPostingDate);
 
         // [GIVEN] apply the payment again for the Purchase Invoice
         CreateGeneralJournalLine(GenJournalLine, 1, Vendor."No.", GenJournalLine."Document Type"::Payment, Amount);
-        GenJournalLine.Validate("Posting Date", 20241101D);
+        GenJournalLine.Validate("Posting Date", PostingDate);
         UpdateGenJournalLine(GenJournalLine, '', DocumentNo, Amount);
         LibraryLowerPermissions.SetAccountPayables();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         //[WHEN] Run Aged Account Payble Report
-        AsofDate := 20241231D;
-        SaveAgedAccPayable(Vendor, AgingBy::"Posting Date", HeadingType::"Date Interval", PeriodLength, false, true, AsofDate);
+        SaveAgedAccPayable(Vendor, AgingBy::"Posting Date", HeadingType::"Date Interval", PeriodLength, false, true, ReportEndingDate);
 
         //[THEN] Check These  Entries should not be there.
-        LibraryReportDataset.AssertElementWithValueNotExist('VendLedgEntryEndDtPostgDt', 20241101D);
+        LibraryReportDataset.AssertElementWithValueNotExist('VendLedgEntryEndDtPostgDt', PostingDate);
     end;
 
     local procedure Initialize()
@@ -3536,7 +3543,7 @@ codeunit 134988 "ERM Purchase Reports III"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateAndPostPurchaseInvoiceWithOneLine(VendorNo: Code[20]; ExtDocNo: Code[20]; Amount: Decimal; DueDate: Date): Code[20]
+    local procedure CreateAndPostPurchaseInvoiceWithOneLine(VendorNo: Code[20]; ExtDocNo: Code[20]; Amount: Decimal; Quantity: Decimal; DueDate: Date; PostingDate: Date): Code[20]
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -3547,10 +3554,10 @@ codeunit 134988 "ERM Purchase Reports III"
         PurchaseHeader.Validate("Vendor Invoice No.", ExtDocNo);
         if DueDate <> 0D then
             PurchaseHeader.Validate("Due Date", DueDate);
-        PurchaseHeader."Posting Date" := 20241001D;
+        PurchaseHeader."Posting Date" := PostingDate;
 
         PurchaseHeader.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Quantity);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 

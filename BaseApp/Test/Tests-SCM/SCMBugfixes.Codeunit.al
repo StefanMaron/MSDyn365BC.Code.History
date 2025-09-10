@@ -41,6 +41,8 @@ codeunit 137045 "SCM Bugfixes"
         PurchaseOrderErr: Label 'Unexpected new purchase order created';
         AssemblyCommentLineErr: Label 'Comment/Description not Transfered to Assembly Order while Running Carry Out Action Message';
         TrackingMsg: Label 'The change will not affect existing entries';
+        QtyPermismatchErr: Label 'Mismatch in Quantity per for Item No. %1 in Production Order %2', Comment = '%1: Item No., %2: Production Order No.';
+        ExpectedQuantitymismatchErr: Label 'Mismatch in Expected Quantity for Item No. %1 in Production Order %2', Comment = '%1: Item No., %2: Production Order No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1175,6 +1177,46 @@ codeunit 137045 "SCM Bugfixes"
         AssertReservationEntryCountForSales(SalesHeader, 3);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProductionOrderComponentRounding()
+    var
+        CompItem: array[2] of Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        CompItemQtyPer: array[2] of Decimal;
+        ProdOrderQty: Integer;
+    begin
+        // [SCENARIO 580948] Production Order Component Rounding for Decimal Quantity Per 
+        Initialize();
+
+        // [GIVEN] Create two QtyPer with decimal quantity per, one is less than 0.5 and another is more than 0.5
+        CompItemQtyPer[1] := LibraryRandom.RandDecInDecimalRange(0.1, 0.5, 2);
+        CompItemQtyPer[2] := LibraryRandom.RandDecInDecimalRange(0.5, 0.9, 2);
+        ProdOrderQty := LibraryRandom.RandInt(100);
+
+        // [GIVEN] Create two Component Items with Replenishment System Purchase and rounding precision 1
+        CreateItemWithRoundingPrecision(CompItem[1], CompItem[1]."Replenishment System"::Purchase, '', '', 1);
+        CreateItemWithRoundingPrecision(CompItem[2], CompItem[2]."Replenishment System"::Purchase, '', '', 1);
+
+        // [GIVEN] Create Production BOM Header with two components
+        CreateProductionBOM(ProductionBOMHeader, CompItem, CompItemQtyPer);
+
+        // [GIVEN] Create Parent Item with Replenishment System Prod. Order and assign Production BOM
+        CreateItem(ProdItem, ProdItem."Replenishment System"::"Prod. Order", '', ProductionBOMHeader."No.");
+
+        // [GIVEN] Create Production Order with Parent Item and Qty
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", ProdOrderQty);
+
+        // [WHEN] Refresh Production Order
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, false, true, false);
+
+        // [THEN] Verify every Production Order Components with Qty Per and expected qty.
+        VerifyProdOrderComponent(ProductionOrder.Status, ProductionOrder."No.", CompItem[1]."No.", CompItemQtyPer[1], ProdOrderQty);
+        VerifyProdOrderComponent(ProductionOrder.Status, ProductionOrder."No.", CompItem[2]."No.", CompItemQtyPer[2], ProdOrderQty);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1914,6 +1956,42 @@ codeunit 137045 "SCM Bugfixes"
         ReservationEntry.SetRange("Source Type", Database::"Sales Line");
         ReservationEntry.SetRange("Source ID", SalesHeader."No.");
         Assert.RecordCount(ReservationEntry, ExpectedCount);
+    end;
+
+    local procedure CreateItemWithRoundingPrecision(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; RoutingNo: Code[20]; ProdBOMNo: Code[20]; RoundingPrecision: Decimal)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Critical, true);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Routing No.", RoutingNo);
+        Item.Validate("Production BOM No.", ProdBOMNo);
+        Item.Validate("Rounding Precision", RoundingPrecision);
+        Item.Modify(true);
+    end;
+
+    local procedure VerifyProdOrderComponent(Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; ItemNo: Code[20]; CompQtyPer: Decimal; ProdOrderQty: Integer)
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        ProdOrderComponent.SetRange(Status, Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderComponent.SetRange("Item No.", ItemNo);
+        ProdOrderComponent.FindFirst();
+
+        Assert.AreEqual(CompQtyPer, ProdOrderComponent."Quantity per", StrSubstNo(QtyPermismatchErr, ItemNo, ProdOrderNo));
+        Assert.AreEqual(Round(CompQtyPer * ProdOrderQty, 1, '>'), ProdOrderComponent."Expected Quantity", StrSubstNo(ExpectedQuantitymismatchErr, ItemNo, ProdOrderNo));
+    end;
+
+    local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; CompItem: array[2] of Record Item; CompItemQtyPer: array[2] of Decimal)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, CompItem[1]."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem[1]."No.", CompItemQtyPer[1]);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem[2]."No.", CompItemQtyPer[2]);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
     end;
 
     [ModalPageHandler]

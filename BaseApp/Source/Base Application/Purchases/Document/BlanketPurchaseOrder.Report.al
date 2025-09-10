@@ -87,7 +87,7 @@ report 410 "Blanket Purchase Order"
                 dataitem(PageLoop; "Integer")
                 {
                     DataItemTableView = sorting(Number) where(Number = const(1));
-                    column(BlankPOCopyText; StrSubstNo(Text002, CopyText))
+                    column(BlankPOCopyText; StrSubstNo(BlanketPurchaseOrderLbl, CopyText))
                     {
                     }
                     column(VendAddr1; VendAddr[1])
@@ -714,7 +714,6 @@ report 410 "Blanket Purchase Order"
 
     var
         DummyCompanyInfo: Record "Company Information";
-        TempPurchaseLine: Record "Purchase Line" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
@@ -745,8 +744,7 @@ report 410 "Blanket Purchase Order"
         HeaderLabel: array[20] of Text[30];
         HeaderTxt: array[20] of Text;
 
-#pragma warning disable AA0074
-        Text002: Label 'Blanket Purchase Order %1', Comment = '%1 = Document No.';
+        BlanketPurchaseOrderLbl: Label 'Blanket Purchase Order %1', Comment = '%1 = Document No.';
         CompanyInfoPhNoCaptionLbl: Label 'Phone No.';
         CompanyInfoVatRegNoCaptionLbl: Label 'VAT Registration No.';
         CompanyInfoGiroNoCaptionLbl: Label 'Giro No.';
@@ -775,6 +773,7 @@ report 410 "Blanket Purchase Order"
         VendorNoCaptionLbl: Label 'Vendor No.';
 
     protected var
+        TempPurchaseLine: Record "Purchase Line" temporary;
         CompanyInfo: Record "Company Information";
         ShipmentMethod: Record "Shipment Method";
         SalesPurchPerson: Record "Salesperson/Purchaser";

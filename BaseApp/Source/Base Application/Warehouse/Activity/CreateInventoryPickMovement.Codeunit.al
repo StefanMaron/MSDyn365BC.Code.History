@@ -1169,7 +1169,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
         if IsBlankInvtMovement then begin
             // inventory movement without source document, created from Internal Movement
-            if not CurrLocation."Pick According to FEFO" then
+            if ShouldSetBinCodeForBlankInvtMovement(NewWarehouseActivityLine) then
                 FromBinContent.SetRange("Bin Code", FromBinCode);
             FromBinContent.SetRange(Default);
         end;
@@ -2455,6 +2455,27 @@ codeunit 7322 "Create Inventory Pick/Movement"
     procedure SetHideDialogForTracking(NewHideDialogForTracking: Boolean)
     begin
         HideDialogForTracking := NewHideDialogForTracking;
+    end;
+
+    local procedure ShouldSetBinCodeForBlankInvtMovement(NewWarehouseActivityLine: Record "Warehouse Activity Line"): Boolean
+    begin
+        if CheckItemTrackingCodeUseExpirationDates(NewWarehouseActivityLine."Item No.") then
+            exit(false);
+
+        exit(true);
+    end;
+
+    local procedure CheckItemTrackingCodeUseExpirationDates(ItemNo: Code[20]): Boolean
+    var
+        Item2: Record Item;
+    begin
+        if ItemNo = '' then
+            exit;
+
+        Item2.SetLoadFields("Item Tracking Code");
+        Item2.Get(ItemNo);
+        if Item2.ItemTrackingCodeUseExpirationDates() then
+            exit(true);
     end;
 
     [IntegrationEvent(false, false)]

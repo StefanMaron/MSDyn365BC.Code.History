@@ -165,6 +165,7 @@ codeunit 26100 "Update VAT-CH"
         end;
 
         VATPostingSetup.SetRange("Sales VAT Stat. Cipher", VATCipherSetup."Acquisition Tax Before", VATCipherSetup."Acquisition Tax After");
+        VATPostingSetup.SetFilter("VAT Calculation Type", '<>%1', VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         if VATPostingSetup.FindFirst() then begin
             repeat
                 InsertVatStatLine(
@@ -173,6 +174,7 @@ codeunit 26100 "Update VAT-CH"
             until VATPostingSetup.Next() = 0;
             InsertCipher200 := true;
         end;
+        VATPostingSetup.SetRange("VAT Calculation Type");
 
         if InsertCipher200 then begin
             InsertVatStatLine(

@@ -680,6 +680,8 @@ report 5199 "Update Contact Classification"
     end;
 
     local procedure InRange(Value: Decimal; FromValue: Decimal; ToValue: Decimal): Boolean
+    var
+        Result: Boolean;
     begin
         if (FromValue <> 0) and (ToValue <> 0) and (Value >= FromValue) and (Value <= ToValue) then
             exit(true);
@@ -687,6 +689,10 @@ report 5199 "Update Contact Classification"
             exit(true);
         if (FromValue = 0) and (ToValue <> 0) and (Value <= ToValue) then
             exit(true);
+
+        Result := false;
+        OnAfterInRange(Value, FromValue, ToValue, Result);
+        exit(Result);
     end;
 
     local procedure MarkContact(ProfileQuestnLineQuestion: Record "Profile Questionnaire Line"; ProfileQuestnLineAnswer: Record "Profile Questionnaire Line"; ContNo: Code[20]; UpdateDate: Date; QuestionsAnsweredPrc: Decimal)
@@ -963,6 +969,11 @@ report 5199 "Update Contact Classification"
 
     [IntegrationEvent(false, false)]
     local procedure OnMarkContactOnBeforeCheckContactType(ProfileQuestnHeader: Record "Profile Questionnaire Header"; ProfileQuestnLineQuestion: Record "Profile Questionnaire Line"; ProfileQuestnLineAnswer: Record "Profile Questionnaire Line"; Cont: Record Contact; UpdateDate: Date; QuestionsAnsweredPrc: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInRange(Value: Decimal; FromValue: Decimal; ToValue: Decimal; var Result: Boolean)
     begin
     end;
 }

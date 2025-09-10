@@ -991,7 +991,13 @@ codeunit 5530 "Calc. Item Availability"
                     RecRef.SetTable(RequisitionLine);
                     ReqWkshTemplate.Get(RequisitionLine."Worksheet Template Name");
                     ReqWkshTemplate.TestField("Page ID");
-                    PAGE.RunModal(ReqWkshTemplate."Page ID", RequisitionLine);
+                    if (ReqWkshTemplate.Type = ReqWkshTemplate.Type::Planning) and (ReqWkshTemplate."Page ID" = Page::"Planning Worksheet") then begin
+                        PlanningWorksheet.SetTableView(RequisitionLine);
+                        PlanningWorksheet.SetRecord(RequisitionLine);
+                        PlanningWorksheet.CallFromItemAvailabilityByEvent(true);
+                        PlanningWorksheet.RunModal();
+                    end else
+                        PAGE.RunModal(ReqWkshTemplate."Page ID", RequisitionLine);
                 end;
             Database::"Planning Component":
                 begin

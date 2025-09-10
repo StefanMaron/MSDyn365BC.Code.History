@@ -1055,7 +1055,7 @@ page 232 "Apply Customer Entries"
         CurrPage.SetSelectionFilter(CustLedgEntry);
         CheckCustLedgEntry(CustLedgEntry);
 
-        OnSetCustApplIdOnAfterCheckAgainstApplnCurrency(Rec, CalcType.AsInteger(), GenJnlLine, SalesHeader, TempApplyingCustLedgEntry);
+        OnSetCustApplIdOnAfterCheckAgainstApplnCurrency(Rec, CustLedgEntry, CalcType.AsInteger(), GenJnlLine, SalesHeader, TempApplyingCustLedgEntry);
 #if not CLEAN25
         OnSetCustApplIdAfterCheckAgainstApplnCurrency(Rec, CalcType.AsInteger(), GenJnlLine, SalesHeader, ServHeader, TempApplyingCustLedgEntry);
 #endif
@@ -1800,7 +1800,7 @@ page 232 "Apply Customer Entries"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetCustApplIdOnAfterCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalcType: Option; var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
+    local procedure OnSetCustApplIdOnAfterCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgerEntry2: Record "Cust. Ledger Entry"; CalcType: Option; var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

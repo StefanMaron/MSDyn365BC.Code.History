@@ -56,6 +56,7 @@ codeunit 1409 "Sales Inv. Header - Edit"
         CustLedgerEntry.Description := SalesInvoiceHeader."Posting Description";
         CustLedgerEntry."Promised Pay Date" := SalesInvoiceHeader."Promised Pay Date";
         CustLedgerEntry."Due Date" := SalesInvoiceHeader."Due Date";
+        CustLedgerEntry."Your Reference" := SalesInvoiceHeader."Your Reference";
         if CustLedgerEntry."Dispute Status" <> '' then begin
             if DisputeStatus.get(CustLedgerEntry."Dispute Status") then
                 if (DisputeStatus."Overwrite on hold") and ClearOnHold(SalesInvoiceHeader) then

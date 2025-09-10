@@ -40,6 +40,7 @@ codeunit 103 "Cust. Entry-Edit"
             CustLedgEntry."Applies-to ID" := Rec."Applies-to ID";
             CustLedgEntry.Validate("Payment Method Code", Rec."Payment Method Code");
             CustLedgEntry.Validate("Payment Reference", Rec."Payment Reference");
+            CustLedgEntry.Validate("Your Reference", Rec."Your Reference");
             CustLedgEntry.Validate("Remaining Pmt. Disc. Possible", Rec."Remaining Pmt. Disc. Possible");
             CustLedgEntry."Pmt. Disc. Tolerance Date" := Rec."Pmt. Disc. Tolerance Date";
             CustLedgEntry.Validate("Max. Payment Tolerance", Rec."Max. Payment Tolerance");
@@ -118,7 +119,8 @@ codeunit 103 "Cust. Entry-Edit"
             (CurrCustLedgerEntry."Payment Reference" <> NewCustLedgerEntry."Payment Reference") or
             (CurrCustLedgerEntry."Message to Recipient" <> NewCustLedgerEntry."Message to Recipient") or
             (CurrCustLedgerEntry."Recipient Bank Account" <> NewCustLedgerEntry."Recipient Bank Account") or
-            (CurrCustLedgerEntry."On Hold" <> NewCustLedgerEntry."On Hold");
+            (CurrCustLedgerEntry."On Hold" <> NewCustLedgerEntry."On Hold") or
+            (CurrCustLedgerEntry."Your Reference" <> NewCustLedgerEntry."Your Reference");
         OnAfterLogFieldChanged(CurrCustLedgerEntry, NewCustLedgerEntry, Changed);
         exit(Changed);
     end;

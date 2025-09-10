@@ -45,6 +45,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         InventoryNotAvailableErr: Label '%1 %2 is not available on inventory or it has already been reserved for another document.', Comment = '%1 = Item Tracking ID, %2 = Item Tracking No."';
         CloseItemTrackingLinesWithQtyZeroConfirmErr: Label 'One or more lines have tracking specified';
         ReservationIsNotCreatedForSOErr: Label 'Reservation is not created for Sales Order: %1', Comment = '%1 = Sales Order No.';
+        SingleExpirationDateErr: Label 'New Expiration Date must be equal to ''%1', Comment = '%1=Workdate';
         CreateSNInfo: Boolean;
 
     [Test]
@@ -2552,6 +2553,56 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         asserterror ItemJournalPage."Package No.".SetValue(LibraryRandom.RandText(10));
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesLotPackageHandler')]
+    procedure ReclassificationOfLotWithNewExpDateForQtyLessThanQtyInILEGivesErr()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemTrackingCode: Record "Item Tracking Code";
+        LotNo: Code[50];
+        PackageNo: Code[50];
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 579658] When Stan Posts an Item Reclassification Journal Line with "New Expiration Date" and "New Package No." for a "Lot No." with Quantity less
+        // than its Quantity in Item Ledger Entry, then it gives error.
+        Initialize();
+
+        // [GIVEN] Create an Item Tracking Code.
+        CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
+
+        // [GIVEN] Generate and save Quantity, Lot No. and Package No. in Variables.
+        Quantity := LibraryRandom.RandIntInRange(100, 200);
+        LotNo := LibraryUtility.GenerateGUID();
+        PackageNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create and Post Item Journal Line.
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(PackageNo);
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(Quantity);
+        CreateAndPostItemJournalLine(Item."No.", Quantity);
+
+        // [GIVEN] Create an Item Reclassification Journal Line.
+        CreateItemReclassificationJournalLine(ItemJournalLine, Item."No.", LibraryRandom.RandIntInRange(10, 50));
+
+        // [GIVEN] Open Item Tracking Lines.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(PackageNo);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(CalcDate('<2D>', WorkDate()));
+        LibraryVariableStorage.Enqueue(ItemJournalLine.Quantity);
+        ItemJournalLine.OpenItemTrackingLines(true);
+
+        // [WHEN] Post Item Reclassification Journal Line.
+        asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [THEN] An error appears: New Expiration Date must be equal to Workdate
+        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(SingleExpirationDateErr, WorkDate())) > 0, GetLastErrorText)
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -3886,6 +3937,42 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         ProdOrderComponent.Modify(true);
     end;
 
+    local procedure CreateItemWithItemTrackingCode(var Item: Record Item; var ItemTrackingCode: Record "Item Tracking Code")
+    begin
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        ItemTrackingCode.Validate("Package Specific Tracking", true);
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemReclassificationJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Transfer);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::Transfer, ItemNo, Quantity);
+    end;
+
+    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLine(ItemJournalLine, ItemNo, '', '', Quantity);
+        ItemJournalLine.OpenItemTrackingLines(false);
+
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -4420,6 +4507,29 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         ProductionJournal.Next();
         ProductionJournal.ItemTrackingLines.Invoke();
         ProductionJournal.Post.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesLotPackageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        IsReclass: Boolean;
+    begin
+        IsReclass := LibraryVariableStorage.DequeueBoolean();
+        if IsReclass then begin
+            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+            ItemTrackingLines."New Lot No.".SetValue(ItemTrackingLines."Lot No.");
+            ItemTrackingLines."Package No.".SetValue(LibraryVariableStorage.DequeueText());
+            ItemTrackingLines."New Package No.".SetValue(LibraryVariableStorage.DequeueText());
+            ItemTrackingLines."New Expiration Date".SetValue(LibraryVariableStorage.DequeueDate());
+            ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        end else begin
+            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+            ItemTrackingLines."Package No.".SetValue(LibraryVariableStorage.DequeueText());
+            ItemTrackingLines."Expiration Date".SetValue(LibraryVariableStorage.DequeueDate());
+            ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        end;
+        ItemTrackingLines.OK().Invoke();
     end;
 }
 

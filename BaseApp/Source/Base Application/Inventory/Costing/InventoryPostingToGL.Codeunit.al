@@ -719,7 +719,7 @@ codeunit 5802 "Inventory Posting To G/L"
 
     procedure InitInvtPostBuf(ValueEntry: Record "Value Entry"; AccType: Enum "Invt. Posting Buffer Account Type"; BalAccType: Enum "Invt. Posting Buffer Account Type"; CostToPost: Decimal; CostToPostACY: Decimal; InterimAccount: Boolean)
     begin
-        OnBeforeInitInvtPostBuf(ValueEntry);
+        OnBeforeInitInvtPostBuf(ValueEntry, AccType, BalAccType);
 
         InitInvtPostBufPerAccount(ValueEntry, AccType, BalAccType, CostToPost, CostToPostACY, InterimAccount, false);
         InitInvtPostBufPerAccount(ValueEntry, AccType, BalAccType, CostToPost, CostToPostACY, InterimAccount, true);
@@ -1463,7 +1463,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeInitInvtPostBuf(var ValueEntry: Record "Value Entry")
+    local procedure OnBeforeInitInvtPostBuf(var ValueEntry: Record "Value Entry"; var AccType: Enum "Invt. Posting Buffer Account Type"; var BalAccType: Enum "Invt. Posting Buffer Account Type")
     begin
     end;
 

@@ -118,7 +118,13 @@ table 980 "Payment Registration Setup"
     procedure ValidateMandatoryFields(ShowError: Boolean): Boolean
     var
         GenJnlBatch: Record "Gen. Journal Batch";
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateMandatoryFields(Rec, ShowError, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
         if ShowError then begin
             TestField("Journal Template Name");
             TestField("Journal Batch Name");
@@ -151,5 +157,17 @@ table 980 "Payment Registration Setup"
 
         exit(true);
     end;
-}
 
+    /// <summary>
+    /// Integration event that fires before validating mandatory fields in payment registration setup.
+    /// Subscribers can handle the validation process themselves and set IsHandled to true to skip the standard validation.
+    /// </summary>
+    /// <param name="PaymentRegistrationSetup">The payment registration setup record being validated.</param>
+    /// <param name="ShowError">If true, shows error messages for missing fields; if false, returns validation status silently.</param>
+    /// <param name="Result">The result of the validation process, to be returned if IsHandled is true.</param>
+    /// <param name="IsHandled">Set to true if the event has been handled and the standard validation should be skipped.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateMandatoryFields(var PaymentRegistrationSetup: Record "Payment Registration Setup"; ShowError: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+}
