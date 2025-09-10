@@ -13,6 +13,7 @@ page 9401 "VAT Amount Lines"
     InsertAllowed = false;
     PageType = List;
     SourceTable = "VAT Amount Line";
+    SourceTableTemporary = true;
 
     layout
     {
@@ -92,6 +93,7 @@ page 9401 "VAT Amount Lines"
                     var
                         IsHandled: Boolean;
                     begin
+                        if Rec.Insert() then;
                         if AllowVATDifference and not AllowVATDifferenceOnThisTab then
                             Error(Text000, Rec.FieldCaption("VAT Amount"));
 
@@ -233,11 +235,6 @@ page 9401 "VAT Amount Lines"
         NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
     end;
 
-    trigger OnModifyRecord(): Boolean
-    begin
-        ModifyRec();
-        exit(false);
-    end;
 
     trigger OnNextRecord(Steps: Integer): Integer
     var

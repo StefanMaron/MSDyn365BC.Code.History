@@ -249,6 +249,7 @@ report 10715 "Telematic VAT Declaration"
     procedure CalcTotLine(VATStatementLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer): Boolean
     var
         VATPostingSetup: Record "VAT Posting Setup";
+        VATReportSetup: Record "VAT Report Setup";
         NoTaxableEntry: Record "No Taxable Entry";
         IsNoTaxableEntry: Boolean;
     begin
@@ -363,6 +364,19 @@ report 10715 "Telematic VAT Declaration"
                                 else
                                     Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
                                 Amount := Amount + Base;
+                            end;
+                        VATStatementLine2."Amount Type"::"Non-Deductible Amount":
+                            begin
+                                VATEntry.CalcSums("Non-Deductible VAT Base", "Non-Deductible VAT Base ACY", "Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY");
+                                Amount := ConditionalAdd(0, VATEntry."Non-Deductible VAT Amount", VATEntry."Non-Deductible VAT Amount ACY");
+                                if VATReportSetup.Get() then;
+                                if VATReportSetup."Report VAT Base" then
+                                    Base := ConditionalAdd(0, VATEntry."Non-Deductible VAT Base", VATEntry."Non-Deductible VAT Base ACY");
+                            end;
+                        VATStatementLine2."Amount Type"::"Non-Deductible Base":
+                            begin
+                                VATEntry.CalcSums("Non-Deductible VAT Base", "Non-Deductible VAT Base ACY");
+                                Amount := ConditionalAdd(0, VATEntry."Non-Deductible VAT Base", VATEntry."Non-Deductible VAT Base ACY");
                             end;
                     end;
                     CalcTotAmount(VATStatementLine2, TotalAmount);
