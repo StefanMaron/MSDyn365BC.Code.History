@@ -42,6 +42,7 @@ codeunit 137140 "SCM Inventory Documents"
         DueDateBeforeWorkDateMsg: Label 'is before work date';
         TransferOrderErr: Label 'Transfer Order has not been posted successfully.';
         ReserveMustNotBeNeverErr: Label 'Reserve must not be Never';
+        InventoryReceiptErr: Label 'Inventory Receipt has not been posted successfully.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2108,6 +2109,56 @@ codeunit 137140 "SCM Inventory Documents"
         Assert.ExpectedError(ReserveMustNotBeNeverErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    procedure PostInvtReceiptWithNonBaseUOMAndMultipleTrackingEntries()
+    var
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        ItemTrackingCode: Record "Item Tracking Code";
+        InvtReceiptHeader: Record "Invt. Receipt Header";
+        Location: Record Location;
+        UnitOfMeasure: Record "Unit of Measure";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 591585] Post Inventory Receipt When Line Contains Item with Non-Base UoM and Multiple Tracking Entries.
+        Initialize();
+
+        // [GIVEN] Create Item and Item Unit of Measure with QtyperUoM as 0.01.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", UnitOfMeasure.code, 0.01);
+
+        // [GIVEN] Create Item Tracking Code and assign it to Item.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Create Inventory Receipt Document.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+
+        // [GIVEN] Add Inventory Receipt line with non-base UOM, Quantity as 100.
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", LibraryRandom.RandDec(100, 2), 100);
+        InvtDocumentLine.Validate("Unit of Measure Code", UnitOfMeasure.Code);
+        InvtDocumentLine.Modify(true);
+
+        // [GIVEN] Assign two tracking lines with different quantities as 0.7 and 0.3.
+        LibraryVariableStorage.Enqueue(0.7);
+        LibraryVariableStorage.Enqueue(0.3);
+        InvtDocumentLine.OpenItemTrackingLines();
+
+        // [WHEN] Post the Inventory Receipt .
+        DocumentNo := InvtDocumentHeader."No.";
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [THEN] Inventory Receipt should be posted successfully.
+        InvtReceiptHeader.SetRange("Receipt No.", DocumentNo);
+        Assert.IsTrue(InvtReceiptHeader.FindFirst(), InventoryReceiptErr);
+    end;
+
     local procedure PostWhseShipmentFromTO(DocumentNo: Code[20])
     var
         WhseShipmentLine: Record "Warehouse Shipment Line";
@@ -2705,6 +2756,18 @@ codeunit 137140 "SCM Inventory Documents"
     procedure AvailableInvtDocLinesModalPageHandler(var AvailableInvtDocLines: TestPage "Available - Invt. Doc. Lines")
     begin
         AvailableInvtDocLines.Reserve.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines.New();
+        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.New();
+        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ConfirmHandler]

@@ -39,4 +39,41 @@ codeunit 31216 "Contoso Fixed Asset CZF"
         else
             FAExtendedPosingGroupCZF.Insert(true);
     end;
+
+    procedure InsertTaxDepreciationGroup(Code: Code[20]; StartingDate: Date; Description: Text[100]; DepreciationType: Option; NoofDepreciationYears: Integer; NoofDepreciationMonths: Decimal; MinMonthsAfterAppreciation: Decimal; StraightFirstYear: Decimal; StraightNextYears: Decimal; StraightAppreciation: Decimal; DecliningFirstYear: Decimal; DecliningNextYears: Decimal; DecliningAppreciation: Decimal; DecliningDeprIncreasePer: Decimal)
+    var
+        TaxDepreciationGroupCZF: Record "Tax Depreciation Group CZF";
+        Exists: Boolean;
+    begin
+        if TaxDepreciationGroupCZF.Get(Code, StartingDate) then begin
+            Exists := true;
+
+            if not OverwriteData then
+                exit;
+        end;
+
+        TaxDepreciationGroupCZF.Validate(Code, Code);
+        TaxDepreciationGroupCZF.Validate("Starting Date", StartingDate);
+        TaxDepreciationGroupCZF.Validate(Description, Description);
+        TaxDepreciationGroupCZF.Validate("Depreciation Type", DepreciationType);
+
+        if NoofDepreciationYears <> 0 then
+            TaxDepreciationGroupCZF.Validate("No. of Depreciation Years", NoofDepreciationYears)
+        else
+            TaxDepreciationGroupCZF.Validate("No. of Depreciation Months", NoofDepreciationMonths);
+
+        TaxDepreciationGroupCZF.Validate("Min. Months After Appreciation", MinMonthsAfterAppreciation);
+        TaxDepreciationGroupCZF.Validate("Straight First Year", StraightFirstYear);
+        TaxDepreciationGroupCZF.Validate("Straight Next Years", StraightNextYears);
+        TaxDepreciationGroupCZF.Validate("Straight Appreciation", StraightAppreciation);
+        TaxDepreciationGroupCZF.Validate("Declining First Year", DecliningFirstYear);
+        TaxDepreciationGroupCZF.Validate("Declining Next Years", DecliningNextYears);
+        TaxDepreciationGroupCZF.Validate("Declining Appreciation", DecliningAppreciation);
+        TaxDepreciationGroupCZF.Validate("Declining Depr. Increase %", DecliningDeprIncreasePer);
+
+        if Exists then
+            TaxDepreciationGroupCZF.Modify(true)
+        else
+            TaxDepreciationGroupCZF.Insert(true);
+    end;
 }

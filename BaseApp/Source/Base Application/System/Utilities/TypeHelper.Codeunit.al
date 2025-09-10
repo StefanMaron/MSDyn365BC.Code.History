@@ -1030,6 +1030,11 @@ codeunit 10 "Type Helper"
                 RecRef := RecordVariant;
     end;
 
+    procedure IsLatinLetter(ch: Char): Boolean
+    begin
+        exit(((ch >= 'A') and (ch <= 'Z')) or ((ch >= 'a') and (ch <= 'z')));
+    end;
+
     procedure IsDigit(ch: Char): Boolean
     begin
         exit((ch >= '0') and (ch <= '9'));

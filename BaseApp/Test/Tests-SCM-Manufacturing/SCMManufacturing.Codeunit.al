@@ -4728,6 +4728,54 @@ codeunit 137404 "SCM Manufacturing"
         Assert.AreEqual(StandardTask.Code, ProdOrderLine."Standard Task Code", StandardTaskFieldErr);
     end;
 
+    [Test]
+    [HandlerFunctions('RunExchangeProdBOMItemReportWithStartDateParameter')]
+    procedure ExchangeProductionBOMItemShouldSetEndingDate()
+    var
+        Item: array[5] of Record Item;
+        MainItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        i: Integer;
+    begin
+        // [SCENARIO 592157] Replacing a component in a Production BOM should set the Ending Date of the replaced component.
+        Initialize();
+
+        LibraryInventory.CreateItem(MainItem);
+        MainItem.Validate("Replenishment System", MainItem."Replenishment System"::"Prod. Order");
+        MainItem.Modify(true);
+
+        // [GIVEN] Create a Production BOM Header
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, MainItem."Base Unit of Measure");
+
+        // [GIVEN] Create Items
+        for i := 1 to 5 do
+            LibraryInventory.CreateItem(Item[i]);
+
+        // [GIVEN] Add only Items[1..4] to the BOM
+        for i := 1 to 4 do
+            LibraryManufacturing.CreateProductionBOMLine(
+                ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[i]."No.", LibraryRandom.RandIntInRange(10, 20));
+
+        // [GIVEN] Certify BOM and assign to Main Item
+        ModifyStatusInProductionBOM(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        MainItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        MainItem.Modify(true);
+
+        // [GIVEN] Enqueue parameter values for report
+        EnqueueExchProdBOMItemReportParameter(Item[1]."No.", Item[5]."No.", Today);
+
+        // [WHEN] Run the Exchange Production BOM Item report
+        RunExchangeProductionBOMItemReport();
+
+        // [THEN] Validate that the replaced item has an Ending Date of (StartDate - 1)
+        ValidateEndingDateSet(ProductionBOMHeader."No.", Item[1]."No.", Today);
+
+        // [AND] Ensure no test artifacts are left behind
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7578,6 +7626,23 @@ codeunit 137404 "SCM Manufacturing"
         standardTask.Modify(true);
     end;
 
+    local procedure EnqueueExchProdBOMItemReportParameter(ExchangeItemNo: Code[20]; ReplaceItemNo: Code[20]; StartDate: Date)
+    begin
+        LibraryVariableStorage.Enqueue(ExchangeItemNo);
+        LibraryVariableStorage.Enqueue(ReplaceItemNo);
+        LibraryVariableStorage.Enqueue(StartDate);
+    end;
+
+    local procedure ValidateEndingDateSet(ProdBOMHeaderNo: Code[20]; ItemNo: Code[20]; StartingDate: Date)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        ProductionBOMLine.SetRange("Production BOM No.", ProdBOMHeaderNo);
+        ProductionBOMLine.SetRange("No.", ItemNo);
+        ProductionBOMLine.FindFirst();
+        Assert.AreEqual(StartingDate - 1, ProductionBOMLine."Ending Date", 'Ending Date is not correctly set on the Production BOM line.')
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure YesConfirmHandler(Question: Text; var Reply: Boolean)
@@ -7673,6 +7738,29 @@ codeunit 137404 "SCM Manufacturing"
         if Item.FindFirst() then;
         ExchangeProductionBOMItem.ExchangeNo.SetValue(Item."No.");
         ExchangeProductionBOMItem.WithType.AssertEquals(ProductionBOMLineType::Item);// [THEN] Verify WithType Default Type is ITEM
+        ExchangeProductionBOMItem.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure RunExchangeProdBOMItemReportWithStartDateParameter(var ExchangeProductionBOMItem: TestRequestPage "Exchange Production BOM Item")
+    var
+        FromProductionBOMLineType: Enum "Production BOM Line Type";
+        ExchangeItemNo: Variant;
+        ReplaceItemNo: Variant;
+        StartDate: Variant;
+    begin
+        ExchangeItemNo := LibraryVariableStorage.DequeueText();
+        ReplaceItemNo := LibraryVariableStorage.DequeueText();
+        StartDate := LibraryVariableStorage.DequeueDate();
+        ExchangeProductionBOMItem.ExchangeType.SetValue(FromProductionBOMLineType::Item);
+        ExchangeProductionBOMItem.ExchangeNo.SetValue(ExchangeItemNo);
+        ExchangeProductionBOMItem.WithType.SetValue(FromProductionBOMLineType::Item);
+        ExchangeProductionBOMItem.WithNo.SetValue(ReplaceItemNo);
+        ExchangeProductionBOMItem."Create New Version".SetValue(false);
+        ExchangeProductionBOMItem."Delete Exchanged Component".SetValue(false);
+        ExchangeProductionBOMItem.Recertify.SetValue(true);
+        ExchangeProductionBOMItem.CopyRoutingLink.SetValue(true);
+        ExchangeProductionBOMItem.StartingDate.SetValue(StartDate);
         ExchangeProductionBOMItem.OK().Invoke();
     end;
 }

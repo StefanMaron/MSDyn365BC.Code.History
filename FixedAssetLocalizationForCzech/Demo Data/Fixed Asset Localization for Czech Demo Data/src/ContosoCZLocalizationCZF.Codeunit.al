@@ -26,7 +26,10 @@ codeunit 31217 "Contoso CZ Localization CZF"
     begin
         case ContosoDemoDataLevel of
             Enum::"Contoso Demo Data Level"::"Setup Data":
-                Codeunit.Run(Codeunit::"Create FA Setup CZF");
+                begin
+                    Codeunit.Run(Codeunit::"Create FA Setup CZF");
+                    Codeunit.Run(Codeunit::"Create Tax Depr. Grp. CZF");
+                end;
             Enum::"Contoso Demo Data Level"::"Master Data":
                 Codeunit.Run(Codeunit::"Create FA Ext. Post. Group CZF");
         end;
@@ -34,21 +37,29 @@ codeunit 31217 "Contoso CZ Localization CZF"
 
     local procedure BindSubscriptions(Module: Enum "Contoso Demo Data Module")
     var
+        CreateFADeprBookCZF: Codeunit "Create FA Depr. Book CZF";
         CreateFAPostingGroupCZF: Codeunit "Create FA Posting Group CZF";
     begin
         case Module of
             Enum::"Contoso Demo Data Module"::"Fixed Asset Module":
-                BindSubscription(CreateFAPostingGroupCZF);
+                begin
+                    BindSubscription(CreateFAPostingGroupCZF);
+                    BindSubscription(CreateFADeprBookCZF);
+                end;
         end;
     end;
 
     local procedure UnbindSubscriptions(Module: Enum "Contoso Demo Data Module")
     var
+        CreateFADeprBookCZF: Codeunit "Create FA Depr. Book CZF";
         CreateFAPostingGroupCZF: Codeunit "Create FA Posting Group CZF";
     begin
         case Module of
             Enum::"Contoso Demo Data Module"::"Fixed Asset Module":
-                UnbindSubscription(CreateFAPostingGroupCZF);
+                begin
+                    UnbindSubscription(CreateFAPostingGroupCZF);
+                    UnbindSubscription(CreateFADeprBookCZF);
+                end;
         end;
     end;
 }
