@@ -4657,6 +4657,7 @@ codeunit 134386 "ERM Sales Documents II"
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";
+        GLSetup: Record "General Ledger Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
@@ -4679,6 +4680,12 @@ codeunit 134386 "ERM Sales Documents II"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+
+        GLSetup.Get();
+        GLSetup."Show Amounts" := GLSetup."Show Amounts"::"All Amounts";
+        GLSetup.Modify();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Documents II");

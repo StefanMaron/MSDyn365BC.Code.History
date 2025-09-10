@@ -275,13 +275,28 @@ codeunit 905 "Assembly Line Management"
     procedure UpdateWarningOnLines(AsmHeader: Record "Assembly Header")
     var
         AssemblyLine: Record "Assembly Line";
+        Window: Dialog;
+        LineNo: Integer;
+        PrevValue: Boolean;
+        PrevUpdateTime: DateTime;
+        WindowLbl: Label 'Checking availability. Line no. #1#########.', Comment = '#1 is an integer counter';
     begin
+        PrevUpdateTime := CurrentDateTime();
+        Window.Open(WindowLbl);
         SetLinkToLines(AsmHeader, AssemblyLine);
-        if AssemblyLine.FindSet() then
+        if AssemblyLine.FindSet(true) then
             repeat
+                LineNo += 1;
+                if CurrentDateTime > PrevUpdateTime + 1000 then begin
+                    Window.Update(1, LineNo);
+                    PrevUpdateTime := CurrentDateTime();
+                end;
+                PrevValue := AssemblyLine."Avail. Warning";
                 AssemblyLine.UpdateAvailWarning();
-                AssemblyLine.Modify();
+                if PrevValue <> AssemblyLine."Avail. Warning" then
+                    AssemblyLine.Modify();
             until AssemblyLine.Next() = 0;
+        Window.Close();
     end;
 
     procedure UpdateAssemblyLines(var AsmHeader: Record "Assembly Header"; OldAsmHeader: Record "Assembly Header"; FieldNum: Integer; ReplaceLinesFromBOM: Boolean; CurrFieldNo: Integer; CurrentFieldNum: Integer)

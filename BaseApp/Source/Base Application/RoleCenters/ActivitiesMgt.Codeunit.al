@@ -40,7 +40,7 @@ codeunit 1311 "Activities Mgt."
     begin
         if UseCachedValue then
             if ActivitiesCue.Get() then
-                if not IsPassedCueData(ActivitiesCue) then
+                if not IsCachedCueDataExpired(ActivitiesCue, CurrentDateTime()) then
                     exit(ActivitiesCue."Overdue Sales Invoice Amount");
 
         CustLedgEntryRemainAmt.SetRange(Document_Type, CustLedgerEntry."Document Type"::Invoice);
@@ -100,7 +100,7 @@ codeunit 1311 "Activities Mgt."
     begin
         if UseCachedValue then
             if ActivitiesCue.Get() then
-                if not IsPassedCueData(ActivitiesCue) then
+                if not IsCachedCueDataExpired(ActivitiesCue, CurrentDateTime()) then
                     exit(ActivitiesCue."Overdue Purch. Invoice Amount");
 
         VendLedgEntryRemainAmt.SetRange(Document_Type, VendorLedgerEntry."Document Type"::Invoice);
@@ -160,7 +160,7 @@ codeunit 1311 "Activities Mgt."
     begin
         if UseCachedValue then
             if ActivitiesCue.Get() then
-                if not IsPassedCueData(ActivitiesCue) then
+                if not IsCachedCueDataExpired(ActivitiesCue, CurrentDateTime()) then
                     exit(ActivitiesCue."Sales This Month");
 
         CustLedgEntrySales.SetFilter(Document_Type, '%1|%2', CustLedgerEntry."Document Type"::Invoice, CustLedgerEntry."Document Type"::"Credit Memo");
@@ -244,7 +244,7 @@ codeunit 1311 "Activities Mgt."
     begin
         if UseCachedValue then
             if ActivitiesCue.Get() then
-                if not IsPassedCueData(ActivitiesCue) then
+                if not IsCachedCueDataExpired(ActivitiesCue, CurrentDateTime()) then
                     exit(ActivitiesCue."Average Collection Days");
 
         CustLedgerEntry.ReadIsolation(IsolationLevel::ReadUncommitted);
@@ -283,7 +283,7 @@ codeunit 1311 "Activities Mgt."
 
         if UseCachedValue then
             if ActivitiesCue.Get() then
-                if not IsPassedCueData(ActivitiesCue) then
+                if not IsCachedCueDataExpired(ActivitiesCue, CurrentDateTime()) then
                     exit(ActivitiesCue."S. Ord. - Reserved From Stock");
 
         Number := 0;
@@ -431,7 +431,7 @@ codeunit 1311 "Activities Mgt."
 
         ActivitiesCue.Get();
 
-        if not IsPassedCueData(ActivitiesCue) then
+        if not IsCachedCueDataExpired(ActivitiesCue, CurrentDateTime()) then
             exit;
 
         ActivitiesCue.SetFilter("Due Date Filter", '>=%1', GetDefaultWorkDate());
@@ -467,15 +467,15 @@ codeunit 1311 "Activities Mgt."
         if not ActivitiesCue.Get() then
             exit(false);
 
-        exit(IsPassedCueData(ActivitiesCue));
+        exit(IsCachedCueDataExpired(ActivitiesCue, CurrentDateTime()));
     end;
 
-    local procedure IsPassedCueData(ActivitiesCue: Record "Activities Cue"): Boolean
+    internal procedure IsCachedCueDataExpired(ActivitiesCue: Record "Activities Cue"; DataCacheComparisonDateTime: DateTime): Boolean
     begin
         if ActivitiesCue."Last Date/Time Modified" = 0DT then
             exit(true);
 
-        exit(CurrentDateTime() - ActivitiesCue."Last Date/Time Modified" >= GetActivitiesCueRefreshInterval())
+        exit(DataCacheComparisonDateTime - ActivitiesCue."Last Date/Time Modified" >= GetActivitiesCueRefreshInterval())
     end;
 
     local procedure GetDefaultWorkDate(): Date

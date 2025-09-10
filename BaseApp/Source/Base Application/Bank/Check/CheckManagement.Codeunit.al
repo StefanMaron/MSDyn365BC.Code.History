@@ -148,7 +148,9 @@ codeunit 367 CheckManagement
                         GenJnlLine2.Validate(Amount);
                         GenJnlLine2."Bank Payment Type" := GenJnlLine."Bank Payment Type";
                     end;
-                    GenJnlLine2."Document No." := '';
+
+                    if GenJnlLine."Bal. Account No." <> '' then
+                        GenJnlLine2."Document No." := '';
                     GenJnlLine2."Document Date" := 0D;
                     GenJnlLine2."Check Printed" := false;
                     GenJnlLine2.UpdateSource();
@@ -160,10 +162,10 @@ codeunit 367 CheckManagement
 
         CheckLedgEntry2.Reset();
         CheckLedgEntry2.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
-        //IF GenJnlLine.Amount <= 0 THEN
-        //  CheckLedgEntry2.SETRANGE("Bank Account No.",GenJnlLine."Account No.")
-        //else
-        CheckLedgEntry2.SetRange("Bank Account No.", GenJnlLine."Bal. Account No.");
+        if GenJnlLine.Amount <= 0 then
+            CheckLedgEntry2.SETRANGE("Bank Account No.", GenJnlLine."Account No.")
+        else
+            CheckLedgEntry2.SetRange("Bank Account No.", GenJnlLine."Bal. Account No.");
         CheckLedgEntry2.SetRange("Entry Status", CheckLedgEntry2."Entry Status"::Printed);
         CheckLedgEntry2.SetRange("Check No.", GenJnlLine."Document No.");
         OnVoidCheckOnAfterCheckLedgEntry2SetFilters(CheckLedgEntry2, GenJnlLine);

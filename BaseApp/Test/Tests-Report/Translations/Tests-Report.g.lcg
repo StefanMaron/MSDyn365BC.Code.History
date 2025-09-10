@@ -167,6 +167,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Financial Reports - NamedType SourceBalanceErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3571979778 - NamedType 3558943022" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Source Currency Amount should not be zero after reversing and closing income statement.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Financial Reports - NamedType SourceCurrencyCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 524386752 - NamedType 1097401065" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Purchases (LCY),Balance (LCY)]]></Val>

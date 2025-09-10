@@ -758,6 +758,8 @@ codeunit 442 "Sales-Post Prepayments"
             BalAccNo := GetInvRoundingAccNo(SalesHeader."Customer Posting Group")
         else
             BalAccNo := GetGainLossGLAcc(SalesHeader."Currency Code", PositiveAmount);
+
+        OnAfterGetCorrBalAccNo(SalesHeader, PositiveAmount, BalAccNo);
         exit(BalAccNo);
     end;
 
@@ -2154,6 +2156,11 @@ codeunit 442 "Sales-Post Prepayments"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPrepmtAccNo(GenPostingSetup: Record "General Posting Setup"; var PrepmtAccNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCorrBalAccNo(SalesHeader: Record "Sales Header"; PositiveAmount: Boolean; var BalAccNo: Code[20])
     begin
     end;
 }

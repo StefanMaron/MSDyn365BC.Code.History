@@ -5528,7 +5528,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 if GLSetup."Enable Russian Accounting" then
                     UpdateGainLoss(DetailedCVLedgEntryBuffer, CorrDtldCVLedgEntryBuf);
                 IsHandled := false;
-                OnPostDtldVendLedgEntriesOnBeforePostDtldVendLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, VendPostingGr, AdjAmount, IsHandled);
+                OnPostDtldVendLedgEntriesOnBeforePostDtldVendLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, VendPostingGr, AdjAmount, IsHandled, LedgEntryInserted);
                 if not IsHandled then
                     if ((DetailedCVLedgEntryBuffer."Amount (LCY)" <> 0) or
                         (DetailedCVLedgEntryBuffer."VAT Amount (LCY)" <> 0)) or
@@ -12114,7 +12114,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnPostDtldVendLedgEntriesOnBeforePostDtldVendLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; VendPostingGr: Record "Vendor Posting Group"; AdjAmount: array[4] of Decimal; var IsHandled: Boolean)
+    local procedure OnPostDtldVendLedgEntriesOnBeforePostDtldVendLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; VendPostingGr: Record "Vendor Posting Group"; AdjAmount: array[4] of Decimal; var IsHandled: Boolean; LedgEntryInserted: Boolean)
     begin
     end;
 
