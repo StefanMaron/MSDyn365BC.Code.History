@@ -232,8 +232,12 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         end;
 
         PurchPostInvoiceEvents.RunOnPrepareLineOnBeforeAdjustTotalAmounts(PurchLine, TotalAmount, TotalAmountACY, PurchHeader.GetUseDate());
-        DeferralUtilities.AdjustTotalAmountForDeferrals(
-          PurchLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY, PurchLine."Inv. Discount Amount" + PurchLine."Line Discount Amount", PurchLineACY."Inv. Discount Amount" + PurchLineACY."Line Discount Amount");
+        if PurchSetup."Discount Posting" = PurchSetup."Discount Posting"::"No Discounts" then
+            DeferralUtilities.AdjustTotalAmountForDeferrals(
+              PurchLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY, 0, 0)
+        else  
+            DeferralUtilities.AdjustTotalAmountForDeferrals(
+              PurchLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY, PurchLine."Inv. Discount Amount" + PurchLine."Line Discount Amount", PurchLineACY."Inv. Discount Amount" + PurchLineACY."Line Discount Amount");
 
         IsHandled := false;
         PurchPostInvoiceEvents.RunOnPrepareLineOnBeforeSetAmounts(
@@ -285,9 +289,14 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         if PurchLine."Deferral Code" <> '' then begin
             PurchPostInvoiceEvents.RunOnPrepareLineOnBeforePrepareDeferralLine(
                 PurchLine, InvoicePostingBuffer, PurchHeader.GetUseDate(), InvDefLineNo, DeferralLineNo, SuppressCommit);
-            PrepareDeferralLine(
-                PurchHeader, PurchLine, InvoicePostingBuffer.Amount, InvoicePostingBuffer."Amount (ACY)",
-                AmtToDefer, AmtToDeferACY, DeferralAccount, PurchAccount, PurchLine."Inv. Discount Amount" + PurchLine."Line Discount Amount", PurchLineACY."Inv. Discount Amount" + PurchLineACY."Line Discount Amount");
+            if PurchSetup."Discount Posting" = PurchSetup."Discount Posting"::"No Discounts" then
+                PrepareDeferralLine(
+                    PurchHeader, PurchLine, InvoicePostingBuffer.Amount, InvoicePostingBuffer."Amount (ACY)",
+                    AmtToDefer, AmtToDeferACY, DeferralAccount, PurchAccount, 0, 0)
+            else
+                PrepareDeferralLine(
+                    PurchHeader, PurchLine, InvoicePostingBuffer.Amount, InvoicePostingBuffer."Amount (ACY)",
+                    AmtToDefer, AmtToDeferACY, DeferralAccount, PurchAccount, PurchLine."Inv. Discount Amount" + PurchLine."Line Discount Amount", PurchLineACY."Inv. Discount Amount" + PurchLineACY."Line Discount Amount");
             PurchPostInvoiceEvents.RunOnPrepareLineOnAfterPrepareDeferralLine(
                 PurchLine, InvoicePostingBuffer, PurchHeader.GetUseDate(), InvDefLineNo, DeferralLineNo, SuppressCommit);
         end;
