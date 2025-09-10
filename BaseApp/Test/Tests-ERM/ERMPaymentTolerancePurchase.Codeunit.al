@@ -308,6 +308,68 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         exit(DeferralTemplate."Deferral Code");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure PurchaseInvoiceWithDeferralEUReverseChargeVAT()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchasePayableSetup: Record "Purchases & Payables Setup";
+        DeferralTemplate: Record "Deferral Template";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DeferralCode: Code[10];
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 579751] The VAT Entry table with filter <Entry No.: 0..1000, G/L Account No''> must not contain records." error if you try to SET G/L acc. in the VAT Entry created from a Purchase Invoice with Deferrals and Discounts & its VAT Amount is zero in the G/L Entry.
+        Initialize();
+
+        // [GIVEN] Create General Posting Setup
+        LibraryERM.CreateGeneralPostingSetupInvt(GeneralPostingSetup);
+
+        // [GIVEN] Set Discount Posting to No Discount
+        PurchasePayableSetup.Get();
+        PurchasePayableSetup."Discount Posting" := PurchasePayableSetup."Discount Posting"::"No Discounts";
+        PurchasePayableSetup.Modify(true);
+
+        // [GIVEN] Create Reverse Charge VAT Posting Setup 
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 25);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Create Deferral Template (100%, Straight-Line, Begin. of Period, 2 periods)
+        DeferralCode := CreateDeferralTemplate(DeferralTemplate."Calc. Method"::"Straight-Line",
+            DeferralTemplate."Start Date"::"Beginning of Period", 2, 'Test Deferral', 100);
+
+        // [GIVEN] Create EU Vendor with EU Posting Types
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+
+        // [GIVEN] Create GL Account with VAT Prod. Posting Group = VAT25
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+
+        // [GIVEN] Create Purchase Invoice for EU Vendor and GL Account
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", 120);
+        PurchaseLine.Validate("Line Discount %", 20);
+        PurchaseLine.Validate("Deferral Code", DeferralCode);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post the purchase Invoice
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Verify GL Entry VAT Entry Link table with G/L Entry No. field not populated with 0 value
+        VerifyGLEntryVATEntryLink(InvoiceNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -483,6 +545,22 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         Assert.AreNearlyEqual(ExpectedPmtTolAmount, VendorLedgerEntry."Max. Payment Tolerance",
           GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountErrorMessage, VendorLedgerEntry.FieldCaption(Amount),
             ExpectedPmtTolAmount, VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+    end;
+
+    local procedure VerifyGLEntryVATEntryLink(InvoiceNo: Code[20])
+    var
+        GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
+        VATEntry: Record "VAT Entry";
+        GLEntry: Record "G/L Entry";
+    begin
+        VATEntry.SetRange("Document No.", InvoiceNo);
+        VATEntry.FindFirst();
+
+        GLEntryVATEntryLink.SetRange("VAT Entry No.", VATEntry."Entry No.");
+        GLEntryVATEntryLink.FindFirst();
+
+        GLEntry.Get(GLEntryVATEntryLink."G/L Entry No.");
+        Assert.IsTrue(GLEntry.Amount <> 0, 'G/L Entry Amount is zero for VAT Entry No. ' + Format(VATEntry."Entry No."));
     end;
 
     local procedure ExecuteUIHandler()

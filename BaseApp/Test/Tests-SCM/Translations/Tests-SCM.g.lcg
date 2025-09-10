@@ -2255,6 +2255,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Dedicated Bins - NamedType VSTF190324Msg1)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1260548562 - NamedType 30657023" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Bin Code on Warehouse Activity Line should be equal to Bin Code on Whse Worksheet Line]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Extend Warehouse - NamedType BinCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1260548562 - NamedType 2297524766" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[activities created]]></Val>
@@ -3864,6 +3873,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Item Tracking - NamedType DeletionMessage)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2034147439 - NamedType 2013327167" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item Ledger Entry Lot No. %1 should be equal to the first lot with FEFO.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Lot No.]D;]A;(LookupHint=Codeunit SCM Inventory Item Tracking - NamedType ILELotNotMatchedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2034147439 - NamedType 1971332616" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -18336,6 +18354,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse VII - NamedType CrossDockQtyIsNotCalculatedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 884138066 - NamedType 625196420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item Ledger Entry must not be found more than %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Count of Item Ledger Entry]D;]A;(LookupHint=Codeunit SCM Warehouse VII - NamedType ILEMustNotBeFoundMoreThanErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 884138066 - NamedType 1618275270" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -47,6 +47,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         JournalPostedMsg: Label 'The journal lines were successfully posted.';
         CouldNotRegisterWhseActivityErr: Label 'Could not register Warehouse Activity.';
         OrderToOrderBindingOnSalesLineQst: Label 'Registering the pick will remove the existing order-to-order reservation for the sales order.\Do you want to continue?';
+        ILELotNotMatchedErr: Label 'Item Ledger Entry Lot No. %1 should be equal to the first lot with FEFO.', Comment = '%1 - Lot No.';
 
     [Test]
     [HandlerFunctions('WhseItemTrackingLinesPageHandler,RegisterWhseMessageHandler,ConfirmHandler')]
@@ -2080,6 +2081,77 @@ codeunit 137260 "SCM Inventory Item Tracking"
         Assert.ExpectedError(StrSubstNo(CannotMatchItemTrackingErr, SalesLine."Document No.", SalesLine."Line No.", SalesLine."No.", SalesLine.Description));
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ReservationFromCurrentLineHandler')]
+    [Scope('OnPrem')]
+    procedure RegisterPickWithNoErrorForFEFOLocation()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        SalesHeader: array[2] of Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ExpirationDate: Date;
+        ShipmentBinCode: Code[20];
+        LotNo: array[2] of Code[10];
+    begin
+
+        // [SCENARIO 572962] No Error when Lot is available on inventory, when trying to register pick for item with reservation and item tracking with location set up FEFO
+        Initialize();
+
+        // [GIVEN] Set up Expiration Date for the Lot No.
+        ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
+
+        // [GIVEN] Create Location with pick according to FEFO.
+        CreateLocationWithPostingSetupAndPickAccordingToFEFO(Location, ShipmentBinCode);
+
+        // [GIVEN] Item with Lot No. tracking.
+        LibraryInventory.CreateTrackedItem(Item, '', '', CreateItemTrackingCode(false, true, true, false, true));
+
+        // [GIVEN] Positive adjustment with Lot = "X" and ExpirationDate = D1 , Lot = "Y" and ExpirationDate = D2 and D2 > D1.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        SelectItemJournalAndPostItemJournalLine(
+          LotNo[1], Bin.Code, '', Item."No.", Location.Code, '', 1, ExpirationDate,
+          ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::"Positive Adjmt.", false);
+        SelectItemJournalAndPostItemJournalLine(
+          LotNo[2], Bin.Code, '', Item."No.", Location.Code, '', 1,
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', ExpirationDate),
+          ItemJournalBatch."Template Type"::Item, ItemJournalLine."Entry Type"::"Positive Adjmt.", false);
+
+        // [GIVEN] Create Sales order and reserve the first Lot No. "LOT0001" with Expiration Date = D1.
+        CreateSOAndTrackInventory(SalesHeader[1], Item."No.", Location.Code, 1);
+
+        // Create second sales order and reserve the second Lot No. "LOT0002" with Expiration Date = D2.
+        CreateSOAndTrackInventory(SalesHeader[2], Item."No.", Location.Code, 1);
+
+        // [GIVEN] Create Warehouse Shipment from Sales Order second.
+        CreateWhseShipmentFromSO(WarehouseShipmentHeader, SalesHeader[2]);
+
+        // [WHEN] CreatePick From Warehouse Shipment.
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [WHEN] Register Pick should not fail with error "Lot No. is not available on inventory" for the first Lot No. "LOT0001" with Expiration Date = D1.
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Post Warehouse Shipment.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] Item Ledger Entry for the first Lot No. "LOT0001" with Expiration Date = D1 should be created.
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindFirst();
+        Assert.AreEqual(LotNo[1], ItemLedgerEntry."Lot No.", StrSubstNo(ILELotNotMatchedErr, LotNo[1]));
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2556,7 +2628,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
     end;
 
-    local procedure CreateLocationWithPostingSetupAndPickAccordingTOFEFO(var Location: Record Location; var ShipmentBinCode: Code[20])
+    local procedure CreateLocationWithPostingSetupAndPickAccordingToFEFO(var Location: Record Location; var ShipmentBinCode: Code[20])
     var
         Bin: Record Bin;
     begin
@@ -3487,6 +3559,19 @@ codeunit 137260 "SCM Inventory Item Tracking"
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
     end;
 
+    local procedure CreateSOAndTrackInventory(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Location Code", LocationCode);
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+        SalesLine.Modify(true);
+        SalesLine.ShowReservation();
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -3687,6 +3772,14 @@ codeunit 137260 "SCM Inventory Item Tracking"
         ProductionJournal.ItemTrackingLines.Invoke();
         ProductionJournal."Output Quantity".SetValue(LibraryVariableStorage.DequeueDecimal());
         ProductionJournal.Post.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReservationFromCurrentLineHandler(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     local procedure AssignLotNos(var ItemTrackingLines: TestPage "Item Tracking Lines")
