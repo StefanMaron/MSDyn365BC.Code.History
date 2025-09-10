@@ -176,6 +176,15 @@
       <Cmt Name="Dev"><![CDATA[%1 Blocked field; %2 Bank Account table]D;]A;(LookupHint=Codeunit ERM Cash Manager - NamedType BankAccountBlockedErrorErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 184886348 - NamedType 2520588468" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use the <blank> %1 option with a Canadian style check. Please check %2 %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Field caption for "Check Date Format" field, %2=Caption for table "Bank Account", %3=Bank Account number]D;]A;(LookupHint=Codeunit ERM Cash Manager - NamedType CanadianCheckErrorMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 184886348 - NamedType 1750350494" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be equal to 0 in %2.]]></Val>
