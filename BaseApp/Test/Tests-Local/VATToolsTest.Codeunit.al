@@ -1017,7 +1017,7 @@ codeunit 144001 "VAT Tools Test"
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup1, VATPostingSetup1."VAT Calculation Type"::"Normal VAT", 0);
 
         // [GIVEN] Create General Journal line with first line as account type vendor
-        DocNo := LibraryRandom.RandText(20);
+        DocNo := LibraryRandom.RandText(15);
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         CreateGenJournalLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice, DocNo, GenJournalLine."Account Type"::Vendor, LibraryPurch.CreateVendor(Vendor), -257632.33, GenJournalLine."Gen. Posting Type"::" ", '', '');
