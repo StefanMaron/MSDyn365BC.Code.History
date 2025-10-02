@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Reports;
 
 using Microsoft.Purchases.Vendor;
@@ -244,6 +248,8 @@ report 312 "Purchase Statistics"
 
     requestpage
     {
+        AboutTitle = 'About Purchase Statistics';
+        AboutText = 'Track vendor performance and ensure that your company gets the best value for money.';
         SaveValues = true;
 
         layout

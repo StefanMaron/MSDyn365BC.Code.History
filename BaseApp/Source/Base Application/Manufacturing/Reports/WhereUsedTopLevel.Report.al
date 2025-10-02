@@ -10,11 +10,10 @@ using System.Utilities;
 
 report 99000757 "Where-Used (Top Level)"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Manufacturing/Reports/WhereUsedTopLevel.rdlc';
     ApplicationArea = Manufacturing;
     Caption = 'Where-Used (Top Level)';
     UsageCategory = ReportsAndAnalysis;
+    DefaultRenderingLayout = WhereUsedTopLevelExcel;
 
     dataset
     {
@@ -32,6 +31,9 @@ report 99000757 "Where-Used (Top Level)"
             column(CalcDateFormatted; Text000 + Format(CalculateDate))
             {
             }
+            column(CalculateDateFilter; Format(CalculateDate))
+            {
+            }
             column(ItemTableCaptionItemFilter; TableCaption + ': ' + ItemFilter)
             {
             }
@@ -46,21 +48,31 @@ report 99000757 "Where-Used (Top Level)"
             {
                 IncludeCaption = true;
             }
+            column(Search_Description; "Search Description")
+            {
+                IncludeCaption = true;
+            }
+            // RDLC Only 
             column(WhereUsedListTopLevelCapt; WhereUsedListTopLevelCaptLbl)
             {
             }
+            // RDLC Only 
             column(CurrReportPageNoCapt; CurrReportPageNoCaptLbl)
             {
             }
+            // RDLC Only 
             column(LevelCodeCaption; LevelCodeCaptionLbl)
             {
             }
+            // RDLC Only 
             column(WhereUsedListItemNoCapt; WhereUsedListItemNoCaptLbl)
             {
             }
+            // RDLC Only 
             column(WhereUsedListDescCapt; WhereUsedListDescCaptLbl)
             {
             }
+            // RDLC Only 
             column(WhereUsedListQtyNeededCapt; WhereUsedListQtyNeededCaptLbl)
             {
             }
@@ -80,9 +92,12 @@ report 99000757 "Where-Used (Top Level)"
                 column(WhereUsedListLevelCode; PadStr('', WhereUsedList."Level Code", ' ') + Format(WhereUsedList."Level Code"))
                 {
                 }
-
+                column(Sequence; Sequence)
+                {
+                }
                 trigger OnAfterGetRecord()
                 begin
+                    Sequence += 1;
                     if First then begin
                         if not WhereUsedMgt.FindRecord('-', WhereUsedList) then
                             CurrReport.Break();
@@ -114,6 +129,8 @@ report 99000757 "Where-Used (Top Level)"
 
     requestpage
     {
+        AboutTitle = 'About Where-Used (Top Level)';
+        AboutText = 'Get an overview of where, and in what quantities, you use items in the product structures of other items.';
 
         layout
         {
@@ -141,9 +158,46 @@ report 99000757 "Where-Used (Top Level)"
             CalculateDate := WorkDate();
         end;
     }
-
+    rendering
+    {
+        layout(WhereUsedTopLevelExcel)
+        {
+            Caption = 'Where-Used (Top Level) Excel';
+            LayoutFile = './Manufacturing/Reports/WhereUsedTopLevel.xlsx';
+            Type = Excel;
+        }
+#if not CLEAN27
+        layout(WhereUsedTopLevelRDLC)
+        {
+            Caption = 'Where-Used (Top Level) RDLC';
+            LayoutFile = './Manufacturing/Reports/WhereUsedTopLevel.rdlc';
+            Type = RDLC;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
+            ObsoleteTag = '27.0';
+        }
+#endif
+    }
     labels
     {
+        WhereUsedListTopLevel = 'Where-Used List (Top Level)';
+        // Print worksheet names
+        WhereUsedTopLevelPrint = 'Where-Used Top Level (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        // Analysis worksheet name
+        WhereUsedTopLevelAnalysis = 'Where-Used Top Level (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        LevelLabel = 'BOM Level';
+        ItemNoLabel = 'BOM Item No.';
+        DescLabel = 'BOM Item Description';
+        QtyNeededLabel = 'Exploded Quantity';
+        DataRetrieved = 'Data retrieved:';
+        // About the report labels
+        AboutTheReportLabel = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
+        EnvironmentLabel = 'Environment';
+        CompanyLabel = 'Company';
+        UserLabel = 'User';
+        RunOnLabel = 'Run on';
+        ReportNameLabel = 'Report name';
+        DocumentationLabel = 'Documentation';
     }
 
     var
@@ -152,10 +206,12 @@ report 99000757 "Where-Used (Top Level)"
         ItemFilter: Text;
         CalculateDate: Date;
         First: Boolean;
+        Sequence: Integer;
 
 #pragma warning disable AA0074
         Text000: Label 'As of ';
 #pragma warning restore AA0074
+        // RDLC Only layout field captions. To be removed in a future release along with the RDLC layout.
         WhereUsedListTopLevelCaptLbl: Label 'Where-Used List (Top Level)';
         CurrReportPageNoCaptLbl: Label 'Page';
         LevelCodeCaptionLbl: Label 'Level';

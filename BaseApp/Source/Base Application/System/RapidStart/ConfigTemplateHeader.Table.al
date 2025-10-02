@@ -114,12 +114,10 @@ table 8618 "Config. Template Header"
         ConfigTemplateLine: Record "Config. Template Line";
         ConfigValidateMgt: Codeunit "Config. Validate Management";
 
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label 'Template lines that relate to %1 exists. Delete the lines to change the Table ID.';
-        Text001: Label 'A new instance %1 has been created in table %2 %3.', Comment = '%2 = Table ID, %3 = Table Caption';
+        DeleteLinesBeforeChangeTableIdErr: Label 'Template lines that relate to %1 exists. Delete the lines to change the Table ID.';
+        NewInstanceCreatedMsg: Label 'A new instance %1 has been created in table %2 %3.', Comment = '%2 = Table ID, %3 = Table Caption';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
 
     local procedure TestXRec()
     var
@@ -128,7 +126,7 @@ table 8618 "Config. Template Header"
         ConfigTemplateLine.SetRange("Data Template Code", Code);
         if ConfigTemplateLine.FindFirst() then
             if xRec."Table ID" <> "Table ID" then
-                Error(Text000, xRec."Table ID");
+                Error(DeleteLinesBeforeChangeTableIdErr, xRec."Table ID");
     end;
 
     procedure ConfirmNewInstance(var RecRef: RecordRef)
@@ -143,7 +141,7 @@ table 8618 "Config. Template Header"
             FieldRef := KeyRef.FieldIndex(KeyFieldCount);
             MessageString := MessageString + ' ' + Format(FieldRef.Value);
             MessageString := DelChr(MessageString, '<');
-            Message(StrSubstNo(Text001, MessageString, RecRef.Number, RecRef.Caption));
+            Message(StrSubstNo(NewInstanceCreatedMsg, MessageString, RecRef.Number, RecRef.Caption));
         end;
     end;
 

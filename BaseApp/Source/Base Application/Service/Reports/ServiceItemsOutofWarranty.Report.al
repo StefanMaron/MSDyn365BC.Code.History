@@ -86,7 +86,8 @@ report 5937 "Service Items Out of Warranty"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Items Out of Warranty';
+        AboutText = 'Get an overview of service items that are out of warranty.';
         layout
         {
         }

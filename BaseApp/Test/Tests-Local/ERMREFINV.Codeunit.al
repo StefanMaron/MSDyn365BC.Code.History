@@ -7,7 +7,7 @@ codeunit 144018 "ERM REFINV"
     // 5. Verify Program create a correct Source Inv No. on Sales Credit Memo Header created from Copy Sales Document with G/L Account.
     // 6. Verify Program create Sales Credit Memo without Source Inv No. on Header created from Copy Sales Document.
     // 7. Verify Program create and post Sales Credit Memo without Source Inv No. on Header created from Copy Sales Document.
-    // 
+    //
     // Covers Test Cases for WI - 350544.
     // ---------------------------------------------------------------------------------------------------------------
     // Test Function Name                                                                                  TFS ID
@@ -26,15 +26,12 @@ codeunit 144018 "ERM REFINV"
     end;
 
     var
-        AmtCap: Label 'VATAmtLineLineAmt';
         UnexpectedErr: Label 'Expected value is different from Actual value.';
-        VATAmtCap: Label 'VATAmtLineVATAmt';
         PostSaleslCreditMemoCap: Label 'Post Sales Credit Memo %1.';
         JobQueueEntryErr: Label 'The Job Queue Entry for Sales Credit Memo as result of batch posting has not been created.';
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
@@ -230,6 +227,7 @@ codeunit 144018 "ERM REFINV"
         SalesHeader.Get(SalesLine."Document Type"::Invoice, SalesLine."Document No.");
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));  // Post as Ship and Invoice.
     end;
+
     local procedure CreateSalesCreditMemoFromPage(var SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; SellToCustomerNo: Code[20])
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
@@ -354,13 +352,6 @@ codeunit 144018 "ERM REFINV"
         SalesHeader.TestField("Applies-to Doc. No.", AppliesToDocNo);
     end;
 
-    local procedure VerifyValuesOnSalesCreditMemo(Amount: Decimal; VATAmount: Decimal)
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(AmtCap, Amount);
-        LibraryReportDataset.AssertElementWithValueExists(VATAmtCap, VATAmount);
-    end;
-
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CopySalesDocumentRequestPageHandler(var CopySalesDocument: TestRequestPage "Copy Sales Document")
@@ -397,4 +388,3 @@ codeunit 144018 "ERM REFINV"
     begin
     end;
 }
-

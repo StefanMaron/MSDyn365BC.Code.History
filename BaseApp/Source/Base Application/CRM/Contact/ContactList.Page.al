@@ -9,9 +9,6 @@ using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Comment;
 using Microsoft.CRM.Interaction;
 using Microsoft.CRM.Opportunity;
-#if not CLEAN24
-using Microsoft.CRM.Outlook;
-#endif
 using Microsoft.CRM.Profiling;
 using Microsoft.CRM.Reports;
 using Microsoft.CRM.Segment;
@@ -990,38 +987,6 @@ page 5052 "Contact List"
                     TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
-#if not CLEAN24
-            action(SyncWithExchange)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Sync with Office 365';
-                Image = Refresh;
-                ToolTip = 'Synchronize with Office 365 based on last sync date and last modified date. All changes in Office 365 since the last sync date will be synchronized back.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ObsoleteReason = 'You can sync contacts from the Contact Sync. Setup page (accessible from the Exchange Sync. Setup page), by using the actions.';
-                trigger OnAction()
-                begin
-                    SyncExchangeContacts(false);
-                end;
-            }
-            action(FullSyncWithExchange)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Full Sync with Office 365';
-                Image = RefreshLines;
-                ToolTip = 'Synchronize, but ignore the last synchronized and last modified dates. All changes will be pushed to Office 365 and take all contacts from your Exchange folder and sync back.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ObsoleteReason = 'You can sync contacts from the Contact Sync. Setup page (accessible from the Exchange Sync. Setup page), by using the actions.';
-                trigger OnAction()
-                begin
-                    SyncExchangeContacts(true);
-                end;
-            }
-#endif
         }
         area(creation)
         {
@@ -1151,33 +1116,6 @@ page 5052 "Contact List"
                 Caption = 'Synchronize';
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
-#if not CLEAN24
-                group("Category_Office 365")
-                {
-                    Caption = 'Office 365';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                    ObsoleteReason = 'You can sync contacts from the Contact Sync. Setup page (accessible from the Exchange Sync. Setup page), by using the actions.';
-
-                    actionref(SyncWithExchange_Promoted; SyncWithExchange)
-                    {
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '24.0';
-                        ObsoleteReason = 'You can sync contacts from the Contact Sync. Setup page (accessible from the Exchange Sync. Setup page), by using the actions.';
-
-                    }
-                    actionref(FullSyncWithExchange_Promoted; FullSyncWithExchange)
-                    {
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '24.0';
-                        ObsoleteReason = 'You can sync contacts from the Contact Sync. Setup page (accessible from the Exchange Sync. Setup page), by using the actions.';
-
-                    }
-                }
-#endif
                 group(Category_Coupling)
                 {
                     Caption = 'Coupling';
@@ -1264,22 +1202,6 @@ page 5052 "Contact List"
         Rec.HasBusinessRelations(RelatedCustomerEnabled, RelatedVendorEnabled, RelatedBankEnabled, RelatedEmployeeEnabled)
     end;
 
-#if not CLEAN24
-    [Scope('OnPrem')]
-    [Obsolete('Use O365SyncManagement.SyncExchangeContacts with the appropriate parameters instead.', '24.0')]
-    procedure SyncExchangeContacts(FullSync: Boolean)
-    var
-        ExchangeSync: Record "Exchange Sync";
-        O365SyncManagement: Codeunit "O365 Sync. Management";
-        ExchangeContactSync: Codeunit "Exchange Contact Sync.";
-    begin
-        if O365SyncManagement.IsO365Setup(true) then
-            if ExchangeSync.Get(UserId) then begin
-                ExchangeContactSync.GetRequestParameters(ExchangeSync);
-                O365SyncManagement.SyncExchangeContacts(ExchangeSync, FullSync);
-            end;
-    end;
-#endif
 
     procedure GetSelectionFilter(): Text
     var
@@ -1300,4 +1222,3 @@ page 5052 "Contact List"
     begin
     end;
 }
-

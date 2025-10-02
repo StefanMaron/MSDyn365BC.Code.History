@@ -168,6 +168,8 @@ report 706 Status
 
     requestpage
     {
+        AboutTitle = 'About Status';
+        AboutText = 'Helps you monitor and manage your inventory operations effectively by providing real-time insights into the current state of your inventory. Might allow you to optimize your supply chain processes and reduce cost associated with inventory.';
         SaveValues = true;
 
         layout

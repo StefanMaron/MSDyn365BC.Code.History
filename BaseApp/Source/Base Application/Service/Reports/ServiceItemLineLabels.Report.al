@@ -91,7 +91,8 @@ report 5901 "Service Item Line Labels"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Item Line Labels';
+        AboutText = 'Get an overview of service items that are included in service orders.';
         layout
         {
         }

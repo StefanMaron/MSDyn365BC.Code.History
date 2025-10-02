@@ -1593,12 +1593,21 @@
                       </SortExpressions>
                       <TablixMembers>
                         <TablixMember>
+                          <Visibility>
+                            <Hidden>=iif(Fields!No_GLAcc.Value = "", true, false)</Hidden>
+                          </Visibility>
                           <KeepWithGroup>After</KeepWithGroup>
                         </TablixMember>
                         <TablixMember>
                           <Group Name="Details1" />
+                          <Visibility>
+                            <Hidden>=iif(Fields!No_GLAcc.Value = "", true, false)</Hidden>
+                          </Visibility>
                         </TablixMember>
                         <TablixMember>
+                          <Visibility>
+                            <Hidden>=iif(Fields!No_GLAcc.Value = "", true, false)</Hidden>
+                          </Visibility>
                           <KeepWithGroup>Before</KeepWithGroup>
                         </TablixMember>
                       </TablixMembers>
@@ -1816,6 +1825,51 @@
     </ReportSection>
   </ReportSections>
   <ReportParameters>
+    <ReportParameter Name="DeferralSummaryGLLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DeferralSummaryGLLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DeferralSummaryGLLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DeferralSummaryGLPrint">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DeferralSummaryGLPrint</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DeferralSummaryGLPrint</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DeferralSummaryGLAnalysis">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DeferralSummaryGLAnalysis</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DeferralSummaryGLAnalysis</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="BalAsOfDateCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>BalAsOfDateCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>BalAsOfDateCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DataRetrieved">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DataRetrieved</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DataRetrieved</Prompt>
+    </ReportParameter>
     <ReportParameter Name="PostingDateCaption">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1897,56 +1951,249 @@
       </DefaultValue>
       <Prompt>AcctNameCaption</Prompt>
     </ReportParameter>
+    <ReportParameter Name="AmountRecognizedCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AmountRecognizedCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AmountRecognizedCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RemAmountDefCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RemAmountDefCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RemAmountDefCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="TotalAmountDefCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>TotalAmountDefCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>TotalAmountDefCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="AboutTheReportLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AboutTheReportLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AboutTheReportLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="EnvironmentLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>EnvironmentLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>EnvironmentLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CompanyLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CompanyLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CompanyLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="UserLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>UserLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>UserLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RunOnLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>RunOnLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>RunOnLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReportNameLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ReportNameLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ReportNameLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DocumentationLabel">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>DocumentationLabel</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>DocumentationLabel</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="No_GLAccCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>No_GLAccCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>No_GLAccCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="NumOfPeriodsCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>NumOfPeriodsCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>NumOfPeriodsCaption</Prompt>
+    </ReportParameter>
   </ReportParameters>
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>9</NumberOfRows>
+      <NumberOfRows>26</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>0</RowIndex>
-          <ParameterName>PostingDateCaption</ParameterName>
+          <ParameterName>DeferralSummaryGLLabel</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>1</RowIndex>
-          <ParameterName>DocNoCaption</ParameterName>
+          <ParameterName>DeferralSummaryGLPrint</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>2</RowIndex>
-          <ParameterName>DescCaption</ParameterName>
+          <ParameterName>DeferralSummaryGLAnalysis</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>3</RowIndex>
-          <ParameterName>EntryNoCaption</ParameterName>
+          <ParameterName>BalAsOfDateCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>4</RowIndex>
-          <ParameterName>NoOfPeriodsCaption</ParameterName>
+          <ParameterName>DataRetrieved</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>5</RowIndex>
-          <ParameterName>DeferralAccountCaption</ParameterName>
+          <ParameterName>PostingDateCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>6</RowIndex>
-          <ParameterName>DocTypeCaption</ParameterName>
+          <ParameterName>DocNoCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>7</RowIndex>
-          <ParameterName>DefStartDateCaption</ParameterName>
+          <ParameterName>DescCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>8</RowIndex>
+          <ParameterName>EntryNoCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>9</RowIndex>
+          <ParameterName>NoOfPeriodsCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>10</RowIndex>
+          <ParameterName>DeferralAccountCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>11</RowIndex>
+          <ParameterName>DocTypeCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>12</RowIndex>
+          <ParameterName>DefStartDateCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>13</RowIndex>
           <ParameterName>AcctNameCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>14</RowIndex>
+          <ParameterName>AmountRecognizedCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>15</RowIndex>
+          <ParameterName>RemAmountDefCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>16</RowIndex>
+          <ParameterName>TotalAmountDefCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>17</RowIndex>
+          <ParameterName>AboutTheReportLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>18</RowIndex>
+          <ParameterName>EnvironmentLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>19</RowIndex>
+          <ParameterName>CompanyLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>20</RowIndex>
+          <ParameterName>UserLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>21</RowIndex>
+          <ParameterName>RunOnLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>22</RowIndex>
+          <ParameterName>ReportNameLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>23</RowIndex>
+          <ParameterName>DocumentationLabel</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>24</RowIndex>
+          <ParameterName>No_GLAccCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>25</RowIndex>
+          <ParameterName>NumOfPeriodsCaption</ParameterName>
         </CellDefinition>
       </CellDefinitions>
     </GridLayoutDefinition>
@@ -2008,9 +2255,6 @@ End Function
         <Field Name="EmptyString">
           <DataField>EmptyString</DataField>
         </Field>
-        <Field Name="No_GLAcc">
-          <DataField>No_GLAcc</DataField>
-        </Field>
         <Field Name="DeferralSummaryGLCaption">
           <DataField>DeferralSummaryGLCaption</DataField>
         </Field>
@@ -2044,6 +2288,9 @@ End Function
         <Field Name="AmtRecognizedCaption">
           <DataField>AmtRecognizedCaption</DataField>
         </Field>
+        <Field Name="No_GLAcc">
+          <DataField>No_GLAcc</DataField>
+        </Field>
         <Field Name="AccountName">
           <DataField>AccountName</DataField>
         </Field>
@@ -2052,6 +2299,9 @@ End Function
         </Field>
         <Field Name="DocumentType">
           <DataField>DocumentType</DataField>
+        </Field>
+        <Field Name="GLDocTypeString">
+          <DataField>GLDocTypeString</DataField>
         </Field>
         <Field Name="DeferralStartDate">
           <DataField>DeferralStartDate</DataField>
@@ -2091,6 +2341,24 @@ End Function
         </Field>
         <Field Name="GLDocType">
           <DataField>GLDocType</DataField>
+        </Field>
+        <Field Name="SumAmtRecognized">
+          <DataField>SumAmtRecognized</DataField>
+        </Field>
+        <Field Name="SumAmtRecognizedFormat">
+          <DataField>SumAmtRecognizedFormat</DataField>
+        </Field>
+        <Field Name="SumRemainingAmtDeferred">
+          <DataField>SumRemainingAmtDeferred</DataField>
+        </Field>
+        <Field Name="SumRemainingAmtDeferredFormat">
+          <DataField>SumRemainingAmtDeferredFormat</DataField>
+        </Field>
+        <Field Name="SumTotalAmtDeferred">
+          <DataField>SumTotalAmtDeferred</DataField>
+        </Field>
+        <Field Name="SumTotalAmtDeferredFormat">
+          <DataField>SumTotalAmtDeferredFormat</DataField>
         </Field>
       </Fields>
       <Query>

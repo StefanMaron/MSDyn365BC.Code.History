@@ -12,7 +12,6 @@ codeunit 137045 "SCM Bugfixes"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
@@ -21,6 +20,7 @@ codeunit 137045 "SCM Bugfixes"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -40,9 +40,9 @@ codeunit 137045 "SCM Bugfixes"
         UseInTransitLocationErr: Label 'You can use In-Transit location %1 for transfer orders only.', Comment = '%1: Location code';
         PurchaseOrderErr: Label 'Unexpected new purchase order created';
         AssemblyCommentLineErr: Label 'Comment/Description not Transfered to Assembly Order while Running Carry Out Action Message';
-        TrackingMsg: Label 'The change will not affect existing entries';
         QtyPermismatchErr: Label 'Mismatch in Quantity per for Item No. %1 in Production Order %2', Comment = '%1: Item No., %2: Production Order No.';
         ExpectedQuantitymismatchErr: Label 'Mismatch in Expected Quantity for Item No. %1 in Production Order %2', Comment = '%1: Item No., %2: Production Order No.';
+        TrackingMsg: Label 'The change will not affect existing entries';
 
     [Test]
     [Scope('OnPrem')]
@@ -927,8 +927,8 @@ codeunit 137045 "SCM Bugfixes"
         // [GIVEN] Find Production Order Component Line and Update "Quantity per".
         UpdateProductionOrderComponentLine(ProdOrderLine);
 
-        // [GIVEN] Update Component at Location in Manufacturing Setup.
-        UpdateComponentAtLocation(LocationCode);
+        // [GIVEN] Update Component at Location
+        LibraryManufacturing.SetComponentsAtLocation(LocationCode);
 
         // [WHEN]  Create Sales Order.
         CreateSalesOrder(SalesHeader, Item[2]."No.", LocationCode, LibraryRandom.RandIntInRange(80, 80), SalesHeader."Document Type"::Order);
@@ -1143,41 +1143,6 @@ codeunit 137045 "SCM Bugfixes"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandlerOrderTracking,ItemTrackingLinesPageHandler')]
-    procedure CheckDefaultUntrackedSurplusReservationEntriesUpdatedWhenSerialNoAllocated()
-    var
-        Item: Record Item;
-        Location: Record Location;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        Qty: Decimal;
-    begin
-        // [SCENARIO 575956] Check Default Untracked Surplus Reservation Entries Updated When Serial No Allocated from Item Tracking Lines and 
-        // not Created duplicate lines.
-        Initialize();
-
-        // [GIVEN] Created Lot Tracked Item.
-        CreateTrackedItemWithOrderTrackingPolicy(Item);
-
-        // [GIVEN] Created Sales Order with 1 Item and 3 quantity.
-        Qty := 3;
-        LibraryWarehouse.CreateLocation(Location);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
-        SalesLine.Validate("Location Code", Location.Code);
-        SalesLine.Modify(true);
-
-        // [GIVEN] From Item tracking lines (Sales Order), add a SN to the item.
-        // [WHEN] Assign random serial numbers.
-        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::AssignRandomSN);
-        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
-        SalesLine.OpenItemTrackingLines(); // ItemTrackingLinesPageHandler required.
-
-        // [THEN] After recalculation, a new reservation entry should NOT be created for the SO.
-        AssertReservationEntryCountForSales(SalesHeader, 3);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure ProductionOrderComponentRounding()
     var
@@ -1215,6 +1180,41 @@ codeunit 137045 "SCM Bugfixes"
         // [THEN] Verify every Production Order Components with Qty Per and expected qty.
         VerifyProdOrderComponent(ProductionOrder.Status, ProductionOrder."No.", CompItem[1]."No.", CompItemQtyPer[1], ProdOrderQty);
         VerifyProdOrderComponent(ProductionOrder.Status, ProductionOrder."No.", CompItem[2]."No.", CompItemQtyPer[2], ProdOrderQty);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerOrderTracking,ItemTrackingLinesPageHandler')]
+    procedure CheckDefaultUntrackedSurplusReservationEntriesUpdatedWhenSerialNoAllocated()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Qty: Decimal;
+    begin
+        // [SCENARIO 575956] Check Default Untracked Surplus Reservation Entries Updated When Serial No Allocated from Item Tracking Lines and 
+        // not Created duplicate lines.
+        Initialize();
+
+        // [GIVEN] Created Lot Tracked Item.
+        CreateTrackedItemWithOrderTrackingPolicy(Item);
+
+        // [GIVEN] Created Sales Order with 1 Item and 3 quantity.
+        Qty := 3;
+        LibraryWarehouse.CreateLocation(Location);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] From Item tracking lines (Sales Order), add a SN to the item.
+        // [WHEN] Assign random serial numbers.
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::AssignRandomSN);
+        LibraryVariableStorage.Enqueue(SalesLine.Quantity);
+        SalesLine.OpenItemTrackingLines(); // ItemTrackingLinesPageHandler required.
+
+        // [THEN] After recalculation, a new reservation entry should NOT be created for the SO.
+        AssertReservationEntryCountForSales(SalesHeader, 3);
     end;
 
     local procedure Initialize()
@@ -1817,15 +1817,6 @@ codeunit 137045 "SCM Bugfixes"
         ProdOrderComponent.Modify(true);
     end;
 
-    local procedure UpdateComponentAtLocation(LocationCode: Code[10])
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", LocationCode);
-        ManufacturingSetup.Modify(true);
-    end;
-
     local procedure OpenOrderPromisingPage(SalesHeaderNo: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
@@ -1937,27 +1928,6 @@ codeunit 137045 "SCM Bugfixes"
         Assert.RecordCount(ReservationEntry, ExpectedCount);
     end;
 
-    local procedure CreateTrackedItemWithOrderTrackingPolicy(var Item: Record Item)
-    var
-        ItemTrackingCode: Record "Item Tracking Code";
-    begin
-        CreateItemTrackingCodeWithLotSpecTracking(ItemTrackingCode);
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
-        LibraryVariableStorage.Enqueue(TrackingMsg);  // Enqueue value for message handler.
-        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
-        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking & Action Msg.");
-        Item.Modify(true);
-    end;
-
-    local procedure AssertReservationEntryCountForSales(SalesHeader: Record "Sales Header"; ExpectedCount: Integer)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        ReservationEntry.SetRange("Source Type", Database::"Sales Line");
-        ReservationEntry.SetRange("Source ID", SalesHeader."No.");
-        Assert.RecordCount(ReservationEntry, ExpectedCount);
-    end;
-
     local procedure CreateItemWithRoundingPrecision(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; RoutingNo: Code[20]; ProdBOMNo: Code[20]; RoundingPrecision: Decimal)
     begin
         LibraryInventory.CreateItem(Item);
@@ -1992,6 +1962,27 @@ codeunit 137045 "SCM Bugfixes"
         LibraryManufacturing.CreateProductionBOMLine(
           ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem[2]."No.", CompItemQtyPer[2]);
         LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure CreateTrackedItemWithOrderTrackingPolicy(var Item: Record Item)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        CreateItemTrackingCodeWithLotSpecTracking(ItemTrackingCode);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
+        LibraryVariableStorage.Enqueue(TrackingMsg);  // Enqueue value for message handler.
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking & Action Msg.");
+        Item.Modify(true);
+    end;
+
+    local procedure AssertReservationEntryCountForSales(SalesHeader: Record "Sales Header"; ExpectedCount: Integer)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Source Type", Database::"Sales Line");
+        ReservationEntry.SetRange("Source ID", SalesHeader."No.");
+        Assert.RecordCount(ReservationEntry, ExpectedCount);
     end;
 
     [ModalPageHandler]

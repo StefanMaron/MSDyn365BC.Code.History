@@ -36,18 +36,24 @@ table 915 "ATO Sales Buffer"
         field(5; Quantity; Decimal)
         {
             Caption = 'Quantity';
+            AutoFormatType = 0;
         }
         field(6; "Sales Cost"; Decimal)
         {
             Caption = 'Sales Cost';
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(7; "Sales Amount"; Decimal)
         {
             Caption = 'Sales Amount';
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(8; "Profit %"; Decimal)
         {
             Caption = 'Profit %';
+            AutoFormatType = 0;
         }
         field(9; "Parent Description"; Text[100])
         {
@@ -203,4 +209,3 @@ table 915 "ATO Sales Buffer"
     begin
     end;
 }
-

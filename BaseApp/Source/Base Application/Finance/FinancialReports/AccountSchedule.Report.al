@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.CashFlow.Forecast;
@@ -162,9 +166,18 @@ report 25 "Account Schedule"
                         column(ColumnNo; "Column No.")
                         {
                         }
+#if not CLEAN27
+                        column(Header; Header50)
+                        {
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'The text length limit will be removed in a future release.';
+                            ObsoleteTag = '27.0';
+                        }
+#else
                         column(Header; Header)
                         {
                         }
+#endif
                         column(RoundingHeader; RoundingHeader)
                         {
                             AutoCalcField = false;
@@ -184,7 +197,6 @@ report 25 "Account Schedule"
                             if Show = Show::Never then
                                 CurrReport.Skip();
 
-                            Header := "Column Header";
                             RoundingHeader := '';
 
                             if "Rounding Factor" in ["Rounding Factor"::"1000", "Rounding Factor"::"1000000"] then
@@ -195,8 +207,10 @@ report 25 "Account Schedule"
                                         RoundingHeader := Text001;
                                 end;
 
-                            ColumnValuesAsText := CalcColumnValueAsText("Acc. Schedule Line", "Column Layout", ValueIsEmpty);
-
+                            ColumnValuesAsText := CalcColumnValueAsText("Acc. Schedule Line", "Column Layout", Header, ValueIsEmpty);
+#if not CLEAN27
+                            Header50 := CopyStr(Header, 1, MaxStrLen(Header50));
+#endif
                             ColumnValuesArrayIndex += 1;
                             if ColumnValuesArrayIndex <= ArrayLen(ColumnValuesArrayText) then
                                 ColumnValuesArrayText[ColumnValuesArrayIndex] := ColumnValuesAsText;
@@ -329,7 +343,7 @@ report 25 "Account Schedule"
 
     requestpage
     {
-        AboutTitle = 'Run Financial Report';
+        AboutTitle = 'About Run Financial Report';
         AboutText = 'Specify the Financial Report you want to run (to get a pdf or to print) and the date range for the data to be included. You can also Specifies additional display options and filters for dimensions and budgets (choose "Show more" in the Options pane to see all options).';
         SaveValues = true;
 
@@ -763,14 +777,14 @@ report 25 "Account Schedule"
     {
         layout(LandscapeLayout)
         {
-            Caption = 'Financial Report Landscape (RDLC)';
+            Caption = 'Financial Report Landscape';
             LayoutFile = './Finance/FinancialReports/AccountSchedule.rdlc';
             Summary = 'Use this layout for financial reports that fit a landscape paper orientation.';
             Type = RDLC;
         }
         layout(PortraitLayout)
         {
-            Caption = 'Financial Report Portrait (RDLC)';
+            Caption = 'Financial Report Portrait';
             LayoutFile = './Finance/FinancialReports/AccountSchedulePortrait.rdlc';
             Summary = 'Use this layout for financial reports that fit a portrait paper orientation.';
             Type = RDLC;
@@ -836,7 +850,10 @@ report 25 "Account Schedule"
         ColumnValuesAsText: Text[30];
         PeriodText: Text;
         AccSchedLineFilter: Text;
-        Header: Text[50];
+        Header: Text;
+#if not CLEAN27
+        Header50: Text[50];
+#endif
         RoundingHeader: Text[30];
         BusinessUnitFilterVisible: Boolean;
         BudgetFilterEnable: Boolean;
@@ -897,11 +914,12 @@ report 25 "Account Schedule"
         UseAmtsInAddCurr: Boolean;
         NegativeAmountFormat: Enum "Analysis Negative Format";
 
-    local procedure CalcColumnValueAsText(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var ValueIsEmpty: Boolean): Text[30]
+    local procedure CalcColumnValueAsText(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var ColumnHeader: Text; var ValueIsEmpty: Boolean): Text[30]
     var
         ColumnValuesAsText2: Text[30];
     begin
         ColumnValuesAsText2 := '';
+        ColumnHeader := AccSchedManagement.CalcColumnHeader(AccScheduleLine, ColumnLayout);
 
         ColumnValuesDisplayed := AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, UseAmtsInAddCurr);
         if AccSchedManagement.GetDivisionError() then begin

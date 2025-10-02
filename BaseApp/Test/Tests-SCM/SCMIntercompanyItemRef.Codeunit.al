@@ -15,7 +15,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -23,7 +22,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
-        ValidationErr: Label '%1 must be %2 in %3.';
         TableFieldErr: Label 'Wrong table field value: table "%1", field "%2".';
 
     [Test]
@@ -481,16 +479,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         exit(RefItemNo);
     end;
 
-    local procedure CreateICGLAccount(var ICGLAccount: Record "IC G/L Account")
-    var
-        GLAccount: Record "G/L Account";
-    begin
-        LibraryERM.CreateGLAccount(GLAccount);
-        LibraryERM.CreateICGLAccount(ICGLAccount);
-        ICGLAccount.Validate("Map-to G/L Acc. No.", GLAccount."No.");
-        ICGLAccount.Modify(true);
-    end;
-
     local procedure CreateICPartnerWithItemRefOutbndType(): Code[20]
     var
         ICPartner: Record "IC Partner";
@@ -498,17 +486,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICPartner.Get(CreateICPartner());
         ICPartner.Validate("Outbound Sales Item No. Type", ICPartner."Outbound Sales Item No. Type"::"Cross Reference");
         ICPartner.Validate("Outbound Purch. Item No. Type", ICPartner."Outbound Purch. Item No. Type"::"Cross Reference");
-        ICPartner.Modify();
-        exit(ICPartner.Code);
-    end;
-
-    local procedure CreateICPartnerWithCommonItemOutbndType(): Code[20]
-    var
-        ICPartner: Record "IC Partner";
-    begin
-        ICPartner.Get(CreateICPartner());
-        ICPartner.Validate("Outbound Sales Item No. Type", ICPartner."Outbound Sales Item No. Type"::"Common Item No.");
-        ICPartner.Validate("Outbound Purch. Item No. Type", ICPartner."Outbound Purch. Item No. Type"::"Common Item No.");
         ICPartner.Modify();
         exit(ICPartner.Code);
     end;
@@ -545,16 +522,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         exit(Customer."No.");
     end;
 
-    local procedure CreateICCustomerWithVATBusPostingGroup(VATBusPostingGroup: Code[20]): Code[20]
-    var
-        ICCustomer: Record Customer;
-    begin
-        ICCustomer.Get(CreateICCustomer(CreateICPartner()));
-        ICCustomer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-        ICCustomer.Modify(true);
-        exit(ICCustomer."No.");
-    end;
-
     local procedure CreateICVendor(ICPartnerCode: Code[20]): Code[20]
     var
         Vendor: Record Vendor;
@@ -563,44 +530,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         Vendor.Validate("IC Partner Code", ICPartnerCode);
         Vendor.Modify(true);
         exit(Vendor."No.");
-    end;
-
-    local procedure CreateICVendorWithVATBusPostingGroup(VATBusPostingGroup: Code[20]): Code[20]
-    var
-        ICVendor: Record Vendor;
-    begin
-        ICVendor.Get(CreateICVendor(CreateICPartner()));
-        ICVendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-        ICVendor.Modify(true);
-        exit(ICVendor."No.");
-    end;
-
-    local procedure CreatePartnerCustomerVendor(var ICPartnerCodeVendor: Code[20]; var VendorNo: Code[20]; var CustomerNo: Code[20])
-    begin
-        ICPartnerCodeVendor := CreateICPartner();
-        VendorNo := CreateICVendor(ICPartnerCodeVendor);
-        CustomerNo := CreateICCustomer(CreateICPartner());
-    end;
-
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20])
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo,
-          LibraryRandom.RandDecInRange(100, 200, 2));  // Using Random value for Quantity.
-    end;
-
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20])
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandIntInRange(50, 100));  // Using Random value for Quantity.
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-        SalesLine.Modify(true);
     end;
 
     local procedure CreateSalesDocumentWithDeliveryDates(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; var ICPartnerCode: Code[20]; var VendorNo: Code[20]; ItemRef: Boolean; PricesInclVAT: Boolean; OutboundType: Enum "IC Outb. Sales Item No. Type")
@@ -662,40 +591,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
           "Promised Receipt Date",
           CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(1, 4)), WorkDate()));
         PurchaseHeader.Modify(true);
-    end;
-
-    local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        ICGLAccount: Record "IC G/L Account";
-    begin
-        LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInDecimalRange(10, 25, 0));
-        CreateICGLAccountWithVATPostingSetup(GLAccount, ICGLAccount, VATPostingSetup);
-        UpdateGLAccountDefaultICPartnerGLAccNo(GLAccount, ICGLAccount."No.");
-    end;
-
-    local procedure CreateICGLAccountWithVATPostingSetup(var GLAccount: Record "G/L Account"; var ICGLAccount: Record "IC G/L Account"; VATPostingSetup: Record "VAT Posting Setup")
-    begin
-        GLAccount.Get(
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
-        LibraryERM.CreateICGLAccount(ICGLAccount);
-        ICGLAccount.Validate("Map-to G/L Acc. No.", GLAccount."No.");
-        ICGLAccount.Modify(true);
-    end;
-
-    local procedure UpdateGLAccountDefaultICPartnerGLAccNo(var GLAccount: Record "G/L Account"; ICGLAccountNo: Code[20])
-    begin
-        GLAccount.Validate("Default IC Partner G/L Acc. No", ICGLAccountNo);
-        GLAccount.Modify(true);
-    end;
-
-    local procedure GetICPartnerFromCustomer(CustomerNo: Code[20]): Code[20]
-    var
-        Customer: Record Customer;
-    begin
-        Customer.Get(CustomerNo);
-        exit(Customer."IC Partner Code");
     end;
 
     local procedure SendSalesDocumentReceivePurchaseDocument(var SalesHeader: Record "Sales Header"; var PurchaseHeader: Record "Purchase Header"; ICPartnerCode: Code[10]; VendorNo: Code[20])
@@ -787,24 +682,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICInboxOutboxMgt.OutboxPurchHdrToInbox(ICInboxTransaction, ICOutboxPurchaseHeader, ICInboxSalesHeader);
     end;
 
-    local procedure SendICTransaction(DocumentNoFilter: Text) FileName: Text
-    var
-        ICOutboxTransaction: Record "IC Outbox Transaction";
-        ICPartner: Record "IC Partner";
-        FileMgt: Codeunit "File Management";
-    begin
-        ICOutboxTransaction.SetFilter("Document No.", DocumentNoFilter);
-        ICOutboxTransaction.FindFirst();
-        ICPartner.Get(ICOutboxTransaction."IC Partner Code");
-        ICOutboxTransaction.ModifyAll("Line Action", ICOutboxTransaction."Line Action"::"Send to IC Partner");
-
-        FileName := StrSubstNo('%1\%2_1_1.xml', ICPartner."Inbox Details", ICPartner.Code);
-        if FileMgt.ServerFileExists(FileName) then
-            FileMgt.DeleteServerFile(FileName);
-
-        CODEUNIT.Run(CODEUNIT::"IC Outbox Export", ICOutboxTransaction);
-    end;
-
     local procedure ReceiveICSalesDocument(var SalesHeader: Record "Sales Header"; var PurchaseHeader: Record "Purchase Header"; var ICOutboxTransaction: Record "IC Outbox Transaction"; var ICInboxTransaction: Record "IC Inbox Transaction"; var ICInboxSalesHeader: Record "IC Inbox Sales Header"; CustomerNo: Code[20])
     var
         ICOutboxPurchaseLine: Record "IC Outbox Purchase Line";
@@ -817,15 +694,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
           PurchaseHeader."No.", ConvertPurchDocTypeToICOutboxPurchLine(PurchaseHeader."Document Type"));
         ICInboxOutboxMgt.OutboxPurchLineToInbox(ICInboxTransaction, ICOutboxPurchaseLine, ICInboxSalesLine);
         ICInboxOutboxMgt.CreateSalesLines(SalesHeader, ICInboxSalesLine);
-    end;
-
-    local procedure FindICOutboxJournalLine(var ICOutboxJnlLine: Record "IC Outbox Jnl. Line"; ICPartnerCode: Code[20]; AccountType: Option; AccountNo: Code[20]; DocumentNo: Code[20])
-    begin
-        ICOutboxJnlLine.SetRange("Account Type", AccountType);
-        ICOutboxJnlLine.SetRange("IC Partner Code", ICPartnerCode);
-        ICOutboxJnlLine.SetRange("Account No.", AccountNo);
-        ICOutboxJnlLine.SetRange("Document No.", DocumentNo);
-        ICOutboxJnlLine.FindFirst();
     end;
 
     local procedure FindICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; DocumentNo: Code[20]; DocumentType: Enum "IC Transaction Document Type"; SourceType: enum "IC Transaction Source Type")
@@ -868,15 +736,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICOutboxSalesLine.FindFirst();
     end;
 
-    local procedure FindSalesShipmentByCustNo(CustNo: Code[20]): Code[20]
-    var
-        SalesShipmentHeader: Record "Sales Shipment Header";
-    begin
-        SalesShipmentHeader.SetRange("Sell-to Customer No.", CustNo);
-        SalesShipmentHeader.FindFirst();
-        exit(SalesShipmentHeader."No.");
-    end;
-
     local procedure FindICOutboxPurchaseHeader(var ICOutboxPurchaseHeader: Record "IC Outbox Purchase Header"; TransactionNo: Integer; DocumentNo: Code[20]; DocumentType: Enum "IC Purchase Document Type")
     begin
         ICOutboxPurchaseHeader.SetRange("IC Transaction No.", TransactionNo);
@@ -891,25 +750,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICOutboxPurchaseLine.SetRange("Document No.", DocumentNo);
         ICOutboxPurchaseLine.SetRange("Document Type", DocumentType);
         ICOutboxPurchaseLine.FindFirst();
-    end;
-
-    local procedure FindPurchReceiptByVendorNo(VendorNo: Code[20]): Code[20]
-    var
-        PurchRcptHeader: Record "Purch. Rcpt. Header";
-    begin
-        PurchRcptHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchRcptHeader.FindFirst();
-        exit(PurchRcptHeader."No.");
-    end;
-
-    local procedure FindAndUpdateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
-    begin
-        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst();
-        SalesLine.Validate("Qty. to Invoice", SalesLine.Quantity / 2);  // Update partial Quantity.
-        SalesLine.Modify(true);
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
@@ -927,120 +767,12 @@ codeunit 137630 "SCM Intercompany Item Ref."
         PurchaseLine.FindFirst();
     end;
 
-    local procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AccountNo: Code[20])
-    begin
-        GLEntry.SetRange("Document Type", DocumentType);
-        GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.SetRange("G/L Account No.", AccountNo);
-    end;
-
     local procedure GetBaseUoMFromItem(ItemNo: Code[20]): Code[10]
     var
         Item: Record Item;
     begin
         Item.Get(ItemNo);
         exit(Item."Base Unit of Measure");
-    end;
-
-    local procedure RenameICPartner(ICPartnerCode: Code[20]): Code[20]
-    var
-        ICPartner: Record "IC Partner";
-    begin
-        ICPartner.Get(ICPartnerCode);
-        ICPartner.Rename(ICPartnerCode + Format(LibraryRandom.RandInt(10)));  // Renaming IC Partner, value is not important.
-        exit(ICPartner.Code);
-    end;
-
-    local procedure SetupLocationMandatory(LocationMandatory: Boolean) OldLocationMandatory: Boolean
-    var
-        InventorySetup: Record "Inventory Setup";
-    begin
-        InventorySetup.Get();
-        OldLocationMandatory := InventorySetup."Location Mandatory";
-        InventorySetup.Validate("Location Mandatory", LocationMandatory);
-        InventorySetup.Modify(true);
-    end;
-
-    local procedure UpdatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; PayToVendorNo: Code[20])
-    begin
-        PurchaseHeader.Validate("Pay-to Vendor No.", PayToVendorNo);
-        PurchaseHeader.Modify(true);
-    end;
-
-    local procedure UpdatePurchaseDocumentLocation(var PurchaseHeader: Record "Purchase Header"; LocationCode: Code[10])
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        PurchaseHeader.Validate("Location Code", LocationCode);
-        PurchaseHeader.Modify(true);
-
-        FindPurchLine(PurchaseLine, PurchaseHeader);
-        PurchaseLine.Validate("Location Code", LocationCode);
-        PurchaseLine.Modify(true);
-    end;
-
-    local procedure UpdateSalesDocument(var SalesHeader: Record "Sales Header"; BillToCustomerNo: Code[20])
-    begin
-        SalesHeader.Validate("Bill-to Customer No.", BillToCustomerNo);
-        SalesHeader.Validate("Send IC Document", true);
-        SalesHeader.Modify(true);
-    end;
-
-    local procedure UpdateSalesDocumentLocation(var SalesHeader: Record "Sales Header"; LocationCode: Code[10])
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        SalesHeader.Validate("Location Code", LocationCode);
-        SalesHeader.Modify(true);
-
-        FindSalesLine(SalesLine, SalesHeader);
-        SalesLine.Validate("Location Code", LocationCode);
-        SalesLine.Modify(true);
-    end;
-
-    local procedure UpdateSalesDocumentExternalDocumentNo(var SalesHeader: Record "Sales Header"; ReferencedDocumentNo: Code[35])
-    begin
-        SalesHeader.Validate("External Document No.", ReferencedDocumentNo);
-        SalesHeader.Modify(true);
-    end;
-
-    local procedure UpdatePurchaseInvoice(var PurchaseHeaderToInvoice: Record "Purchase Header"; var PurchaseHeaderToSend: Record "Purchase Header")
-    var
-        PurchaseLineToSend: Record "Purchase Line";
-        PurchaseLineToInvoice: Record "Purchase Line";
-    begin
-        FindPurchLine(PurchaseLineToSend, PurchaseHeaderToSend);
-        FindPurchLine(PurchaseLineToInvoice, PurchaseHeaderToInvoice);
-        PurchaseLineToInvoice.Validate("Quantity Received", PurchaseLineToSend."Quantity Received");
-        PurchaseLineToInvoice.Modify(true);
-
-        PurchaseHeaderToInvoice.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
-        PurchaseHeaderToInvoice.Modify(true);
-    end;
-
-    local procedure UpdatePurchaseLineICPartnerInfo(var PurchaseLine: Record "Purchase Line"; ICPartnerCode: Code[20]; ICPartnerRefType: Enum "IC Partner Reference Type"; ICGLAccountNo: Code[20])
-    begin
-        PurchaseLine.Validate("IC Partner Code", ICPartnerCode);
-        PurchaseLine.Validate("IC Partner Ref. Type", ICPartnerRefType);
-        PurchaseLine.Validate("IC Partner Reference", ICGLAccountNo);
-        PurchaseLine.Modify(true);
-    end;
-
-    local procedure UpdateSalesLineICPartnerInfo(var SalesLine: Record "Sales Line"; ICPartnerCode: Code[20]; ICPartnerRefType: Enum "IC Partner Reference Type"; ICGLAccountNo: Code[20])
-    begin
-        SalesLine.Validate("IC Partner Code", ICPartnerCode);
-        SalesLine.Validate("IC Partner Ref. Type", ICPartnerRefType);
-        SalesLine.Validate("IC Partner Reference", ICGLAccountNo);
-        SalesLine.Modify(true);
-    end;
-
-    local procedure UpdateCommonItemNo(ItemNo: Code[20]; NewCommonItemNo: Code[20])
-    var
-        Item: Record Item;
-    begin
-        Item.Get(ItemNo);
-        Item.Validate("Common Item No.", NewCommonItemNo);
-        Item.Modify();
     end;
 
     local procedure UpdateICPartnerWithOutboundType(ICPartnerCode: Code[20]; OutboundType: Enum "IC Outb. Sales Item No. Type")
@@ -1110,19 +842,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
         end;
     end;
 
-    local procedure ConvertSalesDocTypeToICInboxPurchHeader(SourceDocumentType: Enum "Sales Document Type"): Enum "IC Sales Document Type"
-    var
-        SalesHeader: Record "Sales Header";
-        ICInboxPurchaseHeader: Record "IC Inbox Purchase Header";
-    begin
-        case SourceDocumentType of
-            SalesHeader."Document Type"::Order:
-                exit(ICInboxPurchaseHeader."Document Type"::Invoice);
-            SalesHeader."Document Type"::"Return Order":
-                exit(ICInboxPurchaseHeader."Document Type"::"Credit Memo");
-        end;
-    end;
-
     local procedure ConvertPurchDocTypeToICOutboxPurchHeader(SourceDocumentType: Enum "Purchase Document Type"): Enum "IC Purchase Document Type"
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1155,20 +874,6 @@ codeunit 137630 "SCM Intercompany Item Ref."
             PurchaseHeader."Document Type"::"Return Order":
                 exit(ICOutboxPurchaseLine."Document Type"::"Return Order");
         end;
-    end;
-
-    local procedure VerifyICOutboxJournalLine(ICPartnerCode: Code[20]; AccountType: Option; AccountNo: Code[20]; DocumentNo: Code[20]; Amount: Decimal)
-    var
-        ICOutboxJnlLine: Record "IC Outbox Jnl. Line";
-    begin
-        FindICOutboxJournalLine(ICOutboxJnlLine, ICPartnerCode, AccountType, AccountNo, DocumentNo);
-        Assert.AreEqual(
-          AccountNo, ICOutboxJnlLine."Account No.",
-          StrSubstNo(
-            ValidationErr, ICOutboxJnlLine.FieldCaption("Account No."), ICOutboxJnlLine."Account No.", ICOutboxJnlLine.TableCaption()));
-        Assert.AreNearlyEqual(
-          Amount, ICOutboxJnlLine.Amount, LibraryERM.GetAmountRoundingPrecision(),
-          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption(Amount), ICOutboxJnlLine.Amount, ICOutboxJnlLine.TableCaption()));
     end;
 
     local procedure VerifySalesDocItemReferenceInfo(SalesHeader: Record "Sales Header"; PurchaseHeader: Record "Purchase Header")
@@ -1267,4 +972,3 @@ codeunit 137630 "SCM Intercompany Item Ref."
           StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("No.")));
     end;
 }
-

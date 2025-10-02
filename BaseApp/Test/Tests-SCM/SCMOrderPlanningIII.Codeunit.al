@@ -336,7 +336,7 @@ codeunit 137088 "SCM Order Planning - III"
         FindRequisitionLine(RequisitionLine, ProductionOrder."No.", ChildItem."No.", LocationRed.Code);
         CreateWorkCenter(WorkCenter);
         OperationNo := FindLastOperationNo(ChildItem."Routing No.") + Format(LibraryRandom.RandInt(5));
-        LibraryPlanning.CreatePlanningRoutingLine(PlanningRoutingLine, RequisitionLine, OperationNo);
+        LibraryManufacturing.CreatePlanningRoutingLine(PlanningRoutingLine, RequisitionLine, OperationNo);
         UpdatePlanningRoutingLine(
           PlanningRoutingLine, WorkCenter."No.", FindLastOperationNo(ChildItem."Routing No."), LibraryRandom.RandDec(10, 2),
           LibraryRandom.RandDec(10, 2));  // Random Value Required.
@@ -1601,7 +1601,7 @@ codeunit 137088 "SCM Order Planning - III"
         RequisitionLine."Planning Line Origin" := RequisitionLine."Planning Line Origin"::"Order Planning";
         RequisitionLine.Insert();
 
-        LibraryPlanning.CreatePlanningRoutingLine(PlanningRoutingLine, RequisitionLine, LibraryUtility.GenerateGUID());
+        LibraryManufacturing.CreatePlanningRoutingLine(PlanningRoutingLine, RequisitionLine, LibraryUtility.GenerateGUID());
 
         PlanningRoutingLine.TestField("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
     end;
@@ -2618,6 +2618,39 @@ codeunit 137088 "SCM Order Planning - III"
         RequisitionLine.TestField("Unit of Measure Code", Item."Base Unit of Measure");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderFromSalesIfPurchaseUOMIsBlankinItemShouldUseBaseUOM()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 597028] If Purchase UOM is blank, "Purch. Order From Sales Order" will create POs With item Base Unit of Measure code.
+        Initialize();
+
+        // [GIVEN] Create Item With Purchase Unit Of Measure blank
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Purch. Unit of Measure", '');
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+
+        // [GIVEN] A Sales Order 
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
+
+        // [WHEN] A purchase order is created from the sales order
+        CreatePurchaseOrderFromSalesOrder(SalesHeader."No.", true);
+
+        // [THEN] Find purchase order contains the same lines as the sales order
+        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item."No.");
+
+        // [VERIFY] Verify: Purchase Line uses Unit Of Measure Code of Item Base Unit of Measure
+        PurchaseLine.TestField("Unit of Measure Code", Item."Base Unit of Measure");
+    end;
+
     local procedure FindLastJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch")
     begin
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
@@ -3042,7 +3075,7 @@ codeunit 137088 "SCM Order Planning - III"
         CreateSalesOrder(SalesHeader, ProductItem."No.", '', 1, 1);
 
         // [WHEN] Created Released Prod. Order From Sales Order Using Planning
-        LibraryPlanning.CreateProdOrderUsingPlanning(ProductionOrder, Status::"Firm Planned", SalesHeader."No.", ProductItem."No.");
+        LibraryManufacturing.CreateProdOrderUsingPlanning(ProductionOrder, Status::"Firm Planned", SalesHeader."No.", ProductItem."No.");
         RelesedProdOrderNo := LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No.");
 
         // [WHEN] Find Released Production Order Component

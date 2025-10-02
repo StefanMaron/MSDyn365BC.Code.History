@@ -10,7 +10,7 @@ report 4412 "EXR Fixed Asset Analysis Excel"
 {
     ApplicationArea = All;
     AdditionalSearchTerms = 'FA Analysis Excel,FA Analysis';
-    Caption = 'Fixed Asset Analysis Excel';
+    Caption = 'Fixed Asset Analysis (Excel)';
     DataAccessIntent = ReadOnly;
     DefaultRenderingLayout = FixedAssetAnalysisExcel;
     ExcelLayoutMultipleDataSheets = true;
@@ -82,8 +82,8 @@ report 4412 "EXR Fixed Asset Analysis Excel"
     requestpage
     {
         SaveValues = true;
-        AboutTitle = 'Fixed Asset Analysis Excel';
-        AboutText = 'This report shows different fixed asset details in the given time periods, such as book value, depreciation, and acquisitions. You can specify the starting and ending dates for the report, and whether you want to include only sold assets or include inactive fixed assets.';
+        AboutTitle = 'About Fixed Asset Analysis (Excel)';
+        AboutText = 'Get an overview of your fixed assets for a given period of time, including: book values, depreciation, and acquisitions. You can specify the starting and ending dates for the report, whether to include only sold assets, or whether to include inactive fixed assets.';
         layout
         {
             area(Content)
@@ -248,11 +248,11 @@ report 4412 "EXR Fixed Asset Analysis Excel"
         exit(FAGeneralReport.CalcFAPostedAmount(FixedAssetData."No.", FAPostingType."FA Posting Type No.", Period, StartingDate, EndingDate, DepreciationBookCode, BeforeAmount, EndingAmount, false, false));
     end;
 
-    local procedure SoldBeforeEndingDate(DisposalDate: Date): Boolean
+    local procedure SoldBeforeEndingDate(DisposalDate2: Date): Boolean
     begin
-        if DisposalDate = 0D then
+        if DisposalDate2 = 0D then
             exit(false);
-        exit(DisposalDate <= EndingDate);
+        exit(DisposalDate2 <= EndingDate);
     end;
 
     local procedure SetAmountToZero(PostingTypeNo: Integer): Boolean

@@ -28,7 +28,7 @@ table 8611 "Config. Question Area"
                 TestValue: Integer;
             begin
                 if Evaluate(TestValue, CopyStr(Code, 1, 1)) then
-                    Error(Text002);
+                    Error(FirstCharCannotBeNumericErr);
             end;
         }
         field(3; Description; Text[100])
@@ -57,11 +57,11 @@ table 8611 "Config. Question Area"
                     ConfigQuestion.SetRange("Questionnaire Code", "Questionnaire Code");
                     ConfigQuestion.SetRange("Question Area Code", Code);
                     if not ConfigQuestion.IsEmpty() then
-                        Error(Text000, Code);
+                        Error(DeleteQuestionsToChangeTableErr, Code);
                     ConfigQuestionArea.SetRange("Questionnaire Code", "Questionnaire Code");
                     ConfigQuestionArea.SetRange("Table ID", "Table ID");
                     if not ConfigQuestionArea.IsEmpty() then
-                        Error(Text001, "Table ID");
+                        Error(QuestionAreaAlreadyExistsErr, "Table ID");
                 end;
                 CalcFields("Table Name", "Table Caption");
             end;
@@ -119,17 +119,15 @@ table 8611 "Config. Question Area"
 
     trigger OnRename()
     begin
-        Error(Text003);
+        Error(CannotRenameQuestionAreaErr);
     end;
 
     var
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label 'Delete questions for question area %1 to change the table relationship.';
-        Text001: Label 'A question area already exists for table %1.';
+        DeleteQuestionsToChangeTableErr: Label 'Delete questions for question area %1 to change the table relationship.';
+        QuestionAreaAlreadyExistsErr: Label 'A question area already exists for table %1.';
 #pragma warning restore AA0470
-        Text002: Label 'The first character cannot be a numeric value.';
-        Text003: Label 'You cannot rename a question area.';
-#pragma warning restore AA0074
+        FirstCharCannotBeNumericErr: Label 'The first character cannot be a numeric value.';
+        CannotRenameQuestionAreaErr: Label 'You cannot rename a question area.';
 }
 

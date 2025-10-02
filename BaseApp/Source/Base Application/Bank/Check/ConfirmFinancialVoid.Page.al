@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Check;
 
+/// <summary>
+/// Provides confirmation dialog for financial voiding of posted checks with void date and type selection.
+/// Allows users to specify void date and choose between unapply+void or void-only operations.
+/// </summary>
+/// <remarks>
+/// Confirmation dialog for CheckManagement.FinancialVoidCheck operations.
+/// Validates void date against original check date and provides void type options.
+/// </remarks>
 page 695 "Confirm Financial Void"
 {
     Caption = 'Confirm Financial Void';
@@ -16,7 +24,7 @@ page 695 "Confirm Financial Void"
             label(Control19)
             {
                 ApplicationArea = Basic, Suite;
-                CaptionClass = Format(Text002);
+                CaptionClass = Format(VoidCheckQst);
                 Editable = false;
                 ShowCaption = false;
             }
@@ -29,7 +37,7 @@ page 695 "Confirm Financial Void"
                 trigger OnValidate()
                 begin
                     if VoidDate < CheckLedgerEntry."Check Date" then
-                        Error(Text000, CheckLedgerEntry.FieldCaption("Check Date"));
+                        Error(VoidDateBeforeOriginalErr, CheckLedgerEntry.FieldCaption("Check Date"));
                 end;
             }
             field(VoidType; VoidType)
@@ -65,7 +73,7 @@ page 695 "Confirm Financial Void"
 #pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
-                    CaptionClass = Format(StrSubstNo(Text001, CheckLedgerEntry."Bal. Account Type"));
+                    CaptionClass = Format(StrSubstNo(NoLbl, CheckLedgerEntry."Bal. Account Type"));
                     Editable = false;
                 }
                 field("CheckLedgerEntry.Amount"; CheckLedgerEntry.Amount)
@@ -103,35 +111,59 @@ page 695 "Confirm Financial Void"
         CheckLedgerEntry: Record "Check Ledger Entry";
         VoidDate: Date;
         VoidType: Option "Unapply and void check","Void check only";
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label 'Void Date must not be before the original %1.';
-        Text001: Label '%1 No.';
+        VoidDateBeforeOriginalErr: Label 'Void Date must not be before the original %1.';
+        NoLbl: Label '%1 No.';
 #pragma warning restore AA0470
-        Text002: Label 'Do you want to void this check?';
-#pragma warning restore AA0074
+        VoidCheckQst: Label 'Do you want to void this check?';
 
+    /// <summary>
+    /// Initializes the page with check ledger entry data for void confirmation.
+    /// </summary>
+    /// <param name="NewCheckLedgerEntry">Check ledger entry to be voided</param>
     procedure SetCheckLedgerEntry(var NewCheckLedgerEntry: Record "Check Ledger Entry")
     begin
         CheckLedgerEntry := NewCheckLedgerEntry;
     end;
 
+    /// <summary>
+    /// Returns the void date selected by the user for void processing.
+    /// </summary>
+    /// <returns>Date to use for void operations</returns>
     procedure GetVoidDate(): Date
     begin
         exit(VoidDate);
     end;
 
+    /// <summary>
+    /// Returns the void type option selected by the user.
+    /// </summary>
+    /// <returns>Void type: 0=Unapply and void, 1=Void only</returns>
     procedure GetVoidType(): Integer
     begin
         exit(VoidType);
     end;
 
+    /// <summary>
+    /// Sets initial values for void date and type when opening the dialog.
+    /// </summary>
+    /// <param name="VoidCheckdate">Default void date to display</param>
+    /// <param name="VoiceCheckType">Default void type option</param>
     procedure InitializeRequest(VoidCheckdate: Date; VoiceCheckType: Option)
     begin
         VoidDate := VoidCheckdate;
         VoidType := VoiceCheckType;
     end;
 
+    /// <summary>
+    /// Integration event raised before opening the Confirm Financial Void page.
+    /// Enables custom initialization or preprocessing before void confirmation dialog display.
+    /// </summary>
+    /// <param name="CheckLedgerEntry">Check ledger entry being considered for financial void</param>
+    /// <param name="VoidDate">Date when the void operation will be performed</param>
+    /// <remarks>
+    /// Raised during page OnOpenPage trigger before standard void confirmation setup.
+    /// </remarks>
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnOpenPage(var CheckLedgerEntry: Record "Check Ledger Entry"; var VoidDate: Date)
     begin

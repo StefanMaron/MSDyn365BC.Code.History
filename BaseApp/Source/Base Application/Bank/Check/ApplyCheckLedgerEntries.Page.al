@@ -6,6 +6,14 @@ namespace Microsoft.Bank.Check;
 
 using Microsoft.Bank.Reconciliation;
 
+/// <summary>
+/// Provides interface for applying check ledger entries to bank account reconciliation lines.
+/// Enables users to match checks with bank statement entries for accurate reconciliation.
+/// </summary>
+/// <remarks>
+/// Source Table: Check Ledger Entry (272). Integrates with Bank Account Reconciliation.
+/// Supports manual check matching and automated statement reconciliation processes.
+/// </remarks>
 page 382 "Apply Check Ledger Entries"
 {
     Caption = 'Apply Check Ledger Entries';
@@ -173,12 +181,21 @@ page 382 "Apply Check Ledger Entries"
         ChangeAmount: Boolean;
         LineApplied: Boolean;
 
+    /// <summary>
+    /// Initializes the page with bank account reconciliation line information.
+    /// Sets up context for check entry application and amount change handling.
+    /// </summary>
+    /// <param name="NewBankAccReconLine">Bank reconciliation line to apply check entries against</param>
     procedure SetStmtLine(NewBankAccReconLine: Record "Bank Acc. Reconciliation Line")
     begin
         BankAccReconLine := NewBankAccReconLine;
         ChangeAmount := BankAccReconLine."Statement Amount" = 0;
     end;
 
+    /// <summary>
+    /// Toggles the application status of a check ledger entry to a bank reconciliation line.
+    /// Updates statement numbers and reconciliation status based on current application state.
+    /// </summary>
     local procedure LineAppliedOnPush()
     begin
         CheckLedgEntry.Copy(Rec);

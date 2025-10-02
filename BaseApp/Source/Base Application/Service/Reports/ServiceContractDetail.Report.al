@@ -319,7 +319,8 @@ report 5971 "Service Contract-Detail"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Contract-Detail';
+        AboutText = 'Get an overview of your service contracts.';
         layout
         {
             area(content)

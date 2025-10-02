@@ -12,20 +12,15 @@ codeunit 137201 "SCM Sales Price Wksht"
     var
         InventorySetup: Record "Inventory Setup";
         GeneralLedgerSetup: Record "General Ledger Setup";
-        ManufacturingSetup: Record "Manufacturing Setup";
         LibraryInventory: Codeunit "Library - Inventory";
-#if not CLEAN25
-        LibraryERM: Codeunit "Library - ERM";
-#endif
-        LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
-#if not CLEAN25
-        LibraryCosting: Codeunit "Library - Costing";
-#endif
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
 #if not CLEAN25
+        LibraryERM: Codeunit "Library - ERM";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryCosting: Codeunit "Library - Costing";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         Assert: Codeunit Assert;
 #endif
@@ -255,7 +250,6 @@ codeunit 137201 "SCM Sales Price Wksht"
     begin
         // Setup: Create Item, Vendor and Item Vendor with Lead Time Calculation value.
         Initialize();
-        ManufacturingSetup.Get();
         InventorySetup.Get();
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreateVendor(Vendor);
@@ -265,7 +259,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         // Exercise: Create Purchase Order with quantity not required on Purchase Line.
         CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", 0);
         DateWithLeadTimeCalc := CalcDate(ItemVendor."Lead Time Calculation", PurchaseLine."Order Date");
-        DateWithSafetyLeadTime := CalcDate(ManufacturingSetup."Default Safety Lead Time", DateWithLeadTimeCalc);
+        DateWithSafetyLeadTime := CalcDate(InventorySetup."Default Safety Lead Time", DateWithLeadTimeCalc);
         ExpectedReceiptDate := CalcDate(InventorySetup."Inbound Whse. Handling Time", DateWithSafetyLeadTime);
 
         // Verify: Verify Expected Receipt Date on Purchase Line.
@@ -406,6 +400,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Sales Price Wksht");
     end;
 
+#if not CLEAN25
     local procedure UpdateSalesReceivablesSetup(StockoutWarning: Boolean)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -430,7 +425,6 @@ codeunit 137201 "SCM Sales Price Wksht"
         LibrarySales.CreateCustomer(Customer);
     end;
 
-#if not CLEAN25
     local procedure CreateSalesPrice(Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; UnitPrice: Decimal; Quantity: Decimal)
     var
         SalesPrice: Record "Sales Price";
@@ -480,7 +474,6 @@ codeunit 137201 "SCM Sales Price Wksht"
         PurchaseLineDiscount.Modify(true);
         CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
     end;
-#endif
 
     local procedure UpdateItem(var Item: Record Item; FieldNo: Integer; Value: Variant)
     var
@@ -502,7 +495,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, MinimumQty);
     end;
-
+#endif
     local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; ItemNo: Code[20]; MinimumQty: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
@@ -559,6 +552,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         ItemVendor.Modify(true);
     end;
 
+#if not CLEAN25
     local procedure UpdateCustomer(var Customer: Record Customer; CustomerPriceGroupCode: Code[10])
     begin
         Customer.Validate("Customer Price Group", CustomerPriceGroupCode);
@@ -583,7 +577,6 @@ codeunit 137201 "SCM Sales Price Wksht"
         SalesLine.TestField("Line Amount", ExpectedLineAmount);
     end;
 
-#if not CLEAN25
     local procedure VerifySalesPriceLineOnPage(CustomerPriceGroup: Record "Customer Price Group")
     var
         CustomerPriceGroups: TestPage "Customer Price Groups";
@@ -606,4 +599,3 @@ codeunit 137201 "SCM Sales Price Wksht"
     end;
 #endif
 }
-

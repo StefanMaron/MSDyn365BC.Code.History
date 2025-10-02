@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -23,6 +23,7 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Warehouse.Ledger;
 using System.DataAdministration;
 using System.Environment;
+using System.Telemetry;
 
 codeunit 9040 "Date Compression"
 {
@@ -616,6 +617,7 @@ codeunit 9040 "Date Compression"
 
     local procedure LogEndTelemetryMessage(var DateComprSettingsBuffer: Record "Date Compr. Settings Buffer")
     var
+        AuditLog: Codeunit "Audit Log";
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
         // TelemetryDimensions.Add('CompanyName', CompanyName());
@@ -630,7 +632,7 @@ codeunit 9040 "Date Compression"
 
         Session.LogMessage('0000F53', StrSubstNo(EndDateCompressionTelemetryMsg, Codeunit::"Date Compression"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
         if DateComprSettingsBuffer."No. of Records Removed" > 0 then
-            Session.LogAuditMessage(StrSubstNo(DateCompressionCompletedLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0, TelemetryDimensions);
+            AuditLog.LogAuditMessage(StrSubstNo(DateCompressionCompletedLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0, TelemetryDimensions);
     end;
 
     [IntegrationEvent(false, false)]

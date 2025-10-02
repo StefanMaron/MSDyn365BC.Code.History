@@ -674,8 +674,12 @@ table 60 "Document Sending Profile"
     procedure SendToVAN(RecordVariant: Variant)
     var
         ReportDistributionManagement: Codeunit "Report Distribution Management";
+        SendWithReportDistributionManagement: Boolean;
     begin
-        if "Electronic Document" = "Electronic Document"::No then
+        SendWithReportDistributionManagement := true;
+        OnSendWithReportDistributionManagement(Rec, SendWithReportDistributionManagement);
+        
+        if (not SendWithReportDistributionManagement) or ("Electronic Document" = "Electronic Document"::No) then
             exit;
 
         ReportDistributionManagement.VANDocumentReport(RecordVariant, Rec);
@@ -716,12 +720,12 @@ table 60 "Document Sending Profile"
         DocumentMailing: Codeunit "Document-Mailing";
         DataCompression: Codeunit "Data Compression";
         TempBlob: Codeunit "Temp Blob";
+        EmailBodyTempBlob: Codeunit "Temp Blob";
         TypeHelper: Codeunit "Type Helper";
         SourceReference: RecordRef;
         ShowDialog: Boolean;
         ClientFilePath: Text[250];
         ClientZipFileName: Text[250];
-        ServerEmailBodyFilePath: Text[250];
         SendToEmailAddress: Text[250];
         AttachmentStream: Instream;
         SourceTableIDs, SourceRelationTypes : List of [Integer];
@@ -737,9 +741,9 @@ table 60 "Document Sending Profile"
                 ReportSelections.SendEmailToCust(ReportUsage.AsInteger(), RecordVariant, DocNo, DocName, ShowDialog, ToCust);
             "E-Mail Attachment"::"Electronic Document":
                 begin
-                    ReportSelections.GetEmailBodyForCust(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
+                    ReportSelections.GetEmailBodyForCust(EmailBodyTempBlob, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
                     ReportDistributionManagement.SendXmlEmailAttachment(
-                      RecordVariant, "E-Mail Format", ServerEmailBodyFilePath, SendToEmailAddress, ReportUsage);
+                      RecordVariant, "E-Mail Format", EmailBodyTempBlob, SendToEmailAddress, ReportUsage);
                 end;
             "E-Mail Attachment"::"PDF & Electronic Document":
                 begin
@@ -761,9 +765,10 @@ table 60 "Document Sending Profile"
                         SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
                     end;
 
-                    ReportSelections.GetEmailBodyForCust(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
+                    ReportSelections.GetEmailBodyForCust(EmailBodyTempBlob, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
+
                     DocumentMailing.EmailFile(
-                      AttachmentStream, ClientZipFileName, ServerEmailBodyFilePath, DocNo, SendToEmailAddress, DocName,
+                      AttachmentStream, ClientZipFileName, EmailBodyTempBlob, DocNo, SendToEmailAddress, DocName,
                       not ShowDialog, ReportUsage.AsInteger(), SourceTableIDs, SourceIDs, SourceRelationTypes);
                 end;
         end;
@@ -780,11 +785,11 @@ table 60 "Document Sending Profile"
         DocumentMailing: Codeunit "Document-Mailing";
         DataCompression: Codeunit "Data Compression";
         TempBlob: Codeunit "Temp Blob";
+        EmailBodyTempBlob: Codeunit "Temp Blob";
         SourceReference: RecordRef;
         ShowDialog: Boolean;
         ClientFilePath: Text[250];
         ClientZipFileName: Text[250];
-        ServerEmailBodyFilePath: Text[250];
         SendToEmailAddress: Text[250];
         AttachmentStream: Instream;
         SourceTableIDs, SourceRelationTypes : List of [Integer];
@@ -800,9 +805,9 @@ table 60 "Document Sending Profile"
                 ReportSelections.SendEmailToVendor(ReportUsage.AsInteger(), RecordVariant, DocNo, DocName, ShowDialog, ToVendor);
             "E-Mail Attachment"::"Electronic Document":
                 begin
-                    ReportSelections.GetEmailBodyForVend(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToVendor, SendToEmailAddress);
+                    ReportSelections.GetEmailBodyForVend(EmailBodyTempBlob, ReportUsage, RecordVariant, ToVendor, SendToEmailAddress);
                     ReportDistributionManagement.SendXmlEmailAttachmentVendor(
-                      RecordVariant, "E-Mail Format", ServerEmailBodyFilePath, SendToEmailAddress);
+                      RecordVariant, "E-Mail Format", EmailBodyTempBlob, SendToEmailAddress);
                 end;
             "E-Mail Attachment"::"PDF & Electronic Document":
                 begin
@@ -824,9 +829,10 @@ table 60 "Document Sending Profile"
                         SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
                     end;
 
-                    ReportSelections.GetEmailBodyForVend(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToVendor, SendToEmailAddress);
+                    ReportSelections.GetEmailBodyForVend(EmailBodyTempBlob, ReportUsage, RecordVariant, ToVendor, SendToEmailAddress);
+
                     DocumentMailing.EmailFile(
-                      AttachmentStream, ClientZipFileName, ServerEmailBodyFilePath, DocNo, SendToEmailAddress, DocName,
+                      AttachmentStream, ClientZipFileName, EmailBodyTempBlob, DocNo, SendToEmailAddress, DocName,
                       not ShowDialog, ReportUsage.AsInteger(), SourceTableIDs, SourceIDs, SourceRelationTypes);
                 end;
         end;
@@ -1102,6 +1108,11 @@ table 60 "Document Sending Profile"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendToPrinter(var DocumentSendingProfile: Record "Document Sending Profile"; var ReportSelections: Record "Report Selections"; RecordVariant: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendWithReportDistributionManagement(var DocumentSendingProfile: Record "Document Sending Profile"; var SendWithReportDistributionManagement: Boolean)
     begin
     end;
 }

@@ -2136,7 +2136,7 @@
         GlEntry.Reset();
         GlEntry.SetRange("Document No.", PaymentDocNo);
         GlEntry.SetRange("Additional-Currency Amount", 0);
-        Assert.RecordCount(GlEntry, 0);
+        Assert.RecordCount(GlEntry, 2); // new line for source currency only
     end;
 
     [Test]

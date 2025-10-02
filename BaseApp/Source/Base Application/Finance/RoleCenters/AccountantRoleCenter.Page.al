@@ -1,6 +1,7 @@
-// this Page should always be the same as W1 version, except for action "Balance Sheet" and "Income Statement"
-// it will be replaced with W1 version after CLEAN23, we keep it in SE because GDL view is created before CLEAN tags are processed
-// no breaking changes will be introduced as the page is exactly the same as W1 version
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.RoleCenters;
 
 using Microsoft.Bank.BankAccount;
@@ -1131,6 +1132,22 @@ page 9027 "Accountant Role Center"
                 {
                     Caption = 'Financial Statements';
                     Image = ReferenceData;
+                    action("Balance Sheet")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Balance Sheet';
+                        Image = "Report";
+                        RunObject = Report "Balance Sheet";
+                        ToolTip = 'View a report that shows your company''s assets, liabilities, and equity.';
+                    }
+                    action("Income Statement")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Income Statement';
+                        Image = "Report";
+                        RunObject = Report "Income Statement";
+                        ToolTip = 'View a report that shows your company''s income and expenses.';
+                    }
                     action("Statement of Cash Flows")
                     {
                         ApplicationArea = Basic, Suite;

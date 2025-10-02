@@ -10,12 +10,14 @@ using System.Utilities;
 
 report 99000784 "Machine Center Load"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Manufacturing/Reports/MachineCenterLoad.rdlc';
+    DefaultRenderingLayout = MachineCenterLoadRDLC;
     AdditionalSearchTerms = 'production resource load,production personnel load';
     ApplicationArea = Manufacturing;
-    Caption = 'Machine Center Load';
+    Caption = 'Machine Center Load (obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report has been replaced by the "Work/Machine Center Load" report and will be removed in a future release.';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -152,6 +154,8 @@ report 99000784 "Machine Center Load"
 
     requestpage
     {
+        AboutTitle = 'About Machine Center Load (obsolete)';
+        AboutText = 'Analyze the load on a machine center. ** This report is obsolete and will be removed in a later release.** Please consult the report documentation for alternative ways to get to this data.';
 
         layout
         {
@@ -202,6 +206,16 @@ report 99000784 "Machine Center Load"
             if NoOfPeriods = 0 then
                 NoOfPeriods := 4;
         end;
+    }
+
+    rendering
+    {
+        layout(MachineCenterLoadRDLC)
+        {
+            Caption = 'Machine Center Load (obsolete)';
+            Type = RDLC;
+            LayoutFile = './Manufacturing/Reports/MachineCenterLoad.rdlc';
+        }
     }
 
     labels

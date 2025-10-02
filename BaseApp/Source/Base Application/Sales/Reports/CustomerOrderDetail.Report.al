@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reports;
 
 using Microsoft.Finance.Currency;
@@ -8,13 +12,11 @@ using System.Utilities;
 
 report 108 "Customer - Order Detail"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Sales/Reports/CustomerOrderDetail.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Customer - Order Detail';
+    DefaultRenderingLayout = Word;
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
-    WordMergeDataItem = Customer;
 
     dataset
     {
@@ -25,19 +27,61 @@ report 108 "Customer - Order Detail"
             column(ShipmentPeriodDate; StrSubstNo(Text000, PeriodText))
             {
             }
+
+#if not CLEAN27
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
+                ObsoleteTag = '27.0';
             }
+            column(PageGroupNo; PageGroupNo)
+            {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
+                ObsoleteTag = '27.0';
+            }
+            column(CustOrderDetailCaption; CustOrderDetailCaptionLbl)
+            {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
+                ObsoleteTag = '27.0';
+            }
+            column(PageCaption; PageCaptionLbl)
+            {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
+                ObsoleteTag = '27.0';
+            }
+            column(ShipmentDateCaption; ShipmentDateCaptionLbl)
+            {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
+                ObsoleteTag = '27.0';
+            }
+            column(QtyOnBackOrderCaption; QtyOnBackOrderCaptionLbl)
+            {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
+                ObsoleteTag = '27.0';
+            }
+            column(OutstandingOrdersCaption; OutstandingOrdersCaptionLbl)
+            {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
+                ObsoleteTag = '27.0';
+            }
+#endif
             column(PrintAmountsInLCY; PrintAmountsInLCY)
             {
             }
-            column(CustTableCapCustFilter; TableCaption + ': ' + CustFilter)
+            column(CustTableCapCustFilter; CustFilterText)
             {
             }
             column(CustFilter; CustFilter)
             {
             }
-            column(SalesOrderLineFilter; StrSubstNo(Text001, SalesLineFilter))
+            column(SalesOrderLineFilter; SalesLineFilterText)
             {
             }
             column(SalesLineFilter; SalesLineFilter)
@@ -49,148 +93,167 @@ report 108 "Customer - Order Detail"
             }
             column(Name_Customer; Name)
             {
+                IncludeCaption = true;
             }
-            column(PageGroupNo; PageGroupNo)
+            column(AllAmtAreInLCYCaption; AllAmtAreInLCY)
             {
             }
-            column(CustOrderDetailCaption; CustOrderDetailCaptionLbl)
+            column(CustomerNoAndName; CustomerNoAndName)
             {
             }
-            column(PageCaption; PageCaptionLbl)
+            dataitem("Sales Header"; "Sales Header")
             {
-            }
-            column(AllAmtAreInLCYCaption; AllAmtAreInLCYCaptionLbl)
-            {
-            }
-            column(ShipmentDateCaption; ShipmentDateCaptionLbl)
-            {
-            }
-            column(QtyOnBackOrderCaption; QtyOnBackOrderCaptionLbl)
-            {
-            }
-            column(OutstandingOrdersCaption; OutstandingOrdersCaptionLbl)
-            {
-            }
-            dataitem("Sales Line"; "Sales Line")
-            {
-                DataItemLink = "Bill-to Customer No." = field("No."), "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"), "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter");
-                DataItemTableView = sorting("Document Type", "Bill-to Customer No.", "Currency Code") where("Document Type" = const(Order), "Outstanding Quantity" = filter(<> 0));
-                RequestFilterFields = "Shipment Date";
-                RequestFilterHeading = 'Sales Order Line';
-                column(SalesHeaderNo; SalesHeader."No.")
-                {
-                }
-                column(SalesHeaderOrderDate; SalesHeader."Order Date")
-                {
-                }
-                column(Description_SalesLine; Description)
+                DataItemLink = "Bill-to Customer No." = field("No.");
+                DataItemTableView = sorting("Document Type", "Bill-to Customer No.", "Currency Code") where("Document Type" = const(Order));
+                column(No_; "No.")
                 {
                     IncludeCaption = true;
                 }
-                column(No_SalesLine; "No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(Type_SalesLine; Type)
-                {
-                    IncludeCaption = true;
-                }
-                column(ShipmentDate_SalesLine; Format("Shipment Date"))
+                column(OrderNoAndDate; OrderNoAndDate)
                 {
                 }
-                column(Quantity_SalesLine; Quantity)
+                dataitem("Sales Line"; "Sales Line")
                 {
-                    IncludeCaption = true;
+                    DataItemLinkReference = "Sales Header";
+                    DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+                    DataItemTableView = sorting("Document Type", "Bill-to Customer No.", "Currency Code") where("Document Type" = const(Order), "Outstanding Quantity" = filter(<> 0));
+                    RequestFilterFields = "Shipment Date";
+                    RequestFilterHeading = 'Sales Order Line';
+                    column(SalesHeaderNo; SalesHeader."No.")
+                    {
+                        IncludeCaption = true;
+                    }
+                    column(SalesHeaderOrderDate; SalesHeader."Order Date")
+                    {
+                        IncludeCaption = true;
+                    }
+                    column(Description_SalesLine; Description)
+                    {
+                        IncludeCaption = true;
+                    }
+                    column(No_SalesLine; "No.")
+                    {
+                        IncludeCaption = true;
+                    }
+                    column(Type_SalesLine; Type)
+                    {
+                        IncludeCaption = true;
+                    }
+                    column(ShipmentDate_SalesLine; Format("Shipment Date"))
+                    {
+                    }
+                    column(Quantity_SalesLine; Quantity)
+                    {
+                        IncludeCaption = true;
+                    }
+                    column(OutStandingQty_SalesLine; "Outstanding Quantity")
+                    {
+                        IncludeCaption = true;
+                    }
+                    column(BackOrderQty; BackOrderQty)
+                    {
+                        DecimalPlaces = 0 : 5;
+                    }
+                    column(UnitPrice_SalesLine; "Unit Price")
+                    {
+                        AutoFormatExpression = "Currency Code";
+                        AutoFormatType = 2;
+                        IncludeCaption = true;
+                    }
+                    column(LineDiscAmt_SalesLine; "Line Discount Amount")
+                    {
+                        IncludeCaption = true;
+                    }
+                    column(InvDiscAmt_SalesLine; "Inv. Discount Amount")
+                    {
+                        AutoFormatExpression = "Currency Code";
+                        AutoFormatType = 2;
+                        IncludeCaption = true;
+                    }
+                    column(SalesOrderAmount; SalesOrderAmount)
+                    {
+                        AutoFormatExpression = "Currency Code";
+                        AutoFormatType = 1;
+                    }
+                    column(SalesHeaderCurrCode; SalesHeader."Currency Code")
+                    {
+                    }
+                    trigger OnAfterGetRecord()
+                    begin
+                        OrderNoAndDate := StrSubstNo(OrderNoAndDateLbl, "Sales Header"."No.", Format("Sales Header"."Order Date", 0, '<Closing><Day> <Month Text> <Year4>'));
+                        NewOrder := "Document No." <> SalesHeader."No.";
+                        if NewOrder then
+                            SalesHeader.Get(Enum::"Sales Document Type"::Order, "Document No.");
+                        if "Shipment Date" <= WorkDate() then
+                            BackOrderQty := "Outstanding Quantity"
+                        else
+                            BackOrderQty := 0;
+                        Currency.InitRoundingPrecision();
+                        if "VAT Calculation Type" in ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"] then
+                            SalesOrderAmount :=
+                              Round(
+                                (Amount + "VAT Base Amount" * "VAT %" / 100) * "Outstanding Quantity" / Quantity / (1 + "VAT %" / 100),
+                                Currency."Amount Rounding Precision")
+                        else
+                            SalesOrderAmount :=
+                              Round(
+                                "Outstanding Amount" / (1 + "VAT %" / 100),
+                                Currency."Amount Rounding Precision");
+                        SalesOrderAmountLCY := SalesOrderAmount;
+                        if SalesHeader."Currency Code" <> '' then begin
+                            if SalesHeader."Currency Factor" <> 0 then
+                                SalesOrderAmountLCY :=
+                                  Round(
+                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                      WorkDate(), SalesHeader."Currency Code",
+                                      SalesOrderAmountLCY, SalesHeader."Currency Factor"));
+                            if PrintAmountsInLCY then begin
+                                "Unit Price" :=
+                                  Round(
+                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                      WorkDate(), SalesHeader."Currency Code",
+                                      "Unit Price", SalesHeader."Currency Factor"));
+                                SalesOrderAmount := SalesOrderAmountLCY;
+                            end;
+                        end;
+                        if SalesHeader."Prices Including VAT" then begin
+                            "Unit Price" := "Unit Price" / (1 + "VAT %" / 100);
+                            "Inv. Discount Amount" := "Inv. Discount Amount" / (1 + "VAT %" / 100);
+                        end;
+                        "Inv. Discount Amount" := "Inv. Discount Amount" * "Outstanding Quantity" / Quantity;
+                        CurrencyCode2 := SalesHeader."Currency Code";
+                        if PrintAmountsInLCY then
+                            CurrencyCode2 := '';
+                        TempCurrencyTotalBuffer.UpdateTotal(
+                          CurrencyCode2,
+                          SalesOrderAmount,
+                          Counter1,
+                          Counter1);
+                    end;
+
+                    trigger OnPreDataItem()
+                    begin
+                        Clear(SalesOrderAmountLCY);
+                        Clear(SalesOrderAmount);
+                        "Sales Line".SetFilter("Document No.", "Sales Header"."No.");
+                    end;
                 }
-                column(OutStandingQty_SalesLine; "Outstanding Quantity")
-                {
-                    IncludeCaption = true;
-                }
-                column(BackOrderQty; BackOrderQty)
-                {
-                    DecimalPlaces = 0 : 5;
-                }
-                column(UnitPrice_SalesLine; "Unit Price")
-                {
-                    AutoFormatExpression = "Currency Code";
-                    AutoFormatType = 2;
-                    IncludeCaption = true;
-                }
-                column(LineDiscAmt_SalesLine; "Line Discount Amount")
-                {
-                    IncludeCaption = true;
-                }
-                column(InvDiscAmt_SalesLine; "Inv. Discount Amount")
-                {
-                    AutoFormatExpression = "Currency Code";
-                    AutoFormatType = 2;
-                    IncludeCaption = true;
-                }
-                column(SalesOrderAmount; SalesOrderAmount)
-                {
-                    AutoFormatExpression = "Currency Code";
-                    AutoFormatType = 1;
-                }
-                column(SalesHeaderCurrCode; SalesHeader."Currency Code")
-                {
-                }
+                trigger OnPreDataItem()
+                begin
+                    Clear(OrderNoAndDate);
+                end;
 
                 trigger OnAfterGetRecord()
                 begin
-                    NewOrder := "Document No." <> SalesHeader."No.";
-                    if NewOrder then
-                        SalesHeader.Get(1, "Document No.");
-                    if "Shipment Date" <= WorkDate() then
-                        BackOrderQty := "Outstanding Quantity"
-                    else
-                        BackOrderQty := 0;
-                    Currency.InitRoundingPrecision();
-                    if "VAT Calculation Type" in ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"] then
-                        SalesOrderAmount :=
-                          Round(
-                            (Amount + "VAT Base Amount" * "VAT %" / 100) * "Outstanding Quantity" / Quantity / (1 + "VAT %" / 100),
-                            Currency."Amount Rounding Precision")
-                    else
-                        SalesOrderAmount :=
-                          Round(
-                            "Outstanding Amount" / (1 + "VAT %" / 100),
-                            Currency."Amount Rounding Precision");
-                    SalesOrderAmountLCY := SalesOrderAmount;
-                    if SalesHeader."Currency Code" <> '' then begin
-                        if SalesHeader."Currency Factor" <> 0 then
-                            SalesOrderAmountLCY :=
-                              Round(
-                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                  WorkDate(), SalesHeader."Currency Code",
-                                  SalesOrderAmountLCY, SalesHeader."Currency Factor"));
-                        if PrintAmountsInLCY then begin
-                            "Unit Price" :=
-                              Round(
-                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                  WorkDate(), SalesHeader."Currency Code",
-                                  "Unit Price", SalesHeader."Currency Factor"));
-                            SalesOrderAmount := SalesOrderAmountLCY;
-                        end;
-                    end;
-                    if SalesHeader."Prices Including VAT" then begin
-                        "Unit Price" := "Unit Price" / (1 + "VAT %" / 100);
-                        "Inv. Discount Amount" := "Inv. Discount Amount" / (1 + "VAT %" / 100);
-                    end;
-                    "Inv. Discount Amount" := "Inv. Discount Amount" * "Outstanding Quantity" / Quantity;
-                    CurrencyCode2 := SalesHeader."Currency Code";
-                    if PrintAmountsInLCY then
-                        CurrencyCode2 := '';
-                    TempCurrencyTotalBuffer.UpdateTotal(
-                      CurrencyCode2,
-                      SalesOrderAmount,
-                      Counter1,
-                      Counter1);
-                end;
-
-                trigger OnPreDataItem()
-                begin
-                    Clear(SalesOrderAmountLCY);
-                    Clear(SalesOrderAmount);
+                    CustomerNoAndName := Customer."No." + ' - ' + Customer.Name;
+                    "Sales Line".Reset();
+                    "Sales Line".SetRange("Document Type", "Sales Line"."Document Type"::Order);
+                    "Sales Line".SetRange("Document No.", "Sales Header"."No.");
+                    "Sales Line".SetFilter("Shortcut Dimension 1 Code", Customer."Global Dimension 1 Code");
+                    "Sales Line".SetFilter("Shortcut Dimension 2 Code", Customer."Global Dimension 2 Code");
+                    "Sales Line".SetFilter("Outstanding Quantity", '<>%1', 0);
+                    if "Sales Line".IsEmpty() then
+                        CurrReport.Skip();
                 end;
             }
             dataitem("Integer"; "Integer")
@@ -250,9 +313,11 @@ report 108 "Customer - Order Detail"
             column(CurrCode_CurrTotalBuff2; TempCurrencyTotalBuffer2."Currency Code")
             {
             }
+#if not CLEAN27
             column(TotalCaption; TotalCaptionLbl)
             {
             }
+#endif
 
             trigger OnAfterGetRecord()
             begin
@@ -296,6 +361,13 @@ report 108 "Customer - Order Detail"
                         Caption = 'New Page per Customer';
                         ToolTip = 'Specifies if each customer''s information is printed on a new page if you have chosen two or more customers to be included in the report.';
                     }
+                    field(PostingDateFilter; PostingDateFilter)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Posting Date Filter';
+                        ToolTip = 'Specifies the Posting Date Filter applied to this report.';
+                        Visible = false;
+                    }
                 }
             }
         }
@@ -303,11 +375,62 @@ report 108 "Customer - Order Detail"
         actions
         {
         }
+
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        begin
+            PostingDateFilter := "Sales Header".GetFilter("Date Filter");
+        end;
+    }
+
+    rendering
+    {
+        layout(Word)
+        {
+            Caption = 'Customer - Order Detail Word';
+            Type = Word;
+            LayoutFile = './Sales/Reports/CustomerOrderDetail.docx';
+        }
+        layout(Excel)
+        {
+            Caption = 'Customer - Order Detail Excel';
+            Type = Excel;
+            LayoutFile = './Sales/Reports/CustomerOrderDetail.xlsx';
+        }
+#if not CLEAN27
+        layout(RDLC)
+        {
+            Caption = 'Customer - Order Detail RDLC';
+            Type = RDLC;
+            LayoutFile = './Sales/Reports/CustomerOrderDetail.rdlc';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The RDLC layout has been replaced by the Excel layout and will be removed in a future release.';
+            ObsoleteTag = '27.0';
+        }
+#endif
     }
 
     labels
     {
         OrderNoCaption = 'Order No.';
+        DataRetrievedLbl = 'Data retrieved:';
+        CustOrderDetailLbl = 'Customer - Order Detail';
+        CustOrderDetailPrintLbl = 'Cust. Order Detail (Print)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        CustOrderDetailAnalysisLbl = 'Cust. Order Detail (Analysis)', MaxLength = 31, Comment = 'Excel worksheet name.';
+        PostingDateFilterLbl = 'Posting Date Filter:';
+        // About the report labels
+        AboutTheReportLbl = 'About the report', MaxLength = 31, Comment = 'Excel worksheet name.';
+        EnvironmentLbl = 'Environment';
+        CompanyLbl = 'Company';
+        UserLbl = 'User';
+        RunOnLbl = 'Run on';
+        ReportNameLbl = 'Report name';
+        DocumentationLbl = 'Documentation';
+        BackOrderQtyLbl = 'Quantity on Back Order';
+        SalesOrderAmountLbl = 'Outstanding Orders';
+        CustomerNoLbl = 'Customer No.';
+        OrderNoLbl = 'Order No';
+        ShipmentDateLbl = 'Shipment Date';
+        TotalLbl = 'Total';
     }
 
     trigger OnPreReport()
@@ -317,6 +440,14 @@ report 108 "Customer - Order Detail"
         CustFilter := FormatDocument.GetRecordFiltersWithCaptions(Customer);
         SalesLineFilter := "Sales Line".GetFilters();
         PeriodText := "Sales Line".GetFilter("Shipment Date");
+        if PrintAmountsInLCY then
+            AllAmtAreInLCY := AllAmtAreInLCYCaptionLbl;
+
+        if CustFilter <> '' then
+            CustFilterText := StrSubstNo(CustFilterLbl, CustFilter);
+
+        if SalesLineFilter <> '' then
+            SalesLineFilterText := StrSubstNo(Text001, SalesLineFilter);
     end;
 
     var
@@ -324,8 +455,14 @@ report 108 "Customer - Order Detail"
         TempCurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
         TempCurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
         Currency: Record Currency;
+        CustomerNoAndName: Text;
         CustFilter: Text;
+        CustFilterText: Text;
         SalesLineFilter: Text;
+        SalesLineFilterText: Text;
+        OrderNoAndDate: Text;
+        AllAmtAreInLCY: Text;
+        PostingDateFilter: Text;
         SalesOrderAmount: Decimal;
         SalesOrderAmountLCY: Decimal;
         PrintAmountsInLCY: Boolean;
@@ -344,13 +481,17 @@ report 108 "Customer - Order Detail"
         Text001: Label 'Sales Order Line: %1';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
+        AllAmtAreInLCYCaptionLbl: Label 'All amounts are in LCY';
+        CustFilterLbl: Label 'Customer: %1', Comment = '%1 Customer Name';
+        OrderNoAndDateLbl: Label 'Order No. %1 - %2', Comment = '%1 Sales Header No., %2 Order Date';
+#if not CLEAN27
         CustOrderDetailCaptionLbl: Label 'Customer - Order Detail';
         PageCaptionLbl: Label 'Page';
-        AllAmtAreInLCYCaptionLbl: Label 'All amounts are in LCY';
         ShipmentDateCaptionLbl: Label 'Shipment Date';
         QtyOnBackOrderCaptionLbl: Label 'Quantity on Back Order';
         OutstandingOrdersCaptionLbl: Label 'Outstanding Orders';
         TotalCaptionLbl: Label 'Total';
+#endif
 
     protected var
         SalesHeader: Record "Sales Header";

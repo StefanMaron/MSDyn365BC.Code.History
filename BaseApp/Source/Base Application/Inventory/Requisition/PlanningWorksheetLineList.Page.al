@@ -69,12 +69,6 @@ page 99000860 "Planning Worksheet Line List"
                     ToolTip = 'Specifies the number of units of the item.';
                     Visible = false;
                 }
-                field("Scrap %"; Rec."Scrap %")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
-                    Visible = false;
-                }
                 field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Planning;
@@ -101,18 +95,6 @@ page 99000860 "Planning Worksheet Line List"
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the ending date of the manufacturing process, if the planned supply is a production order.';
-                }
-                field("Production BOM No."; Rec."Production BOM No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the production BOM number for this production order.';
-                    Visible = false;
-                }
-                field("Routing No."; Rec."Routing No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the routing number.';
-                    Visible = false;
                 }
             }
         }

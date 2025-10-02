@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -132,15 +132,6 @@ codeunit 1259 "Certificate Management"
         GetPasswordFromIsolatedStorage(StoredPassword, IsolatedCertificate);
         DotNetHelper_SecureString.SecureStringFromString(DotNet_SecureString, StoredPassword.Unwrap());
     end;
-#if not CLEAN24
-    [Scope('OnPrem')]
-    [NonDebuggable]
-    [Obsolete('Replaced by GetPasswordAsSecret with SecretText data type for the return value.', '24.0')]
-    procedure GetPassword(IsolatedCertificate: Record "Isolated Certificate") StoredPassword: Text
-    begin
-        GetPasswordFromIsolatedStorage(StoredPassword, IsolatedCertificate);
-    end;
-#endif
 
     [Scope('OnPrem')]
     [NonDebuggable]
@@ -148,14 +139,6 @@ codeunit 1259 "Certificate Management"
     begin
         GetPasswordFromIsolatedStorage(StoredPassword, IsolatedCertificate);
     end;
-#if not CLEAN24
-    [NonDebuggable]
-    [Obsolete('Replaced by GetPasswordFromIsolatedStorage with SecretText data type for StoredPassword parameter.', '24.0')]
-    local procedure GetPasswordFromIsolatedStorage(var StoredPassword: Text; IsolatedCertificate: Record "Isolated Certificate")
-    begin
-        if ISOLATEDSTORAGE.Get(IsolatedCertificate.Code + PasswordSuffixTxt, GetCertDataScope(IsolatedCertificate), StoredPassword) then;
-    end;
-#endif
 
     [NonDebuggable]
     local procedure GetPasswordFromIsolatedStorage(var StoredPassword: SecretText; IsolatedCertificate: Record "Isolated Certificate")
@@ -205,14 +188,6 @@ codeunit 1259 "Certificate Management"
     begin
         exit(UploadedCertFileName);
     end;
-#if not CLEAN24
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by SetCertPassword with SecretText data type for CertificatePassword parameter.', '24.0')]
-    procedure SetCertPassword(CertificatePassword: Text)
-    begin
-        SecretCertPassword := CertificatePassword;
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure SetCertPassword(CertificatePassword: SecretText)
@@ -324,20 +299,6 @@ codeunit 1259 "Certificate Management"
         SignatureKey.FromXmlString(XmlStringSecureText);
     end;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [Obsolete('Replaced by GetPublicKeyAsBase64String with SecretText data type for Password parameter.', '24.0')]
-    procedure GetPublicKeyAsBase64String(FullCertificateBase64: Text; Password: Text): Text
-    var
-        DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
-        X509Certificate2: DotNet X509Certificate2;
-        Dotnet_Convert: DotNet Convert;
-        SecretPassword: SecretText;
-    begin
-        SecretPassword := Password;
-        exit(GetPublicKeyAsBase64String(FullCertificateBase64, SecretPassword));
-    end;
-#endif
 
     [NonDebuggable]
     procedure GetPublicKeyAsBase64String(FullCertificateBase64: Text; Password: SecretText): Text

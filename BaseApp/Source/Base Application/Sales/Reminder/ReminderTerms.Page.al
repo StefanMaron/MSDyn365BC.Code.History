@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reminder;
 
 using System.Telemetry;
@@ -8,7 +12,7 @@ page 431 "Reminder Terms"
     Caption = 'Reminder Terms';
     PageType = List;
     SourceTable = "Reminder Terms";
-#if not CLEAN25
+#if not CLEAN26
     UsageCategory = Administration;
 #else
     UsageCategory = None;

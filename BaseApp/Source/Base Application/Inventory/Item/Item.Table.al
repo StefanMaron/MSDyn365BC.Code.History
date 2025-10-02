@@ -77,17 +77,10 @@ table 27 Item
 
             trigger OnValidate()
             var
-#if not CLEAN24
-                NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-#if not CLEAN24
-                OnBeforeValidateNo(IsHandled, Rec, xRec, InventorySetup, NoSeriesMgt);
-#else
                 OnBeforeValidateNo(IsHandled, Rec, xRec, InventorySetup);
-#endif
                 if IsHandled then
                     exit;
                 if "No." <> xRec."No." then begin
@@ -260,6 +253,7 @@ table 27 Item
         field(16; "Statistics Group"; Integer)
         {
             Caption = 'Statistics Group';
+            ToolTip = 'Specifies the statistics group.';
         }
         field(17; "Commission Group"; Integer)
         {
@@ -268,6 +262,7 @@ table 27 Item
         field(18; "Unit Price"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Price';
             MinValue = 0;
 
@@ -313,6 +308,7 @@ table 27 Item
         {
             Caption = 'Profit %';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -351,6 +347,7 @@ table 27 Item
         field(22; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
             MinValue = 0;
 
@@ -376,6 +373,7 @@ table 27 Item
         field(24; "Standard Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Standard Cost';
             MinValue = 0;
 
@@ -408,6 +406,7 @@ table 27 Item
         field(25; "Last Direct Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Last Direct Cost';
             MinValue = 0;
         }
@@ -416,6 +415,7 @@ table 27 Item
             Caption = 'Indirect Cost %';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -475,18 +475,21 @@ table 27 Item
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Reorder Point';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(35; "Maximum Inventory"; Decimal)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Maximum Inventory';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(36; "Reorder Quantity"; Decimal)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Reorder Quantity';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(37; "Alternative Item No."; Code[20])
         {
@@ -497,6 +500,7 @@ table 27 Item
         field(38; "Unit List Price"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit List Price';
             MinValue = 0;
         }
@@ -506,6 +510,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(40; "Duty Code"; Code[10])
         {
@@ -517,24 +522,28 @@ table 27 Item
             Caption = 'Gross Weight';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(42; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(43; "Units per Parcel"; Decimal)
         {
             Caption = 'Units per Parcel';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(44; "Unit Volume"; Decimal)
         {
             Caption = 'Unit Volume';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(45; Durability; Code[10])
         {
@@ -575,6 +584,7 @@ table 27 Item
         {
             Caption = 'Duty Unit Conversion';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(49; "Country/Region Purchased Code"; Code[10])
         {
@@ -585,15 +595,18 @@ table 27 Item
         {
             Caption = 'Budget Quantity';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(51; "Budgeted Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Budgeted Amount';
         }
         field(52; "Budget Profit"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Budget Profit';
         }
         field(53; Comment; Boolean)
@@ -688,6 +701,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(69; "Net Invoiced Qty."; Decimal)
         {
@@ -704,6 +718,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(70; "Net Change"; Decimal)
         {
@@ -722,6 +737,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(71; "Purchases (Qty.)"; Decimal)
         {
@@ -740,6 +756,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(72; "Sales (Qty.)"; Decimal)
         {
@@ -755,6 +772,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(73; "Positive Adjmt. (Qty.)"; Decimal)
         {
@@ -773,6 +791,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(74; "Negative Adjmt. (Qty.)"; Decimal)
         {
@@ -791,10 +810,12 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(77; "Purchases (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Value Entry"."Purchase Amount (Actual)" where("Item Ledger Entry Type" = const(Purchase),
                                                                               "Item No." = field("No."),
                                                                               "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -810,6 +831,7 @@ table 27 Item
         field(78; "Sales (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Value Entry"."Sales Amount (Actual)" where("Item Ledger Entry Type" = const(Sale),
                                                                            "Item No." = field("No."),
                                                                            "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -825,6 +847,7 @@ table 27 Item
         field(79; "Positive Adjmt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Value Entry"."Cost Amount (Actual)" where("Item Ledger Entry Type" = const("Positive Adjmt."),
                                                                           "Item No." = field("No."),
                                                                           "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -840,6 +863,7 @@ table 27 Item
         field(80; "Negative Adjmt. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Value Entry"."Cost Amount (Actual)" where("Item Ledger Entry Type" = const("Negative Adjmt."),
                                                                           "Item No." = field("No."),
                                                                           "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -855,6 +879,7 @@ table 27 Item
         field(83; "COGS (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = - sum("Value Entry"."Cost Amount (Actual)" where("Item Ledger Entry Type" = const(Sale),
                                                                            "Item No." = field("No."),
                                                                            "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -884,6 +909,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(85; "Qty. on Sales Order"; Decimal)
         {
@@ -902,6 +928,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(87; "Price Includes VAT"; Boolean)
         {
@@ -991,10 +1018,12 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(94; "Transferred (LCY)"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             CalcFormula = sum("Value Entry"."Sales Amount (Actual)" where("Item Ledger Entry Type" = const(Transfer),
                                                                            "Item No." = field("No."),
                                                                            "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
@@ -1070,6 +1099,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(102; "Reserved Qty. on Purch. Orders"; Decimal)
         {
@@ -1085,6 +1115,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(103; "Reserved Qty. on Sales Orders"; Decimal)
         {
@@ -1100,6 +1131,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(105; "Global Dimension 1 Code"; Code[20])
         {
@@ -1139,6 +1171,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(108; "Res. Qty. on Inbound Transfer"; Decimal)
         {
@@ -1154,6 +1187,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(109; "Res. Qty. on Sales Returns"; Decimal)
         {
@@ -1169,6 +1203,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(110; "Res. Qty. on Purch. Returns"; Decimal)
         {
@@ -1184,6 +1219,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(120; "Stockout Warning"; Option)
         {
@@ -1251,6 +1287,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(1002; "Res. Qty. on Job Order"; Decimal)
         {
@@ -1266,6 +1303,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(1217; GTIN; Code[14])
         {
@@ -1289,6 +1327,7 @@ table 27 Item
             Caption = 'Lot Size';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5402; "Serial Nos."; Code[20])
         {
@@ -1309,6 +1348,7 @@ table 27 Item
         field(5404; "Rolled-up Material Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Material Cost';
             DecimalPlaces = 2 : 5;
             Editable = false;
@@ -1316,6 +1356,7 @@ table 27 Item
         field(5405; "Rolled-up Capacity Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Capacity Cost';
             DecimalPlaces = 2 : 5;
             Editable = false;
@@ -1326,10 +1367,12 @@ table 27 Item
             DecimalPlaces = 0 : 2;
             MaxValue = 100;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5408; "Rolled-up Mat. Non-Invt. Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Rolled-up Material Non-Inventory Cost';
             ToolTip = 'Specifies the Non-inventory material cost of all items at all levels of the parent item''s BOM.';
             DecimalPlaces = 2 : 5;
@@ -1355,6 +1398,7 @@ table 27 Item
             Caption = 'Minimum Order Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5412; "Maximum Order Quantity"; Decimal)
         {
@@ -1362,6 +1406,7 @@ table 27 Item
             Caption = 'Maximum Order Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5413; "Safety Stock Quantity"; Decimal)
         {
@@ -1369,6 +1414,7 @@ table 27 Item
             Caption = 'Safety Stock Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5414; "Order Multiple"; Decimal)
         {
@@ -1376,11 +1422,16 @@ table 27 Item
             Caption = 'Order Multiple';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5415; "Safety Lead Time"; DateFormula)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Safety Lead Time';
+        }
+        field(5417; "Flushing Method"; Enum Microsoft.Manufacturing.Setup."Flushing Method")
+        {
+            Caption = 'Flushing Method';
         }
         field(5419; "Replenishment System"; Enum "Replenishment System")
         {
@@ -1394,11 +1445,6 @@ table 27 Item
                 case "Replenishment System" of
                     "Replenishment System"::Purchase:
                         TestField("Assembly Policy", "Assembly Policy"::"Assemble-to-Stock");
-                    "Replenishment System"::"Prod. Order":
-                        begin
-                            TestField("Assembly Policy", "Assembly Policy"::"Assemble-to-Stock");
-                            TestField(Type, Type::Inventory);
-                        end;
                     "Replenishment System"::Transfer:
                         begin
                             IsHandled := false;
@@ -1423,6 +1469,7 @@ table 27 Item
             Caption = 'Rounding Precision';
             DecimalPlaces = 0 : 5;
             InitValue = 1;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -1482,6 +1529,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5440; "Reordering Policy"; Enum "Reordering Policy")
         {
@@ -1545,6 +1593,7 @@ table 27 Item
             Caption = 'Dampener Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5447; "Overflow Level"; Decimal)
         {
@@ -1552,6 +1601,7 @@ table 27 Item
             Caption = 'Overflow Level';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(5449; "Planning Transfer Ship. (Qty)."; Decimal)
         {
@@ -1566,6 +1616,7 @@ table 27 Item
             Caption = 'Planning Transfer Ship. (Qty).';
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5450; "Planning Worksheet (Qty.)"; Decimal)
         {
@@ -1580,6 +1631,7 @@ table 27 Item
             Caption = 'Planning Worksheet (Qty.)';
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5700; "Stockkeeping Unit Exists"; Boolean)
         {
@@ -1639,6 +1691,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5708; "Trans. Ord. Receipt (Qty.)"; Decimal)
         {
@@ -1654,6 +1707,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5709; "Trans. Ord. Shipment (Qty.)"; Decimal)
         {
@@ -1669,6 +1723,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5711; "Purchasing Code"; Code[10])
         {
@@ -1686,6 +1741,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5777; "Qty. Picked"; Decimal)
         {
@@ -1697,6 +1753,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(5801; "Excluded from Cost Adjustment"; Boolean)
         {
@@ -1810,6 +1867,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(6660; "Qty. on Sales Return"; Decimal)
         {
@@ -1828,6 +1886,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(7171; "No. of Substitutes"; Integer)
         {
@@ -2041,9 +2100,44 @@ table 27 Item
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
         }
+        field(99000752; "Single-Level Material Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            AutoFormatExpression = '';
+            Caption = 'Single-Level Material Cost';
+            Editable = false;
+        }
+        field(99000753; "Single-Level Capacity Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            AutoFormatExpression = '';
+            Caption = 'Single-Level Capacity Cost';
+            Editable = false;
+        }
+        field(99000754; "Single-Level Subcontrd. Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            AutoFormatExpression = '';
+            Caption = 'Single-Level Subcontrd. Cost';
+            Editable = false;
+        }
+        field(99000755; "Single-Level Cap. Ovhd Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            AutoFormatExpression = '';
+            Caption = 'Single-Level Cap. Ovhd Cost';
+            Editable = false;
+        }
+        field(99000756; "Single-Level Mfg. Ovhd Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Single-Level Mfg. Ovhd Cost';
+            Editable = false;
+        }
         field(99000757; "Overhead Rate"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Overhead Rate';
 
             trigger OnValidate()
@@ -2053,6 +2147,27 @@ table 27 Item
                 if Rec."Overhead Rate" <> xRec."Overhead Rate" then
                     AdjustCostIfRequired(Rec.FieldCaption("Overhead Rate"));
             end;
+        }
+        field(99000758; "Rolled-up Subcontracted Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            AutoFormatExpression = '';
+            Caption = 'Rolled-up Subcontracted Cost';
+            Editable = false;
+        }
+        field(99000759; "Rolled-up Mfg. Ovhd Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            AutoFormatExpression = '';
+            Caption = 'Rolled-up Mfg. Ovhd Cost';
+            Editable = false;
+        }
+        field(99000760; "Rolled-up Cap. Overhead Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            AutoFormatExpression = '';
+            Caption = 'Rolled-up Cap. Overhead Cost';
+            Editable = false;
         }
         field(99000761; "Planning Issues (Qty.)"; Decimal)
         {
@@ -2068,6 +2183,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000762; "Planning Receipt (Qty.)"; Decimal)
         {
@@ -2083,6 +2199,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000768; "Planning Release (Qty.)"; Decimal)
         {
@@ -2098,6 +2215,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000770; "Purch. Req. Receipt (Qty.)"; Decimal)
         {
@@ -2115,6 +2233,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000771; "Purch. Req. Release (Qty.)"; Decimal)
         {
@@ -2131,6 +2250,7 @@ table 27 Item
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(99000773; "Order Tracking Policy"; Enum "Order Tracking Policy")
         {
@@ -2178,9 +2298,46 @@ table 27 Item
                 end;
             end;
         }
+        field(99000774; "Prod. Forecast Quantity (Base)"; Decimal)
+        {
+            CalcFormula = sum(Microsoft.Manufacturing.Forecast."Production Forecast Entry"."Forecast Quantity (Base)" where("Item No." = field("No."),
+                                                                                            "Production Forecast Name" = field("Production Forecast Name"),
+                                                                                            "Forecast Date" = field("Date Filter"),
+                                                                                            "Location Code" = field("Location Filter"),
+                                                                                            "Component Forecast" = field("Component Forecast"),
+                                                                                            "Variant Code" = field("Variant Filter")));
+            Caption = 'Prod. Forecast Quantity (Base)';
+            DecimalPlaces = 0 : 5;
+            FieldClass = FlowField;
+            AutoFormatType = 0;
+        }
+        field(99000775; "Production Forecast Name"; Code[10])
+        {
+            Caption = 'Production Forecast Name';
+            FieldClass = FlowFilter;
+            TableRelation = Microsoft.Manufacturing.Forecast."Production Forecast Name";
+        }
+        field(99000776; "Component Forecast"; Boolean)
+        {
+            Caption = 'Component Forecast';
+            FieldClass = FlowFilter;
+        }
         field(99000875; Critical; Boolean)
         {
             Caption = 'Critical';
+        }
+        field(99000779; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            AutoFormatExpression = '';
+            Caption = 'Single-Level Material Non-Inventory Cost';
+            ToolTip = 'Specifies the total Non-inventory material cost of all components on the parent item''s BOM';
+            Editable = false;
+        }
+        field(99000780; "Allow Whse. Overpick"; Boolean)
+        {
+            Caption = 'Allow Whse. Overpick';
+            ToolTip = 'Specifies that the record is allowed to be created in the Warehouse Pick list against the Released Production Order more than the quantity defined in the component Line. For example, system will allow to create Pick for 10 units even if the component in the BOM is defined for 3 units.';
         }
         field(99008500; "Common Item No."; Code[20])
         {
@@ -2243,7 +2400,7 @@ table 27 Item
 
     fieldgroups
     {
-        fieldgroup(DropDown; "No.", Description, "Base Unit of Measure", "Unit Price")
+        fieldgroup(DropDown; "No.", Description, "Base Unit of Measure", "Unit Price", Inventory, Blocked, "Vendor Item No.", "No. 2", "Alternative Item No.", "Common Item No.", GTIN, "Shelf No.")
         {
         }
         fieldgroup(Brick; "No.", Description, Inventory, "Unit Price", "Base Unit of Measure", "Description 2", Picture)
@@ -2278,9 +2435,6 @@ table 27 Item
     trigger OnInsert()
     var
         Item: Record Item;
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2289,21 +2443,6 @@ table 27 Item
             if "No." = '' then begin
                 GetInvtSetup();
                 InventorySetup.TestField("Item Nos.");
-#if not CLEAN24
-                NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(InventorySetup."Item Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-                if not IsHandled then begin
-                    if NoSeries.AreRelated(InventorySetup."Item Nos.", xRec."No. Series") then
-                        "No. Series" := xRec."No. Series"
-                    else
-                        "No. Series" := InventorySetup."Item Nos.";
-                    "No." := NoSeries.GetNextNo("No. Series");
-                    Item.ReadIsolation(IsolationLevel::ReadUncommitted);
-                    Item.SetLoadFields("No.");
-                    while Item.Get("No.") do
-                        "No." := NoSeries.GetNextNo("No. Series");
-                    NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", InventorySetup."Item Nos.", 0D, "No.");
-                end;
-#else
                 if NoSeries.AreRelated(InventorySetup."Item Nos.", xRec."No. Series") then
                     "No. Series" := xRec."No. Series"
                 else
@@ -2313,7 +2452,6 @@ table 27 Item
                 Item.SetLoadFields("No.");
                 while Item.Get("No.") do
                     "No." := NoSeries.GetNextNo("No. Series");
-#endif
                 "Costing Method" := InventorySetup."Default Costing Method";
                 OnInsertOnAfterAssignNo(Rec, xRec);
             end;
@@ -2758,13 +2896,18 @@ table 27 Item
 
     procedure IsMfgItem() Result: Boolean
     begin
-        Result := "Replenishment System" = "Replenishment System"::"Prod. Order";
-        OnAfterIsMfgItem(Rec, Result);
+        OnIsMfgItem(Rec, Result); // Internal event
+        OnAfterIsMfgItem(Rec, Result); // Partner event
+    end;
+
+    procedure IsProductionBOM() Result: Boolean
+    begin
+        OnIsProductionBOM(Rec, Result); // Internal event
     end;
 
     procedure IsAssemblyItem() Result: Boolean
     begin
-        Result := Rec."Replenishment System" = Rec."Replenishment System"::Assembly;
+        OnIsAssemblyItem(Rec, Result); // Internal event
         OnAfterIsAssemblyItem(Rec, Result);
     end;
 
@@ -2776,6 +2919,11 @@ table 27 Item
 
         OnAfterHasBOM(Rec, Result);
         exit(Result);
+    end;
+
+    procedure HasRoutingNo() Result: Boolean
+    begin
+        OnAfterHasRoutingNo(Rec, Result);
     end;
 
     local procedure GetGLSetup()
@@ -3085,6 +3233,40 @@ table 27 Item
         exit(Round("Unit Price" / (1 + CalcVAT()), GLSetup."Unit-Amount Rounding Precision"));
     end;
 
+    procedure GetFirstItemNoFromLookup(ItemText: Text): Code[20]
+    var
+        Item: Record Item;
+        SearchFilter: Text;
+    begin
+        if ItemText = '' then
+            exit('');
+        Item.SetLoadFields("No.");
+        if StrLen(ItemText) <= MaxStrLen(Item."No.") then
+            if Item.Get(ItemText) then
+                exit(Item."No.");
+        if StrLen(ItemText) <= MaxStrLen(Item."No.") then begin
+            Item.SetFilter("No.", ItemText + '*');
+            if Item.FindFirst() then
+                exit(Item."No.");
+            Item.SetRange("No.");
+        end;
+
+        // Filter the same way as in item lookup/dropdown, ref. fieldgroup for DropDown
+        SearchFilter := '@*' + ItemText + '*';
+        Item.FilterGroup(-1);
+        Item.SetFilter("No.", SearchFilter);
+        Item.SetFilter("No. 2", SearchFilter);
+        Item.SetFilter(Description, SearchFilter);
+        Item.SetFilter(GTIN, SearchFilter);
+        Item.SetFilter("Vendor Item No.", SearchFilter);
+        Item.SetFilter("Common Item No.", SearchFilter);
+        Item.SetFilter("Shelf No.", SearchFilter);
+        Item.FilterGroup(0);
+        if Item.FindFirst() then
+            exit(Item."No.");
+        Error(SelectItemErr);
+    end;
+
     procedure GetItemNo(ItemText: Text): Code[20]
     var
         ItemNo: Text[50];
@@ -3238,6 +3420,21 @@ table 27 Item
         ItemUnitOfMeasure.Insert();
     end;
 
+    procedure ShouldTryCostFromSKU(): Boolean
+    var
+        ShouldExit: Boolean;
+    begin
+        if Rec."Costing Method" <> Rec."Costing Method"::Standard then
+            exit(false);
+
+        OnShouldTryCostFromSKUOnCheckSKUCostOnMfg(ShouldExit);
+        if ShouldExit then
+            exit(false);
+
+        InventorySetup.GetRecordOnce();
+        exit(InventorySetup."Average Cost Calc. Type" = InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
+    end;
+
     procedure PickItem(var Item: Record Item): Code[20]
     var
         ItemList: Page "Item List";
@@ -3332,13 +3529,12 @@ table 27 Item
         CalcFields("Assembly BOM");
 
         if "Assembly BOM" then begin
-            if not ("Replenishment System" in ["Replenishment System"::Assembly, "Replenishment System"::"Prod. Order"])
-            then begin
+            if not (IsMfgItem() or IsAssemblyItem()) then begin
                 Validate("Replenishment System", "Replenishment System"::Assembly);
                 exit(true);
             end
         end else
-            if "Replenishment System" = "Replenishment System"::Assembly then
+            if IsAssemblyItem() then
                 if "Assembly Policy" <> "Assembly Policy"::"Assemble-to-Order" then begin
                     Validate("Replenishment System", "Replenishment System"::Purchase);
                     exit(true);
@@ -3640,6 +3836,46 @@ table 27 Item
             UnitGroup.Delete();
     end;
 
+    procedure CalcScheduledReceiptQty() Result: Decimal
+    begin
+        OnCalcScheduledReceiptQty(Rec, Result);
+    end;
+
+    procedure CalcQtyOnComponentLines() Result: Decimal
+    begin
+        OnCalcQtyOnComponentLines(Rec, Result);
+    end;
+
+    procedure CalcQtyOnProdOrder() Result: Decimal
+    begin
+        OnCalcQtyOnProdOrder(Rec, Result);
+    end;
+
+    procedure CalcResQtyonProdOrderComp() Result: Decimal
+    begin
+        OnCalcResQtyonProdOrderComp(Rec, Result);
+    end;
+
+    procedure CalcReservedQtyOnProdOrder() Result: Decimal
+    begin
+        OnCalcReservedQtyOnProdOrder(Rec, Result);
+    end;
+
+    procedure CalcPlannedOrderReceiptQty() Result: Decimal
+    begin
+        OnCalcPlannedOrderReceiptQty(Rec, Result);
+    end;
+
+    procedure CalcFPOrderReceiptQty() Result: Decimal
+    begin
+        OnCalcFPOrderReceiptQty(Rec, Result);
+    end;
+
+    procedure CalcRelOrderReceiptQty() Result: Decimal
+    begin
+        OnCalcRelOrderReceiptQty(Rec, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckDocuments(var Item: Record Item; var xItem: Record Item; var CurrentFieldNo: Integer)
     begin
@@ -3647,6 +3883,21 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteRelatedData(Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsAssemblyItem(Item: Record Item; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsMfgItem(Item: Record Item; var Result: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnIsProductionBOM(Item: Record Item; var Result: Boolean)
     begin
     end;
 
@@ -4065,18 +4316,10 @@ table 27 Item
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Parameter NoSeriesMgt is obsolete and will be removed, update your subscriber accordingly.', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateNo(var IsHandled: Boolean; var Item: Record Item; xItem: Record Item; InventorySetup: Record "Inventory Setup"; var NoSeriesMgt: Codeunit NoSeriesManagement)
-    begin
-    end;
-#else
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateNo(var IsHandled: Boolean; var Item: Record Item; xItem: Record Item; InventorySetup: Record "Inventory Setup")
     begin
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindItemVend(var Item: Record Item; var ItemVendor: Record "Item Vendor"; LocationCode: Code[10]; var IsHandled: Boolean)
@@ -4105,6 +4348,11 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterHasBOM(var Item: Record Item; var Result: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasRoutingNo(var Item: Record Item; var Result: Boolean);
     begin
     end;
 
@@ -4140,6 +4388,51 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnAssistEditOnAfterAssignNo(var Item: Record Item; xItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcScheduledReceiptQty(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyOnComponentLines(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyOnProdOrder(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcResQtyonProdOrderComp(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcReservedQtyOnProdOrder(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcPlannedOrderReceiptQty(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcFPOrderReceiptQty(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRelOrderReceiptQty(var Item: Record Item; var Result: Decimal)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnShouldTryCostFromSKUOnCheckSKUCostOnMfg(var ShouldExit: Boolean)
     begin
     end;
 }

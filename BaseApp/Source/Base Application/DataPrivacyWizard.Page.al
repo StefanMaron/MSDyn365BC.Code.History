@@ -1,4 +1,8 @@
-﻿namespace System.Privacy;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace System.Privacy;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Team;
@@ -129,7 +133,7 @@ page 1180 "Data Privacy Wizard"
                             Rec.Reset();
                             Rec.DeleteAll();
                             if PAGE.RunModal(PAGE::"Data Subject", Rec) = ACTION::LookupOK then begin
-                                EntityType := Rec."Table Caption";
+                                EntityType := CopyStr(Rec."Table Caption", 1, MaxStrLen(EntityType));
                                 EntityTypeTableNo := Rec."Table No.";
                                 if EntityType <> EntityTypeGlobal then
                                     EntityNo := '';

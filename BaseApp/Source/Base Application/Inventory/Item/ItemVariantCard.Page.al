@@ -66,10 +66,6 @@ page 5405 "Item Variant Card"
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies that the item variant cannot be entered on purchase documents, except return orders and credit memos, and journals.';
                     }
-                    field("Production Blocked"; Rec."Production Blocked")
-                    {
-                        ApplicationArea = Manufacturing;
-                    }
                 }
             }
         }

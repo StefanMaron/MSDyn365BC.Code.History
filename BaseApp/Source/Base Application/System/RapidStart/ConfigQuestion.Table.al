@@ -139,11 +139,9 @@ table 8612 "Config. Question"
     }
 
     var
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text002: Label 'Question no. %1 already exists for the field %2.';
+        QuestionAlreadyExistsErr: Label 'Question no. %1 already exists for the field %2.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
 
     procedure FieldLookup()
     var
@@ -171,7 +169,7 @@ table 8612 "Config. Question"
             if ConfigQuestion1.FindFirst() then begin
                 "Field ID" := 0;
                 ConfigQuestion1.CalcFields("Field Caption");
-                Error(Text002, ConfigQuestion1."No.", ConfigQuestion1."Field Caption");
+                Error(QuestionAlreadyExistsErr, ConfigQuestion1."No.", ConfigQuestion1."Field Caption");
             end;
 
             if Question = '' then

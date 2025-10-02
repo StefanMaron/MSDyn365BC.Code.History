@@ -1,7 +1,7 @@
 codeunit 144003 "ERM EU 3-Party"
 {
     // // [FEATURE] [EU 3-Party]
-    // 
+    //
     // 1.  Test to verify EU 3-Party Trade True after posting Purchase Invoice.
     // 2.  Test to verify EU 3-Party Trade True after posting Purchase Order.
     // 3.  Test to verify EU 3-Party Trade False after posting Purchase Order.
@@ -28,7 +28,7 @@ codeunit 144003 "ERM EU 3-Party"
     // 24. Test to verify Total Amount on VAT Statement report with EUThirdPartyTrade.
     // 25. Test to verify values on VAT - VIES Declaration Tax Authority report with EUThirdPartyTrade.
     // 26. Test to verify values on VAT - VIES Declaration Tax Authority report with EUService.
-    // 
+    //
     // Covers Test Cases for WI - 350532.
     // -----------------------------------------------------------
     // Test Function Name                                   TFS ID
@@ -42,7 +42,7 @@ codeunit 144003 "ERM EU 3-Party"
     // EUThirdPartyTrueOnPurchaseFalseOnSales               154965
     // EUThirdPartyFalseOnPurchaseFalseOnSales              154976
     // EUThirdPartyTrueOnPurchaseTrueOnSales                154977
-    // 
+    //
     // Covers Test Cases for WI - 350540.
     // -----------------------------------------------------------
     // Test Function Name                                   TFS ID
@@ -57,7 +57,7 @@ codeunit 144003 "ERM EU 3-Party"
     // ServiceOrderEUThirdPartyTradeFalse                   156952
     // ServiceCrMemoEUThirdPartyTradeFalse                  156958
     // ServiceCrMemoEUThirdPartyTradeTrue                   156957
-    // 
+    //
     // Covers Test Cases for WI - 350533
     // -----------------------------------------------------------------------------
     // Test Function Name                                                     TFS ID
@@ -68,13 +68,13 @@ codeunit 144003 "ERM EU 3-Party"
     // VATStatementPreviewForSalesInvoiceWithCurrency
     // VATStatementReportWithEUThirdPartyTrade                         154986,154987
     // VATVIESDeclarationTaxAuthRptWithEUThirdPartyTrade                      153968
-    // 
+    //
     // Covers Test Cases for WI - 351052
     // -----------------------------------------------------------------------------
     // Test Function Name                                                     TFS ID
     // -----------------------------------------------------------------------------
     // VATVIESDeclarationTaxAuthorityReportWithEUService                      157317
-    // 
+    //
     // Covers Test Cases for WI - 461741
     // -----------------------------------------------------------------------------
     // Test Function Name                                                     TFS ID
@@ -579,15 +579,6 @@ codeunit 144003 "ERM EU 3-Party"
         VATStatementTemplate.Delete(true);
     end;
 
-    local procedure FindPurchasingCode(): Code[10]
-    var
-        Purchasing: Record Purchasing;
-    begin
-        Purchasing.SetRange("Drop Shipment", true);
-        Purchasing.FindFirst();
-        exit(Purchasing.Code);
-    end;
-
     local procedure UpdateAdditionalReportingCurrOnGeneralLedgerSetup(CurrencyCode: Code[10]) OldAdditionalReportingCurrency: Code[10]
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -598,16 +589,6 @@ codeunit 144003 "ERM EU 3-Party"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure UpdatePurchasesPayablesSetup(InvoiceRounding: Boolean) OldInvoiceRounding: Boolean
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-    begin
-        PurchasesPayablesSetup.Get();
-        OldInvoiceRounding := PurchasesPayablesSetup."Invoice Rounding";
-        PurchasesPayablesSetup.Validate("Invoice Rounding", InvoiceRounding);
-        PurchasesPayablesSetup.Modify(true);
-    end;
-
     local procedure UpdateSalesReceivablesSetup(InvoiceRounding: Boolean) OldInvoiceRounding: Boolean
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -616,15 +597,6 @@ codeunit 144003 "ERM EU 3-Party"
         OldInvoiceRounding := SalesReceivablesSetup."Invoice Rounding";
         SalesReceivablesSetup.Validate("Invoice Rounding", InvoiceRounding);
         SalesReceivablesSetup.Modify(true);
-    end;
-
-    local procedure VerifyVATEntryEUThirdPartyTrade(DocumentNo: Code[20]; EUThirdPartyTrade: Boolean)
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst();
-        VATEntry.TestField("EU 3-Party Trade", EUThirdPartyTrade);
     end;
 
     [PageHandler]
@@ -698,4 +670,3 @@ codeunit 144003 "ERM EU 3-Party"
         Reply := false;
     end;
 }
-

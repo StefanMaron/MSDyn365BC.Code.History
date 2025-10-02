@@ -679,7 +679,7 @@ page 5902 "Service Order Subform"
         ServItemMgt: Codeunit ServItemManagement;
     begin
         if Item.Get(Rec."Item No.") then
-            if (Item."Replenishment System" <> Item."Replenishment System"::"Prod. Order") and Rec.Warranty then
+            if (not Item.IsMfgItem()) and Rec.Warranty then
                 Rec.TestField("Vendor No.");
         ServItemMgt.CreateServItemOnServItemLine(Rec);
     end;

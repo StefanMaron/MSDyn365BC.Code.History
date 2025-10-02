@@ -64,10 +64,6 @@ page 5401 "Item Variants"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the item variant cannot be entered on purchase documents, except return orders and credit memos, and journals.';
                 }
-                field("Production Blocked"; Rec."Production Blocked")
-                {
-                    ApplicationArea = Manufacturing;
-                }
             }
         }
         area(factboxes)

@@ -30,6 +30,11 @@ page 33 "Customer Lookup"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+                field(BillToCustomerNo; Rec."Bill-to Customer No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
@@ -60,6 +65,10 @@ page 33 "Customer Lookup"
                 {
                     ApplicationArea = All;
                 }
+                field(Email; Rec."E-Mail")
+                {
+                    ApplicationArea = All;
+                }
                 field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
@@ -68,6 +77,11 @@ page 33 "Customer Lookup"
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
+                }
+                field(RegistrationNumber; Rec."Registration Number")
+                {
+                    ApplicationArea = All;
+                    Visible = false;
                 }
                 field("Customer Posting Group"; Rec."Customer Posting Group")
                 {

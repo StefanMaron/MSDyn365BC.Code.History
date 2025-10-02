@@ -10,6 +10,7 @@ codeunit 134101 "ERM Prepayment II"
     end;
 
     var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
@@ -1868,6 +1869,91 @@ codeunit 134101 "ERM Prepayment II"
         // [THEN] Status is changed to Released in purchase orders "PO2"
         VerifyStatusOnPurchaseHeader(PurchaseHeader1, PurchaseHeader1.Status::"Pending Prepayment");
         VerifyStatusOnPurchaseHeader(PurchaseHeader2, PurchaseHeader2.Status::Released);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    procedure PrepmtOnSalesLineWithFirstInvoiceDiscount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GLAccount: Record "G/L Account";
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+        PrepaymentAmount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Prepayment Amount]
+        // [SCENARIO 598768] Check "Prepayment Line Amount" is not changed on Sales Line after posting Prepayment Invoice and release sales order
+        // [SCENARIO 598769] Prepayment Line Amount is inserted after invoice discount is applied
+
+        // [GIVEN] Create Sales Order X with invoice discount 10 and one item line
+        // [GIVEN] Insert "Prepayment Line Amount" 100 and post prepayment invoice
+
+        Initialize();
+
+        LibrarySales.CreatePrepaymentVATSetup(GLAccount, VATCalculationType);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithPostingSetup(GLAccount));
+
+        CreateSalesLine(SalesLine, SalesHeader, Enum::"Sales Line Type"::Item, CreateItemWithPostingSetup(GLAccount));
+        SalesLine.Validate("Prepayment %", 0);
+        SalesLine.Modify(true);
+        SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(LibraryRandom.RandDec(100, 2), SalesHeader);
+        SalesHeader.Modify(true);
+
+        PrepaymentAmount := LibraryRandom.RandDec(10, 2);
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.Validate("Prepmt. Line Amount", PrepaymentAmount);
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [WHEN] Release Sales Document
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [THEN] Verify Prepayment Line Amount on Sales Line is not changed after release
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Prepmt. Line Amount", PrepaymentAmount);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    procedure PrepmtOnSalesLineWithSecondInvoiceDiscount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GLAccount: Record "G/L Account";
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+        PrepaymentAmount: Decimal;
+    begin
+        // [FEATURE] [Sales] [Prepayment Amount]
+        // [SCENARIO 598768] Check "Prepayment Line Amount" is not changed on Sales Line after posting Prepayment Invoice and release sales order
+        // [SCENARIO 598769] Prepayment Line Amount is inserted before invoice discount is applied
+
+        // [GIVEN] Create Sales Order X with one item line
+        // [GIVEN] Insert "Prepayment Line Amount" 100
+        // [GIVEN] Insert invoice discount 10
+        // [GIVEN] Post prepayment invoice
+        Initialize();
+
+        LibrarySales.CreatePrepaymentVATSetup(GLAccount, VATCalculationType);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithPostingSetup(GLAccount));
+
+        CreateSalesLine(SalesLine, SalesHeader, Enum::"Sales Line Type"::Item, CreateItemWithPostingSetup(GLAccount));
+
+        SalesLine.Validate("Prepayment %", 0);
+        SalesLine.Validate("Prepmt. Line Amount", LibraryRandom.RandDec(10, 2));
+        SalesLine.Modify(true);
+        SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(LibraryRandom.RandDec(10, 2), SalesHeader);
+        SalesHeader.Modify(true);
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        PrepaymentAmount := SalesLine."Prepmt. Line Amount";
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [WHEN] Release Sales Document
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [THEN] Verify Prepayment Line Amount on Sales Line is not changed after release
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Prepmt. Line Amount", PrepaymentAmount);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure Initialize()

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -71,57 +71,6 @@ page 9018 "Administrator Role Center"
     {
         area(rolecenter)
         {
-#if not CLEAN24
-            group(Control1900724808)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control1904484608; "IT Operations Activities")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-                part("User Tasks Activities"; "User Tasks Activities")
-                {
-                    ApplicationArea = Suite;
-                }
-                part("Emails"; "Email Activities")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-                part(Control58; "CRM Synch. Job Status Part")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Visible = false;
-                }
-                part(Control52; "Service Connections Part")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Visible = false;
-                }
-            }
-            group(Control1900724708)
-            {
-                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
-                ObsoleteState = Pending;
-                ObsoleteTag = '24.0';
-                ShowCaption = false;
-                part(Control36; "Report Inbox Part")
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-                part(Control32; "My Job Queue")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Visible = false;
-                }
-                systempart(Control1901377608; MyNotes)
-                {
-                    ApplicationArea = Basic, Suite;
-                }
-            }
-#else
             part(Control1904484608; "IT Operations Activities")
             {
                 ApplicationArea = Basic, Suite;
@@ -161,7 +110,6 @@ page 9018 "Administrator Role Center"
             {
                 ApplicationArea = Basic, Suite;
             }
-#endif
         }
     }
 
@@ -951,4 +899,3 @@ page 9018 "Administrator Role Center"
         }
     }
 }
-

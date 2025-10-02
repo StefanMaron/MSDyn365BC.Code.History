@@ -10,7 +10,8 @@ using Microsoft.Warehouse.Journal;
 page 7384 "Registered Invt. Movement"
 {
     Caption = 'Registered Invt. Movement';
-    Editable = false;
+    InsertAllowed = false;
+    ModifyAllowed = false;
     PageType = Document;
     RefreshOnActivate = true;
     SaveValues = true;

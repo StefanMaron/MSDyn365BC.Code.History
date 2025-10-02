@@ -1584,11 +1584,11 @@ codeunit 137272 "SCM Reservation V"
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; QtyToShip: Decimal)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        ManufacturingSetup.Get();
-        SalesHeader.Validate("Shipment Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", SalesHeader."Shipment Date"));
+        InventorySetup.Get();
+        SalesHeader.Validate("Shipment Date", CalcDate(InventorySetup."Default Safety Lead Time", SalesHeader."Shipment Date"));
         SalesHeader.Modify(true);
 
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
@@ -1649,6 +1649,20 @@ codeunit 137272 "SCM Reservation V"
         ProductionBOMHeader.Modify(true);
         Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
         Item.Modify(true);
+    end;
+
+    local procedure CreateAndPostInventoryAdjustmentWithLotNo(Item: Record Item; LocationCode: Code[10]; var LotNo: Code[50]; Quantity: Decimal)
+    var
+        ItemJnlLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        NoSeries: Codeunit "No. Series";
+    begin
+        if LotNo = '' then
+            LotNo := NoSeries.GetNextNo(Item."Lot Nos.", WorkDate(), true);
+
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, ItemJnlLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", Quantity, LocationCode);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', LotNo, Quantity);
+        LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
     end;
 
     local procedure AutoReservePurchaseLine(PurchaseLine: Record "Purchase Line")
@@ -1928,20 +1942,6 @@ codeunit 137272 "SCM Reservation V"
         Assert.RecordIsNotEmpty(SalesShipmentHeader);
     end;
 
-    local procedure CreateAndPostInventoryAdjustmentWithLotNo(Item: Record Item; LocationCode: Code[10]; var LotNo: Code[50]; Quantity: Decimal)
-    var
-        ItemJnlLine: Record "Item Journal Line";
-        ReservationEntry: Record "Reservation Entry";
-        NoSeries: Codeunit "No. Series";
-    begin
-        if LotNo = '' then
-            LotNo := NoSeries.GetNextNo(Item."Lot Nos.", WorkDate(), true);
-
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, ItemJnlLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", Quantity, LocationCode);
-        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', LotNo, Quantity);
-        LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
-    end;
-
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -2004,6 +2004,28 @@ codeunit 137272 "SCM Reservation V"
 
         LibraryVariableStorage.Dequeue(DequeueVariable);
         ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingTransferPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        DequeueVariable: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        ItemTrackingLines."Lot No.".SetValue(DequeueVariable);
+
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
+
+        if ItemTrackingLines.CurrentSourceCaption.Value = 'Transfer Line' then begin
+            ItemTrackingLines.Next();
+            LibraryVariableStorage.Dequeue(DequeueVariable);
+            ItemTrackingLines."Lot No.".SetValue(DequeueVariable);
+
+            LibraryVariableStorage.Dequeue(DequeueVariable);
+            ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
+        end;
     end;
 
     [ModalPageHandler]
@@ -2087,27 +2109,6 @@ codeunit 137272 "SCM Reservation V"
         Reservation.TotalReservedQuantity.AssertEquals(LibraryVariableStorage.DequeueDecimal());
         Reservation.TotalAvailableQuantity.AssertEquals(LibraryVariableStorage.DequeueDecimal());
         Reservation.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
-    procedure ItemTrackingTransferPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
-    var
-        DequeueVariable: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(DequeueVariable);
-        ItemTrackingLines."Lot No.".SetValue(DequeueVariable);
-
-        LibraryVariableStorage.Dequeue(DequeueVariable);
-        ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
-
-        if ItemTrackingLines.CurrentSourceCaption.Value = 'Transfer Line' then begin
-            ItemTrackingLines.Next();
-            LibraryVariableStorage.Dequeue(DequeueVariable);
-            ItemTrackingLines."Lot No.".SetValue(DequeueVariable);
-
-            LibraryVariableStorage.Dequeue(DequeueVariable);
-            ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
-        end;
     end;
 }
 

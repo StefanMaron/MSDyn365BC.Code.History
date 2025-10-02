@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Document;
 
 using Microsoft.EServices.EDocument;
@@ -160,6 +164,16 @@ page 53 "Purchase List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the currency of the amounts on the purchase lines.';
+                    Visible = false;
+                }
+                field(Amount; Rec.Amount)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = Basic, Suite;
                     Visible = false;
                 }
             }

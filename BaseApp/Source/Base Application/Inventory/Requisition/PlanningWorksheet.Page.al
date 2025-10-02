@@ -11,8 +11,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Planning;
-using Microsoft.Manufacturing.Routing;
 using Microsoft.Purchases.Document;
 using Microsoft.Warehouse.Setup;
 using System.Environment;
@@ -205,35 +203,6 @@ page 99000852 "Planning Worksheet"
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies additional text describing the entry, or a remark about the requisition worksheet line.';
-                    Visible = false;
-                }
-                field("Production BOM No."; Rec."Production BOM No.")
-                {
-                    ApplicationArea = Assembly;
-                    ToolTip = 'Specifies the production BOM number for this production order.';
-                    Visible = false;
-                }
-                field("Production BOM Version Code"; Rec."Production BOM Version Code")
-                {
-                    ApplicationArea = Assembly;
-                    ToolTip = 'Specifies the version code of the BOM.';
-                    Visible = false;
-                }
-                field("Routing No."; Rec."Routing No.")
-                {
-                    ApplicationArea = Planning;
-                    ToolTip = 'Specifies the routing number.';
-                    Visible = false;
-
-                    trigger OnValidate()
-                    begin
-                        PlanningWkshManagement.GetDescriptionAndRcptName(Rec, ItemDescription, RoutingDescription);
-                    end;
-                }
-                field("Routing Version Code"; Rec."Routing Version Code")
-                {
-                    ApplicationArea = Planning;
-                    ToolTip = 'Specifies the version code of the routing.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
@@ -581,18 +550,6 @@ page 99000852 "Planning Worksheet"
                     ToolTip = 'View or edit the production order components of the parent item on the line.';
                     ShortCutKey = 'Ctrl+Alt+C';
                 }
-                action("Ro&uting")
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Ro&uting';
-                    Image = Route;
-                    RunObject = Page "Planning Routing";
-                    RunPageLink = "Worksheet Template Name" = field("Worksheet Template Name"),
-                                  "Worksheet Batch Name" = field("Journal Batch Name"),
-                                  "Worksheet Line No." = field("Line No.");
-                    ToolTip = 'View or edit the operations list of the parent item on the line.';
-                    ShortCutKey = 'Ctrl+Alt+R';
-                }
                 group("&Item Availability by")
                 {
                     Caption = '&Item Availability by';
@@ -704,7 +661,7 @@ page 99000852 "Planning Worksheet"
 
                     trigger OnAction()
                     var
-                        CalcPlan: Report "Calculate Plan - Plan. Wksh.";
+                        CalcPlan: Report Microsoft.Manufacturing.Planning."Calculate Plan - Plan. Wksh.";
                         IsHandled: Boolean;
                     begin
                         IsHandled := false;
@@ -731,7 +688,7 @@ page 99000852 "Planning Worksheet"
 
                     trigger OnAction()
                     var
-                        CalcPlan: Report "Calculate Plan - Plan. Wksh.";
+                        CalcPlan: Report Microsoft.Manufacturing.Planning."Calculate Plan - Plan. Wksh.";
                         IsHandled: Boolean;
                     begin
                         IsHandled := false;
@@ -920,9 +877,6 @@ page 99000852 "Planning Worksheet"
                 actionref(Components_Promoted; Components)
                 {
                 }
-                actionref("Ro&uting_Promoted"; "Ro&uting")
-                {
-                }
             }
             group(Category_Category6)
             {
@@ -1017,7 +971,6 @@ page 99000852 "Planning Worksheet"
     var
         PlanningTransparency: Codeunit "Planning Transparency";
         ReqJnlManagement: Codeunit ReqJnlManagement;
-        PlanningWkshManagement: Codeunit PlanningWkshManagement;
         ReqLineAvailabilityMgt: Codeunit "Req. Line Availability Mgt.";
         CurrentWkshBatchName: Code[10];
         ExcelFileNameTxt: Label 'Planning Worksheet - JournalBatchName %1 - WorksheetTemplateName %2', Comment = '%1 = Journal Batch Name; %2 = Worksheet Template Name';
@@ -1028,6 +981,7 @@ page 99000852 "Planning Worksheet"
         Warning: Option " ",Emergency,Exception,Attention;
 
     protected var
+        PlanningWkshManagement: Codeunit PlanningWkshManagement;
         ItemDescription: Text[100];
         RoutingDescription: Text[100];
         ShortcutDimCode: array[8] of Code[20];

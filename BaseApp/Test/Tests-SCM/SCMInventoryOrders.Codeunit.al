@@ -57,7 +57,7 @@ codeunit 137400 "SCM Inventory - Orders"
         AmountToAssignItemChargeErr: Label 'Amount to Assign does not correspond to Qty. to Assign on item charge assignment.';
         QtyToInvoiceMustHaveValueErr: Label 'Qty. to Invoice must have a value';
         DimensionErr: Label 'Dimension Value Code must be %1 in %2.', Comment = '%1 = Dimension Value Code, %2=Table Name';
-        DropShipmentDocumentExistsErr: Label 'You cannot use the cancel or correct functionality because the invoice line is associated with purchase order %1 via a Drop Shipment.', Comment = '%1 - Purchase Order No.';
+        DropShipmentDocumentExistsErr: Label 'You cannot use the cancel or correct functionality because the invoice line is associated with purchase order %1 due to Drop Shipment.', Comment = '%1 - Purchase Order No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2501,7 +2501,7 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesHeader: Record "Sales Header";
         UpdatedUnitPrice: Decimal;
     begin
-        // [SCENARIO 470284] Verify Selected Unit Price From Get Price is Updated in Sales Order Line 
+        // [SCENARIO 470284] Verify Selected Unit Price From Get Price is Updated in Sales Order Line
         // When the Lines Subform is sorted on Unit Price Excl. Tax
         Initialize();
 
@@ -3123,12 +3123,13 @@ codeunit 137400 "SCM Inventory - Orders"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));  // Post the Sales Order as Ship.
     end;
 
+#if not CLEAN25
     local procedure CreateAndReleaseSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         CreateSalesOrder(SalesHeader, SalesLine, CustomerNo, ItemNo, Quantity);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
-
+#endif
     local procedure CreateCustomer(var Customer: Record Customer; CombineShipments: Boolean; CustomerPriceGroupCode: Code[10])
     begin
         LibrarySales.CreateCustomer(Customer);
@@ -3815,12 +3816,13 @@ codeunit 137400 "SCM Inventory - Orders"
         InventorySetup.Modify(true);
     end;
 
+#if not CLEAN25
     local procedure UpdateOrderDateOnSalesOrder(SalesHeader: Record "Sales Header"; OrderDate: Date)
     begin
         SalesHeader.Validate("Order Date", OrderDate);
         SalesHeader.Modify(true);
     end;
-
+#endif
     local procedure UpdatePostedShipment(var ShippingAgentServices: Record "Shipping Agent Services"; DocumentNo: Code[20])
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
@@ -4109,15 +4111,16 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesHeader.FindFirst();
+        Assert.RecordIsNotEmpty(SalesHeader);
     end;
 
+#if not CLEAN25
     local procedure VerifyUnitPriceOnSalesLine(SalesLine: Record "Sales Line"; UnitPrice: Decimal)
     begin
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         SalesLine.TestField("Unit Price", UnitPrice);
     end;
-
+#endif
     local procedure VerifyValueEntryForItemCharge(ItemNo: Code[20]; ItemChargeNo: Code[20]; Qty: Decimal; UnitPrice: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -4433,4 +4436,3 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemChargeAssignmentPurchase.OK().Invoke();
     end;
 }
-

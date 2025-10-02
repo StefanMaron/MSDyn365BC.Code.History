@@ -151,6 +151,8 @@ report 19 "VAT- VIES Declaration Tax Auth"
 
     requestpage
     {
+        AboutTitle = 'About VAT- VIES Declaration Tax Auth';
+        AboutText = 'The **VAT-VIES Declaration Tax Auth** report generates a declaration of intra-community sales to VAT-registered customers in the EU. It helps support compliance with EU tax requirements by compiling sales data for submission to the VIES system. Use it for submitting required intra-EU sales reports to tax authorities, especially when accurate VAT numbers and country codes are essential.';
         SaveValues = true;
 
         layout

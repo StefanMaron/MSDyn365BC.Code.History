@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Finance.Currency;
@@ -144,18 +148,21 @@ table 55 "Invoice Posting Buffer"
         }
         field(25; "Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount (ACY)';
             DataClassification = SystemMetadata;
         }
         field(26; "VAT Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Amount (ACY)';
             DataClassification = SystemMetadata;
         }
         field(29; "VAT Base Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Base Amount (ACY)';
             DataClassification = SystemMetadata;
@@ -297,12 +304,14 @@ table 55 "Invoice Posting Buffer"
         }
         field(6203; "Non-Deductible VAT Base ACY"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Base ACY';
             DataClassification = SystemMetadata;
         }
         field(6204; "Non-Deductible VAT Amount ACY"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Amount ACY';
             DataClassification = SystemMetadata;
@@ -332,6 +341,13 @@ table 55 "Invoice Posting Buffer"
             ObsoleteTag = '26.0';
         }
 #endif
+        field(12102; "No. of Fixed Asset Cards"; Integer)
+        {
+            BlankZero = true;
+            Caption = 'No. of Fixed Asset Cards';
+            DataClassification = SystemMetadata;
+            MinValue = 0;
+        }
     }
 
     keys
@@ -349,6 +365,19 @@ table 55 "Invoice Posting Buffer"
     var
         TempInvoicePostingBufferRounding: Record "Invoice Posting Buffer" temporary;
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
+
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
 
 #if not CLEAN25
     [Obsolete('Replaced by procedure PrepareInvoicePostingBuffer in codeunit Sales Post Invoice', '25.0')]
@@ -905,4 +934,3 @@ table 55 "Invoice Posting Buffer"
     begin
     end;
 }
-

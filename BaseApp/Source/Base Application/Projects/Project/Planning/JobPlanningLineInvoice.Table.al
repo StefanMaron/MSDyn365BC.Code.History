@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Project.Planning;
 
 using Microsoft.Projects.Project.Job;
@@ -65,11 +69,13 @@ table 1022 "Job Planning Line Invoice"
         {
             Caption = 'Invoiced Amount (LCY)';
             Editable = false;
+            AutoFormatType = 1;
         }
         field(11; "Invoiced Cost Amount (LCY)"; Decimal)
         {
             Caption = 'Invoiced Cost Amount (LCY)';
             Editable = false;
+            AutoFormatType = 1;
         }
         field(12; "Job Ledger Entry No."; Integer)
         {
@@ -126,4 +132,3 @@ table 1022 "Job Planning Line Invoice"
     begin
     end;
 }
-

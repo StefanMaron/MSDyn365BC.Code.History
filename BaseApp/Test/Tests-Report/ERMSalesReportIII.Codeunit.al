@@ -2088,7 +2088,7 @@ codeunit 134984 "ERM Sales Report III"
         PostedShipmentNo: Code[20];
     begin
         // [FEATURE] [Standard Sales - Shipment]
-        // [SCENARIO 306111] "Sales Standard Shipment" report prints basic header and line data 
+        // [SCENARIO 306111] "Sales Standard Shipment" report prints basic header and line data
         Initialize();
 
         // [GIVEN] Set report "Sales Standard Shipment" as default for printing sales shipments
@@ -2101,7 +2101,7 @@ codeunit 134984 "ERM Sales Report III"
         SalesShipmentLine.SetRange("Document No.", PostedShipmentNo);
         SalesShipmentLine.FindFirst();
 
-        // [WHEN] Report "Sales Standard Shipment" is being printed 
+        // [WHEN] Report "Sales Standard Shipment" is being printed
         SaveStandardSalesShipmentReport(PostedShipmentNo);
 
         // [THEN] Dataset contains data about customer "C", line with item "I" and Quantity "5"
@@ -2127,7 +2127,7 @@ codeunit 134984 "ERM Sales Report III"
         ItemTrackingMode: Option " ","Assign Lot No.","Select Entries","Verify Entries";
     begin
         // [FEATURE] [Standard Sales - Shipment] [Item Tracking]
-        // [SCENARIO 306111] "Sales Standard Shipment" report prints item tracking data 
+        // [SCENARIO 306111] "Sales Standard Shipment" report prints item tracking data
         Initialize();
 
         // [GIVEN] Set report "Sales Standard Shipment" as default for printing sales shipments
@@ -2189,7 +2189,7 @@ codeunit 134984 "ERM Sales Report III"
         SalesShipmentLine.SetRange("Document No.", PostedShipmentNo);
         SalesShipmentLine.FindFirst();
 
-        // [WHEN] Report "Sales Standard Shipment" is being printed 
+        // [WHEN] Report "Sales Standard Shipment" is being printed
         SaveStandardSalesShipmentReport(PostedShipmentNo);
 
         // [THEN] Dataset contains data for ship-to customer "C1"
@@ -2211,7 +2211,7 @@ codeunit 134984 "ERM Sales Report III"
         PostedReturnReceiptNo: Code[20];
     begin
         // [FEATURE] [Standard Sales - Return Receipt]
-        // [SCENARIO 306111] "Standard Sales - Return Rcpt." report prints basic header and line data 
+        // [SCENARIO 306111] "Standard Sales - Return Rcpt." report prints basic header and line data
         Initialize();
 
         // [GIVEN] Set report "Standard Sales - Return Rcpt.." as default for printing return receipts
@@ -2223,7 +2223,7 @@ codeunit 134984 "ERM Sales Report III"
         ReturnReceiptLine.SetRange("Document No.", PostedReturnReceiptNo);
         ReturnReceiptLine.FindFirst();
 
-        // [WHEN] Report "Standard Sales - Return Rcpt.." is being printed 
+        // [WHEN] Report "Standard Sales - Return Rcpt.." is being printed
         SaveStandardSalesReturnReceiptReport(PostedReturnReceiptNo);
 
         // [THEN] Dataset contains data about customer "C", line with item "I" and Quantity "5"
@@ -2263,7 +2263,7 @@ codeunit 134984 "ERM Sales Report III"
         ReturnReceiptLine.SetRange("Document No.", PostedReturnReceiptNo);
         ReturnReceiptLine.FindFirst();
 
-        // [WHEN] Report "Standard Sales - Return Rcpt.." is being printed 
+        // [WHEN] Report "Standard Sales - Return Rcpt.." is being printed
         SaveStandardSalesReturnReceiptReport(PostedReturnReceiptNo);
 
         // [THEN] Dataset contains data for ship-to customer "C1"
@@ -2563,7 +2563,7 @@ codeunit 134984 "ERM Sales Report III"
         Customer.SetRecFilter();
         Commit();
 
-        // [WHEN] When run "Standard Statement" report for the customer "C" and Log Interaction = false 
+        // [WHEN] When run "Standard Statement" report for the customer "C" and Log Interaction = false
         LibraryVariableStorage.Enqueue(false);
         RequestPageXML := REPORT.RunRequestPage(REPORT::"Standard Statement");
         LibraryReportDataset.RunReportAndLoad(REPORT::"Standard Statement", Customer, RequestPageXML);
@@ -2624,7 +2624,7 @@ codeunit 134984 "ERM Sales Report III"
         // [WHEN] Stan pushes OK on request page
         // Done in RHVendorBalanceToDateEnableShowEntriesWithZeroBalance
 
-        // [THEN] Dataset does not contain record related to original payment (only as applied entry) 
+        // [THEN] Dataset does not contain record related to original payment (only as applied entry)
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Payment));
     end;
@@ -2768,7 +2768,7 @@ codeunit 134984 "ERM Sales Report III"
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
         SalesLine.OpenItemTrackingLines();
 
-        // [GIVEN] Post Sales Shipment 
+        // [GIVEN] Post Sales Shipment
         PostedShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [WHEN] Run "Standard Sales - Shipment" report with "Show Serial/Lot Number Appendix" = Yes.
@@ -2776,7 +2776,7 @@ codeunit 134984 "ERM Sales Report III"
         RequestPageXML := Report.RunRequestPage(Report::"Standard Sales - Shipment");
         LibraryReportDataset.RunReportAndLoad(Report::"Standard Sales - Shipment", SalesShipmentHeader, RequestPageXML);
 
-        // [VERIFY] Verify Second Serial No. exist in the report. 
+        // [VERIFY] Verify Second Serial No. exist in the report.
         LibraryReportDataset.SearchForElementByValue('TrackingSpecBufferLotNo', FindAssignedLotNo(Item."No."));
     end;
 
@@ -2971,7 +2971,7 @@ codeunit 134984 "ERM Sales Report III"
 
         // [GIVEN] Unapply The Payment for Sales Invoice
         LibraryERM.FindCustomerLedgerEntry(CustomerLedgerEntry, CustomerLedgerEntry."Document Type"::Payment, DocumentNo);
-        UnapplyCustomerLedgerEntry(CustomerLedgerEntry, CalcDate('<+1M>', CalcDate('<CY>', WorkDate())));
+        UnapplyCustomerLedgerEntry(CustomerLedgerEntry, 20280201D);
 
         // [GIVEN] apply the payment again for the Sales Invoice
         CreateGeneralJournalLine(GenJournalLine, 1, Customer."No.", GenJournalLine."Document Type"::Payment, -Amount);
@@ -2981,7 +2981,7 @@ codeunit 134984 "ERM Sales Report III"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         //[WHEN] Run Aged Account Receivable Report
-        AsofDate := CalcDate('<CY>', WorkDate());
+        AsofDate := 20271231D;
         SaveAgedAccReceivable(Customer, AgingBy::"Posting Date", HeadingType::"Date Interval", PeriodLength, false, true, AsofDate);
 
         //[THEN] Check These  Entries should not be there.
@@ -3929,18 +3929,6 @@ codeunit 134984 "ERM Sales Report III"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure UpdateReportSelection(Usage: Enum "Report Selection Usage"; ReportID: Integer)
-    var
-        ReportSelections: Record "Report Selections";
-    begin
-        ReportSelections.SetRange(Usage, Usage);
-        ReportSelections.DeleteAll();
-        ReportSelections.Usage := Usage;
-        ReportSelections.Sequence := '1';
-        ReportSelections."Report ID" := ReportID;
-        ReportSelections.Insert();
-    end;
-
     local procedure UpdateOpenOnCustLedgerEntry(EntryNo: Integer)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -4436,7 +4424,7 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.SetRange('PostingDt_CustLedgEntry', Format(WorkDate()));
         LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Invoice));
         LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(CustLedgerEntry.Amount, 0, 2));
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(CustLedgerEntry.Amount));
     end;
 
     local procedure VerifyCustomerEntriesAndBalanceInCustomerBalanceToDate(GenJournalLine: Record "Gen. Journal Line"; Balance: Decimal)
@@ -5132,4 +5120,3 @@ codeunit 134984 "ERM Sales Report III"
         ProFormaInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

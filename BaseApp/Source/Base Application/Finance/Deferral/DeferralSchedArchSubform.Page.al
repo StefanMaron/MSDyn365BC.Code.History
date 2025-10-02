@@ -1,5 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Deferral;
 
+/// <summary>
+/// Read-only subform page displaying archived deferral schedule lines.
+/// Shows historical period amounts and posting dates from archived documents.
+/// </summary>
 page 1707 "Deferral Sched. Arch. Subform"
 {
     Caption = 'Deferral Schedule Detail';
@@ -86,6 +94,10 @@ page 1707 "Deferral Sched. Arch. Subform"
             TotalDeferral := DeferralLineArchiveTemp.Amount;
     end;
 
+    /// <summary>
+    /// Gets the changed status of the deferral schedule archive subform.
+    /// </summary>
+    /// <returns>True if the subform data has been modified, false otherwise</returns>
     procedure GetChanged(): Boolean
     begin
         exit(Changed);

@@ -1,4 +1,4 @@
-﻿namespace System.AI;
+namespace System.AI;
 
 using System;
 using System.IO;
@@ -48,18 +48,6 @@ codeunit 2003 "ML Prediction Management"
         TrainingPercent := 0.8;
     end;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [Obsolete('Use "Initialize(Uri: Text[250]; "Key": SecretText; TimeOutSeconds: Integer)" instead.', '24.0')]
-    procedure Initialize(Uri: Text[250]; "Key": Text[200]; TimeOutSeconds: Integer)
-    begin
-        ApiUri := Uri;
-        ApiKey := Key;
-        ApiTimeout := TimeOutSeconds;
-        UsingKeyvaultCredentials := false;
-        DefaultInitialize();
-    end;
-#endif
     procedure Initialize(Uri: Text[250]; "Key": SecretText; TimeOutSeconds: Integer)
     begin
         ApiUri := Uri;
@@ -518,21 +506,6 @@ codeunit 2003 "ML Prediction Management"
         exit(ArrayLen(FeatureNumbers));
     end;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [TryFunction]
-    [Scope('OnPrem')]
-    [Obsolete('Use "GetMachineLearningCredentials(var MLApiUri: SecretText; var MLApiKey: SecretText; var LimitType: Option; var Limit: Decimal)" instead.', '24.0')]
-    procedure GetMachineLearningCredentials(var MLApiUri: Text[250]; var MLApiKey: Text[200]; var LimitType: Option; var Limit: Decimal)
-    var
-        MachineLearningKeyVaultMgmt: Codeunit "Machine Learning KeyVaultMgmt.";
-    begin
-        MachineLearningKeyVaultMgmt.GetMachineLearningCredentials(MachineLearningSecretNameTxt, MLApiUri, MLApiKey, LimitType, Limit);
-
-        if ApiUri = '' then
-            Error(NoCredentialsInKeyVaultErr);
-    end;
-#endif
     [TryFunction]
     [Scope('OnPrem')]
     procedure GetMachineLearningCredentials(var MLApiUri: Text[250]; var MLApiKey: SecretText; var LimitType: Option; var Limit: Decimal)
@@ -560,4 +533,3 @@ codeunit 2003 "ML Prediction Management"
     begin
     end;
 }
-

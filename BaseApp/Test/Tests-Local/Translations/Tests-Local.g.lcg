@@ -50,15 +50,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM EU 3-Party - NamedType TotalValueOfServiceSuppliesCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3469878846 - NamedType 3282994078" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VATAmtLineLineAmt]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM REFINV - NamedType AmtCap)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3469878846 - NamedType 635870937" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The Job Queue Entry for Sales Credit Memo as result of batch posting has not been created.]]></Val>
@@ -84,15 +75,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM REFINV - NamedType UnexpectedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3469878846 - NamedType 1586873955" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VATAmtLineVATAmt]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM REFINV - NamedType VATAmtCap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 518829505 - NamedType 1697860903" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

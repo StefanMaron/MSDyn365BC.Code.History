@@ -328,6 +328,7 @@ table 900 "Assembly Header"
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             var
@@ -365,6 +366,7 @@ table 900 "Assembly Header"
         {
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             var
@@ -385,12 +387,14 @@ table 900 "Assembly Header"
             Caption = 'Remaining Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(43; "Remaining Quantity (Base)"; Decimal)
         {
             Caption = 'Remaining Quantity (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(44; "Assembled Quantity"; Decimal)
         {
@@ -398,18 +402,21 @@ table 900 "Assembly Header"
             Caption = 'Assembled Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(45; "Assembled Quantity (Base)"; Decimal)
         {
             Caption = 'Assembled Quantity (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(46; "Quantity to Assemble"; Decimal)
         {
             Caption = 'Quantity to Assemble';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             var
@@ -439,6 +446,7 @@ table 900 "Assembly Header"
         {
             Caption = 'Quantity to Assemble (Base)';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(48; "Reserved Quantity"; Decimal)
         {
@@ -452,6 +460,7 @@ table 900 "Assembly Header"
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(49; "Reserved Qty. (Base)"; Decimal)
         {
@@ -465,6 +474,7 @@ table 900 "Assembly Header"
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 0;
         }
         field(50; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
@@ -503,6 +513,7 @@ table 900 "Assembly Header"
         field(65; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
             MinValue = 0;
 
@@ -530,6 +541,7 @@ table 900 "Assembly Header"
         field(67; "Cost Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Cost Amount';
             Editable = false;
         }
@@ -540,16 +552,20 @@ table 900 "Assembly Header"
                                                                    Type = filter(Item | Resource)));
             Caption = 'Rolled-up Assembly Cost';
             FieldClass = FlowField;
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(75; "Indirect Cost %"; Decimal)
         {
             Caption = 'Indirect Cost %';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(76; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(80; "Unit of Measure Code"; Code[10])
         {
@@ -583,6 +599,7 @@ table 900 "Assembly Header"
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -598,6 +615,7 @@ table 900 "Assembly Header"
             MinValue = 0;
             MaxValue = 1;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(83; "Qty. Rounding Precision (Base)"; Decimal)
         {
@@ -607,6 +625,7 @@ table 900 "Assembly Header"
             MinValue = 0;
             MaxValue = 1;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(107; "No. Series"; Code[20])
         {
@@ -721,11 +740,6 @@ table 900 "Assembly Header"
     var
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        DefaultNoSeriesCode: Code[20];
-        IsHandled: Boolean;
-#endif
     begin
         CheckIsNotAsmToOrder();
 
@@ -733,24 +747,11 @@ table 900 "Assembly Header"
 
         if "No." = '' then begin
             TestNoSeries();
-#if not CLEAN24
-            DefaultNoSeriesCode := GetNoSeriesCode();
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(DefaultNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(DefaultNoSeriesCode, xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := DefaultNoSeriesCode;
-                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", DefaultNoSeriesCode, "Posting Date", "No.");
-            end;
-#else
             if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
                 "No. Series" := xRec."No. Series"
             else
                 "No. Series" := GetNoSeriesCode();
             "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#endif
         end;
 
         if "Document Type" = "Document Type"::Order then begin
@@ -1077,7 +1078,7 @@ table 900 "Assembly Header"
             repeat
                 OldDimSetID := AssemblyOrderLine."Dimension Set ID";
                 NewDimSetID := DimMgt.GetDeltaDimSetID(AssemblyOrderLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
-                if AssemblyOrderLine."Dimension Set ID" <> NewDimSetID then begin
+                if OldDimSetID <> NewDimSetID then begin
                     AssemblyOrderLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       AssemblyOrderLine."Dimension Set ID", AssemblyOrderLine."Shortcut Dimension 1 Code", AssemblyOrderLine."Shortcut Dimension 2 Code");
@@ -1156,32 +1157,32 @@ table 900 "Assembly Header"
         exit(not ReservEntry.IsEmpty);
     end;
 
-    procedure SetItemToPlanFilters(var Item: Record Item; DocumentType: Enum "Assembly Document Type")
+    procedure SetItemToPlanFilters(var Item2: Record Item; DocumentType: Enum "Assembly Document Type")
     begin
         Reset();
         SetCurrentKey("Document Type", "Item No.", "Variant Code", "Location Code");
         SetRange("Document Type", DocumentType);
-        SetRange("Item No.", Item."No.");
-        SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-        SetFilter("Location Code", Item.GetFilter("Location Filter"));
-        SetFilter("Due Date", Item.GetFilter("Date Filter"));
-        SetFilter("Shortcut Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
-        SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
+        SetRange("Item No.", Item2."No.");
+        SetFilter("Variant Code", Item2.GetFilter("Variant Filter"));
+        SetFilter("Location Code", Item2.GetFilter("Location Filter"));
+        SetFilter("Due Date", Item2.GetFilter("Date Filter"));
+        SetFilter("Shortcut Dimension 1 Code", Item2.GetFilter("Global Dimension 1 Filter"));
+        SetFilter("Shortcut Dimension 2 Code", Item2.GetFilter("Global Dimension 2 Filter"));
         SetFilter("Remaining Quantity (Base)", '<>0');
-        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
+        SetFilter("Unit of Measure Code", Item2.GetFilter("Unit of Measure Filter"));
 
-        OnAfterSetItemToPlanFilters(Rec, Item, DocumentType);
+        OnAfterSetItemToPlanFilters(Rec, Item2, DocumentType);
     end;
 
-    procedure FindItemToPlanLines(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
+    procedure FindItemToPlanLines(var Item2: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
     begin
-        SetItemToPlanFilters(Item, DocumentType);
+        SetItemToPlanFilters(Item2, DocumentType);
         exit(Find('-'));
     end;
 
-    procedure ItemToPlanLinesExist(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
+    procedure ItemToPlanLinesExist(var Item2: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
     begin
-        SetItemToPlanFilters(Item, DocumentType);
+        SetItemToPlanFilters(Item2, DocumentType);
         exit(not IsEmpty);
     end;
 
@@ -1269,13 +1270,13 @@ table 900 "Assembly Header"
                     Validate("Gen. Bus. Posting Group", AssemblySetup."Default Gen. Bus. Post. Group");
     end;
 
-    procedure SetItemFilter(var Item: Record Item)
+    procedure SetItemFilter(var Item2: Record Item)
     begin
         if "Due Date" = 0D then
             "Due Date" := WorkDate();
-        Item.SetRange("Date Filter", 0D, "Due Date");
-        Item.SetRange("Location Filter", "Location Code");
-        Item.SetRange("Variant Filter", "Variant Code");
+        Item2.SetRange("Date Filter", 0D, "Due Date");
+        Item2.SetRange("Location Filter", "Location Code");
+        Item2.SetRange("Variant Filter", "Variant Code");
     end;
 
     procedure ShowAssemblyList()
@@ -1567,7 +1568,7 @@ table 900 "Assembly Header"
 
     procedure ValidateDueDate(NewDueDate: Date; CallValidateOnOtherDates: Boolean)
     var
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+        AsmReservCheckDateConfl: Codeunit "Asm. ReservCheckDateConfl";
     begin
         OnBeforeValidateDueDate(Rec, NewDueDate);
         "Due Date" := NewDueDate;
@@ -1577,7 +1578,7 @@ table 900 "Assembly Header"
         if CallValidateOnOtherDates then
             ValidateDates(FieldNo("Due Date"), false);
         if (xRec."Due Date" <> "Due Date") and (Quantity <> 0) then
-            ReservationCheckDateConfl.AssemblyHeaderCheck(Rec, (CurrFieldNo <> 0) or TestReservationDateConflict);
+            AsmReservCheckDateConfl.AssemblyHeaderCheck(Rec, (CurrFieldNo <> 0) or TestReservationDateConflict);
     end;
 
     procedure ValidateEndDate(NewEndDate: Date; CallValidateOnOtherDates: Boolean)
@@ -2005,25 +2006,28 @@ table 900 "Assembly Header"
 
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        AssemblyLineLocal: Record "Assembly Line";
         AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
         QtyReservedFromStock: Decimal;
     begin
         QtyReservedFromStock := AssemblyLineReserve.GetReservedQtyFromInventory(Rec);
+        if QtyReservedFromStock = 0 then
+            exit(Result::None);
 
-        AssemblyLineLocal.SetRange("Document Type", "Document Type");
-        AssemblyLineLocal.SetRange("Document No.", "No.");
-        AssemblyLineLocal.SetRange(Type, AssemblyLineLocal.Type::Item);
-        AssemblyLineLocal.CalcSums("Remaining Quantity (Base)");
+        if QtyReservedFromStock = CalculateReservableRemainingQuantityBase() then
+            exit(Result::Full);
 
-        case QtyReservedFromStock of
-            0:
-                exit(Result::None);
-            AssemblyLineLocal."Remaining Quantity (Base)":
-                exit(Result::Full);
-            else
-                exit(Result::Partial);
-        end;
+        exit(Result::Partial);
+    end;
+
+    local procedure CalculateReservableRemainingQuantityBase() RemainingQuantityBase: Decimal
+    var
+        RemQtyBaseInvtItemAssemblyLine: Query RemQtyBaseInvtItemAssemblyLine;
+    begin
+        RemQtyBaseInvtItemAssemblyLine.SetAssemblyLineFilter(Rec);
+        if RemQtyBaseInvtItemAssemblyLine.Open() then
+            if RemQtyBaseInvtItemAssemblyLine.Read() then
+                RemainingQuantityBase := RemQtyBaseInvtItemAssemblyLine.Remaining_Quantity__Base_;
+        RemQtyBaseInvtItemAssemblyLine.Close();
     end;
 
     local procedure ConfirmDeletion()
@@ -2334,4 +2338,3 @@ table 900 "Assembly Header"
     begin
     end;
 }
-

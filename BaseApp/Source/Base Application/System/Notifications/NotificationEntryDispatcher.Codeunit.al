@@ -4,7 +4,6 @@ using Microsoft.Foundation.Reporting;
 using Microsoft.Utilities;
 using System.Automation;
 using System.Email;
-using System.IO;
 using System.Reflection;
 using System.Security.User;
 using System.Threading;
@@ -28,12 +27,12 @@ codeunit 1509 "Notification Entry Dispatcher"
 
     var
         NotificationManagement: Codeunit "Notification Management";
+        HtmlBodyTempBlob: Codeunit "Temp Blob";
         NotificationMailSubjectTxt: Label 'Notification overview';
         NoEmailAccountsErr: Label 'Cannot send the email. No email accounts have been added.';
         EmailBodyFailedToGenerateErr: Label 'Notification (%1)''s email body failed to generate due to: %2', Comment = '%1 = Notification Entry ID, %2 = Error message';
         EmailFailedToSendErr: Label 'Notification (%1)''s email failed to send due to: %2', Comment = '%1 = Notification Entry ID, %2 = Error message';
         NoteFailedToAddErr: Label 'Notification (%1)''s note failed to add due to: %2', Comment = '%1 = Notification Entry ID, %2 = Error message';
-        HtmlBodyFilePath: Text;
 
     local procedure DispatchInstantNotifications()
     var
@@ -137,7 +136,6 @@ codeunit 1509 "Notification Entry Dispatcher"
         MailManagement: Codeunit "Mail Management";
         DocumentMailing: Codeunit "Document-Mailing";
         ErrorMessageMgt: Codeunit "Error Message Management";
-        FileManagement: Codeunit "File Management";
         TempBlob: Codeunit "Temp Blob";
         SourceReference: RecordRef;
         DocumentRecRef: RecordRef;
@@ -182,8 +180,8 @@ codeunit 1509 "Notification Entry Dispatcher"
             until MaximumRelatedEntriesReached or (NotificationEntry.Next() = 0);
 
         IsEmailedSuccessfully := DocumentMailing.EmailFile(
-         AttachmentStream, '', HtmlBodyFilePath, MailSubject, Email, true, Enum::"Email Scenario"::"Notification", SourceTables, SourceIDs, SourceRelationTypes);
-        FileManagement.DeleteServerFile(HtmlBodyFilePath);
+         AttachmentStream, '', HtmlBodyTempBlob, MailSubject, Email, true, Enum::"Email Scenario"::"Notification", SourceTables, SourceIDs, SourceRelationTypes);
+
         if IsEmailedSuccessfully then
             NotificationManagement.MoveNotificationEntryToSentNotificationEntries(
               NotificationEntry, BodyText, true, NotificationSetup."Notification Method"::Email.AsInteger())
@@ -260,13 +258,10 @@ codeunit 1509 "Notification Entry Dispatcher"
         NotificationEntry.FindSet();
     end;
 
-    local procedure ConvertHtmlFileToText(HtmlBodyFilePath: Text; var BodyText: Text)
+    local procedure ConvertHtmlFileToText(var TempBlob: Codeunit "Temp Blob"; var BodyText: Text)
     var
-        TempBlob: Codeunit "Temp Blob";
-        FileManagement: Codeunit "File Management";
         BlobInStream: InStream;
     begin
-        FileManagement.BLOBImportFromServerFile(TempBlob, HtmlBodyFilePath);
         TempBlob.CreateInStream(BlobInStream);
         BlobInStream.ReadText(BodyText);
     end;
@@ -291,8 +286,9 @@ codeunit 1509 "Notification Entry Dispatcher"
     procedure GetHTMLBodyText(var NotificationEntry: Record "Notification Entry"; var BodyTextOut: Text) Result: Boolean
     var
         ReportLayoutSelection: Record "Report Layout Selection";
-        FileManagement: Codeunit "File Management";
         ErrorMessageMgt: Codeunit "Error Message Management";
+        RecRef: RecordRef;
+        HtmlBodyOutStream: OutStream;
         IsHandled: Boolean;
         TempLayoutCode: Code[20];
     begin
@@ -301,11 +297,12 @@ codeunit 1509 "Notification Entry Dispatcher"
         if IsHandled then
             exit(Result);
 
-        HtmlBodyFilePath := FileManagement.ServerTempFileName('html');
         TempLayoutCode := '';
         OnGetHTMLBodyTextOnAfterSetTempLayoutCode(NotificationEntry, BodyTextOut, TempLayoutCode);
         ReportLayoutSelection.SetTempLayoutSelected(TempLayoutCode);
-        if not REPORT.SaveAsHtml(REPORT::"Notification Email", HtmlBodyFilePath, NotificationEntry) then begin
+        RecRef.GetTable(NotificationEntry);
+        HtmlBodyTempBlob.CreateOutStream(HtmlBodyOutStream, TextEncoding::UTF8);
+        if not Report.SaveAs(Report::"Notification Email", '', ReportFormat::Html, HtmlBodyOutStream, RecRef) then begin
             NotificationEntry."Error Message" := CopyStr(GetLastErrorText(), 1, MaxStrLen(NotificationEntry."Error Message"));
             NotificationEntry.Modify(true);
             ErrorMessageMgt.LogError(NotificationEntry, StrSubstNo(EmailBodyFailedToGenerateErr, NotificationEntry.ID, GetLastErrorText()), '');
@@ -313,7 +310,7 @@ codeunit 1509 "Notification Entry Dispatcher"
             exit(false);
         end;
 
-        ConvertHtmlFileToText(HtmlBodyFilePath, BodyTextOut);
+        ConvertHtmlFileToText(HtmlBodyTempBlob, BodyTextOut);
         exit(true);
     end;
 

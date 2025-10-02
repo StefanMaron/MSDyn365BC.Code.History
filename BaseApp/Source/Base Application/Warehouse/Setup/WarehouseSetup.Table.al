@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Setup;
 
 using Microsoft.Foundation.NoSeries;
@@ -5,7 +9,6 @@ using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.InventoryDocument;
 using Microsoft.Warehouse.Request;
 using System.Utilities;
-using System.Environment.Configuration;
 
 table 5769 "Warehouse Setup"
 {
@@ -227,10 +230,6 @@ table 5769 "Warehouse Setup"
     procedure GetCurrentReference(): Integer
     begin
         Rec.Get();
-#if not CLEAN25
-        if Rec."Last Whse. Posting Ref. Seq." = '' then
-            exit(Rec."Last Whse. Posting Ref. No.");
-#endif
         EnsureSequenceExists();
         exit(NumberSequence.Current(Rec."Last Whse. Posting Ref. Seq.") mod MaxInt());
     end;
@@ -255,9 +254,7 @@ table 5769 "Warehouse Setup"
         end;
         if NumberSequence.Exists("Last Whse. Posting Ref. Seq.") then
             exit;
-#if not CLEAN25
-        NumberSequence.Insert(Rec."Last Whse. Posting Ref. Seq.", Rec."Last Whse. Posting Ref. No.", 1);
-#endif
+        NumberSequence.Insert(Rec."Last Whse. Posting Ref. Seq.", 0, 1);
         // Simulate that a number was used - init issue with number sequences.
         if NumberSequence.next(Rec."Last Whse. Posting Ref. Seq.") = 0 then;
     end;
@@ -267,12 +264,13 @@ table 5769 "Warehouse Setup"
         exit(2147483647);
     end;
 
+#if not CLEAN27
+    [Obsolete('This function is deprecated. Concurrent warehouse posting is always on.', '27.0')]
     procedure UseLegacyPosting(): Boolean
-    var
-        FeatureKeyManagement: Codeunit "Feature Key Management";
     begin
-        exit(not FeatureKeyManagement.IsConcurrentWarehousingPostingEnabled());
+        exit(false);
     end;
+#endif
 
     internal procedure GetRecordOnce()
     begin

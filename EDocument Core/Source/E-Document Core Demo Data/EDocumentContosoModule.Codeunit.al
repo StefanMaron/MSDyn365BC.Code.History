@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 5373 "E-Document Contoso Module" implements "Contoso Demo Data Module"
 {
 

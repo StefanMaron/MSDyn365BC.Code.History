@@ -1924,9 +1924,6 @@ table 5965 "Service Contract Header"
 
     local procedure InitNoSeries()
     var
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1937,17 +1934,9 @@ table 5965 "Service Contract Header"
         if "Contract No." = '' then begin
             ServMgtSetup.TestField("Service Contract Nos.");
             "No. Series" := GetServiceContractNos();
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", 0D, "Contract No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "Contract No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetServiceContractNos(), 0D, "Contract No.");
-            end;
-#endif
 
         end;
     end;
@@ -3126,4 +3115,3 @@ table 5965 "Service Contract Header"
     begin
     end;
 }
-

@@ -10,9 +10,11 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 
+#pragma warning disable AA0210
 codeunit 139688 "Recurring Billing Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
     Access = Internal;
 
@@ -1756,3 +1758,4 @@ codeunit 139688 "Recurring Billing Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

@@ -19,6 +19,7 @@ codeunit 137058 "SCM Planning Transparency"
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -484,12 +485,10 @@ codeunit 137058 "SCM Planning Transparency"
     procedure OrderTrackingForForecastAfterCalcRegenPlanLFLItem()
     var
         Item: Record Item;
-        ManufacturingSetup: Record "Manufacturing Setup";
         RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Item with re-order policy - Order, Create Blanket Sales Order, Planning Worksheet -> Calculate Regenerative plan.
         Initialize();
-        ManufacturingSetup.Get();
         CreateLotForLotItem(
           Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(5) + 5, LibraryRandom.RandInt(5) + 20,
           LibraryRandom.RandInt(5) + 10, 0);  // Values required.
@@ -507,10 +506,6 @@ codeunit 137058 "SCM Planning Transparency"
 
         // Verify Untracked planning elements.
         VerifyUntrackedPlanningElementSource(ProductionForecastMsg, SafetyStockMsg, ExceptionMsg, AttentionMsg, '');
-
-        // Tear Down.
-        UpdateForecastOnManufacturingSetup(
-          ManufacturingSetup."Current Production Forecast", ManufacturingSetup."Use Forecast on Locations");
     end;
 
     [Test]
@@ -610,8 +605,8 @@ codeunit 137058 "SCM Planning Transparency"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning Transparency");
         ClearGlobals();
-
         LibraryApplicationArea.EnableEssentialSetup();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
@@ -624,6 +619,7 @@ codeunit 137058 "SCM Planning Transparency"
         CreateLocationSetup();
         isInitialized := true;
         Commit();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning Transparency");
     end;
 
@@ -899,14 +895,14 @@ codeunit 137058 "SCM Planning Transparency"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
-    local procedure UpdateForecastOnManufacturingSetup(CurrentProductionForecast: Code[10]; UseForecastOnLocations: Boolean)
+    local procedure UpdateDemandForecastSetup(CurrentProductionForecast: Code[10]; UseForecastOnLocations: Boolean)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
-        ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
-        ManufacturingSetup.Modify(true);
+        InventorySetup.Get();
+        InventorySetup.Validate("Current Demand Forecast", CurrentProductionForecast);
+        InventorySetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
+        InventorySetup.Modify(true);
     end;
 
     local procedure CreateProductionForecastSetup(ItemNo: Code[20])
@@ -916,7 +912,7 @@ codeunit 137058 "SCM Planning Transparency"
     begin
         // Using Random Value and Dates based on WORKDATE.
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name, true);
+        UpdateDemandForecastSetup(ProductionForecastName.Name, true);
         LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name, ItemNo, '', WorkDate(), false);
         ProductionForecastEntry.Validate("Forecast Quantity (Base)", LibraryRandom.RandDec(5, 2) + 200);  // Large random value required.
         ProductionForecastEntry.Modify(true);

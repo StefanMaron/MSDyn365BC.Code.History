@@ -1,7 +1,10 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Ledger;
 
 using Microsoft.Foundation.AuditCodes;
-using Microsoft.Warehouse.Setup;
 using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Tracking;
 using System.DataAdministration;
@@ -117,17 +120,11 @@ report 7398 "Date Compress Whse. Entries"
                 SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress Whse. Entries");
 
-                if WarehouseSetup.UseLegacyPosting() then begin
-                    NewWhseEntry.LockTable();
-                    WhseReg.LockTable();
-                end;
-
                 DateComprReg.LockTable();
                 WhseEntry2.ReadIsolation(IsolationLevel::ReadCommitted);
                 LastEntryNo := WhseEntry2.GetLastEntryNo();
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Registering Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
-
                 InitRegisters();
 
                 RetainSerialNo := RetainNo(FieldNo("Serial No."));
@@ -266,7 +263,6 @@ report 7398 "Date Compress Whse. Entries"
     end;
 
     var
-        WarehouseSetup: Record "Warehouse Setup";
         SourceCodeSetup: Record "Source Code Setup";
         DateComprReg: Record "Date Compr. Register";
         EntrdDateComprReg: Record "Date Compr. Register";
@@ -324,7 +320,7 @@ report 7398 "Date Compress Whse. Entries"
         NextRegNo: Integer;
     begin
         WhseReg.Init();
-        WhseReg."No." := WhseReg.GetNextEntryNo(WarehouseSetup.UseLegacyPosting());
+        WhseReg."No." := WhseReg.GetNextEntryNo();
         WhseReg."Creation Date" := Today;
         WhseReg."Creation Time" := Time;
         WhseReg."Source Code" := SourceCodeSetup."Compress Whse. Entries";
@@ -358,7 +354,7 @@ report 7398 "Date Compress Whse. Entries"
             WhseReg.Modify();
             DateComprReg.Modify();
         end else begin
-            WhseReg.InsertRecord(WarehouseSetup.UseLegacyPosting());
+            WhseReg.InsertRecord();
             DateComprReg.Insert();
             WhseRegExists := true;
         end;
@@ -532,10 +528,7 @@ report 7398 "Date Compress Whse. Entries"
 
     local procedure InsertNewEntry(var WhseEntry: Record "Warehouse Entry"; Qty: Decimal; QtyBase: Decimal; Cubage: Decimal; Weight: Decimal; EntryType: Option)
     begin
-        if WarehouseSetup.UseLegacyPosting() then
-            LastEntryNo += 1
-        else
-            LastEntryNo := WhseEntry.GetNextEntryNo();
+        LastEntryNo := WhseEntry.GetNextEntryNo();
         WhseEntry."Entry No." := LastEntryNo;
         WhseEntry."Warehouse Register No." := WhseReg."No.";
         WhseEntry.Quantity := Qty;
@@ -544,7 +537,7 @@ report 7398 "Date Compress Whse. Entries"
         WhseEntry.Weight := Weight;
         WhseEntry."Entry Type" := EntryType;
         OnBeforeInsertNewEntry(WhseEntry);
-        WhseEntry.InsertRecord(WarehouseSetup.UseLegacyPosting());
+        WhseEntry.Insert(true);
         if FirstEntryNo = 0 then
             FirstEntryNo := LastEntryNo;
     end;
