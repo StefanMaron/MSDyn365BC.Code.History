@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.CostAccounting.Account;
@@ -19,6 +23,7 @@ page 489 "Column Layout"
     {
         area(content)
         {
+#if not CLEAN27
             field(CurrentColumnName; CurrentColumnName)
             {
                 ApplicationArea = Basic, Suite;
@@ -27,6 +32,10 @@ page 489 "Column Layout"
                 Lookup = true;
                 TableRelation = "Column Layout Name".Name;
                 ToolTip = 'Specifies the unique name (code) of the column definition.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This field is no longer required and will be removed in a future release.';
+                ObsoleteTag = '27.0';
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
@@ -37,6 +46,22 @@ page 489 "Column Layout"
                 begin
                     AccSchedManagement.CheckColumnName(CurrentColumnName);
                     CurrentColumnNameOnAfterValida();
+                end;
+            }
+#endif
+            field(CurrentDescription; CurrentDescription)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Description';
+                ToolTip = 'Specifies the description of the column definition. The description is not shown on the final report but is used to provide more context when using the definition.';
+
+                trigger OnValidate()
+                var
+                    ColumnLayoutName: Record "Column Layout Name";
+                begin
+                    ColumnLayoutName.Get(CurrentColumnName);
+                    ColumnLayoutName.Description := CurrentDescription;
+                    ColumnLayoutName.Modify();
                 end;
             }
             field(InternalDescription; InternalDescription)
@@ -73,6 +98,10 @@ page 489 "Column Layout"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a header for the column.';
+                }
+                field(IncludeDateInHeader; Rec."Include Date In Header")
+                {
+                    Width = 10;
                 }
                 field("Column Type"; Rec."Column Type")
                 {
@@ -207,11 +236,18 @@ page 489 "Column Layout"
                         exit(CostObject.LookupCostObjectFilter(Text));
                     end;
                 }
+                field(GLAccountTotaling; Rec."G/L Account Totaling")
+                {
+                }
                 field(HideCurrencySymbol; Rec."Hide Currency Symbol")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to hide currency symbols when a calculated result is not a currency.';
                     Visible = false;
+                }
+                field("Show in ACY"; Rec."Show in ACY")
+                {
+                    ApplicationArea = Basic, Suite;
                 }
             }
         }
@@ -295,29 +331,35 @@ page 489 "Column Layout"
     begin
         FinancialReportMgt.LaunchEditColumnsWarningNotification();
         AccSchedManagement.OpenColumns(CurrentColumnName, Rec);
-        GetInternalDescription();
+        if CurrentColumnName <> '' then
+            CurrPage.Caption(CurrentColumnName);
+        GetDescriptions();
     end;
 
     var
         AccSchedManagement: Codeunit AccSchedManagement;
         CurrentColumnName: Code[10];
         DimCaptionsInitialized: Boolean;
+        CurrentDescription: Text[80];
         InternalDescription: Text[250];
-
+#if not CLEAN27
     local procedure CurrentColumnNameOnAfterValida()
     begin
         CurrPage.SaveRecord();
         AccSchedManagement.SetColumnName(CurrentColumnName, Rec);
         CurrPage.Update(false);
     end;
-
-    local procedure GetInternalDescription()
+#endif
+    local procedure GetDescriptions()
     var
         ColumnLayoutName: Record "Column Layout Name";
     begin
+        CurrentDescription := '';
         InternalDescription := '';
-        if ColumnLayoutName.Get(CurrentColumnName) then
+        if ColumnLayoutName.Get(CurrentColumnName) then begin
+            CurrentDescription := ColumnLayoutName.Description;
             InternalDescription := ColumnLayoutName."Internal Description";
+        end;
     end;
 
     procedure SetColumnLayoutName(NewColumnName: Code[10])
@@ -325,4 +367,3 @@ page 489 "Column Layout"
         CurrentColumnName := NewColumnName;
     end;
 }
-

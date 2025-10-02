@@ -104,9 +104,6 @@ codeunit 5056 "CustCont-Update"
         ContactBusinessRelation: Record "Contact Business Relation";
         Contact: Record Contact;
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -133,16 +130,8 @@ codeunit 5056 "CustCont-Update"
             Contact."No." := '';
             Contact."No. Series" := '';
             MarketingSetup.TestField("Contact Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(MarketingSetup."Contact Nos.", '', 0D, Contact."No.", Contact."No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 Contact."No. Series" := MarketingSetup."Contact Nos.";
                 Contact."No." := NoSeries.GetNextNo(Contact."No. Series");
-#if not CLEAN24
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(Contact."No. Series", MarketingSetup."Contact Nos.", 0D, Contact."No.");
-            end;
-#endif
         end;
         Contact.Type := Cust."Contact Type";
         Contact.SetSkipDefault();
@@ -290,4 +279,3 @@ codeunit 5056 "CustCont-Update"
     begin
     end;
 }
-

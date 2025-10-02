@@ -10,6 +10,7 @@ table 135301 "Feature Label Data"
         }
         field(2; "Feature A"; Decimal)
         {
+            AutoFormatType = 0;
         }
         field(3; "Feature B"; Option)
         {
@@ -35,4 +36,3 @@ table 135301 "Feature Label Data"
     {
     }
 }
-

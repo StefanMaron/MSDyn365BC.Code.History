@@ -53,6 +53,8 @@ table 1109 "Cost Budget Entry"
         }
         field(7; Amount; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'Amount';
         }
         field(9; Description; Text[100])
@@ -379,4 +381,3 @@ table 1109 "Cost Budget Entry"
     begin
     end;
 }
-

@@ -2676,7 +2676,7 @@
         // [GIVEN] G/L account "B" has "Account Type" = "Posting" and "Direct Posting" = false
         GLAccountNo[2] := CreateGLAccount("G/L Account Type"::Posting, false);
 
-        //[WHEN] Validate "Destination Account Number" on the "Alloc. Account Distribution" with created Bank account 
+        //[WHEN] Validate "Destination Account Number" on the "Alloc. Account Distribution" with created Bank account
         AllocAccountDistribution.Validate("Destination Account Type", AllocAccountDistribution."Destination Account Type"::"Bank Account");
         AllocAccountDistribution.Validate("Destination Account Number", BankAccountNo);
 
@@ -2687,7 +2687,7 @@
         AllocAccountDistribution.Validate("Destination Account Type", AllocAccountDistribution."Destination Account Type"::"Bank Account");
         asserterror AllocAccountDistribution.Validate("Destination Account Number", LibraryRandom.RandText(20));
 
-        //[WHEN] Validate "Destination Account Number" on the "Alloc. Account Distribution" with G/L accounts 
+        //[WHEN] Validate "Destination Account Number" on the "Alloc. Account Distribution" with G/L accounts
         for i := 1 to ArrayLen(GLAccountNo) do begin
             AllocAccountDistribution.Validate("Destination Account Type", AllocAccountDistribution."Destination Account Type"::"G/L Account");
             asserterror AllocAccountDistribution.Validate("Destination Account Number", GLAccountNo[i]);
@@ -2760,7 +2760,7 @@
         PaymentDocNo: Code[20];
         VATCalculationType: Enum "Tax Calculation Type";
     begin
-        // [SCENARIO 549246] Unrealized Gain / Loss is cleared during applicaiton when using multiple vendor posting groups. 
+        // [SCENARIO 549246] Unrealized Gain / Loss is cleared during applicaiton when using multiple vendor posting groups.
         Initialize();
 
         // [GIVEN] Generate Posting Date.
@@ -2786,7 +2786,7 @@
         // [GIVEN] Create Vendor Posting Group Two.
         CreateVendorPostingGroupWithCopy(VendorPostingGroup);
 
-        // [GIVEN] Create Alternative Vendor Posting Group. 
+        // [GIVEN] Create Alternative Vendor Posting Group.
         LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup[1].Code, VendorPostingGroup[2].Code);
 
         // [GIVEN] Create Item.
@@ -2981,7 +2981,7 @@
         GenPostingType: Enum "General Posting Type";
         VATCalculationType: Enum "Tax Calculation Type";
     begin
-        // [SCENARIO 561134] G/L Accounts are balanced after applying full Payment and Invoice with currency using Multiple Posting Groups. 
+        // [SCENARIO 561134] G/L Accounts are balanced after applying full Payment and Invoice with currency using Multiple Posting Groups.
         Initialize();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
@@ -2997,7 +2997,7 @@
         Amount[1] := LibraryRandom.RandIntInRange(1000, 1000);
         Amount[2] := LibraryRandom.RandDecInDecimalRange(233.85, 233.85, 2);
 
-        // [GIVEN] Create Currency and Exchange Rates.       
+        // [GIVEN] Create Currency and Exchange Rates.
         Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(PostingDate[1], ExchRate[1], ExchRate[1]));
         LibraryERM.CreateExchangeRate(Currency.Code, PostingDate[2], ExchRate[2], ExchRate[2]);
 
@@ -3018,7 +3018,7 @@
         // [GIVEN] Create Vendor Posting Group Two.
         CreateVendorPostingGroupWithCopy(VendorPostingGroup);
 
-        // [GIVEN] Create Alternative Vendor Posting Group. 
+        // [GIVEN] Create Alternative Vendor Posting Group.
         LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup[1].Code, VendorPostingGroup[2].Code);
         LibraryPurchase.CreateAltVendorPostingGroup(VendorPostingGroup[2].Code, VendorPostingGroup[1].Code);
 
@@ -3235,11 +3235,11 @@
 
     local procedure UpdateDefaultSafetyLeadTimeOnManufacturingSetup(DefaultSafetyLeadTime: DateFormula)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
-        ManufacturingSetup.Modify(true);
+        InventorySetup.Get();
+        InventorySetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
+        InventorySetup.Modify(true);
     end;
 
     local procedure ModifyPurchasesPayablesSetup(AllowVATDifference: Boolean) OldAllowVATDifference: Boolean
@@ -3963,7 +3963,7 @@
         PurchaseLine.TestField("No.", ItemNo);
         PurchaseLine.TestField(Quantity, Quantity);
     end;
-
+#if not CLEAN25
     local procedure VerifyPriceAndLineDiscountOnPurchaseLine(PurchaseLine: Record "Purchase Line"; Quantity: Decimal; DirectUnitCost: Decimal; LineDiscountPercentage: Decimal)
     var
         PurchaseLine2: Record "Purchase Line";
@@ -3976,7 +3976,7 @@
         PurchaseLine2.TestField("Direct Unit Cost", DirectUnitCost);
         PurchaseLine2.TestField("Line Discount %", LineDiscountPercentage);
     end;
-
+#endif
     local procedure VerifyVATAmount(DocumentNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
@@ -4098,20 +4098,6 @@
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         PurchaseLine.Validate("Selected Alloc. Account No.", AllocationAccountNo);
         PurchaseLine.Modify(true);
-    end;
-
-    local procedure CreateAllocationAccountWithFixedDistribution(var AllocationAccountPage: TestPage "Allocation Account"): Code[20]
-    var
-        DummyAllocationAccount: Record "Allocation Account";
-        AllocationAccountNo: Code[20];
-    begin
-        AllocationAccountPage.OpenNew();
-        AllocationAccountNo := Format(LibraryRandom.RandText(5));
-        AllocationAccountPage."No.".SetValue(AllocationAccountNo);
-        AllocationAccountPage."Account Type".SetValue(DummyAllocationAccount."Account Type"::Fixed);
-        AllocationAccountPage.Name.SetValue(LibraryRandom.RandText(5));
-
-        exit(AllocationAccountNo);
     end;
 
     local procedure CreateInheritFromParentAllocationDistrubWithDimension(AllocationAccountNo: Code[20]; Share: Decimal; DimensionValue: Record "Dimension Value") DimSetID: Integer

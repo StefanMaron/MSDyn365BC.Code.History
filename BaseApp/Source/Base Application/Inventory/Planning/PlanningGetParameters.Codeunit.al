@@ -6,7 +6,7 @@ namespace Microsoft.Inventory.Planning;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Setup;
+using Microsoft.Inventory.Setup;
 
 codeunit 99000855 "Planning-Get Parameters"
 {
@@ -18,14 +18,14 @@ codeunit 99000855 "Planning-Get Parameters"
     var
         GlobalSKU: Record "Stockkeeping Unit";
         Item: Record Item;
-        MfgSetup: Record "Manufacturing Setup";
-        HasGotMfgSetUp: Boolean;
+        InventorySetup: Record "Inventory Setup";
+        HasGotInventorySetUp: Boolean;
         LotForLot: Boolean;
         ManualScheduling: Boolean;
 
     procedure AtSKU(var SKU: Record "Stockkeeping Unit"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     begin
-        GetMfgSetUp();
+        GetInventorySetUp();
         if (ItemNo <> GlobalSKU."Item No.") or
             (VariantCode <> GlobalSKU."Variant Code") or
             (LocationCode <> GlobalSKU."Location Code")
@@ -70,14 +70,16 @@ codeunit 99000855 "Planning-Get Parameters"
             SetComponentsAtLocation(LocationCode);
         end;
 
-        if ManualScheduling and MfgSetup."Manual Scheduling" then
-            GlobalSKU."Safety Lead Time" := MfgSetup."Safety Lead Time for Man. Sch."
-        else
+        OnAtSKUOnBeforeSetSafetyLeadTime(GlobalSKU, ManualScheduling);
+
+        if not ManualScheduling then
             if Format(GlobalSKU."Safety Lead Time") = '' then
-                if Format(MfgSetup."Default Safety Lead Time") <> '' then
-                    GlobalSKU."Safety Lead Time" := MfgSetup."Default Safety Lead Time"
+                if Format(InventorySetup."Default Safety Lead Time") <> '' then
+                    GlobalSKU."Safety Lead Time" := InventorySetup."Default Safety Lead Time"
                 else
                     Evaluate(GlobalSKU."Safety Lead Time", '<0D>');
+
+
         AdjustInvalidSettings(GlobalSKU);
         SKU := GlobalSKU;
 
@@ -95,17 +97,17 @@ codeunit 99000855 "Planning-Get Parameters"
             Item.Get(ItemNo);
     end;
 
-    local procedure GetMfgSetUp()
+    local procedure GetInventorySetUp()
     begin
-        if not HasGotMfgSetUp then
-            HasGotMfgSetUp := MfgSetup.Get();
+        if not HasGotInventorySetUp then
+            HasGotInventorySetUp := InventorySetup.Get();
     end;
 
     local procedure SetComponentsAtLocation(LocationCode: Code[10])
     begin
         if GlobalSKU."Components at Location" = '' then
-            if MfgSetup."Components at Location" <> '' then
-                GlobalSKU."Components at Location" := MfgSetup."Components at Location"
+            if InventorySetup.GetComponentsAtLocation() <> '' then
+                GlobalSKU."Components at Location" := InventorySetup.GetComponentsAtLocation()
             else
                 GlobalSKU."Components at Location" := LocationCode;
         OnAfterSetComponentsAtLocation(GlobalSKU, Item);
@@ -292,8 +294,8 @@ codeunit 99000855 "Planning-Get Parameters"
     procedure CalcDampenerDays(SKU: Record "Stockkeeping Unit") DampenerDays: Integer
     begin
         if Format(SKU."Dampener Period") = '' then begin
-            GetMfgSetUp();
-            DampenerDays := CalcDate(MfgSetup."Default Dampener Period") - Today;
+            GetInventorySetUp();
+            DampenerDays := CalcDate(InventorySetup."Default Dampener Period") - Today;
         end else
             DampenerDays := CalcDate(SKU."Dampener Period") - Today;
 
@@ -308,8 +310,8 @@ codeunit 99000855 "Planning-Get Parameters"
     begin
         if SKU."Reordering Policy" <> SKU."Reordering Policy"::Order then
             if SKU."Dampener Quantity" = 0 then begin
-                GetMfgSetUp();
-                DampenerQty := SKU."Lot Size" * MfgSetup."Default Dampener %" / 100;
+                GetInventorySetup();
+                DampenerQty := SKU."Lot Size" * InventorySetup."Default Dampener %" / 100;
             end else
                 DampenerQty := SKU."Dampener Quantity"
         else
@@ -321,8 +323,8 @@ codeunit 99000855 "Planning-Get Parameters"
         if SKU."Overflow Level" <> 0 then
             WarningLevel := SKU."Overflow Level"
         else begin
-            GetMfgSetUp();
-            if MfgSetup."Blank Overflow Level" = MfgSetup."Blank Overflow Level"::"Allow Default Calculation" then begin
+            GetInventorySetup();
+            if InventorySetup."Blank Overflow Level" = InventorySetup."Blank Overflow Level"::"Allow Default Calculation" then begin
                 case SKU."Reordering Policy" of
                     SKU."Reordering Policy"::"Maximum Qty.":
                         WarningLevel := SKU."Maximum Inventory" + SKU."Minimum Order Quantity";
@@ -371,6 +373,11 @@ codeunit 99000855 "Planning-Get Parameters"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetPlanningParametersOnReorderingPolicyElseCase(var PlanningParameters: Record "Planning Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAtSKUOnBeforeSetSafetyLeadTime(var GlobalSKU: Record "Stockkeeping Unit"; ManualScheduling: Boolean)
     begin
     end;
 }

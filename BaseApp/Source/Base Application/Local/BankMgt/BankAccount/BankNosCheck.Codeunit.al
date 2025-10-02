@@ -168,10 +168,6 @@ codeunit 32000002 "Bank Nos Check"
     procedure CreateSalesInvReference(PostingNo: Code[20]; BillToCustomer: Code[20]) NewRefNo: Code[20]
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         SalesSetup.Get();
         Clear(ReferenceNumber);
@@ -180,18 +176,8 @@ codeunit 32000002 "Bank Nos Check"
         if SalesSetup."Reference Nos." = '' then
             SalesSetup.TestField("Invoice No.", true);
         WeightStr := '7137137137137137137';
-#if CLEAN24
         if SalesSetup."Reference Nos." <> '' then
-#else
-        if SalesSetup."Reference Nos." <> '' then begin
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(SalesSetup."Reference Nos.", '', 0D, NoSeriesRefNo, SalesSetup."Reference Nos.", IsHandled);
-            if not IsHandled then
-#endif
                 NoSeriesRefNo := NoSeries.GetNextNo(SalesSetup."Reference Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnAfterInitSeries(SalesSetup."Reference Nos.", SalesSetup."Reference Nos.", 0D, NoSeriesRefNo);
-        end;
-#endif
         if SalesSetup."Invoice No." then
             ReferenceNumber := DelChr(PostingNo, '=', DelChr(PostingNo, '=', '0123456789'));
         if NoSeriesRefNo <> '' then
@@ -270,4 +256,3 @@ codeunit 32000002 "Bank Nos Check"
         end;
     end;
 }
-

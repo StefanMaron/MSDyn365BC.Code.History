@@ -151,9 +151,6 @@ codeunit 5900 ServOrderManagement
         NewServItem: Record "Service Item";
         ResSkill: Record "Resource Skill";
         ServLogMgt: Codeunit ServLogManagement;
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         ResSkillMgt: Codeunit "Resource Skill Mgt.";
         NoSeries: Codeunit "No. Series";
         SerialNo: Code[50];
@@ -196,16 +193,8 @@ codeunit 5900 ServOrderManagement
             ServMgtSetup.Get();
             NewServItem := FromServItem;
             NewServItem."No." := '';
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(ServMgtSetup."Service Item Nos.", NewServItem."No. Series", 0D, NewServItem."No.", NewServItem."No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
-                NewServItem."No. Series" := ServMgtSetup."Service Item Nos.";
-                NewServItem."No." := NoSeries.GetNextNo(NewServItem."No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries(NewServItem."No. Series", ServMgtSetup."Service Item Nos.", 0D, NewServItem."No.");
-            end;
-#endif
+            NewServItem."No. Series" := ServMgtSetup."Service Item Nos.";
+            NewServItem."No." := NoSeries.GetNextNo(NewServItem."No. Series");
             NewServItem."Serial No." := SerialNo;
             NewServItem."Variant Code" := ServiceLine."Variant Code";
             NewServItem."Shipment Type" := NewServItem."Shipment Type"::Service;
@@ -502,7 +491,7 @@ codeunit 5900 ServOrderManagement
     var
         ServItemLine2: Record "Service Item Line";
         ServHeader: Record "Service Header";
-        NewPriority: Integer;
+        NewPriority: Enum "Service Priority";
     begin
         if not ServHeader.Get(ServItemLine."Document Type", ServItemLine."Document No.") then
             exit;
@@ -516,7 +505,7 @@ codeunit 5900 ServOrderManagement
         ServItemLine2.SetFilter("Line No.", '<>%1', ServItemLine."Line No.");
         if ServItemLine2.Find('-') then
             repeat
-                if ServItemLine2.Priority > NewPriority then
+                if ServItemLine2.Priority.AsInteger() > NewPriority.AsInteger() then
                     NewPriority := ServItemLine2.Priority;
             until ServItemLine2.Next() = 0;
 
@@ -946,4 +935,3 @@ codeunit 5900 ServOrderManagement
     begin
     end;
 }
-

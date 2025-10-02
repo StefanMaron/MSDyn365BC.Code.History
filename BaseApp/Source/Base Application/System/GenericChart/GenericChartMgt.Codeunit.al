@@ -14,19 +14,17 @@ codeunit 9180 "Generic Chart Mgt"
     end;
 
     var
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text001: Label 'You must select the %1.';
+        MustSelectFieldErr: Label 'You must select the %1.';
 #pragma warning restore AA0470
-        Text002: Label '(No filters selected)';
+        NoFiltersSelectedTxt: Label '(No filters selected)';
 #pragma warning disable AA0470
-        Text003: Label 'You cannot select more than %1 measures when using the Customize Chart option.';
+        TooManyMeasuresErr: Label 'You cannot select more than %1 measures when using the Customize Chart option.';
 #pragma warning restore AA0470
-        Text004: Label 'You cannot select Count for this chart because the source query does not support this aggregation method.';
+        CountColumnNotFoundErr: Label 'You cannot select Count for this chart because the source query does not support this aggregation method.';
 #pragma warning disable AA0470
-        Text005: Label 'The aggregation type %1 can only be selected for columns of type Decimal.';
+        AggregationTypeForDecimalOnlyErr: Label 'The aggregation type %1 can only be selected for columns of type Decimal.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         DescriptionTok: Label 'DESCR.', Comment = 'DESCR.';
         XAxisTitleTok: Label 'X-TITLE', Comment = 'X-AXIS';
         YAxisTitleTok: Label 'Y-TITLE', Comment = 'Y-AXIS';
@@ -591,7 +589,7 @@ codeunit 9180 "Generic Chart Mgt"
     procedure FinalizeFilterText(var InTxt: Text[250])
     begin
         if InTxt = '' then
-            InTxt := Text002;
+            InTxt := NoFiltersSelectedTxt;
     end;
 
     [Scope('OnPrem')]
@@ -609,7 +607,7 @@ codeunit 9180 "Generic Chart Mgt"
     begin
         TempChart.Insert();
         if NoOfMeasuresApplied(TempChart) > GetMaxNoOfMeasures() then begin
-            Message(Text003, GetMaxNoOfMeasures());
+            Message(TooManyMeasuresErr, GetMaxNoOfMeasures());
             exit(false);
         end;
         exit(PAGE.RunModal(PAGE::"Generic Chart Customization", TempChart) = ACTION::LookupOK);
@@ -770,10 +768,10 @@ codeunit 9180 "Generic Chart Mgt"
     procedure CheckSourceTypeID(TempGenericChartSetup: Record "Generic Chart Setup" temporary; CheckSourceID: Boolean)
     begin
         if TempGenericChartSetup."Source Type" = TempGenericChartSetup."Source Type"::" " then
-            Error(Text001, TempGenericChartSetup.FieldCaption("Source Type"));
+            Error(MustSelectFieldErr, TempGenericChartSetup.FieldCaption("Source Type"));
         if CheckSourceID then
             if TempGenericChartSetup."Source ID" = 0 then
-                Error(Text001, TempGenericChartSetup.FieldCaption("Source ID"));
+                Error(MustSelectFieldErr, TempGenericChartSetup.FieldCaption("Source ID"));
     end;
 
     [Scope('OnPrem')]
@@ -786,7 +784,7 @@ codeunit 9180 "Generic Chart Mgt"
         GetQueryColumnList(TempGenericChartQueryColumn, TempGenericChartSetup."Source ID", 0, true);
         TempGenericChartQueryColumn.SetRange("Aggregation Type", TempGenericChartQueryColumn."Aggregation Type"::Count);
         if not TempGenericChartQueryColumn.FindFirst() then
-            Error(Text004);
+            Error(CountColumnNotFoundErr);
         exit(TempGenericChartQueryColumn."Column Name");
     end;
 
@@ -813,7 +811,7 @@ codeunit 9180 "Generic Chart Mgt"
         if not (Aggregation in [Aggregation::Sum, Aggregation::Min, Aggregation::Max, Aggregation::Avg]) then
             exit;
         if ColumnDataType <> ColumnDataType::Decimal then
-            Error(Text005, SelectStr(Aggregation + 1, AggregationTxt));
+            Error(AggregationTypeForDecimalOnlyErr, SelectStr(Aggregation + 1, AggregationTxt));
     end;
 
     procedure TextMLAssistEdit(var TempGenericChartCaptionsBuf: Record "Generic Chart Captions Buffer" temporary; CaptionCode: Code[10]): Text[250]

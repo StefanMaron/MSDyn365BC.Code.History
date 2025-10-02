@@ -374,37 +374,6 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         ServiceInvoice.Run();
     end;
 
-    local procedure PostSalesInvoice(CustomerNo: Code[20]; PostingDate: Date): Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        SalesHeader.Validate("Posting Date", PostingDate);
-        SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(1, 1000, 2));
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
-        SalesLine.Modify(true);
-        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true)); // Ship, Invoice
-    end;
-
-    local procedure PostSalesInvoiceFCY(CustomerNo: Code[20]; PostingDate: Date; CurrencyCode: Code[10]): Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        SalesHeader.Validate("Posting Date", PostingDate);
-        SalesHeader.Validate("Currency Code", CurrencyCode);
-        SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(1, 1000, 2));
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
-        SalesLine.Modify(true);
-        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true)); // Ship, Invoice
-    end;
-
     local procedure PostServiceInvoice(CustomerNo: Code[20]; PostingDate: Date): Code[20]
     var
         ServiceHeader: Record "Service Header";
@@ -527,4 +496,3 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 }
-

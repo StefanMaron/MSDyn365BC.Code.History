@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 #if not CLEAN25
 codeunit 1061 "QBO Sync Proxy"
 {

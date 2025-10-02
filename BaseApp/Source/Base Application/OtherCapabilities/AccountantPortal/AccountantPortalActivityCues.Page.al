@@ -451,7 +451,7 @@ page 1314 "AccountantPortal Activity Cues"
         OngoingSalesInvoicesAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Ongoing Sales Invoices"), Rec."Ongoing Sales Invoices", OngoingSalesInvoicesStyle);
 
-        Rec."Sales This Month" := ActivitiesMgt.CalcSalesThisMonthAmount(true, false);
+        Rec."Sales This Month" := ActivitiesMgt.CalcSalesThisMonthAmount(true);
         UnlimitedTempString := AcctWebServicesMgt.FormatAmountString(Rec."Sales This Month");
         TempString := CopyStr(UnlimitedTempString, 1, 250);
         SalesThisMonthAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);

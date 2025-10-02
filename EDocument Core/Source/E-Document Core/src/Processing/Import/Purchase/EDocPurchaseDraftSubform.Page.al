@@ -2,11 +2,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-#pragma warning disable AS0031, AS0032, AS0035
 namespace Microsoft.eServices.EDocument.Processing.Import.Purchase;
 
 using Microsoft.eServices.EDocument.Processing.Import;
 using Microsoft.Finance.Dimension;
+using Microsoft.eServices.EDocument;
 
 page 6183 "E-Doc. Purchase Draft Subform"
 {
@@ -29,11 +29,16 @@ page 6183 "E-Doc. Purchase Draft Subform"
                 field("Line Type"; Rec."[BC] Purchase Line Type")
                 {
                     ApplicationArea = All;
+                    trigger OnValidate()
+                    begin
+                        Rec."[BC] Purchase Type No." := '';
+                    end;
                 }
                 field("No."; Rec."[BC] Purchase Type No.")
                 {
                     ApplicationArea = All;
                     Lookup = true;
+                    ShowMandatory = true;
                 }
                 field("Item Reference No."; Rec."[BC] Item Reference No.")
                 {
@@ -61,7 +66,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
                     Editable = true;
                     trigger OnValidate()
                     begin
-                        CalcLineAmount();
+                        UpdateCalculatedAmounts(true);
                     end;
                 }
                 field("Direct Unit Cost"; Rec."Unit Price")
@@ -70,7 +75,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
                     Editable = true;
                     trigger OnValidate()
                     begin
-                        CalcLineAmount();
+                        UpdateCalculatedAmounts(true);
                     end;
                 }
                 field("Total Discount"; Rec."Total Discount")
@@ -80,7 +85,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
                     Editable = true;
                     trigger OnValidate()
                     begin
-                        CalcLineAmount();
+                        UpdateCalculatedAmounts(true);
                     end;
                 }
                 field("Line Amount"; LineAmount)
@@ -182,7 +187,7 @@ page 6183 "E-Doc. Purchase Draft Subform"
         AdditionalColumns := Rec.AdditionalColumnsDisplayText();
 
         SetHasAdditionalColumns();
-        CalcLineAmount();
+        UpdateCalculatedAmounts(false);
     end;
 
     local procedure SetDimensionsVisibility()
@@ -197,9 +202,36 @@ page 6183 "E-Doc. Purchase Draft Subform"
           DimVisible1, DimVisible2, DimOther, DimOther, DimOther, DimOther, DimOther, DimOther);
     end;
 
-    local procedure CalcLineAmount()
+    local procedure UpdateCalculatedAmounts(UpdateParentRecord: Boolean)
+    var
+        EDocumentPurchaseHeader: Record "E-Document Purchase Header";
+        TotalEDocPurchaseLine: Record "E-Document Purchase Line";
+        EDocumentImportHelper: Codeunit "E-Document Import Helper";
+        LineSubtotal: Decimal;
+        DiscountExceedsSubtotalErr: Label 'Discount should not exceed the subtotal of the line';
     begin
-        LineAmount := (Rec.Quantity * Rec."Unit Price") - Rec."Total Discount";
+        LineSubtotal := Rec.Quantity * Rec."Unit Price";
+        LineAmount := LineSubtotal - Rec."Total Discount";
+        if LineSubtotal = 0 then begin
+            if Rec."Total Discount" > 0 then
+                Error(DiscountExceedsSubtotalErr)
+        end
+        else
+            if Rec."Total Discount" / LineSubtotal > 1 then
+                Error(DiscountExceedsSubtotalErr);
+        if not UpdateParentRecord then
+            exit;
+        if not EDocumentPurchaseHeader.Get(Rec."E-Document Entry No.") then
+            exit;
+        EDocumentPurchaseHeader."Sub Total" := 0;
+        TotalEDocPurchaseLine.SetRange("E-Document Entry No.", Rec."E-Document Entry No.");
+        if TotalEDocPurchaseLine.FindSet() then
+            repeat
+                EDocumentPurchaseHeader."Sub Total" += Round(TotalEDocPurchaseLine.Quantity * TotalEDocPurchaseLine."Unit Price", EDocumentImportHelper.GetCurrencyRoundingPrecision(EDocumentPurchaseHeader."Currency Code")) - TotalEDocPurchaseLine."Total Discount";
+            until TotalEDocPurchaseLine.Next() = 0;
+        EDocumentPurchaseHeader.Total := EDocumentPurchaseHeader."Sub Total" + EDocumentPurchaseHeader."Total VAT" - EDocumentPurchaseHeader."Total Discount";
+        EDocumentPurchaseHeader.Modify();
+        CurrPage.Update();
     end;
 
     local procedure SetHasAdditionalColumns()
@@ -227,4 +259,3 @@ page 6183 "E-Doc. Purchase Draft Subform"
     end;
 
 }
-#pragma warning restore AS0031, AS0032, AS0035

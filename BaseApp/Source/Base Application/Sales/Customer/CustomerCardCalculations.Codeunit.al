@@ -52,17 +52,15 @@ codeunit 32 "Customer Card Calculations"
         AmountOnOutstandingCrMemos := CustomerMgt.CalculateAmountsOnUnpostedCrMemos(Customer."No.", NoOutstandingCrMemos);
         Totals := AmountOnPostedInvoices + AmountOnPostedCrMemos + AmountOnOutstandingInvoices + AmountOnOutstandingCrMemos;
 
-        CustomerMgt.CalculateStatistic(
-          Customer,
-          AdjmtCostLCY, AdjCustProfit, AdjProfitPct,
-          CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY,
-          CustProfit);
+        CustomerMgt.CalculateStatistic(Customer, AdjmtCostLCY, AdjCustProfit, AdjProfitPct, CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY, CustProfit);
+        CustomerMgt.CalculatePaymentStats(Customer."No.", Results);
+        CustomerMgt.CalculateInteractionStats(Customer."No.", Results);
+        CustomerMgt.CalcNumberOfDistinctItemsSold(Customer."No.", Results);
 
         BalanceAsVendor := Customer.GetBalanceAsVendor(LinkedVendorNo);
 
         Results.Add(GetAvgDaysPastDueDateLabel(), Format(AgedAccReceivable.InvoicePaymentDaysAverage(Customer."No.")));
         Results.Add(GetExpectedMoneyOwedLabel(), Format(CustomerMgt.CalculateAmountsWithVATOnUnpostedDocuments(Customer."No.")));
-        Results.Add(GetAvgDaysToPayLabel(), Format(CustomerMgt.AvgDaysToPay(Customer."No.")));
         Results.Add(GetAmountOnPostedInvoicesLabel(), Format(AmountOnPostedInvoices));
         Results.Add(GetAmountOnPostedCrMemosLabel(), Format(AmountOnPostedCrMemos));
         Results.Add(GetAmountOnOutstandingInvoicesLabel(), Format(AmountOnOutstandingInvoices));
@@ -112,6 +110,19 @@ codeunit 32 "Customer Card Calculations"
         BalanceAsVendorLbl: Label 'BalanceAsVendor', Locked = true;
         LinkedVendorNoLbl: Label 'LinkedVendorNo', Locked = true;
         WorkDateLbl: label 'Work Date', Locked = true;
+        PaidLateCountLbl: label 'Paid Late Count', Locked = true;
+        PaidOnTimeCountLbl: label 'Paid On Time Count', Locked = true;
+        PercentPaidLateLbl: label 'Percent Paid Late', Locked = true;
+        OverdueCountLbl: label 'Overdue Count', Locked = true;
+        LastPaymentDateLbl: label 'Last Payment Date', Locked = true;
+        LastPaymentAmountLbl: label 'Last Payment Amount', Locked = true;
+        LastPaymentOnTimeLbl: label 'Last Payment On Time', Locked = true;
+        InteractionCountLbl: label 'Interaction Count', Locked = true;
+        LastInteractionDateLbl: label 'Last Interaction Date', Locked = true;
+        LastInteractionTypeLbl: label 'Last Interaction Type', Locked = true;
+        MostFrequentInteractionTypeLbl: label 'Most Frequent Interaction Type', Locked = true;
+        DaysSinceLastSaleLbl: label 'Days Since Last Sale', Locked = true;
+        GetDistinctItemsSoldLbl: label 'Distinct Items Sold', Locked = true;
 
     internal procedure GetWorkDateLabel(): Text
     begin
@@ -126,6 +137,41 @@ codeunit 32 "Customer Card Calculations"
     internal procedure GetAvgDaysPastDueDateLabel(): Text
     begin
         exit(AvgDaysPastDueDateLbl);
+    end;
+
+    internal procedure GetPaidLateCountLabel(): Text
+    begin
+        exit(PaidLateCountLbl);
+    end;
+
+    internal procedure GetPaidOnTimeCountLabel(): Text
+    begin
+        exit(PaidOnTimeCountLbl);
+    end;
+
+    internal procedure GetPercentPaidLateLabel(): Text
+    begin
+        exit(PercentPaidLateLbl);
+    end;
+
+    internal procedure GetOverdueCountLabel(): Text
+    begin
+        exit(OverdueCountLbl);
+    end;
+
+    internal procedure GetLastPaymentDateLabel(): Text
+    begin
+        exit(LastPaymentDateLbl);
+    end;
+
+    internal procedure GetLastPaymentAmountLabel(): Text
+    begin
+        exit(LastPaymentAmountLbl);
+    end;
+
+    internal procedure GetLastPaymentOnTimeLabel(): Text
+    begin
+        exit(LastPaymentOnTimeLbl);
     end;
 
     internal procedure GetAvgDaysToPayLabel(): Text
@@ -236,5 +282,35 @@ codeunit 32 "Customer Card Calculations"
     internal procedure GetLinkedVendorNoLabel(): Text
     begin
         exit(LinkedVendorNoLbl);
+    end;
+
+    internal procedure GetInteractionCountLabel(): Text
+    begin
+        exit(InteractionCountLbl);
+    end;
+
+    internal procedure GetLastInteractionDateLabel(): Text
+    begin
+        exit(LastInteractionDateLbl);
+    end;
+
+    internal procedure GetLastInteractionTypeLabel(): Text
+    begin
+        exit(LastInteractionTypeLbl);
+    end;
+
+    internal procedure GetMostFrequentInteractionTypeLabel(): Text
+    begin
+        exit(MostFrequentInteractionTypeLbl);
+    end;
+
+    internal procedure GetDaysSinceLastSaleLabel(): Text
+    begin
+        exit(DaysSinceLastSaleLbl);
+    end;
+
+    internal procedure GetDistinctItemsSoldLabel(): Text
+    begin
+        exit(GetDistinctItemsSoldLbl)
     end;
 }

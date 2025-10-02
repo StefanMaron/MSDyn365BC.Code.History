@@ -24,11 +24,11 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryJob: Codeunit "Library - Job";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
 #if not CLEAN25
+        LibraryJob: Codeunit "Library - Job";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
@@ -1198,7 +1198,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         CreateItemReference(ItemReference, Item."No.", Vendor."No.");
 
         Description := Item.Description;
-#if not CLEAN26        
+#if not CLEAN26
         Assert.IsTrue(
           ItemReference.FindItemDescription(
             Description, Description2, Item."No.", '', Item."Base Unit of Measure",
@@ -1953,6 +1953,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         InventoryQuantity := TransferQuantity + LibraryRandom.RandIntInRange(10, 100);
     end;
 
+#if not CLEAN25
     local procedure CreatePurchaseOrderLineWithItemVariant(var PurchaseLine: Record "Purchase Line"; ItemVariant: Record "Item Variant"; VendorNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2004,7 +2005,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         JobJournalLine.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreateZeroForVariantPurchaseLineDiscount(ItemVariant: Record "Item Variant"; VendorNo: Code[20])
     var
         ItemBlankVariantPurchaseLineDiscount: Record "Purchase Line Discount";
@@ -2033,7 +2033,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
           ItemWithVariantSalesLineDiscount, ItemWithVariantSalesLineDiscount.Type::Item, ItemVariant."Item No.",
           ItemWithVariantSalesLineDiscount."Sales Type"::Customer, CustomerNo, WorkDate(), '', ItemVariant.Code, '', 0);
     end;
-#endif
 
     local procedure AcceptAndCarryOutActionMessage(ItemNo: Code[20])
     var
@@ -2045,7 +2044,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         RequisitionLine.Modify(true);
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
     end;
-
+#endif
     local procedure AcceptOrderPromising(var RequisitionLine: Record "Requisition Line"; var OrderPromisingLine: Record "Order Promising Line"; var SalesHeader: Record "Sales Header")
     var
         AvailabilityMgt: Codeunit AvailabilityManagement;
@@ -2064,6 +2063,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         exit(PostPurchaseDocument(PurchaseLine, Invoice));
     end;
 
+#if not CLEAN25
     local procedure CalculateRegPlanAndCarryOutActionMsg(ItemNo: Code[20])
     var
         RequisitionLine: Record "Requisition Line";
@@ -2079,7 +2079,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         AcceptAndCarryOutActionMessage(ItemNo);
     end;
-
+#endif
     local procedure CreateAndModifyItem(VendorNo: Code[20]; FlushingMethod: Enum "Flushing Method"; ReplenishmentSystem: Enum "Replenishment System"): Code[20]
     var
         Item: Record Item;
@@ -2093,6 +2093,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         exit(Item."No.");
     end;
 
+#if not CLEAN25
     local procedure CreateAndModifyVendor(CurrencyCode: Code[10]): Code[20]
     var
         Vendor: Record Vendor;
@@ -2102,7 +2103,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
-
+#endif
     local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitOfMeasure: Code[10]; No: Code[20]; RoutingLinkCode: Code[10])
     var
         ProductionBOMLine: Record "Production BOM Line";
@@ -2123,6 +2124,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         AvailabilityMgt.CalcCapableToPromise(OrderPromisingLine, SalesHeader."No.");
     end;
 
+#if not CLEAN25
     local procedure CreateCurrency(): Code[10]
     var
         Currency: Record Currency;
@@ -2131,7 +2133,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         exit(Currency.Code);
     end;
-
+#endif
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
@@ -2285,6 +2287,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         GeneralPostingSetup.Modify(true);
     end;
 
+#if not CLEAN25
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
@@ -2294,7 +2297,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure CreatePurchaseLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     begin
         LibraryERM.CreateLineDiscForVendor(
@@ -2523,13 +2525,14 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
+#if not CLEAN25
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", WarehouseReceiptLine."Source Document"::"Purchase Order");
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
         WarehouseReceiptLine.FindFirst();
     end;
-
+#endif
     local procedure SetupForPostOutputJournal(var ProductionOrder: Record "Production Order"; ItemNo: Code[20])
     var
         Item: Record Item;
@@ -2595,6 +2598,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Item.Modify(true);
     end;
 
+#if not CLEAN25
     local procedure UpdatePurchLineQtyForPartialPost(var PurchaseLine: Record "Purchase Line")
     begin
         PurchaseLine.Validate("Qty. to Receive", PurchaseLine."Qty. to Receive" / 2);
@@ -2602,7 +2606,6 @@ codeunit 137296 "SCM Inventory Misc. IV"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN25
     local procedure UpdateUnitCostOnPurchasePrice(PurchasePrice: Record "Purchase Price"): Decimal
     begin
         PurchasePrice.Validate("Direct Unit Cost", PurchasePrice."Direct Unit Cost" + LibraryRandom.RandDec(10, 2));  // Take random value to update Direct Unit Cost.
@@ -2658,6 +2661,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Assert.AreNearlyEqual(Amount, ActualAmount, LibraryERM.GetAmountRoundingPrecision(), AmountError);
     end;
 
+#if not CLEAN25
     local procedure VerifyPstdPurchaseInvoice(DocumentNo: Code[20]; DirectUnitCost: Decimal; LineDiscountPct: Decimal)
     var
         PurchInvLine: Record "Purch. Inv. Line";
@@ -2668,7 +2672,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         PurchInvLine.TestField("Direct Unit Cost", DirectUnitCost);
         PurchInvLine.TestField("Line Discount %", LineDiscountPct);
     end;
-
+#endif
     local procedure VerifyValueEntry(ItemLedgerEntryType: Enum "Item Ledger Entry Type"; DocumentNo: Code[20]; ItemNo: Code[20])
     var
         ValueEntry: Record "Value Entry";
@@ -2728,4 +2732,3 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 }
-

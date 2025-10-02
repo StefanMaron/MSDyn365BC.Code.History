@@ -123,8 +123,12 @@ table 5878 "Phys. Invt. Record Line"
                 TestStatusOpen();
                 TestField("Item No.");
 
-                if Rec."Variant Code" = '' then
+                if Rec."Variant Code" = '' then begin
+                    GetItem();
+                    Rec.Validate(Description, Item.Description);
+                    Rec.Validate("Description 2", Item."Description 2");
                     exit;
+                end;
 
                 ItemVariant.Get("Item No.", "Variant Code");
 
@@ -494,13 +498,7 @@ table 5878 "Phys. Invt. Record Line"
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemTrackingSetup: Record "Item Tracking Setup";
         WhseEntry: Record "Warehouse Entry";
-#if not CLEAN24
-        TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary;
-#endif
         TempInvtOrderTracking: Record "Invt. Order Tracking" temporary;
-#if not CLEAN24
-        PhysInvtTrackingLines: Page "Phys. Invt. Tracking Lines";
-#endif
         InvtOrderTrackingLines: Page "Invt. Order Tracking Lines";
         IsHandled: Boolean;
     begin
@@ -511,17 +509,8 @@ table 5878 "Phys. Invt. Record Line"
 
         GetItem();
 
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-            TempPhysInvtTracking.Reset();
-            TempPhysInvtTracking.DeleteAll();
-        end else begin
-#endif
-            TempInvtOrderTracking.Reset();
-            TempInvtOrderTracking.DeleteAll();
-#if not CLEAN24
-        end;
-#endif
+        TempInvtOrderTracking.Reset();
+        TempInvtOrderTracking.DeleteAll();
         PhysInvtOrderHeader.Get("Order No.");
 
         if PhysInvtTrackingMgt.LocationIsBinMandatory("Location Code") and
@@ -538,82 +527,38 @@ table 5878 "Phys. Invt. Record Line"
             if WhseEntry.Find('-') then
                 repeat
                     OnBeforeInsertTrackingBufferLocationIsBinMandatory(WhseEntry, Rec);
-#if not CLEAN24
-                    if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-                        InsertTrackingBuffer(TempPhysInvtTracking, WhseEntry."Serial No.", WhseEntry."Lot No.", WhseEntry."Qty. (Base)");
-                        OnShowUsedTrackLinesOnAfterInsertFromWhseEntry(TempPhysInvtTracking, WhseEntry);
-                    end else begin
-#endif
-                        ItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
-                        InsertTrackingBuffer(TempInvtOrderTracking, ItemTrackingSetup, WhseEntry."Expiration Date", WhseEntry."Qty. (Base)");
-                        OnShowUsedTrackLinesOnAfterInsertFromWhseEntry2(TempInvtOrderTracking, WhseEntry);
-#if not CLEAN24
-                    end;
-#endif
+                    ItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
+                    InsertTrackingBuffer(TempInvtOrderTracking, ItemTrackingSetup, WhseEntry."Expiration Date", WhseEntry."Qty. (Base)");
+                    OnShowUsedTrackLinesOnAfterInsertFromWhseEntry2(TempInvtOrderTracking, WhseEntry);
                 until WhseEntry.Next() = 0;
         end else begin
             ItemLedgEntry.SetItemVariantLocationFilters(
               "Item No.", "Variant Code", "Location Code", PhysInvtOrderHeader."Posting Date");
-#if not CLEAN24
-            if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then
-                OnShowUsedTrackLinesSetItemLedgerEntryFilters(ItemLedgEntry, Rec, TempPhysInvtTracking)
-            else
-#endif
             OnShowUsedTrackLinesSetItemLedgerEntryFilters2(ItemLedgEntry, Rec);
             if ItemLedgEntry.Find('-') then
                 repeat
-#if not CLEAN24
-                    if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-                        InsertTrackingBuffer(TempPhysInvtTracking, ItemLedgEntry."Serial No.", ItemLedgEntry."Lot No.", ItemLedgEntry.Quantity);
-                        OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry(TempPhysInvtTracking, ItemLedgEntry);
-                    end else begin
-#endif
-                        ItemTrackingSetup.CopyTrackingFromItemLedgerEntry(ItemLedgEntry);
-                        InsertTrackingBuffer(TempInvtOrderTracking, ItemTrackingSetup, ItemLedgEntry."Expiration Date", ItemLedgEntry.Quantity);
-                        OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry2(TempInvtOrderTracking, ItemLedgEntry);
-#if not CLEAN24
-                    end;
-#endif
+                    ItemTrackingSetup.CopyTrackingFromItemLedgerEntry(ItemLedgEntry);
+                    InsertTrackingBuffer(TempInvtOrderTracking, ItemTrackingSetup, ItemLedgEntry."Expiration Date", ItemLedgEntry.Quantity);
+                    OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry2(TempInvtOrderTracking, ItemLedgEntry);
                 until ItemLedgEntry.Next() = 0;
         end;
 
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then
-            if TempPhysInvtTracking.FindFirst() then begin
-                PhysInvtTrackingLines.SetRecord(TempPhysInvtTracking);
-                PhysInvtTrackingLines.SetSources(TempPhysInvtTracking);
-                PhysInvtTrackingLines.LookupMode(true);
-                if PhysInvtTrackingLines.RunModal() = ACTION::LookupOK then begin
-                    PhysInvtTrackingLines.GetRecord(TempPhysInvtTracking);
-                    Validate("Serial No.", TempPhysInvtTracking."Serial No.");
-                    Validate("Lot No.", TempPhysInvtTracking."Lot No");
-                    OnShowUsedTrackLinesOnAfterLookupOK(Rec, TempPhysInvtTracking);
+        IsHandled := false;
+        OnBeforeRunPhysInvtTrackingLinesOnShowUsedTrackLines(Rec, TempInvtOrderTracking, IsHandled);
+        if not IsHandled then
+            if TempInvtOrderTracking.FindFirst() then begin
+                Clear(InvtOrderTrackingLines);
+                InvtOrderTrackingLines.SetRecord(TempInvtOrderTracking);
+                InvtOrderTrackingLines.SetSources(TempInvtOrderTracking);
+                InvtOrderTrackingLines.LookupMode(true);
+                if InvtOrderTrackingLines.RunModal() = ACTION::LookupOK then begin
+                    InvtOrderTrackingLines.GetRecord(TempInvtOrderTracking);
+                    Validate("Serial No.", TempInvtOrderTracking."Serial No.");
+                    Validate("Lot No.", TempInvtOrderTracking."Lot No.");
+                    Validate("Package No.", TempInvtOrderTracking."Package No.");
+                    OnShowUsedTrackLinesOnAfterLookupOK2(Rec, TempInvtOrderTracking);
                 end;
             end;
-#endif
-
-#if not CLEAN24
-        if PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-#endif
-            IsHandled := false;
-            OnBeforeRunPhysInvtTrackingLinesOnShowUsedTrackLines(Rec, TempInvtOrderTracking, IsHandled);
-            if not IsHandled then
-                if TempInvtOrderTracking.FindFirst() then begin
-                    Clear(InvtOrderTrackingLines);
-                    InvtOrderTrackingLines.SetRecord(TempInvtOrderTracking);
-                    InvtOrderTrackingLines.SetSources(TempInvtOrderTracking);
-                    InvtOrderTrackingLines.LookupMode(true);
-                    if InvtOrderTrackingLines.RunModal() = ACTION::LookupOK then begin
-                        InvtOrderTrackingLines.GetRecord(TempInvtOrderTracking);
-                        Validate("Serial No.", TempInvtOrderTracking."Serial No.");
-                        Validate("Lot No.", TempInvtOrderTracking."Lot No.");
-                        Validate("Package No.", TempInvtOrderTracking."Package No.");
-                        OnShowUsedTrackLinesOnAfterLookupOK2(Rec, TempInvtOrderTracking);
-                    end;
-                end;
-#if not CLEAN24
-        end;
-#endif
     end;
 
     procedure CheckSerialNo()
@@ -639,22 +584,6 @@ table 5878 "Phys. Invt. Record Line"
                 until PhysInvtRecordLine.Next() = 0;
         end;
     end;
-
-#if not CLEAN24
-    local procedure InsertTrackingBuffer(var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary; SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal)
-    begin
-        if (SerialNo <> '') or (LotNo <> '') then begin
-            if not TempPhysInvtTracking.Get(SerialNo, LotNo) then begin
-                TempPhysInvtTracking.Init();
-                TempPhysInvtTracking."Lot No" := LotNo;
-                TempPhysInvtTracking."Serial No." := SerialNo;
-                TempPhysInvtTracking.Insert();
-            end;
-            TempPhysInvtTracking."Qty. Expected (Base)" += QtyBase;
-            TempPhysInvtTracking.Modify();
-        end;
-    end;
-#endif
 
     procedure InsertTrackingBuffer(var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary; ItemTrackingSetup: Record "Item Tracking Setup"; ExpirationDate: Date; QtyBase: Decimal)
     begin
@@ -704,52 +633,20 @@ table 5878 "Phys. Invt. Record Line"
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by event OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry2', '24.0')]
-    local procedure OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry(var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary; ItemLedgerEntry: Record "Item Ledger Entry")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry2(var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
-
-#if not CLEAN24
-    [Obsolete('Replaced by event OnShowUsedTrackLinesOnAfterInsertFromWhseEntry2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnShowUsedTrackLinesOnAfterInsertFromWhseEntry(var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary; WarehouseEntry: Record "Warehouse Entry")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnShowUsedTrackLinesOnAfterInsertFromWhseEntry2(var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary; WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnShowUsedTrackLinesOnAfterLookupOK2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnShowUsedTrackLinesOnAfterLookupOK(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnShowUsedTrackLinesOnAfterLookupOK2(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary)
     begin
     end;
-
-#if not CLEAN24
-    [Obsolete('Replaced by event OnShowUsedTrackLinesSetItemLedgerEntryFilters2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnShowUsedTrackLinesSetItemLedgerEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnShowUsedTrackLinesSetItemLedgerEntryFilters2(var ItemLedgerEntry: Record "Item Ledger Entry"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")

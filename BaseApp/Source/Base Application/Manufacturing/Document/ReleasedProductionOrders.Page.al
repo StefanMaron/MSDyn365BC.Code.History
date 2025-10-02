@@ -416,7 +416,7 @@ page 9326 "Released Production Orders"
             action("Production Order List")
             {
                 ApplicationArea = Manufacturing;
-                Caption = 'Production Order List';
+                Caption = 'Production Order - List';
                 Image = "Report";
                 RunObject = Report "Prod. Order - List";
                 ToolTip = 'View a list of the production orders contained in the system. Information such as order number, number of the item to be produced, starting/ending date and other data are shown or printed.';

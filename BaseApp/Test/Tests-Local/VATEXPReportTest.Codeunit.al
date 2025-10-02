@@ -195,27 +195,4 @@ codeunit 144017 "VATEXP Report Test"
         SalesInvHeader.CalcFields(Closed);
         exit(SalesInvHeaderNo)
     end;
-
-    local procedure CreateSalesCreditMemo(var Customer: Record Customer; var Item: Record Item; var SalesHeader: Record "Sales Header")
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySmallBusiness.CreateSalesCrMemoHeader(SalesHeader, Customer);
-        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, 10);
-    end;
-
-    local procedure CreateAndPostSalesCreditMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
-    var
-        Customer: Record Customer;
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesCrMemoHeaderNo: Code[20];
-    begin
-        CreateCustomer(Customer);
-        CreateItem(Item);
-        CreateSalesCreditMemo(Customer, Item, SalesHeader);
-        SalesCrMemoHeaderNo := LibrarySmallBusiness.PostSalesInvoice(SalesHeader);
-        SalesCrMemoHeader.Get(SalesCrMemoHeaderNo);
-    end;
 }
-

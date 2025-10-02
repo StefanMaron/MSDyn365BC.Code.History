@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.Journal;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Journal;
 
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;

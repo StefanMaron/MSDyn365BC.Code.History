@@ -119,11 +119,13 @@ table 911 "Posted Assembly Line"
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(41; "Quantity (Base)"; Decimal)
         {
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(52; "Due Date"; Date)
         {
@@ -133,12 +135,14 @@ table 911 "Posted Assembly Line"
         {
             Caption = 'Quantity per';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(61; "Qty. per Unit of Measure"; Decimal)
         {
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(62; "Inventory Posting Group"; Code[20])
         {
@@ -152,17 +156,19 @@ table 911 "Posted Assembly Line"
         }
         field(64; "Gen. Bus. Posting Group"; Code[20])
         {
-            Caption = 'Gen. Bus. Posting Group';            
-            TableRelation = "Gen. Business Posting Group";            
+            Caption = 'Gen. Bus. Posting Group';
+            TableRelation = "Gen. Business Posting Group";
         }
         field(65; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
         }
         field(67; "Cost Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Cost Amount';
             Editable = false;
         }
@@ -299,4 +305,3 @@ table 911 "Posted Assembly Line"
     begin
     end;
 }
-

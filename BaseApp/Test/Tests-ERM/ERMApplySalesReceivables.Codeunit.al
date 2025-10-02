@@ -1044,7 +1044,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         CustLedgEntry: Record "Cust. Ledger Entry";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        // [SCENARIO 446576] When selecting the Applies-to Doc. No. manually in General Journal, the Account No. is  filled automatically, 
+        // [SCENARIO 446576] When selecting the Applies-to Doc. No. manually in General Journal, the Account No. is  filled automatically,
         // but the Applies-to Doc. No. deleted, if the lines is created from Bank Acc. Reconciliation.
 
         Initialize();
@@ -1135,7 +1135,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [GIVEN] Create Customer Posting Group One.
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[1]);
 
-        // [GIVEN] Create Alternative Customer Posting Group. 
+        // [GIVEN] Create Alternative Customer Posting Group.
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup[2]);
         LibrarySales.CreateAltCustomerPostingGroup(CustomerPostingGroup[1].Code, CustomerPostingGroup[2].Code);
         LibrarySales.CreateAltCustomerPostingGroup(CustomerPostingGroup[2].Code, CustomerPostingGroup[1].Code);
@@ -1514,21 +1514,6 @@ codeunit 134000 "ERM Apply Sales/Receivables"
           StrSubstNo(WrongValErr, DetailedCustLedgEntry.FieldCaption(Amount), Amount, DetailedCustLedgEntry.TableCaption()));
     end;
 
-    local procedure VerifyPaymentWithDiscount(DocumentNo: Code[20]; Amount: Decimal)
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-    begin
-        // Select Customer Payment Entries.
-        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
-
-        // Verify Payment Discount.
-        FindDetailedLedgerEntry(
-          DetailedCustLedgEntry, CustLedgerEntry."Document No.", DetailedCustLedgEntry."Entry Type"::"Payment Discount");
-        CustLedgerEntry.TestField(Open);
-        DetailedCustLedgEntry.TestField(Amount, Amount);
-    end;
-
     local procedure VerifyPaymentWithoutDiscount(DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -1777,4 +1762,3 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         ApplyCustomerEntries.OK().Invoke();
     end;
 }
-

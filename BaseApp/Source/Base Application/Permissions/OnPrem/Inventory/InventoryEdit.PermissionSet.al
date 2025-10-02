@@ -3,7 +3,6 @@ namespace System.Security.AccessControl;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Sales.Document;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Inventory.Location;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Projects.Project.Journal;
@@ -39,9 +38,6 @@ using Microsoft.Warehouse.History;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Forecast;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Pricing;
 using Microsoft.Warehouse.Activity;
@@ -49,7 +45,6 @@ using Microsoft.Warehouse.Activity.History;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.History;
-using Microsoft.Manufacturing.Routing;
 using Microsoft.Sales.Pricing;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Inventory.Transfer;
@@ -71,7 +66,7 @@ permissionset 8562 "Inventory - Edit"
     Permissions = tabledata "Avg. Cost Adjmt. Entry Point" = r,
                   tabledata "Bin Content" = Rd,
                   tabledata "BOM Component" = RIMD,
-                  tabledata "Capacity Ledger Entry" = rm,
+                  tabledata Microsoft.Manufacturing.Capacity."Capacity Ledger Entry" = rm,
                   tabledata "Comment Line" = RIMD,
                   tabledata "Country/Region" = R,
                   tabledata Currency = R,
@@ -129,12 +124,6 @@ permissionset 8562 "Inventory - Edit"
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
                   tabledata "Price Worksheet Line" = RIMD,
-                  tabledata "Prod. Order Component" = Rm,
-                  tabledata "Prod. Order Line" = Rm,
-                  tabledata "Production BOM Header" = R,
-                  tabledata "Production BOM Line" = R,
-                  tabledata "Production Forecast Entry" = rm,
-                  tabledata "Production Order" = rm,
                   tabledata "Purch. Cr. Memo Line" = r,
                   tabledata "Purch. Inv. Line" = r,
                   tabledata "Purch. Rcpt. Line" = r,
@@ -152,7 +141,6 @@ permissionset 8562 "Inventory - Edit"
                   tabledata Resource = R,
                   tabledata "Return Receipt Line" = r,
                   tabledata "Return Shipment Line" = r,
-                  tabledata "Routing Header" = R,
                   tabledata "Sales Cr.Memo Line" = r,
                   tabledata "Sales Discount Access" = RimD,
                   tabledata "Sales Invoice Line" = r,

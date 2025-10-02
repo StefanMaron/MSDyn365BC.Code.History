@@ -72,7 +72,6 @@ table 5343 "CRM Opportunity"
             ExternalType = 'Lookup';
             TableRelation = "CRM Account".AccountId;
         }
-#pragma warning disable AS0086
         field(7; Name; Text[2048])
         {
             Caption = 'Topic';
@@ -80,7 +79,6 @@ table 5343 "CRM Opportunity"
             ExternalName = 'name';
             ExternalType = 'String';
         }
-#pragma warning restore AS0086
         field(8; StepId; Guid)
         {
             Caption = 'Step';
@@ -954,4 +952,3 @@ table 5343 "CRM Opportunity"
         }
     }
 }
-

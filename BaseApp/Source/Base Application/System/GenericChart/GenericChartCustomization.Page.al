@@ -722,16 +722,12 @@ page 9188 "Generic Chart Customization"
         DummyInt: Integer;
         DummyCaption: Text[50];
         OptionalMeasuresEnabled: Boolean;
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text002: Label 'Field %1 is already assigned to a measure or dimension. Select a different field.';
+        FieldAlreadyAssignedErr: Label 'Field %1 is already assigned to a measure or dimension. Select a different field.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         ZAxisEnabled: Boolean;
-#pragma warning disable AA0074
-        Text004: Label 'You can only select one Measure with aggregation type Count.';
-        Text005: Label 'If you select Aggregation Count, the Data Column will be modified for this measure. Do you want to continue?';
-#pragma warning restore AA0074
+        OnlyOneCountAggregationErr: Label 'You can only select one Measure with aggregation type Count.';
+        AggregationCountChangeQst: Label 'If you select Aggregation Count, the Data Column will be modified for this measure. Do you want to continue?';
         TitleEnabled: Boolean;
         XMLRetrieved: Boolean;
         DataColumn1Enabled: Boolean;
@@ -770,9 +766,8 @@ page 9188 "Generic Chart Customization"
         for i := 1 to ArrayLen(DataColumn) do
             if (DataColumn[i] <> '') and (Index <> i) then
                 FieldAlreadyExists := (DataColumn[Index] = DataColumn[i]) or FieldAlreadyExists;
-
         if FieldAlreadyExists then
-            Error(Text002, DataColumn[Index]);
+            Error(FieldAlreadyAssignedErr, DataColumn[Index]);
 
         GenericChartMgt.CheckDataTypeAggregationCompliance(TempGenericChartSetup, DataColumn[Index], Aggregation[Index]);
         GenericChartMgt.ValidateFieldColumn(TempGenericChartSetup, DummyInt, DataColumn[1], DummyCaption, 2, false, Aggregation[Index]);
@@ -786,7 +781,7 @@ page 9188 "Generic Chart Customization"
     begin
         GenericChartMgt.CheckSourceTypeID(TempGenericChartSetup, true);
         if (TempGenericChartSetup."X-Axis Field Name" <> '') and (TempGenericChartSetup."Z-Axis Field Name" <> '') and (TempGenericChartSetup."X-Axis Field Name" = TempGenericChartSetup."Z-Axis Field Name") then
-            Error(Text002, DataColumn[Index]);
+            Error(FieldAlreadyAssignedErr, DataColumn[Index]);
 
         case Index of
             1:
@@ -950,9 +945,8 @@ page 9188 "Generic Chart Customization"
         for i := 1 to ArrayLen(Aggregation) do
             if (Aggregation[i] = Aggregation[i] ::Count) and (index <> i) then
                 FieldOfTypeCountAlreadyExists := (Aggregation[index] = Aggregation[i]) or FieldOfTypeCountAlreadyExists;
-
         if FieldOfTypeCountAlreadyExists then
-            Error(Text004);
+            Error(OnlyOneCountAggregationErr);
 
         GenericChartMgt.CheckDataTypeAggregationCompliance(TempGenericChartSetup, DataColumn[index], Aggregation[index]);
         if Aggregation[index] = Aggregation[index] ::Count then begin
@@ -960,7 +954,7 @@ page 9188 "Generic Chart Customization"
             if DataColumn[index] <> CountColumnName then begin
                 ReplaceDataColumn := true;
                 if DataColumn[index] <> '' then
-                    ReplaceDataColumn := Confirm(Text005, false);
+                    ReplaceDataColumn := Confirm(AggregationCountChangeQst, false);
                 if ReplaceDataColumn then
                     DataColumn[index] := CountColumnName
                 else

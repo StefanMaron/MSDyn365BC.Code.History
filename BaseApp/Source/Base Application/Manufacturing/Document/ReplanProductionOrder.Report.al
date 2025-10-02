@@ -149,7 +149,7 @@ report 99001026 "Replan Production Order"
 
                         MainProdOrder.Get("Production Order".Status, "Prod. Order No.");
 
-                        UpdateProdOrder := CompItem."Replenishment System" = CompItem."Replenishment System"::"Prod. Order";
+                        UpdateProdOrder := CompItem.IsMfgItem();
                         OnProdOrderCompOnAfterGetRecordOnAfterCalcUpdateProdOrder(CompItem, UpdateProdOrder);
                         if UpdateProdOrder then begin
                             ProdOrder.Status := MainProdOrder.Status;

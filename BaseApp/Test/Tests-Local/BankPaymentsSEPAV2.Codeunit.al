@@ -868,16 +868,6 @@ codeunit 144004 "Bank Payments - SEPA V2"
         exit(DocNo);
     end;
 
-    local procedure CreateRefPaymentExportLinesFromPrepayment(BankAccountNo: Code[20]; VendorNo: Code[20]; var PurchaseHeader: Record "Purchase Header")
-    var
-        RefPmtExported: Record "Ref. Payment - Exported";
-    begin
-        CreateAndPostPurchasePrepayments(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        RefPmtExported.DeleteAll();
-        Commit();
-        RunSuggestBankPayments(BankAccountNo, VendorNo, CalcDate('<30D>', WorkDate()));
-    end;
-
     local procedure CreateRefPaymentExportLinesFromJournal(BankAccountNo: Code[20]; VendorNo: Code[20])
     var
         RefPmtExported: Record "Ref. Payment - Exported";
@@ -946,24 +936,6 @@ codeunit 144004 "Bank Payments - SEPA V2"
         PurchaseLine.Validate("Direct Unit Cost", Cost);
         PurchaseLine.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument2(PurchaseHeader, ToShipReceive, ToInvoice));
-    end;
-
-    local procedure CreateAndPostPurchasePrepayments(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
-    var
-        PurchaseLine: Record "Purchase Line";
-        Item: Record Item;
-    begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(1, 99));
-        PurchaseHeader.Validate("Message Type", PurchaseHeader."Message Type"::"Reference No.");
-        PurchaseHeader.Validate("Invoice Message", '268745');
-        PurchaseHeader.Modify(true);
-        LibraryInventory.CreateItem(Item);
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 99));
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
-        PurchaseLine.Modify(true);
-        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
     end;
 
     local procedure CreateDocumentForSuggestBankPayments(VendorNo: Code[20]; var PurchaseHeader: Record "Purchase Header"; MessageType: Option; LinesCount: Integer)
@@ -1210,4 +1182,3 @@ codeunit 144004 "Bank Payments - SEPA V2"
         SuggestVendorPayments.OK().Invoke();
     end;
 }
-

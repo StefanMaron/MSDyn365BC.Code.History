@@ -83,7 +83,7 @@ table 2632 "Statistical Account"
         field(32; "Net Change"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Statistical Ledger Entry".Amount where("Statistical Account No." = field("No."),
+            CalcFormula = sum("Statistical Ledger Entry".Amount where("Statistical Account No." = field("No."),
                                                         "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
                                                         "Posting Date" = field("Date Filter"),

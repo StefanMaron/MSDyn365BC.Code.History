@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -185,24 +185,6 @@ page 973 "Time Sheet Card"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
-#if not CLEAN24
-                action(CopyLinesFromPrevTS)
-                {
-                    ApplicationArea = Jobs;
-                    Caption = '&Copy lines from previous time sheet';
-                    Image = Copy;
-                    ToolTip = 'Copy information from the previous time sheet, such as type and description, and then modify the lines. If a line is related to a project, the project number is copied.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by SelectAndCopyLinesFromTS.';
-                    ObsoleteTag = '24.0';
-
-                    trigger OnAction()
-                    begin
-                        Message('Not in use anymore');
-                    end;
-                }
-#endif
                 action(CopyLinesFromTS)
                 {
                     ApplicationArea = Jobs;
@@ -284,15 +266,6 @@ page 973 "Time Sheet Card"
                     actionref(SelectAndCopyLinesFromTSWithComments_Promoted; CopyLinesFromTSWithComments)
                     {
                     }
-#if not CLEAN24
-                    actionref(CopyLinesFromPrevTS_Promoted; CopyLinesFromPrevTS)
-                    {
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Replaced by CopyLinesFromTS.';
-                        ObsoleteTag = '24.0';
-                        Visible = false;
-                    }
-#endif
                 }
                 actionref(CreateLinesFromJobPlanning_Promoted; CreateLinesFromJobPlanning)
                 {

@@ -46,11 +46,13 @@ table 914 "Posted Assemble-to-Order Link"
         {
             Caption = 'Assembled Quantity';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(21; "Assembled Quantity (Base)"; Decimal)
         {
             Caption = 'Assembled Quantity (Base)';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(32; "Assembly Order No."; Code[20])
         {
@@ -181,4 +183,3 @@ table 914 "Posted Assemble-to-Order Link"
     begin
     end;
 }
-

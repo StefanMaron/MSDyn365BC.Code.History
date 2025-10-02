@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Reports;
 
 using Microsoft.Finance.Analysis;
@@ -407,6 +411,8 @@ report 36 "Fiscal Year Balance"
 
     requestpage
     {
+        AboutTitle = 'About Fiscal Year Balance';
+        AboutText = 'The **Fiscal Year Balance** report displays the opening and closing balances for each general ledger account within a selected fiscal year. Use it for fiscal year-end closing or financial analysis to verify that balances are correctly carried forward and to support reconciliation and trend review.';
 
         layout
         {

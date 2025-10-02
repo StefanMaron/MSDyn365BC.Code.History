@@ -9,6 +9,18 @@ using Microsoft.Bank.Check;
 using Microsoft.Bank.Setup;
 using System.IO;
 
+/// <summary>
+/// Launches and orchestrates the positive pay export process for check ledger entries.
+/// This codeunit serves as the main entry point for positive pay file generation and export operations.
+/// </summary>
+/// <remarks>
+/// The Export Launcher Positive Pay codeunit coordinates the entire positive pay export workflow from start to finish.
+/// It validates bank account setup, creates data exchange entries, processes check ledger entries, and generates
+/// output files in the required format. The codeunit handles both header, detail, and footer record generation
+/// through the data exchange framework. It also manages the integration with bank export/import setup configurations
+/// and provides progress feedback during large data exports. The export process creates audit trail records
+/// and updates check ledger entries with export tracking information.
+/// </remarks>
 codeunit 1700 "Exp. Launcher Pos. Pay"
 {
     Permissions = TableData "Check Ledger Entry" = rimd,
@@ -20,6 +32,17 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
         PositivePayProcess(Rec, true);
     end;
 
+    /// <summary>
+    /// Executes the complete positive pay export process for the specified check ledger entries.
+    /// </summary>
+    /// <param name="CheckLedgerEntry">The check ledger entries to include in the positive pay export.</param>
+    /// <param name="ShowDialog">Indicates whether to display progress dialogs to the user during processing.</param>
+    /// <remarks>
+    /// This procedure orchestrates the entire positive pay export workflow including validation, data preparation,
+    /// file generation, and user feedback. It processes header, detail, and footer records through the data exchange
+    /// framework and creates the final export file. The procedure also updates check ledger entries with export
+    /// tracking information and creates audit trail records for compliance purposes.
+    /// </remarks>
     [Scope('OnPrem')]
     procedure PositivePayProcess(var CheckLedgerEntry: Record "Check Ledger Entry"; ShowDialog: Boolean)
     var

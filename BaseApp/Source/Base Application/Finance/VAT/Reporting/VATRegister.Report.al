@@ -158,6 +158,8 @@ report 13 "VAT Register"
 
     requestpage
     {
+        AboutTitle = 'About VAT Register';
+        AboutText = 'The **VAT Register** report displays all posted VAT transactions from sales, purchases, and journals, with filters for posting date, VAT business posting group, and document number. Use it for reviewing individual VAT entries before filing returns or investigating discrepancies, ensuring audit readiness and accurate tax tracking.';
         SaveValues = true;
 
         layout

@@ -2773,7 +2773,9 @@ codeunit 137064 "SCM Warehouse Management"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.ClearState();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Management");
         ClearWarehouseEntry();
         if Initialized then

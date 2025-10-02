@@ -39,6 +39,7 @@ codeunit 136312 "Job Reservation"
         NotCreateReservationEntryErr: Label 'The Reservation Entry should not be created.';
         ReservationEntriesExistErr: Label 'You cannot set the status to %1 because the project has reservations', Comment = '%1=The project status name';
         AutoReserveNotPossibleMsg: Label 'Automatic reservation is not possible for one or more project planning lines. \Please reserve manually.';
+        ReservationFromStockErr: Label 'Reservation from Stock must be %1 in %2.', Comment = '%1= Field Value, %2 =Table Caption.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1158,6 +1159,53 @@ codeunit 136312 "Job Reservation"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure ReservedStockFullStatusStatisticsJobOnInventoryItem()
+    var
+        Item: array[2] of Record Item;
+        PurchaseLine: Record "Purchase Line";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        ReservationFromStock: Enum "Reservation From Stock";
+    begin
+        // [SCENARIO 563164] Reserved from Stock has "Full" status on Statistics page of Job when there is non-inventory Item is in the Job Lines.
+        Initialize();
+
+        // [GIVEN] Create an post purchase order for item "I".
+        CreateAndReceivePurchaseOrder(PurchaseLine, '');
+
+        // [GIVEN] Item "I" is set up for Reserve = Always.
+        Item[1].Get(PurchaseLine."No.");
+        Item[1].Validate(Reserve, Item[1].Reserve::Always);
+        Item[1].Modify(true);
+
+        // [GIVEN] Create a Non Inventory Item.
+        LibraryInventory.CreateNonInventoryTypeItem(Item[2]);
+
+        // [GIVEN] Create job of "Open" status.
+        LibraryJob.CreateJob(Job);
+        Job.Validate(Status, Job.Status::Open);
+        Job.Modify(true);
+
+        // [GIVEN] Job planning line with item "I" and reservation created.
+        CreateJobTaskWithJobPlanningLineWithUsageLink(JobPlanningLine, Job, Item[1]."No.", LibraryRandom.RandInt(5));
+
+        // [GIVEN] Auto Reserve Job.
+        JobPlanningLine.AutoReserve();
+
+        // [GIVEN] Create Job Task with Job Planning Line.
+        CreateJobTaskWithJobPlanningLineWithUsageLink(JobPlanningLine, Job, Item[2]."No.", LibraryRandom.RandInt(5));
+
+        // [THEN] Reservation from stock must be Full in Job.
+        Assert.AreEqual(
+            ReservationFromStock::Full,
+            Job.GetQtyReservedFromStockState(),
+            StrSubstNo(
+                ReservationFromStockErr,
+                ReservationFromStock::Full,
+                Job.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1175,6 +1223,7 @@ codeunit 136312 "Job Reservation"
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup.Modify();
+        LibraryJob.SetJobNoSeriesCode();
 
         IsInitialized := true;
         Commit();
@@ -1589,4 +1638,3 @@ codeunit 136312 "Job Reservation"
         Reply := false;
     end;
 }
-

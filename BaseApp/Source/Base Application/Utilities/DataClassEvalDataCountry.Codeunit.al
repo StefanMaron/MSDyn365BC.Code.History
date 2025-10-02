@@ -40,6 +40,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Ref. Payment - Exported");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Foreign Payment Types");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Ref. Payment - Exported Buffer");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Alt. Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");

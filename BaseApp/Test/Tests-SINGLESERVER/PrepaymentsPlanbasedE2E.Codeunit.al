@@ -291,23 +291,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
         SalesOrder.OK().Invoke();
     end;
 
-    local procedure CreatePurchaseOrder(VendorNo: Code[20]; ItemNo: Code[20]) PurchaseOrderNo: Code[20]
-    var
-        PurchaseLine: Record "Purchase Line";
-        PurchaseOrder: TestPage "Purchase Order";
-    begin
-        PurchaseOrder.OpenNew();
-        PurchaseOrder."Buy-from Vendor Name".SetValue(VendorNo);
-        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID());
-        PurchaseOrder.PurchLines.New();
-        PurchaseOrder.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::Item));
-        PurchaseOrder.PurchLines."No.".SetValue(ItemNo);
-        PurchaseOrder.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 10));
-        PurchaseOrder.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandDecInRange(1, 1000, 2));
-        PurchaseOrderNo := PurchaseOrder."No.".Value();
-        PurchaseOrder.OK().Invoke();
-    end;
-
     local procedure PostSalesOrderPrepayments(SalesOrderNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
@@ -331,30 +314,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
             PostedSalesOrderNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(PostedSalesOrderNo));
     end;
 
-    local procedure PostPurchOrderPrepayments(PurchaseOrderNo: Code[20])
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseOrder: TestPage "Purchase Order";
-    begin
-        PurchaseOrder.OpenEdit();
-        PurchaseOrder.GotoKey(PurchaseHeader."Document Type"::Order, PurchaseOrderNo);
-        PurchaseOrder.PostPrepaymentInvoice.Invoke();
-        PurchaseOrder.Close();
-    end;
-
-    local procedure PostPurchOrder(PurchaseOrderNo: Code[20]; ExpectFailure: Boolean) PostedPurchaseOrderNo: Code[20]
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseOrder: TestPage "Purchase Order";
-    begin
-        PurchaseOrder.OpenEdit();
-        PurchaseOrder.GotoKey(PurchaseHeader."Document Type"::Order, PurchaseOrderNo);
-        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID());
-        PurchaseOrder.Post.Invoke();
-        if not ExpectFailure then
-            PostedPurchaseOrderNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(PostedPurchaseOrderNo));
-    end;
-
     local procedure CreateItem() ItemNo: Code[20]
     var
         Item: Record Item;
@@ -364,20 +323,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value();
         ItemCard.OK().Invoke();
-        Commit();
-    end;
-
-    local procedure CreateVendor(var PrepaymentPercentage: Decimal) VendorNo: Code[20]
-    var
-        Vendor: Record Vendor;
-        VendorCard: TestPage "Vendor Card";
-    begin
-        PrepaymentPercentage := LibraryRandom.RandDecInRange(1, 100, 2);
-        VendorCard.OpenNew();
-        VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
-        VendorCard."Prepayment %".SetValue(PrepaymentPercentage);
-        VendorNo := VendorCard."No.".Value();
-        VendorCard.OK().Invoke();
         Commit();
     end;
 
@@ -417,30 +362,6 @@ codeunit 135407 "Prepayments Plan-based E2E"
         Assert.AreNotEqual(0.0, PrepaymentAmount, '');
         Assert.AreNearlyEqual(ExpectedPrepaymentAmount, PrepaymentAmount, 0.01, '');
         PostedSalesInvoice.OK().Invoke();
-    end;
-
-    local procedure VerifyPostedPurchInvoicePrepayment(PostedPurchaseInvoiceNo: Code[20]; ExpectedPrepaymentPercentage: Decimal)
-    var
-        PurchaseLine: Record "Purchase Line";
-        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
-        PrepaymentAmount: Decimal;
-        ItemLineAmount: Decimal;
-        ExpectedPrepaymentAmount: Decimal;
-    begin
-        PostedPurchaseInvoice.OpenEdit();
-        PostedPurchaseInvoice.GotoKey(PostedPurchaseInvoiceNo);
-        PostedPurchaseInvoice.PurchInvLines.Next();
-        Assert.AreEqual(Format(PurchaseLine.Type::Item), PostedPurchaseInvoice.PurchInvLines.FilteredTypeField.Value, '');
-        Assert.IsTrue(
-          Evaluate(ItemLineAmount, PostedPurchaseInvoice.PurchInvLines."Line Amount".Value), 'Evaluate Failed On Item Line Amount');
-        ExpectedPrepaymentAmount := -ItemLineAmount * ExpectedPrepaymentPercentage / 100.0;
-        PostedPurchaseInvoice.PurchInvLines.Next();
-        Assert.AreEqual(Format(PurchaseLine.Type::"G/L Account"), PostedPurchaseInvoice.PurchInvLines.FilteredTypeField.Value, '');
-        Assert.IsTrue(
-          Evaluate(PrepaymentAmount, PostedPurchaseInvoice.PurchInvLines."Line Amount".Value), 'Evaluate Failed On Prepayment Amount');
-        Assert.AreNotEqual(0.0, PrepaymentAmount, '');
-        Assert.AreNearlyEqual(ExpectedPrepaymentAmount, PrepaymentAmount, 0.01, '');
-        PostedPurchaseInvoice.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -553,4 +474,3 @@ codeunit 135407 "Prepayments Plan-based E2E"
         GeneralPostingSetup.Modify(true);
     end;
 }
-

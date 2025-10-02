@@ -261,13 +261,6 @@ codeunit 134769 "Test User Tasks"
         AddUserToUserTaskGroupByCode(User1."User Security ID", 'GroupA');
     end;
 
-    local procedure CurrentUserExists(): Boolean
-    var
-        User: Record User;
-    begin
-        exit(User.Get(UserSecurityId()));
-    end;
-
     [Test]
     [HandlerFunctions('CustomerListPageHandler')]
     [Scope('OnPrem')]
@@ -349,4 +342,3 @@ codeunit 134769 "Test User Tasks"
             Assert.IsTrue(User.Modify(), 'Modifying the Windows user''s Windows Security ID should be possible in OnPrem environment');
     end;
 }
-

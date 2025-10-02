@@ -17,6 +17,11 @@ using Microsoft.Sales.Customer;
 using System.IO;
 using System.Text;
 
+/// <summary>
+/// Table 1226 "Payment Export Data" contains data for exporting payments to bank files.
+/// This table stores all the necessary information for payment file generation including sender bank details,
+/// recipient information, payment amounts, SEPA parameters, and various formatting options.
+/// </summary>
 table 1226 "Payment Export Data"
 {
     Caption = 'Payment Export Data';
@@ -24,103 +29,172 @@ table 1226 "Payment Export Data"
 
     fields
     {
+        /// <summary>
+        /// Unique identifier for the payment export data entry.
+        /// </summary>
         field(1; "Entry No."; Integer)
         {
             AutoIncrement = true;
             Caption = 'Entry No.';
         }
+        /// <summary>
+        /// Reference to the data exchange entry associated with this payment export.
+        /// </summary>
         field(2; "Data Exch Entry No."; Integer)
         {
             Caption = 'Data Exch Entry No.';
             TableRelation = "Data Exch.";
         }
+        /// <summary>
+        /// Line number within the data exchange for this payment export data.
+        /// </summary>
         field(3; "Line No."; Integer)
         {
             Caption = 'Line No.';
         }
+        /// <summary>
+        /// Code defining the line definition in the data exchange.
+        /// </summary>
         field(4; "Data Exch. Line Def Code"; Code[20])
         {
             Caption = 'Data Exch. Line Def Code';
         }
+        /// <summary>
+        /// General journal template associated with this payment export.
+        /// </summary>
         field(5; "General Journal Template"; Code[10])
         {
             Caption = 'General Journal Template';
             TableRelation = "Gen. Journal Template";
         }
+        /// <summary>
+        /// General journal batch name associated with this payment export.
+        /// </summary>
         field(6; "General Journal Batch Name"; Code[10])
         {
             Caption = 'General Journal Batch Name';
             TableRelation = "Gen. Journal Batch";
         }
+        /// <summary>
+        /// General journal line number associated with this payment export.
+        /// </summary>
         field(7; "General Journal Line No."; Integer)
         {
             Caption = 'General Journal Line No.';
         }
+        /// <summary>
+        /// Sender bank name for data conversion purposes (limited to 50 characters).
+        /// </summary>
         field(28; "Sender Bank Name - Data Conv."; Text[50])
         {
             Caption = 'Sender Bank Name - Data Conv.';
         }
+        /// <summary>
+        /// Full name of the sender bank.
+        /// </summary>
         field(29; "Sender Bank Name"; Text[100])
         {
             Caption = 'Sender Bank Name';
         }
+        /// <summary>
+        /// Code of the sender bank account.
+        /// </summary>
         field(30; "Sender Bank Account Code"; Code[20])
         {
             Caption = 'Sender Bank Account Code';
             TableRelation = "Bank Account";
         }
+        /// <summary>
+        /// Account number of the sender bank.
+        /// </summary>
         field(31; "Sender Bank Account No."; Text[50])
         {
             Caption = 'Sender Bank Account No.';
         }
+        /// <summary>
+        /// Currency code of the sender bank account.
+        /// </summary>
         field(32; "Sender Bank Account Currency"; Code[10])
         {
             Caption = 'Sender Bank Account Currency';
             TableRelation = Currency;
         }
+        /// <summary>
+        /// Country/region code of the sender bank.
+        /// </summary>
         field(33; "Sender Bank Country/Region"; Code[10])
         {
             Caption = 'Sender Bank Country/Region';
             TableRelation = "Country/Region";
         }
+        /// <summary>
+        /// Bank Identifier Code (BIC) of the sender bank.
+        /// </summary>
         field(34; "Sender Bank BIC"; Code[35])
         {
             Caption = 'Sender Bank BIC';
         }
+        /// <summary>
+        /// Clearing standard used by the sender bank.
+        /// </summary>
         field(35; "Sender Bank Clearing Std."; Text[50])
         {
             Caption = 'Sender Bank Clearing Std.';
             TableRelation = "Bank Clearing Standard";
         }
+        /// <summary>
+        /// Clearing code used by the sender bank.
+        /// </summary>
         field(36; "Sender Bank Clearing Code"; Text[50])
         {
             Caption = 'Sender Bank Clearing Code';
         }
+        /// <summary>
+        /// Address of the sender bank.
+        /// </summary>
         field(37; "Sender Bank Address"; Text[100])
         {
             Caption = 'Sender Bank Address';
         }
+        /// <summary>
+        /// City of the sender bank.
+        /// </summary>
         field(38; "Sender Bank City"; Text[50])
         {
             Caption = 'Sender Bank City';
         }
+        /// <summary>
+        /// Postal code of the sender bank.
+        /// </summary>
         field(39; "Sender Bank Post Code"; Code[20])
         {
             Caption = 'Sender Bank Post Code';
         }
+        /// <summary>
+        /// Name of the payment recipient.
+        /// </summary>
         field(40; "Recipient Name"; Text[100])
         {
             Caption = 'Recipient Name';
             DataClassification = EndUserIdentifiableInformation;
         }
+        /// <summary>
+        /// Address of the payment recipient.
+        /// </summary>
         field(41; "Recipient Address"; Text[100])
         {
             Caption = 'Recipient Address';
         }
+        /// <summary>
+        /// City of the payment recipient.
+        /// </summary>
         field(42; "Recipient City"; Text[50])
         {
             Caption = 'Recipient City';
         }
+        /// <summary>
+        /// Postal code of the payment recipient.
+        /// </summary>
         field(43; "Recipient Post Code"; Code[20])
         {
             Caption = 'Recipient Post Code';
@@ -214,6 +288,8 @@ table 1226 "Payment Export Data"
         }
         field(80; Amount; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Amount';
             DecimalPlaces = 2 : 2;
         }
@@ -248,6 +324,8 @@ table 1226 "Payment Export Data"
         }
         field(89; "Invoice Amount"; Decimal)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Invoice Amount';
         }
         field(90; "Invoice Date"; Date)
@@ -726,35 +804,69 @@ table 1226 "Payment Export Data"
         exit(Format(FieldRef.Value) = BlankValue);
     end;
 
+    /// <summary>
+    /// Integration event raised after determining the sender creditor number for payment export.
+    /// Enables custom logic to modify or override the creditor number used in payment files.
+    /// </summary>
+    /// <param name="PaymentExportData">Payment export data record being processed</param>
+    /// <param name="CreditorNo">Creditor number to be used in payment export</param>
     [IntegrationEvent(true, false)]
     local procedure OnAfterGetSenderCreditorNo(PaymentExportData: Record "Payment Export Data"; var CreditorNo: Text)
     begin
     end;
 
-
+    /// <summary>
+    /// Integration event raised after setting the bank account as sender bank for payment export.
+    /// Enables custom processing after sender bank configuration.
+    /// </summary>
+    /// <param name="BankAccount">Bank account configured as sender</param>
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetBankAsSenderBank(BankAccount: Record "Bank Account")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after setting a customer as the payment recipient.
+    /// Enables custom modifications to customer recipient data for payment export.
+    /// </summary>
+    /// <param name="PaymentExportData">Payment export data being updated</param>
+    /// <param name="Customer">Customer record configured as recipient</param>
+    /// <param name="CustomerBankAccount">Customer bank account for payment</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetCustomerAsRecipient(var PaymentExportData: Record "Payment Export Data"; var Customer: Record Customer; var CustomerBankAccount: Record "Customer Bank Account");
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after setting an employee as the payment recipient.
+    /// Enables custom processing after employee recipient configuration.
+    /// </summary>
+    /// <param name="Employee">Employee record configured as recipient</param>
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetEmployeeAsRecipient(Employee: Record Employee)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after setting a vendor as the payment recipient.
+    /// Enables custom modifications to vendor recipient data for payment export.
+    /// </summary>
+    /// <param name="PaymentExportData">Payment export data being updated</param>
+    /// <param name="Vendor">Vendor record configured as recipient</param>
+    /// <param name="VendorBankAccount">Vendor bank account for payment</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetVendorAsRecipient(var PaymentExportData: Record "Payment Export Data"; var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account");
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after setting a bank account as the payment recipient.
+    /// Enables custom modifications to bank recipient data for payment export.
+    /// </summary>
+    /// <param name="PaymentExportData">Payment export data being updated</param>
+    /// <param name="BankAccount">Bank account configured as recipient</param>
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetBankAsRecipient(var PaymentExportData: Record "Payment Export Data"; var BankAccount: Record "Bank Account")
     begin
     end;
 }
-

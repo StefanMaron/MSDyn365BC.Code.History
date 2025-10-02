@@ -103,6 +103,7 @@ table 456 "Posted Approval Entry"
         field(20; "Available Credit Limit (LCY)"; Decimal)
         {
             Caption = 'Available Credit Limit (LCY)';
+            AutoFormatType = 1;
         }
         field(22; "Posted Record ID"; RecordID)
         {
@@ -163,4 +164,3 @@ table 456 "Posted Approval Entry"
         PageManagement.PageRun(RecRef);
     end;
 }
-

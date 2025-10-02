@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.History;
 
 using Microsoft.Assembly.History;
@@ -833,6 +837,7 @@ table 111 "Sales Shipment Line"
                 SalesOrderLine."Line No.",
                 NextLineNo,
                 "Attached to Line No.");
+            SalesLine."Bin Code" := "Bin Code";
             SalesLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
             SalesLine."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
             SalesLine."Dimension Set ID" := "Dimension Set ID";

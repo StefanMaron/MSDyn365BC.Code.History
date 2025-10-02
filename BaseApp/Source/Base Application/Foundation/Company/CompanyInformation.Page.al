@@ -26,6 +26,7 @@ using System.Environment.Configuration;
 using System.Globalization;
 using System.Security.AccessControl;
 using System.Security.User;
+using System.Telemetry;
 
 page 1 "Company Information"
 {
@@ -700,6 +701,7 @@ page 1 "Company Information"
 
     trigger OnClosePage()
     var
+        AuditLog: Codeunit "Audit Log";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         if ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(Experience) then
@@ -707,7 +709,7 @@ page 1 "Company Information"
 
         if SystemIndicatorChanged then begin
             Message(CompanyBadgeRefreshPageTxt);
-            Session.LogAuditMessage(StrSubstNo(CompanyBadgeChangedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+            AuditLog.LogAuditMessage(StrSubstNo(CompanyBadgeChangedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
             RestartSession();
         end;
     end;

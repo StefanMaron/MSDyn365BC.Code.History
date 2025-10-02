@@ -658,6 +658,7 @@ report 852 "Cash Flow Dimensions - Detail"
             HasEntries := AnalysisViewEntry.Find('-');
         end else
             CurrReport.Break();
+        OnAfterCalcLine(DimCode[Level], DimValCode[Level], DimValName[Level], Level);
         exit(HasEntries);
     end;
 
@@ -675,11 +676,14 @@ report 852 "Cash Flow Dimensions - Detail"
                 until AnalysisViewEntry.Next() = 0;
             TempCFForecastEntry.SetCurrentKey("Cash Flow Forecast No.", "Cash Flow Account No.", "Source Type", "Cash Flow Date");
             TempCFForecastEntry.SetFilter("Cash Flow Date", DateFilter);
+            OnBeforeTempCFForecastEntryfind(TempCFForecastEntry, Level);
             if not TempCFForecastEntry.Find('-') then
                 exit(false);
-        end else
+        end else begin
+            OnBeforeTempCFForecastEntrynext(TempCFForecastEntry, Level);
             if TempCFForecastEntry.Next() = 0 then
                 exit(false);
+        end;
         if Level > 1 then
             CalcTotalAmounts(Level - 1);
         exit(true);
@@ -835,6 +839,27 @@ report 852 "Cash Flow Dimensions - Detail"
         UpdateColumnDim();
         DateFilter := NewDateFilter;
         PrintEmptyLines := NewPrintEmptyLines;
+        OnAfterInitializeRequest(AnalysisViewCode, CFFilter, DateFilter, PrintEmptyLines);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitializeRequest(var AnalysisViewCode: Code[10]; var CFFilter: Text[100]; var DateFilterv: Text[100]; var PrintEmptyLines: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeTempCFForecastEntryfind(TempCFForecastEntry: Record "Cash Flow Forecast Entry"; Level: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeTempCFForecastEntrynext(TempCFForecastEntry: Record "Cash Flow Forecast Entry"; Level: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCalcLine(DimCode: Text[30]; DimValCode: Code[20]; DimValName: Text[100]; Level: Integer)
+    begin
     end;
 }
 

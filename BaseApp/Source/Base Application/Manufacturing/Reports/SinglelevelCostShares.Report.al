@@ -114,6 +114,8 @@ report 99000755 "Single-level Cost Shares"
 
     requestpage
     {
+        AboutTitle = 'About Single-level Cost Shares';
+        AboutText = 'Get a detailed breakdown of the costs associated with manufactured items at each level of the bill of materials (BOM). The report shows the cost of materials, labor, and overhead for each component in the BOM.';
 
         layout
         {

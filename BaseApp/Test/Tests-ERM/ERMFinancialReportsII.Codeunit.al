@@ -18,7 +18,6 @@
         WarningMsg: Label 'Statement Ending Balance is not equal to Total Balance.';
         HeaderDimensionTxt: Label '%1 - %2';
         NoSeriesGapWarningMsg: Label 'There is a gap in the number series.';
-        NoSeriesInformationMsg: Label 'The number series %1 %2 has been used for the following entries:', Comment = '%1=Field Value;%2=Field Value;';
         TotalTxt: Label 'Total %1';
         AddnlFeeLabelTxt: Label 'Additional Fee';
         AmtInclVATLabelTxt: Label 'Amount Including VAT';
@@ -34,7 +33,6 @@
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         RowNotFoundErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2.';
-        IncorrectValueMsg: Label 'Value for field %1 is incorrect.';
         EmptyDatasetErr: Label 'Dataset does not contain any rows.';
         BlankLinesQtyErr: Label 'Wrong blank lines quantity in dataset.';
         AdjustExchangeErr: Label 'Bank Account Ledger Entry should exist.';
@@ -1594,7 +1592,7 @@
         GLAccount[2].Validate("Reconciliation Account", true);
         GLAccount[2].Modify(true);
 
-        // [GIVEN] Validate Consol. Credit Acc.,Consol. Debit Acc. in GL Account "Z". 
+        // [GIVEN] Validate Consol. Credit Acc.,Consol. Debit Acc. in GL Account "Z".
         GLAccount[3].Validate("Consol. Credit Acc.", GLAccount[2]."No.");
         GLAccount[3].Validate("Consol. Debit Acc.", GLAccount[2]."No.");
         GLAccount[3].Modify(true);
@@ -2442,16 +2440,6 @@
         SuggestFinChargeMemoLines.Run();
     end;
 
-    local procedure UpdateAndIssueReminder(ReminderNo: Code[20])
-    var
-        ReminderHeader: Record "Reminder Header";
-    begin
-        ReminderHeader.Get(ReminderNo);
-        UpdateIssuingNoSeriesReminder(ReminderHeader, ReminderNo);
-        ReminderHeader.Modify(true);
-        IssueReminder(ReminderHeader);
-    end;
-
     local procedure UpdateBankAccountDimension(BankAccountNo: Code[20])
     var
         Dimension: Record Dimension;
@@ -2477,48 +2465,6 @@
         SavedAddFeeAccountNo := CustomerPostingGroup."Additional Fee Account";
         CustomerPostingGroup.Validate("Additional Fee Account", NewAddFeeAccountNo);
         CustomerPostingGroup.Modify(true);
-    end;
-
-    local procedure UpdateIssuingNoSeries(No: Code[20])
-    var
-        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
-    begin
-        FinanceChargeMemoHeader.Get(No);
-        FinanceChargeMemoHeader.Validate("No. Series", '');
-        FinanceChargeMemoHeader.Validate("Issuing No.", No);
-        FinanceChargeMemoHeader.Modify(true);
-        IssueFinChargeMemo(FinanceChargeMemoHeader);
-    end;
-
-    local procedure UpdateIssuingNoSeriesReminder(var ReminderHeader: Record "Reminder Header"; ReminderNo: Code[20])
-    begin
-        ReminderHeader.Validate("Issuing No. Series", '');
-        ReminderHeader.Validate("Issuing No.", ReminderNo);
-    end;
-
-    local procedure UpdateNoSeriesAndIssueReminder(ReminderNo: Code[20])
-    var
-        ReminderHeader: Record "Reminder Header";
-    begin
-        ReminderHeader.Get(ReminderNo);
-        ReminderHeader.Validate("No. Series", '');
-        UpdateIssuingNoSeriesReminder(ReminderHeader, ReminderNo);
-        ReminderHeader.Modify(true);
-        IssueReminder(ReminderHeader);
-    end;
-
-    local procedure UpdateNoSeriesInFinChargeMemo(No: Code[20]) IssuedDocNo: Code[20]
-    var
-        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
-        NoSeries: Codeunit "No. Series";
-    begin
-        FinanceChargeMemoHeader.Get(No);
-        IssuedDocNo := NoSeries.PeekNextNo(FinanceChargeMemoHeader."Issuing No. Series");
-        FinanceChargeMemoHeader.Validate("No. Series", '');
-        FinanceChargeMemoHeader.Validate("Issuing No. Series", '');
-        FinanceChargeMemoHeader.Modify(true);
-        IssueFinChargeMemo(FinanceChargeMemoHeader);
-        exit(No);
     end;
 
     local procedure UpdateVATSpecInLCYGeneralLedgerSetup(VATSpecificationInLCY: Boolean)
@@ -2664,29 +2610,6 @@
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmount', LineAmount + AddnlFeeAmount);
     end;
 
-    local procedure VerifyFinanceChargeMemoNos(No: Code[20])
-    var
-        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
-        NoSeries: Record "No. Series";
-        UserId: Variant;
-    begin
-        IssuedFinChargeMemoHeader.Get(No);
-        NoSeries.Get(IssuedFinChargeMemoHeader."No. Series");
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15',
-          StrSubstNo(NoSeriesInformationMsg, NoSeries.Code, NoSeries.Description));
-        LibraryReportDataset.SetRange('IssuedFinChrgMemoHeader__No__', No);
-        while LibraryReportDataset.GetNextRow() do begin
-            ValidateRowValue('IssuedFinChrgMemoHeader__Posting_Date_', Format(IssuedFinChargeMemoHeader."Posting Date"));
-            ValidateRowValue('IssuedFinChrgMemoHeader__Customer_No__', IssuedFinChargeMemoHeader."Customer No.");
-            ValidateRowValue('IssuedFinChrgMemoHeader__Source_Code_', IssuedFinChargeMemoHeader."Source Code");
-            LibraryReportDataset.FindCurrentRowValue('IssuedFinChrgMemoHeader__User_ID_', UserId);
-            Assert.AreEqual(
-              UpperCase(UserId), IssuedFinChargeMemoHeader."User ID",
-              StrSubstNo(IncorrectValueMsg, IssuedFinChargeMemoHeader.FieldCaption("User ID")));
-        end
-    end;
-
     local procedure VerifyFinanceChargeMemoTest(GenJournalLine: Record "Gen. Journal Line"; No: Code[20])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -2785,28 +2708,6 @@
         InteractionLogEntry.SetRange("Document Type", DocumentType);
         InteractionLogEntry.SetRange("Document No.", DocumentNo);
         InteractionLogEntry.FindFirst();
-    end;
-
-    local procedure VerifyReminderNos(No: Code[20])
-    var
-        IssuedReminderHeader: Record "Issued Reminder Header";
-        NoSeries: Record "No. Series";
-        UserId: Variant;
-    begin
-        IssuedReminderHeader.Get(No);
-        NoSeries.Get(IssuedReminderHeader."No. Series");
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15',
-          StrSubstNo(NoSeriesInformationMsg, NoSeries.Code, NoSeries.Description));
-        LibraryReportDataset.SetRange('IssuedReminderHeader__No__', No);
-        while LibraryReportDataset.GetNextRow() do begin
-            ValidateRowValue('IssuedReminderHeader__Posting_Date_', Format(IssuedReminderHeader."Posting Date"));
-            ValidateRowValue('IssuedReminderHeader__Customer_No__', IssuedReminderHeader."Customer No.");
-            ValidateRowValue('IssuedReminderHeader__Source_Code_', IssuedReminderHeader."Source Code");
-            LibraryReportDataset.FindCurrentRowValue('IssuedReminderHeader__User_ID_', UserId);
-            Assert.AreEqual(
-              UpperCase(UserId), IssuedReminderHeader."User ID", StrSubstNo(IncorrectValueMsg, IssuedReminderHeader.FieldCaption("User ID")));
-        end
     end;
 
     local procedure VerifyReminderTest(GenJournalLine: Record "Gen. Journal Line"; No: Code[20])
@@ -3029,20 +2930,6 @@
         Assert.AreNearlyEqual(
           TotalVATAmount, VATAmount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationErr, VATAmtLbl, TotalVATAmount));
-    end;
-
-    local procedure ValidateRowValue(ElementName: Text; ExpectedValue: Variant)
-    begin
-        LibraryReportDataset.AssertCurrentRowValueEquals(ElementName, ExpectedValue);
-    end;
-
-    local procedure VerifyWarningOnReport(No: Code[20]; IssuedHeaderNo: Text[1024]; ExpectedWarningMessage: Text[1024])
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange(IssuedHeaderNo, No);
-        if not LibraryReportDataset.GetNextRow() then
-            Error(RowNotFoundErr, IssuedHeaderNo, No);
-        LibraryReportDataset.AssertCurrentRowValueEquals('ErrorText_Number_', ExpectedWarningMessage);
     end;
 
     local procedure VerifyReminderReportLastLineIsPleaseRemitYourPayment(Amount: Decimal; CustomerNo: Code[20]; IssuedReminderNo: Code[20])
@@ -3404,4 +3291,3 @@
         VATReconciliationReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 }
-

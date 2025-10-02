@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -84,12 +84,7 @@ table 291 "Shipping Agent"
         CustomizedCalendarChange: Record "Customized Calendar Change";
         CalendarManagement: Codeunit "Calendar Management";
 
-#if not CLEAN24
-    [Obsolete('Field length for PackageTrackingNo will be increased to 50.', '24.0')]
-    procedure GetTrackingInternetAddr(PackageTrackingNo: Text[30]) TrackingInternetAddr: Text
-#else
     procedure GetTrackingInternetAddr(PackageTrackingNo: Text[50]) TrackingInternetAddr: Text
-#endif
     var
         HttpStr: Text;
         HttpsStr: Text;
@@ -108,9 +103,10 @@ table 291 "Shipping Agent"
             TrackingInternetAddr := HttpStr + TrackingInternetAddr;
     end;
 
+#pragma warning disable AS0027
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetTrackingInternetAddr(var ShippingAgent: Record "Shipping Agent"; var TrackingInternetAddr: Text; var IsHandled: Boolean; PackageTrackingNo: Text[30])
+    local procedure OnBeforeGetTrackingInternetAddr(var ShippingAgent: Record "Shipping Agent"; var TrackingInternetAddr: Text; var IsHandled: Boolean; PackageTrackingNo: Text[50])
     begin
     end;
+#pragma warning restore AS0027
 }
-

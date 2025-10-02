@@ -1,12 +1,12 @@
 codeunit 144005 "Reference No Test"
 {
     // // [FEATURE] [Reference No]
-    // 
+    //
     // This Reference Nos test COD144006 works in collaboration with COD144005. Cod144005 (this codeunit) verifies that posting
     // documents will actually call the Reference No generating code (and it's errorhandling)
     // COD144006 verifies the concrete Reference Number genration and specifically that the right errors are generated when FI
     // system is set to NOT generate a valid numerical-only Reference No of max length 20 (inlcuding checkdigit).
-    // 
+    //
     // This codeunit replaces these manual tests for FI Reference No.
     // Print Reference No. UnChecked - These tests setup the REFNUM to properly generate a numberm but to not print it
     // 60770 REFNUM - Reference No. on Sales Order - Print Reference No. unchecked
@@ -14,7 +14,7 @@ codeunit 144005 "Reference No Test"
     // 60772 REFNUM - Reference No. on Sales Invoice - Print Reference No. unchecked
     // 60773 REFNUM - Reference No. on Service Order - Print Reference No. unchecked
     // 60774 REFNUM - Reference No. on Service Invoice - Print Reference No. unchecked
-    // 
+    //
     // Print Reference No. Checked - - These tests setup the REFNUM to properly generate a number and Print it
     // 60775 REFNUM - Reference No. on Sales Order - Print Reference No. checked
     // 60776 REFNUM - Reference No. on Prepayment Invoice - Print Reference No. checked
@@ -195,7 +195,7 @@ codeunit 144005 "Reference No Test"
         DocumentNo: Code[20];
     begin
         // [FEATURE] [Sales] [Prepayment %]
-        // [SCENARIO 441637] Reference No is copied to related Customer Ledger Entry 
+        // [SCENARIO 441637] Reference No is copied to related Customer Ledger Entry
 
         // [GIVEN] Sales Invoice with Prepayment percentage set to 100%
         Initialize();
@@ -269,17 +269,6 @@ codeunit 144005 "Reference No Test"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesLineWithQtyToShip(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
-    var
-        Quantity: Decimal;
-    begin
-        Quantity := LibraryRandom.RandIntInRange(3, 13);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), Quantity);
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
-        SalesLine.Validate("Qty. to Ship", Quantity);
-        SalesLine.Modify(true);
-    end;
-
     local procedure SetupRefNumOnSalesAndReceivablesSetup(RefNumNos: Code[20]; CheckPrintNo: Boolean)
     var
         SalesAndReceivablesSetup: Record "Sales & Receivables Setup";
@@ -292,16 +281,6 @@ codeunit 144005 "Reference No Test"
         SalesAndReceivablesSetup.Date := false;
         SalesAndReceivablesSetup."Default Number" := '';
         SalesAndReceivablesSetup.Modify();
-    end;
-
-    local procedure CreateAndPostSalesDocument(DocumentType: Enum "Sales Document Type"): Code[20]
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
-        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
     local procedure SetupServiceManagementSetup(NoSeriesStartingNo: Code[20])
@@ -393,14 +372,6 @@ codeunit 144005 "Reference No Test"
         // Spcifically specify the ending No as numerical or the number series will not be numerical
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, StartingNo, '9999');
         exit(NoSeries.Code);
-    end;
-
-    local procedure VerifyPostedInvoiceReferenceNo(ExpectedReferenceNo: Code[20])
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        Assert.AreNotEqual(0, LibraryReportDataset.RowCount(), 'Empty report dataset');
-        while LibraryReportDataset.GetNextRow() do
-            LibraryReportDataset.AssertCurrentRowValueEquals('RefNo_SalesInvHdr', ExpectedReferenceNo);
     end;
 
     local procedure VerifyPostedServiceInvoiceReferenceNo(ExpectedReferenceNo: Code[20])

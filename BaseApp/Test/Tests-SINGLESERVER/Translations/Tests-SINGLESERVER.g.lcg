@@ -1121,15 +1121,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM User Personalization - NamedType ProfileDefaultRCMustBeUniqueErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1899894503 - NamedType 7572783" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wrong profiles in the list.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM User Personalization - NamedType ProfilesErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1899894503 - NamedType 2783718641" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[USER-CASSIE]]></Val>

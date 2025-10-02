@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Document;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Tracking;
@@ -174,13 +173,9 @@ page 6873 "Available - Invt. Doc. Lines"
     end;
 
     var
-        ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        SourceRecRef: RecordRef;
-        QtyReserved: Decimal;
-        QtyReservedBase: Decimal;
         NewQtyReserved: Decimal;
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
@@ -190,8 +185,12 @@ page 6873 "Available - Invt. Doc. Lines"
         AvailableQuantityErr: Label 'Available Quantity is %1.', Comment = '%1 - quantity';
 
     protected var
+        ReservEntry: Record "Reservation Entry";
+        SourceRecRef: RecordRef;
         QtyToReserve: Decimal;
         QtyToReserveBase: Decimal;
+        QtyReserved: Decimal;
+        QtyReservedBase: Decimal;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var
@@ -285,16 +284,22 @@ page 6873 "Available - Invt. Doc. Lines"
             Direction := Direction::Outbound;
     end;
 
-    procedure SetAssemblyLine(var CurrentAssemblyLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
+#if not CLEAN27
+    [Obsolete('Replaced by procedure SetSource', '27.0')]
+    procedure SetAssemblyLine(var CurrentAssemblyLine: Record Microsoft.Assembly.Document."Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentAssemblyLine);
         SetSource(SourceRecRef, CurrentReservEntry);
     end;
+#endif
 
-    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record "Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
+#if not CLEAN27
+    [Obsolete('Replaced by procedure SetSource', '27.0')]
+    procedure SetAssemblyHeader(var CurrentAssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; CurrentReservEntry: Record "Reservation Entry")
     begin
         SourceRecRef.GetTable(CurrentAssemblyHeader);
         SetSource(SourceRecRef, CurrentReservEntry);
     end;
+#endif
 }
 

@@ -1,4 +1,8 @@
-﻿namespace System.Environment.Configuration;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace System.Environment.Configuration;
 
 using System.IO;
 using System.Reflection;

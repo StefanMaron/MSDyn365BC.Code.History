@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.RateChange;
 
 page 550 "VAT Rate Change Setup"
@@ -91,16 +95,6 @@ page 550 "VAT Rate Change Setup"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the VAT rate change for general product posting groups.';
                 }
-                field("Update Work Centers"; Rec."Update Work Centers")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the VAT rate change for work centers.';
-                }
-                field("Update Machine Centers"; Rec."Update Machine Centers")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the VAT rate change for machine centers.';
-                }
             }
             group(Journals)
             {
@@ -163,11 +157,6 @@ page 550 "VAT Rate Change Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies all existing purchase documents regardless of status, including documents with a status of released, are updated.';
-                }
-                field("Update Production Orders"; Rec."Update Production Orders")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the VAT rate change for production orders.';
                 }
                 field("Update Reminders"; Rec."Update Reminders")
                 {

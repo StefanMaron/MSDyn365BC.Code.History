@@ -66,7 +66,7 @@ table 5895 "Inventory Adjustment Buffer"
         }
         field(68; "Cost Amount (Actual) (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Cost Amount (Actual) (ACY)';
             DataClassification = SystemMetadata;
@@ -104,7 +104,7 @@ table 5895 "Inventory Adjustment Buffer"
         }
         field(156; "Cost Amount (Expected) (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Cost Amount (Expected) (ACY)';
             DataClassification = SystemMetadata;
@@ -142,7 +142,7 @@ table 5895 "Inventory Adjustment Buffer"
         UOMMgt: Codeunit "Unit of Measure Management";
         GLSetupRead: Boolean;
 
-    local procedure GetCurrencyCode(): Code[10]
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
             GLSetup.Get();
@@ -360,4 +360,3 @@ table 5895 "Inventory Adjustment Buffer"
     begin
     end;
 }
-

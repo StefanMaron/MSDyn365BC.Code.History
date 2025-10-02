@@ -63,7 +63,7 @@ page 8610 "Config. Questionnaire"
                     begin
                         Rec.TestField(Code);
                         if QuestionnaireMgt.ExportQuestionnaireToExcel('', Rec) then
-                            Message(Text000);
+                            Message(QuestionnaireExportedMsg);
                     end;
                 }
                 separator(Action9)
@@ -80,9 +80,9 @@ page 8610 "Config. Questionnaire"
                     trigger OnAction()
                     begin
                         if QuestionnaireMgt.ExportQuestionnaireAsXML('', Rec) then
-                            Message(Text000)
+                            Message(QuestionnaireExportedMsg)
                         else
-                            Message(Text003);
+                            Message(QuestionnaireExportCanceledMsg);
                     end;
                 }
                 action(ImportFromXML)
@@ -96,7 +96,7 @@ page 8610 "Config. Questionnaire"
                     trigger OnAction()
                     begin
                         if QuestionnaireMgt.ImportQuestionnaireAsXMLFromClient() then
-                            Message(Text001);
+                            Message(QuestionnaireImportedMsg);
                     end;
                 }
                 separator(Action6)
@@ -114,7 +114,7 @@ page 8610 "Config. Questionnaire"
                     trigger OnAction()
                     begin
                         if QuestionnaireMgt.UpdateQuestionnaire(Rec) then
-                            Message(Text004);
+                            Message(QuestionnaireUpdatedMsg);
                     end;
                 }
                 action("&Apply Answers")
@@ -127,7 +127,7 @@ page 8610 "Config. Questionnaire"
                     trigger OnAction()
                     begin
                         if QuestionnaireMgt.ApplyAnswers(Rec) then
-                            Message(Text005);
+                            Message(AnswersAppliedMsg);
                     end;
                 }
             }
@@ -185,12 +185,10 @@ page 8610 "Config. Questionnaire"
     var
         QuestionnaireMgt: Codeunit "Questionnaire Management";
 
-#pragma warning disable AA0074
-        Text000: Label 'The questionnaire has been successfully exported.';
-        Text001: Label 'The questionnaire has been successfully imported.';
-        Text003: Label 'The export of the questionnaire has been canceled.';
-        Text004: Label 'The questionnaire has been updated.';
-        Text005: Label 'Answers have been applied.';
-#pragma warning restore AA0074
+        QuestionnaireExportedMsg: Label 'The questionnaire has been successfully exported.';
+        QuestionnaireImportedMsg: Label 'The questionnaire has been successfully imported.';
+        QuestionnaireExportCanceledMsg: Label 'The export of the questionnaire has been canceled.';
+        QuestionnaireUpdatedMsg: Label 'The questionnaire has been updated.';
+        AnswersAppliedMsg: Label 'Answers have been applied.';
 }
 

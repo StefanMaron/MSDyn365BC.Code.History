@@ -110,6 +110,8 @@ report 99000766 "Prod. Order - Picking List"
 
     requestpage
     {
+        AboutTitle = 'About Prod. Order - Picking List';
+        AboutText = 'This report lists the production orders for which an item needs to be picked. Use it to support accurate picking and ensure timely material availability.';
 
         layout
         {

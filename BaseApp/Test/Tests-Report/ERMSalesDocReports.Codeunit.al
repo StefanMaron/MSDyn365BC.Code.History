@@ -679,24 +679,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesDocumentWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[10]
-    var
-        SalesLine: Record "Sales Line";
-        Currency: Record Currency;
-        VATPostingSetup: Record "VAT Posting Setup";
-        VATIdentifier: Code[20];
-        OldVATPercent: Decimal;
-    begin
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        UpdateVATPostingSetup(VATPostingSetup, OldVATPercent, 0);
-
-        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
-        VATIdentifier := CreateSalesDocumentWithNormalVAT(VATPostingSetup, SalesHeader, SalesLine, DocumentType, Currency.Code);
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        UpdateVATPostingSetup(VATPostingSetup, OldVATPercent, OldVATPercent);
-        exit(VATIdentifier);
-    end;
-
     local procedure CreateAndPostPurchDocumentWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VATCalType: Enum "General Posting Type"; VendorCrMemoNo: Code[35]): Code[10]
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -872,16 +854,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
         exit(Item."No.");
     end;
 
-    local procedure CreateGLAccount(VATProdPostingGroup: Code[20]): Code[20]
-    var
-        GLAccount: Record "G/L Account";
-    begin
-        LibraryERM.CreateGLAccount(GLAccount);
-        GLAccount.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-        GLAccount.Modify(true);
-        exit(GLAccount."No.");
-    end;
-
     local procedure CreateCustomerWithDimension(var DefaultDimension: Record "Default Dimension"; VATBusPostingGroup: Code[20])
     var
         Dimension: Record Dimension;
@@ -897,25 +869,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
     local procedure CalculatePostingDate(DeltaDate: Date): Date
     begin
         exit(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', DeltaDate));
-    end;
-
-    local procedure FindSalesCrMemoHeader(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; PreAssignedDocNo: Code[20])
-    begin
-        SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedDocNo);
-        SalesCrMemoHeader.FindFirst();
-    end;
-
-    local procedure FindSalesInvHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; PreAssignedDocNo: Code[20])
-    begin
-        SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedDocNo);
-        SalesInvoiceHeader.FindFirst();
-    end;
-
-    local procedure PostingDateLessThanPrevious(var SalesHeader: Record "Sales Header"; PostingDate: Date)
-    begin
-        // Posting Date must be less than previous posting date. Value is important for test.
-        SalesHeader.Validate("Posting Date", CalcDate('<CM>''-''<' + Format(LibraryRandom.RandInt(10)) + 'M>', PostingDate));
-        SalesHeader.Modify(true);
     end;
 
     local procedure UpdatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; CurrencyCode: Code[10]; VendorCrMemoNo: Code[35])
@@ -995,34 +948,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibraryERM.ClearGenJournalLines(GenJournalBatch)
     end;
 
-    local procedure UpdateSalesLine(var SalesLine: Record "Sales Line"; QtyToInvoice: Decimal)
-    begin
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
-        SalesLine.Validate("Qty. to Invoice", QtyToInvoice);
-        SalesLine.Validate("Inv. Discount Amount", Round(SalesLine."Line Amount" / LibraryRandom.RandInt(5)));
-        SalesLine.Modify(true);
-    end;
-
-    local procedure VerifySalesInvoiceNumber(SalesHeader: Record "Sales Header")
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        FindSalesInvHeader(SalesInvoiceHeader, SalesHeader."No.");
-        LibraryReportDataset.AssertElementWithValueExists('SalesInvHeader__Bill_to_Customer_No__', SalesHeader."Bill-to Customer No.");
-        LibraryReportDataset.AssertElementWithValueExists('SalesInvHeader__Source_Code_', SalesInvoiceHeader."Source Code");
-        LibraryReportDataset.AssertElementWithValueExists('SalesInvHeader__Bill_to_Name_', SalesHeader."Bill-to Name");
-    end;
-
-    local procedure VerifySalesCreditMemo(SalesHeader: Record "Sales Header")
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-    begin
-        FindSalesCrMemoHeader(SalesCrMemoHeader, SalesHeader."No.");
-        LibraryReportDataset.AssertElementWithValueExists('SalesCrMemoHeader__Bill_to_Customer_No__', SalesHeader."Bill-to Customer No.");
-        LibraryReportDataset.AssertElementWithValueExists('SalesCrMemoHeader__Source_Code_', SalesCrMemoHeader."Source Code");
-        LibraryReportDataset.AssertElementWithValueExists('SalesCrMemoHeader__Bill_to_Name_', SalesHeader."Bill-to Name");
-    end;
-
     local procedure VerifySalesLineOnReport(SalesLine: Record "Sales Line")
     begin
         LibraryReportDataset.AssertElementWithValueExists('Qty_SalesLine', SalesLine.Quantity);
@@ -1038,15 +963,6 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibraryReportDataset.AssertElementWithValueExists('VATAmtLineInvDiscBaseAmt', VATAmountLine."Inv. Disc. Base Amount");
         LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATBase', VATAmountLine."VAT Base");
         LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATAmt', VATAmountLine."VAT Amount");
-    end;
-
-    local procedure VerifySalesCreditMemoReport(VATIdentifier: Code[20]; VATAmount: Decimal)
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATIdentifier', VATIdentifier);
-        LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVATAmt', VATAmount);
-        LibraryReportDataset.AssertElementWithValueExists('VATIdentifier_VATCounterLCY', VATIdentifier);
-        LibraryReportDataset.AssertElementWithValueExists('VALVATAmountLCY', VATAmount);
     end;
 
     local procedure VerifyPurchaseCreditMemoReport(VATIdentifier: Code[20]; VATAmount: Decimal)
@@ -1145,4 +1061,3 @@ codeunit 134390 "ERM Sales Doc. Reports"
         CustomerBalancetoDate.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

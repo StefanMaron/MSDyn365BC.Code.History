@@ -24,19 +24,6 @@ codeunit 2004 "Machine Learning KeyVaultMgmt."
         FirstPartyAppScopeLblLbl: Label 'https://ml.azure.com/.default', Locked = true;
         MLStudioAppUrlKVNameLbl: Label 'AzureML-Url', Locked = true;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by GetMachineLearningCredentials with SecretText data type for ApiKey parameter.', '24.0')]
-    procedure GetMachineLearningCredentials(SecretName: Text; var ApiUri: Text[250]; var ApiKey: Text[200]; var LimitType: Option; var Limit: Decimal)
-    var
-        SecretApiKey: SecretText;
-    begin
-        GetMachineLearningCredentials(SecretName, ApiUri, SecretApiKey, LimitType, Limit);
-        if not SecretApiKey.IsEmpty() then
-            ApiKey := CopyStr(SecretApiKey.Unwrap(), 1, MaxStrLen(ApiKey));
-    end;
-#endif
 
     [NonDebuggable]
     [Scope('OnPrem')]
@@ -220,16 +207,6 @@ codeunit 2004 "Machine Learning KeyVaultMgmt."
         exit(GetAsText(JToken, Result));
     end;
 
-    local procedure GetAsText(JArray: JsonArray; Index: Integer; var Result: SecretText): Boolean
-    var
-        JToken: JsonToken;
-    begin
-        if not JArray.Get(Index, JToken) then
-            exit(false);
-
-        exit(GetAsText(JToken, Result));
-    end;
-
     [NonDebuggable]
     local procedure GetAsSecretText(JArray: JsonArray; Index: Integer; var SecretResult: SecretText): Boolean
     var
@@ -256,22 +233,6 @@ codeunit 2004 "Machine Learning KeyVaultMgmt."
 
     [NonDebuggable]
     local procedure GetAsText(JToken: JsonToken; var Result: Text): Boolean
-    var
-        JValue: JsonValue;
-    begin
-        if not JToken.IsValue() then
-            exit(false);
-
-        JValue := JToken.AsValue();
-        if JValue.IsUndefined() or JValue.IsNull() then
-            exit(false);
-
-        Result := JValue.AsText();
-        exit(true);
-    end;
-
-    [NonDebuggable]
-    local procedure GetAsText(JToken: JsonToken; var Result: SecretText): Boolean
     var
         JValue: JsonValue;
     begin
@@ -315,4 +276,3 @@ codeunit 2004 "Machine Learning KeyVaultMgmt."
         end;
     end;
 }
-

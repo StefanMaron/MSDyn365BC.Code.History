@@ -8,7 +8,6 @@ using Microsoft.Projects.Project.Job;
 using Microsoft.Inventory.Location;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.CostAccounting.Setup;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Bank.Payment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.EServices.EDocument;
@@ -157,18 +156,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Capacity;
-using Microsoft.Manufacturing.Comment;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Family;
-using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.RoleCenters;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.StandardCost;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -255,22 +242,6 @@ using Microsoft.Foundation.BatchProcessing;
 using Microsoft.HumanResources.Absence;
 using Microsoft.API;
 using Microsoft;
-
-using Microsoft.Service.Archive;
-using Microsoft.Service.Comment;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.Email;
-using Microsoft.Service.History;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
-using Microsoft.Service.Loaner;
-using Microsoft.Service.Maintenance;
-using Microsoft.Service.Posting;
-using Microsoft.Service.Pricing;
-using Microsoft.Service.Resources;
-using Microsoft.Service.RoleCenters;
-using Microsoft.Service.Setup;
 
 permissionset 5117 "D365 AUTOMATION"
 {
@@ -385,6 +356,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Allocation Line" = RIMD,
                   tabledata "Alt. Customer Posting Group" = RIMD,
                   tabledata "Alt. Vendor Posting Group" = RIMD,
+                  tabledata "Alt. Employee Posting Group" = RIMD,
                   tabledata "Alternative Address" = RIMD,
                   tabledata "Analysis by Dim. Parameters" = RIMD,
                   tabledata "Analysis by Dim. User Param." = RIMD,
@@ -486,20 +458,13 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "CAL Test Method" = RIMD,
                   tabledata "CAL Test Result" = RIMD,
                   tabledata "CAL Test Suite" = RIMD,
-                  tabledata "Calendar Absence Entry" = RIMD,
-                  tabledata "Calendar Entry" = RIMD,
-#if not CLEAN24
-                  tabledata "Calendar Event" = Rimd,
-                  tabledata "Calendar Event User Config." = Rimd,
-#endif
                   tabledata Campaign = RIMD,
                   tabledata "Campaign Entry" = RIMD,
                   tabledata "Campaign Status" = RIMD,
                   tabledata "Campaign Target Group" = RIMD,
                   tabledata "Cancelled Document" = Rimd,
-                  tabledata "Capacity Constrained Resource" = RIMD,
-                  tabledata "Capacity Ledger Entry" = Rimd,
-                  tabledata "Capacity Unit of Measure" = RIMD,
+                  tabledata Microsoft.Manufacturing.Capacity."Capacity Ledger Entry" = Rimd,
+                  tabledata Microsoft.Manufacturing.Capacity."Capacity Unit of Measure" = RIMD,
                   tabledata "Cash Flow Account" = RIMD,
                   tabledata "Cash Flow Account Comment" = RIMD,
                   tabledata "Cash Flow Availability Buffer" = RIMD,
@@ -599,7 +564,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Cost Journal Template" = RIMD,
                   tabledata "Cost Object" = RIMD,
                   tabledata "Cost Register" = RIMD,
-                  tabledata "Cost Share Buffer" = RIMD,
                   tabledata "Cost Type" = RIMD,
                   tabledata "Country/Region" = RIMD,
                   tabledata "Country/Region Translation" = RIMD,
@@ -809,9 +773,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Exchange Object" = RIMD,
                   tabledata "Exchange Service Setup" = RIMD,
                   tabledata "Exchange Sync" = RIMD,
-#if not CLEAN24
-                  tabledata "Exp. Phys. Invt. Tracking" = RIMD,
-#endif
                   tabledata "Exp. Invt. Order Tracking" = RIMD,
                   tabledata "Experience Tier Buffer" = RIMD,
                   tabledata "Experience Tier Setup" = RIMD,
@@ -840,8 +801,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "FA Register" = Rimd,
                   tabledata "FA Setup" = RIMD,
                   tabledata "FA Subclass" = RIMD,
-                  tabledata Family = RIMD,
-                  tabledata "Family Line" = RIMD,
                   tabledata "Field Buffer" = RIMD,
                   tabledata "Field Monitoring Setup" = Rm,
                   tabledata "Filter Item Attributes Buffer" = RIMD,
@@ -1085,26 +1044,18 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "License Agreement" = RIMD,
                   tabledata "Line Fee Note on Report Hist." = Rimd,
                   tabledata "Line Number Buffer" = RIMD,
-                  tabledata "Load Buffer" = RIMD,
                   tabledata Location = RIMD,
                   tabledata "Logged Segment" = RIMd,
                   tabledata "Lot Bin Buffer" = RIMD,
                   tabledata "Lot No. Information" = RIMD,
-#if not CLEAN24
-                  tabledata "Man. Integration Field Mapping" = RIMD,
-#endif
                   tabledata "Man. Integration Table Mapping" = RIMD,
                   tabledata "Man. Int. Field Mapping" = RIMD,
-                  tabledata "Machine Center" = RIMD,
                   tabledata "Mailing Group" = RIMD,
                   tabledata "Main Asset Component" = RIMD,
                   tabledata Maintenance = RIMD,
                   tabledata "Maintenance Ledger Entry" = Rimd,
                   tabledata "Maintenance Registration" = RIMD,
                   tabledata Manufacturer = RIMD,
-                  tabledata "Manufacturing Comment Line" = RIMD,
-                  tabledata "Manufacturing Cue" = RIMD,
-                  tabledata "Manufacturing Setup" = RIMD,
                   tabledata "Manufacturing User Template" = RIMD,
                   tabledata "Marketing Setup" = RIMD,
                   tabledata "Media Repository" = RIMD,
@@ -1128,6 +1079,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "My Vendor" = RIMD,
                   tabledata "Name/Value Buffer" = RIMD,
                   tabledata "Named Forward Link" = RIMD,
+                  tabledata "Nationality" = RIMD,
                   tabledata "No. Series" = RIMD,
                   tabledata "No. Series Line" = RIMD,
                   tabledata "No. Series Relationship" = RIMD,
@@ -1207,16 +1159,12 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Phys. Invt. Order Line" = RIMD,
                   tabledata "Phys. Invt. Record Header" = RIMD,
                   tabledata "Phys. Invt. Record Line" = RIMD,
-#if not CLEAN24
-                  tabledata "Phys. Invt. Tracking" = RIMD,
-#endif
                   tabledata "Invt. Order Tracking" = RIMD,
                   tabledata "Picture Entity" = RIMD,
                   tabledata "Planning Assignment" = RIMD,
                   tabledata "Planning Buffer" = RIMD,
                   tabledata "Planning Component" = RIMD,
                   tabledata "Planning Error Log" = RIMD,
-                  tabledata "Planning Routing Line" = RIMD,
                   tabledata "Positive Pay Detail" = RIMD,
                   tabledata "Positive Pay Entry" = RIMD,
                   tabledata "Positive Pay Entry Detail" = RIMD,
@@ -1261,30 +1209,8 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Price Source" = RIMD,
                   tabledata "Printer Selection" = RIMD,
-                  tabledata "Prod. Order Capacity Need" = RIMD,
-                  tabledata "Prod. Order Comment Line" = RIMD,
-                  tabledata "Prod. Order Comp. Cmt Line" = RIMD,
-                  tabledata "Prod. Order Component" = RIMD,
-                  tabledata "Prod. Order Line" = RIMD,
-                  tabledata "Prod. Order Routing Line" = RIMD,
-                  tabledata "Prod. Order Routing Personnel" = RIMD,
-                  tabledata "Prod. Order Routing Tool" = RIMD,
-                  tabledata "Prod. Order Rtng Comment Line" = RIMD,
-                  tabledata "Prod. Order Rtng Qlty Meas." = RIMD,
-                  tabledata "Production BOM Comment Line" = RIMD,
-                  tabledata "Production BOM Header" = RIMD,
-                  tabledata "Production BOM Line" = RIMD,
-                  tabledata "Production BOM Version" = RIMD,
-                  tabledata "Production Forecast Entry" = RIMD,
-                  tabledata "Production Forecast Name" = RIMD,
-                  tabledata "Production Matrix  BOM Entry" = Rimd,
-                  tabledata "Production Matrix BOM Line" = Rimd,
-                  tabledata "Production Order" = RIMD,
                   tabledata "Profile Questionnaire Header" = RIMD,
                   tabledata "Profile Questionnaire Line" = RIMD,
-#if not CLEAN24
-                  tabledata "Pstd. Exp. Phys. Invt. Track" = RIMD,
-#endif
                   tabledata "Pstd.Exp.Invt.Order.Tracking" = RIMD,
                   tabledata "Pstd. Phys. Invt. Order Hdr" = RIMD,
                   tabledata "Pstd. Phys. Invt. Order Line" = RIMD,
@@ -1325,7 +1251,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Put-away Template Header" = RIMD,
                   tabledata "Put-away Template Line" = RIMD,
                   tabledata Qualification = RIMD,
-                  tabledata "Quality Measure" = RIMD,
                   tabledata "Query Metadata" = imd,
                   tabledata "RapidStart Services Cue" = RIMD,
                   tabledata Rating = RIMD,
@@ -1341,7 +1266,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Record Set Tree" = Rimd,
                   tabledata "Recorded Event Buffer" = RIMD,
                   tabledata "Referenced XML Schema" = RIMD,
-                  tabledata "Registered Absence" = RIMD,
                   tabledata "Registered Invt. Movement Hdr." = RimD,
                   tabledata "Registered Invt. Movement Line" = Rimd,
                   tabledata "Registered Whse. Activity Hdr." = Rimd,
@@ -1413,14 +1337,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Role Center Notifications" = RIMD,
                   tabledata "Rounding Method" = RIMD,
                   tabledata "Rounding Residual Buffer" = Rimd,
-                  tabledata "Routing Comment Line" = RIMD,
-                  tabledata "Routing Header" = RIMD,
-                  tabledata "Routing Line" = RIMD,
-                  tabledata "Routing Link" = RIMD,
-                  tabledata "Routing Personnel" = RIMD,
-                  tabledata "Routing Quality Measure" = RIMD,
-                  tabledata "Routing Tool" = RIMD,
-                  tabledata "Routing Version" = RIMD,
                   tabledata "Sales & Receivables Setup" = RIMD,
                   tabledata "Sales by Cust. Grp.Chart Setup" = RIMD,
                   tabledata "Sales Comment Line" = RIMD,
@@ -1465,7 +1381,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Saved Segment Criteria" = RIMD,
                   tabledata "Saved Segment Criteria Line" = RIMD,
                   tabledata "SB Owner Cue" = RIMD,
-                  tabledata Scrap = RIMD,
                   tabledata "Segment Criteria Line" = RIMD,
                   tabledata "Segment Header" = RIMD,
                   tabledata "Segment History" = RIMD,
@@ -1484,16 +1399,13 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Shipment Method Translation" = RIMD,
                   tabledata "Shipping Agent" = RIMD,
                   tabledata "Shipping Agent Services" = RIMD,
-                  tabledata "Shop Calendar" = RIMD,
-                  tabledata "Shop Calendar Holiday" = RIMD,
-                  tabledata "Shop Calendar Working Days" = RIMD,
                   tabledata "Sorting Table" = RIMD,
                   tabledata "Source Code" = RIMD,
                   tabledata "Source Code Setup" = RIMD,
                   tabledata "Special Equipment" = RIMD,
                   tabledata "Standard Address" = Rimd,
-                  tabledata "Standard Cost Worksheet" = RIMD,
-                  tabledata "Standard Cost Worksheet Name" = RIMD,
+                  tabledata Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet" = RIMD,
+                  tabledata Microsoft.Manufacturing.StandardCost."Standard Cost Worksheet Name" = RIMD,
                   tabledata "Standard Customer Sales Code" = RIMD,
                   tabledata "Standard General Journal" = RIMD,
                   tabledata "Standard General Journal Line" = RIMD,
@@ -1503,16 +1415,10 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Standard Purchase Line" = RIMD,
                   tabledata "Standard Sales Code" = RIMD,
                   tabledata "Standard Sales Line" = RIMD,
-                  tabledata "Standard Task" = RIMD,
-                  tabledata "Standard Task Description" = RIMD,
-                  tabledata "Standard Task Personnel" = RIMD,
-                  tabledata "Standard Task Quality Measure" = RIMD,
-                  tabledata "Standard Task Tool" = RIMD,
                   tabledata "Standard Text" = RIMD,
                   tabledata "Standard Vendor Purchase Code" = RIMD,
                   tabledata "Stockkeeping Unit" = RIMD,
                   tabledata "Stockkeeping Unit Comment Line" = RIMD,
-                  tabledata Stop = RIMD,
                   tabledata "Substitution Condition" = RIMD,
                   tabledata "Support Contact Information" = R,
                   tabledata "SWIFT Code" = RIMD,
@@ -1660,7 +1566,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Web Source" = RIMD,
                   tabledata "WF Event/Response Combination" = RIMD,
                   tabledata "Where Used Base Calendar" = RIMD,
-                  tabledata "Where-Used Line" = Rimd,
                   tabledata "Whse. Cross-Dock Opportunity" = RIMD,
                   tabledata "Whse. Internal Pick Header" = RIMD,
                   tabledata "Whse. Internal Pick Line" = RIMD,
@@ -1673,9 +1578,6 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Whse. Worksheet Line" = RIMD,
                   tabledata "Whse. Worksheet Name" = RIMD,
                   tabledata "Whse. Worksheet Template" = RIMD,
-                  tabledata "Work Center" = RIMD,
-                  tabledata "Work Center Group" = RIMD,
-                  tabledata "Work Shift" = RIMD,
                   tabledata "Work Type" = RIMD,
                   tabledata "Workflow - Record Change" = Rimd,
                   tabledata "Workflow - Table Relation" = RIMD,
@@ -1705,85 +1607,5 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "XML Schema" = RIMD,
                   tabledata "XML Schema Element" = RIMD,
                   tabledata "XML Schema Restriction" = RIMD,
-                  tabledata Zone = RIMD,
-
-                  // Service
-                  tabledata "Contract Change Log" = RIMD,
-                  tabledata "Contract Gain/Loss Entry" = RIMD,
-                  tabledata "Contract Group" = RIMD,
-                  tabledata "Contract Trend Buffer" = RIMD,
-                  tabledata "Contract/Service Discount" = RIMD,
-                  tabledata "Fault Area" = RIMD,
-                  tabledata "Fault Area/Symptom Code" = RIMD,
-                  tabledata "Fault Code" = RIMD,
-                  tabledata "Fault Reason Code" = RIMD,
-                  tabledata "Fault/Resol. Cod. Relationship" = RIMD,
-                  tabledata "Filed Service Contract Header" = RIMD,
-                  tabledata "Filed Contract Line" = RIMD,
-                  tabledata "Filed Serv. Contract Cmt. Line" = RIMD,
-                  tabledata "Filed Contract Service Hour" = RIMD,
-                  tabledata "Filed Contract/Serv. Discount" = RIMD,
-                  tabledata Loaner = RIMD,
-                  tabledata "Loaner Entry" = RIMD,
-                  tabledata "Repair Status" = RIMD,
-                  tabledata "Resolution Code" = RIMD,
-                  tabledata "Resource Location" = RIMD,
-                  tabledata "Resource Service Zone" = RIMD,
-                  tabledata "Resource Skill" = RIMD,
-                  tabledata "Serv. Price Adjustment Detail" = RIMD,
-                  tabledata "Serv. Price Group Setup" = RIMD,
-                  tabledata "Service Comment Line" = RIMD,
-                  tabledata "Service Comment Line Archive" = RIMD,
-                  tabledata "Service Contract Account Group" = RIMD,
-                  tabledata "Service Contract Header" = RIMD,
-                  tabledata "Service Contract Line" = RIMD,
-                  tabledata "Service Contract Template" = RIMD,
-                  tabledata "Service Cost" = RIMD,
-                  tabledata "Service Cr.Memo Header" = RIMD,
-                  tabledata "Service Cr.Memo Line" = RIMD,
-                  tabledata "Service Cue" = RIMD,
-                  tabledata "Service Document Log" = RIMD,
-                  tabledata "Service Document Register" = RIMD,
-                  tabledata "Service Email Queue" = RIMD,
-                  tabledata "Service Header" = RIMD,
-                  tabledata "Service Header Archive" = RIMD,
-                  tabledata "Service Hour" = RIMD,
-                  tabledata "Service Invoice Header" = RIMD,
-                  tabledata "Service Invoice Line" = RIMD,
-                  tabledata "Service Item" = RIMD,
-                  tabledata "Service Item Component" = RIMD,
-                  tabledata "Service Item Group" = RIMD,
-                  tabledata "Service Item Line" = RIMD,
-                  tabledata "Service Item Line Archive" = RIMD,
-                  tabledata "Service Item Log" = RIMD,
-                  tabledata "Service Item Trend Buffer" = RIMD,
-                  tabledata "Service Ledger Entry" = Rimd,
-                  tabledata "Service Line" = RIMD,
-                  tabledata "Service Line Archive" = RIMD,
-                  tabledata "Service Line Price Adjmt." = RIMD,
-                  tabledata "Service Mgt. Setup" = RIMD,
-                  tabledata "Service Order Allocation" = RIMD,
-                  tabledata "Service Order Allocat. Archive" = RIMD,
-                  tabledata "Service Order Posting Buffer" = RIMD,
-                  tabledata "Service Order Type" = RIMD,
-                  tabledata "Service Price Adjustment Group" = RIMD,
-                  tabledata "Service Price Group" = RIMD,
-                  tabledata "Service Register" = RIMD,
-                  tabledata "Service Shelf" = RIMD,
-                  tabledata "Service Shipment Buffer" = RimD,
-                  tabledata "Service Shipment Header" = RIMD,
-                  tabledata "Service Shipment Item Line" = RIMD,
-                  tabledata "Service Shipment Line" = RIMD,
-                  tabledata "Service Status Priority Setup" = RIMD,
-                  tabledata "Service Zone" = RIMD,
-                  tabledata "Skill Code" = RIMD,
-                  tabledata "Standard Service Code" = RIMD,
-                  tabledata "Standard Service Item Gr. Code" = RIMD,
-                  tabledata "Standard Service Line" = RIMD,
-                  tabledata "Symptom Code" = RIMD,
-                  tabledata "Troubleshooting Header" = RIMD,
-                  tabledata "Troubleshooting Line" = RIMD,
-                  tabledata "Troubleshooting Setup" = RIMD,
-                  tabledata "Warranty Ledger Entry" = RIMD,
-                  tabledata "Work-Hour Template" = RIMD;
+                  tabledata Zone = RIMD;
 }

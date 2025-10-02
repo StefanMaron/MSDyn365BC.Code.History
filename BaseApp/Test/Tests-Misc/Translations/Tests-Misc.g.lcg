@@ -6179,15 +6179,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Planning/Req.Wksh - NamedType Text003)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4122365620 - NamedType 1476454700" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected XML Element VAT Clause. Expected result:XML Element VAT Clause doesn't exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test VAT Clause - NamedType VATClauseDoesNotExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4122365620 - NamedType 51287082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong VATClauseText on VAT Clause %1! Expected ID: %2, Actual ID: %3]]></Val>

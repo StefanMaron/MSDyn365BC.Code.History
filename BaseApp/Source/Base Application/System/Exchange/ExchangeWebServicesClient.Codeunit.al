@@ -15,10 +15,8 @@ codeunit 5320 "Exchange Web Services Client"
         TempExchangeFolder: Record "Exchange Folder" temporary;
         [RunOnClient]
         ServiceOnClient: DotNet ExchangeServiceWrapper;
-#pragma warning disable AA0074
-        Text001: Label 'Connection to the Exchange server failed.';
-        Text002: Label 'Folders with a path that exceeds 250 characters have been omitted.';
-#pragma warning restore AA0074
+        ConnectionFailedErr: Label 'Connection to the Exchange server failed.';
+        LongPathsOmittedMsg: Label 'Folders with a path that exceeds 250 characters have been omitted.';
         ServiceOnServer: DotNet ExchangeServiceWrapper;
         LongPathsDetected: Boolean;
         CategoryTxt: Label 'AL EWS Client', Locked = true;
@@ -50,7 +48,7 @@ codeunit 5320 "Exchange Web Services Client"
     begin
         if not IsServiceValid() then begin
             Session.LogMessage('0000D87', ConnectionFailedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
-            Error(Text001);
+            Error(ConnectionFailedErr);
         end;
 
         if IsNull(ServiceOnServer) then begin
@@ -111,7 +109,7 @@ codeunit 5320 "Exchange Web Services Client"
                                 TempExchangeFolder.Insert();
                             end;
             if LongPathsDetected then
-                Message(Text002);
+                Message(LongPathsOmittedMsg);
             ReadBuffer(ExchangeFolder);
         end;
 
@@ -162,7 +160,7 @@ codeunit 5320 "Exchange Web Services Client"
                                 TempExchangeFolder.Insert();
                             end;
             if LongPathsDetected then
-                Message(Text002);
+                Message(LongPathsOmittedMsg);
             ReadBuffer(ExchangeFolder);
         end;
 
@@ -271,7 +269,7 @@ codeunit 5320 "Exchange Web Services Client"
     begin
         if not IsServiceValid() then begin
             Session.LogMessage('0000D8L', ConnectionFailedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
-            Error(Text001);
+            Error(ConnectionFailedErr);
         end;
         if IsNull(ServiceOnServer) then begin
             Exists := ServiceOnClient.FolderExists(UniqueID);

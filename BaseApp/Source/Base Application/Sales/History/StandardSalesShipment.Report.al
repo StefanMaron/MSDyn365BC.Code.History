@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.History;
 
 using Microsoft.Assembly.History;
 using Microsoft.Bank.BankAccount;
@@ -924,7 +928,7 @@ report 1308 "Standard Sales - Shipment"
         ShowCorrectionLines: Boolean;
         CompanyLogoPosition: Integer;
         TrackingSpecCount: Integer;
-        NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
+        NoFilterSetErr: Label 'You must specify one or more filters to avoid accidentally printing all documents.';
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
         BodyLbl: Label 'Thank you for your business. Your shipment is attached to this message.';

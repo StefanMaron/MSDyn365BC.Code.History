@@ -1,5 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Deferral;
 
+/// <summary>
+/// Read-only worksheet page for viewing posted deferral schedules.
+/// Displays historical deferral schedule information after posting has occurred.
+/// </summary>
 page 1704 "Deferral Schedule View"
 {
     Caption = 'Deferral Schedule View';

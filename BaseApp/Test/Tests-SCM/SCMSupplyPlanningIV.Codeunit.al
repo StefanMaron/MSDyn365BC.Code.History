@@ -1780,7 +1780,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         // [GIVEN] Location Mandatory = FALSE, Components at Location = ''.
         Initialize();
         PrevLocMandatory := UpdInvSetupLocMandatory(false);
-        PrevComponentsAtLocation := UpdManufSetupComponentsAtLocation('');
+        PrevComponentsAtLocation := UpdateSetupComponentsAtLocation('');
         // [GIVEN] Item with no SKUs and some planning Quantities.
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
         SetReplenishmentQuantities(Item, LibraryRandom.RandDecInDecimalRange(100, 10000, 0));
@@ -1798,7 +1798,7 @@ codeunit 137077 "SCM Supply Planning -IV"
 
         // Teardown.
         UpdInvSetupLocMandatory(PrevLocMandatory);
-        UpdManufSetupComponentsAtLocation(PrevComponentsAtLocation);
+        UpdateSetupComponentsAtLocation(PrevComponentsAtLocation);
     end;
 
     [Test]
@@ -2021,7 +2021,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         Item: Record Item;
         RequisitionWkshName: Record "Requisition Wksh. Name";
         ReqLine: Record "Requisition Line";
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         ExpectedDueDate: Date;
     begin
         // [FEATURE] [Requisition Worksheet] [Lead Time Calculation]
@@ -2040,9 +2040,9 @@ codeunit 137077 "SCM Supply Planning -IV"
           Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, WorkDate(), WorkDate());
 
         // [THEN] "Due Date" in requisition line is WorkDate() + 1M
-        ManufacturingSetup.Get();
+        InventorySetup.Get();
         SelectRequisitionLine(ReqLine, Item."No.");
-        ExpectedDueDate := CalcDate(StrSubstNo('<1M+%1>', ManufacturingSetup."Default Safety Lead Time"), WorkDate());
+        ExpectedDueDate := CalcDate(StrSubstNo('<1M+%1>', InventorySetup."Default Safety Lead Time"), WorkDate());
         ReqLine.TestField("Due Date", ExpectedDueDate);
     end;
 
@@ -2771,7 +2771,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         Initialize();
 
         // [GIVEN] Manufacturing Setup had Default Safety Lead Time = '0D'
-        UpdateSafetyLeadTimeToZeroInMfgSetup();
+        LibraryPlanning.SetDefaultSafetyLeadTime('<0D>');
 
         // [GIVEN] Parent Item had Production BOM with Child Item as Component, Reordering Policy was Lot-for-Lot for both
         // [GIVEN] Child Item had Production BOM as well and Safety Lead Time = '0D'
@@ -2838,8 +2838,8 @@ codeunit 137077 "SCM Supply Planning -IV"
         Initialize();
         Qty := LibraryRandom.RandInt(10);
 
-        // [GIVEN] Set up components at location = "BLUE" on Manufacturing Setup.
-        UpdateComponentsAtLocationInMfgSetup(LocationBlue.Code);
+        // [GIVEN] Set up components at location = "BLUE"
+        LibraryManufacturing.SetComponentsAtLocation(LocationBlue.Code);
 
         // [GIVEN] Create assembly structure: item "COMP" is a component of item "INTERMD", which is a component of item "FINAL".
         // [GIVEN] All items are set up for "Order" reordering policy.
@@ -2991,7 +2991,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         Qty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Set up "Components at Location" = "Blue" on the Manufacturing Setup.
-        UpdManufSetupComponentsAtLocation(LocationBlue.Code);
+        UpdateSetupComponentsAtLocation(LocationBlue.Code);
 
         // [GIVEN] Component item "C".
         CreateOrderItem(CompItem);
@@ -3110,7 +3110,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         StartingDate := CalcDate('<WD3>', WorkDate());
 
         // [GIVEN] Set "Safety Lead Time" = <blank> in Manufacturing Setup.
-        UpdateSafetyLeadTimeToZeroInMfgSetup();
+        LibraryPlanning.SetDefaultSafetyLeadTime('<0D>');
 
         // [GIVEN] Create manufacturing item with routing.
         // [GIVEN] Set up Reordering Policy = "Fixed Reorder Qty." on the item.
@@ -3672,7 +3672,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         // [FEATURE] [Components at Location] [SKU]
         // [SCENARIO 456929] Planning must not include item with Reordering Policy = <blank> when it creates SKU at location defined in "Components at Location" setting.
         Initialize();
-        UpdManufSetupComponentsAtLocation(LocationBlue.Code);
+        UpdateSetupComponentsAtLocation(LocationBlue.Code);
 
         LibraryInventory.CreateItem(Item);
 
@@ -3764,7 +3764,6 @@ codeunit 137077 "SCM Supply Planning -IV"
     [Scope('OnPrem')]
     procedure S465262_DueDatesForProductionOrdersCreatedFromSalesOrderAreEqualToShipmentDates()
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
         Location: Record Location;
         WorkCenter: Record "Work Center";
         RoutingHeader: Record "Routing Header";
@@ -3785,10 +3784,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         Initialize();
 
         // [GIVEN] Set "Default Safety Lead Time" = <1D> in Manufacturing Setup.
-        Evaluate(DateFormulaAsDateFormula, '<1D>');
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Default Safety Lead Time", DateFormulaAsDateFormula);
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetDefaultSafetyLeadTime('<1D>');
 
         // [GIVEN] Create Location.
         LibraryWarehouse.CreateLocation(Location);
@@ -4117,7 +4113,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // [GIVEN] Set "Manufacturing Setup"."Components at Location" to Location.
-        PrevComponentsAtLocation := UpdManufSetupComponentsAtLocation(Location.Code);
+        PrevComponentsAtLocation := UpdateSetupComponentsAtLocation(Location.Code);
 
         // [GIVEN] Create other locations for Transfer Order.
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
@@ -4164,7 +4160,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         FindProductionOrderNo(ProductionOrder, ProductionOrder."Source Type"::Item, ProducedItem."No.", 1);
 
         // [GIVEN] Create Warehouse Pick for Released Production Order to move Component Item from ComponentStoringBin to ToProductionBin.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [GIVEN] Register create Warehouse Pick.
         RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
@@ -4217,7 +4213,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         ItemLedgerEntry.TestField(Quantity, 1);
 
         // Teardown: Return "Manufacturing Setup"."Components at Location".
-        UpdManufSetupComponentsAtLocation(PrevComponentsAtLocation);
+        UpdateSetupComponentsAtLocation(PrevComponentsAtLocation);
     end;
 
     [Test]
@@ -4407,7 +4403,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         InventorySetup.Modify(true);
     end;
 
-    local procedure UpdManufSetupComponentsAtLocation(NewValue: Code[10]) Result: Code[10]
+    local procedure UpdateSetupComponentsAtLocation(NewValue: Code[10]) Result: Code[10]
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
@@ -5304,15 +5300,6 @@ codeunit 137077 "SCM Supply Planning -IV"
         Item.Modify(true);
     end;
 
-    local procedure UpdateComponentsAtLocationInMfgSetup(LocationCode: Code[10])
-    var
-        MfgSetup: Record "Manufacturing Setup";
-    begin
-        MfgSetup.Get();
-        MfgSetup.Validate("Components at Location", LocationCode);
-        MfgSetup.Modify(true);
-    end;
-
     local procedure CreateLotForLotItemSetup(var ParentItem: Record Item): Code[20]
     var
         ChildItem: Record Item;
@@ -5411,17 +5398,6 @@ codeunit 137077 "SCM Supply Planning -IV"
         LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter[1], CalcDate('<-1W>', WorkDate()), WorkDate());
         LibraryManufacturing.CreateMachineCenter(MachineCenter[2], WorkCenter."No.", 1);
         LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter[2], CalcDate('<-1W>', WorkDate()), WorkDate());
-    end;
-
-    local procedure UpdateSafetyLeadTimeToZeroInMfgSetup()
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-        BlankDefaultSafetyLeadTime: DateFormula;
-    begin
-        Evaluate(BlankDefaultSafetyLeadTime, '<0D>');
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Default Safety Lead Time", BlankDefaultSafetyLeadTime);
-        ManufacturingSetup.Modify(true);
     end;
 
     local procedure VerifyItemAvailabilityByPeriod(Item: Record Item; ScheduledRcpt: Decimal; ScheduledRcpt2: Decimal; ProjAvailableBalance: Decimal)

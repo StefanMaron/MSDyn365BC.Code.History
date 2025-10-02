@@ -75,6 +75,7 @@ table 904 "Assemble-to-Order Link"
         {
             Caption = 'Assembled Quantity';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(40; "Job No."; Code[20])
         {
@@ -2108,4 +2109,3 @@ table 904 "Assemble-to-Order Link"
     begin
     end;
 }
-

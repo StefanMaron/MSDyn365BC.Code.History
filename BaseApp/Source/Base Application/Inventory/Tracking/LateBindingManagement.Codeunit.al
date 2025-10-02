@@ -361,7 +361,6 @@ codeunit 6502 "Late Binding Management"
         TotalReservedQty: Decimal;
     begin
         ReservEntry.ReadIsolation := IsolationLevel::ReadUncommitted; // Read uncommitted to avoid deadlocks during UpdLock transaction
-        ReservEntry.SetCurrentKey("Item No.", "Source Type", "Source Subtype", "Reservation Status", "Location Code", "Variant Code");
         ReservEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
         ReservEntry.SetRange("Variant Code", TempTrackingSpecification."Variant Code");
         ReservEntry.SetRange("Location Code", TempTrackingSpecification."Location Code");
@@ -376,13 +375,13 @@ codeunit 6502 "Late Binding Management"
         ReservEntry.ReadIsolation := IsolationLevel::Default;
         if ReservEntry.IsEmpty() then;
 
-        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Entry No.");
         ItemLedgEntry.SetLoadFields("Item No.", "Variant Code", "Location Code", "Qty. per Unit of Measure", Description, "Remaining Quantity", "Serial No.", "Lot No.", "Package No.");
         ItemLedgEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
         ItemLedgEntry.SetRange("Variant Code", TempTrackingSpecification."Variant Code");
         ItemLedgEntry.SetRange("Location Code", TempTrackingSpecification."Location Code");
         ItemLedgEntry.SetRange(Positive, true);
         ItemLedgEntry.SetRange(Open, true);
+        ItemLedgEntry.SetAutoCalcFields("Reserved Quantity");
 
         if TempTrackingSpecification.FindSet() then
             repeat
@@ -390,7 +389,6 @@ codeunit 6502 "Late Binding Management"
                 if ItemLedgEntry.FindSet() then
                     repeat
                         TempTrackingSpecification."Buffer Value2" += ItemLedgEntry."Remaining Quantity";
-                        ItemLedgEntry.CalcFields("Reserved Quantity");
                         TempTrackingSpecification."Buffer Value3" += ItemLedgEntry."Reserved Quantity";
                         InsertTempSupplyReservEntry(ItemLedgEntry);
                     until ItemLedgEntry.Next() = 0;
@@ -583,9 +581,9 @@ codeunit 6502 "Late Binding Management"
         // Used when doing item tracking specific reservations on reservation form.
         // "Buffer Value4" : Qty for reallocation (negative = need for reallocation)
 
+        CalcItemLedgEntry.SetAutoCalcFields("Reserved Quantity");
         if CalcItemLedgEntry.FindSet() then
             repeat
-                CalcItemLedgEntry.CalcFields("Reserved Quantity");
                 AvailableToReserve +=
                   CalcItemLedgEntry."Remaining Quantity" - CalcItemLedgEntry."Reserved Quantity";
             until (CalcItemLedgEntry.Next() = 0) or (AvailableToReserve >= RemainingQtyToReserve);
@@ -623,12 +621,10 @@ codeunit 6502 "Late Binding Management"
         UnreservedQty :=
           TrackingSpecification."Quantity (Base)" - TrackingSpecification."Quantity Handled (Base)";
 
-        ReservEntry.SetCurrentKey(
-          "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
-          "Source Batch Name", "Source Prod. Order Line", "Reservation Status");
         ReservEntry.SetPointerFilter();
         ReservEntry.SetTrackingFilterFromReservEntry(ReservEntry);
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
+        ReservEntry.SetLoadFields("Quantity (Base)");
         if ReservEntry.FindSet() then
             repeat
                 UnreservedQty -= Abs(ReservEntry."Quantity (Base)");

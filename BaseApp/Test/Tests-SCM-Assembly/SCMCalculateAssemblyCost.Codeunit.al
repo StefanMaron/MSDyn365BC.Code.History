@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Test;
 
-using Microsoft.Manufacturing.Setup;
 using System.Environment.Configuration;
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
@@ -24,12 +23,9 @@ codeunit 137911 "SCM Calculate Assembly Cost"
     TestPermissions = Disabled;
 
     trigger OnRun()
-    var
-        MfgSetup: Record "Manufacturing Setup";
     begin
         // [FEATURE] [Assembly] [SCM]
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate();
     end;
 
     var
@@ -38,6 +34,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";

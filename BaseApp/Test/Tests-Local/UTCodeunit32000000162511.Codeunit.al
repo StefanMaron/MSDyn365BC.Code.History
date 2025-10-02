@@ -444,11 +444,6 @@ codeunit 144008 "UT Codeunit32000000 162511"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure GenerateInvoiceDocumentNo(): Code[10]
-    begin
-        exit(CopyStr(LibraryUtility.GenerateGUID(), 3, 10));
-    end;
-
     local procedure CreateGeneralJournalBatch(var GenJnlBatch: Record "Gen. Journal Batch")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -500,4 +495,3 @@ codeunit 144008 "UT Codeunit32000000 162511"
         asserterror Assert.AreEqual('', RefPmtExported."Description 2", 'Wrong Description');
     end;
 }
-

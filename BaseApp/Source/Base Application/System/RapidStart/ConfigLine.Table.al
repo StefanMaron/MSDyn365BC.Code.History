@@ -56,7 +56,7 @@ table 8622 "Config. Line"
                     TestField("Dimensions as Columns", false);
 
                 if ("Table ID" <> xRec."Table ID") and ("Package Code" <> '') then
-                    if Confirm(Text003, false) then
+                    if Confirm(RemovePackageLinkQst, false) then
                         "Package Code" := ''
                     else begin
                         "Table ID" := xRec."Table ID";
@@ -71,7 +71,7 @@ table 8622 "Config. Line"
                     GetRelatedTables();
                 end else
                     if xRec."Table ID" > 0 then
-                        Error(Text001);
+                        Error(DeleteLineInsteadErr);
             end;
         }
         field(4; Name; Text[250])
@@ -303,16 +303,14 @@ table 8622 "Config. Line"
     var
         ConfigMgt: Codeunit "Config. Management";
         ConfigPackageMgt: Codeunit "Config. Package Management";
-#pragma warning disable AA0074
-        Text001: Label 'Delete the line instead.';
+        DeleteLineInsteadErr: Label 'Delete the line instead.';
 #pragma warning disable AA0470
-        Text002: Label 'The status %1 is not supported.';
+        UnsupportedStatusErr: Label 'The status %1 is not supported.';
 #pragma warning restore AA0470
-        Text003: Label 'The table you are trying to rename is linked to a package. Do you want to remove the link?';
+        RemovePackageLinkQst: Label 'The table you are trying to rename is linked to a package. Do you want to remove the link?';
 #pragma warning disable AA0470
-        Text004: Label 'You cannot process line for table %1 and package code %2 because it is blocked.';
+        BlockedTableErr: Label 'You cannot process line for table %1 and package code %2 because it is blocked.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         NoDuplicateLinesMsg: Label 'There are no duplicate lines.';
 #pragma warning disable AA0470
         NoOfDuplicateLinesDeletedMsg: Label '%1 line(s) were deleted.';
@@ -324,7 +322,7 @@ table 8622 "Config. Line"
     procedure CheckBlocked()
     begin
         if Status = Status::Blocked then
-            Error(Text004, "Table ID", "Package Code");
+            Error(BlockedTableErr, "Table ID", "Package Code");
     end;
 
     procedure ShowTableData()
@@ -485,7 +483,7 @@ table 8622 "Config. Line"
             Status::"In Progress", Status::Blocked:
                 exit(0.5);
             else
-                Error(Text002, Status);
+                Error(UnsupportedStatusErr, Status);
         end;
     end;
 

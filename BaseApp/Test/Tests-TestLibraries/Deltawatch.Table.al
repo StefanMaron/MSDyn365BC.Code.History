@@ -19,9 +19,11 @@ table 130001 "Delta watch"
         }
         field(5; Delta; Decimal)
         {
+            AutoFormatType = 0;
         }
         field(7; OriginalValue; Decimal)
         {
+            AutoFormatType = 0;
         }
     }
 
@@ -37,4 +39,3 @@ table 130001 "Delta watch"
     {
     }
 }
-

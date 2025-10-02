@@ -988,16 +988,6 @@ codeunit 134826 "UT Contact Table"
         Contact.Insert(true);
     end;
 
-    local procedure MockSalesQuoteWithSellBillToContactNo(var SalesHeader: Record "Sales Header"; ContactNo: Code[20])
-    begin
-        SalesHeader.Init();
-        SalesHeader."No." := LibraryUtility.GenerateGUID();
-        SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
-        SalesHeader."Sell-to Contact No." := ContactNo;
-        SalesHeader."Bill-to Contact No." := ContactNo;
-        SalesHeader.Insert();
-    end;
-
     local procedure CleanUserPersonalizationTable()
     var
         UserPersonalization: Record "User Personalization";
@@ -1057,4 +1047,3 @@ codeunit 134826 "UT Contact Table"
         Reply := false;
     end;
 }
-

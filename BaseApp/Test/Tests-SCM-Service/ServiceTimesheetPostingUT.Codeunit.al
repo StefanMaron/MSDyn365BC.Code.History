@@ -42,7 +42,7 @@ codeunit 136511 "Service Timesheet Posting UT"
         // [SCENARIO] Verify time sheet total quantity after ship and consume service order with timesheet resource.
 
         Initialize();
-        LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
+        LibraryService.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
 
         ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
         ServiceLine.Modify();
@@ -52,7 +52,7 @@ codeunit 136511 "Service Timesheet Posting UT"
 
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
 
-        LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, SavedServiceLine."Document No.", SavedServiceLine."Line No.",
+        LibraryService.CheckServiceTimeSheetLine(TimeSheetHeader, SavedServiceLine."Document No.", SavedServiceLine."Line No.",
           SavedServiceLine."Qty. to Consume", false);
     end;
 
@@ -69,14 +69,14 @@ codeunit 136511 "Service Timesheet Posting UT"
         // [SCENARIO] Verify time sheet total quantity after ship service order with timesheet resource.
 
         Initialize();
-        LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
+        LibraryService.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
 
         // get values from service order
         SavedServiceLine.Copy(ServiceLine);
 
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
-        LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, SavedServiceLine."Document No.", SavedServiceLine."Line No.",
+        LibraryService.CheckServiceTimeSheetLine(TimeSheetHeader, SavedServiceLine."Document No.", SavedServiceLine."Line No.",
           SavedServiceLine."Qty. to Ship", true);
     end;
 
@@ -103,7 +103,7 @@ codeunit 136511 "Service Timesheet Posting UT"
         Resource.Validate("Time Sheet Approver User ID", UserId);
         Resource.Modify();
 
-        LibraryTimeSheet.CreateServiceOrder(ServiceHeader, WorkDate());
+        LibraryService.CreateServiceOrder(ServiceHeader, WorkDate());
 
         // create service line
         CreateServiceLine(ServiceLine, ServiceHeader, Resource."No.", LibraryTimeSheet.GetRandomDecimal());
@@ -127,7 +127,7 @@ codeunit 136511 "Service Timesheet Posting UT"
 
         Initialize();
         // create time sheet with lines and linked to resource empty service order
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
+        LibraryService.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
 
         // copy service lines from time sheet into service order
         ServTimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
@@ -140,7 +140,7 @@ codeunit 136511 "Service Timesheet Posting UT"
 
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
-        LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, SavedServiceLine."Document No.", SavedServiceLine."Line No.",
+        LibraryService.CheckServiceTimeSheetLine(TimeSheetHeader, SavedServiceLine."Document No.", SavedServiceLine."Line No.",
           SavedServiceLine."Qty. to Ship", true);
     end;
 
@@ -162,7 +162,7 @@ codeunit 136511 "Service Timesheet Posting UT"
 
         Initialize();
         // create service order with line and linked to resource empty time sheet
-        LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
+        LibraryService.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
 
         // get values from service order
         ServiceLineQuantity := ServiceLine."Qty. to Ship";
@@ -213,7 +213,7 @@ codeunit 136511 "Service Timesheet Posting UT"
         // [SCENARIO] Check Quantity in time sheet line after undo shipment of service order with time sheet resource.
 
         Initialize();
-        LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
+        LibraryService.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
 
         // get values from service order
         SavedServiceLine.Copy(ServiceLine);
@@ -224,7 +224,7 @@ codeunit 136511 "Service Timesheet Posting UT"
         ServiceShipmentLine.FindFirst();
         CODEUNIT.Run(CODEUNIT::"Undo Service Shipment Line", ServiceShipmentLine);
 
-        LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, SavedServiceLine."Document No.", SavedServiceLine."Line No.",
+        LibraryService.CheckServiceTimeSheetLine(TimeSheetHeader, SavedServiceLine."Document No.", SavedServiceLine."Line No.",
           -SavedServiceLine."Qty. to Ship", true);
     end;
 
@@ -244,7 +244,7 @@ codeunit 136511 "Service Timesheet Posting UT"
         // [SCENARIO] Check Quantity in timesheet line after partially shipping & invoicing service order with time sheet resource in two steps.
 
         Initialize();
-        LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
+        LibraryService.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
 
         // get values from service order
         ServiceLineQuantity := ServiceLine."Qty. to Ship";
@@ -261,7 +261,7 @@ codeunit 136511 "Service Timesheet Posting UT"
                 until ServiceLine.Next() = 0;
             ServiceHeader.Find();
             LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
-            LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, ServiceHeaderNo, ServiceLineNo, ServiceLineQuantity / 2, true);
+            LibraryService.CheckServiceTimeSheetLine(TimeSheetHeader, ServiceHeaderNo, ServiceLineNo, ServiceLineQuantity / 2, true);
         end;
     end;
 
@@ -281,7 +281,7 @@ codeunit 136511 "Service Timesheet Posting UT"
         // [SCENARIO] Check Quantity in timesheet line after partially shipping & consuming service order with time sheet resource in two steps.
 
         Initialize();
-        LibraryTimeSheet.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
+        LibraryService.InitBackwayScenario(TimeSheetHeader, ServiceHeader, ServiceLine);
         ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity);
         ServiceLine.Modify();
 
@@ -301,7 +301,7 @@ codeunit 136511 "Service Timesheet Posting UT"
                 until ServiceLine.Next() = 0;
             ServiceHeader.Find();
             LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
-            LibraryTimeSheet.CheckServiceTimeSheetLine(TimeSheetHeader, ServiceHeaderNo, ServiceLineNo, ServiceLineQuantity / 2, false);
+            LibraryService.CheckServiceTimeSheetLine(TimeSheetHeader, ServiceHeaderNo, ServiceLineNo, ServiceLineQuantity / 2, false);
         end;
     end;
 
@@ -318,7 +318,7 @@ codeunit 136511 "Service Timesheet Posting UT"
         // [SCENARIO] Verify that service order with service line having Quantity greater than timesheet line cannot be shipped.
 
         Initialize();
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
+        LibraryService.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
 
         ServTimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
 
@@ -347,7 +347,7 @@ codeunit 136511 "Service Timesheet Posting UT"
         // [SCENARIO] Verify that service order with service line having Quantity greater than timesheet line cannot be shipped and consumed.
 
         Initialize();
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
+        LibraryService.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
 
         ServTimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
 
@@ -381,13 +381,13 @@ codeunit 136511 "Service Timesheet Posting UT"
         // [SCENARIO] Verify time sheet posting entry and Remaining Quantity in service line after partially shipping service order with time sheet resource.
 
         Initialize();
-        LibraryTimeSheet.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
+        LibraryService.InitServiceScenario(TimeSheetHeader, TimeSheetLine, ServiceHeader);
         ServiceHeaderNo := ServiceHeader."No.";
+        TimeSheetLine.CalcFields("Total Quantity");
         Delta := TimeSheetLine."Total Quantity" * (LibraryTimeSheet.GetRandomDecimal() / 100);
 
         ServTimeSheetMgt.CreateServDocLinesFromTS(ServiceHeader);
 
-        TimeSheetLine.CalcFields("Total Quantity");
         CheckServicelLineRemainingQuantity(ServiceLine, ServiceHeaderNo, TimeSheetLine, TimeSheetLine."Total Quantity", false);
         ServiceLineNo := ServiceLine."Line No.";
 

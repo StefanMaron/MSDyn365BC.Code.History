@@ -5,7 +5,6 @@
 namespace Microsoft.Inventory.BOM;
 
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Projects.Resources.Resource;
 
 table 90 "BOM Component"
@@ -296,7 +295,6 @@ table 90 "BOM Component"
 
     local procedure CopyFromItem()
     var
-        CalcLowLevelCode: Codeunit "Calculate Low-Level Code";
         IsHandled: Boolean;
     begin
         Item.Get("No.");
@@ -311,7 +309,7 @@ table 90 "BOM Component"
         Description := Item.Description;
         "Unit of Measure Code" := Item."Base Unit of Measure";
         ParentItem.Get("Parent Item No.");
-        CalcLowLevelCode.SetRecursiveLevelsOnItem(Item, ParentItem."Low-Level Code" + 1, true);
+        OnCopyFromItemOnAfterGetParentItem(Item, ParentItem);
         Item.Find();
         ParentItem.Find();
         if ParentItem."Low-Level Code" >= Item."Low-Level Code" then
@@ -342,6 +340,11 @@ table 90 "BOM Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromItem(var BOMComponent: Record "BOM Component"; xBOMComponent: Record "BOM Component"; Item: Record Item; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnCopyFromItemOnAfterGetParentItem(var Item: Record Item; ParentItem: Record Item)
     begin
     end;
 

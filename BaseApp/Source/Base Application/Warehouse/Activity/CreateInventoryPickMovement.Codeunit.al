@@ -1,13 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Activity;
 
-using Microsoft.Assembly.Document;
-using Microsoft.Assembly.Setup;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
@@ -42,12 +43,6 @@ codeunit 7322 "Create Inventory Pick/Movement"
         CurrItem: Record Item;
         CurrBin: Record Bin;
         CurrStockKeepingUnit: Record "Stockkeeping Unit";
-        CurrPurchaseHeader: Record "Purchase Header";
-        CurrSalesHeader: Record "Sales Header";
-        CurrTransferHeader: Record "Transfer Header";
-        CurrProductionOrder: Record "Production Order";
-        CurrAssemblyHeader: Record "Assembly Header";
-        CurrJob: Record Job;
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         TempInternalMovementLine: Record "Internal Movement Line" temporary;
         TempReservationEntry: Record "Reservation Entry" temporary;
@@ -56,8 +51,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
         ItemTrackingManagement: Codeunit "Item Tracking Management";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         SourceDocRecordRef: RecordRef;
+        SourceDocRecordVar: Variant;
         ReservedFromStock: Enum "Reservation From Stock";
-        WarehouseClassCode: Code[10];
         VendorDocNo: Code[35];
         FromBinCode: Code[20];
         ExpiredItemMessageText: Text[100];
@@ -75,11 +70,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
         ShowError: Boolean;
         IsInvtMovement: Boolean;
         IsBlankInvtMovement: Boolean;
-        ApplyAdditionalSourceDocFilters: Boolean;
+        ApplySourceFilters: Boolean;
         HasExpiredItems: Boolean;
         SuppressCommit: Boolean;
         HideDialogForTracking: Boolean;
-        NothingToHandleErr: Label 'There is nothing to handle.';
+        NothingToHandleMsg: Label 'There is nothing to handle.';
         QtyNotSufficientOnSalesErr: Label 'Quantity available to pick is not sufficient to fulfill shipping advise %1 for sales line with Document Type %2, Document No. %3, Line No. %4.', Comment = '%1=Shipping advise no., %2=Document Type, %3=Document No., %4=Line No.';
         QtyNotSufficientOnTransferErr: Label 'Quantity available to pick is not sufficient to fulfill shipping advise %1 for transfer line with Document No. %2, Line No. %3.', Comment = '%1=Shipping advise no., %2=Document No., %3=Line No.';
         ActivityCreatedMsg: Label '%1 activity number %2 has been created.', Comment = '%1=Warehouse Activity Type,%2=Warehouse Activity number';
@@ -115,24 +110,21 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
         case CurrWarehouseRequest."Source Document" of
             CurrWarehouseRequest."Source Document"::"Purchase Order":
-                CreatePickOrMoveFromPurchase(CurrPurchaseHeader);
+                CreatePickOrMoveFromPurchase(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Purchase Return Order":
-                CreatePickOrMoveFromPurchase(CurrPurchaseHeader);
+                CreatePickOrMoveFromPurchase(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Sales Order":
-                CreatePickOrMoveFromSales(CurrSalesHeader);
+                CreatePickOrMoveFromSales(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Sales Return Order":
-                CreatePickOrMoveFromSales(CurrSalesHeader);
+                CreatePickOrMoveFromSales(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Outbound Transfer":
-                CreatePickOrMoveFromTransfer(CurrTransferHeader);
-            CurrWarehouseRequest."Source Document"::"Prod. Consumption":
-                CreatePickOrMoveFromProduction(CurrProductionOrder);
-            CurrWarehouseRequest."Source Document"::"Assembly Consumption":
-                CreatePickOrMoveFromAssembly(CurrAssemblyHeader);
+                CreatePickOrMoveFromTransfer(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Job Usage":
-                CreatePickOrMoveFromJobPlanning(CurrJob);
+                CreatePickOrMoveFromJobPlanning(SourceDocRecordVar);
             else
                 OnCreatePickOrMoveFromWhseRequest(
-                    CurrWarehouseRequest, SourceDocRecordRef, LineCreated, CurrWarehouseActivityHeader, CurrLocation, HideDialog, CompleteShipment, CheckLineExist);
+                    CurrWarehouseRequest, SourceDocRecordRef, LineCreated, CurrWarehouseActivityHeader, CurrLocation, HideDialog,
+                    CompleteShipment, CheckLineExist, IsInvtMovement, WarehouseSourceFilter, ApplySourceFilters, ReservedFromStock, SourceDocRecordVar);
         end;
 
         SuppressMessage := false;
@@ -146,7 +138,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         else
             if not AutoCreation then
                 if not SuppressMessage then
-                    Message(NothingToHandleErr + ExpiredItemMessageText);
+                    Message(NothingToHandleMsg + ExpiredItemMessageText);
 
         OnAfterCreateInventoryPickMovement(CurrWarehouseRequest, LineCreated, CurrWarehouseActivityHeader);
     end;
@@ -190,6 +182,10 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     local procedure GetSourceDocHeader(): Boolean
     var
+        Job: Record Job;
+        PurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        TransferHeader: Record "Transfer Header";
         IsHandled: Boolean;
         RecordExists: Boolean;
     begin
@@ -202,45 +198,44 @@ codeunit 7322 "Create Inventory Pick/Movement"
         case CurrWarehouseRequest."Source Document" of
             CurrWarehouseRequest."Source Document"::"Purchase Order":
                 begin
-                    RecordExists := CurrPurchaseHeader.Get(CurrPurchaseHeader."Document Type"::Order, CurrWarehouseRequest."Source No.");
-                    PostingDate := CurrPurchaseHeader."Posting Date";
-                    VendorDocNo := CurrPurchaseHeader."Vendor Invoice No.";
+                    RecordExists := PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, CurrWarehouseRequest."Source No.");
+                    PostingDate := PurchaseHeader."Posting Date";
+                    VendorDocNo := PurchaseHeader."Vendor Invoice No.";
+                    SourceDocRecordVar := PurchaseHeader;
                 end;
             CurrWarehouseRequest."Source Document"::"Purchase Return Order":
                 begin
-                    RecordExists := CurrPurchaseHeader.Get(CurrPurchaseHeader."Document Type"::"Return Order", CurrWarehouseRequest."Source No.");
-                    PostingDate := CurrPurchaseHeader."Posting Date";
-                    VendorDocNo := CurrPurchaseHeader."Vendor Cr. Memo No.";
+                    RecordExists := PurchaseHeader.Get(PurchaseHeader."Document Type"::"Return Order", CurrWarehouseRequest."Source No.");
+                    PostingDate := PurchaseHeader."Posting Date";
+                    VendorDocNo := PurchaseHeader."Vendor Cr. Memo No.";
+                    SourceDocRecordVar := PurchaseHeader;
                 end;
             CurrWarehouseRequest."Source Document"::"Sales Order":
                 begin
-                    RecordExists := CurrSalesHeader.Get(CurrSalesHeader."Document Type"::Order, CurrWarehouseRequest."Source No.");
-                    PostingDate := CurrSalesHeader."Posting Date";
+                    RecordExists := SalesHeader.Get(SalesHeader."Document Type"::Order, CurrWarehouseRequest."Source No.");
+                    PostingDate := SalesHeader."Posting Date";
+                    SourceDocRecordVar := SalesHeader;
                 end;
             CurrWarehouseRequest."Source Document"::"Sales Return Order":
                 begin
-                    RecordExists := CurrSalesHeader.Get(CurrSalesHeader."Document Type"::"Return Order", CurrWarehouseRequest."Source No.");
-                    PostingDate := CurrSalesHeader."Posting Date";
+                    RecordExists := SalesHeader.Get(SalesHeader."Document Type"::"Return Order", CurrWarehouseRequest."Source No.");
+                    PostingDate := SalesHeader."Posting Date";
+                    SourceDocRecordVar := SalesHeader;
                 end;
             CurrWarehouseRequest."Source Document"::"Outbound Transfer":
                 begin
-                    RecordExists := CurrTransferHeader.Get(CurrWarehouseRequest."Source No.");
-                    PostingDate := CurrTransferHeader."Posting Date";
-                end;
-            CurrWarehouseRequest."Source Document"::"Prod. Consumption":
-                begin
-                    RecordExists := CurrProductionOrder.Get(CurrWarehouseRequest."Source Subtype", CurrWarehouseRequest."Source No.");
-                    PostingDate := WorkDate();
-                end;
-            CurrWarehouseRequest."Source Document"::"Assembly Consumption":
-                begin
-                    RecordExists := CurrAssemblyHeader.Get(CurrWarehouseRequest."Source Subtype", CurrWarehouseRequest."Source No.");
-                    PostingDate := CurrAssemblyHeader."Posting Date";
+                    RecordExists := TransferHeader.Get(CurrWarehouseRequest."Source No.");
+                    PostingDate := TransferHeader."Posting Date";
+                    SourceDocRecordVar := TransferHeader;
                 end;
             CurrWarehouseRequest."Source Document"::"Job Usage":
-                RecordExists := CurrJob.Get(CurrWarehouseRequest."Source No.");
+                begin
+                    RecordExists := Job.Get(CurrWarehouseRequest."Source No.");
+                    SourceDocRecordVar := Job;
+                end;
             else
-                OnGetSourceDocHeaderFromWhseRequest(CurrWarehouseRequest, SourceDocRecordRef, PostingDate, VendorDocNo, RecordExists);
+                OnGetSourceDocHeaderFromWhseRequest(
+                    CurrWarehouseRequest, SourceDocRecordRef, PostingDate, VendorDocNo, RecordExists, SourceDocRecordVar);
         end;
         OnAfterGetSourceDocHeader(CurrWarehouseRequest, PostingDate, VendorDocNo);
 
@@ -274,22 +269,24 @@ codeunit 7322 "Create Inventory Pick/Movement"
     procedure SetSourceDocDetailsFilter(var WarehouseSourceFilter2: Record "Warehouse Source Filter")
     begin
         if WarehouseSourceFilter2.GetFilters() <> '' then begin
-            ApplyAdditionalSourceDocFilters := true;
+            ApplySourceFilters := true;
             WarehouseSourceFilter.Reset();
             WarehouseSourceFilter.CopyFilters(WarehouseSourceFilter2);
         end;
     end;
 
-    local procedure CreatePickOrMoveFromPurchase(PurchaseHeader: Record "Purchase Header")
+    local procedure CreatePickOrMoveFromPurchase(PurchaseHeaderVar: Variant)
     var
+        PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         NewWarehouseActivityLine: Record "Warehouse Activity Line";
         RemQtyToPickBase: Decimal;
         IsHandled: Boolean;
     begin
+        PurchaseHeader := PurchaseHeaderVar;
+
         if not SetFilterPurchLine(PurchaseLine, PurchaseHeader) then begin
-            if not HideDialog then
-                Message(NothingToHandleErr);
+            RaiseNothingToHandleMessage();
             exit;
         end;
 
@@ -353,7 +350,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         else
             PurchaseLine.SetFilter("Return Qty. to Ship", '>%1', 0);
 
-        if ApplyAdditionalSourceDocFilters then begin
+        if ApplySourceFilters then begin
             PurchaseLine.SetFilter("No.", WarehouseSourceFilter.GetFilter("Item No. Filter"));
             PurchaseLine.SetFilter("Variant Code", WarehouseSourceFilter.GetFilter("Variant Code Filter"));
             PurchaseLine.SetFilter("Planned Receipt Date", WarehouseSourceFilter.GetFilter("Shipment Date Filter"));
@@ -363,17 +360,19 @@ codeunit 7322 "Create Inventory Pick/Movement"
         exit(PurchaseLine.Find('-'));
     end;
 
-    local procedure CreatePickOrMoveFromSales(SalesHeader: Record "Sales Header")
+    local procedure CreatePickOrMoveFromSales(SalesHeaderVar: Variant)
     var
+        SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         NewWarehouseActivityLine: Record "Warehouse Activity Line";
         RemQtyToPickBase: Decimal;
         IsHandled: Boolean;
     begin
+        SalesHeader := SalesHeaderVar;
+
         OnBeforeCreatePickOrMoveFromSales(CurrWarehouseActivityHeader, SalesHeader, AutoCreation, HideDialog, SalesLine);
         if not SetFilterSalesLine(SalesLine, SalesHeader) then begin
-            if not HideDialog then
-                Message(NothingToHandleErr);
+            RaiseNothingToHandleMessage();
             exit;
         end;
         CompleteShipment := true;
@@ -462,18 +461,6 @@ codeunit 7322 "Create Inventory Pick/Movement"
           TransferLine.CheckIfTransferLineMeetsReservedFromStockSetting(TransferLine."Outstanding Qty. (Base)", ReservedFromStock));
     end;
 
-    local procedure CanPickProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"): Boolean
-    begin
-        exit(
-          ProdOrderComponent.CheckIfProdOrderCompMeetsReservedFromStockSetting(Abs(ProdOrderComponent."Remaining Qty. (Base)"), ReservedFromStock));
-    end;
-
-    local procedure CanPickAssemblyLine(var AssemblyLine: Record "Assembly Line"): Boolean
-    begin
-        exit(
-          AssemblyLine.CheckIfAssemblyLineMeetsReservedFromStockSetting(AssemblyLine."Remaining Quantity (Base)", ReservedFromStock));
-    end;
-
     local procedure CanPickJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"): Boolean
     begin
         exit(
@@ -498,7 +485,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         else
             SalesLine.SetFilter("Return Qty. to Receive", '<%1', 0);
 
-        if ApplyAdditionalSourceDocFilters then begin
+        if ApplySourceFilters then begin
             SalesLine.SetFilter("No.", WarehouseSourceFilter.GetFilter("Item No. Filter"));
             SalesLine.SetFilter("Variant Code", WarehouseSourceFilter.GetFilter("Variant Code Filter"));
             SalesLine.SetFilter("Shipment Date", WarehouseSourceFilter.GetFilter("Shipment Date Filter"));
@@ -509,16 +496,18 @@ codeunit 7322 "Create Inventory Pick/Movement"
         OnAfterSetFilterSalesLine(SalesLine, SalesHeader, CurrWarehouseActivityHeader, CurrWarehouseRequest, ShowError, Result);
     end;
 
-    local procedure CreatePickOrMoveFromTransfer(TransferHeader: Record "Transfer Header")
+    local procedure CreatePickOrMoveFromTransfer(TransferHeaderVar: Variant)
     var
+        TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
         NewWarehouseActivityLine: Record "Warehouse Activity Line";
         RemQtyToPickBase: Decimal;
         IsHandled: Boolean;
     begin
+        TransferHeader := TransferHeaderVar;
+
         if not SetFilterTransferLine(TransferLine, TransferHeader) then begin
-            if not HideDialog then
-                Message(NothingToHandleErr);
+            RaiseNothingToHandleMessage();
             exit;
         end;
         CompleteShipment := true;
@@ -594,7 +583,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
             TransferLine.SetRange("Transfer-from Code", CurrWarehouseActivityHeader."Location Code");
         TransferLine.SetFilter("Qty. to Ship", '>%1', 0);
 
-        if ApplyAdditionalSourceDocFilters then begin
+        if ApplySourceFilters then begin
             TransferLine.SetFilter("Item No.", WarehouseSourceFilter.GetFilter("Item No. Filter"));
             TransferLine.SetFilter("Variant Code", WarehouseSourceFilter.GetFilter("Variant Code Filter"));
             TransferLine.SetFilter("Shipment Date", WarehouseSourceFilter.GetFilter("Shipment Date Filter"));
@@ -604,131 +593,18 @@ codeunit 7322 "Create Inventory Pick/Movement"
         exit(TransferLine.Find('-'));
     end;
 
-    local procedure CreatePickOrMoveFromProduction(ProductionOrder: Record "Production Order")
+    local procedure CreatePickOrMoveFromJobPlanning(JobVar: Variant)
     var
-        ProdOrderComponent: Record "Prod. Order Component";
-        NewWarehouseActivityLine: Record "Warehouse Activity Line";
-        RemQtyToPickBase: Decimal;
-        IsHandled: Boolean;
-    begin
-        if not SetFilterProductionLine(ProdOrderComponent, ProductionOrder) then begin
-            if not HideDialog then
-                Message(NothingToHandleErr);
-            exit;
-        end;
-
-        FindNextLineNo();
-
-        repeat
-            if (ProdOrderComponent."Location Code" = '') or (CurrLocation."Prod. Consump. Whse. Handling" = CurrLocation."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement") then begin
-                if CurrLocation."Prod. Consump. Whse. Handling" = CurrLocation."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement" then
-                    FeatureTelemetry.LogUsage('0000KT2', ProdAsmJobWhseHandlingTelemetryCategoryTok, ProdAsmJobWhseHandlingTelemetryTok);
-
-                IsHandled := false;
-                OnBeforeCreatePickOrMoveLineFromProductionLoop(CurrWarehouseActivityHeader, ProductionOrder, IsHandled, ProdOrderComponent);
-                if not IsHandled and CanPickProdOrderComponent(ProdOrderComponent) then
-                    if not
-                       NewWarehouseActivityLine.ActivityExists(
-                        Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.", 0)
-                    then begin
-                        NewWarehouseActivityLine.Init();
-                        NewWarehouseActivityLine."Activity Type" := CurrWarehouseActivityHeader.Type;
-                        NewWarehouseActivityLine."No." := CurrWarehouseActivityHeader."No.";
-                        if CurrLocation."Bin Mandatory" then
-                            NewWarehouseActivityLine."Action Type" := NewWarehouseActivityLine."Action Type"::Take;
-                        NewWarehouseActivityLine.SetSource(Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.");
-                        NewWarehouseActivityLine."Location Code" := ProdOrderComponent."Location Code";
-                        NewWarehouseActivityLine."Bin Code" := ProdOrderComponent."Bin Code";
-                        NewWarehouseActivityLine."Item No." := ProdOrderComponent."Item No.";
-                        NewWarehouseActivityLine."Variant Code" := ProdOrderComponent."Variant Code";
-                        NewWarehouseActivityLine."Unit of Measure Code" := ProdOrderComponent."Unit of Measure Code";
-                        NewWarehouseActivityLine."Qty. per Unit of Measure" := ProdOrderComponent."Qty. per Unit of Measure";
-                        NewWarehouseActivityLine."Qty. Rounding Precision" := ProdOrderComponent."Qty. Rounding Precision";
-                        NewWarehouseActivityLine."Qty. Rounding Precision (Base)" := ProdOrderComponent."Qty. Rounding Precision (Base)";
-                        NewWarehouseActivityLine.Description := ProdOrderComponent.Description;
-                        NewWarehouseActivityLine."Source Document" := NewWarehouseActivityLine."Source Document"::"Prod. Consumption";
-                        NewWarehouseActivityLine."Due Date" := ProdOrderComponent."Due Date";
-                        if CurrWarehouseActivityHeader.Type = CurrWarehouseActivityHeader.Type::"Invt. Pick" then
-                            RemQtyToPickBase := ProdOrderComponent."Remaining Qty. (Base)"
-                        else
-                            RemQtyToPickBase := ProdOrderComponent."Expected Qty. (Base)" - ProdOrderComponent."Qty. Picked (Base)";
-                        OnBeforeNewWhseActivLineInsertFromComp(NewWarehouseActivityLine, ProdOrderComponent, CurrWarehouseActivityHeader, RemQtyToPickBase);
-                        ProdOrderComponent.CalcFields(ProdOrderComponent."Reserved Quantity");
-                        CreatePickOrMoveLine(
-                            NewWarehouseActivityLine, RemQtyToPickBase, RemQtyToPickBase, ProdOrderComponent."Reserved Quantity" <> 0);
-                    end;
-            end;
-        until ProdOrderComponent.Next() = 0;
-    end;
-
-    local procedure CreatePickOrMoveFromAssembly(AssemblyHeader: Record "Assembly Header")
-    var
-        AssemblyLine: Record "Assembly Line";
-        NewWarehouseActivityLine: Record "Warehouse Activity Line";
-        RemQtyToPickBase: Decimal;
-        IsHandled: Boolean;
-    begin
-        if not SetFilterAssemblyLine(AssemblyLine, AssemblyHeader) then begin
-            if not HideDialog then
-                Message(NothingToHandleErr);
-            exit;
-        end;
-
-        if CurrWarehouseActivityHeader.Type <> CurrWarehouseActivityHeader.Type::"Invt. Movement" then
-            // no support for inventory pick on assembly
-            exit;
-
-        FindNextLineNo();
-
-        repeat
-            if (AssemblyLine."Location Code" = '') or (CurrLocation."Asm. Consump. Whse. Handling" = CurrLocation."Asm. Consump. Whse. Handling"::"Inventory Movement") then begin
-                if CurrLocation."Asm. Consump. Whse. Handling" = CurrLocation."Asm. Consump. Whse. Handling"::"Inventory Movement" then
-                    FeatureTelemetry.LogUsage('0000KT3', ProdAsmJobWhseHandlingTelemetryCategoryTok, ProdAsmJobWhseHandlingTelemetryTok);
-                IsHandled := false;
-                OnBeforeCreatePickOrMoveLineFromAssemblyLoop(CurrWarehouseActivityHeader, AssemblyHeader, IsHandled, AssemblyLine);
-                if not IsHandled and CanPickAssemblyLine(AssemblyLine) then
-                    if not
-                       NewWarehouseActivityLine.ActivityExists(Database::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", 0, 0)
-                    then begin
-                        NewWarehouseActivityLine.Init();
-                        NewWarehouseActivityLine."Activity Type" := CurrWarehouseActivityHeader.Type;
-                        NewWarehouseActivityLine."No." := CurrWarehouseActivityHeader."No.";
-                        if CurrLocation."Bin Mandatory" then
-                            NewWarehouseActivityLine."Action Type" := NewWarehouseActivityLine."Action Type"::Take;
-                        NewWarehouseActivityLine.SetSource(Database::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", 0);
-                        NewWarehouseActivityLine."Location Code" := AssemblyLine."Location Code";
-                        NewWarehouseActivityLine."Bin Code" := AssemblyLine."Bin Code";
-                        NewWarehouseActivityLine."Item No." := AssemblyLine."No.";
-                        NewWarehouseActivityLine."Variant Code" := AssemblyLine."Variant Code";
-                        NewWarehouseActivityLine."Unit of Measure Code" := AssemblyLine."Unit of Measure Code";
-                        NewWarehouseActivityLine."Qty. per Unit of Measure" := AssemblyLine."Qty. per Unit of Measure";
-                        NewWarehouseActivityLine."Qty. Rounding Precision" := AssemblyLine."Qty. Rounding Precision";
-                        NewWarehouseActivityLine."Qty. Rounding Precision (Base)" := AssemblyLine."Qty. Rounding Precision (Base)";
-                        NewWarehouseActivityLine.Description := AssemblyLine.Description;
-                        NewWarehouseActivityLine."Source Document" := NewWarehouseActivityLine."Source Document"::"Assembly Consumption";
-                        NewWarehouseActivityLine."Due Date" := AssemblyLine."Due Date";
-                        NewWarehouseActivityLine."Destination Type" := NewWarehouseActivityLine."Destination Type"::Item;
-                        NewWarehouseActivityLine."Destination No." := CurrAssemblyHeader."Item No.";
-                        RemQtyToPickBase := AssemblyLine."Quantity (Base)" - AssemblyLine."Remaining Quantity (Base)" +
-                        AssemblyLine."Quantity to Consume (Base)" - AssemblyLine."Qty. Picked (Base)";
-                        OnBeforeNewWhseActivLineInsertFromAssembly(NewWarehouseActivityLine, AssemblyLine, CurrWarehouseActivityHeader, RemQtyToPickBase);
-                        AssemblyLine.CalcFields(AssemblyLine."Reserved Quantity");
-                        CreatePickOrMoveLine(NewWarehouseActivityLine, RemQtyToPickBase, RemQtyToPickBase, AssemblyLine."Reserved Quantity" <> 0);
-                    end;
-            end;
-        until AssemblyLine.Next() = 0;
-    end;
-
-    local procedure CreatePickOrMoveFromJobPlanning(Job: Record Job)
-    var
+        Job: Record Job;
         JobPlanningLine: Record "Job Planning Line";
         NewWarehouseActivityLine: Record "Warehouse Activity Line";
         PickItem: Record Item;
         RemQtyToPickBase: Decimal;
     begin
+        Job := JobVar;
+
         if not SetFilterJobPlanningLine(JobPlanningLine, Job) then begin
-            if not HideDialog then
-                Message(NothingToHandleErr);
+            RaiseNothingToHandleMessage();
             exit;
         end;
 
@@ -773,73 +649,6 @@ codeunit 7322 "Create Inventory Pick/Movement"
         until JobPlanningLine.Next() = 0;
     end;
 
-    local procedure SetFilterProductionLine(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrder: Record "Production Order"): Boolean
-#if not CLEAN26
-    var
-        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
-#endif
-    begin
-        ProdOrderComponent.SetRange(ProdOrderComponent.Status, ProductionOrder.Status);
-        ProdOrderComponent.SetRange(ProdOrderComponent."Prod. Order No.", ProductionOrder."No.");
-        if not CheckLineExist then
-            ProdOrderComponent.SetRange(ProdOrderComponent."Location Code", CurrWarehouseActivityHeader."Location Code");
-        ProdOrderComponent.SetRange(ProdOrderComponent."Planning Level Code", 0);
-        if IsInvtMovement then begin
-            ProdOrderComponent.SetFilter(ProdOrderComponent."Bin Code", '<>%1', '');
-#if not CLEAN26
-            if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
-                ProdOrderComponent.SetFilter(ProdOrderComponent."Flushing Method", '%1|%2|%3|%4',
-                  ProdOrderComponent."Flushing Method"::Manual,
-                  ProdOrderComponent."Flushing Method"::"Pick + Manual",
-                  ProdOrderComponent."Flushing Method"::"Pick + Forward",
-                  ProdOrderComponent."Flushing Method"::"Pick + Backward")
-            else
-#endif
-                ProdOrderComponent.SetFilter(ProdOrderComponent."Flushing Method", '%1|%2|%3',
-                  ProdOrderComponent."Flushing Method"::"Pick + Manual",
-                  ProdOrderComponent."Flushing Method"::"Pick + Forward",
-                  ProdOrderComponent."Flushing Method"::"Pick + Backward");
-        end else
-#if not CLEAN26
-            if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
-                ProdOrderComponent.SetFilter(ProdOrderComponent."Flushing Method", '%1|%2', ProdOrderComponent."Flushing Method"::Manual, ProdOrderComponent."Flushing Method"::"Pick + Manual")
-            else
-#endif
-                ProdOrderComponent.SetRange(ProdOrderComponent."Flushing Method", ProdOrderComponent."Flushing Method"::"Pick + Manual");
-        ProdOrderComponent.SetFilter(ProdOrderComponent."Remaining Quantity", '>0');
-
-        if ApplyAdditionalSourceDocFilters then begin
-            ProdOrderComponent.SetFilter(ProdOrderComponent."Item No.", WarehouseSourceFilter.GetFilter("Item No. Filter"));
-            ProdOrderComponent.SetFilter(ProdOrderComponent."Variant Code", WarehouseSourceFilter.GetFilter("Variant Code Filter"));
-            ProdOrderComponent.SetFilter(ProdOrderComponent."Due Date", WarehouseSourceFilter.GetFilter("Shipment Date Filter"));
-            ProdOrderComponent.SetFilter(ProdOrderComponent."Prod. Order Line No.", WarehouseSourceFilter.GetFilter("Prod. Order Line No. Filter"));
-        end;
-
-        OnBeforeFindProdOrderComp(ProdOrderComponent, ProductionOrder, CurrWarehouseActivityHeader);
-        exit(ProdOrderComponent.Find('-'));
-    end;
-
-    local procedure SetFilterAssemblyLine(var AssemblyLine: Record "Assembly Line"; AssemblyHeader: Record "Assembly Header"): Boolean
-    begin
-        AssemblyLine.SetRange(AssemblyLine."Document Type", AssemblyHeader."Document Type");
-        AssemblyLine.SetRange(AssemblyLine."Document No.", AssemblyHeader."No.");
-        AssemblyLine.SetRange(AssemblyLine.Type, AssemblyLine.Type::Item);
-        if not CheckLineExist then
-            AssemblyLine.SetRange(AssemblyLine."Location Code", CurrWarehouseActivityHeader."Location Code");
-        if IsInvtMovement then
-            AssemblyLine.SetFilter(AssemblyLine."Bin Code", '<>%1', '');
-        AssemblyLine.SetFilter(AssemblyLine."Remaining Quantity", '>0');
-
-        if ApplyAdditionalSourceDocFilters then begin
-            AssemblyLine.SetFilter(AssemblyLine."No.", WarehouseSourceFilter.GetFilter("Item No. Filter"));
-            AssemblyLine.SetFilter(AssemblyLine."Variant Code", WarehouseSourceFilter.GetFilter("Variant Code Filter"));
-            AssemblyLine.SetFilter(AssemblyLine."Due Date", WarehouseSourceFilter.GetFilter("Shipment Date Filter"));
-        end;
-
-        OnBeforeFindAssemblyLine(AssemblyLine, CurrAssemblyHeader, CurrWarehouseActivityHeader);
-        exit(AssemblyLine.Find('-'));
-    end;
-
     local procedure SetFilterJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job): Boolean
     begin
         JobPlanningLine.SetLoadFields(
@@ -872,7 +681,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
             JobPlanningLine.SetFilter("Bin Code", '<>%1', '');
         JobPlanningLine.SetFilter("Remaining Qty.", '>0');
 
-        if ApplyAdditionalSourceDocFilters then begin
+        if ApplySourceFilters then begin
             JobPlanningLine.SetFilter("Job Task No.", WarehouseSourceFilter.GetFilter("Job Task No. Filter"));
             JobPlanningLine.SetFilter("No.", WarehouseSourceFilter.GetFilter("Item No. Filter"));
             JobPlanningLine.SetFilter("Variant Code", WarehouseSourceFilter.GetFilter("Variant Code Filter"));
@@ -920,13 +729,12 @@ codeunit 7322 "Create Inventory Pick/Movement"
         OnAfterRunCreatePickOrMoveLine(CurrWarehouseActivityHeader, CurrWarehouseRequest);
     end;
 
-    local procedure CreatePickOrMoveLine(NewWarehouseActivityLine: Record "Warehouse Activity Line"; var RemQtyToPickBase: Decimal; OutstandingQtyBase: Decimal; ReservationExists: Boolean)
+    internal procedure CreatePickOrMoveLine(NewWarehouseActivityLine: Record "Warehouse Activity Line"; var RemQtyToPickBase: Decimal; OutstandingQtyBase: Decimal; ReservationExists: Boolean)
     var
         ReservationEntry: Record "Reservation Entry";
         ATOSalesLine: Record "Sales Line";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         ATOJobPlanningLine: Record "Job Planning Line";
-        ItemTrackingManagement: Codeunit "Item Tracking Management";
         QtyAvailToPickBase: Decimal;
         OriginalRemQtyToPickBase: Decimal;
         QtyRemToPickBase: Decimal;
@@ -937,8 +745,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
         ShouldInsertPickOrMoveDefaultBin: Boolean;
         IsHandled: Boolean;
     begin
+        GetLocation(NewWarehouseActivityLine."Location Code");
+
         if ReservationExists then
             CalcRemQtyToPickOrMoveBase(NewWarehouseActivityLine, OutstandingQtyBase, RemQtyToPickBase);
+
         if RemQtyToPickBase <= 0 then
             exit;
 
@@ -980,7 +791,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                     SetFilterReservEntry(ReservationEntry, NewWarehouseActivityLine);
                     CopyReservEntriesToTemp(TempReservationEntry, ReservationEntry);
                     if IsInvtMovement then
-                        if NewWarehouseActivityLine."Source Type" = Database::"Prod. Order Component" then
+                        if NewWarehouseActivityLine."Source Type" = 5407 then // Database::"Prod. Order Component"
                             PrepareItemTrackingFromWhse(
                               NewWarehouseActivityLine."Source Type", NewWarehouseActivityLine."Source Subtype", NewWarehouseActivityLine."Source No.",
                               '', NewWarehouseActivityLine."Source Line No.", NewWarehouseActivityLine."Source Subline No.", 1, false)
@@ -1235,6 +1046,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
         if WhseItemTrackingSetup."Serial No. Required" then begin
             IsHandled := false;
+            QtyToPickBase := 0;
             OnInsertShelfWhseActivLineOnBeforeMakeShelfLineWhenSNoReq(NewWarehouseActivityLine, WhseItemTrackingSetup, QtyToPickBase, RemQtyToPickBase, IsHandled);
             if IsHandled then
                 exit;
@@ -1352,10 +1164,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     local procedure GetItemAndSKU(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10])
     begin
-        if CurrItem."No." <> ItemNo then begin
+        if CurrItem."No." <> ItemNo then
             CurrItem.Get(ItemNo);
-            GetWarehouseClassCode();
-        end;
+
         if (ItemNo <> CurrStockKeepingUnit."Item No.") or
            (LocationCode <> CurrStockKeepingUnit."Location Code") or
            (VariantCode <> CurrStockKeepingUnit."Variant Code")
@@ -1364,15 +1175,10 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 Clear(CurrStockKeepingUnit);
     end;
 
-    local procedure GetWarehouseClassCode()
-    begin
-        WarehouseClassCode := CurrItem."Warehouse Class Code";
-    end;
-
-    procedure SetWhseRequest(NewWarehouseRequest: Record "Warehouse Request"; SetHideDialog: Boolean)
+    procedure SetWhseRequest(NewWarehouseRequest: Record "Warehouse Request"; NewSetHideDialog: Boolean)
     begin
         CurrWarehouseRequest := NewWarehouseRequest;
-        HideDialog := SetHideDialog;
+        HideDialog := NewSetHideDialog;
         LineCreated := false;
     end;
 
@@ -1381,8 +1187,6 @@ codeunit 7322 "Create Inventory Pick/Movement"
         PurchaseLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
         TransferLine: Record "Transfer Line";
-        ProdOrderComponent: Record "Prod. Order Component";
-        AssemblyLine: Record "Assembly Line";
         JobPlanningLine: Record "Job Planning Line";
         IsHandled: Boolean;
         Result: Boolean;
@@ -1400,24 +1204,22 @@ codeunit 7322 "Create Inventory Pick/Movement"
         CheckLineExist := true;
         case CurrWarehouseRequest."Source Document" of
             CurrWarehouseRequest."Source Document"::"Purchase Order":
-                exit(SetFilterPurchLine(PurchaseLine, CurrPurchaseHeader));
+                exit(SetFilterPurchLine(PurchaseLine, SourceDocRecordVar));
             CurrWarehouseRequest."Source Document"::"Purchase Return Order":
-                exit(SetFilterPurchLine(PurchaseLine, CurrPurchaseHeader));
+                exit(SetFilterPurchLine(PurchaseLine, SourceDocRecordVar));
             CurrWarehouseRequest."Source Document"::"Sales Order":
-                exit(SetFilterSalesLine(SalesLine, CurrSalesHeader));
+                exit(SetFilterSalesLine(SalesLine, SourceDocRecordVar));
             CurrWarehouseRequest."Source Document"::"Sales Return Order":
-                exit(SetFilterSalesLine(SalesLine, CurrSalesHeader));
+                exit(SetFilterSalesLine(SalesLine, SourceDocRecordVar));
             CurrWarehouseRequest."Source Document"::"Outbound Transfer":
-                exit(SetFilterTransferLine(TransferLine, CurrTransferHeader));
-            CurrWarehouseRequest."Source Document"::"Prod. Consumption":
-                exit(SetFilterProductionLine(ProdOrderComponent, CurrProductionOrder));
-            CurrWarehouseRequest."Source Document"::"Assembly Consumption":
-                exit(SetFilterAssemblyLine(AssemblyLine, CurrAssemblyHeader));
+                exit(SetFilterTransferLine(TransferLine, SourceDocRecordVar));
             CurrWarehouseRequest."Source Document"::"Job Usage":
-                exit(SetFilterJobPlanningLine(JobPlanningLine, CurrJob));
+                exit(SetFilterJobPlanningLine(JobPlanningLine, SourceDocRecordVar));
             else begin
                 IsHandled := false;
-                OnCheckSourceDocForWhseRequest(CurrWarehouseRequest, SourceDocRecordRef, CurrWarehouseActivityHeader, CheckLineExist, Result, IsHandled, IsInvtMovement, WarehouseSourceFilter, ApplyAdditionalSourceDocFilters);
+                OnCheckSourceDocForWhseRequest(
+                    CurrWarehouseRequest, SourceDocRecordRef, CurrWarehouseActivityHeader, CheckLineExist, Result, IsHandled,
+                    IsInvtMovement, WarehouseSourceFilter, ApplySourceFilters, SourceDocRecordVar);
                 if IsHandled then
                     exit(Result);
             end;
@@ -1440,24 +1242,22 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
         case CurrWarehouseRequest."Source Document" of
             CurrWarehouseRequest."Source Document"::"Purchase Order":
-                CreatePickOrMoveFromPurchase(CurrPurchaseHeader);
+                CreatePickOrMoveFromPurchase(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Purchase Return Order":
-                CreatePickOrMoveFromPurchase(CurrPurchaseHeader);
+                CreatePickOrMoveFromPurchase(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Sales Order":
-                CreatePickOrMoveFromSales(CurrSalesHeader);
+                CreatePickOrMoveFromSales(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Sales Return Order":
-                CreatePickOrMoveFromSales(CurrSalesHeader);
+                CreatePickOrMoveFromSales(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Outbound Transfer":
-                CreatePickOrMoveFromTransfer(CurrTransferHeader);
-            CurrWarehouseRequest."Source Document"::"Prod. Consumption":
-                CreatePickOrMoveFromProduction(CurrProductionOrder);
-            CurrWarehouseRequest."Source Document"::"Assembly Consumption":
-                CreatePickOrMoveFromAssembly(CurrAssemblyHeader);
+                CreatePickOrMoveFromTransfer(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Job Usage":
-                CreatePickOrMoveFromJobPlanning(CurrJob);
+                CreatePickOrMoveFromJobPlanning(SourceDocRecordVar);
             else
                 OnAutoCreatePickOrMoveFromWhseRequest(
-                    CurrWarehouseRequest, SourceDocRecordRef, LineCreated, CurrWarehouseActivityHeader, CurrLocation, HideDialog, CompleteShipment, CheckLineExist, IsInvtMovement, WarehouseSourceFilter, ApplyAdditionalSourceDocFilters);
+                    CurrWarehouseRequest, SourceDocRecordRef, LineCreated, CurrWarehouseActivityHeader, CurrLocation,
+                    HideDialog, CompleteShipment, CheckLineExist, IsInvtMovement, WarehouseSourceFilter, ApplySourceFilters,
+                    ReservedFromStock, SourceDocRecordVar);
         end;
 
         if LineCreated then begin
@@ -1487,7 +1287,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         ReservationEntry.Reset();
         ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line");
         ReservationEntry.SetRange("Source ID", WarehouseActivityLine."Source No.");
-        if WarehouseActivityLine."Source Type" = Database::"Prod. Order Component" then
+        if WarehouseActivityLine."Source Type" = 5407 then // Database::"Prod. Order Component"
             ReservationEntry.SetRange("Source Ref. No.", WarehouseActivityLine."Source Subline No.")
         else
             ReservationEntry.SetRange("Source Ref. No.", WarehouseActivityLine."Source Line No.");
@@ -1500,7 +1300,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
             ReservationEntry.SetRange("Source Subtype", WarehouseActivityLine."Source Subtype");
         end;
 
-        if WarehouseActivityLine."Source Type" = Database::"Prod. Order Component" then
+        if WarehouseActivityLine."Source Type" = 5407 then // Database::"Prod. Order Component"
             ReservationEntry.SetRange("Source Prod. Order Line", WarehouseActivityLine."Source Line No.");
         ReservationEntry.SetRange(Positive, false);
     end;
@@ -1661,7 +1461,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
         TempTrackingSpecification.Init();
         TempTrackingSpecification."Entry No." := LastTempHandlingSpecNo + 1;
-        if WarehouseActivityLine."Source Type" = Database::"Prod. Order Component" then
+        if WarehouseActivityLine."Source Type" = 5407 then // Database::"Prod. Order Component"
             TempTrackingSpecification.SetSource(
               WarehouseActivityLine."Source Type", WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.",
               WarehouseActivityLine."Source Subline No.", '', WarehouseActivityLine."Source Line No.")
@@ -1719,8 +1519,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         InternalMovementHeader.TestField("Location Code");
 
         if not SetFilterInternalMovement(InternalMovementLine, InternalMovementHeader) then begin
-            if not HideDialog then
-                Message(NothingToHandleErr);
+            RaiseNothingToHandleMessage();
             exit;
         end;
         // creating Inventory Movement Header
@@ -1766,7 +1565,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         until InternalMovementLine.Next() = 0;
 
         if NextLineNo = 10000 then
-            Error(NothingToHandleErr);
+            Error(NothingToHandleMsg);
 
         MoveWhseComments(InternalMovementHeader."No.", CurrWarehouseActivityHeader."No.");
 
@@ -1802,8 +1601,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         WhseWorksheetLine.TestField("Location Code");
 
         if not SetFilterWhseWorksheetLine(WhseWorksheetLine2, WhseWorksheetLine) then begin
-            if not HideDialog then
-                Message(NothingToHandleErr);
+            RaiseNothingToHandleMessage();
             exit;
         end;
         // creating Inventory Movement Header
@@ -1850,7 +1648,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         until WhseWorksheetLine2.Next() = 0;
 
         if NextLineNo = 10000 then
-            Error(NothingToHandleErr);
+            Error(NothingToHandleMsg);
 
         MoveWhseComments(WhseWorksheetLine."Whse. Document No.", CurrWarehouseActivityHeader."No.");
 
@@ -2272,9 +2070,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
     var
         ATOSalesLine: Record "Sales Line";
         ATOJobPlanningLine: Record "Job Planning Line";
-        ATOLink: Record "Assemble-to-Order Link";
-        AssemblyHeader: Record "Assembly Header";
-        AssemblySetup: Record "Assembly Setup";
+        ATOLink: Record Microsoft.Assembly.Document."Assemble-to-Order Link";
+        AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header";
+        AssemblySetup: Record Microsoft.Assembly.Setup."Assembly Setup";
         ReservationEntry: Record "Reservation Entry";
         TempTrackingSpecification1: Record "Tracking Specification" temporary;
         WhseItemTrackingSetup: Record "Item Tracking Setup";
@@ -2340,7 +2138,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         OnAfterCreateATOPickLine(QtyToPickBase, AssemblyHeader, NewWarehouseActivityLine, CurrWarehouseActivityHeader, RemQtyToPickBase);
     end;
 
-    local procedure CreateATOInventoryMovementsAutomatically(var AssemblyHeader: Record "Assembly Header"; var AssemToOrdInvtMovementsCreated: Integer; var TotalAssemToOrdInvtMovementsToBeCreated: Integer)
+    local procedure CreateATOInventoryMovementsAutomatically(var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; var AssemToOrdInvtMovementsCreated: Integer; var TotalAssemToOrdInvtMovementsToBeCreated: Integer)
     var
         MovementsCreated: Integer;
         TotalMovementsCreated: Integer;
@@ -2457,6 +2255,12 @@ codeunit 7322 "Create Inventory Pick/Movement"
         HideDialogForTracking := NewHideDialogForTracking;
     end;
 
+    procedure RaiseNothingToHandleMessage()
+    begin
+        if not HideDialog then
+            Message(NothingToHandleMsg);
+    end;
+
     local procedure ShouldSetBinCodeForBlankInvtMovement(NewWarehouseActivityLine: Record "Warehouse Activity Line"): Boolean
     begin
         if CheckItemTrackingCodeUseExpirationDates(NewWarehouseActivityLine."Item No.") then
@@ -2484,7 +2288,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateATOPickLine(QtyToPickBase: Decimal; AssemblyHeader: Record "Assembly Header"; NewWarehouseActivityLine: Record "Warehouse Activity Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
+    local procedure OnAfterCreateATOPickLine(QtyToPickBase: Decimal; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; NewWarehouseActivityLine: Record "Warehouse Activity Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
     begin
     end;
 
@@ -2578,13 +2382,21 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePickOrMoveLineFromProductionLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ProductionOrder: Record "Production Order"; var IsHandled: Boolean; ProdOrderComponent: Record "Prod. Order Component")
+#if not CLEAN27
+    internal procedure RunOnBeforeCreatePickOrMoveLineFromProductionLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var IsHandled: Boolean; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
+        OnBeforeCreatePickOrMoveLineFromProductionLoop(WarehouseActivityHeader, ProductionOrder, IsHandled, ProdOrderComponent);
     end;
 
+    [Obsolete('Moved to codeunit MfgCreateInvtPickMovement', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateATOInventoryMovementsAutomatically(AssemblyHeader: Record "Assembly Header"; PrintDocumentForATOMvmt: Boolean; ShowErrorForATOMvmt: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCreatePickOrMoveLineFromProductionLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var IsHandled: Boolean; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateATOInventoryMovementsAutomatically(AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; PrintDocumentForATOMvmt: Boolean; ShowErrorForATOMvmt: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -2598,10 +2410,18 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnBeforeCreatePickOrMoveLineFromAssemblyLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; var IsHandled: Boolean; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
+    begin
+        OnBeforeCreatePickOrMoveLineFromAssemblyLoop(WarehouseActivityHeader, AssemblyHeader, IsHandled, AssemblyLine);
+    end;
+
+    [Obsolete('Moved to codeunit AsmCreateInvtPickMovement', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePickOrMoveLineFromAssemblyLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean; AssemblyLine: Record "Assembly Line")
+    local procedure OnBeforeCreatePickOrMoveLineFromAssemblyLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; var IsHandled: Boolean; AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateTempHandlingSpec(WarehouseActivityLine: Record "Warehouse Activity Line"; var TotalQtyToPickBase: Decimal; var IsHandled: Boolean)
@@ -2633,15 +2453,31 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeNewWhseActivLineInsertFromAssembly(var WarehouseActivityLine: Record "Warehouse Activity Line"; var AssemblyLine: Record "Assembly Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
+#if not CLEAN27
+    internal procedure RunOnBeforeNewWhseActivLineInsertFromAssembly(var WarehouseActivityLine: Record "Warehouse Activity Line"; var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
     begin
+        OnBeforeNewWhseActivLineInsertFromAssembly(WarehouseActivityLine, AssemblyLine, WarehouseActivityHeader, RemQtyToPickBase);
     end;
 
+    [Obsolete('Moved to codeunit AsmCreateInvtPickMovement', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNewWhseActivLineInsertFromComp(var WarehouseActivityLine: Record "Warehouse Activity Line"; var ProdOrderComp: Record "Prod. Order Component"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
+    local procedure OnBeforeNewWhseActivLineInsertFromAssembly(var WarehouseActivityLine: Record "Warehouse Activity Line"; var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnBeforeNewWhseActivLineInsertFromComp(var WarehouseActivityLine: Record "Warehouse Activity Line"; var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
+    begin
+        OnBeforeNewWhseActivLineInsertFromComp(WarehouseActivityLine, ProdOrderComp, WarehouseActivityHeader, RemQtyToPickBase);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCreateInvtPickMovement', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNewWhseActivLineInsertFromComp(var WarehouseActivityLine: Record "Warehouse Activity Line"; var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var WarehouseActivityHeader: Record "Warehouse Activity Header")
@@ -2663,15 +2499,31 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindAssemblyLine(var AssemblyLine: Record "Assembly Line"; AssemblyHeader: Record "Assembly Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+#if not CLEAN27
+    internal procedure RunOnBeforeFindAssemblyLine(var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
+        OnBeforeFindAssemblyLine(AssemblyLine, AssemblyHeader, WarehouseActivityHeader);
     end;
 
+    [Obsolete('Moved to codeunit AsmCreateInvtPickMovement', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindProdOrderComp(var ProdOrderComp: Record "Prod. Order Component"; ProductionOrder: Record "Production Order"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    local procedure OnBeforeFindAssemblyLine(var AssemblyLine: Record Microsoft.Assembly.Document."Assembly Line"; AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnBeforeFindProdOrderComp(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+        OnBeforeFindProdOrderComp(ProdOrderComp, ProductionOrder, WarehouseActivityHeader);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCreateInvtPickMovement', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindProdOrderComp(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSourceDocHeader(var WhseRequest: Record "Warehouse Request"; var IsHandled: Boolean; var RecordExists: Boolean)
@@ -2758,10 +2610,13 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
+    // revert event parameter name back to 26.x name
+#pragma warning disable AS0025
     [IntegrationEvent(false, false)]
-    local procedure OnCheckSourceDocForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; WhseActivHeader: Record "Warehouse Activity Header"; CheckLineExist: Boolean; var Result: Boolean; var IsHandled: Boolean; IsInvtMovement: Boolean; WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplyAdditionalSourceDocFilters: Boolean)
+    local procedure OnCheckSourceDocForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var WhseActivHeader: Record "Warehouse Activity Header"; CheckLineExist: Boolean; var Result: Boolean; var IsHandled: Boolean; IsInvtMovement: Boolean; var WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplyAdditionalSourceDocFilters: Boolean; var SourceDocRecordVar: Variant)
     begin
     end;
+#pragma warning restore AS0025
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInvtMvntWithoutSourceOnAfterTransferFields(var WarehouseActivityLine: Record "Warehouse Activity Line"; InternalMovementLine: Record "Internal Movement Line")
@@ -2773,13 +2628,16 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
+    // revert event parameter name back to 26.x name
+#pragma warning disable AS0025
     [IntegrationEvent(true, false)]
-    local procedure OnAutoCreatePickOrMoveFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean; WhseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; HideDialog: Boolean; var CompleteShipment: Boolean; CheckLineExist: Boolean; IsInvtMovement: Boolean; WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplyAdditionalSourceDocFilters: Boolean);
+    local procedure OnAutoCreatePickOrMoveFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean; var WhseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; HideDialog: Boolean; var CompleteShipment: Boolean; CheckLineExist: Boolean; IsInvtMovement: Boolean; var WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplyAdditionalSourceDocFilters: Boolean; ReservedFromStock: Enum "Reservation From Stock"; var SourceDocRecVar: Variant);
     begin
     end;
+#pragma warning restore AS0025
 
-    [IntegrationEvent(false, false)]
-    local procedure OnCreatePickOrMoveFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean; WhseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; HideDialog: Boolean; var CompleteShipment: Boolean; CheckLineExist: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnCreatePickOrMoveFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean; var WhseActivityHeader: Record "Warehouse Activity Header"; Location: Record Location; HideDialog: Boolean; var CompleteShipment: Boolean; CheckLineExist: Boolean; IsInvtMovement: Boolean; var WarehouseSourceFilter: Record "Warehouse Source Filter"; ApplySourceFilters: Boolean; ReservedFromStock: Enum "Reservation From Stock"; var SourceDocRecVar: Variant)
     begin
     end;
 
@@ -2819,7 +2677,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetSourceDocHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var SourceDocRecRef: RecordRef; var PostingDate: Date; VendorDocNo: Code[35]; var RecordExists: Boolean)
+    local procedure OnGetSourceDocHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var SourceDocRecRef: RecordRef; var PostingDate: Date; VendorDocNo: Code[35]; var RecordExists: Boolean; var SourceDocRecordVar: Variant)
     begin
     end;
 

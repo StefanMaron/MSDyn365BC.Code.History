@@ -128,6 +128,8 @@ report 5050 "Contact - List"
 
     requestpage
     {
+        AboutTitle = 'About Contact List';
+        AboutText = 'Get list of all your contacts, including related opportunities and to-dos.';
 
         layout
         {

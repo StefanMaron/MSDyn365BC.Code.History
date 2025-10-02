@@ -83,12 +83,11 @@ table 8616 "Config. Package Field"
                 OnBeforeValidateIncludeField(Rec, IsHandled);
                 if IsHandled then
                     exit;
-
                 ShouldRunCheck := not Dimension;
                 OnIncludeFieldOnValidateOnAfterCalcShouldRunCheck(Rec, ShouldRunCheck);
                 if ShouldRunCheck then begin
                     if xRec."Include Field" and not "Include Field" and "Primary Key" then
-                        Error(Text000, "Field Caption");
+                        Error(PrimaryKeyRequiredErr, "Field Caption");
                     if "Include Field" then
                         ThrowErrorIfFieldRemoved();
                     "Validate Field" := "Include Field";
@@ -192,13 +191,11 @@ table 8616 "Config. Package Field"
     end;
 
     var
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label '%1 is part of the primary key and must be included.';
-        Text001: Label '%1 value ''%2'' does not exist.';
+        PrimaryKeyRequiredErr: Label '%1 is part of the primary key and must be included.';
+        FieldValueNotExistErr: Label '%1 value ''%2'' does not exist.';
 #pragma warning restore AA0470
-        Text002: Label 'Updating validation errors';
-#pragma warning restore AA0074
+        UpdateValErrsTxt: Label 'Updating validation errors';
         MustBeIntegersErr: Label 'must be Integer or BigInteger';
 
     local procedure UpdateFieldErrors()
@@ -226,7 +223,7 @@ table 8616 "Config. Package Field"
             ConfigPackageData.SetRange("Table ID", "Table ID");
             ConfigPackageData.SetRange("Field ID", "Field ID");
             if ConfigPackageData.FindSet() then begin
-                ConfigProgressBar.Init(ConfigPackageData.Count, 1, Text002);
+                ConfigProgressBar.Init(ConfigPackageData.Count, 1, UpdateValErrsTxt);
                 repeat
                     ConfigProgressBar.Update(ConfigPackageData.Value);
                     ConfigPackageRecord.Get(
@@ -245,7 +242,7 @@ table 8616 "Config. Package Field"
                             if not ConfigPackageMgt.ValidateFieldRelationInRecord(
                                  ConfigPackageField, TempConfigPackageTable, ConfigPackageRecord, RecRef)
                             then
-                                ConfigPackageMgt.FieldError(ConfigPackageData, StrSubstNo(Text001, FieldRef.Caption, ConfigPackageData.Value), 0);
+                                ConfigPackageMgt.FieldError(ConfigPackageData, StrSubstNo(FieldValueNotExistErr, FieldRef.Caption, ConfigPackageData.Value), 0);
                         end;
                     end;
                 until ConfigPackageData.Next() = 0;

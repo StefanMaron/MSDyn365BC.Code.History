@@ -13,7 +13,7 @@ page 32000000 "Bank Reference File Setup"
     Caption = 'Bank Reference File Setup';
     PageType = Card;
     SourceTable = "Reference File Setup";
-    UsageCategory = Tasks;
+    UsageCategory = Administration;
 
     layout
     {
