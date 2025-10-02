@@ -931,8 +931,8 @@ codeunit 134658 "Edit Posted Documents"
         PurchaseInvoice: TestPage "Purchase Invoice";
         CashFlowWorksheet: TestPage "Cash Flow Worksheet";
     begin
-        // [SCENARIO 544391] When Stan runs Suggest Worksheet Lines action from Cash Flow Worksheet page 
-        // Then Cash Flow Worksheet Line is not created for a Purchase Order if Prepayment 
+        // [SCENARIO 544391] When Stan runs Suggest Worksheet Lines action from Cash Flow Worksheet page
+        // Then Cash Flow Worksheet Line is not created for a Purchase Order if Prepayment
         // And Purchase Invoice are completely posted.
         Initialize();
 
@@ -947,7 +947,7 @@ codeunit 134658 "Edit Posted Documents"
             VATPostingSetup,
             VATPostingSetup."VAT Calculation Type"::"Normal VAT",
             LibraryRandom.RandIntInRange(5, 5));
- 
+
         // [GIVEN] Validate Gen. and VAT Posting Groups in Purch. Prepayments Account.
         ValidateGenAndVATPostingGrpsInPurchPrepymtAcc(GeneralPostingSetup, VATPostingSetup);
 
@@ -1096,14 +1096,6 @@ codeunit 134658 "Edit Posted Documents"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateAndPostPurchaseCreditMemo(): Code[20]
-    var
-        PurchaseHeader: Record "Purchase Header";
-    begin
-        LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
-        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
-    end;
-
     local procedure CreateAndPostSalesOrderGetShipmentNo(): Code[20]
     var
         SalesHeader: Record "Sales Header";
@@ -1216,13 +1208,6 @@ codeunit 134658 "Edit Posted Documents"
         LibraryVariableStorage.Enqueue(PurchInvHeader."Creditor No.");
         LibraryVariableStorage.Enqueue(PurchInvHeader."Ship-to Code");
         LibraryVariableStorage.Enqueue(PurchInvHeader."Posting Description");
-    end;
-
-    local procedure PrepareEnqueueValuesForEditableFieldsPostedPurchaseCreditMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
-    begin
-        PurchCrMemoHdr."Posting Description" := LibraryRandom.RandText(25);
-
-        LibraryVariableStorage.Enqueue(PurchCrMemoHdr."Posting Description");
     end;
 
     local procedure PrepareEnqueueValuesForEditableFieldsPostedReturnShipment(var ReturnShptHeader: Record "Return Shipment Header")
@@ -1648,7 +1633,7 @@ codeunit 134658 "Edit Posted Documents"
         PostedPurchCrMemoUpdate."Reason Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate.Cancel().Invoke();
     end;
-       
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestWorksheetLinesReqPageHandler(var SuggestWorksheetLines: TestRequestPage "Suggest Worksheet Lines")

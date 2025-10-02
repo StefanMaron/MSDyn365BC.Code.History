@@ -160,12 +160,10 @@ table 79 "Company Information"
         {
             Caption = 'Ship-to Name 2';
         }
-        #pragma warning disable AS0086
         field(24; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
         }
-        #pragma warning restore AS0086        
         field(25; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
@@ -282,24 +280,17 @@ table 79 "Company Information"
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
-#if not CLEAN24
-        field(35; "Home Page"; Text[80])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
+#if not CLEAN27
 #pragma warning disable AS0086
+#endif
         field(35; "Home Page"; Text[255])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-        }
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
         field(36; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
@@ -845,6 +836,7 @@ table 79 "Company Information"
     begin
     end;
 
+    // APAC only
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipToCity(var CompanyInformation: Record "Company Information"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin

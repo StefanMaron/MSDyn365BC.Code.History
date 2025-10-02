@@ -153,6 +153,8 @@ report 1129 "Cost Allocations"
 
     requestpage
     {
+        AboutTitle = 'About Cost Allocations';
+        AboutText = 'The **Cost Allocations** report shows how costs are distributed across cost centers, cost objects, or dimensions using predefined allocation rules. Use it for analyzing how expenses are assigned across different areas to support cost control and ensure alignment with allocation strategies.';
 
         layout
         {

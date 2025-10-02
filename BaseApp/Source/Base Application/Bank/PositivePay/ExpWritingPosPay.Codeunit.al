@@ -6,6 +6,17 @@ namespace Microsoft.Bank.PositivePay;
 
 using System.IO;
 
+/// <summary>
+/// Handles the final writing and export operations for positive pay files after data processing is complete.
+/// This codeunit orchestrates the file creation and output processes in the positive pay export workflow.
+/// </summary>
+/// <remarks>
+/// The Export Writing Positive Pay codeunit is responsible for the final stages of positive pay file generation.
+/// It manages the assembly of header, detail, and footer records into the final export file format and handles
+/// the physical file creation process. The codeunit validates that data is available for export and coordinates
+/// with other export components to ensure proper file structure and formatting. Error handling ensures that
+/// users receive appropriate feedback when export conditions are not met.
+/// </remarks>
 codeunit 1708 "Exp. Writing Pos. Pay"
 {
     Permissions = TableData "Data Exch." = rimd;
@@ -17,6 +28,18 @@ codeunit 1708 "Exp. Writing Pos. Pay"
     begin
     end;
 
+    /// <summary>
+    /// Exports the positive pay data by combining header, detail, and footer records into the final file format.
+    /// </summary>
+    /// <param name="DataExchEntryCodeDetail">The data exchange entry number for detail records.</param>
+    /// <param name="DataExchEntryCodeFooter">The data exchange entry number for footer records.</param>
+    /// <param name="Filename">The target filename for the export file.</param>
+    /// <param name="DataExchEntryCodeFooterArray">Array of footer entry codes for processing multiple footers.</param>
+    /// <remarks>
+    /// This procedure orchestrates the final file writing process by combining all processed positive pay components
+    /// into a single export file. It validates that data is available and manages the file assembly process to ensure
+    /// proper structure and formatting according to bank requirements.
+    /// </remarks>
     [Scope('OnPrem')]
     procedure ExportPositivePay(DataExchEntryCodeDetail: Integer; DataExchEntryCodeFooter: Integer; Filename: Text; DataExchEntryCodeFooterArray: array[100] of Integer)
     var
@@ -64,6 +87,17 @@ codeunit 1708 "Exp. Writing Pos. Pay"
         end;
     end;
 
+    /// <summary>
+    /// Cleans up temporary positive pay work tables after the export process is complete.
+    /// </summary>
+    /// <param name="DataExchEntryCodeHeaderArray">Array of header entry codes to clean up.</param>
+    /// <param name="DataExchEntryCodeDetailArray">Array of detail entry codes to clean up.</param>
+    /// <param name="DataExchEntryCodeFooterArray">Array of footer entry codes to clean up.</param>
+    /// <remarks>
+    /// This procedure removes temporary records from positive pay work tables that were created during the export process.
+    /// It processes header, detail, and footer records to ensure no temporary data remains after export completion.
+    /// This cleanup maintains system performance and prevents accumulation of temporary export data.
+    /// </remarks>
     procedure CleanUpPositivePayWorkTables(DataExchEntryCodeHeaderArray: array[100] of Integer; DataExchEntryCodeDetailArray: array[100] of Integer; DataExchEntryCodeFooterArray: array[100] of Integer)
     var
         PositivePayHeader: Record "Positive Pay Header";

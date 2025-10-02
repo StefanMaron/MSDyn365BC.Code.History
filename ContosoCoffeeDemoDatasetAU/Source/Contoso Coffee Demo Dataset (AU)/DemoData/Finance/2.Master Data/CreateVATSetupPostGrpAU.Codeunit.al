@@ -1,3 +1,15 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.DemoData.Finance;
+
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.DemoData.Foundation;
+using Microsoft.DemoTool;
+using Microsoft.DemoTool.Helpers;
+
 codeunit 17168 "Create VAT Setup Post.Grp. AU"
 {
     InherentEntitlements = X;
@@ -20,15 +32,15 @@ codeunit 17168 "Create VAT Setup Post.Grp. AU"
 
     local procedure CreateVatSetupPostingGrp()
     var
+        FinanceModuleSetup: Record "Finance Module Setup";
         ContosoVATStatement: Codeunit "Contoso VAT Statement";
-        CreateAUVATPostingGroups: Codeunit "Create AU VAT Posting Groups";
         CreateAUGLAccounts: Codeunit "Create AU GL Accounts";
     begin
+        FinanceModuleSetup.Get();
+
         ContosoVATStatement.SetOverwriteData(true);
-        ContosoVATStatement.InsertVatSetupPostingGrp(CreateAUVATPostingGroups.Gst10(), true, 10, CreateAUGLAccounts.GstPayable(), CreateAUGLAccounts.GstReceivable(), true, 1, GST10DescriptionLbl);
-        ContosoVATStatement.InsertVatSetupPostingGrp(CreateAUVATPostingGroups.NoVat(), true, 0, '', '', true, 1, NoVATDescriptionLbl);
-        ContosoVATStatement.InsertVatSetupPostingGrp(CreateAUVATPostingGroups.NonGst(), true, 0, CreateAUGLAccounts.GstPayable(), CreateAUGLAccounts.GstReceivable(), true, 1, NonGSTDescriptionLbl);
-        ContosoVATStatement.InsertVatSetupPostingGrp(CreateAUVATPostingGroups.Vat15(), true, 0, '', '', true, 1, Vat15DescriptionLbl);
+        ContosoVATStatement.InsertVatSetupPostingGrp(FinanceModuleSetup."VAT Prod. Post Grp. Standard", true, 10, CreateAUGLAccounts.GstPayable(), CreateAUGLAccounts.GstReceivable(), true, 1, GST10DescriptionLbl);
+        ContosoVATStatement.InsertVatSetupPostingGrp(FinanceModuleSetup."VAT Prod. Post Grp. Reduced", true, 0, CreateAUGLAccounts.GstPayable(), CreateAUGLAccounts.GstReceivable(), true, 1, NonGSTDescriptionLbl);
         ContosoVATStatement.SetOverwriteData(false);
     end;
 
@@ -79,9 +91,7 @@ codeunit 17168 "Create VAT Setup Post.Grp. AU"
 
     var
         GST10DescriptionLbl: Label 'Setup for MISC / GST10', MaxLength = 100;
-        NoVATDescriptionLbl: Label 'Miscellaneous without VAT', MaxLength = 100;
         NonGSTDescriptionLbl: Label 'Setup for MISC / NON GST', MaxLength = 100;
-        Vat15DescriptionLbl: Label 'Miscellaneous 15 VAT', MaxLength = 100;
         MiscPostingGroupDescriptionLbl: Label 'Customers and vendors in MISC', MaxLength = 100;
         ExportPostingGroupDescriptionLbl: Label 'Other customers and vendors (not MISC)', MaxLength = 100;
 }

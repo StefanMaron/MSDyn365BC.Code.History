@@ -753,6 +753,11 @@ codeunit 5836 "Cost Calculation Management"
             until ItemLedgEntry.Next() = 0;
     end;
 
+    procedure CanIncNonInvCostIntoProductionItem() Result: Boolean
+    begin
+        OnCanIncNonInvCostIntoProductionItem(Result);
+    end;
+
 #if not CLEAN26
     internal procedure RunOnAfterCalcShareOfTotalCapCost(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var ShareOfTotalCapCost: Decimal);
     begin
@@ -1118,6 +1123,11 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetFiltersRelatedReturnReceiptExists(var SalesShptLine: Record "Sales Shipment Line"; var ReturnRcptLine: Record "Return Receipt Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCanIncNonInvCostIntoProductionItem(var Result: Boolean)
     begin
     end;
 }

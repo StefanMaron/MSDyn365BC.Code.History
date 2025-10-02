@@ -6,6 +6,7 @@
 namespace Microsoft.DemoData.Manufacturing;
 
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.DemoTool.Helpers;
 using Microsoft.Inventory.Journal;
 
 codeunit 4765 "Create Mfg Item Journal Setup"

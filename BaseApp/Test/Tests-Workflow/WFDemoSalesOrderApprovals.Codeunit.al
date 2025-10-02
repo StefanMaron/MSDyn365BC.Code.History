@@ -29,6 +29,7 @@ codeunit 134175 "WF Demo Sales Order Approvals"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         IsInitialized: Boolean;
         DynamicRequestPageParametersTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Sales Header">SORTING(Field1,Field3) WHERE(Field1=1(1),Field120=1(0))</DataItem><DataItem name="Sales Line">SORTING(Field1,Field3,Field4) WHERE(Field5=1(%1))</DataItem></DataItems></ReportParameters>', Locked = true;
+        InvoiceDiscExpectedErr: Label 'Validation error for Field: Invoice Disc. Pct.,  Message = Status must be equal to Open  in Sales Header: Document Type=Order, No.=%1. Current value is Pending Approval';
 
     local procedure Initialize()
     var
@@ -802,6 +803,111 @@ codeunit 134175 "WF Demo Sales Order Approvals"
         VerifyApprovalEntry(ApprovalEntry, IntermediateApproverUserSetup."User ID", UserId, ApprovalEntry.Status::Canceled);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CheckSalesOrderApprovalWorkflowApproveCalcDiscount()
+    var
+        ApprovalEntry: Record "Approval Entry";
+        IntermediateApproverUserSetup: Record "User Setup";
+        SalesAndReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: Record "Sales Header";
+        Workflow: Record Workflow;
+        WorkflowSetup: Codeunit "Workflow Setup";
+    begin
+        // [SCENARIO 595808] Check Sales Order Approval Workflow Approve Process When Calc Inv. Discount True.
+        Initialize();
+
+        // [GIVEN] Created And Enabled Sales Order Approval Workflow.
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesOrderApprovalWorkflowCode());
+
+        // [GIVEN] Setup - Create approval usersetups.
+        SetupUsersForApprovals(IntermediateApproverUserSetup);
+
+        // [GIVEN] Enable Calc. Inv. Discount in Sales & Receivables Setup.
+        SalesAndReceivablesSetup.Get();
+        SalesAndReceivablesSetup.Validate("Calc. Inv. Discount", true);
+        SalesAndReceivablesSetup.Modify(true);
+
+        // [GIVEN] Setup - Create Sales Order.
+        CreateSalesOrder(SalesHeader, LibraryRandom.RandInt(5000));
+
+        // [WHEN] Excercise - Open Sales Order card and sent it for approval
+        SendSalesOrderForApproval(SalesHeader);
+
+        // [THEN] Verify - Sales Order status is set to Pending Approval
+        VerifySalesDocumentStatusCheck(SalesHeader, SalesHeader.Status::"Pending Approval");
+
+        // [THEN] Verify - Approval requests and their data
+        GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
+        Assert.AreEqual(1, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
+
+        // [THEN] Verify - Approval entry for Status Open.
+        VerifyApprovalEntry(ApprovalEntry, UserId, IntermediateApproverUserSetup."User ID", ApprovalEntry.Status::Open);
+
+        // [WHEN] Setup - Assign the approval entry to current user so that it can be approved
+        LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
+
+        // [WHEN] Excercise - Open Sales Order card and approve the approval request
+        ApproveSalesOrder(SalesHeader);
+
+        // [THEN] Verify - Approval requests and their data.
+        VerifySalesDocumentStatusCheck(SalesHeader, SalesHeader.Status::Released);
+        ApprovalEntry.Reset();
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
+        VerifyApprovalEntry(ApprovalEntry, IntermediateApproverUserSetup."User ID", UserId, ApprovalEntry.Status::Approved);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CheckSalesInvoiceDiscountFieldDisableifOrderStatusPendingApproval()
+    var
+        ApprovalEntry: Record "Approval Entry";
+        IntermediateApproverUserSetup: Record "User Setup";
+        SalesAndReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: Record "Sales Header";
+        Workflow: Record Workflow;
+        WorkflowSetup: Codeunit "Workflow Setup";
+        SalesOrderPage: TestPage "Sales Order";
+        ErrorText: Text;
+    begin
+        // [SCENARIO 595808] Check Sales Order Invoice Discount Field must give Error while Status is Pending Approval.
+        Initialize();
+
+        // [GIVEN] Created And Enabled Sales Order Approval Workflow.
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesOrderApprovalWorkflowCode());
+
+        // [GIVEN] Setup - Create approval usersetups.
+        SetupUsersForApprovals(IntermediateApproverUserSetup);
+
+        // [GIVEN] Enable Calc. Inv. Discount in Sales & Receivables Setup.
+        SalesAndReceivablesSetup.Get();
+        SalesAndReceivablesSetup.Validate("Calc. Inv. Discount", true);
+        SalesAndReceivablesSetup.Modify(true);
+
+        // [GIVEN] Setup - Create Sales Order.
+        CreateSalesOrder(SalesHeader, LibraryRandom.RandInt(5000));
+
+        // [WHEN] Excercise - Open Sales Order card and sent it for approval
+        SendSalesOrderForApproval(SalesHeader);
+
+        // [THEN] Verify - Sales Order status is set to Pending Approval
+        VerifySalesDocumentStatusCheck(SalesHeader, SalesHeader.Status::"Pending Approval");
+
+        // [THEN] Verify - Approval requests and their data
+        GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
+        Assert.AreEqual(1, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
+
+        // [THEN] Verify - Approval entry for Status Open.
+        VerifyApprovalEntry(ApprovalEntry, UserId, IntermediateApproverUserSetup."User ID", ApprovalEntry.Status::Open);
+
+        // [THEN] Verify ExpectedError.
+        SalesOrderPage.OpenEdit();
+        SalesOrderPage.FILTER.SetFilter("No.", SalesHeader."No.");
+        asserterror SalesOrderPage.SalesLines."Invoice Disc. Pct.".Value(Format(10));
+        ErrorText := GetLastErrorText();
+        assert.Equal(StrSubstNo(InvoiceDiscExpectedErr, SalesHeader."No."), ErrorText);
+    end;
+
     local procedure SendDocumentForApproval(var Workflow: Record Workflow; var CurrentUserSetup: Record "User Setup"; var IntermediateApproverUserSetup: Record "User Setup"; var FinalApproverUserSetup: Record "User Setup"; var SalesHeader: Record "Sales Header")
     var
         WorkflowSetup: Codeunit "Workflow Setup";
@@ -1053,6 +1159,45 @@ codeunit 134175 "WF Demo Sales Order Approvals"
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Function Name", WorkflowEvent."Function Name");
         WorkflowStep.FindFirst();
+    end;
+
+    local procedure GetApprovalEntries(var ApprovalEntry: Record "Approval Entry"; RecordID: RecordID)
+    begin
+        ApprovalEntry.SetRange("Record ID to Approve", RecordID);
+        ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
+        ApprovalEntry.FindSet();
+    end;
+
+    local procedure VerifySalesDocumentStatusCheck(var SalesHeader: Record "Sales Header"; Status: Enum "Sales Document Status")
+    begin
+        SalesHeader.SetRecFilter();
+        SalesHeader.FindFirst();
+        SalesHeader.TestField(Status, Status);
+    end;
+
+    Local procedure SetupUsersForApprovals(var IntermediateApproverUserSetup: Record "User Setup")
+    var
+        CurrentUserSetup: Record "User Setup";
+        FinalApproverUserSetup: Record "User Setup";
+    begin
+        CreateOrFindUserSetup(CurrentUserSetup, UserId);
+        LibraryDocumentApprovals.CreateMockupUserSetup(IntermediateApproverUserSetup);
+        LibraryDocumentApprovals.CreateMockupUserSetup(FinalApproverUserSetup);
+
+        LibraryDocumentApprovals.SetApprover(CurrentUserSetup, IntermediateApproverUserSetup);
+        LibraryDocumentApprovals.SetApprover(IntermediateApproverUserSetup, FinalApproverUserSetup);
+        LibraryDocumentApprovals.SetSubstitute(CurrentUserSetup, FinalApproverUserSetup);
+    end;
+
+    Local procedure CreateOrFindUserSetup(var UserSetup: Record "User Setup"; UserName: Text[208])
+    begin
+        if not LibraryDocumentApprovals.GetUserSetup(UserSetup, CopyStr(UserName, 1, 50)) then
+            LibraryDocumentApprovals.CreateUserSetupWithEmail(UserSetup, CopyStr(UserName, 1, 50), '', CopyStr(RandomEmail(), 1, MaxStrLen(UserSetup."E-Mail")));
+    end;
+
+    local procedure RandomEmail(): Text[250]
+    begin
+        exit(StrSubstNo('%1@contoso.com', CreateGuid()));
     end;
 }
 

@@ -7,9 +7,11 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Purchases.Document;
 
+#pragma warning disable AA0210
 codeunit 148154 "Vendor Contracts Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
     Access = Internal;
 
@@ -967,4 +969,4 @@ codeunit 148154 "Vendor Contracts Test"
     #endregion Handlers
 
 }
-
+#pragma warning restore AA0210

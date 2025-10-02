@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+#pragma warning disable AA0247
 codeunit 5050 "Opp. Bar Chart DrillDown"
 {
     TableNo = "Bar Chart Buffer";
@@ -5,7 +10,7 @@ codeunit 5050 "Opp. Bar Chart DrillDown"
     trigger OnRun()
     begin
         if Rec.Tag = '' then
-            Error(Text000);
+            Error(FilterTooLongErr);
         OpportunityEntry.SetView(Rec.Tag);
         OpportunityEntry.SetRange(Active, true);
         if OpportunityEntry.Find('-') then
@@ -19,9 +24,7 @@ codeunit 5050 "Opp. Bar Chart DrillDown"
     end;
 
     var
-#pragma warning disable AA0074
-        Text000: Label 'The corresponding opportunity entries cannot be displayed because the filter expression is too long.';
-#pragma warning restore AA0074
+        FilterTooLongErr: Label 'The corresponding opportunity entries cannot be displayed because the filter expression is too long.';
         OpportunityEntry: Record "Opportunity Entry";
         Opportunity: Record Opportunity;
         TempOpportunity: Record Opportunity temporary;

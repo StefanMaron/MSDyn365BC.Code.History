@@ -726,7 +726,7 @@ codeunit 145302 "BAS Reporting"
           VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name,
           VATStatementLine.Type::"Row Totaling",
           CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(VATStatementLine."Box No.")), false);
-        MockBASReport(VATReportHeader, 0, false, false);
+        MockBASReport(VATReportHeader, Enum::"VAT Report Status"::"Open", false, false);
         VATReportHeader.Validate("Statement Template Name", VATStatementName."Statement Template Name");
         VATReportHeader.Validate("Statement Name", VATStatementName.Name);
         VATReportHeader.Modify();
@@ -984,7 +984,7 @@ codeunit 145302 "BAS Reporting"
         VATReportsConfiguration.Modify();
     end;
 
-    local procedure MockBASReport(var VATReportHeader: Record "VAT Report Header"; Status: Option; SettlementPosted: Boolean; IncludePreviousOpenEntries: Boolean)
+    local procedure MockBASReport(var VATReportHeader: Record "VAT Report Header"; Status: Enum "VAT Report Status"; SettlementPosted: Boolean; IncludePreviousOpenEntries: Boolean)
     begin
         VATReportHeader.Init();
         VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"BAS Report";

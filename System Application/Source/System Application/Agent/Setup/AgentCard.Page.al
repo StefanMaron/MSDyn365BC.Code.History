@@ -7,6 +7,7 @@ namespace System.Agents;
 
 using System.Security.User;
 using System.Environment.Configuration;
+using System.Globalization;
 
 page 4315 "Agent Card"
 {
@@ -59,7 +60,7 @@ page 4315 "Agent Card"
                     field(AgentProfile; ProfileDisplayName)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Profile';
+                        Caption = 'Profile (Role)';
                         ToolTip = 'Specifies the profile that is associated with the agent.';
                         Editable = false;
 
@@ -67,8 +68,28 @@ page 4315 "Agent Card"
                         var
                             AgentImpl: Codeunit "Agent Impl.";
                         begin
+                            if not Confirm(ProfileChangedQst, false) then
+                                exit;
+
                             if AgentImpl.ProfileLookup(UserSettingsRecord) then
                                 AgentImpl.UpdateAgentUserSettings(UserSettingsRecord);
+                        end;
+                    }
+                    field(Language; Language.GetWindowsLanguageName(UserSettingsRecord."Language ID"))
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Language';
+                        ToolTip = 'Specifies the display language for the agent.';
+                        Editable = false;
+
+                        trigger OnAssistEdit()
+                        var
+                            UserSettings: Codeunit "User Settings";
+                        begin
+                            UserSettings.GetUserSettings(Rec."User Security ID", UserSettingsRecord);
+                            Commit();
+                            Page.RunModal(Page::"Agent User Settings", UserSettingsRecord);
+                            CurrPage.Update(false);
                         end;
                     }
                 }
@@ -132,6 +153,7 @@ page 4315 "Agent Card"
                 begin
                     Rec.TestField("User Security ID");
                     UserSettings.GetUserSettings(Rec."User Security ID", UserSettingsRecord);
+                    Commit();
                     Page.RunModal(Page::"Agent User Settings", UserSettingsRecord);
                 end;
             }
@@ -220,19 +242,18 @@ page 4315 "Agent Card"
 
     local procedure OpenSetupPage()
     var
-        TempAgent: Record Agent temporary;
+        Agent: Codeunit Agent;
     begin
-        TempAgent.Copy(Rec);
-        TempAgent.Insert();
-        Page.RunModal(Rec."Setup Page ID", TempAgent);
+        Agent.OpenSetupPageId(Rec."Agent Metadata Provider", Rec."User Security ID");
         CurrPage.Update(false);
     end;
 
-
     var
         UserSettingsRecord: Record "User Settings";
+        Language: Codeunit Language;
         ProfileDisplayName: Text;
         ControlsEditable: Boolean;
+        ProfileChangedQst: Label 'Changing the agent''s profile may affect its accuracy and performance. It could also grant access to unexpected fields and actions. Do you want to continue?';
         OpenConfigurationPageQst: Label 'To activate the agent, use the setup page. Would you like to open this page now?';
         YouCannotEnableAgentWithoutUsingConfigurationPageErr: Label 'You can''t activate the agent from this page. Use the action to set up and activate the agent.';
         YouDoNotHavePermissionToModifyThisAgentErr: Label 'You do not have permission to modify this agent. Contact your system administrator to update your permissions or to mark you as one of the administrators for the agent.';

@@ -31,7 +31,7 @@ table 1108 "Cost Accounting Setup"
             begin
                 CostRegister.SetRange(Source, CostRegister.Source::"Transfer from G/L");
                 if CostRegister.FindFirst() then
-                    Error(Text001, CostRegister."No.");
+                    Error(StartingDateCannotBeDefinedErr, CostRegister."No.");
             end;
         }
         field(3; "Align G/L Account"; Option)
@@ -106,10 +106,8 @@ table 1108 "Cost Accounting Setup"
 
     var
         CostRegister: Record "Cost Register";
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text001: Label 'The starting date can no longer be defined. According to Register No. %1, general ledger entries have already been transferred to Cost Accounting.';
+        StartingDateCannotBeDefinedErr: Label 'The starting date can no longer be defined. According to Register No. %1, general ledger entries have already been transferred to Cost Accounting.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
 }
 

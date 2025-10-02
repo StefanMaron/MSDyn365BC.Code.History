@@ -11,14 +11,12 @@ codeunit 136600 "ERM RS Questionnaire"
 
     var
         LibraryRapidStart: Codeunit "Library - Rapid Start";
-        LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
         FileMgt: Codeunit "File Management";
         QuestionnaireManagement: Codeunit "Questionnaire Management";
         isInitialized: Boolean;
-        AnswerOptionMustMatchError: Label '%1 must match with excel exported.';
         CustomerMustMatchError: Label 'Number of %1 must match.';
         QuestionnaireError: Label 'The record in table %1 already exists. Identification fields and values:';
         QuestionnaireRenameError: Label 'You cannot rename a configuration questionnaire.';
@@ -780,38 +778,6 @@ codeunit 136600 "ERM RS Questionnaire"
         ConfigQuestionnaire.Modify(true);
     end;
 
-    local procedure VerifyQuestionnaireSetupExport(ConfigQuestionArea: Record "Config. Question Area")
-    var
-        ConfigQuestion: Record "Config. Question";
-    begin
-        FindQuestion(ConfigQuestion, ConfigQuestionArea);
-        repeat
-            LibraryReportValidation.SetRange(ConfigQuestion.FieldCaption("No."), Format(ConfigQuestion."No."));
-            LibraryReportValidation.SetColumn(ConfigQuestion.FieldCaption(Question));
-            ConfigQuestion.TestField(
-              Question,
-              CopyStr(
-                LibraryReportValidation.GetValue(), 1,
-                LibraryUtility.GetFieldLength(DATABASE::"Config. Question", ConfigQuestion.FieldNo(Question))));
-
-            LibraryReportValidation.SetColumn(ConfigQuestion.FieldCaption("Answer Option"));
-            Assert.AreEqual(
-              DelChr(DelChr(ConfigQuestion."Answer Option", '<'), '>'),
-              CopyStr(
-                LibraryReportValidation.GetValue(),
-                1,
-                LibraryUtility.GetFieldLength(DATABASE::"Config. Question", ConfigQuestion.FieldNo("Answer Option"))),
-              StrSubstNo(AnswerOptionMustMatchError, ConfigQuestion.FieldCaption("Answer Option")));
-
-            LibraryReportValidation.SetColumn(ConfigQuestion.FieldCaption(Reference));
-            ConfigQuestion.TestField(
-              Reference,
-              CopyStr(
-                LibraryReportValidation.GetValue(), 1,
-                LibraryUtility.GetFieldLength(DATABASE::"Config. Question", ConfigQuestion.FieldNo(Reference))));
-        until ConfigQuestion.Next() = 0;
-    end;
-
     local procedure VerifyQuestionsImported(var ConfigQuestionOld: Record "Config. Question")
     var
         ConfigQuestion: Record "Config. Question";
@@ -1105,4 +1071,3 @@ codeunit 136600 "ERM RS Questionnaire"
         VerifyConfigQuestionAnswer(ConfigPackageData.Value, ConfigQuestion);
     end;
 }
-

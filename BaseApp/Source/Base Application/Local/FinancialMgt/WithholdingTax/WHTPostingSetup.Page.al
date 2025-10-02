@@ -10,7 +10,7 @@ page 28043 "WHT Posting Setup"
     Caption = 'WHT Posting Setup';
     PageType = List;
     SourceTable = "WHT Posting Setup";
-    UsageCategory = Tasks;
+    UsageCategory = Administration;
 
     layout
     {

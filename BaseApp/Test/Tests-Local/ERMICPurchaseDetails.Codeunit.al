@@ -160,50 +160,6 @@ codeunit 141083 "ERM IC Purchase Details"
         VerifyGLEntry(PostedCreditMemoNo, SalesLine."No.", SalesLine.Amount);
     end;
 
-    // [Test]
-    // [HandlerFunctions('AgedAccountsPayableRequestPageHandler')]
-    // [Scope('OnPrem')]
-    // procedure AgedAccountPayableReportWithPartialAppliedPmt()
-    // var
-    //     PurchaseHeader: Record "Purchase Header";
-    //     PurchaseLine: Record "Purchase Line";
-    //     Vendor: Record Vendor;
-    // begin
-    //     // [SCENARIO] correct Balance Amount is updated on Aged Accounts Payable Report after Posted Purchase Invoice is partially applied to a Payment.
-    //     // Setup.
-    //     LibraryPurchase.CreateVendor(Vendor);
-    //     CreatePurchaseInvoice(PurchaseLine,Vendor."No.",CreateGLAccountWithDimension,PurchaseLine.Type::"G/L Account");
-    //     PurchaseHeader.Get(PurchaseLine."Document Type"::Invoice,PurchaseLine."Document No.");
-    //     LibraryPurchase.PostPurchaseDocument(PurchaseHeader,true,true);  // Post as Receive and Invoice.
-    //     CreateAndPostGenJournalLine(
-    //       PurchaseLine."Buy-from Vendor No.",PurchaseHeader."Last Posting No.",PurchaseLine."Amount Including VAT" / 2);
-    //     LibraryVariableStorage.Enqueue(PurchaseLine."Buy-from Vendor No.");  // Enqueue value for AgedAccountsPayableRequestPageHandler.
-
-    //     // [WHEN] run report "Aged Accounts Payable"
-    //     REPORT.Run(REPORT::"Aged Accounts Payable");
-
-    //     // [THEN] Verify values on Aged Accounts Payable.
-    //     LibraryReportDataset.LoadDataSetFile();
-    //     LibraryReportDataset.AssertElementWithValueExists(VendorNoCap,PurchaseLine."Buy-from Vendor No.");
-    //     LibraryReportDataset.AssertElementWithValueExists(AmtLcy,-PurchaseLine."Amount Including VAT");
-    //     LibraryReportDataset.AssertElementWithValueExists(RemainingAmtLcy,-PurchaseLine."Amount Including VAT" / 2);
-    // end;
-
-    local procedure CreateAndPostGenJournalLine(AccountNo: Code[20]; DocumentNo: Code[20]; Amount: Decimal)
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        FindGenJournalBatch(GenJournalBatch);
-        LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Vendor, AccountNo, Amount);
-        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
-        GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
-        GenJournalLine.Modify(true);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
     local procedure CreateAndPostPurchaseCreditMemoFromCopyDoc(DocumentNo: Code[20]; VendorNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
@@ -338,16 +294,6 @@ codeunit 141083 "ERM IC Purchase Details"
         DefaultDimension.FindFirst();
     end;
 
-    local procedure FindGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-    begin
-        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.FindFirst();
-        LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        LibraryERM.ClearGenJournalLines(GenJournalBatch);
-    end;
-
     local procedure FindICPartner(): Code[20]
     var
         ICPartner: Record "IC Partner";
@@ -440,4 +386,3 @@ codeunit 141083 "ERM IC Purchase Details"
         Assert.AreEqual(StrSubstNo(VendorRegisterMsg, '%1', VendorNo), Question, UnexpectedErr);
     end;
 }
-

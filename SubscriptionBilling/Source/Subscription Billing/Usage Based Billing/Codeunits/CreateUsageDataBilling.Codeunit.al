@@ -152,6 +152,6 @@ codeunit 8023 "Create Usage Data Billing"
     var
         UsageDataImport: Record "Usage Data Import";
         ConfirmManagement: Codeunit "Confirm Management";
-        RetryFailedUsageDataImportTxt: Label 'Usage Data Billing for Import %1 already exist. Do you want to try to create new entries for the failed Usage Data Generic Import only?';
+        RetryFailedUsageDataImportTxt: Label 'Usage Data Billing for Import %1 already exist. Do you want to try to create new entries for the failed Usage Data Generic Import only?', Comment = '%1=Usage Data Import Entry No.';
         RetryFailedUsageDataImport: Boolean;
 }

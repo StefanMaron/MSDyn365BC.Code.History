@@ -1447,7 +1447,7 @@
         LineGLAccount: Record "G/L Account";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        NewVATProdPostingGr: Code[10];
+        NewVATProdPostingGr: Code[20];
         InvoiceNo: Code[20];
     begin
         // [FEATURE] [Sales] [VAT]
@@ -2077,7 +2077,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('SendNotificationHandler,NotificationDetailsHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure SalesOrderWithLCY()
     var
@@ -2100,7 +2099,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('SendNotificationHandler,NotificationDetailsHandler,RecallNotificationHandler,CurrencyExchangeRatesModalPageHandler')]
+    [HandlerFunctions('SendNotificationHandler,CurrencyExchangeRatesModalPageHandler')]
     [Scope('OnPrem')]
     procedure SalesOrderWithFCY()
     var
@@ -3863,7 +3862,7 @@
 
         // [VERIFY] No Sales Order Entry Created in Cash Flow Journal.
         CashFlowWorksheetLine.SetRange("Source No.", SalesHeader."No.");
-        Assert.IsFalse(CashFlowWorksheetLine.FindFirst(), SalesOrderNotCreatedWorksheetLineMsg);
+        Assert.IsFalse(not CashFlowWorksheetLine.IsEmpty(), SalesOrderNotCreatedWorksheetLineMsg);
     end;
 
 #if not CLEAN26
@@ -6498,12 +6497,6 @@
         PostedSalesCreditMemos."No.".AssertEquals('');
     end;
 
-    [RecallNotificationHandler]
-    [Scope('OnPrem')]
-    procedure RecallNotificationHandler(var Notification: Notification): Boolean
-    begin
-    end;
-
     [SendNotificationHandler]
     [Scope('OnPrem')]
     procedure SendNotificationHandler(var Notification: Notification): Boolean
@@ -6527,20 +6520,6 @@
             Assert.AreEqual(AmountInNotification, OrderAmtTotalLCY, 'Order Amount was different than expected');
             CustCheckCrLimit.ShowNotificationDetails(Notification);
         end;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure NotificationDetailsHandler(var CreditLimitNotification: TestPage "Credit Limit Notification")
-    var
-        Customer: Record Customer;
-    begin
-        Customer.Get(CustomerNo);
-        Customer.CalcFields("Balance (LCY)");
-        CreditLimitNotification.CreditLimitDetails."No.".AssertEquals(CustomerNo);
-        CreditLimitNotification.CreditLimitDetails."Balance (LCY)".AssertEquals(Customer."Balance (LCY)");
-        CreditLimitNotification.CreditLimitDetails.OverdueBalance.AssertEquals(Customer.CalcOverdueBalance());
-        CreditLimitNotification.CreditLimitDetails."Credit Limit (LCY)".AssertEquals(Customer."Credit Limit (LCY)");
     end;
 
     [ModalPageHandler]

@@ -396,7 +396,7 @@ table 32 "Item Ledger Entry"
         }
         field(5806; "Cost Amount (Expected) (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             CalcFormula = sum("Value Entry"."Cost Amount (Expected) (ACY)" where("Item Ledger Entry No." = field("Entry No.")));
             Caption = 'Cost Amount (Expected) (ACY)';
@@ -405,7 +405,7 @@ table 32 "Item Ledger Entry"
         }
         field(5807; "Cost Amount (Actual) (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             CalcFormula = sum("Value Entry"."Cost Amount (Actual) (ACY)" where("Item Ledger Entry No." = field("Entry No.")));
             Caption = 'Cost Amount (Actual) (ACY)';
@@ -414,7 +414,7 @@ table 32 "Item Ledger Entry"
         }
         field(5808; "Cost Amount (Non-Invtbl.)(ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             CalcFormula = sum("Value Entry"."Cost Amount (Non-Invtbl.)(ACY)" where("Item Ledger Entry No." = field("Entry No.")));
             Caption = 'Cost Amount (Non-Invtbl.)(ACY)';
@@ -640,7 +640,15 @@ table 32 "Item Ledger Entry"
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
+#if not CLEAN27
+    [Obsolete('Please use GetAdditionalReportingCurrencyCode instead.', '27.0')]
     procedure GetCurrencyCode(): Code[10]
+    begin
+        exit(GetAdditionalReportingCurrencyCode())
+    end;
+
+#endif
+    procedure GetAdditionalReportingCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
             GLSetup.Get();
@@ -706,17 +714,6 @@ table 32 "Item Ledger Entry"
         end;
     end;
 
-#if not CLEAN24
-    [Obsolete('Unused', '24.0')]
-    procedure AppliedEntryToAdjustExists(ItemNo: Code[20]): Boolean
-    begin
-        Reset();
-        SetCurrentKey("Item No.", "Applied Entry to Adjust");
-        SetRange("Item No.", ItemNo);
-        SetRange("Applied Entry to Adjust", true);
-        exit(Find('-'));
-    end;
-#endif
 
     procedure IsOutbndConsump(): Boolean
     begin
@@ -990,7 +987,6 @@ table 32 "Item Ledger Entry"
         if "Serial No." = '' then
             CalcFields("Reserved Quantity")
         else begin
-            ReservationEntry.SetCurrentKey("Serial No.", "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line");
             ReservationEntry.SetRange("Serial No.", "Serial No.");
             ReservationEntry.SetRange("Source ID", '');
             ReservationEntry.SetRange("Source Ref. No.", "Entry No.");

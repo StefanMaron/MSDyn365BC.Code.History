@@ -1,9 +1,12 @@
-﻿namespace Microsoft.Warehouse.Activity;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Activity;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
@@ -360,7 +363,7 @@ report 5754 "Create Pick"
                           PickWhseWkshLine."Source Line No.", PickWhseWkshLine."Location Code");
                     else // Movement Worksheet Line
                         CreatePick.SetTempWhseItemTrkgLine(
-                          PickWhseWkshLine.Name, Database::"Prod. Order Component", PickWhseWkshLine."Worksheet Template Name",
+                          PickWhseWkshLine.Name, 5407, PickWhseWkshLine."Worksheet Template Name", // Database::"Prod. Order Component"
                           0, PickWhseWkshLine."Line No.", PickWhseWkshLine."Location Code");
                 end;
 

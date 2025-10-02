@@ -170,7 +170,7 @@ page 738 "VAT Return Period Card"
         OpenVATReturnEnabled := (Rec.Status = Rec.Status::Open) or (Rec."VAT Return No." <> '');
         Rec.CalcFields("VAT Return Status");
         if Rec."VAT Return No." <> '' then
-            VATReturnStatus := Rec."VAT Return Status" + 1
+            VATReturnStatus := Rec."VAT Return Status".AsInteger() + 1
         else
             VATReturnStatus := VATReturnStatus::" ";
     end;

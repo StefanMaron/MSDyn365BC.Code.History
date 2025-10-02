@@ -42,6 +42,7 @@ report 742 "VAT Report Request Page"
                 VATStatementLine.SetRange("Statement Template Name", "Statement Template Name");
                 VATStatementLine.SetRange("Statement Name", "Statement Name");
                 VATStatementLine.SetFilter("Box No.", '<>%1', '');
+                OnBeforeVATStatementLineFindSet(VATStatementLine, "VAT Report Header");
                 VATStatementLine.FindSet();
 
                 VATStatement.InitializeRequest(
@@ -51,6 +52,7 @@ report 742 "VAT Report Request Page"
                 VATStatementReportLine.SetRange("VAT Report Config. Code", "VAT Report Config. Code");
                 VATStatementReportLine.DeleteAll();
                 repeat
+                    OnBeforeCalcLineTotalWithBase(VATStatementReportLine, VATStatementLine, "VAT Report Header");
                     VATStatement.CalcLineTotalWithBase(VATStatementLine, Amount, Base, 0);
                     if VATStatementLine."Print with" = VATStatementLine."Print with"::"Opposite Sign" then begin
                         Amount := -Amount;
@@ -222,6 +224,16 @@ report 742 "VAT Report Request Page"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPeriodIsEditable(VATReportHeader: Record "VAT Report Header"; var PeriodIsEditable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVATStatementLineFindSet(VATStatementLine: Record "VAT Statement Line"; VATReportHeader: Record "VAT Report Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcLineTotalWithBase(var VATStatementReportLine: Record "VAT Statement Report Line"; VATStatementLine: Record "VAT Statement Line"; VATReportHeader: Record "VAT Report Header")
     begin
     end;
 }

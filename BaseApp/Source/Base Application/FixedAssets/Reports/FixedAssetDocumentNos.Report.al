@@ -180,6 +180,8 @@ report 5636 "Fixed Asset Document Nos."
 
     requestpage
     {
+        AboutTitle = 'About Fixed Asset Document Nos.';
+        AboutText = 'Get a list of fixed asset ledger entries, sorted by document type and number. Use it when you audit your fixed asset transactions.';
 
         layout
         {

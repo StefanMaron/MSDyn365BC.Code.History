@@ -198,19 +198,6 @@
         CustomReportLayout.Delete(true);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestTableCustomReportLayoutUpdateLayout()
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-    begin
-        Initialize();
-        InitCustomReportLayout(CustomReportLayout, CustomReportLayout.Type::Word, true);
-        Assert.AreEqual('', CustomReportLayout.TryUpdateLayout(false), '');
-        InitCustomReportLayout(CustomReportLayout, CustomReportLayout.Type::RDLC, true);
-        Assert.AreEqual('', CustomReportLayout.TryUpdateLayout(false), '');
-    end;
-
     [Scope('OnPrem')]
     procedure TestTableCustomReportLayoutValidateLayout()
     var
@@ -420,40 +407,6 @@
 
         // Clear Design time selections
         DesignTimeReportSelection.SetSelectedLayout('');
-    end;
-
-    local procedure TestImportLayoutByType(LayoutType: Enum "Custom Report Layout Type")
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-        FileManagement: Codeunit "File Management";
-        DefaultFileName: Text;
-        LayoutCode: Code[20];
-    begin
-        CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID());
-        CustomReportLayout.DeleteAll();
-
-        // Init
-        CustomReportLayout.Reset();
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID(), LayoutType.AsInteger());
-        CustomReportLayout.Get(LayoutCode);
-
-        case LayoutType of
-            CustomReportLayout.Type::Word:
-                DefaultFileName := CustomReportLayout.ExportReportLayout(FileManagement.ServerTempFileName('docx'), false);
-            CustomReportLayout.Type::RDLC:
-                DefaultFileName := CustomReportLayout.ExportReportLayout(FileManagement.ServerTempFileName('rdl'), false);
-        end;
-
-        LayoutCode := CustomReportLayout.CopyReportLayout();
-        CustomReportLayout.Get(LayoutCode);
-        CustomReportLayout.ClearLayout();
-        Assert.IsFalse(CustomReportLayout.HasLayout(), '');
-
-        // Execute
-        CustomReportLayout.ImportReportLayout(DefaultFileName);
-
-        // validate
-        Assert.IsTrue(CustomReportLayout.HasLayout(), '');
     end;
 
     [Test]
@@ -1057,21 +1010,6 @@
         SalesLine.Modify(true);
     end;
 
-    local procedure FileContainsLine(FileName: Text; ExpectedLine: Text)
-    var
-        InStr: InStream;
-        File: File;
-        Line: Text;
-    begin
-        File.Open(FileName);
-        File.CreateInStream(InStr);
-        InStr.ReadText(Line);
-        InStr.ReadText(Line);
-        Assert.IsFalse(InStr.EOS, 'should not be end of file');
-        File.Close();
-        Assert.AreEqual(ExpectedLine, Line, 'Wrong line in the file');
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReportLookupHandler(var ReportLookup: TestPage "Report Layout Lookup")
@@ -1100,16 +1038,6 @@
     procedure StandardSalesInvoiceRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
     begin
         StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-
-    local procedure GetXmlAttribute(AttributeName: Text; XMLNode: DotNet XmlNode): Text
-    var
-        XMLAttributeNode: DotNet XmlNode;
-    begin
-        XMLAttributeNode := XMLNode.Attributes.GetNamedItem(AttributeName);
-        if IsNull(XMLAttributeNode) then
-            exit('');
-        exit(Format(XMLAttributeNode.InnerText));
     end;
 
     local procedure ValidateHeaderColumns(var XmlElementParm: XmlElement)
@@ -1293,4 +1221,3 @@
     end;
 
 }
-

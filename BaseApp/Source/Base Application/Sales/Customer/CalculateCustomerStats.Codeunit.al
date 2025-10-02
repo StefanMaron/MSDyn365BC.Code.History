@@ -4,8 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Customer;
 
-using Microsoft.Sales.Receivables;
-
 codeunit 9082 "Calculate Customer Stats."
 {
     trigger OnRun()
@@ -24,9 +22,9 @@ codeunit 9082 "Calculate Customer Stats."
 
         BalanceAsVendor := Customer.GetBalanceAsVendor(LinkedVendorNo);
 
+        CalcLastPaymentDate(CustomerNo, Results);
         Results.Add(GetBalanceAsVendorLabel(), Format(BalanceAsVendor));
         Results.Add(GetLinkedVendorNoLabel(), Format(LinkedVendorNo));
-        Results.Add(GetLastPaymentDateLabel(), Format(CalcLastPaymentDate(CustomerNo)));
         Results.Add(GetTotalAmountLCYLabel(), Format(Customer.GetTotalAmountLCY()));
         Results.Add(GetOverdueBalanceLabel(), Format(Customer.CalcOverdueBalance()));
         Results.Add(GetSalesLCYLabel(), Format(Customer.GetSalesLCY()));
@@ -38,7 +36,6 @@ codeunit 9082 "Calculate Customer Stats."
     end;
 
     var
-        LastPaymentDateLbl: label 'Last Payment Date', Locked = true;
         TotalAmountLCYLbl: label 'Total Amount LCY', Locked = true;
         OverdueBalanceLbl: label 'Overdue Balance', Locked = true;
         SalesLCYLbl: label 'Sales LCY', Locked = true;
@@ -47,26 +44,18 @@ codeunit 9082 "Calculate Customer Stats."
         BalanceAsVendorLbl: Label 'BalanceAsVendor', Locked = true;
         LinkedVendorNoLbl: Label 'LinkedVendorNo', Locked = true;
 
-    local procedure SetFilterLastPaymentDateEntry(CustomerNo: Code[20]; var CustLedgerEntry: Record "Cust. Ledger Entry")
-    begin
-        CustLedgerEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
-        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
-        CustLedgerEntry.SetRange(Reversed, false);
-    end;
-
-    local procedure CalcLastPaymentDate(CustomerNo: Code[20]): Date
+    local procedure CalcLastPaymentDate(CustomerNo: code[20]; var Results: Dictionary of [Text, Text])
     var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustomerMgt: Codeunit "Customer Mgt.";
     begin
-        SetFilterLastPaymentDateEntry(CustomerNo, CustLedgerEntry);
-        if CustLedgerEntry.FindLast() then;
-        exit(CustLedgerEntry."Posting Date");
+        CustomerMgt.CalcLastPaymentInfo(CustomerNo, Results);
     end;
 
     internal procedure GetLastPaymentDateLabel(): Text
+    var
+        CustomerCardCalculations: Codeunit "Customer Card Calculations";
     begin
-        exit(LastPaymentDateLbl);
+        exit(CustomerCardCalculations.GetLastPaymentDateLabel());
     end;
 
     internal procedure GetTotalAmountLCYLabel(): Text

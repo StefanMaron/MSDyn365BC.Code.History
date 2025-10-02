@@ -62,11 +62,6 @@ page 6072 "Filed Service Contract"
                         ApplicationArea = Service;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field("Post Code"; Rec."Post Code")
-                    {
-                        ApplicationArea = Service;
-                        ToolTip = 'Specifies the postal code.';
-                    }
                     field(City; Rec.City)
                     {
                         ApplicationArea = Service;
@@ -80,6 +75,11 @@ page 6072 "Filed Service Contract"
                         {
                             ApplicationArea = Service;
                         }
+                    }
+                    field("Post Code"; Rec."Post Code")
+                    {
+                        ApplicationArea = Service;
+                        ToolTip = 'Specifies the postal code.';
                     }
                     field("Country/Region Code"; Rec."Country/Region Code")
                     {

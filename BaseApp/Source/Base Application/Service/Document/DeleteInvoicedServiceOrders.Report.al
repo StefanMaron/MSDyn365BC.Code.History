@@ -9,6 +9,7 @@ using Microsoft.Service.History;
 using Microsoft.Service.Posting;
 using Microsoft.Warehouse.Request;
 using System.Automation;
+using System.Telemetry;
 
 report 5914 "Delete Invoiced Service Orders"
 {
@@ -122,8 +123,10 @@ report 5914 "Delete Invoiced Service Orders"
     }
 
     trigger OnPostReport()
+    var
+        AuditLog: Codeunit "Audit Log";
     begin
-        Session.LogAuditMessage(StrSubstNo(DeletedInvoicedServiceOrdersLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+        AuditLog.LogAuditMessage(StrSubstNo(DeletedInvoicedServiceOrdersLbl, UserSecurityId(), CompanyName()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
     end;
 
     var

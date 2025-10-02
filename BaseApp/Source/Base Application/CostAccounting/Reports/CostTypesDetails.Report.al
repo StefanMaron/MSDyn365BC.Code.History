@@ -257,6 +257,8 @@ report 1125 "Cost Types Details"
 
     requestpage
     {
+        AboutTitle = 'About Cost Types Details';
+        AboutText = 'The **Cost Types Details** report provides a categorized breakdown of total costs by cost type—such as labor, materials, and overhead. Use it for detailed cost tracking and analysis when you need to understand how each cost type contributes to overall expenses.';
         SaveValues = true;
 
         layout

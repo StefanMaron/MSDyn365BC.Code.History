@@ -14,7 +14,7 @@ codeunit 5321 "Exchange Web Services Server"
     var
         Service: DotNet ExchangeServiceWrapper;
         ProdEndpointTxt: Label 'https://outlook.office365.com/EWS/Exchange.asmx', Locked = true;
-        ExpiredTokenErr: Label 'Trying to reconnect. Please close and reopen the add-in.';
+        ExpiredTokenErr: Label 'Trying to reconnect. Please close and reopen the add-in. Error from the service: %1', Comment = '%1 = the error message from the service.';
         CategoryTxt: Label 'AL EWS Server', Locked = true;
         ExpiredTokenTxt: Label 'Expired token.', Locked = true;
         InvalidCredentialsTxt: Label 'Invalid credentials.', Locked = true;
@@ -112,7 +112,7 @@ codeunit 5321 "Exchange Web Services Server"
 
     [Scope('OnPrem')]
     [NonDebuggable]
-    [Obsolete('Replaced by InitializeWithOAuthToken(Token: SecretText; ExchangeEndpoint: Text)','25.0')]
+    [Obsolete('Replaced by InitializeWithOAuthToken(Token: SecretText; ExchangeEndpoint: Text)', '25.0')]
     procedure InitializeWithOAuthToken(Token: Text; ExchangeEndpoint: Text)
     var
         TokenAsSecretText: SecretText;
@@ -292,11 +292,11 @@ codeunit 5321 "Exchange Web Services Server"
                 end;
             end else begin
                 Session.LogMessage('0000D8Y', ExpiredTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
-                Error(ExpiredTokenErr);
+                Error(ExpiredTokenErr, Service.LastError);
             end;
         end else begin
             Session.LogMessage('0000D8Z', ExpiredTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
-            Error(ExpiredTokenErr);
+            Error(ExpiredTokenErr, Service.LastError);
         end;
     end;
 
@@ -309,7 +309,7 @@ codeunit 5321 "Exchange Web Services Server"
             EmailBody := EmailMessage.TextBody
         else begin
             Session.LogMessage('0000D90', ExpiredTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
-            Error(ExpiredTokenErr);
+            Error(ExpiredTokenErr, Service.LastError);
         end;
     end;
 

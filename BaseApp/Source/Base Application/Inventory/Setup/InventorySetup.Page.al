@@ -9,9 +9,6 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
-#if not CLEAN24
-using System.Environment.Configuration;
-#endif
 
 page 461 "Inventory Setup"
 {
@@ -137,6 +134,50 @@ page 461 "Inventory Setup"
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies if a location code is required when posting item transactions. This field, together with the Components at Location field in the Manufacturing Setup window, is very important in governing how the planning system handles demand lines with/without location codes. For more information, see "Planning with or without Locations" in Help.';
+                }
+            }
+            group(Planning)
+            {
+                Caption = 'Planning';
+                field("Current Demand Forecast"; Rec."Current Demand Forecast")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies the name of the relevant demand forecast to use to calculate a plan.';
+                }
+                field("Use Forecast on Locations"; Rec."Use Forecast on Locations")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies that actual demand for the selected demand forecast is nettet for the specified location only. If you leave the check box empty, the program regards the demand forecast as valid for all locations.';
+                }
+                field("Use Forecast on Variants"; Rec."Use Forecast on Variants")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies that actual demand for the selected demand forecast is nettet for the specified item variant. If you leave the check box empty, the program regards the demand forecast as valid for all variants.';
+                }
+                field("Default Safety Lead Time"; Rec."Default Safety Lead Time")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies a time period that is added to the lead time of all items that do not have another value specified in the Safety Lead Time field.';
+                }
+                field("Blank Overflow Level"; Rec."Blank Overflow Level")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies how the planning system should react if the Overflow Level field on the item or SKU card is empty.';
+                }
+                field("Combined MPS/MRP Calculation"; Rec."Combined MPS/MRP Calculation")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies if both master production schedule and material requirements plan are run when you choose the Calc. Regenerative Plan action in the planning worksheet.';
+                }
+                field("Default Dampener Period"; Rec."Default Dampener Period")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies a period of time during which you do not want the planning system to propose to reschedule existing supply order''s forward. This value in this field applies to all items except for items that have a different value in the Dampener Period field on the item card. When a dampener time is set, an order is only rescheduled when the defined dampener time has passed since the order s original due date. Note: The dampener time that is applied to an item can never be higher than the value in the item''s Lot Accumulation Period field. This is because the inventory build-up time that occurs during a dampener period would conflict with the build-up period defined by the item''s lot accumulation period. Accordingly, the default dampener period generally applies to all items. However, if an item''s lot accumulation period is shorter than the default dampener period, then the item''s dampener time equals its lot accumulation period.';
+                }
+                field("Default Dampener %"; Rec."Default Dampener %")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies a percentage of an item''s lot size by which an existing supply must change before a planning suggestion is made.';
                 }
             }
             group(Dimensions)
@@ -274,18 +315,6 @@ page 461 "Inventory Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
-#if not CLEAN24
-                field("Invt. Orders Package Tracking"; Rec."Invt. Orders Package Tracking")
-                {
-                    ApplicationArea = ItemTracking;
-                    Importance = Additional;
-                    ToolTip = 'Specifies if package tracking for inventory counting orders is enabled.';
-                    ObsoleteReason = 'Temporary setup to enable/disable package tracking in Phys. Inventory Orders';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                    Visible = IsInvtOrdersPackageTrackingVisible;
-                }
-#endif
                 field("Package Nos."; Rec."Package Nos.")
                 {
                     ApplicationArea = ItemTracking;
@@ -468,18 +497,11 @@ page 461 "Inventory Setup"
 
         GLSetup.Get();
         IsJournalTemplatesVisible := GLSetup."Journal Templ. Name Mandatory";
-#if not CLEAN24
-        IsInvtOrdersPackageTrackingVisible := FeatureKeyManagement.IsPhysInvtOrderPackageTrackingEnabled();
-#endif        
     end;
 
     var
         GLSetup: Record "General Ledger Setup";
         SchedulingManager: Codeunit "Cost Adj. Scheduling Manager";
-#if not CLEAN24
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-        IsInvtOrdersPackageTrackingVisible: Boolean;
-#endif
         AdjustCostWizardVisible: Boolean;
         IsJournalTemplatesVisible: Boolean;
 

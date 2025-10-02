@@ -160,11 +160,14 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetInitShipToPhoneNoUpgradeTag());
         PerCompanyUpgradeTags.Add(GetMultilineReminderTextUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCountryVATSchemeDKTag());
+        PerCompanyUpgradeTags.Add(GetDefaultConsCalcBasedOnUpgradeTag());
         PerCompanyUpgradeTags.Add(GetUpgradeJobConsumpWhseHandlingForDirectedPutAwayAndPickLocationUpgradeTag());
         PerCompanyUpgradeTags.Add(GetIntegrationTableMappingTemplatesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPopulateUserSetupEmailUpgradeTag());
         PerCompanyUpgradeTags.Add(GetPurchaseCreditMemoVendorCrMemoNoUpgradeTag());
         PerCompanyUpgradeTags.Add(GetICOutboxTransactionSourceTypeUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetInventoryPlanningSetupUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetICTransactionSourceTypeUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -1171,6 +1174,11 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-559602-PurchaseCreditMemoVendorCrMemoNoUpgradeTag-20241206');
     end;
 
+    internal procedure GetDefaultConsCalcBasedOnUpgradeTag(): Code[250]
+    begin
+        exit('MS-GIT-1052-GetDefaultConsCalcBasedOnUpgradeTag-20250203');
+    end;
+
     internal procedure GetICOutboxTransactionSourceTypeUpgradeTag(): Code[250]
     begin
         exit('MS-557872-ICOutboxTransactionSourceTypeUpgradeTag-20251202');
@@ -1179,5 +1187,15 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag(): Code[250]
     begin
         exit('MS-356273-ManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag-20250401');
+    end;
+
+    internal procedure GetInventoryPlanningSetupUpgradeTag(): Code[250]
+    begin
+        exit('MS-556824-InventoryPlanningSetupUpgradeTag-20250401');
+    end;
+
+    internal procedure GetICTransactionSourceTypeUpgradeTag(): Code[250]
+    begin
+        exit('MS-578201-ICOutboxTransactionSourceTypeUpgradeTag-20250807');
     end;
 }

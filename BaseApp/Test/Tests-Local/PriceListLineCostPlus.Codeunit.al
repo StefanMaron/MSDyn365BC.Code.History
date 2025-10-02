@@ -13,7 +13,6 @@ codeunit 141052 "Price List Line Cost Plus"
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryMarketing: Codeunit "Library - Marketing";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
@@ -349,7 +348,7 @@ codeunit 141052 "Price List Line Cost Plus"
         LibraryPriceCalculation.CreateSalesPriceLine(
             PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
 
-        // [WHEN] Open Price overview 
+        // [WHEN] Open Price overview
         PricesOverview.OpenEdit();
         PricesOverview.SourceType.SetValue("Price Source Type"::"All Customers");
         PricesOverview.AssetType.SetValue("Price Asset Type"::Item);
@@ -391,7 +390,7 @@ codeunit 141052 "Price List Line Cost Plus"
         LibraryPriceCalculation.CreateSalesPriceLine(
             PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
 
-        // [WHEN] Open Price worksheet and add new line for Item 'I' sales price 
+        // [WHEN] Open Price worksheet and add new line for Item 'I' sales price
         PriceWorksheet.OpenEdit();
         PriceWorksheet.PriceTypeFilter.SetValue("Price Type"::Sale);
         PriceWorksheet.New();
@@ -589,20 +588,6 @@ codeunit 141052 "Price List Line Cost Plus"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Price List Line Cost Plus");
     end;
 
-    local procedure CreateAndActivateCampaign(ContactNo: Code[20]): Code[20]
-    var
-        Campaign: Record Campaign;
-        CampaignTargetGroupMgt: Codeunit "Campaign Target Group Mgt";
-    begin
-        LibraryMarketing.CreateCampaign(Campaign);
-        Campaign.Validate("Starting Date", WorkDate());
-        Campaign.Validate("Ending Date", WorkDate());
-        Campaign.Modify(true);
-        CreateSegmentHeaderWithLine(Campaign."No.", ContactNo);
-        CampaignTargetGroupMgt.ActivateCampaign(Campaign);
-        exit(Campaign."No.");
-    end;
-
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
@@ -667,29 +652,6 @@ codeunit 141052 "Price List Line Cost Plus"
         PriceListLine.Modify(true);
     end;
 
-    local procedure CreateSegmentHeaderWithLine(CampaignNo: Code[20]; ContactNo: Code[20])
-    var
-        SegmentHeader: Record "Segment Header";
-        SegmentLine: Record "Segment Line";
-    begin
-        LibraryMarketing.CreateSegmentHeader(SegmentHeader);
-        SegmentHeader.Validate("Campaign No.", CampaignNo);
-        SegmentHeader.Modify(true);
-        LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeader."No.");
-        SegmentLine.Validate("Contact No.", ContactNo);
-        SegmentLine.Validate("Campaign Target", true);
-        SegmentLine.Modify(true);
-    end;
-
-    local procedure FindCustomerFromContactBusinessRelation(ContactNo: Code[20]) CustomerNo: Code[20]
-    var
-        ContactBusinessRelation: Record "Contact Business Relation";
-    begin
-        ContactBusinessRelation.SetRange("Contact No.", ContactNo);
-        ContactBusinessRelation.FindFirst();
-        CustomerNo := ContactBusinessRelation."No.";
-    end;
-
     local procedure UpdateAutomaticCostAdjustmentOnInventorySetup(var OldAutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
     var
         InventorySetup: Record "Inventory Setup";
@@ -752,4 +714,3 @@ codeunit 141052 "Price List Line Cost Plus"
         ModifiedLines.Set(Rec."Line No.", ModifiedLines.Get(Rec."Line No.") + 1);
     end;
 }
-

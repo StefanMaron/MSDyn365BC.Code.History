@@ -10,12 +10,9 @@ codeunit 141066 "UT Address Format"
 
     var
         Assert: Codeunit Assert;
-        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        CustAddr1Lbl: Label 'CustAddr1';
-        CustAddr2Lbl: Label 'CustAddr2';
         ValidationErr: Label 'Validation';
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
@@ -376,17 +373,6 @@ codeunit 141066 "UT Address Format"
         exit(CountryRegion.Code);
     end;
 
-    local procedure CreatePostedSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; BillToCountryRegionCode: Code[10])
-    begin
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
-        SalesInvoiceHeader."Bill-to City" := LibraryUTUtility.GetNewCode();
-        SalesInvoiceHeader."Bill-to Post Code" := LibraryUTUtility.GetNewCode();
-        SalesInvoiceHeader."Bill-to County" := LibraryUTUtility.GetNewCode();
-        SalesInvoiceHeader."Bill-to Country/Region Code" := BillToCountryRegionCode;
-        SalesInvoiceHeader."Bill-to Address" := LibraryUTUtility.GetNewCode();
-        SalesInvoiceHeader.Insert();
-    end;
-
     local procedure CreatePostCode(var PostCode: Record "Post Code"; "Code": Code[20])
     var
         CountryRegion: Record "Country/Region";
@@ -427,17 +413,6 @@ codeunit 141066 "UT Address Format"
         LibraryVariableStorage.Enqueue(City);
     end;
 
-    local procedure VerifyValuesOnSalesInvoice(SalesInvoiceHeader: Record "Sales Invoice Header")
-    var
-        FormatAddress: Codeunit "Format Address";
-        CustAddr: array[8] of Text[100];
-    begin
-        FormatAddress.SalesInvBillTo(CustAddr, SalesInvoiceHeader);
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists(CustAddr1Lbl, SalesInvoiceHeader."Bill-to Address");
-        LibraryReportDataset.AssertElementWithValueExists(CustAddr2Lbl, CustAddr[2]);
-    end;
-
     local procedure VerifyLineFormatCustomAddressFormat(CountryRegionCode: Code[10]; ExpectedLineFormat: Text)
     var
         CustomAddressFormat: Record "Custom Address Format";
@@ -464,4 +439,3 @@ codeunit 141066 "UT Address Format"
         PostCodes.OK().Invoke();
     end;
 }
-

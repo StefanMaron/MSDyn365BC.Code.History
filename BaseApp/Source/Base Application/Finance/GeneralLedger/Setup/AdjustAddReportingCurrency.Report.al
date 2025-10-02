@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Setup;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Setup;
 
 using Microsoft.CostAccounting.Ledger;
 using Microsoft.Finance.Currency;
@@ -11,7 +15,6 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Ledger;
 
 report 86 "Adjust Add. Reporting Currency"
@@ -28,236 +31,220 @@ report 86 "Adjust Add. Reporting Currency"
 
     dataset
     {
-        dataitem("VAT Entry"; "VAT Entry")
+        dataitem(Integer; System.Utilities.Integer)
         {
-            DataItemTableView = sorting(Type, Closed) where(Type = filter(Purchase .. Sale));
+            DataItemTableView = where(Number = const(1));
 
-            trigger OnAfterGetRecord()
-            begin
-                VATEntryCount := VATEntryCount + VATEntryStep;
-                if VATEntryOldCount div 100000 <> VATEntryCount div 100000 then begin
-                    Window.Update(1, VATEntryCount div 100000);
-                    VATEntryOldCount := VATEntryCount;
-                end;
+            dataitem("VAT Entry"; "VAT Entry")
+            {
+                DataItemTableView = sorting(Type, Closed) where(Type = filter(Purchase .. Sale));
 
-                "Additional-Currency Amount" := ExchangeAmtLCYToFCY("Posting Date", Amount, false);
-                "Additional-Currency Base" := ExchangeAmtLCYToFCY("Posting Date", Base, false);
-                "Add.-Currency Unrealized Amt." := ExchangeAmtLCYToFCY("Posting Date", "Unrealized Amount", false);
-                "Add.-Currency Unrealized Base" := ExchangeAmtLCYToFCY("Posting Date", "Unrealized Base", false);
-                "Add.-Curr. Rem. Unreal. Amount" := ExchangeAmtLCYToFCY("Posting Date", "Remaining Unrealized Amount", false);
-                "Add.-Curr. Rem. Unreal. Base" := ExchangeAmtLCYToFCY("Posting Date", "Remaining Unrealized Base", false);
-                Modify();
-            end;
-
-            trigger OnPostDataItem()
-            begin
-                Window.Close();
-            end;
-
-            trigger OnPreDataItem()
-            var
-                GLSetup: Record "General Ledger Setup";
-                IsHandled: Boolean;
-            begin
-                Window.Open(Text002Txt);
-                if Count > 0 then
-                    VATEntryStep := 10000 * 100000 div Count;
-
-                IsHandled := false;
-                OnPreDataItemVatEntryOnBeforeSetFilterOnClosedVATEntries("VAT Entry", IsHandled);
-                if not IsHandled then begin
-                    GLSetup.Get();
-                    if not GLSetup."Unrealized VAT" then
-                        SetRange(Closed, false);
-                end;
-            end;
-        }
-        dataitem("G/L Entry"; "G/L Entry")
-        {
-            DataItemTableView = sorting("Entry No.");
-
-            trigger OnAfterGetRecord()
-            var
-                GLAccNo: Code[20];
-            begin
-                if OldGLEntry."Posting Date" < "Posting Date" then begin
-                    Window.Update(1, "Posting Date");
-                    OldGLEntry := "G/L Entry";
-                end;
-                "Additional-Currency Amount" := ExchangeAmtLCYToFCY("Posting Date", Amount, false);
-                if "Debit Amount" <> 0 then begin
-                    "Add.-Currency Debit Amount" := "Additional-Currency Amount";
-                    "Add.-Currency Credit Amount" := 0;
-                end else begin
-                    "Add.-Currency Debit Amount" := 0;
-                    "Add.-Currency Credit Amount" := -"Additional-Currency Amount";
-                end;
-                Modify();
-
-                TotalAddCurrAmount := TotalAddCurrAmount + "Additional-Currency Amount";
-                TotalAmount := TotalAmount + Amount;
-                if TotalAmount = 0 then
-                    if TotalAddCurrAmount <> 0 then begin
-                        if TotalAddCurrAmount < 0 then
-                            GLAccNo := Currency."Residual Losses Account"
-                        else
-                            GLAccNo := Currency."Residual Gains Account";
-                        InsertGLEntry(
-                          "Posting Date", "Document Date", "Document Type".AsInteger(), DocumentNo, GLAccNo,
-                          "Reason Code", -TotalAddCurrAmount);
-                        TotalAddCurrAmount := 0;
+                trigger OnAfterGetRecord()
+                begin
+                    VATEntryCount := VATEntryCount + VATEntryStep;
+                    if VATEntryOldCount div 100000 <> VATEntryCount div 100000 then begin
+                        Window.Update(1, VATEntryCount div 100000);
+                        VATEntryOldCount := VATEntryCount;
                     end;
 
-                if "Entry No." = LastEntryNo then
-                    CurrReport.Break();
-
-                if "Posting Date" = ClosingDate("Posting Date") then begin
-                    TempCloseIncomeStatementBuffer."Closing Date" := "Posting Date";
-                    TempCloseIncomeStatementBuffer."G/L Account No." := "G/L Account No.";
-                    if TempCloseIncomeStatementBuffer.Insert() then;
+                    "Additional-Currency Amount" := ExchangeAmtLCYToFCY("Posting Date", Amount, false);
+                    "Additional-Currency Base" := ExchangeAmtLCYToFCY("Posting Date", Base, false);
+                    "Add.-Currency Unrealized Amt." := ExchangeAmtLCYToFCY("Posting Date", "Unrealized Amount", false);
+                    "Add.-Currency Unrealized Base" := ExchangeAmtLCYToFCY("Posting Date", "Unrealized Base", false);
+                    "Add.-Curr. Rem. Unreal. Amount" := ExchangeAmtLCYToFCY("Posting Date", "Remaining Unrealized Amount", false);
+                    "Add.-Curr. Rem. Unreal. Base" := ExchangeAmtLCYToFCY("Posting Date", "Remaining Unrealized Base", false);
+                    Modify();
                 end;
-            end;
 
-            trigger OnPostDataItem()
-            begin
-                if TempCloseIncomeStatementBuffer.Find('-') then
-                    repeat
-                        if IsAccountingPeriodClosingDate(
-                             TempCloseIncomeStatementBuffer."Closing Date")
-                        then begin
-                            CheckCombination(TempCloseIncomeStatementBuffer);
+                trigger OnPostDataItem()
+                begin
+                    Window.Close();
+                end;
 
-                            Clear(TempCloseIncomeStatementBuffer3);
-                            TempCloseIncomeStatementBuffer3."Closing Date" := "Posting Date";
-                            TempCloseIncomeStatementBuffer3."G/L Account No." := Currency."Residual Gains Account";
-                            if TempCloseIncomeStatementBuffer3.Insert() then;
-                            TempCloseIncomeStatementBuffer3."Closing Date" := "Posting Date";
-                            TempCloseIncomeStatementBuffer3."G/L Account No." := Currency."Residual Losses Account";
-                            if TempCloseIncomeStatementBuffer3.Insert() then;
+                trigger OnPreDataItem()
+                var
+                    GLSetup: Record "General Ledger Setup";
+                    IsHandled: Boolean;
+                begin
+                    Window.Open(Text002Txt);
+                    if Count > 0 then
+                        VATEntryStep := 10000 * 100000 div Count;
+
+                    IsHandled := false;
+                    OnPreDataItemVatEntryOnBeforeSetFilterOnClosedVATEntries("VAT Entry", IsHandled);
+                    if not IsHandled then begin
+                        GLSetup.Get();
+                        if not GLSetup."Unrealized VAT" then
+                            SetRange(Closed, false);
+                    end;
+                end;
+            }
+            dataitem("G/L Entry"; "G/L Entry")
+            {
+                DataItemTableView = sorting("Entry No.");
+
+                trigger OnAfterGetRecord()
+                var
+                    GLAccNo: Code[20];
+                begin
+                    if OldGLEntry."Posting Date" < "Posting Date" then begin
+                        Window.Update(1, "Posting Date");
+                        OldGLEntry := "G/L Entry";
+                    end;
+                    "Additional-Currency Amount" := ExchangeAmtLCYToFCY("Posting Date", Amount, false);
+                    if "Debit Amount" <> 0 then begin
+                        "Add.-Currency Debit Amount" := "Additional-Currency Amount";
+                        "Add.-Currency Credit Amount" := 0;
+                    end else begin
+                        "Add.-Currency Debit Amount" := 0;
+                        "Add.-Currency Credit Amount" := -"Additional-Currency Amount";
+                    end;
+                    Modify();
+
+                    TotalAddCurrAmount := TotalAddCurrAmount + "Additional-Currency Amount";
+                    TotalAmount := TotalAmount + Amount;
+                    if TotalAmount = 0 then
+                        if TotalAddCurrAmount <> 0 then begin
+                            if TotalAddCurrAmount < 0 then
+                                GLAccNo := Currency."Residual Losses Account"
+                            else
+                                GLAccNo := Currency."Residual Gains Account";
+                            InsertGLEntry(
+                            "Posting Date", "Document Date", "Document Type".AsInteger(), DocumentNo, GLAccNo,
+                            "Reason Code", -TotalAddCurrAmount);
+                            TotalAddCurrAmount := 0;
                         end;
-                    until TempCloseIncomeStatementBuffer.Next() = 0;
 
-                if TempCloseIncomeStatementBuffer3.Find('-') then
-                    repeat
-                        CheckCombination(TempCloseIncomeStatementBuffer3);
-                    until TempCloseIncomeStatementBuffer3.Next() = 0;
+                    if "Entry No." = LastEntryNo then
+                        CurrReport.Break();
 
-                if GLReg."To Entry No." <> 0 then
-                    GLReg.Insert();
-                Window.Close();
-            end;
-
-            trigger OnPreDataItem()
-            begin
-                Window.Open(Text003Txt + Text004Txt);
-            end;
-        }
-        dataitem("Value Entry"; "Value Entry")
-        {
-            DataItemTableView = sorting("Item No.");
-
-            trigger OnAfterGetRecord()
-            var
-                ItemLedgerEntry: Record "Item Ledger Entry";
-                PostingDate: Date;
-            begin
-                if OldValueEntry."Item No." <> "Item No." then begin
-                    Window.Update(1, "Item No.");
-                    OldValueEntry := "Value Entry";
+                    if "Posting Date" = ClosingDate("Posting Date") then begin
+                        TempCloseIncomeStatementBuffer."Closing Date" := "Posting Date";
+                        TempCloseIncomeStatementBuffer."G/L Account No." := "G/L Account No.";
+                        if TempCloseIncomeStatementBuffer.Insert() then;
+                    end;
                 end;
 
-                if "Entry Type" = "Entry Type"::Revaluation then begin
-                    ItemLedgerEntry.Get("Item Ledger Entry No.");
-                    PostingDate := ItemLedgerEntry."Posting Date";
-                end else
-                    PostingDate := "Posting Date";
+                trigger OnPostDataItem()
+                begin
+                    if TempCloseIncomeStatementBuffer.Find('-') then
+                        repeat
+                            if IsAccountingPeriodClosingDate(
+                                TempCloseIncomeStatementBuffer."Closing Date")
+                            then begin
+                                CheckCombination(TempCloseIncomeStatementBuffer);
 
-                "Cost per Unit (ACY)" := ExchangeAmtLCYToFCY(PostingDate, "Cost per Unit", true);
-                "Cost Amount (Actual) (ACY)" := ExchangeAmtLCYToFCY(PostingDate, "Cost Amount (Actual)", false);
-                "Cost Amount (Expected) (ACY)" := ExchangeAmtLCYToFCY(PostingDate, "Cost Amount (Expected)", false);
-                "Cost Amount (Non-Invtbl.)(ACY)" := ExchangeAmtLCYToFCY(PostingDate, "Cost Amount (Non-Invtbl.)", false);
-                "Cost Posted to G/L (ACY)" := ExchangeAmtLCYToFCY(PostingDate, "Cost Posted to G/L", false);
+                                Clear(TempCloseIncomeStatementBuffer3);
+                                TempCloseIncomeStatementBuffer3."Closing Date" := "Posting Date";
+                                TempCloseIncomeStatementBuffer3."G/L Account No." := Currency."Residual Gains Account";
+                                if TempCloseIncomeStatementBuffer3.Insert() then;
+                                TempCloseIncomeStatementBuffer3."Closing Date" := "Posting Date";
+                                TempCloseIncomeStatementBuffer3."G/L Account No." := Currency."Residual Losses Account";
+                                if TempCloseIncomeStatementBuffer3.Insert() then;
+                            end;
+                        until TempCloseIncomeStatementBuffer.Next() = 0;
 
-                Modify();
-            end;
+                    if TempCloseIncomeStatementBuffer3.Find('-') then
+                        repeat
+                            CheckCombination(TempCloseIncomeStatementBuffer3);
+                        until TempCloseIncomeStatementBuffer3.Next() = 0;
 
-            trigger OnPostDataItem()
-            begin
-                Window.Close();
-            end;
-
-            trigger OnPreDataItem()
-            begin
-                Window.Open(Text011Txt + Text006Txt);
-            end;
-        }
-        dataitem("Job Ledger Entry"; "Job Ledger Entry")
-        {
-            DataItemTableView = sorting("Job No.", "Posting Date");
-
-            trigger OnAfterGetRecord()
-            begin
-                if OldJobLedgEntry."Job No." <> "Job No." then begin
-                    Window.Update(1, "Job No.");
-                    OldJobLedgEntry := "Job Ledger Entry";
+                    if GLReg."To Entry No." <> 0 then
+                        GLReg.Insert();
+                    Window.Close();
                 end;
 
-                "Additional-Currency Total Cost" := ExchangeAmtLCYToFCY("Posting Date", "Total Cost (LCY)", false);
-                "Add.-Currency Total Price" := ExchangeAmtLCYToFCY("Posting Date", "Total Price (LCY)", false);
-                Modify();
-            end;
+                trigger OnPreDataItem()
+                begin
+                    Window.Open(Text003Txt + Text004Txt);
+                end;
+            }
+            dataitem("Value Entry"; "Value Entry")
+            {
+                DataItemTableView = sorting("Item No.");
 
-            trigger OnPreDataItem()
-            begin
-                Window.Open(Text007Txt + Text008Txt);
-            end;
-        }
-        dataitem("Prod. Order Line"; "Prod. Order Line")
-        {
-            DataItemTableView = sorting(Status, "Prod. Order No.", "Line No.");
+                trigger OnAfterGetRecord()
+                var
+                    ItemLedgerEntry: Record "Item Ledger Entry";
+                    PostingDate: Date;
+                begin
+                    if OldValueEntry."Item No." <> "Item No." then begin
+                        Window.Update(1, "Item No.");
+                        OldValueEntry := "Value Entry";
+                    end;
 
-            trigger OnAfterGetRecord()
-            begin
-                if OldProdOrderLine."Prod. Order No." <> "Prod. Order No." then begin
-                    Window.Update(1, "Prod. Order No.");
-                    OldProdOrderLine := "Prod. Order Line";
+                    if "Entry Type" = "Entry Type"::Revaluation then begin
+                        ItemLedgerEntry.Get("Item Ledger Entry No.");
+                        PostingDate := ItemLedgerEntry."Posting Date";
+                    end else
+                        PostingDate := "Posting Date";
+
+                    "Cost per Unit (ACY)" := ExchangeAmtLCYToFCY(PostingDate, "Cost per Unit", true);
+                    "Cost Amount (Actual) (ACY)" := ExchangeAmtLCYToFCY(PostingDate, "Cost Amount (Actual)", false);
+                    "Cost Amount (Expected) (ACY)" := ExchangeAmtLCYToFCY(PostingDate, "Cost Amount (Expected)", false);
+                    "Cost Amount (Non-Invtbl.)(ACY)" := ExchangeAmtLCYToFCY(PostingDate, "Cost Amount (Non-Invtbl.)", false);
+                    "Cost Posted to G/L (ACY)" := ExchangeAmtLCYToFCY(PostingDate, "Cost Posted to G/L", false);
+
+                    Modify();
                 end;
 
-                "Cost Amount (ACY)" := ExchangeAmtLCYToFCY(WorkDate(), "Cost Amount", false);
-                "Unit Cost (ACY)" := ExchangeAmtLCYToFCY(WorkDate(), "Unit Cost", true);
-                Modify();
-            end;
-
-            trigger OnPreDataItem()
-            begin
-                Window.Open(Text99000004Txt + Text99000002Txt);
-            end;
-        }
-        dataitem("Cost Entry"; "Cost Entry")
-        {
-            DataItemTableView = sorting("Entry No.");
-
-            trigger OnAfterGetRecord()
-            begin
-                if OldCostEntry."Posting Date" < "Posting Date" then begin
-                    Window.Update(1, "Posting Date");
-                    OldCostEntry := "Cost Entry";
+                trigger OnPostDataItem()
+                begin
+                    Window.Close();
                 end;
-                "Additional-Currency Amount" := ExchangeAmtLCYToFCY("Posting Date", Amount, false);
-                if "Debit Amount" <> 0 then begin
-                    "Add.-Currency Debit Amount" := "Additional-Currency Amount";
-                    "Add.-Currency Credit Amount" := 0;
-                end else begin
-                    "Add.-Currency Debit Amount" := 0;
-                    "Add.-Currency Credit Amount" := -"Additional-Currency Amount";
-                end;
-                Modify();
-            end;
 
-            trigger OnPreDataItem()
-            begin
-                Window.Open(Text012Txt + Text004Txt);
-            end;
+                trigger OnPreDataItem()
+                begin
+                    Window.Open(Text011Txt + Text006Txt);
+                end;
+            }
+            dataitem("Job Ledger Entry"; "Job Ledger Entry")
+            {
+                DataItemTableView = sorting("Job No.", "Posting Date");
+
+                trigger OnAfterGetRecord()
+                begin
+                    if OldJobLedgEntry."Job No." <> "Job No." then begin
+                        Window.Update(1, "Job No.");
+                        OldJobLedgEntry := "Job Ledger Entry";
+                    end;
+
+                    "Additional-Currency Total Cost" := ExchangeAmtLCYToFCY("Posting Date", "Total Cost (LCY)", false);
+                    "Add.-Currency Total Price" := ExchangeAmtLCYToFCY("Posting Date", "Total Price (LCY)", false);
+                    Modify();
+                end;
+
+                trigger OnPreDataItem()
+                begin
+                    Window.Open(Text007Txt + Text008Txt);
+                end;
+            }
+            dataitem("Cost Entry"; "Cost Entry")
+            {
+                DataItemTableView = sorting("Entry No.");
+
+                trigger OnAfterGetRecord()
+                begin
+                    if OldCostEntry."Posting Date" < "Posting Date" then begin
+                        Window.Update(1, "Posting Date");
+                        OldCostEntry := "Cost Entry";
+                    end;
+                    "Additional-Currency Amount" := ExchangeAmtLCYToFCY("Posting Date", Amount, false);
+                    if "Debit Amount" <> 0 then begin
+                        "Add.-Currency Debit Amount" := "Additional-Currency Amount";
+                        "Add.-Currency Credit Amount" := 0;
+                    end else begin
+                        "Add.-Currency Debit Amount" := 0;
+                        "Add.-Currency Credit Amount" := -"Additional-Currency Amount";
+                    end;
+                    Modify();
+                end;
+
+                trigger OnPreDataItem()
+                begin
+                    Window.Open(Text012Txt + Text004Txt);
+                end;
+            }
         }
     }
 
@@ -429,7 +416,6 @@ report 86 "Adjust Add. Reporting Currency"
         OldGLEntry: Record "G/L Entry";
         OldValueEntry: Record "Value Entry";
         OldJobLedgEntry: Record "Job Ledger Entry";
-        OldProdOrderLine: Record "Prod. Order Line";
         OldCostEntry: Record "Cost Entry";
         CurrExchRate: Record "Currency Exchange Rate";
         GLEntry2: Record "G/L Entry";
@@ -440,7 +426,6 @@ report 86 "Adjust Add. Reporting Currency"
         RetainedEarningsGLAcc: Record "G/L Account";
         ResidualGLAcc: Record "G/L Account";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        Window: Dialog;
         CurrencyFactor: Decimal;
         TotalAddCurrAmount: Decimal;
         TotalAmount: Decimal;
@@ -476,15 +461,12 @@ report 86 "Adjust Add. Reporting Currency"
         Text010Txt: Label 'Residual caused by rounding of %1', Comment = '%1 - additional currency amount';
         Text011Txt: Label 'Processing Value Entries...\\';
         Text012Txt: Label 'Processing Cost Entries...\\';
-#pragma warning disable AA0470
-        Text99000002Txt: Label 'Prod. Order No. #1##########\';
-#pragma warning restore AA0470
-        Text99000004Txt: Label 'Processing Finished Prod. Order Lines...\\';
         PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
 
     protected var
         GLSetup: Record "General Ledger Setup";
         Currency: Record Currency;
+        Window: Dialog;
 
     procedure SetAddCurr(AddCurr: Code[10])
     begin
@@ -496,7 +478,7 @@ report 86 "Adjust Add. Reporting Currency"
         exit(ReportIsExecuted);
     end;
 
-    local procedure ExchangeAmtLCYToFCY(PostingDate: Date; Amount: Decimal; IsUnitAmount: Boolean): Decimal
+    protected procedure ExchangeAmtLCYToFCY(PostingDate: Date; Amount: Decimal; IsUnitAmount: Boolean): Decimal
     var
         AmtRndgPrec: Decimal;
     begin

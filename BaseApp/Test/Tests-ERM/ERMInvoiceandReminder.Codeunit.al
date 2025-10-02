@@ -741,12 +741,10 @@ codeunit 134907 "ERM Invoice and Reminder"
 
         // [THEN] Varify that the text for language is added in Reminder Level Communication.
         LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(false);
         ReminderTermSetupPage.ReminderLevelSetup.CustomerCommunications.Invoke();
-        ReminderTermSetupPage.Close();
-
-        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1297,9 +1295,9 @@ codeunit 134907 "ERM Invoice and Reminder"
     end;
 
     [ConfirmHandler]
-    procedure ConfirmHandlerTrueFalse(QuestionText: Text[1024]; var Reply: Boolean)
+    procedure ConfirmHandlerTrueFalse(QuestionText: Text[1024]; var Relpy: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean();
+        Relpy := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [PageHandler]

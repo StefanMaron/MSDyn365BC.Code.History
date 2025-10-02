@@ -4,7 +4,7 @@
   "publisher": "Microsoft",
   "brief": "This extension includes permission set for on premise systems.",
   "description": "This extension includes permission set for on premise systems.",
-  "version": "26.5.38752.38819",
+  "version": "$(app_currentVersion)",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://go.microsoft.com/fwlink/?linkid=2009036",
@@ -13,11 +13,12 @@
   "logo": "ExtensionLogo.png",
   "dependencies": [],
   "screenshots": [],
-  "platform": "26.0.0.0",
+  "platform": "$(app_platformVersion)",
   "resourceExposurePolicy": {
     "allowDebugging": false,
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "application": "26.5.0.0"
+  "application": "$(app_minimumVersion)",
+  "target": "Cloud"
 }

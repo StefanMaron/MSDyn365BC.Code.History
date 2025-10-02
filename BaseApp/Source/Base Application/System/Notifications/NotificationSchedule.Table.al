@@ -371,7 +371,7 @@ table 1513 "Notification Schedule"
         if JobQueueEntry.ReuseExistingJobFromUserCategoryCodeunitAndParamString(UserId(), NotifyNowLbl, CODEUNIT::"Notification Entry Dispatcher", '', OneMinuteFromNow()) then
             exit;
 
-        if AzureADGraphUser.IsUserDelegatedAdmin() or AzureADGraphUser.IsUserDelegatedHelpdesk() then // can't use JQ
+        if AzureADGraphUser.IsUserDelegated() then // can't use JQ
             SendNotificationInForeground()
         else begin
             JobQueueCategory.InsertRec(NotifyNowLbl, CopyStr(NotifyNowDescriptionTxt, 1, 30));
@@ -398,7 +398,7 @@ table 1513 "Notification Schedule"
 
         ExecutionDateTime := CalculateExecutionTime(CurrentDateTime);
 
-        if AzureADGraphUser.IsUserDelegatedAdmin() or AzureADGraphUser.IsUserDelegatedHelpdesk() then // can't use JQ
+        if AzureADGraphUser.IsUserDelegated() then // can't use JQ
             SendNotificationInForeground();
 
         NotificationEntry.SetRange("Recipient User ID", RecipientUserID);

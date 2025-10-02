@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.ADCS;
 
 using System;
@@ -11,9 +15,7 @@ codeunit 7702 "Miniform Management"
     end;
 
     var
-#pragma warning disable AA0074
-        Text001: Label 'The Node does not exist.';
-#pragma warning restore AA0074
+        NodeDoesNotExistErr: Label 'The Node does not exist.';
 
     [Scope('OnPrem')]
     procedure ReceiveXML(xmlin: DotNet XmlDocument)
@@ -39,7 +41,7 @@ codeunit 7702 "Miniform Management"
             if not CODEUNIT.Run(MiniFormHeader."Handling Codeunit", MiniFormHeader) then
                 ADCSManagement.SendError(GetLastErrorText());
         end else
-            Error(Text001);
+            Error(NodeDoesNotExistErr);
     end;
 
     [Scope('OnPrem')]

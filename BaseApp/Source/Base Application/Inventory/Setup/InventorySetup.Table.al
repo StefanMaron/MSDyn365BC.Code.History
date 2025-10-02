@@ -6,6 +6,7 @@ namespace Microsoft.Inventory.Setup;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Counting.Document;
@@ -13,6 +14,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Upgrade;
 using Microsoft.Warehouse.InternalDocument;
@@ -78,9 +80,149 @@ table 313 "Inventory Setup"
             Caption = 'Cost Adjustment Logging';
             DataClassification = CustomerContent;
         }
+        field(35; "Current Demand Forecast"; Code[10])
+        {
+            Caption = 'Current Demand Forecast';
+            TableRelation = Microsoft.Manufacturing.Forecast."Production Forecast Name".Name;
+#if not CLEAN27
+            trigger OnValidate()
+            var
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+            begin
+                if "Current Demand Forecast" <> xRec."Current Demand Forecast" then begin
+                    ManufacturingSetup.Get();
+                    ManufacturingSetup.Validate("Current Production Forecast", "Current Demand Forecast");
+                    ManufacturingSetup.Modify();
+                end;
+            end;
+#endif
+        }
+        field(36; "Use Forecast on Variants"; Boolean)
+        {
+            Caption = 'Use forecast on variants';
+#if not CLEAN27
+            trigger OnValidate()
+            var
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+            begin
+                if "Use Forecast on Variants" <> xRec."Use Forecast on Variants" then begin
+                    ManufacturingSetup.Get();
+                    ManufacturingSetup.Validate("Use Forecast on Variants", "Use Forecast on Variants");
+                    ManufacturingSetup.Modify();
+                end;
+            end;
+#endif
+        }
+        field(37; "Use Forecast on Locations"; Boolean)
+        {
+            Caption = 'Use forecast on locations';
+#if not CLEAN27
+            trigger OnValidate()
+            var
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+            begin
+                if "Use Forecast on Locations" <> xRec."Use Forecast on Locations" then begin
+                    ManufacturingSetup.Get();
+                    ManufacturingSetup.Validate("Use Forecast on Locations", "Use Forecast on Locations");
+                    ManufacturingSetup.Modify();
+                end;
+            end;
+#endif
+        }
+        field(38; "Combined MPS/MRP Calculation"; Boolean)
+        {
+            AccessByPermission = TableData "Planning Component" = R;
+            Caption = 'Combined MPS/MRP Calculation';
+            InitValue = true;
+#if not CLEAN27
+            trigger OnValidate()
+            var
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+            begin
+                if "Combined MPS/MRP Calculation" <> xRec."Combined MPS/MRP Calculation" then begin
+                    ManufacturingSetup.Get();
+                    ManufacturingSetup.Validate("Combined MPS/MRP Calculation", "Combined MPS/MRP Calculation");
+                    ManufacturingSetup.Modify();
+                end;
+            end;
+#endif
+        }
         field(40; "Prevent Negative Inventory"; Boolean)
         {
             Caption = 'Prevent Negative Inventory';
+        }
+        field(41; "Default Dampener %"; Decimal)
+        {
+            Caption = 'Default Dampener %';
+            DecimalPlaces = 1 : 1;
+            MinValue = 0;
+#if not CLEAN27
+            trigger OnValidate()
+            var
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+            begin
+                if "Default Dampener %" <> xRec."Default Dampener %" then begin
+                    ManufacturingSetup.Get();
+                    ManufacturingSetup.Validate("Default Dampener %", "Default Dampener %");
+                    ManufacturingSetup.Modify();
+                end;
+            end;
+#endif
+        }
+        field(42; "Default Safety Lead Time"; DateFormula)
+        {
+            Caption = 'Default Safety Lead Time';
+#if not CLEAN27
+            trigger OnValidate()
+            var
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+            begin
+                if "Default Safety Lead Time" <> xRec."Default Safety Lead Time" then begin
+                    ManufacturingSetup.Get();
+                    ManufacturingSetup.Validate("Default Safety Lead Time", "Default Safety Lead Time");
+                    ManufacturingSetup.Modify();
+                end;
+            end;
+#endif
+        }
+        field(43; "Blank Overflow Level"; Option)
+        {
+            Caption = 'Blank Overflow Level';
+            OptionCaption = 'Allow Default Calculation,Use Item/SKU Values Only';
+            OptionMembers = "Allow Default Calculation","Use Item/SKU Values Only";
+#if not CLEAN27
+            trigger OnValidate()
+            var
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+            begin
+                if "Blank Overflow Level" <> xRec."Blank Overflow Level" then begin
+                    ManufacturingSetup.Get();
+                    ManufacturingSetup.Validate("Blank Overflow Level", "Blank Overflow Level");
+                    ManufacturingSetup.Modify();
+                end;
+            end;
+#endif
+        }
+        field(44; "Default Dampener Period"; DateFormula)
+        {
+            Caption = 'Default Dampener Period';
+
+            trigger OnValidate()
+            var
+#if not CLEAN27
+                ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+#endif
+                CalendarMgt: Codeunit "Calendar Management";
+            begin
+                CalendarMgt.CheckDateFormulaPositive("Default Dampener Period");
+#if not CLEAN27
+                if "Default Dampener Period" <> xRec."Default Dampener Period" then begin
+                    ManufacturingSetup.Get();
+                    ManufacturingSetup.Validate("Default Dampener Period", "Default Dampener Period");
+                    ManufacturingSetup.Modify();
+                end;
+#endif
+            end;
         }
         field(45; "Variant Mandatory if Exists"; Boolean)
         {
@@ -282,13 +424,8 @@ table 313 "Inventory Setup"
         {
             Caption = 'Invt. Orders Package Tracking';
             ObsoleteReason = 'Temporary setup to enable/disable package tracking in Phys. Inventory Orders';
-#if not CLEAN24
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '27.0';
-#endif
         }
 #endif
         field(6500; "Package Caption"; Text[30])
@@ -437,15 +574,13 @@ table 313 "Inventory Setup"
         exit(not FeatureKeyManagement.IsConcurrentInventoryPostingEnabled());
     end;
 
-#if not CLEAN24
-#pragma warning disable AS0072
-    [Obsolete('Feature ''Enable use of package tracking in physical inventory orders'' will be enabled by default in version 27.0.', '24.0')]
-    procedure IsFeatureKeyPhysInvtOrderPackageTrackingEnabled(): Boolean
-    var
-        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+    procedure GetComponentsAtLocation() LocationCode: Code[10]
     begin
-        exit(FeatureKeyManagement.IsPhysInvtOrderPackageTrackingEnabled());
+        OnGetComponentsAtLocation(LocationCode);
     end;
-#pragma warning restore AS0072
-#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetComponentsAtLocation(var LocationCode: Code[10])
+    begin
+    end;
 }

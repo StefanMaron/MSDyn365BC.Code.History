@@ -13,7 +13,6 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibrarySales: Codeunit "Library - Sales";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
@@ -390,7 +389,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         // [SCENARIO 374871] Run report 28025 "Income Statement" with Rounding Factor = "Hundred Thousands". The all decimals is printed.
         Initialize();
 
-        // [GIVEN] Rounding Factor set to "Hundred Thousands" Decimal precision = 1. 
+        // [GIVEN] Rounding Factor set to "Hundred Thousands" Decimal precision = 1.
         RoundingFactor := RoundingFactor::"Hundred Thousands";
         LibraryVariableStorage.Enqueue(RoundingFactor);
 
@@ -406,7 +405,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         REPORT.Run(REPORT::"Income Statement", true, false, GLAccount);
 
         // [THEN] The report is run with correct rounding factor.
-        // [THEN] The Precision for decimal places is equal to 1. 
+        // [THEN] The Precision for decimal places is equal to 1.
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('RoundFactorText', ReportManagementAPAC.RoundDescription(RoundingFactor));
         LibraryReportDataset.AssertElementWithValueExists('Precision', 1);
@@ -426,7 +425,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         // [SCENARIO 374871] Run report 28025 "Income Statement" with Rounding Factor = "Millions". The all decimals is printed.
         Initialize();
 
-        // [GIVEN] Rounding Factor set to "Millions". Decimal precision = 1. 
+        // [GIVEN] Rounding Factor set to "Millions". Decimal precision = 1.
         RoundingFactor := RoundingFactor::Millions;
         LibraryVariableStorage.Enqueue(RoundingFactor);
 
@@ -564,23 +563,6 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesDocument(var DocumentNo: Code[20]; var VATAmount: Decimal; DocType: Enum "Sales Document Type")
-    var
-        Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        Item: Record Item;
-    begin
-        LibrarySales.CreateCustomer(Customer);
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, Customer."No.");
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), 1);
-        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
-        SalesLine.Modify(true);
-        VATAmount := SalesLine."Amount Including VAT" - SalesLine.Amount;
-        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-    end;
-
     local procedure EnqueueValuesForItemsRcdAndNotInvdRqstPageHandler(BuyFromVendorNo: Code[20]; BuyFromVendorNo2: Code[20])
     begin
         // Enqueue values for ItemsReceivedAndNotInvoicedRequestPageHandler.
@@ -655,12 +637,6 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
     begin
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VATAmountLineVATAmount', VATAmount);
-    end;
-
-    local procedure VerifySalesDocumentVATAmount(VATAmount: Decimal)
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('VATAmt_VATAmtLine', VATAmount);
     end;
 
     local procedure PrepareTempDebitCreditGLEntries(var GLAccount: Record "G/L Account"; var GLEntry: Record "G/L Entry"; DebitAmount: Decimal; CreditAmount: Decimal): Decimal
@@ -753,4 +729,3 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         ItemsReceivedNotInvoiced.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

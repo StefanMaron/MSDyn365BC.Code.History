@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -13,8 +14,11 @@ report 99000758 "Compare List"
     DefaultLayout = RDLC;
     RDLCLayout = './Manufacturing/Reports/CompareList.rdlc';
     ApplicationArea = Manufacturing;
-    Caption = 'Item BOM Compare List';
+    Caption = 'Item BOM Compare List (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report has been replaced by the "Compare Production Cost Shares" report and will be removed in a future release.';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -145,7 +149,8 @@ report 99000758 "Compare List"
 
     requestpage
     {
-
+        AboutTitle = 'About Item BOM Compare List (Obsolete)';
+        AboutText = 'Compare the costs of similar final products. ** This report is obsolete and will be removed in a later release.** Please consult the report documentation for alternative ways to get to this data.';
         layout
         {
             area(content)
@@ -278,4 +283,4 @@ report 99000758 "Compare List"
         CalculateDate := NewCalculateDate;
     end;
 }
-
+#endif

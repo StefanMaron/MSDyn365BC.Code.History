@@ -117,9 +117,9 @@ table 91 "User Setup"
             trigger OnValidate()
             begin
                 if "Unlimited Sales Approval" and ("Sales Amount Approval Limit" <> 0) then
-                    Error(Text003, FieldCaption("Sales Amount Approval Limit"), FieldCaption("Unlimited Sales Approval"));
+                    Error(ConflictingApprovalsErr, FieldCaption("Sales Amount Approval Limit"), FieldCaption("Unlimited Sales Approval"));
                 if "Sales Amount Approval Limit" < 0 then
-                    Error(Text005);
+                    Error(NegativeApprovalLimitErr);
             end;
         }
         field(13; "Purchase Amount Approval Limit"; Integer)
@@ -130,9 +130,9 @@ table 91 "User Setup"
             trigger OnValidate()
             begin
                 if "Unlimited Purchase Approval" and ("Purchase Amount Approval Limit" <> 0) then
-                    Error(Text003, FieldCaption("Purchase Amount Approval Limit"), FieldCaption("Unlimited Purchase Approval"));
+                    Error(ConflictingApprovalsErr, FieldCaption("Purchase Amount Approval Limit"), FieldCaption("Unlimited Purchase Approval"));
                 if "Purchase Amount Approval Limit" < 0 then
-                    Error(Text005);
+                    Error(NegativeApprovalLimitErr);
             end;
         }
         field(14; "Unlimited Sales Approval"; Boolean)
@@ -215,9 +215,9 @@ table 91 "User Setup"
             trigger OnValidate()
             begin
                 if "Unlimited Request Approval" and ("Request Amount Approval Limit" <> 0) then
-                    Error(Text003, FieldCaption("Request Amount Approval Limit"), FieldCaption("Unlimited Request Approval"));
+                    Error(ConflictingApprovalsErr, FieldCaption("Request Amount Approval Limit"), FieldCaption("Unlimited Request Approval"));
                 if "Request Amount Approval Limit" < 0 then
-                    Error(Text005);
+                    Error(NegativeApprovalLimitErr);
             end;
         }
         field(20; "Unlimited Request Approval"; Boolean)
@@ -355,13 +355,11 @@ table 91 "User Setup"
         SalesPersonPurchaser: Record "Salesperson/Purchaser";
         UserSetupManagement: Codeunit "User Setup Management";
 
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text001: Label 'The %1 Salesperson/Purchaser code is already assigned to another User ID %2.';
-        Text003: Label 'You cannot have both a %1 and %2. ';
+        DuplicateSalesPersonErr: Label 'The %1 Salesperson/Purchaser code is already assigned to another User ID %2.';
+        ConflictingApprovalsErr: Label 'You cannot have both a %1 and %2. ';
 #pragma warning restore AA0470
-        Text005: Label 'You cannot have approval limits less than zero.';
-#pragma warning restore AA0074
+        NegativeApprovalLimitErr: Label 'You cannot have approval limits less than zero.';
         PrivacyBlockedGenericErr: Label 'Privacy Blocked must not be true for Salesperson / Purchaser %1.', Comment = '%1 = salesperson / purchaser code.';
         PhoneNoCannotContainLettersErr: Label 'must not contain letters';
 
@@ -394,7 +392,7 @@ table 91 "User Setup"
         UserSetup.SetCurrentKey("Salespers./Purch. Code");
         UserSetup.SetRange("Salespers./Purch. Code", "Salespers./Purch. Code");
         if UserSetup.FindFirst() then
-            Error(Text001, "Salespers./Purch. Code", UserSetup."User ID");
+            Error(DuplicateSalesPersonErr, "Salespers./Purch. Code", UserSetup."User ID");
     end;
 
     procedure GetDefaultSalesAmountApprovalLimit(): Integer
@@ -452,7 +450,7 @@ table 91 "User Setup"
         FilterGroup := OriginalFilterGroup;
     end;
 
-    local procedure UpdateSalesPerson(FieldNumber: Integer)
+    procedure UpdateSalesPerson(FieldNumber: Integer)
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         xSalespersonPurchaser: Record "Salesperson/Purchaser";

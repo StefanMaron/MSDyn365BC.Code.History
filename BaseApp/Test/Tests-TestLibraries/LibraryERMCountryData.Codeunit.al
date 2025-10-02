@@ -112,6 +112,7 @@ codeunit 131305 "Library - ERM Country Data"
     procedure UpdatePurchasesPayablesSetup()
     begin
         UpdatePurchaseReceivableSetupData();
+        UpdatePostingDateCheckonPostingPurchase();
     end;
 
     procedure SetDiscountPostingInPurchasePayablesSetup()
@@ -122,6 +123,7 @@ codeunit 131305 "Library - ERM Country Data"
     procedure UpdateSalesReceivablesSetup()
     begin
         UpdateSalesReceivableSetupData();
+	UpdatePostingDateCheckonPostingSales();
     end;
 
     procedure SetDiscountPostingInSalesReceivablesSetup()
@@ -317,7 +319,7 @@ codeunit 131305 "Library - ERM Country Data"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure UpdateAccountsInGeneralPostingSetup()
+    local procedure UpdateAccountsInGeneralPostingSetup()	
     var
         NormalGeneralPostingSetup: Record "General Posting Setup";
         GeneralPostingSetup: Record "General Posting Setup";
@@ -359,15 +361,15 @@ codeunit 131305 "Library - ERM Country Data"
 
     local procedure UpdateSalesReceivableSetupData()
     var
-        SalesReceivableSetup: Record "Sales & Receivables Setup";
+	SalesReceivableSetup: Record "Sales & Receivables Setup";
         ReasonCode: Record "Reason Code";
     begin
-        SalesReceivableSetup.Get();
+	SalesReceivableSetup.Get();
         if not ReasonCode.FindFirst() then
             LibraryERM.CreateReasonCode(ReasonCode);
         SalesReceivableSetup.Validate("Payment Discount Reason Code", ReasonCode.Code);
         SalesReceivableSetup.Validate("Default Cancel Reason Code", ReasonCode.Code);
-        SalesReceivableSetup.Validate("Invoice Rounding", false);
+	SalesReceivableSetup.Validate("Invoice Rounding", false);
         SalesReceivableSetup.Modify(true);
     end;
 
@@ -377,7 +379,7 @@ codeunit 131305 "Library - ERM Country Data"
         ReasonCode: Record "Reason Code";
     begin
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Invoice Rounding", false);
+	PurchasesPayablesSetup.Validate("Invoice Rounding", false);
         if not ReasonCode.FindFirst() then
             LibraryERM.CreateReasonCode(ReasonCode);
         PurchasesPayablesSetup.Validate("Default Cancel Reason Code", ReasonCode.Code);
@@ -395,6 +397,24 @@ codeunit 131305 "Library - ERM Country Data"
                 WHTPostingSetup.Validate("Realized WHT Type", WHTPostingSetup."Realized WHT Type"::" ");
                 WHTPostingSetup.Modify(true);
             until WHTPostingSetup.Next() = 0;
+    end;
+    
+    local procedure UpdatePostingDateCheckonPostingSales()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Posting Date Check on Posting", false);
+        SalesReceivablesSetup.Modify(true);
+    end;
+    
+    local procedure UpdatePostingDateCheckonPostingPurchase()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posting Date Check on Posting", false);
+        PurchasesPayablesSetup.Modify(true);
     end;
 }
 

@@ -1,5 +1,10 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.HumanResources.Setup;
 
+using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.HumanResources.Absence;
 
@@ -34,7 +39,7 @@ table 5218 "Human Resources Setup"
             begin
                 if "Base Unit of Measure" <> xRec."Base Unit of Measure" then
                     if not EmployeeAbsence.IsEmpty() then
-                        Error(Text001, FieldCaption("Base Unit of Measure"), EmployeeAbsence.TableCaption());
+                        Error(ChangeNotAllowedErr, FieldCaption("Base Unit of Measure"), EmployeeAbsence.TableCaption());
 
                 HumanResUnitOfMeasure.Get("Base Unit of Measure");
                 HumanResUnitOfMeasure.TestField("Qty. per Unit of Measure", 1);
@@ -44,6 +49,18 @@ table 5218 "Human Resources Setup"
         {
             Caption = 'Automatically Create Resource';
             DataClassification = SystemMetadata;
+        }
+        field(175; "Allow Multiple Posting Groups"; Boolean)
+        {
+            Caption = 'Allow Multiple Posting Groups';
+            DataClassification = SystemMetadata;
+            ToolTip = 'Specifies if multiple posting groups can be used for the same employee in a general journal or payment document.';
+        }
+        field(176; "Check Multiple Posting Groups"; enum "Posting Group Change Method")
+        {
+            Caption = 'Check Multiple Posting Groups';
+            DataClassification = SystemMetadata;
+            ToolTip = 'Specifies implementation method of checking which posting groups can be used for the employee.';
         }
     }
 
@@ -60,10 +77,8 @@ table 5218 "Human Resources Setup"
     }
 
     var
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text001: Label 'You cannot change %1 because there are %2.';
+        ChangeNotAllowedErr: Label 'You cannot change %1 because there are %2.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
 }
 

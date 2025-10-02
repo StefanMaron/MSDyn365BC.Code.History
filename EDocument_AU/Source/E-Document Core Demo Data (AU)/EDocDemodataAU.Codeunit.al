@@ -5,6 +5,8 @@
 
 namespace Microsoft.DemoData.Localization;
 
+using Microsoft.DemoTool;
+
 codeunit 17212 "E-Doc. Demodata AU"
 {
     Access = Internal;

@@ -57,6 +57,7 @@ table 5102 "RM Matrix Management"
         }
         field(6; "Estimated Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Estimated Value (LCY)" where(Active = const(true),
                                                                                  "Salesperson Code" = field("Salesperson Filter"),
@@ -79,6 +80,7 @@ table 5102 "RM Matrix Management"
         }
         field(7; "Calcd. Current Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Calcd. Current Value (LCY)" where(Active = const(true),
                                                                                       "Salesperson Code" = field("Salesperson Filter"),
@@ -101,6 +103,7 @@ table 5102 "RM Matrix Management"
         }
         field(8; "Avg. Estimated Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = average("Opportunity Entry"."Estimated Value (LCY)" where(Active = const(true),
                                                                                      "Salesperson Code" = field("Salesperson Filter"),
@@ -123,6 +126,7 @@ table 5102 "RM Matrix Management"
         }
         field(9; "Avg.Calcd. Current Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = average("Opportunity Entry"."Calcd. Current Value (LCY)" where(Active = const(true),
                                                                                           "Salesperson Code" = field("Salesperson Filter"),
@@ -187,6 +191,7 @@ table 5102 "RM Matrix Management"
         }
         field(17; "Probability % Filter"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Probability % Filter';
             DecimalPlaces = 1 : 1;
             FieldClass = FlowFilter;
@@ -195,6 +200,7 @@ table 5102 "RM Matrix Management"
         }
         field(18; "Completed % Filter"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Completed % Filter';
             DecimalPlaces = 1 : 1;
             FieldClass = FlowFilter;
@@ -253,18 +259,21 @@ table 5102 "RM Matrix Management"
         }
         field(26; "Estimated Value Filter"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Estimated Value Filter';
             FieldClass = FlowFilter;
         }
         field(27; "Calcd. Current Value Filter"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Calcd. Current Value Filter';
             FieldClass = FlowFilter;
         }
         field(28; "Chances of Success % Filter"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Chances of Success % Filter';
             DecimalPlaces = 0 : 0;
             FieldClass = FlowFilter;
@@ -298,4 +307,3 @@ table 5102 "RM Matrix Management"
     {
     }
 }
-

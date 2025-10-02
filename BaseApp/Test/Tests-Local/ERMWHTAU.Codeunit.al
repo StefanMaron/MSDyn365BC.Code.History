@@ -1226,7 +1226,7 @@
         InvoiceNo: Code[20];
     begin
         // [FEATURE] [Applies-to ID] [VAT] [Application]
-        // [SCENARIO 402106] Stan can post payment applied to invoice with "Applies-to ID" having VAT amounts in invoice and payment including WHT 
+        // [SCENARIO 402106] Stan can post payment applied to invoice with "Applies-to ID" having VAT amounts in invoice and payment including WHT
         Initialize();
 
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(false, true, true);
@@ -1312,7 +1312,7 @@
         InvoiceNo: Code[20];
     begin
         // [FEATURE] [Applies-to Doc. No] [VAT] [Application]
-        // [SCENARIO 402106] Stan can post payment applied to invoice with "Applies-to Doc. No" having VAT amounts in invoice and payment including WHT 
+        // [SCENARIO 402106] Stan can post payment applied to invoice with "Applies-to Doc. No" having VAT amounts in invoice and payment including WHT
         Initialize();
 
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);
@@ -1481,7 +1481,7 @@
         VATAmount: Decimal;
     begin
         // [FEATURE] [Unrealized WHT] [Payment Reconciliation Journal] [UI] [Apply]
-        // [SCENARIO 414477] Stan can apply payment to invoice with unrealized WHT on "Payment Reconciliation Journal" 
+        // [SCENARIO 414477] Stan can apply payment to invoice with unrealized WHT on "Payment Reconciliation Journal"
         Initialize();
 
         // [GIVEN] WHT Posting Setup with "WHT %" = 20%
@@ -1539,7 +1539,7 @@
         PaymentReconciliationJournal."Account Type".AssertEquals(BankAccReconciliationLine."Account Type"::Vendor);
         PaymentReconciliationJournal."Account No.".AssertEquals(Vendor."No.");
 
-        // [WHEN] Post payment reconciliation applied to the posted invoice 
+        // [WHEN] Post payment reconciliation applied to the posted invoice
         LibraryVariableStorage.Enqueue(-PurchaseLine.Amount);
         PaymentReconciliationJournal.Post.Invoke();
 
@@ -1552,7 +1552,7 @@
         // [THEN] "VAT Amount" = Round("WHT Amount" * "VAT %" / (100 + "VAT %")) = Round(20 * 5 / 105) = 0.95
         VATAmount := Round(WHTAmount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"));
 
-        // [THEN] Vendor's Payable Account = 100 
+        // [THEN] Vendor's Payable Account = 100
         VerifyGLEntryAmount(
           GLEntry, VendorPostingGroup.GetPayablesAccount(), PurchaseLine."Direct Unit Cost");
         // [THEN] "WHT Posting Setup"."Payable WHT Account Code" = -("WHT Amount" - "VAT Amount") = -19.05
@@ -1819,30 +1819,6 @@
         BankAccReconciliationLine.Validate("Transaction Date", WorkDate());
         BankAccReconciliationLine.Validate("Statement Amount", StmtAmount);
         BankAccReconciliationLine.Modify(true);
-    end;
-
-    local procedure CreatePaymentApplication(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AmountToApply: Decimal)
-    var
-        AppliedPaymentEntry: Record "Applied Payment Entry";
-    begin
-        AppliedPaymentEntry.Init();
-        AppliedPaymentEntry."Statement Type" := BankAccReconciliationLine."Statement Type";
-        AppliedPaymentEntry."Bank Account No." := BankAccReconciliationLine."Bank Account No.";
-        AppliedPaymentEntry."Statement No." := BankAccReconciliationLine."Statement No.";
-        AppliedPaymentEntry."Statement Line No." := BankAccReconciliationLine."Statement Line No.";
-        AppliedPaymentEntry."Account Type" := BankAccReconciliationLine."Account Type";
-        AppliedPaymentEntry."Account No." := BankAccReconciliationLine."Account No.";
-        AppliedPaymentEntry."Applied Amount" := AmountToApply;
-        AppliedPaymentEntry.Insert();
-
-        BankAccReconciliationLine.Validate("Applied Amount", AmountToApply);
-        BankAccReconciliationLine.Modify();
-    end;
-
-    local procedure UpdateBankAccRecStmEndingBalance(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
-    begin
-        BankAccReconciliation.Validate("Statement Ending Balance", NewStmEndingBalance);
-        BankAccReconciliation.Modify();
     end;
 
     local procedure CreateGLAccount(VATProdPostingGroup: Code[20]): Code[20]
@@ -2456,4 +2432,3 @@
         WHTRevenueTypes.OK().Invoke();
     end;
 }
-

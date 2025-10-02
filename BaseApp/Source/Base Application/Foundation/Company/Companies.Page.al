@@ -219,11 +219,12 @@ page 357 Companies
 
     trigger OnDeleteRecord(): Boolean
     var
+        Company: Record Company;
         ConfirmManagement: Codeunit "Confirm Management";
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
     begin
         OnBeforeDeleteRecord(Rec);
-        if SoftwareAsAService and (Rec.Count = 1) then begin
+        if SoftwareAsAService and (Company.Count = 1) then begin
             Message(DeleteLastCompanyMsg);
             Error('');
         end;

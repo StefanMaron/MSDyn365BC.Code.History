@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Dimension.Correction;
 
 using Microsoft.Finance.Analysis;
@@ -19,6 +23,7 @@ table 2582 "Dimension Correction"
         {
             DataClassification = CustomerContent;
             OptionMembers = Draft,"In Process","Validaton in Process",Failed,Completed,"Undo in Process","Undo Completed";
+            OptionCaption = 'Draft,In Process,Validation in Process,Failed,Completed,Undo in Process,Undo Completed';
             Editable = false;
         }
 

@@ -1,3 +1,4 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -11,8 +12,11 @@ report 99000767 "Prod. Order - Calculation"
     DefaultLayout = RDLC;
     RDLCLayout = './Manufacturing/Reports/ProdOrderCalculation.rdlc';
     ApplicationArea = Manufacturing;
-    Caption = 'Prod. Order - Calculation';
+    Caption = 'Prod. Order - Calculation (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report has been replaced by the "Production Order Statistics" report and will be removed in a future release.';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -123,7 +127,8 @@ report 99000767 "Prod. Order - Calculation"
 
     requestpage
     {
-
+        AboutTitle = 'About Prod. Order - Calculation (Obsolete)';
+        AboutText = 'Get a list of your production orders and their costs. ** This report is obsolete and will be removed in a future release.** Please refer to the report documentation for alternative ways to retrieve this information.';
         layout
         {
         }
@@ -151,4 +156,4 @@ report 99000767 "Prod. Order - Calculation"
         Total_CostCaptionLbl: Label 'Total Cost';
         Total_CostsCaptionLbl: Label 'Total Costs';
 }
-
+#endif

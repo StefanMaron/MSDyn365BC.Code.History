@@ -115,76 +115,6 @@ page 99000829 "Firm Planned Prod. Order"
             group(Schedule)
             {
                 Caption = 'Schedule';
-#if not CLEAN24
-                field("Starting Time"; StartingTime)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Starting Time';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the starting time of the production order.';
-                    Visible = false;
-                    ObsoleteReason = 'Replaced by "Starting Date-Time" field';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Starting Time", StartingTime);
-                        CurrPage.Update(true);
-                    end;
-                }
-                field("Starting Date"; StartingDate)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Starting Date';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the starting date of the production order.';
-                    Visible = false;
-                    ObsoleteReason = 'Replaced by "Starting Date-Time" field';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Starting Date", StartingDate);
-                        CurrPage.Update(true);
-                    end;
-                }
-                field("Ending Time"; EndingTime)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Ending Time';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the ending time of the production order.';
-                    Visible = false;
-                    ObsoleteReason = 'Replaced by "Ending Date-Time" field';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Ending Time", EndingTime);
-                        CurrPage.Update(true);
-                    end;
-                }
-                field("Ending Date"; EndingDate)
-                {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Ending Date';
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the ending date of the production order.';
-                    Visible = false;
-                    ObsoleteReason = 'Replaced by "Ending Date-Time" field';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Ending Date", EndingDate);
-                        CurrPage.Update(true);
-                    end;
-                }
-#endif
                 field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
@@ -566,12 +496,6 @@ page 99000829 "Firm Planned Prod. Order"
 
     trigger OnAfterGetRecord()
     begin
-#if not CLEAN24
-        StartingTime := DT2Time(Rec."Starting Date-Time");
-        StartingDate := DT2Date(Rec."Starting Date-Time");
-        EndingTime := DT2Time(Rec."Ending Date-Time");
-        EndingDate := DT2Date(Rec."Ending Date-Time");
-#endif
     end;
 
     trigger OnInit()
@@ -585,12 +509,6 @@ page 99000829 "Firm Planned Prod. Order"
     var
         CopyProdOrderDoc: Report "Copy Production Order Document";
         ManuPrintReport: Codeunit "Manu. Print Report";
-#if not CLEAN24
-        StartingTime: Time;
-        EndingTime: Time;
-        StartingDate: Date;
-        EndingDate: Date;
-#endif
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin
@@ -602,4 +520,3 @@ page 99000829 "Firm Planned Prod. Order"
         CurrPage.ProdOrderLines.PAGE.UpdateForm(true);
     end;
 }
-

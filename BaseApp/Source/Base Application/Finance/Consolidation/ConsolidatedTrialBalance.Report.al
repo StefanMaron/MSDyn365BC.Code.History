@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Consolidation;
 
 using Microsoft.Finance.GeneralLedger.Account;
@@ -214,6 +218,8 @@ report 17 "Consolidated Trial Balance"
 
     requestpage
     {
+        AboutTitle = 'About Consolidated Trial Balance';
+        AboutText = 'Combines financial data across companies, allowing finance teams to analyze consolidated performance and ensure alignment across entities. Use this report when reviewing financial results across multiple companies within an organization.';
         SaveValues = true;
 
         layout

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Utilities;
 
 using Microsoft.Purchases.Document;
@@ -85,6 +89,9 @@ codeunit 170 "Standard Codes Mgt."
         if PurchHeader.IsTemporary then
             exit(false);
 
+        if PurchHeader."No." = '' then
+            exit(false);
+
         if PurchHeader."Buy-from Vendor No." = '' then
             exit(false);
 
@@ -115,6 +122,9 @@ codeunit 170 "Standard Codes Mgt."
             exit(false);
 
         if SalesHeader.IsTemporary then
+            exit(false);
+
+        if SalesHeader."No." = '' then
             exit(false);
 
         if SalesHeader."Sell-to Customer No." = '' then

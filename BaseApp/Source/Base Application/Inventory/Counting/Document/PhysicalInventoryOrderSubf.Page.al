@@ -7,9 +7,6 @@ namespace Microsoft.Inventory.Counting.Document;
 using Microsoft.Finance.Dimension;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
-#if not CLEAN24
-using Microsoft.Inventory.Counting.Tracking;
-#endif
 
 page 5877 "Physical Inventory Order Subf."
 {
@@ -119,24 +116,10 @@ page 5877 "Physical Inventory Order Subf."
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if the Qty. Expected (Base) field has been updated with the Calculate Expected Qty. function.';
                 }
-#if not CLEAN24
-                field("Qty. Exp. Item Tracking (Base)"; Rec."Qty. Exp. Item Tracking (Base)")
-                {
-                    ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the item''s expected inventory of serial and lot numbers in the base unit of measure.';
-                    ObsoleteReason = 'Replaced by field "Qty. Exp. Tracking (Base)"';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                    Visible = not PackageTrackingEnabled;
-                }
-#endif
                 field("Qty. Exp. Tracking (Base)"; Rec."Qty. Exp. Tracking (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the item''s expected inventory of serial, lot and package numbers in the base unit of measure.';
-#if not CLEAN24
-                    Visible = PackageTrackingEnabled;
-#endif
                 }
                 field("Use Item Tracking"; Rec."Use Item Tracking")
                 {
@@ -469,20 +452,11 @@ page 5877 "Physical Inventory Order Subf."
     begin
         SetDimensionsVisibility();
         SetItemReferenceVisibility();
-#if not CLEAN24
-        PackageTrackingEnabled := PhysInvtTrackingMgt.IsPackageTrackingEnabled();
-#endif
     end;
 
     var
-#if not CLEAN24
-        PhysInvtTrackingMgt: Codeunit "Phys. Invt. Tracking Mgt.";
-#endif
         ItemReferenceVisible: Boolean;
         VariantCodeMandatory: Boolean;
-#if not CLEAN24
-        PackageTrackingEnabled: Boolean;
-#endif
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

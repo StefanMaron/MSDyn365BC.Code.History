@@ -78,9 +78,7 @@ page 9805 "Table Filter"
     end;
 
     var
-#pragma warning disable AA0074
-        Text000: Label 'The filters are too large to be copied to the type "TableFilter".';
-#pragma warning restore AA0074
+        FilterTooLargeErr: Label 'The filters are too large to be copied to the type "TableFilter".';
 
     protected var
         SourceTableNumber: Integer;
@@ -270,7 +268,7 @@ page 9805 "Table Filter"
     local procedure AppendFieldFilter(var TextTableFilter: Text; TextFieldFilter: Text)
     begin
         if (StrLen(TextTableFilter) + StrLen(TextFieldFilter)) > 200 then
-            Error(Text000);
+            Error(FilterTooLargeErr);
 
         TextTableFilter += TextFieldFilter;
     end;

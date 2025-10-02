@@ -178,37 +178,33 @@ table 370 "Excel Buffer"
         ErrorMessage: Text;
         ReadDateTimeInUtcDate: Boolean;
 
-#pragma warning disable AA0074
-        Text001: Label 'You must enter a file name.';
-        Text002: Label 'You must enter an Excel worksheet name.', Comment = '{Locked="Excel"}';
+        FileNameMissingErr: Label 'You must enter a file name.';
+        WorksheetNameMissingErr: Label 'You must enter an Excel worksheet name.', Comment = '{Locked="Excel"}';
 #pragma warning disable AA0470
-        Text003: Label 'The file %1 does not exist.';
-        Text004: Label 'The Excel worksheet %1 does not exist.', Comment = '{Locked="Excel"}';
+        FileNotExistErr: Label 'The file %1 does not exist.';
+        WorksheetNotExistErr: Label 'The Excel worksheet %1 does not exist.', Comment = '{Locked="Excel"}';
 #pragma warning restore AA0470
-        Text005: Label 'Creating Excel worksheet...\\', Comment = '{Locked="Excel"}';
-#pragma warning restore AA0074
+        CreatingExcelWorksheetTxt: Label 'Creating Excel worksheet...\\', Comment = '{Locked="Excel"}';
         PageTxt: Label 'Page';
-#pragma warning disable AA0074
-        Text007: Label 'Reading Excel worksheet...\\', Comment = '{Locked="Excel"}';
-        Text013: Label '&B';
-        Text014: Label '&D';
-        Text015: Label '&P';
-        Text016: Label 'A1';
-        Text017: Label 'SUMIF';
-        Text018: Label '#N/A';
-        Text019: Label 'GLAcc', Comment = 'Used to define an Excel range name. You must refer to Excel rules to change this term.', Locked = true;
-        Text020: Label 'Period', Comment = 'Used to define an Excel range name. You must refer to Excel rules to change this term.', Locked = true;
-        Text021: Label 'Budget';
-        Text022: Label 'CostAcc', Locked = true, Comment = 'Used to define an Excel range name. You must refer to Excel rules to change this term.';
-        Text023: Label 'Information';
-        Text034: Label 'Excel Files (*.xls*)|*.xls*|All Files (*.*)|*.*', Comment = '{Split=r''\|\*\..{1,4}\|?''}{Locked="Excel"}';
-        Text035: Label 'The operation was canceled.';
-        Text037: Label 'Could not create the Excel workbook.', Comment = '{Locked="Excel"}';
+        ReadingExcelWorksheetTxt: Label 'Reading Excel worksheet...\\', Comment = '{Locked="Excel"}';
+        BoldTokenTok: Label '&B';
+        DateTokenTok: Label '&D';
+        PageNumberTokenTok: Label '&P';
+        A1CellTok: Label 'A1';
+        SumIfTok: Label 'SUMIF';
+        NATok: Label '#N/A';
+        GLAccTok: Label 'GLAcc', Comment = 'Used to define an Excel range name. You must refer to Excel rules to change this term.', Locked = true;
+        PeriodTok: Label 'Period', Comment = 'Used to define an Excel range name. You must refer to Excel rules to change this term.', Locked = true;
+        BudgetTxt: Label 'Budget';
+        CostAccTok: Label 'CostAcc', Locked = true, Comment = 'Used to define an Excel range name. You must refer to Excel rules to change this term.';
+        InformationTxt: Label 'Information';
+        ExcelFilesFilterTxt: Label 'Excel Files (*.xls*)|*.xls*|All Files (*.*)|*.*', Comment = '{Split=r''\|\*\..{1,4}\|?''}{Locked="Excel"}';
+        OperationCanceledTxt: Label 'The operation was canceled.';
+        ExcelWorkbookCreateErr: Label 'Could not create the Excel workbook.', Comment = '{Locked="Excel"}';
 #pragma warning disable AA0470
-        Text038: Label 'Global variable %1 is not included for test.';
+        GlobalVariableNotIncludedErr: Label 'Global variable %1 is not included for test.';
 #pragma warning restore AA0470
-        Text039: Label 'Cell type has not been set.';
-#pragma warning restore AA0074
+        CellTypeNotSetErr: Label 'Cell type has not been set.';
         BASTxt: Label 'BAS';
 #pragma warning disable AA0470
         SavingDocumentMsg: Label 'Saving the following document: %1.';
@@ -278,7 +274,7 @@ table 370 "Excel Buffer"
             XlWrkShtWriter := XlWrkBkWriter.GetWorksheetByName(SheetName)
         else begin
             CloseBook();
-            Error(Text004, SheetName);
+            Error(WorksheetNotExistErr, SheetName);
         end;
     end;
 
@@ -289,7 +285,7 @@ table 370 "Excel Buffer"
             exit(XlWrkBkWriter.GetWorksheetNameById(Format(SheetNo)))
         else begin
             CloseBook();
-            Error(Text004, SheetNo);
+            Error(WorksheetNotExistErr, SheetNo);
         end;
     end;
 
@@ -302,7 +298,7 @@ table 370 "Excel Buffer"
     procedure CreateBook(FileName: Text; SheetName: Text)
     begin
         if SheetName = '' then
-            Error(Text002);
+            Error(WorksheetNameMissingErr);
 
         if FileName = '' then
             FileNameServer := FileManagement.ServerTempFileName('xlsx')
@@ -315,7 +311,7 @@ table 370 "Excel Buffer"
         FileManagement.IsAllowedPath(FileNameServer, false);
         XlWrkBkWriter := XlWrkBkWriter.Create(FileNameServer);
         if IsNull(XlWrkBkWriter) then
-            Error(Text037);
+            Error(ExcelWorkbookCreateErr);
 
         XlWrkShtWriter := XlWrkBkWriter.FirstWorksheet;
         if SheetName <> '' then
@@ -359,10 +355,10 @@ table 370 "Excel Buffer"
     procedure OpenBook(FileName: Text; SheetName: Text)
     begin
         if FileName = '' then
-            Error(Text001);
+            Error(FileNameMissingErr);
 
         if SheetName = '' then
-            Error(Text002);
+            Error(WorksheetNameMissingErr);
 
         if SheetName = 'G/L Account' then
             SheetName := 'GL Account';
@@ -373,14 +369,14 @@ table 370 "Excel Buffer"
             XlWrkShtReader := XlWrkBkReader.GetWorksheetByName(SheetName)
         else begin
             CloseBook();
-            Error(Text004, SheetName);
+            Error(WorksheetNotExistErr, SheetName);
         end;
     end;
 
     procedure OpenBookStream(FileStream: InStream; SheetName: Text): Text
     begin
         if SheetName = '' then
-            exit(Text002);
+            exit(WorksheetNameMissingErr);
 
         if SheetName = 'G/L Account' then
             SheetName := 'GL Account';
@@ -390,7 +386,7 @@ table 370 "Excel Buffer"
             XlWrkShtReader := XlWrkBkReader.GetWorksheetByName(SheetName)
         else begin
             CloseBook();
-            ErrorMessage := StrSubstNo(Text004, SheetName);
+            ErrorMessage := StrSubstNo(WorksheetNotExistErr, SheetName);
             exit(ErrorMessage);
         end;
     end;
@@ -413,10 +409,10 @@ table 370 "Excel Buffer"
     procedure UpdateBookExcel(FileName: Text; SheetName: Text; PreserveDataOnUpdate: Boolean)
     begin
         if FileName = '' then
-            Error(Text001);
+            Error(FileNameMissingErr);
 
         if SheetName = '' then
-            Error(Text002);
+            Error(WorksheetNameMissingErr);
 
         FileNameServer := FileName;
         FileManagement.IsAllowedPath(FileName, false);
@@ -432,7 +428,7 @@ table 370 "Excel Buffer"
             OpenXMLManagement.SetupWorksheetHelper(XlWrkBkWriter);
         end else begin
             CloseBook();
-            Error(Text004, SheetName);
+            Error(WorksheetNotExistErr, SheetName);
         end;
     end;
 
@@ -464,7 +460,7 @@ table 370 "Excel Buffer"
         if NewSheetName = '' then
             exit;
         if IsNull(XlWrkBkWriter) then
-            Error(Text037);
+            Error(ExcelWorkbookCreateErr);
         if XlWrkBkWriter.HasWorksheet(NewSheetName) then
             XlWrkShtWriter := XlWrkBkWriter.GetWorksheetByName(NewSheetName)
         else
@@ -480,7 +476,7 @@ table 370 "Excel Buffer"
             XlWrkShtReader := XlWrkBkReader.GetWorksheetByName(NewSheetName)
         else begin
             CloseBook();
-            Error(Text004, NewSheetName);
+            Error(WorksheetNotExistErr, NewSheetName);
         end;
     end;
 
@@ -527,7 +523,7 @@ table 370 "Excel Buffer"
 
         if UseInfoSheet then
             if not TempInfoExcelBuf.IsEmpty() then begin
-                SelectOrAddSheet(Text023);
+                SelectOrAddSheet(InformationTxt);
                 WriteAllToCurrentSheet(TempInfoExcelBuf);
             end;
     end;
@@ -541,7 +537,7 @@ table 370 "Excel Buffer"
     begin
         if ExcelBuffer.IsEmpty() then
             exit;
-        ExcelBufferDialogMgt.Open(Text005);
+        ExcelBufferDialogMgt.Open(CreatingExcelWorksheetTxt);
         LastUpdate := CurrentDateTime;
         TotalRecNo := ExcelBuffer.Count();
         if ExcelBuffer.FindSet() then
@@ -549,7 +545,7 @@ table 370 "Excel Buffer"
                 RecNo := RecNo + 1;
                 if not UpdateProgressDialog(ExcelBufferDialogMgt, LastUpdate, RecNo, TotalRecNo) then begin
                     CloseBook();
-                    Error(Text035)
+                    Error(OperationCanceledTxt)
                 end;
                 if ExcelBuffer.Formula = '' then
                     WriteCellValueInternal(ExcelBuffer)
@@ -591,7 +587,7 @@ table 370 "Excel Buffer"
             ExcelBuffer."Cell Type"::Time:
                 XlWrkShtWriter.SetCellValueTime(ExcelBuffer."Row No.", ExcelBuffer.xlColID, CellTextValue, ExcelBuffer.NumberFormat, Decorator);
             else
-                Error(Text039)
+                Error(CellTypeNotSetErr)
         end;
 
         if ExcelBuffer.Comment <> '' then begin
@@ -725,7 +721,7 @@ table 370 "Excel Buffer"
         if SheetName <> '' then
             SetActiveReaderSheet(SheetName);
         LastUpdate := CurrentDateTime;
-        ExcelBufferDialogMgt.Open(Text007);
+        ExcelBufferDialogMgt.Open(ReadingExcelWorksheetTxt);
         DeleteAll();
 
         Enumerator := XlWrkShtReader.GetEnumerator();
@@ -738,10 +734,9 @@ table 370 "Excel Buffer"
                 Validate("Column No.", CellData.ColumnNumber);
                 ParseCellValue(CellData.Value, CellData.Format);
                 Insert();
-
                 if not UpdateProgressDialog(ExcelBufferDialogMgt, LastUpdate, CellData.RowNumber, RowCount) then begin
                     CloseBook();
-                    Error(Text035)
+                    Error(OperationCanceledTxt)
                 end;
             end;
             ReadData := Enumerator.MoveNext();
@@ -820,7 +815,7 @@ table 370 "Excel Buffer"
         InStr: InStream;
     begin
         if FileName = '' then
-            Error(Text001);
+            Error(FileNameMissingErr);
 
         FileManagement.IsAllowedPath(FileName, false);
         FileManagement.BLOBImportFromServerFile(TempBlob, FileName);
@@ -849,37 +844,35 @@ table 370 "Excel Buffer"
     begin
         case Which of
             1:
-                exit(Text013);
+                exit(BoldTokenTok);
             // DO NOT TRANSLATE: &B is the Excel code to turn bold printing on or off for customized Header/Footer.
             2:
-                exit(Text014);
+                exit(DateTokenTok);
             // DO NOT TRANSLATE: &D is the Excel code to print the current date in customized Header/Footer.
             3:
-                exit(Text015);
+                exit(PageNumberTokenTok);
             // DO NOT TRANSLATE: &P is the Excel code to print the page number in customized Header/Footer.
             4:
-                exit('$');
-            // DO NOT TRANSLATE: $ is the Excel code for absolute reference to cells.
+                exit('$');// DO NOT TRANSLATE: $ is the Excel code for absolute reference to cells.
             5:
-                exit(Text016);
+                exit(A1CellTok);
             // DO NOT TRANSLATE: A1 is the Excel reference of the first cell.
             6:
-                exit(Text017);
+                exit(SumIfTok);
             // DO NOT TRANSLATE: SUMIF is the name of the Excel function used to summarize values according to some conditions.
             7:
-                exit(Text018);
+                exit(NATok);
             // DO NOT TRANSLATE: The #N/A Excel error value occurs when a value is not available to a function or formula.
             8:
-                exit(Text019);
+                exit(GLAccTok);
             // DO NOT TRANSLATE: GLAcc is used to define an Excel range name. You must refer to Excel rules to change this term.
             9:
-                exit(Text020);
-            // DO NOT TRANSLATE: Period is used to define an Excel range name. You must refer to Excel rules to change this term.
+                exit(PeriodTok);// DO NOT TRANSLATE: Period is used to define an Excel range name. You must refer to Excel rules to change this term.
             10:
-                exit(Text021);
+                exit(BudgetTxt);
             // DO NOT TRANSLATE: Budget is used to define an Excel worksheet name. You must refer to Excel rules to change this term.
             11:
-                exit(Text022);
+                exit(CostAccTok);
             // DO NOT TRANSLATE: CostAcc is used to define an Excel range name. You must refer to Excel rules to change this term.
             12:
                 exit('!');
@@ -1139,7 +1132,7 @@ table 370 "Excel Buffer"
             'ExcelFile':
                 value := FileNameServer;
             else
-                Error(Text038, globalVariable);
+                Error(GlobalVariableNotIncludedErr, globalVariable);
         end;
     end;
 
@@ -1178,7 +1171,7 @@ table 370 "Excel Buffer"
         if OpenUsingDocumentService('') then
             exit;
 
-        FileManagement.DownloadHandler(FileNameServer, '', '', Text034, GetFriendlyFilename());
+        FileManagement.DownloadHandler(FileNameServer, '', '', ExcelFilesFilterTxt, GetFriendlyFilename());
     end;
 
     [Scope('OnPrem')]
@@ -1191,12 +1184,12 @@ table 370 "Excel Buffer"
     procedure OpenExcelWithName(FileName: Text)
     begin
         if FileName = '' then
-            Error(Text001);
+            Error(FileNameMissingErr);
 
         if OpenUsingDocumentService(FileName) then
             exit;
 
-        FileManagement.DownloadHandler(FileNameServer, '', '', Text034, FileName);
+        FileManagement.DownloadHandler(FileNameServer, '', '', ExcelFilesFilterTxt, FileName);
     end;
 
     local procedure OpenUsingDocumentService(FileName: Text) Result: Boolean
@@ -1214,7 +1207,7 @@ table 370 "Excel Buffer"
             exit(Result);
 
         if not Exists(FileNameServer) then
-            Error(Text003, FileNameServer);
+            Error(FileNotExistErr, FileNameServer);
 
         // if document service is configured we save the generated document to SharePoint and open it from there.
         if DocumentServiceMgt.IsConfigured() then begin

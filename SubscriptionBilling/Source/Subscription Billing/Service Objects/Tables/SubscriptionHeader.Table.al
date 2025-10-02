@@ -370,6 +370,7 @@ table 8057 "Subscription Header"
             Caption = 'Quantity';
             InitValue = 1;
             NotBlank = true;
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -954,7 +955,7 @@ table 8057 "Subscription Header"
         EndUserCustomerChangeNotAllowedErr: Label 'The End-User cannot be changed because at least one Subscription Line is already linked to a contract.';
         EndUserCustomerChangeQst: Label 'By changing the End-User, the customer price group also changes. This will subsequently delete the Subscription Lines and replace them with the standard Subscription Lines of the item. Do you want to continue?';
         UpdateExchangeRatesInServiceMsg: Label 'If you want to update the exchange rates in the Subscription Lines, specify the key date and start the processing with OK.';
-        SerialNoLbl: Label 'Serial No.: %1';
+        SerialNoLbl: Label 'Serial No.: %1', Comment = '%1 = Serial No.';
         PrimaryAttributeTxt: Label 'Primary Attribute';
         EntityDoesNotExistErr: Label '%1 with the No. %2 does not exist.', Comment = '%1 = Item or GL Account, %2 = Entity No.';
         ItemBlockedOrWithoutServiceCommitmentsErr: Label 'The item %1 cannot be blocked and must be of type "Non-Inventory" with the Subscription Option set to "Sales with Subscription" or "Subscription Item".', Comment = '%1 = Item No.';
@@ -1628,14 +1629,14 @@ table 8057 "Subscription Header"
         end;
     end;
 
-    local procedure CheckContactRelatedToCustomerCompany(ContactNo: Code[20]; CustomerNo: Code[20]; CurrFieldNo: Integer)
+    local procedure CheckContactRelatedToCustomerCompany(ContactNo: Code[20]; CustomerNo: Code[20]; CurrentFieldNo: Integer)
     var
         Contact: Record Contact;
         ContBusRel: Record "Contact Business Relation";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckContactRelatedToCustomerCompany(Rec, CurrFieldNo, IsHandled);
+        OnBeforeCheckContactRelatedToCustomerCompany(Rec, CurrentFieldNo, IsHandled);
         if IsHandled then
             exit;
 
@@ -2200,7 +2201,7 @@ table 8057 "Subscription Header"
     var
         RecalculateLinesQst: Label 'If you change %1, the existing Subscription Lines prices will be recalculated.\\Do you want to continue?', Comment = '%1: FieldCaption';
         RecalculateLinesFromQuantityQst: Label 'If you change %1, only the Amount for existing service commitments will be recalculated.\\Do you want to continue?', Comment = '%1= Changed Field Name.';
-        RecalculateLinesFromVariantCodeQst: Label 'The %1 has been changed.\\Do you want to update the price and description?';
+        RecalculateLinesFromVariantCodeQst: Label 'The %1 has been changed.\\Do you want to update the price and description?', Comment = '%1= Changed Field Name.';
     begin
         case ChangedFieldName of
             Rec.FieldName(Rec."Variant Code"):

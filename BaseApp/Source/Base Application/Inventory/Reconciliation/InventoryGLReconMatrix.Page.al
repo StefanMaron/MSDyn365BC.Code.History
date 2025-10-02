@@ -431,11 +431,11 @@ page 9297 "Inventory - G/L Recon Matrix"
             if InvtReportHeader."Line Option" = InvtReportHeader."Line Option"::"Income Statement" then
                 if (ItemFilter = '') and (LocationFilter = '') then begin
                     if ShowWarning then
-                        RowIntegerLine.SetRange(Number, 1, 18)
+                        RowIntegerLine.SetRange(Number, 1, 19)
                     else
-                        RowIntegerLine.SetRange(Number, 1, 17)
+                        RowIntegerLine.SetRange(Number, 1, 18)
                 end else
-                    RowIntegerLine.SetRange(Number, 1, 15);
+                    RowIntegerLine.SetRange(Number, 1, 16);
         exit(FindRec(InvtReportHeader."Line Option", Rec, Which, true));
     end;
 
@@ -688,21 +688,23 @@ page 9297 "Inventory - G/L Recon Matrix"
                     10:
                         InsertRow('10', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Material Variance"), 0, false, TheDimCodeBuf);
                     11:
-                        InsertRow('11', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Capacity Variance"), 0, false, TheDimCodeBuf);
+                        InsertRow('11', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Mat. Non-Inventory Variance"), 0, false, TheDimCodeBuf);
                     12:
-                        InsertRow('12', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Subcontracted Variance"), 0, false, TheDimCodeBuf);
+                        InsertRow('12', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Capacity Variance"), 0, false, TheDimCodeBuf);
                     13:
-                        InsertRow('13', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Capacity Overhead Variance"), 0, false, TheDimCodeBuf);
+                        InsertRow('13', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Subcontracted Variance"), 0, false, TheDimCodeBuf);
                     14:
-                        InsertRow('14', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Mfg. Overhead Variance"), 0, false, TheDimCodeBuf);
+                        InsertRow('14', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Capacity Overhead Variance"), 0, false, TheDimCodeBuf);
                     15:
-                        InsertRow('15', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Total), 0, true, TheDimCodeBuf);
+                        InsertRow('15', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Mfg. Overhead Variance"), 0, false, TheDimCodeBuf);
                     16:
-                        InsertRow('16', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."G/L Total"), 0, true, TheDimCodeBuf);
+                        InsertRow('16', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Total), 0, true, TheDimCodeBuf);
                     17:
-                        InsertRow('17', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Difference), 0, true, TheDimCodeBuf);
+                        InsertRow('17', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."G/L Total"), 0, true, TheDimCodeBuf);
                     18:
-                        InsertRow('18', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Warning), 0, true, TheDimCodeBuf);
+                        InsertRow('18', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Difference), 0, true, TheDimCodeBuf);
+                    19:
+                        InsertRow('19', TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Warning), 0, true, TheDimCodeBuf);
                 end;
         end
     end;
@@ -833,6 +835,14 @@ page 9297 "Inventory - G/L Recon Matrix"
                         then begin
                             TempInventoryReportEntry.CalcSums(TempInventoryReportEntry."Material Variance");
                             Amount := TempInventoryReportEntry."Material Variance";
+                        end else
+                            Amount := 0;
+                    TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Mat. Non-Inventory Variance"):
+                        if MatrixRecords[MATRIX_ColumnOrdinal].Name in [TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Total), TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."G/L Total"),
+                                                                        TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Inventory), TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Difference)]
+                        then begin
+                            TempInventoryReportEntry.CalcSums(TempInventoryReportEntry."Mat. Non-Inventory Variance");
+                            Amount := TempInventoryReportEntry."Mat. Non-Inventory Variance";
                         end else
                             Amount := 0;
                     TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Capacity Variance"):
@@ -1028,6 +1038,10 @@ page 9297 "Inventory - G/L Recon Matrix"
                 if MatrixRecords[MATRIX_ColumnOrdinal].Name = TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Warning) then
                     if TempInventoryReportEntry."Material Variance" <> 0 then
                         Text := GetWarningText(TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Material Variance"), ShowType);
+            TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Mat. Non-Inventory Variance"):
+                if MatrixRecords[MATRIX_ColumnOrdinal].Name = TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Warning) then
+                    if TempInventoryReportEntry."Mat. Non-Inventory Variance" <> 0 then
+                        Text := GetWarningText(TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Mat. Non-Inventory Variance"), ShowType);
             TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Capacity Variance"):
                 if MatrixRecords[MATRIX_ColumnOrdinal].Name = TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Warning) then
                     if TempInventoryReportEntry."Capacity Variance" <> 0 then
@@ -1211,6 +1225,13 @@ page 9297 "Inventory - G/L Recon Matrix"
                         then begin
                             TempInventoryReportEntry.SetFilter(TempInventoryReportEntry."Material Variance", '<>%1', 0);
                             PAGE.Run(0, TempInventoryReportEntry, TempInventoryReportEntry."Material Variance");
+                        end;
+                    TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Mat. Non-Inventory Variance"):
+                        if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Total), TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."G/L Total"),
+                                                                       TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Inventory)]
+                        then begin
+                            TempInventoryReportEntry.SetFilter(TempInventoryReportEntry."Mat. Non-Inventory Variance", '<>%1', 0);
+                            Page.Run(0, TempInventoryReportEntry, TempInventoryReportEntry."Mat. Non-Inventory Variance");
                         end;
                     TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."Capacity Variance"):
                         if MATRIX_CaptionSet[MATRIX_ColumnOrdinal] in [TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry.Total), TempInventoryReportEntry.FieldCaption(TempInventoryReportEntry."G/L Total"),

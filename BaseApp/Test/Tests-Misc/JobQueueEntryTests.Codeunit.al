@@ -14,7 +14,6 @@ codeunit 139018 "Job Queue Entry Tests"
         WrongEndingDateErr: Label 'Wrong ending date and time calculated.';
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
         NoErrorMessageMsg: Label 'There is no error message.';
         OnlyActiveCanBeMarkedErr: Label 'Only entries with the status In Progress can be marked as errors.';
 
@@ -234,45 +233,11 @@ codeunit 139018 "Job Queue Entry Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ErrorHandlerInsertsErrorLogEntryIfNoActiveLogs()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        JobQueueLogEntry: Record "Job Queue Log Entry";
-        ExpectedErrorMessage: Text;
-    begin
-        // [FEATURE] [Job Queue Error Handler]
-        // [GIVEN] An Error "Err" happens
-        BindSubscription(LibraryJobQueue);
-        ExpectedErrorMessage := LibraryUtility.GenerateGUID();
-        asserterror Error(ExpectedErrorMessage);
-
-        // [GIVEN] Job Queue Entry "A", where Status "In Process"
-        JobQueueEntry.Init();
-        JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
-        JobQueueEntry.Insert(true);
-        // [GIVEN] The Log Entry for "A", where Status is "Error"
-        JobQueueLogEntry.Init();
-        JobQueueLogEntry.ID := JobQueueEntry.ID;
-        JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
-        JobQueueLogEntry.Insert(true);
-
-        // [WHEN] Run "Job Queue Error Handler"
-        CODEUNIT.Run(CODEUNIT::"Job Queue Error Handler", JobQueueEntry);
-
-        // [THEN] Job Queue Entry "A" got Status "Error", "Error Message" is "Err"
-        // [THEN] A new Log entry added, where Status "Error", "Error Message" is "Err"
-        JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
-        JobQueueLogEntry.FindLast();
-        VerifyErrorInJobQueueEntryAndLog(JobQueueEntry, JobQueueLogEntry, ExpectedErrorMessage);
-        UnbindSubscription(LibraryJobQueue);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure ErrorHandlerMarksActiveLogEntryAsError()
     var
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueLogEntry: Record "Job Queue Log Entry";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
         ExpectedErrorMessage: Text;
     begin
         // [FEATURE] [Job Queue Error Handler]
@@ -615,7 +580,7 @@ codeunit 139018 "Job Queue Entry Tests"
 
         // [GIVEN] Is Delegated admin
         BindSubscription(AzureADUserTestLibrary);
-        AzureADUserTestLibrary.SetIsUserDelegatedAdmin(true);
+        AzureADUserTestLibrary.SetIsUserDelegated(true);
 
         // [GIVEN] An existing job queue entry
         JobQueueEntry.Init();
@@ -645,7 +610,7 @@ codeunit 139018 "Job Queue Entry Tests"
 
         // [GIVEN] Is Delegated admin
         BindSubscription(AzureADUserTestLibrary);
-        AzureADUserTestLibrary.SetIsUserDelegatedAdmin(true);
+        AzureADUserTestLibrary.SetIsUserDelegated(true);
 
         TestDelegatedJQ();
 
@@ -662,7 +627,7 @@ codeunit 139018 "Job Queue Entry Tests"
 
         // [GIVEN] Is Delegated admin
         BindSubscription(AzureADUserTestLibrary);
-        AzureADUserTestLibrary.SetIsUserDelegatedHelpdesk(true);
+        AzureADUserTestLibrary.SetIsUserDelegated(true);
 
         TestDelegatedJQ();
 
@@ -861,15 +826,6 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueEntry.Insert(true);
     end;
 
-    local procedure MockJobQueueEntryWithUserID(var JobQueueEntry: Record "Job Queue Entry"; NewUserID: Text[65])
-    begin
-        JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid();
-        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
-        JobQueueEntry."User ID" := NewUserID;
-        JobQueueEntry.Insert();
-    end;
-
     local procedure VerifyErrorInJobQueueEntryAndLog(JobQueueEntry: Record "Job Queue Entry"; JobQueueLogEntry: Record "Job Queue Log Entry"; ExpectedErrorMessage: Text)
     begin
         JobQueueLogEntry.TestField(Status, JobQueueLogEntry.Status::Error);
@@ -932,4 +888,3 @@ codeunit 139018 "Job Queue Entry Tests"
         IsHandled := true;
     end;
 }
-

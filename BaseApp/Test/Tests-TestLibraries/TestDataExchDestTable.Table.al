@@ -16,6 +16,7 @@ table 132460 "Test Data Exch. Dest Table"
         }
         field(4; Decimal; Decimal)
         {
+            AutoFormatType = 0;
         }
         field(5; KeyH1; Integer)
         {
@@ -65,4 +66,3 @@ table 132460 "Test Data Exch. Dest Table"
         Insert(true);
     end;
 }
-

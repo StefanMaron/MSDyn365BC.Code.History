@@ -104,7 +104,7 @@ codeunit 139846 "Cost Adj. Sch. Wizard Tests"
         // [GIVEN] No existing job queue entries.
         Initialize();
 
-        // [WHEN] Creating two job queues, one for cost adjustment and one for cost posting and 
+        // [WHEN] Creating two job queues, one for cost adjustment and one for cost posting and
         //  selecting the option to open the job queue list after finishing the wizard.
         Wizard.OpenView();
         Wizard.ActionNext.Invoke();
@@ -133,16 +133,6 @@ codeunit 139846 "Cost Adj. Sch. Wizard Tests"
 
         Assert.IsFalse(JobQueueEntries.Next(), 'Expected to only show two created job queues.');
         Assert.IsTrue(DidCheckAdjustCost and DidCheckPostToGL, 'Expected both types of job queues.');
-    end;
-
-    local procedure AssertIsCreatedJobQueue(JobQueueEntry: Record "Job Queue Entry")
-    begin
-        if JobQueueEntry."Object Type to Run" = JobQueueEntry."Object Type to Run"::Codeunit then
-            Assert.AreEqual(Codeunit::"Post Inventory Cost to G/L", JobQueueEntry."Object ID to Run",
-                'Expected to include the Post Inventory Cost to G/L job queue.')
-        else
-            Assert.AreEqual(Report::"Adjust Cost - Item Entries", JobQueueEntry."Object ID to Run",
-                'Expected to include the Adjust Cost - Item Entries job queue.');
     end;
 
     local procedure AssertIsCreatedJobQueue(JobQueueEntries: TestPage "Job Queue Entries")
