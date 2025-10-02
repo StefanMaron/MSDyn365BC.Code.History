@@ -9,6 +9,11 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.Company;
 using System.Telemetry;
 
+/// <summary>
+/// XMLPort for exporting SEPA credit transfers in pain.001.001.03 format.
+/// Generates XML files compliant with SEPA Customer Credit Transfer Initiation standard
+/// for submission to banks for automated payment processing.
+/// </summary>
 xmlport 1000 "SEPA CT pain.001.001.03"
 {
     Caption = 'SEPA CT pain.001.001.03';
@@ -400,7 +405,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
     trigger OnPreXmlPort()
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";     
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";
     begin
         FeatureTelemetry.LogUptake('0000N1X', SEPACTExportFile.FeatureName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000N1Y', SEPACTExportFile.FeatureName(), 'XmlPort SEPA CT pain.001.001.03');

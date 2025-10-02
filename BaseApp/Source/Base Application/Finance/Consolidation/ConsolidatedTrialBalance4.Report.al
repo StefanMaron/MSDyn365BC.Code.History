@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.Consolidation;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Consolidation;
 
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Foundation.Enums;
@@ -277,6 +281,8 @@ report 18 "Consolidated Trial Balance (4)"
 
     requestpage
     {
+        AboutTitle = 'About Consolidated Trial Balance (4)';
+        AboutText = 'Offers enhanced visibility into financial performance across companies with breakdowns by company, adjustments, and totals in one report. Use this report when you need a detailed breakdown of consolidation components.';
         SaveValues = true;
 
         layout

@@ -229,12 +229,11 @@ tableextension 8054 "Sales Line" extends "Sales Line"
         if SalesServiceCommitment.IsEmpty() then
             exit;
 
-        if SalesServiceCommitment.FindSet() then begin
-            SalesLine.Modify(false);
+        if SalesServiceCommitment.FindSet() then
             repeat
+                SalesServiceCommitment.SetSalesLine(Rec);
                 SalesServiceCommitment.CalculateCalculationBaseAmount();
             until SalesServiceCommitment.Next() = 0;
-        end;
         OnAfterUpdateSalesSubscriptionLineCalculationBaseAmount(SalesLine, xSalesLine);
     end;
 

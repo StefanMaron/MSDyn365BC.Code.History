@@ -22,6 +22,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryDimension: Codeunit "Library - Dimension";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         EmptyDateFormula: DateFormula;
@@ -1320,7 +1321,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         LibraryCashFlowHelper.CreateDefaultSalesOrder(SalesHeader);
         LibraryCashFlowHelper.CreateDefaultPurchaseOrder(PurchaseHeader);
-        LibraryCashFlowHelper.CreateDefaultServiceOrder(ServiceHeader);
+        LibraryService.CreateDefaultServiceOrder(ServiceHeader);
         LibraryApplicationArea.EnableFoundationSetup();
 
         // Excercise
@@ -2567,12 +2568,11 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
     local procedure CreateServiceOrderWithLineCount(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20]; LineCount: Integer)
     var
-        LibraryService: Codeunit "Library - Service";
         "Count": Integer;
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
         for Count := 1 to LineCount do
-            LibraryCashFlowHelper.CreateServiceLines(ServiceHeader);
+            LibraryService.CreateServiceLines(ServiceHeader);
     end;
 
     local procedure CreateExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; ExchangeRateAmount: Decimal; RelationalExchangeRateAmount: Decimal)

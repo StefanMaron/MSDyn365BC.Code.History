@@ -975,7 +975,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         LibraryVariableStorage.Enqueue(true);
 
         // [WHEN] Standard Sales Code is deleted
-        // [THEN] Confirmation message appears 
+        // [THEN] Confirmation message appears
         // [WHEN] User agrees with confirmation
         StdSalesCode.Delete(true);
 
@@ -1014,7 +1014,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Standard Sales Code is deleted
-        // [THEN] Confirmation message appears 
+        // [THEN] Confirmation message appears
         // [WHEN] User disagree with confirmation
         asserterror StdSalesCode.Delete(true);
         Assert.ExpectedError('');
@@ -1486,20 +1486,6 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
-    local procedure VerifySalesStdCodesNotificationId()
-    var
-        TempNotificationContext: Record "Notification Context" temporary;
-        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
-        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
-    begin
-        NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
-        Assert.AreEqual(
-          StandardCodesMgt.GetSalesRecurringLinesNotificationId(),
-          TempNotificationContext."Notification ID",
-          InvalidNotificationIdMsg);
-        NotificationLifecycleMgt.RecallAllNotifications();
-    end;
-
     local procedure CreateAllocationAccountWithFixedDistribution(): Code[20]
     var
         AllocationAccount: Record "Allocation Account";
@@ -1570,4 +1556,3 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         AllocationAccountList.Cancel().Invoke();
     end;
 }
-

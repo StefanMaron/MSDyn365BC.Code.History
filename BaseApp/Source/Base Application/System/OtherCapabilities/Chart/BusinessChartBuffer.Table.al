@@ -2,9 +2,6 @@ namespace System.Visualization;
 
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Period;
-#if not CLEAN24
-using System;
-#endif
 using System.Integration;
 using System.Utilities;
 
@@ -332,27 +329,12 @@ table 485 "Business Chart Buffer"
         exit(MeasureValues.Get("Drill-Down Measure Index" + 1));
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced with method UpdateChart that takes Business Chart control add-in as parameter.', '24.0')]
-    procedure Update(dotNetChartAddIn: DotNet BusinessChartAddIn)
-    begin
-        BusinessChart.Update(dotNetChartAddIn);
-    end;
-#endif
 
     procedure UpdateChart(BusinessChartAddIn: ControlAddIn BusinessChart)
     begin
         BusinessChart.Update(BusinessChartAddIn);
     end;
 
-#if not CLEAN24
-    [Scope('OnPrem')]
-    [Obsolete('Replaced with method that takes JsonObject as parameter.', '24.0')]
-    procedure SetDrillDownIndexes(dotNetPoint: DotNet BusinessChartDataPoint)
-    begin
-        SetDrillDownIndexesByCoordinate(dotNetPoint.Measures.GetValue(0), dotNetPoint.XValueString, dotNetPoint.YValues.GetValue(0));
-    end;
-#endif
 
     procedure SetDrillDownIndexes(Point: JsonObject)
     var

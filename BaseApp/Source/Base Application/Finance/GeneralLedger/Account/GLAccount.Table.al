@@ -61,6 +61,7 @@ table 15 "G/L Account"
         field(3; "Search Name"; Code[100])
         {
             Caption = 'Search Name';
+            OptimizeForTextSearch = true;
         }
         field(4; "Account Type"; Enum "G/L Account Type")
         {

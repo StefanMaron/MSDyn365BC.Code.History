@@ -19,7 +19,9 @@ using Microsoft.Pricing.PriceList;
 #endif
 using Microsoft.Inventory.Setup;
 using Microsoft.Projects.Project.Job;
+#if not CLEAN25
 using Microsoft.Projects.Project.Ledger;
+#endif
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Sales.Customer;
@@ -797,6 +799,7 @@ codeunit 136125 "Service Posting Journals"
         Assert.AreEqual(Count, ServiceLedgerEntry.Count, NumberOfServiceLedgerEntriesErr);
     end;
 
+#if not CLEAN25
     local procedure VerifyPricesOnJobLedgerEntry(Item: Record Item; ExpectedUnitPrice: Decimal; ExpectedTotalPrice: Decimal)
     var
         JobLedgerEntry: Record "Job Ledger Entry";
@@ -808,7 +811,7 @@ codeunit 136125 "Service Posting Journals"
         JobLedgerEntry.TestField("Unit Price (LCY)", ExpectedUnitPrice);
         JobLedgerEntry.TestField("Total Price (LCY)", ExpectedTotalPrice);
     end;
-
+#endif
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure InvoiceESConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -823,4 +826,3 @@ codeunit 136125 "Service Posting Journals"
         Reply := true;
     end;
 }
-

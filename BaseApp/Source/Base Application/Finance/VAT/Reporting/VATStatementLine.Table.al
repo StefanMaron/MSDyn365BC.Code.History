@@ -110,7 +110,7 @@ table 256 "VAT Statement Line"
             trigger OnValidate()
             begin
                 if ("Calculate with" = "Calculate with"::"Opposite Sign") and (Type = Type::"Row Totaling") then
-                    FieldError(Type, StrSubstNo(Text000, Type));
+                    FieldError(Type, StrSubstNo(VATStmtLineTypeErr, Type));
             end;
         }
         field(14; Print; Boolean)
@@ -188,20 +188,24 @@ table 256 "VAT Statement Line"
     var
         GLAcc: Record "G/L Account";
         TempType: Enum "VAT Statement Line Type";
+        VATStmtLineTypeErr: Label 'must not be %1', Comment = '%1 is the type of the VAT statement line.';
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
 
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text000: Label 'must not be %1';
-
-    [Scope('OnPrem')]
+#if not CLEAN27
+    [Obsolete('use GetAdditionalReportingCurrencyCode instead', '27.0')]
     procedure GetCurrencyCode(): Code[10]
-    var
-        GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get();
-        exit(GLSetup."Additional Reporting Currency");
+        exit(GetAdditionalReportingCurrencyCode())
     end;
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-}
+#endif
 
+    procedure GetAdditionalReportingCurrencyCode(): Code[10]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
+}

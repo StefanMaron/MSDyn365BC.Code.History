@@ -29,7 +29,14 @@ codeunit 5617 "FA Date Calculation"
     var
         AccountingPeriod: Record "Accounting Period";
         FAJnlLine: Record "FA Journal Line";
+        FiscalYearStartDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetFiscalYear(DeprBookCode, EndingDate, FiscalYearStartDate, IsHandled);
+        if IsHandled then
+            exit(FiscalYearStartDate);
+
         DeprBook.Get(DeprBookCode);
         if DeprBook."New Fiscal Year Starting Date" > 0D then begin
             if DeprBook."New Fiscal Year Starting Date" > EndingDate then
@@ -114,6 +121,11 @@ codeunit 5617 "FA Date Calculation"
         if (Date2DMY(EndingDate, 1) = 29) and (Date2DMY(EndingDate, 2) = 2) then
             EndingDate := EndingDate + 1;
         exit(EndingDate);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFiscalYear(DeprBookCode: Code[10]; EndingDate: Date; var FiscalYearStartDate: Date; var IsHandled: Boolean)
+    begin
     end;
 }
 

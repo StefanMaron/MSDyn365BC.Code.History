@@ -478,6 +478,7 @@ report 20 "Calc. and Post VAT Settlement"
                             if DocNo = NoSeries.PeekNextNo(GenJnlBatch."No. Series", PostingDate) then
                                 NoSeries.GetNextNo(GenJnlBatch."No. Series", PostingDate)
                     end;
+                    OnVATPostingSetupOnAfterOnPostDataItem(GenJnlLine, PostSettlement);
                 end;
             end;
 
@@ -519,6 +520,8 @@ report 20 "Calc. and Post VAT Settlement"
 
     requestpage
     {
+        AboutTitle = 'About Calc. and Post VAT Settlement';
+        AboutText = 'The **Calculate and Post Tax Settlement** report calculates VAT based on posted entries and generates a journal to record the VAT settlement. Use it for automating VAT processing at the end of a filing period (typically monthly or quarterly) by posting the net VAT due or refundable, helping streamline tax reporting and compliance.';
         SaveValues = true;
         ShowFilter = false;
 
@@ -678,7 +681,7 @@ report 20 "Calc. and Post VAT Settlement"
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        OnBeforePreReport("VAT Posting Setup", PostSettlement, GLAccSettle);
+        OnBeforePreReport("VAT Posting Setup", PostSettlement, GLAccSettle, DocNo);
 
         if PostingDate = 0D then
             Error(Text000);
@@ -1069,7 +1072,7 @@ report 20 "Calc. and Post VAT Settlement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup"; PostSettlement: Boolean; GLAccountSettle: Record "G/L Account")
+    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup"; PostSettlement: Boolean; GLAccountSettle: Record "G/L Account"; var DocNo: Code[20])
     begin
     end;
 
@@ -1110,6 +1113,11 @@ report 20 "Calc. and Post VAT Settlement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyAmounts(var GenJournalLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVATPostingSetupOnAfterOnPostDataItem(GenJnlLine: Record "Gen. Journal Line"; PostSettlement: Boolean)
     begin
     end;
 }

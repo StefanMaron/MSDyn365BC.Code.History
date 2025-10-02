@@ -21,7 +21,6 @@ codeunit 134050 "ERM VAT Tool - Master"
         LibraryResource: Codeunit "Library - Resource";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
-        LibraryRapidStart: Codeunit "Library - Rapid Start";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         isInitialized: Boolean;
 
@@ -1090,44 +1089,6 @@ codeunit 134050 "ERM VAT Tool - Master"
         end;
     end;
 
-    local procedure CreateConfigItemTemplates(var TempRecRef: RecordRef; "Count": Integer)
-    var
-        Item: Record Item;
-        VATProdPostingGroup: Code[20];
-        GenProdPostingGroup: Code[20];
-        i: Integer;
-    begin
-        TempRecRef.Open(DATABASE::"Config. Template Line", true);
-        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
-        for i := 1 to Count do begin
-            CreateConfigItemTemplate(TempRecRef, Item.FieldNo("Gen. Prod. Posting Group"), GenProdPostingGroup);
-            CreateConfigItemTemplate(TempRecRef, Item.FieldNo("VAT Prod. Posting Group"), VATProdPostingGroup);
-        end;
-    end;
-
-    local procedure CreateConfigItemTemplate(var TempRecRef: RecordRef; FieldID: Integer; DefaultValue: Text[250])
-    var
-        ConfigTemplateLine: Record "Config. Template Line";
-        RecRef: RecordRef;
-    begin
-        CreateConfigItemTemplateWithFieldID(ConfigTemplateLine, FieldID, DefaultValue);
-        RecRef.GetTable(ConfigTemplateLine);
-        ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
-    end;
-
-    local procedure CreateConfigItemTemplateWithFieldID(var ConfigTemplateLine: Record "Config. Template Line"; FieldID: Integer; DefaultValue: Text[250])
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
-        ConfigTemplateHeader.Validate("Table ID", DATABASE::Item);
-        ConfigTemplateHeader.Modify(true);
-        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
-        ConfigTemplateLine.Validate("Field ID", FieldID);
-        ConfigTemplateLine.Validate("Default Value", DefaultValue);
-        ConfigTemplateLine.Modify(true);
-    end;
-
     local procedure CreateItemCharges(var TempRecRef: RecordRef; "Count": Integer)
     var
         ItemCharge: Record "Item Charge";
@@ -1476,4 +1437,3 @@ codeunit 134050 "ERM VAT Tool - Master"
         VATRateChangeConv.TestField("Converted Date", ConvertedDate);
     end;
 }
-

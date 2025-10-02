@@ -5764,7 +5764,7 @@
         VATReportHeader.DeleteAll();
     end;
 
-    local procedure CreateVATReturnPeriod(VATReturnPeriodStatus: Option; VATReportHeaderStatus: Option; StartDate: Date; EndDate: Date)
+    local procedure CreateVATReturnPeriod(VATReturnPeriodStatus: Option; VATReportHeaderStatus: Enum "VAT Report Status"; StartDate: Date; EndDate: Date)
     var
         VATReturnPeriod: Record "VAT Return Period";
         VATReportHeader: Record "VAT Report Header";

@@ -782,14 +782,6 @@ codeunit 144002 "Sales/Purchase Application"
         VendorLedgerEntries.UnapplyEntries.Invoke();
     end;
 
-    local procedure FindGenJournalTemplate(): Code[10]
-    var
-        GenJnlTemplate: Record "Gen. Journal Template";
-    begin
-        LibraryERM.FindGenJournalTemplate(GenJnlTemplate);
-        exit(GenJnlTemplate.Name);
-    end;
-
     local procedure GetDefPostingDate(): Date
     begin
         exit(CalcDate('<-1M>', WorkDate()));
@@ -892,4 +884,3 @@ codeunit 144002 "Sales/Purchase Application"
         Reply := true;
     end;
 }
-

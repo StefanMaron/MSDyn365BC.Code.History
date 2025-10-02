@@ -11,9 +11,9 @@ using Microsoft.ExcelReports;
 report 4409 "EXR Customer Top List"
 {
     ApplicationArea = All;
-    Caption = 'Customer - Top List Excel';
+    Caption = 'Customer - Top List (Excel)';
     DataAccessIntent = ReadOnly;
-    DefaultRenderingLayout = CustomerTopTrendExcel;
+    DefaultRenderingLayout = CustomerTopListExcel;
     ExcelLayoutMultipleDataSheets = true;
     UsageCategory = ReportsAndAnalysis;
 
@@ -45,8 +45,8 @@ report 4409 "EXR Customer Top List"
 
     requestpage
     {
-        AboutText = 'This report contains aggregated sales (LCY) and balance (LCY) data for the top number of customers selected. The data is aggregated for the period specified in the request page''s Datefilter parameter.';
-        AboutTitle = 'Customer - Top Trends';
+        AboutTitle = 'About Customer - Top List (Excel)';
+        AboutText = 'Review customers with the most transactions in a selected period. Identify sales trends and manage debt collections. Amounts are shown in local currency (LCY).';
         SaveValues = true;
         layout
         {
@@ -99,12 +99,12 @@ report 4409 "EXR Customer Top List"
     }
     rendering
     {
-        layout(CustomerTopTrendExcel)
+        layout(CustomerTopListExcel)
         {
-            Caption = 'Customer - Top Trends Excel';
+            Caption = 'Customer - Top List (Excel)';
             LayoutFile = './ReportLayouts/Excel/Customer/CustomerTopListExcel.xlsx';
             Type = Excel;
-            Summary = 'Built in layout for the Customer - Top Trends excel report. This report contains aggregated sales (LCY) and balance (LCY) data for the top number of customers selected. Report uses Query connections.';
+            Summary = 'Built in layout for the Customer - Top List (Excel) report. This report contains aggregated sales (LCY) and balance (LCY) data for the top number of customers selected. Report uses Query connections.';
         }
     }
     labels

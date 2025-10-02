@@ -110,7 +110,7 @@ report 11304 "Financial Ledger"
                     }
                     column(AddCurrAmt_GLEntry; "Additional-Currency Amount")
                     {
-                        AutoFormatExpression = GetCurrencyCode();
+                        AutoFormatExpression = GetAdditionalReportingCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(GLAccNo_GLEntry; "G/L Account No.")
@@ -347,12 +347,12 @@ report 11304 "Financial Ledger"
                         }
                         column(AddCurrDebitAmt_GLEntry2; "Add.-Currency Debit Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode();
+                            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AddCurrCrAmt_GLEntry2; "Add.-Currency Credit Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode();
+                            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(GLAccNoCaption_GLEntry2; FieldCaption("G/L Account No."))
@@ -504,22 +504,22 @@ report 11304 "Financial Ledger"
                         }
                         column(VATSumBufferAddCurrBaseCM; VATSumBuffer."Add.-Curr. Base CM")
                         {
-                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode();
+                            AutoFormatExpression = VATSumBuffer.GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATSumBufferAddCurrVATAmtCM; VATSumBuffer."Add.-Curr. VAT Amount CM")
                         {
-                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode();
+                            AutoFormatExpression = VATSumBuffer.GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATSumBufferAddCurrVATAmtInv; -VATSumBuffer."Add.-Curr. VAT Amount Invoices")
                         {
-                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode();
+                            AutoFormatExpression = VATSumBuffer.GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATSumBufferAddCurrBaseInv; -VATSumBuffer."Add.-Curr. Base Invoices")
                         {
-                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode();
+                            AutoFormatExpression = VATSumBuffer.GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(UseAmtsInAddCurr_VATSummary; UseAmtsInAddCurr)
@@ -578,7 +578,7 @@ report 11304 "Financial Ledger"
                         }
                         column(TotalAmountAddCurr; TotalAmountAddCurr)
                         {
-                            AutoFormatExpression = GetCurrencyCode();
+                            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(CashDiscountCaption; CashDiscountCaptionLbl)
@@ -824,4 +824,3 @@ report 11304 "Financial Ledger"
         AmtGLAccCaptionLbl: Label 'Amount G/L Account';
         FinLedgerVATStmtsCaptionLbl: Label 'Financial Ledger - VAT Statements';
 }
-

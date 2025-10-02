@@ -1,50 +1,40 @@
 namespace System.Threading;
 
 using Microsoft.EServices.EDocument;
-using System.Environment.Configuration;
 
-codeunit 487 "Job Queue Start Report"
+codeunit 487 "Job Queue Start Report" implements "Job Queue Report Runner"
 {
     TableNo = "Job Queue Entry";
 
     trigger OnRun()
+    var
+        JobQueueStartReportBase: Codeunit "Job Queue Start Report Base";
     begin
-        RunReport(Rec."Object ID to Run", Rec);
+        JobQueueStartReportBase.RunReport(Rec."Object ID to Run", Rec);
     end;
 
-    local procedure RunReport(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry")
+    procedure RunReport(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry")
     var
         ReportInbox: Record "Report Inbox";
+        JobQueueStartReport: Codeunit "Job Queue Start Report";
         RecRef: RecordRef;
         OutStr: OutStream;
         RunOnRec: Boolean;
-        ShouldModifyNotifyOnSuccess: Boolean;
         IsHandled: Boolean;
+        ShouldModifyNotifyOnSuccess: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeRunReport(ReportID, JobQueueEntry, IsHandled);
-        if IsHandled then
-            exit;
-
-        SetReportTimeOut(JobQueueEntry);
-
         ReportInbox.Init();
         ReportInbox."User ID" := JobQueueEntry."User ID";
         ReportInbox."Job Queue Log Entry ID" := JobQueueEntry.ID;
         ReportInbox."Report ID" := ReportID;
         ReportInbox.Description := JobQueueEntry.Description;
         ReportInbox."Report Output".CreateOutStream(OutStr);
-        OnRunReportOnAfterAssignFields(ReportInbox, JobQueueEntry);
+        JobQueueStartReport.OnRunReportOnAfterAssignFields(ReportInbox, JobQueueEntry);
         RunOnRec := RecRef.Get(JobQueueEntry."Record ID to Process");
         if RunOnRec then
             RecRef.SetRecFilter();
 
         case JobQueueEntry."Report Output Type" of
-            JobQueueEntry."Report Output Type"::"None (Processing only)":
-                if RunOnRec then
-                    REPORT.Execute(ReportID, JobQueueEntry.GetReportParameters(), RecRef)
-                else
-                    REPORT.Execute(ReportID, JobQueueEntry.GetReportParameters());
             JobQueueEntry."Report Output Type"::Print:
                 ProcessPrint(ReportID, JobQueueEntry, RunOnRec, RecRef);
             JobQueueEntry."Report Output Type"::PDF:
@@ -66,6 +56,35 @@ codeunit 487 "Job Queue Start Report"
 
         OnRunReportOnAfterProcessDifferentReportOutputTypes(ReportID, JobQueueEntry);
 
+        case JobQueueEntry."Report Output Type" of
+            JobQueueEntry."Report Output Type"::"None (Processing only)":
+                begin
+                    ShouldModifyNotifyOnSuccess := JobQueueEntry."Notify On Success" = false;
+                    OnRunReportOnAfterCalcShouldModifyNotifyOnSuccess(ReportID, JobQueueEntry, ShouldModifyNotifyOnSuccess);
+                    if ShouldModifyNotifyOnSuccess then begin
+                        JobQueueEntry."Notify On Success" := true;
+                        JobQueueEntry.Modify();
+                    end;
+                end;
+
+            JobQueueEntry."Report Output Type"::Print:
+                ;
+            else begin
+                IsHandled := false;
+                OnRunReportOnBeforeReportInboxInsert(ReportInbox, JobQueueEntry, IsHandled);
+                if not IsHandled then begin
+                    ReportInbox."Created Date-Time" := RoundDateTime(CurrentDateTime, 60000);
+                    ReportInbox.Insert(true);
+                end;
+            end;
+        end;
+    end;
+
+    local procedure ProcessJobQueueRun(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; var ReportInbox: Record "Report Inbox")
+    var
+        ShouldModifyNotifyOnSuccess: Boolean;
+        IsHandled: Boolean;
+    begin
         case JobQueueEntry."Report Output Type" of
             JobQueueEntry."Report Output Type"::"None (Processing only)":
                 begin
@@ -124,34 +143,58 @@ codeunit 487 "Job Queue Start Report"
             REPORT.SaveAs(ReportID, JobQueueEntry.GetReportParameters(), RepFormat, OutStream);
     end;
 
-    local procedure SetReportTimeOut(JobQueueEntry: Record "Job Queue Entry")
-    var
-        ReportSettingsOverride: Record "Report Settings Override";
-        TimoutInSeconds: Integer;
+#if not CLEAN27
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Start Report Base", OnBeforeRunReport, '', false, false)]
+    local procedure OnBeforeRunReportBase(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
-        if not ReportSettingsOverride.WritePermission then
-            exit;
-        if JobQueueEntry."Job Timeout" = 0 then
-            exit;
-        ReportSettingsOverride.LockTable();
-        if JobQueueEntry."Job Timeout" = 0 then
-            TimoutInSeconds := JobQueueEntry.DefaultJobTimeout() div 1000
-        else
-            TimoutInSeconds := JobQueueEntry."Job Timeout" div 1000;
+        OnBeforeRunReport(ReportID, JobQueueEntry, IsHandled);
+    end;
 
-        if ReportSettingsOverride.Get(JobQueueEntry."Object ID to Run", CompanyName) then begin
-            if ReportSettingsOverride.Timeout < TimoutInSeconds then begin
-                ReportSettingsOverride.Timeout := TimoutInSeconds;
-                ReportSettingsOverride.Modify();
-            end;
-        end else
-            if TimoutInSeconds > 6 * 60 * 60 then begin // Report default is 6hrs
-                ReportSettingsOverride."Object ID" := JobQueueEntry."Object ID to Run";
-                ReportSettingsOverride."Company Name" := CopyStr(CompanyName, 1, MaxStrLen(ReportSettingsOverride."Company Name"));
-                ReportSettingsOverride.Timeout := TimoutInSeconds;
-                ReportSettingsOverride.Insert();
-            end;
-        Commit();
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Start Report Base", OnBeforeRunReportInterface, '', false, false)]
+    local procedure OnBeforeRunReportInterfaceBase(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry")
+    var
+        ReportInbox: Record "Report Inbox";
+    begin
+        ReportInbox.Init();
+        ReportInbox."User ID" := JobQueueEntry."User ID";
+        ReportInbox."Job Queue Log Entry ID" := JobQueueEntry.ID;
+        ReportInbox."Report ID" := ReportID;
+        ReportInbox.Description := JobQueueEntry.Description;
+        OnRunReportOnAfterAssignFields(ReportInbox, JobQueueEntry);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Start Report Runner", OnAfterRunReport, '', false, false)]
+    local procedure OnAfterRunReportInterface(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry")
+    var
+        ReportInbox: Record "Report Inbox";
+    begin
+        ReportInbox.Init();
+        ReportInbox."User ID" := JobQueueEntry."User ID";
+        ReportInbox."Job Queue Log Entry ID" := JobQueueEntry.ID;
+        ReportInbox."Report ID" := ReportID;
+        ReportInbox.Description := JobQueueEntry.Description;
+        OnRunReportOnBeforeCommit(ReportInbox, JobQueueEntry);
+    end;
+#endif
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Start Report Runner", OnAfterExecuteReport, '', false, false)]
+    local procedure OnAfterExecuteReportBaseRunner(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; var ShouldModifyNotifyOnSuccess: Boolean)
+    var
+        ReportInbox: Record "Report Inbox";
+        OriginalReportOutputType: Enum "Job Queue Report Output Type";
+    begin
+        OriginalReportOutputType := JobQueueEntry."Report Output Type";
+        OnRunReportOnAfterProcessDifferentReportOutputTypes(ReportID, JobQueueEntry);
+        if JobQueueEntry."Report Output Type" = OriginalReportOutputType then
+            OnRunReportOnAfterCalcShouldModifyNotifyOnSuccess(ReportID, JobQueueEntry, ShouldModifyNotifyOnSuccess)
+        else begin
+            ReportInbox.Init();
+            ReportInbox."User ID" := JobQueueEntry."User ID";
+            ReportInbox."Job Queue Log Entry ID" := JobQueueEntry.ID;
+            ReportInbox."Report ID" := ReportID;
+            ReportInbox.Description := JobQueueEntry.Description;
+            ProcessJobQueueRun(ReportID, JobQueueEntry, ReportInbox);
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -164,10 +207,13 @@ codeunit 487 "Job Queue Start Report"
     begin
     end;
 
+#if not CLEAN27
     [IntegrationEvent(false, false)]
+    [Obsolete('This event has been moved to "Job Queue Start Report Base".', '27.0')]
     local procedure OnBeforeRunReport(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnRunReportOnAfterCalcShouldModifyNotifyOnSuccess(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; var ShouldModifyNotifyOnSuccess: Boolean)
@@ -175,7 +221,10 @@ codeunit 487 "Job Queue Start Report"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunReportOnAfterAssignFields(var ReportInbox: Record "Report Inbox"; var JobQueueEntry: Record "Job Queue Entry")
+#if not CLEAN27 // Warn users about breaking change even though event still exists
+    [Obsolete('This event will continue existing but only called for Job Queue Entries with output type <> None with this obsoletion. To handle Job Queue Entries of type None, hook into "Job Queue Start Report Base".OnBeforeRunReportInterface.', '27.0')]
+#endif
+    internal procedure OnRunReportOnAfterAssignFields(var ReportInbox: Record "Report Inbox"; var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 
@@ -190,6 +239,9 @@ codeunit 487 "Job Queue Start Report"
     end;
 
     [IntegrationEvent(false, false)]
+#if not CLEAN27 // Warn users about breaking change even though event still exists
+    [Obsolete('This event will continue existing but only called for Job Queue Entries with output type <> None with this obsoletion. To handle Job Queue Entries of type None, hook into "Job Queue Start Report Runner".OnAfterRunReport.', '27.0')]
+#endif
     local procedure OnRunReportOnBeforeCommit(ReportInbox: Record "Report Inbox"; var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;

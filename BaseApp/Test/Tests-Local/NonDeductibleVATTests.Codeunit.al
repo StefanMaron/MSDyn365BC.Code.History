@@ -1853,9 +1853,8 @@ codeunit 144000 "Non-Deductible VAT Tests"
 
         // [WHEN] Post purchase invoice (FCY, FCY to LCY currency factor = 10) with G/L Account "X" and Amount = 1000
         PurchInvHeader.Get(
-          CreateAndPostPurchaseInvoice(
-            VATPostingSetup, LibraryERM.CreateCurrencyWithRandomExchRates(), GLAccount, VATBase, VATAmount, NonDedVATAmount));
-        ConvertAmounts(VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY, VATBase, VATAmount, NonDedVATAmount, PurchInvHeader."Currency Code", '');
+          CreateAndPostPurchaseInvoiceWithFCY(
+            VATPostingSetup, LibraryERM.CreateCurrencyWithRandomExchRates(), GLAccount, VATBase, VATAmount, NonDedVATAmount, VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY));
 
         // [THEN] VATEntry."Non Ded. VAT Amount" = (10000 * 20%) * 40% = 800
         // [THEN] VATEntry."Base" = 10000 + 800 = 10800
@@ -1960,14 +1959,9 @@ codeunit 144000 "Non-Deductible VAT Tests"
 
         // [WHEN] Post purchase invoice (FCY, FCY to LCY currency factor = 10) with G/L Account "X" and Amount = 1000
         PurchInvHeader.Get(
-          CreateAndPostPurchaseInvoice(
-            VATPostingSetup, LibraryERM.CreateCurrencyWithRandomExchRates(), GLAccount, VATBase, VATAmount, NonDedVATAmount));
-        ConvertAmounts(
-          VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY, VATBase, VATAmount, NonDedVATAmount,
-          PurchInvHeader."Currency Code", '');
-        ConvertAmounts(
-          VATBaseACY, VATAmountACY, NonDedVATAmountACY, VATBase, VATAmount, NonDedVATAmount,
-          PurchInvHeader."Currency Code", LibraryERM.GetAddReportingCurrency());
+          CreateAndPostPurchaseInvoiceWithFCYAndACY(
+            VATPostingSetup, LibraryERM.CreateCurrencyWithRandomExchRates(), GLAccount, VATBase, VATAmount, NonDedVATAmount,
+            VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY, VATBaseACY, VATAmountACY, NonDedVATAmountACY));
 
         // [THEN] VATEntry."Non Ded. VAT Amount" = (10000 * 20%) * 40% = 800
         // [THEN] VATEntry."Base" = 10000 + 800 = 10800
@@ -2023,14 +2017,9 @@ codeunit 144000 "Non-Deductible VAT Tests"
 
         // [WHEN] Post purchase invoice (FCY, FCY = ACY) with G/L Account "X" and Amount = 1000
         PurchInvHeader.Get(
-          CreateAndPostPurchaseInvoice(
-            VATPostingSetup, LibraryERM.GetAddReportingCurrency(), GLAccount, VATBase, VATAmount, NonDedVATAmount));
-        ConvertAmounts(
-          VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY, VATBase, VATAmount, NonDedVATAmount,
-          PurchInvHeader."Currency Code", '');
-        ConvertAmounts(
-          VATBaseACY, VATAmountACY, NonDedVATAmountACY, VATBase, VATAmount, NonDedVATAmount,
-          PurchInvHeader."Currency Code", LibraryERM.GetAddReportingCurrency());
+          CreateAndPostPurchaseInvoiceWithFCYAndACY(
+            VATPostingSetup, LibraryERM.GetAddReportingCurrency(), GLAccount, VATBase, VATAmount, NonDedVATAmount,
+            VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY, VATBaseACY, VATAmountACY, NonDedVATAmountACY));
 
         // [THEN] VATEntry."Non Ded. VAT Amount" = (100 * 20%) * 40% = 8
         // [THEN] VATEntry."Base" = 100 + 8 = 108
@@ -2041,7 +2030,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         VerifyVATEntryLCYAndACYAmounts(
           PurchInvHeader."Buy-from Vendor No.", PurchInvHeader."No.",
           VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY,
-          VATBaseACY, VATAmountACY, NonDedVATAmountACY);
+          VATBase, VATAmount, NonDedVATAmount);
 
         // [THEN] VAT Statement Line has following Base and Amount:
         // [THEN] InclNonDeductibleVAT = FALSE, UseAmtsInAddCurr = FALSE: Base = 108, Amount = 12
@@ -2051,7 +2040,7 @@ codeunit 144000 "Non-Deductible VAT Tests"
         VerifyVATStatementAmountsLCYAndACY(
           VATPostingSetup,
           VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY,
-          VATBaseACY, VATAmountACY, NonDedVATAmountACY);
+          VATBase, VATAmount, NonDedVATAmount);
     end;
 
     [Test]
@@ -3504,16 +3493,43 @@ codeunit 144000 "Non-Deductible VAT Tests"
 
     local procedure CreateAndPostPurchaseInvoice(VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; GLAccount: Record "G/L Account"; var VATBase: Decimal; var VATAmount: Decimal; var NonDedVATAmount: Decimal): Code[20]
     var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         DirectUnitCost: Decimal;
     begin
         DirectUnitCost := LibraryRandom.RandDecInRange(1000, 2000, 2);
-        VATAmount := Round(DirectUnitCost * VATPostingSetup."VAT %" / 100);
-        NonDedVATAmount := Round(VATAmount * GLAccount."% Non deductible VAT" / 100);
-        VATAmount -= NonDedVATAmount;
-        VATBase := DirectUnitCost + NonDedVATAmount;
+        CalculateVATAmounts(VATBase, VATAmount, NonDedVATAmount, DirectUnitCost, VATPostingSetup."VAT %", GLAccount."% Non deductible VAT");
+        exit(CreateAndPostPurchaseInvoice(VATPostingSetup, CurrencyCode, GLAccount, DirectUnitCost));
+    end;
 
+    local procedure CreateAndPostPurchaseInvoiceWithFCY(VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; GLAccount: Record "G/L Account"; var VATBase: Decimal; var VATAmount: Decimal; var NonDedVATAmount: Decimal; var VATBaseLCY: Decimal; var VATAmountLCY: Decimal; var NonDedVATAmountLCY: Decimal): Code[20]
+    var
+        DirectUnitCost, DirectUnitCostLCY : Decimal;
+    begin
+        DirectUnitCost := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        CalculateVATAmounts(VATBase, VATAmount, NonDedVATAmount, DirectUnitCost, VATPostingSetup."VAT %", GLAccount."% Non deductible VAT");
+        DirectUnitCostLCY := Round(LibraryERM.ConvertCurrency(DirectUnitCost, CurrencyCode, '', WorkDate()));
+        CalculateVATAmounts(VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY, DirectUnitCostLCY, VATPostingSetup."VAT %", GLAccount."% Non deductible VAT");
+        exit(CreateAndPostPurchaseInvoice(VATPostingSetup, CurrencyCode, GLAccount, DirectUnitCost));
+    end;
+
+    local procedure CreateAndPostPurchaseInvoiceWithFCYAndACY(VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; GLAccount: Record "G/L Account"; var VATBase: Decimal; var VATAmount: Decimal; var NonDedVATAmount: Decimal; var VATBaseLCY: Decimal; var VATAmountLCY: Decimal; var NonDedVATAmountLCY: Decimal; var VATBaseACY: Decimal; var VATAmountACY: Decimal; var NonDedVATAmountACY: Decimal): Code[20]
+    var
+        DirectUnitCost, DirectUnitCostLCY : Decimal;
+    begin
+        DirectUnitCost := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        CalculateVATAmounts(VATBase, VATAmount, NonDedVATAmount, DirectUnitCost, VATPostingSetup."VAT %", GLAccount."% Non deductible VAT");
+        DirectUnitCostLCY := Round(LibraryERM.ConvertCurrency(DirectUnitCost, CurrencyCode, '', WorkDate()));
+        CalculateVATAmounts(VATBaseLCY, VATAmountLCY, NonDedVATAmountLCY, DirectUnitCostLCY, VATPostingSetup."VAT %", GLAccount."% Non deductible VAT");
+        VATBaseACY := Round(LibraryERM.ConvertCurrency(VATBaseLCY, '', LibraryERM.GetAddReportingCurrency(), WorkDate()));
+        VATAmountACY := Round(LibraryERM.ConvertCurrency(VATAmountLCY, '', LibraryERM.GetAddReportingCurrency(), WorkDate()));
+        NonDedVATAmountACY := Round(LibraryERM.ConvertCurrency(NonDedVATAmountLCY, '', LibraryERM.GetAddReportingCurrency(), WorkDate()));
+        exit(CreateAndPostPurchaseInvoice(VATPostingSetup, CurrencyCode, GLAccount, DirectUnitCost));
+    end;
+
+    local procedure CreateAndPostPurchaseInvoice(VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; GLAccount: Record "G/L Account"; DirectUnitCost: Decimal): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
         CreatePurchaseInvoiceHeader(PurchaseHeader, VATPostingSetup."VAT Bus. Posting Group");
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
@@ -3522,6 +3538,14 @@ codeunit 144000 "Non-Deductible VAT Tests"
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CalculateVATAmounts(var VATBase: Decimal; var VATAmount: Decimal; var NonDedVATAmount: Decimal; DirectUnitCost: Decimal; VATPct: Decimal; NDVATPct: Decimal)
+    begin
+        VATAmount := Round(DirectUnitCost * VATPct / 100);
+        NonDedVATAmount := Round(VATAmount * NDVATPct / 100);
+        VATAmount -= NonDedVATAmount;
+        VATBase := DirectUnitCost + NonDedVATAmount;
     end;
 
     local procedure CreateAndPostPurchaseInvoiceForJob(VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; GLAccount: Record "G/L Account"; var VATBase: Decimal; var JobTask: Record "Job Task"): Code[20]

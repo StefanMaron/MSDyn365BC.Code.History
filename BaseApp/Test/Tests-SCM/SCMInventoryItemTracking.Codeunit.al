@@ -2101,14 +2101,14 @@ codeunit 137260 "SCM Inventory Item Tracking"
         LotNo: array[2] of Code[10];
     begin
 
-        // [SCENARIO 572962] No Error when Lot is available on inventory, when trying to register pick for item with reservation and item tracking with location set up FEFO
+        // [SCENARIO 572962] No Error when Lot No. LOT0001 is available on inventory, when trying to register pick for item with reservation and item tracking with location set up FEFO
         Initialize();
 
         // [GIVEN] Set up Expiration Date for the Lot No.
         ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
 
         // [GIVEN] Create Location with pick according to FEFO.
-        CreateLocationWithPostingSetupAndPickAccordingToFEFO(Location, ShipmentBinCode);
+        CreateLocationWithPostingSetupAndPickAccordingTOFEFO(Location, ShipmentBinCode);
 
         // [GIVEN] Item with Lot No. tracking.
         LibraryInventory.CreateTrackedItem(Item, '', '', CreateItemTrackingCode(false, true, true, false, true));
@@ -2126,7 +2126,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         // [GIVEN] Create Sales order and reserve the first Lot No. "LOT0001" with Expiration Date = D1.
         CreateSOAndTrackInventory(SalesHeader[1], Item."No.", Location.Code, 1);
 
-        // Create second sales order and reserve the second Lot No. "LOT0002" with Expiration Date = D2.
+        // Create seconf sales order and reserve the second Lot No. "LOT0002" with Expiration Date = D2.
         CreateSOAndTrackInventory(SalesHeader[2], Item."No.", Location.Code, 1);
 
         // [GIVEN] Create Warehouse Shipment from Sales Order second.
@@ -2591,12 +2591,10 @@ codeunit 137260 "SCM Inventory Item Tracking"
         Item: Record Item;
         Item2: Record Item;
         Item3: Record Item;
-        ManufacturingSetup: Record "Manufacturing Setup";
         ProductionBOMHeader: Record "Production BOM Header";
         TrackingOption: Option AssignSerialNo,AssignLotNo,VerifyLotNo;
     begin
         // Create tracked Items for Production Order Component, create Production BOM, attach it to Item, create and refresh Production Order and assign Item Tracking and find Production Order Component.
-        ManufacturingSetup.Get();
         LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode(),
           CreateItemTrackingCode(false, false, false, true, false));
         LibraryInventory.CreateTrackedItem(Item2, '', LibraryUtility.GetGlobalNoSeriesCode(),
@@ -2628,7 +2626,7 @@ codeunit 137260 "SCM Inventory Item Tracking"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
     end;
 
-    local procedure CreateLocationWithPostingSetupAndPickAccordingToFEFO(var Location: Record Location; var ShipmentBinCode: Code[20])
+    local procedure CreateLocationWithPostingSetupAndPickAccordingTOFEFO(var Location: Record Location; var ShipmentBinCode: Code[20])
     var
         Bin: Record Bin;
     begin

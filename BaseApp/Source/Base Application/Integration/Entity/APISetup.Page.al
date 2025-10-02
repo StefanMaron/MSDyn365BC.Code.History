@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -8,6 +8,7 @@ using Microsoft.Integration.Graph;
 using System.IO;
 using System.Reflection;
 using Microsoft.API.Upgrade;
+using System.Telemetry;
 
 page 5469 "API Setup"
 {
@@ -126,9 +127,10 @@ page 5469 "API Setup"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     var
+        AuditLog: Codeunit "Audit Log";
         APISetupRecordCreatedLbl: Label 'A new API Setup record Table ID %1, Template Code %2, Page ID %3 is created by the UserSecurityId %4.', Locked = true;
     begin
-        Session.LogAuditMessage(StrSubstNo(APISetupRecordCreatedLbl, Rec."Table ID", Rec."Template Code", Rec."Page ID", UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+        AuditLog.LogAuditMessage(StrSubstNo(APISetupRecordCreatedLbl, Rec."Table ID", Rec."Template Code", Rec."Page ID", UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
     end;
 
     var

@@ -215,7 +215,8 @@ report 5985 "Contract Price Update - Test"
 
     requestpage
     {
-
+        AboutTitle = 'About Contract Price Update - Test';
+        AboutText = 'Get an overview of service contracts that need price updates up to a date that you specify.';
         layout
         {
             area(content)

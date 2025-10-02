@@ -1,4 +1,5 @@
-﻿page 2000045 "Transaction Coding"
+#pragma warning disable AA0247
+page 2000045 "Transaction Coding"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Transaction Coding';

@@ -42,7 +42,7 @@ table 11303 "VAT Summary Buffer"
         }
         field(5; "Add.-Curr. Base Invoices"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Add.-Curr. Base Invoices';
@@ -50,7 +50,7 @@ table 11303 "VAT Summary Buffer"
         }
         field(6; "Add.-Curr. VAT Amount Invoices"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Curr. VAT Amount Invoices';
             DataClassification = SystemMetadata;
@@ -69,7 +69,7 @@ table 11303 "VAT Summary Buffer"
         }
         field(9; "Add.-Curr. Base CM"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Add.-Curr. Base CM';
@@ -77,7 +77,7 @@ table 11303 "VAT Summary Buffer"
         }
         field(10; "Add.-Curr. VAT Amount CM"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Curr. VAT Amount CM';
             DataClassification = SystemMetadata;
@@ -127,7 +127,14 @@ table 11303 "VAT Summary Buffer"
             Next();
     end;
 
+#if not CLEAN27
+    [Obsolete('use GetAdditionalReportingCurrencyCode instead', '27.0')]
     procedure GetCurrencyCode(): Code[10]
+    begin
+        exit(GetAdditionalReportingCurrencyCode());
+    end;
+#endif
+    procedure GetAdditionalReportingCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
             GLSetup.Get();
@@ -136,4 +143,3 @@ table 11303 "VAT Summary Buffer"
         exit(GLSetup."Additional Reporting Currency");
     end;
 }
-

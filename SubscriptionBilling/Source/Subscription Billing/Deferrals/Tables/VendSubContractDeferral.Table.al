@@ -55,6 +55,7 @@ table 8072 "Vend. Sub. Contract Deferral"
         {
             Caption = 'Amount';
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(9; "Vendor No."; Code[20])
         {
@@ -72,16 +73,19 @@ table 8072 "Vend. Sub. Contract Deferral"
         {
             Caption = 'Discount Amount';
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(14; "Deferral Base Amount"; Decimal)
         {
             Caption = 'Deferral Base Amount';
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(15; "Discount %"; Decimal)
         {
             Caption = 'Discount %';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(16; "Pay-to Vendor No."; Code[20])
         {
@@ -127,6 +131,10 @@ table 8072 "Vend. Sub. Contract Deferral"
         {
             Caption = 'Discount';
         }
+        field(26; "Currency Code"; Code[10])
+        {
+            Caption = 'Currency Code';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -171,6 +179,7 @@ table 8072 "Vend. Sub. Contract Deferral"
         Rec."Document Line No." := PurchaseLine."Line No.";
         Rec."Pay-to Vendor No." := PurchaseLine."Pay-to Vendor No.";
         Rec.Discount := PurchaseLine."Discount";
+        Rec."Currency Code" := PurchaseLine."Currency Code";
     end;
 
     internal procedure ShowDimensions()

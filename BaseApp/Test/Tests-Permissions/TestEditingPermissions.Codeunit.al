@@ -16,16 +16,12 @@ codeunit 134612 "Test Editing Permissions"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         CopySuccessMsg: Label 'New permission set, %1, has been created.', Comment = 'New permission set, D365 Basic Set, has been created.';
-        FieldFilterErr: Label 'Security filter %1 does not have the field filter %2.', Comment = 'Security filter Customer: Chain Name=<>0 does not have the field filter <>100.';
         MissingSourceErr: Label 'There is no permission set to copy from.';
         MultipleSourcesErr: Label 'You can only copy one permission set at a time.';
         TargetExistsErr: Label 'The new permission set already exists.';
         TargetNameMissingErr: Label 'You must specify a name for the new permission set.';
         ZeroGuid: Guid;
         MSPermSetChangedMsg: Label 'One or more System permission sets that you have copied to create your own have changed. You may want to review the changed permission set in case the changes are relevant for your user-defined permission sets.';
-        SecurityFilterErr: Label 'Security filter %1 does not apply to the %2 table.', Comment = 'Security filter Customer: Chain Name=<>0 does not apply to the Vendor table.';
-        SecurityFilterExistsErr: Label 'Security filter should not exit.';
-        UnsupportedDataTypeErr: Label 'Cannot define a field filter for field %1 whose type is %2.', Comment = 'Cannot define a field filter for field App ID whose type is GUID.';
         CannotEditPermissionSetMsg: Label 'Permission sets of type System and Extension cannot be changed. Only permission sets of type User-Defined can be changed.';
         CannotRenameTenantPermissionSetHavingUsageErr: Label 'You cannot rename a tenant permission set while it is used elsewhere, for example, in permission settings for a user or security group.';
 
@@ -656,44 +652,6 @@ codeunit 134612 "Test Editing Permissions"
         PermissionSets.Close();
     end;
 
-    local procedure DefineSecurityFilterForPermission(var TempTableFilter: Record "Table Filter" temporary; PermissionSetRoleID: Code[20])
-    var
-        Permission: Record Permission;
-    begin
-        Permission.SetRange("Role ID", PermissionSetRoleID);
-        Permission.FindFirst();
-
-        BuildSecurityFilterForFieldValueNotEqualToZero(TempTableFilter, Permission."Object ID");
-    end;
-
-    local procedure DefineSecurityFilterForTenantPermission(var TempTableFilter: Record "Table Filter" temporary; TenantPermissionSetRoleID: Code[20])
-    var
-        TenantPermission: Record "Tenant Permission";
-    begin
-        TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermission.FindFirst();
-
-        BuildSecurityFilterForFieldValueNotEqualToZero(TempTableFilter, TenantPermission."Object ID");
-    end;
-
-    local procedure BuildSecurityFilterForFieldValueNotEqualToZero(var TempTableFilter: Record "Table Filter" temporary; TableNumber: Integer)
-    var
-        "Field": Record "Field";
-    begin
-        Field.SetRange(TableNo, TableNumber);
-        Field.FindFirst();
-
-        TempTableFilter."Table Number" := TableNumber;
-        TempTableFilter."Field Number" := Field."No.";
-
-        case Field.Type of
-            Field.Type::Code, Field.Type::Text, Field.Type::Integer:
-                TempTableFilter."Field Filter" := StrSubstNo('<>%1', 0);
-            else
-                Assert.Fail(StrSubstNo(UnsupportedDataTypeErr, Field.FieldName, Field."Type Name"));
-        end;
-    end;
-
     local procedure DeleteExistingTenantPermissionSet(ExistingRoleID: Code[20])
     var
         TenantPermissionSet: Record "Tenant Permission Set";
@@ -948,92 +906,6 @@ codeunit 134612 "Test Editing Permissions"
         ToTenantPermission.TestField("Security Filter", FromTenantPermission."Security Filter");
     end;
 
-    local procedure AssertTenantPermissionSetContainsTableDataTenantPermission(TenantPermissionSetRoleID: Code[20]; TenantPermissionTableDataObjectID: Integer)
-    var
-        TenantPermission: Record "Tenant Permission";
-        ZeroGUID: Guid;
-    begin
-        TenantPermission.SetRange("App ID", ZeroGUID);
-        TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermission.SetRange("Object Type", TenantPermission."Object Type"::"Table Data");
-        TenantPermission.SetRange("Object ID", TenantPermissionTableDataObjectID);
-        Assert.RecordIsNotEmpty(TenantPermission);
-    end;
-
-    local procedure AssertTenantPermissionSetNotContainingTableDataTenantPermission(TenantPermissionSetRoleID: Code[20]; TenantPermissionTableDataObjectID: Integer)
-    var
-        TenantPermission: Record "Tenant Permission";
-        ZeroGUID: Guid;
-    begin
-        TenantPermission.SetRange("App ID", ZeroGUID);
-        TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermission.SetRange("Object Type", TenantPermission."Object Type"::"Table Data");
-        TenantPermission.SetRange("Object ID", TenantPermissionTableDataObjectID);
-        Assert.RecordIsEmpty(TenantPermission);
-    end;
-
-    local procedure AssertPermissionSetNotContainingTableDataTenantPermission(PermissionSetRoleID: Code[20]; TenantPermissionTableDataObjectID: Integer)
-    var
-        TenantPermission: Record "Tenant Permission";
-    begin
-        TenantPermission.SetRange("Role ID", PermissionSetRoleID);
-        TenantPermission.SetRange("Object Type", TenantPermission."Object Type"::"Table Data");
-        TenantPermission.SetRange("Object ID", TenantPermissionTableDataObjectID);
-        Assert.RecordIsEmpty(TenantPermission);
-    end;
-
-    local procedure AssertPermissionSetNotContainingTableDataPermission(PermissionSetRoleID: Code[20]; PermissionTableDataObjectID: Integer)
-    var
-        Permission: Record Permission;
-    begin
-        Permission.SetRange("Role ID", PermissionSetRoleID);
-        Permission.SetRange("Object Type", Permission."Object Type"::"Table Data");
-        Permission.SetRange("Object ID", PermissionTableDataObjectID);
-        Assert.RecordIsEmpty(Permission);
-    end;
-
-    local procedure AssertTenantPermissionSetHasSecurityFilterForTenantPermission(TenantPermissionSetRoleID: Code[20]; TempTableFilter: Record "Table Filter" temporary)
-    var
-        TenantPermission: Record "Tenant Permission";
-        TenantPermissionSecurityFilter: Text;
-    begin
-        TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermission.SetRange("Object Type", TenantPermission."Object Type"::"Table Data");
-        TenantPermission.SetRange("Object ID", TempTableFilter."Table Number");
-        TenantPermission.FindFirst();
-
-        TenantPermissionSecurityFilter := Format(TenantPermission."Security Filter");
-
-        Assert.AreEqual(0, StrPos(TenantPermissionSecurityFilter, TempTableFilter."Table Name"),
-          StrSubstNo(SecurityFilterErr, TenantPermissionSecurityFilter, TempTableFilter."Table Name"));
-        Assert.IsTrue(0 < StrPos(TenantPermissionSecurityFilter, TempTableFilter."Field Filter"),
-          StrSubstNo(FieldFilterErr, TenantPermissionSecurityFilter, TempTableFilter."Field Filter"));
-    end;
-
-    local procedure AssertTenantPermissionSetMissingSecurityFilterForTenantPermission(TenantPermissionSetRoleID: Code[20]; InputTableNumber: Integer)
-    var
-        TenantPermission: Record "Tenant Permission";
-    begin
-        TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermission.SetRange("Object Type", TenantPermission."Object Type"::"Table Data");
-        TenantPermission.SetRange("Object ID", InputTableNumber);
-        TenantPermission.FindFirst();
-
-        Assert.AreEqual('', Format(TenantPermission."Security Filter"), SecurityFilterExistsErr);
-    end;
-
-    local procedure AssertPermissionSetMissingSecurityFilterForPermission(PermissionSetRoleID: Code[20]; InputTableNumber: Integer)
-    var
-        Permission: Record Permission;
-    begin
-        Permission.SetRange("Role ID", PermissionSetRoleID);
-        Permission.SetRange("Object Type", Permission."Object Type"::"Table Data");
-        Permission.SetRange("Object ID", InputTableNumber);
-        Permission.FindFirst();
-
-        Assert.AreEqual('', Format(Permission."Security Filter"), SecurityFilterExistsErr);
-    end;
-
     local procedure AssertPermissionSetLinkExistsWithCorrectHash(SourcePermissionSet: Code[20]; TargetpermissionSet: Code[20])
     var
         PermissionSetLink: Record "Permission Set Link";
@@ -1086,4 +958,3 @@ codeunit 134612 "Test Editing Permissions"
         Assert.AreEqual(CannotEditPermissionSetMsg, Notification.Message, 'Message mismatch');
     end;
 }
-

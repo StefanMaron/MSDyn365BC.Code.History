@@ -149,13 +149,6 @@ codeunit 139316 "Company Creation Wizard Tests"
         Assert.IsFalse(IsNullGuid(Company.Id), 'An Id was not created for the new company');
     end;
 
-    local procedure MockSandbox(Enable: Boolean)
-    var
-        LibraryPermissions: Codeunit "Library - Permissions";
-    begin
-        LibraryPermissions.SetTestTenantEnvironmentType(Enable);
-    end;
-
     local procedure RunWizardToCompletion(var CompanyCreationWizard: TestPage "Company Creation Wizard"; NewCompanyName: Text)
     var
         NewCompanyData: Enum "Company Demo Data Type";
@@ -200,4 +193,3 @@ codeunit 139316 "Company Creation Wizard Tests"
         end;
     end;
 }
-

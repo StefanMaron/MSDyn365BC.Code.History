@@ -83,6 +83,8 @@ report 99000760 "Machine Center List"
 
     requestpage
     {
+        AboutTitle = 'About Machine Center List (obsolete)';
+        AboutText = 'View the machine center setup in your company, which can help you manage and schedule production activities efficiently. ** This report is obsolete and will be removed in a later release.** Please consult the report documentation for alternative ways to get to this data.';
 
         layout
         {

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Intercompany.Inbox;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Intercompany.Inbox;
 
 using Microsoft.Intercompany.Comment;
 using Microsoft.Intercompany.Outbox;
@@ -101,7 +105,18 @@ page 615 "IC Inbox Transactions"
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
                 }
+#if not CLEAN27
                 field("Source Type"; Rec."Source Type")
+                {
+                    ApplicationArea = Intercompany;
+                    Editable = false;
+                    ToolTip = 'Specifies whether the transaction was created in a journal, a sales document, or a purchase document.';
+                    ObsoleteReason = 'Replaced with IC Source Type for consistent naming.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.0';
+                }
+#endif
+                field("IC Source Type"; Rec."IC Source Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies whether the transaction was created in a journal, a sales document, or a purchase document.';
@@ -435,7 +450,7 @@ page 615 "IC Inbox Transactions"
             RunReport := true;
 
         ICInboxTransactionCopy.Copy(ICInboxTransaction);
-        ICInboxTransactionCopy.SetRange("Source Type", ICInboxTransactionCopy."Source Type"::Journal);
+        ICInboxTransactionCopy.SetRange("IC Source Type", ICInboxTransactionCopy."IC Source Type"::Journal);
 
         if not ICInboxTransactionCopy.IsEmpty() then
             RunReport := true;
@@ -455,7 +470,7 @@ page 615 "IC Inbox Transactions"
     begin
         if ICInboxTransaction."Document Type" <> ICInboxTransaction."Document Type"::Invoice then
             exit(false);
-        if ICInboxTransaction."Source Type" <> ICInboxTransaction."Source Type"::"Purchase Document" then
+        if ICInboxTransaction."IC Source Type" <> ICInboxTransaction."IC Source Type"::"Purchase Document" then
             exit(false);
         if ICInboxTransaction."Transaction Source" <> ICInboxTransaction."Transaction Source"::"Created by Partner" then
             exit(false);
@@ -464,7 +479,7 @@ page 615 "IC Inbox Transactions"
         HandledICInboxTrans.SetRange("IC Partner Code", ICInboxTransaction."IC Partner Code");
         HandledICInboxTrans.SetRange("Transaction Source", ICInboxTransaction."Transaction Source");
         HandledICInboxTrans.SetRange("Document No.", ICInboxPurchaseHeader."Vendor Order No.");
-        HandledICInboxTrans.SetRange("Source Type", ICInboxTransaction."Source Type");
+        HandledICInboxTrans.SetRange("IC Source Type", ICInboxTransaction."IC Source Type");
         HandledICInboxTrans.SetRange("Document Type", ICInboxTransaction."Document Type"::Order);
         exit(not HandledICInboxTrans.IsEmpty());
     end;

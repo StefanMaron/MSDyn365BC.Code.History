@@ -80,12 +80,12 @@ report 11301 "Purchase Ledger"
                     }
                     column(AddCurrencyCreditAmount_GLEntry; "Add.-Currency Credit Amount")
                     {
-                        AutoFormatExpression = GetCurrencyCode();
+                        AutoFormatExpression = GetAdditionalReportingCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(AddCurrencyDebitAmount_GLEntry; "Add.-Currency Debit Amount")
                     {
-                        AutoFormatExpression = GetCurrencyCode();
+                        AutoFormatExpression = GetAdditionalReportingCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(GLAccountNo_GLEntry; "G/L Account No.")
@@ -331,12 +331,12 @@ report 11301 "Purchase Ledger"
                         }
                         column(GLEntry2AddCurrencyDebitAmount; "Add.-Currency Debit Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode();
+                            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(GLEntry2AddCurrencyCreditAmount; "Add.-Currency Credit Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode();
+                            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(GLEntry2GLAccountNoCaption; FieldCaption("G/L Account No."))
@@ -452,22 +452,22 @@ report 11301 "Purchase Ledger"
                         }
                         column(VATSumBufferAddCurrBaseCM; VATSumBuffer."Add.-Curr. Base CM")
                         {
-                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode();
+                            AutoFormatExpression = VATSumBuffer.GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATSumBufferAddCurrVATAmountCM; VATSumBuffer."Add.-Curr. VAT Amount CM")
                         {
-                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode();
+                            AutoFormatExpression = VATSumBuffer.GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATSumBufferAddCurrVATAmountInvoices; -VATSumBuffer."Add.-Curr. VAT Amount Invoices")
                         {
-                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode();
+                            AutoFormatExpression = VATSumBuffer.GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATSumBufferAddCurrBaseInvoices; -VATSumBuffer."Add.-Curr. Base Invoices")
                         {
-                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode();
+                            AutoFormatExpression = VATSumBuffer.GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(CreditMemosCaption; CreditMemosCaptionLbl)
@@ -559,7 +559,7 @@ report 11301 "Purchase Ledger"
                         }
                         column(TotalAmountAddCurr; TotalAmountAddCurr)
                         {
-                            AutoFormatExpression = GetCurrencyCode();
+                            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(NetAmountLCYTotalAmountCaption; CashDiscountCaptionLbl)
@@ -812,4 +812,3 @@ report 11301 "Purchase Ledger"
         PeriodEndDate: Date;
 
 }
-

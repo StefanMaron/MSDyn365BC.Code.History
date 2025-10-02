@@ -29,6 +29,9 @@ codeunit 149034 "AIT Test Suite Mgt."
         FeatureNameLbl: Label 'AI Test Toolkit', Locked = true;
         LineNoFilterLbl: Label 'Codeunit %1 "%2" (Input: %3)', Locked = true;
         TurnsLbl: Label '%1/%2', Comment = '%1 - No. of turns that passed, %2 - Total no. of turns';
+        EmptyLogEntriesErr: Label 'Cannot download test summary as there is no log entries within the filter.';
+        DownloadResultsLbl: Label 'Download Test Summary';
+        SummaryFileNameLbl: Label '%1_Test_Summary.xlsx', Locked = true;
         ConfirmCancelQst: Label 'This action will mark the run as Cancelled. Are you sure you want to continue?';
         TestMethodLineNotFoundErr: Label 'The test suite %1 does not contain the test line %2. Run the suite again.', Comment = '%1 = test suite code, %2 = line number';
         TestSuiteChangedErr: Label 'The test suite %1 has been changed since test line %2 was run. Run the suite again.', Comment = '%1 = test suite code, %2 = line number';
@@ -511,6 +514,27 @@ codeunit 149034 "AIT Test Suite Mgt."
     internal procedure GetFeatureName(): Text
     begin
         exit(FeatureNameLbl);
+    end;
+
+    internal procedure DownloadTestSummary(var AITLogEntries: Record "AIT Log Entry")
+    var
+        AITResults: Report "AIT Test Summary";
+        ResultsTempBlob: Codeunit "Temp Blob";
+        ResultsOutStream: OutStream;
+        ResultsInStream: InStream;
+        FilenameTxt: Text;
+    begin
+        if not AITLogEntries.FindFirst() then
+            Error(EmptyLogEntriesErr);
+
+        ResultsTempBlob.CreateOutStream(ResultsOutStream);
+
+        AITResults.SetTableView(AITLogEntries);
+        AITResults.SaveAs('', ReportFormat::Excel, ResultsOutStream);
+
+        FilenameTxt := StrSubstNo(SummaryFileNameLbl, AITLogEntries."Test Suite Code");
+        ResultsTempBlob.CreateInStream(ResultsInStream);
+        DownloadFromStream(ResultsInStream, DownloadResultsLbl, '', 'xlsx', FilenameTxt);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"AIT Test Suite", OnBeforeDeleteEvent, '', false, false)]

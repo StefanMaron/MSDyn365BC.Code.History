@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Setup;
 
+/// <summary>
+/// Configuration page for setting up bank file import/export formats and processing rules.
+/// Provides interface for managing electronic banking data exchange definitions and processing logic.
+/// </summary>
+/// <remarks>
+/// Source Table: Bank Export/Import Setup (1200). Supports configuration of import, export, and positive pay formats.
+/// Integrates with Data Exchange Framework for flexible file format handling.
+/// </remarks>
 page 1200 "Bank Export/Import Setup"
 {
     AdditionalSearchTerms = 'data exchange definition setup,bank file import setup,bank file export setup,bank transfer setup,amc yodlee feed stream setup';

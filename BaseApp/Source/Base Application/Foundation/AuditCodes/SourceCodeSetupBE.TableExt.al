@@ -16,14 +16,18 @@ tableextension 11307 SourceCodeSetupBE extends "Source Code Setup"
             Caption = 'Financial Journal';
             TableRelation = "Source Code";
             DataClassification = CustomerContent;
+#if not CLEANSCHEMA27
             MovedFrom = 'f3552374-a1f2-4356-848e-196002525837';
+#endif
         }
         field(2000020; "Domiciliation Journal"; Code[10])
         {
             Caption = 'Domiciliation Journal';
             TableRelation = "Source Code";
             DataClassification = CustomerContent;
+#if not CLEANSCHEMA27
             MovedFrom = 'f3552374-a1f2-4356-848e-196002525837';
+#endif
         }
     }
 }

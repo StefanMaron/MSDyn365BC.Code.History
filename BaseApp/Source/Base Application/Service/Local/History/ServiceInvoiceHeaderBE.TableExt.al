@@ -12,6 +12,7 @@ tableextension 11303 "Service Invoice Header BE" extends "Service Invoice Header
         {
             Caption = 'Enterprise No.';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
         }
     }
 }

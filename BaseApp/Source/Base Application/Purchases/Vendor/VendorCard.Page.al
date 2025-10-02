@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Vendor;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Vendor;
 
 using Microsoft.Bank.Payment;
 using Microsoft.Bank.Reconciliation;
@@ -187,6 +191,11 @@ page 26 "Vendor Card"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the size of the vendor''s company.';
+                }
+                field("Statistics Group"; Rec."Statistics Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
                 }
             }
             group("Address & Contact")
@@ -1857,7 +1866,7 @@ page 26 "Vendor Card"
     begin
         ContactEditable := true;
 
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1950,7 +1959,7 @@ page 26 "Vendor Card"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
 #pragma warning disable AA0074
         Text001: Label 'Do you want to allow payment tolerance for entries that are currently open?';
         Text002: Label 'Do you want to remove payment tolerance from entries that are currently open?';

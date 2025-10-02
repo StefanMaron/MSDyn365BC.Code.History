@@ -226,7 +226,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         if DateFromProjection > 0D then
             FirstDeprDate := DateFromProjection
         else begin
-            FirstDeprDate := DepreciationCalc.GetFirstDeprDate(FA."No.", DeprBookCode, Year365Days);
+            FirstDeprDate := DepreciationCalc.GetFirstDeprDate(FA."No.", DeprBookCode, Year365Days, DeprBook."Use Accounting Period");
             if FirstDeprDate > UntilDate then
                 exit(0);
             UseDeprStartingDate := DepreciationCalc.UseDeprStartingDate(FA."No.", DeprBookCode);
@@ -239,7 +239,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         IsHandled := false;
         OnBeforeNumberofDayCalculateNumberofDays(FA, DeprBook, NumberofDays, FirstDeprDate, UntilDate, Year365Days, IsHandled, FADeprBook);
         if not IsHandled then
-            NumberOfDays := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, Year365Days);
+            NumberOfDays := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, Year365Days, DeprBook."Use Accounting Period");
 
         Factor := 1;
         if NumberOfDays <= 0 then
@@ -292,9 +292,9 @@ codeunit 5611 "Calculate Normal Depreciation"
             StartingDate := 0D;
             EndingDate := 0D;
             DepreciationCalc.GetDeprPeriod(
-              FA."No.", DeprBookCode, UntilDate, StartingDate, EndingDate, NumberOfDays, Year365Days);
+              FA."No.", DeprBookCode, UntilDate, StartingDate, EndingDate, NumberOfDays, Year365Days, DeprBook."Use Accounting Period");
             FirstDeprDate := StartingDate;
-            NumberOfDays2 := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, Year365Days);
+            NumberOfDays2 := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, Year365Days, DeprBook."Use Accounting Period");
             while NumberOfDays > 0 do begin
                 DepreciationCalc.CalculateDeprInPeriod(
                   FA."No.", DeprBookCode, EndingDate, Amount, Sign,
@@ -322,7 +322,7 @@ codeunit 5611 "Calculate Normal Depreciation"
                             FADeprBook, BookValue, DeprBasis, DeprYears, DaysInFiscalYear, NumberOfDays, Amount, DateFromProjection, UntilDate, DeprMethod);
                 end;
                 DepreciationCalc.GetDeprPeriod(
-                  FA."No.", DeprBookCode, UntilDate, StartingDate, EndingDate, NumberOfDays, Year365Days);
+                  FA."No.", DeprBookCode, UntilDate, StartingDate, EndingDate, NumberOfDays, Year365Days, DeprBook."Use Accounting Period");
                 FirstDeprDate := StartingDate;
             end;
         end;
@@ -418,10 +418,17 @@ codeunit 5611 "Calculate Normal Depreciation"
             exit(-FixedAmount * NumberOfDays / DaysInFiscalYear);
 
         if DeprYears > 0 then begin
-            RemainingLife :=
-              (DeprYears * DaysInFiscalYear) -
-              DepreciationCalc.DeprDays(
-                DeprStartingDate, DepreciationCalc.Yesterday(FirstDeprDate, Year365Days), Year365Days);
+            if DeprBook."Use Accounting Period" then
+                RemainingLife := FADeprBook."Depreciation Ending Date" - FADeprBook."Depreciation Starting Date" + 1 -
+                  DepreciationCalc.DeprDays(DeprStartingDate, DepreciationCalc.Yesterday(FirstDeprDate,
+                      Year365Days, DeprBook."Use Accounting Period"),
+                    Year365Days, DeprBook."Use Accounting Period")
+            else
+                RemainingLife :=
+                  (DeprYears * DaysInFiscalYear) -
+                  DepreciationCalc.DeprDays(
+                    DeprStartingDate, DepreciationCalc.Yesterday(FirstDeprDate, Year365Days, DeprBook."Use Accounting Period"),
+                    Year365Days, DeprBook."Use Accounting Period");
             if RemainingLife < 1 then begin
                 Result := -BookValue;
                 OnCalcSLAmountOnAfterCalcResultForRemainingLifeExpired(FA, FADeprBook, BookValue, Result);
@@ -587,7 +594,7 @@ codeunit 5611 "Calculate Normal Depreciation"
                   GetFAName(), FADeprBook.FieldCaption("Depreciation Starting Date"), FADeprBook.FieldCaption("Depreciation Ending Date"));
             DeprYears :=
               DepreciationCalc.DeprDays(
-                FADeprBook."Depreciation Starting Date", FADeprBook."Depreciation Ending Date", false) / 360;
+                FADeprBook."Depreciation Starting Date", FADeprBook."Depreciation Ending Date", false, DeprBook."Use Accounting Period") / 360;
         end;
         FixedAmount := FADeprBook."Fixed Depr. Amount";
         FinalRoundingAmount := FADeprBook."Final Rounding Amount";
@@ -614,7 +621,7 @@ codeunit 5611 "Calculate Normal Depreciation"
 
             DeprYears :=
               DepreciationCalc.DeprDays(
-                FADeprBook."Depreciation Starting Date", FADeprBook."Depreciation Ending Date", true) / DaysInFiscalYear;
+                FADeprBook."Depreciation Starting Date", FADeprBook."Depreciation Ending Date", true, false) / DaysInFiscalYear;
         end;
 
         OnAfterTransferValues2(FA, FADeprBook, Year365Days, DeprYears, DeprMethod, DeprBasis, BookValue);
@@ -650,7 +657,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.SetFilter(
           "Starting Date", '>=%1',
-          DepreciationCalc.ToMorrow(FADeprBook."Depreciation Starting Date", Year365Days));
+          DepreciationCalc.ToMorrow(FADeprBook."Depreciation Starting Date", Year365Days, DeprBook."Use Accounting Period"));
         AccountingPeriod.FindFirst();
         NewYearDate := AccountingPeriod."Starting Date";
         if FirstDeprDate >= NewYearDate then
@@ -689,8 +696,8 @@ codeunit 5611 "Calculate Normal Depreciation"
           DaysInFiscalYear / 2 /
           DepreciationCalc.DeprDays(
             FADeprBook."Depreciation Starting Date",
-            DepreciationCalc.Yesterday(NewYearDate, Year365Days),
-            Year365Days);
+            DepreciationCalc.Yesterday(NewYearDate, Year365Days, DeprBook."Use Accounting Period"),
+            Year365Days, DeprBook."Use Accounting Period");
         DeprInTwoFiscalYears := UntilDate >= NewYearDate;
 
         OriginalNumberOfDays := NumberOfDays;
@@ -700,7 +707,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         if DeprInTwoFiscalYears then
             NumberOfDays :=
               DepreciationCalc.DeprDays(
-                FirstDeprDate, DepreciationCalc.Yesterday(NewYearDate, Year365Days), Year365Days);
+                FirstDeprDate, DepreciationCalc.Yesterday(NewYearDate, Year365Days, DeprBook."Use Accounting Period"), Year365Days);
         if FixedAmount > 0 then
             DeprAmount := -FixedAmount * NumberOfDays / DaysInFiscalYear * HalfYearFactor
         else
@@ -711,7 +718,7 @@ codeunit 5611 "Calculate Normal Depreciation"
             HalfYearFactor, UntilDate, HalfYearPercent, NewYearDate, FirstDeprDate, DeprAmount);
 
         if DeprInTwoFiscalYears then begin
-            NumberOfDays := DepreciationCalc.DeprDays(NewYearDate, UntilDate, Year365Days);
+            NumberOfDays := DepreciationCalc.DeprDays(NewYearDate, UntilDate, Year365Days, DeprBook."Use Accounting Period");
             FirstDeprDate := NewYearDate;
             BookValue := BookValue + DeprAmount;
             case DeprMethod of
@@ -750,7 +757,8 @@ codeunit 5611 "Calculate Normal Depreciation"
                 if DeprYears > 0 then
                     HalfYearPercent :=
                       100 /
-                      (DepreciationCalc.DeprDays(NewYearDate, FADeprBook."Depreciation Ending Date", Year365Days) +
+                      (DepreciationCalc.DeprDays(
+                         NewYearDate, FADeprBook."Depreciation Ending Date", Year365Days, DeprBook."Use Accounting Period") +
                        DaysInFiscalYear / 2) * DaysInFiscalYear
                 else
                     HalfYearPercent := 0;

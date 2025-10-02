@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.VAT.Calculation;
@@ -195,13 +199,6 @@ page 401 "Purch. Credit Memo Statistics"
         VATPercentage: Decimal;
         VATAmountText: Text[30];
 
-    local procedure GetVATPct(PurchCrMemoLine: Record "Purch. Cr. Memo Line"): Decimal
-    begin
-        if PurchCrMemoLine."VAT Calculation Type" = PurchCrMemoLine."VAT Calculation Type"::"Reverse Charge VAT" then
-            exit(0);
-        exit(PurchCrMemoLine."VAT %");
-    end;
-
     local procedure CalculateTotals()
     var
         IsHandled: Boolean;
@@ -253,4 +250,3 @@ page 401 "Purch. Credit Memo Statistics"
     begin
     end;
 }
-

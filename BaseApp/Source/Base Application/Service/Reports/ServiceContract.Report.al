@@ -397,6 +397,8 @@ report 5970 "Service Contract"
 
     requestpage
     {
+        AboutTitle = 'About Service Contract';
+        AboutText = 'Get an overview of all your service contracts.';
         SaveValues = true;
 
         layout

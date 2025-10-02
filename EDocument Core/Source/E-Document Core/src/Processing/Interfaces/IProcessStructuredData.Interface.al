@@ -11,7 +11,6 @@ using Microsoft.eServices.EDocument.Processing.Import;
 /// <summary>
 /// Describe the data processing used to assign Business Central values to the E-Document data structures
 /// </summary>
-#pragma warning disable AS0066
 interface IProcessStructuredData
 {
 
@@ -37,4 +36,3 @@ interface IProcessStructuredData
     procedure CleanUpDraft(EDocument: Record "E-Document");
 
 }
-#pragma warning restore AS0066

@@ -25,6 +25,14 @@ using Microsoft.Utilities;
 using System.Email;
 using System.Telemetry;
 
+/// <summary>
+/// Primary interface for managing bank account master data and configuration.
+/// Provides comprehensive bank account setup including contact information, posting groups, and payment settings.
+/// </summary>
+/// <remarks>
+/// Source Table: Bank Account (270). Includes actions for bank reconciliation, statement import, and balance display.
+/// Key features: Multi-currency support, dimension setup, payment export configuration.
+/// </remarks>
 page 370 "Bank Account Card"
 {
     Caption = 'Bank Account Card';
@@ -347,8 +355,8 @@ page 370 "Bank Account Card"
                     trigger OnValidate()
                     begin
                         if Rec."Balance Last Statement" <> xRec."Balance Last Statement" then
-                            if not Confirm(Text001, false, Rec."No.") then
-                                Error(Text002);
+                            if not Confirm(ChangeBalanceLastStatementQst, false, Rec."No.") then
+                                Error(CanceledErr);
                     end;
                 }
                 field("Protocol No."; Rec."Protocol No.")
@@ -976,12 +984,10 @@ page 370 "Bank Account Card"
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         FormatAddress: Codeunit "Format Address";
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text001: Label 'There may be a statement using the %1.\\Do you want to change Balance Last Statement?';
+        ChangeBalanceLastStatementQst: Label 'There may be a statement using the %1.\\Do you want to change Balance Last Statement?';
 #pragma warning restore AA0470
-        Text002: Label 'Canceled.';
-#pragma warning restore AA0074
+        CanceledErr: Label 'Canceled.';
         ContactActionVisible: Boolean;
         Linked: Boolean;
         OnlineBankAccountLinkingErr: Label 'You must link the bank account to an online bank account.\\Choose the Link to Online Bank Account action.';
@@ -1008,6 +1014,13 @@ page 370 "Bank Account Card"
         REPORT.RunModal(ReportNumber, true, true, BankAccount);
     end;
 
+    /// <summary>
+    /// Integration event raised before opening the Bank Account Card page.
+    /// Enables custom initialization or setup before page display.
+    /// </summary>
+    /// <remarks>
+    /// Raised during page OnOpenPage trigger before standard page initialization.
+    /// </remarks>
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnOpenPage()
     begin

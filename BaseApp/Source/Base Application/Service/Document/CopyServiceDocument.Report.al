@@ -36,9 +36,6 @@ report 5979 "Copy Service Document"
                         trigger OnValidate()
                         begin
                             FromContractNo := '';
-#if not CLEAN24
-                            DocNo := '';
-#endif
                             ValidateContractNo();
                         end;
                     }
@@ -58,13 +55,7 @@ report 5979 "Copy Service Document"
                             ValidateContractNo();
                         end;
                     }
-#if not CLEAN24
-#pragma warning disable AA0100
-                    field("FromServContractHeader.""Customer No."""; FromServContractHeader."Customer No.")
-#pragma warning restore AA0100
-#else
                     field("FromServContractHeader.CustomerNo"; FromServContractHeader."Customer No.")
-#endif
                     {
                         ApplicationArea = Service;
                         Caption = 'Customer No.';
@@ -147,10 +138,6 @@ report 5979 "Copy Service Document"
         ServContractHeader: Record "Service Contract Header";
         FromServContractHeader: Record "Service Contract Header";
         FromContractNo: Code[20];
-#if not CLEAN24
-        [Obsolete('Replaced by FromContractNo', '24.0')]
-        DocNo: Code[20];
-#endif
 
     procedure SetServContractHeader(var NewServContractHeader: Record "Service Contract Header")
     begin
@@ -159,9 +146,6 @@ report 5979 "Copy Service Document"
 
     local procedure ValidateContractNo()
     begin
-#if not CLEAN24
-        DocNo := FromContractNo;
-#endif
         if FromContractNo = '' then
             FromServContractHeader.Init()
         else begin
@@ -201,19 +185,6 @@ report 5979 "Copy Service Document"
     begin
         FromContractType := ContractType;
         FromContractNo := ContractNo;
-#if not CLEAN24
-        DocNo := ContractNo;
-#endif
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by procedure SetParameters()', '24.0')]
-    procedure InitializeRequest(DocumentType: Option; DocumentNo: Code[20])
-    begin
-        FromContractType := "Service Contract Type From".FromInteger(DocumentType);
-        FromContractNo := DocumentNo;
-        DocNo := DocumentNo;
-    end;
-#endif
 }
-

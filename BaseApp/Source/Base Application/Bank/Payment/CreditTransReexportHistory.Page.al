@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
+/// <summary>
+/// Page 1209 "Credit Trans Re-export History" displays the history of credit transfer re-export operations.
+/// This page shows when payment files were re-exported and by which users, providing an audit trail for payment processing.
+/// </summary>
+/// <remarks>
+/// Source table: Credit Trans Re-export History. Used for tracking payment file
+/// re-export activities to maintain compliance and audit requirements.
+/// </remarks>
 page 1209 "Credit Trans Re-export History"
 {
     Caption = 'Credit Trans Re-export History';

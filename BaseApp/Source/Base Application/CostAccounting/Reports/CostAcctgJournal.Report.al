@@ -175,6 +175,8 @@ report 1128 "Cost Acctg. Journal"
 
     requestpage
     {
+        AboutTitle = 'About Cost Acctg. Journal';
+        AboutText = 'The **Cost Acctg. Journal** report displays cost entries recorded in journals, including amounts, dates, and dimensions. Use it for validating posted cost transactions by reviewing journalized entries and ensuring accuracy in cost postings.';
         SaveValues = true;
 
         layout

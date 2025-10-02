@@ -9,12 +9,14 @@ using System.Utilities;
 
 report 99000785 "Work Center Load/Bar"
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './Manufacturing/Reports/WorkCenterLoadBar.rdlc';
+    DefaultRenderingLayout = WorkCenterLoadBarRDLC;
     ApplicationArea = Manufacturing;
-    Caption = 'Work Center Load/Bar';
+    Caption = 'Work Center Load/Bar (obsolete)';
     UsageCategory = ReportsAndAnalysis;
     UseSystemPrinter = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report has been replaced by the "Work/Machine Center Load" report and will be removed in a future release.';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -196,6 +198,8 @@ report 99000785 "Work Center Load/Bar"
 
     requestpage
     {
+        AboutTitle = 'About Work Center Load/Bar (obsolete)';
+        AboutText = 'Get a list of work centers that are overloaded according to the plan. ** This report is obsolete and will be removed in a later release.** Please consult the report documentation for alternative ways to get to this data.';
 
         layout
         {
@@ -246,6 +250,16 @@ report 99000785 "Work Center Load/Bar"
             if NoOfPeriods = 0 then
                 NoOfPeriods := 4;
         end;
+    }
+
+    rendering
+    {
+        layout(WorkCenterLoadBarRDLC)
+        {
+            Caption = 'Work Center Load/Bar (obsolete)';
+            Type = RDLC;
+            LayoutFile = './Manufacturing/Reports/WorkCenterLoadBar.rdlc';
+        }
     }
 
     labels

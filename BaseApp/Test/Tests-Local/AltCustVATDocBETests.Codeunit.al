@@ -670,15 +670,6 @@ codeunit 144007 "Alt. Cust. VAT Doc. BE Tests"
         exit(CompanyInformation."Country/Region Code");
     end;
 
-    local procedure DefaultVATBusPostingGroupForGenBusPostingGroup(GenBusPostingGroupCode: Code[20]; VATBusPostingGroup: Code[20])
-    var
-        GenBusPostingGroup: Record "Gen. Business Posting Group";
-    begin
-        GenBusPostingGroup.Get(GenBusPostingGroupCode);
-        GenBusPostingGroup.Validate("Def. VAT Bus. Posting Group", VATBusPostingGroup);
-        GenBusPostingGroup.Modify(true);
-    end;
-
     local procedure VerifyVATRegDataInSalesHeader(SalesHeader: Record "Sales Header"; EnterpriseNo: Text[50])
     begin
         VerifyVATRegDataInSalesHeader(SalesHeader, EnterpriseNo, '');  // 565627: "VAT Registration No." is cleared when "Enterprise No." is set

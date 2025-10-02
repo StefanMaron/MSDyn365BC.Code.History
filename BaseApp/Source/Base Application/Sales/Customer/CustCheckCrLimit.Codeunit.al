@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Customer;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Customer;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Sales.Document;
@@ -360,20 +364,25 @@ codeunit 312 "Cust-Check Cr. Limit"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Moved to codeunit Serv. Check Credit Limit', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnServiceHeaderCheckOnBeforeShowWarning(var CustCheckCreditLimit: Page "Check Credit Limit")
     begin
     end;
 
+    [Obsolete('Moved to codeunit Serv. Check Credit Limit', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnServiceLineCheckOnBeforeShowWarning(var CustCheckCreditLimit: Page "Check Credit Limit")
     begin
     end;
 
+    [Obsolete('Moved to codeunit Serv. Check Credit Limit', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnServiceContractHeaderCheckOnBeforeShowWarning(var CustCheckCreditLimit: Page "Check Credit Limit")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBlanketSalesOrderToOrderCheckOnBeforeSalesHeaderShowWarning(var CustCheckCreditLimit: Page "Check Credit Limit")

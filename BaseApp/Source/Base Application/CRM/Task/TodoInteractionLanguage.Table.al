@@ -55,12 +55,10 @@ table 5196 "To-do Interaction Language"
     end;
 
     var
-#pragma warning disable AA0074
-        Text000: Label 'You have canceled the create process.';
-        Text001: Label 'Replace existing attachment?';
-        Text002: Label 'You have canceled the import process.';
-        Text003: Label 'You cannot create attachments here.';
-#pragma warning restore AA0074
+        CreateProcessCanceledMsg: Label 'You have canceled the create process.';
+        ReplaceExistingAttachmentQst: Label 'Replace existing attachment?';
+        ImportProcessCanceledMsg: Label 'You have canceled the import process.';
+        CannotCreateAttachmentsHereErr: Label 'You cannot create attachments here.';
 
     [Scope('OnPrem')]
     procedure CreateAttachment(PageNotEditable: Boolean): Boolean
@@ -68,15 +66,15 @@ table 5196 "To-do Interaction Language"
         Attachment: Record Attachment;
     begin
         if PageNotEditable then
-            Error(Text003);
+            Error(CannotCreateAttachmentsHereErr);
         if "Attachment No." <> 0 then begin
             if Attachment.Get("Attachment No.") then
                 Attachment.TestField("Read Only", false);
-            if not Confirm(Text001, false) then
+            if not Confirm(ReplaceExistingAttachmentQst, false) then
                 exit;
         end;
 
-        Error(Text000);
+        Error(CreateProcessCanceledMsg);
     end;
 
     [Scope('OnPrem')]
@@ -110,7 +108,7 @@ table 5196 "To-do Interaction Language"
             Attachment.TestField("Read Only", false);
 
         if "Attachment No." <> 0 then begin
-            if not Confirm(Text001, false) then
+            if not Confirm(ReplaceExistingAttachmentQst, false) then
                 exit;
             RemoveAttachment(false);
             "Attachment No." := 0;
@@ -140,7 +138,7 @@ table 5196 "To-do Interaction Language"
         if "Attachment No." <> 0 then begin
             if Attachment.Get("Attachment No.") then
                 Attachment.TestField("Read Only", false);
-            if not Confirm(Text001, false) then
+            if not Confirm(ReplaceExistingAttachmentQst, false) then
                 exit;
         end;
 
@@ -171,7 +169,7 @@ table 5196 "To-do Interaction Language"
             "Attachment No." := Attachment."No.";
             Modify();
         end else
-            Error(Text002);
+            Error(ImportProcessCanceledMsg);
     end;
 
     [Scope('OnPrem')]

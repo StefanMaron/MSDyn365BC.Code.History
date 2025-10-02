@@ -12,6 +12,7 @@ codeunit 134463 "ERM Item Reference Sales"
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemReference: Codeunit "Library - Item Reference";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -19,6 +20,7 @@ codeunit 134463 "ERM Item Reference Sales"
         ItemRefNotExistsErr: Label 'There are no items with reference %1.';
         DialogCodeErr: Label 'Dialog';
         ItemReferenceMgt: Codeunit "Item Reference Management";
+        DescriptionMustBeSameErr: Label 'Description must be same.';
         isInitialized: Boolean;
 
     [Test]
@@ -1509,6 +1511,73 @@ codeunit 134463 "ERM Item Reference Sales"
         Assert.ExpectedError(StrSubstNo(ItemRefNotExistsErr, ItemReferenceNo));
     end;
 
+    [Test]
+    procedure VerifyDescriptionInSalesLineWhenBothItemReferenceAndItemVariantAreUsed()
+    var
+        Item: array[2] of Record Item;
+        ItemReference: array[2] of Record "Item Reference";
+        ItemVariant: array[2] of Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 574832] Verify that the item description in the sales line is prioritized correctly when both Item Reference and Item Variant are used. 
+        Initialize();
+
+        // [GIVEN] Create a new customer.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+
+        // [GIVEN] Create first Item with Item Variant and Item Reference.
+        CreateItemWithItemVariantAndItemReference(Item[1], ItemVariant[1], ItemReference[1], CustomerNo);
+
+        // [GIVEN] Set description value in first Item Reference.
+        if ItemReference[1].Description = '' then begin
+            ItemReference[1].Validate(Description, ItemReference[1]."Reference No.");
+            ItemReference[1].Modify(true);
+        end;
+
+        // [GIVEN] Create second Item with Item Variant and Item Reference.
+        CreateItemWithItemVariantAndItemReference(Item[2], ItemVariant[2], ItemReference[2], CustomerNo);
+
+        // [GIVEN] Create Sales Header with document type Invoice.
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+
+        // [GIVEN] Create Two Sales Lines.
+        CreateSalesLine(SalesLine[1], SalesHeader, Item[1]."No.");
+        CreateSalesLine(SalesLine[2], SalesHeader, Item[2]."No.");
+
+        // [WHEN] Both Item Variant and Item Reference have description values and their values are set in the sales line.
+        ModifySalesLine(SalesLine[1], ItemVariant[1].Code, ItemReference[1]."Reference No.");
+
+        // [THEN] Ensure that the Sales Line description is the same as the Item Reference description.
+        Assert.AreEqual(SalesLine[1].Description, ItemReference[1].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Both Item Variant and Item Reference have description values, but only the Item Variant value is set in the sales line.
+        ModifySalesLine(SalesLine[1], ItemVariant[1].Code, '');
+
+        // [THEN] Ensure that the Sales Line description is the same as the Item Variant description.
+        Assert.AreEqual(SalesLine[1].Description, ItemVariant[1].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Both Item Variant and Item Reference have description values, but both values are set blank in the sales line.
+        ModifySalesLine(SalesLine[1], '', '');
+
+        // [THEN] Ensure that the Sales Line description is the same as the Item description.
+        Assert.AreEqual(SalesLine[1].Description, Item[1].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Item Variant has a description value, but Item Reference has a blank description. However, both values are set in the sales line.
+        ModifySalesLine(SalesLine[2], ItemVariant[2].Code, ItemReference[2]."Reference No.");
+
+        // [THEN] Ensure that the Sales Line description is the same as the Item Variant description.
+        Assert.AreEqual(SalesLine[2].Description, ItemVariant[2].Description, DescriptionMustBeSameErr);
+
+        // [WHEN] Item Variant and Item Reference values are set blank in the sales line.
+        ModifySalesLine(SalesLine[2], '', '');
+
+        // [THEN] Ensure that the Sales Line description is the same as the Item description.
+        Assert.AreEqual(SalesLine[2].Description, Item[2].Description, DescriptionMustBeSameErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Item Reference Sales");
@@ -1547,6 +1616,29 @@ codeunit 134463 "ERM Item Reference Sales"
         LibraryVariableStorage.Enqueue(ItemReference."Reference Type");
         LibraryVariableStorage.Enqueue(ItemReference."Reference Type No.");
         LibraryVariableStorage.Enqueue(ItemReference."Item No.");
+    end;
+
+    local procedure CreateItemWithItemVariantAndItemReference(var Item: Record Item; var ItemVariant: Record "Item Variant"; var ItemReference: Record "Item Reference"; CustomerNo: Code[20])
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Description, Item."No.");
+        Item.Modify(true);
+
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryItemReference.CreateItemReference(ItemReference, Item."No.", ItemVariant.Code, '', "Item Reference Type"::Customer, CustomerNo, LibraryUtility.GenerateRandomCode(ItemReference.FieldNo("Reference No."), Database::"Item Reference"));
+    end;
+
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20])
+    begin
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandIntInRange(1, 10));
+    end;
+
+    local procedure ModifySalesLine(var SalesLine: Record "Sales Line"; VariantCode: Code[20]; ItemReferenceNo: Code[50])
+    begin
+        SalesLine.Validate("Variant Code", VariantCode);
+        SalesLine.Validate("Item Reference No.", ItemReferenceNo);
+        SalesLine.Modify(true);
     end;
 
     [ModalPageHandler]

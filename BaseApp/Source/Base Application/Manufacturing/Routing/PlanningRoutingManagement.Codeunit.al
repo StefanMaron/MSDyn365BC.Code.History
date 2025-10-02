@@ -6,6 +6,9 @@ namespace Microsoft.Manufacturing.Routing;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Requisition;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Planning;
+using Microsoft.Inventory.Planning;
 
 codeunit 99000808 PlanningRoutingManagement
 {
@@ -15,6 +18,10 @@ codeunit 99000808 PlanningRoutingManagement
     end;
 
     var
+        CalculatePlanningRouteLine: Codeunit "Calculate Planning Route Line";
+        UOMMgt: Codeunit "Unit of Measure Management";
+        ErrList: Text[50];
+
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'Circular reference in line %1 when calculating %2. Counted sequences %3. Max. sequences %4.';
@@ -33,8 +40,6 @@ codeunit 99000808 PlanningRoutingManagement
         Text007: Label 'Next operations for %1 cannot be found.';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
-        UOMMgt: Codeunit "Unit of Measure Management";
-        ErrList: Text[50];
 
     procedure NeedsCalculation(WkShName: Code[10]; BatchName: Code[10]; LineNo: Integer): Boolean
     var
@@ -412,6 +417,176 @@ codeunit 99000808 PlanningRoutingManagement
                 if PlanningRtngLine2.IsEmpty() then
                     Error(Text007, PlanningRtngLine."Worksheet Line No.");
             until PlanningRtngLine.Next() = 0;
+    end;
+
+    procedure CalculatePlanningLineDates(var ReqLine2: Record "Requisition Line")
+    var
+        PlanningRtngLine: Record Microsoft.Manufacturing.Routing."Planning Routing Line";
+        IsLineModified: Boolean;
+    begin
+        PlanningRtngLine.SetRange("Worksheet Template Name", ReqLine2."Worksheet Template Name");
+        PlanningRtngLine.SetRange("Worksheet Batch Name", ReqLine2."Journal Batch Name");
+        PlanningRtngLine.SetRange("Worksheet Line No.", ReqLine2."Line No.");
+        PlanningRtngLine.SetFilter("Next Operation No.", '%1', '');
+
+        if PlanningRtngLine.FindFirst() then begin
+            ReqLine2."Ending Date" := PlanningRtngLine."Ending Date";
+            ReqLine2."Ending Time" := PlanningRtngLine."Ending Time";
+            IsLineModified := true;
+        end;
+
+        PlanningRtngLine.SetRange("Next Operation No.");
+        PlanningRtngLine.SetFilter("Previous Operation No.", '%1', '');
+        if PlanningRtngLine.FindFirst() then begin
+            ReqLine2."Starting Date" := PlanningRtngLine."Starting Date";
+            ReqLine2."Starting Time" := PlanningRtngLine."Starting Time";
+            ReqLine2."Order Date" := PlanningRtngLine."Starting Date";
+            IsLineModified := true;
+        end;
+
+        if IsLineModified then begin
+            ReqLine2.UpdateDatetime();
+            ReqLine2.Modify();
+        end;
+
+        OnAfterCalculatePlanningLineDates(ReqLine2);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Line Management", 'OnGetResiliencyErrorOnRouting', '', false, false)]
+    local procedure OnGetResiliencyErrorOnRouting(var PlanningErrorLog: Record "Planning Error Log"; var ShouldExit: Boolean)
+    begin
+        if CalculatePlanningRouteLine.GetResiliencyError(PlanningErrorLog) then
+            ShouldExit := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Planning Line Management", 'OnBeforeRecalculateWithOptionalModify', '', false, false)]
+    local procedure OnBeforeRecalculateWithOptionalModify(var RequisitionLine: Record "Requisition Line"; Direction: Option Forward,Backward)
+    begin
+        CalculateRouting(RequisitionLine, Direction);
+    end;
+
+    procedure CalculateRouting(var ReqLine: Record "Requisition Line"; Direction: Option Forward,Backward)
+    var
+        PlanningRtngLine: Record "Planning Routing Line";
+#if not CLEAN27
+        PlanningLineManagement: Codeunit "Planning Line Management";
+#endif
+    begin
+        if NeedsCalculation(
+             ReqLine."Worksheet Template Name",
+             ReqLine."Journal Batch Name",
+             ReqLine."Line No.")
+        then
+            Calculate(ReqLine);
+
+        if Direction = Direction::Forward then
+            PlanningRtngLine.SetCurrentKey(
+              "Worksheet Template Name",
+              "Worksheet Batch Name",
+              "Worksheet Line No.",
+              "Sequence No.(Forward)")
+        else
+            PlanningRtngLine.SetCurrentKey(
+              "Worksheet Template Name",
+              "Worksheet Batch Name",
+              "Worksheet Line No.",
+              "Sequence No.(Backward)");
+
+        PlanningRtngLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
+        PlanningRtngLine.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
+        PlanningRtngLine.SetRange("Worksheet Line No.", ReqLine."Line No.");
+        if not PlanningRtngLine.FindFirst() then begin
+            if Direction = Direction::Forward then
+                ReqLine.CalcEndingDate('')
+            else
+                ReqLine.CalcStartingDate('');
+            ReqLine.UpdateDatetime();
+            OnCalculateRoutingOnAfterUpdateReqLine(ReqLine, Direction);
+#if not CLEAN27
+            PlanningLineManagement.RunOnCalculateRoutingOnAfterUpdateReqLine(ReqLine, Direction);
+#endif
+            exit;
+        end;
+
+        if Direction = Direction::Forward then begin
+            PlanningRtngLine."Starting Date" := ReqLine."Starting Date";
+            PlanningRtngLine."Starting Time" := ReqLine."Starting Time";
+        end else begin
+            PlanningRtngLine."Ending Date" := ReqLine."Ending Date";
+            PlanningRtngLine."Ending Time" := ReqLine."Ending Time";
+        end;
+        CalculateRoutingFromActual(ReqLine, PlanningRtngLine, Direction, false, false);
+
+        CalculatePlanningLineDates(ReqLine);
+    end;
+
+    procedure CalculateRoutingFromActual(var ReqLine: Record "Requisition Line"; PlanningRtngLine: Record "Planning Routing Line"; Direction: Option Forward,Backward; CalcStartEndDate: Boolean; PlanningResiliency: Boolean)
+    var
+        CalendarMgt: Codeunit "Shop Calendar Management";
+    begin
+        if (ReqLine."Worksheet Template Name" <> PlanningRtngLine."Worksheet Template Name") or
+           (ReqLine."Journal Batch Name" <> PlanningRtngLine."Worksheet Batch Name") or
+           (ReqLine."Line No." <> PlanningRtngLine."Worksheet Line No.")
+        then
+            ReqLine.Get(
+              PlanningRtngLine."Worksheet Template Name",
+              PlanningRtngLine."Worksheet Batch Name", PlanningRtngLine."Worksheet Line No.");
+
+        if NeedsCalculation(
+             PlanningRtngLine."Worksheet Template Name",
+             PlanningRtngLine."Worksheet Batch Name",
+             PlanningRtngLine."Worksheet Line No.")
+        then begin
+            Calculate(ReqLine);
+            PlanningRtngLine.Get(
+              PlanningRtngLine."Worksheet Template Name",
+              PlanningRtngLine."Worksheet Batch Name",
+              PlanningRtngLine."Worksheet Line No.", PlanningRtngLine."Operation No.");
+        end;
+        if Direction = Direction::Forward then
+            PlanningRtngLine.SetCurrentKey(
+              "Worksheet Template Name",
+              "Worksheet Batch Name",
+              "Worksheet Line No.",
+              "Sequence No.(Forward)")
+        else
+            PlanningRtngLine.SetCurrentKey(
+              "Worksheet Template Name",
+              "Worksheet Batch Name",
+              "Worksheet Line No.",
+              "Sequence No.(Backward)");
+
+        PlanningRtngLine.SetRange("Worksheet Template Name", PlanningRtngLine."Worksheet Template Name");
+        PlanningRtngLine.SetRange("Worksheet Batch Name", PlanningRtngLine."Worksheet Batch Name");
+        PlanningRtngLine.SetRange("Worksheet Line No.", PlanningRtngLine."Worksheet Line No.");
+
+        repeat
+            if CalcStartEndDate then
+                if ((Direction = Direction::Forward) and (PlanningRtngLine."Previous Operation No." <> '')) or
+                   ((Direction = Direction::Backward) and (PlanningRtngLine."Next Operation No." <> ''))
+                then begin
+                    PlanningRtngLine."Starting Time" := 0T;
+                    PlanningRtngLine."Starting Date" := 0D;
+                    PlanningRtngLine."Ending Time" := 235959T;
+                    PlanningRtngLine."Ending Date" := CalendarMgt.GetMaxDate();
+                end;
+            Clear(CalculatePlanningRouteLine);
+            if PlanningResiliency then
+                CalculatePlanningRouteLine.SetResiliencyOn(
+                  ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name", ReqLine."No.");
+            CalculatePlanningRouteLine.CalculateRouteLine(PlanningRtngLine, Direction, CalcStartEndDate, ReqLine);
+            CalcStartEndDate := true;
+        until PlanningRtngLine.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingOnAfterUpdateReqLine(var RequisitionLine: Record "Requisition Line"; Direction: Option Forward,Backward)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculatePlanningLineDates(var RequisitionLine: Record "Requisition Line")
+    begin
     end;
 }
 

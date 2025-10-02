@@ -51,7 +51,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                 OnPreDataItemBankAccount(ExcludeReversedEntries);
 
                 if EndDate = 0D then
-                    Error(Text000);
+                    Error(EnterEndingDateErr);
 
                 if BankAccRecon."Statement Date" <> 0D then
                     if BankAccRecon."Statement Date" < EndDate then
@@ -135,9 +135,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
         EOFBankAccLedgEntries: Boolean;
         ExcludeReversedEntries: Boolean;
 
-#pragma warning disable AA0074
-        Text000: Label 'Enter the Ending Date.';
-#pragma warning restore AA0074
+        EnterEndingDateErr: Label 'Enter the Ending Date.';
 
     procedure SetStmt(var BankAccRecon2: Record "Bank Acc. Reconciliation")
     begin

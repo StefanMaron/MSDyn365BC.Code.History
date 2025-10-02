@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.Peppol;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Peppol;
 
 using Microsoft.CRM.Team;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -168,12 +172,13 @@ codeunit 1605 "PEPPOL Management"
         end;
 
         OnAfterGetAdditionalDocRefInfo(
-          AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments);
+          AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments, Filename);
     end;
 
     procedure GetAdditionalDocRefInfo(Salesheader: Record "Sales Header"; var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text; NewProcessedDocType: Option Sale,Service)
     var
         DocumentAttachments: Record "Document Attachment";
+        Filename: Text;
     begin
         AdditionalDocumentReferenceID := '';
         AdditionalDocRefDocumentType := '';
@@ -182,7 +187,7 @@ codeunit 1605 "PEPPOL Management"
         EmbeddedDocumentBinaryObject := '';
 
         OnAfterGetAdditionalDocRefInfo(
-          AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments);
+          AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject, SalesHeader, ProcessedDocType.AsInteger(), DocumentAttachments, Filename);
     end;
 
     procedure GetBuyerReference(SalesHeader: Record "Sales Header") BuyerReference: Text
@@ -1702,7 +1707,7 @@ codeunit 1605 "PEPPOL Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetAdditionalDocRefInfo(var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text; SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; var DocumentAttachments: Record "Document Attachment")
+    local procedure OnAfterGetAdditionalDocRefInfo(var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text; SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; var DocumentAttachments: Record "Document Attachment"; var FileName: Text)
     begin
     end;
 

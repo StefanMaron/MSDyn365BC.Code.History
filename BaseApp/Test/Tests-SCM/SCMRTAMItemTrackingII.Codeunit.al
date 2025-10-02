@@ -979,7 +979,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // Setup: Create Item With SN Specific Tracking include SN Warehouse Tracking, Post Warehouse Receipt from Purchase Order with Tracking, Create Production Order, Create and Register Pick.
         Initialize();
-        ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
+        ComponentsAtLocation := UpdateComponentsAtLocationSetup(LocationWhite.Code);
         Quantity := 2 * LibraryRandom.RandInt(10);  // Large Random Value required for Test.
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
         CreateItem(Item2, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
@@ -1015,7 +1015,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
           Item."No.", Quantity);
 
         // Tear Down.
-        UpdateManufacturingSetupComponentsAtLocation(ComponentsAtLocation);
+        UpdateComponentsAtLocationSetup(ComponentsAtLocation);
     end;
 
     [Test]
@@ -1039,7 +1039,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         // Setup: Create Item With SN Specific Tracking include SN Warehouse Tracking, Post Warehouse Receipt from Purchase Order with Tracking, Create Production Order, Create Internal Put-Away.
         Initialize();
-        ComponentsAtLocation := UpdateManufacturingSetupComponentsAtLocation(LocationWhite.Code);
+        ComponentsAtLocation := UpdateComponentsAtLocationSetup(LocationWhite.Code);
         Quantity := 2 * LibraryRandom.RandInt(10);  // Large Random Value required for Test.
         Bin.Get(LocationWhite.Code, LocationWhite."To-Production Bin Code");
         CreateItem(Item, ItemTrackingCodeSerialSpecificWithWarehouse.Code);
@@ -1065,7 +1065,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
           Item."No.", Quantity);
 
         // Tear Down.
-        UpdateManufacturingSetupComponentsAtLocation(ComponentsAtLocation);
+        UpdateComponentsAtLocationSetup(ComponentsAtLocation);
     end;
 
     [Test]
@@ -4187,14 +4187,14 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItemNo, LocationYellow2.Code, '', Qty);
         FindProdOrderLine(ProdOrderLine, ProductionOrder);
-        LibraryItemTracking.CreateProdOrderItemTracking(ReservationEntry, ProdOrderLine, '', ProdLotNo, ProdOrderLine."Quantity (Base)");
+        LibraryManufacturing.CreateProdOrderItemTracking(ReservationEntry, ProdOrderLine, '', ProdLotNo, ProdOrderLine."Quantity (Base)");
         FindProdOrderComponent(ProdOrderComponent, ProdOrderLine, CompItemNo);
         if ProdOrderComponent.Quantity <> ProdOrderComponent."Expected Quantity" then begin
             ProdOrderComponent.Validate(Quantity, ProdOrderComponent."Expected Quantity");
             ProdOrderComponent.Validate("Quantity (Base)", ProdOrderComponent."Expected Qty. (Base)");
             ProdOrderComponent.Modify();
         end;
-        LibraryItemTracking.CreateProdOrderCompItemTracking(
+        LibraryManufacturing.CreateProdOrderCompItemTracking(
           ReservationEntry, ProdOrderComponent, '', CompLotNo, ProdOrderComponent."Quantity (Base)");
         LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
     end;
@@ -4568,7 +4568,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         ProductionBOMHeader.Modify(true);
     end;
 
-    local procedure UpdateManufacturingSetupComponentsAtLocation(NewComponentsAtLocation: Code[10]) ComponentsAtLocation: Code[10]
+    local procedure UpdateComponentsAtLocationSetup(NewComponentsAtLocation: Code[10]) ComponentsAtLocation: Code[10]
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin

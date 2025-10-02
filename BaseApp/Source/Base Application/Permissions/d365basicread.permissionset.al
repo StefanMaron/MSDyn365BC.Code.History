@@ -4,11 +4,9 @@ using Microsoft.AccountantPortal;
 using Microsoft.Booking;
 using Microsoft.Sales.Archive;
 using Microsoft.CRM.Team;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Inventory.Location;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.CostAccounting.Setup;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Bank.Payment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.EServices.EDocument;
@@ -33,9 +31,6 @@ using Microsoft.Purchases.Vendor;
 using System.Tooling;
 using System.Privacy;
 using System.Utilities;
-#if not CLEAN24
-using Microsoft.Bank.Deposit;
-#endif
 using Microsoft.Inventory.Transfer;
 using System.Integration;
 using System.IO;
@@ -110,7 +105,6 @@ using Microsoft.Inventory.Item.Picture;
 using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Item.Catalog;
 using System.Threading;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.CRM.Setup;
 using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Purchases.Document;
@@ -162,9 +156,6 @@ using Microsoft.API;
 using Microsoft.Intercompany.DataExchange;
 using Microsoft;
 using System.TestTools;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Resources;
-using Microsoft.Service.Item;
 
 permissionset 209 "D365 Basic - Read"
 {
@@ -180,6 +171,7 @@ permissionset 209 "D365 Basic - Read"
                   tabledata AllObjWithCaption = R,
                   tabledata "Alt. Customer Posting Group" = R,
                   tabledata "Alt. Vendor Posting Group" = R,
+                  tabledata "Alt. Employee Posting Group" = R,
                   tabledata "Buffer IC Comment Line" = R,
                   tabledata "Buffer IC Document Dimension" = R,
                   tabledata "Buffer IC Inbox Jnl. Line" = R,
@@ -193,9 +185,6 @@ permissionset 209 "D365 Basic - Read"
                   tabledata "IC Outgoing Notification" = R,
                   tabledata "Code Coverage" = R,
                   tabledata "Data Sensitivity" = R,
-#if not CLEAN24
-                  tabledata "Deposits Page Setup" = R,
-#endif
                   tabledata "Dispute Status" = R,
                   tabledata Device = R,
                   tabledata "Direct Trans. Header" = R,
@@ -294,10 +283,6 @@ permissionset 209 "D365 Basic - Read"
                   tabledata "Business Unit" = R,
                   tabledata "Business Unit Information" = R,
                   tabledata "Business Unit Setup" = R,
-#if not CLEAN24
-                  tabledata "Calendar Event" = R,
-                  tabledata "Calendar Event User Config." = R,
-#endif
                   tabledata Campaign = R,
                   tabledata "Cancelled Document" = R,
                   tabledata "Cash Flow Availability Buffer" = R,
@@ -351,7 +336,6 @@ permissionset 209 "D365 Basic - Read"
                   tabledata "Copy Item Parameters" = R,
                   tabledata "Cost Accounting Setup" = R,
                   tabledata "Cost Element Buffer" = R,
-                  tabledata "Cost Share Buffer" = R,
                   tabledata "Country/Region" = R,
                   tabledata "Country/Region Translation" = R,
                   tabledata "CRM Connection Setup" = R,
@@ -560,9 +544,7 @@ permissionset 209 "D365 Basic - Read"
                   tabledata "Ledger Entry Matching Buffer" = R,
                   tabledata "License Agreement" = R,
                   tabledata "Line Number Buffer" = R,
-                  tabledata "Load Buffer" = R,
                   tabledata Location = R,
-                  tabledata "Manufacturing Setup" = R,
                   tabledata "Marketing Setup" = R,
                   tabledata "Media Repository" = R,
                   tabledata "Memoized Result" = R,
@@ -889,10 +871,5 @@ permissionset 209 "D365 Basic - Read"
                   tabledata "XML Buffer" = R,
                   tabledata "XML Schema" = R,
                   tabledata "XML Schema Element" = R,
-                  tabledata "XML Schema Restriction" = R,
-
-                  // Service
-                  tabledata "Contract Trend Buffer" = R,
-                  tabledata "Resource Skill" = R,
-                  tabledata "Service Item Trend Buffer" = R;
+                  tabledata "XML Schema Restriction" = R;
 }

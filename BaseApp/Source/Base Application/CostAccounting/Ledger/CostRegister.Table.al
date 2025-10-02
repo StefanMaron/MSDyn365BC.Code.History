@@ -66,12 +66,16 @@ table 1105 "Cost Register"
         }
         field(15; "Debit Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Debit Amount';
             Editable = false;
         }
         field(16; "Credit Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Credit Amount';
             Editable = false;
@@ -161,4 +165,3 @@ table 1105 "Cost Register"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
 }
-

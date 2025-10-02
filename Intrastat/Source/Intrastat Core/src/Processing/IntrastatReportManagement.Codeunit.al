@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 4810 IntrastatReportManagement
 {
     Permissions = TableData "Intrastat Report Header" = imd,

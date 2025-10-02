@@ -631,7 +631,7 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                                 currXMLport.Skip();
                         end;
                     }
-                    textelement(customerpartyname)
+                    textelement(custoemerpartyname)
                     {
                         NamespacePrefix = 'cac';
                         XmlName = 'PartyName';

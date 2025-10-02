@@ -337,7 +337,7 @@ page 9192 "Company Creation Wizard"
         NewCompanyDataDescription: Text;
         CompanyCreated: Boolean;
         SpecifyCompanyNameErr: Label 'To continue, you must specify a name for the company.';
-        EvaluationDataTxt: Label '\Essential Experience / Cronus Company Sample Data / Setup Data\\Create a company with the Essential functionality scope containing everything you need to evaluate the product for companies with standard processes. For example, sample invoices and ledger entries allow you to view charts and reports.';
+        EvaluationDataTxt: Label '\Contoso Company Sample Data / Setup Data\\Create a company that has everything you need to evaluate Business Central. For example, invoices and ledger entries let you explore charts and reports. Accounts, items, vendors, and customers showcase financial and operational capabilities.';
         StandardDataTxt: Label '\Essential Experience / Setup Data Only\\Create a company with the Essential functionality scope containing data and setup, such as a chart of accounts and payment methods ready for use by companies with standard processes. Set up your own items and customers, and start posting right away.';
         NoDataTxt: Label '\Any Experience / No Sample Data / No Setup Data\\Create a company with the desired experience for companies with any process complexity, and set it up manually.';
         TrialPeriodTxt: Label '\\You will be able to use this company for a 30-day trial period.';

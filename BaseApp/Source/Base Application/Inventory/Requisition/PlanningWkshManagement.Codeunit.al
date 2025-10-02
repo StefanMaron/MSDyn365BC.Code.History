@@ -5,7 +5,6 @@
 namespace Microsoft.Inventory.Requisition;
 
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.Routing;
 
 codeunit 99000812 PlanningWkshManagement
 {
@@ -28,7 +27,6 @@ codeunit 99000812 PlanningWkshManagement
     procedure GetDescriptionAndRcptName(var ReqLine: Record "Requisition Line"; var ItemDescription: Text[100]; var RoutingDescription: Text[100])
     var
         Item: Record Item;
-        RtngHeader: Record "Routing Header";
     begin
         if ReqLine."No." = '' then
             ItemDescription := ''
@@ -39,16 +37,14 @@ codeunit 99000812 PlanningWkshManagement
                 else
                     ItemDescription := '';
 
-        if ReqLine."Routing No." = '' then
-            RoutingDescription := ''
-        else
-            if ReqLine."Routing No." <> LastReqLine."Routing No." then
-                if RtngHeader.Get(ReqLine."Routing No.") then
-                    RoutingDescription := RtngHeader.Description
-                else
-                    RoutingDescription := '';
+        OnGetRoutingDescription(ReqLine, RoutingDescription);
 
         LastReqLine := ReqLine;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetRoutingDescription(var ReqLine: Record "Requisition Line"; var RoutingDescription: Text[100])
+    begin
     end;
 }
 

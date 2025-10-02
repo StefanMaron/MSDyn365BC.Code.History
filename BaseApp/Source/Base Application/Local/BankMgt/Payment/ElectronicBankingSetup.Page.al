@@ -14,7 +14,7 @@ page 11308 "Electronic Banking Setup"
     InsertAllowed = false;
     PageType = Card;
     SourceTable = "Electronic Banking Setup";
-    UsageCategory = Tasks;
+    UsageCategory = Administration;
 
     layout
     {

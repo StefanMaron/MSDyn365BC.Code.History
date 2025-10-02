@@ -12,6 +12,7 @@ tableextension 11308 "Service Header Archive BE" extends "Service Header Archive
         {
             Caption = 'Enterprise No.';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
         }
     }
 }

@@ -27,7 +27,12 @@ codeunit 5616 "Depreciation Calculation"
 #pragma warning restore AA0074
         DeprBookCodeErr: Label ' in depreciation book code %1', Comment = '%1=value for code, e.g. COMAPNY';
 
-    procedure DeprDays(StartingDate: Date; EndingDate: Date; Year365Days: Boolean) NumbefOfDeprDays: Integer
+    procedure DeprDays(StartingDate: Date; EndingDate: Date; Year365Days: Boolean): Integer
+    begin
+        exit(DeprDays(StartingDate, EndingDate, Year365Days, false));
+    end;
+
+    procedure DeprDays(StartingDate: Date; EndingDate: Date; Year365Days: Boolean; UseAccountingPeriod: Boolean) NumbefOfDeprDays: Integer
     var
         StartingDay: Integer;
         EndingDay: Integer;
@@ -54,6 +59,9 @@ codeunit 5616 "Depreciation Calculation"
         if Date2DMY(EndingDate + 1, 1) = 1 then
             EndingDay := 30;
 
+        if UseAccountingPeriod then
+            exit(EndingDate - StartingDate + 1);
+
         NumbefOfDeprDays := 1 + EndingDay - StartingDay + 30 * (EndingMonth - StartingMonth) +
           360 * (EndingYear - StartingYear);
 
@@ -62,21 +70,31 @@ codeunit 5616 "Depreciation Calculation"
 
     procedure ToMorrow(ThisDate: Date; Year365Days: Boolean): Date
     begin
+        exit(ToMorrow(ThisDate, Year365Days, false));
+    end;
+
+    procedure ToMorrow(ThisDate: Date; Year365Days: Boolean; UseAccountingPeriod: Boolean): Date
+    begin
         if Year365Days then
             exit(ToMorrow365(ThisDate));
         ThisDate := ThisDate + 1;
-        if Date2DMY(ThisDate, 1) = 31 then
+        if (not UseAccountingPeriod) and (Date2DMY(ThisDate, 1) = 31) then
             ThisDate := ThisDate + 1;
         exit(ThisDate);
     end;
 
     procedure Yesterday(ThisDate: Date; Year365Days: Boolean): Date
     begin
+        exit(Yesterday(ThisDate, Year365Days, false));
+    end;
+
+    procedure Yesterday(ThisDate: Date; Year365Days: Boolean; UseAccountingPeriod: Boolean): Date
+    begin
         if Year365Days then
             exit(Yesterday365(ThisDate));
         if ThisDate = 0D then
             exit(0D);
-        if Date2DMY(ThisDate, 1) = 31 then
+        if (not UseAccountingPeriod) and (Date2DMY(ThisDate, 1) = 31) then
             ThisDate := ThisDate - 1;
         ThisDate := ThisDate - 1;
         exit(ThisDate);
@@ -179,6 +197,11 @@ codeunit 5616 "Depreciation Calculation"
     end;
 
     procedure GetFirstDeprDate(FANo: Code[20]; DeprBookCode: Code[10]; Year365Days: Boolean): Date
+    begin
+        exit(GetFirstDeprDate(FANo, DeprBookCode, Year365Days, false));
+    end;
+
+    procedure GetFirstDeprDate(FANo: Code[20]; DeprBookCode: Code[10]; Year365Days: Boolean; UseAccountingPeriod: Boolean): Date
     var
         FALedgEntry: Record "FA Ledger Entry";
         EntryDates: array[4] of Date;
@@ -202,8 +225,8 @@ codeunit 5616 "Depreciation Calculation"
                 LocalDate := FALedgEntry."FA Posting Date";
         FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
         if FALedgEntry.FindLast() then
-            if ToMorrow(FALedgEntry."FA Posting Date", Year365Days) > LocalDate then
-                LocalDate := ToMorrow(FALedgEntry."FA Posting Date", Year365Days);
+            if ToMorrow(FALedgEntry."FA Posting Date", Year365Days, UseAccountingPeriod) > LocalDate then
+                LocalDate := ToMorrow(FALedgEntry."FA Posting Date", Year365Days, UseAccountingPeriod);
         GetLastEntryDates(FANo, DeprBookCode, EntryDates);
         FindMaxDate(FALedgEntry, EntryDates, LocalDate, Year365Days);
         exit(LocalDate);
@@ -408,6 +431,11 @@ codeunit 5616 "Depreciation Calculation"
     end;
 
     procedure GetDeprPeriod(FANo: Code[20]; DeprBookCode: Code[10]; UntilDate: Date; var StartingDate: Date; var EndingDate: Date; var NumberOfDays: Integer; Year365Days: Boolean)
+    begin
+        GetDeprPeriod(FANo, DeprBookCode, UntilDate, StartingDate, EndingDate, NumberOfDays, Year365Days, false);
+    end;
+
+    procedure GetDeprPeriod(FANo: Code[20]; DeprBookCode: Code[10]; UntilDate: Date; var StartingDate: Date; var EndingDate: Date; var NumberOfDays: Integer; Year365Days: Boolean; UseAccountingPeriod: Boolean)
     var
         FALedgEntry: Record "FA Ledger Entry";
         FADeprBook: Record "FA Depreciation Book";
@@ -419,13 +447,13 @@ codeunit 5616 "Depreciation Calculation"
             SetFAFilter(FALedgEntry, FANo, DeprBookCode, true);
             FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
             if FALedgEntry.Find('+') then
-                StartingDate := ToMorrow(FALedgEntry."FA Posting Date", Year365Days)
+                StartingDate := ToMorrow(FALedgEntry."FA Posting Date", Year365Days, UseAccountingPeriod)
             else begin
                 StartingDate := FADeprBook."Depreciation Starting Date";
                 UsedDeprStartingDate := true;
             end;
         end else
-            StartingDate := ToMorrow(EndingDate, Year365Days);
+            StartingDate := ToMorrow(EndingDate, Year365Days, UseAccountingPeriod);
         // Calculate Ending Date
         EndingDate := 0D;
         SetFAFilter(FALedgEntry, FANo, DeprBookCode, false);
@@ -442,14 +470,14 @@ codeunit 5616 "Depreciation Calculation"
                     end else
                         if GetPartOfDeprCalculation(FALedgEntry) then
                             EndingDate := FALedgEntry."FA Posting Date";
-                    EndingDate := Yesterday(EndingDate, Year365Days);
+                    EndingDate := Yesterday(EndingDate, Year365Days, UseAccountingPeriod);
                     if EndingDate < StartingDate then
                         EndingDate := 0D;
                 end;
             until (FALedgEntry.Next() = 0) or (EndingDate > 0D);
         if EndingDate = 0D then
             EndingDate := UntilDate;
-        NumberOfDays := DeprDays(StartingDate, EndingDate, Year365Days);
+        NumberOfDays := DeprDays(StartingDate, EndingDate, Year365Days, UseAccountingPeriod);
 
         OnAfterGetDeprPeriod(FANo, DeprBookCode, UntilDate, StartingDate, EndingDate, NumberOfDays, Year365Days);
     end;

@@ -1,6 +1,3 @@
-#pragma warning disable AS0125
-#pragma warning disable AS0005
-#pragma warning disable AS0002
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -17,7 +14,7 @@ table 6140 "E-Doc. Purchase Line History"
 {
 
     DataClassification = CustomerContent;
-    Caption = 'E-Doc. Purchase Line Matches';
+    Caption = 'E-Doc. Purchase Line History';
     InherentEntitlements = RIMDX;
     InherentPermissions = RIMDX;
     Access = Internal;
@@ -32,7 +29,6 @@ table 6140 "E-Doc. Purchase Line History"
             Editable = false;
             AutoIncrement = true;
         }
-
         field(2; "Vendor No."; Code[20])
         {
             Caption = 'Vendor No.';
@@ -84,6 +80,3 @@ table 6140 "E-Doc. Purchase Line History"
     }
 
 }
-#pragma warning restore AS0125
-#pragma warning restore AS0005
-#pragma warning restore AS0002

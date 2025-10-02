@@ -4,25 +4,24 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Upgrade;
 
-#if CLEAN26
+#if not CLEAN26
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Setup;
-using System.Environment;
-using System.Upgrade;
 #endif
 
 codeunit 104062 "Mfg. Upgrade BaseApp"
 {
     Subtype = Upgrade;
 
-#if CLEAN26
     var
-        UpgradeTag: Codeunit "Upgrade Tag";
-        HybridDeployment: Codeunit "Hybrid Deployment";
+        HybridDeployment: Codeunit System.Environment."Hybrid Deployment";
+#if not CLEAN27
+        UpgradeTag: Codeunit System.Upgrade."Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+#endif
 
     trigger OnUpgradePerCompany()
     var
@@ -36,9 +35,16 @@ codeunit 104062 "Mfg. Upgrade BaseApp"
         if CurrentModuleInfo.AppVersion().Major() < 29 then
             exit;
 
+#if not CLEAN26
         UpgradeFlushingMethod();
+#endif
+#if not CLEAN27
+        UpgradeInventoryPlanningFields();
+        UpgradeGranularWarehouseHandlingSetup();
+#endif
     end;
 
+#if not CLEAN26
     local procedure UpgradeFlushingMethod()
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag()) then
@@ -46,13 +52,13 @@ codeunit 104062 "Mfg. Upgrade BaseApp"
 
         // Data upgrade is not required if there are no records in Production Order table.
         if CheckProductionOrderIsEmpty() then begin
-            SetUpgradeTag(false);
+            SetUpgradeTag(false, UpgradeTagDefinitions.GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag());
             exit;
         end;
 
         // Data upgrade is not required if there are no records to update
         if not CheckRecordsToUpdateExist() then begin
-            SetUpgradeTag(false);
+            SetUpgradeTag(false, UpgradeTagDefinitions.GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag());
             exit;
         end;
 
@@ -63,9 +69,11 @@ codeunit 104062 "Mfg. Upgrade BaseApp"
         UpdateFromManualToPickPlusManualFlushingMethod_PlanningComponent();
         UpdateFromManualToPickPlusManualFlushingMethod_ManufacturingSetup();
 
-        SetUpgradeTag(true);
+        SetUpgradeTag(true, UpgradeTagDefinitions.GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag());
     end;
+#endif
 
+#if not CLEAN26
     local procedure CheckProductionOrderIsEmpty(): Boolean;
     var
         ProductionOrder: Record "Production Order";
@@ -106,14 +114,18 @@ codeunit 104062 "Mfg. Upgrade BaseApp"
         if not ManufacturingSetup.IsEmpty() then
             exit(true);
     end;
+#endif
 
-    local procedure SetUpgradeTag(DataUpgradeExecuted: Boolean)
+#if not CLEAN27
+    local procedure SetUpgradeTag(DataUpgradeExecuted: Boolean; UpgradeTagCode: Code[250])
     begin
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag());
+        UpgradeTag.SetUpgradeTag(UpgradeTagCode);
         if not DataUpgradeExecuted then
-            UpgradeTag.SetSkippedUpgrade(UpgradeTagDefinitions.GetManufacturingFlushingMethodActivateManualWithoutPickUpgradeTag(), true);
+            UpgradeTag.SetSkippedUpgrade(UpgradeTagCode, true);
     end;
+#endif
 
+#if not CLEAN26
     local procedure UpdateFromManualToPickPlusManualFlushingMethod_Item()
     var
         Item: Record Item;
@@ -199,6 +211,104 @@ codeunit 104062 "Mfg. Upgrade BaseApp"
                 ManufacturingSetup."Default Flushing Method" := ManufacturingSetup."Default Flushing Method"::"Pick + Manual";
                 ManufacturingSetup.Modify();
             until ManufacturingSetup.Next() = 0;
+    end;
+
+#endif
+
+#if not CLEAN27
+    local procedure UpgradeInventoryPlanningFields()
+    var
+        InventorySetup: Record Microsoft.Inventory.Setup."Inventory Setup";
+        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetInventoryPlanningSetupUpgradeTag()) then
+            exit;
+
+        if not ManufacturingSetup.Get() then
+            exit;
+
+        if InventorySetup.Get() then begin
+            InventorySetup."Current Demand Forecast" := ManufacturingSetup."Current Production Forecast";
+            InventorySetup."Use Forecast on Variants" := ManufacturingSetup."Use Forecast on Variants";
+            InventorySetup."Use Forecast on Locations" := ManufacturingSetup."Use Forecast on Locations";
+            InventorySetup."Default Safety Lead Time" := ManufacturingSetup."Default Safety Lead Time";
+            InventorySetup."Combined MPS/MRP Calculation" := ManufacturingSetup."Combined MPS/MRP Calculation";
+            InventorySetup."Default Dampener %" := ManufacturingSetup."Default Dampener %";
+            InventorySetup."Default Dampener Period" := ManufacturingSetup."Default Dampener Period";
+            InventorySetup."Blank Overflow Level" := ManufacturingSetup."Blank Overflow Level";
+            InventorySetup.Modify();
+        end;
+
+        SetUpgradeTag(true, UpgradeTagDefinitions.GetItemVariantItemIdUpgradeTag());
+    end;
+#endif
+
+#if not CLEAN27
+    local procedure UpgradeGranularWarehouseHandlingSetup()
+    var
+        Location: Record Location;
+        LocationDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetLocationGranularWarehouseHandlingSetupsUpgradeTag()) then
+            exit;
+
+        LocationDataTransfer.SetTables(Database::Location, Database::Location);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Pick"), '=%1', false);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Shipment"), '=%1', false);
+        LocationDataTransfer.AddConstantValue("Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)", Location.FieldNo("Prod. Consump. Whse. Handling"));
+        LocationDataTransfer.CopyFields();
+        Clear(LocationDataTransfer);
+
+        LocationDataTransfer.SetTables(Database::Location, Database::Location);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Pick"), '=%1', false);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Shipment"), '=%1', true);
+        LocationDataTransfer.AddConstantValue("Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)", Location.FieldNo("Prod. Consump. Whse. Handling"));
+        LocationDataTransfer.CopyFields();
+        Clear(LocationDataTransfer);
+
+        LocationDataTransfer.SetTables(Database::Location, Database::Location);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Pick"), '=%1', true);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Shipment"), '=%1', false);
+        LocationDataTransfer.AddConstantValue("Prod. Consump. Whse. Handling"::"Inventory Pick/Movement", Location.FieldNo("Prod. Consump. Whse. Handling"));
+        LocationDataTransfer.CopyFields();
+        Clear(LocationDataTransfer);
+
+        LocationDataTransfer.SetTables(Database::Location, Database::Location);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Pick"), '=%1', true);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Shipment"), '=%1', true);
+        LocationDataTransfer.AddConstantValue("Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)", Location.FieldNo("Prod. Consump. Whse. Handling"));
+        LocationDataTransfer.CopyFields();
+        Clear(LocationDataTransfer);
+
+        LocationDataTransfer.SetTables(Database::Location, Database::Location);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Put-away"), '=%1', false);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Receive"), '=%1', false);
+        LocationDataTransfer.AddConstantValue("Prod. Output Whse. Handling"::"No Warehouse Handling", Location.FieldNo("Prod. Output Whse. Handling"));
+        LocationDataTransfer.CopyFields();
+        Clear(LocationDataTransfer);
+
+        LocationDataTransfer.SetTables(Database::Location, Database::Location);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Put-away"), '=%1', false);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Receive"), '=%1', true);
+        LocationDataTransfer.AddConstantValue("Prod. Output Whse. Handling"::"No Warehouse Handling", Location.FieldNo("Prod. Output Whse. Handling"));
+        LocationDataTransfer.CopyFields();
+        Clear(LocationDataTransfer);
+
+        LocationDataTransfer.SetTables(Database::Location, Database::Location);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Put-away"), '=%1', true);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Receive"), '=%1', true);
+        LocationDataTransfer.AddConstantValue("Prod. Output Whse. Handling"::"No Warehouse Handling", Location.FieldNo("Prod. Output Whse. Handling"));
+        LocationDataTransfer.CopyFields();
+        Clear(LocationDataTransfer);
+
+        LocationDataTransfer.SetTables(Database::Location, Database::Location);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Put-away"), '=%1', true);
+        LocationDataTransfer.AddSourceFilter(Location.FieldNo("Require Receive"), '=%1', false);
+        LocationDataTransfer.AddConstantValue("Prod. Output Whse. Handling"::"Inventory Put-away", Location.FieldNo("Prod. Output Whse. Handling"));
+        LocationDataTransfer.CopyFields();
+        Clear(LocationDataTransfer);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetLocationGranularWarehouseHandlingSetupsUpgradeTag());
     end;
 #endif
 }

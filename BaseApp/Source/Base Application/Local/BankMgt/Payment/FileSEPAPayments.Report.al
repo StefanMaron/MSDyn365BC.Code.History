@@ -32,7 +32,7 @@ report 2000005 "File SEPA Payments"
     {
         dataitem("Payment Journal Line"; "Payment Journal Line")
         {
-            DataItemTableView = sorting("Bank Account", "Beneficiary Bank Account No.", Status, "Account Type", "Account No.", "Currency Code", "Posting Date");
+            DataItemTableView = sorting("Bank Account", "Beneficiary Bank Account No.", "Beneficiary IBAN", Status, "Account Type", "Account No.", "Currency Code", "Posting Date");
 
             trigger OnAfterGetRecord()
             var
@@ -493,7 +493,8 @@ report 2000005 "File SEPA Payments"
         AddElement(XMLNodeCurr, 'FinInstnId', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
-        AddElement(XMLNodeCurr, 'BIC', CopyStr(DelChr(PmtJnlLine."SWIFT Code"), 1, 11), '', XMLNewChild);
+        if AddBICTag(PmtJnlLine."SWIFT Code") then
+            AddElement(XMLNodeCurr, 'BIC', CopyStr(DelChr(PmtJnlLine."SWIFT Code"), 1, 11), '', XMLNewChild);
         case PmtJnlLine."Account Type" of
             PmtJnlLine."Account Type"::Vendor:
                 begin
@@ -732,7 +733,8 @@ report 2000005 "File SEPA Payments"
             IsPaymentMessageTooLong(PmtJnlLine."Payment Message") or
             (ConsolidatedPmtJnlLine."Account Type" <> PmtJnlLine."Account Type") or
             (ConsolidatedPmtJnlLine."Account No." <> PmtJnlLine."Account No.") or
-            (ConsolidatedPmtJnlLine."Beneficiary Bank Account No." <> PmtJnlLine."Beneficiary Bank Account No.");
+            (ConsolidatedPmtJnlLine."Beneficiary Bank Account No." <> PmtJnlLine."Beneficiary Bank Account No.") or
+            (ConsolidatedPmtJnlLine."Beneficiary IBAN" <> PmtJnlLine."Beneficiary IBAN");
 
         OnAfterNewConsolidatedPayment(PmtJnlLine, ConsolidatedPmtJnlLine, ReturnValue);
 

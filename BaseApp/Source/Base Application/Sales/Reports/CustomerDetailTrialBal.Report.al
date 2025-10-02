@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reports;
 
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -269,7 +273,7 @@ report 104 "Customer - Detail Trial Bal."
     requestpage
     {
         SaveValues = true;
-        AboutTitle = 'Customer - Detail Trial Bal.';
+        AboutTitle = 'About Customer - Detail Trial Bal.';
         AboutText = 'View customer balances at the end of a period, including the opening balance, each transaction within the period, and the closing balance grouped by customer. View details for remaining amounts and due dates.';
 
         layout

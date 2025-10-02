@@ -237,7 +237,7 @@ report 2000007 "File SEPA 001.001.09 Pmts"
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        SEPACTExportFile: Codeunit "SEPA CT-Export File";     
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";
         XMLRootElement: DotNet XmlElement;
         XMLNodeCurr: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
@@ -450,7 +450,7 @@ report 2000007 "File SEPA 001.001.09 Pmts"
         XMLNodeCurr := XMLNodeCurr.ParentNode;
     end;
 
-    local procedure AddBICFITag(SwiftCode: Code [20]) AddTag: Boolean
+    local procedure AddBICFITag(SwiftCode: Code[20]) AddTag: Boolean
     begin
         AddTag := true;
         OnAddBICFITag(SwiftCode, AddTag);
@@ -492,7 +492,8 @@ report 2000007 "File SEPA 001.001.09 Pmts"
         AddElement(XMLNodeCurr, 'FinInstnId', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
-        AddElement(XMLNodeCurr, 'BICFI', CopyStr(DelChr(PmtJnlLine."SWIFT Code"), 1, 11), '', XMLNewChild);
+        if AddBICFITag(BankAcc."SWIFT Code") then
+            AddElement(XMLNodeCurr, 'BICFI', CopyStr(DelChr(PmtJnlLine."SWIFT Code"), 1, 11), '', XMLNewChild);
         case PmtJnlLine."Account Type" of
             PmtJnlLine."Account Type"::Vendor:
                 begin
@@ -919,7 +920,7 @@ report 2000007 "File SEPA 001.001.09 Pmts"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAddBICFITag(SwiftCode: Code [20]; var AddTag: Boolean)
+    local procedure OnAddBICFITag(SwiftCode: Code[20]; var AddTag: Boolean)
     begin
     end;
 }

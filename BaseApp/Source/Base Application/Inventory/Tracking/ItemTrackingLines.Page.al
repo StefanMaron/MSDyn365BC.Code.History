@@ -1095,9 +1095,6 @@ page 6510 "Item Tracking Lines"
             ApplFromItemEntryVisible := Inbound;
             ApplToItemEntryVisible := not Inbound;
         end;
-#if not CLEAN24
-        PackageNoVisible := true;
-#endif
         UpdateUndefinedQtyArray();
 
         CurrentPageIsOpen := true;
@@ -1239,10 +1236,6 @@ page 6510 "Item Tracking Lines"
         Invoice2Visible: Boolean;
         Invoice3Visible: Boolean;
         QtyToInvoiceBaseVisible: Boolean;
-#if not CLEAN24
-        [Obsolete('Package Tracking enabled by default.', '24.0')]
-        PackageNoVisible: Boolean;
-#endif
         NewSerialNoVisible: Boolean;
         NewLotNoVisible: Boolean;
         NewPackageNoVisible: Boolean;
@@ -2780,13 +2773,6 @@ page 6510 "Item Tracking Lines"
         end;
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by namesake procedure with additional parameter CreatePackageNo.', '24.0')]
-    protected procedure AssignSerialNoBatch(QtyToCreate: Integer; CreateLotNo: Boolean; CreateSNInfo: Boolean)
-    begin
-        AssignSerialNoBatch(QtyToCreate, CreateLotNo, false, CreateSNInfo);
-    end;
-#endif
 
     protected procedure AssignSerialNoBatch(QtyToCreate: Integer; CreateLotNo: Boolean; CreatePackageNo: Boolean; CreateSNInfo: Boolean)
     var
@@ -3485,33 +3471,6 @@ page 6510 "Item Tracking Lines"
         WarrantyDateEditable2 := WarrantyDateEditable;
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by namesake procedure with additional parameter ExpirationDateVisible2.', '24.0')]
-    procedure GetVisibleSettings(var Handle1Visible2: Boolean; var Handle2Visible2: Boolean; var Handle3Visible2: Boolean; var QtyToHandleBaseVisible2: Boolean; var Invoice1Visible2: Boolean; var Invoice2Visible2: Boolean; var Invoice3Visible2: Boolean; var QtyToInvoiceBaseVisible2: Boolean; var NewSerialNoVisible2: Boolean; var NewLotNoVisible2: Boolean; var NewExpirationDateVisible2: Boolean; var ButtonLineReclassVisible2: Boolean; var ButtonLineVisible2: Boolean; var FunctionsSupplyVisible2: Boolean; var FunctionsDemandVisible2: Boolean; var Inbound2: Boolean; var InboundIsSet2: Boolean)
-    var
-        DummyExpirationDateVisible: Boolean;
-    begin
-        GetVisibleSettings(
-            Handle1Visible2,
-            Handle2Visible2,
-            Handle3Visible2,
-            QtyToHandleBaseVisible2,
-            Invoice1Visible2,
-            Invoice2Visible2,
-            Invoice3Visible2,
-            QtyToInvoiceBaseVisible2,
-            NewSerialNoVisible2,
-            NewLotNoVisible2,
-            DummyExpirationDateVisible,
-            NewExpirationDateVisible2,
-            ButtonLineReclassVisible2,
-            ButtonLineVisible2,
-            FunctionsSupplyVisible2,
-            FunctionsDemandVisible2,
-            Inbound2,
-            InboundIsSet2);
-    end;
-#endif
 
     procedure GetVisibleSettings(var Handle1Visible2: Boolean; var Handle2Visible2: Boolean; var Handle3Visible2: Boolean; var QtyToHandleBaseVisible2: Boolean; var Invoice1Visible2: Boolean; var Invoice2Visible2: Boolean; var Invoice3Visible2: Boolean; var QtyToInvoiceBaseVisible2: Boolean; var NewSerialNoVisible2: Boolean; var NewLotNoVisible2: Boolean; var ExpirationDateVisible2: Boolean; var NewExpirationDateVisible2: Boolean; var ButtonLineReclassVisible2: Boolean; var ButtonLineVisible2: Boolean; var FunctionsSupplyVisible2: Boolean; var FunctionsDemandVisible2: Boolean; var Inbound2: Boolean; var InboundIsSet2: Boolean)
     begin

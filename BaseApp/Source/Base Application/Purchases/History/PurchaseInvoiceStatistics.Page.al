@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.VAT.Calculation;
@@ -211,13 +215,6 @@ page 400 "Purchase Invoice Statistics"
         AmountInclVAT: Decimal;
         AmountLCY: Decimal;
 
-    local procedure GetVATPct(PurchInvLine: Record "Purch. Inv. Line"): Decimal
-    begin
-        if PurchInvLine."VAT Calculation Type" = PurchInvLine."VAT Calculation Type"::"Reverse Charge VAT" then
-            exit(0);
-        exit(PurchInvLine."VAT %");
-    end;
-
     local procedure FillVATAmountLineBuf(PurchInvLine: Record "Purch. Inv. Line"; var TempNonDeductVATAmountLine: Record "VAT Amount Line" temporary)
     var
         NonDeductibleVAT: Decimal;
@@ -321,4 +318,3 @@ page 400 "Purchase Invoice Statistics"
     begin
     end;
 }
-

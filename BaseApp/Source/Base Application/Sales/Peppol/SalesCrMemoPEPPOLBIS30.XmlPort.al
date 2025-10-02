@@ -684,7 +684,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                                 currXMLport.Skip();
                         end;
                     }
-                    textelement(customerpartyname)
+                    textelement(custoemerpartyname)
                     {
                         NamespacePrefix = 'cac';
                         XmlName = 'PartyName';
@@ -1726,7 +1726,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                             XmlName = 'ID';
                         }
                     }
-                    textelement(crmemolnbillingreferenceline)
+                    textelement("crmemolnbillingreferenceline>")
                     {
                         NamespacePrefix = 'cac';
                         XmlName = 'BillingReferenceLine';

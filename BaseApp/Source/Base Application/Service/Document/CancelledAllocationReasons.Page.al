@@ -85,7 +85,6 @@ page 6002 "Cancelled Allocation Reasons"
             {
                 ApplicationArea = Service;
                 Caption = 'Priority';
-                OptionCaption = 'Low,Medium,High';
             }
             field(ReasonCode; ReasonCode)
             {
@@ -118,7 +117,7 @@ page 6002 "Cancelled Allocation Reasons"
         ServHeader: Record "Service Header";
         ServItemLine: Record "Service Item Line";
         ReasonCode: Code[10];
-        ServPriority: Option Low,Medium,High;
+        ServPriority: Enum "Service Priority";
 
     procedure ReturnReasonCode(): Code[10]
     begin
@@ -126,6 +125,11 @@ page 6002 "Cancelled Allocation Reasons"
     end;
 
     procedure ReturnPriority(): Integer
+    begin
+        exit(ServPriority.AsInteger());
+    end;
+
+    procedure GetServicePriority(): Enum "Service Priority"
     begin
         exit(ServPriority);
     end;

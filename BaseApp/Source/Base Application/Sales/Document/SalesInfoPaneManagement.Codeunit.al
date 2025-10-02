@@ -137,6 +137,12 @@ codeunit 7171 "Sales Info-Pane Management"
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         QtyReservedFromStock: Decimal;
     begin
+        if not GetItem(SalesLine) then
+            exit(Result::None);
+
+        if Item.IsNonInventoriableType() then
+            exit(Result::None);
+
         QtyReservedFromStock := SalesLineReserve.GetReservedQtyFromInventory(SalesLine);
         case QtyReservedFromStock of
             0:

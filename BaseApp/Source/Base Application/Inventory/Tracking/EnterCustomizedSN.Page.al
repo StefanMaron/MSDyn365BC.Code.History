@@ -135,21 +135,6 @@ page 6515 "Enter Customized SN"
         CustomizedSN: Code[50];
         Increment: Integer;
 
-#if not CLEAN24
-    [Obsolete('Replaced by namesake procedure with additional parameter SetCreateNewPackageNo.', '24.0')]
-    procedure SetFields(SetItemNo: Code[20]; SetVariantCode: Code[10]; SetQtyToCreate: Integer; SetCreateNewLotNo: Boolean; SetCreateSNInfo: Boolean)
-    begin
-        SetFields(SetItemNo, SetVariantCode, SetQtyToCreate, SetCreateNewLotNo, false, SetCreateSNInfo);
-    end;
-
-    [Obsolete('Replaced by namesake procedure with additional parameter GetCreateNewPackageNo.', '24.0')]
-    procedure GetFields(var GetQtyToCreate: Integer; var GetCreateNewLotNo: Boolean; var GetCustomizedSN: Code[50]; var GetIncrement: Integer; var GetCreateSNInfo: Boolean)
-    var
-        DummyGetCreateNewPackageNo: Boolean;
-    begin
-        GetFields(GetQtyToCreate, GetCreateNewLotNo, DummyGetCreateNewPackageNo, GetCustomizedSN, GetIncrement, GetCreateSNInfo);
-    end;
-#endif
 
     procedure SetFields(SetItemNo: Code[20]; SetVariantCode: Code[10]; SetQtyToCreate: Integer; SetCreateNewLotNo: Boolean; SetCreateNewPackageNo: Boolean; SetCreateSNInfo: Boolean)
     begin
@@ -171,4 +156,3 @@ page 6515 "Enter Customized SN"
         GetCreateSNInfo := CreateSNInfo;
     end;
 }
-

@@ -258,6 +258,8 @@ report 5051 "Contact - Company Summary"
 
     requestpage
     {
+        AboutTitle = 'About Contact - Company Summary';
+        AboutText = 'Get an overview of your contact companies, including related interactions and to-dos.';
 
         layout
         {

@@ -754,7 +754,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         CurrencyCode: Code[10];
         VendorNo: Code[20];
     begin
-        // [FEATURE] [Return Order] [UT] 
+        // [FEATURE] [Return Order] [UT]
         // [SCENARIO 311677] Standard codes notification created when currency code of purchase document became same with Standard Purchase Code currency code
         Initialize();
 
@@ -969,7 +969,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         // [SCENARIO 365580] Recurring purchase lines are NOT added on Quote to Order convert when Insert Rec. Lines On Orders = Automatic
         Initialize();
 
-        // [GIVEN] Create new purchase quote for vendor with standard purch code where Insert Rec. Lines On Orders = Automatic 
+        // [GIVEN] Create new purchase quote for vendor with standard purch code where Insert Rec. Lines On Orders = Automatic
         LibraryPurchase.CreatePurchaseQuote(PurchaseQuote);
         PurchaseQuote.Validate("Buy-from Vendor No.", GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Automatic));
         PurchaseQuote.Modify(true);
@@ -1053,7 +1053,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         LibraryVariableStorage.Enqueue(true);
 
         // [WHEN] Standard Purchase Code is deleted
-        // [THEN] Confirmation message appears 
+        // [THEN] Confirmation message appears
         // [WHEN] User agrees with confirmation
         StdPurchCode.Delete(true);
 
@@ -1092,7 +1092,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Standard Purchase Code is deleted
-        // [THEN] Confirmation message appears 
+        // [THEN] Confirmation message appears
         // [WHEN] User disagree with confirmation
         asserterror StdPurchCode.Delete(true);
         Assert.ExpectedError('');
@@ -1144,7 +1144,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         // [SCENARIO 424805] Recurring purchase lines are NOT added on Quote to Order convert when Insert Rec. Lines On Orders = Automatic
         Initialize();
 
-        // [GIVEN] Create new purchase quote for vendor with standard purch code where Insert Rec. Lines On Orders = Automatic 
+        // [GIVEN] Create new purchase quote for vendor with standard purch code where Insert Rec. Lines On Orders = Automatic
         LibraryPurchase.CreatePurchHeader(
             PurchaseHeaderBlanketOrder, PurchaseHeaderBlanketOrder."Document Type"::"Blanket Order",
             GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Automatic));
@@ -1399,24 +1399,6 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         PurchaseCreditMemo."Buy-from Vendor No.".SetValue(VendorNo);
     end;
 
-    local procedure SetBlanketPurchaseOrderVendorNo(PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
-    var
-        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
-    begin
-        BlanketPurchaseOrder.OpenEdit();
-        BlanketPurchaseOrder.Filter.setfilter("No.", PurchaseHeader."No.");
-        BlanketPurchaseOrder."Buy-from Vendor No.".SetValue(VendorNo);
-    end;
-
-    local procedure SetPurchaseReturnOrderVendorNo(PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
-    var
-        PurchaseReturnOrder: TestPage "Purchase Return Order";
-    begin
-        PurchaseReturnOrder.OpenEdit();
-        PurchaseReturnOrder.Filter.setfilter("No.", PurchaseHeader."No.");
-        PurchaseReturnOrder."Buy-from Vendor No.".SetValue(VendorNo);
-    end;
-
     local procedure UpdatePurchHeaderBuyFromVendorNo(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
     begin
         PurchaseHeader.Validate("Buy-from Vendor No.", VendorNo);
@@ -1468,20 +1450,6 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
         TempNotificationContext.SetRange("Record ID", PurchaseHeader.RecordId);
         Assert.IsTrue(TempNotificationContext.FindFirst(), 'Notification not found');
-        Assert.AreEqual(
-          StandardCodesMgt.GetPurchRecurringLinesNotificationId(),
-          TempNotificationContext."Notification ID",
-          InvalidNotificationIdMsg);
-        NotificationLifecycleMgt.RecallAllNotifications();
-    end;
-
-    local procedure VerifyPurchStdCodesNotificationId()
-    var
-        TempNotificationContext: Record "Notification Context" temporary;
-        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
-        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
-    begin
-        NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
         Assert.AreEqual(
           StandardCodesMgt.GetPurchRecurringLinesNotificationId(),
           TempNotificationContext."Notification ID",
@@ -1590,4 +1558,3 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         AllocationAccountList.Cancel().Invoke();
     end;
 }
-

@@ -1073,7 +1073,7 @@ codeunit 136322 "Jobs - Assemble-to Order"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Jobs - Assemble-to Order");
 
-        UpdateManufacturingSetup();
+        UpdateInventorySetup();
         UpdateNoSeries();
 
         Initialized := true;
@@ -1153,13 +1153,13 @@ codeunit 136322 "Jobs - Assemble-to Order"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure UpdateManufacturingSetup()
+    local procedure UpdateInventorySetup()
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        Evaluate(ManufacturingSetup."Default Safety Lead Time", '<0D>');
-        ManufacturingSetup.Modify(true);
+        InventorySetup.Get();
+        Evaluate(InventorySetup."Default Safety Lead Time", '<0D>');
+        InventorySetup.Modify(true);
     end;
 
     local procedure SetFiltersToATOLink(JobTask: Record "Job Task"; JobPlanningLine: Record "Job Planning Line"; var ATOLink: Record "Assemble-to-Order Link")

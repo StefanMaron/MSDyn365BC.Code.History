@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.ADCS;
 
 using Microsoft.Warehouse.Activity;
@@ -35,10 +39,8 @@ codeunit 7710 "Miniform Move Activity List"
         ReturnedNode: DotNet XmlNode;
         DOMxmlin: DotNet XmlDocument;
         RootNode: DotNet XmlNode;
-#pragma warning disable AA0074
-        Text000: Label 'Function not Found.';
-        Text006: Label 'No input Node found.';
-#pragma warning restore AA0074
+        FunctionNotFoundErr: Label 'Function not Found.';
+        NoInputNodeErr: Label 'No input Node found.';
         TextValue: Text[250];
         ADCSUserId: Text[250];
         WhseEmpId: Text[250];
@@ -48,9 +50,7 @@ codeunit 7710 "Miniform Move Activity List"
         StackCode: Text[250];
         Remark: Text[250];
         ActiveInputField: Integer;
-#pragma warning disable AA0074
-        Text009: Label 'No Documents found.';
-#pragma warning restore AA0074
+        NoDocumentsFoundTxt: Label 'No Documents found.';
 
     local procedure ProcessSelection()
     var
@@ -62,7 +62,7 @@ codeunit 7710 "Miniform Move Activity List"
         if XMLDOMMgt.FindNode(RootNode, 'Header/Input', ReturnedNode) then
             TextValue := ReturnedNode.InnerText
         else
-            Error(Text006);
+            Error(NoInputNodeErr);
 
         Evaluate(TableNo, ADCSCommunication.GetNodeAttribute(ReturnedNode, 'TableNo'));
         RecRef.Open(TableNo);
@@ -90,14 +90,14 @@ codeunit 7710 "Miniform Move Activity List"
                 ADCSCommunication.FindRecRef(0, MiniformHeader."No. of Records in List");
             FuncGroup.KeyDef::LnDn:
                 if not ADCSCommunication.FindRecRef(1, MiniformHeader."No. of Records in List") then
-                    Remark := Text009;
+                    Remark := NoDocumentsFoundTxt;
             FuncGroup.KeyDef::LnUp:
                 ADCSCommunication.FindRecRef(2, MiniformHeader."No. of Records in List");
             FuncGroup.KeyDef::Last:
                 ADCSCommunication.FindRecRef(3, MiniformHeader."No. of Records in List");
             FuncGroup.KeyDef::PgDn:
                 if not ADCSCommunication.FindRecRef(4, MiniformHeader."No. of Records in List") then
-                    Remark := Text009;
+                    Remark := NoDocumentsFoundTxt;
             FuncGroup.KeyDef::PgUp:
                 ADCSCommunication.FindRecRef(5, MiniformHeader."No. of Records in List");
             FuncGroup.KeyDef::Input:
@@ -108,7 +108,7 @@ codeunit 7710 "Miniform Move Activity List"
                     CODEUNIT.Run(MiniformHeader2."Handling Codeunit", MiniformHeader2);
                 end;
             else
-                Error(Text000);
+                Error(FunctionNotFoundErr);
         end;
 
         if not (FuncGroup.KeyDef in [FuncGroup.KeyDef::Esc, FuncGroup.KeyDef::Input]) then
@@ -127,7 +127,7 @@ codeunit 7710 "Miniform Move Activity List"
         end;
         if not WhseActivityHeader.FindFirst() then begin
             if ADCSCommunication.GetNodeAttribute(ReturnedNode, 'RunReturn') = '0' then begin
-                ADCSMgt.SendError(Text009);
+                ADCSMgt.SendError(NoDocumentsFoundTxt);
                 exit;
             end;
             ADCSCommunication.DecreaseStack(DOMxmlin, PreviousCode);

@@ -31,16 +31,12 @@ codeunit 5618 "Table Depr. Calculation"
 
 #pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label 'There are no lines defined for %1 %2 = %3.';
-        Text001: Label '%1 = %2 and %3 %4 = %5 must not be different.';
-#pragma warning restore AA0470
-        Text002: Label 'must be an unbroken sequence';
-#pragma warning disable AA0470
-        Text003: Label 'Period must be specified in %1.';
-#pragma warning restore AA0470
-        Text004: Label 'The number of days in an accounting period must not be less than 5.';
-#pragma warning disable AA0470
-        Text005: Label 'cannot be %1 when %2 is %3 in %4 %5';
+        NoLinesDefinedErr: Label 'There are no lines defined for Depreciation Table Code %1.', Comment = '%1 = Depreciation Table Code';
+        DifferentDatesErr: Label 'First User-Defined Depr. Date %1 and Accounting Period Starting Date %2 must not be different.', Comment = '%1 = Date; %2 = Date';
+        UnbrokenSeqErr: Label 'must be an unbroken sequence';
+        PeriodMustBeSpecifiedErr: Label 'Period must be specified in Accounting Period.';
+        NumberOfDaysErr: Label 'The number of days in an accounting period must not be less than 5.';
+        CannotBeErr: Label 'cannot be %1 when %2 is %3 in Depreciation Book %4', Comment = '%1 = Period Length, %2 = Field Caption, %3 = Field Value (Boolean, %4 = Depreciation Book Code';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
 
@@ -69,15 +65,15 @@ codeunit 5618 "Table Depr. Calculation"
                     DeprTableHeader.FieldError(
                       "Period Length",
                       StrSubstNo(
-                        Text005,
+                        CannotBeErr,
                         DeprTableHeader."Period Length",
                         DeprBook.FieldCaption("Fiscal Year 365 Days"),
                         DeprBook."Fiscal Year 365 Days",
-                        DeprBook.TableCaption(), DeprBook.Code));
+                        DeprBook.Code));
                 DaysInFiscalYear := 365;
             end;
-        StartingLimit := DepreciationCalc.DeprDays(FirstUserDefinedDeprDate, StartingDate, Year365Days);
-        EndingLimit := DepreciationCalc.DeprDays(FirstUserDefinedDeprDate, EndingDate, Year365Days);
+        StartingLimit := DepreciationCalc.DeprDays(FirstUserDefinedDeprDate, StartingDate, Year365Days, DeprBook."Use Accounting Period");
+        EndingLimit := DepreciationCalc.DeprDays(FirstUserDefinedDeprDate, EndingDate, Year365Days, DeprBook."Use Accounting Period");
         OnGetTablePercentOnAfterSetLimits(DeprBookCode, DeprTableCode, FirstUserDefinedDeprDate, StartingDate, EndingDate, StartingLimit, EndingLimit);
 
         if not Year365Days then
@@ -117,7 +113,6 @@ codeunit 5618 "Table Depr. Calculation"
 
     local procedure CreateTableBuffer(FirstUserDefinedDeprDate: Date)
     var
-        FADeprBook: Record "FA Depreciation Book";
         DepreciationCalc: Codeunit "Depreciation Calculation";
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         DaysInPeriod: Integer;
@@ -126,9 +121,7 @@ codeunit 5618 "Table Depr. Calculation"
     begin
         DeprTableLine.SetRange("Depreciation Table Code", DeprTableHeader.Code);
         if not DeprTableLine.Find('-') then
-            Error(
-              Text000,
-              DeprTableHeader.TableCaption(), DeprTableHeader.FieldCaption(Code), DeprTableHeader.Code);
+            Error(NoLinesDefinedErr, DeprTableHeader.Code);
 
         if DeprTableHeader."Period Length" = DeprTableHeader."Period Length"::Period then
             if AccountingPeriod.IsEmpty() then
@@ -137,11 +130,7 @@ codeunit 5618 "Table Depr. Calculation"
                 AccountingPeriod.SetFilter("Starting Date", '>=%1', FirstUserDefinedDeprDate);
                 if AccountingPeriod.Find('-') then;
                 if AccountingPeriod."Starting Date" <> FirstUserDefinedDeprDate then
-                    Error(
-                      Text001,
-                      FADeprBook.FieldCaption("First User-Defined Depr. Date"), FirstUserDefinedDeprDate,
-                      AccountingPeriod.TableCaption(), AccountingPeriod.FieldCaption("Starting Date"),
-                      AccountingPeriod."Starting Date");
+                    Error(DifferentDatesErr, FirstUserDefinedDeprDate, AccountingPeriod."Starting Date");
             end;
         case DeprTableHeader."Period Length" of
             DeprTableHeader."Period Length"::Period:
@@ -156,22 +145,21 @@ codeunit 5618 "Table Depr. Calculation"
         repeat
             PeriodNo := PeriodNo + 1;
             if PeriodNo <> DeprTableLine."Period No." then
-                DeprTableLine.FieldError("Period No.", Text002);
+                DeprTableLine.FieldError("Period No.", UnbrokenSeqErr);
             if DeprTableHeader."Period Length" = DeprTableHeader."Period Length"::Period then begin
                 FirstUserDefinedDeprDate := AccountingPeriod."Starting Date";
                 if AccountingPeriod.Next() <> 0 then begin
                     DaysInPeriod :=
                       DepreciationCalc.DeprDays(
                         FirstUserDefinedDeprDate,
-                        DepreciationCalc.Yesterday(AccountingPeriod."Starting Date", Year365Days),
-                        Year365Days);
+                        DepreciationCalc.Yesterday(AccountingPeriod."Starting Date", Year365Days, DeprBook."Use Accounting Period"),
+                        Year365Days, DeprBook."Use Accounting Period");
                     OnCreateTableBufferOnAfterCalculateDaysInPeriod(DeprBook, AccountingPeriod, FirstUserDefinedDeprDate, Year365Days, DaysInPeriod);
                 end;
                 if DaysInPeriod = 0 then
-                    Error(Text003, AccountingPeriod.TableCaption());
+                    Error(PeriodMustBeSpecifiedErr);
                 if DaysInPeriod <= 5 then
-                    Error(
-                      Text004);
+                    Error(NumberOfDaysErr);
             end;
             InsertTableBuffer(DeprTableLine, TotalNoOfDays, DaysInPeriod, PeriodNo);
         until (DeprTableLine.Next() = 0) or (TotalNoOfDays > EndingLimit);

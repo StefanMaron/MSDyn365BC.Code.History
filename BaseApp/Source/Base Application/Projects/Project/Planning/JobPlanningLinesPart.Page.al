@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Project.Planning;
 
 using Microsoft.Foundation.ExtendedText;
@@ -828,11 +832,9 @@ page 1015 "Job Planning Lines Part"
     var
         Job: Record Job;
     begin
-        Rec.FilterGroup := 2;
         if Rec.GetFilter("Job No.") <> '' then
             if Job.Get(Rec.GetRangeMin("Job No.")) then
                 CurrPage.Editable(not (Job.Blocked = Job.Blocked::All));
-        Rec.FilterGroup := 0;
     end;
 
     var

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Currency;
@@ -443,11 +447,13 @@ table 125 "Purch. Cr. Memo Line"
         {
             BlankZero = true;
             Caption = 'Project Unit Price (LCY)';
+            AutoFormatType = 2;
         }
         field(1009; "Job Total Price (LCY)"; Decimal)
         {
             BlankZero = true;
             Caption = 'Project Total Price (LCY)';
+            AutoFormatType = 1;
         }
         field(1010; "Job Line Amount (LCY)"; Decimal)
         {
@@ -480,10 +486,6 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Deferral Code';
             TableRelation = "Deferral Template"."Deferral Code";
-        }
-        field(5401; "Prod. Order No."; Code[20])
-        {
-            Caption = 'Prod. Order No.';
         }
         field(5402; "Variant Code"; Code[10])
         {

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Reports;
 
 using Microsoft.Finance.Analysis;
@@ -269,6 +273,8 @@ report 37 "Balance Comp. - Prev. Year"
 
     requestpage
     {
+        AboutTitle = 'About Balance Comp. - Prev. Year';
+        AboutText = 'The **Balance Comp. - Prev. Year** report provides a side-by-side view of account balances across two fiscal years for easy comparison. Use it for analyzing year-over-year financial performance, identifying major variances, and spotting trends across accounts.';
         SaveValues = true;
 
         layout

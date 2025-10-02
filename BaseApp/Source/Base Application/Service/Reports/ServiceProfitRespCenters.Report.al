@@ -154,7 +154,8 @@ report 5909 "Service Profit (Resp. Centers)"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Profit (Resp. Centers)';
+        AboutText = 'Get an overview on profit for responsibility centers.';
         layout
         {
             area(content)

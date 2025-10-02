@@ -271,6 +271,19 @@ page 149033 "AIT Log Entries"
                     Page.Run(Page::"AIT Test Data Compare", Rec);
                 end;
             }
+            action("Download Test Summary")
+            {
+                Caption = 'Download Test Summary';
+                Image = Export;
+                ToolTip = 'Downloads a summary of the test results.';
+
+                trigger OnAction()
+                var
+                    AITTestSuiteMgt: Codeunit "AIT Test Suite Mgt.";
+                begin
+                    AITTestSuiteMgt.DownloadTestSummary(Rec);
+                end;
+            }
 
             action(RerunTest)
             {
@@ -318,6 +331,9 @@ page 149033 "AIT Log Entries"
                 {
                 }
                 actionref("View Test Data_Promoted"; "View Test Data")
+                {
+                }
+                actionref("Export Results_Promoted"; "Download Test Summary")
                 {
                 }
             }

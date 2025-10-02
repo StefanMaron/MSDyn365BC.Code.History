@@ -1285,6 +1285,7 @@ codeunit 8800 "Custom Layout Reporting"
     local procedure TryEmailReport(TempFilePath: Text[250]; FileName: Text[250]; TempEmailBodyFilePath: Text[250]; var CustomReportSelection: Record "Custom Report Selection"; var ReceiverRecord: RecordRef; var FieldRef2: FieldRef)
     var
         DocumentMailing: Codeunit "Document-Mailing";
+        EmailBodyTempBlob: Codeunit "Temp Blob";
         TempBlob: Codeunit "Temp Blob";
         SourceReference: RecordRef;
         AttachmentStream: Instream;
@@ -1295,6 +1296,8 @@ codeunit 8800 "Custom Layout Reporting"
     begin
         FileManagement.BLOBImportFromServerFile(TempBlob, TempFilePath);
         TempBlob.CreateInStream(AttachmentStream);
+        if TempEmailBodyFilePath <> '' then
+            FileManagement.BLOBImportFromServerFile(EmailBodyTempBlob, TempEmailBodyFilePath);
 
         SourceReference.GetTable(CustomReportSelection);
         SourceReference.GetBySystemId(CustomReportSelection.SystemId);
@@ -1310,7 +1313,7 @@ codeunit 8800 "Custom Layout Reporting"
 
         MailSent :=
             DocumentMailing.EmailFile(
-                AttachmentStream, FileName, TempEmailBodyFilePath, '', SendToEmailID,
+                AttachmentStream, FileName, EmailBodyTempBlob, '', SendToEmailID,
                 StrSubstNo('%1', FieldRef2.Value), true, CustomReportSelection.Usage.AsInteger(), SourceTableIDs, SourceIDs, SourceRelationTypes);
         if Exists(TempFilePath) then begin
             TempEraseFileNameValueBuffer.AddNewEntry(TempFilePath, Format(FieldRef2.Value));

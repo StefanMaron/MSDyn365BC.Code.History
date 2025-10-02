@@ -194,42 +194,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Dimensions as Columns - NamedType DimensionNotAppliedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4244421809 - NamedType 243995596" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dimension Set is not created.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Dimensions as Columns - NamedType DimensionSetIsNotCreatedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4244421809 - NamedType 4253715654" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dimension Value Code %1 for Dimension Set is not found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Dimensions as Columns - NamedType DimensionValueCodeIsNotFoundErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4244421809 - NamedType 3661872583" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dimension Value with Code %1 and Value Code %2 for Dimension Set is created.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Dimensions as Columns - NamedType DimensionValueIsCreatedForDimSetErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4244421809 - NamedType 421086770" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dimension Value %1 %2 does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Dimension Code, %2 = Dimension Value Code]D;]A;(LookupHint=Codeunit ERM RS Dimensions as Columns - NamedType DimValueDoesNotExistsErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4244421809 - NamedType 3885385597" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dimension value %1 %2 does not exist in Dimension Set ID %3.]]></Val>
@@ -273,15 +237,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Dimensions as Columns - NamedType IncorrectNumberOfTablesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4244421809 - NamedType 1527403390" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Errors for package with non-existing dimension value is not generated.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Dimensions as Columns - NamedType NonExistingDimValueExistsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 212164422 - NamedType 1924644148" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -579,15 +534,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Questionnaire - NamedType AnswerNotAppliedError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2049660768 - NamedType 3466812125" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must match with excel exported.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Questionnaire - NamedType AnswerOptionMustMatchError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2049660768 - NamedType 2972679796" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

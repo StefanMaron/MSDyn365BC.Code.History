@@ -69,10 +69,28 @@ page 729 "Copy Item"
                     MinValue = 1;
                     ToolTip = 'Specifies the number of new items that you want to create.';
                 }
+                field(CopyAllInformation; ShouldCopyAllInformation)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Copy All Information';
+                    ToolTip = 'Specifies if all information is copied from the source item to the new item.';
+
+                    trigger OnValidate()
+                    begin
+                        ValidateShouldCopyAllInformation();
+                    end;
+                }
+                field(ShowCreatedItems; Rec."Show Created Items")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Created Items';
+                    ToolTip = 'Specifies if the copied items are showed after they are created.';
+                }
             }
             group(General)
             {
                 Caption = 'General';
+                Visible = not ShouldCopyAllInformation;
                 field(GeneralItemInformation; Rec."General Item Information")
                 {
                     ApplicationArea = Basic, Suite;
@@ -108,6 +126,7 @@ page 729 "Copy Item"
             group(Sale)
             {
                 Caption = 'Sale';
+                Visible = not ShouldCopyAllInformation;
                 field(SalesPrices; Rec."Sales Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -124,6 +143,7 @@ page 729 "Copy Item"
             group(Purchase)
             {
                 Caption = 'Purchase';
+                Visible = not ShouldCopyAllInformation;
                 field(PurchasePrices; Rec."Purchase Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -140,6 +160,7 @@ page 729 "Copy Item"
             group(Service)
             {
                 Caption = 'Service';
+                Visible = not ShouldCopyAllInformation;
                 field(Troubleshooting; Rec.Troubleshooting)
                 {
                     ApplicationArea = Service;
@@ -156,6 +177,7 @@ page 729 "Copy Item"
             group(Extended)
             {
                 Caption = 'Extended';
+                Visible = not ShouldCopyAllInformation;
                 field(ItemVariants; Rec."Item Variants")
                 {
                     ApplicationArea = Planning;
@@ -209,6 +231,8 @@ page 729 "Copy Item"
     trigger OnOpenPage()
     begin
         InitCopyItemBuffer();
+        ShouldCopyAllInformation := true;
+        ValidateShouldCopyAllInformation();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -225,6 +249,7 @@ page 729 "Copy Item"
         SpecifyTargetItemNoErr: Label 'You must specify the target item number.';
         TargetItemNoTxt: Label 'Target Item No.';
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = New Field Name';
+        ShouldCopyAllInformation: Boolean;
 
     procedure GetParameters(var CopyItemBuffer: Record "Copy Item Buffer")
     begin
@@ -281,6 +306,23 @@ page 729 "Copy Item"
         if (Rec."Number of Copies" > 1) and (Rec."Target Item No." <> '') then
             if INCSTR(Rec."Target Item No.") = '' then
                 Error(UnincrementableStringErr, TargetItemNoTxt);
+    end;
+
+    local procedure ValidateShouldCopyAllInformation()
+    var
+        InfoFieldRef: FieldRef;
+        RecRef: RecordRef;
+        i: Integer;
+    begin
+        RecRef.GetTable(Rec);
+        for i := 11 to 99 do
+            if RecRef.FieldExist(i) then begin
+                InfoFieldRef := RecRef.Field(i);
+                if InfoFieldRef.Type() = FieldType::Boolean then
+                    InfoFieldRef.Value := ShouldCopyAllInformation;
+            end;
+        RecRef.Modify();
+        RecRef.SetTable(Rec);
     end;
 
     [IntegrationEvent(false, false)]

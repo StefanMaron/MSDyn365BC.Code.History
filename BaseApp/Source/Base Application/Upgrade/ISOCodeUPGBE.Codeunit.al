@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 104151 "ISO Code UPG.BE"
 {
     Subtype = Upgrade;

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Utilities;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
 
 using Microsoft.Bank.Reconciliation;
 using Microsoft.CashFlow.Setup;
@@ -45,6 +49,27 @@ codeunit 700 "Page Management"
     end;
 
     procedure PageRunAtField(RecRelatedVariant: Variant; FieldNumber: Integer; Modal: Boolean): Boolean
+    begin
+        exit(PageRunAtField(RecRelatedVariant, FieldNumber, false, Modal));
+    end;
+
+    procedure PageRunList(RecRelatedVariant: Variant): Boolean
+    begin
+        exit(PageRunAtField(RecRelatedVariant, 0, true, false));
+    end;
+
+    procedure PageRunListModal(RecRelatedVariant: Variant): Boolean
+    begin
+        exit(PageRunAtField(RecRelatedVariant, 0, true, true));
+    end;
+
+    procedure PageRunListAtField(RecRelatedVariant: Variant; FieldNumber: Integer; Modal: Boolean): Boolean
+    begin
+
+        exit(PageRunAtField(RecRelatedVariant, FieldNumber, true, Modal));
+    end;
+
+    local procedure PageRunAtField(RecRelatedVariant: Variant; FieldNumber: Integer; ForceListPage: Boolean; Modal: Boolean): Boolean
     var
         RecRef: RecordRef;
         RecordRefVariant: Variant;
@@ -56,9 +81,9 @@ codeunit 700 "Page Management"
         if not DataTypeManagement.GetRecordRef(RecRelatedVariant, RecRef) then
             exit(false);
 
-        PageID := GetPageID(RecRef);
+        PageID := GetPageID(RecRef, ForceListPage);
 
-        OnPageRunAtFieldOnBeforeRunPage(RecRef, PageID);
+        OnPageRunAtFieldOnBeforeRunPage(RecRef, PageID, ForceListPage);
         if PageID <> 0 then begin
             RecordRefVariant := RecRef;
             if Modal then
@@ -72,6 +97,16 @@ codeunit 700 "Page Management"
     end;
 
     procedure GetPageID(RecRelatedVariant: Variant): Integer
+    begin
+        exit(GetPageID(RecRelatedVariant, false));
+    end;
+
+    procedure GetListPageID(RecRelatedVariant: Variant): Integer
+    begin
+        exit(GetPageID(RecRelatedVariant, true));
+    end;
+
+    local procedure GetPageID(RecRelatedVariant: Variant; ForceListPage: Boolean): Integer
     var
         RecRef: RecordRef;
         EmptyRecRef: RecordRef;
@@ -80,17 +115,21 @@ codeunit 700 "Page Management"
         if not DataTypeManagement.GetRecordRef(RecRelatedVariant, RecRef) then
             exit;
 
-        EmptyRecRef.Open(RecRef.Number);
-        PageID := GetConditionalCardPageID(RecRef);
-        // Choose default card only if record exists
-        if RecRef.RecordId <> EmptyRecRef.RecordId then
-            if PageID = 0 then
-                PageID := GetDefaultCardPageID(RecRef.Number);
+        if not ForceListPage then begin
+            EmptyRecRef.Open(RecRef.Number);
+            PageID := GetConditionalCardPageID(RecRef);
+            // Choose default card only if record exists
+            if RecRef.RecordId <> EmptyRecRef.RecordId then
+                if PageID = 0 then
+                    PageID := GetDefaultCardPageID(RecRef.Number);
+        end;
 
+        if PageID = 0 then
+            PageID := GetConditionalListPageID(RecRef, true);
         if PageID = 0 then
             PageID := GetDefaultLookupPageID(RecRef.Number);
 
-        OnAfterGetPageID(RecRef, PageID);
+        OnAfterGetPageID(RecRef, PageID, ForceListPage);
 
         exit(PageID);
     end;
@@ -213,20 +252,25 @@ codeunit 700 "Page Management"
     end;
 
     procedure GetConditionalListPageID(RecRef: RecordRef): Integer
+    begin
+        exit(GetConditionalListPageID(RecRef, false));
+    end;
+
+    procedure GetConditionalListPageID(RecRef: RecordRef; CheckDocumentTypeFilter: Boolean): Integer
     var
         PageID: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetConditionalListPageID(RecRef, PageID, IsHandled);
+        OnBeforeGetConditionalListPageID(RecRef, PageID, IsHandled, CheckDocumentTypeFilter);
         if IsHandled then
             exit(PageID);
 
         case RecRef.Number of
             Database::"Sales Header":
-                exit(GetSalesHeaderListPageID(RecRef));
+                exit(GetSalesHeaderListPageID(RecRef, CheckDocumentTypeFilter));
             Database::"Purchase Header":
-                exit(GetPurchaseHeaderListPageID(RecRef));
+                exit(GetPurchaseHeaderListPageID(RecRef, CheckDocumentTypeFilter));
         end;
         exit(0);
     end;
@@ -240,6 +284,8 @@ codeunit 700 "Page Management"
         SalesHeader: Record "Sales Header";
     begin
         RecRef.SetTable(SalesHeader);
+        if IsNullGuid(SalesHeader.SystemId) then
+            exit(0);
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Quote:
                 exit(PAGE::"Sales Quote");
@@ -265,7 +311,8 @@ codeunit 700 "Page Management"
         PurchaseHeader: Record "Purchase Header";
     begin
         RecRef.SetTable(PurchaseHeader);
-
+        if IsNullGuid(PurchaseHeader.SystemId) then
+            exit(0);
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::Quote:
                 Result := PAGE::"Purchase Quote";
@@ -419,16 +466,28 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetSalesHeaderListPageID(RecRef: RecordRef): Integer
+    local procedure GetSalesHeaderListPageID(RecRef: RecordRef; CheckDocumentTypeFilter: Boolean): Integer
     var
         SalesHeader: Record "Sales Header";
+        SalesDocumentType: Enum "Sales Document Type";
     begin
         RecRef.SetTable(SalesHeader);
-        case SalesHeader."Document Type" of
+        if CheckDocumentTypeFilter then begin
+            if SalesHeader.GetFilter("Document Type") = '' then
+                exit(0);
+            if not Evaluate(SalesDocumentType, SalesHeader.GetFilter("Document Type")) then
+                exit(0);
+        end else begin
+            if IsNullGuid(SalesHeader.SystemId) then
+                exit(0);
+            SalesDocumentType := SalesHeader."Document Type";
+        end;
+
+        case SalesDocumentType of
             SalesHeader."Document Type"::Quote:
                 exit(PAGE::"Sales Quotes");
             SalesHeader."Document Type"::Order:
-                exit(PAGE::"Sales List");
+                exit(PAGE::"Sales Order List");
             SalesHeader."Document Type"::Invoice:
                 exit(PAGE::"Sales Invoice List");
             SalesHeader."Document Type"::"Credit Memo":
@@ -440,12 +499,24 @@ codeunit 700 "Page Management"
         end;
     end;
 
-    local procedure GetPurchaseHeaderListPageID(RecRef: RecordRef): Integer
+    local procedure GetPurchaseHeaderListPageID(RecRef: RecordRef; CheckDocumentTypeFilter: Boolean): Integer
     var
         PurchaseHeader: Record "Purchase Header";
+        PurchaseDocumentType: Enum "Purchase Document Type";
     begin
         RecRef.SetTable(PurchaseHeader);
-        case PurchaseHeader."Document Type" of
+        if CheckDocumentTypeFilter then begin
+            if PurchaseHeader.GetFilter("Document Type") = '' then
+                exit(0);
+            if not Evaluate(PurchaseDocumentType, PurchaseHeader.GetFilter("Document Type")) then
+                exit(0);
+        end else begin
+            if IsNullGuid(PurchaseHeader.SystemId) then
+                exit(0);
+            PurchaseDocumentType := PurchaseHeader."Document Type";
+        end;
+
+        case PurchaseDocumentType of
             PurchaseHeader."Document Type"::Quote:
                 exit(PAGE::"Purchase Quotes");
             PurchaseHeader."Document Type"::Order:
@@ -496,7 +567,7 @@ codeunit 700 "Page Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetConditionalListPageID(RecRef: RecordRef; var PageID: Integer; var IsHandled: Boolean);
+    local procedure OnBeforeGetConditionalListPageID(RecRef: RecordRef; var PageID: Integer; var IsHandled: Boolean; CheckDocumentTypeFilter: Boolean);
     begin
     end;
 
@@ -506,7 +577,7 @@ codeunit 700 "Page Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetPageID(var RecordRef: RecordRef; var PageID: Integer)
+    local procedure OnAfterGetPageID(var RecordRef: RecordRef; var PageID: Integer; ForceListPage: Boolean)
     begin
     end;
 #if not CLEAN26
@@ -553,7 +624,7 @@ codeunit 700 "Page Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPageRunAtFieldOnBeforeRunPage(var RecordRef: RecordRef; var PageID: Integer)
+    local procedure OnPageRunAtFieldOnBeforeRunPage(var RecordRef: RecordRef; var PageID: Integer; ForceListPage: Boolean)
     begin
     end;
 

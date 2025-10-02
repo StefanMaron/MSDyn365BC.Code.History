@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -65,6 +69,7 @@ table 6650 "Return Shipment Header"
         field(6; "Pay-to Name 2"; Text[50])
         {
             Caption = 'Pay-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the vendor who you receive or received the credit memo from.';
         }
         field(7; "Pay-to Address"; Text[100])
         {
@@ -299,6 +304,7 @@ table 6650 "Return Shipment Header"
         field(80; "Buy-from Vendor Name 2"; Text[50])
         {
             Caption = 'Buy-from Vendor Name 2';
+            ToolTip = 'Specifies an additional part of the name of the vendor that you’re buying from.';
         }
         field(81; "Buy-from Address"; Text[100])
         {

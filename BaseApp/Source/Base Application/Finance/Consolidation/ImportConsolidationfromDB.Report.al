@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.Consolidation;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Consolidation;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -139,7 +143,8 @@ report 90 "Import Consolidation from DB"
                       SubsidCurrencyCode, AdditionalCurrencyCode, ParentCurrencyCode,
                       0, ConsolidStartDate, ConsolidEndDate);
                     BusUnitConsolidate.UpdateGLEntryDimSetID();
-                    BusUnitConsolidate.Run("Business Unit");
+                    if not OnlyImportData then
+                        BusUnitConsolidate.Run("Business Unit");
                 end;
             }
 
@@ -375,6 +380,7 @@ report 90 "Import Consolidation from DB"
         BusinessUnitCode: Code[20];
         IsJournalTemplNameVisible: Boolean;
         SkipDateConfirm, SkipRunningTrialBalanceAfter : Boolean;
+        OnlyImportData: Boolean;
 #pragma warning disable AA0470
         Text032Err: Label 'The %1 is later than the %2 in company %3.';
 #pragma warning restore AA0470
@@ -403,7 +409,7 @@ report 90 "Import Consolidation from DB"
         ConsPeriodCompanyQst: Label 'The consolidation period %1 .. %2 is not within the fiscal year %3 .. %4 of the consolidated company %5.\Do you want to proceed with the consolidation?', Comment = '%1, %2, %3, %4 - request page values, %5 - company name';
         PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
 
-    internal procedure SetConsolidationProcessParameters(ConsolidationProcess: Record "Consolidation Process"; BusUnitInConsProcess: Record "Bus. Unit In Cons. Process")
+    internal procedure SetConsolidationProcessParameters(ConsolidationProcess: Record "Consolidation Process"; BusinessUnit: Record "Business Unit")
     begin
         SetDefaultParameters();
         ConsolidStartDate := ConsolidationProcess."Starting Date";
@@ -413,9 +419,15 @@ report 90 "Import Consolidation from DB"
         GenJnlLineReq."Journal Template Name" := ConsolidationProcess."Journal Template Name";
         GenJnlLineReq."Journal Batch Name" := ConsolidationProcess."Journal Batch Name";
         ParentCurrencyCode := ConsolidationProcess."Parent Currency Code";
-        BusinessUnitCode := BusUnitInConsProcess."Business Unit Code";
+        BusinessUnitCode := BusinessUnit.Code;
         SkipDateConfirm := true;
-        SkipRunningTrialBalanceAfter := true
+        SkipRunningTrialBalanceAfter := true;
+        OnlyImportData := true;
+    end;
+
+    internal procedure GetConsolidate(var ConsolidateToGet: Codeunit Consolidate)
+    begin
+        ConsolidateToGet := BusUnitConsolidate;
     end;
 
     local procedure SetDefaultParameters()

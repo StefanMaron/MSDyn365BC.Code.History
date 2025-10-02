@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Resources.Resource;
 
 using Microsoft.Projects.Resources.Ledger;
@@ -117,7 +121,8 @@ report 1107 "Resource - Cost Breakdown"
 
     requestpage
     {
-
+        AboutTitle = 'About Resource - Cost Breakdown';
+        AboutText = 'View the direct unit costs and the total direct costs for each resource. Only usage postings are considered in this report. Resource usage can be posted in the resource journal or the project journal.';
         layout
         {
         }

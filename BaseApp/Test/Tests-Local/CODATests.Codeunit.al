@@ -1327,7 +1327,7 @@ codeunit 144006 "CODA Tests"
         CODAStatementLine.Validate("Statement Amount", StatementAmount);
         CODAStatementLine.Insert(true);
     end;
-    
+
     local procedure CreateCurrencyAndExchangeRate(): Code[10]
     var
         GLAccount: Record "G/L Account";
