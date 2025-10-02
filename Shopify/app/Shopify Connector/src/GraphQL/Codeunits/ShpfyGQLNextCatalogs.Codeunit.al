@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 codeunit 30292 "Shpfy GQL NextCatalogs" implements "Shpfy IGraphQL"
@@ -10,7 +15,7 @@ codeunit 30292 "Shpfy GQL NextCatalogs" implements "Shpfy IGraphQL"
     /// <returns>Return value of type Text.</returns>
     internal procedure GetGraphQL(): Text
     begin
-        exit('{"query": "{catalogs(first:25, after:\"{{After}}\", query: \"company_id:''{{CompanyId}}'' status:ACTIVE\"){ pageInfo{hasNextPage} edges{cursor node{ id title}}}}"}');
+        exit('{"query": "{catalogs(first:25, after:\"{{After}}\", query: \"company_id:''{{CompanyId}}'' status:ACTIVE\"){ pageInfo{hasNextPage} edges{cursor node{ id title priceList { currency }}}}}"}');
     end;
 
     /// <summary>

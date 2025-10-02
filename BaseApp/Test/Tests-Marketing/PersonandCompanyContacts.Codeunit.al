@@ -17,7 +17,6 @@ codeunit 134626 "Person and Company Contacts"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
-        LibraryRapidStart: Codeunit "Library - Rapid Start";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryTemplates: Codeunit "Library - Templates";
 
@@ -693,20 +692,6 @@ codeunit 134626 "Person and Company Contacts"
         CustomerTemplate.Modify();
     end;
 
-    local procedure CreateConfigTemplate(var ConfigTemplateHeader: Record "Config. Template Header")
-    var
-        Customer: Record Customer;
-        ConfigTemplateLine: Record "Config. Template Line";
-    begin
-        LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
-        ConfigTemplateHeader.Validate("Table ID", DATABASE::Customer);
-        ConfigTemplateHeader.Modify(true);
-        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
-        ConfigTemplateLine.Validate("Field ID", Customer.FieldNo("Contact Type"));
-        ConfigTemplateLine.Validate("Default Value", 'Person');
-        ConfigTemplateLine.Modify(true);
-    end;
-
     local procedure CreateContactUsingContactCard(var Contact: Record Contact)
     var
         ContactCard: TestPage "Contact Card";
@@ -887,4 +872,3 @@ codeunit 134626 "Person and Company Contacts"
         CompanyDetails.OK().Invoke();
     end;
 }
-

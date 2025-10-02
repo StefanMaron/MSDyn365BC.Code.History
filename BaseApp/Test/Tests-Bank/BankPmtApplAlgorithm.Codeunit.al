@@ -6071,24 +6071,6 @@
         Item.Modify(true);
     end;
 
-    local procedure CreateCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; CustomerNo: Code[20]; BankAccountNo: Code[20])
-    begin
-        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CustomerNo);
-        CustomerBankAccount.IBAN := '';
-        CustomerBankAccount."Bank Account No." := BankAccountNo;
-        CustomerBankAccount."Bank Branch No." := BankAccountNo;
-        CustomerBankAccount.Modify(true);
-    end;
-
-    local procedure CreateVendorBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; VendorNo: Code[20]; BankAccountNo: Code[20])
-    begin
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
-        VendorBankAccount.IBAN := '';
-        VendorBankAccount."Bank Account No." := BankAccountNo;
-        VendorBankAccount."Bank Branch No." := BankAccountNo;
-        VendorBankAccount.Modify(true);
-    end;
-
     local procedure CreateAndPostSalesInvoiceWithOneLine(CustomerNo: Code[20]; ExtDocNo: Code[20]; Amount: Decimal): Code[20]
     begin
         exit(CreateAndPostSalesInvoiceWithOneLine2(CustomerNo, ExtDocNo, Amount, 0D));
@@ -6303,23 +6285,6 @@
         end;
 
         exit(String);
-    end;
-
-    local procedure GenerateRandomTextWithSpecialChars(): Text[100]
-    begin
-        exit(
-          GenerateRandomSmallLetters(2) + '''' +
-          UpperCase(GenerateRandomSmallLetters(2)) + '&' +
-          GenerateRandomSmallLetters(2) + '(' +
-          GenerateRandomSmallLetters(2) + ')' +
-          GenerateRandomSmallLetters(2) + '.' +
-          UpperCase(GenerateRandomSmallLetters(2)) + '{' +
-          GenerateRandomSmallLetters(2) + '}' +
-          GenerateRandomSmallLetters(2) + '"' +
-          GenerateRandomSmallLetters(2) + ';' +
-          GenerateRandomSmallLetters(2) + ':' +
-          GenerateRandomSmallLetters(2) + '-' +
-          GenerateRandomSmallLetters(2) + '+');
     end;
 
     local procedure OpenPaymentRecJournal(BankAccReconciliation: Record "Bank Acc. Reconciliation")
@@ -6841,4 +6806,3 @@
             Assert.AreEqual(AppliedPaymentEntry.Quality, Quality, 'Wrong quality is set')
     end;
 }
-

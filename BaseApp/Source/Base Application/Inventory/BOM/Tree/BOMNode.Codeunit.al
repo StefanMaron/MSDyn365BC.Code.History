@@ -5,13 +5,12 @@
 namespace Microsoft.Inventory.BOM.Tree;
 
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.ProductionBOM;
 
 codeunit 3688 "BOM Node"
 {
     var
         LowLevelCodeParam: Codeunit "Low-Level Code Parameter";
-        Type: Enum "Production BOM Line Type";
+        Type: Enum Microsoft.Manufacturing.ProductionBOM."Production BOM Line Type";
         "No.": Code[20];
         ExistingLowLevelCode: Integer;
         CalculatedLowLevelCode: Integer;
@@ -19,7 +18,7 @@ codeunit 3688 "BOM Node"
         ProdBomErr: Label 'The maximum number of BOM levels %1, was exceeded. The process stopped at %2 %3.', Comment = '%1 = max number of levels; %2 = BOM Type; %3 = BOM No.';
         KeyTemplateTxt: Label '%1: %2', Comment = '%1 = Type and %2 = No.', Locked = true;
 
-    procedure GetType(): Enum "Production BOM Line Type"
+    procedure GetType(): Enum Microsoft.Manufacturing.ProductionBOM."Production BOM Line Type"
     begin
         exit(Type);
     end;
@@ -36,15 +35,15 @@ codeunit 3688 "BOM Node"
 
     procedure CreateForItem(ItemNo: Code[20]; LowLevelCode: Integer; NewLowLevelCodeParam: Codeunit "Low-Level Code Parameter")
     begin
-        Create("Production BOM Line Type"::Item, ItemNo, LowLevelCode, NewLowLevelCodeParam);
+        Create(Microsoft.Manufacturing.ProductionBOM."Production BOM Line Type"::Item, ItemNo, LowLevelCode, NewLowLevelCodeParam);
     end;
 
     procedure CreateForProdBOM(ProdBOMNo: Code[20]; LowLevelCode: Integer; NewLowLevelCodeParam: Codeunit "Low-Level Code Parameter")
     begin
-        Create("Production BOM Line Type"::"Production BOM", ProdBOMNo, LowLevelCode, NewLowLevelCodeParam);
+        Create(Microsoft.Manufacturing.ProductionBOM."Production BOM Line Type"::"Production BOM", ProdBOMNo, LowLevelCode, NewLowLevelCodeParam);
     end;
 
-    local procedure Create(NewType: Enum "Production BOM Line Type"; NewBOMNo: Code[20]; ExistingLowLevel: Integer; NewLowLevelCodeParam: Codeunit "Low-Level Code Parameter")
+    local procedure Create(NewType: Enum Microsoft.Manufacturing.ProductionBOM."Production BOM Line Type"; NewBOMNo: Code[20]; ExistingLowLevel: Integer; NewLowLevelCodeParam: Codeunit "Low-Level Code Parameter")
     begin
         Type := NewType;
         "No." := NewBOMNo;
@@ -105,11 +104,11 @@ codeunit 3688 "BOM Node"
                 begin
                     ParentLowLevelCode := FromParent.GetLowLevelCode();
                     case FromParent.GetType() of
-                        "Production BOM Line Type"::Item:
+                        Microsoft.Manufacturing.ProductionBOM."Production BOM Line Type"::Item:
                             // if parent is an item, set to at least 1 more than the parent, if not already lower
                             if CalculatedLowLevelCode <= ParentLowLevelCode then
                                 CalculatedLowLevelCode := ParentLowLevelCode + 1;
-                        "Production BOM Line Type"::"Production BOM":
+                        Microsoft.Manufacturing.ProductionBOM."Production BOM Line Type"::"Production BOM":
                             // if this is a production BOM, set the same low level code, if not already lower
                             if CalculatedLowLevelCode < ParentLowLevelCode then
                                 CalculatedLowLevelCode := ParentLowLevelCode;
@@ -127,23 +126,19 @@ codeunit 3688 "BOM Node"
     local procedure WriteToDatabase()
     var
         Item: Record Item;
-        ProductionBOMHeader: Record "Production BOM Header";
     begin
         if ExistingLowLevelCode = CalculatedLowLevelCode then
             exit;
 
         // Call ModifyAll instead of GET for fewer SQL callbacks
         case Type of
-            "Production BOM Line Type"::Item:
+            Microsoft.Manufacturing.ProductionBOM."Production BOM Line Type"::Item:
                 begin
                     Item.SetRange("No.", "No.");
                     Item.ModifyAll("Low-Level Code", CalculatedLowLevelCode);
                 end;
-            "Production BOM Line Type"::"Production BOM":
-                begin
-                    ProductionBOMHeader.SetRange("No.", "No.");
-                    ProductionBOMHeader.ModifyAll("Low-Level Code", CalculatedLowLevelCode);
-                end;
+            Microsoft.Manufacturing.ProductionBOM."Production BOM Line Type"::"Production BOM":
+                OnWriteToDatabaseOnProductionBOM("No.", CalculatedLowLevelCode);
             else
                 OnWriteToDatabase();
         end;
@@ -158,6 +153,11 @@ codeunit 3688 "BOM Node"
 
     [IntegrationEvent(true, false)]
     local procedure OnReachedNode(ParentBomNode: Codeunit "BOM Node"; var Handled: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnWriteToDatabaseOnProductionBOM(BOMNo: Code[20]; CalculateLowLevelCode: Integer)
     begin
     end;
 }

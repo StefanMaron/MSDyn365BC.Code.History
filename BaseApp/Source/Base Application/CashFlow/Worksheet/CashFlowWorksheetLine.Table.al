@@ -117,6 +117,8 @@ table 846 "Cash Flow Worksheet Line"
         }
         field(14; "Payment Discount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Payment Discount';
         }
         field(15; "Associated Entry No."; Integer)
@@ -155,6 +157,8 @@ table 846 "Cash Flow Worksheet Line"
         field(30; "Amount (LCY)"; Decimal)
         {
             Caption = 'Amount (LCY)';
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(34; "Source No."; Code[20])
         {
@@ -455,4 +459,3 @@ table 846 "Cash Flow Worksheet Line"
     begin
     end;
 }
-

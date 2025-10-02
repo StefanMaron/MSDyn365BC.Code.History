@@ -27,10 +27,7 @@ codeunit 136503 "RES Time Sheets Creation"
         ResourceIsNotDeletedErr: Label 'Resource is not deleted';
         YouCannotDeleteResourceErr: Label 'You cannot delete Resource %1 because unprocessed time sheet lines exist for this resource.';
         FirstWeekDayCannotBeChangedErr: Label 'Time Sheet First Weekday cannot be changed, because there is at least one time sheet.';
-        TimesheetDetailValueIncorrectErr: Label 'Time Sheet Day Time Allocation incorrect';
         LibraryResource: Codeunit "Library - Resource";
-        IncorrectCostValueErr: Label 'Incorrect Cost Value';
-        RecRef: RecordRef;
         ThereIsNoEmployeeLinkedWithResErr: Label 'There is no employee linked with resource %1.';
         DayTimeAllocation: array[7] of Decimal;
         UseTimeSheetCannotBeChangedErr: Label 'Use Time Sheet cannot be changed since unprocessed time sheet lines exist for this resource.';
@@ -46,9 +43,7 @@ codeunit 136503 "RES Time Sheets Creation"
         IncorrectTSArchiveNoOpenedErr: Label 'Incorrect Manager Time Sheet Archive No. opened';
         IncorrectPostingEntryOpenedErr: Label 'Incorrect Posting Entry No. page opened';
         IncorrectPostingEntryQuantityErr: Label 'Incorrect Posting Entry Quantity';
-        IncorrectAllocationQuantityErr: Label 'Incorrect Allocation Quantity';
         IsInitialized: Boolean;
-        LineCountErr: Label 'Number of %1 entries is wrong';
         IncorrectHRUnitOfMeasureTableRelationErr: Label 'The field Unit of Measure Code of table Cause of Absence contains a value (%1) that cannot be found in the related table (Human Resource Unit of Measure)', Locked = true;
 
     local procedure Initialize()
@@ -931,119 +926,6 @@ codeunit 136503 "RES Time Sheets Creation"
         end;
     end;
 
-    local procedure ValidateManagerTimeAllocation(DayTimeAllocation: array[5] of Decimal; var ManagerTimeSheet: TestPage "Manager Time Sheet")
-    var
-        PageFieldValue: Decimal;
-    begin
-        Evaluate(PageFieldValue, ManagerTimeSheet.Field1.Value);
-        Assert.AreEqual(DayTimeAllocation[1], PageFieldValue, TimesheetDetailValueIncorrectErr);
-        Evaluate(PageFieldValue, ManagerTimeSheet.Field2.Value);
-        Assert.AreEqual(DayTimeAllocation[2], PageFieldValue, TimesheetDetailValueIncorrectErr);
-        Evaluate(PageFieldValue, ManagerTimeSheet.Field3.Value);
-        Assert.AreEqual(DayTimeAllocation[3], PageFieldValue, TimesheetDetailValueIncorrectErr);
-        Evaluate(PageFieldValue, ManagerTimeSheet.Field4.Value);
-        Assert.AreEqual(DayTimeAllocation[4], PageFieldValue, TimesheetDetailValueIncorrectErr);
-        Evaluate(PageFieldValue, ManagerTimeSheet.Field5.Value);
-        Assert.AreEqual(DayTimeAllocation[5], PageFieldValue, TimesheetDetailValueIncorrectErr);
-    end;
-
-    local procedure ValidateArchiveTimeAllocation(DayTimeAllocation: array[5] of Decimal; TimeSheetHeaderArchive: Record "Time Sheet Header Archive"; TimeSheetLineArchive: Record "Time Sheet Line Archive")
-    var
-        TimeSheetDetailArchive: Record "Time Sheet Detail Archive";
-        i: Integer;
-    begin
-        for i := 1 to 5 do begin
-            TimeSheetDetailArchive.Get(
-              TimeSheetHeaderArchive."No.", TimeSheetLineArchive."Line No.", TimeSheetHeaderArchive."Starting Date" + i - 1);
-            TimeSheetDetailArchive.TestField(Quantity, DayTimeAllocation[i]);
-        end;
-    end;
-
-    local procedure ValidateCostPrice(Resource: Record Resource; DayAllocation: Decimal; ResJournalLine: Record "Res. Journal Line")
-    begin
-        Assert.AreEqual(Resource."Direct Unit Cost", ResJournalLine."Direct Unit Cost",
-          IncorrectCostValueErr);
-        Assert.AreEqual(Resource."Unit Cost", ResJournalLine."Unit Cost",
-          IncorrectCostValueErr);
-        Assert.AreEqual(Resource."Unit Cost" * DayAllocation,
-          ResJournalLine."Total Cost", IncorrectCostValueErr);
-        Assert.AreEqual(Resource."Unit Price",
-          ResJournalLine."Unit Price", IncorrectCostValueErr);
-        Assert.AreEqual(Resource."Unit Price" * DayAllocation,
-          ResJournalLine."Total Price", IncorrectCostValueErr);
-    end;
-
-    local procedure GetOptionValue(OptionString: Text[1024]; OptionNumber: Integer): Text[250]
-    var
-        I: Integer;
-    begin
-        for I := 1 to OptionNumber do
-            OptionString := DelStr(OptionString, 1, StrPos(OptionString, ','));
-
-        if StrPos(OptionString, ',') = 0 then
-            exit(OptionString);
-
-        exit(CopyStr(OptionString, 1, StrPos(OptionString, ',') - 1));
-    end;
-
-    local procedure OptionValueToText(InputInteger: Integer; OptionString: Text[1024]) OutputText: Text[250]
-    begin
-        if (InputInteger >= 0) and (InputInteger <= GetOptionsQuantity(OptionString)) then begin
-            OutputText := GetOptionValue(OptionString, InputInteger);
-            if StrPos(OutputText, '-') <> 0 then
-                OutputText := CopyStr(OutputText, 1, StrPos(OutputText, '-') - 1);
-        end;
-    end;
-
-    local procedure GetOptionsQuantity(OptionString: Text[1024]): Integer
-    var
-        Counter: Integer;
-        CommaPosition: Integer;
-    begin
-        if StrPos(OptionString, ',') = 0 then
-            exit(0);
-
-        repeat
-            CommaPosition := StrPos(OptionString, ',');
-            OptionString := DelStr(OptionString, 1, CommaPosition);
-            Counter := Counter + 1;
-        until CommaPosition = 0;
-
-        exit(Counter - 1);
-    end;
-
-    local procedure GetTSLineTypeOption(TimeSheetLineOption: Integer) OptionText: Text[250]
-    var
-        FieldRef: FieldRef;
-    begin
-        RecRef.Close();
-        RecRef.Open(DATABASE::"Time Sheet Line");
-        FieldRef := RecRef.Field(5);
-        OptionText := OptionValueToText(TimeSheetLineOption, FieldRef.OptionCaption);
-    end;
-
-    local procedure GetTSLineStatusOption(TimeSheetLineOption: Integer) OptionText: Text[250]
-    var
-        FieldRef: FieldRef;
-    begin
-        RecRef.Close();
-        RecRef.Open(DATABASE::"Time Sheet Line");
-        FieldRef := RecRef.Field(20);
-        OptionText := OptionValueToText(TimeSheetLineOption, FieldRef.OptionCaption);
-    end;
-
-    local procedure FindCauseOfAbsence(var CauseOfAbsence: Record "Cause of Absence")
-    var
-        HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
-    begin
-        LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);
-        if CauseOfAbsence."Unit of Measure Code" = '' then begin
-            HumanResourceUnitOfMeasure.FindFirst();
-            CauseOfAbsence.Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
-            CauseOfAbsence.Modify(true);
-        end;
-    end;
-
     local procedure GenerateResourceTimeSheet(var Resource: Record Resource; var Date: Record Date; var TimeSheetHeader: Record "Time Sheet Header"; CurrentUser: Boolean)
     var
         UserSetup: Record "User Setup";
@@ -1202,37 +1084,9 @@ codeunit 136503 "RES Time Sheets Creation"
         until JobJnlLine.Next() = 0;
     end;
 
-    local procedure AddJobTimeSheetLine(TimeSheetHeader: Record "Time Sheet Header"; Job: Record Job; JobTask: Record "Job Task"): Decimal
-    var
-        TimeSheetLine: Record "Time Sheet Line";
-        TempDec: Decimal;
-    begin
-        LibraryTimeSheet.CreateTimeSheetLine(
-          TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Job, Job."No.", JobTask."Job Task No.", '', '');
-        TempDec := GetRandomDecimal();
-        LibraryTimeSheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", TempDec);
-        exit(TempDec);
-    end;
-
     local procedure GetRandomDecimal(): Decimal
     begin
         exit(LibraryRandom.RandInt(9999) / 100);
-    end;
-
-    local procedure ApproveTimeSheet(TimeSheetNo: Code[20]; "Count": Integer)
-    var
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        Counter: Integer;
-        FilterValue: Text[250];
-    begin
-        // This function opens Manager Time and approves number of lines defined as parameter.
-        ManagerTimeSheet.OpenEdit();
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetNo;
-        for Counter := 1 to Count do begin
-            FilterValue := StrSubstNo('%1|%2', GetTSLineStatusOption(1), GetTSLineStatusOption(2));
-            ManagerTimeSheet.FILTER.SetFilter(Status, FilterValue);
-            ManagerTimeSheet.Approve.Invoke();
-        end;
     end;
 
     [MessageHandler]
@@ -1254,55 +1108,6 @@ codeunit 136503 "RES Time Sheets Creation"
             else
                 Assert.Fail(CopyStr('Incorrect confirm question: ' + Message, 1, MaxStrLen(Message)));
         end;
-    end;
-
-    local procedure VerifyDimInJournalDimSet(ShortcutDimCode: Code[20]; ShortcutDimValueCode: Code[20]; DimensionSetID: Integer)
-    var
-        DimensionSetEntry: Record "Dimension Set Entry";
-    begin
-        DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
-        DimensionSetEntry.SetRange("Dimension Code", ShortcutDimCode);
-        DimensionSetEntry.FindFirst();
-        Assert.AreEqual(DimensionSetEntry."Dimension Value Code", ShortcutDimValueCode,
-          'Wrong Dimension value on gen. Jnl. line dimension');
-    end;
-
-    local procedure GenerateResourceCapacity(Resource: Record Resource; PeriodStart: Date; DaysToGenerate: Integer; var GenerateAllocation: array[14] of Decimal)
-    var
-        ResCapacityEntry: Record "Res. Capacity Entry";
-        Counter: Integer;
-        NextEntryNo: Integer;
-    begin
-        ResCapacityEntry.Reset();
-        ResCapacityEntry.FindLast();
-        NextEntryNo := ResCapacityEntry."Entry No.";
-        for Counter := 1 to DaysToGenerate do begin
-            NextEntryNo := NextEntryNo + 1;
-            ResCapacityEntry.Init();
-            ResCapacityEntry."Entry No." := NextEntryNo;
-            ResCapacityEntry."Resource No." := Resource."No.";
-            ResCapacityEntry.Date := PeriodStart;
-            ResCapacityEntry.Capacity := LibraryRandom.RandInt(800) / 100;
-            ResCapacityEntry.Insert();
-            GenerateAllocation[Counter] := ResCapacityEntry.Capacity;
-            PeriodStart := CalcDate('<+1D>', PeriodStart);
-        end;
-    end;
-
-    local procedure FindFirstTimeSheet(var TimeSheetHeader: Record "Time Sheet Header"; ResourceNo: Code[20])
-    begin
-        TimeSheetHeader.Reset();
-        TimeSheetHeader.SetRange("Resource No.", ResourceNo);
-        TimeSheetHeader.FindFirst();
-    end;
-
-    local procedure VerifyTimeSheetDetailLinesCount(TimeSheetHeaderNo: Code[20]; NoOfLines: Integer)
-    var
-        TimeSheetDetail: Record "Time Sheet Detail";
-    begin
-        // Verify No of Time Sheet Detail Lines
-        TimeSheetDetail.SetRange("Time Sheet No.", TimeSheetHeaderNo);
-        Assert.AreEqual(NoOfLines, TimeSheetDetail.Count, StrSubstNo(LineCountErr, TimeSheetDetail.TableCaption()));
     end;
 
     [ModalPageHandler]
@@ -1337,20 +1142,6 @@ codeunit 136503 "RES Time Sheets Creation"
         Evaluate(GlobalTSAllocationValues[8], TimeSheetAllocation.DateQuantity6.Value);
         Evaluate(GlobalTSAllocationValues[9], TimeSheetAllocation.DateQuantity7.Value);
         TimeSheetAllocation.OK().Invoke();
-    end;
-
-    local procedure ValidateTSAllocationPageValues(DayTimeAllocation: array[7] of Decimal)
-    var
-        Counter: Integer;
-        "Sum": Decimal;
-    begin
-        Clear(Sum);
-        for Counter := 1 to 7 do begin
-            Assert.AreEqual(DayTimeAllocation[Counter], GlobalTSAllocationValues[Counter + 2], IncorrectAllocationQuantityErr);
-            Sum := Sum + DayTimeAllocation[Counter];
-        end;
-        Assert.AreEqual(Sum, GlobalTSAllocationValues[1], IncorrectAllocationQuantityErr);
-        Assert.AreEqual(Sum, GlobalTSAllocationValues[2], IncorrectAllocationQuantityErr);
     end;
 
     [ModalPageHandler]
@@ -1460,4 +1251,3 @@ codeunit 136503 "RES Time Sheets Creation"
         exit(MyTimeSheets.Count);
     end;
 }
-

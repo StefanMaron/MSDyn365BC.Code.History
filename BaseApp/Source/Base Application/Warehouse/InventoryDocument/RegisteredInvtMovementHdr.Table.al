@@ -165,5 +165,19 @@ table 7344 "Registered Invt. Movement Hdr."
     fieldgroups
     {
     }
+
+    trigger OnDelete()
+    var
+        WarehouseCommentLine: Record "Warehouse Comment Line";
+        RegisteredInvtMovementLine: Record "Registered Invt. Movement Line";
+    begin
+        RegisteredInvtMovementLine.SetRange("No.", "No.");
+        RegisteredInvtMovementLine.DeleteAll(false);
+
+        WarehouseCommentLine.SetRange("Table Name", WarehouseCommentLine."Table Name"::"Registered Invt. Movement");
+        WarehouseCommentLine.SetRange(Type, WarehouseCommentLine.Type::" ");
+        WarehouseCommentLine.SetRange("No.", "No.");
+        WarehouseCommentLine.DeleteAll(false);
+    end;
 }
 

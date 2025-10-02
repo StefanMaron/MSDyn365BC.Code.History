@@ -323,12 +323,7 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
         exit(TokenCount);
     end;
 
-    local procedure RegisterEDocumentPurchaseOrderMatchingCopilotCapability(): Code[250]
-    begin
-        exit('MS-477518-RegisterEDocumentPurchaseOrderMatchingCopilotCapability-20240112');
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Copilot AI Capabilities", 'OnRegisterCopilotCapability', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Copilot AI Capabilities", OnRegisterCopilotCapability, '', false, false)]
     local procedure HandleOnRegisterCopilotCapability()
     begin
         RegisterAICapability();

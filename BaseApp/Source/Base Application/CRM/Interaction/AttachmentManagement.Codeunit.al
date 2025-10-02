@@ -302,8 +302,7 @@ codeunit 5052 AttachmentManagement
     local procedure DeliverHTMLEmail(var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var InteractLogEntry: Record "Interaction Log Entry")
     var
         Attachment: Record Attachment;
-        FileManagement: Codeunit "File Management";
-        EmailBodyFilePath: Text;
+        HtmlBody: Codeunit "Temp Blob";
         IsHandled: Boolean;
     begin
         OnBeforeDeliverHTMLEmail(TempDeliverySorterHtml, InteractLogEntry, IsHandled);
@@ -316,16 +315,15 @@ codeunit 5052 AttachmentManagement
 
             if TempDeliverySorterHtml."Correspondence Type" = TempDeliverySorterHtml."Correspondence Type"::Email then begin
                 GetAttachment(Attachment, TempDeliverySorterHtml."Attachment No.", false);
-                EmailBodyFilePath := FileManagement.ServerTempFileName('HTML');
-                Attachment.ExportAttachmentToServerFile(EmailBodyFilePath);
-                OnDeliverHTMLEmailOnBeforeSendEmail(
-                  TempDeliverySorterHtml, Attachment, InteractLogEntry, EmailBodyFilePath);
+                Clear(HtmlBody);
+                Attachment.ExportAttachmentToTempBlob(HtmlBody);
+#if not CLEAN27
+                OnDeliverHTMLEmailOnBeforeSendEmail(TempDeliverySorterHtml, Attachment, InteractLogEntry, '');
+#else
+                OnDeliverHTMLEmailOnBeforeSendEmail(TempDeliverySorterHtml, Attachment, InteractLogEntry);
 
-                Commit();
-                SendHTMLEmail(
-                  TempDeliverySorterHtml, InteractLogEntry, EmailBodyFilePath);
-                // Clean up
-                FileManagement.DeleteServerFile(EmailBodyFilePath)
+#endif
+                SendHTMLEmail(TempDeliverySorterHtml, InteractLogEntry, HtmlBody);
             end else
                 SetDeliveryState(InteractLogEntry, false);
         until TempDeliverySorterHtml.Next() = 0;
@@ -358,9 +356,9 @@ codeunit 5052 AttachmentManagement
 
     local procedure DeliverEmailWithAttachment(var TempDeliverySorterOther: Record "Delivery Sorter" temporary; var InteractLogEntry: Record "Interaction Log Entry")
     var
-        FileManagement: Codeunit "File Management";
-        AttachmentFileFullName: Text;
-        EmailBodyFilePath: Text;
+        Attachment: Record Attachment;
+        AttachmentTempBlob: Codeunit "Temp Blob";
+        HtmlBody: Codeunit "Temp Blob";
         IsHandled: Boolean;
     begin
         OnBeforeDeliverEmailWithAttachment(TempDeliverySorterOther, IsHandled, InteractLogEntry);
@@ -371,18 +369,17 @@ codeunit 5052 AttachmentManagement
             InteractLogEntry.LockTable();
             InteractLogEntry.Get(TempDeliverySorterOther."No.");
             if TempDeliverySorterOther."Correspondence Type" = TempDeliverySorterOther."Correspondence Type"::Email then begin
-                // Export the attachment to the client TEMP directory, giving it a GUID
-                AttachmentFileFullName := PrepareServerAttachment(TempDeliverySorterOther."Attachment No.");
-                EmailBodyFilePath := PrepareDummyEmailBody();
-                OnDeliverEmailWithAttachmentOnBeforeSendEmail(
-                  TempDeliverySorterOther, InteractLogEntry, AttachmentFileFullName, EmailBodyFilePath);
-
-                Commit();
-                SendEmailWithAttachment(
-                  TempDeliverySorterOther, InteractLogEntry, AttachmentFileFullName, EmailBodyFilePath);
-                // Clean up
-                FileManagement.DeleteServerFile(AttachmentFileFullName);
-                FileManagement.DeleteServerFile(EmailBodyFilePath);
+                GetAttachment(Attachment, TempDeliverySorterOther."Attachment No.", false);
+                Clear(AttachmentTempBlob);
+                Attachment.ExportAttachmentToTempBlob(AttachmentTempBlob);
+                Clear(HtmlBody);
+                PrepareDummyEmailBody(HtmlBody);
+#if not CLEAN27
+                OnDeliverEmailWithAttachmentOnBeforeSendEmail(TempDeliverySorterOther, InteractLogEntry, '', '');
+#else
+                OnDeliverEmailWithAttachmentOnBeforeSendEmail(TempDeliverySorterOther, InteractLogEntry);
+#endif
+                SendEmailWithAttachment(TempDeliverySorterOther, InteractLogEntry, AttachmentTempBlob, HtmlBody);
             end else
                 SetDeliveryState(InteractLogEntry, false);
         until TempDeliverySorterOther.Next() = 0;
@@ -429,7 +426,7 @@ codeunit 5052 AttachmentManagement
         WindowDialog.Close();
     end;
 
-    local procedure SendHTMLEmail(var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var InteractLogEntry: Record "Interaction Log Entry"; EmailBodyFilePath: Text)
+    local procedure SendHTMLEmail(var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var InteractLogEntry: Record "Interaction Log Entry"; var HtmlBody: Codeunit "Temp Blob")
     var
         Contact: Record Contact;
         DocumentMailing: Codeunit "Document-Mailing";
@@ -452,7 +449,7 @@ codeunit 5052 AttachmentManagement
         end;
 
         IsSent := DocumentMailing.EmailFile(
-            AttachmentInStream, '', EmailBodyFilePath,
+            AttachmentInStream, '', HtmlBody,
             TempDeliverySorterHtml.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default, SourceTableIDs, SourceIDs, SourceRelationTypes);
 
         SetDeliveryState(InteractLogEntry, IsSent);
@@ -470,21 +467,17 @@ codeunit 5052 AttachmentManagement
         SetDeliveryState(InteractLogEntry, IsSent);
     end;
 
-    local procedure SendEmailWithAttachment(TempDeliverySorterOther: Record "Delivery Sorter" temporary; InteractLogEntry: Record "Interaction Log Entry"; AttachmentFileFullName: Text; EmailBodyFilePath: Text)
+    local procedure SendEmailWithAttachment(TempDeliverySorterOther: Record "Delivery Sorter" temporary; InteractLogEntry: Record "Interaction Log Entry"; var AttachmentTempBlob: Codeunit "Temp Blob"; var HtmlBody: Codeunit "Temp Blob")
     var
         Contact: Record Contact;
         DocumentMailing: Codeunit "Document-Mailing";
-        TempBlob: Codeunit "Temp Blob";
-        FileManagement: Codeunit "File Management";
         AttachmentStream: Instream;
         IsSent: Boolean;
         SourceTableIDs, SourceRelationTypes : List of [Integer];
         SourceIDs: List of [Guid];
     begin
-        if AttachmentFileFullName <> '' then begin
-            FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFileFullName);
-            TempBlob.CreateInStream(AttachmentStream);
-        end;
+        if AttachmentTempBlob.HasValue() then
+            AttachmentTempBlob.CreateInStream(AttachmentStream);
 
         SourceTableIDs.Add(Database::"Interaction Log Entry");
         SourceIDs.Add(InteractLogEntry.SystemId);
@@ -498,7 +491,7 @@ codeunit 5052 AttachmentManagement
 
         IsSent := DocumentMailing.EmailFile(
             AttachmentStream, GetAttachmentFileDefaultName(TempDeliverySorterOther."Attachment No."),
-            EmailBodyFilePath, TempDeliverySorterOther.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default, SourceTableIDs, SourceIDs, SourceRelationTypes);
+            HtmlBody, TempDeliverySorterOther.Subject, InteractionEMail(InteractLogEntry), false, Enum::"Email Scenario"::Default, SourceTableIDs, SourceIDs, SourceRelationTypes);
 
         SetDeliveryState(InteractLogEntry, IsSent);
     end;
@@ -611,19 +604,13 @@ codeunit 5052 AttachmentManagement
         Attachment.CalcFields("Attachment File");
     end;
 
-    local procedure PrepareDummyEmailBody(): Text
+    local procedure PrepareDummyEmailBody(var HtmlBody: Codeunit "Temp Blob")
     var
-        FileManagement: Codeunit "File Management";
         OutStream: OutStream;
-        EmailBodyFile: File;
-        EmailBodyFilePath: Text;
     begin
-        EmailBodyFilePath := FileManagement.ServerTempFileName('HTML');
-        EmailBodyFile.Create(EmailBodyFilePath);
-        EmailBodyFile.CreateOutStream(OutStream);
+        Clear(HtmlBody);
+        HtmlBody.CreateOutStream(OutStream);
         OutStream.WriteText('<html><body></body></html>');
-        EmailBodyFile.Close();
-        exit(EmailBodyFilePath);
     end;
 
     local procedure GetAttachmentFileDefaultName(AttachmentNo: Integer): Text
@@ -681,15 +668,29 @@ codeunit 5052 AttachmentManagement
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Parameter AttachmentFileFullName and EmailBodyFilePath will be removed', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnDeliverEmailWithAttachmentOnBeforeSendEmail(var DeliverySorter: Record "Delivery Sorter"; var InteractionLogEntry: Record "Interaction Log Entry"; AttachmentFileFullName: Text; EmailBodyFilePath: Text)
     begin
     end;
 
+    [Obsolete('Parameter EmailBodyFilePath will be removed', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnDeliverHTMLEmailOnBeforeSendEmail(var DeliverySorter: Record "Delivery Sorter"; Attachment: Record Attachment; var InteractionLogEntry: Record "Interaction Log Entry"; EmailBodyFilePath: Text)
     begin
     end;
+#else
+    [IntegrationEvent(false, false)]
+    local procedure OnDeliverEmailWithAttachmentOnBeforeSendEmail(var DeliverySorter: Record "Delivery Sorter"; var InteractionLogEntry: Record "Interaction Log Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeliverHTMLEmailOnBeforeSendEmail(var DeliverySorter: Record "Delivery Sorter"; Attachment: Record Attachment; var InteractionLogEntry: Record "Interaction Log Entry")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnProcessDeliverySorterHtml(var DeliverySorter: Record "Delivery Sorter"; var TempDeliverySorter: Record "Delivery Sorter" temporary; Attachment: Record Attachment; I: Integer)
@@ -726,4 +727,3 @@ codeunit 5052 AttachmentManagement
     begin
     end;
 }
-

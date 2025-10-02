@@ -11,9 +11,9 @@ using Microsoft.ExcelReports;
 report 4404 "EXR Vendor Top List"
 {
     ApplicationArea = All;
-    Caption = 'Vendor - Top List Excel';
+    Caption = 'Vendor - Top List (Excel)';
     DataAccessIntent = ReadOnly;
-    DefaultRenderingLayout = VendorTopTrendExcel;
+    DefaultRenderingLayout = VendorTopListExcel;
     ExcelLayoutMultipleDataSheets = true;
     UsageCategory = ReportsAndAnalysis;
     MaximumDatasetSize = 1000000;
@@ -46,8 +46,8 @@ report 4404 "EXR Vendor Top List"
 
     requestpage
     {
-        AboutTitle = 'Vendor - Top Trends';
-        AboutText = 'This report contains aggregated purchase (LCY) and balance (LCY) data for the top number of vendors selected. The data is aggregated for the period specified in the request page''s Datefilter parameter.';
+        AboutTitle = 'About Vendor - Top List (Excel)';
+        AboutText = 'Analyze the effect of vendors on cash flow, and prioritize vendor payments. Amounts are shown in local currency (LCY).';
         SaveValues = true;
         layout
         {
@@ -100,12 +100,12 @@ report 4404 "EXR Vendor Top List"
     }
     rendering
     {
-        layout(VendorTopTrendExcel)
+        layout(VendorTopListExcel)
         {
             Type = Excel;
-            Caption = 'Vendor - Top Trends Excel';
+            Caption = 'Vendor - Top List (Excel)';
             LayoutFile = './ReportLayouts/Excel/Vendor/VendorTopListExcel.xlsx';
-            Summary = 'Built in layout for the Vendor - Top Trends excel report. This report contains aggregated purchase (LCY) and balance (LCY) data for the top number of vendors selected. Report uses Query connections.';
+            Summary = 'Built in layout for the Vendor - Top List (Excel) report. This report contains aggregated purchase (LCY) and balance (LCY) data for the top number of vendors selected. Report uses Query connections.';
         }
     }
     labels

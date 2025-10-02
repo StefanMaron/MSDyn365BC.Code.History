@@ -210,32 +210,41 @@ table 8018 "Usage Data Generic Import"
         field(19; Cost; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Unit Cost';
         }
         field(20; Price; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Unit Price';
         }
         field(21; Quantity; Decimal)
         {
             Caption = 'Quantity';
             DecimalPlaces = 0 : 6;
+            AutoFormatType = 0;
         }
         field(22; Discount; Decimal)
         {
             Caption = 'Discount';
             DecimalPlaces = 0 : 6;
+            AutoFormatType = 1;
+            AutoFormatExpression = GetCurrencyCode();
         }
         field(23; Tax; Decimal)
         {
             Caption = 'Tax';
             DecimalPlaces = 0 : 6;
+            AutoFormatType = 1;
+            AutoFormatExpression = GetCurrencyCode();
         }
         field(24; Amount; Decimal)
         {
             Caption = 'Amount';
             DecimalPlaces = 0 : 6;
+            AutoFormatType = 2;
+            AutoFormatExpression = GetCurrencyCode();
         }
         field(25; Currency; Text[10])
         {
@@ -247,7 +256,8 @@ table 8018 "Usage Data Generic Import"
         }
         field(27; "Cost Amount"; Decimal)
         {
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Cost Amount';
         }
         field(30; "Service Object Availability"; Enum "Service Object Availability")
@@ -270,14 +280,17 @@ table 8018 "Usage Data Generic Import"
         field(53; Decimal1; Decimal)
         {
             Caption = 'Decimal1';
+            AutoFormatType = 0;
         }
         field(54; Decimal2; Decimal)
         {
             Caption = 'Decimal2';
+            AutoFormatType = 0;
         }
         field(55; Decimal3; Decimal)
         {
             Caption = 'Decimal3';
+            AutoFormatType = 0;
         }
         field(1220; "Data Exch. Entry No."; Integer)
         {

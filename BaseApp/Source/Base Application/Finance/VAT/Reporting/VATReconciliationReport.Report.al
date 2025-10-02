@@ -123,6 +123,9 @@ report 743 "VAT Reconciliation Report"
 
     requestpage
     {
+        AboutTitle = 'About VAT Reconciliation Report';
+        AboutText = 'The **VAT Reconciliation Report** compares VAT calculated on documents with the amounts posted to the VAT G/L accounts. Use it for verifying that VAT entries align with general ledger balances before tax filing, ensuring accurate and compliant reporting.';
+
         layout
         {
             area(Content)

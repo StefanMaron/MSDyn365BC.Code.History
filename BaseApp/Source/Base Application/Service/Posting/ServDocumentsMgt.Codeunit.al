@@ -509,6 +509,8 @@ codeunit 5988 "Serv-Documents Mgt."
                     InvoicePostingInterface.SetTotalLines(TotalServiceLine, TotalServiceLineLCY);
                     ServPostingJnlsMgt.PostBalancingEntry(ServHeader, InvoicePostingInterface);
                 end;
+
+            OnPostDocumentLinesOnAfterPostSalesAndVAT(ServHeader, TotalServiceLine, Window, GenJnlLineDocNo, GenJnlLineExtDocNo, Invoice);
         end;
 
         MakeInvtAdjustment();
@@ -1323,6 +1325,8 @@ codeunit 5988 "Serv-Documents Mgt."
         end else
             Cust.CheckBlockedCustOnDocs(Cust, ServHeader."Document Type", false, true);
 
+        OnGetAndCheckCustomerOnAfterCheckBlocked(ServHeader);
+
         if ServHeader."Bill-to Customer No." <> ServHeader."Customer No." then begin
             Cust.Get(ServHeader."Bill-to Customer No.");
             if Ship or ServMgtSetup."Shipment on Invoice" and
@@ -1337,6 +1341,9 @@ codeunit 5988 "Serv-Documents Mgt."
             end else
                 Cust.CheckBlockedCustOnDocs(Cust, ServHeader."Document Type", false, true);
         end;
+
+        OnAfterGetAndCheckCustomer(ServHeader);
+
         ServLine.Reset();
     end;
 
@@ -2693,13 +2700,6 @@ codeunit 5988 "Serv-Documents Mgt."
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by new implementation in codeunit Service Post Invoice', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnPostDocumentLinesOnBeforePostInvoicePostBuffer(ServiceHeader: Record "Service Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDocumentLinesOnBeforePostRemQtyToBeConsumed(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
@@ -2963,6 +2963,21 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckServiceShipmentLineValues(var ServiceShipmentLine: Record "Service Shipment Line"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentLinesOnAfterPostSalesAndVAT(var ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line"; var Window: Dialog; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Text[35]; Invoice: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAndCheckCustomer(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAndCheckCustomerOnAfterCheckBlocked(var ServiceHeader: Record "Service Header")
     begin
     end;
 }

@@ -1788,6 +1788,7 @@
         ProductionBOMVersion.Modify(true);
     end;
 
+#if not CLEAN25
     local procedure SelectCurrencyCode(): Code[10]
     var
         Currency: Record Currency;
@@ -1817,7 +1818,7 @@
         Customer.Validate("Customer Price Group", CustomerPriceGroup);
         Customer.Modify(true);
     end;
-
+#endif
     local procedure CreateProdBOMVersion(var ProductionBOMVersion: Record "Production BOM Version"; Item: Record Item; Status: Enum "BOM Status")
     begin
         LibraryManufacturing.CreateProductionBOMVersion(
@@ -1840,7 +1841,6 @@
         LibraryVariableStorage.Enqueue(CurrencyCode);
         REPORT.Run(REPORT::"Price List", true, false, Item);
     end;
-#endif
 
     local procedure VerifyUnitPrice(Item: Record Item; CurrencyCode: Code[10]; ExpUnitPrice: Decimal)
     var
@@ -1860,7 +1860,7 @@
             LibraryReportDataset.AssertCurrentRowValueEquals('SalesPriceUnitPrice', ExpUnitPrice);
         end;
     end;
-
+#endif
     local procedure VerifyVariantLineInPriceListReport(VariantCap: Text[40]; VariantCode: Code[20]; MinimumQtyCap: Text[40]; MinimumQty: Decimal; AmountCap: Text[40]; Amount: Decimal)
     begin
         LibraryReportDataset.SetRange(VariantCap, VariantCode);
@@ -2177,7 +2177,7 @@
     var
         CalcBOMTree: Codeunit "Calculate BOM Tree";
     begin
-        CalcBOMTree.GenerateTreeForItem(Item, TempBOMBuffer, WorkDate(), 2);
+        CalcBOMTree.GenerateTreeForOneItem(Item, TempBOMBuffer, WorkDate(), "BOM Tree Type"::Cost);
     end;
 
     local procedure OpenProductionJournal(ProductionOrder: Record "Production Order")
@@ -2918,4 +2918,3 @@
         Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
     end;
 }
-

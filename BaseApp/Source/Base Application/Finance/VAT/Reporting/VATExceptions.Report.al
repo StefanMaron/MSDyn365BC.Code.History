@@ -142,6 +142,8 @@ report 31 "VAT Exceptions"
 
     requestpage
     {
+        AboutTitle = 'About VAT Exceptions';
+        AboutText = 'The **VAT Exceptions** report identifies posted transactions where VAT was expected but not calculated or posted, helping users catch inconsistencies before filing returns. Use it for reviewing documents that may be missing VAT data or validating VAT setup to prevent reporting errors.';
         SaveValues = true;
 
         layout

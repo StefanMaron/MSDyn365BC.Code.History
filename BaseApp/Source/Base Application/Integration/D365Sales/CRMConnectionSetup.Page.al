@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -80,6 +80,7 @@ page 5330 "CRM Connection Setup"
 
                     trigger OnValidate()
                     var
+                        AuditLog: Codeunit "Audit Log";
                         FeatureTelemetry: Codeunit "Feature Telemetry";
                         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
                         Dynamics365SalesEnabledLbl: Label 'Integration to Dynamics 365 Sales has been enabled by UserSecurityId %1.', Locked = true;
@@ -88,7 +89,7 @@ page 5330 "CRM Connection Setup"
                         if Rec."Is Enabled" then begin
                             FeatureTelemetry.LogUptake('0000H7A', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::"Set up");
                             Session.LogMessage('0000CM7', CRMConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                            Session.LogAuditMessage(StrSubstNo(Dynamics365SalesEnabledLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                            AuditLog.LogAuditMessage(StrSubstNo(Dynamics365SalesEnabledLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
 
                             if (Rec."Server Address" <> '') and (Rec."Server Address" <> TestServerAddressTok) then
                                 if CDSIntegrationImpl.MultipleCompaniesConnected() then
@@ -155,20 +156,6 @@ page 5330 "CRM Connection Setup"
             {
                 Caption = 'Dynamics 365 Sales Settings';
                 Visible = Rec."Is Enabled";
-#if not CLEAN24
-                field("CRM Version"; Rec."CRM Version")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Version';
-                    Editable = false;
-                    StyleExpr = CRMVersionStyleExpr;
-                    ToolTip = 'Specifies the version of Dynamics 365 Sales.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with field Dynamics 365 Sales Version checked';
-                    ObsoleteTag = '24.0';
-                }
-#endif
                 field("CRM Version Status"; CRMVersionStatus)
                 {
                     ApplicationArea = Suite;
@@ -850,4 +837,3 @@ page 5330 "CRM Connection Setup"
         Rec.Validate("Proxy Version", CRMIntegrationManagement.GetLastProxyVersionItem());
     end;
 }
-

@@ -29,9 +29,13 @@ table 131321 "Watch Vendor Ledger Entry"
         }
         field(7; "Original Sum"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(8; "Delta Sum"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(9; "Count Comparison Method"; Option)
         {
@@ -55,4 +59,3 @@ table 131321 "Watch Vendor Ledger Entry"
     {
     }
 }
-

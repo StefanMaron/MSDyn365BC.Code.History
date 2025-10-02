@@ -43,23 +43,6 @@ codeunit 5899 "Calc. Inventory Value-Check"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
 
-#if not CLEAN24
-    [Obsolete('Reolaced by procedure SetParameters()', '24.0')]
-    procedure SetProperties(NewPostingDate: Date; NewCalculatePer: Option; NewByLocation: Boolean; NewByVariant: Boolean; NewShowDialog: Boolean; NewTestMode: Boolean)
-    begin
-        TempErrorBuf.DeleteAll();
-        ClearAll();
-
-        PostingDate := NewPostingDate;
-        CalculatePer := "Inventory Value Calc. Per".FromInteger(NewCalculatePer);
-        ByLocation := NewByLocation;
-        ByVariant := NewByVariant;
-        ShowDialog := NewShowDialog;
-        TestMode := NewTestMode;
-
-        InvtSetup.Get();
-    end;
-#endif
 
     procedure SetParameters(NewPostingDate: Date; NewCalculatePer: Enum "Inventory Value Calc. Per"; NewByLocation: Boolean; NewByVariant: Boolean; NewShowDialog: Boolean; NewTestMode: Boolean)
     begin
@@ -271,4 +254,3 @@ codeunit 5899 "Calc. Inventory Value-Check"
     begin
     end;
 }
-

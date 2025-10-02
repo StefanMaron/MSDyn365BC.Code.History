@@ -1,3 +1,7 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Dimension;
 
 page 537 "Dimension Values"
@@ -41,6 +45,11 @@ page 537 "Dimension Values"
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the purpose of the dimension value.';
+
+                    trigger OnValidate()
+                    begin
+                        FormatLine();
+                    end;
                 }
                 field(Totaling; Rec.Totaling)
                 {
@@ -130,9 +139,18 @@ page 537 "Dimension Values"
         }
     }
 
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        FormatLine();
+    end;
+
     trigger OnAfterGetRecord()
     begin
-        NameIndent := 0;
+        FormatLine();
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
         FormatLine();
     end;
 

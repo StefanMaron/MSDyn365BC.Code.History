@@ -289,15 +289,6 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
         exit(Currency.Code);
     end;
 
-    local procedure CreateCurrencyAndExchRates(FirstStartingDate: Date; RelExchRateAmount: Decimal) CurrencyCode: Code[10]
-    begin
-        // Create Currency with different exchange Rate and Starting Date. Take Random for Relational Exchange Rate Amount.
-        CurrencyCode := CreateCurrency();
-        DeleteExistingExchangeRates(CurrencyCode);
-        CreateExchangeRateWithFixExchRateAmount(CurrencyCode, WorkDate(), RelExchRateAmount);
-        CreateExchangeRateWithFixExchRateAmount(CurrencyCode, FirstStartingDate, 2 * RelExchRateAmount);
-    end;
-
     local procedure CreateExchangeRateWithFixRelationalAmount(CurrencyCode: Code[10]; StartingDate: Date; ExchangeRateAmount: Decimal)
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -306,19 +297,6 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
         LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
         CurrencyExchangeRate.Validate("Exchange Rate Amount", ExchangeRateAmount);
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 1);
-        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
-        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
-        CurrencyExchangeRate.Modify(true);
-    end;
-
-    local procedure CreateExchangeRateWithFixExchRateAmount(CurrencyCode: Code[10]; StartingDate: Date; RelationalExchRateAmount: Decimal)
-    var
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-    begin
-        // Take 1 to fix the Exchange Rate amounts for Currency Exchange Rate.
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
-        CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
-        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalExchRateAmount);
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
         CurrencyExchangeRate.Modify(true);
@@ -386,54 +364,6 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
         CreateGeneralJournalLine(GenJournalLine, AccountType, AccountNo, DocumentType, Amount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         ModifyExchangeRate(GenJournalLine."Currency Code", ExchangeRateAmount);
-    end;
-
-    local procedure CreateAndPostPaymentLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date)
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        CreateGeneralJournalLine(GenJournalLine, AccountType, AccountNo, DocumentType, Amount);
-        GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Modify(true);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
-    local procedure CreatePostPaymentWithAppln(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Sign: Integer; PmtPostingDate: Date)
-    var
-        InvoiceNo: Code[20];
-    begin
-        CreateGeneralJournalLine(
-          GenJournalLine, AccountType, AccountNo, GenJournalLine."Document Type"::Invoice, -Sign * LibraryRandom.RandDec(100, 2));
-        InvoiceNo := GenJournalLine."Document No.";
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        CreateGeneralJournalLine(
-          GenJournalLine, AccountType, GenJournalLine."Account No.", GenJournalLine."Document Type"::Payment,
-          Sign * LibraryRandom.RandDec(100, 2));
-        GenJournalLine.Validate("Currency Code", CurrencyCode);
-        ModifyGeneralLine(GenJournalLine, InvoiceNo, PmtPostingDate);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
-    local procedure CreatePostInvoiceAndPayment(var GenJournalLine: Record "Gen. Journal Line"; var InvoiceNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Sign: Integer; PmtPostingDate: Date)
-    begin
-        CreateGeneralJournalLine(
-          GenJournalLine, AccountType, AccountNo, GenJournalLine."Document Type"::Invoice, -Sign * LibraryRandom.RandDec(100, 2));
-        InvoiceNo := GenJournalLine."Document No.";
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        CreateGeneralJournalLine(
-          GenJournalLine, AccountType, AccountNo, GenJournalLine."Document Type"::Payment, Sign * LibraryRandom.RandDec(100, 2));
-        GenJournalLine.Validate("Currency Code", CurrencyCode);
-        GenJournalLine.Validate("Posting Date", PmtPostingDate);
-        GenJournalLine.Modify(true);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
-    local procedure ModifyGeneralLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; PostingDate: Date)
-    begin
-        GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
-        GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
-        GenJournalLine.Modify(true);
     end;
 
     local procedure DeleteExistingExchangeRates(CurrencyCode: Code[10])
@@ -531,35 +461,6 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
             AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
-    local procedure VerifyGLEntryForDocument(DocumentNo: Code[20]; AccountNo: Code[20]; EntryAmount: Decimal)
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        FindGLEntry(GLEntry, DocumentNo, AccountNo, GLEntry."Document Type"::" ");
-        GLEntry.TestField(Amount, EntryAmount);
-    end;
-
-    local procedure VerifyGLEntryReverseBalance(CurrencyCode: Code[10]; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
-    var
-        Currency: Record Currency;
-        GLEntry: Record "G/L Entry";
-    begin
-        FindGLEntry(GLEntry, DocumentNo, AccountNo, DocumentType);
-        GLEntry.SetRange("Document Type"); // Unapply creates entries with empty Document Type
-        GLEntry.CalcSums(Amount);
-        GLEntry.TestField(Amount, 0);
-
-        Currency.Get(CurrencyCode);
-        GLEntry.SetRange("G/L Account No.", Currency."Realized Gains Acc.");
-        GLEntry.CalcSums(Amount);
-        GLEntry.TestField(Amount, 0);
-
-        Currency.Get(CurrencyCode);
-        GLEntry.SetRange("G/L Account No.", Currency."Realized Losses Acc.");
-        GLEntry.CalcSums(Amount);
-        GLEntry.TestField(Amount, 0);
-    end;
-
     local procedure CalculateGLEntryBaseAmount(GLAccountNo: Code[20]; Amount: Decimal): Decimal
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -575,16 +476,6 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
                 Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"), Currency."Amount Rounding Precision",
                 Currency.VATRoundingDirection());
         exit(Round(Amount - VATAmount, Currency."Amount Rounding Precision"));
-    end;
-
-    local procedure CalcGainLossAmount(Amount: Decimal; AmountLCY: Decimal; CurrencyCode: Code[10]): Decimal
-    var
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-    begin
-        FindCurrencyExchRate(CurrencyExchangeRate, CurrencyCode);
-        exit(
-          AmountLCY -
-          Amount * CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount");
     end;
 
     [ConfirmHandler]
@@ -609,4 +500,3 @@ codeunit 134882 "ERM Exch. Rate Adjmt. Bank"
         // To handle the message.
     end;
 }
-

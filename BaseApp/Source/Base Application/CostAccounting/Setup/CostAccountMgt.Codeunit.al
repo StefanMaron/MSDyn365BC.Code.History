@@ -35,40 +35,38 @@ codeunit 1100 "Cost Account Mgt"
         RecsProcessed: Integer;
         RecsCreated: Integer;
         CostTypeExists: Boolean;
-#pragma warning disable AA0074
-        Text000: Label 'This function transfers all income statement accounts from the chart of accounts to the chart of cost types.\\All types including Heading, Begin-Total, and End-Total are transferred.\General ledger accounts that have the same number as an existing cost type are not transferred.\\Do you want to start the job?';
+        TransferFromChartOfAccountsQst: Label 'This function transfers all income statement accounts from the chart of accounts to the chart of cost types.\\All types including Heading, Begin-Total, and End-Total are transferred.\General ledger accounts that have the same number as an existing cost type are not transferred.\\Do you want to start the job?';
 #pragma warning disable AA0470
-        Text001: Label 'Indent %1?';
-        Text002: Label 'Create cost types:\Number   #1########';
-        Text003: Label '%1 income statement accounts processed. %2 cost types created.';
-        Text004: Label 'Indent chart of cost types\Number   #1########';
-        Text005: Label 'End-Total %1 does not belong to the corresponding Begin-Total.';
+        IndentQst: Label 'Indent %1?';
+        CreateCostTypesProcessingTxt: Label 'Create cost types:\Number   #1########';
+        AccountsProcessedAndCreatedMsg: Label '%1 income statement accounts processed. %2 cost types created.';
+        IndentChartProcessingTxt: Label 'Indent chart of cost types\Number   #1########';
+        EndTotalNotInRangeErr: Label 'End-Total %1 does not belong to the corresponding Begin-Total.';
 #pragma warning restore AA0470
-        Text006: Label 'This function registers the cost types in the chart of accounts.\\This creates the link between chart of accounts and cost types and verifies that each income statement account is only linked to a cost type.\\Start job?';
+        LinkCostTypesToAcctQst: Label 'This function registers the cost types in the chart of accounts.\\This creates the link between chart of accounts and cost types and verifies that each income statement account is only linked to a cost type.\\Start job?';
 #pragma warning disable AA0470
-        Text007: Label '%1 cost types are processed and logged in %2 G/L accounts.';
-        Text008: Label 'Check assignment cost type - G/L account\Number   #1########';
-        Text009: Label 'Cost type %1 should be assigned to G/L account %2.\Cost type %3 is already linked to G/L account %2.\\Each G/L account can only be linked to a single cost type.\However, it is possible to link multiple G/L accounts to a single cost type.';
-        Text010: Label 'Indenting chart\Number   #1########';
-        Text011: Label 'End-Total %1 does not belong to Begin-Total.';
+        CostTypesAndAccountsProcessedMsg: Label '%1 cost types are processed and logged in %2 G/L accounts.';
+        CheckAssignmentProcessingTxt: Label 'Check assignment cost type - G/L account\Number   #1########';
+        CostTypeAlreadyAssignedErr: Label 'Cost type %1 should be assigned to G/L account %2.\Cost type %3 is already linked to G/L account %2.\\Each G/L account can only be linked to a single cost type.\However, it is possible to link multiple G/L accounts to a single cost type.';
+        IndentingChartProcessingTxt: Label 'Indenting chart\Number   #1########';
+        EndTotalNotInBeginTotalRangeErr: Label 'End-Total %1 does not belong to Begin-Total.';
 #pragma warning restore AA0470
-        Text012: Label 'The range is too long and cannot be transferred to the End-Total field.\\Move End-Total closer to Begin-Total or use shorter codes.';
-        Text013: Label '%1 %2 is not defined in Cost Accounting.', Comment = '%1=Table caption Cost Center;%2=Field Value Cost Center Code';
-        Text014: Label '%1 %2 is blocked in Cost Accounting.', Comment = '%1=Table caption Cost Center;%2=Field Value Cost Center Code';
-        Text015: Label '%1 %2 does not have line type %1 or Begin-Total.', Comment = '%1=Table caption Cost Center;%2=Field Value Cost Center Code';
-        Text016: Label 'Do you want to create %1 %2 in Cost Accounting?', Comment = '%1=Table caption Cost Center or Cost Object;%2=Field Value';
-        Text017: Label '%1 %2 has been updated in Cost Accounting.', Comment = '%1=Table caption Cost Center or Cost Object or Cost Type;%2=Field Value';
+        RangeTooLongErr: Label 'The range is too long and cannot be transferred to the End-Total field.\\Move End-Total closer to Begin-Total or use shorter codes.';
+        NotDefinedInCostAcctErr: Label '%1 %2 is not defined in Cost Accounting.', Comment = '%1=Table caption Cost Center;%2=Field Value Cost Center Code';
+        BlockedInCostAcctErr: Label '%1 %2 is blocked in Cost Accounting.', Comment = '%1=Table caption Cost Center;%2=Field Value Cost Center Code';
+        DoesNotHaveLineTypeErr: Label '%1 %2 does not have line type %1 or Begin-Total.', Comment = '%1=Table caption Cost Center;%2=Field Value Cost Center Code';
+        CreateInCostAcctQst: Label 'Do you want to create %1 %2 in Cost Accounting?', Comment = '%1=Table caption Cost Center or Cost Object;%2=Field Value';
+        UpdatedInCostAcctMsg: Label '%1 %2 has been updated in Cost Accounting.', Comment = '%1=Table caption Cost Center or Cost Object or Cost Type;%2=Field Value';
 #pragma warning disable AA0470
-        Text018: Label 'Create dimension\Number   #1########';
-        Text019: Label '%1 cost centers created.';
-        Text020: Label '%1 cost objects created.';
-        Text021: Label 'Do you want to get cost centers from dimension %1 ?';
-        Text022: Label 'Do you want to get cost objects from dimension %1 ?';
-        Text023: Label 'The %1 %2 cannot be inserted because it already exists as %3.', Comment = '%1=Table caption Cost Center or Cost Object or Cost Type or Dimension Value;%2=Field Value';
+        CreateDimensionProcessingTxt: Label 'Create dimension\Number   #1########';
+        CostCentersCreatedMsg: Label '%1 cost centers created.';
+        CostObjectsCreatedMsg: Label '%1 cost objects created.';
+        GetCostCentersFromDimQst: Label 'Do you want to get cost centers from dimension %1 ?';
+        GetCostObjectsFromDimQst: Label 'Do you want to get cost objects from dimension %1 ?';
+        AlreadyExistsAsErr: Label 'The %1 %2 cannot be inserted because it already exists as %3.', Comment = '%1=Table caption Cost Center or Cost Object or Cost Type or Dimension Value;%2=Field Value';
 #pragma warning restore AA0470
-        Text024: Label 'Do you want to update %1 %2 in Cost Accounting?', Comment = '%1=Table caption Cost Center or Cost Object;%2=Field Value';
-        Text025: Label 'The %1 cannot be updated with this %2 because the %3 does not fall within the From/To range.', Comment = '%1=Cost Budget Register tablecaption,%2=Cost Budget Entry tablecaption,%3=Entry No. fieldcaption';
-#pragma warning restore AA0074
+        UpdateInCostAcctQst: Label 'Do you want to update %1 %2 in Cost Accounting?', Comment = '%1=Table caption Cost Center or Cost Object;%2=Field Value';
+        EntryNoNotInRangeErr: Label 'The %1 cannot be updated with this %2 because the %3 does not fall within the From/To range.', Comment = '%1=Cost Budget Register tablecaption,%2=Cost Budget Entry tablecaption,%3=Entry No. fieldcaption';
         ArrayExceededErr: Label 'You can only indent %1 levels for entities of the type Begin-Total.', Comment = '%1 = A number bigger than 1';
 
     procedure GetCostTypesFromChartOfAccount()
@@ -80,21 +78,21 @@ codeunit 1100 "Cost Account Mgt"
         if IsHandled then
             exit;
 
-        if not Confirm(Text000, true) then
+        if not Confirm(TransferFromChartOfAccountsQst, true) then
             Error('');
 
         GetCostTypesFromChartDirect();
 
         IndentCostTypes(true);
 
-        Message(Text003, NoOfGLAcc, RecsCreated)
+        Message(AccountsProcessedAndCreatedMsg, NoOfGLAcc, RecsCreated)
     end;
 
     procedure GetCostTypesFromChartDirect()
     begin
         NoOfGLAcc := 0;
         RecsCreated := 0;
-        Window.Open(Text002);
+        Window.Open(CreateCostTypesProcessingTxt);
 
         GLAcc.Reset();
         GLAcc.SetRange("Income/Balance", GLAcc."Income/Balance"::"Income Statement");
@@ -144,8 +142,8 @@ codeunit 1100 "Cost Account Mgt"
     procedure ConfirmUpdate(CallingTrigger: Option OnInsert,OnModify,,OnRename; TableCaption2: Text[80]; Value: Code[20]): Boolean
     begin
         if CallingTrigger = CallingTrigger::OnInsert then
-            exit(Confirm(Text016, true, TableCaption2, Value));
-        exit(Confirm(Text024, true, TableCaption2, Value));
+            exit(Confirm(CreateInCostAcctQst, true, TableCaption2, Value));
+        exit(Confirm(UpdateInCostAcctQst, true, TableCaption2, Value));
     end;
 
     local procedure CanUpdate(Alignment: Option; NoAligment: Option; PromptAlignment: Option; DimValue: Record "Dimension Value"; DimensionCode: Code[20]; CallingTrigger: Option; TableCaption2: Text[80]): Boolean
@@ -210,7 +208,7 @@ codeunit 1100 "Cost Account Mgt"
             CallingTrigger::OnRename:
                 begin
                     if CostType.Get(GLAcc."No.") then
-                        Error(Text023, GLAcc.TableCaption(), GLAcc."No.", CostType.TableCaption());
+                        Error(AlreadyExistsAsErr, GLAcc.TableCaption(), GLAcc."No.", CostType.TableCaption());
                     if CostType.Get(xGLAcc."No.") then begin
                         CostType.Rename(GLAcc."No.");
                         CostType."G/L Account Range" := GLAcc."No.";
@@ -225,7 +223,7 @@ codeunit 1100 "Cost Account Mgt"
         OnAfterUpdateCostTypeFromGLAcc(CostType, GLAcc, xGLAcc, CallingTrigger);
 
         IndentCostTypes(false);
-        Message(Text017, CostType.TableCaption(), GLAcc."No.");
+        Message(UpdatedInCostAcctMsg, CostType.TableCaption(), GLAcc."No.");
     end;
 
     local procedure ShouldNotUpdateCostTypeFromGLAcc(var GLAcc: Record "G/L Account"; var xGLAcc: Record "G/L Account"; var CostAccSetup: Record "Cost Accounting Setup"; CallingTrigger: Option OnInsert,OnModify,,OnRename) ShouldNotUpdate: Boolean
@@ -264,7 +262,7 @@ codeunit 1100 "Cost Account Mgt"
             CallingTrigger::OnInsert:
                 begin
                     if CostCenterExists(DimValue.Code) then
-                        Error(Text023, CostCenter.TableCaption(), DimValue.Code, CostCenter.TableCaption());
+                        Error(AlreadyExistsAsErr, CostCenter.TableCaption(), DimValue.Code, CostCenter.TableCaption());
                     InsertCostCenterFromDimValue(DimValue);
                 end;
             CallingTrigger::OnModify:
@@ -277,7 +275,7 @@ codeunit 1100 "Cost Account Mgt"
                     if not CostCenterExists(xDimValue.Code) then
                         exit;
                     if CostCenterExists(DimValue.Code) then
-                        Error(Text023, DimValue.TableCaption(), DimValue.Code, CostCenter.TableCaption());
+                        Error(AlreadyExistsAsErr, DimValue.TableCaption(), DimValue.Code, CostCenter.TableCaption());
                     CostCenter.Get(xDimValue.Code);
                     CostCenter.Rename(DimValue.Code);
                 end;
@@ -288,7 +286,7 @@ codeunit 1100 "Cost Account Mgt"
         IsHandled := false;
         OnUpdateCostCenterFromDimOnBeforeMessage(IsHandled);
         if not IsHandled then
-            Message(Text017, CostCenter.TableCaption(), DimValue.Code);
+            Message(UpdatedInCostAcctMsg, CostCenter.TableCaption(), DimValue.Code);
     end;
 
     procedure UpdateCostObjectFromDim(var DimValue: Record "Dimension Value"; var xDimValue: Record "Dimension Value"; CallingTrigger: Option OnInsert,OnModify,,OnRename)
@@ -307,7 +305,7 @@ codeunit 1100 "Cost Account Mgt"
             CallingTrigger::OnInsert:
                 begin
                     if CostObjectExists(DimValue.Code) then
-                        Error(Text023, CostObject.TableCaption(), DimValue.Code, CostObject.TableCaption());
+                        Error(AlreadyExistsAsErr, CostObject.TableCaption(), DimValue.Code, CostObject.TableCaption());
                     InsertCostObjectFromDimValue(DimValue);
                 end;
             CallingTrigger::OnModify:
@@ -320,7 +318,7 @@ codeunit 1100 "Cost Account Mgt"
                     if not CostObjectExists(xDimValue.Code) then
                         exit;
                     if CostObjectExists(DimValue.Code) then
-                        Error(Text023, DimValue.TableCaption(), DimValue.Code, CostObject.TableCaption());
+                        Error(AlreadyExistsAsErr, DimValue.TableCaption(), DimValue.Code, CostObject.TableCaption());
                     CostObject.Get(xDimValue.Code);
                     CostObject.Rename(DimValue.Code);
                 end;
@@ -330,7 +328,7 @@ codeunit 1100 "Cost Account Mgt"
         IsHandled := false;
         OnUpdateCostObjectFromDimOnBeforeMessage(IsHandled);
         if not IsHandled then
-            Message(Text017, CostObject.TableCaption(), DimValue.Code);
+            Message(UpdatedInCostAcctMsg, CostObject.TableCaption(), DimValue.Code);
     end;
 
     procedure UpdateCostTypeFromDefaultDimension(var DefaultDim: Record "Default Dimension"; var GLAcc: Record "G/L Account"; CallingTrigger: Option OnInsert,OnModify,OnDelete)
@@ -363,7 +361,7 @@ codeunit 1100 "Cost Account Mgt"
 
     procedure ConfirmIndentCostTypes()
     begin
-        if not Confirm(Text001, true, CostType.TableCaption()) then
+        if not Confirm(IndentQst, true, CostType.TableCaption()) then
             Error('');
 
         IndentCostTypes(true);
@@ -375,7 +373,7 @@ codeunit 1100 "Cost Account Mgt"
     begin
         i := 0;
         if ShowMessage then
-            Window.Open(Text004);
+            Window.Open(IndentChartProcessingTxt);
 
         if CostType.Find('-') then
             repeat
@@ -383,7 +381,7 @@ codeunit 1100 "Cost Account Mgt"
                     Window.Update(1, CostType."No.");
                 if CostType.Type = CostType.Type::"End-Total" then begin
                     if i < 1 then
-                        Error(Text005, CostType."No.");
+                        Error(EndTotalNotInRangeErr, CostType."No.");
                     CostType.Totaling := CostTypeNo[i] + '..' + CostType."No.";
                     i := i - 1;
                 end;
@@ -403,17 +401,17 @@ codeunit 1100 "Cost Account Mgt"
 
     procedure LinkCostTypesToGLAccountsYN()
     begin
-        if not Confirm(Text006, true) then
+        if not Confirm(LinkCostTypesToAcctQst, true) then
             Error('');
 
         ClearAll();
         LinkCostTypesToGLAccounts();
-        Message(Text007, NoOfCostTypes, NoOfGLAcc);
+        Message(CostTypesAndAccountsProcessedMsg, NoOfCostTypes, NoOfGLAcc);
     end;
 
     procedure LinkCostTypesToGLAccounts()
     begin
-        Window.Open(Text008);
+        Window.Open(CheckAssignmentProcessingTxt);
 
         GLAcc.Reset();
         CostType.Reset();
@@ -432,7 +430,7 @@ codeunit 1100 "Cost Account Mgt"
                     repeat
                         if GLAcc."Cost Type No." <> '' then begin
                             Window.Close();
-                            Error(Text009, CostType."No.", GLAcc."No.", GLAcc."Cost Type No.");
+                            Error(CostTypeAlreadyAssignedErr, CostType."No.", GLAcc."No.", GLAcc."Cost Type No.");
                         end;
                         GLAcc."Cost Type No." := CostType."No.";
                         NoOfGLAcc := NoOfGLAcc + 1;
@@ -449,12 +447,12 @@ codeunit 1100 "Cost Account Mgt"
         DimValue: Record "Dimension Value";
     begin
         CostAccSetup.Get();
-        if not Confirm(Text021, true, CostAccSetup."Cost Center Dimension") then
+        if not Confirm(GetCostCentersFromDimQst, true, CostAccSetup."Cost Center Dimension") then
             Error('');
 
         RecsProcessed := 0;
         RecsCreated := 0;
-        Window.Open(Text018);
+        Window.Open(CreateDimensionProcessingTxt);
 
         CostCenter.Reset();
         DimValue.SetRange("Dimension Code", CostAccSetup."Cost Center Dimension");
@@ -469,14 +467,14 @@ codeunit 1100 "Cost Account Mgt"
 
         IndentCostCenters();
 
-        Message(Text019, RecsProcessed);
+        Message(CostCentersCreatedMsg, RecsProcessed);
     end;
 
     procedure IndentCostCentersYN()
     var
         CostCenter: Record "Cost Center";
     begin
-        if not Confirm(Text001, true, CostCenter.TableCaption()) then
+        if not Confirm(IndentQst, true, CostCenter.TableCaption()) then
             Error('');
 
         IndentCostCenters();
@@ -492,7 +490,7 @@ codeunit 1100 "Cost Account Mgt"
         SpecialSort := false;
         i := 0;
 
-        Window.Open(Text010);
+        Window.Open(IndentingChartProcessingTxt);
 
         CostCenter.SetCurrentKey("Sorting Order");
         CostCenter.SetFilter("Sorting Order", '<>%1', '');
@@ -508,7 +506,7 @@ codeunit 1100 "Cost Account Mgt"
                     if CostCenter."Line Type" = CostCenter."Line Type"::"End-Total" then begin
                         CostCenter.Totaling := CostCenterRange;
                         if i < 1 then
-                            Error(Text011, CostCenter.Code);
+                            Error(EndTotalNotInBeginTotalRangeErr, CostCenter.Code);
                         i := i - 1;
                     end;
                     CostCenter.Indentation := i;
@@ -521,7 +519,7 @@ codeunit 1100 "Cost Account Mgt"
                        (CostCenter."Line Type" = CostCenter."Line Type"::"Begin-Total")
                     then begin
                         if StrLen(CostCenterRange) + StrLen(CostCenter.Code) > MaxStrLen(CostCenterRange) then
-                            Error(Text012);
+                            Error(RangeTooLongErr);
                         if CostCenterRange = '' then
                             CostCenterRange := CostCenter.Code
                         else
@@ -536,7 +534,7 @@ codeunit 1100 "Cost Account Mgt"
 
                     if CostCenter."Line Type" = CostCenter."Line Type"::"End-Total" then begin
                         if i < 1 then
-                            Error(Text005, CostCenter.Code);
+                            Error(EndTotalNotInRangeErr, CostCenter.Code);
                         CostCenter.Totaling := StartRange[i] + '..' + CostCenter.Code;
                         i := i - 1;
                     end;
@@ -559,12 +557,12 @@ codeunit 1100 "Cost Account Mgt"
         DimValue: Record "Dimension Value";
     begin
         CostAccSetup.Get();
-        if not Confirm(Text022, true, CostAccSetup."Cost Object Dimension") then
+        if not Confirm(GetCostObjectsFromDimQst, true, CostAccSetup."Cost Object Dimension") then
             Error('');
 
         RecsProcessed := 0;
         RecsCreated := 0;
-        Window.Open(Text018);
+        Window.Open(CreateDimensionProcessingTxt);
 
         CostObject.Reset();
         DimValue.SetRange("Dimension Code", CostAccSetup."Cost Object Dimension");
@@ -578,14 +576,14 @@ codeunit 1100 "Cost Account Mgt"
         end;
 
         IndentCostObjects();
-        Message(Text020, RecsProcessed);
+        Message(CostObjectsCreatedMsg, RecsProcessed);
     end;
 
     procedure IndentCostObjectsYN()
     var
         CostObject: Record "Cost Object";
     begin
-        if not Confirm(Text001, true, CostObject.TableCaption()) then
+        if not Confirm(IndentQst, true, CostObject.TableCaption()) then
             Error('');
 
         IndentCostObjects();
@@ -601,7 +599,7 @@ codeunit 1100 "Cost Account Mgt"
         SpecialSort := false;
         i := 0;
 
-        Window.Open(Text010);
+        Window.Open(IndentingChartProcessingTxt);
 
         CostObject.SetCurrentKey("Sorting Order");
         CostObject.SetFilter("Sorting Order", '<>%1', '');
@@ -617,7 +615,7 @@ codeunit 1100 "Cost Account Mgt"
                     if CostObject."Line Type" = CostObject."Line Type"::"End-Total" then begin
                         CostObject.Totaling := CostObjRange;
                         if i < 1 then
-                            Error(Text011, CostObject.Code);
+                            Error(EndTotalNotInBeginTotalRangeErr, CostObject.Code);
                         i := i - 1;
                     end;
                     CostObject.Indentation := i;
@@ -631,7 +629,7 @@ codeunit 1100 "Cost Account Mgt"
                        (CostObject."Line Type" = CostObject."Line Type"::"Begin-Total")
                     then begin
                         if StrLen(CostObjRange) + StrLen(CostObject.Code) > MaxStrLen(CostObjRange) then
-                            Error(Text012);
+                            Error(RangeTooLongErr);
 
                         if CostObjRange = '' then
                             CostObjRange := CostObject.Code
@@ -646,7 +644,7 @@ codeunit 1100 "Cost Account Mgt"
                     Window.Update(1, CostObject.Code);
                     if CostObject."Line Type" = CostObject."Line Type"::"End-Total" then begin
                         if i < 1 then
-                            Error(Text005, CostObject.Code);
+                            Error(EndTotalNotInRangeErr, CostObject.Code);
                         CostObject.Totaling := StartRange[i] + '..' + CostObject.Code;
                         i := i - 1;
                     end;
@@ -681,20 +679,20 @@ codeunit 1100 "Cost Account Mgt"
 
         if CostCenterCode <> '' then begin
             if not CostCenter.Get(CostCenterCode) then
-                Error(Text013, CostCenter.TableCaption(), CostCenterCode);
+                Error(NotDefinedInCostAcctErr, CostCenter.TableCaption(), CostCenterCode);
             if CostCenter.Blocked then
-                Error(Text014, CostCenter.TableCaption(), CostCenterCode);
+                Error(BlockedInCostAcctErr, CostCenter.TableCaption(), CostCenterCode);
             if not (CostCenter."Line Type" in [CostCenter."Line Type"::"Cost Center", CostCenter."Line Type"::"Begin-Total"]) then
-                Error(Text015, CostCenter.TableCaption(), CostCenterCode);
+                Error(DoesNotHaveLineTypeErr, CostCenter.TableCaption(), CostCenterCode);
         end;
 
         if CostObjectCode <> '' then begin
             if not CostObject.Get(CostObjectCode) then
-                Error(Text013, CostObject.TableCaption(), CostObjectCode);
+                Error(NotDefinedInCostAcctErr, CostObject.TableCaption(), CostObjectCode);
             if CostObject.Blocked then
-                Error(Text014, CostObject.TableCaption(), CostObjectCode);
+                Error(BlockedInCostAcctErr, CostObject.TableCaption(), CostObjectCode);
             if not (CostObject."Line Type" in [CostObject."Line Type"::"Cost Object", CostObject."Line Type"::"Begin-Total"]) then
-                Error(Text015, CostObject.TableCaption(), CostObjectCode);
+                Error(DoesNotHaveLineTypeErr, CostObject.TableCaption(), CostObjectCode);
         end;
     end;
 
@@ -901,7 +899,7 @@ codeunit 1100 "Cost Account Mgt"
         if (CostBudgetEntryNo > CostBudgetReg."To Cost Budget Entry No." + 1) or
            (CostBudgetEntryNo < CostBudgetReg."From Cost Budget Entry No.")
         then
-            Error(Text025, CostBudgetReg.TableCaption(), CostBudgetEntry.TableCaption(), CostBudgetEntry.FieldCaption("Entry No."));
+            Error(EntryNoNotInRangeErr, CostBudgetReg.TableCaption(), CostBudgetEntry.TableCaption(), CostBudgetEntry.FieldCaption("Entry No."));
         if CostBudgetEntryNo > CostBudgetReg."To Cost Budget Entry No." then begin
             CostBudgetReg."To Cost Budget Entry No." := CostBudgetEntryNo;
             CostBudgetReg."No. of Entries" := CostBudgetReg."To Cost Budget Entry No." - CostBudgetReg."From Cost Budget Entry No." + 1

@@ -3283,11 +3283,11 @@ codeunit 136302 "Job Consumption Purchase"
         PurchLine.Validate("Job Line Type", PurchLine."Job Line Type"::Budget);
         PurchLine.Modify(true);
 
-        // [WHEN] Post Purchase Order 
+        // [WHEN] Post Purchase Order
         PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
-        // [VERIFY] Verify: Job Ledger Entry created after posting Purchase Order 
+        // [VERIFY] Verify: Job Ledger Entry created after posting Purchase Order
         VerifyJobLedgerEntry(PurchLine, DocumentNo, PurchLine.Quantity);
     end;
 
@@ -3319,7 +3319,7 @@ codeunit 136302 "Job Consumption Purchase"
             PurchHeader."Document Type"::Invoice,
             JobPlanningLine."No.");
 
-        // [WHEN] Post Purchase Order 
+        // [WHEN] Post Purchase Order
         PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
@@ -3671,7 +3671,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         // [FEATURE] [WMS] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
         // [SCENARIO 545709] Location with "Require Receive" = true, "Require Put-away" = true, "Bin Mandatory" = false, "Directed Put-away and Pick" = false.
-        // [SCENARIO 545709] Receive Purchase Order that has one line with Job. 
+        // [SCENARIO 545709] Receive Purchase Order that has one line with Job.
         // [SCENARIO 545709] Ensure that Warehouse Put-away not created, as Receipt is auto-completed for the line with Job.
         // [SCENARIO 545709] Ensure that "Create Put-away" action from Posted Warehouse Receipt still skips the line with Job.
         // [SCENARIO 545709] Then Invoice the Purchase Order for line with Job.
@@ -3842,7 +3842,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         // [FEATURE] [WMS] Support inventory put-away and warehouse-receipts in purchase orders linked to projects (jobs).
         // [SCENARIO 545709] Location with "Require Receive" = true, "Require Put-away" = true, "Bin Mandatory" = false, "Directed Put-away and Pick" = false.
-        // [SCENARIO 545709] Receive Purchase Order that has one line with Job. 
+        // [SCENARIO 545709] Receive Purchase Order that has one line with Job.
         // [SCENARIO 545709] Then Undo the Purchase Receipt.
         Initialize();
 
@@ -4443,6 +4443,7 @@ codeunit 136302 "Job Consumption Purchase"
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup.Modify();
+        LibraryJob.SetJobNoSeriesCode();
 
         CreateLocationsWithWarehousing();
 
@@ -6881,4 +6882,3 @@ codeunit 136302 "Job Consumption Purchase"
                 StrSubstNo(ValueMustMatchErr, ItemLedgerEntry."Reserved Quantity", Quantity))
     end;
 }
-

@@ -692,50 +692,25 @@ report 5875 "Phys. Invt. Order Diff. List"
 
     procedure CreateDiffListBuffer(PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var NoOfBufferLines: Integer)
     var
-#if not CLEAN24
-        ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking";
-#endif
         ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking";
         PhysInvtRecordLine: Record "Phys. Invt. Record Line";
         ReservEntry: Record "Reservation Entry";
-#if not CLEAN24
-        PhysInvtTrackingMgt: Codeunit "Phys. Invt. Tracking Mgt.";
-#endif
         NextLineNo: Integer;
     begin
         NoOfBufferLines := 0;
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-            NextLineNo := 1;
-            ExpPhysInvtTracking.Reset();
-            ExpPhysInvtTracking.SetRange("Order No", PhysInvtOrderLine."Document No.");
-            ExpPhysInvtTracking.SetRange("Order Line No.", PhysInvtOrderLine."Line No.");
-            if ExpPhysInvtTracking.Find('-') then
-                repeat
-                    FindOrCreateDiffListBuffer(NoOfBufferLines, NextLineNo);
-                    TempPhysInvtCountBuffer."Exp. Serial No." := ExpPhysInvtTracking."Serial No.";
-                    TempPhysInvtCountBuffer."Exp. Lot No." := ExpPhysInvtTracking."Lot No.";
-                    TempPhysInvtCountBuffer."Exp. Qty. (Base)" := ExpPhysInvtTracking."Quantity (Base)";
-                    TempPhysInvtCountBuffer.Modify();
-                until ExpPhysInvtTracking.Next() = 0;
-        end else begin
-#endif
-            NextLineNo := 1;
-            ExpInvtOrderTracking.Reset();
-            ExpInvtOrderTracking.SetRange("Order No", PhysInvtOrderLine."Document No.");
-            ExpInvtOrderTracking.SetRange("Order Line No.", PhysInvtOrderLine."Line No.");
-            if ExpInvtOrderTracking.FindSet() then
-                repeat
-                    FindOrCreateDiffListBuffer(NoOfBufferLines, NextLineNo);
-                    TempPhysInvtCountBuffer."Exp. Serial No." := ExpInvtOrderTracking."Serial No.";
-                    TempPhysInvtCountBuffer."Exp. Lot No." := ExpInvtOrderTracking."Lot No.";
-                    TempPhysInvtCountBuffer."Exp. Package No." := ExpInvtOrderTracking."Package No.";
-                    TempPhysInvtCountBuffer."Exp. Qty. (Base)" := ExpInvtOrderTracking."Quantity (Base)";
-                    TempPhysInvtCountBuffer.Modify();
-                until ExpInvtOrderTracking.Next() = 0;
-#if not CLEAN24
-        end;
-#endif
+        NextLineNo := 1;
+        ExpInvtOrderTracking.Reset();
+        ExpInvtOrderTracking.SetRange("Order No", PhysInvtOrderLine."Document No.");
+        ExpInvtOrderTracking.SetRange("Order Line No.", PhysInvtOrderLine."Line No.");
+        if ExpInvtOrderTracking.FindSet() then
+            repeat
+                FindOrCreateDiffListBuffer(NoOfBufferLines, NextLineNo);
+                TempPhysInvtCountBuffer."Exp. Serial No." := ExpInvtOrderTracking."Serial No.";
+                TempPhysInvtCountBuffer."Exp. Lot No." := ExpInvtOrderTracking."Lot No.";
+                TempPhysInvtCountBuffer."Exp. Package No." := ExpInvtOrderTracking."Package No.";
+                TempPhysInvtCountBuffer."Exp. Qty. (Base)" := ExpInvtOrderTracking."Quantity (Base)";
+                TempPhysInvtCountBuffer.Modify();
+            until ExpInvtOrderTracking.Next() = 0;
         NextLineNo := 1;
         PhysInvtRecordLine.Reset();
         PhysInvtRecordLine.SetCurrentKey("Order No.", "Order Line No.");

@@ -99,18 +99,16 @@ table 276 "Bank Account Statement Line"
 
     trigger OnRename()
     begin
-        Error(Text000, TableCaption);
+        Error(CannotRenameErr, TableCaption);
     end;
 
     var
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         CheckLedgEntry: Record "Check Ledger Entry";
 
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label 'You cannot rename a %1.';
+        CannotRenameErr: Label 'You cannot rename a %1.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
 
     procedure DisplayApplication()
     var

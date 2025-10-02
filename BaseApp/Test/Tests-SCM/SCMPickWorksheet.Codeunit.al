@@ -10,9 +10,9 @@ codeunit 137015 "SCM Pick Worksheet"
     end;
 
     var
-        ErrorDifferentQty: Label 'Quantity on pick worksheet line different from expected.';
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -23,6 +23,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ErrorDifferentQtyToHandle: Label 'Quantity to Handle on pick worksheet line different from expected.';
+        ErrorDifferentQty: Label 'Quantity on pick worksheet line different from expected.';
         ErrorDifferentAvailQty: Label 'Quantity Available to Pick on pick worksheet line different from expected.';
         ErrorDifferentQtyOnPickLine: Label 'Quantity to Handle on pick line different from expected.';
         IsInitialized: Boolean;
@@ -1812,12 +1813,8 @@ codeunit 137015 "SCM Pick Worksheet"
     end;
 
     local procedure ResetDefaultSafetyLeadTime()
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get();
-        Evaluate(ManufacturingSetup."Default Safety Lead Time", '<0D>');
-        ManufacturingSetup.Modify(true);
+        LibraryPlanning.SetDefaultSafetyLeadTime('<0D>');
     end;
 
     local procedure GetPickWksheetTemplate(var WhseWorksheetTemplate: Record "Whse. Worksheet Template")

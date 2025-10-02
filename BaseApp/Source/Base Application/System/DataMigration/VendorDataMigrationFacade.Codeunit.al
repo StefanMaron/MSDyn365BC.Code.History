@@ -414,7 +414,7 @@ codeunit 6111 "Vendor Data Migration Facade"
         exit(Vendor.Get(VendorNo));
     end;
 
-    procedure CreateDefaultDimensionAndRequirementsIfNeeded(DimensionCode: Text[20]; DimensionDescription: Text[50]; DimensionValueCode: Code[20]; DimensionValueName: Text[30])
+    procedure CreateDefaultDimensionAndRequirementsIfNeeded(DimensionCode: Text[20]; DimensionDescription: Text[50]; DimensionValueCode: Code[20]; DimensionValueName: Text[50])
     var
         Dimension: Record Dimension;
         DimensionValue: Record "Dimension Value";

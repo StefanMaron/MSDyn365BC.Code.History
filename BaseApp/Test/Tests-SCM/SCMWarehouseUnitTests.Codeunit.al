@@ -43,8 +43,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WhseInternalPutAwayHeaderDummy: Record "Whse. Internal Put-away Header";
         WhseWorksheetTemplate: Record "Whse. Worksheet Template";
         WhseGetBinContent: Report "Whse. Get Bin Content";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         LocationCode: Code[10];
     begin
+        SequenceNoMgt.ClearState();
         // VSTF 333341
         Initialize();
 
@@ -1800,7 +1802,9 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseEntry2: Record "Warehouse Entry";
         BinContent: Record "Bin Content";
         BinType: Record "Bin Type";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.ClearState();
         MockILE(ItemLedgerEntry, ItemNo, LocationCode, Quantity * ItemUnitOfMeasure."Qty. per Unit of Measure");
         ItemLedgerEntry."Lot No." := LotNo;
         ItemLedgerEntry."Unit of Measure Code" := ItemUnitOfMeasure.Code;
@@ -2550,7 +2554,9 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseEntry2: Record "Warehouse Entry";
         Bin: Record Bin;
         BinContent: Record "Bin Content";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.ClearState();
         MockILENo(ItemNo, LocationCode, Qty);
 
         BinCode := LibraryUtility.GenerateGUID();
@@ -3058,7 +3064,10 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     end;
 
     local procedure MockILE(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
+        SequenceNoMgt.ClearState();
         ItemLedgerEntry.FindLast();
         ItemLedgerEntry."Entry No." += 1;
         ItemLedgerEntry."Item No." := ItemNo;

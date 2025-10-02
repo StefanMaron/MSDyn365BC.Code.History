@@ -14,7 +14,7 @@ codeunit 139064 "Monitor Sensitive Field Test"
         UserCard: TestPage "User Card";
     begin
         // [Scenario] try To enable without choosing user.
-        // [GIVEN] Clean Entry and setup table 
+        // [GIVEN] Clean Entry and setup table
         MonitorFieldTestHelper.InitMonitor();
 
         // [WHEN] Try to enable without choosing a email account
@@ -46,7 +46,7 @@ codeunit 139064 "Monitor Sensitive Field Test"
         User: Record User;
     begin
         // [Scenario] try To enable without choosing user.
-        // [GIVEN] Clean Entry and setup table 
+        // [GIVEN] Clean Entry and setup table
         LibraryLowerPermissions.SetOutsideO365Scope();
         InsertUser(User, 'TESTUSER', 'test');
         MonitorFieldTestHelper.InitMonitor();
@@ -55,7 +55,7 @@ codeunit 139064 "Monitor Sensitive Field Test"
         LibraryLowerPermissions.AddO365Full();
         LibraryLowerPermissions.PushPermissionSet(D365MonitorFields);
 
-        // [WHEN] 
+        // [WHEN]
         MonitorSensitiveField.GetSetupTable(FieldMonitoringSetup);
         FieldMonitoringSetup.Validate("Email Account Name", 'Test');
         FieldMonitoringSetup.Validate("User Id", User."User Name");
@@ -81,7 +81,7 @@ codeunit 139064 "Monitor Sensitive Field Test"
         User: Record User;
     begin
         // [Scenario] Promoting monitor sensitive field in company information page
-        // [GIVEN] Clean Entry and setup table 
+        // [GIVEN] Clean Entry and setup table
         User.SetRange("User Name", UserId());
         if not User.FindFirst() then
             InsertUser(User, UserId(), '');
@@ -94,7 +94,7 @@ codeunit 139064 "Monitor Sensitive Field Test"
         CleanUpNotificationBoolean();
 
         // [WHEN] Monitor is enabled
-        // [THEN] No notification 
+        // [THEN] No notification
         MonitorSensitiveField.GetSetupTable(FieldMonitoringSetup);
         FieldMonitoringSetup."Monitor Status" := true;
         FieldMonitoringSetup.Modify(false);
@@ -102,7 +102,7 @@ codeunit 139064 "Monitor Sensitive Field Test"
         Assert.IsFalse(IsPromotionNotificationShown, 'Promotion notification should not be shown');
 
         // [WHEN] User ask not to see the promotion message again
-        // [THEN] No notification 
+        // [THEN] No notification
         MyNotifications.Disable(MonitorSensitiveField.GetPromoteMonitorFeatureNotificationId());
         MonitorSensitiveField.ShowPromotionNotification();
         Assert.IsFalse(IsPromotionNotificationShown, 'Promotion notification should not be shown');
@@ -118,7 +118,7 @@ codeunit 139064 "Monitor Sensitive Field Test"
         TestTableC: Record "Test Table C";
     begin
         // [Scenario] Notify the user that some tables are hidden because they are monitored in Monitor Sensitive field feature
-        // [GIVEN] Clean Entry and setup table 
+        // [GIVEN] Clean Entry and setup table
         MonitorFieldTestHelper.InitMonitor();
 
         ChangeLogSetupTableList.OpenEdit();
@@ -219,39 +219,10 @@ codeunit 139064 "Monitor Sensitive Field Test"
         Assert.AreEqual(0, MonitorSensitiveField.GetNotificationCount(), 'Notification Count should equal 0');
     end;
 
-    local procedure VerifyWizardSetup(User: Record User)
-    var
-        FieldMonitoringSetup: Record "Field Monitoring Setup";
-        TestTableC: Record "Test Table C";
-        ChangeLogSetupField: Record "Change Log Setup (Field)";
-    begin
-        MonitorSensitiveField.GetSetupTable(FieldMonitoringSetup);
-        Assert.IsTrue(FieldMonitoringSetup."Monitor Status", 'Monitor should be enabled after running the wizard');
-        Assert.AreEqual(User."User Name", FieldMonitoringSetup."User Id", 'User assigned in wizard setup is not in setup table');
-
-        MonitorFieldTestHelper.AssertMonitoredFieldAddedCorrectly(Database::"Test Table C", TestTableC.FieldNo("Integer Field"));
-        Assert.IsTrue(MonitorFieldTestHelper.EntryExists(Database::"Field Monitoring Setup", FieldMonitoringSetup.FieldNo(FieldMonitoringSetup."Monitor Status"), 'false', 'true'),
-            'Enable entry should create an entry');
-        Assert.IsTrue(MonitorFieldTestHelper.EntryExists(Database::"Change Log Setup (Field)", ChangeLogSetupField.FieldNo("Table No."), '', Format(Database::"Test Table C")),
-            'Insert monitor record should create an entry with table number');
-        Assert.IsTrue(MonitorFieldTestHelper.EntryExists(Database::"Change Log Setup (Field)", ChangeLogSetupField.FieldNo("Field No."), '', Format(TestTableC.FieldNo("Integer Field"))),
-            'Insert monitor record should create an entry with field number');
-    end;
-
     local procedure CleanUpNotificationBoolean()
     begin
         IsHiddenTableNotificationShown := false;
         IsPromotionNotificationShown := false;
-    end;
-
-    local procedure InsertSensitiveFields()
-    var
-        DataSensitivity: Record "Data Sensitivity";
-        TestTableC: Record "Test Table C";
-        DataClassigication: Codeunit "Data Classification Mgt.";
-    begin
-        DataSensitivity.DeleteAll();
-        DataClassigication.InsertDataSensitivityForField(Database::"Test Table C", TestTableC.FieldNo(TestTableC."Integer Field"), DataSensitivity."Data Sensitivity"::Sensitive);
     end;
 
     [Normal]
@@ -262,19 +233,6 @@ codeunit 139064 "Monitor Sensitive Field Test"
         User."Contact Email" := CopyStr(ContactEmail, 1, 80);
         User.State := User.State::Enabled;
         User.Insert();
-    end;
-
-    local procedure SetMonitorSetup(EnableMonitor: Boolean)
-    var
-        FieldMonitoringSetup: Record "Field Monitoring Setup";
-    begin
-        if FieldMonitoringSetup.Get() then begin
-            FieldMonitoringSetup."Monitor Status" := EnableMonitor;
-            FieldMonitoringSetup.Modify();
-        end else begin
-            FieldMonitoringSetup."Monitor Status" := EnableMonitor;
-            FieldMonitoringSetup.Insert();
-        end;
     end;
 
     [ConfirmHandler]
@@ -309,4 +267,3 @@ codeunit 139064 "Monitor Sensitive Field Test"
         UserNotFoundErr: Label 'To start monitoring fields, you must specify the user who will receive notification emails when field values change.', Locked = true;
         D365MonitorFields: Label 'D365 Monitor Fields', Locked = true;
 }
-

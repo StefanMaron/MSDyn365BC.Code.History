@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+#pragma warning disable AA0247
 codeunit 1310 "O365 Activities Dictionary"
 {
     var
@@ -12,10 +17,10 @@ codeunit 1310 "O365 Activities Dictionary"
     begin
         Inputs := Page.GetBackgroundParameters();
 
-        foreach Input in Inputs.Keys do
+        foreach Input in Inputs.Keys() do
             case Input of
                 ActivitiesCue.FieldName("Sales This Month"):
-                    Results.Add(ActivitiesCue.FieldName("Sales This Month"), Format(ActivitiesMgt.CalcSalesThisMonthAmount(false, true)));
+                    Results.Add(ActivitiesCue.FieldName("Sales This Month"), Format(ActivitiesMgt.CalcSalesThisMonthAmount(false)));
                 ActivitiesCue.FieldName("Overdue Sales Invoice Amount"):
                     Results.Add(ActivitiesCue.FieldName("Overdue Sales Invoice Amount"), Format(ActivitiesMgt.OverdueSalesInvoiceAmount(false, true)));
                 ActivitiesCue.FieldName("Overdue Purch. Invoice Amount"):

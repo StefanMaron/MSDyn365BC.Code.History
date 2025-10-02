@@ -14,8 +14,6 @@ codeunit 132200 "Library - Costing"
         LibraryERM: Codeunit "Library - ERM";
         IncorrectCostTxt: Label 'Incorrect Cost Amount in Entry No. %1.';
         IncorrectRoundingTxt: Label 'Rounding mismatch of %1 for Inbound Entry No. %2.';
-        OutputConsumpMismatchTxt: Label 'Output Cost in Prod. Order %1, line %2 does not match Consumption.';
-        OutputVarianceMismatchTxt: Label 'Output Cost including Variance in Prod. Order %1, line %2 does not match total Standard Cost of Produced Item.';
         ShouldBeOfRecordTypeErr: Label 'Applies-To should be of type Record.';
         TempPathTxt: Label '%1%2.html', Comment = '%1 = Temporary Path, %2 = Document No.';
         WrongRecordTypeErr: Label 'Wrong Record Type.';
@@ -299,56 +297,17 @@ codeunit 132200 "Library - Costing"
         end;
     end;
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure CheckProductionOrderCost(ProdOrder: Record "Production Order"; VerifyVarianceinOutput: Boolean)
     var
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
-        ProdOrderLine: Record "Prod. Order Line";
-        ConsumptionCost: Decimal;
-        OutpuCostwithoutVariance: Decimal;
-        OutputCostinclVariance: Decimal;
-        RefOutputCostinclVariance: Decimal;
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        ProdOrderLine.SetRange(Status, ProdOrder.Status);
-        ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
-        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
-        ItemLedgerEntry.SetRange("Order No.", ProdOrder."No.");
-        if ProdOrderLine.FindSet() then begin
-            OutpuCostwithoutVariance := 0;
-            ConsumptionCost := 0;
-            repeat
-                ItemLedgerEntry.SetRange("Order Line No.", ProdOrderLine."Line No.");
-                if ItemLedgerEntry.FindSet() then
-                    repeat
-                        ItemLedgerEntry.CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
-                        if ItemLedgerEntry."Entry Type" = ItemLedgerEntry."Entry Type"::Consumption then
-                            ConsumptionCost += ItemLedgerEntry."Cost Amount (Expected)" + ItemLedgerEntry."Cost Amount (Actual)"
-                        else
-                            if ItemLedgerEntry."Entry Type" = ItemLedgerEntry."Entry Type"::Output then begin
-                                ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
-                                if VerifyVarianceinOutput then begin
-                                    ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
-                                    ValueEntry.CalcSums("Cost Amount (Actual)");
-                                    OutputCostinclVariance := Round(ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision());
-                                end;
-                                ValueEntry.SetFilter("Entry Type", '<>%1', ValueEntry."Entry Type"::Variance);
-                                ValueEntry.CalcSums("Cost Amount (Actual)");
-                                OutpuCostwithoutVariance += ValueEntry."Cost Amount (Actual)";
-                            end;
-                    until ItemLedgerEntry.Next() = 0;
-                Assert.AreEqual(
-                  -ConsumptionCost, OutpuCostwithoutVariance,
-                  StrSubstNo(OutputConsumpMismatchTxt, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No."));
-                if VerifyVarianceinOutput then begin
-                    RefOutputCostinclVariance :=
-                      Round(ProdOrderLine."Unit Cost" * ProdOrderLine.Quantity, LibraryERM.GetAmountRoundingPrecision());
-                    Assert.AreEqual(
-                      -RefOutputCostinclVariance, OutputCostinclVariance,
-                      StrSubstNo(OutputVarianceMismatchTxt, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No."));
-                end;
-            until ProdOrderLine.Next() = 0;
-        end;
+        LibraryManufacturing.CheckProductionOrderCost(ProdOrder, VerifyVarianceinOutput);
     end;
+#pragma warning restore AL0801
+#endif
 
 #if not CLEAN25
     procedure CreatePurchasePrice(var PurchasePrice: Record "Purchase Price"; VendorNo: Code[20]; ItemNo: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal)
@@ -512,33 +471,17 @@ codeunit 132200 "Library - Costing"
         exit(Round(Amount, LibraryERM.GetAmountRoundingPrecision(), '='));
     end;
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure SuggestCapacityStandardCost(var WorkCenter: Record "Work Center"; var MachineCenter: Record "Machine Center"; StandardCostWorksheetName: Code[10]; StandardCostAdjustmentFactor: Integer; StandardCostRoundingMethod: Code[10])
     var
-        TmpWorkCenter: Record "Work Center";
-        TmpMachineCenter: Record "Machine Center";
-        SuggestCapacityStandardCostReport: Report "Suggest Capacity Standard Cost";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        Clear(SuggestCapacityStandardCostReport);
-        SuggestCapacityStandardCostReport.Initialize(
-          StandardCostWorksheetName, StandardCostAdjustmentFactor, 0, 0, StandardCostRoundingMethod, '', '');
-        if WorkCenter.HasFilter then
-            TmpWorkCenter.CopyFilters(WorkCenter)
-        else begin
-            WorkCenter.Get(WorkCenter."No.");
-            TmpWorkCenter.SetRange("No.", WorkCenter."No.");
-        end;
-        SuggestCapacityStandardCostReport.SetTableView(TmpWorkCenter);
-
-        if MachineCenter.HasFilter then
-            TmpMachineCenter.CopyFilters(MachineCenter)
-        else begin
-            MachineCenter.Get(MachineCenter."No.");
-            TmpMachineCenter.SetRange("No.", MachineCenter."No.");
-        end;
-        SuggestCapacityStandardCostReport.SetTableView(TmpMachineCenter);
-        SuggestCapacityStandardCostReport.UseRequestPage(false);
-        SuggestCapacityStandardCostReport.Run();
+        LibraryManufacturing.SuggestCapacityStandardCost(WorkCenter, MachineCenter, StandardCostWorksheetName, StandardCostAdjustmentFactor, StandardCostRoundingMethod);
     end;
+#pragma warning restore AL0801
+#endif
 
 #if not CLEAN25
 #pragma warning disable AS0072
@@ -615,24 +558,17 @@ codeunit 132200 "Library - Costing"
         SuggestItemStandardCostReport.Run();
     end;
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure UpdateUnitCost(var ProductionOrder: Record "Production Order"; CalcMethod: Option; UpdateReservations: Boolean)
     var
-        TmpProductionOrder: Record "Production Order";
-        UpdateUnitCostReport: Report "Update Unit Cost";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
     begin
-        Clear(UpdateUnitCostReport);
-        UpdateUnitCostReport.InitializeRequest(CalcMethod, UpdateReservations);
-        if ProductionOrder.HasFilter then
-            TmpProductionOrder.CopyFilters(ProductionOrder)
-        else begin
-            ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
-            TmpProductionOrder.SetRange(Status, ProductionOrder.Status);
-            TmpProductionOrder.SetRange("No.", ProductionOrder."No.");
-        end;
-        UpdateUnitCostReport.SetTableView(TmpProductionOrder);
-        UpdateUnitCostReport.UseRequestPage(false);
-        UpdateUnitCostReport.Run();
+        LibraryManufacturing.UpdateUnitCost(ProductionOrder, CalcMethod, UpdateReservations);
     end;
+#pragma warning restore AL0801
+#endif
 
     local procedure UpdateBufferforRoundingCheck(var TempItemJournalBuffer: Record "Item Journal Buffer" temporary; EntryNo: Integer; Quantity: Decimal; CostAmount: Decimal)
     begin

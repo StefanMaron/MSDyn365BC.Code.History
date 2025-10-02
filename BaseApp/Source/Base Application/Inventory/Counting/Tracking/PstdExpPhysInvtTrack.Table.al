@@ -10,17 +10,11 @@ using Microsoft.Inventory.Counting.History;
 table 5887 "Pstd. Exp. Phys. Invt. Track"
 {
     Caption = 'Pstd. Exp. Phys. Invt. Track';
+    DataClassification = CustomerContent;
     ObsoleteReason = 'Replaced by table Posted.Exp.Invt.Order.Tracking.';
-#if not CLEAN24
-    DrillDownPageID = "Posted Exp. Phys. Invt. Track";
-    LookupPageID = "Posted Exp. Phys. Invt. Track";
-    ObsoleteState = Pending;
-    ObsoleteTag = '24.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '27.0';
-#endif
-    DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {
@@ -62,5 +56,5 @@ table 5887 "Pstd. Exp. Phys. Invt. Track"
     }
 }
 
- 
+
 #endif

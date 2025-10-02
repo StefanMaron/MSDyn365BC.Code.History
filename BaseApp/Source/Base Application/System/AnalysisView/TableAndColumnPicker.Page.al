@@ -37,7 +37,8 @@ page 9643 "Table and Column Picker"
                 var
                     TableRelationsBuffer: Record "Table Relations Buffer";
                 begin
-                    Selected.SetTable(TableRelationsBuffer);
+                    TableRelationsBuffer := Selected;
+
                     IsTableSet := true;
 
                     RelatedTableName := StrSubstNo(TableRelationNameLbl, TableRelationsBuffer."Related Table Name", TableRelationsBuffer."Field Name", TableRelationsBuffer."Related Field Name");

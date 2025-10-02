@@ -111,10 +111,10 @@ codeunit 134152 "ERM Intercompany II"
         // [THEN] IC Inbox contains 2 transactions from IC Partner "B": Sales Document and Purchase Document.
         ICInboxTransaction.Reset();
         ICInboxTransaction.SetRange("IC Partner Code", ICPartnerCode[2]);
-        ICInboxTransaction.SetRange("Source Type", ICInboxTransaction."Source Type"::"Sales Document");
+        ICInboxTransaction.SetRange("IC Source Type", ICInboxTransaction."IC Source Type"::"Sales Document");
         ICInboxTransaction.FindFirst();
         ICInboxTransaction.TestField("Document No.", PurchaseHeader."No.");
-        ICInboxTransaction.SetRange("Source Type", ICInboxTransaction."Source Type"::"Purchase Document");
+        ICInboxTransaction.SetRange("IC Source Type", ICInboxTransaction."IC Source Type"::"Purchase Document");
         ICInboxTransaction.FindFirst();
         ICInboxTransaction.TestField("Document No.", SalesHeader."No.");
 
@@ -4548,7 +4548,7 @@ codeunit 134152 "ERM Intercompany II"
           PurchaseHeader, SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, VendorNo);
         FindPurchLine(PurchaseLine, PurchaseHeader);
 
-        // [THEN] Verify VAT Difference on Purchase Line is Same as it was set on Sales Line 
+        // [THEN] Verify VAT Difference on Purchase Line is Same as it was set on Sales Line
         PurchaseLine.TestField("VAT Difference", SalesLine."VAT Difference");
     end;
 
@@ -5595,18 +5595,6 @@ codeunit 134152 "ERM Intercompany II"
         TrackingSpecification.Insert();
     end;
 
-    local procedure SendSalesDocumentReceivePurchaseDocument(var SalesHeader: Record "Sales Header"; var PurchaseHeader: Record "Purchase Header"; ICPartnerCode: Code[10]; VendorNo: Code[20])
-    var
-        ICOutboxTransaction: Record "IC Outbox Transaction";
-        ICInboxTransaction: Record "IC Inbox Transaction";
-        ICInboxPurchaseHeader: Record "IC Inbox Purchase Header";
-    begin
-        SendICSalesDocument(
-          SalesHeader, ICPartnerCode, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader);
-        ReceiveICPurchaseDocument(
-          PurchaseHeader, SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, VendorNo);
-    end;
-
     local procedure SendPurchaseDocumentReceiveSalesDocument(var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; ICPartnerCode: Code[20]; CustomerNo: Code[20])
     var
         ICOutboxTransaction: Record "IC Outbox Transaction";
@@ -5949,14 +5937,6 @@ codeunit 134152 "ERM Intercompany II"
         GLEntry.SetRange("G/L Account No.", AccountNo);
     end;
 
-    local procedure GetBaseUoMFromItem(ItemNo: Code[20]): Code[10]
-    var
-        Item: Record Item;
-    begin
-        Item.Get(ItemNo);
-        exit(Item."Base Unit of Measure");
-    end;
-
     local procedure MockSendReceivePurchDocument(var PurchaseHeaderToSend: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; ICPartnerCodeVendor: Code[20]; LocationCode: Code[10])
     var
         CustomerNo: Code[20];
@@ -6160,32 +6140,6 @@ codeunit 134152 "ERM Intercompany II"
         ICPartner.Validate("Outbound Purch. Item No. Type", OutboundType);
         ICPartner.Validate("Outbound Sales Item No. Type", OutboundType);
         ICPartner.Modify(true);
-    end;
-
-    local procedure UpdatePurchaseLineWithItemRef(PurchaseHeader: Record "Purchase Header")
-    var
-        PurchaseLine: Record "Purchase Line";
-        DummyItemReference: Record "Item Reference";
-    begin
-        FindPurchLine(PurchaseLine, PurchaseHeader);
-        CreateItemReference(PurchaseLine."No.", '', PurchaseLine."Unit of Measure Code",
-          DummyItemReference."Reference Type"::Vendor, PurchaseLine."Buy-from Vendor No.",
-          LibraryInventory.CreateItemNo());
-        PurchaseLine.Validate("No.");
-        PurchaseLine.Modify(true);
-    end;
-
-    local procedure UpdateSalesLineWithItemRef(SalesHeader: Record "Sales Header")
-    var
-        SalesLine: Record "Sales Line";
-        DummyItemReference: Record "Item Reference";
-    begin
-        FindSalesLine(SalesLine, SalesHeader);
-        CreateItemReference(SalesLine."No.", '', SalesLine."Unit of Measure Code",
-          DummyItemReference."Reference Type"::Customer, SalesLine."Sell-to Customer No.",
-          LibraryInventory.CreateItemNo());
-        SalesLine.Validate("No.");
-        SalesLine.Modify(true);
     end;
 
     local procedure UpdateLCYCodeInGLSetup()
@@ -6473,64 +6427,6 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreEqual(PurchInvLine."Location Code", PurchaseHeader."Location Code", 'Error location code');
     end;
 
-    local procedure VerifySalesDocItemRefInfo(SalesHeader: Record "Sales Header"; PurchaseHeader: Record "Purchase Header")
-    var
-        SalesLine: Record "Sales Line";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        FindPurchLine(PurchaseLine, PurchaseHeader);
-        FindSalesLine(SalesLine, SalesHeader);
-        Assert.AreEqual(
-          PurchaseLine."No.",
-          SalesLine."No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("No.")));
-        Assert.AreEqual(
-          PurchaseLine."Item Reference No.",
-          SalesLine."Item Reference No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("Item Reference No.")));
-        Assert.AreEqual(
-          PurchaseLine."Variant Code",
-          SalesLine."Variant Code",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("Variant Code")));
-        Assert.AreEqual(
-          SalesLine."IC Partner Ref. Type"::"Cross Reference",
-          SalesLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("IC Partner Ref. Type")));
-        Assert.AreEqual(
-          PurchaseLine."Item Reference No.",
-          SalesLine."IC Item Reference No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("IC Item Reference No.")));
-    end;
-
-    local procedure VerifyPurchDocItemRefInfo(PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
-    var
-        SalesLine: Record "Sales Line";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        FindSalesLine(SalesLine, SalesHeader);
-        FindPurchLine(PurchaseLine, PurchaseHeader);
-        Assert.AreEqual(
-          SalesLine."No.",
-          PurchaseLine."No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("No.")));
-        Assert.AreEqual(
-          SalesLine."Item Reference No.",
-          PurchaseLine."Item Reference No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("Item Reference No.")));
-        Assert.AreEqual(
-          SalesLine."Variant Code",
-          PurchaseLine."Variant Code",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("Variant Code")));
-        Assert.AreEqual(
-          PurchaseLine."IC Partner Ref. Type"::"Cross Reference",
-          PurchaseLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("IC Partner Ref. Type")));
-        Assert.AreEqual(
-          SalesLine."Item Reference No.",
-          PurchaseLine."IC Item Reference No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("IC Item Reference No.")));
-    end;
-
     local procedure VerifyReservationEntryExists(DocumentType: Option; DocumentNo: Code[20])
     var
         ReservationEntry: Record "Reservation Entry";
@@ -6604,44 +6500,6 @@ codeunit 134152 "ERM Intercompany II"
           ICOutboxTransaction."Document No.", ICOutboxPurchaseLine."Document Type"::Order);
         Assert.AreEqual(ICOutboxPurchaseLine."IC Partner Ref. Type"::"Common Item No.", ICOutboxPurchaseLine."IC Partner Ref. Type", ICOutboxPurchaseLine.FieldCaption("IC Partner Ref. Type"));
         Assert.AreEqual(ExpectedCommonItemNo, ICOutboxPurchaseLine."IC Partner Reference", ICOutboxPurchaseLine.FieldCaption("IC Partner Reference"));
-    end;
-
-    local procedure VerifyPurchDocItemInfo(PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
-    var
-        SalesLine: Record "Sales Line";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        FindSalesLine(SalesLine, SalesHeader);
-        FindPurchLine(PurchaseLine, PurchaseHeader);
-
-        Assert.AreEqual(
-          PurchaseLine."IC Partner Ref. Type"::Item,
-          PurchaseLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("IC Partner Ref. Type")));
-
-        Assert.AreEqual(
-          SalesLine."IC Partner Reference",
-          PurchaseLine."No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("No.")));
-    end;
-
-    local procedure VerifySalesDocItemInfo(SalesHeader: Record "Sales Header"; PurchaseHeader: Record "Purchase Header")
-    var
-        SalesLine: Record "Sales Line";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        FindPurchLine(PurchaseLine, PurchaseHeader);
-        FindSalesLine(SalesLine, SalesHeader);
-
-        Assert.AreEqual(
-          SalesLine."IC Partner Ref. Type"::Item,
-          SalesLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("IC Partner Ref. Type")));
-
-        Assert.AreEqual(
-          PurchaseLine."IC Partner Reference",
-          SalesLine."No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("No.")));
     end;
 
     local procedure VerifyICOutboxPurchaseLineICPartnerReference(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
@@ -6906,14 +6764,14 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddPurchDocsCreate();
 
-        // [GIVEN] Create IC Partner Code. 
+        // [GIVEN] Create IC Partner Code.
         ICPartnerCode := CreateICPartnerWithInbox();
 
         // [GIVEN] Create IC Vendor.
         Vendor.Get(CreateICVendor(ICPartnerCode));
         ICOutboxTransaction.DeleteAll();
 
-        // [GIVEN] Create Two Purchase Order with IC Partner.        
+        // [GIVEN] Create Two Purchase Order with IC Partner.
         CreatePurchaseDocument(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Order, Vendor."No.", CreateItem());
         CreatePurchaseDocument(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Order, Vendor."No.", CreateItem());
 
@@ -6921,7 +6779,7 @@ codeunit 134152 "ERM Intercompany II"
         PurchaseHeaderUI.SetFilter("No.", '%1|%2', PurchaseHeader[1]."No.", PurchaseHeader[2]."No.");
         PurchaseHeaderUI.SendICPurchaseDoc(PurchaseHeaderUI);
 
-        // [THEN] Verify Multiple Purchase Orders are sent. 
+        // [THEN] Verify Multiple Purchase Orders are sent.
         VerifyICOutboxTransaction(
             ICOutboxTransaction,
             ICOutboxTransaction."Document Type"::Order,
@@ -6949,14 +6807,14 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         LibraryLowerPermissions.AddPurchDocsCreate();
 
-        // [GIVEN] Create IC Partner Code. 
+        // [GIVEN] Create IC Partner Code.
         ICPartnerCode := CreateICPartnerWithInbox();
 
         // [GIVEN] Create IC Customer.
         Customer.Get(CreateICCustomer(ICPartnerCode));
         ICOutboxTransaction.DeleteAll();
 
-        // [GIVEN] Create Two Sales Order with IC Partner.        
+        // [GIVEN] Create Two Sales Order with IC Partner.
         CreateSalesDocument(SalesHeader[1], SalesHeader[1]."Document Type"::Order, Customer."No.", CreateItem());
         CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Order, Customer."No.", CreateItem());
 
@@ -6964,7 +6822,7 @@ codeunit 134152 "ERM Intercompany II"
         SalesHeaderUI.SetFilter("No.", '%1|%2', SalesHeader[1]."No.", SalesHeader[2]."No.");
         SalesHeaderUI.SendICSalesDoc(SalesHeaderUI);
 
-        // [THEN] Verify Multiple Sales Orders are sent. 
+        // [THEN] Verify Multiple Sales Orders are sent.
         VerifyICOutboxTransaction(
             ICOutboxTransaction,
             ICOutboxTransaction."Document Type"::Order,
@@ -7169,4 +7027,3 @@ codeunit 134152 "ERM Intercompany II"
         Assert.RecordCount(ICOutboxTransaction, ExpectedCount);
     end;
 }
-

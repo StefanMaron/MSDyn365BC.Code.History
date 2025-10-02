@@ -6,6 +6,7 @@
 namespace Microsoft.DemoData.Service;
 
 using Microsoft.Service.Setup;
+using Microsoft.DemoTool.Helpers;
 
 codeunit 5103 "Create Svc Setup"
 {
@@ -60,6 +61,8 @@ codeunit 5103 "Create Svc Setup"
 
         if ServiceMgtSetup."Service Item Nos." = '' then
             ServiceMgtSetup.Validate("Service Item Nos.", SevNoSeries.ServiceItem());
+        if ServiceMgtSetup."Loaner Nos." = '' then
+            ServiceMgtSetup.Validate("Loaner Nos.", SevNoSeries.ServiceLoaner());
         if ServiceMgtSetup."Service Order Nos." = '' then
             ServiceMgtSetup.Validate("Service Order Nos.", SevNoSeries.ServiceOrder());
         if ServiceMgtSetup."Service Invoice Nos." = '' then
@@ -78,6 +81,8 @@ codeunit 5103 "Create Svc Setup"
             ServiceMgtSetup.Validate("Service Credit Memo Nos.", SevNoSeries.ServiceCreditMemo());
         if ServiceMgtSetup."Posted Serv. Credit Memo Nos." = '' then
             ServiceMgtSetup.Validate("Posted Serv. Credit Memo Nos.", SevNoSeries.PostedServiceCreditMemo());
+        if ServiceMgtSetup."Troubleshooting Nos." = '' then
+            ServiceMgtSetup.Validate("Troubleshooting Nos.", SevNoSeries.ServiceTroubleShooting());
 
         ServiceMgtSetup.Validate("Base Calendar Code", DefaultBaseCalendar());
 

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Resources.Ledger;
 
 report 1103 "Resource Register"
@@ -175,6 +179,8 @@ report 1103 "Resource Register"
 
     requestpage
     {
+        AboutTitle = 'About Resource Register';
+        AboutText = 'Document a resource register''s contents for internal or external audits.';
 
         layout
         {

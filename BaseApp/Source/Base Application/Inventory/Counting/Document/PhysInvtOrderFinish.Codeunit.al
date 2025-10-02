@@ -32,9 +32,6 @@ codeunit 5880 "Phys. Invt. Order-Finish"
         PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
         Item: Record Item;
         PhysInvtRecordLine: Record "Phys. Invt. Record Line";
-#if not CLEAN24
-        TempPhysInvtTrackingBuffer: Record "Phys. Invt. Tracking" temporary;
-#endif
         TempInvtOrderTrackingBuffer: Record "Invt. Order Tracking" temporary;
         PhysInvtTrackingMgt: Codeunit "Phys. Invt. Tracking Mgt.";
         Window: Dialog;
@@ -101,21 +98,10 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                     then begin
                         PhysInvtOrderLine."Pos. Qty. (Base)" := 0;
                         PhysInvtOrderLine."Neg. Qty. (Base)" := 0;
-#if not CLEAN24
-                        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-                            TempPhysInvtTrackingBuffer.Reset();
-                            TempPhysInvtTrackingBuffer.DeleteAll();
-                            CreateTrackingBufferLines(PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.");
-                            CreateReservEntries(PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.", true, 0);
-                        end else begin
-#endif
-                            TempInvtOrderTrackingBuffer.Reset();
-                            TempInvtOrderTrackingBuffer.DeleteAll();
-                            CreateOrderTrackingBufferLines(PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.");
-                            CreateReservationEntries(PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.", true, 0);
-#if not CLEAN24
-                        end;
-#endif
+                        TempInvtOrderTrackingBuffer.Reset();
+                        TempInvtOrderTrackingBuffer.DeleteAll();
+                        CreateOrderTrackingBufferLines(PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.");
+                        CreateReservationEntries(PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.", true, 0);
                     end else
                         if PhysInvtOrderLine."Entry Type" = PhysInvtOrderLine."Entry Type"::"Positive Adjmt." then
                             PhysInvtOrderLine."Pos. Qty. (Base)" := PhysInvtOrderLine."Quantity (Base)"
@@ -146,17 +132,8 @@ codeunit 5880 "Phys. Invt. Order-Finish"
 
                     Item.Get(PhysInvtOrderLine."Item No.");
                     if IsBinMandatoryNoWhseTracking(Item, PhysInvtOrderLine."Location Code") then begin
-#if not CLEAN24
-                        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-                            TempPhysInvtTrackingBuffer.Reset();
-                            TempPhysInvtTrackingBuffer.DeleteAll();
-                        end else begin
-#endif
-                            TempInvtOrderTrackingBuffer.Reset();
-                            TempInvtOrderTrackingBuffer.DeleteAll();
-#if not CLEAN24
-                        end;
-#endif
+                        TempInvtOrderTrackingBuffer.Reset();
+                        TempInvtOrderTrackingBuffer.DeleteAll();
                         UpdateBufferFromItemLedgerEntries(PhysInvtOrderLine);
 
                         SetPhysInvtRecordLineFilters();
@@ -169,36 +146,13 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                                 PhysInvtRecordLine.SetFilter("Quantity (Base)", '<>%1', 0);
                                 if PhysInvtRecordLine.Find('-') then
                                     repeat
-#if not CLEAN24
-                                        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-                                            UpdateBufferRecordedQty(
-                                                PhysInvtRecordLine."Serial No.", PhysInvtRecordLine."Lot No.", PhysInvtRecordLine."Quantity (Base)", PhysInvtOrderLine2."Line No.");
-                                            OnCodeOnAfterUpdateFromPhysInvtRecordLine(TempPhysInvtTrackingBuffer, PhysInvtRecordLine);
-                                        end else begin
-#endif
-                                            ItemTrackingSetup."Serial No." := PhysInvtRecordLine."Serial No.";
-                                            ItemTrackingSetup."Lot No." := PhysInvtRecordLine."Lot No.";
-                                            ItemTrackingSetup."Package No." := PhysInvtRecordLine."Package No.";
-                                            UpdateBufferRecordedQty(ItemTrackingSetup, PhysInvtRecordLine."Quantity (Base)", PhysInvtOrderLine2."Line No.");
-                                            OnCodeOnAfterUpdateFromPhysInvtRecordLine2(TempInvtOrderTrackingBuffer, PhysInvtRecordLine);
-#if not CLEAN24
-                                        end;
-#endif
+                                        ItemTrackingSetup."Serial No." := PhysInvtRecordLine."Serial No.";
+                                        ItemTrackingSetup."Lot No." := PhysInvtRecordLine."Lot No.";
+                                        ItemTrackingSetup."Package No." := PhysInvtRecordLine."Package No.";
+                                        UpdateBufferRecordedQty(ItemTrackingSetup, PhysInvtRecordLine."Quantity (Base)", PhysInvtOrderLine2."Line No.");
+                                        OnCodeOnAfterUpdateFromPhysInvtRecordLine2(TempInvtOrderTrackingBuffer, PhysInvtRecordLine);
                                     until PhysInvtRecordLine.Next() = 0;
                             until PhysInvtOrderLine2.Next() = 0;
-#if not CLEAN24
-                        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-                            TempPhysInvtTrackingBuffer.Reset();
-                            if TempPhysInvtTrackingBuffer.Find('-') then
-                                repeat
-                                    TempPhysInvtTrackingBuffer."Qty. To Transfer" :=
-                                        TempPhysInvtTrackingBuffer."Qty. Recorded (Base)" - TempPhysInvtTrackingBuffer."Qty. Expected (Base)";
-                                    TempPhysInvtTrackingBuffer."Outstanding Quantity" := TempPhysInvtTrackingBuffer."Qty. To Transfer";
-                                    TempPhysInvtTrackingBuffer.Open := TempPhysInvtTrackingBuffer."Outstanding Quantity" <> 0;
-                                    TempPhysInvtTrackingBuffer.Modify();
-                                until TempPhysInvtTrackingBuffer.Next() = 0;
-                        end else begin
-#endif
                             TempInvtOrderTrackingBuffer.Reset();
                             if TempInvtOrderTrackingBuffer.Find('-') then
                                 repeat
@@ -208,9 +162,6 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                                     TempInvtOrderTrackingBuffer.Open := TempInvtOrderTrackingBuffer."Outstanding Quantity" <> 0;
                                     TempInvtOrderTrackingBuffer.Modify();
                                 until TempInvtOrderTrackingBuffer.Next() = 0;
-#if not CLEAN24
-                        end;
-#endif
                         if PhysInvtOrderLine2.Find('-') then
                             repeat
                                 if PhysInvtOrderLine2."Entry Type" = PhysInvtOrderLine2."Entry Type"::"Positive Adjmt." then
@@ -222,16 +173,9 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                                     IsHandled := false;
                                     OnCodeOnBeforeCreateReservEntries(PhysInvtOrderLine2, IsHandled);
                                     if not IsHandled then
-#if not CLEAN24
-                                            if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then
-                                            CreateReservEntries(
-                                                PhysInvtOrderLine2."Document No.", PhysInvtOrderLine2."Line No.", false,
-                                                PhysInvtOrderLine2."Quantity (Base)")
-                                        else
-#endif
-                                                CreateReservationEntries(
-                                                    PhysInvtOrderLine2."Document No.", PhysInvtOrderLine2."Line No.", false,
-                                                    PhysInvtOrderLine2."Quantity (Base)");
+                                        CreateReservationEntries(
+                                            PhysInvtOrderLine2."Document No.", PhysInvtOrderLine2."Line No.", false,
+                                            PhysInvtOrderLine2."Quantity (Base)");
                                 end;
                                 IsHandled := false;
                                 OnCodeOnBeforePhysInvtOrderLine2CalcCosts(PhysInvtOrderLine2, IsHandled);
@@ -277,46 +221,6 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                 Error(ErrorText);
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by procedure CreateOrderTrackingBufferLines()', '24.0')]
-    procedure CreateTrackingBufferLines(DocNo: Code[20]; LineNo: Integer)
-    var
-        ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking";
-    begin
-        PhysInvtRecordLine.Reset();
-        PhysInvtRecordLine.SetCurrentKey("Order No.", "Order Line No.");
-        PhysInvtRecordLine.SetRange("Order No.", DocNo);
-        PhysInvtRecordLine.SetRange("Order Line No.", LineNo);
-        if PhysInvtRecordLine.Find('-') then
-            repeat
-                if PhysInvtRecordLine."Quantity (Base)" <> 0 then
-                    UpdateBufferRecordedQty(
-                      PhysInvtRecordLine."Serial No.", PhysInvtRecordLine."Lot No.", PhysInvtRecordLine."Quantity (Base)", LineNo);
-                OnCreateTrackingBufferLinesFromPhysInvtRecordLine(TempPhysInvtTrackingBuffer, PhysInvtRecordLine);
-            until PhysInvtRecordLine.Next() = 0;
-
-        ExpPhysInvtTracking.Reset();
-        ExpPhysInvtTracking.SetRange("Order No", DocNo);
-        ExpPhysInvtTracking.SetRange("Order Line No.", LineNo);
-        if ExpPhysInvtTracking.Find('-') then
-            repeat
-                UpdateBufferExpectedQty(
-                  ExpPhysInvtTracking."Serial No.", ExpPhysInvtTracking."Lot No.", ExpPhysInvtTracking."Quantity (Base)", LineNo);
-                OnCreateTrackingBufferLinesFromExpPhysInvtTracking(TempPhysInvtTrackingBuffer, ExpPhysInvtTracking);
-            until ExpPhysInvtTracking.Next() = 0;
-
-        TempPhysInvtTrackingBuffer.Reset();
-        if TempPhysInvtTrackingBuffer.Find('-') then
-            repeat
-                TempPhysInvtTrackingBuffer."Qty. To Transfer" :=
-                  TempPhysInvtTrackingBuffer."Qty. Recorded (Base)" - TempPhysInvtTrackingBuffer."Qty. Expected (Base)";
-                TempPhysInvtTrackingBuffer."Outstanding Quantity" := TempPhysInvtTrackingBuffer."Qty. To Transfer";
-                TempPhysInvtTrackingBuffer.Open := TempPhysInvtTrackingBuffer."Outstanding Quantity" <> 0;
-                TempPhysInvtTrackingBuffer.Modify();
-            until TempPhysInvtTrackingBuffer.Next() = 0;
-    end;
-#endif
-
     procedure CreateOrderTrackingBufferLines(DocNo: Code[20]; LineNo: Integer)
     var
         ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking";
@@ -358,61 +262,6 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                 TempInvtOrderTrackingBuffer.Modify();
             until TempInvtOrderTrackingBuffer.Next() = 0;
     end;
-
-#if not CLEAN24
-    [Obsolete('Replaced by procedure CreateReservationEntries()', '24.0')]
-    procedure CreateReservEntries(DocNo: Code[20]; LineNo: Integer; AllBufferLines: Boolean; MaxQtyToTransfer: Decimal)
-    var
-        ReservEntry: Record "Reservation Entry";
-        RecRef: RecordRef;
-        QtyToTransfer: Decimal;
-    begin
-        TempPhysInvtTrackingBuffer.Reset();
-        TempPhysInvtTrackingBuffer.SetCurrentKey(Open);
-        TempPhysInvtTrackingBuffer.SetRange(Open, true);
-        if TempPhysInvtTrackingBuffer.FindSet() then
-            repeat
-                QtyToTransfer := CalculateQtyToTransfer(AllBufferLines, MaxQtyToTransfer);
-                if QtyToTransfer <> 0 then begin
-                    ReservEntry.Init();
-                    ReservEntry."Entry No." := 0;
-                    ReservEntry.Positive := QtyToTransfer > 0;
-                    ReservEntry.Validate("Item No.", PhysInvtOrderLine."Item No.");
-                    ReservEntry.Validate("Variant Code", PhysInvtOrderLine."Variant Code");
-                    ReservEntry.Validate("Location Code", PhysInvtOrderLine."Location Code");
-                    ReservEntry.Validate("Serial No.", TempPhysInvtTrackingBuffer."Serial No.");
-                    ReservEntry.Validate("Lot No.", TempPhysInvtTrackingBuffer."Lot No");
-                    ReservEntry.Validate("Source Type", DATABASE::"Phys. Invt. Order Line");
-                    ReservEntry.Validate("Source ID", DocNo);
-                    ReservEntry.Validate("Source Ref. No.", TempPhysInvtTrackingBuffer."Line No.");
-                    ReservEntry.Validate(Quantity, QtyToTransfer);
-                    ReservEntry."Qty. per Unit of Measure" := 1;
-                    ReservEntry."Quantity (Base)" := ReservEntry.Quantity;
-                    ReservEntry."Qty. to Handle (Base)" := ReservEntry.Quantity;
-                    ReservEntry."Qty. to Invoice (Base)" := ReservEntry.Quantity;
-                    ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Prospect;
-                    ReservEntry."Created By" := UserId;
-                    ReservEntry.Validate("Creation Date", WorkDate());
-                    if QtyToTransfer > 0 then begin
-                        ReservEntry."Expected Receipt Date" := PhysInvtOrderHeader."Posting Date";
-                        PhysInvtOrderLine."Pos. Qty. (Base)" += ReservEntry.Quantity;
-                    end else begin
-                        ReservEntry."Shipment Date" := PhysInvtOrderHeader."Posting Date";
-                        PhysInvtOrderLine."Neg. Qty. (Base)" -= ReservEntry.Quantity;
-                    end;
-                    ReservEntry.Insert();
-                    OnCreateReservEntriesOnBeforeInsert(ReservEntry, TempPhysInvtTrackingBuffer, PhysInvtOrderHeader, PhysInvtOrderLine);
-                    RecRef.GetTable(ReservEntry);
-                    if RecRef.IsDirty then
-                        ReservEntry.Modify();
-                end;
-                TempPhysInvtTrackingBuffer."Outstanding Quantity" -= QtyToTransfer;
-                TempPhysInvtTrackingBuffer.Open := TempPhysInvtTrackingBuffer."Outstanding Quantity" <> 0;
-                TempPhysInvtTrackingBuffer.Modify();
-                OnCreateReservEntriesOnAfterTempPhysInvtTrackingBufferModify(AllBufferLines, MaxQtyToTransfer, QtyToTransfer);
-            until TempPhysInvtTrackingBuffer.Next() = 0;
-    end;
-#endif
 
     procedure CreateReservationEntries(DocNo: Code[20]; LineNo: Integer; AllBufferLines: Boolean; MaxQtyToTransfer: Decimal)
     var
@@ -470,41 +319,20 @@ codeunit 5880 "Phys. Invt. Order-Finish"
 
     local procedure CalculateQtyToTransfer(AllBufferLines: Boolean; MaxQtyToTransfer: Decimal) QtyToTransfer: Decimal;
     begin
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-            if AllBufferLines then
-                QtyToTransfer := TempPhysInvtTrackingBuffer."Outstanding Quantity"
-            else
-                if MaxQtyToTransfer > 0 then
-                    if TempPhysInvtTrackingBuffer."Outstanding Quantity" <= MaxQtyToTransfer then
-                        QtyToTransfer := TempPhysInvtTrackingBuffer."Outstanding Quantity"
-                    else
-                        QtyToTransfer := MaxQtyToTransfer
+        if AllBufferLines then
+            QtyToTransfer := TempInvtOrderTrackingBuffer."Outstanding Quantity"
+        else
+            if MaxQtyToTransfer > 0 then
+                if TempInvtOrderTrackingBuffer."Outstanding Quantity" <= MaxQtyToTransfer then
+                    QtyToTransfer := TempInvtOrderTrackingBuffer."Outstanding Quantity"
                 else
-                    if TempPhysInvtTrackingBuffer."Outstanding Quantity" >= MaxQtyToTransfer then
-                        QtyToTransfer := TempPhysInvtTrackingBuffer."Outstanding Quantity"
-                    else
-                        QtyToTransfer := MaxQtyToTransfer;
-            OnAfterCalcQtyToTransfer(TempPhysInvtTrackingBuffer, AllBufferLines, MaxQtyToTransfer, QtyToTransfer);
-        end else begin
-#endif
-            if AllBufferLines then
-                QtyToTransfer := TempInvtOrderTrackingBuffer."Outstanding Quantity"
+                    QtyToTransfer := MaxQtyToTransfer
             else
-                if MaxQtyToTransfer > 0 then
-                    if TempInvtOrderTrackingBuffer."Outstanding Quantity" <= MaxQtyToTransfer then
-                        QtyToTransfer := TempInvtOrderTrackingBuffer."Outstanding Quantity"
-                    else
-                        QtyToTransfer := MaxQtyToTransfer
+                if TempInvtOrderTrackingBuffer."Outstanding Quantity" >= MaxQtyToTransfer then
+                    QtyToTransfer := TempInvtOrderTrackingBuffer."Outstanding Quantity"
                 else
-                    if TempInvtOrderTrackingBuffer."Outstanding Quantity" >= MaxQtyToTransfer then
-                        QtyToTransfer := TempInvtOrderTrackingBuffer."Outstanding Quantity"
-                    else
-                        QtyToTransfer := MaxQtyToTransfer;
-            OnAfterCalculateQtyToTransfer(TempInvtOrderTrackingBuffer, AllBufferLines, MaxQtyToTransfer, QtyToTransfer);
-#if not CLEAN24
-        end;
-#endif
+                    QtyToTransfer := MaxQtyToTransfer;
+        OnAfterCalculateQtyToTransfer(TempInvtOrderTrackingBuffer, AllBufferLines, MaxQtyToTransfer, QtyToTransfer);
     end;
 
     local procedure IsBinMandatoryNoWhseTracking(Item: Record Item; LocationCode: Code[10]): Boolean
@@ -525,52 +353,11 @@ codeunit 5880 "Phys. Invt. Order-Finish"
         ItemLedgerEntry.SetRange("Posting Date", 0D, PhysInvtOrderHeader."Posting Date");
         if ItemLedgerEntry.Find('-') then
             repeat
-#if not CLEAN24
-                if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-                    UpdateBufferExpectedQty(ItemLedgerEntry."Serial No.", ItemLedgerEntry."Lot No.", ItemLedgerEntry.Quantity, PhysInvtOrderLine."Line No.");
-                    OnUpdateBufferFromItemLedgerEntriesOnAfterUpdateExpectedQty(TempPhysInvtTrackingBuffer, ItemLedgerEntry);
-                end else begin
-#endif
-                    ItemTrackingSetup.CopyTrackingFromitemLedgerEntry(ItemLedgerEntry);
-                    UpdateBufferExpectedQty(ItemTrackingSetup, ItemLedgerEntry.Quantity, PhysInvtOrderLine."Line No.");
-                    OnUpdateBufferFromItemLedgerEntriesOnAfterUpdateExpectedQty2(TempInvtOrderTrackingBuffer, ItemLedgerEntry);
-#if not CLEAN24
-                end;
-#endif
+                ItemTrackingSetup.CopyTrackingFromitemLedgerEntry(ItemLedgerEntry);
+                UpdateBufferExpectedQty(ItemTrackingSetup, ItemLedgerEntry.Quantity, PhysInvtOrderLine."Line No.");
+                OnUpdateBufferFromItemLedgerEntriesOnAfterUpdateExpectedQty2(TempInvtOrderTrackingBuffer, ItemLedgerEntry);
             until ItemLedgerEntry.Next() = 0;
     end;
-
-#if not CLEAN24
-    local procedure UpdateBufferExpectedQty(SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal; LineNo: Integer)
-    begin
-        if not TempPhysInvtTrackingBuffer.Get(SerialNo, LotNo) then begin
-            TempPhysInvtTrackingBuffer.Init();
-            TempPhysInvtTrackingBuffer."Serial No." := SerialNo;
-            TempPhysInvtTrackingBuffer."Lot No" := LotNo;
-            TempPhysInvtTrackingBuffer."Qty. Expected (Base)" := QtyBase;
-            TempPhysInvtTrackingBuffer."Line No." := LineNo;
-            TempPhysInvtTrackingBuffer.Insert();
-        end else begin
-            TempPhysInvtTrackingBuffer."Qty. Expected (Base)" += QtyBase;
-            TempPhysInvtTrackingBuffer.Modify();
-        end;
-    end;
-
-    local procedure UpdateBufferRecordedQty(SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal; LineNo: Integer)
-    begin
-        if not TempPhysInvtTrackingBuffer.Get(SerialNo, LotNo) then begin
-            TempPhysInvtTrackingBuffer.Init();
-            TempPhysInvtTrackingBuffer."Serial No." := SerialNo;
-            TempPhysInvtTrackingBuffer."Lot No" := LotNo;
-            TempPhysInvtTrackingBuffer."Qty. Recorded (Base)" := QtyBase;
-            TempPhysInvtTrackingBuffer."Line No." := LineNo;
-            TempPhysInvtTrackingBuffer.Insert();
-        end else begin
-            TempPhysInvtTrackingBuffer."Qty. Recorded (Base)" += QtyBase;
-            TempPhysInvtTrackingBuffer.Modify();
-        end;
-    end;
-#endif
 
     local procedure UpdateBufferRecordedQty(ItemTrackingSetup: Record "Item Tracking Setup"; QtyBase: Decimal; LineNo: Integer)
     begin
@@ -631,14 +418,6 @@ codeunit 5880 "Phys. Invt. Order-Finish"
         HideProgressWindow := NewHideProgressWindow;
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by OnAfterCalculateQtyToTransfer', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcQtyToTransfer(var TempPhysInvtTrackingBuffer: Record "Phys. Invt. Tracking" temporary; AllBufferLines: Boolean; MaxQtyToTransfer: Decimal; var QtyToTransfer: Decimal)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateQtyToTransfer(var TempInvtOrderTrackingBuffer: Record "Invt. Order Tracking" temporary; AllBufferLines: Boolean; MaxQtyToTransfer: Decimal; var QtyToTransfer: Decimal)
     begin
@@ -679,14 +458,6 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replace by OnCodeOnAfterUpdateFromPhysInvtRecordLine2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterUpdateFromPhysInvtRecordLine(var PhysInvtTracking: Record "Phys. Invt. Tracking"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterUpdateFromPhysInvtRecordLine2(var InvtOrderTracking: Record "Invt. Order Tracking"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
     begin
@@ -696,14 +467,6 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     local procedure OnCodeOnBeforeCreateReservEntries(var PhysInvtOrderLine2: Record "Phys. Invt. Order Line"; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN24
-    [Obsolete('Replaced by event OnCreateReservEntriesOnBeforeInsert2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateReservEntriesOnBeforeInsert(var ReservationEntry: Record "Reservation Entry"; PhysInvtTracking: Record "Phys. Invt. Tracking"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateReservEntriesOnBeforeInsert2(var ReservationEntry: Record "Reservation Entry"; InvtOrderTracking: Record "Invt. Order Tracking"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
@@ -715,39 +478,15 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnCreateOrderTrackingBufferLinesFromPhysInvtRecordLine', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateTrackingBufferLinesFromPhysInvtRecordLine(var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnCreateOrderTrackingBufferLinesFromPhysInvtRecordLine(var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnCreateOrderTrackingBufferLinesFromExpInvtOrderTracking', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateTrackingBufferLinesFromExpPhysInvtTracking(var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary; ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnCreateOrderTrackingBufferLinesFromExpInvtOrderTracking(var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary; ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking")
     begin
     end;
-
-#if not CLEAN24
-    [Obsolete('Replaced by event OnUpdateBufferFromItemLedgerEntriesOnAfterUpdateExpectedQty2', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnUpdateBufferFromItemLedgerEntriesOnAfterUpdateExpectedQty(var PhysInvtTracking: Record "Phys. Invt. Tracking"; ItemLedgerEntry: Record "Item Ledger Entry")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateBufferFromItemLedgerEntriesOnAfterUpdateExpectedQty2(var InvtOrderTracking: Record "Invt. Order Tracking"; ItemLedgerEntry: Record "Item Ledger Entry")

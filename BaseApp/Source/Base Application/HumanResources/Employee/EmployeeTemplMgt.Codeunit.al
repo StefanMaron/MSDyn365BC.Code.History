@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.HumanResources.Employee;
 
 using Microsoft.Finance.Dimension;
@@ -129,24 +133,12 @@ codeunit 1387 "Employee Templ. Mgt."
     procedure InitEmployeeNo(var Employee: Record Employee; EmployeeTempl: Record "Employee Templ.")
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if EmployeeTempl."No. Series" = '' then
             exit;
 
-#if not CLEAN24
-        NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(EmployeeTempl."No. Series", '', 0D, Employee."No.", Employee."No. Series", IsHandled);
-        if not IsHandled then begin
-#endif
             Employee."No. Series" := EmployeeTempl."No. Series";
             Employee."No." := NoSeries.GetNextNo(Employee."No. Series");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(Employee."No. Series", EmployeeTempl."No. Series", 0D, Employee."No.");
-        end;
-#endif
     end;
 
     procedure SaveAsTemplate(Employee: Record Employee)

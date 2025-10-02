@@ -13,9 +13,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.Document;
@@ -64,12 +61,10 @@ codeunit 5530 "Calc. Item Availability"
 
         TryGetSalesOrdersDemandEntries(InvtEventBuf, Item);
         TryGetPurchRetOrderDemandEntries(InvtEventBuf, Item);
-        TryGetProdOrderCompDemandEntries(InvtEventBuf, Item);
         TryGetTransOrderDemandEntries(InvtEventBuf, Item);
         TryGetQtyOnInventory(InvtEventBuf, Item);
         TryGetPurchOrderSupplyEntries(InvtEventBuf, Item);
         TryGetSalesRetOrderSupplyEntries(InvtEventBuf, Item);
-        TryGetProdOrderSupplyEntries(InvtEventBuf, Item);
         TryGetTransferOrderSupplyEntries(InvtEventBuf, Item);
 
         OnAfterGetDocumentEntries(InvtEventBuf, Item, EntryNo);
@@ -177,24 +172,6 @@ codeunit 5530 "Calc. Item Availability"
         exit(true);
     end;
 
-    local procedure TryGetProdOrderSupplyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
-    var
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderAvailabilityMgt: Codeunit "Prod. Order Availability Mgt.";
-    begin
-        if not ProdOrderLine.ReadPermission then
-            exit(false);
-
-        if ProdOrderLine.FindLinesWithItemToPlan(Item, true) then
-            repeat
-                ProdOrderAvailabilityMgt.TransferFromProdOrder(InvtEventBuf, ProdOrderLine);
-                InsertEntry(InvtEventBuf);
-            until ProdOrderLine.Next() = 0;
-
-        exit(true);
-    end;
-
     local procedure TryGetTransferOrderSupplyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -249,24 +226,6 @@ codeunit 5530 "Calc. Item Availability"
         exit(true);
     end;
 
-    local procedure TryGetProdOrderCompDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
-    var
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        ProdOrderComp: Record "Prod. Order Component";
-        ProdOrderAvailabilityMgt: Codeunit "Prod. Order Availability Mgt.";
-    begin
-        if not ProdOrderComp.ReadPermission then
-            exit(false);
-
-        if ProdOrderComp.FindLinesWithItemToPlan(Item, true) then
-            repeat
-                ProdOrderAvailabilityMgt.TransferFromProdComp(InvtEventBuf, ProdOrderComp);
-                InsertEntry(InvtEventBuf);
-            until ProdOrderComp.Next() = 0;
-
-        exit(true);
-    end;
-
     local procedure TryGetTransOrderDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -288,11 +247,10 @@ codeunit 5530 "Calc. Item Availability"
     local procedure GetRemainingForecast(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; ForecastName: Code[10]; ExcludeForecastBefore: Date)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
-        MfgSetup: Record "Manufacturing Setup";
-        ProdForecastEntry: Record "Production Forecast Entry";
-        ProdForecastEntry2: Record "Production Forecast Entry";
+        InventorySetup: Record "Inventory Setup";
+        ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
+        ProdForecastEntry2: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
         CopyOfInvtEventBuf: Record "Inventory Event Buffer";
-        ProdOrderAvailabilityMgt: Codeunit "Prod. Order Availability Mgt.";
         FromDate: Date;
         ToDate: Date;
         ForecastPeriodEndDate: Date;
@@ -313,10 +271,10 @@ codeunit 5530 "Calc. Item Availability"
         if ToDate = 0D then
             ToDate := DMY2Date(30, 12, 9999);
 
-        MfgSetup.Get();
-        if not MfgSetup."Use Forecast on Locations" then begin
+        InventorySetup.Get();
+        if not InventorySetup."Use Forecast on Locations" then begin
             if not FindReplishmentLocation(ReplenishmentLocation, Item, LocationMandatory) then
-                ReplenishmentLocation := MfgSetup."Components at Location";
+                ReplenishmentLocation := InventorySetup.GetComponentsAtLocation();
             if LocationMandatory and
                (ReplenishmentLocation = '')
             then
@@ -346,7 +304,7 @@ codeunit 5530 "Calc. Item Availability"
             ProdForecastEntry2.SetRange("Component Forecast", Module);
             if ProdForecastEntry2.FindSet() then
                 repeat
-                    if MfgSetup."Use Forecast on Locations" then begin
+                    if InventorySetup."Use Forecast on Locations" then begin
                         ProdForecastEntry2.SetRange("Location Code", ProdForecastEntry2."Location Code");
                         ItemLedgEntry.SetRange("Location Code", ProdForecastEntry2."Location Code");
                         InvtEventBuf.SetRange("Location Code", ProdForecastEntry2."Location Code");
@@ -355,7 +313,7 @@ codeunit 5530 "Calc. Item Availability"
                         Item.CopyFilter("Location Filter", ItemLedgEntry."Location Code");
                         Item.CopyFilter("Location Filter", InvtEventBuf."Location Code");
                     end;
-                    if MfgSetup."Use Forecast on Variants" then begin
+                    if InventorySetup."Use Forecast on Variants" then begin
                         ProdForecastEntry2.SetRange("Variant Code", ProdForecastEntry2."Variant Code");
                         ItemLedgEntry.SetRange("Variant Code", ProdForecastEntry2."Variant Code");
                         InvtEventBuf.SetRange("Variant Code", ProdForecastEntry2."Variant Code");
@@ -422,9 +380,9 @@ codeunit 5530 "Calc. Item Availability"
                             if RemainingForecastQty < 0 then
                                 RemainingForecastQty := 0;
 
-                            ProdOrderAvailabilityMgt.TransferFromForecast(
-                                InvtEventBuf, ProdForecastEntry, RemainingForecastQty,
-                                MfgSetup."Use Forecast on Locations", MfgSetup."Use Forecast on Variants");
+                            InvtEventBuf.TransferFromForecast(
+                                ProdForecastEntry, RemainingForecastQty,
+                                InventorySetup."Use Forecast on Locations", InventorySetup."Use Forecast on Variants");
                             InsertEntry(InvtEventBuf);
                             OnGetRemainingForecastOAfterInsertEntry(InvtEventBuf, Item, ProdForecastEntry);
 
@@ -602,9 +560,9 @@ codeunit 5530 "Calc. Item Availability"
         exit(EntryNo);
     end;
 
-    local procedure FindForecastPeriodEndDate(var ProdForecastEntry: Record "Production Forecast Entry"; ToDate: Date): Date
+    local procedure FindForecastPeriodEndDate(var ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry"; ToDate: Date): Date
     var
-        NextProdForecastEntry: Record "Production Forecast Entry";
+        NextProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
         NextForecastExist: Boolean;
     begin
         NextProdForecastEntry.Copy(ProdForecastEntry);
@@ -640,28 +598,9 @@ codeunit 5530 "Calc. Item Availability"
         ItemLedgEntry.SetRange(Correction);
     end;
 
-    local procedure ParentIsInPlanning(InvtEventBuf: Record "Inventory Event Buffer"; var ParentActionMessage: Enum "Action Message Type"): Boolean
-    var
-        ReqLine: Record "Requisition Line";
-        ProdOrderComp: Record "Prod. Order Component";
-        RecRef: RecordRef;
-        RecordID: RecordID;
+    local procedure ParentIsInPlanning(InvtEventBuf: Record "Inventory Event Buffer"; var ParentActionMessage: Enum "Action Message Type") Result: Boolean
     begin
-        // Check if the parent of a component line is represented with a planning suggestion
-        RecordID := InvtEventBuf."Source Line ID";
-        RecRef := RecordID.GetRecord();
-        RecRef.SetTable(ProdOrderComp);
-        ReqLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
-        ReqLine.SetRange("Ref. Order Type", ReqLine."Ref. Order Type"::"Prod. Order");
-        ReqLine.SetRange("Ref. Order Status", ProdOrderComp.Status);
-        ReqLine.SetRange("Ref. Order No.", ProdOrderComp."Prod. Order No.");
-        ReqLine.SetRange("Ref. Line No.", ProdOrderComp."Prod. Order Line No.");
-        ReqLine.SetRange("Operation No.", '');
-        OnParentIsInPlanningOnAfterReqLineSetFilters(ReqLine, ProdOrderComp);
-        if ReqLine.FindFirst() then begin
-            ParentActionMessage := ReqLine."Action Message";
-            exit(true);
-        end;
+        OnParentIsInPlanning(InvtEventBuf, ParentActionMessage, Result);
     end;
 
     local procedure FindTransDemandToReplace(ReqLine: Record "Requisition Line"; var TransLine: Record "Transfer Line")
@@ -699,7 +638,7 @@ codeunit 5530 "Calc. Item Availability"
         exit(false);
     end;
 
-    local procedure ForecastExist(var ProdForecastEntry: Record "Production Forecast Entry"; ExcludeForecastBefore: Date; FromDate: Date; ToDate: Date): Boolean
+    local procedure ForecastExist(var ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry"; ExcludeForecastBefore: Date; FromDate: Date; ToDate: Date): Boolean
     var
         ForecastExist: Boolean;
     begin
@@ -738,10 +677,8 @@ codeunit 5530 "Calc. Item Availability"
         SalesLine: Record "Sales Line";
         PurchLine: Record "Purchase Line";
         TransLine: Record "Transfer Line";
-        ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderComp: Record "Prod. Order Component";
         PlngComp: Record "Planning Component";
-        ProdForecastEntry: Record "Production Forecast Entry";
+        ProdForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry";
         ReqLine: Record "Requisition Line";
         RecRef: RecordRef;
         IsHandled: Boolean;
@@ -788,23 +725,6 @@ codeunit 5530 "Calc. Item Availability"
                     SourceProdOrderLine := TransLine."Derived From Line No.";
                     SourceRefNo := TransLine."Line No.";
                 end;
-            Database::"Prod. Order Line":
-                begin
-                    RecRef.SetTable(ProdOrderLine);
-                    SourceType := Database::"Prod. Order Line";
-                    SourceSubtype := ProdOrderLine.Status.AsInteger();
-                    SourceID := ProdOrderLine."Prod. Order No.";
-                    SourceProdOrderLine := ProdOrderLine."Line No.";
-                end;
-            Database::"Prod. Order Component":
-                begin
-                    RecRef.SetTable(ProdOrderComp);
-                    SourceType := Database::"Prod. Order Component";
-                    SourceSubtype := ProdOrderComp.Status.AsInteger();
-                    SourceID := ProdOrderComp."Prod. Order No.";
-                    SourceProdOrderLine := ProdOrderComp."Prod. Order Line No.";
-                    SourceRefNo := ProdOrderComp."Line No.";
-                end;
             Database::"Planning Component":
                 begin
                     RecRef.SetTable(PlngComp);
@@ -823,10 +743,10 @@ codeunit 5530 "Calc. Item Availability"
                     SourceBatchName := ReqLine."Journal Batch Name";
                     SourceRefNo := ReqLine."Line No.";
                 end;
-            Database::"Production Forecast Entry":
+            Database::Microsoft.Manufacturing.Forecast."Production Forecast Entry":
                 begin
                     RecRef.SetTable(ProdForecastEntry);
-                    SourceType := Database::"Production Forecast Entry";
+                    SourceType := Database::Microsoft.Manufacturing.Forecast."Production Forecast Entry";
                     SourceRefNo := ProdForecastEntry."Entry No.";
                 end;
             else begin
@@ -857,12 +777,11 @@ codeunit 5530 "Calc. Item Availability"
         TransferHeader: Record "Transfer Header";
         TransShptHeader: Record "Transfer Shipment Header";
         TransRcptHeader: Record "Transfer Receipt Header";
-        ProductionOrder: Record "Production Order";
-        ProdForecastName: Record "Production Forecast Name";
+        ProdForecastName: Record Microsoft.Manufacturing.Forecast."Production Forecast Name";
         RequisitionLine: Record "Requisition Line";
         PlanningComponent: Record "Planning Component";
         ReqWkshTemplate: Record "Req. Wksh. Template";
-        DemandForecastCard: Page "Demand Forecast Card";
+        DemandForecastCard: Page Microsoft.Manufacturing.Forecast."Demand Forecast Card";
         PlanningWorksheet: Page "Planning Worksheet";
         RecRef: RecordRef;
         IsHandled: Boolean;
@@ -975,12 +894,7 @@ codeunit 5530 "Calc. Item Availability"
                     RecRef.SetTable(TransRcptHeader);
                     PAGE.RunModal(Page::"Posted Transfer Receipt", TransRcptHeader);
                 end;
-            Database::"Production Order":
-                begin
-                    RecRef.SetTable(ProductionOrder);
-                    RunProductionOrderPage(ProductionOrder);
-                end;
-            Database::"Production Forecast Name":
+            Database::Microsoft.Manufacturing.Forecast."Production Forecast Name":
                 begin
                     RecRef.SetTable(ProdForecastName);
                     DemandForecastCard.SetRecord(ProdForecastName);
@@ -1065,27 +979,6 @@ codeunit 5530 "Calc. Item Availability"
         end;
     end;
 
-    local procedure RunProductionOrderPage(var ProductionOrder: Record "Production Order")
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeRunProductionOrderPage(ProductionOrder, IsHandled);
-        if IsHandled then
-            exit;
-
-        case ProductionOrder.Status of
-            ProductionOrder.Status::Planned:
-                PAGE.RunModal(Page::"Planned Production Order", ProductionOrder);
-            ProductionOrder.Status::"Firm Planned":
-                PAGE.RunModal(Page::"Firm Planned Prod. Order", ProductionOrder);
-            ProductionOrder.Status::Released:
-                PAGE.RunModal(Page::"Released Production Order", ProductionOrder);
-            ProductionOrder.Status::Finished:
-                PAGE.RunModal(Page::"Finished Production Order", ProductionOrder);
-        end;
-    end;
-
     [IntegrationEvent(true, false)]
     local procedure OnAfterGetDocumentEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; var CurrEntryNo: Integer)
     begin
@@ -1126,10 +1019,18 @@ codeunit 5530 "Calc. Item Availability"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnBeforeRunProductionOrderPage(var ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var IsHandled: Boolean)
+    begin
+        OnBeforeRunProductionOrderPage(ProductionOrder, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunProductionOrderPage(var ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    local procedure OnBeforeRunProductionOrderPage(var ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTryGetQtyOnInventory(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; var Result: Boolean; var IsHandled: Boolean);
@@ -1157,27 +1058,27 @@ codeunit 5530 "Calc. Item Availability"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetRemainingForecastOnAfterSetItemFilters(var Item: Record Item; ProductionForecastEntry: Record "Production Forecast Entry")
+    local procedure OnGetRemainingForecastOnAfterSetItemFilters(var Item: Record Item; ProductionForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetRemainingForecastOAfterInvtEventBufSetFilters(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProductionForecastEntry: Record "Production Forecast Entry")
+    local procedure OnGetRemainingForecastOAfterInvtEventBufSetFilters(var InventoryEventBuffer: Record "Inventory Event Buffer"; ProductionForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetRemainingForecastOAfterInsertEntry(var InventoryEventBuffer: Record "Inventory Event Buffer"; var Item: Record Item; ProductionForecastEntry: Record "Production Forecast Entry")
+    local procedure OnGetRemainingForecastOAfterInsertEntry(var InventoryEventBuffer: Record "Inventory Event Buffer"; var Item: Record Item; ProductionForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetRemainingForecastOnBeforeCalcForecastQuantityBase(var ProductionForecastEntry: Record "Production Forecast Entry")
+    local procedure OnGetRemainingForecastOnBeforeCalcForecastQuantityBase(var ProductionForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetRemainingForecastOnBeforeLoopOnAfterSetItemFilters(var Item: Record Item; ProductionForecastEntry: Record "Production Forecast Entry"; ProductionForecastEntry2: Record "Production Forecast Entry")
+    local procedure OnGetRemainingForecastOnBeforeLoopOnAfterSetItemFilters(var Item: Record Item; ProductionForecastEntry: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry"; ProductionForecastEntry2: Record Microsoft.Manufacturing.Forecast."Production Forecast Entry")
     begin
     end;
 
@@ -1241,8 +1142,21 @@ codeunit 5530 "Calc. Item Availability"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnParentIsInPlanningOnAfterReqLineSetFilters(var RequisitionLine: Record "Requisition Line"; var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    begin
+        OnParentIsInPlanningOnAfterReqLineSetFilters(RequisitionLine, ProdOrderComp);
+    end;
+
+    [Obsolete('Moved to codeunit ProdOrderAvailabilityMgt', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnParentIsInPlanningOnAfterReqLineSetFilters(var RequisitionLine: Record "Requisition Line"; var ProdOrderComp: Record "Prod. Order Component")
+    local procedure OnParentIsInPlanningOnAfterReqLineSetFilters(var RequisitionLine: Record "Requisition Line"; var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnParentIsInPlanning(InvtEventBuf: Record "Inventory Event Buffer"; var ParentActionMessage: Enum "Action Message Type"; var Result: Boolean)
     begin
     end;
 }

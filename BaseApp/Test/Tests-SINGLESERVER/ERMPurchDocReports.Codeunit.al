@@ -1955,7 +1955,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntryInvoice, VendorLedgerEntryInvoice."Document Type"::Invoice, InvoiceDocumentNo);
         VendorLedgerEntryInvoice.CalcFields("Original Amount");
 
-        // [WHEN]  Save Report "Vendor Balance to Date". for Show Entrie with Zero Balancce = true 
+        // [WHEN]  Save Report "Vendor Balance to Date". for Show Entrie with Zero Balancce = true
         SaveVendorBalanceToDate(PurchaseHeaderInvoice, false, false, true);
 
         // [THEN] Report was created
@@ -2178,7 +2178,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Item.Modify(true);
         exit(Item."No.");
     end;
-
+#if not CLEAN25
     local procedure CreateItemVendor(var ItemVendor: Record "Item Vendor"; ItemNo: Code[20]; VendorNo: Code[20])
     begin
         // Using Random value for Lead Time Calculation.
@@ -2188,12 +2188,11 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Evaluate(ItemVendor."Lead Time Calculation", '<' + Format(LibraryRandom.RandInt(5)) + 'D>');
         ItemVendor.Modify(true);
     end;
-
+#endif
     local procedure CreateItemWithDimension(var DefaultDimension: Record "Default Dimension")
     var
         Dimension: Record Dimension;
         DimensionValue: Record "Dimension Value";
-        LibraryDimension: Codeunit "Library - Dimension";
     begin
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
@@ -2637,7 +2636,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorDetailTrialBalance.InitializeRequest(PrintAmountsInLCY, false, ExcludeBalanceOnly);  // Set FALSE for Print Only Per Page.
         VendorDetailTrialBalance.Run();
     end;
-
+#if not CLEAN25
     local procedure SaveVendorItemCatalog(VendorNo: Code[20])
     var
         Vendor: Record Vendor;
@@ -2649,7 +2648,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorItemCatalog.SetTableView(Vendor);
         VendorItemCatalog.Run();
     end;
-
+#endif
     local procedure SaveVendorOrderSummary(No: Code[20]; PostingDate: Date; AmountLCY: Boolean)
     var
         Vendor: Record Vendor;
@@ -3283,4 +3282,3 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorDetailTrialBalance.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
-

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Currency;
@@ -343,10 +347,6 @@ table 6651 "Return Shipment Line"
             AccessByPermission = TableData Job = R;
             BlankZero = true;
             Caption = 'Project Planning Line No.';
-        }
-        field(5401; "Prod. Order No."; Code[20])
-        {
-            Caption = 'Prod. Order No.';
         }
         field(5402; "Variant Code"; Code[10])
         {
@@ -869,6 +869,16 @@ table 6651 "Return Shipment Line"
         end;
     end;
 
+    procedure IsProdOrder() Result: Boolean
+    begin
+        OnIsProdOrder(Rec, Result);
+    end;
+
+    procedure TestProdOrder() Result: Boolean
+    begin
+        OnTestProdOrder(Rec, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyPurchLineCostAndDiscountFromPurchOrderLine(var PurchaseLine: Record "Purchase Line"; PurchOrderLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
@@ -926,6 +936,16 @@ table 6651 "Return Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRetShptLineOnAfterPurchLineInsert(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseLine: Record "Purchase Line"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsProdOrder(var ReturnShipmentLine: Record "Return Shipment Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestProdOrder(var ReturnShipmentLine: Record "Return Shipment Line"; var Result: Boolean)
     begin
     end;
 }

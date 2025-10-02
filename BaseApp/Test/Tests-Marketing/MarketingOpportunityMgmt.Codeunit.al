@@ -1968,17 +1968,6 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         CreateSalesCycleStage(SalesCycleStage, SalesCycle.Code);
     end;
 
-    local procedure CreateContactWithSalesPerson(var Contact: Record Contact)
-    var
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-    begin
-        Initialize();
-        LibraryMarketing.CreatePersonContact(Contact);
-        CreateSalespersonWithEmail(SalespersonPurchaser);
-        Contact.Validate("Salesperson Code", SalespersonPurchaser.Code);
-        Contact.Modify(true);
-    end;
-
     local procedure CreateCustomerTemplateForContact(VATBusPostingGroupCode: Code[20]): Code[20]
     var
         CustomerTemplate: Record "Customer Templ.";
@@ -2731,4 +2720,3 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Assert.ExpectedMessage(ExpectedMsg, Message);
     end;
 }
-

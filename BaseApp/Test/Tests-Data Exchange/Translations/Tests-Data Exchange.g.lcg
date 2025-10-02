@@ -509,15 +509,6 @@
       <Cmt Name="Dev"><![CDATA[%1 - a decimal number]D;]A;(LookupHint=Codeunit Invoice Mapping Tests - NamedType UnableToApplyDiscountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1764635316 - NamedType 3212879496" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Cannot find an appropriate G/L account for the line with description '%1'. Choose the Map Text to Account button, and then map the core part of '%1' to the relevant G/L account.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - arbitrary text]D;]A;(LookupHint=Codeunit Invoice Mapping Tests - NamedType UnableToFindAppropriateAccountErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1764635316 - NamedType 1167773202" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Cannot find a value for field %1 of table %2 in table %3.]]></Val>

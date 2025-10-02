@@ -526,6 +526,8 @@ report 707 "Inventory - Availability Plan"
         ShippingTimeCaptionLbl: Label 'Shipping Time';
 
     local procedure CalcNeed(Item: Record Item; LocationFilter: Text[250]; VariantFilter: Text[250])
+    var
+        PlannedOrderReleaseQty: Decimal;
     begin
         Item.SetFilter("Location Filter", LocationFilter);
         Item.SetFilter("Variant Filter", VariantFilter);
@@ -535,26 +537,15 @@ report 707 "Inventory - Availability Plan"
 
         Item.SetRange("Date Filter", PeriodStartDate[i], PeriodStartDate[i + 1] - 1);
 
-        GrossReq[i] :=
-          AvailToPromise.CalcGrossRequirement(Item);
-        SchedReceipt[i] :=
-          AvailToPromise.CalcScheduledReceipt(Item);
+        GrossReq[i] := AvailToPromise.CalcGrossRequirement(Item);
+        SchedReceipt[i] := AvailToPromise.CalcScheduledReceipt(Item);
 
-        Item.CalcFields(
-          "Planning Receipt (Qty.)",
-          "Planning Release (Qty.)",
-          "Planned Order Receipt (Qty.)",
-          "Planned Order Release (Qty.)");
+        Item.CalcFields("Planning Receipt (Qty.)", "Planning Release (Qty.)");
+        PlannedOrderReleaseQty := Item.CalcPlannedOrderReceiptQty();
 
-        SchedReceipt[i] := SchedReceipt[i] - Item."Planned Order Receipt (Qty.)";
-
-        PlanReceipt[i] :=
-          Item."Planning Receipt (Qty.)" +
-          Item."Planned Order Receipt (Qty.)";
-
-        PlanRelease[i] :=
-          Item."Planning Release (Qty.)" +
-          Item."Planned Order Release (Qty.)";
+        SchedReceipt[i] := SchedReceipt[i] - PlannedOrderReleaseQty;
+        PlanReceipt[i] := Item."Planning Receipt (Qty.)" + PlannedOrderReleaseQty;
+        PlanRelease[i] := Item."Planning Release (Qty.)" + PlannedOrderReleaseQty;
 
         if i = 1 then
             ProjAvBalance[1] :=

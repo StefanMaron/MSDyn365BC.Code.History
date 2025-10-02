@@ -1586,7 +1586,7 @@ codeunit 134710 "Manual Payment Registration"
         Amount: Decimal;
     begin
         // [FEATURE] [Lump Payment]
-        // [SCENARIO 416898] 
+        // [SCENARIO 416898]
         Initialize();
 
         // [GIVEN] Setup Payment Registration Setup with G/L Account as Balance Account.
@@ -1630,7 +1630,7 @@ codeunit 134710 "Manual Payment Registration"
         Amount: Decimal;
     begin
         // [FEATURE] [Lump Payment]
-        // [SCENARIO 416898] 
+        // [SCENARIO 416898]
         Initialize();
 
         // [GIVEN] Setup Payment Registration Setup with G/L Account as Balance Account.
@@ -2389,17 +2389,6 @@ codeunit 134710 "Manual Payment Registration"
         CustLedgerEntry.TestField("Journal Batch Name", PaymentRegistrationSetup."Journal Batch Name");
     end;
 
-    local procedure VerifyGLEntryAmount(DocNo: Code[20]; AccNo: Code[20]; ExpectedAmount: Decimal)
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
-        GLEntry.SetRange("Document No.", DocNo);
-        GLEntry.SetRange("G/L Account No.", AccNo);
-        GLEntry.FindFirst();
-        GLEntry.TestField(Amount, ExpectedAmount);
-    end;
-
     local procedure GetInvoiceAmount(DocNo: Code[20]): Decimal
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -2500,4 +2489,3 @@ codeunit 134710 "Manual Payment Registration"
         Assert.AreEqual(Name, ExpectedName, WrongCustomerErr);
     end;
 }
-

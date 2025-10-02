@@ -229,7 +229,8 @@ report 5910 "Service Profit (Serv. Orders)"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Profit (Serv. Orders)';
+        AboutText = 'Get an overview of profit for service orders.';
         layout
         {
             area(content)

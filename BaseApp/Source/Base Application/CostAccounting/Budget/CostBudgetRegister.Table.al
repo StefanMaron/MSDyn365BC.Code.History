@@ -68,6 +68,8 @@ table 1111 "Cost Budget Register"
         }
         field(15; Amount; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Amount';
             Editable = false;
@@ -163,4 +165,3 @@ table 1111 "Cost Budget Register"
 #pragma warning restore AA0470
 #pragma warning restore AA0074
 }
-

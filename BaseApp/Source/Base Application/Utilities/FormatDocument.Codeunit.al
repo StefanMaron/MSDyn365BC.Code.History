@@ -44,7 +44,7 @@ codeunit 368 "Format Document"
         i: Integer;
     begin
         // <summary>
-        // The function generated a string containg all filters applied to a record.
+        // The function generated a string containing all filters applied to a record.
         // It is used mainly in reports to demonstrate which filters were used when the generating the report.
         // </summary>
         // <param name="RecVariant">Variant holding the record to check</param>
