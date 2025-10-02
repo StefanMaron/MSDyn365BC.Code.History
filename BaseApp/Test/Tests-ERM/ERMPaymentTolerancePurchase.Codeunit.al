@@ -272,6 +272,42 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         Assert.ExpectedError(StrSubstNo(SameSourceCodeErr, GenJournalLine."Source Code"));
     end;
 
+    local procedure CreatePurchJnlLineWithVendorBalAcc(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Vendor: Record Vendor;
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        if GenJournalTemplate.Type <> Enum::"Gen. Journal Template Type"::Purchases then begin
+            GenJournalTemplate.Validate("Type", Enum::"Gen. Journal Template Type"::Purchases);
+            GenJournalTemplate.Modify(true);
+        end;
+
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandDecInRange(10, 1000, 2));
+        LibraryPurchase.CreateVendor(Vendor);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Vendor);
+        GenJournalLine.Validate("Bal. Account No.", Vendor."No.");
+        GenJournalLine.Validate(Amount, -GenJournalLine.Amount);
+        if GenJournalLine."Source Code" <> GenJournalTemplate."Source Code" then
+            GenJournalLine."Source Code" := GenJournalTemplate."Source Code";
+        GenJournalLine.Modify(true);
+    end;
+
+    procedure CreateDeferralTemplate(CalcMethod: Enum "Deferral Calculation Method"; StartDate: Enum "Deferral Calculation Start Date"; NumOfPeriods: Integer; PeriodDescription: Text[50]; DeferralPct: Decimal): Code[10]
+    var
+        DeferralTemplate: Record "Deferral Template";
+    begin
+        LibraryERM.CreateDeferralTemplate(DeferralTemplate, CalcMethod, StartDate, NumOfPeriods);
+        DeferralTemplate.Validate("Period Description", PeriodDescription);
+        DeferralTemplate.Validate("Deferral %", DeferralPct);
+        DeferralTemplate.Modify(true);
+        exit(DeferralTemplate."Deferral Code");
+    end;
+
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     procedure PurchaseInvoiceWithDeferralEUReverseChargeVAT()
@@ -332,42 +368,6 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
 
         // [THEN] Verify GL Entry VAT Entry Link table with G/L Entry No. field not populated with 0 value
         VerifyGLEntryVATEntryLink(InvoiceNo);
-    end;
-
-    local procedure CreatePurchJnlLineWithVendorBalAcc(var GenJournalLine: Record "Gen. Journal Line")
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        Vendor: Record Vendor;
-    begin
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        if GenJournalTemplate.Type <> Enum::"Gen. Journal Template Type"::Purchases then begin
-            GenJournalTemplate.Validate("Type", Enum::"Gen. Journal Template Type"::Purchases);
-            GenJournalTemplate.Modify(true);
-        end;
-
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandDecInRange(10, 1000, 2));
-        LibraryPurchase.CreateVendor(Vendor);
-        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Vendor);
-        GenJournalLine.Validate("Bal. Account No.", Vendor."No.");
-        GenJournalLine.Validate(Amount, -GenJournalLine.Amount);
-        if GenJournalLine."Source Code" <> GenJournalTemplate."Source Code" then
-            GenJournalLine."Source Code" := GenJournalTemplate."Source Code";
-        GenJournalLine.Modify(true);
-    end;
-
-    procedure CreateDeferralTemplate(CalcMethod: Enum "Deferral Calculation Method"; StartDate: Enum "Deferral Calculation Start Date"; NumOfPeriods: Integer; PeriodDescription: Text[50]; DeferralPct: Decimal): Code[10]
-    var
-        DeferralTemplate: Record "Deferral Template";
-    begin
-        LibraryERM.CreateDeferralTemplate(DeferralTemplate, CalcMethod, StartDate, NumOfPeriods);
-        DeferralTemplate.Validate("Period Description", PeriodDescription);
-        DeferralTemplate.Validate("Deferral %", DeferralPct);
-        DeferralTemplate.Modify(true);
-        exit(DeferralTemplate."Deferral Code");
     end;
 
     local procedure Initialize()
@@ -547,12 +547,6 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
             ExpectedPmtTolAmount, VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
     end;
 
-    local procedure ExecuteUIHandler()
-    begin
-        // Generate Dummy message. Required for executing the test case successfully.
-        if Confirm(StrSubstNo(ExpectedMessage)) then;
-    end;
-
     local procedure VerifyGLEntryVATEntryLink(InvoiceNo: Code[20])
     var
         GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
@@ -567,6 +561,12 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
 
         GLEntry.Get(GLEntryVATEntryLink."G/L Entry No.");
         Assert.IsTrue(GLEntry.Amount <> 0, 'G/L Entry Amount is zero for VAT Entry No. ' + Format(VATEntry."Entry No."));
+    end;
+
+    local procedure ExecuteUIHandler()
+    begin
+        // Generate Dummy message. Required for executing the test case successfully.
+        if Confirm(StrSubstNo(ExpectedMessage)) then;
     end;
 
     [ConfirmHandler]

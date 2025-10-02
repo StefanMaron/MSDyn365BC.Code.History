@@ -35,7 +35,7 @@
         GenJournalLine: Record "Gen. Journal Line";
         SalesOrder: TestPage "Sales Order";
     begin
-        // [FEATURE] [Sales] 
+        // [FEATURE] [Sales]
         // [SCENARIO 411158] User opens sales order page first time, get notification and choose "Enable this for me" action
         Initialize();
 
@@ -68,14 +68,14 @@
         SalesHeader: Record "Sales Header";
         SalesOrder: TestPage "Sales Order";
     begin
-        // [FEATURE] [Sales] 
+        // [FEATURE] [Sales]
         // [SCENARIO 411158] User opens sales order page first time, get notification, choose "Don't show again" action
         Initialize();
 
         // [GIVEN] There are not notifications "Show the Document Check FactBox" and "Enable Data Check"
         ClearBackgroundCheckNotifications();
 
-        // [GIVEN] Sales order "SO" 
+        // [GIVEN] Sales order "SO"
         LibrarySales.CreateSalesOrder(SalesHeader);
 
         // [WHEN] Open Sales Order page for "SO"
@@ -96,8 +96,8 @@
         GenJournalLine: Record "Gen. Journal Line";
         SalesOrder: TestPage "Sales Order";
     begin
-        // [FEATURE] [Sales] 
-        // [SCENARIO 411158] "Sales Doc. Check Factbox" shows error for sales order 
+        // [FEATURE] [Sales]
+        // [SCENARIO 411158] "Sales Doc. Check Factbox" shows error for sales order
         Initialize();
 
         // [GIVEN] Sales order "SO" with empty "Journal Templ. Name"
@@ -119,7 +119,7 @@
         SalesHeader: Record "Sales Header";
         SalesOrder: TestPage "Sales Order";
     begin
-        // [FEATURE] [Sales] 
+        // [FEATURE] [Sales]
         // [SCENARIO 411158] "Sales Doc. Check Factbox" does not run check errors for sales order if General Ledger Setup "Enable Data Check" = false
         // FactBox visibily cannot be tested
         Initialize();
@@ -148,7 +148,7 @@
         GenJournalLine: record "Gen. Journal Line";
         SalesOrder: TestPage "Sales Order";
     begin
-        // [FEATURE] [Sales] 
+        // [FEATURE] [Sales]
         // [SCENARIO 411158] "Sales Doc. Check Factbox" shows errors for sales order header and line
         Initialize();
 
@@ -181,7 +181,7 @@
         SalesOrder: TestPage "Sales Order";
         ErrorMessages: TestPage "Error Messages";
     begin
-        // [FEATURE] [Sales] 
+        // [FEATURE] [Sales]
         // [SCENARIO 411158] "Sales Doc. Check Factbox" shows dimension error for sales order with same parameters as for preview error
         Initialize();
 
@@ -243,7 +243,7 @@
         // [GIVEN] Mock fix line 2 error
         MockModifySalesOrderLine(SalesLine);
 
-        // [WHEN] Run CleanTempErrorMessages 
+        // [WHEN] Run CleanTempErrorMessages
         BackgroundErrorHandlingMgt.CollectSalesDocCheckParameters(SalesHeader, ErrorHandlingParameters);
         BackgroundErrorHandlingMgt.CleanSalesTempErrorMessages(TempErrorMessage, ErrorHandlingParameters);
         // [THEN] Error message about Line2 deleted
@@ -265,11 +265,11 @@
         DocBackgrErrorHandling: Codeunit "Doc. Backgr. Error Handling";
     begin
         // [FEATURE] [Sales] [UT]
-        // [SCENARIO 411158] "Check Sales Doc. Backgr." catches the unhandled error for sales order 
+        // [SCENARIO 411158] "Check Sales Doc. Backgr." catches the unhandled error for sales order
         Initialize();
         BindSubscription(DocBackgrErrorHandling);
 
-        // [GIVEN] Sales order "SO" 
+        // [GIVEN] Sales order "SO"
         LibrarySales.CreateSalesOrder(SalesHeader);
         SalesHeader."Posting Description" := CheckUnhandledErrorTxt;
         SalesHeader.Modify();
@@ -291,8 +291,8 @@
         GenJournalLine: Record "Gen. Journal Line";
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        // [FEATURE] [Sales] 
-        // [SCENARIO 411158] "Sales Doc. Check Factbox" shows error for sales invoice 
+        // [FEATURE] [Sales]
+        // [SCENARIO 411158] "Sales Doc. Check Factbox" shows error for sales invoice
         Initialize();
 
         // [GIVEN] Sales invoice "SI" with empty "Journal Templ. Name"
@@ -315,8 +315,8 @@
         GenJournalLine: Record "Gen. Journal Line";
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        // [FEATURE] [Sales] 
-        // [SCENARIO 411158] "Sales Doc. Check Factbox" shows error for sales credit memo 
+        // [FEATURE] [Sales]
+        // [SCENARIO 411158] "Sales Doc. Check Factbox" shows error for sales credit memo
         Initialize();
 
         // [GIVEN] Sales credit memo "SC" with empty "Journal Templ. Name"
@@ -339,8 +339,8 @@
         GenJournalLine: Record "Gen. Journal Line";
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        // [FEATURE] [Sales] 
-        // [SCENARIO 411158] "Sales Doc. Check Factbox" shows error for sales return order 
+        // [FEATURE] [Sales]
+        // [SCENARIO 411158] "Sales Doc. Check Factbox" shows error for sales return order
         Initialize();
 
         // [GIVEN] Sales return order "SRO" with empty "Journal Templ. Name"
@@ -363,8 +363,8 @@
         GenJournalLine: Record "Gen. Journal Line";
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        // [FEATURE] [Purchase] 
-        // [SCENARIO 411159] "Purchase Doc. Check Factbox" shows error for purchase order 
+        // [FEATURE] [Purchase]
+        // [SCENARIO 411159] "Purchase Doc. Check Factbox" shows error for purchase order
         Initialize();
 
         // [GIVEN] Purchase order "PO" with empty "Journal Templ. Name"
@@ -387,8 +387,8 @@
         GenJournalLine: Record "Gen. Journal Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        // [FEATURE] [Purchase] 
-        // [SCENARIO 411159] "Purchase Doc. Check Factbox" shows error for purchase invoice 
+        // [FEATURE] [Purchase]
+        // [SCENARIO 411159] "Purchase Doc. Check Factbox" shows error for purchase invoice
         Initialize();
 
         // [GIVEN] Purchase invoice "PI" with empty "Journal Templ. Name"
@@ -411,8 +411,8 @@
         GenJournalLine: Record "Gen. Journal Line";
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        // [FEATURE] [Purchase] 
-        // [SCENARIO 411159] "Purchase Doc. Check Factbox" shows error for purchase return order 
+        // [FEATURE] [Purchase]
+        // [SCENARIO 411159] "Purchase Doc. Check Factbox" shows error for purchase return order
         Initialize();
 
         // [GIVEN] Purchase return order "PRO" with empty "Journal Templ. Name"
@@ -435,8 +435,8 @@
         GenJournalLine: Record "Gen. Journal Line";
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        // [FEATURE] [Purchase] 
-        // [SCENARIO 411159] "Purchase Doc. Check Factbox" shows error for purchase credit memo 
+        // [FEATURE] [Purchase]
+        // [SCENARIO 411159] "Purchase Doc. Check Factbox" shows error for purchase credit memo
         Initialize();
 
         // [GIVEN] Purchase credit memo "PC" with empty "Journal Templ. Name"
@@ -458,8 +458,8 @@
         ServiceHeader: Record "Service Header";
         ServiceOrder: TestPage "Service Order";
     begin
-        // [FEATURE] [Service] 
-        // [SCENARIO 411160] "Service Doc. Check Factbox" shows error for service order 
+        // [FEATURE] [Service]
+        // [SCENARIO 411160] "Service Doc. Check Factbox" shows error for service order
         Initialize();
 
         // [GIVEN] Service order "SO" with empty "Document Date"
@@ -481,8 +481,8 @@
         ServiceHeader: Record "Service Header";
         ServiceInvoice: TestPage "Service Invoice";
     begin
-        // [FEATURE] [Service] 
-        // [SCENARIO 411160] "Service Doc. Check Factbox" shows error for service invoice 
+        // [FEATURE] [Service]
+        // [SCENARIO 411160] "Service Doc. Check Factbox" shows error for service invoice
         Initialize();
 
         // [GIVEN] Service invoice "SI" with empty "Document Date"
@@ -504,8 +504,8 @@
         ServiceHeader: Record "Service Header";
         ServiceCreditMemo: TestPage "Service Credit Memo";
     begin
-        // [FEATURE] [Service] 
-        // [SCENARIO 411160] "Service Doc. Check Factbox" shows error for service creditmemo 
+        // [FEATURE] [Service]
+        // [SCENARIO 411160] "Service Doc. Check Factbox" shows error for service creditmemo
         Initialize();
 
         // [GIVEN] Service creditmemo "SC" with empty "Document Date"
@@ -528,7 +528,7 @@
         ServiceLine: Record "Service Line";
         ServiceInvoice: TestPage "Service Invoice";
     begin
-        // [FEATURE] [Service] 
+        // [FEATURE] [Service]
         // [SCENARIO 411160] "Service Doc. Check Factbox" shows error for header and for line
         Initialize();
 
@@ -790,13 +790,6 @@
         GenJournalTemplate.Modify(true);
 
         exit(GenJournalTemplate.Name);
-    end;
-
-    local procedure EnableBackgroundValidationNotification()
-    var
-        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
-    begin
-        DocumentErrorsMgt.EnableBackgroundValidationNotification();
     end;
 
     local procedure ClearBackgroundCheckNotifications()

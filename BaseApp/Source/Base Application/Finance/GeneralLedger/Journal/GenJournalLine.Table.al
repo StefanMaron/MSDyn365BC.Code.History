@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.Bank.BankAccount;
@@ -39,6 +43,7 @@ using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.UOM;
 using Microsoft.HumanResources.Employee;
 using Microsoft.HumanResources.Payables;
+using Microsoft.HumanResources.Setup;
 using Microsoft.Integration.Entity;
 using Microsoft.Intercompany.BankAccount;
 using Microsoft.Intercompany.GLAccount;
@@ -662,7 +667,9 @@ table 81 "Gen. Journal Line"
             else
             if ("Account Type" = const(Vendor)) "Vendor Posting Group"
             else
-            if ("Account Type" = const("Fixed Asset")) "FA Posting Group";
+            if ("Account Type" = const("Fixed Asset")) "FA Posting Group"
+            else
+            if ("Account Type" = const(Employee)) "Employee Posting Group";
 
             trigger OnValidate()
             begin
@@ -1892,6 +1899,7 @@ table 81 "Gen. Journal Line"
         field(100; "Source Currency Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
+            AutoFormatExpression = Rec."Source Currency Code";
             AutoFormatType = 1;
             Caption = 'Source Currency Amount';
             Editable = false;
@@ -1899,6 +1907,7 @@ table 81 "Gen. Journal Line"
         field(101; "Source Curr. VAT Base Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
+            AutoFormatExpression = Rec."Source Currency Code";
             AutoFormatType = 1;
             Caption = 'Source Curr. VAT Base Amount';
             Editable = false;
@@ -1906,6 +1915,7 @@ table 81 "Gen. Journal Line"
         field(102; "Source Curr. VAT Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
+            AutoFormatExpression = Rec."Source Currency Code";
             AutoFormatType = 1;
             Caption = 'Source Curr. VAT Amount';
             Editable = false;
@@ -2083,6 +2093,11 @@ table 81 "Gen. Journal Line"
             begin
                 InitVATDateIfEmpty();
             end;
+        }
+        field(129; "Zero Src. Curr. Amount"; Boolean)
+        {
+            Caption = 'Zero Source Currency Amount';
+            Editable = false;
         }
         field(130; "IC Account Type"; Enum "IC Journal Account Type")
         {
@@ -2298,7 +2313,6 @@ table 81 "Gen. Journal Line"
         field(1006; "Job Line Discount %"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatType = 1;
             Caption = 'Project Line Discount %';
 
             trigger OnValidate()
@@ -2344,7 +2358,7 @@ table 81 "Gen. Journal Line"
         field(1010; "Job Unit Price"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Job Currency Code";
+            AutoFormatExpression = Rec."Job Currency Code";
             AutoFormatType = 2;
             Caption = 'Project Unit Price';
 
@@ -2360,7 +2374,7 @@ table 81 "Gen. Journal Line"
         field(1011; "Job Total Price"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Job Currency Code";
+            AutoFormatExpression = Rec."Job Currency Code";
             AutoFormatType = 1;
             Caption = 'Project Total Price';
             Editable = false;
@@ -2368,7 +2382,7 @@ table 81 "Gen. Journal Line"
         field(1012; "Job Unit Cost"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Job Currency Code";
+            AutoFormatExpression = Rec."Job Currency Code";
             AutoFormatType = 2;
             Caption = 'Project Unit Cost';
             Editable = false;
@@ -2376,7 +2390,7 @@ table 81 "Gen. Journal Line"
         field(1013; "Job Total Cost"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Job Currency Code";
+            AutoFormatExpression = Rec."Job Currency Code";
             AutoFormatType = 1;
             Caption = 'Project Total Cost';
             Editable = false;
@@ -2384,7 +2398,7 @@ table 81 "Gen. Journal Line"
         field(1014; "Job Line Discount Amount"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Job Currency Code";
+            AutoFormatExpression = Rec."Job Currency Code";
             AutoFormatType = 1;
             Caption = 'Project Line Discount Amount';
 
@@ -2400,7 +2414,7 @@ table 81 "Gen. Journal Line"
         field(1015; "Job Line Amount"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Job Currency Code";
+            AutoFormatExpression = Rec."Job Currency Code";
             AutoFormatType = 1;
             Caption = 'Project Line Amount';
 
@@ -2626,6 +2640,11 @@ table 81 "Gen. Journal Line"
             Caption = 'Posting Allocation Account No.';
             DataClassification = CustomerContent;
             TableRelation = "Allocation Account";
+        }
+        field(2679; "Alloc. Journal Line SystemId"; Guid)
+        {
+            Caption = 'Allocation Journal Line SystemId';
+            DataClassification = SystemMetadata;
         }
         field(5050; "Campaign No."; Code[20])
         {
@@ -2858,36 +2877,40 @@ table 81 "Gen. Journal Line"
         field(6201; "Non-Deductible VAT Base"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Base';
             Editable = false;
         }
         field(6202; "Non-Deductible VAT Amount"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Amount';
             Editable = false;
         }
         field(6203; "Non-Deductible VAT Base LCY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Base LCY';
             Editable = false;
         }
         field(6204; "Non-Deductible VAT Amount LCY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Amount LCY';
             Editable = false;
         }
         field(6205; "Non-Deductible VAT Base ACY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Base ACY';
             Editable = false;
         }
         field(6206; "Non-Deductible VAT Amount ACY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 1;
             Caption = 'Non-Deductible VAT Amount ACY';
             Editable = false;
         }
@@ -2927,18 +2950,20 @@ table 81 "Gen. Journal Line"
         }
         field(6212; "Bal. Non-Ded. VAT Base LCY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Bal. Non-Deductible VAT Base LCY';
             Editable = false;
         }
         field(6213; "Bal. Non-Ded. VAT Amount LCY"; Decimal)
         {
-            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Bal. Non-Deductible VAT Amount LCY';
             Editable = false;
         }
         field(6230; "Non-Ded. VAT FA Cost"; Boolean)
         {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
             Caption = 'Non-Ded. VAT FA Cost';
         }
         field(8001; "Account Id"; Guid)
@@ -3286,8 +3311,19 @@ table 81 "Gen. Journal Line"
     protected var
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
         HideValidationDialog: Boolean;
         SkipTaxCalculation: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
 
     /// <summary>
     /// Determines if the general journal line is empty. It is considered empty if
@@ -3355,14 +3391,20 @@ table 81 "Gen. Journal Line"
     /// Also, updates the allocations for the line and validates the deferral code field if necessary.
     /// </remarks>
     procedure UpdateLineBalance()
-    var
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnUpdateLineBalanceOnBeforeUpdateAmounts(Rec, IsHandled);
-        if not IsHandled then
-            UpdateAmounts();
+        "Debit Amount" := 0;
+        "Credit Amount" := 0;
 
+        if ((Amount > 0) and (not Correction)) or
+           ((Amount < 0) and Correction)
+        then
+            "Debit Amount" := Amount
+        else
+            if Amount <> 0 then
+                "Credit Amount" := -Amount;
+
+        if "Currency Code" = '' then
+            "Amount (LCY)" := Amount;
         case true of
             ("Account No." <> '') and ("Bal. Account No." <> ''):
                 "Balance (LCY)" := 0;
@@ -3382,26 +3424,6 @@ table 81 "Gen. Journal Line"
 
         if ("Deferral Code" <> '') and (Amount <> xRec.Amount) and ((Amount <> 0) and (xRec.Amount <> 0)) then
             Validate("Deferral Code");
-    end;
-
-    /// <summary>
-    /// Updates the debit and credit amounts based on the current line's amount and correction status.
-    /// </summary>
-    procedure UpdateAmounts()
-    begin
-        "Debit Amount" := 0;
-        "Credit Amount" := 0;
-
-        if ((Amount > 0) and (not Correction)) or
-           ((Amount < 0) and Correction)
-        then
-            "Debit Amount" := Amount
-        else
-            if Amount <> 0 then
-                "Credit Amount" := -Amount;
-
-        if "Currency Code" = '' then
-            "Amount (LCY)" := Amount;
     end;
 
     /// <summary>
@@ -3556,55 +3578,6 @@ table 81 "Gen. Journal Line"
         until GenJnlLineLocal.Next() = 0;
     end;
 
-#if not CLEAN24
-#pragma warning disable AL0432
-    [Obsolete('Do not use this procedure. It is for compatibility only.', '24.0')]
-    procedure ObsoleteCheckDocNoBasedOnNoSeries(PrevDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement)
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckDocNoBasedOnNoSeries(Rec, PrevDocNo, NoSeriesCode, NoSeriesMgtInstance, IsHandled);
-        if IsHandled then
-            NoSeriesMgtInstance.SaveNoSeries();
-    end;
-
-    [Obsolete('This method is no longer used. Do the check directly in code instead.', '24.0')]
-    procedure CheckDocNoBasedOnNoSeries(PrevDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement)
-    var
-        NoSeries: Record "No. Series";
-        NoSeriesLine: Record "No. Series Line";
-        IsHandled: Boolean;
-        DoDocumentNoTest: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckDocNoBasedOnNoSeries(Rec, PrevDocNo, NoSeriesCode, NoSeriesMgtInstance, IsHandled);
-        if IsHandled then
-            exit;
-
-        if NoSeriesCode = '' then
-            exit;
-
-        if (PrevDocNo = '') or ("Document No." <> PrevDocNo) then begin
-            if NoSeriesMgtInstance.FindNoSeriesLine(NoSeriesLine, NoSeriesCode, "Posting Date") then
-                if not NoSeriesMgtInstance.IsCurrentNoSeriesLine(NoSeriesLine) then
-                    NoSeriesMgtInstance.SaveNoSeries();
-
-            DoDocumentNoTest := "Document No." <> NoSeriesMgtInstance.GetNextNo(NoSeriesCode, "Posting Date", false);
-            if not DoDocumentNoTest then begin
-                if NoSeries.Get(NoSeriesCode) then;
-                if (NoSeriesMgtInstance.FindNoSeriesLine(NoSeriesLine, NoSeriesCode, "Posting Date")) then
-                    DoDocumentNoTest := not NoSeries."Manual Nos." and not NoSeriesMgtInstance.IsCurrentNoSeriesLine(NoSeriesLine);
-            end;
-
-            if DoDocumentNoTest then begin
-                NoSeriesMgtInstance.TestManualWithDocumentNo(NoSeriesCode, "Document No.");  // allow use of manual document numbers.
-                NoSeriesMgtInstance.ClearNoSeriesLine();
-            end;
-        end;
-    end;
-#pragma warning restore AL0432
-#endif
 
     /// <summary>
     /// Updates the document numbers on general journal lines to ensure correct sequence
@@ -3624,8 +3597,8 @@ table 81 "Gen. Journal Line"
         TestField("Check Printed", false);
 
         GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        if GenJnlBatch."No. Series" = '' then
-            exit;
+        GenJnlBatch.TestField("No. Series");
+
         if GetFilter("Document No.") <> '' then
             Error(DocNoFilterErr);
         FirstDocNo := NoSeries.PeekNextNo(GenJnlBatch."No. Series", "Posting Date");
@@ -3853,7 +3826,7 @@ table 81 "Gen. Journal Line"
     /// </summary>
     /// <param name="AccType2">
     /// Current general journal account type.
-    /// This parameter is used to determine if the account type is bank account. 
+    /// This parameter is used to determine if the account type is bank account.
     /// If it is not bank account the currency code will not be updated.
     /// </param>
     /// <param name="AccNo2">Current general journal account number. Used to retrieve bank account.</param>
@@ -6499,6 +6472,7 @@ table 81 "Gen. Journal Line"
         "Due Date" := SalesHeader."Prepayment Due Date";
         "Payment Terms Code" := SalesHeader."Prepmt. Payment Terms Code";
         "Payment Method Code" := SalesHeader."Payment Method Code";
+        "Posting Group" := SalesHeader."Customer Posting Group";
         if UsePmtDisc then begin
             "Pmt. Discount Date" := SalesHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := SalesHeader."Prepmt. Payment Discount %";
@@ -6796,13 +6770,6 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Use SimulateGetNextNo from "No. Series - Batch" instead', '24.0')]
-    procedure IncrementDocumentNo(LocGenJnlBatch: Record "Gen. Journal Batch"; var LastDocNumber: Code[20])
-    begin
-        LastDocNumber := NoSeriesBatch.SimulateGetNextNo(LocGenJnlBatch."No. Series", Rec."Posting Date", LastDocNumber);
-    end;
-#endif
 
     procedure NeedCheckZeroAmount(): Boolean
     begin
@@ -7425,7 +7392,7 @@ table 81 "Gen. Journal Line"
     end;
 
     /// <summary>
-    /// Runs a report that voids electronic payments associated with a general journal line. 
+    /// Runs a report that voids electronic payments associated with a general journal line.
     /// </summary>
     /// <remarks>
     /// The report voids or transmits electronic payments, ensuring accurate and efficient payment processing.
@@ -7497,7 +7464,7 @@ table 81 "Gen. Journal Line"
     end;
 
     /// <summary>
-    /// Tests if the salesperson/purchaser privacy is not blocked of the provided general journal line. 
+    /// Tests if the salesperson/purchaser privacy is not blocked of the provided general journal line.
     /// If privacy is blocked, an error is raised.
     /// </summary>
     /// <param name="GenJournalLine2">General journal line to check.</param>
@@ -8915,13 +8882,6 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Subscribe to OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries in Gen. Jnl.-Post Batch instead.', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDocNoBasedOnNoSeries(var GenJournalLine: Record "Gen. Journal Line"; LastDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     /// <summary>
     /// Event triggered before copying dimensions from the job task line.
@@ -10318,7 +10278,9 @@ table 81 "Gen. Journal Line"
     local procedure CheckPostingGroupChange()
     var
         Customer: Record Customer;
+        Employee: Record Employee;
         Vendor: Record Vendor;
+        HumanResourcesSetup: Record "Human Resources Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PostingGroupChangeInterface: Interface "Posting Group Change Method";
@@ -10333,9 +10295,9 @@ table 81 "Gen. Journal Line"
             case "Account Type" of
                 "Account Type"::Customer:
                     begin
-                        Customer.Get("Account No.");
                         SalesReceivablesSetup.Get();
                         if SalesReceivablesSetup."Allow Multiple Posting Groups" then begin
+                            Customer.Get("Account No.");
                             Customer.TestField("Allow Multiple Posting Groups");
                             PostingGroupChangeInterface := SalesReceivablesSetup."Check Multiple Posting Groups";
                             PostingGroupChangeInterface.ChangePostingGroup("Posting Group", xRec."Posting Group", Rec);
@@ -10343,11 +10305,21 @@ table 81 "Gen. Journal Line"
                     end;
                 "Account Type"::Vendor:
                     begin
-                        Vendor.Get("Account No.");
                         PurchasesPayablesSetup.Get();
                         if PurchasesPayablesSetup."Allow Multiple Posting Groups" then begin
+                            Vendor.Get("Account No.");
                             Vendor.TestField("Allow Multiple Posting Groups");
                             PostingGroupChangeInterface := PurchasesPayablesSetup."Check Multiple Posting Groups";
+                            PostingGroupChangeInterface.ChangePostingGroup("Posting Group", xRec."Posting Group", Rec);
+                        end;
+                    end;
+                "Account Type"::Employee:
+                    begin
+                        HumanResourcesSetup.Get();
+                        if HumanResourcesSetup."Allow Multiple Posting Groups" then begin
+                            Employee.Get("Account No.");
+                            Employee.TestField("Allow Multiple Posting Groups");
+                            PostingGroupChangeInterface := HumanResourcesSetup."Check Multiple Posting Groups";
                             PostingGroupChangeInterface.ChangePostingGroup("Posting Group", xRec."Posting Group", Rec);
                         end;
                     end;
@@ -11448,13 +11420,6 @@ table 81 "Gen. Journal Line"
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('Currency posting for employee is now allowed, so check was removed', '24.0')]
-    local procedure OnBeforeCheckCurrencyForEmployee(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var Condition: Boolean)
-    begin
-    end;
-#endif
 
     /// <summary>
     /// Event triggered before default validation for the "Job No." field has been executed.
@@ -11909,11 +11874,6 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetFAAddCurrExchRateOnBeforeFADeprBookTestField(var FADeprBook: Record "FA Depreciation Book"; var IsHandled: Boolean);
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnUpdateLineBalanceOnBeforeUpdateAmounts(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

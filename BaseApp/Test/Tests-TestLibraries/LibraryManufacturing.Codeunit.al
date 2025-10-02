@@ -1,3 +1,4 @@
+#pragma warning disable AL0801
 codeunit 132202 "Library - Manufacturing"
 {
     // Unsupported version tags:
@@ -16,8 +17,42 @@ codeunit 132202 "Library - Manufacturing"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
+        Assert: Codeunit Assert;
+        BOMItemLineNo: Integer;
         TemplateName: Label 'FOR. LABOR';
         BatchName: Label 'DEFAULT', Comment = 'Default Batch';
+        OutputConsumpMismatchTxt: Label 'Output Cost in Prod. Order %1, line %2 does not match Consumption.';
+        OutputVarianceMismatchTxt: Label 'Output Cost including Variance in Prod. Order %1, line %2 does not match total Standard Cost of Produced Item.';
+        Text003Msg: Label 'Inbound Whse. Requests are created.';
+        Text004Msg: Label 'No Inbound Whse. Request is created.';
+        Text005Msg: Label 'Inbound Whse. Requests have already been created.';
+
+    procedure AddProdBOMItem(var MfgItem: Record Item; SubItemNo: Code[20]; Qty: Decimal)
+    var
+        ProdBOMHeader: Record "Production BOM Header";
+        ProdBOMLine: Record "Production BOM Line";
+        subItem: Record Item;
+    begin
+        if MfgItem.IsMfgItem() then
+            ProdBOMHeader.Get(MfgItem."Production BOM No.")
+        else begin
+            ProdBOMHeader."No." := CopyStr(MfgItem."No." + 'BOM', 1, MaxStrLen(ProdBOMHeader."No."));
+            ProdBOMHeader.Status := ProdBOMHeader.Status::Certified;
+            ProdBOMHeader.Insert();
+            MfgItem."Production BOM No." := ProdBOMHeader."No.";
+            MfgItem."Replenishment System" := MfgItem."Replenishment System"::"Prod. Order";
+            MfgItem.Modify();
+        end;
+        ProdBOMLine."Production BOM No." := ProdBOMHeader."No.";
+        BOMItemLineNo += 1;
+        ProdBOMLine."Line No." := BOMItemLineNo;
+        ProdBOMLine.Type := ProdBOMLine.Type::Item;
+        ProdBOMLine."No." := SubItemNo;
+        subItem.Get(SubItemNo);
+        ProdBOMLine."Unit of Measure Code" := subItem."Base Unit of Measure";
+        ProdBOMLine.Quantity := Qty;
+        ProdBOMLine.Insert();
+    end;
 
     procedure CalculateConsumption(ProductionOrderNo: Code[20]; ItemJournalTemplateName: Code[10]; ItemJournalBatchName: Code[10])
     var
@@ -210,15 +245,6 @@ codeunit 132202 "Library - Manufacturing"
         exit(ProductionOrder."No.");
     end;
 
-#if not CLEAN24
-    [Obsolete('Moved implementation to ChangeProuctionOrderStatus method.', '24.0')]
-    procedure ChangeStatusFirmPlanToReleased(ProductionOrderNo: Code[20]; FromStatus: Enum "Production Order Status"; ToStatus: Enum "Production Order Status"): Code[20]
-    var
-        ProductionOrder: Record "Production Order";
-    begin
-        exit(ChangeProuctionOrderStatus(ProductionOrderNo, FromStatus, ToStatus));
-    end;
-#endif
     procedure ChangeStatusFirmPlanToReleased(ProductionOrderNo: Code[20]): Code[20]
     var
         ProductionOrder: Record "Production Order";
@@ -231,6 +257,57 @@ codeunit 132202 "Library - Manufacturing"
         ProductionOrder: Record "Production Order";
     begin
         exit(ChangeProuctionOrderStatus(ProductionOrderNo, ProductionOrder.Status::Simulated, ProductionOrder.Status::Released));
+    end;
+
+    procedure CheckProductionOrderCost(ProdOrder: Record "Production Order"; VerifyVarianceinOutput: Boolean)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+        ProdOrderLine: Record "Prod. Order Line";
+        ConsumptionCost: Decimal;
+        OutpuCostwithoutVariance: Decimal;
+        OutputCostinclVariance: Decimal;
+        RefOutputCostinclVariance: Decimal;
+    begin
+        ProdOrderLine.SetRange(Status, ProdOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
+        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
+        ItemLedgerEntry.SetRange("Order No.", ProdOrder."No.");
+        if ProdOrderLine.FindSet() then begin
+            OutpuCostwithoutVariance := 0;
+            ConsumptionCost := 0;
+            repeat
+                ItemLedgerEntry.SetRange("Order Line No.", ProdOrderLine."Line No.");
+                if ItemLedgerEntry.FindSet() then
+                    repeat
+                        ItemLedgerEntry.CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
+                        if ItemLedgerEntry."Entry Type" = ItemLedgerEntry."Entry Type"::Consumption then
+                            ConsumptionCost += ItemLedgerEntry."Cost Amount (Expected)" + ItemLedgerEntry."Cost Amount (Actual)"
+                        else
+                            if ItemLedgerEntry."Entry Type" = ItemLedgerEntry."Entry Type"::Output then begin
+                                ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
+                                if VerifyVarianceinOutput then begin
+                                    ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
+                                    ValueEntry.CalcSums("Cost Amount (Actual)");
+                                    OutputCostinclVariance := Round(ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision());
+                                end;
+                                ValueEntry.SetFilter("Entry Type", '<>%1', ValueEntry."Entry Type"::Variance);
+                                ValueEntry.CalcSums("Cost Amount (Actual)");
+                                OutpuCostwithoutVariance += ValueEntry."Cost Amount (Actual)";
+                            end;
+                    until ItemLedgerEntry.Next() = 0;
+                Assert.AreEqual(
+                  -ConsumptionCost, OutpuCostwithoutVariance,
+                  StrSubstNo(OutputConsumpMismatchTxt, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No."));
+                if VerifyVarianceinOutput then begin
+                    RefOutputCostinclVariance :=
+                      Round(ProdOrderLine."Unit Cost" * ProdOrderLine.Quantity, LibraryERM.GetAmountRoundingPrecision());
+                    Assert.AreEqual(
+                      -RefOutputCostinclVariance, OutputCostinclVariance,
+                      StrSubstNo(OutputVarianceMismatchTxt, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No."));
+                end;
+            until ProdOrderLine.Next() = 0;
+        end;
     end;
 
     procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; Quantity: Decimal)
@@ -825,6 +902,27 @@ codeunit 132202 "Library - Manufacturing"
         exit(WorkShift.Code);
     end;
 
+    procedure CreateInboundWhseReqFromProdOrder(ProductionOrder: Record "Production Order")
+    var
+        WhseOutputProdRelease: Codeunit "Whse.-Output Prod. Release";
+    begin
+        if WhseOutputProdRelease.CheckWhseRqst(ProductionOrder) then
+            Message(Text005Msg)
+        else begin
+            Clear(WhseOutputProdRelease);
+            if WhseOutputProdRelease.Release(ProductionOrder) then
+                Message(Text003Msg)
+            else
+                Message(Text004Msg);
+        end;
+    end;
+
+    procedure CreateWhsePickFromProduction(ProductionOrder: Record "Production Order")
+    begin
+        ProductionOrder.SetHideValidationDialog(true);
+        ProductionOrder.CreatePick(CopyStr(UserId(), 1, 50), 0, false, false, false);
+    end;
+
     procedure OpenProductionJournal(ProductionOrder: Record "Production Order"; ProductionOrderLineNo: Integer)
     var
         ProductionJournalMgt: Codeunit "Production Journal Mgt";
@@ -988,6 +1086,34 @@ codeunit 132202 "Library - Manufacturing"
         ReqJnlManagement.OpenJnl(RequisitionLine."Journal Batch Name", RequisitionLine);
     end;
 
+    procedure SuggestCapacityStandardCost(var WorkCenter: Record "Work Center"; var MachineCenter: Record "Machine Center"; StandardCostWorksheetName: Code[10]; StandardCostAdjustmentFactor: Integer; StandardCostRoundingMethod: Code[10])
+    var
+        TmpWorkCenter: Record "Work Center";
+        TmpMachineCenter: Record "Machine Center";
+        SuggestCapacityStandardCostReport: Report "Suggest Capacity Standard Cost";
+    begin
+        Clear(SuggestCapacityStandardCostReport);
+        SuggestCapacityStandardCostReport.Initialize(
+          StandardCostWorksheetName, StandardCostAdjustmentFactor, 0, 0, StandardCostRoundingMethod, '', '');
+        if WorkCenter.HasFilter then
+            TmpWorkCenter.CopyFilters(WorkCenter)
+        else begin
+            WorkCenter.Get(WorkCenter."No.");
+            TmpWorkCenter.SetRange("No.", WorkCenter."No.");
+        end;
+        SuggestCapacityStandardCostReport.SetTableView(TmpWorkCenter);
+
+        if MachineCenter.HasFilter then
+            TmpMachineCenter.CopyFilters(MachineCenter)
+        else begin
+            MachineCenter.Get(MachineCenter."No.");
+            TmpMachineCenter.SetRange("No.", MachineCenter."No.");
+        end;
+        SuggestCapacityStandardCostReport.SetTableView(TmpMachineCenter);
+        SuggestCapacityStandardCostReport.UseRequestPage(false);
+        SuggestCapacityStandardCostReport.Run();
+    end;
+
     procedure UpdateManufacturingSetup(var ManufacturingSetup: Record "Manufacturing Setup"; ShowCapacityIn: Code[10]; ComponentsAtLocation: Code[10]; DocNoIsProdOrderNo: Boolean; CostInclSetup: Boolean; DynamicLowLevelCode: Boolean)
     begin
         // Update Manufacturing Setup.
@@ -1069,6 +1195,25 @@ codeunit 132202 "Library - Manufacturing"
         ManufacturingSetup.Modify(true);
     end;
 
+    procedure UpdateUnitCost(var ProductionOrder: Record "Production Order"; CalcMethod: Option; UpdateReservations: Boolean)
+    var
+        TmpProductionOrder: Record "Production Order";
+        UpdateUnitCostReport: Report "Update Unit Cost";
+    begin
+        Clear(UpdateUnitCostReport);
+        UpdateUnitCostReport.InitializeRequest(CalcMethod, UpdateReservations);
+        if ProductionOrder.HasFilter then
+            TmpProductionOrder.CopyFilters(ProductionOrder)
+        else begin
+            ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+            TmpProductionOrder.SetRange(Status, ProductionOrder.Status);
+            TmpProductionOrder.SetRange("No.", ProductionOrder."No.");
+        end;
+        UpdateUnitCostReport.SetTableView(TmpProductionOrder);
+        UpdateUnitCostReport.UseRequestPage(false);
+        UpdateUnitCostReport.Run();
+    end;
+
     procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
     var
         RoutingLine: Record "Routing Line";
@@ -1083,6 +1228,13 @@ codeunit 132202 "Library - Manufacturing"
     begin
         ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Inc. Non. Inv. Cost To Prod", IncludeNonInventoryCostToProduction);
+        ManufacturingSetup.Modify(true);
+    end;
+
+    procedure UpdateLoadSKUCostOnManufacturingInManufacturingSetup(LoadSKUCostOnManufacturing: Boolean)
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Load SKU Cost on Manufacturing", LoadSKUCostOnManufacturing);
         ManufacturingSetup.Modify(true);
     end;
 
@@ -1268,6 +1420,29 @@ codeunit 132202 "Library - Manufacturing"
         Item.Modify();
     end;
 
+    procedure CreateProdOrderUsingPlanning(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; DocumentNo: Code[20]; SourceNo: Code[20])
+    var
+        SalesOrderPlanning: Page "Sales Order Planning";
+    begin
+        SalesOrderPlanning.SetSalesOrder(DocumentNo);
+        SalesOrderPlanning.BuildForm();
+        SalesOrderPlanning.CreateProdOrder();
+        Clear(ProductionOrder);
+        ProductionOrder.SetRange(Status, Status);
+        ProductionOrder.SetRange("Source No.", SourceNo);
+        ProductionOrder.FindLast();
+    end;
+
+    procedure CreatePlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; var RequisitionLine: Record "Requisition Line"; OperationNo: Code[10])
+    begin
+        PlanningRoutingLine.Init();
+        PlanningRoutingLine.Validate("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningRoutingLine.Validate("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
+        PlanningRoutingLine.Validate("Worksheet Line No.", RequisitionLine."Line No.");
+        PlanningRoutingLine.Validate("Operation No.", OperationNo);
+        PlanningRoutingLine.Insert(true);
+    end;
+
     procedure PostConsumption(ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
@@ -1284,6 +1459,40 @@ codeunit 132202 "Library - Manufacturing"
         Item.Get(ProdOrderLine."Item No.");
         CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, PostingDate, Qty, UnitCost);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    procedure CreateProdOrderItemTracking(var ReservEntry: Record "Reservation Entry"; ProdOrderLine: Record "Prod. Order Line"; SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal)
+    var
+        ItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        ItemTrackingSetup."Serial No." := SerialNo;
+        ItemTrackingSetup."Lot No." := LotNo;
+        CreateProdOrderItemTracking(ReservEntry, ProdOrderLine, ItemTrackingSetup, QtyBase);
+    end;
+
+    procedure CreateProdOrderItemTracking(var ReservEntry: Record "Reservation Entry"; ProdOrderLine: Record "Prod. Order Line"; ItemTrackingSetup: Record "Item Tracking Setup"; QtyBase: Decimal)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(ProdOrderLine);
+        LibraryItemTracking.ItemTracking(ReservEntry, RecRef, ItemTrackingSetup, QtyBase);
+    end;
+
+    procedure CreateProdOrderCompItemTracking(var ReservEntry: Record "Reservation Entry"; ProdOrderComp: Record "Prod. Order Component"; SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal)
+    var
+        ITemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        ItemTrackingSetup."Serial No." := SerialNo;
+        ItemTrackingSetup."Lot No." := LotNo;
+        CreateProdOrderCompItemTracking(ReservEntry, ProdOrderComp, ITemTrackingSetup, QtyBase);
+    end;
+
+    procedure CreateProdOrderCompItemTracking(var ReservEntry: Record "Reservation Entry"; ProdOrderComp: Record "Prod. Order Component"; ItemTrackingSetup: Record "Item Tracking Setup"; QtyBase: Decimal)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(ProdOrderComp);
+        LibraryItemTracking.ItemTracking(ReservEntry, RecRef, ItemTrackingSetup, QtyBase);
     end;
 
     procedure PostOutputWithItemTracking(ProdOrderLine: Record "Prod. Order Line"; Qty: Decimal; RunTime: Decimal; PostingDate: Date; UnitCost: Decimal; SerialNo: Code[50]; LotNo: Code[50])
@@ -1304,6 +1513,53 @@ codeunit 132202 "Library - Manufacturing"
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
+    procedure SetComponentsAtLocation(LocationCode: Code[10])
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", LocationCode);
+        ManufacturingSetup.Modify();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Item Tracking", 'OnItemTracking', '', false, false)]
+    local procedure OnItemTracking(RecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; ItemTrackingSetup: Record "Item Tracking Setup"; QtyBase: Decimal; sender: Codeunit "Library - Item Tracking")
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderCompLine: Record "Prod. Order Component";
+    begin
+        case RecRef.Number of
+            DATABASE::"Prod. Order Line":
+                begin
+                    RecRef.SetTable(ProdOrderLine);
+                    // COPY FROM COD 99000837: CallItemTracking
+                    if ProdOrderLine.Status = ProdOrderLine.Status::Finished then
+                        exit;
+                    ProdOrderLine.TestField("Item No.");
+                    // COPY END
+                    sender.InsertItemTracking(
+                        ReservEntry, ProdOrderLine.Quantity > 0,
+                        ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
+                        QtyBase, ProdOrderLine."Qty. per Unit of Measure", ItemTrackingSetup,
+                        DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.",
+                        '', ProdOrderLine."Line No.", 0, ProdOrderLine."Due Date");
+                end;
+            DATABASE::"Prod. Order Component":
+                begin
+                    RecRef.SetTable(ProdOrderCompLine);
+                    // COPY FROM COD 99000838: CallItemTracking
+                    if ProdOrderCompLine.Status = ProdOrderCompLine.Status::Finished then
+                        exit;
+                    ProdOrderCompLine.TestField("Item No.");
+                    // COPY END
+                    sender.InsertItemTracking(
+                        ReservEntry, ProdOrderCompLine.Quantity < 0,
+                        ProdOrderCompLine."Item No.", ProdOrderCompLine."Location Code", ProdOrderCompLine."Variant Code",
+                        -QtyBase, ProdOrderCompLine."Qty. per Unit of Measure", ItemTrackingSetup,
+                        DATABASE::"Prod. Order Component", ProdOrderCompLine.Status.AsInteger(), ProdOrderCompLine."Prod. Order No.",
+                        '', ProdOrderCompLine."Prod. Order Line No.", ProdOrderCompLine."Line No.", ProdOrderCompLine."Due Date");
+                end;
+        end;
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Assembly", 'OnCreateMultipleLvlTreeOnCreateBOM', '', false, false)]
     local procedure OnCreateMultipleLvlTreeOnCreateBOM(var Item: Record Item; NoOfComps: Integer; var BOMCreated: Boolean)
     begin
@@ -1312,5 +1568,106 @@ codeunit 132202 "Library - Manufacturing"
             BOMCreated := true;
         end;
     end;
-}
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnGetTableNosWithGlobalDimensionCode', '', false, false)]
+    local procedure OnGetTableNosWithGlobalDimensionCode(var TableBuffer: Record "Integer" temporary; sender: Codeunit "Library - Dimension")
+    begin
+        sender.AddTable(TableBuffer, DATABASE::"Work Center");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"License Management Starter", 'OnAfterReduceDemodata', '', false, false)]
+    local procedure OnAfterReduceDemodata()
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ProdOrderRoutingTool: Record "Prod. Order Routing Tool";
+        ProdOrderRoutingPersonnel: Record "Prod. Order Routing Personnel";
+        ProdOrderRtngQltyMeas: Record "Prod. Order Rtng Qlty Meas.";
+        ProdOrderCommentLine: Record "Prod. Order Comment Line";
+        ProdOrderRtngCommentLine: Record "Prod. Order Rtng Comment Line";
+        ProdOrderCompCmtLine: Record "Prod. Order Comp. Cmt Line";
+        WorkShift: Record "Work Shift";
+        ShopCalendar: Record "Shop Calendar";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        ShopCalendarHoliday: Record "Shop Calendar Holiday";
+        WorkCenter: Record "Work Center";
+        WorkCenterGroup: Record "Work Center Group";
+        CalendarEntry: Record "Calendar Entry";
+        MachineCenter: Record "Machine Center";
+        CalendarAbsenceEntry: Record "Calendar Absence Entry";
+        Stop: Record Stop;
+        Scrap: Record Scrap;
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Family: Record Family;
+        FamilyLine: Record "Family Line";
+        RoutingCommentLine: Record "Routing Comment Line";
+        RoutingLink: Record "Routing Link";
+        StandardTask: Record "Standard Task";
+        ProductionBOMVersion: Record "Production BOM Version";
+        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+        StandardTaskTool: Record "Standard Task Tool";
+        StandardTaskPersonnel: Record "Standard Task Personnel";
+        StandardTaskDescription: Record "Standard Task Description";
+        StandardTaskQualityMeasure: Record "Standard Task Quality Measure";
+        QualityMeasure: Record "Quality Measure";
+        RoutingVersion: Record "Routing Version";
+        ProductionMatrixBOMLine: Record "Production Matrix BOM Line";
+        ProductionMatrixBOMEntry: Record "Production Matrix  BOM Entry";
+        RoutingTool: Record "Routing Tool";
+        RoutingPersonnel: Record "Routing Personnel";
+        RoutingQualityMeasure: Record "Routing Quality Measure";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        PlanningBuffer: Record "Planning Buffer";
+        ProductionForecastName: Record "Production Forecast Name";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        RegisteredAbsence: Record "Registered Absence";
+        CapacityConstrainedResource: Record "Capacity Constrained Resource";
+    begin
+        ProdOrderRoutingLine.DeleteAll();
+        ProdOrderCapacityNeed.DeleteAll();
+        ProdOrderRoutingTool.DeleteAll();
+        ProdOrderRoutingPersonnel.DeleteAll();
+        ProdOrderRtngQltyMeas.DeleteAll();
+        ProdOrderCommentLine.DeleteAll();
+        ProdOrderRtngCommentLine.DeleteAll();
+        ProdOrderCompCmtLine.DeleteAll();
+        WorkShift.DeleteAll();
+        ShopCalendar.DeleteAll();
+        ShopCalendarWorkingDays.DeleteAll();
+        ShopCalendarHoliday.DeleteAll();
+        WorkCenter.DeleteAll();
+        WorkCenterGroup.DeleteAll();
+        CalendarEntry.DeleteAll();
+        MachineCenter.DeleteAll();
+        CalendarAbsenceEntry.DeleteAll();
+        Stop.DeleteAll();
+        Scrap.DeleteAll();
+        RoutingHeader.DeleteAll();
+        RoutingLine.DeleteAll();
+        Family.DeleteAll();
+        FamilyLine.DeleteAll();
+        RoutingCommentLine.DeleteAll();
+        RoutingLink.DeleteAll();
+        StandardTask.DeleteAll();
+        ProductionBOMVersion.DeleteAll();
+        CapacityUnitOfMeasure.DeleteAll();
+        StandardTaskTool.DeleteAll();
+        StandardTaskPersonnel.DeleteAll();
+        StandardTaskDescription.DeleteAll();
+        StandardTaskQualityMeasure.DeleteAll();
+        QualityMeasure.DeleteAll();
+        RoutingVersion.DeleteAll();
+        ProductionMatrixBOMLine.DeleteAll();
+        ProductionMatrixBOMEntry.DeleteAll();
+        RoutingTool.DeleteAll();
+        RoutingPersonnel.DeleteAll();
+        RoutingQualityMeasure.DeleteAll();
+        PlanningRoutingLine.DeleteAll();
+        PlanningBuffer.DeleteAll();
+        RegisteredAbsence.DeleteAll();
+        ProductionForecastName.DeleteAll();
+        ProductionForecastEntry.DeleteAll();
+        CapacityConstrainedResource.DeleteAll();
+    end;
+}

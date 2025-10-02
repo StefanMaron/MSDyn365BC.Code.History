@@ -6,7 +6,6 @@ namespace Microsoft.Inventory.Availability;
 
 using Microsoft.Foundation.Enums;
 using Microsoft.Purchases.Document;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 
@@ -261,41 +260,6 @@ page 515 "Item Avail. by Location Lines"
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the quantity of the item that is currently in inventory and not reserved for other demand.';
                     Visible = false;
-                }
-#pragma warning disable AA0100
-                field("Item.""Scheduled Receipt (Qty.)"""; Item."Scheduled Receipt (Qty.)")
-#pragma warning restore AA0100
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Scheduled Receipt (Qty.)';
-                    DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies how many units of the item are scheduled for production orders. The program automatically calculates and updates the contents of the field, using the Remaining Quantity field on production order lines.';
-                    Visible = false;
-
-                    trigger OnDrillDown()
-                    var
-                        ProdOrderAvailabilityMgt: Codeunit "Prod. Order Availability Mgt.";
-                    begin
-                        SetItemFilter();
-                        ProdOrderAvailabilityMgt.ShowSchedReceipt(Item);
-                    end;
-                }
-#pragma warning disable AA0100
-                field("Item.""Scheduled Need (Qty.)"""; Item."Qty. on Component Lines")
-#pragma warning restore AA0100
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Qty. on Component Lines';
-                    ToolTip = 'Specifies the sum of items from planned production orders.';
-                    Visible = false;
-
-                    trigger OnDrillDown()
-                    var
-                        ProdOrderAvailabilityMgt: Codeunit "Prod. Order Availability Mgt.";
-                    begin
-                        SetItemFilter();
-                        ProdOrderAvailabilityMgt.ShowSchedNeed(Item);
-                    end;
                 }
                 field(PlannedOrderReleases; PlannedOrderReleases)
                 {

@@ -111,6 +111,7 @@ table 8065 "Vend. Sub. Contract Line"
             FieldClass = FlowField;
             CalcFormula = lookup("Subscription Header".Quantity where("No." = field("Subscription Header No.")));
             Editable = false;
+            AutoFormatType = 0;
         }
         field(200; "Planned Sub. Line exists"; Boolean)
         {
@@ -453,9 +454,11 @@ table 8065 "Vend. Sub. Contract Line"
             repeat
                 ServiceCommitment.Get(VendorContractLine."Subscription Line Entry No.");
                 UpdateServiceCommitmentAndCloseVendorContractLine(ServiceCommitment, VendorContractLine);
+#pragma warning disable AA0214
                 ServiceObject.Get(VendorContractLine."Subscription Header No.");
                 ServiceObject.UpdateServicesDates();
                 ServiceObject.Modify(false);
+#pragma warning restore AA0214
             until VendorContractLine.Next() = 0;
     end;
 

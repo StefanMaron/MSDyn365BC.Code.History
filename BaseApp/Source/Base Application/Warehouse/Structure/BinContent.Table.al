@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.Structure;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Structure;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.AllocationAccount.Purchase;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.AllocationAccount.Purchase;
 
 using Microsoft.Finance.AllocationAccount;
 using Microsoft.Finance.Deferral;
@@ -377,6 +381,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         TransferDimensionSetID(PurchaseLine, AllocationLine, AllocationPurchaseLine."Alloc. Acc. Modified by User");
         PurchaseLine."Allocation Account No." := AllocationLine."Allocation Account No.";
         PurchaseLine."Selected Alloc. Account No." := '';
+        PurchaseLine."Alloc. Purch. Line SystemId" := AllocationPurchaseLine.SystemId;
         OnBeforeCreatePurchaseLine(PurchaseLine, AllocationLine, AllocationPurchaseLine);
         BindSubscription(AllocAccHandleDocPost);
         PurchaseLine.Insert(true);

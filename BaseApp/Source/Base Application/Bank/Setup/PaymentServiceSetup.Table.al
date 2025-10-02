@@ -10,6 +10,15 @@ using Microsoft.Sales.History;
 using System.Reflection;
 using System.IO;
 
+/// <summary>
+/// Configures external payment service providers for online payment processing.
+/// Manages integration settings for services like PayPal, Microsoft Wallet, and WorldPay.
+/// </summary>
+/// <remarks>
+/// Supports multiple payment providers with individual configuration and enable/disable control.
+/// Integrates with sales documents to offer payment options to customers.
+/// Extensible through OnCanChangePaymentService and related integration events.
+/// </remarks>
 table 1060 "Payment Service Setup"
 {
     Caption = 'Payment Service Setup';
@@ -19,24 +28,43 @@ table 1060 "Payment Service Setup"
 
     fields
     {
+        /// <summary>
+        /// Unique identifier for the payment service configuration.
+        /// </summary>
         field(1; "No."; Text[250])
         {
             Caption = 'No.';
         }
+        /// <summary>
+        /// Display name of the payment service provider.
+        /// Shown to users in payment selection interfaces.
+        /// </summary>
         field(2; Name; Text[250])
         {
             Caption = 'Name';
             NotBlank = true;
         }
+        /// <summary>
+        /// Detailed description of the payment service and its capabilities.
+        /// Provides additional information about the payment provider to users.
+        /// </summary>
         field(3; Description; Text[250])
         {
             Caption = 'Description';
             NotBlank = true;
         }
+        /// <summary>
+        /// Controls whether this payment service is active and available for use.
+        /// When disabled, the service will not appear in payment options.
+        /// </summary>
         field(4; Enabled; Boolean)
         {
             Caption = 'Enabled';
         }
+        /// <summary>
+        /// Determines if this payment service should be included on all sales documents by default.
+        /// When enabled, automatically adds this service to new and existing invoices.
+        /// </summary>
         field(5; "Always Include on Documents"; Boolean)
         {
             Caption = 'Always Include on Documents';
@@ -55,25 +83,45 @@ table 1060 "Payment Service Setup"
                 end;
             end;
         }
+        /// <summary>
+        /// Record ID pointing to the specific setup record for this payment service.
+        /// Links to provider-specific configuration tables.
+        /// </summary>
         field(6; "Setup Record ID"; RecordID)
         {
             Caption = 'Setup Record ID';
             DataClassification = CustomerContent;
         }
+        /// <summary>
+        /// Page ID for the payment service setup configuration page.
+        /// Allows users to access provider-specific setup options.
+        /// </summary>
         field(7; "Setup Page ID"; Integer)
         {
             Caption = 'Setup Page ID';
         }
+        /// <summary>
+        /// URL link to the payment service provider's terms of service.
+        /// Provides legal and usage information for the payment service.
+        /// </summary>
         field(8; "Terms of Service"; Text[250])
         {
             Caption = 'Terms of Service';
             Editable = false;
             ExtendedDatatype = URL;
         }
+        /// <summary>
+        /// Indicates whether the payment service is currently available for use.
+        /// May be controlled by system conditions or external service status.
+        /// </summary>
         field(100; Available; Boolean)
         {
             Caption = 'Available';
         }
+        /// <summary>
+        /// Codeunit ID that handles the business logic for this payment service.
+        /// Contains provider-specific implementation for payment processing.
+        /// </summary>
         field(101; "Management Codeunit ID"; Integer)
         {
             Caption = 'Management Codeunit ID';
@@ -105,6 +153,10 @@ table 1060 "Payment Service Setup"
         UpdateExistingInvoicesQst: Label 'Do you want to update the ongoing Sales Invoices with this Payment Service information?';
         ReminderToSendAgainMsg: Label 'The payment service was successfully changed.\\The invoice recipient will see the change when you send, or resend, the invoice.';
 
+    /// <summary>
+    /// Opens the setup card page for this payment service configuration.
+    /// Allows users to modify provider-specific settings and parameters.
+    /// </summary>
     procedure OpenSetupCard()
     var
         DataTypeManagement: Codeunit "Data Type Management";
@@ -118,6 +170,12 @@ table 1060 "Payment Service Setup"
         PAGE.RunModal("Setup Page ID", SetupRecordVariant);
     end;
 
+    /// <summary>
+    /// Creates payment reporting arguments for a specific document and its associated payment services.
+    /// Generates the data needed for payment provider integration and customer communication.
+    /// </summary>
+    /// <param name="PaymentReportingArgument">Temporary table to populate with payment service arguments</param>
+    /// <param name="DocumentRecordVariant">Source document record (typically Sales Header or Invoice)</param>
     procedure CreateReportingArgs(var PaymentReportingArgument: Record "Payment Reporting Argument"; DocumentRecordVariant: Variant)
     var
         DummySalesHeader: Record "Sales Header";
@@ -447,31 +505,83 @@ table 1060 "Payment Service Setup"
             HyperLink("Terms of Service");
     end;
 
+    /// <summary>
+    /// Integration event for registering available payment services in the system.
+    /// Enables extensions to add custom payment service configurations.
+    /// </summary>
+    /// <param name="PaymentServiceSetup">Temporary record for collecting payment service registrations</param>
+    /// <remarks>
+    /// Raised during payment service discovery to allow extensions to register their services.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     procedure OnRegisterPaymentServices(var PaymentServiceSetup: Record "Payment Service Setup")
     begin
     end;
 
+    /// <summary>
+    /// Integration event for registering payment service providers and their capabilities.
+    /// Allows extensions to define new payment provider types and configurations.
+    /// </summary>
+    /// <param name="PaymentServiceSetup">Record for provider registration and setup</param>
+    /// <remarks>
+    /// Raised when building the list of available payment service providers.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     procedure OnRegisterPaymentServiceProviders(var PaymentServiceSetup: Record "Payment Service Setup")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised before checking if a payment method can be used.
+    /// Enables custom validation logic for payment method availability.
+    /// </summary>
+    /// <param name="PaymentMethodCode">Payment method code being validated</param>
+    /// <param name="Result">Whether the payment method can be used (can be modified by subscribers)</param>
+    /// <param name="IsHandled">Set to true to skip standard validation logic</param>
+    /// <remarks>
+    /// Raised from CanUsePaymentMethod function before standard payment method validation.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCanUsePaymentMethod(PaymentMethodCode: Code[10]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event for custom payment service creation logic.
+    /// Allows extensions to perform additional setup when creating payment services.
+    /// </summary>
+    /// <param name="PaymentServiceSetup">Payment service setup record being created</param>
+    /// <remarks>
+    /// Raised when a new payment service is being created through the setup process.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     procedure OnCreatePaymentService(var PaymentServiceSetup: Record "Payment Service Setup")
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised when removing payment services from all documents.
+    /// Enables custom cleanup logic when disabling payment service integration.
+    /// </summary>
+    /// <remarks>
+    /// Raised when globally disabling payment service inclusion on documents.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     procedure OnDoNotIncludeAnyPaymentServicesOnAllDocuments()
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised after determining document context for payment service changes.
+    /// Enables custom validation logic for payment service modification permissions.
+    /// </summary>
+    /// <param name="DocumentVariant">Document record being evaluated</param>
+    /// <param name="DocumentRecordRef">Record reference for the document</param>
+    /// <param name="Result">Whether payment service can be changed (can be modified by subscribers)</param>
+    /// <param name="IsHandled">Set to true to skip standard validation logic</param>
+    /// <remarks>
+    /// Raised from CanChangePaymentService function after getting document record reference.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnCanChangePaymentServiceOnAfterGetRecordRef(DocumentVariant: Variant; DocumentRecordRef: RecordRef; var Result: Boolean; var IsHandled: Boolean)
     begin

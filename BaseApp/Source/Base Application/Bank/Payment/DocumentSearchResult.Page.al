@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
+/// <summary>
+/// Page 986 "Document Search Result" displays the results of document searches performed during payment registration.
+/// This page shows a list of documents found based on search criteria, allowing users to select and drill down into document details.
+/// </summary>
+/// <remarks>
+/// Source table: Document Search Result (temporary). Used to display search results
+/// from document search operations during payment processing workflows.
+/// </remarks>
 page 986 "Document Search Result"
 {
     Caption = 'Document Search Result';

@@ -295,6 +295,8 @@ report 5602 "Fixed Asset Journal - Test"
 
     requestpage
     {
+        AboutTitle = 'About Fixed Asset Journal - Test';
+        AboutText = 'View the journal lines in a fixed asset journal. You can use the report to check the lines before you post the journal.';
 
         layout
         {

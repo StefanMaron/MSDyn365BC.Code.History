@@ -1,4 +1,3 @@
-#pragma warning disable AS0018
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -90,4 +89,3 @@ codeunit 6186 ReceiveContext
         Name: Text[256];
 
 }
-#pragma warning restore AS0018

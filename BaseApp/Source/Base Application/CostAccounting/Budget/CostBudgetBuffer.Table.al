@@ -46,6 +46,8 @@ table 1114 "Cost Budget Buffer"
         }
         field(6; Amount; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             Caption = 'Amount';
             DataClassification = SystemMetadata;
         }
@@ -63,4 +65,3 @@ table 1114 "Cost Budget Buffer"
     {
     }
 }
-

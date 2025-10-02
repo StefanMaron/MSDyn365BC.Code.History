@@ -11,11 +11,9 @@
 
     var
         LibraryERM: Codeunit "Library - ERM";
-        LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
-        LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
 
@@ -114,36 +112,6 @@
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purch. Doc. Reports - II");
     end;
 
-    local procedure CreateItem(): Code[20]
-    var
-        Item: Record Item;
-    begin
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Last Direct Cost", LibraryRandom.RandDec(100, 2));   // Using RANDOM value for Last Direct Cost.
-        Item.Modify(true);
-        exit(Item."No.");
-    end;
-
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type") DocumentNo: Code[20]
-    begin
-        // Create a Purchase Document Without Currency.
-        CreatePurchaseDocument(PurchaseHeader, DocumentType, CreateItem(), '');
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-    end;
-
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; CurrencyCode: Code[10])
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor());
-        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
-        PurchaseHeader.Validate("Currency Code", CurrencyCode);
-        PurchaseHeader.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));  // Use Random Value.
-    end;
-
     local procedure CreateVendor(): Code[20]
     var
         Vendor: Record Vendor;
@@ -175,18 +143,6 @@
         Vendor.Modify(true);
     end;
 
-    local procedure UpdateAndPostPurchaseDocument(DocumentType: Enum "Purchase Document Type") DocumentNo: Code[20]
-    var
-        PurchaseHeader: Record "Purchase Header";
-    begin
-        // Take Posting Date Earlier than Workdate.
-        CreatePurchaseDocument(PurchaseHeader, DocumentType, CreateItem(), '');
-        PurchaseHeader.Validate(
-          "Posting Date", CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'M>', PurchaseHeader."Posting Date"));
-        PurchaseHeader.Modify(true);
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-    end;
-
     local procedure VerifyLabels(Vendor: Record Vendor; Index: Integer; NumberOfColumns: Integer)
     var
         CountryRegion: Record "Country/Region";
@@ -207,51 +163,6 @@
         LibraryReportDataset.AssertElementWithValueExists(StrSubstNo('VendAddr_%1__5_', Column), CountryRegion.Name);
     end;
 
-    local procedure VerifyPurchaseInvoiceNosReport(No: Code[20])
-    var
-        PurchInvHeader: Record "Purch. Inv. Header";
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.GetNextRow();
-
-        PurchInvHeader.Get(No);
-        LibraryReportDataset.AssertCurrentRowValueEquals('PurchInvHeader__Pay_to_Vendor_No__', PurchInvHeader."Pay-to Vendor No.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('PurchInvHeader__Source_Code_', PurchInvHeader."Source Code");
-        LibraryReportDataset.AssertCurrentRowValueEquals('PurchInvHeader__Pay_to_Name_', PurchInvHeader."Pay-to Name");
-    end;
-
-    local procedure VerifyPurchCreditMemoNosReport(No: Code[20])
-    var
-        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.GetNextRow();
-
-        PurchCrMemoHdr.Get(No);
-        LibraryReportDataset.AssertCurrentRowValueEquals('PurchCrMemoHeader__Pay_to_Vendor_No__', PurchCrMemoHdr."Pay-to Vendor No.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('PurchCrMemoHeader__Source_Code_', PurchCrMemoHdr."Source Code");
-        LibraryReportDataset.AssertCurrentRowValueEquals('PurchCrMemoHeader__Pay_to_Name_', PurchCrMemoHdr."Pay-to Name");
-    end;
-
-    local procedure VerifyVendorDocumentsNosReport(DocumentNo: Code[20])
-    var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.GetNextRow();
-
-        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst();
-
-        LibraryReportDataset.AssertCurrentRowValueEquals('VendLedgerEntry__Vendor_No__', VendorLedgerEntry."Vendor No.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('VendLedgerEntry__Source_Code_', VendorLedgerEntry."Source Code");
-        LibraryReportDataset.AssertCurrentRowValueEquals('VendLedgerEntry__Document_No__', VendorLedgerEntry."Document No.");
-    end;
-
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -265,4 +176,3 @@
         VendorLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

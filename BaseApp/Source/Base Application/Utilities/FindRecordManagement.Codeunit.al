@@ -8,16 +8,14 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.Inventory.Item;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Projects.Resources.Resource;
 using System.Reflection;
 using System.Text;
+using Microsoft.Finance.AllocationAccount;
 
 codeunit 703 "Find Record Management"
 {
-    Permissions = tabledata "G/L Entry" = r,
-                  tabledata "Capacity Ledger Entry" = r;
-
+    Permissions = tabledata "G/L Entry" = r;
 
     trigger OnRun()
     begin
@@ -126,7 +124,7 @@ codeunit 703 "Find Record Management"
         end;
     end;
 
-    procedure FindNoFromTypedValue(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; Value: Code[20]; UseDefaultTableRelationFilters: Boolean): Code[20]
+    procedure FindNoFromTypedValue(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)",,,,,"Allocation Account"; Value: Code[20]; UseDefaultTableRelationFilters: Boolean): Code[20]
     var
         Item: Record Item;
         FoundNo: Code[20];
@@ -145,7 +143,7 @@ codeunit 703 "Find Record Management"
     end;
 
     [Scope('OnPrem')]
-    procedure FindNoByDescription(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; Description: Text; UseDefaultTableRelationFilters: Boolean): Code[20]
+    procedure FindNoByDescription(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)",,,,,"Allocation Account"; Description: Text; UseDefaultTableRelationFilters: Boolean): Code[20]
     var
         GLAccount: Record "G/L Account";
         ResultValue: Text;
@@ -160,13 +158,13 @@ codeunit 703 "Find Record Management"
         exit('');
     end;
 
-    procedure FindRecordByDescription(var Result: Text; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; SearchText: Text): Integer
+    procedure FindRecordByDescription(var Result: Text; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)",,,,,"Allocation Account"; SearchText: Text): Integer
     begin
         exit(FindRecordByDescriptionAndView(Result, Type, SearchText, ''));
     end;
 
     [Scope('OnPrem')]
-    procedure FindRecordByDescriptionAndView(var Result: Text; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; SearchText: Text; RecordView: Text) RecordsCount: Integer
+    procedure FindRecordByDescriptionAndView(var Result: Text; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)",,,,,"Allocation Account"; SearchText: Text; RecordView: Text) RecordsCount: Integer
     var
         RecRef: RecordRef;
         SearchFieldRef: array[4] of FieldRef;
@@ -179,15 +177,12 @@ codeunit 703 "Find Record Management"
         IsHandled: Boolean;
     begin
         // Try to find a record by SearchText looking into "No." OR "Description" fields
-        // SearchFieldNo[1] - "No."
+        // SearchFieldNo[1] - "No."/Code
         // SearchFieldNo[2] - "Description"/"Name"
         // SearchFieldNo[3] - "Base Unit of Measure" (used for items)
         Result := '';
 
         if SearchText = '' then
-            exit(0);
-
-        if not (Type in [Type::" " .. Type::"Charge (Item)"]) then
             exit(0);
 
         GetRecRefAndFieldsNoByType(RecRef, Type, SearchFieldNo);
@@ -372,7 +367,7 @@ codeunit 703 "Find Record Management"
         exit(false);
     end;
 
-    local procedure GetRecRefAndFieldsNoByType(RecRef: RecordRef; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; var SearchFieldNo: array[4] of Integer)
+    local procedure GetRecRefAndFieldsNoByType(RecRef: RecordRef; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)",,,,,"Allocation Account"; var SearchFieldNo: array[4] of Integer)
     var
         GLAccount: Record "G/L Account";
         Item: Record Item;
@@ -380,6 +375,7 @@ codeunit 703 "Find Record Management"
         Resource: Record Resource;
         ItemCharge: Record "Item Charge";
         StandardText: Record "Standard Text";
+        AllocationAccount: Record "Allocation Account";
     begin
         OnBeforeGetRecRefAndFieldsNoByType(RecRef, Type, SearchFieldNo);
         case Type of
@@ -425,6 +421,13 @@ codeunit 703 "Find Record Management"
                     SearchFieldNo[2] := StandardText.FieldNo(Description);
                     SearchFieldNo[3] := 0;
                 end;
+            Type::"Allocation Account":
+                begin
+                    RecRef.Open(DATABASE::"Allocation Account");
+                    SearchFieldNo[1] := AllocationAccount.FieldNo("No.");
+                    SearchFieldNo[2] := AllocationAccount.FieldNo(Name);
+                    SearchFieldNo[3] := 0;
+                end;
         end;
         OnAfterGetRecRefAndFieldsNoByType(RecRef, Type, SearchFieldNo);
     end;
@@ -446,12 +449,12 @@ codeunit 703 "Find Record Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindRecordByDescriptionAndView(var Result: Text; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; var RecRef: RecordRef; SearchFieldRef: array[4] of FieldRef; SearchFieldNo: array[4] of Integer; SearchText: Text; var MatchCount: Integer)
+    local procedure OnAfterFindRecordByDescriptionAndView(var Result: Text; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)",,,,,"Allocation Account"; var RecRef: RecordRef; SearchFieldRef: array[4] of FieldRef; SearchFieldNo: array[4] of Integer; SearchText: Text; var MatchCount: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetRecRefAndFieldsNoByType(RecRef: RecordRef; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; var SearchFieldNo: array[4] of Integer)
+    local procedure OnAfterGetRecRefAndFieldsNoByType(RecRef: RecordRef; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)",,,,,"Allocation Account"; var SearchFieldNo: array[4] of Integer)
     begin
     end;
 
@@ -466,22 +469,22 @@ codeunit 703 "Find Record Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindRecordByDescriptionAndView(var Result: Text; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; var RecRef: RecordRef; SearchFieldRef: array[4] of FieldRef; SearchText: Text; RecordView: Text; var MatchCount: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeFindRecordByDescriptionAndView(var Result: Text; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)",,,,,"Allocation Account"; var RecRef: RecordRef; SearchFieldRef: array[4] of FieldRef; SearchText: Text; RecordView: Text; var MatchCount: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindRecordContainingSearchString(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; var RecRef: RecordRef; RecFilterFromStart: Text)
+    local procedure OnBeforeFindRecordContainingSearchString(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)",,,,,"Allocation Account"; var RecRef: RecordRef; RecFilterFromStart: Text)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindRecordStartingWithSearchString(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; var RecRef: RecordRef; RecFilterFromStart: Text)
+    local procedure OnBeforeFindRecordStartingWithSearchString(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)",,,,,"Allocation Account"; var RecRef: RecordRef; RecFilterFromStart: Text)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetRecRefAndFieldsNoByType(RecRef: RecordRef; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; var SearchFieldNo: array[4] of Integer)
+    local procedure OnBeforeGetRecRefAndFieldsNoByType(RecRef: RecordRef; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)",,,,,"Allocation Account"; var SearchFieldNo: array[4] of Integer)
     begin
     end;
 

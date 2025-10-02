@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Vendor;
 
 using Microsoft.Foundation.Period;
@@ -18,6 +22,11 @@ page 152 "Vendor Statistics"
             group(General)
             {
                 Caption = 'General';
+                field(VendorSince; Rec."First Transaction Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                }
                 field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
@@ -61,7 +70,7 @@ page 152 "Vendor Statistics"
                 field("Balance Due (LCY)"; Rec.CalcOverDueBalance())
                 {
                     ApplicationArea = Basic, Suite;
-                    CaptionClass = Format(StrSubstNo(Text000, Format(CurrentDate)));
+                    CaptionClass = Format(StrSubstNo(OverdueAmountsLCYTxt, Format(CurrentDate)));
 
                     trigger OnDrillDown()
                     var
@@ -184,7 +193,7 @@ page 152 "Vendor Statistics"
                     group("This Year")
                     {
                         Caption = 'This Fiscal Year';
-                        field(Text001; Text001)
+                        field(Text001; PlaceholderTxt)
                         {
                             ApplicationArea = Basic, Suite;
                             ShowCaption = false;
@@ -278,7 +287,7 @@ page 152 "Vendor Statistics"
                     group("Last Year")
                     {
                         Caption = 'Last Fiscal Year';
-                        field(Control81; Text001)
+                        field(Control81; PlaceholderTxt)
                         {
                             ApplicationArea = Basic, Suite;
                             ShowCaption = false;
@@ -372,7 +381,7 @@ page 152 "Vendor Statistics"
                     group("To Date")
                     {
                         Caption = 'To Date';
-                        field(Control82; Text001)
+                        field(Control82; PlaceholderTxt)
                         {
                             ApplicationArea = Basic, Suite;
                             ShowCaption = false;
@@ -508,12 +517,10 @@ page 152 "Vendor Statistics"
 
     var
         DateFilterCalc: Codeunit "DateFilter-Calc";
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label 'Overdue Amounts (LCY) as of %1';
+        OverdueAmountsLCYTxt: Label 'Overdue Amounts (LCY) as of %1';
 #pragma warning restore AA0470
-        Text001: Label 'Placeholder';
-#pragma warning restore AA0074
+        PlaceholderTxt: Label 'Placeholder';
 
     protected var
         VendDateFilter: array[4] of Text[30];

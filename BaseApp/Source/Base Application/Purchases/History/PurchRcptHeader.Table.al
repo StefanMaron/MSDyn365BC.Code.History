@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.History;
 
 using Microsoft.Bank.BankAccount;
@@ -51,7 +55,7 @@ table 120 "Purch. Rcpt. Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
-                    }
+        }
         field(4; "Pay-to Vendor No."; Code[20])
         {
             Caption = 'Pay-to Vendor No.';
@@ -62,33 +66,34 @@ table 120 "Purch. Rcpt. Header"
         field(5; "Pay-to Name"; Text[100])
         {
             Caption = 'Pay-to Name';
-                    }
+        }
         field(6; "Pay-to Name 2"; Text[50])
         {
             Caption = 'Pay-to Name 2';
-                    }
+            ToolTip = 'Specifies an additional part of the name of the vendor who you receive or received the invoice from.';
+        }
         field(7; "Pay-to Address"; Text[100])
         {
             Caption = 'Pay-to Address';
-                    }
+        }
         field(8; "Pay-to Address 2"; Text[50])
         {
             Caption = 'Pay-to Address 2';
-                    }
+        }
         field(9; "Pay-to City"; Text[30])
         {
             Caption = 'Pay-to City';
-                        TableRelation = "Post Code".City;
+            TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(10; "Pay-to Contact"; Text[100])
         {
             Caption = 'Pay-to Contact';
-                    }
+        }
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
-                    }
+        }
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
@@ -97,29 +102,29 @@ table 120 "Purch. Rcpt. Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
-                    }
+        }
         field(14; "Ship-to Name 2"; Text[50])
         {
             Caption = 'Ship-to Name 2';
-                    }
+        }
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-                    }
+        }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-                    }
+        }
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
-                        TableRelation = "Post Code".City;
+            TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
-                    }
+        }
         field(19; "Order Date"; Date)
         {
             Caption = 'Order Date';
@@ -135,7 +140,7 @@ table 120 "Purch. Rcpt. Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
-                    }
+        }
         field(23; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
@@ -208,7 +213,7 @@ table 120 "Purch. Rcpt. Header"
         field(42; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
-                        TableRelation = "Language Selection"."Language Tag";
+            TableRelation = "Language Selection"."Language Tag";
         }
         field(43; "Purchaser Code"; Code[20])
         {
@@ -275,7 +280,7 @@ table 120 "Purch. Rcpt. Header"
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
-                    }
+        }
         field(72; "Sell-to Customer No."; Code[20])
         {
             Caption = 'Sell-to Customer No.';
@@ -309,29 +314,30 @@ table 120 "Purch. Rcpt. Header"
         field(79; "Buy-from Vendor Name"; Text[100])
         {
             Caption = 'Buy-from Vendor Name';
-                    }
+        }
         field(80; "Buy-from Vendor Name 2"; Text[50])
         {
             Caption = 'Buy-from Vendor Name 2';
-                    }
+            ToolTip = 'Specifies an additional part of the name of the vendor that you’re buying from.';
+        }
         field(81; "Buy-from Address"; Text[100])
         {
             Caption = 'Buy-from Address';
-                    }
+        }
         field(82; "Buy-from Address 2"; Text[50])
         {
             Caption = 'Buy-from Address 2';
-                    }
+        }
         field(83; "Buy-from City"; Text[30])
         {
             Caption = 'Buy-from City';
-                        TableRelation = "Post Code".City;
+            TableRelation = "Post Code".City;
             ValidateTableRelation = false;
         }
         field(84; "Buy-from Contact"; Text[100])
         {
             Caption = 'Buy-from Contact';
-                    }
+        }
         field(85; "Pay-to Post Code"; Code[20])
         {
             Caption = 'Pay-to Post Code';
@@ -342,7 +348,7 @@ table 120 "Purch. Rcpt. Header"
         {
             CaptionClass = '5,6,' + "Pay-to Country/Region Code";
             Caption = 'Pay-to County';
-                    }
+        }
         field(87; "Pay-to Country/Region Code"; Code[10])
         {
             Caption = 'Pay-to Country/Region Code';
@@ -358,7 +364,7 @@ table 120 "Purch. Rcpt. Header"
         {
             CaptionClass = '5,5,' + "Buy-from Country/Region Code";
             Caption = 'Buy-from County';
-                    }
+        }
         field(90; "Buy-from Country/Region Code"; Code[10])
         {
             Caption = 'Buy-from Country/Region Code';
@@ -374,7 +380,7 @@ table 120 "Purch. Rcpt. Header"
         {
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
-                    }
+        }
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
             Caption = 'Ship-to Country/Region Code';
@@ -468,7 +474,7 @@ table 120 "Purch. Rcpt. Header"
         field(210; "Ship-to Phone No."; Text[30])
         {
             Caption = 'Ship-to Phone No.';
-                        ExtendedDatatype = PhoneNo;
+            ExtendedDatatype = PhoneNo;
         }
         field(480; "Dimension Set ID"; Integer)
         {

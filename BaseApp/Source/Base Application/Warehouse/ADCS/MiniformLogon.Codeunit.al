@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.ADCS;
 
 using System;
@@ -41,12 +45,10 @@ codeunit 7705 "Miniform Logon"
         ADCSUserId: Text[250];
         WhseEmpId: Text[250];
         LocationFilter: Text[250];
-#pragma warning disable AA0074
-        Text001: Label 'Invalid User ID.';
-        Text002: Label 'Invalid Password.';
-        Text003: Label 'No input Node found.';
-        Text004: Label 'Record not found.';
-#pragma warning restore AA0074
+        InvalidUserIDErr: Label 'Invalid User ID.';
+        InvalidPasswordErr: Label 'Invalid Password.';
+        NoInputNodeErr: Label 'No input Node found.';
+        RecordNotFoundErr: Label 'Record not found.';
         CurrentCode: Text[250];
         StackCode: Text[250];
         ActiveInputField: Integer;
@@ -62,7 +64,7 @@ codeunit 7705 "Miniform Logon"
         if XMLDOMMgt.FindNode(RootNode, 'Header/Input', ReturnedNode) then
             TextValue := ReturnedNode.InnerText
         else
-            Error(Text003);
+            Error(NoInputNodeErr);
 
         if Evaluate(TableNo, ADCSCommunication.GetNodeAttribute(ReturnedNode, 'TableNo')) then begin
             RecRef.Open(TableNo);
@@ -71,7 +73,7 @@ codeunit 7705 "Miniform Logon"
                 RecRef.SetTable(ADCSUser);
                 ADCSCommunication.SetRecRef(RecRef);
             end else
-                Error(Text004);
+                Error(RecordNotFoundErr);
         end;
 
         FuncGroup.KeyDef := ADCSCommunication.GetFunctionKey(MiniformHeader.Code, TextValue);
@@ -120,12 +122,12 @@ codeunit 7705 "Miniform Logon"
             ADCSUserId := ADCSUser.Name;
             ADCSUser.Password := '';
             if not ADCSCommunication.GetWhseEmployee(ADCSUserId, WhseEmpId, LocationFilter) then begin
-                ADCSMgt.SendError(Text001);
+                ADCSMgt.SendError(InvalidUserIDErr);
                 ReturnValue := false;
                 exit;
             end;
         end else begin
-            ADCSMgt.SendError(Text001);
+            ADCSMgt.SendError(InvalidUserIDErr);
             ReturnValue := false;
             exit;
         end;
@@ -136,7 +138,7 @@ codeunit 7705 "Miniform Logon"
     begin
         ADCSUser.Get(ADCSUserId);
         if ADCSUser.Password <> ADCSUser.CalculatePassword(CopyStr(TextValue, 1, 30)) then begin
-            ADCSMgt.SendError(Text002);
+            ADCSMgt.SendError(InvalidPasswordErr);
             ReturnValue := false;
             exit;
         end;

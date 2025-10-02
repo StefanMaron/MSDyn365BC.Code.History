@@ -256,6 +256,102 @@ codeunit 134884 "ERM Exch. Rate Adjmt. Employee"
         VerifyExchRateAdjmtLedgEntry("Exch. Rate Adjmt. Account Type"::Employee, GenJournalLine."Account No.");
     end;
 
+    [Test]
+    procedure VerifyPayrollLCYWhenPayrollIsUpdated()
+    var
+        Employee: Record Employee;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        PayrollLCYAmount: Decimal;
+    begin
+        // [SCENARIO 554941] Verify "Payroll (LCY)" when Payroll is updated in Employee.
+        Initialize();
+
+        // [GIVEN] Create an Employee with "Payroll Currency Code" and "Payroll" Amount.
+        Employee.Get(CreateEmployee());
+        Employee.Validate("Payroll Currency Code", CreateCurrency());
+        Employee.Validate("Payroll", LibraryRandom.RandInt(5000));
+        Employee.Modify();
+
+        // [GIVEN] Find a Currency Exchange Rate for Employee's "Payroll Currency Code".
+        FindCurrencyExchRate(CurrencyExchangeRate, Employee."Payroll Currency Code");
+
+        // [WHEN] Update Payroll Amount in Employee.
+        PayrollLCYAmount := Employee.Payroll * CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount";
+
+        // [THEN] Verify that "Payroll (LCY)" is updated correctly in Employee.
+        Assert.AreNearlyEqual(
+            PayrollLCYAmount,
+            Employee."Payroll (LCY)",
+            0.01,
+            StrSubstNo(AmountMismatchErr, Employee.FieldCaption("Payroll (LCY)"), PayrollLCYAmount, Employee.TableCaption(), Employee.FieldCaption("No."), Employee."No."));
+    end;
+
+    [Test]
+    procedure VerifyPayrollWhenPayrollLCYIsUpdated()
+    var
+        Employee: Record Employee;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        PayrollAmount: Decimal;
+    begin
+        // [SCENARIO 554941] Verify Payroll when "Payroll (LCY)" is updated in Employee.
+        Initialize();
+
+        // [GIVEN] Create an Employee with "Payroll Currency Code" and "Payroll (LCY)" Amount.
+        Employee.Get(CreateEmployee());
+        Employee.Validate("Payroll Currency Code", CreateCurrency());
+        Employee.Validate("Payroll (LCY)", LibraryRandom.RandInt(5000));
+        Employee.Modify();
+
+        // [GIVEN] Find a Currency Exchange Rate for Employee's "Payroll Currency Code".
+        FindCurrencyExchRate(CurrencyExchangeRate, Employee."Payroll Currency Code");
+
+        // [WHEN] Update Payroll Amount in Employee.
+        PayrollAmount := (Employee."Payroll (LCY)" * CurrencyExchangeRate."Exchange Rate Amount") / CurrencyExchangeRate."Relational Exch. Rate Amount";
+
+        // [THEN] Verify that "Payroll" is updated correctly in Employee.
+        Assert.AreNearlyEqual(
+            PayrollAmount,
+            Employee."Payroll",
+            0.01,
+            StrSubstNo(AmountMismatchErr, Employee.FieldCaption("Payroll"), PayrollAmount, Employee.TableCaption(), Employee.FieldCaption("No."), Employee."No."));
+    end;
+
+    [Test]
+    procedure VerifyPayrollLCYWhenPayrollCurrencyCodeIsUpdated()
+    var
+        Employee: Record Employee;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        PayrollCurrencyCode: Code[10];
+        PayrollLCYAmount: Decimal;
+    begin
+        // [SCENARIO 554941] Verify "Payroll (LCY)" when "Payroll Currency Code" is updated in Employee.
+        Initialize();
+
+        // [GIVEN] Create a Payroll Currency Code.
+        PayrollCurrencyCode := CreateCurrency();
+
+        // [GIVEN] Create an Employee with "Payroll (LCY)" Amount.
+        Employee.Get(CreateEmployee());
+        Employee.Validate("Payroll (LCY)", LibraryRandom.RandInt(5000));
+        Employee.Modify();
+
+        // [GIVEN] Find a Currency Exchange Rate for Employee's Payroll Currency Code.
+        FindCurrencyExchRate(CurrencyExchangeRate, PayrollCurrencyCode);
+
+        // [GIVEN] Update "Payroll (LCY)" Amount in Employee.
+        PayrollLCYAmount := Employee.Payroll * CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount";
+
+        // [WHEN] Update "Payroll Currency Code" in Employee.
+        Employee.Validate("Payroll Currency Code", PayrollCurrencyCode);
+
+        // [THEN] Verify that "Payroll (LCY)" is updated correctly in Employee.
+        Assert.AreNearlyEqual(
+            PayrollLCYAmount,
+            Employee."Payroll (LCY)",
+            0.01,
+            StrSubstNo(AmountMismatchErr, Employee.FieldCaption("Payroll (LCY)"), PayrollLCYAmount, Employee.TableCaption(), Employee.FieldCaption("No."), Employee."No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Journal;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Journal;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.AllocationAccount;
@@ -1000,20 +1004,6 @@ page 255 "Cash Receipt Journal"
                         end;
                     }
                 }
-#if not CLEAN24
-                customaction(CreateFlowFromTemplate)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Create approval flow';
-                    ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-                    Visible = false;
-                    CustomActionType = FlowTemplateGallery;
-                    FlowTemplateCategoryName = 'd365bc_approval_generalJournal';
-                    ObsoleteReason = 'Replaced by field "CreateApprovalFlowFromTemplate" in the group Flow.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                }
-#endif
                 group(Flow)
                 {
                     Caption = 'Power Automate';
@@ -1274,7 +1264,7 @@ page 255 "Cash Receipt Journal"
         SalesReceivablesSetup.GetRecordOnce();
         SetJobQueueVisibility();
 
-        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
+        IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(FlowServiceManagement.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1340,7 +1330,7 @@ page 255 "Cash Receipt Journal"
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         PrivacyNotice: Codeunit "Privacy Notice";
-        PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+        FlowServiceManagement: Codeunit "Flow Service Management";
         ApprovalMgmt: Codeunit "Approvals Mgmt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GenJnlBatchApprovalStatus: Text[20];

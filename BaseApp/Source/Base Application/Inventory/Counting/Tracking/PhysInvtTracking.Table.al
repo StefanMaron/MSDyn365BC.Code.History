@@ -8,15 +8,11 @@ namespace Microsoft.Inventory.Counting.Tracking;
 table 5885 "Phys. Invt. Tracking"
 {
     Caption = 'Phys. Invt. Tracking';
+    DataClassification = CustomerContent;
     ObsoleteReason = 'Replaced by table Invt.Order.Tracking.';
-#if not CLEAN24
-    ObsoleteState = Pending;
-    ObsoleteTag = '24.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '27.0';
-#endif
-    DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {
@@ -80,5 +76,5 @@ table 5885 "Phys. Invt. Tracking"
     }
 }
 
- 
+
 #endif

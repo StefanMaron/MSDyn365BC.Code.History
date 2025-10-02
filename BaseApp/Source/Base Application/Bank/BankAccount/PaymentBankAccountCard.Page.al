@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.BankAccount;
 
+/// <summary>
+/// Specialized bank account card focused on payment processing configuration.
+/// Provides interface for setting up bank accounts for electronic payments and fund transfers.
+/// </summary>
+/// <remarks>
+/// Source Table: Bank Account (270). Emphasizes payment export settings and electronic banking configuration.
+/// Used in payment processing workflows for account setup and configuration.
+/// </remarks>
 page 1283 "Payment Bank Account Card"
 {
     Caption = 'Payment Bank Account Card';

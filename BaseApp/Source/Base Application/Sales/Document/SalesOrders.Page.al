@@ -90,6 +90,11 @@ page 48 "Sales Orders"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of amounts in the Line Amount field on the sales order lines.';
                 }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                }
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Basic, Suite;

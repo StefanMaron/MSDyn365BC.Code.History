@@ -36,34 +36,9 @@ codeunit 6516 "Package Management"
         PackageNoRequiredErr: Label 'You must assign a package number for item %1.', Comment = '%1 - Item No.';
         LineNoTxt: Label ' Line No. = ''%1''.', Comment = '%1 - Line No.';
         CannotBeFullyAppliedErr: Label 'Item Tracking Serial No. %1 Lot No. %2 Package No. %3 for Item No. %4 Variant %5 cannot be fully applied.', Comment = '%1 - Serial No., %2  - Lot No., %3 - Package No., %4 - Item No., %5 - Variant Code';
-#if not CLEAN24
-        PackageTrackingFeatureIdTok: Label 'PackageTracking', Locked = true;
-#endif
 
-#if not CLEAN24
-    [Obsolete('Package Tracking enabled by default.', '24.0')]
-    procedure IsEnabled() FeatureEnabled: Boolean
-    begin
-        FeatureEnabled := true;
-        OnAfterIsEnabled(FeatureEnabled);
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('Package Tracking enabled by default.', '24.0')]
-    procedure GetFeatureKey(): Text[50]
-    begin
-        exit(PackageTrackingFeatureIdTok);
-    end;
-#endif
 
-#if not CLEAN24
-    [Obsolete('Package Tracking enabled by default.', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterIsEnabled(var FeatureEnabled: Boolean)
-    begin
-    end;
-#endif
 
     // Tracking Specification subscribers
 

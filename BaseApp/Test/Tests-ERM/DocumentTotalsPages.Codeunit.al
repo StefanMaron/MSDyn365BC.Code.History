@@ -19,11 +19,12 @@ codeunit 134344 "Document Totals Pages"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         InvoiceDiscountAmountErr: Label 'Invoice discount amount';
         InvoiceDiscountPercentErr: Label 'Invoice discount percent';
-        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         WrongDecimalErr: Label 'Wrong count of decimals', Locked = true;
+        InvoiceDiscountPerRoundingMsg: Label 'The system has recalculated the discount percentage to align with the rounded discount amount.';
 
     [Test]
     [HandlerFunctions('ChangeExchangeRateMPH')]
@@ -732,6 +733,7 @@ codeunit 134344 "Document Totals Pages"
 
         SalesInvoice.OpenEdit();
         SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
+        ClearLastError();
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(SalesInvoice.SalesLines.Next(), 'Stan must be able to go to next line');
@@ -759,6 +761,7 @@ codeunit 134344 "Document Totals Pages"
 
         SalesCreditMemo.OpenEdit();
         SalesCreditMemo.Filter.SetFilter("No.", SalesHeader."No.");
+        ClearLastError();
         SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(SalesCreditMemo.SalesLines.Next(), 'Stan must be able to go to next line');
@@ -813,6 +816,7 @@ codeunit 134344 "Document Totals Pages"
 
         BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        ClearLastError();
         BlanketSalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
         Assert.IsTrue(BlanketSalesOrder.SalesLines.Next(), 'Stan must be able to go to next line');
@@ -1816,7 +1820,7 @@ codeunit 134344 "Document Totals Pages"
 
         LibraryVariableStorage.AssertEmpty();
     end;
-#endif    
+#endif
 
     [Test]
     [HandlerFunctions('PurchaseInvoiceStatisticsUpdateVATAmountPageHandler')]
@@ -2262,6 +2266,32 @@ codeunit 134344 "Document Totals Pages"
         Assert.IsTrue(PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".Editable(), '');
     end;
 
+    [Test]
+    [HandlerFunctions('InvoiceDiscountMessageHandler')]
+    procedure SalesOrderRoundingShowsMessage()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 572752] Sales Order rounding the Invoice discount Percentage and getting modified value after message
+        Initialize();
+
+        // [GIVEN] Create sales order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Create Sales Line with value 60.61 which help to get rounding value of Invoice Discount Percentage
+        CreateSalesLineWithAmount(SalesHeader, 1, 60.61);
+
+        // [GIVEN] Open the Sales Order Page
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [WHEN] Set the value of Invoice Discount Percentage to 12
+        SalesOrder.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(12, 12));
+
+        // [THEN] Verify the value has been rounded to near 12 and message handler page shows same message of rounding
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2568,7 +2598,7 @@ codeunit 134344 "Document Totals Pages"
         PurchaseStatistics.SubForm."VAT Amount".SetValue(
           PurchaseStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal()); // increase VAT amount with the given value.
     end;
-#endif    
+#endif
 
     [PageHandler]
     [Scope('OnPrem')]
@@ -2597,5 +2627,11 @@ codeunit 134344 "Document Totals Pages"
         PurchaseOrderStatistics.InvDiscountAmount_General.SetValue(LibraryVariableStorage.DequeueDecimal());
         PurchaseOrderStatistics.OK().Invoke();
     end;
-}
 
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure InvoiceDiscountMessageHandler(Message: Text[1024])
+    begin
+        Assert.ExpectedMessage(InvoiceDiscountPerRoundingMsg, Message);
+    end;
+}

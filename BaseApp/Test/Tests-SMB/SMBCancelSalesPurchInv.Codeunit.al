@@ -176,16 +176,6 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         LibraryPurch.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, Item."No.", Qty);
     end;
 
-    local procedure PurchCheckNothingIsCreated(Vendor: Record Vendor; LastGLEntry: Record "G/L Entry")
-    var
-        PurchaseHeader: Record "Purchase Header";
-    begin
-        Assert.IsTrue(LastGLEntry.Next() = 0, 'No new G/L entries are created');
-        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
-        PurchaseHeader.SetRange("Pay-to Vendor No.", Vendor."No.");
-        Assert.IsTrue(PurchaseHeader.IsEmpty, 'The Credit Memo should not have been created');
-    end;
-
     local procedure CreateItemWithPrice(var Item: Record Item; UnitPrice: Decimal)
     begin
         LibrarySmallBusiness.CreateItem(Item);
@@ -262,4 +252,3 @@ codeunit 137511 "SMB Cancel Sales/Purch. Inv."
         PurchasesPayablesSetup.Modify();
     end;
 }
-

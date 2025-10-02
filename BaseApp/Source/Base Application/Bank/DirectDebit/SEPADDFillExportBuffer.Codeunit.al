@@ -10,6 +10,10 @@ using Microsoft.Bank.Setup;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Sales.Customer;
 
+/// <summary>
+/// Populates the payment export data buffer with information from direct debit collection entries
+/// for SEPA direct debit processing. Formats and validates data for XML export compliance.
+/// </summary>
 codeunit 1231 "SEPA DD-Fill Export Buffer"
 {
     Permissions = TableData "Payment Export Data" = rimd;
@@ -22,6 +26,13 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
     var
         HasErrorsErr: Label 'The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.';
 
+    /// <summary>
+    /// Fills the payment export data buffer with information from direct debit collection entries.
+    /// Validates entries through the configured check codeunit, retrieves mandate and customer information,
+    /// and formats data according to SEPA direct debit standards for XML export processing.
+    /// </summary>
+    /// <param name="DirectDebitCollectionEntry">The source direct debit collection entries to process for export.</param>
+    /// <param name="PaymentExportData">The target payment export data buffer to populate with formatted export data.</param>
     procedure FillExportBuffer(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var PaymentExportData: Record "Payment Export Data")
     var
         BankAccount: Record "Bank Account";
@@ -100,6 +111,12 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
         until TempDirectDebitCollectionEntry.Next() = 0;
     end;
 
+    /// <summary>
+    /// Retrieves the direct debit export/import setup for the specified bank account.
+    /// Allows customization through integration events before falling back to the standard setup method.
+    /// </summary>
+    /// <param name="BankAccount">The bank account to get the export/import setup for.</param>
+    /// <param name="BankExportImportSetup">Returns the configured export/import setup for direct debit processing.</param>
     local procedure GetDDExportImportSetup(BankAccount: Record "Bank Account"; var BankExportImportSetup: Record "Bank Export/Import Setup")
     var
         IsHandled: Boolean;
@@ -112,6 +129,13 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
         BankAccount.GetDDExportImportSetup(BankExportImportSetup);
     end;
 
+    /// <summary>
+    /// Updates the sequence type for a direct debit collection entry based on mandate status.
+    /// For new entries, determines the appropriate sequence type and updates the mandate counter.
+    /// Existing entries retain their current sequence type.
+    /// </summary>
+    /// <param name="TempDirectDebitCollectionEntry">The temporary direct debit collection entry to process.</param>
+    /// <returns>The appropriate sequence type for the collection entry based on mandate history.</returns>
     local procedure UpdateSourceEntrySequenceType(TempDirectDebitCollectionEntry: Record "Direct Debit Collection Entry" temporary) SequenceType: Integer
     var
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
@@ -131,11 +155,24 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
         end;
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of the direct debit export/import setup retrieval process.
+    /// Subscribers can provide alternative logic for determining the appropriate setup configuration.
+    /// </summary>
+    /// <param name="BankAccount">The bank account for which to retrieve the export/import setup.</param>
+    /// <param name="BankExportImportSetup">The export/import setup to be populated or customized.</param>
+    /// <param name="IsHandled">Set to true if the subscriber handles the setup retrieval completely.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDDExportImportSetup(BankAccount: Record "Bank Account"; var BankExportImportSetup: Record "Bank Export/Import Setup"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of payment export data before insertion.
+    /// Subscribers can modify export data fields or add additional validation logic.
+    /// </summary>
+    /// <param name="PaymentExportData">The payment export data record being prepared for insertion.</param>
+    /// <param name="TempDirectDebitCollectionEntry">The source direct debit collection entry providing the data.</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertPaymentExportData(var PaymentExportData: Record "Payment Export Data"; var TempDirectDebitCollectionEntry: Record "Direct Debit Collection Entry" temporary)
     begin

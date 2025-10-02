@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Counting.Recording;
 
-using Microsoft.Inventory.Counting.Reports;
+using Microsoft.Foundation.Reporting;
 
 page 5880 "Phys. Inventory Recording List"
 {
@@ -78,8 +78,14 @@ page 5880 "Phys. Inventory Recording List"
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
-                RunObject = Report "Phys. Invt. Recording";
                 ToolTip = 'Prepare to count inventory by creating a recording document to capture the quantities.';
+
+                trigger OnAction()
+                var
+                    DocumentPrint: Codeunit "Document-Print";
+                begin
+                    DocumentPrint.PrintInvtRecording(Rec, true);
+                end;
             }
         }
         area(Promoted)

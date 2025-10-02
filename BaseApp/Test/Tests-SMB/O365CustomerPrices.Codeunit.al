@@ -1,28 +1,27 @@
+#if not CLEAN27
 codeunit 138020 "O365 Customer Prices"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    ObsoleteReason = 'No longer used';
+    ObsoleteState = Pending;
+    ObsoleteTag = '27.0';
 
+#if not CLEAN25
     trigger OnRun()
     begin
         // [FEATURE] [Sales Price and Line Discount] [SMB] [Sales]
     end;
 
     var
-#if not CLEAN25
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
-#endif
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-#if not CLEAN25
         LibraryUtility: Codeunit "Library - Utility";
-#endif
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-#if not CLEAN25
         Assert: Codeunit Assert;
-#endif
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
@@ -65,7 +64,6 @@ codeunit 138020 "O365 Customer Prices"
         LibraryLowerPermissions.SetO365Full();
     end;
 
-#if not CLEAN25
     [Test]
     [HandlerFunctions('ShowItemPage')]
     [Scope('OnPrem')]
@@ -1715,7 +1713,6 @@ codeunit 138020 "O365 Customer Prices"
           SalesPrice4Cust.Count + SalesPrice4AllCust.Count + SalesPrice4CustDiscGr.Count,
           'incorect counts');
     end;
-#endif
 
     local procedure CreateCustPriceGr(var CustPriceGr: Record "Customer Price Group")
     var
@@ -1739,7 +1736,6 @@ codeunit 138020 "O365 Customer Prices"
         Customer.Insert(true);
     end;
 
-#if not CLEAN25
     local procedure InitCustomerAndDiscAndPrices(var Customer: Record Customer)
     begin
         CreateBlankCustomer(Customer);
@@ -1918,7 +1914,6 @@ codeunit 138020 "O365 Customer Prices"
         SalesLineDiscount.SetRange("Sales Code", CustomerNo);
         SalesLineDiscount.FindFirst();
     end;
-#endif
 
     local procedure GetDiscGroupCode(CustomerNo: Code[20]): Code[10]
     begin
@@ -1930,7 +1925,6 @@ codeunit 138020 "O365 Customer Prices"
         exit(CopyStr('P_GR_' + CustomerNo, 1, 10))
     end;
 
-#if not CLEAN25
     local procedure SetBufferOnlyToSLDiscounts(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
         TempSalesPriceAndLineDiscBuff.SetRange("Line Type", TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount");
@@ -1982,7 +1976,6 @@ codeunit 138020 "O365 Customer Prices"
         SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::"Customer Price Group");
         SalesPrice.SetRange("Sales Code", CustomerPriceGroup);
     end;
-#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]
@@ -1998,7 +1991,6 @@ codeunit 138020 "O365 Customer Prices"
         ItemDiscGroupsPage.OK().Invoke();
     end;
 
-#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VerifyFieldVisibilityOnSalesPriceAndLineDiscountsPageHandler(var SalesPrLineDisc: TestPage "Sales Price and Line Discounts")
@@ -2108,4 +2100,4 @@ codeunit 138020 "O365 Customer Prices"
     end;
 #endif
 }
-
+#endif

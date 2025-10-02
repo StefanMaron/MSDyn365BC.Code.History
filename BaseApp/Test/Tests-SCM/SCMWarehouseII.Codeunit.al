@@ -2452,7 +2452,7 @@ codeunit 137048 "SCM Warehouse II"
         // [THEN] Create Purchase Invoice with Receipt No.
         CreatePurchaseInvoiceWithReceiptNo(PurchaseHeader2, PurchaseHeader, PurchRcptLine."Document No.");
 
-        // [THEN] Open Purchase Invoice Page and Post the Invoice 
+        // [THEN] Open Purchase Invoice Page and Post the Invoice
         PostedPurchaseInvoice.Trap();
         PurchaseInvoice.OpenView();
         PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader2."No.");
@@ -2493,7 +2493,7 @@ codeunit 137048 "SCM Warehouse II"
         // [THEN] Create Purchase Invoice with Receipt No.
         CreatePurchaseInvoiceWithReceiptNo(PurchaseHeader2, PurchaseHeader, PurchRcptLine."Document No.");
 
-        // [THEN] Open Purchase Invoices List Page and Post the Invoice 
+        // [THEN] Open Purchase Invoices List Page and Post the Invoice
         PostedPurchaseInvoice.Trap();
         PurchaseInvoices.OpenView();
         PurchaseInvoices.Filter.SetFilter("No.", PurchaseHeader2."No.");
@@ -2540,7 +2540,7 @@ codeunit 137048 "SCM Warehouse II"
         // [THEN] Create Purchase Invoice with Receipt No.
         CreatePurchaseInvoiceWithReceipt(PurchaseHeader2, PurchaseHeader);
 
-        // [THEN] Open Purchase Invoice Page and Post the Invoice 
+        // [THEN] Open Purchase Invoice Page and Post the Invoice
         PostedPurchaseInvoice.Trap();
         PurchaseInvoice.OpenView();
         PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader2."No.");
@@ -3865,29 +3865,6 @@ codeunit 137048 "SCM Warehouse II"
          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandDec(100, 2), '', WorkDate());
     end;
 
-    local procedure CreateAndModifyVendor(VATBusPostingGroup: Code[20]): Code[20]
-    var
-        Vendor: Record Vendor;
-    begin
-        LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-        Vendor.Modify(true);
-        exit(Vendor."No.");
-    end;
-
-    local procedure CreateItem(AllowInvDisc: Boolean; VATProdPostingGroup: Code[20]): Code[20]
-    var
-        Item: Record Item;
-    begin
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Allow Invoice Disc.", AllowInvDisc);
-        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-        Item.Validate("Unit Price", 10 + LibraryRandom.RandInt(100));
-        Item.Validate("Last Direct Cost", Item."Unit Price");
-        Item.Modify(true);
-        exit(Item."No.");
-    end;
-
     local procedure CreatePurchaseInvoiceWithReceipt(var PurchaseHeader: Record "Purchase Header"; var PurchaseHeader2: Record "Purchase Header")
     var
         PurchRcptHeader: Record "Purch. Rcpt. Header";
@@ -4023,4 +4000,3 @@ codeunit 137048 "SCM Warehouse II"
         Assert.IsTrue(StrPos(Message, PutAwayActivityMessage) > 0, Message);
     end;
 }
-

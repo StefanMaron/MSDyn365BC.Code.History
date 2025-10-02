@@ -104,7 +104,7 @@ codeunit 137009 "SCM Availability by Event"
 
         // Create a forecast and setup manufacturing setup
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name, true, true);
+        UpdateForecastSetup(ProductionForecastName.Name, true, true);
 
         // Create forecasted demand for the first item variant 
         LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', CalcDate('<+5D>', WorkDate()), false);
@@ -145,7 +145,7 @@ codeunit 137009 "SCM Availability by Event"
 
         // Create a forecast and setup manufacturing setup
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name, true, true);
+        UpdateForecastSetup(ProductionForecastName.Name, true, true);
 
 
         // Create forecasted demand for the first item variant 
@@ -165,15 +165,15 @@ codeunit 137009 "SCM Availability by Event"
         RunPage(Item, ProductionForecastName.Name, false, true, 0, 2, -3);
     end;
 
-    local procedure UpdateForecastOnManufacturingSetup(CurrentProductionForecast: Code[10]; UseForecastOnLocations: Boolean; UseForecastOnVariants: Boolean)
+    local procedure UpdateForecastSetup(CurrentDemandForecast: Code[10]; UseForecastOnLocations: Boolean; UseForecastOnVariants: Boolean)
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
-        ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
-        ManufacturingSetup.Validate("Use Forecast on Variants", UseForecastOnVariants);
-        ManufacturingSetup.Modify(true);
+        InventorySetup.Get();
+        InventorySetup.Validate("Current Demand Forecast", CurrentDemandForecast);
+        InventorySetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
+        InventorySetup.Validate("Use Forecast on Variants", UseForecastOnVariants);
+        InventorySetup.Modify(true);
     end;
 
     [Test]

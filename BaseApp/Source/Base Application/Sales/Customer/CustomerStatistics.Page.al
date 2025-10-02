@@ -1,8 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Customer;
 
 using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Costing;
 using Microsoft.Sales.Receivables;
+using Microsoft.Sales.History;
 
 page 151 "Customer Statistics"
 {
@@ -19,6 +24,11 @@ page 151 "Customer Statistics"
             group(General)
             {
                 Caption = 'General';
+                field(CustomerSince; Rec."First Transaction Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                }
                 field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
@@ -49,6 +59,20 @@ page 151 "Customer Statistics"
                     field("Outstanding Invoices (LCY)"; Rec."Outstanding Invoices (LCY)")
                     {
                         ApplicationArea = Basic, Suite;
+                    }
+                    field(DaysSinceLastSale; CalcDaysSinceLastSale())
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Days Since Last Sale';
+                        ToolTip = 'Specifies the number of days since the last sale was made to the customer.';
+
+                        trigger OnDrillDown()
+                        var
+                            CustLedgEntry: Record "Cust. Ledger Entry";
+                        begin
+                            FilterCustLedgEntryToLastSale(CustLedgEntry);
+                            Page.RunModal(0, CustLedgEntry);
+                        end;
                     }
                 }
                 field(GetTotalAmountLCY; Rec.GetTotalAmountLCY())
@@ -236,6 +260,18 @@ page 151 "Customer Statistics"
                             Caption = 'Pmt. Tolerances (LCY)';
                             ToolTip = 'Specifies the sum of payment tolerance for the customer.';
                         }
+                        field(NumberOfSalesDocs1; NumberOfSalesDocs[1])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'No. of Sales Docs.';
+                            ToolTip = 'Specifies the number of sales documents for the customer.';
+                        }
+                        field(NumberOfDistinctItemsSold1; NumberOfDistinctItemsSold[1])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'No. of Distinct Items Sold';
+                            ToolTip = 'Specifies the number of distinct items sold to the customer.';
+                        }
                     }
                     group("This Year")
                     {
@@ -378,6 +414,18 @@ page 151 "Customer Statistics"
                             AutoFormatType = 1;
                             Caption = 'Payment Tolerances (LCY)';
                             ToolTip = 'Specifies the sum of payment tolerance for the customer.';
+                        }
+                        field(NumberOfSalesDocs2; NumberOfSalesDocs[2])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'No. of Sales Docs.';
+                            ToolTip = 'Specifies the number of sales documents for the customer.';
+                        }
+                        field(NumberOfDistinctItemsSold2; NumberOfDistinctItemsSold[2])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'No. of Distinct Items Sold';
+                            ToolTip = 'Specifies the number of distinct items sold to the customer.';
                         }
                     }
                     group("Last Year")
@@ -522,14 +570,26 @@ page 151 "Customer Statistics"
                             Caption = 'Payment Tolerances (LCY)';
                             ToolTip = 'Specifies the sum of payment tolerance for the customer.';
                         }
+                        field(NumberOfSalesDocs3; NumberOfSalesDocs[3])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'No. of Sales Docs.';
+                            ToolTip = 'Specifies the number of sales documents for the customer.';
+                        }
+                        field(NumberOfDistinctItemsSold3; NumberOfDistinctItemsSold[3])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'No. of Distinct Items Sold';
+                            ToolTip = 'Specifies the number of distinct items sold to the customer.';
+                        }
                     }
                     group("To Date")
                     {
-                        Caption = 'To Date';
-                        field(Placeholder2; Text001)
+                        Caption = 'Lifetime (since)';
+                        field(CustSinceDate; Rec."First Transaction Date")
                         {
                             ApplicationArea = Basic, Suite;
-                            Visible = false;
+                            ShowCaption = false;
                         }
                         field("CustSalesLCY[4]"; CustSalesLCY[4])
                         {
@@ -664,7 +724,31 @@ page 151 "Customer Statistics"
                             Caption = 'Payment Tolerances (LCY)';
                             ToolTip = 'Specifies the sum of payment tolerance for the customer.';
                         }
+                        field(NumberOfSalesDocs4; NumberOfSalesDocs[4])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'No. of Sales Docs.';
+                            ToolTip = 'Specifies the number of sales documents for the customer.';
+                        }
+                        field(NumberOfDistinctItemsSold4; NumberOfDistinctItemsSold[4])
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'No. of Distinct Items Sold';
+                            ToolTip = 'Specifies the number of distinct items sold to the customer.';
+                        }
                     }
+#if not CLEAN27
+#pragma warning disable AA0218, AA0225, AA0189
+                    field(Placeholder2; Text001)
+                    {
+                        ApplicationArea = None;
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced with CustSinceDate.';
+                        ObsoleteTag = '27.0';
+                    }
+#pragma warning restore AA0218, AA0225, AA0189
+#endif
                 }
             }
         }
@@ -719,6 +803,8 @@ page 151 "Customer Statistics"
             CustPaymentsLCY[i] := Rec."Payments (LCY)";
             CustRefundsLCY[i] := Rec."Refunds (LCY)";
             CustOtherAmountsLCY[i] := Rec."Other Amounts (LCY)";
+            NumberOfSalesDocs[i] := CalcNumberOfSalesInvoices(CustDateFilter[i]);
+            NumberOfDistinctItemsSold[i] := CalcNumberOfDistinctItemsSold(CustDateFilter[i]);
         end;
         Rec.SetRange("Date Filter", 0D, CurrentDate);
     end;
@@ -754,12 +840,55 @@ page 151 "Customer Statistics"
         CustOtherAmountsLCY: array[4] of Decimal;
         InvAmountsLCY: array[4] of Decimal;
         i: Integer;
+        NumberOfSalesDocs: array[4] of Integer;
+        NumberOfDistinctItemsSold: array[4] of Integer;
 
     local procedure SetDateFilter()
     begin
         Rec.SetRange("Date Filter", 0D, CurrentDate);
 
         OnAfterSetDateFilter(Rec);
+    end;
+
+    local procedure CalcDaysSinceLastSale(): Integer
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        if FilterCustLedgEntryToLastSale(CustLedgerEntry) then
+            exit(WorkDate() - CustLedgerEntry."Posting Date");
+    end;
+
+    local procedure FilterCustLedgEntryToLastSale(var CustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
+    begin
+        CustLedgerEntry.SetCurrentKey("Posting Date");
+        CustLedgerEntry.SetRange("Customer No.", Rec."No.");
+        CustLedgerEntry.SetFilter("Sales (LCY)", '>%1', 0);
+        CustLedgerEntry.SetRange(Reversed, false);
+        if CustLedgerEntry.FindLast() then begin
+            CustLedgerEntry.SetRecFilter();
+            exit(true);
+        end;
+    end;
+
+    local procedure CalcNumberOfSalesInvoices(DateFilter: Text): Integer
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        SalesInvoiceHeader.SetRange("Sell-To Customer No.", Rec."No.");
+        SalesInvoiceHeader.SetFilter("Posting Date", DateFilter);
+        exit(SalesInvoiceHeader.Count());
+    end;
+
+    local procedure CalcNumberOfDistinctItemsSold(DateFilter: Text) Count: Integer
+    var
+        DistinctItemsSoldQuery: Query "Distinct Items Sold";
+    begin
+        DistinctItemsSoldQuery.SetFilter(PostingDateFilter, DateFilter);
+        DistinctItemsSoldQuery.SetRange(CustomerNoFilter, Rec."No.");
+
+        if DistinctItemsSoldQuery.Open() then
+            while DistinctItemsSoldQuery.Read() do
+                Count += 1;
     end;
 
     [IntegrationEvent(false, false)]

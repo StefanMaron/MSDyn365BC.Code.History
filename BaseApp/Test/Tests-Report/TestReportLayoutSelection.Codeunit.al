@@ -368,7 +368,7 @@ codeunit 134605 "Test Report Layout Selection"
         MockSalesInvoiceHeaderWithEmailAddress(SalesInvoiceHeader[1], Customer);
         MockSalesInvoiceHeaderWithEmailAddress(SalesInvoiceHeader[2], Customer);
 
-        // [WHEN] When call "Send..." on selected posted sales invoices 
+        // [WHEN] When call "Send..." on selected posted sales invoices
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
 
@@ -415,7 +415,7 @@ codeunit 134605 "Test Report Layout Selection"
         MockPurchaseHeaderWithEmailAddress(PurchaseHeader[1], Vendor);
         MockPurchaseHeaderWithEmailAddress(PurchaseHeader[2], Vendor);
 
-        // [WHEN] When call "Send..." on selected posted sales invoices 
+        // [WHEN] When call "Send..." on selected posted sales invoices
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
 
@@ -491,17 +491,6 @@ codeunit 134605 "Test Report Layout Selection"
         PurchaseHeader."Buy-from Vendor No." := Vendor."No.";
         PurchaseHeader."Pay-to Vendor No." := Vendor."No.";
         PurchaseHeader.Insert();
-    end;
-
-
-    local procedure VerifyJobQueueEntry(ExpectedRecID: RecordID)
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-    begin
-        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Document-Mailing");
-        JobQueueEntry.FindFirst();
-        JobQueueEntry.TestField("Record ID to Process", ExpectedRecID);
     end;
 
     [PageHandler]
@@ -595,4 +584,3 @@ codeunit 134605 "Test Report Layout Selection"
         Handled := true;
     end;
 }
-

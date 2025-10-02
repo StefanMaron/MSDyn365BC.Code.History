@@ -14,7 +14,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Sales.Customer;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Inventory.Journal;
 using Microsoft.Sales.History;
 using Microsoft.Inventory.BOM;
@@ -35,6 +34,7 @@ codeunit 137916 "SCM Assembly Reservation I"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -584,7 +584,6 @@ codeunit 137916 "SCM Assembly Reservation I"
 
     local procedure Initialize()
     var
-        MfgSetup: Record "Manufacturing Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Assembly Reservation I");
@@ -592,8 +591,7 @@ codeunit 137916 "SCM Assembly Reservation I"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Reservation I");
 
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate(); // to avoid Due Date Before Work Date message.
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();

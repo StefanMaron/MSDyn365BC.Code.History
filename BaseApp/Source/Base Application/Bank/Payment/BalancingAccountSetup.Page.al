@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
+/// <summary>
+/// Page 980 "Balancing Account Setup" provides a dialog for setting up balance accounts for payment registration.
+/// This page allows users to select and configure the default balance account used when registering customer payments.
+/// </summary>
+/// <remarks>
+/// Source table: Payment Registration Setup. Used for configuring payment registration defaults
+/// including balance account selection and automation preferences.
+/// </remarks>
 page 980 "Balancing Account Setup"
 {
     Caption = 'Balancing Account Setup';

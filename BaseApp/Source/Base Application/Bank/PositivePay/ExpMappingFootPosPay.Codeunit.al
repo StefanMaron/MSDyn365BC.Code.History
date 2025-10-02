@@ -6,6 +6,16 @@ namespace Microsoft.Bank.PositivePay;
 
 using System.IO;
 
+/// <summary>
+/// Maps positive pay footer records to data exchange fields for export file generation.
+/// This codeunit handles the transformation of footer summary data into the structured format required for bank files.
+/// </summary>
+/// <remarks>
+/// The Export Mapping Footer Positive Pay codeunit processes positive pay footer records containing summary totals
+/// and count information. It maps footer fields to the data exchange structure ensuring that summary information
+/// is properly formatted according to export definition requirements. The footer mapping provides banks with
+/// validation data to verify the completeness and accuracy of transmitted check information.
+/// </remarks>
 codeunit 1707 "Exp. Mapping Foot Pos. Pay"
 {
     TableNo = "Data Exch.";

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Peppol;
 
 using Microsoft.Finance.Currency;
@@ -30,6 +34,7 @@ codeunit 1620 "PEPPOL Validation"
 
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        OutsideScopeVATBreakdowns: Dictionary of [Text, Text];
 #pragma warning disable AA0470
         WrongLengthErr: Label 'should be %1 characters long';
         EmptyUnitOfMeasureErr: Label 'You must specify a valid International Standard Code for the Unit of Measure for %1.', Comment = 'Parameter 1 - document type (Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order), 2 - document number';
@@ -40,6 +45,9 @@ codeunit 1620 "PEPPOL Validation"
 #pragma warning restore AA0470
         MissingCompInfGLNOrVATRegNoErr: Label 'You must specify either GLN or VAT Registration No. in %1.', Comment = '%1=Company Information';
         NegativeUnitPriceErr: Label 'The unit price is negative in %1. It cannot be negative if you want to send the posted document as an electronic document. \\Do you want to continue?', Comment = '%1 - record ID';
+        VatMustBeZeroForCategoryErr: Label 'VAT % must be 0 for tax category code %1', Comment = '%1 - Tax Category code';
+        OnlyOneOCategoryVatPostingSetupErr: Label 'There can be only one tax subtotal present on invoice used with "Not subject to VAT" (O) tax category.';
+        VATGreaterThanZeroErr: Label 'Line should have greater VAT than 0% for tax category %1', Comment = '%1 - Tax Category code';
 
     procedure CheckSalesDocument(SalesHeader: Record "Sales Header")
     var
@@ -135,7 +143,6 @@ codeunit 1620 "PEPPOL Validation"
     procedure CheckSalesDocumentLine(SalesLine: Record "Sales Line")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
         PEPPOLMgt: Codeunit "PEPPOL Management";
         unitCode: Text;
         unitCodeListID: Text;
@@ -160,8 +167,8 @@ codeunit 1620 "PEPPOL Validation"
             // Not a description line
             if GeneralLedgerSetup.UseVat() then
                 SalesLine.TestField("VAT Prod. Posting Group");
-            VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
-            VATPostingSetup.TestField("Tax Category");
+            this.CheckTaxCategory(SalesLine);
+
             if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine."Unit Price" < 0) then
                 if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(NegativeUnitPriceErr, SalesLine.RecordId), false) then
                     Error('');
@@ -292,6 +299,53 @@ codeunit 1620 "PEPPOL Validation"
         SalesHeader.TestField("Ship-to Post Code");
         SalesHeader.TestField("Ship-to Country/Region Code");
         CheckCountryRegionCode(SalesHeader."Ship-to Country/Region Code");
+    end;
+
+    local procedure CheckTaxCategory(SalesLine: Record "Sales Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PEPPOLManagement: Codeunit "PEPPOL Management";
+    begin
+        VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
+        VATPostingSetup.TestField("Tax Category");
+
+        case true of
+            PEPPOLManagement.IsStandardVATCategory(VATPostingSetup."Tax Category"):
+                this.EnsurePositiveRate(SalesLine."VAT %", VATPostingSetup."Tax Category");
+            PEPPOLManagement.IsOutsideScopeVATCategory(VATPostingSetup."Tax Category"):
+                begin
+                    this.EnsureZeroRate(SalesLine."VAT %", VATPostingSetup."Tax Category");
+                    this.EnsureSingleOutsideScopeVATBreakdown(SalesLine);
+                end;
+            PEPPOLManagement.IsZeroVatCategory(VATPostingSetup."Tax Category"):
+                this.EnsureZeroRate(SalesLine."VAT %", VATPostingSetup."Tax Category");
+        end
+    end;
+
+    local procedure EnsureZeroRate(VatPercent: Decimal; TaxCategoryCode: Code[10])
+    begin
+        if VatPercent > 0 then
+            Error(VatMustBeZeroForCategoryErr, TaxCategoryCode);
+    end;
+
+    local procedure EnsurePositiveRate(VatPercent: Decimal; TaxCategoryCode: Code[10])
+    begin
+        if VatPercent = 0 then
+            Error(VATGreaterThanZeroErr, TaxCategoryCode);
+    end;
+
+    local procedure EnsureSingleOutsideScopeVATBreakdown(SalesLine: Record "Sales Line")
+    var
+        BreakdownKey: Text;
+    begin
+        // Check if separate VAT amount line won't be created to ensure that only one VAT breakdown line is created in PEPPOL document
+        BreakdownKey := Format(SalesLine."VAT Calculation Type") + '|' + SalesLine."Tax Group Code";
+
+        if OutsideScopeVATBreakdowns.Count() > 0 then begin
+            if not OutsideScopeVATBreakdowns.ContainsKey(BreakdownKey) then
+                Error(OnlyOneOCategoryVatPostingSetupErr);
+        end else
+            OutsideScopeVATBreakdowns.Add(BreakdownKey, Format(SalesLine."VAT %"));
     end;
 
     procedure CheckSalesLineTypeAndDescription(SalesLine: Record "Sales Line"): Boolean

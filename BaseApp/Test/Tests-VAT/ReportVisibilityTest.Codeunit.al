@@ -156,7 +156,7 @@ codeunit 134095 "Report Visibility Test"
     end;
 
     [Scope('OnPrem')]
-    procedure AssertECSLControllerVisibility(Status: Option)
+    procedure AssertECSLControllerVisibility(Status: Enum "VAT Report Status")
     begin
         ModifyVATReportStatus(Status);
         OpenECSLRecordCard();
@@ -197,7 +197,7 @@ codeunit 134095 "Report Visibility Test"
     end;
 
     [Scope('OnPrem')]
-    procedure AssertVATReportControllerVisibility(Status: Option)
+    procedure AssertVATReportControllerVisibility(Status: Enum "VAT Report Status")
     begin
         ModifyVATReportStatus(Status);
         OpenVATReportRecordCard();
@@ -252,7 +252,7 @@ codeunit 134095 "Report Visibility Test"
     end;
 
     [Scope('OnPrem')]
-    procedure ModifyVATReportStatus(Status: Option)
+    procedure ModifyVATReportStatus(Status: Enum "VAT Report Status")
     begin
         VATReportHeader.Validate(Status, Status);
         VATReportHeader.Modify();
