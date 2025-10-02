@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12492 "FA Posted Release Act FA-1"
 {
     Caption = 'FA Posted Release Act FA-1';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14972 "Suggest VAT Reinst. Lines"
 {
     Caption = 'Suggest VAT Reinst. Lines';

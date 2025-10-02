@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17211 "Tax Register Line List"
 {
     Caption = 'Tax Register Line List';

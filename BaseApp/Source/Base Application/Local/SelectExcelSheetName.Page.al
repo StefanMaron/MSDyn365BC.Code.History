@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26579 "Select Excel Sheet Name"
 {
     Caption = 'Select Excel Sheet Name';

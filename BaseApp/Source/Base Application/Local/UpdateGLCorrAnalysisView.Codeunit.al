@@ -1,4 +1,5 @@
-﻿codeunit 14940 "Update G/L Corr. Analysis View"
+#pragma warning disable AA0247
+codeunit 14940 "Update G/L Corr. Analysis View"
 {
     Permissions = TableData "Analysis View" = rm,
                   TableData "Analysis View Filter" = r,

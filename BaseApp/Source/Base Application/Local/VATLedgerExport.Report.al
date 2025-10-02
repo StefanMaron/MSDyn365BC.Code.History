@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12460 "VAT Ledger Export"
 {
     Caption = 'VAT Ledger Export';
@@ -92,8 +93,6 @@ report 12460 "VAT Ledger Export"
             DataItemTableView = sorting("Period Type", "Period Start");
             dataitem(SalesVATLedgerLineAddSheet; "VAT Ledger Line")
             {
-                DataItemLink = Type = field(Type), Code = field(Code);
-                DataItemLinkReference = VATLedger;
                 DataItemTableView = sorting(Type, Code, "Line No.") where(Type = const(Sales), "Additional Sheet" = const(true));
 
                 trigger OnAfterGetRecord()
@@ -136,6 +135,8 @@ report 12460 "VAT Ledger Export"
                         else
                             SetCurrentKey("Real. VAT Entry Date");
                     end;
+                    SetRange(Type, VATLedgerType);
+                    SetRange(Code, VATLedgerCode);
                 end;
             }
 
@@ -749,4 +750,3 @@ report 12460 "VAT Ledger Export"
         end;
     end;
 }
-

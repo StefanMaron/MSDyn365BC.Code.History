@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17310 "Tax Calc. Line"
 {
     Caption = 'Tax Calc. Line';

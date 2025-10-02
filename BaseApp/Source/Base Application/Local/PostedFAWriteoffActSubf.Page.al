@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12473 "Posted FA Writeoff Act Subf"
 {
     AutoSplitKey = true;

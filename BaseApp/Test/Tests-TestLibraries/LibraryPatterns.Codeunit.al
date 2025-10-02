@@ -91,11 +91,13 @@ codeunit 132212 "Library - Patterns"
 #endif
 
 #if not CLEAN26
+#pragma warning disable AL0801
     [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure MAKEConsumptionJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; ProdOrderLine: Record "Prod. Order Line"; ComponentItem: Record Item; PostingDate: Date; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; UnitCost: Decimal)
     begin
         LibraryManufacturing.CreateConsumptionJournalLine(ItemJournalBatch, ProdOrderLine, ComponentItem, PostingDate, LocationCode, VariantCode, Qty, UnitCost);
     end;
+#pragma warning restore AL0801
 #endif
 
 #if not CLEAN26
@@ -172,27 +174,33 @@ codeunit 132212 "Library - Patterns"
 #endif
 
 #if not CLEAN26
+#pragma warning disable AL0801
     [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure MAKEOutputJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; ProdOrderLine: Record "Prod. Order Line"; PostingDate: Date; Qty: Decimal; UnitCost: Decimal)
     begin
         LibraryManufacturing.CreateOutputJournalLine(ItemJournalBatch, ProdOrderLine, PostingDate, Qty, UnitCost);
     end;
+#pragma warning restore AL0801
 #endif
 
 #if not CLEAN26
+#pragma warning disable AL0801
     [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure MAKEProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; var ParentItem: Record Item; ChildItem: Record Item; ChildItemQtyPer: Decimal; RoutingLinkCode: Code[10])
     begin
         LibraryManufacturing.CreateProductionBOM(ProductionBOMHeader, ParentItem, ChildItem, ChildItemQtyPer, RoutingLinkCode);
     end;
+#pragma warning restore AL0801
 #endif
 
 #if not CLEAN26
+#pragma warning disable AL0801
     [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure MAKEProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Enum "Production Order Status"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; DueDate: Date)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProdOrderStatus, Item, LocationCode, VariantCode, Qty, DueDate);
     end;
+#pragma warning restore AL0801
 #endif
 
 #if not CLEAN26
@@ -267,19 +275,23 @@ codeunit 132212 "Library - Patterns"
 #endif
 
 #if not CLEAN26
+#pragma warning disable AL0801
     [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure MAKERouting(var RoutingHeader: Record "Routing Header"; var Item: Record Item; RoutingLinkCode: Code[10]; DirectUnitCost: Decimal)
     begin
         LibraryManufacturing.CreateRouting(RoutingHeader, Item, RoutingLinkCode, DirectUnitCost);
     end;
+#pragma warning restore AL0801
 #endif
 
 #if not CLEAN26
+#pragma warning disable AL0801
     [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure MAKERoutingforWorkCenter(var RoutingHeader: Record "Routing Header"; var Item: Record Item; WorkCenterNo: Code[20])
     begin
         LibraryManufacturing.CreateRoutingforWorkCenter(RoutingHeader, Item, WorkCenterNo);
     end;
+#pragma warning restore AL0801
 #endif
 
 #if not CLEAN26
@@ -363,11 +375,13 @@ codeunit 132212 "Library - Patterns"
 #endif
 
 #if not CLEAN26
+#pragma warning disable AL0801
     [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure POSTConsumption(ProdOrderLine: Record "Prod. Order Line"; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal)
     begin
         LibraryManufacturing.POSTConsumption(ProdOrderLine, Item, LocationCode, VariantCode, Qty, PostingDate, UnitCost);
     end;
+#pragma warning restore AL0801
 #endif
 
 #if not CLEAN26
@@ -428,19 +442,23 @@ codeunit 132212 "Library - Patterns"
     end;
 
 #if not CLEAN26
+#pragma warning disable AL0801
     [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure POSTOutput(ProdOrderLine: Record "Prod. Order Line"; Qty: Decimal; PostingDate: Date; UnitCost: Decimal)
     begin
         LibraryManufacturing.POSTOutput(ProdOrderLine, Qty, PostingDate, UnitCost);
     end;
+#pragma warning restore AL0801
 #endif
 
 #if not CLEAN26
+#pragma warning disable AL0801
     [Obsolete('Moved to codeunit Library Manufacturing', '26.0')]
     procedure POSTOutputWithItemTracking(ProdOrderLine: Record "Prod. Order Line"; Qty: Decimal; RunTime: Decimal; PostingDate: Date; UnitCost: Decimal; SerialNo: Code[50]; LotNo: Code[50])
     begin
         LibraryManufacturing.POSTOutputWithItemTracking(ProdOrderLine, Qty, RunTime, PostingDate, UnitCost, SerialNo, LotNo);
     end;
+#pragma warning restore AL0801
 #endif
 
 #if not CLEAN26
@@ -571,7 +589,11 @@ codeunit 132212 "Library - Patterns"
     procedure SETNoSeries()
     var
         InventorySetup: Record "Inventory Setup";
+#if not CLEAN27
+#pragma warning disable AL0801
         ManufacturingSetup: Record "Manufacturing Setup";
+#pragma warning restore AL0801
+#endif
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         MarketingSetup: Record "Marketing Setup";
         NoSeries: Code[20];
@@ -588,6 +610,8 @@ codeunit 132212 "Library - Patterns"
             InventorySetup.Modify();
         end;
 
+#if not CLEAN27
+#pragma warning disable AL0801
         ManufacturingSetup.Get();
         if ManufacturingSetup."Simulated Order Nos." <> NoSeries then begin
             ManufacturingSetup."Simulated Order Nos." := NoSeries;
@@ -605,6 +629,8 @@ codeunit 132212 "Library - Patterns"
             ManufacturingSetup."Released Order Nos." := NoSeries;
             ManufacturingSetup.Modify();
         end;
+#pragma warning restore AL0801
+#endif
 
         SalesReceivablesSetup.Get();
         if SalesReceivablesSetup."Quote Nos." <> NoSeries then begin

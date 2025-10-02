@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12409 "Order Proforma-Invoice (A)"
 {
     Caption = 'Order Proforma-Invoice (A)';

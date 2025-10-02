@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12466 "FA Turnover"
 {
     DefaultLayout = RDLC;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14973 "Copy to VAT Reinst. Journal"
 {
     Caption = 'Copy to VAT Reinst. Journal';

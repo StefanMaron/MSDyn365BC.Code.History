@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12495 "FA Inventory Card FA-6"
 {
     Caption = 'FA Inventory Card FA-6';

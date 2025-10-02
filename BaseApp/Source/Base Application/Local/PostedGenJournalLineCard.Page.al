@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12410 "Posted Gen. Journal Line Card"
 {
     AutoSplitKey = true;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17321 "Tax Diff. Group"
 {
     Caption = 'Deferral Group';

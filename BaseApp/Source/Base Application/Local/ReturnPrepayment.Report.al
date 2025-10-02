@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12453 "Return Prepayment"
 {
     Caption = 'Return Prepayment';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14940 "Analytic Account Card by Dim."
 {
     ApplicationArea = Basic, Suite;

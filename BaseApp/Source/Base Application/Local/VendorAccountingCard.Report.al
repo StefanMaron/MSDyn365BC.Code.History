@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12445 "Vendor Accounting Card"
 {
     DefaultLayout = RDLC;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12413 "VAT Sales Ledger Subform"
 {
     Caption = 'VAT Sales Ledger';

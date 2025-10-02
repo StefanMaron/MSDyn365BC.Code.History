@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14915 "Supplement to INV-17"
 {
     Caption = 'Supplement to INV-17';

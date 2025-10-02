@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12421 "Posted Document Signature"
 {
     Caption = 'Posted Document Signature';

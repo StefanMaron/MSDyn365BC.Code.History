@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12434 "Posted Adv. Statement Subform"
 {
     AutoSplitKey = true;

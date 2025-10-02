@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26583 "Page Indication XML Elements"
 {
     AutoSplitKey = true;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 17206 "Create Tax Register Item Entry"
 {
     TableNo = "Tax Register Item Entry";

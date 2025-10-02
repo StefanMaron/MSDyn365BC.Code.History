@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12452 "Item Receipt Line"
 {
     Caption = 'Item Receipt Line';

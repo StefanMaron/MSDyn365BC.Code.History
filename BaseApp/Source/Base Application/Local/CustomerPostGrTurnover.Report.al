@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12440 "Customer Post. Gr. Turnover"
 {
     DefaultLayout = RDLC;

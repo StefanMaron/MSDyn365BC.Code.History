@@ -526,17 +526,6 @@ codeunit 147111 "SCM Item Documents"
         ItemGLTurnover.CalculateAmounts(ValueEntry, DebitCost, CreditCost, DebitQty, CreditQty);
     end;
 
-    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]): Integer
-    var
-        ItemJournalLine: Record "Item Journal Line";
-        Qty: Integer;
-    begin
-        Qty := LibraryRandom.RandInt(100);
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, BinCode, Qty);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
-        exit(Qty);
-    end;
-
     local procedure CreateInvtDocumentWithLine(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; Item: Record Item; DocumentType: Enum "Invt. Doc. Document Type"; LocationCode: Code[10]; SalespersonPurchaserCode: Code[20])
     begin
         LibraryInventory.CreateInvtDocument(InvtDocumentHeader, DocumentType, LocationCode);
@@ -544,16 +533,6 @@ codeunit 147111 "SCM Item Documents"
         InvtDocumentHeader.Modify(true);
         LibraryInventory.CreateInvtDocumentLine(
           InvtDocumentHeader, InvtDocumentLine, Item."No.", Item."Unit Cost", LibraryRandom.RandDec(10, 2));
-    end;
-
-    local procedure CreateInvtDocumentWithItemTracking(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; ItemDocumentType: Enum "Invt. Doc. Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; ItemTrkgAction: Option)
-    begin
-        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, ItemDocumentType, LocationCode);
-        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, ItemNo, 0, Qty);
-        InvtDocumentLine.Validate("Bin Code", BinCode);
-        InvtDocumentLine.Modify(true);
-        LibraryVariableStorage.Enqueue(ItemTrkgAction);
-        InvtDocumentLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
@@ -745,17 +724,6 @@ codeunit 147111 "SCM Item Documents"
         Item.TestField(Inventory, ExpectedQty);
     end;
 
-    local procedure VerifyWarehouseEntry(LocationCode: Code[10]; ItemNo: Code[20]; EntryType: Option; ExpectedQty: Decimal)
-    var
-        WarehouseEntry: Record "Warehouse Entry";
-    begin
-        WarehouseEntry.SetRange("Location Code", LocationCode);
-        WarehouseEntry.SetRange("Item No.", ItemNo);
-        WarehouseEntry.SetRange("Entry Type", EntryType);
-        WarehouseEntry.FindFirst();
-        WarehouseEntry.TestField(Quantity, ExpectedQty);
-    end;
-
     [ModalPageHandler]
     procedure ItemTrackingLinesRedStornoModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     var
@@ -796,4 +764,3 @@ codeunit 147111 "SCM Item Documents"
         ItemTrackingSummary.OK().Invoke();
     end;
 }
-

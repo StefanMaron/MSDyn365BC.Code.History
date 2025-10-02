@@ -333,7 +333,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // Exercise:
         asserterror PurchaseHeader.Get(PurchaseHeader."Document Type"::"Blanket Order", PurchaseLine."Blanket Order No.");
 
-        // Verify: Verify that Blanket Order created earlier can be successfully deleted after posting Purchase Order and show error while trying to GET the same doucment.
+        // Verify: Verify that Blanket Order created earlier can be successfully deleted after posting Purchase Order and show error while trying to GET the same document.
         Assert.VerifyFailure(RecordNotFound, FailedToDeletePurchaseBlanketOrder);
     end;
 

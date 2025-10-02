@@ -396,7 +396,7 @@ codeunit 136902 "Resource Reports"
         Resource.Validate("Global Dimension 2 Code", DimensionValue.Code);
         Resource.Modify(true);
     end;
-
+#if not CLEAN25
     local procedure CreateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10])
     begin
         // Create Currency Exchange Rate with Exchange Rate Amount, Relational Exch. Rate Amount as Random values.
@@ -411,7 +411,7 @@ codeunit 136902 "Resource Reports"
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
         CurrencyExchangeRate.Modify(true);
     end;
-
+#endif
     local procedure CreateResource(var Resource: Record Resource)
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -703,4 +703,3 @@ codeunit 136902 "Resource Reports"
         ResourceStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

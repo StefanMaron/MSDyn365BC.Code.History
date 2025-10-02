@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14968 "Pstd. Sales Corr. Cr. M. Fact."
 {
     Caption = 'Posted Corr. Fact. Cr. Memo';

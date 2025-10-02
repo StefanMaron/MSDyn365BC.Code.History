@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12427 "Resp. Employee Card"
 {
     Caption = 'Resp. Employee Card';

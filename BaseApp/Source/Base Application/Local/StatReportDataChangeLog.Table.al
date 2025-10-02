@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 26565 "Stat. Report Data Change Log"
 {
     Caption = 'Stat. Report Data Change Log';

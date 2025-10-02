@@ -274,15 +274,6 @@ page 5339 "Integration Synch. Error List"
             {
                 Caption = 'Process';
 
-#if not CLEAN24
-                actionref(DataIntegrationExceptionDetails_Promoted; DataIntegrationExceptionDetails)
-                {
-                    Visible = false;
-                    ObsoleteReason = 'This action is not promoted.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                }
-#endif
                 actionref(Delete0days_Promoted; Delete0days)
                 {
                 }
@@ -430,4 +421,3 @@ page 5339 "Integration Synch. Error List"
     end;
 
 }
-

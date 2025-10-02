@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Reversal;
 
 using Microsoft.Bank.Ledger;
@@ -420,8 +424,10 @@ page 183 "Reverse Transaction Entries"
         InitializeFilter();
     end;
 
-    var
+    protected var
         ReversalEntry: Record "Reversal Entry";
+
+    var
         BankAccountStatement: Record "Bank Account Statement";
         ReversalEntry2: Record "Reversal Entry";
         MustBe1Or2Msg: Label 'must be %1 or %2', Comment = '%1 - Type of entry GLEntry, %2 - Type of entry VATEntry';

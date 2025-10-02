@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 12410 "VAT Prepayment-Post"
 {
     Permissions = TableData "Sales Invoice Header" = rim,

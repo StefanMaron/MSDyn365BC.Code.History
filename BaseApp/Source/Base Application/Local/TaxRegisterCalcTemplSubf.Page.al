@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17205 "Tax Register Calc. Templ. Subf"
 {
     AutoSplitKey = true;

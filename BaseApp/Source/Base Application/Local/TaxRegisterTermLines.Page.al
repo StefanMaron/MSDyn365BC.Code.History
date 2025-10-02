@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17208 "Tax Register Term Lines"
 {
     AutoSplitKey = true;

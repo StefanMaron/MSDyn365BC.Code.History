@@ -344,7 +344,7 @@ codeunit 144102 "SCM Inventory reports"
             LibraryUtility.GenerateRandomCode20(InvtDocumentLine.FieldNo("Item No."), Database::"Invt. Document Line");
         InvtDocumentLine.Modify();
 
-        // [WHEN] Run 'Item Write-off act TORG-16' report 
+        // [WHEN] Run 'Item Write-off act TORG-16' report
         RunUnpostedTorg16Report(InvtDocumentHeader."No.", '', '', WorkDate(), '');
 
         // [THEN] Report is created without errors and contains 20-symbols-length Item No.
@@ -712,21 +712,6 @@ codeunit 144102 "SCM Inventory reports"
         until ReportSelections.Next() = 0;
     end;
 
-    local procedure VerifyTorg16EmployeeSignatures(Members: array[5, 2] of Text; Shift: Integer)
-    var
-        Counter: Integer;
-        RowId: Integer;
-    begin
-        RowId := 39 + Shift * 2;
-        for Counter := 1 to 4 do begin
-            LibraryReportValidation.VerifyCellValue(RowId, 21, Members[Counter, 1]);
-            LibraryReportValidation.VerifyCellValue(RowId, 45, Members[Counter, 2]);
-            RowId += 2;
-        end;
-        LibraryReportValidation.VerifyCellValue(17, 66, Members[5, 1]);
-        LibraryReportValidation.VerifyCellValue(19, 71, Members[5, 2]);
-    end;
-
     local procedure VerifyTorg1Totals(TotalAmtQtys: array[5] of Decimal)
     begin
         LibraryReportValidation.OpenExcelFile();
@@ -877,4 +862,3 @@ codeunit 144102 "SCM Inventory reports"
     begin
     end;
 }
-

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 12423 "VAT Ledger Management"
 {
     Permissions = tabledata "VAT Ledger Line Tariff No." = imd,

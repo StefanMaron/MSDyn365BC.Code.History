@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17238 "Gen. Term Profile"
 {
     Caption = 'Gen. Term Profile';

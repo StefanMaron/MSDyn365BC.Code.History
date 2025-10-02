@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12470 "FA Document Header"
 {
     Caption = 'FA Document Header';
@@ -219,26 +220,14 @@ table 12470 "FA Document Header"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         FASetup.Get();
         if "No." = '' then begin
             TestNoSeries();
             "No. Series" := GetNoSeriesCode();
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "FA Posting Date", "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series", "FA Posting Date");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "FA Posting Date", "No.");
-            end;
-#endif
         end;
         InitRecord();
 
@@ -268,11 +257,7 @@ table 12470 "FA Document Header"
     [Scope('OnPrem')]
     procedure InitRecord()
     var
-#if CLEAN24
         NoSeries: Codeunit "No. Series";
-#else
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
     begin
         case "Document Type" of
             "Document Type"::Writeoff:
@@ -282,12 +267,8 @@ table 12470 "FA Document Header"
                     "Posting No. Series" := "No. Series"
                 else
                     if "Posting No. Series" = '' then
-#if CLEAN24
                         if NoSeries.IsAutomatic(FASetup."Posted Writeoff Nos.") then
                             "Posting No. Series" := FASetup."Posted Writeoff Nos.";
-#else
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", FASetup."Posted Writeoff Nos.");
-#endif
             "Document Type"::Release:
                 if ("No. Series" <> '') and
                     (FASetup."Release Nos." = FASetup."Posted Release Nos.")
@@ -295,12 +276,8 @@ table 12470 "FA Document Header"
                     "Posting No. Series" := "No. Series"
                 else
                     if "Posting No. Series" = '' then
-#if CLEAN24
                         if NoSeries.IsAutomatic(FASetup."Posted Release Nos.") then
                             "Posting No. Series" := FASetup."Posted Release Nos.";
-#else
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", FASetup."Posted Release Nos.");
-#endif
             "Document Type"::Movement:
                 if ("No. Series" <> '') and
                     (FASetup."Disposal Nos." = FASetup."Posted Disposal Nos.")
@@ -308,12 +285,8 @@ table 12470 "FA Document Header"
                     "Posting No. Series" := "No. Series"
                 else
                     if "Posting No. Series" = '' then
-#if CLEAN24
                         if NoSeries.IsAutomatic(FASetup."Posted Disposal Nos.") then
                             "Posting No. Series" := FASetup."Posted Disposal Nos.";
-#else
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", FASetup."Posted Disposal Nos.");
-#endif
         end;
 
         if "Posting No. Series" = '' then
@@ -517,4 +490,3 @@ table 12470 "FA Document Header"
             until FADocLine.Next() = 0;
     end;
 }
-

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17210 "Tax Register Accum. Subform"
 {
     Caption = 'Lines';

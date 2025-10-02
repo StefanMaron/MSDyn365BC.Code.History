@@ -1,4 +1,5 @@
-﻿report 12438 "G/L Account Entries Analysis"
+#pragma warning disable AA0247
+report 12438 "G/L Account Entries Analysis"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Local/GLAccountEntriesAnalysis.rdlc';

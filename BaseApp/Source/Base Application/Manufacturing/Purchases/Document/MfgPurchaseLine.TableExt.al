@@ -1,11 +1,19 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Document;
 
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.WorkCenter;
-using Microsoft.Inventory;
 using Microsoft.Manufacturing.Routing;
-using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Manufacturing.WorkCenter;
 
 tableextension 99000751 "Mfg. Purchase Line" extends "Purchase Line"
 {
@@ -23,8 +31,7 @@ tableextension 99000751 "Mfg. Purchase Line" extends "Purchase Line"
             trigger OnValidate()
             begin
                 CheckDropShipment();
-
-                AddOnIntegrMgt.ValidateProdOrderOnPurchLine(Rec);
+                ValidateProdOrderOnPurchLine();
             end;
         }
         field(99000750; "Routing No."; Code[20])
@@ -127,7 +134,6 @@ tableextension 99000751 "Mfg. Purchase Line" extends "Purchase Line"
 
     var
         WorkCenter: Record "Work Center";
-        AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         CannotChangeAssociatedLineErr: Label 'You cannot change %1 because the order line is associated with sales order %2.', Comment = '%1 - Prod. Order No., %2 - Sales Order No.';
 
     procedure CheckDropShipment()
@@ -143,8 +149,122 @@ tableextension 99000751 "Mfg. Purchase Line" extends "Purchase Line"
             Error(CannotChangeAssociatedLineErr, FieldCaption("Prod. Order No."), "Sales Order No.");
     end;
 
+    procedure ValidateProdOrderOnPurchLine()
+    var
+        Item: Record Item;
+        ProdOrder: Record Microsoft.Manufacturing.Document."Production Order";
+        ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line";
+#if not CLEAN27
+        AddonIntegrManagement: Codeunit Microsoft.Inventory.AddOnIntegrManagement;
+#endif
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateProdOrderOnPurchLine(Rec, IsHandled);
+#if not CLEAN27
+        AddonIntegrManagement.RunOnBeforeValidateProdOrderOnPurchLine(Rec, IsHandled);
+#endif
+        if IsHandled then
+            exit;
+
+        TestField(Type, Type::Item);
+
+        if ProdOrder.Get(ProdOrder.Status::Released, "Prod. Order No.") then begin
+            ProdOrder.TestField(Blocked, false);
+            ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
+            ProdOrderLine.SetRange("Prod. Order No.", "Prod. Order No.");
+            ProdOrderLine.SetRange("Item No.", "No.");
+            if ProdOrderLine.FindFirst() then
+                "Routing No." := ProdOrderLine."Routing No.";
+            Item.Get("No.");
+            Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        end;
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckDropShipment(var IsHandled: Boolean; var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateProdOrderOnPurchLine(var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    procedure TransferFromReqLineToPurchLine(var PurchOrderLine: Record "Purchase Line"; ReqLine: Record "Requisition Line")
+    var
+        Currency: Record Currency;
+        GLSetup: Record "General Ledger Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        CostCalculationManagement: Codeunit "Cost Calculation Management";
+#if not CLEAN27
+        AddonIntegrManagement: Codeunit Microsoft.Inventory.AddOnIntegrManagement;
+#endif
+        RndgSetupRead: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTransferFromReqLineToPurchLine(PurchOrderLine, ReqLine, IsHandled);
+#if not CLEAN27
+        AddonIntegrManagement.RunOnBeforeTransferFromReqLineToPurchLine(PurchOrderLine, ReqLine, IsHandled);
+#endif
+        if not IsHandled then begin
+            PurchOrderLine."Routing No." := ReqLine."Routing No.";
+            PurchOrderLine."Routing Reference No." := ReqLine."Routing Reference No.";
+            PurchOrderLine."Operation No." := ReqLine."Operation No.";
+            PurchOrderLine.Validate("Work Center No.", ReqLine."Work Center No.");
+            if ReqLine."Prod. Order No." <> '' then
+                if ReqLine."Work Center No." <> '' then begin
+                    OnTransferFromReqLineToPurchLineOnBeforeBeforeAssignOverheadRate(WorkCenter, ReqLine."Order Date");
+#if not CLEAN27
+                    AddonIntegrManagement.RunOnTransferFromReqLineToPurchLineOnBeforeBeforeAssignOverheadRate(WorkCenter, ReqLine."Order Date");
+#endif
+                    WorkCenter.Get(PurchOrderLine."Work Center No.");
+                    if WorkCenter."Unit Cost Calculation" = WorkCenter."Unit Cost Calculation"::Time then begin
+                        ProdOrderRoutingLine.Get(
+                          ProdOrderRoutingLine.Status::Released, ReqLine."Prod. Order No.", ReqLine."Routing Reference No.", ReqLine."Routing No.", ReqLine."Operation No.");
+                        ManufacturingSetup.Get();
+                        CostCalculationManagement.GetRndgSetup(GLSetup, Currency, RndgSetupRead);
+                        if ManufacturingSetup."Cost Incl. Setup" and (ReqLine.Quantity <> 0) then
+                            PurchOrderLine."Overhead Rate" :=
+                              Round(
+                                WorkCenter."Overhead Rate" *
+                                (ProdOrderRoutingLine."Setup Time" /
+                                 ReqLine.Quantity +
+                                 ProdOrderRoutingLine."Run Time"),
+                                GLSetup."Unit-Amount Rounding Precision")
+                        else
+                            PurchOrderLine."Overhead Rate" :=
+                              Round(
+                                WorkCenter."Overhead Rate" * ProdOrderRoutingLine."Run Time",
+                                GLSetup."Unit-Amount Rounding Precision");
+                    end else
+                        PurchOrderLine."Overhead Rate" := WorkCenter."Overhead Rate";
+                    PurchOrderLine."Indirect Cost %" := WorkCenter."Indirect Cost %";
+                    PurchOrderLine."Gen. Prod. Posting Group" := WorkCenter."Gen. Prod. Posting Group";
+                    PurchOrderLine.Validate("Direct Unit Cost", ReqLine."Direct Unit Cost");
+                end;
+        end;
+
+        OnAfterTransferFromReqLineToPurchLine(PurchOrderLine, ReqLine);
+#if not CLEAN27
+        AddonIntegrManagement.RunOnAfterTransferFromReqLineToPurchLine(PurchOrderLine, ReqLine);
+#endif
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromReqLineToPurchLine(var PurchOrderLine: Record "Purchase Line"; var ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferFromReqLineToPurchLine(var PurchOrderLine: Record "Purchase Line"; var ReqLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferFromReqLineToPurchLineOnBeforeBeforeAssignOverheadRate(var WordCenter: Record Microsoft.Manufacturing.WorkCenter."Work Center"; var OrderDate: Date)
     begin
     end;
 }

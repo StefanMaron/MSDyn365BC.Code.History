@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17217 "Tax Register Dim. Def. Value"
 {
     Caption = 'Tax Register Dim. Def. Value';

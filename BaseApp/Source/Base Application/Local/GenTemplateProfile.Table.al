@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17237 "Gen. Template Profile"
 {
     Caption = 'Gen. Template Profile';

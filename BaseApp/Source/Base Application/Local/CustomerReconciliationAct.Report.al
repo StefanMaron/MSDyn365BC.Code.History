@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14910 "Customer - Reconciliation Act"
 {
     ApplicationArea = Basic, Suite;

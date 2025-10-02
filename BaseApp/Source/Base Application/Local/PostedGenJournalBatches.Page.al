@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12411 "Posted Gen. Journal Batches"
 {
     Caption = 'Posted Gen. Journal Batches';

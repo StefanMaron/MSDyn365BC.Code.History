@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17301 "Tax Diff. Posting Groups"
 {
     ApplicationArea = Basic, Suite;

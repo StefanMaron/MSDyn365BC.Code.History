@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14926 "Inventory for Deferrals INV-11"
 {
     Caption = 'Inventory for Deferrals INV-11';

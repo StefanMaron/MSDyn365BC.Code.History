@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17302 "Calculate FE Depreciation"
 {
     ApplicationArea = Basic, Suite;

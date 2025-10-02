@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17202 "Tax Register Worksheet"
 {
     Caption = 'Tax Register Worksheet';

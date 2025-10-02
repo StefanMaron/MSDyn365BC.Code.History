@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12477 "Item Reclass. TORG-13"
 {
     Caption = 'Item Reclass. TORG-13';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17285 "Tax Reg. Norm Accum. Lines"
 {
     Caption = 'Norm Accumulat. Lines';

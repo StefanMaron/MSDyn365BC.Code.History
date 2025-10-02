@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14954 "G/L Corresp. Entries Preview"
 {
     Caption = 'G/L Correspondence Entries';

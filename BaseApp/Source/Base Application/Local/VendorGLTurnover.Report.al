@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12451 "Vendor G/L Turnover"
 {
     DefaultLayout = RDLC;

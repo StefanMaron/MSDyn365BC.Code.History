@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17222 "Tax Register Norm Detail"
 {
     Caption = 'Tax Register Norm Detail';

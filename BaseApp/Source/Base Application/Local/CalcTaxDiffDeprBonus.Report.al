@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17308 "Calc. Tax Diff.- Depr. Bonus"
 {
     ApplicationArea = Basic, Suite;

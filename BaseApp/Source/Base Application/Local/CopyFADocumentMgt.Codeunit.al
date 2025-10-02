@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 12472 "Copy FA Document Mgt."
 {
 

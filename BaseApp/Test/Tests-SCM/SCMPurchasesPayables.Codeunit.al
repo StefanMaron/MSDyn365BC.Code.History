@@ -26,6 +26,7 @@ codeunit 137061 "SCM Purchases & Payables"
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         MessageCounter: Integer;
         Initialized: Boolean;
@@ -55,21 +56,17 @@ codeunit 137061 "SCM Purchases & Payables"
     [Scope('OnPrem')]
     procedure B32914_DateInPurchaseLine()
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
         Item: Record Item;
         ItemVendor: Record "Item Vendor";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         Location: Record Location;
         Vendor: Record Vendor;
-        DefaultSafetyLeadTime: DateFormula;
     begin
         // Create Purchase Order with line and verify Date in line.
         // Setup: Update Manufacturing Setup.
         Initialize();
-        ManufacturingSetup.Get();
-        Evaluate(DefaultSafetyLeadTime, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
-        UpdateManufacturingSetup(DefaultSafetyLeadTime);
+        LibraryPlanning.SetDefaultSafetyLeadTime('<' + Format(LibraryRandom.RandInt(5)) + 'M>');
 
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreateVendor(Vendor);
@@ -89,9 +86,6 @@ codeunit 137061 "SCM Purchases & Payables"
 
         // Verify: Verify Expected Receipt Date and Promised Receipt Date in Purchase line.
         VerifyPurchLine(Item."No.");
-
-        // TearDown.
-        UpdateManufacturingSetup(ManufacturingSetup."Default Safety Lead Time");
     end;
 
     [Test]
@@ -1016,6 +1010,7 @@ codeunit 137061 "SCM Purchases & Payables"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Purchases & Payables");
         LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         MessageCounter := 0;
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
@@ -1032,9 +1027,11 @@ codeunit 137061 "SCM Purchases & Payables"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         NoSeriesSetup();
         ItemJournalSetup();
-        Commit();
+        LibrarySetupStorage.SaveInventorySetup();
 
         Initialized := true;
+        Commit();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Purchases & Payables");
     end;
 
@@ -1065,15 +1062,6 @@ codeunit 137061 "SCM Purchases & Payables"
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
-    end;
-
-    local procedure UpdateManufacturingSetup(DefaultSafetyLeadTime: DateFormula)
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
-        ManufacturingSetup.Modify(true);
     end;
 
     local procedure ModifyInventorySetup(AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostPeriod: Enum "Average Cost Period Type")
@@ -1467,13 +1455,13 @@ codeunit 137061 "SCM Purchases & Payables"
 
     local procedure VerifyPurchLine(ItemNo: Code[20])
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         PurchaseLine: Record "Purchase Line";
     begin
-        ManufacturingSetup.Get();
+        InventorySetup.Get();
         PurchaseLine.SetRange("No.", ItemNo);
         PurchaseLine.FindFirst();
-        PurchaseLine.TestField("Expected Receipt Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
+        PurchaseLine.TestField("Expected Receipt Date", CalcDate(InventorySetup."Default Safety Lead Time", WorkDate()));
         PurchaseLine.TestField("Promised Receipt Date", WorkDate());
     end;
 

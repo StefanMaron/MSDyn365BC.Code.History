@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 14930 "Excel Report Builder Manager"
 {
     var

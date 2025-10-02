@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17304 "Tax Diff. Journal Batch"
 {
     Caption = 'Tax Diff. Journal Batch';

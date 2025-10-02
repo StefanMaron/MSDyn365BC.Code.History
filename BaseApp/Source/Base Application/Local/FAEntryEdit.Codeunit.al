@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 17308 "FA Entry - Edit"
 {
     Permissions = TableData "FA Ledger Entry" = imd;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12400 "G/L Correspondence"
 {
     Caption = 'G/L Correspondence';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17449 "Including In Report"
 {
     Caption = 'Including In Report';

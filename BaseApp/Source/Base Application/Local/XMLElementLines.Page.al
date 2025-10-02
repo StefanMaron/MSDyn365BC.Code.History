@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26587 "XML Element Lines"
 {
     Caption = 'XML Element Lines';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17311 "Tax Calc. Setup Card"
 {
     Caption = 'Tax Calc. Setup Card';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12420 "Document Signature"
 {
     Caption = 'Document Signature';

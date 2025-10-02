@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 #if not CLEANSCHEMA28 
 table 12408 "CD No. Information"
 {

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14920 "Assessed Tax Allowance"
 {
     Caption = 'Assessed Tax Allowance';

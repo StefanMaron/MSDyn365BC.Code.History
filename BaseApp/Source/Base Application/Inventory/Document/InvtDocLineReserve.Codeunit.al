@@ -824,7 +824,7 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyChange(var NewInvtDocumentLine: Record "Invt. Document Line"; var OldInvtDocumentLine: Record "Invt. Document Line"; var IsHandled: Boolean)
     begin
-    end;    
+    end;        
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteLine(var InvtDocumentLine: Record "Invt. Document Line"; DeleteItemTracking: Boolean; Blocked: Boolean; var IsHandled: Boolean)

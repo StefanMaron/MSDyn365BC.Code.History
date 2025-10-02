@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17335 "Tax Dif G/L Corr. Dim. Filters"
 {
     Caption = 'Tax Dif G/L Corr. Dim. Filters';

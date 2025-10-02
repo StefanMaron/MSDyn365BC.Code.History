@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26572 "Copy Statutory Report"
 {
     Caption = 'Copy Statutory Report';

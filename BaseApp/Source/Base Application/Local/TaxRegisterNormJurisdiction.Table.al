@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17220 "Tax Register Norm Jurisdiction"
 {
     Caption = 'Tax Register Norm Jurisdiction';

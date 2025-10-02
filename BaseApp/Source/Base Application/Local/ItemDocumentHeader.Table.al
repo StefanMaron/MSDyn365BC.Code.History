@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12450 "Item Document Header"
 {
     Caption = 'Item Document Header';

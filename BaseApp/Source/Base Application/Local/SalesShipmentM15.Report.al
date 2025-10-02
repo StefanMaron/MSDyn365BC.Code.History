@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12472 "Sales Shipment M-15"
 {
     Caption = 'Sales Shipment M-15';

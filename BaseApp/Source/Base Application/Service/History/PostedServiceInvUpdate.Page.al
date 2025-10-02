@@ -6,6 +6,7 @@ namespace Microsoft.Service.History;
 
 page 1356 "Posted Service Inv. - Update"
 {
+    Caption = 'Posted Service Inv. - Update';
     DeleteAllowed = false;
     Editable = true;
     InsertAllowed = false;
@@ -14,7 +15,6 @@ page 1356 "Posted Service Inv. - Update"
     ShowFilter = false;
     SourceTable = "Service Invoice Header";
     SourceTableTemporary = true;
-    Caption = 'Posted Service Inv. - Update';
 
     layout
     {
@@ -25,21 +25,20 @@ page 1356 "Posted Service Inv. - Update"
                 Caption = 'General';
                 field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Service;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the record.';
+                    ToolTip = 'Specifies the number of the posted invoice.';
                 }
                 field("Bill-to Name"; Rec."Bill-to Name")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Service;
                     Caption = 'Customer';
                     Editable = false;
-                    ToolTip = 'Specifies the name of customer.';
+                    ToolTip = 'Specifies the name of the customer on the service invoice.';
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Posting Date';
+                    ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the posting date for the document.';
                 }
@@ -90,7 +89,8 @@ page 1356 "Posted Service Inv. - Update"
 
     local procedure RecordChanged() IsChanged: Boolean
     begin
-        IsChanged := (Rec."Payment Method Code" <> xServiceInvoiceHeader."Payment Method Code") or
+        IsChanged :=
+          (Rec."Payment Method Code" <> xServiceInvoiceHeader."Payment Method Code") or
           (Rec."Payment Reference" <> xServiceInvoiceHeader."Payment Reference") or
           (Rec."Company Bank Account Code" <> xServiceInvoiceHeader."Company Bank Account Code");
 

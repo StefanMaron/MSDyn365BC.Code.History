@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12431 "G/L Corresp. General Ledger"
 {
     DefaultLayout = RDLC;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 17204 "Create Tax Register CV Entry"
 {
     TableNo = "Tax Register CV Entry";

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14905 "Letter of Attorney Card"
 {
     Caption = 'Letter of Attorney Card';

@@ -8,6 +8,17 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
 using System.Security.User;
 
+/// <summary>
+/// Displays detailed check information available for positive pay export in a list part format.
+/// This page shows check ledger entries that can be included in positive pay file generation.
+/// </summary>
+/// <remarks>
+/// The Positive Pay Export Detail page is typically used as a subform within the main export interface
+/// to show users which checks are available for export. It displays check ledger entry information
+/// including check numbers, amounts, payees, and dates in a read-only format. The page allows users
+/// to review the checks that will be included in the positive pay file before proceeding with the export.
+/// Filtering and sorting capabilities help users identify specific checks within large datasets.
+/// </remarks>
 page 1234 "Positive Pay Export Detail"
 {
     Caption = 'Positive Pay Export Detail';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12465 "Default Signature Setup"
 {
     ApplicationArea = Basic, Suite;

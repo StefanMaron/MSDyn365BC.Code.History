@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26593 "Stat. Rep. Table Map. Subform"
 {
     Caption = 'Stat. Rep. Table Map. Subform';

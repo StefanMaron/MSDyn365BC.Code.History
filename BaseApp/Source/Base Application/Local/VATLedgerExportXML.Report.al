@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12461 "VAT Ledger Export XML"
 {
     Caption = 'VAT Ledger Export XML';

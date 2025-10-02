@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14927 "Default VAT Allocation"
 {
     AutoSplitKey = true;

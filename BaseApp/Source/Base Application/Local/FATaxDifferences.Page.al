@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17337 "FA Tax Differences"
 {
     ApplicationArea = FixedAssets;
@@ -262,10 +263,4 @@ page 17337 "FA Tax Differences"
                     Filter := Filter + '|' + DepreciationBook.Code;
             until DepreciationBook.Next() = 0;
     end;
-
-    local procedure DateFilterOnAfterValidate()
-    begin
-        CurrPage.Update();
-    end;
 }
-

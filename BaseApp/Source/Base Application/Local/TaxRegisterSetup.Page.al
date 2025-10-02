@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17201 "Tax Register Setup"
 {
     ApplicationArea = Basic, Suite;

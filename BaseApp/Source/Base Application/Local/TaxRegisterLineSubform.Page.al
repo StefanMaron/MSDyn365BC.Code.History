@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17204 "Tax Register Line Subform"
 {
     AutoSplitKey = true;

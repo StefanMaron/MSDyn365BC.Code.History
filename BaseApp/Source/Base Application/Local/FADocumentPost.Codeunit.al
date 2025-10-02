@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 12471 "FA Document-Post"
 {
     Permissions = TableData "FA Ledger Entry" = rimd,

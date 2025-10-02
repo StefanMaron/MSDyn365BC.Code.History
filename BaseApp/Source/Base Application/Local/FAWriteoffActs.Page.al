@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 35606 "FA Writeoff Acts"
 {
     ApplicationArea = FixedAssets;

@@ -1,4 +1,5 @@
-﻿xmlport 17202 "Norm Jurisdiction"
+#pragma warning disable AA0247
+xmlport 17202 "Norm Jurisdiction"
 {
     Caption = 'Norm Jurisdiction';
 

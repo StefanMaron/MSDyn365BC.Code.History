@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 12402 "G/L Reg. - Corresp. Entries"
 {
     TableNo = "G/L Register";

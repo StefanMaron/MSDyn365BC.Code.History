@@ -1,4 +1,5 @@
-﻿codeunit 17307 "Create Tax Calc. FA Entries"
+#pragma warning disable AA0247
+codeunit 17307 "Create Tax Calc. FA Entries"
 {
     TableNo = "Tax Calc. FA Entry";
 

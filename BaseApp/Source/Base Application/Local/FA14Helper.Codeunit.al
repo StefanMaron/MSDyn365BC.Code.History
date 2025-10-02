@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 14951 "FA-14 Helper"
 {
 

@@ -56,7 +56,8 @@ table 8019 "Sub. Contr. Analysis Entry"
             Caption = 'Calculation Base Amount';
             MinValue = 0;
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(10; "Calculation Base %"; Decimal)
         {
@@ -64,6 +65,7 @@ table 8019 "Sub. Contr. Analysis Entry"
             MinValue = 0;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(11; "Price"; Decimal)
         {
@@ -71,6 +73,7 @@ table 8019 "Sub. Contr. Analysis Entry"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(12; "Discount %"; Decimal)
         {
@@ -79,6 +82,7 @@ table 8019 "Sub. Contr. Analysis Entry"
             MaxValue = 100;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(13; "Discount Amount"; Decimal)
         {
@@ -86,12 +90,14 @@ table 8019 "Sub. Contr. Analysis Entry"
             MinValue = 0;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(14; Amount; Decimal)
         {
             Caption = 'Amount';
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(15; "Billing Base Period"; DateFormula)
         {
@@ -148,6 +154,7 @@ table 8019 "Sub. Contr. Analysis Entry"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = '';
         }
         field(32; "Discount Amount (LCY)"; Decimal)
         {
@@ -156,6 +163,7 @@ table 8019 "Sub. Contr. Analysis Entry"
             MinValue = 0;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(33; "Amount (LCY)"; Decimal)
         {
@@ -163,6 +171,7 @@ table 8019 "Sub. Contr. Analysis Entry"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(34; "Currency Code"; Code[10])
         {
@@ -177,6 +186,7 @@ table 8019 "Sub. Contr. Analysis Entry"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(36; "Currency Factor Date"; Date)
         {
@@ -188,7 +198,8 @@ table 8019 "Sub. Contr. Analysis Entry"
             Caption = 'Calculation Base Amount (LCY)';
             Editable = false;
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(38; Discount; Boolean)
         {
@@ -199,6 +210,7 @@ table 8019 "Sub. Contr. Analysis Entry"
         {
             Caption = 'Quantity';
             Editable = false;
+            AutoFormatType = 0;
         }
         field(100; "Unit Cost"; Decimal)
         {
@@ -210,6 +222,7 @@ table 8019 "Sub. Contr. Analysis Entry"
         field(101; "Unit Cost (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost (LCY)';
             Editable = false;
         }
@@ -231,11 +244,14 @@ table 8019 "Sub. Contr. Analysis Entry"
         field(1001; "Monthly Recurr. Revenue (LCY)"; Decimal)
         {
             Caption = 'Monthly Recurring Revenue (LCY)';
-
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(1002; "Monthly Recurring Cost (LCY)"; Decimal)
         {
             Caption = 'Monthly Recurring Cost (LCY)';
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
 
         }
         field(1005; "Subscription Line Entry No."; Integer)

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17305 "Create Tax Diff. for Disp. FE"
 {
     Caption = 'Create Tax Diff. for Disp. FE';

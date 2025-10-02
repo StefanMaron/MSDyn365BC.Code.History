@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14901 "Purch. without Vend. VAT Inv."
 {
     DefaultLayout = RDLC;

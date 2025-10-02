@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 26563 "Statutory Report Data Header"
 {
     Caption = 'Statutory Report Data Header';

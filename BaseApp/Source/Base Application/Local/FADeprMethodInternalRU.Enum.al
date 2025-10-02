@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 enum 12400 "FA Depr. Method Internal RU"
 {
     Extensible = true;

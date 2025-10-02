@@ -25,12 +25,15 @@ table 137093 "Asm. Availability Test Buffer"
         }
         field(8; "Quantity Per"; Decimal)
         {
+            AutoFormatType = 0;
         }
         field(9; Quantity; Decimal)
         {
+            AutoFormatType = 0;
         }
         field(10; Inventory; Decimal)
         {
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -39,6 +42,7 @@ table 137093 "Asm. Availability Test Buffer"
         }
         field(11; "Gross Requirement"; Decimal)
         {
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -47,6 +51,7 @@ table 137093 "Asm. Availability Test Buffer"
         }
         field(13; "Scheduled Receipts"; Decimal)
         {
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -55,6 +60,7 @@ table 137093 "Asm. Availability Test Buffer"
         }
         field(14; "Expected Inventory"; Decimal)
         {
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -63,6 +69,7 @@ table 137093 "Asm. Availability Test Buffer"
         }
         field(18; "Able To Assemble"; Decimal)
         {
+            AutoFormatType = 0;
 
             trigger OnValidate()
             begin
@@ -253,4 +260,3 @@ table 137093 "Asm. Availability Test Buffer"
               StrSubstNo(Err, FieldName("Earliest Availability Date")));
     end;
 }
-

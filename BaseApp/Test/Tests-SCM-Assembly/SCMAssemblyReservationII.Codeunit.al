@@ -1036,7 +1036,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         SalesLine: Record "Sales Line";
         AssemblyHeader: Record "Assembly Header";
         ReservEntry: Record "Reservation Entry";
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+        AsmReservCheckDateConfl: Codeunit "Asm. ReservCheckDateConfl";
         ReservEntryFoundByLinkToSource: Boolean;
         ErrorMessage: Text[250];
     begin
@@ -1053,7 +1053,7 @@ codeunit 137925 "SCM Assembly Reservation II"
 
         // Due Date moved before Shipment Date in sales
         AssemblyHeader."Due Date" := CalcDate('<-10D>', SalesLine."Shipment Date");
-        ReservationCheckDateConfl.AssemblyHeaderCheck(AssemblyHeader, true);
+        AsmReservCheckDateConfl.AssemblyHeaderCheck(AssemblyHeader, true);
 
         // Verify date is moved in Reservation Entry
         FindLastRerservationByLink(
@@ -1064,7 +1064,7 @@ codeunit 137925 "SCM Assembly Reservation II"
 
         // Date is moved after Shipment Date in sales
         AssemblyHeader."Due Date" := CalcDate('<10D>', SalesLine."Shipment Date");
-        asserterror ReservationCheckDateConfl.AssemblyHeaderCheck(AssemblyHeader, true);
+        asserterror AsmReservCheckDateConfl.AssemblyHeaderCheck(AssemblyHeader, true);
 
         // Verifify error
         ErrorMessage := StrSubstNo('Reserved quantity (Base): %1, Date %2', AssemblyHeader."Quantity (Base)", AssemblyHeader."Due Date");
@@ -1170,7 +1170,7 @@ codeunit 137925 "SCM Assembly Reservation II"
         PurchLine: Record "Purchase Line";
         AssemblyLine: Record "Assembly Line";
         ReservEntry: Record "Reservation Entry";
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+        AsmReservCheckDateConfl: Codeunit "Asm. ReservCheckDateConfl";
         ReservEntryFoundByLinkToSource: Boolean;
         ErrorMessage: Text[250];
     begin
@@ -1187,7 +1187,7 @@ codeunit 137925 "SCM Assembly Reservation II"
 
         // Date is moved after expected receipt date in purchase
         AssemblyLine."Due Date" := CalcDate('<10D>', PurchLine."Expected Receipt Date");
-        ReservationCheckDateConfl.AssemblyLineCheck(AssemblyLine, true);
+        AsmReservCheckDateConfl.AssemblyLineCheck(AssemblyLine, true);
 
         // Verify date is moved in Reservation Entry
         FindLastRerservationByLink(
@@ -1198,7 +1198,7 @@ codeunit 137925 "SCM Assembly Reservation II"
 
         // Date is moved before expected receipt date in purchase
         AssemblyLine."Due Date" := CalcDate('<-10D>', PurchLine."Expected Receipt Date");
-        asserterror ReservationCheckDateConfl.AssemblyLineCheck(AssemblyLine, true);
+        asserterror AsmReservCheckDateConfl.AssemblyLineCheck(AssemblyLine, true);
 
         // Verify error
         ErrorMessage := StrSubstNo('Reserved quantity (Base): %1, Date %2', AssemblyLine."Quantity (Base)", AssemblyLine."Due Date");

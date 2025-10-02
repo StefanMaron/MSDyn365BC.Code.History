@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17215 "Tax Register Field Select"
 {
     Caption = 'Tax Register Field Select';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14992 "FA Movement FA-15"
 {
     Caption = 'FA Movement FA-15';

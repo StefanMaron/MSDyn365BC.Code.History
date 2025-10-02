@@ -164,6 +164,8 @@ report 1123 "Cost Acctg. Stmt. per Period"
 
     requestpage
     {
+        AboutTitle = 'About Cost Acctg. Stmt. per Period';
+        AboutText = 'The **Cost Accounting Statement per Period** report displays actual cost entries grouped by specific reporting periods (e.g., monthly or quarterly), with filtering options for dates and cost dimensions. Use it for reviewing and analyzing cost trends and spending patterns over time, helping you monitor financial performance across defined intervals.';
         SaveValues = true;
 
         layout

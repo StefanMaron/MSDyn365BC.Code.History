@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14983 "Posted Sales FA Release FA-1"
 {
     Caption = 'Posted Sales FA Release FA-1';

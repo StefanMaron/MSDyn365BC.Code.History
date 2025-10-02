@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17307 "Calc. Tax Diff.- Disposed FA"
 {
     ApplicationArea = FixedAssets;

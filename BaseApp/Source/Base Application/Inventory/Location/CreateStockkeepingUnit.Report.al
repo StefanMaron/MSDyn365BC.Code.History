@@ -192,13 +192,6 @@ report 5706 "Create Stockkeeping Unit"
                 CreateSKU(Item2, LocationCode, VariantCode);
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by procedure SetParameters()', '24.0')]
-    procedure InitializeRequest(CreatePerOption: Option Location,Variant,"Location & Variant"; NewItemInInventoryOnly: Boolean; NewReplacePreviousSKUs: Boolean)
-    begin
-        SetParameters("SKU Creation Method".FromInteger(CreatePerOption), NewItemInInventoryOnly, NewReplacePreviousSKUs);
-    end;
-#endif
 
     procedure SetParameters(CreatePerOption: Enum "SKU Creation Method"; NewItemInInventoryOnly: Boolean; NewReplacePreviousSKUs: Boolean)
     begin
@@ -258,4 +251,3 @@ report 5706 "Create Stockkeeping Unit"
     begin
     end;
 }
-

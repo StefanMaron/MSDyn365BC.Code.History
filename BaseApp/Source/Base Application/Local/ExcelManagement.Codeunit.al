@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 12416 "Excel Management"
 {
 
@@ -418,19 +419,6 @@ codeunit 12416 "Excel Management"
         exit(false);
     end;
 
-    local procedure EnumToInt(TypeName: Text; EnumValue: Text): Integer
-    var
-        Type: DotNet Type;
-        Enum: DotNet Enum;
-        Convert: DotNet Convert;
-    begin
-        exit(
-          Convert.ToInt32(
-            Enum.Parse(
-              Type.GetType(TypeName, true, true),
-              EnumValue)));
-    end;
-
     [Scope('OnPrem')]
     procedure BLOBImportSilent(var TempBlob: Codeunit "Temp Blob"; ClientFileName: Text)
     var
@@ -452,4 +440,3 @@ codeunit 12416 "Excel Management"
         FileMgt.CopyServerFile(ServerFileName, FileName, true);
     end;
 }
-

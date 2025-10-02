@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14939 "Pstd. Purch. Factura-Invoice"
 {
     Caption = 'Pstd. Purch. Factura-Invoice';

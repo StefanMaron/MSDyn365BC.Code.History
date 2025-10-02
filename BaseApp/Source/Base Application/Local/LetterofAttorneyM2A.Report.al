@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14905 "Letter of Attorney M-2A"
 {
     Caption = 'Letter of Attorney M-2A';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14939 "Journal Posting Preview Setup"
 {
     Caption = 'Journal Posting Preview Setup';

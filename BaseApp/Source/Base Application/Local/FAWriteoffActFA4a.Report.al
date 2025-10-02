@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14990 "FA Writeoff Act FA-4a"
 {
     Caption = 'FA Writeoff Act FA-4a';

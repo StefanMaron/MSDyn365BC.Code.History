@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 12435 "Sales Cr.Memo Header - Edit"
 {
     Permissions = TableData "Sales Cr.Memo Header" = rm;

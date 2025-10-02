@@ -488,10 +488,6 @@ codeunit 5600 "FA Insert Ledger Entry"
         FAReg.Init();
         if GLEntryNo = 0 then
             FAReg."Journal Type" := FAReg."Journal Type"::"Fixed Asset";
-#if not CLEAN24            
-        FAReg."Creation Date" := Today;
-        FAReg."Creation Time" := Time;
-#endif
         FAReg."Source Code" := SourceCode;
         FAReg."Journal Batch Name" := BatchName;
         FAReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(FAReg."User ID"));
@@ -1259,4 +1255,3 @@ codeunit 5600 "FA Insert Ledger Entry"
     end;
 
 }
-

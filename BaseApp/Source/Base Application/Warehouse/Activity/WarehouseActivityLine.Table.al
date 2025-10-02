@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Warehouse.Activity;
 
 using Microsoft.Assembly.Document;
@@ -3023,7 +3027,12 @@ table 5767 "Warehouse Activity Line"
     internal procedure CopyItemTrackingToRelatedLine(xWhseActivLine: Record "Warehouse Activity Line"; FieldNo: Integer)
     var
         WarehouseActivityLine2: Record "Warehouse Activity Line";
+        IsHandled: Boolean;
     begin
+        OnBeforeCopyItemTrackingToRelatedLine(Rec, xWhseActivLine, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Activity Type" in ["Activity Type"::"Invt. Put-away", "Activity Type"::"Invt. Pick"]) then
             exit;
 
@@ -3766,6 +3775,11 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterReNumberWhseActivLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; OldLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyItemTrackingToRelatedLine(WarehouseActivityLine: Record "Warehouse Activity Line"; xWarehouseActivityLine: Record "Warehouse Activity Line"; FieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

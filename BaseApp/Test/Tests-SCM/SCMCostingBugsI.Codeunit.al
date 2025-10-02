@@ -280,7 +280,7 @@ codeunit 137620 "SCM Costing Bugs I"
         until ValueEntry.Next() = 0;
         LibraryCosting.CheckAdjustment(Item);
         VerifyVariance := CostingMethod = Item."Costing Method"::Standard;
-        LibraryCosting.CheckProductionOrderCost(ProductionOrder, VerifyVariance);
+        LibraryManufacturing.CheckProductionOrderCost(ProductionOrder, VerifyVariance);
     end;
 
     [Test]
@@ -330,7 +330,7 @@ codeunit 137620 "SCM Costing Bugs I"
         Assert.IsFalse(ValueEntry.IsEmpty, ''); // should have a variance type of value entry as cost should be auto-adjusted.
         LibraryCosting.CheckAdjustment(ChildItem);
         LibraryCosting.CheckAdjustment(ProducedItem);
-        LibraryCosting.CheckProductionOrderCost(ProductionOrder, true);
+        LibraryManufacturing.CheckProductionOrderCost(ProductionOrder, true);
     end;
 
     [Test]
@@ -542,7 +542,7 @@ codeunit 137620 "SCM Costing Bugs I"
 
         // Verify
         LibraryCosting.CheckAdjustment(Item);
-        LibraryCosting.CheckProductionOrderCost(ProductionOrder, false);
+        LibraryManufacturing.CheckProductionOrderCost(ProductionOrder, false);
     end;
 
     [Test]

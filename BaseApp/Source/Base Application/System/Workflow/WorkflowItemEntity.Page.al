@@ -501,11 +501,6 @@ page 6409 "Workflow - Item Entity"
                     ApplicationArea = All;
                     Caption = 'Prevent Negative Inventory', Locked = true;
                 }
-                field(costOfOpenProductionOrders; Rec."Cost of Open Production Orders")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Cost of Open Production Orders', Locked = true;
-                }
                 field(applicationWkshUserId; Rec."Application Wksh. User ID")
                 {
                     ApplicationArea = All;
@@ -636,11 +631,6 @@ page 6409 "Workflow - Item Entity"
                     ApplicationArea = All;
                     Caption = 'Replenishment System', Locked = true;
                 }
-                field(scheduledReceiptQty; Rec."Scheduled Receipt (Qty.)")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Scheduled Receipt (Qty.)', Locked = true;
-                }
                 field(roundingPrecision; Rec."Rounding Precision")
                 {
                     ApplicationArea = All;
@@ -670,16 +660,6 @@ page 6409 "Workflow - Item Entity"
                 {
                     ApplicationArea = All;
                     Caption = 'Time Bucket', Locked = true;
-                }
-                field(reservedQtyOnProdOrder; Rec."Reserved Qty. on Prod. Order")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Reserved Qty. on Prod. Order', Locked = true;
-                }
-                field(resQtyOnProdOrderComp; Rec."Res. Qty. on Prod. Order Comp.")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Res. Qty. on Prod. Order Comp.', Locked = true;
                 }
                 field(resQtyOnReqLine; Rec."Res. Qty. on Req. Line")
                 {
@@ -891,16 +871,6 @@ page 6409 "Workflow - Item Entity"
                     ApplicationArea = All;
                     Caption = 'Tax Group Id', Locked = true;
                 }
-                field(routingNumber; Rec."Routing No.")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Routing No.', Locked = true;
-                }
-                field(productionBomNumber; Rec."Production BOM No.")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Production BOM No.', Locked = true;
-                }
                 field(singleLevelMaterialCost; Rec."Single-Level Material Cost")
                 {
                     ApplicationArea = All;
@@ -956,30 +926,10 @@ page 6409 "Workflow - Item Entity"
                     ApplicationArea = All;
                     Caption = 'Planning Receipt (Qty.)', Locked = true;
                 }
-                field(plannedOrderReceiptQty; Rec."Planned Order Receipt (Qty.)")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Planned Order Receipt (Qty.)', Locked = true;
-                }
-                field(fpOrderReceiptQty; Rec."FP Order Receipt (Qty.)")
-                {
-                    ApplicationArea = All;
-                    Caption = 'FP Order Receipt (Qty.)', Locked = true;
-                }
-                field(relOrderReceiptQty; Rec."Rel. Order Receipt (Qty.)")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Rel. Order Receipt (Qty.)', Locked = true;
-                }
                 field(planningReleaseQty; Rec."Planning Release (Qty.)")
                 {
                     ApplicationArea = All;
                     Caption = 'Planning Release (Qty.)', Locked = true;
-                }
-                field(plannedOrderReleaseQty; Rec."Planned Order Release (Qty.)")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Planned Order Release (Qty.)', Locked = true;
                 }
                 field(purchReqReceiptQty; Rec."Purch. Req. Receipt (Qty.)")
                 {
@@ -1010,16 +960,6 @@ page 6409 "Workflow - Item Entity"
                 {
                     ApplicationArea = All;
                     Caption = 'Component Forecast', Locked = true;
-                }
-                field(qtyOnProdOrder; Rec."Qty. on Prod. Order")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Qty. on Prod. Order', Locked = true;
-                }
-                field(qtyOnComponentLines; Rec."Qty. on Component Lines")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Qty. on Component Lines', Locked = true;
                 }
                 field(critical; Rec.Critical)
                 {

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 12404 "G/L Corresp. Management"
 {
     Permissions = TableData "G/L Entry" = rimd,

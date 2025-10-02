@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14921 "Assessed Tax Code"
 {
     Caption = 'Assessed Tax Code';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17280 "Tax Reg. Norm Details (Calc)"
 {
     Caption = 'Norm Details (Calc)';

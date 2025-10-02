@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12471 "Posted FA Doc. Header"
 {
     Caption = 'Posted FA Doc. Header';

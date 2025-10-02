@@ -4,7 +4,6 @@ using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Setup;
 using Microsoft.Bank.Reconciliation;
 using Microsoft.Foundation.Comment;
-using Microsoft.Bank.Payment;
 using Microsoft.Finance.Currency;
 using Microsoft.Sales.Customer;
 using System.IO;
@@ -15,14 +14,15 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.PaymentTerms;
-using Microsoft.Foundation.AuditCodes;
 using System.Xml;
-using Microsoft.CRM.Team;
 using Microsoft.Finance.SalesTax;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Bank.Payment;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.CRM.Team;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.RateChange;
 using Microsoft.Finance.VAT.Reporting;
-using Microsoft.Purchases.Vendor;
 
 permissionset 8824 "Payables Journals - Edit"
 {

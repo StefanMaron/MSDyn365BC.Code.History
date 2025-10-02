@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14977 "Transfer Receipt TORG-13"
 {
     Caption = 'Transfer Receipt TORG-13';

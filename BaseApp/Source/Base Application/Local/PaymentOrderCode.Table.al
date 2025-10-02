@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14918 "Payment Order Code"
 {
     Caption = 'Payment Order Code';

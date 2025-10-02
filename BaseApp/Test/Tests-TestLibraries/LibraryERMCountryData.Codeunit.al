@@ -138,6 +138,7 @@ codeunit 131305 "Library - ERM Country Data"
         PurchSetup.Validate("Transfer Posting Description", false);
         PurchSetup.Validate("Allow Alter Posting Groups", false);
         PurchSetup.Modify(true);
+	    UpdatePostingDateCheckonPostingPurchase();
     end;
 
     procedure SetDiscountPostingInPurchasePayablesSetup()
@@ -160,6 +161,7 @@ codeunit 131305 "Library - ERM Country Data"
         SalesSetup.Validate("Calc. VAT per Line", false);
         SalesSetup.Validate("Allow Alter Posting Groups", false);
         SalesSetup.Modify(true);
+	    UpdatePostingDateCheckonPostingSales();
     end;
 
     procedure SetDiscountPostingInSalesReceivablesSetup()
@@ -474,6 +476,24 @@ codeunit 131305 "Library - ERM Country Data"
             VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", GLAccount."No.");
             VATPostingSetup.Insert(true);
         end;
+    end;
+    
+    local procedure UpdatePostingDateCheckonPostingSales()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Posting Date Check on Posting", false);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure UpdatePostingDateCheckonPostingPurchase()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posting Date Check on Posting", false);
+        PurchasesPayablesSetup.Modify(true);
     end;
 }
 

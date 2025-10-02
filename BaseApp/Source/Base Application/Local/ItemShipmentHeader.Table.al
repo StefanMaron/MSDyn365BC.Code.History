@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12454 "Item Shipment Header"
 {
     Caption = 'Item Shipment Header';

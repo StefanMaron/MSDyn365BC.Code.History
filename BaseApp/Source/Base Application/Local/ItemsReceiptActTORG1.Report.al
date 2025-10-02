@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14918 "Items Receipt Act TORG-1"
 {
     Caption = 'Items Receipt Act TORG-1';

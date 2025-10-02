@@ -9,16 +9,12 @@ codeunit 8615 "Config. Progress Bar"
 
     var
         Window: Dialog;
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label '#1##################\\';
-        Text001: Label '#2##################\';
+        ProgressBarTitleTxt: Label '#1##################\\';
+        ProgressBarStatusTxt: Label '#2##################\';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         MaxCount: Integer;
-#pragma warning disable AA0074
-        Text002: Label '@3@@@@@@@@@@@@@@@@@@\';
-#pragma warning restore AA0074
+        ProgressBarCounterTxt: Label '@3@@@@@@@@@@@@@@@@@@\';
         StepCount: Integer;
         Counter: Integer;
         LastWindowText: Text;
@@ -34,7 +30,7 @@ codeunit 8615 "Config. Progress Bar"
             NewStepCount := 1;
         StepCount := NewStepCount;
 
-        ProgressBarText := Text000 + Text001 + Text002;
+        ProgressBarText := ProgressBarTitleTxt + ProgressBarStatusTxt + ProgressBarCounterTxt;
         OnInitOnBeforeWindowOpen(Window, ProgressBarText);
         Window.Open(ProgressBarText);
         Window.Update(1, Format(WindowTitle));

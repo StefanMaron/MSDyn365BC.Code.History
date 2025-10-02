@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 14938 "Purchase Receipt M-4 Helper"
 {
 

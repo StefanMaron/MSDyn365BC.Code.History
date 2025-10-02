@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14933 "Calculate Group Depreciation"
 {
     ApplicationArea = FixedAssets;

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Project.Journal;
 
 using Microsoft.Finance.Currency;
@@ -1191,31 +1195,13 @@ table 210 "Job Journal Line"
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text000: Label 'You cannot change %1 when %2 is %3.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text001: Label 'cannot be specified without %1';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
         Text002: Label 'must be positive';
-#pragma warning restore AA0074
-#pragma warning disable AA0074
         Text003: Label 'must be negative';
-#pragma warning restore AA0074
-#pragma warning disable AA0074
 #pragma warning disable AA0470
         Text004: Label '%1 is only editable when a %2 is defined.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text006: Label '%1 cannot be changed when %2 is set.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
-#pragma warning disable AA0074
-#pragma warning disable AA0470
         Text007: Label '%1 %2 is already linked to %3 %4. Hence %5 cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?', Comment = 'Project Journal Line project DEFAULT 30000 is already linked to Project Planning Line  DEERFIELD, 8 WP 1120 10000. Hence Remaining Qty. cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
@@ -2334,8 +2320,8 @@ table 210 "Job Journal Line"
             exit;
 
         JobJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        if JobJnlBatch."No. Series" = '' then
-            exit;
+        JobJnlBatch.TestField("No. Series");
+
         if GetFilter("Document No.") <> '' then
             Error(DocNoFilterErr);
         FirstDocNo := NoSeries.PeekNextNo(JobJnlBatch."No. Series", "Posting Date");
@@ -2833,3 +2819,4 @@ table 210 "Job Journal Line"
     begin
     end;
 }
+

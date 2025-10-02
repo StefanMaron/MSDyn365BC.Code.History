@@ -1227,21 +1227,6 @@ codeunit 134043 "ERM Additional Currency"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePostGenJnlLineWithBalVATSetup(AccountType: Enum "Gen. Journal Account Type"; CustomerNo: Code[20]; Amount: Decimal; PostingDate: Date; VATPostingSetup: Record "VAT Posting Setup"; BalGenPostingType: Enum "General Posting Type"): Decimal
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        CreateJournalLineForInvoice(GenJournalLine, AccountType, CustomerNo, Amount);
-        ModifyGeneralJournalLine(GenJournalLine, BalGenPostingType, '');
-        GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Validate("Bal. Gen. Posting Type", BalGenPostingType);
-        GenJournalLine.Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        GenJournalLine.Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        GenJournalLine.Modify(true);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        exit(FindVATEntryAmount(GenJournalLine."Document No."));
-    end;
-
     local procedure CreateAndUpdateCurrencyAndExchangeRate(RelationalExchRateAmt: Decimal): Code[10]
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -1464,14 +1449,6 @@ codeunit 134043 "ERM Additional Currency"
         VATEntry.FindFirst();
     end;
 
-    local procedure FindVATEntryAmount(DocumentNo: Code[20]): Decimal
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        FindVATEntry(VATEntry, VATEntry."Document Type"::Invoice, DocumentNo);
-        exit(VATEntry.Amount);
-    end;
-
     local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
         VATPostingSetup.SetRange("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
@@ -1608,15 +1585,6 @@ codeunit 134043 "ERM Additional Currency"
         GeneralPostingSetup.Modify(true);
     end;
 
-    local procedure UpdateGenLedgerVATExchRateAdjustment(NewVATExchRateAdjustment: Enum "Exch. Rate Adjustment Type")
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("VAT Exchange Rate Adjustment", NewVATExchRateAdjustment);
-        GeneralLedgerSetup.Modify(true);
-    end;
-
     local procedure UpdateVATPostingSetupForVATPercent(var VATPostingSetup: Record "VAT Posting Setup"; VATPercent: Decimal) OldVATPercent: Decimal
     begin
         OldVATPercent := VATPostingSetup."VAT %";
@@ -1650,13 +1618,6 @@ codeunit 134043 "ERM Additional Currency"
         CustLedgerEntry.CalcFields(Amount);
         CustLedgerEntry.TestField("Pmt. Discount Date", PmtDiscountDate);
         CustLedgerEntry.TestField(Amount, Amount);
-    end;
-
-    local procedure VerifyCurrAdjGLEntryDescription(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20]; VATAmount: Decimal)
-    begin
-        GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst();
-        Assert.IsTrue(StrPos(GLEntry.Description, Format(VATAmount)) > 0, GLEntry.FieldCaption(Description));
     end;
 
     local procedure RemainingAmountLCYInCustomer(DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; DocumentNo: Code[20]; RemainingAmountLCY: Decimal)
@@ -1910,4 +1871,3 @@ codeunit 134043 "ERM Additional Currency"
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
 }
-

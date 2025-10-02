@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17314 "Tax Calc. Line Select Subf"
 {
     AutoSplitKey = true;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26592 "Stat. Report Table Mapping"
 {
     Caption = 'Stat. Report Table Mapping';

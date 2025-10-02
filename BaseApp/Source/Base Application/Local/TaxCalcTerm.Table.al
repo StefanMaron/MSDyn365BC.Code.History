@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17311 "Tax Calc. Term"
 {
     Caption = 'Tax Calc. Term';

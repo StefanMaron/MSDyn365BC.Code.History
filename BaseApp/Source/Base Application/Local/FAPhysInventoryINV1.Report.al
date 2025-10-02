@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12486 "FA Phys. Inventory INV-1"
 {
     Caption = 'FA Phys. Inventory INV-1';

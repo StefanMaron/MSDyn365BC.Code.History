@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14931 "Posted Item Write-off TORG-16"
 {
     Caption = 'Posted Item Write-off TORG-16';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12400 "Company Address"
 {
     Caption = 'Company Address';

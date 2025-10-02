@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12458 "Posted Cash Ingoing Order"
 {
     Caption = 'Posted Cash Ingoing Order';

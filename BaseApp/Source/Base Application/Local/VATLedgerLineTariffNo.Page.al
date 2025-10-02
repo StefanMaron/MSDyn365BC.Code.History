@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12444 "VAT Ledger Line Tariff No."
 {
     Caption = 'VAT Ledger Line Tariff No.';

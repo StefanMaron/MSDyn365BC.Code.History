@@ -1,4 +1,5 @@
-﻿page 26567 "Table Individ. Rqst. Subform"
+#pragma warning disable AA0247
+page 26567 "Table Individ. Rqst. Subform"
 {
     Caption = 'Individual Requisites';
     DeleteAllowed = false;

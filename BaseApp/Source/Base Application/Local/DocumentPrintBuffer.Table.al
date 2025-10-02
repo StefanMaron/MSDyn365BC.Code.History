@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12430 "Document Print Buffer"
 {
     Caption = 'Document Print Buffer';

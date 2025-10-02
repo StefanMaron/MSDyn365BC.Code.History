@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17210 "Tax Register CV Entry"
 {
     Caption = 'Tax Register CV Entry';

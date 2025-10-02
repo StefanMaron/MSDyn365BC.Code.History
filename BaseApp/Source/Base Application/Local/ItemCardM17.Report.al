@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12476 "Item Card M-17"
 {
     ApplicationArea = Basic, Suite;

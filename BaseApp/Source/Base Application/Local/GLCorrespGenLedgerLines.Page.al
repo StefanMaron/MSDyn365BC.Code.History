@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 35613 "G/L Corresp. Gen. Ledger Lines"
 {
     Caption = 'G/L Corresp. Gen. Ledger Lines';

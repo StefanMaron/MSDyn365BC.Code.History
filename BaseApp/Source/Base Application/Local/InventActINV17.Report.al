@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14914 "Invent. Act INV-17"
 {
     Caption = 'Invent. Act INV-17';

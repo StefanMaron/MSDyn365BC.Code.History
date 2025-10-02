@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 14936 "Cash Order Report Helper"
 {
 

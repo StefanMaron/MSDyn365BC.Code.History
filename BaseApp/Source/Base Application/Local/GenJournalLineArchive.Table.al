@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12403 "Gen. Journal Line Archive"
 {
     Caption = 'Gen. Journal Line Archive';

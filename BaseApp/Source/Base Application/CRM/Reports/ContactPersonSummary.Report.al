@@ -224,6 +224,8 @@ report 5053 "Contact - Person Summary"
 
     requestpage
     {
+        AboutTitle = 'About Contact - Person Summary';
+        AboutText = 'Get information about a contact person, including related interactions and to-dos.';
 
         layout
         {

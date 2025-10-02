@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17306 "Calculate Tax Diff. for FA"
 {
     ApplicationArea = FixedAssets;

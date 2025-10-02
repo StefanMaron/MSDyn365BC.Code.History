@@ -1,4 +1,5 @@
-﻿report 12435 "G/L Corresp Entries Analysis"
+#pragma warning disable AA0247
+report 12435 "G/L Corresp Entries Analysis"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Local/GLCorrespEntriesAnalysis.rdlc';

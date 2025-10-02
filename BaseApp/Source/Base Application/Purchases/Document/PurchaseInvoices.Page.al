@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Dimension;
@@ -265,6 +269,11 @@ page 9308 "Purchase Invoices"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
+                }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
                 }
             }
         }

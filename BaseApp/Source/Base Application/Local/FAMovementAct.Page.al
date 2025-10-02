@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12478 "FA Movement Act"
 {
     Caption = 'FA Movement Act';

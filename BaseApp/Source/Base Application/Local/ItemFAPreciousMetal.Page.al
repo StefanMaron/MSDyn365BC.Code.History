@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12487 "Item/FA Precious Metal"
 {
     Caption = 'Item/FA Precious Metal';

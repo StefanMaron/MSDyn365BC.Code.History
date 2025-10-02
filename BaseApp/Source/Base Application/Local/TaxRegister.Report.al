@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17208 "Tax Register"
 {
     Caption = 'Tax Register';

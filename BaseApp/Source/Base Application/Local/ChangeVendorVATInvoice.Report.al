@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14907 "Change Vendor VAT Invoice"
 {
     Caption = 'Change Vendor VAT Invoice';

@@ -324,7 +324,8 @@ report 5936 "Service Item Worksheet"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Item Worksheet';
+        AboutText = 'Get an overview of what''s needed to complete a service repair task.';
         layout
         {
             area(content)

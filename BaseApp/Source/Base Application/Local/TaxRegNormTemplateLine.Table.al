@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17239 "Tax Reg. Norm Template Line"
 {
     Caption = 'Tax Reg. Norm Template Line';

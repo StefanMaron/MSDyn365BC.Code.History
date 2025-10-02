@@ -11,6 +11,7 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Purchases.Document;
+using Microsoft.Sales.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Archive;
 using Microsoft.Sales.Customer;
@@ -24,9 +25,11 @@ using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Setup;
 using System.TestLibraries.Utilities;
 
+#pragma warning disable AA0210
 codeunit 139915 "Sales Service Commitment Test"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     Access = Internal;
 
     var
@@ -61,6 +64,7 @@ codeunit 139915 "Sales Service Commitment Test"
         NoOfServiceObjects: Integer;
         NotCreatedProperlyErr: Label 'Subscription Lines are not created properly.';
         SalesServiceCommitmentCannotBeDeletedErr: Label 'The Sales Subscription Line cannot be deleted, because it is the last line with Process Contract Renewal. Please delete the Sales line in order to delete the Sales Subscription Line.', Locked = true;
+        NaturalNumberRatioErr: Label 'The ratio of ''%1'' and ''%2'' or vice versa must give a natural number.', Comment = '%1=Field Caption, %2=Field Caption';
 
     #region Tests
 
@@ -620,25 +624,32 @@ codeunit 139915 "Sales Service Commitment Test"
     procedure CheckSalesLineQtyToInvoiceOnCreateSalesOrder()
     var
         Item2: Record Item;
+        SalesLine2: Record "Sales Line";
     begin
+        // [SCENARIO] Create two sales line , one for Subscription item and one for item with subscription
         Initialize();
+        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+
+        // [GIVEN] "Default Item Quantity is set to Yes in Sales & Receivables Setup""
+        UpdateDefaultItemQuantityOnSalesSetup(true);
+
+        // [GIVEN] Create Subscription item and Item with subscriptions
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item");
         ContractTestLibrary.CreateItemWithServiceCommitmentOption(Item2, Enum::"Item Service Commitment Type"::"Sales with Service Commitment");
+
+        // [WHEN] Create new Sales order with two sales line referencing Subscription item and Item with subscription
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, '');
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Enum::"Sales Line Type"::Item, Item."No.", LibraryRandom.RandInt(100));
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Enum::"Sales Line Type"::Item, Item2."No.", LibraryRandom.RandInt(100));
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, Enum::"Sales Line Type"::Item, Item2."No.", LibraryRandom.RandInt(100));
 
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        // [THEN] "Qty. to Invoice" must be 0 for Subscription Item
+        Assert.AreEqual(SalesLine."Qty. to Invoice", 0, '');
 
-        SalesLine.SetRange("No.", Item."No.");
-        SalesLine.SetRange("Qty. to Invoice", 0);
-        Assert.RecordIsNotEmpty(SalesLine);
+        // [THEN] "Qty. to Invoice" must be the same as Quantity for Item with subscription
+        Assert.AreEqual(SalesLine2."Qty. to Invoice", SalesLine2.Quantity, '');
 
-        SalesLine.SetRange("No.", Item2."No.");
-        SalesLine.SetRange("Qty. to Invoice", SalesLine.Quantity);
-        Assert.RecordIsNotEmpty(SalesLine);
+        LibrarySetupStorage.Restore();
+        Clear(LibrarySetupStorage);
     end;
 
     [Test]
@@ -1258,6 +1269,38 @@ codeunit 139915 "Sales Service Commitment Test"
     end;
 
     [Test]
+    procedure PreventInvalidDateFormulaRatioForSalesSubscriptionLine()
+    var
+        TwelveMonthsDateFormula: DateFormula;
+        FifteenMonthsDateFormula: DateFormula;
+    begin
+        // [SCENARIO] When a Sales Subscription Line has been created with a Billing Base Period and a Billing Rhythm that do not have a valid ratio, the error is thrown as soon as an invalid date formula is entered
+
+        // [GIVEN] When a Sales Subscription Line with Billing Base Period and Billing Rhythm equal to 12M has been created
+        Initialize();
+        Evaluate(TwelveMonthsDateFormula, '<12M>');
+        ServiceCommPackageLine.Validate("Billing Base Period", TwelveMonthsDateFormula);
+        ServiceCommPackageLine.Validate("Billing Rhythm", TwelveMonthsDateFormula);
+        ServiceCommPackageLine.Modify(false);
+        ContractTestLibrary.SetupSalesServiceCommitmentItemAndAssignToServiceCommitmentPackage(Item, Enum::"Item Service Commitment Type"::"Service Commitment Item", ServiceCommitmentPackage.Code);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Enum::"Sales Line Type"::Item, Item."No.", LibraryRandom.RandIntInRange(1, 100));
+
+        Commit(); // retain data after asserterror
+
+        // [WHEN] An invalid date formula is created for the purpose of validating Billing Base Period and Billing Rhythm
+        Evaluate(FifteenMonthsDateFormula, '<15M>');
+
+        // [THEN] Error expected when invalid date formula is entered for Billing Base Period or Billing Rhythm
+        SalesServiceCommitment.FilterOnSalesLine(SalesLine);
+        SalesServiceCommitment.FindFirst();
+        asserterror SalesServiceCommitment.Validate("Billing Base Period", FifteenMonthsDateFormula);
+        Assert.ExpectedError(StrSubstNo(NaturalNumberRatioErr, SalesServiceCommitment.FieldCaption("Billing Base Period"), SalesServiceCommitment.FieldCaption("Billing Rhythm")));
+        asserterror SalesServiceCommitment.Validate("Billing Rhythm", FifteenMonthsDateFormula);
+        Assert.ExpectedError(StrSubstNo(NaturalNumberRatioErr, SalesServiceCommitment.FieldCaption("Billing Base Period"), SalesServiceCommitment.FieldCaption("Billing Rhythm")));
+    end;
+
+    [Test]
     procedure RunNormalSalesServiceCommitmentDeletion()
     begin
         // [SCENARIO] Manual deletion of simple Sales Subscription Line Line should run with no error.
@@ -1802,7 +1845,7 @@ codeunit 139915 "Sales Service Commitment Test"
     local procedure CreateComponentItemWithSalesServiceCommitments(Item2No: Code[20])
     begin
         ContractTestLibrary.SetupSalesServiceCommitmentItemAndAssignToServiceCommitmentPackage(Item, Enum::"Item Service Commitment Type"::"Sales with Service Commitment", ServiceCommitmentPackage.Code);
-        ContractTestLibrary.CreateBOMComponentForItem(Item2No, Item."No.", 0, '');
+        ContractTestLibrary.CreateBOMComponentForItem(Item2No, Item."No.", 1, Item."Base Unit of Measure");
     end;
 
     local procedure CreateCustomerWithAssignedPriceGroup(var NewCustomer: Record Customer; var CustomerPriceGroup: Record "Customer Price Group")
@@ -2227,6 +2270,15 @@ codeunit 139915 "Sales Service Commitment Test"
         Assert.RecordCount(ServiceObject, NoOfServiceObjects);
     end;
 
+    local procedure UpdateDefaultItemQuantityOnSalesSetup(DefaultItemQuantity: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Default Item Quantity", DefaultItemQuantity);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
     local procedure VerifyServiceCommitmentUnitCostFromSalesServiceCommitment(ServiceCommitmentParam: Record "Subscription Line"; var TempSalesServiceCommitment: Record "Sales Subscription Line" temporary)
     var
         ValueNotCorrectTok: Label '%1 value is not correct.', Locked = true;
@@ -2291,3 +2343,4 @@ codeunit 139915 "Sales Service Commitment Test"
 
     #endregion Handlers
 }
+#pragma warning restore AA0210

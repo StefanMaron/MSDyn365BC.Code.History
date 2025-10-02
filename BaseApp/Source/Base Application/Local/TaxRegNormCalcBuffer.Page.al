@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17286 "Tax Reg. Norm Calc. Buffer"
 {
     Caption = 'Norm Calc. Buffer';

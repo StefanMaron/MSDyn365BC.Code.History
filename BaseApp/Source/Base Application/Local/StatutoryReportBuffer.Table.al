@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 26568 "Statutory Report Buffer"
 {
     Caption = 'Statutory Report Buffer';

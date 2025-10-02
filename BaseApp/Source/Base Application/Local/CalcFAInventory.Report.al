@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12423 "Calc. FA Inventory"
 {
     Caption = 'Calc. FA Inventory';

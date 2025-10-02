@@ -1019,20 +1019,6 @@ codeunit 144004 "ERM RU SE Fixes"
         exit(GenJournalLine.Amount);
     end;
 
-    local procedure CreateColumnLayoutWithComparisionDateFormula(ComparisionDateFormula: DateFormula): Code[10]
-    var
-        ColumnLayoutName: Record "Column Layout Name";
-        ColumnLayout: Record "Column Layout";
-    begin
-        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
-        LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName.Name);
-        ColumnLayout.Validate("Ledger Entry Type", ColumnLayout."Ledger Entry Type"::"Corr. Entries");
-        ColumnLayout.Validate("Amount Type", ColumnLayout."Amount Type"::Amount);
-        ColumnLayout.Validate("Comparison Date Formula", ComparisionDateFormula);
-        ColumnLayout.Modify(true);
-        exit(ColumnLayoutName.Name);
-    end;
-
     local procedure CreateColumnLayoutWithCorrEntriesLedgEntryType(var ColumnLayout: Record "Column Layout")
     var
         ColumnLayoutName: Record "Column Layout Name";
@@ -1584,4 +1570,3 @@ codeunit 144004 "ERM RU SE Fixes"
     begin
     end;
 }
-

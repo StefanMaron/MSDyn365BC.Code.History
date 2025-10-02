@@ -7,6 +7,14 @@ namespace Microsoft.Bank.Payment;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.FinanceCharge;
 
+/// <summary>
+/// Page 983 "Payment Registration Details" provides detailed view and editing capabilities for individual payment registration entries.
+/// This page displays comprehensive payment information including document details, payment discounts, and warning messages.
+/// </summary>
+/// <remarks>
+/// Source table: Payment Registration Buffer. Used for detailed payment entry management
+/// with navigation to related customer records and document exploration.
+/// </remarks>
 page 983 "Payment Registration Details"
 {
     Caption = 'Payment Registration Details';

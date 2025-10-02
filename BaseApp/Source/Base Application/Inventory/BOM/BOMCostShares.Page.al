@@ -4,11 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.BOM;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.BOM.Tree;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Reports;
-using Microsoft.Manufacturing.Document;
 
 page 5872 "BOM Cost Shares"
 {
@@ -50,7 +48,7 @@ page 5872 "BOM Cost Shares"
 
                     trigger OnValidate()
                     begin
-                        RefreshPage();
+                        UpdatePage();
                     end;
                 }
             }
@@ -186,18 +184,6 @@ page 5872 "BOM Cost Shares"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s lot size. The value is copied from the Lot Size field on the item card.';
-                    Visible = false;
-                }
-                field("Production BOM No."; Rec."Production BOM No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the production BOM that the item represents.';
-                    Visible = false;
-                }
-                field("Routing No."; Rec."Routing No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the item''s production order routing.';
                     Visible = false;
                 }
                 field("Resource Usage Type"; Rec."Resource Usage Type")
@@ -363,13 +349,12 @@ page 5872 "BOM Cost Shares"
 
     trigger OnOpenPage()
     begin
-        RefreshPage();
+        UpdatePage();
     end;
 
     var
         Item: Record Item;
-        AsmHeader: Record "Assembly Header";
-        ProdOrderLine: Record "Prod. Order Line";
+        SourceRecordVar: Variant;
         IsParentExpr: Boolean;
         HasWarning: Boolean;
 
@@ -393,29 +378,56 @@ page 5872 "BOM Cost Shares"
         ShowBy := ShowBy::Item;
     end;
 
-    procedure InitAsmOrder(NewAsmHeader: Record "Assembly Header")
+    procedure InitSource(NewSourceRecordVar: Variant; NewShowBy: Enum "BOM Structure Show By")
     begin
-        AsmHeader := NewAsmHeader;
+        SourceRecordVar := NewSourceRecordVar;
+        ShowBy := NewShowBy;
+    end;
+
+#if not CLEAN27
+    [Obsolete('Replaced by procedure InitSource()', '27.0')]
+    procedure InitAsmOrder(NewAsmHeader: Record Microsoft.Assembly.Document."Assembly Header")
+    begin
+        SourceRecordVar := NewAsmHeader;
         ShowBy := ShowBy::Assembly;
     end;
+#endif
 
-    procedure InitProdOrder(NewProdOrderLine: Record "Prod. Order Line")
+#if not CLEAN27
+    [Obsolete('Replaced by procedure InitSource()', '27.0')]
+    procedure InitProdOrder(NewProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
-        ProdOrderLine := NewProdOrderLine;
+        SourceRecordVar := NewProdOrderLine;
         ShowBy := ShowBy::Production;
     end;
+#endif
 
-    local procedure RefreshPage()
+    local procedure UpdatePage()
     var
+#if not CLEAN27
+        AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header";
+        ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line";
+#endif   
         CalcBOMTree: Codeunit "Calculate BOM Tree";
         HasBOM: Boolean;
         IsHandled: Boolean;
+#if not CLEAN27
         ShowByOption: Option;
+#endif
     begin
         IsHandled := false;
+#if not CLEAN27
         ShowByOption := ShowBy.AsInteger();
-        OnBeforeRefreshPage(Rec, Item, AsmHeader, ProdOrderLine, ShowByOption, ItemFilter, IsHandled);
+        case ShowBy of
+            ShowBy::Assembly:
+                AssemblyHeader := SourceRecordVar;
+            ShowBy::Production:
+                ProdOrderLine := SourceRecordVar;
+        end;
+        OnBeforeRefreshPage(Rec, Item, AssemblyHeader, ProdOrderLine, ShowByOption, ItemFilter, IsHandled);
         ShowBy := Enum::"BOM Structure Show By".FromInteger(ShowByOption);
+#endif
+        OnBeforeUpdatePage(Rec, Item, SourceRecordVar, ShowBy, ItemFilter, IsHandled);
         if IsHandled then
             exit;
 
@@ -428,17 +440,15 @@ page 5872 "BOM Cost Shares"
                 begin
                     Item.FindSet();
                     repeat
-                        HasBOM := Item.HasBOM() or (Item."Routing No." <> '')
+                        HasBOM := Item.HasBOM() or Item.HasRoutingNo();
                     until HasBOM or (Item.Next() = 0);
 
                     if not HasBOM then
                         Error(Text000);
-                    CalcBOMTree.GenerateTreeForItems(Item, Rec, 2);
+                    CalcBOMTree.GenerateTreeForManyItems(Item, Rec, "BOM Tree Type"::Cost);
                 end;
-            ShowBy::Production:
-                CalcBOMTree.GenerateTreeForProdLine(ProdOrderLine, Rec, 2);
-            ShowBy::Assembly:
-                CalcBOMTree.GenerateTreeForAsm(AsmHeader, Rec, 2);
+            else
+                CalcBOMTree.GenerateTreeForSource(SourceRecordVar, Rec, "BOM Tree Type"::Cost, ShowBy, WorkDate());
         end;
 
         CurrPage.Update(false);
@@ -446,17 +456,17 @@ page 5872 "BOM Cost Shares"
 
     local procedure ShowBOMCostShareDistribution()
     var
-        Item: Record Item;
+        Item2: Record Item;
     begin
         Rec.TestField(Type, Rec.Type::Item);
 
-        Item.Get(Rec."No.");
-        Item.SetRange("No.", Rec."No.");
-        Item.SetFilter("Variant Filter", Rec."Variant Code");
+        Item2.Get(Rec."No.");
+        Item2.SetRange("No.", Rec."No.");
+        Item2.SetFilter("Variant Filter", Rec."Variant Code");
         if ShowBy <> ShowBy::Item then
-            Item.SetFilter("Location Filter", Rec."Location Code");
+            Item2.SetFilter("Location Filter", Rec."Location Code");
 
-        REPORT.Run(REPORT::"BOM Cost Share Distribution", true, true, Item);
+        REPORT.Run(REPORT::"BOM Cost Share Distribution", true, true, Item2);
     end;
 
     local procedure ShowWarnings()
@@ -479,8 +489,16 @@ page 5872 "BOM Cost Shares"
             PAGE.RunModal(PAGE::"BOM Warning Log", TempBOMWarningLog);
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by event OnBeforeUpdatePage()', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRefreshPage(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item; var AssemblyHeader: Record "Assembly Header"; var ProdOrderLine: Record "Prod. Order Line"; ShowBy: Option; ItemFilter: Code[250]; var IsHandled: Boolean)
+    local procedure OnBeforeRefreshPage(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item; var AssemblyHeader: Record Microsoft.Assembly.Document."Assembly Header"; var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ShowBy: Option; ItemFilter: Code[250]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePage(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item; var SourceRecordVar: Variant; ShowBy: Enum "BOM Structure Show By"; ItemFilter: Code[250]; var IsHandled: Boolean)
     begin
     end;
 }

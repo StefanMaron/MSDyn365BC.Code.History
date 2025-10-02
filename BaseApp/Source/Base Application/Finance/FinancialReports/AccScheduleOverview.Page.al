@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
 
 using Microsoft.CashFlow.Forecast;
@@ -6,6 +10,7 @@ using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.Period;
 using System.Reflection;
 using System.Telemetry;
 using System.Text;
@@ -75,7 +80,7 @@ page 490 "Acc. Schedule Overview"
                     ApplicationArea = Basic, Suite;
                     Editable = (not ViewOnlyMode or (ViewLayout = "Financial Report View Layout"::"Show All"));
                     Caption = 'Row Definition';
-                    Importance = Promoted;
+                    Importance = Additional;
                     Lookup = true;
                     LookupPageID = "Account Schedule Names";
                     ToolTip = 'Specifies the name (code) of the row definition to be used for the report.';
@@ -105,7 +110,7 @@ page 490 "Acc. Schedule Overview"
                     ApplicationArea = Basic, Suite;
                     Editable = (not ViewOnlyMode or (ViewLayout = "Financial Report View Layout"::"Show All"));
                     Caption = 'Column Definition';
-                    Importance = Promoted;
+                    Importance = Additional;
                     Lookup = true;
                     LookupPageId = "Column Layout Names";
                     ToolTip = 'Specifies the name (code) of the column definition to be used for the report.';
@@ -153,6 +158,7 @@ page 490 "Acc. Schedule Overview"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Negative Amount Format';
+                    Importance = Additional;
                     ToolTip = 'Specifies how negative amounts are displayed on the financial report.';
 
                     trigger OnValidate()
@@ -189,14 +195,52 @@ page 490 "Acc. Schedule Overview"
                         Rec.SetFilter("Date Filter", DateFilter);
                         DateFilter := Rec.GetFilter("Date Filter");
                         TempFinancialReport.DateFilter := DateFilter;
+                        UpdateColumnCaptions();
                         CurrPage.Update();
+                    end;
+                }
+                field(StartDateFilterFormula; TempFinancialReport.StartDateFilterFormula)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Start Date Filter Formula';
+                    ToolTip = 'Specifies the date formula used to automatically calculate the start date of the date filter.';
+                    Visible = not ViewOnlyMode;
+
+                    trigger OnValidate()
+                    begin
+                        ValidateStartEndDateFilterFormula();
+                    end;
+                }
+                field(EndDateFilterFormula; TempFinancialReport.EndDateFilterFormula)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'End Date Filter Formula';
+                    ToolTip = 'Specifies the date formula used to automatically calculate the end date of the date filter.';
+                    Visible = not ViewOnlyMode;
+
+                    trigger OnValidate()
+                    begin
+                        ValidateStartEndDateFilterFormula();
+                    end;
+                }
+                field(DateFilterPeriodFormula; TempFinancialReport.DateFilterPeriodFormula)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Date Filter Period Formula';
+                    ToolTip = 'Specifies the period formula used to automatically calculate the date filter.';
+                    Importance = Additional;
+                    Visible = not ViewOnlyMode;
+
+                    trigger OnValidate()
+                    begin
+                        ValidateDateFilterPeriodFormula();
                     end;
                 }
                 field(ShowLinesWithShowNo; TempFinancialReport.ShowLinesWithShowNo)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All Lines';
-                    Importance = Promoted;
+                    Importance = Additional;
                     ToolTip = 'Specifies whether the page should display all lines, including lines where No is chosen in the Show field, as well as lines with values outside the range to be displayed. Those lines are still not included in the printed report.';
 
                     trigger OnValidate()
@@ -209,6 +253,7 @@ page 490 "Acc. Schedule Overview"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Default Excel Layout';
+                    Importance = Additional;
                     ToolTip = 'Specifies the Excel layout that will be used when exporting to Excel.';
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -1215,6 +1260,7 @@ page 490 "Acc. Schedule Overview"
         // Helper codeunits
         MatrixMgt: Codeunit "Matrix Management";
         DimensionManagement: Codeunit DimensionManagement;
+        FinReportMgt: Codeunit "Financial Report Mgt.";
         // Filter set in this page
         DateFilter: Text;
         // Helper page state variables
@@ -1225,7 +1271,7 @@ page 490 "Acc. Schedule Overview"
 #endif
         ColumnLayoutArr: array[15] of Record "Column Layout";
         ColumnValues: array[15] of Decimal;
-        ColumnCaptions: array[15] of Text[80];
+        ColumnCaptions: array[15] of Text;
         UseAmtsInAddCurrVisible: Boolean;
         NoOfColumns: Integer;
         ColumnOffset: Integer;
@@ -1389,7 +1435,6 @@ page 490 "Acc. Schedule Overview"
         AccSchedManagement.CheckAnalysisView(TempFinancialReport."Financial Report Row Group", TempFinancialReport."Financial Report Column Group", true);
         SetLoadedDimFilters();
         SetLoadedOtherFilters();
-        UpdateColumnCaptions();
 
         if AccSchedName.Get(TempFinancialReport."Financial Report Row Group") then
             if AccSchedName."Analysis View Name" <> '' then
@@ -1400,10 +1445,11 @@ page 490 "Acc. Schedule Overview"
                 AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
             end;
 
-        SetFinancialReportDateFilter();
+        FinReportMgt.CalcAccScheduleLineDateFilter(TempFinancialReport, Rec);
         ApplyShowFilter();
         UpdateDimFilterControls();
         DateFilter := Rec.GetFilter("Date Filter");
+        UpdateColumnCaptions();
         OnBeforeCurrentColumnNameOnAfterValidate(TempFinancialReport."Financial Report Column Group");
         OnAfterOnOpenPage(Rec, TempFinancialReport."Financial Report Column Group");
     end;
@@ -1434,19 +1480,35 @@ page 490 "Acc. Schedule Overview"
         AccSchedManagement.ForceRecalculate(false);
     end;
 
-    local procedure SetFinancialReportDateFilter()
+    local procedure ValidateStartEndDateFilterFormula()
     begin
-        if TempFinancialReport.DateFilter = '' then
-            AccSchedManagement.FindPeriod(Rec, '', TempFinancialReport.PeriodType)
-        else
-            if not TrySetFilter(TempFinancialReport.DateFilter) then
-                AccSchedManagement.FindPeriod(Rec, '', TempFinancialReport.PeriodType);
+        if (Format(TempFinancialReport.StartDateFilterFormula) = '') and
+            (Format(TempFinancialReport.EndDateFilterFormula) = '')
+        then
+            exit;
+        Clear(TempFinancialReport.DateFilterPeriodFormula);
+        Clear(TempFinancialReport.DateFilterPeriodFormulaLID);
+        CalcDateFilterAndUpdate();
     end;
 
-    [TryFunction]
-    local procedure TrySetFilter(DateFilter: Text)
+    local procedure ValidateDateFilterPeriodFormula()
+    var
+        PeriodFormulaParser: Codeunit "Period Formula Parser";
     begin
-        Rec.SetFilter("Date Filter", DateFilter);
+        if TempFinancialReport.DateFilterPeriodFormula = '' then
+            exit;
+        PeriodFormulaParser.ValidatePeriodFormula(
+            TempFinancialReport.DateFilterPeriodFormula, TempFinancialReport.DateFilterPeriodFormulaLID);
+        Clear(TempFinancialReport.StartDateFilterFormula);
+        Clear(TempFinancialReport.EndDateFilterFormula);
+        CalcDateFilterAndUpdate();
+    end;
+
+    local procedure CalcDateFilterAndUpdate()
+    begin
+        FinReportMgt.CalcAccScheduleLineDateFilter(TempFinancialReport, Rec);
+        DateFilter := Rec.GetFilter("Date Filter");
+        CurrPage.Update();
     end;
 
     local procedure LoadFinancialReportFilters(FinancialReportCode: Code[10]; var FinancialReportToLoadTemp: Record "Financial Report" temporary): Boolean
@@ -1545,6 +1607,7 @@ page 490 "Acc. Schedule Overview"
         LoadPageState();
     end;
 
+#if not CLEAN26
     local procedure AddSummaryPart(var SummaryTxt: Text; PartTxt: Text)
     begin
         if PartTxt = '' then
@@ -1553,6 +1616,7 @@ page 490 "Acc. Schedule Overview"
             SummaryTxt += ' - ';
         SummaryTxt += PartTxt;
     end;
+#endif
 
     local procedure SetFinancialReportTxt()
     var
@@ -1769,21 +1833,37 @@ page 490 "Acc. Schedule Overview"
 
     protected procedure UpdateColumnCaptions()
     var
+#if not CLEAN27
+        ColumnCaptions80: array[15] of Text[80];
+#endif
         ColumnNo: Integer;
         i: Integer;
         IsHandled: Boolean;
     begin
+#if not CLEAN27
+#pragma warning disable AL0432
+        for i := 1 to ArrayLen(ColumnCaptions) do
+            ColumnCaptions80[i] := CopyStr(ColumnCaptions[i], 1, MaxStrLen(ColumnCaptions80[i]));
+        OnBeforeUpdateColumnCaptions(ColumnCaptions80, ColumnOffset, TempColumnLayout, NoOfColumns, IsHandled);
+        if IsHandled then begin
+            for i := 1 to ArrayLen(ColumnCaptions80) do
+                ColumnCaptions[i] := ColumnCaptions80[i];
+            exit;
+        end;
+#pragma warning restore AL0432
+#else
         IsHandled := false;
         OnBeforeUpdateColumnCaptions(ColumnCaptions, ColumnOffset, TempColumnLayout, NoOfColumns, IsHandled);
         if IsHandled then
             exit;
+#endif
 
         Clear(ColumnCaptions);
         if TempColumnLayout.FindSet() then
             repeat
                 ColumnNo := ColumnNo + 1;
                 if (ColumnNo > ColumnOffset) and (ColumnNo - ColumnOffset <= ArrayLen(ColumnCaptions)) then
-                    ColumnCaptions[ColumnNo - ColumnOffset] := TempColumnLayout."Column Header";
+                    ColumnCaptions[ColumnNo - ColumnOffset] := AccSchedManagement.CalcColumnHeader(Rec, TempColumnLayout);
             until (ColumnNo - ColumnOffset = ArrayLen(ColumnCaptions)) or (TempColumnLayout.Next() = 0);
         // Set unused columns to blank to prevent RTC to display control ID as caption
         for i := ColumnNo - ColumnOffset + 1 to ArrayLen(ColumnCaptions) do
@@ -2164,7 +2244,12 @@ page 490 "Acc. Schedule Overview"
     end;
 
     [IntegrationEvent(false, false)]
+#if not CLEAN27
+    [Obsolete('The ColumnCaptions parameter will be changed to array[15] of Text in a future release.', '27.0')]
     local procedure OnBeforeUpdateColumnCaptions(var ColumnCaptions: array[15] of Text[80]; ColumnOffset: Integer; var TempColumnLayout: Record "Column Layout" temporary; NoOfColumns: Integer; var IsHandled: Boolean)
+#else
+    local procedure OnBeforeUpdateColumnCaptions(var ColumnCaptions: array[15] of Text; ColumnOffset: Integer; var TempColumnLayout: Record "Column Layout" temporary; NoOfColumns: Integer; var IsHandled: Boolean)
+#endif
     begin
     end;
 

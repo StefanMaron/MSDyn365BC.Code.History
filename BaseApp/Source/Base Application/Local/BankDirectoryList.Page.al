@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12420 "Bank Directory List"
 {
     ApplicationArea = Basic, Suite;

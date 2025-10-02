@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -1518,15 +1518,6 @@ page 8901 "Finance Manager Role Center"
                     RunObject = page "Payment Registration";
                     Tooltip = 'Open the Register Customer Payments page.';
                 }
-#if not CLEAN24
-                group("Group29")
-                {
-                    Caption = 'Combine';
-                    ObsoleteReason = 'Empty group';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                }
-#endif
                 group("Group30")
                 {
                     Caption = 'Reminder/Fin. Charge Memos';
@@ -2817,13 +2808,6 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Inventory Valuation';
                         RunObject = report "Inventory Valuation";
                         Tooltip = 'Run the Inventory Valuation report.';
-                    }
-                    action("Inventory Valuation - WIP")
-                    {
-                        ApplicationArea = Manufacturing;
-                        Caption = 'Production Order - WIP';
-                        RunObject = report "Inventory Valuation - WIP";
-                        Tooltip = 'Run the Production Order - WIP report.';
                     }
                     action("Inventory - List")
                     {

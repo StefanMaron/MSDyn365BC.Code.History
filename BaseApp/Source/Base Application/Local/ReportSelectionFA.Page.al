@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12484 "Report Selection - FA"
 {
     Caption = 'Report Selection - Fixed Asset';

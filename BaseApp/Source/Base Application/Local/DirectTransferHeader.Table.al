@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12458 "Direct Transfer Header"
 {
     Caption = 'Direct Transfer Header';

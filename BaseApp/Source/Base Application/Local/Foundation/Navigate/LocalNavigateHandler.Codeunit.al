@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 355 "Local Navigate Handler"
 {
     var

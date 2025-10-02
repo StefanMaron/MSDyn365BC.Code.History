@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12425 "Posted Payment Order List"
 {
     Caption = 'Posted Payment Order List';

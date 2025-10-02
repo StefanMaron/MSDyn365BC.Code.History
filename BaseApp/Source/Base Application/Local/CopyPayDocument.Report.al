@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12425 "Copy Pay Document"
 {
     Caption = 'Copy Pay Document';

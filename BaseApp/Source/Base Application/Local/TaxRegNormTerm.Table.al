@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17240 "Tax Reg. Norm Term"
 {
     Caption = 'Tax Reg. Norm Term';

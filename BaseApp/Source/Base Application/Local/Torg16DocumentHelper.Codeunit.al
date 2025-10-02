@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 14939 "Torg-16 Document Helper"
 {
 

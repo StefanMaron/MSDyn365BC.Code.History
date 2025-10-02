@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14951 "Bill of Lading"
 {
     Caption = 'Bill of Lading';

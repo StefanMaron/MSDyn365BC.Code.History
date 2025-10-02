@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17212 "Tax Register Item Entry"
 {
     Caption = 'Tax Register Item Entry';

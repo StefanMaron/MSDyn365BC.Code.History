@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17330 "Tax Calc. Cor. Dim. Filters"
 {
     Caption = 'Tax Calc. Cor. Dim. Filters';

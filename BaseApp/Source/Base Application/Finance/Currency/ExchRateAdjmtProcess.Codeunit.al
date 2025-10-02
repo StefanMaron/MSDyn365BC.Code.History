@@ -1285,49 +1285,6 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         VendorLedgerEntry2.Reset();
     end;
 
-    local procedure PrepareTempEmplLedgEntry(var Employee: Record Employee; var TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary);
-    var
-        EmployeeLedgerEntry2: Record "Employee Ledger Entry";
-        DtldEmplLedgEntry2: Record "Detailed Employee Ledger Entry";
-    begin
-        TempEmployeeLedgerEntry.DeleteAll();
-
-        Currency.CopyFilter(Code, EmployeeLedgerEntry2."Currency Code");
-        EmployeeLedgerEntry2.FilterGroup(2);
-        EmployeeLedgerEntry2.SetFilter("Currency Code", '<>%1', '');
-        OnPrepareTempEmplLedgEntryOnAfterSetEmplLedgerEntryFilters(EmployeeLedgerEntry2);
-        EmployeeLedgerEntry2.FilterGroup(0);
-
-        DtldEmplLedgEntry2.Reset();
-        DtldEmplLedgEntry2.SetCurrentKey("Employee No.", "Posting Date", "Entry Type");
-        DtldEmplLedgEntry2.SetRange("Employee No.", Employee."No.");
-        DtldEmplLedgEntry2.SetRange("Posting Date", CalcDate('<+1D>', ExchRateAdjmtParameters."End Date"), DMY2Date(31, 12, 9999));
-        OnPrepareTempEmplLedgEntryOnAfterSetDtldEmplLedgerEntryFilters(DtldEmplLedgEntry2);
-        if DtldEmplLedgEntry2.Find('-') then
-            repeat
-                EmployeeLedgerEntry2."Entry No." := DtldEmplLedgEntry2."Employee Ledger Entry No.";
-                if EmployeeLedgerEntry2.Find('=') then
-                    if (EmployeeLedgerEntry2."Posting Date" >= ExchRateAdjmtParameters."Start Date") and
-                        (EmployeeLedgerEntry2."Posting Date" <= ExchRateAdjmtParameters."End Date")
-                    then begin
-                        TempEmployeeLedgerEntry."Entry No." := EmployeeLedgerEntry2."Entry No.";
-                        if TempEmployeeLedgerEntry.Insert() then;
-                    end;
-            until DtldEmplLedgEntry2.Next() = 0;
-
-        EmployeeLedgerEntry2.SetCurrentKey("Employee No.", Open);
-        EmployeeLedgerEntry2.SetRange("Employee No.", Employee."No.");
-        EmployeeLedgerEntry2.SetRange(Open, true);
-        EmployeeLedgerEntry2.SetRange("Posting Date", 0D, ExchRateAdjmtParameters."End Date");
-        OnPrepareTempEmplLedgEntryOnAfterSetEmplLedgerEntryFilters(EmployeeLedgerEntry2);
-        if EmployeeLedgerEntry2.Find('-') then
-            repeat
-                TempEmployeeLedgerEntry."Entry No." := EmployeeLedgerEntry2."Entry No.";
-                if TempEmployeeLedgerEntry.Insert() then;
-            until EmployeeLedgerEntry2.Next() = 0;
-        EmployeeLedgerEntry2.Reset();
-    end;
-
     local procedure AdjustVATEntries(var VATEntry: Record "VAT Entry"; var TotalVATEntry: Record "VAT Entry"; VATType: Enum "General Posting Type"; UseTax: Boolean)
     begin
         Clear(TotalVATEntry);
@@ -1694,6 +1651,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     begin
         GenJournalLine."Journal Template Name" := ExchRateAdjmtParameters."Journal Template Name";
         GenJournalLine."Journal Batch Name" := ExchRateAdjmtParameters."Journal Batch Name";
+        GenJournalLine."Zero Src. Curr. Amount" := true;
         SetPostingDimensions(GenJournalLine, DimensionSetEntry);
         OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJournalLine, ExchRateAdjmtParameters);
         GenJnlPostLine.Run(GenJournalLine);
@@ -3125,11 +3083,13 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDtldEmplLedgEntryFilters(var DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry"; EmplLedgEntry: Record "Employee Ledger Entry")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterShouldAdjustCurrency(Currency: Record Currency; var ShouldAdjust: Boolean)
     begin
@@ -3145,11 +3105,13 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterShouldAdjustEmplLedgEntry(EmplLedgEntry: Record "Employee Ledger Entry"; var ShouldAdjust: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetVATEntryFilters(var VATEntry: Record "VAT Entry")
     begin
@@ -3210,11 +3172,13 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterProcessEmployeeAdjustment(var TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterRunAdjustment(var ExchRateAdjmtParameters: Record "Exch. Rate Adjmt. Parameters" temporary)
     begin
@@ -3325,16 +3289,19 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPrepareTempEmplLedgEntryOnAfterSetEmplLedgerEntryFilters(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
     end;
 
+    [Obsolete('The event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPrepareTempEmplLedgEntryOnAfterSetDtldEmplLedgerEntryFilters(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnSetPostingDimensionsOnCaseSourceEntryDimensions(var GenJournalLine: Record "Gen. Journal Line"; var DimensionSetEntry: Record "Dimension Set Entry")
     begin

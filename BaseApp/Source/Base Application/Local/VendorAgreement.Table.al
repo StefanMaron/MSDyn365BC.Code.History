@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14901 "Vendor Agreement"
 {
     Caption = 'Vendor Agreement';
@@ -455,27 +456,15 @@ table 14901 "Vendor Agreement"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         Vend.Get("Vendor No.");
         Vend.TestField("Agreement Posting", Vend."Agreement Posting"::Mandatory);
         if "No." = '' then begin
             Vend.TestField("Agreement Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(Vend."Agreement Nos.", xRec."No. Series", WorkDate(), "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := Vend."Agreement Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", Vend."Agreement Nos.", WorkDate(), "No.");
-            end;
-#endif
             Description := StrSubstNo('%1 %2', Text12400, "No.");
         end;
 
@@ -717,4 +706,3 @@ table 14901 "Vendor Agreement"
             DimSetIDArr, ShortcutDim1Code, ShortcutDim2Code));
     end;
 }
-

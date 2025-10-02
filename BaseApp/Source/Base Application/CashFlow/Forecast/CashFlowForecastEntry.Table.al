@@ -84,6 +84,8 @@ table 847 "Cash Flow Forecast Entry"
         }
         field(21; "Payment Discount"; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Payment Discount';
         }
         field(22; "Associated Entry No."; Integer)
@@ -116,6 +118,8 @@ table 847 "Cash Flow Forecast Entry"
         field(29; "Amount (LCY)"; Decimal)
         {
             Caption = 'Amount (LCY)';
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
 
             trigger OnValidate()
             begin
@@ -294,4 +298,3 @@ table 847 "Cash Flow Forecast Entry"
             CFManagement.ShowSource(Rec);
     end;
 }
-

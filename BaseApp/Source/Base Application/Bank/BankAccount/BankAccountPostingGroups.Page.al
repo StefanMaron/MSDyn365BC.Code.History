@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.BankAccount;
 
+/// <summary>
+/// Administrative interface for managing bank account posting group configurations.
+/// Defines G/L account assignments for bank transaction posting across different bank account types.
+/// </summary>
+/// <remarks>
+/// Source Table: Bank Account Posting Group (277). Setup page for posting group administration.
+/// Used to configure where bank transactions are posted in the general ledger.
+/// </remarks>
 page 373 "Bank Account Posting Groups"
 {
     ApplicationArea = Basic, Suite;

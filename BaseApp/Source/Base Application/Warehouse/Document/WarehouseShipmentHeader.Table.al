@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.Document;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Document;
 
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Shipping;
@@ -324,39 +328,21 @@ table 7320 "Warehouse Shipment Header"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-#if not CLEAN24
-        OnBeforeOnInsert(Rec, xRec, WarehouseSetup, NoSeriesMgt, Location, IsHandled);
-#else
         OnBeforeOnInsert(Rec, xRec, WarehouseSetup, Location, IsHandled);
-#endif
         if IsHandled then
             exit;
 
         WarehouseSetup.Get();
         if "No." = '' then begin
             WarehouseSetup.TestField("Whse. Ship Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(WarehouseSetup."Whse. Ship Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := WarehouseSetup."Whse. Ship Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", WarehouseSetup."Whse. Ship Nos.", "Posting Date", "No.");
-            end;
-#endif
         end;
 
-#if CLEAN24
         if NoSeries.IsAutomatic(WarehouseSetup."Posted Whse. Shipment Nos.") then
             "Shipping No. Series" := WarehouseSetup."Posted Whse. Shipment Nos.";
-#else
-#pragma warning disable AL0432
-        NoSeriesMgt.SetDefaultSeries("Shipping No. Series", WarehouseSetup."Posted Whse. Shipment Nos.");
-#pragma warning restore AL0432
-#endif
 
         GetLocation("Location Code");
         Validate("Bin Code", Location."Shipment Bin Code");
@@ -374,9 +360,6 @@ table 7320 "Warehouse Shipment Header"
     var
         Location: Record Location;
         WarehouseSetup: Record "Warehouse Setup";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         NoSeries: Codeunit "No. Series";
 
 #pragma warning disable AA0074
@@ -835,18 +818,10 @@ table 7320 "Warehouse Shipment Header"
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('Parameter NoSeriesMgt is obsolete and will be removed, update your subscriber accordingly.', '24.0')]
-    local procedure OnBeforeOnInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var xWarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WhseSetup: Record "Warehouse Setup"; var NoSeriesMgt: Codeunit NoSeriesManagement; var Location: Record Location; var IsHandled: Boolean)
-    begin
-    end;
-#else
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var xWarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WhseSetup: Record "Warehouse Setup"; var Location: Record Location; var IsHandled: Boolean)
     begin
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDocumentStatusOnBeforeCheckPartllyShipped(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line")
@@ -858,4 +833,3 @@ table 7320 "Warehouse Shipment Header"
     begin
     end;
 }
-

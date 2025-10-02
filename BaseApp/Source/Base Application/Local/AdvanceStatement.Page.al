@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12431 "Advance Statement"
 {
     Caption = 'Advance Statement';
@@ -382,26 +383,14 @@ page 12431 "Advance Statement"
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         PurchSetup.Get();
         if Rec."No." = '' then begin
             PurchSetup.TestField("Advance Statement Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(PurchSetup."Advance Statement Nos.", xRec."No. Series", Rec."Posting Date", Rec."No.", Rec."No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 Rec."No. Series" := PurchSetup."Advance Statement Nos.";
                 if NoSeries.AreRelated(Rec."No. Series", xRec."No. Series") then
                     Rec."No. Series" := xRec."No. Series";
                 Rec."No." := NoSeries.GetNextNo(Rec."No. Series", Rec."Posting Date");
-#if not CLEAN24
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(Rec."No. Series", PurchSetup."Advance Statement Nos.", Rec."Posting Date", Rec."No.");
-            end;
-#endif
         end;
         if Rec."Posting No. Series" = '' then begin
             Rec."Posting No. Series" := Rec."No. Series";
@@ -437,11 +426,6 @@ page 12431 "Advance Statement"
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";
         DocPrint: Codeunit "Document-Print";
-#if not CLEAN24
-#pragma warning disable AA0074
-        Text12400: Label 'Select only one application method for advance.';
-#pragma warning restore AA0074
-#endif
 #pragma warning disable AA0074
 #pragma warning disable AA0470
         Text12401: Label 'Posting Date %1 in Advance Statement No. %2 must not be less than Posting Date in Empl. Purchase Entry No. %3.';
@@ -454,41 +438,6 @@ page 12431 "Advance Statement"
         CurrPage.PurchLines.PAGE.ApproveCalcInvDisc();
     end;
 
-#if not CLEAN24
-    [Obsolete('This procedure is not used anythere in our app.')]
-    [Scope('OnPrem')]
-    procedure CalculateAmounts()
-    var
-        VendLedgEntry: Record "Vendor Ledger Entry";
-    begin
-        if (Rec."Applies-to Doc. No." <> '') and (Rec."Applies-to ID" <> '') then
-            Error(Text12400);
-
-        if Rec."Applies-to ID" <> '' then begin
-            VendLedgEntry.Reset();
-            VendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
-            VendLedgEntry.SetRange("Vendor No.", Rec."Buy-from Vendor No.");
-            VendLedgEntry.SetRange(Open, true);
-            VendLedgEntry.SetRange(Positive, true);
-            VendLedgEntry.SetRange("Applies-to ID", Rec."Applies-to ID");
-            if VendLedgEntry.FindSet() then
-                repeat
-                    if VendLedgEntry."Currency Code" = Rec."Currency Code" then
-                        VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
-                until VendLedgEntry.Next() = 0;
-        end;
-
-        if Rec."Applies-to Doc. No." <> '' then begin
-            VendLedgEntry.Reset();
-            VendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
-            VendLedgEntry.SetRange("Vendor No.", Rec."Buy-from Vendor No.");
-            VendLedgEntry.SetRange("Document Type", Rec."Applies-to Doc. Type");
-            VendLedgEntry.SetRange("Document No.", Rec."Applies-to Doc. No.");
-            if VendLedgEntry.FindFirst() then
-                VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
-        end;
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure CheckAdvStmtPostingDate()
@@ -510,4 +459,3 @@ page 12431 "Advance Statement"
             until PurchLine.Next() = 0;
     end;
 }
-

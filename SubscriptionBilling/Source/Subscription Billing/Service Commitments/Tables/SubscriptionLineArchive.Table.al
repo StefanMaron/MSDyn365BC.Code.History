@@ -65,7 +65,8 @@ table 8073 "Subscription Line Archive"
             Caption = 'Calculation Base Amount';
             MinValue = 0;
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(12; "Calculation Base %"; Decimal)
         {
@@ -73,6 +74,7 @@ table 8073 "Subscription Line Archive"
             MinValue = 0;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(13; "Price"; Decimal)
         {
@@ -80,6 +82,7 @@ table 8073 "Subscription Line Archive"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(14; "Discount %"; Decimal)
         {
@@ -88,6 +91,7 @@ table 8073 "Subscription Line Archive"
             MaxValue = 100;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(15; "Discount Amount"; Decimal)
         {
@@ -95,12 +99,14 @@ table 8073 "Subscription Line Archive"
             MinValue = 0;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(16; Amount; Decimal)
         {
             Caption = 'Amount';
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(17; "Billing Base Period"; DateFormula)
         {
@@ -188,6 +194,7 @@ table 8073 "Subscription Line Archive"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = '';
         }
         field(34; "Discount Amount (LCY)"; Decimal)
         {
@@ -196,6 +203,7 @@ table 8073 "Subscription Line Archive"
             MinValue = 0;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(35; "Amount (LCY)"; Decimal)
         {
@@ -203,6 +211,7 @@ table 8073 "Subscription Line Archive"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 1;
+            AutoFormatExpression = '';
         }
         field(36; "Currency Code"; Code[10])
         {
@@ -216,6 +225,7 @@ table 8073 "Subscription Line Archive"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(38; "Currency Factor Date"; Date)
         {
@@ -228,6 +238,7 @@ table 8073 "Subscription Line Archive"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = '';
         }
         field(40; Discount; Boolean)
         {
@@ -242,6 +253,7 @@ table 8073 "Subscription Line Archive"
         field(42; "Quantity (Sub. Header)"; Decimal)
         {
             Caption = 'Quantity (Subscription)';
+            AutoFormatType = 0;
         }
         field(50; "Next Price Update"; Date)
         {
@@ -270,6 +282,7 @@ table 8073 "Subscription Line Archive"
         {
             AutoFormatType = 2;
             Caption = 'Unit Cost (LCY)';
+            AutoFormatExpression = '';
         }
         field(107; "Closed"; Boolean)
         {

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12412 "VAT Ledger List"
 {
     Caption = 'VAT Ledger List';

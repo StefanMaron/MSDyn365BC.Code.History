@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12428 "KBK Codes"
 {
     ApplicationArea = Basic, Suite;

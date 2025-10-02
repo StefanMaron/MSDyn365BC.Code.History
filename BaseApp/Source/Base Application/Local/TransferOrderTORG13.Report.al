@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14976 "Transfer Order TORG-13"
 {
     Caption = 'Transfer Order TORG-13';

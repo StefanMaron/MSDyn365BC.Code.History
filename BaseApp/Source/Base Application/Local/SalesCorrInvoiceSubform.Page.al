@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14972 "Sales Corr. Invoice Subform"
 {
     AutoSplitKey = true;

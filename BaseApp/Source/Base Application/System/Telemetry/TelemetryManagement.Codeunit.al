@@ -52,9 +52,11 @@ codeunit 1350 "Telemetry Management"
         Session.LogMessage('0000ADZ', TelemetryJobCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DailyTelemetryCategoryTxt);
     end;
 
-    [IntegrationEvent(false, false)]
+#pragma warning disable AS0101
+    [IntegrationEvent(false, false, true)]
     local procedure OnSendDailyTelemetry()
     begin
     end;
+#pragma warning restore AS0101
 }
 

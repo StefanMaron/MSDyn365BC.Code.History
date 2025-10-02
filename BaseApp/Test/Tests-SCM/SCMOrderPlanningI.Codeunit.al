@@ -1034,7 +1034,7 @@ codeunit 137046 "SCM Order Planning - I"
         Customer: Record Customer;
         Item: Record Item;
         ItemVendor: Record "Item Vendor";
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         OrderPromisingSetup: Record "Order Promising Setup";
         SalesHeader: Record "Sales Header";
         Salesline: Record "Sales Line";
@@ -1048,10 +1048,10 @@ codeunit 137046 "SCM Order Planning - I"
         // [GIVEN] Generate and save DateFormula in a variable.
         Evaluate(DateFormula, StrSubstNo('%1D', LibraryRandom.RandIntInRange(1, 1)));
 
-        // [GIVEN] Validate "Default Safety Lead Time" in Manufacturing Setup.
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Default Safety Lead Time", DateFormula);
-        ManufacturingSetup.Modify(true);
+        // [GIVEN] Validate "Default Safety Lead Time" in Inventory Setup.
+        InventorySetup.Get();
+        InventorySetup.Validate("Default Safety Lead Time", DateFormula);
+        InventorySetup.Modify(true);
 
         // [GIVEN] Validate "Offset (Time)" in Order Promising Setup.
         OrderPromisingSetup.Get();
@@ -1088,7 +1088,7 @@ codeunit 137046 "SCM Order Planning - I"
         LibrarySales.CreateSalesLine(Salesline, SalesHeader, Salesline.Type::Item, Item."No.", LibraryRandom.RandIntInRange(2, 2));
 
         // [GIVEN] Generate and save PlannedDeliveryDate in a Variable.
-        PlannedDeliveryDate := CalcDate('<' + Format(ItemVendor."Lead Time Calculation") + '+' + Format(ManufacturingSetup."Default Safety Lead Time") + '+' + Format(OrderPromisingSetup."Offset (Time)") + '>', WorkDate());
+        PlannedDeliveryDate := CalcDate('<' + Format(ItemVendor."Lead Time Calculation") + '+' + Format(InventorySetup."Default Safety Lead Time") + '+' + Format(OrderPromisingSetup."Offset (Time)") + '>', WorkDate());
 
         // [WHEN] Open Order Promising Page.
         LibraryVariableStorage.Enqueue(PlannedDeliveryDate);

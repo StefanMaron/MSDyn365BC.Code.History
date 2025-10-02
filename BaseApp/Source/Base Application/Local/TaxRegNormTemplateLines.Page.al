@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17284 "Tax Reg. Norm Template Lines"
 {
     Caption = 'Norm Template Lines';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17282 "Tax Reg. Norm Terms"
 {
     Caption = 'Norm Term Names';

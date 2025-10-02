@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12471 "FA Writeoff Act Subform"
 {
     AutoSplitKey = true;

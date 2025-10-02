@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17243 "Tax Reg. Norm Dim. Filter"
 {
     Caption = 'Tax Reg. Norm Dim. Filter';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 36848 "Sales Corrective Credit Memos"
 {
     ApplicationArea = Basic, Suite;

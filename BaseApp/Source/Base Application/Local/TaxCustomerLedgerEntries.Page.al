@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17243 "Tax Customer Ledger Entries"
 {
     Caption = 'Tax Customer Ledger Entries';

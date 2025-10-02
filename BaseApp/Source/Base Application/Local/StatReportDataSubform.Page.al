@@ -1,4 +1,5 @@
-﻿page 35622 "_Stat. Report Data Subform"
+#pragma warning disable AA0247
+page 35622 "_Stat. Report Data Subform"
 {
     Caption = '_Stat. Report Data Subform';
     DataCaptionExpression = TableCode + '-' + ExcelSheetName;

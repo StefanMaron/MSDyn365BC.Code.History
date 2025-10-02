@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14973 "Sales Corrective Credit Memo"
 {
     Caption = 'Sales Corrective Credit Memo';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 26585 "Acc. Sched. Expression Buffer"
 {
     Caption = 'Acc. Sched. Expression Buffer';

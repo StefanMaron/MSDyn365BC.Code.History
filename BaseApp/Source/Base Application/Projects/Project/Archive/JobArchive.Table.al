@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Projects.Project.Archive;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.Project.Archive;
 
 using Microsoft.Sales.Customer;
 using Microsoft.Finance.Dimension;
@@ -235,6 +239,7 @@ table 5135 "Job Archive"
         field(68; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer who pays for the project.';
         }
         field(80; "Task Billing Method"; Enum "Task Billing Method")
         {
@@ -387,6 +392,7 @@ table 5135 "Job Archive"
         field(2002; "Sell-to Customer Name 2"; Text[50])
         {
             Caption = 'Sell-to Customer Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer who will receive the products and be billed by default.';
         }
         field(2003; "Sell-to Address"; Text[100])
         {

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14950 "Job Ticket"
 {
     Caption = 'Job Ticket';

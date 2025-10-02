@@ -110,7 +110,7 @@ codeunit 799 "VAT Reporting Date Mgt"
         exit(IsValidDate(Variant, VATDateFieldNo, false));
     end;
 
-    internal procedure IsValidDate(Variant: Variant; VATDateFieldNo: Integer; ThrowError: Boolean) HasErrors: Boolean
+    procedure IsValidDate(Variant: Variant; VATDateFieldNo: Integer; ThrowError: Boolean) HasErrors: Boolean
     var
         TempErrorMessage: Record "Error Message" temporary;
         ErrorContextElement: Codeunit "Error Context Element";

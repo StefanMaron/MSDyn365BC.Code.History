@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Reversal;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GeneralLedger.Reversal;
 
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.GeneralLedger.Journal;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 xmlport 26550 "Statutory Reports"
 {
     Caption = 'Statutory Reports';

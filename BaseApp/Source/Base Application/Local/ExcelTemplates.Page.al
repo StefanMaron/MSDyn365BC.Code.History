@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14919 "Excel Templates"
 {
     ApplicationArea = Basic, Suite;

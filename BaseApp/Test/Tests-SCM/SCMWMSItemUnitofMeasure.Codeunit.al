@@ -238,7 +238,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         CreateItemWithProductionBOM(ParentItem, Item."No.", 11 * 13 * SalesQtyPerUOMRatio * PurchQtyPerUOMRatio * PutAwayQtyPerUOMRatio);
 
         CreateAndRefreshProductionOrder(ProductionOrder, ParentItem."No.", 1, Location.Code);
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         FindWhseActivity(
           WarehouseActivityHeader, WarehouseActivityHeader.Type::Pick, DATABASE::"Prod. Order Component",
           ProductionOrder.Status.AsInteger(), ProductionOrder."No.");
@@ -2302,7 +2302,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
     begin
         CreateAndRefreshProductionOrder(ProductionOrder, ItemNo, Quantity, LocationCode);
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         SetHandlingParametersOnWhseActivityLines(
           WarehouseActivityHeader.Type::Pick, DATABASE::"Prod. Order Component",
@@ -2640,7 +2640,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         DummyBinContent.SetRange("Item No.", ItemNo);
         DummyBinContent.SetRange(Fixed, false);
         if DummyBinContent.FindFirst() then begin
-            DummyBinContent.CalcFields(Quantity);        
+            DummyBinContent.CalcFields(Quantity);
             Assert.AreEqual(0, DummyBinContent.Quantity, 'Quantity must be 0 for this bin content.');
         end;
     end;

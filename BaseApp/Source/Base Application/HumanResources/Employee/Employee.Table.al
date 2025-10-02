@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.HumanResources.Employee;
 
 using Microsoft.Bank.Setup;
@@ -12,12 +16,14 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.HumanResources.Absence;
 using Microsoft.HumanResources.Comment;
 using Microsoft.HumanResources.Payables;
+using Microsoft.Foundation.Period;
 using Microsoft.HumanResources.Setup;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Setup;
 using Microsoft.Purchases.Vendor;
 using System.Email;
 using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
 
 
 table 5200 Employee
@@ -90,13 +96,10 @@ table 5200 Employee
                 "Short Name" := CopyStr(StrSubstNo(NameInitialsTok, "Last Name", Initials), 1, MaxStrLen("Short Name"));
             end;
         }
-#pragma warning disable AS0080
         field(6; "Job Title"; Text[30])
         {
             Caption = 'Job Title';
         }
-#pragma warning restore AS0080
-#pragma warning disable AS0086
         field(7; "Search Name"; Code[250])
         {
             Caption = 'Search Name';
@@ -107,7 +110,6 @@ table 5200 Employee
                     "Search Name" := SetSearchNameToFullnameAndInitials();
             end;
         }
-#pragma warning restore AS0086
         field(8; Address; Text[100])
         {
             Caption = 'Address';
@@ -483,6 +485,7 @@ table 5200 Employee
             Caption = 'Balance';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the amount the employee owes the company, or the company owes them. For example, for an overpayment, or for expenses, respectively. The word "balance" indicates the amount can be positive (employee owes the company) or negative (the company owes the employee).';
         }
         field(60; "SWIFT Code"; Code[20])
         {
@@ -501,6 +504,7 @@ table 5200 Employee
             Caption = 'Balance (LCY)';
             Editable = false;
             FieldClass = FlowField;
+            ToolTip = 'Specifies the amount the employee owes the company, or the company owes them in local currency. For example, for an overpayment, or for expenses, respectively. The word "balance" indicates the amount can be positive (employee owes the company) or negative (the company owes the employee).';
         }
         field(75; "Currency Code"; Code[10])
         {
@@ -516,6 +520,67 @@ table 5200 Employee
             Caption = 'Currency Filter';
             FieldClass = FlowFilter;
             TableRelation = Currency;
+        }
+        field(100; "Engagement Type"; Enum "Employee Engagement Type")
+        {
+            Caption = 'Engagement Type';
+        }
+        field(101; "Collective Bargain. Agmt. Info"; Boolean)
+        {
+            Caption = 'Collective Bargaining Agreement Info';
+        }
+        field(102; "Board Member"; Boolean)
+        {
+            Caption = 'Board Member';
+        }
+        field(103; "Manager Role"; Boolean)
+        {
+            Caption = 'Manager Role';
+        }
+        field(104; "Payroll"; Decimal)
+        {
+            Caption = 'Payroll';
+
+            trigger OnValidate()
+            begin
+                CalcPayrollLCY();
+            end;
+        }
+        field(105; "Payroll Currency Code"; Code[10])
+        {
+            Caption = 'Payroll Currency Code';
+            TableRelation = Currency;
+
+            trigger OnValidate()
+            begin
+                CalcPayrollLCY();
+            end;
+        }
+        field(106; "Payroll (LCY)"; Decimal)
+        {
+            Caption = 'Payroll (LCY)';
+
+            trigger OnValidate()
+            begin
+                CalcPayroll();
+            end;
+        }
+        field(107; "Payroll Currency Factor"; Decimal)
+        {
+            Caption = 'Payroll Currency Factor';
+        }
+        field(108; "Nationality"; Code[10])
+        {
+            Caption = 'Nationality';
+            TableRelation = Nationality;
+        }
+        field(109; "Working Type"; Enum "Employee Working Type")
+        {
+            Caption = 'Working Type';
+        }
+        field(110; "Working Hours"; Decimal)
+        {
+            Caption = 'Working Hours';
         }
         field(140; Image; Media)
         {
@@ -533,6 +598,12 @@ table 5200 Employee
                 else
                     Blocked := false;
             end;
+        }
+        field(175; "Allow Multiple Posting Groups"; Boolean)
+        {
+            Caption = 'Allow Multiple Posting Groups';
+            DataClassification = SystemMetadata;
+            ToolTip = 'Specifies if multiple posting groups can be used for posting business transactions for this customer.';
         }
         field(1100; "Cost Center Code"; Code[20])
         {
@@ -627,7 +698,16 @@ table 5200 Employee
     }
 
     trigger OnDelete()
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
+        EmployeeLedgerEntry.Reset();
+        EmployeeLedgerEntry.SetCurrentKey("Employee No.", "Posting Date");
+        EmployeeLedgerEntry.SetRange("Employee No.", Rec."No.");
+        SetEmplLedgEntryFilterByAccPeriod(EmployeeLedgerEntry);
+        if not EmployeeLedgerEntry.IsEmpty() then
+            Error(EmployeeHasLedgerDeleteErr, Rec."No.");
+
         AlternativeAddr.SetRange("Employee No.", "No.");
         AlternativeAddr.DeleteAll();
 
@@ -657,9 +737,6 @@ table 5200 Employee
         Employee: Record Employee;
         ResourcesSetup: Record "Resources Setup";
         Resource: Record Resource;
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -671,31 +748,15 @@ table 5200 Employee
         HumanResSetup.Get();
         if "No." = '' then begin
             HumanResSetup.TestField("Employee Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(HumanResSetup."Employee Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(HumanResSetup."Employee Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := HumanResSetup."Employee Nos.";
-                "No." := NoSeries.GetNextNo("No. Series");
-                Employee.ReadIsolation(IsolationLevel::ReadUncommitted);
-                Employee.SetLoadFields("No.");
-                while Employee.Get("No.") do
-                    "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", HumanResSetup."Employee Nos.", 0D, "No.");
-            end;
-#else
-			if NoSeries.AreRelated(HumanResSetup."Employee Nos.", xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := HumanResSetup."Employee Nos.";
+            if NoSeries.AreRelated(HumanResSetup."Employee Nos.", xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := HumanResSetup."Employee Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
             Employee.ReadIsolation(IsolationLevel::ReadUncommitted);
             Employee.SetLoadFields("No.");
             while Employee.Get("No.") do
                 "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
         if HumanResSetup."Automatically Create Resource" then begin
             ResourcesSetup.Get();
@@ -757,6 +818,7 @@ table 5200 Employee
         ConfidentialInformation: Record "Confidential Information";
         HumanResComment: Record "Human Resource Comment Line";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         NoSeries: Codeunit "No. Series";
         EmployeeResUpdate: Codeunit "Employee/Resource Update";
         EmployeeSalespersonUpdate: Codeunit "Employee/Salesperson Update";
@@ -778,6 +840,7 @@ table 5200 Employee
 #pragma warning restore AA0074
         ConfirmBlockedPrivacyBlockedQst: Label 'If you change the Blocked field, the Privacy Blocked field is changed to No. Do you want to continue?';
         CanNotChangeBlockedDueToPrivacyBlockedErr: Label 'The Blocked field cannot be changed because the user is blocked for privacy reasons.';
+        EmployeeHasLedgerDeleteErr: Label 'You cannot delete Employee %1 because it has ledger entries in a fiscal year that has not been closed yet.', Comment = '%1 = employee no.';
 
     procedure AssistEdit() Result: Boolean
     var
@@ -953,9 +1016,59 @@ table 5200 Employee
             Error(EmployeeLinkedToResourceErr, Employee."No.");
     end;
 
+    local procedure SetEmplLedgEntryFilterByAccPeriod(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    var
+        AccountingPeriod: Record "Accounting Period";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetEmployeeLedgEntryFilterByAccPeriod(EmployeeLedgerEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        AccountingPeriod.SetRange(Closed, false);
+        if AccountingPeriod.FindFirst() then
+            EmployeeLedgerEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
+    end;
+
     local procedure IsOnBeforeCheckBlockedEmployeeHandled(IsPosting: Boolean) IsHandled: Boolean
     begin
         OnBeforeCheckBlockedEmployee(Rec, IsPosting, IsHandled);
+    end;
+
+    local procedure CalcPayrollLCY()
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        if Rec."Payroll Currency Code" = '' then begin
+            Rec."Payroll (LCY)" := Rec."Payroll";
+            exit;
+        end;
+
+        GeneralLedgerSetup.GetRecordOnce();
+        Rec.Validate("Payroll Currency Factor", CurrencyExchangeRate.ExchangeRate(WorkDate(), Rec."Payroll Currency Code"));
+        Rec."Payroll (LCY)" := Round(CurrencyExchangeRate.ExchangeAmtFCYToLCY(WorkDate(), Rec."Payroll Currency Code", Rec."Payroll", Rec."Payroll Currency Factor"), GeneralLedgerSetup."Amount Rounding Precision");
+    end;
+
+    local procedure CalcPayroll()
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        if Rec."Payroll Currency Code" = '' then begin
+            Rec."Payroll" := Rec."Payroll (LCY)";
+            exit;
+        end;
+
+        GeneralLedgerSetup.GetRecordOnce();
+        Rec.Validate("Payroll Currency Factor", CurrencyExchangeRate.ExchangeRate(WorkDate(), Rec."Payroll Currency Code"));
+        Rec."Payroll" := Round(CurrencyExchangeRate.ExchangeAmtLCYToFCY(WorkDate(), Rec."Payroll Currency Code", Rec."Payroll (LCY)", Rec."Payroll Currency Factor"), GeneralLedgerSetup."Amount Rounding Precision");
+    end;
+
+    procedure CheckAllowMultiplePostingGroups()
+    begin
+        HumanResSetup.Get();
+        if HumanResSetup."Allow Multiple Posting Groups" then
+            TestField("Allow Multiple Posting Groups");
     end;
 
     [IntegrationEvent(false, false)]
@@ -1000,6 +1113,11 @@ table 5200 Employee
 
     [IntegrationEvent(false, false)]
     local procedure OnModifyOnBeforeEmployeeResourceUpdate(var Employee: Record "Employee"; xEmployee: Record "Employee"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetEmployeeLedgEntryFilterByAccPeriod(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

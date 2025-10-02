@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12426 "Cash Account Card"
 {
     Caption = 'Cash Account Card';

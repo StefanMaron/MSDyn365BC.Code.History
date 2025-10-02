@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17301 "Tax Diff. Posting Group"
 {
     Caption = 'Tax Diff. Posting Group';

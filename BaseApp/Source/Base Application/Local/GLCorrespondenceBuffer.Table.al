@@ -1,4 +1,5 @@
-﻿table 12049 "G/L Correspondence Buffer"
+#pragma warning disable AA0247
+table 12049 "G/L Correspondence Buffer"
 {
     Caption = 'G/L Correspondence Buffer';
     TableType = Temporary;

@@ -1,4 +1,5 @@
-﻿table 26564 "Statutory Report Data Value"
+#pragma warning disable AA0247
+table 26564 "Statutory Report Data Value"
 {
     Caption = 'Statutory Report Data Value';
     DataClassification = CustomerContent;

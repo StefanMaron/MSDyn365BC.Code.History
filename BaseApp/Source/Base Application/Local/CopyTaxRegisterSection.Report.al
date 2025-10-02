@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17200 "Copy Tax Register Section"
 {
     Caption = 'Copy Tax Register Section';

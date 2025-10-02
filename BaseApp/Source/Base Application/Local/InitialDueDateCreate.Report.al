@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17205 "Initial Due Date Create"
 {
     Caption = 'Initial Due Date Create';

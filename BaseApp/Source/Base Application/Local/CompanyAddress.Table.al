@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12425 "Company Address"
 {
     Caption = 'Company Address';
@@ -129,7 +130,13 @@ table 12425 "Company Address"
             Caption = 'E-Mail';
             ExtendedDatatype = EMail;
         }
-        field(103; "Home Page"; Text[80])
+#if not CLEAN27
+#pragma warning disable AS0086
+#endif
+        field(103; "Home Page"; Text[255])
+#if not CLEAN27
+#pragma warning restore AS0086
+#endif
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
@@ -173,4 +180,3 @@ table 12425 "Company Address"
     var
         PostCode: Record "Post Code";
 }
-

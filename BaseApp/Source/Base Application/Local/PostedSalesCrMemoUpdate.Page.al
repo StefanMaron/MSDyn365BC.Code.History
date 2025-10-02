@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12435 "Posted Sales Cr. Memo - Update"
 {
     Caption = 'Posted Sales Cr. Memo - Update';

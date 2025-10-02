@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12400 "Bank Payment Order"
 {
     Caption = 'Bank Payment Order';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 26567 "Export Log Entry"
 {
     Caption = 'Export Log Entry';

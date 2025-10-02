@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 17301 "Tax Diff.-Post Jnl. Line"
 {
     Permissions = TableData "FA Ledger Entry" = rm,

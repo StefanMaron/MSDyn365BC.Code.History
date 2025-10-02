@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 14952 "FA-3 Report Helper"
 {
 

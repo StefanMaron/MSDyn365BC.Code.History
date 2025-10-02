@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17307 "Tax Diff. Ledger Entries"
 {
     Caption = 'Tax Diff. Ledger Entries';

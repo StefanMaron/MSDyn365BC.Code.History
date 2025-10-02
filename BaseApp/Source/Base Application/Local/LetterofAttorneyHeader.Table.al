@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14905 "Letter of Attorney Header"
 {
     Caption = 'Letter of Attorney Header';

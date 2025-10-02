@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12412 "Order Item Waybill 1-T"
 {
     Caption = 'Order Item Waybill 1-T';

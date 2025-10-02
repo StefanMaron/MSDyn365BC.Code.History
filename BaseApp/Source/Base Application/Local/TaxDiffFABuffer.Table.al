@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17324 "Tax Diff. FA Buffer"
 {
     Caption = 'Tax Diff. FA Buffer';

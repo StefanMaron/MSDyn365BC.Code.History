@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14967 "Pstd. Sales Corr. Fact. Inv."
 {
     Caption = 'Posted Corr. Factura Invoice';

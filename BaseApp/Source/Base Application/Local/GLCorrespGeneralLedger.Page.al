@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12403 "G/L Corresp. General Ledger"
 {
     ApplicationArea = Basic, Suite;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12429 "Calc. Recurring Journal"
 {
     Caption = 'Calc. Recurring Journal';

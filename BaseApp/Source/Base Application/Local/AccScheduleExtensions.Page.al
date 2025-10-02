@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26590 "Acc. Schedule Extensions"
 {
     Caption = 'Acc. Schedule Extensions';

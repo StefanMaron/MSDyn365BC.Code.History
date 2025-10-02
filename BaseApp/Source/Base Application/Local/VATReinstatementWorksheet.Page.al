@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14947 "VAT Reinstatement Worksheet"
 {
     ApplicationArea = Basic, Suite;

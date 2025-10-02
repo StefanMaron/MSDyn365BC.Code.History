@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 26551 "Statutory Report Group"
 {
     Caption = 'Statutory Report Group';

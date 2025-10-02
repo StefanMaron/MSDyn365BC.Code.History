@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12429 "Taxpayer Document Type"
 {
     Caption = 'Taxpayer Document Type';

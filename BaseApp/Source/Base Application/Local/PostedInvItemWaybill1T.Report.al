@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12420 "Posted Inv. Item Waybill 1-T"
 {
     Caption = 'Posted Inv. Item Waybill 1-T';

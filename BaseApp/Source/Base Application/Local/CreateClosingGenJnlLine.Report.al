@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17201 "Create Closing Gen. Jnl. Line"
 {
     Caption = 'Create Closing Gen. Jnl. Line';

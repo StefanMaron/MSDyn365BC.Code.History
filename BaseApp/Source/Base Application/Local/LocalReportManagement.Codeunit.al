@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 12401 "Local Report Management"
 {
 

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17242 "Tax Reg. Norm Accumulation"
 {
     Caption = 'Tax Reg. Norm Accumulation';

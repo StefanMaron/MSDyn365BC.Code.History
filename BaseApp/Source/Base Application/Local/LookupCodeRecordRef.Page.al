@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17249 "Lookup Code (RecordRef)"
 {
     Caption = 'Lookup Code (RecordRef)';

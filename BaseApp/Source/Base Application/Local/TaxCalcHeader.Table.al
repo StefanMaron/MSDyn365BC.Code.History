@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17308 "Tax Calc. Header"
 {
     Caption = 'Tax Calc. Header';

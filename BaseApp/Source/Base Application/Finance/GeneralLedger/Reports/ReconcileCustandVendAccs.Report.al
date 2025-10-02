@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Reports;
 
 using Microsoft.Finance.Currency;
@@ -426,7 +430,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
 
     requestpage
     {
-        AboutTitle = 'About Reconcile Cust. and Vend. Accs';
+        AboutTitle = 'About Reconcile Customer and Vendor Accounts';
         AboutText = 'Understand the difference in net change to control the G/L accounts setup on customer and vendor posting group tables. Highlight discrepancies between G/L and customer/vendor ledger balances.';
 
         layout

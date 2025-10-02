@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12471 "Shipment Request M-11"
 {
     Caption = 'Shipment Request M-11';

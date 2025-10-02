@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14926 "Default VAT Allocation Line"
 {
     Caption = 'Default VAT Allocation Line';

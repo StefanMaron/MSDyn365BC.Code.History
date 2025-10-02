@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12433 "Posted Advance Statement"
 {
     Caption = 'Posted Advance Statement';

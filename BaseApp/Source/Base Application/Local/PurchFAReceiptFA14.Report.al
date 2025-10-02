@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14980 "Purch. FA Receipt FA-14"
 {
     Caption = 'Purch. FA Receipt FA-14';

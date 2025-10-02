@@ -1,4 +1,5 @@
-﻿page 26591 "Acc. Sched. Formula Drill-Down"
+#pragma warning disable AA0247
+page 26591 "Acc. Sched. Formula Drill-Down"
 {
     Caption = 'Acc. Sched. Formula Drill-Down';
     DeleteAllowed = false;

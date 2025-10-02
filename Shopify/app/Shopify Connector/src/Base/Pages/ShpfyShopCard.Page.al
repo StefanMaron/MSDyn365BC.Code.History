@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 using System.Telemetry;
@@ -64,8 +69,7 @@ page 30101 "Shpfy Shop Card"
                             exit;
                         Rec.RequestAccessToken();
                         BulkOperationMgt.EnableBulkOperations(Rec);
-                        Rec."B2B Enabled" := Rec.GetB2BEnabled();
-                        Rec."Weight Unit" := Rec.GetShopWeightUnit();
+                        Rec.GetShopSettings();
                         Rec.SyncCountries();
                         FeatureTelemetry.LogUptake('0000HUT', 'Shopify', Enum::"Feature Uptake Status"::"Set up");
                     end;
@@ -100,7 +104,7 @@ page 30101 "Shpfy Shop Card"
                 {
                     ApplicationArea = All;
                     Importance = Additional;
-                    ToolTip = 'Specifies whether background syncs are allowed.';
+                    ToolTip = 'Specifies whether synchronization runs in the background. When enabled, you can continue working while large data sets synchronize. Disable for demos or troubleshooting to see real-time progress and receive detailed error messages.';
                 }
                 field("Allow Outgoing Requests"; Rec."Allow Outgoing Requests")
                 {
@@ -363,17 +367,6 @@ page 30101 "Shpfy Shop Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies whether Shopify can update customers when synchronizing from Shopify.';
                 }
-#if not CLEAN24
-                field(ExportCustomerToShopify; Rec."Export Customer To Shopify")
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies if you want to export all customers with a valid e-mail address from D365BC to Shopify.';
-                    Visible = false;
-                    ObsoleteReason = 'Replaced with action Add Customers in Shopify Customers page.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-                }
-#endif
                 field(CanUpdateShopifyCustomer; Rec."Can Update Shopify Customer")
                 {
                     ApplicationArea = All;
@@ -496,6 +489,11 @@ page 30101 "Shpfy Shop Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the G/L Account for post the received tip amount.';
                 }
+                field(CashRoundingsAccount; Rec."Cash Roundings Account")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the general ledger account to use when you post cash rounding differences from Shopify POS transactions.';
+                }
                 field(ShopifyOrderNoOnDocLine; Rec."Shopify Order No. on Doc. Line")
                 {
                     ApplicationArea = All;
@@ -507,7 +505,7 @@ page 30101 "Shpfy Shop Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies whether orders may be created automatically.';
                 }
-                field(AutoReleaseSalesOrders; rec."Auto Release Sales Orders")
+                field(AutoReleaseSalesOrders; Rec."Auto Release Sales Orders")
                 {
                     Caption = 'Auto Release Sales Orders';
                     ApplicationArea = All;
@@ -529,23 +527,11 @@ page 30101 "Shpfy Shop Card"
                     ToolTip = 'Specifies if Business Central document no. is synchronized to Shopify as order attribute.';
                     Enabled = Rec."Allow Outgoing Requests" or Rec."Order Attributes To Shopify";
                 }
-#if not CLEAN24
-                field(ReplaceOrderAttributeValue; Rec."Replace Order Attribute Value")
+                field(ArchiveProcessOrders; Rec."Archive Processed Orders")
                 {
                     ApplicationArea = All;
-                    Caption = 'Feature Update: Enable Longer Order Attribute Value Length';
-                    ToolTip = 'Specifies if the connector stores order attribute values in a new field with a length of 2048 characters. Starting from version 27.0, this new field will be the only option available. However, until version 27.0 administrators can choose to continue using the old field if needed.';
-                    Enabled = not ReplaceOrderAttributeValueDisabled;
-                    ObsoleteReason = 'This feature will be enabled by default with version 27.0.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '24.0';
-
-                    trigger OnValidate()
-                    begin
-                        CurrPage.Update(true);
-                    end;
+                    ToolTip = 'Specifies whether Shopify orders are automatically archived when they are paid, fulfilled, and have associated sales documents with all lines shipped.';
                 }
-#endif
                 field("Posted Invoice Sync"; Rec."Posted Invoice Sync")
                 {
                     ApplicationArea = All;
@@ -803,7 +789,7 @@ page 30101 "Shpfy Shop Card"
             action(Catalogs)
             {
                 ApplicationArea = All;
-                Caption = 'Catalogs';
+                Caption = 'B2B Catalogs';
                 Image = ItemGroup;
                 Promoted = true;
                 PromotedCategory = Category4;
@@ -811,7 +797,21 @@ page 30101 "Shpfy Shop Card"
                 PromotedOnly = true;
                 RunObject = Page "Shpfy Catalogs";
                 RunPageLink = "Shop Code" = field(Code);
-                ToolTip = 'View a list of Shopify catalogs for the shop.';
+                ToolTip = 'View a list of Shopify B2B catalogs for the shop.';
+                Visible = Rec."B2B Enabled";
+            }
+            action(MarketCatalogs)
+            {
+                ApplicationArea = All;
+                Caption = 'Market Catalogs';
+                Image = ItemGroup;
+                Promoted = true;
+                PromotedCategory = Category4;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                RunObject = Page "Shpfy Market Catalogs";
+                RunPageLink = "Shop Code" = field(Code);
+                ToolTip = 'View a list of Shopify market catalogs for the shop.';
                 Visible = Rec."B2B Enabled";
             }
             action(Languages)
@@ -852,6 +852,20 @@ page 30101 "Shpfy Shop Card"
                 RunObject = Page "Shpfy Bulk Operations";
                 RunPageLink = "Shop Code" = field(Code);
                 ToolTip = 'View a list of Shopify Bulk Operations for the shop.';
+            }
+            action(StaffMembers)
+            {
+                ApplicationArea = All;
+                Caption = 'Staff Members Mapping';
+                Image = Users;
+                Promoted = true;
+                PromotedCategory = Category4;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                RunObject = Page "Shpfy Staff Mapping";
+                RunPageLink = "Shop Code" = field(Code);
+                ToolTip = 'View a list of Shopify Staff Members for the shop.';
+                Visible = Rec."B2B Enabled";
             }
         }
         area(Processing)
@@ -1116,7 +1130,7 @@ page 30101 "Shpfy Shop Card"
                         BackgroundSyncs.ProductPricesSync(Rec);
                         if Rec."B2B Enabled" then begin
                             BackgroundSyncs.CompanySync(Rec);
-                            BackgroundSyncs.CatalogPricesSync(Rec, '');
+                            BackgroundSyncs.CatalogPricesSync(Rec, '', "Shpfy Catalog Type"::" ");
                         end;
                     end;
                 }
@@ -1197,9 +1211,6 @@ page 30101 "Shpfy Shop Card"
         IsReturnRefundsVisible: Boolean;
         ApiVersion: Text;
         ApiVersionExpiryDate: Date;
-#if not CLEAN24
-        ReplaceOrderAttributeValueDisabled: Boolean;
-#endif
         ScopeChangeConfirmLbl: Label 'The access scope of shop %1 for the Shopify connector has changed. Do you want to request a new access token?', Comment = '%1 - Shop Code';
 
     trigger OnOpenPage()
@@ -1219,8 +1230,7 @@ page 30101 "Shpfy Shop Card"
             if AuthenticationMgt.CheckScopeChange(Rec) then
                 if Confirm(StrSubstNo(ScopeChangeConfirmLbl, Rec.Code)) then begin
                     Rec.RequestAccessToken();
-                    Rec."B2B Enabled" := Rec.GetB2BEnabled();
-                    Rec."Weight Unit" := Rec.GetShopWeightUnit();
+                    Rec.GetShopSettings();
                     Rec.Modify();
                 end else begin
                     Rec.Enabled := false;
@@ -1232,9 +1242,6 @@ page 30101 "Shpfy Shop Card"
     trigger OnAfterGetCurrRecord()
     begin
         CheckReturnRefundsVisible();
-#if not CLEAN24
-        CheckReplaceOrderAttributeValueDisabled();
-#endif
     end;
 
     local procedure GetResetSyncTo(InitDateTime: DateTime): DateTime
@@ -1255,24 +1262,4 @@ page 30101 "Shpfy Shop Card"
         IsReturnRefundsVisible := Rec."Return and Refund Process" <> "Shpfy ReturnRefund ProcessType"::" ";
     end;
 
-#if not CLEAN24
-    local procedure CheckReplaceOrderAttributeValueDisabled()
-    var
-        OrderHeader: Record "Shpfy Order Header";
-        OrderAttribute: Record "Shpfy Order Attribute";
-    begin
-        if Rec."Replace Order Attribute Value" then begin
-            OrderHeader.SetRange("Shop Code", Rec.Code);
-            if OrderHeader.FindSet() then
-                repeat
-                    OrderAttribute.SetRange("Order Id", OrderHeader."Shopify Order Id");
-                    if not OrderAttribute.IsEmpty() then begin
-                        ReplaceOrderAttributeValueDisabled := true;
-                        exit;
-                    end;
-                until OrderHeader.Next() = 0;
-        end;
-    end;
-#endif
 }
-

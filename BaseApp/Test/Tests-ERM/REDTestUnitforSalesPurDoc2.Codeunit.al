@@ -1491,18 +1491,6 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         LibraryVariableStorage.Enqueue(NoOfPeriods + Offset);
     end;
 
-    local procedure FindSalesInvoiceLine(var SalesInvLine: Record "Sales Invoice Line"; No: Code[20])
-    begin
-        SalesInvLine.SetRange("Document No.", No);
-        SalesInvLine.FindFirst();
-    end;
-
-    local procedure FindPurchInvoiceLine(var PurchInvLine: Record "Purch. Inv. Line"; No: Code[20])
-    begin
-        PurchInvLine.SetRange("Document No.", No);
-        PurchInvLine.FindFirst();
-    end;
-
     local procedure UpdateVATPostSetupWithRevCharge(VATBusPostGrCode: Code[20]; GLAccNo: Code[20])
     var
         GLAccount: Record "G/L Account";

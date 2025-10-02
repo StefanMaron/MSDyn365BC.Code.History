@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14913 "Create Invent. Act Lines"
 {
     Caption = 'Create Invent. Act Lines';

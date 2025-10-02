@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17221 "Tax Register (1.3) Item"
 {
     Caption = 'Tax Register (1.3) Item';

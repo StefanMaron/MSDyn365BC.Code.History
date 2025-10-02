@@ -1,4 +1,8 @@
-﻿namespace Microsoft.HumanResources.Employee;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.HumanResources.Employee;
 
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
@@ -495,7 +499,6 @@ page 5201 "Employee List"
         }
     }
 
-    [Scope('OnPrem')]
     procedure GetSelectionFilter(): Text
     var
         Employee: Record Employee;
@@ -523,4 +526,3 @@ page 5201 "Employee List"
         CanSendEmail: Boolean;
 
 }
-

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12402 "G/L Correspondence Analysis"
 {
     ApplicationArea = Basic, Suite;

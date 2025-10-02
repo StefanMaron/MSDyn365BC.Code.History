@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17306 "Tax Diff. Ledger Entry"
 {
     Caption = 'Tax Diff. Ledger Entry';

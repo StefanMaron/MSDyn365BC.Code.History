@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Pricing;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Pricing;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
@@ -113,7 +117,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
         if IsHandled then
             exit;
 
-        if PurchaseLine."Prod. Order No." = '' then
+        if not PurchaseLine.IsProdOrder() then
             PurchaseLine.TestField("Qty. per Unit of Measure");
 
         if PurchaseHeader."Currency Code" <> '' then

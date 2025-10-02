@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26594 "Stat. Rep. Table Cell Mapping"
 {
     Caption = 'Stat. Rep. Table Cell Mapping';

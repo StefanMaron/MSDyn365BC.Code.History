@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 26572 "XML Element Expression Line"
 {
     Caption = 'XML Element Expression Line';

@@ -7,6 +7,7 @@ namespace Microsoft.Inventory.Costing;
 using Microsoft.Finance.Dimension;
 using Microsoft.FixedAssets.Depreciation;
 using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.FixedAssets.Ledger;
 
 table 48 "Invt. Posting Buffer"
@@ -45,6 +46,8 @@ table 48 "Invt. Posting Buffer"
         }
         field(6; "Amount (ACY)"; Decimal)
         {
+            AutoFormatExpression = GetAdditionalReportingCurrencyCode();
+            AutoFormatType = 1;
             Caption = 'Amount (ACY)';
             DataClassification = SystemMetadata;
         }
@@ -137,6 +140,19 @@ table 48 "Invt. Posting Buffer"
     {
     }
 
+    protected var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralLedgerSetupRead: Boolean;
+
+    local procedure GetAdditionalReportingCurrencyCode(): Code[10]
+    begin
+        if not GeneralLedgerSetupRead then begin
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetupRead := true;
+        end;
+        exit(GeneralLedgerSetup."Additional Reporting Currency")
+    end;
+
     procedure UseInvtPostSetup(): Boolean
     var
         UseInventoryPostingSetup: Boolean;
@@ -163,4 +179,3 @@ table 48 "Invt. Posting Buffer"
     begin
     end;
 }
-

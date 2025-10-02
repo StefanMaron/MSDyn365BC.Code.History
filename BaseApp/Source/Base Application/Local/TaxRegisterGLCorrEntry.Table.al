@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17203 "Tax Register G/L Corr. Entry"
 {
     Caption = 'Tax Register G/L Corr. Entry';

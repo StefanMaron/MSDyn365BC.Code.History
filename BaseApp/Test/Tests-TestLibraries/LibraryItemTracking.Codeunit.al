@@ -334,6 +334,9 @@ codeunit 130502 "Library - Item Tracking"
         ItemTracking(ReservEntry, RecRef, ItemTrackingSetup, QtyBase);
     end;
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure CreateProdOrderItemTracking(var ReservEntry: Record "Reservation Entry"; ProdOrderLine: Record "Prod. Order Line"; SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal)
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
@@ -342,7 +345,12 @@ codeunit 130502 "Library - Item Tracking"
         ItemTrackingSetup."Lot No." := LotNo;
         CreateProdOrderItemTracking(ReservEntry, ProdOrderLine, ItemTrackingSetup, QtyBase);
     end;
+#pragma warning restore AL0801
+#endif
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure CreateProdOrderItemTracking(var ReservEntry: Record "Reservation Entry"; ProdOrderLine: Record "Prod. Order Line"; ItemTrackingSetup: Record "Item Tracking Setup"; QtyBase: Decimal)
     var
         RecRef: RecordRef;
@@ -350,7 +358,12 @@ codeunit 130502 "Library - Item Tracking"
         RecRef.GetTable(ProdOrderLine);
         ItemTracking(ReservEntry, RecRef, ItemTrackingSetup, QtyBase);
     end;
+#pragma warning restore AL0801
+#endif
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure CreateProdOrderCompItemTracking(var ReservEntry: Record "Reservation Entry"; ProdOrderComp: Record "Prod. Order Component"; SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal)
     var
         ITemTrackingSetup: Record "Item Tracking Setup";
@@ -359,7 +372,12 @@ codeunit 130502 "Library - Item Tracking"
         ItemTrackingSetup."Lot No." := LotNo;
         CreateProdOrderCompItemTracking(ReservEntry, ProdOrderComp, ITemTrackingSetup, QtyBase);
     end;
+#pragma warning restore AL0801
+#endif
 
+#if not CLEAN27
+#pragma warning disable AL0801
+    [Obsolete('Moved to codeunit LibraryManufacturing', '27.0')]
     procedure CreateProdOrderCompItemTracking(var ReservEntry: Record "Reservation Entry"; ProdOrderComp: Record "Prod. Order Component"; ItemTrackingSetup: Record "Item Tracking Setup"; QtyBase: Decimal)
     var
         RecRef: RecordRef;
@@ -367,6 +385,8 @@ codeunit 130502 "Library - Item Tracking"
         RecRef.GetTable(ProdOrderComp);
         ItemTracking(ReservEntry, RecRef, ItemTrackingSetup, QtyBase);
     end;
+#pragma warning restore AL0801
+#endif
 
     procedure CreatePurchOrderItemTracking(var ReservEntry: Record "Reservation Entry"; PurchLine: Record "Purchase Line"; SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal)
     var
@@ -610,15 +630,13 @@ codeunit 130502 "Library - Item Tracking"
         CalcWhseAdjmnt.RunModal();
     end;
 
-    local procedure ItemTracking(var ReservEntry: Record "Reservation Entry"; RecRef: RecordRef; ItemTrackingSetup: Record "Item Tracking Setup"; QtyBase: Decimal)
+    procedure ItemTracking(var ReservEntry: Record "Reservation Entry"; RecRef: RecordRef; ItemTrackingSetup: Record "Item Tracking Setup"; QtyBase: Decimal)
     var
         SalesLine: Record "Sales Line";
         PurchLine: Record "Purchase Line";
         AssemblyLine: Record "Assembly Line";
         AssemblyHeader: Record "Assembly Header";
         TransLine: Record "Transfer Line";
-        ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderCompLine: Record "Prod. Order Component";
         ItemJournalLine: Record "Item Journal Line";
         ReqLine: Record "Requisition Line";
         WhseShptLine: Record "Warehouse Shipment Line";
@@ -628,6 +646,7 @@ codeunit 130502 "Library - Item Tracking"
         Item: Record Item;
         OutgoingEntryNo: Integer;
         IncomingEntryNo: Integer;
+        IsHandled: Boolean;
     begin
         // remove leading spaces
         ItemTrackingSetup."Serial No." := DelChr(ItemTrackingSetup."Serial No.", '<', ' ');
@@ -722,36 +741,6 @@ codeunit 130502 "Library - Item Tracking"
                     ReservEntry.SetFilter("Entry No.", '%1|%2', OutgoingEntryNo, IncomingEntryNo);
                     ReservEntry.FindSet(); // returns both entries
                 end;
-            DATABASE::"Prod. Order Line":
-                begin
-                    RecRef.SetTable(ProdOrderLine);
-                    // COPY FROM COD 99000837: CallItemTracking
-                    if ProdOrderLine.Status = ProdOrderLine.Status::Finished then
-                        exit;
-                    ProdOrderLine.TestField("Item No.");
-                    // COPY END
-                    InsertItemTracking(
-                        ReservEntry, ProdOrderLine.Quantity > 0,
-                        ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
-                        QtyBase, ProdOrderLine."Qty. per Unit of Measure", ItemTrackingSetup,
-                        DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.",
-                        '', ProdOrderLine."Line No.", 0, ProdOrderLine."Due Date");
-                end;
-            DATABASE::"Prod. Order Component":
-                begin
-                    RecRef.SetTable(ProdOrderCompLine);
-                    // COPY FROM COD 99000838: CallItemTracking
-                    if ProdOrderCompLine.Status = ProdOrderCompLine.Status::Finished then
-                        exit;
-                    ProdOrderCompLine.TestField("Item No.");
-                    // COPY END
-                    InsertItemTracking(
-                        ReservEntry, ProdOrderCompLine.Quantity < 0,
-                        ProdOrderCompLine."Item No.", ProdOrderCompLine."Location Code", ProdOrderCompLine."Variant Code",
-                        -QtyBase, ProdOrderCompLine."Qty. per Unit of Measure", ItemTrackingSetup,
-                        DATABASE::"Prod. Order Component", ProdOrderCompLine.Status.AsInteger(), ProdOrderCompLine."Prod. Order No.",
-                        '', ProdOrderCompLine."Prod. Order Line No.", ProdOrderCompLine."Line No.", ProdOrderCompLine."Due Date");
-                end;
             DATABASE::"Item Journal Line":
                 begin
                     RecRef.SetTable(ItemJournalLine);
@@ -832,12 +821,16 @@ codeunit 130502 "Library - Item Tracking"
                       DATABASE::"Invt. Document Line", InvtDocumentLine."Document Type".AsInteger(),
                       InvtDocumentLine."Document No.", '', 0, InvtDocumentLine."Line No.", InvtDocumentLine."Posting Date");
                 end;
-            else
-                Error(Text001, RecRef.Number);
+            else begin
+                IsHandled := true;
+                OnItemTracking(RecRef, ReservEntry, ItemTrackingSetup, QtyBase, IsHandled);
+                if not IsHandled then
+                    Error(Text001, RecRef.Number);
+            end;
         end;
     end;
 
-    local procedure InsertItemTracking(var ReservEntry: Record "Reservation Entry"; Positive2: Boolean; Item: Code[20]; Location: Code[10]; Variant: Code[10]; QtyBase: Decimal; QtyperUOM: Decimal; ItemTrackingSetup: Record "Item Tracking Setup"; SourceType: Integer; SourceSubType: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; DueDate: Date)
+    procedure InsertItemTracking(var ReservEntry: Record "Reservation Entry"; Positive2: Boolean; Item: Code[20]; Location: Code[10]; Variant: Code[10]; QtyBase: Decimal; QtyperUOM: Decimal; ItemTrackingSetup: Record "Item Tracking Setup"; SourceType: Integer; SourceSubType: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; DueDate: Date)
     var
         SalesLine: Record "Sales Line";
         PurchLine: Record "Purchase Line";
@@ -855,10 +848,12 @@ codeunit 130502 "Library - Item Tracking"
         ReservEntry."Entry No." := LastEntryNo;
         ReservEntry.Positive := Positive2;
         if (SourceType = DATABASE::"Item Journal Line") or
+#pragma warning disable AL0801
            ((SourceType = DATABASE::"Prod. Order Line") and (SourceSubType in [0, 1])) or
            // simulated or planned prod line
            ((SourceType = DATABASE::"Prod. Order Component") and (SourceSubType in [0, 1])) or
            // simulated or planned prod comp
+#pragma warning restore AL0801
            (SourceType = DATABASE::"Requisition Line")
         then
             ReservEntry.Validate("Reservation Status", ReservEntry."Reservation Status"::Prospect)
@@ -883,10 +878,11 @@ codeunit 130502 "Library - Item Tracking"
                     ItemJnlLine."Entry Type"::Consumption:
                         ReservEntry.Validate("Shipment Date", DueDate);
                 end;
-            DATABASE::"Prod. Order Line":
+            5406: // DATABASE::"Prod. Order Line"
                 ReservEntry.Validate("Expected Receipt Date", DueDate);
-            DATABASE::"Requisition Line",
-            DATABASE::"Prod. Order Component":
+            5407: // DATABASE::"Prod. Order Component"
+                ReservEntry.Validate("Shipment Date", DueDate);
+            DATABASE::"Requisition Line":
                 ReservEntry.Validate("Shipment Date", DueDate);
             DATABASE::"Sales Line":
                 case SourceSubType of
@@ -1008,7 +1004,7 @@ codeunit 130502 "Library - Item Tracking"
                             end;
                         WhseWkshLine."Whse. Document Type"::Production:
                             begin
-                                SourceType := DATABASE::"Prod. Order Component";
+                                SourceType := 5407; // DATABASE::"Prod. Order Component";
                                 SourceID := WhseWkshLine."Whse. Document No.";
                                 SourceBatchName := '';
                                 SourceRefNo := WhseWkshLine."Whse. Document Line No.";
@@ -1144,6 +1140,11 @@ codeunit 130502 "Library - Item Tracking"
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Qty, 0);
         CreateItemJournalLineItemTracking(ReservEntry, ItemJournalLine, SerialNo, LotNo, Qty);
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    [InternalEvent(true)]
+    local procedure OnItemTracking(RecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; ItemTrackingSetup: Record "Item Tracking Setup"; QtyBase: Decimal; var IsHandled: Boolean)
+    begin
     end;
 }
 

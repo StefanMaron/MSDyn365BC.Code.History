@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14917 "Act Items Receipt M-7"
 {
     Caption = 'Act Items Receipt M-7';

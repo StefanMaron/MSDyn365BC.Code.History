@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26563 "Statutory Report Data Overview"
 {
     Caption = 'Statutory Report Data Overview';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14909 "FA Charge List"
 {
     ApplicationArea = FixedAssets;

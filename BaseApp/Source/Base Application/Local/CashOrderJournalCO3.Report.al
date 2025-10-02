@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12463 "Cash Order Journal CO-3"
 {
     ApplicationArea = Basic, Suite;

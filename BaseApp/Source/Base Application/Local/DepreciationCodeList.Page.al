@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12485 "Depreciation Code List"
 {
     Caption = 'Depreciation Code List';

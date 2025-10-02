@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12484 "Posted Cr. M. Factura-Invoice"
 {
     Caption = 'Posted Cr. M. Factura-Invoice';

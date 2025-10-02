@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26569 "Stat. Report Data Change Log"
 {
     Caption = 'Stat. Report Data Change Log';

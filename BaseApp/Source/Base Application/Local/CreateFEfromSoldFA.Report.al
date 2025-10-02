@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17304 "Create FE from Sold FA"
 {
     ApplicationArea = FixedAssets;

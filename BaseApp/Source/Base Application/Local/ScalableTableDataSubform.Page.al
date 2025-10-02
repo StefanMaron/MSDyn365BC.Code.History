@@ -1,4 +1,5 @@
-﻿page 35623 "_Scalable Table Data Subform"
+#pragma warning disable AA0247
+page 35623 "_Scalable Table Data Subform"
 {
     Caption = '_Scalable Table Data Subform';
     PageType = Worksheet;

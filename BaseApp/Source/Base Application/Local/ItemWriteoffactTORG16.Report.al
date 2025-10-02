@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14930 "Item Write-off act TORG-16"
 {
     Caption = 'Item Write-off act TORG-16';

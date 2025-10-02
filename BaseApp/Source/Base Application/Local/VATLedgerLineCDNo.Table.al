@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12411 "VAT Ledger Line CD No."
 {
     Caption = 'VAT Ledger Line CD No.';

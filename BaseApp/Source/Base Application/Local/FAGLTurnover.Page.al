@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12499 "FA G/L Turnover"
 {
     Caption = 'FA G/L Turnover';

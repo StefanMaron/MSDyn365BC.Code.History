@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26551 "Statutory Report Groups"
 {
     ApplicationArea = Basic, Suite;

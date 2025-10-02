@@ -27,7 +27,6 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         AdditionalCurrencyError: Label 'Additional Currency Amount must be %1.';
         UnappliedError: Label '%1 %2 field must be true after Unapply entries.';
         UnrealizedVATType: Option " ",Percentage,First,Last,"First (Fully Paid)","Last (Fully Paid)";
-        PostingGroupsErr: Label 'Posting Groups are missing for unapplied G/L Entry with Payment Discount Account.';
         IncorrectVATEntryCountErr: Label 'Incorrect count of VAT Entries.';
 
     [Test]
@@ -695,13 +694,6 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         exit(CustLedgerEntry."Remaining Amount" - CustLedgerEntry."Remaining Pmt. Disc. Possible");
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
-    begin
-        GLEntry.SetRange("Document Type", DocumentType);
-        GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst();
-    end;
-
     local procedure FindVATEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         VATEntry: Record "VAT Entry";
@@ -818,16 +810,6 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         Customer.Modify(true);
     end;
 
-    local procedure VerifyVATSettlementAmount(DocumentNo: Code[20]; Amount: Decimal)
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Settlement);
-        GLEntry.FindFirst();
-        GLEntry.TestField(Amount, Amount);
-    end;
-
     local procedure VerifyUnappliedDtldCustLedgEntry(CustomerNo: Code[20]; DocumentNo: Code[20])
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -892,33 +874,6 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         until GLEntry.Next() = 0;
     end;
 
-    local procedure VerifyGLEntryVATEntryLink(CustLedgEntry: Record "Cust. Ledger Entry")
-    var
-        GLEntry: Record "G/L Entry";
-        GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
-        GLRegister: Record "G/L Register";
-    begin
-        FindGLEntry(GLEntry, CustLedgEntry."Document Type"::" ", CustLedgEntry."Document No.");
-        GLRegister.SetRange("From Entry No.", GLEntry."Entry No.");
-        GLRegister.FindFirst();
-        GLEntryVATEntryLink.Get(GLEntry."Entry No.", GLRegister."To VAT Entry No.");
-    end;
-
-    local procedure VerifyGLEntryDiscountAccPostingGroups(DocumentNo: Code[20]; GLAccount: Record "G/L Account")
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
-        GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.SetRange("G/L Account No.", GLAccount."No.");
-        GLEntry.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type");
-        GLEntry.SetRange("Gen. Bus. Posting Group", GLAccount."Gen. Bus. Posting Group");
-        GLEntry.SetRange("Gen. Prod. Posting Group", GLAccount."Gen. Prod. Posting Group");
-        GLEntry.SetRange("VAT Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
-        GLEntry.SetRange("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
-        Assert.IsFalse(GLEntry.IsEmpty, PostingGroupsErr);
-    end;
-
     local procedure VerifySingleCorrectiveVATEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; UnrealVATEntryNo: Integer; VATBase: Decimal; VATAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
@@ -940,4 +895,3 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         CalcandPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

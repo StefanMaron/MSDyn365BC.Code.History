@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17303 "Calculate FE Depr. with Norm"
 {
     DefaultLayout = RDLC;

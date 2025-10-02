@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17205 "Tax Register Term Formula"
 {
     Caption = 'Tax Register Term Formula';

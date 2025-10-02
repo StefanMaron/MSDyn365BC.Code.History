@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12421 "Bank Directory Card"
 {
     Caption = 'Bank Directory Card';

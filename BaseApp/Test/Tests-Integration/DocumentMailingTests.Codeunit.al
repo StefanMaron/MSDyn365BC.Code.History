@@ -27,7 +27,7 @@ codeunit 135060 "Document Mailing Tests"
         VendorLbl: Label 'Vendor';
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestEmailFileFromStream()
@@ -74,19 +74,21 @@ codeunit 135060 "Document Mailing Tests"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestEmailFileWithBodyStreamAndPostedDocNo()
     var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
         TempEmailItem: Record "Email Item" temporary;
+        HtmlBodyTempBlob: Codeunit "Temp Blob";
         TempBlob: Codeunit "Temp Blob";
         DocumentMailing: Codeunit "Document-Mailing";
         DocumentMailingTests: Codeunit "Document Mailing Tests";
-        FileManagement: Codeunit "File Management";
         RelatedRecord: RecordRef;
         SourceTables, SourceRelationTypes : List of [Integer];
         SourceIDs: List of [Guid];
+        HtmlBodyInStream: InStream;
         InStream: InStream;
         VariableVariant: Variant;
         Content: Text;
@@ -96,20 +98,23 @@ codeunit 135060 "Document Mailing Tests"
         BindSubscription(DocumentMailingTests);
         Clear(LibraryVariableStorage);
 
-        // [GIVEN] A Stream with some content
+        // [GIVEN] 2 streams with some content
         InitializeStream('Some content', TempBlob);
         TempBlob.CreateInStream(InStream);
+        InitializeStream('Some content', HtmlBodyTempBlob);
+        HtmlBodyTempBlob.CreateInStream(HtmlBodyInStream);
 
         // [AND] A Related record and a receiver record
         RelatedRecord.Open(Database::"Sales Invoice Header");
-        RelatedRecord.FindLast();
+        MockSalesInvoiceHeader(SalesInvoiceHeader);
+        RelatedRecord.GetTable(SalesInvoiceHeader);
         SourceTables.Add(Database::"Sales Invoice Header");
         SourceIDs.Add(RelatedRecord.Field(RelatedRecord.SystemIdNo).Value());
         SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
 
         // [WHEN] The EmailFile is called with an Instream as the body of the email
         Clear(DocumentMailing);
-        DocumentMailing.EmailFile(Instream, 'new file.pdf', InStream, '', 'someone@somewhere.com', 'EmailDocName', true, -1, SourceTables, SourceIDs, SourceRelationTypes);
+        DocumentMailing.EmailFile(Instream, 'new file.pdf', HtmlBodyInStream, '', 'someone@somewhere.com', 'EmailDocName', true, -1, SourceTables, SourceIDs, SourceRelationTypes);
 
         // [THEN] A temp file with the content is created
         DocumentMailingTests.GetLibraryVariableStorage(LibraryVariableStorage);
@@ -120,7 +125,7 @@ codeunit 135060 "Document Mailing Tests"
         Assert.AreEqual('new file.pdf', Name, 'Attachment Name was expected to be new file.pdf');
 
         // [THEN] A Body File exists
-        Assert.IsTrue(FileManagement.ServerFileExists(TempEmailItem."Body File Path"), 'Body file does not exist.');
+        Assert.IsTrue(TempEmailItem.Body.HasValue(), 'Body file does not exist.');
 
         // [And] The other values are set correctly
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'IsFromPostedDoc was expected to be false');
@@ -131,19 +136,21 @@ codeunit 135060 "Document Mailing Tests"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
+    [HandlerFunctions('ConfirmHandlerFalse')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestEmailFileWithBodyStream()
     var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
         TempEmailItem: Record "Email Item" temporary;
+        HtmlBodyTempBlob: Codeunit "Temp Blob";
         TempBlob: Codeunit "Temp Blob";
         DocumentMailing: Codeunit "Document-Mailing";
         DocumentMailingTests: Codeunit "Document Mailing Tests";
-        FileManagement: Codeunit "File Management";
         RelatedRecord: RecordRef;
         SourceTables, SourceRelationTypes : List of [Integer];
         SourceIDs: List of [Guid];
+        HtmlBodyInStream: InStream;
         InStream: InStream;
         VariableVariant: Variant;
         Content: Text;
@@ -153,20 +160,23 @@ codeunit 135060 "Document Mailing Tests"
         BindSubscription(DocumentMailingTests);
         Clear(LibraryVariableStorage);
 
-        // [GIVEN] A Stream with some content
+        // [GIVEN] 2 streams with some content
         InitializeStream('Some content', TempBlob);
         TempBlob.CreateInStream(InStream);
+        InitializeStream('Some content', HtmlBodyTempBlob);
+        HtmlBodyTempBlob.CreateInStream(HtmlBodyInStream);
 
         // [AND] A Related record and a receiver record
         RelatedRecord.Open(Database::"Sales Invoice Header");
-        RelatedRecord.FindLast();
+        MockSalesInvoiceHeader(SalesInvoiceHeader);
+        RelatedRecord.GetTable(SalesInvoiceHeader);
         SourceTables.Add(Database::"Sales Invoice Header");
         SourceIDs.Add(RelatedRecord.Field(RelatedRecord.SystemIdNo).Value());
         SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
 
         // [WHEN] The EmailFile is called with an Instream as the body of the email
         Clear(DocumentMailing);
-        DocumentMailing.EmailFile(InStream, 'new file.pdf', InStream, 'subject', 'someone@somewhere.com', true, Enum::"Email Scenario"::Default, SourceTables, SourceIDs, SourceRelationTypes);
+        DocumentMailing.EmailFile(InStream, 'new file.pdf', HtmlBodyInStream, 'subject', 'someone@somewhere.com', true, Enum::"Email Scenario"::Default, SourceTables, SourceIDs, SourceRelationTypes);
 
         // [THEN] A temp file with the content is created
         DocumentMailingTests.GetLibraryVariableStorage(LibraryVariableStorage);
@@ -177,7 +187,7 @@ codeunit 135060 "Document Mailing Tests"
         Assert.AreEqual('new file.pdf', Name, 'Attachment Name was expected to be new file.pdf');
 
         // [THEN] A Body File exists
-        Assert.IsTrue(FileManagement.ServerFileExists(TempEmailItem."Body File Path"), 'Body file does not exist.');
+        Assert.IsTrue(TempEmailItem.Body.HasValue(), 'Body file does not exist.');
 
         // [And] The other values are set correctly
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'IsFromPostedDoc was expected to be false');
@@ -190,6 +200,7 @@ codeunit 135060 "Document Mailing Tests"
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure TestEmailHtmlFromStream()
     var
@@ -309,7 +320,7 @@ codeunit 135060 "Document Mailing Tests"
     end;
 
     [Test]
-    [HandlerFunctions('SelectSendingOptionsOKModalPageHandler,EmailEditorCheckAndDiscardModalPageHandler,ConfirmHandlerTrue,KeepDraftOrDiscardStrMenuHandler')]
+    [HandlerFunctions('SelectSendingOptionsOKModalPageHandler,EmailEditorCheckAndDiscardModalPageHandler,ConfirmHandlerFalse,KeepDraftOrDiscardStrMenuHandler')]
     procedure SendPurchaseOrderWhenBlankEmailInDocumentLayoutAndEmailUseDefaultSettings()
     var
         Vendor: Record Vendor;
@@ -484,11 +495,25 @@ codeunit 135060 "Document Mailing Tests"
         JobQueueEntry.TestField("Parameter String", ParameterString);
     end;
 
+
+    local procedure MockSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Insert(false);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerFalse(Question: Text; var Reply: Boolean)
+    begin
+        Reply := false;
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text; var Reply: Boolean)
     begin
-        Reply := false;
+        Reply := true;
     end;
 
     [ModalPageHandler]

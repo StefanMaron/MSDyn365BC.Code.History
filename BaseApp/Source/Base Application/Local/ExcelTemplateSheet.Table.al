@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14930 "Excel Template Sheet"
 {
     Caption = 'Excel Template Sheet';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26589 "Compound XML Element Lines"
 {
     AutoSplitKey = true;

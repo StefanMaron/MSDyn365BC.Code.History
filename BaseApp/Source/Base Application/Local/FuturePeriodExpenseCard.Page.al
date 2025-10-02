@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17331 "Future Period Expense Card"
 {
     Caption = 'Future Period Expense Card';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14941 "Update G/L Corr.Analysis Views"
 {
     ApplicationArea = Basic, Suite;

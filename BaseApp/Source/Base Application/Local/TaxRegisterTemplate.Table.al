@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17202 "Tax Register Template"
 {
     Caption = 'Tax Register Template';

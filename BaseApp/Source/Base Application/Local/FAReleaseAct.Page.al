@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12474 "FA Release Act"
 {
     Caption = 'FA Release Act';

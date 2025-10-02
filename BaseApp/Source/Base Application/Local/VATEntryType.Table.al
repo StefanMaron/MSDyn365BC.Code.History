@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14949 "VAT Entry Type"
 {
     Caption = 'VAT Entry Type';

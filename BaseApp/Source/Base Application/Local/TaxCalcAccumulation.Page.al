@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17321 "Tax Calc. Accumulation"
 {
     Caption = 'Tax Calc. Accumulation';

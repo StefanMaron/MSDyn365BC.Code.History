@@ -6,6 +6,14 @@ namespace Microsoft.Bank.BankAccount;
 
 using Microsoft.Foundation.Period;
 
+/// <summary>
+/// Displays comprehensive statistical information and key performance indicators for bank accounts.
+/// Provides summary view of balances, transaction volumes, and period-based analysis.
+/// </summary>
+/// <remarks>
+/// Source Table: Bank Account (270). Read-only statistical view with calculated fields.
+/// Features balance summaries, transaction counts, and period-based comparative analysis.
+/// </remarks>
 page 375 "Bank Account Statistics"
 {
     Caption = 'Bank Account Statistics';
@@ -87,7 +95,7 @@ page 375 "Bank Account Statistics"
                     group("This Year")
                     {
                         Caption = 'This Year';
-                        field(Text000; Text000)
+                        field(Text000; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
@@ -111,7 +119,7 @@ page 375 "Bank Account Statistics"
                     group("Last Year")
                     {
                         Caption = 'Last Year';
-                        field("Placeholder 2"; Text000)
+                        field("Placeholder 2"; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
@@ -135,7 +143,7 @@ page 375 "Bank Account Statistics"
                     group("To Date")
                     {
                         Caption = 'To Date';
-                        field("Placeholder 3"; Text000)
+                        field("Placeholder 3"; PlaceholderLbl)
                         {
                             ApplicationArea = Basic, Suite;
                             Visible = false;
@@ -194,8 +202,6 @@ page 375 "Bank Account Statistics"
         BankAccNetChange: array[4] of Decimal;
         BankAccNetChangeLCY: array[4] of Decimal;
         i: Integer;
-#pragma warning disable AA0074
-        Text000: Label 'Placeholder';
-#pragma warning restore AA0074
+        PlaceholderLbl: Label 'Placeholder';
 }
 

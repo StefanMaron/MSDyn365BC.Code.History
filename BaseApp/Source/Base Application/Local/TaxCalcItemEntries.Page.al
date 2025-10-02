@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17326 "Tax Calc. Item Entries"
 {
     Caption = 'Tax Calc. Item Entries';

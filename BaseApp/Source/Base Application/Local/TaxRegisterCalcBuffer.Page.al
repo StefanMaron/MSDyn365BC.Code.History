@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17216 "Tax Register Calc. Buffer"
 {
     Caption = 'Tax Register Calc. Buffer';

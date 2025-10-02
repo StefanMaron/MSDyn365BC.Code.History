@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14962 "Create VAT Purch. Led. Ad. Sh."
 {
     Caption = 'Create VAT Purch. Led. Ad. Sh.';

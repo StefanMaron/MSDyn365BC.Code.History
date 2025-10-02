@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14928 "Unrealized VAT Analysis"
 {
     DefaultLayout = RDLC;

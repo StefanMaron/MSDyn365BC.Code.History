@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26588 "XML Element Line List"
 {
     Caption = 'XML Element Line List';

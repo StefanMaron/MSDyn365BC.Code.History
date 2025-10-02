@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14925 "Receipt Deviations TORG-2"
 {
     Caption = 'Receipt Deviations TORG-2';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14902 "Customer Agreement"
 {
     Caption = 'Customer Agreement';
@@ -502,27 +503,15 @@ table 14902 "Customer Agreement"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         Cust.Get("Customer No.");
         Cust.TestField("Agreement Posting", Cust."Agreement Posting"::Mandatory);
         if "No." = '' then begin
             Cust.TestField("Agreement Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(Cust."Agreement Nos.", xRec."No. Series", WorkDate(), "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := Cust."Agreement Nos.";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", Cust."Agreement Nos.", WorkDate(), "No.");
-            end;
-#endif
             Description := StrSubstNo('%1 %2', Text12400, "No.");
         end;
 
@@ -786,4 +775,3 @@ table 14902 "Customer Agreement"
             DimSetIDArr, ShortcutDim1Code, ShortcutDim2Code));
     end;
 }
-

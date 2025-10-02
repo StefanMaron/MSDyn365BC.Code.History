@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12407 "Vendor G/L Turnover"
 {
     ApplicationArea = Basic, Suite;

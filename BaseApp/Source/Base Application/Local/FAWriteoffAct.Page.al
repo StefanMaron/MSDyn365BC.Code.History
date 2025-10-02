@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12470 "FA Writeoff Act"
 {
     Caption = 'FA Writeoff Act';

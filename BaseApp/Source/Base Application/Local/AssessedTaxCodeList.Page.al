@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14922 "Assessed Tax Code List"
 {
     ApplicationArea = Basic, Suite;

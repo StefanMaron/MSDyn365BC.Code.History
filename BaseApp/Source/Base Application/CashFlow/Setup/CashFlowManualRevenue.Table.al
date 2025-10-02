@@ -56,6 +56,8 @@ table 849 "Cash Flow Manual Revenue"
         }
         field(8; Amount; Decimal)
         {
+            AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Amount';
         }
         field(9; "Global Dimension 1 Code"; Code[20])
@@ -176,4 +178,3 @@ table 849 "Cash Flow Manual Revenue"
     var
         CodeIsNotSetErr: Label 'Cannot insert the line because no code value is set. Please verify that you have set up the %1 with the %2 set to %3.', Comment = '%1 is Cash Flow Account, %2 is Source Type, %3 is Cash Flow Manual Revenue';
 }
-

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12413 "Posted Inv. Shipment TORG-12"
 {
     Caption = 'Posted Inv. Shipment TORG-12';

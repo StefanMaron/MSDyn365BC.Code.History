@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26574 "Create Report Data"
 {
     Caption = 'Create Report Data';

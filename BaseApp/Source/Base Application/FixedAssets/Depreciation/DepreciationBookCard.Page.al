@@ -135,6 +135,11 @@ page 5610 "Depreciation Book Card"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies if the depreciation book controls fixed asset acquisition costs.';
                 }
+                field("Use Accounting Period"; Rec."Use Accounting Period")
+                {
+                    ApplicationArea = FixedAssets;
+                    ToolTip = 'Specifies if you want the periods between start date and ending date to correspond to the accounting periods that you have set up.';
+                }
             }
             group(Integration)
             {

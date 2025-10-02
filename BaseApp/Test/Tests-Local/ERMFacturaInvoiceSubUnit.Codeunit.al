@@ -11,7 +11,6 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
 
     var
         LibraryVATLedger: Codeunit "Library - VAT Ledger";
-        LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -215,17 +214,6 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateCountryRegion(): Code[10]
-    var
-        CountryRegion: Record "Country/Region";
-    begin
-        LibraryERM.CreateCountryRegion(CountryRegion);
-        CountryRegion.Validate(Name, LibraryUtility.GenerateGUID());
-        CountryRegion.Validate("Local Country/Region Code", CountryRegion.Code);
-        CountryRegion.Modify(true);
-        exit(CountryRegion.Code);
-    end;
-
     local procedure CreateItemNoWithTariff(): Code[20]
     var
         Item: Record Item;
@@ -336,11 +324,6 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         LibraryRUReports.UpdateCompanyAddress();
     end;
 
-    local procedure FormatAmount(DecimalValue: Decimal): Text
-    begin
-        exit(Format(DecimalValue, 0, '<Sign><Integer Thousand><Decimal,3><Filler Character,0>'));
-    end;
-
     local procedure VerifyAddressKPPCode(Customer: Record Customer; ShipToAddress: Record "Ship-to Address"; ShipToKPPCode: Code[10])
     var
         LocalReportMgt: Codeunit "Local Report Management";
@@ -406,28 +389,6 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         LibraryReportValidation.VerifyCellValueByRef('CR', 33, 1, CompanyInformation."Bank Account No."); // BankAccountNo
     end;
 
-    local procedure VerifySalesLineColumns(LineNo: Integer; ItemNo: Code[20]; Qty: Text; UnitPrice: Text; Amount: Text; VATPct: Text; VATAmt: Text; AmtInclVAT: Text; CountryCode: Code[10]; CDNo: Code[30])
-    var
-        Item: Record Item;
-        Offset: Integer;
-        FileName: Text;
-    begin
-        Offset := LineNo - 22;
-        Item.Get(ItemNo);
-        FileName := LibraryReportValidation.GetFileName();
-        LibraryRUReports.VerifyFactura_LineNo(FileName, '1', 0);
-        LibraryRUReports.VerifyFactura_ItemNo(FileName, Item.Description, 0);
-        LibraryRUReports.VerifyFactura_TariffNo(FileName, Item."Tariff No.", 0);
-        LibraryRUReports.VerifyFactura_Qty(FileName, Qty, Offset);
-        LibraryRUReports.VerifyFactura_Price(FileName, UnitPrice, Offset);
-        LibraryRUReports.VerifyFactura_Amount(FileName, Amount, Offset);
-        LibraryRUReports.VerifyFactura_VATPct(FileName, VATPct, Offset);
-        LibraryRUReports.VerifyFactura_VATAmount(FileName, VATAmt, Offset);
-        LibraryRUReports.VerifyFactura_AmountInclVAT(FileName, AmtInclVAT, Offset);
-        LibraryRUReports.VerifyFactura_CountryCode(FileName, CountryCode, Offset);
-        LibraryRUReports.VerifyFactura_GTD(FileName, CDNo, Offset);
-    end;
-
     local procedure VerifyFacturaReportHeader(CustomerNo: Code[20])
     var
         CompanyInformation: Record "Company Information";
@@ -444,4 +405,3 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         LibraryRUReports.VerifyFactura_BuyerAddress(FileName, LibraryRUReports.GetCustomerFullAddress(CustomerNo));
     end;
 }
-

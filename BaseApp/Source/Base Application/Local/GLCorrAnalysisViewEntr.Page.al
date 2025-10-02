@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14944 "G/L Corr. Analysis View Entr."
 {
     Caption = 'G/L Corr. Analysis View Entr.';

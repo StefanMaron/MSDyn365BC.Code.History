@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 36847 "Sales Corrective Invoice List"
 {
     ApplicationArea = Basic, Suite;

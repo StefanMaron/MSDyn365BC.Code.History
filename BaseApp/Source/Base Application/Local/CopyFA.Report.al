@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12487 "Copy FA"
 {
     Caption = 'Copy FA';

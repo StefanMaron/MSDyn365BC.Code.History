@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 14931 "Factura-Invoice Report Helper"
 {
 

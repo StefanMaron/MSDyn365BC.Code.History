@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14970 "Comparing Depr. Book Entries"
 {
     DefaultLayout = RDLC;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14989 "FA Posted Movement FA-3"
 {
     Caption = 'FA Posted Movement FA-3';

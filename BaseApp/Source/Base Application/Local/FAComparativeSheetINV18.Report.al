@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12485 "FA Comparative Sheet INV-18"
 {
     Caption = 'FA Comparative Sheet INV-18';

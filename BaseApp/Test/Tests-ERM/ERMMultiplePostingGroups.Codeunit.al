@@ -19,10 +19,12 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryHumanResource: Codeunit "Library - Human Resource";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         PostingGroupNonEditableErr: Label 'Posting Group is not editable in General Journal page';
         VendorPostingGroupErr: Label 'Vendor Posting Group must be %1 in %2.', Comment = '%1= Value ,%2=Table Name';
+        AltPostingGroupNotFilledInErr: Label 'You cannot change the value %1 to %2 because Alternative Employee Posting Group has not been filled in.', Comment = '%1 = posting group, %2 = alt. posting group';
 
     [Test]
     [Scope('OnPrem')]
@@ -899,6 +901,34 @@ codeunit 134195 "ERM Multiple Posting Groups"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure CheckGeneralJournalPostingGroupIsEditableIfAllowedForEmployee()
+    var
+        Employee: Record Employee;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalPage: TestPage "General Journal";
+    begin
+        // [SCENARIO 590692] Allow Multiple Posting Groups not usable in General Journal because Posting Group field cannot be made Editable for Employee
+        Initialize();
+
+        // [GIVEN] Enable Allow Multiple Posting Group on Human Resources Setup
+        SetHRAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create new employee with Allow Multiple Posting Groups
+        LibraryHumanResource.CreateEmployee(Employee);
+        Employee.Validate("Allow Multiple Posting Groups", true);
+        Employee.Modify();
+
+        // [WHEN] Create General Journal line
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Employee, Employee."No.");
+
+        // [THEN] Open General Journal page and verify field "Posting Group" is editable
+        GenJournalPage.OpenEdit();
+        GenJournalPage.GoToRecord(GenJournalLine);
+        Assert.IsTrue(GenJournalPage."Posting Group".Editable(), PostingGroupNonEditableErr);
+    end;
+
+    [Test]
     [HandlerFunctions('VoidCheckPageHandler')]
     procedure CheckVoidCheckVendLdgerEntryWithMultiplePostingGroups()
     var
@@ -945,6 +975,125 @@ codeunit 134195 "ERM Multiple Posting Groups"
         VerifyPostingGroupOnVendorLedgerEntry(GenJournalLine."Document No.", VendorPostingGroup2.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckChangePostingGroupInGeneralJournalToNonAltPostingGroup()
+    var
+        Employee: Record Employee;
+        EmployeePostingGroup: Record "Employee Posting Group";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 590692] Check the change of posting group in general journal to an posting group that is not set as alternative
+        Initialize();
+
+        // [GIVEN] Enable Allow Multiple Posting Group on Human Resources Setup
+        SetHRAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create new Employee with Allow Multiple Posting Groups
+        LibraryHumanResource.CreateEmployee(Employee);
+        Employee.Validate("Allow Multiple Posting Groups", true);
+        Employee.Modify();
+
+        // [GIVEN] Create new Employee Posting Group
+        LibraryHumanResource.CreateEmployeePostingGroup(EmployeePostingGroup);
+
+        // [GIVEN] Create General Journal Line with Employee
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Employee, Employee."No.");
+
+        // [WHEN] Change the Posting Group to created Employee Posting Group
+        asserterror GenJournalLine.Validate("Posting Group", EmployeePostingGroup.Code);
+
+        // [THEN] The error occur
+        Assert.ExpectedError(StrSubstNo(AltPostingGroupNotFilledInErr, GenJournalLine."Posting Group", EmployeePostingGroup.Code));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckChangePostingGroupInGeneralJournalToAltPostingGroup()
+    var
+        Employee: Record Employee;
+        EmployeePostingGroup: Record "Employee Posting Group";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 590692] Check the change of posting group in general journal to an alternative posting group
+        Initialize();
+
+        // [GIVEN] Enable Allow Multiple Posting Group on Human Resources Setup
+        SetHRAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create new Employee with Allow Multiple Posting Groups
+        LibraryHumanResource.CreateEmployee(Employee);
+        Employee.Validate("Allow Multiple Posting Groups", true);
+        Employee.Modify();
+
+        // [GIVEN] Create new Employee Posting Group
+        LibraryHumanResource.CreateEmployeePostingGroup(EmployeePostingGroup);
+
+        // [GIVEN] Create Alternative Employee Posting Group
+        LibraryHumanResource.CreateAltEmployeePostingGroup(Employee."Employee Posting Group", EmployeePostingGroup.Code);
+
+        // [GIVEN] Create General Journal Line with Employee
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Employee, Employee."No.");
+
+        // [WHEN] Change the Posting Group to created Employee Posting Group
+        GenJournalLine.Validate("Posting Group", EmployeePostingGroup.Code);
+
+        // [THEN] The posting group will be changed without any error
+        Assert.AreEqual(EmployeePostingGroup.Code, GenJournalLine."Posting Group", 'The posting group was not changed as expected.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckPostGenJournalLineWithAnotherEmployeePostingGroup()
+    var
+        Employee: Record Employee;
+        EmployeePostingGroup: Record "Employee Posting Group";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLEntry: Record "G/L Entry";
+        GLRegister: Record "G/L Register";
+    begin
+        // [SCENARIO 590692] Check Post General Journal Line with another Employee Posting Group
+        Initialize();
+
+        // [GIVEN] Enable Allow Multiple Posting Group on Human Resources Setup
+        SetHRAllowMultiplePostingGroups(true);
+
+        // [GIVEN] Create new Employee with Allow Multiple Posting Groups
+        LibraryHumanResource.CreateEmployee(Employee);
+        Employee.Validate("Allow Multiple Posting Groups", true);
+        Employee.Modify();
+
+        // [GIVEN] Create new Employee Posting Group
+        LibraryHumanResource.CreateEmployeePostingGroup(EmployeePostingGroup);
+
+        // [GIVEN] Create Alternative Employee Posting Group
+        LibraryHumanResource.CreateAltEmployeePostingGroup(Employee."Employee Posting Group", EmployeePostingGroup.Code);
+
+        // [GIVEN] Create General Journal Line with Employee
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.DeleteAll();
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Employee, Employee."No.", LibraryRandom.RandDecInRange(100, 200, 2));
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+
+        // [GIVEN] Change the Posting Group to created Employee Posting Group
+        GenJournalLine.Validate("Posting Group", EmployeePostingGroup.Code);
+        GenJournalLine.Modify();
+
+        // [WHEN] Post General Journal Line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] The G/L Entry will posted on payables account of alternative posting group
+        GLRegister.FindLast();
+        GLEntry.Reset();
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        VerifyGLEntryForGLAccount(GLEntry, EmployeePostingGroup."Payables Account", GenJournalLine.Amount);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Multiple Posting Groups");
@@ -959,6 +1108,7 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibrarySetupStorage.Save(DATABASE::"Human Resources Setup");
         LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
         isInitialized := true;
         Commit();
@@ -994,6 +1144,16 @@ codeunit 134195 "ERM Multiple Posting Groups"
         PurchasesPayablesSetup."Allow Multiple Posting Groups" := AllowMultiplePostingGroups;
         PurchasesPayablesSetup."Check Multiple Posting Groups" := "Posting Group Change Method"::"Alternative Groups";
         PurchasesPayablesSetup.Modify();
+    end;
+
+    local procedure SetHRAllowMultiplePostingGroups(AllowMultiplePostingGroups: Boolean)
+    var
+        HumanResourcesSetup: Record "Human Resources Setup";
+    begin
+        HumanResourcesSetup.Get();
+        HumanResourcesSetup."Allow Multiple Posting Groups" := AllowMultiplePostingGroups;
+        HumanResourcesSetup."Check Multiple Posting Groups" := "Posting Group Change Method"::"Alternative Groups";
+        HumanResourcesSetup.Modify();
     end;
 
     local procedure UpdateServiceLineWithRandomQtyAndPrice(var ServiceLine: Record "Service Line"; ServiceItemLineNo: Integer)

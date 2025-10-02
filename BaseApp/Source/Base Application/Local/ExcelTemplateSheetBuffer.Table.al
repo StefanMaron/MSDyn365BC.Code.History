@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14932 "Excel Template Sheet Buffer"
 {
     Caption = 'Excel Template Sheet Buffer';

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.VAT.Ledger;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.VAT.Ledger;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
@@ -124,7 +128,7 @@ table 254 "VAT Entry"
             else
             if (Type = const(Sale)) Customer;
             ToolTip = 'Specifies the number of the bill-to customer or pay-to vendor that the entry is linked to.';
-            
+
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -152,7 +156,7 @@ table 254 "VAT Entry"
         {
             Caption = 'EU 3-Party Trade';
             ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
-            
+
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -195,7 +199,7 @@ table 254 "VAT Entry"
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
             ToolTip = 'Specifies the country/region of the address.';
-            
+
             trigger OnValidate()
             begin
                 Validate(Type);
@@ -411,7 +415,7 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Registration No.';
             ToolTip = 'Specifies the VAT registration number of the customer or vendor that the entry is linked to.';
-            
+
             trigger OnValidate()
             var
                 VATRegNoFormat: Record "VAT Registration No. Format";
@@ -529,6 +533,9 @@ table 254 "VAT Entry"
                 Validate(Type);
                 if not VATDateReportingMgt.IsVATDateModifiable() then
                     Error(VATDateNotModifiableErr);
+
+                if Closed then
+                    Error(VATDateModifiableClosedErr);
 
                 VATDateReportingMgt.CheckDateAllowed("VAT Reporting Date", Rec.FieldNo("VAT Reporting Date"), false);
                 VATDateReportingMgt.CheckDateAllowed(xRec."VAT Reporting Date", Rec.FieldNo("VAT Reporting Date"), true, false);
@@ -813,6 +820,7 @@ table 254 "VAT Entry"
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         NoGLAccNoOnVATEntriesErr: Label 'The VAT Entry table with filter <%1> must not contain records.', Comment = '%1 - the filter expression applied to VAT entry record.';
         VATDateNotModifiableErr: Label 'Modification of the VAT Date on the VAT Entry is restricted by the current setting for VAT Reporting Date Usage in the General Ledger Setup.';
+        VATDateModifiableClosedErr: Label 'The VAT Entry is marked as closed, modification of the VAT Date is therefore not allowed.';
 
     internal procedure SetVATDateFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
     begin
@@ -1096,9 +1104,6 @@ table 254 "VAT Entry"
         "Add.-Curr. Realized Amount" := Sign * "Add.-Curr. Realized Amount";
         "Add.-Curr. Realized Base" := Sign * "Add.-Curr. Realized Base";
 
-#if not CLEAN24
-        OnAfterCopyAmountsFromVATEntry(VATEntry, WithOppositeSign);
-#endif
         OnAfterOnCopyAmountsFromVATEntry(VATEntry, WithOppositeSign, Rec);
     end;
 
@@ -1299,13 +1304,6 @@ table 254 "VAT Entry"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Use the OnAfterOnCopyAmountsFromVATEntry method instead', '24.0')]
-    [IntegrationEvent(false, false)]
-    procedure OnAfterCopyAmountsFromVATEntry(var VATEntry: Record "VAT Entry"; WithOppositeSign: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnCopyAmountsFromVATEntry(var VATEntry: Record "VAT Entry"; WithOppositeSign: Boolean; var RecVATEntry: Record "VAT Entry")
@@ -1322,4 +1320,3 @@ table 254 "VAT Entry"
     begin
     end;
 }
-

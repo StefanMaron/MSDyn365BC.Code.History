@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14902 "Cash Report CO-4"
 {
     ApplicationArea = Basic, Suite;

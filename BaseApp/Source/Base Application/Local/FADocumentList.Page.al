@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12483 "FA Document List"
 {
     Caption = 'FA Document List';

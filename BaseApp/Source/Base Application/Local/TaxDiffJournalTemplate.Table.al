@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17303 "Tax Diff. Journal Template"
 {
     Caption = 'Tax Diff. Journal Template';

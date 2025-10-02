@@ -9,13 +9,13 @@ using Microsoft.Finance.Currency;
 codeunit 8062 "Billing Proposal"
 {
     var
-        SalesHeader: Record "Sales Header";
-        PurchaseHeader: Record "Purchase Header";
+        SalesHeaderGlobal: Record "Sales Header";
+        PurchaseHeaderGlobal: Record "Purchase Header";
         CreateBillingDocuments: Codeunit "Create Billing Documents";
         CreateBillingDocumentPage: Page "Create Billing Document";
         LastContractNo: Code[20];
         LastPartnerNo: Code[20];
-        BillingToChangeNotAllowedErr: Label 'A change of Billing to field from %1 to %2 for %3 and %4 is not allowed because the Subscription Line has already been calculated up to %5.';
+        BillingToChangeNotAllowedErr: Label 'A change of Billing to field from %1 to %2 for %3 and %4 is not allowed because the Subscription Line has already been calculated up to %5.', Comment = '%1: Old Billing To Date, %2: New Billing To Date, %3: Subscription Contract No., %4: Subscription Contract Line No., %5: Last Billing To Date';
         NoBillingDateErr: Label 'Please enter the Billing Date.';
         BillingToChangeNotAllowedDocNoExistsErr: Label 'Billing to field is not allowed to change because an unposted invoice or credit memo exists.';
         CreditMemoPreventsProposalCreationLbl: Label 'The credit memos listed here must be posted or deleted before further billing lines can be created.';
@@ -152,7 +152,7 @@ codeunit 8062 "Billing Proposal"
         FilterText: Text;
         BillingRhythmFilterText: Text;
     begin
-        SalesHeader.Reset();
+        SalesHeaderGlobal.Reset();
         BillingTemplate.Get(BillingTemplateCode);
         if BillingDate = 0D then
             Error(NoBillingDateErr);
@@ -190,17 +190,17 @@ codeunit 8062 "Billing Proposal"
         case BillingTemplate.Partner of
             Enum::"Service Partner"::Customer:
                 begin
-                    SalesHeader.MarkedOnly(true);
-                    if SalesHeader.Count <> 0 then begin
-                        Page.Run(Page::"Sales Credit Memos", SalesHeader);
+                    SalesHeaderGlobal.MarkedOnly(true);
+                    if SalesHeaderGlobal.Count <> 0 then begin
+                        Page.Run(Page::"Sales Credit Memos", SalesHeaderGlobal);
                         Message(CreditMemoPreventsProposalCreationLbl);
                     end;
                 end;
             Enum::"Service Partner"::Vendor:
                 begin
-                    PurchaseHeader.MarkedOnly(true);
-                    if PurchaseHeader.Count <> 0 then begin
-                        Page.Run(Page::"Purchase Credit Memos", PurchaseHeader);
+                    PurchaseHeaderGlobal.MarkedOnly(true);
+                    if PurchaseHeaderGlobal.Count <> 0 then begin
+                        Page.Run(Page::"Purchase Credit Memos", PurchaseHeaderGlobal);
                         Message(CreditMemoPreventsProposalCreationLbl);
                     end;
                 end;
@@ -231,7 +231,7 @@ codeunit 8062 "Billing Proposal"
             RecalculateHarmonizedBillingFieldsBasedOnNextBillingDate(BillingLine, ContractNo);
     end;
 
-    local procedure ProcessServiceCommitment(var ServiceCommitment: Record "Subscription Line"; var BillingLine: Record "Billing Line"; BillingTemplate: Record "Billing Template"; var BillingDate: Date; var BillingToDate: Date)
+    local procedure ProcessServiceCommitment(var ServiceCommitment: Record "Subscription Line"; var BillingLine: Record "Billing Line"; BillingTemplate: Record "Billing Template"; BillingDate: Date; BillingToDate: Date)
     var
         UsageDataBilling: Record "Usage Data Billing";
         SkipServiceCommitment: Boolean;
@@ -246,11 +246,11 @@ codeunit 8062 "Billing Proposal"
                     SkipServiceCommitment := true;
                     case BillingLine.Partner of
                         Enum::"Service Partner"::Customer:
-                            if SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", BillingLine."Document No.") then
-                                SalesHeader.Mark(true);
+                            if SalesHeaderGlobal.Get(SalesHeaderGlobal."Document Type"::"Credit Memo", BillingLine."Document No.") then
+                                SalesHeaderGlobal.Mark(true);
                         Enum::"Service Partner"::Vendor:
-                            if PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", BillingLine."Document No.") then
-                                PurchaseHeader.Mark(true);
+                            if PurchaseHeaderGlobal.Get(PurchaseHeaderGlobal."Document Type"::"Credit Memo", BillingLine."Document No.") then
+                                PurchaseHeaderGlobal.Mark(true);
                     end;
                 end;
             ServiceCommitment."Usage Based Billing":
@@ -737,8 +737,8 @@ codeunit 8062 "Billing Proposal"
     begin
         if DocumentNo = '' then
             exit;
-        PurchaseHeader.Get(DocumentType, DocumentNo);
-        PurchaseHeader.SetRecurringBilling();
+        PurchaseHeaderGlobal.Get(DocumentType, DocumentNo);
+        PurchaseHeaderGlobal.SetRecurringBilling();
     end;
 
     local procedure BillingProposalCanBeCreatedForContract(ContractNo: Code[20]; ServicePartner: Enum "Service Partner"): Boolean
@@ -888,33 +888,33 @@ codeunit 8062 "Billing Proposal"
 
     local procedure DeleteSalesBillingDocuments(DeleteSalesInvoices: Boolean; DeleteSalesCreditMemos: Boolean)
     begin
-        SalesHeader.Reset();
-        SalesHeader.SetRange("Recurring Billing", true);
+        SalesHeaderGlobal.Reset();
+        SalesHeaderGlobal.SetRange("Recurring Billing", true);
         if DeleteSalesCreditMemos then begin
-            SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
-            if not SalesHeader.IsEmpty() then
-                SalesHeader.DeleteAll(true);
+            SalesHeaderGlobal.SetRange("Document Type", SalesHeaderGlobal."Document Type"::"Credit Memo");
+            if not SalesHeaderGlobal.IsEmpty() then
+                SalesHeaderGlobal.DeleteAll(true);
         end;
         if DeleteSalesInvoices then begin
-            SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-            if not SalesHeader.IsEmpty() then
-                SalesHeader.DeleteAll(true);
+            SalesHeaderGlobal.SetRange("Document Type", SalesHeaderGlobal."Document Type"::Invoice);
+            if not SalesHeaderGlobal.IsEmpty() then
+                SalesHeaderGlobal.DeleteAll(true);
         end;
     end;
 
     local procedure DeletePurchaseBillingDocuments(DeletePurchaseInvoices: Boolean; DeletePurchaseCreditMemos: Boolean)
     begin
-        PurchaseHeader.Reset();
-        PurchaseHeader.SetRange("Recurring Billing", true);
+        PurchaseHeaderGlobal.Reset();
+        PurchaseHeaderGlobal.SetRange("Recurring Billing", true);
         if DeletePurchaseCreditMemos then begin
-            PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
-            if not PurchaseHeader.IsEmpty() then
-                PurchaseHeader.DeleteAll(true);
+            PurchaseHeaderGlobal.SetRange("Document Type", PurchaseHeaderGlobal."Document Type"::"Credit Memo");
+            if not PurchaseHeaderGlobal.IsEmpty() then
+                PurchaseHeaderGlobal.DeleteAll(true);
         end;
         if DeletePurchaseInvoices then begin
-            PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
-            if not PurchaseHeader.IsEmpty() then
-                PurchaseHeader.DeleteAll(true);
+            PurchaseHeaderGlobal.SetRange("Document Type", PurchaseHeaderGlobal."Document Type"::Invoice);
+            if not PurchaseHeaderGlobal.IsEmpty() then
+                PurchaseHeaderGlobal.DeleteAll(true);
         end;
     end;
 

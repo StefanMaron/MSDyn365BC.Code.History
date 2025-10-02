@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26562 "Report Data List"
 {
     Caption = 'Report Data List';

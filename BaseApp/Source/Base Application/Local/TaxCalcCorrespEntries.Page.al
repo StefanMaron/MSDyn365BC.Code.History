@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17329 "Tax Calc. Corresp. Entries"
 {
     ApplicationArea = Basic, Suite;

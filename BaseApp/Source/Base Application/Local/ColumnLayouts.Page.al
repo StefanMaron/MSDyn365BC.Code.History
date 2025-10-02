@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26596 "Column Layouts"
 {
     Caption = 'Column Layouts';

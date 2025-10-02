@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14931 "Excel Template Section"
 {
     Caption = 'Excel Template Section';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17314 "Tax Calc. Accumulation"
 {
     Caption = 'Tax Calc. Accumulation';

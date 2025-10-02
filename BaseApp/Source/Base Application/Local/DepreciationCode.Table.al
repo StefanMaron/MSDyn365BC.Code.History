@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12473 "Depreciation Code"
 {
     Caption = 'Depreciation Code';

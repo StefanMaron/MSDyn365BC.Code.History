@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14927 "VAT Document Entry Buffer"
 {
     Caption = 'VAT Document Entry Buffer';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26555 "Table Individual Requisites"
 {
     AutoSplitKey = true;

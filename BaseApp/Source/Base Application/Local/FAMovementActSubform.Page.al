@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12479 "FA Movement Act Subform"
 {
     AutoSplitKey = true;

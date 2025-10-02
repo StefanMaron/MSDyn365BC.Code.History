@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14940 "G/L Corr. Analysis by Dim."
 {
     ApplicationArea = Basic, Suite;

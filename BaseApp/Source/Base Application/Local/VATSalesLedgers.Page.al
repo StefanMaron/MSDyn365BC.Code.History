@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 35629 "VAT Sales Ledgers"
 {
     ApplicationArea = Basic, Suite;

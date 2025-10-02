@@ -39,6 +39,7 @@ table 5063 "Interaction Group"
         }
         field(5; "Cost (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Interaction Log Entry"."Cost (LCY)" where("Interaction Group Code" = field(Code),
                                                                           Canceled = const(false),
@@ -50,6 +51,7 @@ table 5063 "Interaction Group"
         }
         field(6; "Duration (Min.)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Interaction Log Entry"."Duration (Min.)" where("Interaction Group Code" = field(Code),
                                                                                Canceled = const(false),
                                                                                Date = field("Date Filter"),
@@ -73,4 +75,3 @@ table 5063 "Interaction Group"
     {
     }
 }
-

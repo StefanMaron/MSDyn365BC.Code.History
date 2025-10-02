@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 xmlport 26551 "Format Versions"
 {
     Caption = 'Format Versions';

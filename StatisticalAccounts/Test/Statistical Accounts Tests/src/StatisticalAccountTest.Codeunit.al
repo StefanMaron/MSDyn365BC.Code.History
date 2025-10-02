@@ -1,7 +1,20 @@
+namespace Microsoft.Test.StatisticalAccounts;
+
+using System.TestLibraries.Utilities;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Analysis.StatisticalAccount;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Foundation.Enums;
+using Microsoft.Finance.AllocationAccount;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.GeneralLedger.Account;
+
 codeunit 139683 "Statistical Account Test"
 {
     // [FEATURE] [Statistical Accounts]
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     var
@@ -27,6 +40,7 @@ codeunit 139683 "Statistical Account Test"
         TotalNumberOfOfficeSpaceLedgerEntries: Integer;
         TotalNumberOfEmployeeLedgerEntries: Integer;
         BalanceMustBeEqualErr: Label 'Balance must be equal to %1.', Comment = '%1 = Field Value';
+        WrongBalanceErr: Label 'Wrong balance on the statistical account %1', Comment = '%1 = Statistical Account No.';
 
     local procedure Initialize()
     var
@@ -184,7 +198,7 @@ codeunit 139683 "Statistical Account Test"
         Assert.AreEqual(2, StatisticalAccount.Count(), 'The statistical accounts are not created correctly');
         Assert.IsTrue(StatisticalAccount.Get(EMPLOYEESLbl), 'Employees account was not created');
         StatisticalAccount.CalcFields(Balance);
-        Assert.AreEqual(EmployeesExpectedAmount, StatisticalAccount.Balance, StrSubstNo('Wrong balance on the statistical account %1', StatisticalAccount."No."));
+        Assert.AreEqual(EmployeesExpectedAmount, StatisticalAccount.Balance, StrSubstNo(WrongBalanceErr, StatisticalAccount."No."));
         StatisticalLedgerEntry.SetRange("Statistical Account No.", StatisticalAccount."No.");
         Assert.AreEqual(TotalNumberOfEmployeeLedgerEntries, StatisticalLedgerEntry.Count(), 'Wrong number of statistical account ledger entries');
         StatisticalLedgerEntry.SetRange("Global Dimension 1 Code", '');
@@ -194,7 +208,7 @@ codeunit 139683 "Statistical Account Test"
         // [THEN] Demodata is generated successfully for Office Space
         Assert.IsTrue(StatisticalAccount.Get(OFFICESPACELbl), 'Employees account was not created');
         StatisticalAccount.CalcFields(Balance);
-        Assert.AreEqual(OfficeSpaceExpectedAmount, StatisticalAccount.Balance, StrSubstNo('Wrong balance on the statistical account %1', StatisticalAccount."No."));
+        Assert.AreEqual(OfficeSpaceExpectedAmount, StatisticalAccount.Balance, StrSubstNo(WrongBalanceErr, StatisticalAccount."No."));
         StatisticalLedgerEntry.SetRange("Statistical Account No.", StatisticalAccount."No.");
         Assert.AreEqual(TotalNumberOfOfficeSpaceLedgerEntries, StatisticalLedgerEntry.Count(), 'Wrong number of statistical account ledger entries');
         StatisticalLedgerEntry.SetRange("Global Dimension 1 Code", '');
@@ -821,7 +835,9 @@ codeunit 139683 "Statistical Account Test"
         I: Integer;
         CurrentDate: Date;
     begin
+#pragma warning disable AA0217
         CurrentDate := CalcDate(StrSubstNo('<-%1D>', NumberOfTransactions + 5), DT2Date(CurrentDateTime()));
+#pragma warning restore AA0217
         for I := 1 to NumberOfTransactions do begin
             TempStatisticalAccountLedgerEntries."Entry No." := TempStatisticalAccountLedgerEntries."Entry No." + 1;
             TempStatisticalAccountLedgerEntries."Posting Date" := CurrentDate;
@@ -1141,12 +1157,12 @@ codeunit 139683 "Statistical Account Test"
     end;
 
     [PageHandler]
-    procedure AllocationAccountPreview(var AllocationAccountPreview: TestPage "Allocation Account Preview")
+    procedure AllocationAccountPreview(var AllocationAccountPreviewPage: TestPage "Allocation Account Preview")
     begin
-        AllocationAccountPreview.AmountToAllocate.SetValue(205.14);
-        AllocationAccountPreview.Next();
-        AllocationAccountPreview.Next();
-        AllocationAccountPreview.Next();
-        AllocationAccountPreview.Amount.AssertEquals(0);
+        AllocationAccountPreviewPage.AmountToAllocate.SetValue(205.14);
+        AllocationAccountPreviewPage.Next();
+        AllocationAccountPreviewPage.Next();
+        AllocationAccountPreviewPage.Next();
+        AllocationAccountPreviewPage.Amount.AssertEquals(0);
     end;
 }

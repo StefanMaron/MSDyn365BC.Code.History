@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26577 "Create Acc. Schedule"
 {
     Caption = 'Create Acc. Schedule';

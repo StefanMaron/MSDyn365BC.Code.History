@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17204 "Create Tax Registers"
 {
     ApplicationArea = Basic, Suite;

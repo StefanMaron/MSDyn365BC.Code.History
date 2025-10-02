@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 xmlport 17300 "Tax Differences Registers"
 {
     Caption = 'Tax Differences Registers';

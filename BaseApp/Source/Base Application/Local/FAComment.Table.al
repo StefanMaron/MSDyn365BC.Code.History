@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12478 "FA Comment"
 {
     Caption = 'FA Comment';

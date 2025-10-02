@@ -2900,14 +2900,6 @@
         GenJournalLine.DeleteAll(true);
     end;
 
-    local procedure DeleteFAJournalTemplateWithPageID(PageID: Integer)
-    var
-        FAJournalTemplate: Record "FA Journal Template";
-    begin
-        FAJournalTemplate.SetRange("Page ID", PageID);
-        FAJournalTemplate.DeleteAll();
-    end;
-
     local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     begin
         FALedgerEntry.SetRange("FA No.", FANo);
@@ -3627,7 +3619,3 @@
         CurrencyExchangeRate.Modify(true);
     end;
 }
-
-
-
-

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 26554 "Stat. Report Table Column"
 {
     Caption = 'Stat. Report Table Column';

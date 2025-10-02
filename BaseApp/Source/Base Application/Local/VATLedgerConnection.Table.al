@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12406 "VAT Ledger Connection"
 {
     Caption = 'VAT Ledger Connection';

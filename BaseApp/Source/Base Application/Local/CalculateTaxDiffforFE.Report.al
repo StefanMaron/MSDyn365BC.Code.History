@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17300 "Calculate Tax Diff. for FE"
 {
     ApplicationArea = Basic, Suite;

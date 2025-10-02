@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26571 "Report Export Log"
 {
     Caption = 'Report Export Log';

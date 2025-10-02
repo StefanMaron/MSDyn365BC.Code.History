@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12447 "Bank Account G/L Turnover"
 {
     DefaultLayout = RDLC;

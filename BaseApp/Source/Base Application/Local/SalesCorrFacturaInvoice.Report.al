@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14966 "Sales Corr. Factura-Invoice"
 {
     Caption = 'Sales Corr. Factura-Invoice';

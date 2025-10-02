@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17246 "Tax Reg. Norm Jurisdictions"
 {
     ApplicationArea = Basic, Suite;

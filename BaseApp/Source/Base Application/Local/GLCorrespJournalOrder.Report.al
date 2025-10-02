@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12432 "G/L Corresp. Journal Order"
 {
     DefaultLayout = RDLC;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14909 "Invent. Act Line"
 {
     Caption = 'Invent. Act Line';

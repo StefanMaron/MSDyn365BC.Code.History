@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17244 "Tax Vendor Ledger Entries"
 {
     Caption = 'Tax Vendor Ledger Entries';

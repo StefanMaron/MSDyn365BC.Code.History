@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12475 "Precious Metal"
 {
     Caption = 'Precious Metal';

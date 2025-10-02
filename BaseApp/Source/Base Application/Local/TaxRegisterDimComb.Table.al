@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17215 "Tax Register Dim. Comb."
 {
     Caption = 'Tax Register Dim. Comb.';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14934 "Write-off for Tax Ledger"
 {
     Caption = 'Write-off for Tax Ledger';

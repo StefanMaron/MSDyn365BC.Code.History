@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12448 "Bank Account Card"
 {
     DefaultLayout = RDLC;

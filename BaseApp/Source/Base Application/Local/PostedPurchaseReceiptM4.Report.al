@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12483 "Posted Purchase Receipt M-4"
 {
     Caption = 'Posted Purchase Receipt M-4';

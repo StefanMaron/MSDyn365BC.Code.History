@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12469 "Item Turnover (Qty.)"
 {
     DefaultLayout = RDLC;
@@ -484,7 +485,6 @@ report 12469 "Item Turnover (Qty.)"
         ItemUnit: Record "Item Unit of Measure";
         ValueEntry: Record "Value Entry";
         DummyItemCategory: Record "Item Category";
-        TempExcelBuffer: Record "Excel Buffer" temporary;
         LocManagement: Codeunit "Localisation Management";
         StartingCost: Decimal;
         IncreaseCost: Decimal;
@@ -603,19 +603,6 @@ report 12469 "Item Turnover (Qty.)"
             until ValueEntry.Next() = 0;
     end;
 
-    local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[1024]; Bold: Boolean; Italic: Boolean; UnderLine: Boolean)
-    begin
-        TempExcelBuffer.Init();
-        TempExcelBuffer.Validate("Row No.", RowNo);
-        TempExcelBuffer.Validate("Column No.", ColumnNo);
-        TempExcelBuffer."Cell Value as Text" := CellValue;
-        TempExcelBuffer.Formula := '';
-        TempExcelBuffer.Bold := Bold;
-        TempExcelBuffer.Italic := Italic;
-        TempExcelBuffer.Underline := UnderLine;
-        TempExcelBuffer.Insert();
-    end;
-
     [Scope('OnPrem')]
     procedure FillReportParameters()
     var
@@ -691,4 +678,3 @@ report 12469 "Item Turnover (Qty.)"
         PrintParameters := Counter > 0;
     end;
 }
-

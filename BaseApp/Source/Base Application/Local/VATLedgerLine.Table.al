@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12405 "VAT Ledger Line"
 {
     Caption = 'VAT Ledger Line';

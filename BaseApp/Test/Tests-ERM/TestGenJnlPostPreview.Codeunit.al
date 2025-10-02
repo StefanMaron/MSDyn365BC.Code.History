@@ -363,6 +363,7 @@
         FixedAssetGLJournal.Trap();
         PAGE.Run(PAGE::"Fixed Asset G/L Journal");
         FixedAssetGLJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
+        Commit();
         FixedAssetGLJournal.Preview.Invoke();
     end;
 

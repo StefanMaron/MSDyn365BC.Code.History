@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12482 "Posted FA Document List"
 {
     Caption = 'Posted FA Document List';

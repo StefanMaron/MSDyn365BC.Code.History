@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12438 "Cash Order Journal"
 {
     ApplicationArea = Basic, Suite;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12442 "Customer Entries Analysis"
 {
     DefaultLayout = RDLC;

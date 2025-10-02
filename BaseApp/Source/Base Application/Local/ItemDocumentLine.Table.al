@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12453 "Item Document Line"
 {
     Caption = 'Item Document Line';

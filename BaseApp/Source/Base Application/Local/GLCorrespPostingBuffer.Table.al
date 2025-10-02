@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12402 "G/L Corresp. Posting Buffer"
 {
     Caption = 'G/L Corresp. Posting Buffer';

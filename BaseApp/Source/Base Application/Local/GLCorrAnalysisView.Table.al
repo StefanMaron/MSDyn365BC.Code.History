@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 14940 "G/L Corr. Analysis View"
 {
     Caption = 'G/L Corr. Analysis View';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 12404 "VAT Ledger"
 {
     Caption = 'VAT Ledger';
@@ -336,41 +337,21 @@ table 12404 "VAT Ledger"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if Code = '' then begin
             GLSetup.Get();
             if Type = Type::Purchase then begin
                 GLSetup.TestField("VAT Purch. Ledger No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(GLSetup."VAT Purch. Ledger No. Series", xRec."No. Series", 0D, Code, "No. Series", IsHandled);
-                if not IsHandled then begin
-#endif
                     "No. Series" := GLSetup."VAT Purch. Ledger No. Series";
                     if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                         "No. Series" := xRec."No. Series";
                     Code := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GLSetup."VAT Purch. Ledger No. Series", 0D, Code);
-                end;
-#endif
             end else begin
                 GLSetup.TestField("VAT Sales Ledger No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(GLSetup."VAT Sales Ledger No. Series", xRec."No. Series", 0D, Code, "No. Series", IsHandled);
-                if not IsHandled then begin
-#endif
                     "No. Series" := GLSetup."VAT Sales Ledger No. Series";
                     if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                         "No. Series" := xRec."No. Series";
                     Code := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GLSetup."VAT Sales Ledger No. Series", 0D, Code);
-                end;
-#endif
             end;
         end;
     end;
@@ -532,4 +513,3 @@ table 12404 "VAT Ledger"
         end;
     end;
 }
-

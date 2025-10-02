@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17245 "Option Values"
 {
     Caption = 'Option Values';

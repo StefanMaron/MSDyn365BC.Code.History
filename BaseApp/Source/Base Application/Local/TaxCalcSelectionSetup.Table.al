@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17309 "Tax Calc. Selection Setup"
 {
     Caption = 'Tax Calc. Selection Setup';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12448 "Report Selection - Print"
 {
     Caption = 'Report Selection - Print';

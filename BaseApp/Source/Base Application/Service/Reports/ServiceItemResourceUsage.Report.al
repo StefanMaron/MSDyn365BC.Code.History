@@ -121,7 +121,8 @@ report 5939 "Service Item - Resource Usage"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Item - Resource Usage';
+        AboutText = 'Analyze resource usage of service items.';
         layout
         {
             area(content)

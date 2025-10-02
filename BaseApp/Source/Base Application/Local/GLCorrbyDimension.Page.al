@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14945 "G/L Corr. by Dimension"
 {
     Caption = 'G/L Corr. by Dimension';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 17203 "Create Tax Register GL Entry"
 {
     TableNo = "Tax Register G/L Entry";

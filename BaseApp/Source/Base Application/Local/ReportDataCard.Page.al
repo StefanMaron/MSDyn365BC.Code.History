@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 26561 "Report Data Card"
 {
     Caption = 'Report Data Card';

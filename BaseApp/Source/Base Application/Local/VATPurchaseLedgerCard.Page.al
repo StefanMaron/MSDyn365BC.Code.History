@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12442 "VAT Purchase Ledger Card"
 {
     Caption = 'VAT Purchase Ledger Card';

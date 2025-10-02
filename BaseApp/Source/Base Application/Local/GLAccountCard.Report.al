@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12437 "G/L Account Card"
 {
     DefaultLayout = RDLC;

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 12403 "Internal Report Management"
 {
     Permissions = TableData "Invoice Posting Buffer" = rimd;

@@ -1,4 +1,5 @@
-﻿table 26570 "XML Element Line"
+#pragma warning disable AA0247
+table 26570 "XML Element Line"
 {
     Caption = 'XML Element Line';
     LookupPageID = "XML Element Line List";

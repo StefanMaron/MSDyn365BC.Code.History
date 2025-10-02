@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 14919 "Item Report TORG-29"
 {
     ApplicationArea = Basic, Suite;

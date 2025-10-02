@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 14924 "VAT Reversal on Date"
 {
     Caption = 'VAT Reversal on Date';

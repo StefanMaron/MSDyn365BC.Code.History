@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17234 "Tax Register (4.23) FA"
 {
     Caption = 'Tax Register (4.23) FA';

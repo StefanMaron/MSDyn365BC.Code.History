@@ -1,23 +1,27 @@
 namespace System.Security.AccessControl;
 
-using Microsoft.Foundation.Period;
-using Microsoft.Finance.Analysis;
-using Microsoft.Inventory.Costing;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Ledger;
-using Microsoft.Foundation.BatchProcessing;
 using Microsoft.Bank.Check;
+using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Currency;
-using Microsoft.Sales.Customer;
-using Microsoft.Purchases.Payables;
 using Microsoft.Finance.Dimension;
-using Microsoft.HumanResources.Payables;
-using Microsoft.HumanResources.Employee;
 using Microsoft.Finance.GeneralLedger.Account;
-using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Period;
+using Microsoft.Foundation.BatchProcessing;
+using Microsoft.Foundation.Reporting;
+using Microsoft.HumanResources.Payables;
+using Microsoft.HumanResources.Employee;
 using Microsoft.Intercompany.BankAccount;
 using Microsoft.Intercompany.Comment;
 using Microsoft.Intercompany.Dimension;
@@ -25,29 +29,24 @@ using Microsoft.Intercompany.GLAccount;
 using Microsoft.Intercompany.Outbox;
 using Microsoft.Intercompany.Partner;
 using Microsoft.Intercompany.Setup;
-using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Analysis;
+using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
-using Microsoft.Purchases.Document;
-using Microsoft.Sales.Document;
+using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Ledger;
-using Microsoft.Purchases.Vendor;
-using Microsoft.Inventory.Planning;
-using Microsoft.Warehouse.History;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Comment;
+using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
-using Microsoft.Foundation.Reporting;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Foundation.AuditCodes;
-using Microsoft.Finance.SalesTax;
+using Microsoft.Warehouse.History;
 using System.Security.User;
-using Microsoft.Finance.VAT.Calculation;
-using Microsoft.Finance.VAT.Setup;
-using Microsoft.Finance.VAT.RateChange;
-using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Warehouse.Request;
 
 permissionset 862 "Payables Documents - Post"
@@ -125,8 +124,6 @@ permissionset 862 "Payables Documents - Post"
                   tabledata "Post Value Entry to G/L" = I,
                   tabledata "Posted Whse. Receipt Header" = R,
                   tabledata "Posted Whse. Receipt Line" = R,
-                  tabledata "Prod. Order Component" = Rm,
-                  tabledata "Prod. Order Line" = Rm,
                   tabledata "Purch. Comment Line" = RD,
                   tabledata "Purch. Cr. Memo Hdr." = Rim,
                   tabledata "Purch. Cr. Memo Line" = Ri,

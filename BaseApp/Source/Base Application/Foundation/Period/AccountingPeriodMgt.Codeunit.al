@@ -79,7 +79,7 @@ codeunit 360 "Accounting Period Mgt."
         exit(DMY2Date(31, 12, 9999));
     end;
 
-    procedure AccPeriodStartEnd(Date: Date; var StartDate: Date; var EndDate: Date; var PeriodError: Boolean; Steps: Integer; Type: Option " ",Period,"Fiscal Year"; RangeFromType: Option Int,CP,LP; RangeToType: Option Int,CP,LP; RangeFromInt: Integer; RangeToInt: Integer)
+    procedure AccPeriodStartEnd(Date: Date; var StartDate: Date; var EndDate: Date; var PeriodError: Boolean; Steps: Integer; Type: Enum "Period Type"; RangeFromType: Enum "Period Formula Range"; RangeToType: Enum "Period Formula Range"; RangeFromInt: Integer; RangeToInt: Integer)
     var
         AccountingPeriod: Record "Accounting Period";
         AccountingPeriodFY: Record "Accounting Period";
@@ -132,7 +132,7 @@ codeunit 360 "Accounting Period Mgt."
         exit(DMY2Date(31, 12, 9999));
     end;
 
-    procedure AccPeriodStartOrEnd(AccountingPeriod: Record "Accounting Period"; CurrentPeriodNo: Integer; RangeType: Option Int,CP,LP; RangeInt: Integer; EndDate: Boolean; var Date: Date)
+    procedure AccPeriodStartOrEnd(AccountingPeriod: Record "Accounting Period"; CurrentPeriodNo: Integer; RangeType: Enum "Period Formula Range"; RangeInt: Integer; EndDate: Boolean; var Date: Date)
     begin
         case RangeType of
             RangeType::CP:

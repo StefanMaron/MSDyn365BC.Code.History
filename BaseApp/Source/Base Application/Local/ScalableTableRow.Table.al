@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 26555 "Scalable Table Row"
 {
     Caption = 'Scalable Table Row';

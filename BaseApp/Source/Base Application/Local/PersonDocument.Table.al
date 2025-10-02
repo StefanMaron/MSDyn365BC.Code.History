@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 table 17352 "Person Document"
 {
     Caption = 'Person Document';

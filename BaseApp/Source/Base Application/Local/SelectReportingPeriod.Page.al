@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 12445 "Select Reporting Period"
 {
     Caption = 'Extern. Report Month Select';

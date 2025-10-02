@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12455 "Create VAT Purchase Ledger"
 {
     Caption = 'Create VAT Purchase Ledger';

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 17207 "Create Tax Register FE Entry"
 {
     TableNo = "Tax Register FE Entry";

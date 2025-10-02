@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 12417 "VAT Allocation-Post"
 {
     Permissions = TableData "Purchase Header" = r,

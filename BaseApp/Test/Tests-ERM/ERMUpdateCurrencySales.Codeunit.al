@@ -1091,17 +1091,6 @@
         exit(BankAccount."No.");
     end;
 
-    local procedure FindSalesInvoiceAmount(DocumentNo: Code[20]) SalesInvoiceAmount: Decimal
-    var
-        SalesInvoiceLine: Record "Sales Invoice Line";
-    begin
-        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindSet();
-        repeat
-            SalesInvoiceAmount += SalesInvoiceLine."Amount Including VAT";
-        until SalesInvoiceLine.Next() = 0;
-    end;
-
     local procedure FindSalesLines(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
@@ -1285,46 +1274,6 @@
             GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
-    local procedure VerifyGLEntryAmount(CurrencyExchangeRate: Record "Currency Exchange Rate"; SalesInvoiceHeaderNo: Code[20]; DocumentNo: Code[20]; OldRelationalExchangeRate: Decimal)
-    var
-        GLEntry: Record "G/L Entry";
-        Currency: Record Currency;
-        ExpectedAmount: Decimal;
-    begin
-        GetCurrency(Currency, CurrencyExchangeRate."Currency Code");
-        GetGLEntry(GLEntry, DocumentNo);
-
-        ExpectedAmount :=
-          FindSalesInvoiceAmount(SalesInvoiceHeaderNo) *
-          (CurrencyExchangeRate."Relational Exch. Rate Amount" - OldRelationalExchangeRate) /
-          CurrencyExchangeRate."Exchange Rate Amount";
-        Assert.AreNearlyEqual(
-          ExpectedAmount, GLEntry.Amount, Currency."Amount Rounding Precision",
-          StrSubstNo(
-            AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."),
-            GLEntry."Entry No."));
-    end;
-
-    [Normal]
-    local procedure VerifyGLEntryForOrder(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20]; OldRelationalExchangeRate: Decimal)
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        SalesInvoiceHeader.SetRange("Order No.", DocumentNo);
-        SalesInvoiceHeader.FindFirst();
-        VerifyGLEntryAmount(CurrencyExchangeRate, SalesInvoiceHeader."No.", DocumentNo, OldRelationalExchangeRate);
-    end;
-
-    [Normal]
-    local procedure VerifyGLEntryForInvoice(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20]; OldRelationalExchangeRate: Decimal)
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        SalesInvoiceHeader.SetRange("Pre-Assigned No.", DocumentNo);
-        SalesInvoiceHeader.FindFirst();
-        VerifyGLEntryAmount(CurrencyExchangeRate, SalesInvoiceHeader."No.", DocumentNo, OldRelationalExchangeRate);
-    end;
-
     [Normal]
     local procedure VerifyGLEntryAdjustExchange(GenJournalLine: Record "Gen. Journal Line"; CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20])
     var
@@ -1494,4 +1443,3 @@
         IsHandled := true;
     end;
 }
-

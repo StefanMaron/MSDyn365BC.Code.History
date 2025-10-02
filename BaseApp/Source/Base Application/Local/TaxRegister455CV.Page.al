@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17235 "Tax Register (4.55) CV"
 {
     Caption = 'Tax Register (4.55) CV';

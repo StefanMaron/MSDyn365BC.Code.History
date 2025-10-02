@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 12452 "Advance Statement"
 {
     // <changelog>

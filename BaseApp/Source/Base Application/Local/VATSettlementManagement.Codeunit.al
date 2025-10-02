@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 12411 "VAT Settlement Management"
 {
     Permissions = TableData "VAT Entry" = imd,

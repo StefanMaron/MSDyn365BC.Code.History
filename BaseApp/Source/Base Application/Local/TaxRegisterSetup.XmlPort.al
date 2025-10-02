@@ -1,4 +1,5 @@
-﻿xmlport 17200 "Tax Register Setup"
+#pragma warning disable AA0247
+xmlport 17200 "Tax Register Setup"
 {
     Caption = 'Tax Register Setup';
 

@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 query 12400 "Value Entry Item Tariff No."
 {
     Caption = 'Value Entry Item Tariff No.';

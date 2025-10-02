@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 report 17206 "Create Item Batch"
 {
     Caption = 'Create Item Batch';

@@ -215,11 +215,13 @@ codeunit 139052 "Office Addin Initiate Tasks"
     procedure MailEngineCustomerPageCreateQuoteEmail()
     var
         OfficeAddinContext: Record "Office Add-in Context";
-        TempEmailItem: Record "Email Item" temporary;
         ReportSelections: Record "Report Selections";
         SalesHeader: Record "Sales Header";
         CustomerCard: TestPage "Customer Card";
         SalesQuote: TestPage "Sales Quote";
+        BodyTextInStream: InStream;
+        EmailBodyTempBlob: Codeunit "Temp Blob";
+        BodyText: Text;
         QuoteNextNo: Code[20];
         DummyEmailAddress: Text[250];
     begin
@@ -243,9 +245,11 @@ codeunit 139052 "Office Addin Initiate Tasks"
         // Get Email body text
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.SetRange("No.", QuoteNextNo);
-        ReportSelections.GetEmailBodyForCust(TempEmailItem."Body File Path",
-          ReportSelections.Usage::"S.Quote", SalesHeader, CustomerCard."No.".Value, DummyEmailAddress);
-        LibraryVariableStorage.Enqueue(TempEmailItem.GetBodyText());
+        ReportSelections.GetEmailBodyForCust(EmailBodyTempBlob, ReportSelections.Usage::"S.Quote", SalesHeader, CustomerCard."No.".Value, DummyEmailAddress);
+        EmailBodyTempBlob.CreateInStream(BodyTextInStream);
+        BodyTextInStream.Read(BodyText);
+
+        LibraryVariableStorage.Enqueue(BodyText);
 
         // [WHEN] Email action is invoked from the sales quote page
         SalesQuote.Email.Invoke();

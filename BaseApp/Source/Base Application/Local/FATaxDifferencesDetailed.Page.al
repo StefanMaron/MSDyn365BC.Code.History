@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 page 17336 "FA Tax Differences Detailed"
 {
     Caption = 'FA Tax Differences Detailed';
