@@ -195,7 +195,7 @@
     begin
         // [GIVEN] Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS,MRP Calculation of Manufacturing Setup - FALSE.
+        OldCombinedMPSMRPCalculation := UpdateInventorySetup(false);  // Combined MPS,MRP Calculation of Manufacturing Setup - FALSE.
         CreateLotForLotItemSetup(Item, ChildItem, ChildItem."Replenishment System"::Purchase);
 
         // [GIVEN] Create Production Forecast for parent item.
@@ -217,7 +217,7 @@
           ProductionForecastEntry."Forecast Quantity" - ProductionOrder.Quantity, 0, false);
 
         // Teardown.
-        UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
+        UpdateInventorySetup(OldCombinedMPSMRPCalculation);
     end;
 
     [Test]
@@ -259,7 +259,7 @@
     begin
         // [GIVEN] Create Lot for Lot Item. Create Production Forecast.
         Initialize();
-        OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS,MRP Calculation of Manufacturing Setup - FALSE.
+        OldCombinedMPSMRPCalculation := UpdateInventorySetup(false);  // Combined MPS,MRP Calculation of Manufacturing Setup - FALSE.
         CreateLotForLotItem(Item, Item."Replenishment System"::"Prod. Order");
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", WorkDate());
 
@@ -275,7 +275,7 @@
           -SalesLine.Quantity, true);
 
         // Teardown.
-        UpdateManufacturingSetup(OldCombinedMPSMRPCalculation);
+        UpdateInventorySetup(OldCombinedMPSMRPCalculation);
     end;
 
     [Test]
@@ -1294,14 +1294,14 @@
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), EndDate);
     end;
 
-    local procedure UpdateManufacturingSetup(NewCombinedMPSMRPCalculation: Boolean) OldCombinedMPSMRPCalculation: Boolean
+    local procedure UpdateInventorySetup(NewCombinedMPSMRPCalculation: Boolean) OldCombinedMPSMRPCalculation: Boolean
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        ManufacturingSetup.Get();
-        OldCombinedMPSMRPCalculation := ManufacturingSetup."Combined MPS/MRP Calculation";
-        ManufacturingSetup.Validate("Combined MPS/MRP Calculation", NewCombinedMPSMRPCalculation);
-        ManufacturingSetup.Modify(true);
+        InventorySetup.Get();
+        OldCombinedMPSMRPCalculation := InventorySetup."Combined MPS/MRP Calculation";
+        InventorySetup.Validate("Combined MPS/MRP Calculation", NewCombinedMPSMRPCalculation);
+        InventorySetup.Modify(true);
     end;
 
     local procedure CreateProductionForecastSetup(var ProductionForecastEntry: Record "Production Forecast Entry"; ItemNo: Code[20]; ForecastDate: Date)
@@ -1310,17 +1310,8 @@
     begin
         // Using Random Value and Dates based on WORKDATE.
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name);
+        LibraryPlanning.SetDemandForecast(ProductionForecastName.Name);
         CreateAndUpdateProductionForecast(ProductionForecastEntry, ProductionForecastName.Name, ForecastDate, ItemNo);
-    end;
-
-    local procedure UpdateForecastOnManufacturingSetup(CurrentProductionForecast: Code[10])
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
-        ManufacturingSetup.Modify(true);
     end;
 
     local procedure CreateAndUpdateProductionForecast(var ProductionForecastEntry: Record "Production Forecast Entry"; Name: Code[10]; Date: Date; ItemNo: Code[20])
@@ -1532,13 +1523,13 @@
 
     local procedure SelectDateWithSafetyLeadTime(DateValue: Date; SignFactor: Integer): Date
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
         // Add Safety lead time to the required date and return the Date value.
-        ManufacturingSetup.Get();
+        InventorySetup.Get();
         if SignFactor < 0 then
-            exit(CalcDate('<-' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', DateValue));
-        exit(CalcDate('<' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', DateValue));
+            exit(CalcDate('<-' + Format(InventorySetup."Default Safety Lead Time") + '>', DateValue));
+        exit(CalcDate('<' + Format(InventorySetup."Default Safety Lead Time") + '>', DateValue));
     end;
 
     local procedure VerifyOrderTrackingForPlanningComponent(ItemNo: Code[20])

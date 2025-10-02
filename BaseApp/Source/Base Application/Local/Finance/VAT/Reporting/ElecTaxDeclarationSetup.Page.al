@@ -15,7 +15,7 @@ page 11410 "Elec. Tax Declaration Setup"
     InsertAllowed = false;
     PageType = Card;
     SourceTable = "Elec. Tax Declaration Setup";
-    UsageCategory = Tasks;
+    UsageCategory = Administration;
 
     layout
     {

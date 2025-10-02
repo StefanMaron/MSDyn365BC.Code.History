@@ -220,11 +220,9 @@ page 5181 "Job Task Archive Lines Subform"
                             JobPlanningArchiveLines: Page "Job Planning Archive Lines";
                         begin
                             Rec.TestField("Job No.");
-                            JobPlanningLineArchive.FilterGroup(2);
                             JobPlanningLineArchive.SetRange("Job No.", Rec."Job No.");
                             JobPlanningLineArchive.SetRange("Job Task No.", Rec."Job Task No.");
                             JobPlanningLineArchive.SetRange("Version No.", Rec."Version No.");
-                            JobPlanningLineArchive.FilterGroup(0);
                             JobPlanningArchiveLines.SetTableView(JobPlanningLineArchive);
                             JobPlanningArchiveLines.Editable := true;
                             JobPlanningArchiveLines.Run();

@@ -1413,9 +1413,6 @@ table 11401 "CBG Statement Line"
     var
         JournalTemplate: Record "Gen. Journal Template";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1425,10 +1422,6 @@ table 11401 "CBG Statement Line"
 
         TestField("Journal Template Name");
         JournalTemplate.Get("Journal Template Name");
-#if not CLEAN24
-        NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(JournalTemplate."No. Series", xRec."No. Series", Date, "Document No.", "No. Series", IsHandled);
-        if not IsHandled then begin
-#endif
             "No. Series" := JournalTemplate."No. Series";
             if "Document No." = '' then begin
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
@@ -1436,10 +1429,6 @@ table 11401 "CBG Statement Line"
                 "Document No." := NoSeries.GetNextNo("No. Series", Date);
             end else
                 NoSeries.TestManual("No. Series");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", JournalTemplate."No. Series", Date, "Document No.");
-        end;
-#endif
     end;
 
     local procedure GetCurrency()
@@ -2077,4 +2066,3 @@ table 11401 "CBG Statement Line"
     begin
     end;
 }
-

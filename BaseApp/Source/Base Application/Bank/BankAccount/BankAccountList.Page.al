@@ -15,6 +15,14 @@ using Microsoft.Foundation.Comment;
 using System.Diagnostics;
 using System.Email;
 
+/// <summary>
+/// List interface for viewing and managing multiple bank accounts.
+/// Provides overview of bank accounts with balance information and quick access to key actions.
+/// </summary>
+/// <remarks>
+/// Source Table: Bank Account (270). Primary lookup page for bank account selection.
+/// Features: Balance display, quick navigation to card, reconciliation, and statement import.
+/// </remarks>
 page 371 "Bank Account List"
 {
     ApplicationArea = Basic, Suite;

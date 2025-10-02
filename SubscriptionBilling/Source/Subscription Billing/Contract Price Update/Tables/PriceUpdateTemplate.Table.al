@@ -47,6 +47,8 @@ table 8003 "Price Update Template"
         {
             Caption = 'Update Value %';
             BlankZero = true;
+            AutoFormatType = 0;
+
             trigger OnValidate()
             begin
                 ThrowErrorIfUpdateValueNotZeroInCaseOfRecentItemPrices();

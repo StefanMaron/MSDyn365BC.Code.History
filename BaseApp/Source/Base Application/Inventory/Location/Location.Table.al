@@ -149,24 +149,17 @@ table 14 Location
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
-#if not CLEAN24
-        field(5719; "Home Page"; Text[90])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-            ObsoleteReason = 'Field length will be increased to 255.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
+#if not CLEAN27
 #pragma warning disable AS0086
+#endif
         field(5719; "Home Page"; Text[255])
-        {
-            Caption = 'Home Page';
-            ExtendedDatatype = URL;
-        }
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
         field(5720; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
@@ -1171,4 +1164,3 @@ table 14 Location
     begin
     end;
 }
-

@@ -379,6 +379,7 @@ page 321 "ECSL Report"
         ErrorMessage: Record "Error Message";
         TempErrorMessage: Record "Error Message" temporary;
     begin
+        OnBeforeCheckForErrors(ErrorsExist, ErrorMessage, TempErrorMessage);
         ErrorMessage.SetRange("Context Record ID", DummyCompanyInformation.RecordId);
         ErrorMessage.CopyToTemp(TempErrorMessage);
         ErrorMessage.SetRange("Context Record ID", Rec.RecordId);
@@ -400,6 +401,11 @@ page 321 "ECSL Report"
         if ErrorMessage.FindFirst() then
             ErrorMessage.DeleteAll(true);
         Commit();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckForErrors(var ErrorsExist: Boolean; ErrorMessage: Record "Error Message"; var TempErrorMessage: Record "Error Message" temporary)
+    begin
     end;
 }
 

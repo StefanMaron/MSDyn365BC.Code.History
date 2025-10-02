@@ -2446,37 +2446,6 @@ codeunit 139180 "CRM Entity Synch Test"
         exit(Format(Value, 0, '<Year4>-<Month,2>-<Day,2> <Hours24>:<Minutes,2>:<Seconds,2><Second dec.><Comma,.>'));
     end;
 
-    local procedure FillCodeBufferFromOption(IntegrationTableMapping: Record "Integration Table Mapping"; var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
-    var
-        FieldRef: FieldRef;
-        RecordRef: RecordRef;
-        CommaPos: Integer;
-        OptionString: Text;
-        OptionValue: Text;
-    begin
-        TempNameValueBuffer.DeleteAll();
-        RecordRef.Open(IntegrationTableMapping."Integration Table ID");
-        FieldRef := RecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
-        RecordRef.Close();
-        OptionString := FieldRef.OptionMembers;
-        while StrLen(OptionString) > 0 do begin
-            CommaPos := StrPos(OptionString, ',');
-            if CommaPos = 0 then begin
-                OptionValue := OptionString;
-                OptionString := '';
-            end else begin
-                OptionValue := CopyStr(OptionString, 1, CommaPos - 1);
-                OptionString := CopyStr(OptionString, CommaPos + 1);
-            end;
-            if DelChr(OptionValue, '=', ' ') <> '' then begin
-                TempNameValueBuffer.Init();
-                TempNameValueBuffer.ID += 1;
-                TempNameValueBuffer.Name := CopyStr(OptionValue, 1, MaxStrLen(TempNameValueBuffer.Name));
-                TempNameValueBuffer.Insert();
-            end;
-        end;
-    end;
-
     local procedure FindIntegrationFieldMapping(TableID: Integer; FieldID: Integer; var IntegrationFieldMapping: Record "Integration Field Mapping")
     var
         IntegrationTableMapping: Record "Integration Table Mapping";

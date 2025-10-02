@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.History;
 
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Outlook;
@@ -49,6 +53,14 @@ page 140 "Posted Purchase Credit Memo"
                     Importance = Promoted;
                     TableRelation = Vendor.Name;
                     ToolTip = 'Specifies the name of the vendor who shipped the items.';
+                }
+                field("Buy-from Vendor Name 2"; Rec."Buy-from Vendor Name 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Vendor Name 2';
+                    Editable = false;
+                    Importance = Additional;
+                    Visible = false;
                 }
                 group("Buy-from")
                 {
@@ -408,6 +420,14 @@ page 140 "Posted Purchase Credit Memo"
                         Editable = false;
                         Importance = Promoted;
                         ToolTip = 'Specifies the name of the vendor that you received the credit memo from.';
+                    }
+                    field("Pay-to Name 2"; Rec."Pay-to Name 2")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Name 2';
+                        Editable = false;
+                        Importance = Additional;
+                        Visible = false;
                     }
                     field("Pay-to Address"; Rec."Pay-to Address")
                     {

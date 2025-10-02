@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -285,19 +285,11 @@ table 11400 "CBG Statement"
     var
         JournalTemplate: Record "Gen. Journal Template";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         JournalTemplate.SetLoadFields(Type, "No. Series");
         JournalTemplate.Get("Journal Template Name");
         if (JournalTemplate.Type = JournalTemplate.Type::Bank) and (("Document No." = '') or (IncreaseNoSeries)) then begin
             JournalTemplate.TestField("No. Series");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(JournalTemplate."No. Series", xRec."No. Series", Date, "Document No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 "No. Series" := JournalTemplate."No. Series";
                 if NoSeries.AreRelated("No. Series", xRec."No. Series") then
                     "No. Series" := xRec."No. Series";
@@ -306,10 +298,6 @@ table 11400 "CBG Statement"
                     "Document No." := NoSeries.GetNextNo("No. Series", Date)
                 else
                     "Document No." := NoSeries.PeekNextNo("No. Series", Date);
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", JournalTemplate."No. Series", Date, "Document No.");
-            end;
-#endif
         end;
     end;
 
@@ -669,4 +657,3 @@ table 11400 "CBG Statement"
     begin
     end;
 }
-

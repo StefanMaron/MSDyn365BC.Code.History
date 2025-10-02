@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Projects.Project.Archive;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.Project.Archive;
 
 using Microsoft.Projects.Project.Job;
 
@@ -9,7 +13,7 @@ page 5178 "Job Task Archive Lines"
     PageType = List;
     Editable = false;
     SourceTable = "Job Task Archive";
-	ApplicationArea = Jobs;
+    ApplicationArea = Jobs;
     UsageCategory = Lists;
 
     layout
@@ -190,11 +194,9 @@ page 5178 "Job Task Archive Lines"
                         Rec.TestField("Job Task Type", Rec."Job Task Type"::Posting);
                         Rec.TestField("Job No.");
                         Rec.TestField("Job Task No.");
-                        JobPlanningLineArchive.FilterGroup(2);
                         JobPlanningLineArchive.SetRange("Job No.", Rec."Job No.");
                         JobPlanningLineArchive.SetRange("Job Task No.", Rec."Job Task No.");
                         JobPlanningLineArchive.SetRange("Version No.", Rec."Version No.");
-                        JobPlanningLineArchive.FilterGroup(0);
                         JobPlanningArchiveLines.SetTableView(JobPlanningLineArchive);
                         JobPlanningArchiveLines.Run();
                     end;

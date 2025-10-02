@@ -33,12 +33,14 @@ table 5064 "Interaction Template"
         }
         field(4; "Unit Cost (LCY)"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatExpression = '';
+            AutoFormatType = 2;
             Caption = 'Unit Cost (LCY)';
             MinValue = 0;
         }
         field(5; "Unit Duration (Min.)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Unit Duration (Min.)';
             DecimalPlaces = 0 : 0;
             MinValue = 0;
@@ -106,6 +108,7 @@ table 5064 "Interaction Template"
         }
         field(15; "Cost (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Interaction Log Entry"."Cost (LCY)" where("Interaction Template Code" = field(Code),
                                                                           Canceled = const(false),
@@ -117,6 +120,7 @@ table 5064 "Interaction Template"
         }
         field(16; "Duration (Min.)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Interaction Log Entry"."Duration (Min.)" where("Interaction Template Code" = field(Code),
                                                                                Canceled = const(false),
                                                                                Date = field("Date Filter"),
@@ -283,4 +287,3 @@ table 5064 "Interaction Template"
     begin
     end;
 }
-

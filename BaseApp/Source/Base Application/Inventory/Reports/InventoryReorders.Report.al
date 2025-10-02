@@ -419,7 +419,6 @@ report 717 "Inventory - Reorders"
         SKU := SKU2;
         SKU.CalcFields(
           Inventory, "Qty. on Purch. Order", "Qty. on Sales Order",
-          "Scheduled Receipt (Qty.)", "Qty. on Component Lines",
           "Trans. Ord. Shipment (Qty.)", "Qty. in Transit", "Trans. Ord. Receipt (Qty.)");
     end;
 

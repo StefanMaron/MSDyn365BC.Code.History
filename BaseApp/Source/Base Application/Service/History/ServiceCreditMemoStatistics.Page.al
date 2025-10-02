@@ -24,7 +24,7 @@ page 6034 "Service Credit Memo Statistics"
             group(General)
             {
                 Caption = 'General';
-                field(Amount; CustAmount + InvDiscAmount)
+                field(Amount; CustAmount + InvDiscAmount + PmtDiscAmount)
                 {
                     ApplicationArea = Service;
                     AutoFormatExpression = Rec."Currency Code";
@@ -39,6 +39,15 @@ page 6034 "Service Credit Memo Statistics"
                     AutoFormatType = 1;
                     Caption = 'Inv. Discount Amount';
                     ToolTip = 'Specifies the invoice discount amount for the entire service credit memo. If there is a check mark in the Calc. Inv. Discount field in the Sales & Receivables Setup window, the discount was calculated automatically.';
+                }
+                field(PmtDiscAmount; PmtDiscAmount)
+                {
+                    ApplicationArea = Service;
+                    AutoFormatExpression = Rec."Currency Code";
+                    AutoFormatType = 1;
+                    Caption = 'Pmt. Discount Amount';
+                    Editable = true;
+                    ToolTip = 'Specifies the payment discount amount that you have granted to customers. ';
                 }
                 field(CustAmount; CustAmount)
                 {
@@ -226,10 +235,13 @@ page 6034 "Service Credit Memo Statistics"
             repeat
                 CustAmount := CustAmount + ServCrMemoLine.Amount;
                 AmountInclVAT := AmountInclVAT + ServCrMemoLine."Amount Including VAT";
-                if Rec."Prices Including VAT" then
-                    InvDiscAmount := InvDiscAmount + ServCrMemoLine."Inv. Discount Amount" / (1 + ServCrMemoLine.GetVATPct() / 100)
-                else
+                if Rec."Prices Including VAT" then begin
+                    InvDiscAmount := InvDiscAmount + ServCrMemoLine."Inv. Discount Amount" / (1 + ServCrMemoLine.GetVATPct() / 100);
+                    PmtDiscAmount := PmtDiscAmount + ServCrMemoLine."Pmt. Discount Amount" / (1 + ServCrMemoLine.GetVATPct() / 100)
+                end else begin
                     InvDiscAmount := InvDiscAmount + ServCrMemoLine."Inv. Discount Amount";
+                    PmtDiscAmount := PmtDiscAmount + ServCrMemoLine."Pmt. Discount Amount"
+                end;
                 CostLCY := CostLCY + (ServCrMemoLine.Quantity * ServCrMemoLine."Unit Cost (LCY)");
                 LineQty := LineQty + ServCrMemoLine.Quantity;
                 TotalNetWeight := TotalNetWeight + (ServCrMemoLine.Quantity * ServCrMemoLine."Net Weight");
@@ -317,6 +329,7 @@ page 6034 "Service Credit Memo Statistics"
         CreditLimitLCYExpendedPct: Decimal;
         VATpercentage: Decimal;
         VATAmountText: Text[30];
+        PmtDiscAmount: Decimal;
 
 #pragma warning disable AA0074
         Text000: Label 'VAT Amount';

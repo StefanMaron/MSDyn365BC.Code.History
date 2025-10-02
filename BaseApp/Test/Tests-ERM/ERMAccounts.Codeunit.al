@@ -11,7 +11,6 @@ codeunit 134020 "ERM Accounts"
     var
         DeltaAssert: Codeunit "Delta Assert";
         LibraryERM: Codeunit "Library - ERM";
-        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
@@ -593,12 +592,14 @@ codeunit 134020 "ERM Accounts"
     procedure AccountCategoryValidationOnGLAccountCardWhenNameChanged()
     var
         GLAccount: Record "G/L Account";
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
         GLAccountCard: TestPage "G/L Account Card";
         AccName: Text[100];
     begin
         // [FEATURE] [UI]
         // [SCENARIO 205100] "Name" should not be changed when revalidate "Account Category" with empty value on G/L Account Card
         Initialize();
+        LibraryNotificationMgt.DisableMyNotification(FinancialReportMgt.GetUpdateFinancialReportNotificationId());
 
         // [GIVEN] G/L Account with empty "Account Category"
         LibraryERM.CreateGLAccount(GLAccount);
@@ -624,7 +625,7 @@ codeunit 134020 "ERM Accounts"
         GLBalancebyDimension: TestPage "G/L Balance by Dimension";
     begin
         // [FEATURE] [UI] [G/L Balance] [Date Filter]
-        // [SCENARIO 404617] An error trying validate a wrong Date Filter on the G/L Balance By Dimension page 
+        // [SCENARIO 404617] An error trying validate a wrong Date Filter on the G/L Balance By Dimension page
         GLBalancebyDimension.OpenEdit();
         asserterror GLBalancebyDimension.DateFilter.SetValue('qwerty');
         Assert.ExpectedErrorCode('TestValidation');
@@ -839,15 +840,6 @@ codeunit 134020 "ERM Accounts"
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Account No.");
-    end;
-
-    local procedure CreateAccountingPeriods()
-    var
-        Counter: Integer;
-    begin
-        // Create Fiscal Year greater than 20 times according to Test Case.
-        for Counter := 1 to LibraryRandom.RandIntInRange(21, 25) do
-            LibraryFiscalYear.CreateFiscalYear();
     end;
 
     local procedure SelectGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -1090,4 +1082,3 @@ codeunit 134020 "ERM Accounts"
         Reply := false;
     end;
 }
-

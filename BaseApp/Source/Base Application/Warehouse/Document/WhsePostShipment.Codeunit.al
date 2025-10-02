@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.Document;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Document;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Preview;
@@ -175,7 +179,6 @@ codeunit 5763 "Whse.-Post Shipment"
 #endif
                 OnBeforePostSourceHeader(WhseShptLine, GlobalSourceHeader, WhsePostParameters);
                 PostSourceDocument(WhseShptLine, GlobalSourceHeader);
-                WhseJnlRegisterLine.LockIfLegacyPosting();
 
                 if WhseShptLine.FindLast() then;
                 WhseShptLine.SetRange(WhseShptLine."Source Type");
@@ -508,7 +511,7 @@ codeunit 5763 "Whse.-Post Shipment"
             OnPostWhseJnlLineOnAfterSplitWhseJnlLine(TempWhseJnlLine, PostedWhseShptLine, TempTrackingSpecification, TempWhseJnlLine2);
             if TempWhseJnlLine2.Find('-') then
                 repeat
-                    WhseJnlRegisterLine.Run(TempWhseJnlLine2);
+                    WhseJnlRegisterLine.Run(TempWhseJnlLine2); 
                 until TempWhseJnlLine2.Next() = 0;
         end;
 

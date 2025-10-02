@@ -132,6 +132,8 @@ report 5701 "Item Substitutions"
 
     requestpage
     {
+        AboutTitle = 'About Item Substitutions';
+        AboutText = 'Helps you manage and track item substitutions in production orders and bills of materials (BOMs). You can specify substitute items to use when the preferred items aren''t available, ensuring that production continues smoothly and without delays.';
 
         layout
         {

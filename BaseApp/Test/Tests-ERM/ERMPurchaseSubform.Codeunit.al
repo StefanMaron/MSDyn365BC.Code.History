@@ -40,6 +40,7 @@ codeunit 134394 "ERM Purchase Subform"
         ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
         MustMatchErr: Label '%1 and %2 must match.';
         InvoiceDiscPct: Label 'Invoice Disc. Pct.';
+        ItemTestDescriptionLbl: Label 'Test Description';
 
 #if not CLEAN26
     [Obsolete('The statistics action will be replaced with the PurchaseOrderStatistics action. The new action uses RunObject and does not run the action trigger. Use a page extension to modify the behaviour.', '26.0')]
@@ -767,7 +768,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseOrder.PurchLines.New();
         OrderCheckCurrencyOnTotals(PurchaseOrder, Vendor."Currency Code");
 
-        PurchaseOrder.PurchLines.Description.SetValue('Test Description');
+        PurchaseOrder.PurchLines.Description.SetValue(ItemTestDescriptionLbl);
         OrderCheckCurrencyOnTotals(PurchaseOrder, Vendor."Currency Code");
     end;
 
@@ -1534,7 +1535,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseInvoice.PurchLines.New();
         InvoiceCheckCurrencyOnTotals(PurchaseInvoice, Vendor."Currency Code");
 
-        PurchaseInvoice.PurchLines.Description.SetValue('Test Description');
+        PurchaseInvoice.PurchLines.Description.SetValue(ItemTestDescriptionLbl);
         InvoiceCheckCurrencyOnTotals(PurchaseInvoice, Vendor."Currency Code");
     end;
 
@@ -2341,7 +2342,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseCreditMemo.PurchLines.New();
         CreditMemoCheckCurrencyOnTotals(PurchaseCreditMemo, Vendor."Currency Code");
 
-        PurchaseCreditMemo.PurchLines.Description.SetValue('Test Description');
+        PurchaseCreditMemo.PurchLines.Description.SetValue(ItemTestDescriptionLbl);
         CreditMemoCheckCurrencyOnTotals(PurchaseCreditMemo, Vendor."Currency Code");
     end;
 
@@ -3221,7 +3222,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseQuote.PurchLines.New();
         QuoteCheckCurrencyOnTotals(PurchaseQuote, Vendor."Currency Code");
 
-        PurchaseQuote.PurchLines.Description.SetValue('Test Description');
+        PurchaseQuote.PurchLines.Description.SetValue(ItemTestDescriptionLbl);
         QuoteCheckCurrencyOnTotals(PurchaseQuote, Vendor."Currency Code");
     end;
 
@@ -4126,7 +4127,7 @@ codeunit 134394 "ERM Purchase Subform"
         BlanketPurchaseOrder.PurchLines.New();
         BlanketPurchaseOrderCheckCurrencyOnTotals(BlanketPurchaseOrder, Vendor."Currency Code");
 
-        BlanketPurchaseOrder.PurchLines.Description.SetValue('Test Description');
+        BlanketPurchaseOrder.PurchLines.Description.SetValue(ItemTestDescriptionLbl);
         BlanketPurchaseOrderCheckCurrencyOnTotals(BlanketPurchaseOrder, Vendor."Currency Code");
     end;
 
@@ -4914,7 +4915,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseReturnOrder.PurchLines.New();
         ReturnOrderCheckCurrencyOnTotals(PurchaseReturnOrder, Vendor."Currency Code");
 
-        PurchaseReturnOrder.PurchLines.Description.SetValue('Test Description');
+        PurchaseReturnOrder.PurchLines.Description.SetValue(ItemTestDescriptionLbl);
         ReturnOrderCheckCurrencyOnTotals(PurchaseReturnOrder, Vendor."Currency Code");
     end;
 
@@ -6986,6 +6987,7 @@ codeunit 134394 "ERM Purchase Subform"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
         VendorNoSeries: Text[20];
     begin
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -7014,6 +7016,9 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryInventory.CreateItem(Item);
+        Item.Description := ItemTestDescriptionLbl;
+        Item.Modify();
 
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 

@@ -325,9 +325,9 @@ codeunit 137309 "SCM Reports"
     end;
 
     [Test]
-    [HandlerFunctions('CompareListRequestPageHandler')]
+    [HandlerFunctions('CompareProductionCostSharesRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure CompareListReportForTwoItemsWithDifferentBOM()
+    procedure CompareProductionCostSharesReportForTwoItemsWithDifferentBOM()
     var
         Item: Record Item;
         Item2: Record Item;
@@ -338,7 +338,7 @@ codeunit 137309 "SCM Reports"
         ExpectedValue: Decimal;
         ExpectedValue2: Decimal;
     begin
-        // Run Compare List Report for Two Items with different BOMs and validate the data.
+        // Run Compare Production Cost Shares Report for Two Items with different BOMs and validate the data.
 
         // Setup: Create two Items with Routing and Production BOM.
         Initialize();
@@ -347,9 +347,9 @@ codeunit 137309 "SCM Reports"
         CreateManufacturingItem(
           Item2, Item."Costing Method"::Standard, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
 
-        // Exercise: Run Compare List Report and calculate expected values for verification.
+        // Exercise: Run Compare Production Cost Shares Report and calculate expected values for verification.
         Commit();
-        RunCompareListReport(Item."No.", Item2."No.");
+        RunCompareProductionCostSharesReport(Item."No.", Item2."No.");
         Component := GetComponent(Item."Production BOM No.");
         Component2 := GetComponent(Item2."Production BOM No.");
         ExpectedValue := CalculateExpectedValue(Item."Production BOM No.", Component) -
@@ -359,8 +359,8 @@ codeunit 137309 "SCM Reports"
 
         // Verify: Verify data in the Report.
         LibraryReportDataset.LoadDataSetFile();
-        VerifyCompareListReport(Component, ExpectedValue);
-        VerifyCompareListReport(Component2, ExpectedValue2);
+        VerifyCompareProductionCostSharesReport(Component, ExpectedValue);
+        VerifyCompareProductionCostSharesReport(Component2, ExpectedValue2);
     end;
 
     [Test]
@@ -2182,12 +2182,11 @@ codeunit 137309 "SCM Reports"
         REPORT.Run(REPORT::"Calc. Inventory Value - Test", true, false, Item);
     end;
 
-    local procedure RunCompareListReport(ItemNo: Code[20]; ItemNo2: Code[20])
+    local procedure RunCompareProductionCostSharesReport(ItemNo: Code[20]; ItemNo2: Code[20])
     begin
         LibraryVariableStorage.Enqueue(ItemNo);
         LibraryVariableStorage.Enqueue(ItemNo2);
-        LibraryVariableStorage.Enqueue(WorkDate());
-        REPORT.Run(REPORT::"Compare List", true, false);
+        Report.Run(Report::"Compare Production Cost Shares", true, false);
     end;
 
     local procedure RunItemAgeCompositionQuantityReport(ItemNo: Code[20]; PeriodLength: DateFormula; LocationFilter: Text)
@@ -2333,11 +2332,11 @@ codeunit 137309 "SCM Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals(ColumnCaption, ExpectedValue);
     end;
 
-    local procedure VerifyCompareListReport(ItemNo: Code[20]; ExpectedValue: Decimal)
+    local procedure VerifyCompareProductionCostSharesReport(ItemNo: Code[20]; ExpectedValue: Decimal)
     begin
-        LibraryReportDataset.SetRange('BOMMatrixListItemNo', ItemNo);
+        LibraryReportDataset.SetRange('No', ItemNo);
         LibraryReportDataset.GetNextRow();
-        LibraryReportDataset.AssertCurrentRowValueEquals('CostDiff', ExpectedValue);
+        LibraryReportDataset.AssertCurrentRowValueEquals('DifferenceCost', ExpectedValue);
     end;
 
     local procedure VerifyItemAgeCompositionReport(ItemNo: Code[20]; Column1: Text; Column2: Text; ExpectedValueColumn1: Variant; ExpectedValueColumn2: Variant)
@@ -2521,21 +2520,18 @@ codeunit 137309 "SCM Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure CompareListRequestPageHandler(var CompareList: TestRequestPage "Compare List")
+    procedure CompareProductionCostSharesRequestPageHandler(var CompareProductionCostShares: TestRequestPage "Compare Production Cost Shares")
     var
         ItemNo1: Variant;
         ItemNo2: Variant;
-        CalcDate: Variant;
     begin
         LibraryVariableStorage.Dequeue(ItemNo1);
         LibraryVariableStorage.Dequeue(ItemNo2);
-        LibraryVariableStorage.Dequeue(CalcDate);
 
-        CompareList.ItemNo1.SetValue(ItemNo1);
-        CompareList.ItemNo2.SetValue(ItemNo2);
-        CompareList.CalculationDt.SetValue(CalcDate);
+        CompareProductionCostShares.ItemNo1.SetValue(ItemNo1);
+        CompareProductionCostShares.ItemNo2.SetValue(ItemNo2);
 
-        CompareList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+        CompareProductionCostShares.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

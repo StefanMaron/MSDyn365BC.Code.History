@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.UOM;
@@ -9,7 +13,6 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Purchases.Document;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.History;
@@ -185,7 +188,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
         if PurchRcptLine.Correction then
             Error(AlreadyReversedErr);
         if PurchRcptLine."Qty. Rcd. Not Invoiced" <> PurchRcptLine.Quantity then begin
-            if PurchRcptLine."Prod. Order No." <> '' then
+            if PurchRcptLine.IsProdOrder() then
                 Error(Text004);
             if HasInvoicedNotReturnedQuantity(PurchRcptLine) then
                 Error(Text004);
@@ -196,7 +199,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
             IsHandled := false;
             OnCheckPurchRcptLineOnBeforeCollectItemLedgEntries(PurchRcptLine, TempItemLedgEntry, IsHandled);
             if not IsHandled then
-                if PurchRcptLine."Prod. Order No." <> '' then begin
+                if PurchRcptLine.IsProdOrder() then begin
                     if UndoPostingMgt.CollectOutputItemLedgEntriesForSubcontructingPurcReceiptLine(TempItemLedgEntry, PurchRcptLine) then
                         UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, PurchRcptLine."Line No.", PurchRcptLine."Qty. Rcd. Not Invoiced" <> PurchRcptLine.Quantity);
                 end else begin
@@ -230,97 +233,6 @@ codeunit 5813 "Undo Purchase Receipt Line"
         end else
             LineSpacing := 10000;
         exit(PurchRcptLine."Line No." + LineSpacing);
-    end;
-
-    local procedure UpdateItemJnlLineProdOrderSubcontracting(var ItemJnlLine: Record "Item Journal Line"; var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempOutputItemLedgerEntry: Record "Item Ledger Entry" temporary; var OneLinePostingUndo: Boolean)
-    var
-        TempCapacityLedgEntry: Record "Capacity Ledger Entry" temporary;
-        OutputItemLedgerEntryCount: Integer;
-    begin
-        ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Production;
-        ItemJnlLine."Order No." := PurchRcptLine."Prod. Order No.";
-        ItemJnlLine."Order Line No." := PurchRcptLine."Prod. Order Line No.";
-
-        ItemJnlLine."Source Type" := ItemJnlLine."Source Type"::Vendor;
-        ItemJnlLine."Source No." := PurchRcptLine."Buy-from Vendor No.";
-        ItemJnlLine."Invoice-to Source No." := PurchRcptLine."Pay-to Vendor No.";
-
-        ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Output;
-        ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::" ";
-        ItemJnlLine."Document Line No." := 0;
-        ItemJnlLine.Description := PurchRcptLine.Description;
-        ItemJnlLine.Subcontracting := true;
-
-        GetCapacityAndItemLedgerEntries(TempCapacityLedgEntry, TempOutputItemLedgerEntry, PurchRcptLine);
-        if TempCapacityLedgEntry.FindLast() then;
-
-        OutputItemLedgerEntryCount := TempOutputItemLedgerEntry.Count();
-
-        ItemJnlLine."Quantity (Base)" := -UOMMgt.CalcBaseQty(PurchRcptLine."No.", '', PurchRcptLine."Unit of Measure Code", PurchRcptLine.Quantity, PurchRcptLine."Qty. per Unit of Measure", 0);
-        ItemJnlLine."Output Quantity" := -PurchRcptLine.Quantity;
-        ItemJnlLine."Output Quantity (Base)" := ItemJnlLine."Quantity (Base)";
-        ItemJnlLine."Invoiced Qty. (Base)" := 0;
-
-        ItemJnlLine."Unit Cost" := PurchRcptLine."Unit Cost (LCY)";
-        ItemJnlLine."Unit Cost (ACY)" := PurchRcptLine."Unit Cost";
-
-        ItemJnlLine.Type := ItemJnlLine.Type::"Work Center";
-        ItemJnlLine."No." := PurchRcptLine."Work Center No.";
-        ItemJnlLine."Routing No." := PurchRcptLine."Routing No.";
-        ItemJnlLine."Routing Reference No." := PurchRcptLine."Routing Reference No.";
-        ItemJnlLine."Operation No." := PurchRcptLine."Operation No.";
-        ItemJnlLine."Work Center No." := PurchRcptLine."Work Center No.";
-        ItemJnlLine."Unit Cost Calculation" := ItemJnlLine."Unit Cost Calculation"::Units;
-
-        //to undo capacity ledger entry time values
-        ItemJnlLine."Run Time" := -TempCapacityLedgEntry."Run Time";
-        ItemJnlLine."Setup Time" := -TempCapacityLedgEntry."Setup Time";
-        ItemJnlLine."Run Time" := -TempCapacityLedgEntry."Run Time";
-        ItemJnlLine."Stop Time" := -TempCapacityLedgEntry."Stop Time";
-
-        ItemJnlLine."Applies-to Entry" := 0;
-
-        if OutputItemLedgerEntryCount = 1 then begin
-            TempOutputItemLedgerEntry.FindFirst();
-            if (TempOutputItemLedgerEntry."Lot No." = '') and (TempOutputItemLedgerEntry."Serial No." = '') then
-                ItemJnlLine."Applies-to Entry" := TempOutputItemLedgerEntry."Entry No.";
-        end;
-
-        OneLinePostingUndo := ItemJnlLine."Applies-to Entry" <> 0;
-    end;
-
-    local procedure GetCapacityAndItemLedgerEntries(var TempCapacityLedgEntry: Record "Capacity Ledger Entry" temporary; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var PurchRcptLine: Record "Purch. Rcpt. Line")
-    var
-        CapacityLedgEntry: Record "Capacity Ledger Entry";
-        ItemLedgEntry: Record "Item Ledger Entry";
-    begin
-        CapacityLedgEntry.ReadIsolation := IsolationLevel::ReadCommitted;
-        CapacityLedgEntry.SetCurrentKey("Document No.", "Posting Date");
-        CapacityLedgEntry.SetRange("Document No.", PurchRcptLine."Document No.");
-        CapacityLedgEntry.SetRange("Order Type", CapacityLedgEntry."Order Type"::Production);
-        CapacityLedgEntry.SetRange("Order No.", PurchRcptLine."Prod. Order No.");
-        CapacityLedgEntry.SetRange("Order Line No.", PurchRcptLine."Prod. Order Line No.");
-
-        if CapacityLedgEntry.FindSet() then
-            repeat
-                TempCapacityLedgEntry := CapacityLedgEntry;
-                TempCapacityLedgEntry.Insert();
-            until CapacityLedgEntry.Next() = 0;
-
-        ItemLedgEntry.ReadIsolation := IsolationLevel::ReadCommitted;
-        ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
-        ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
-        ItemLedgEntry.SetRange("Order No.", PurchRcptLine."Prod. Order No.");
-        ItemLedgEntry.SetRange("Order Line No.", PurchRcptLine."Prod. Order Line No.");
-        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Output);
-        ItemLedgEntry.SetRange("Source Type", ItemLedgEntry."Source Type"::Vendor);
-        ItemLedgEntry.SetRange("Source No.", PurchRcptLine."Buy-from Vendor No.");
-        ItemLedgEntry.SetFilter("Remaining Quantity", '>0');
-        if ItemLedgEntry.FindSet() then
-            repeat
-                TempItemLedgEntry := ItemLedgEntry;
-                TempItemLedgEntry.Insert();
-            until ItemLedgEntry.Next() = 0;
     end;
 
     local procedure PostItemJnlLine(PurchRcptLine: Record "Purch. Rcpt. Line"; var DocLineNo: Integer): Integer
@@ -387,9 +299,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
         ItemJnlLine."Quantity (Base)" := -(PurchRcptLine."Quantity (Base)" - PurchRcptLine."Qty. Invoiced (Base)");
 
         ItemRcptEntryNoFilled := PurchRcptLine."Item Rcpt. Entry No." <> 0;
-        if PurchRcptLine."Prod. Order No." <> '' then
-            UpdateItemJnlLineProdOrderSubcontracting(ItemJnlLine, PurchRcptLine, TempApplyToEntryList, ItemRcptEntryNoFilled);
 
+        if PurchRcptLine.IsProdOrder() then
+            OnUpdateItemJnlLineProdOrderSubcontracting(ItemJnlLine, PurchRcptLine, TempApplyToEntryList, ItemRcptEntryNoFilled);
+
+        IsHandled := false;
         OnAfterCopyItemJnlLineFromPurchRcpt(ItemJnlLine, PurchRcptHeader, PurchRcptLine, WhseUndoQty, ItemLedgEntryNo, NextLineNo, TempWhseJnlLine, TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, IsHandled);
         if IsHandled then
             exit(ItemLedgEntryNo);
@@ -444,11 +358,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
             exit(ItemShptEntryNo);
         end;
 
-        if PurchRcptLine."Prod. Order No." = '' then
+        if not PurchRcptLine.IsProdOrder() then
             UndoPostingMgt.CollectItemLedgEntries(
               TempApplyToEntryList, DATABASE::"Purch. Rcpt. Line", PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."Quantity (Base)", PurchRcptLine."Item Rcpt. Entry No.");
 
-        if PurchRcptLine."Prod. Order No." <> '' then //When subcontracting base value is 0, value required for UndoPostingMgt.PostItemJnlLineAppliedToList call
+        if PurchRcptLine.IsProdOrder() then //When subcontracting base value is 0, value required for UndoPostingMgt.PostItemJnlLineAppliedToList call
             PurchRcptLine."Quantity (Base)" := UOMMgt.CalcBaseQty(PurchRcptLine."No.", '', PurchRcptLine."Unit of Measure Code", PurchRcptLine.Quantity, PurchRcptLine."Qty. per Unit of Measure", 0);
 
         IsHandled := false;
@@ -824,5 +738,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
     local procedure OnCodeOnBeforeMakeInventoryAdjustment(var PurchaseLine: Record "Purchase Line"; var PurchaseReceiptLine: Record "Purch. Rcpt. Line")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemJnlLineProdOrderSubcontracting(var ItemJnlLine: Record "Item Journal Line"; var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempOutputItemLedgerEntry: Record "Item Ledger Entry" temporary; var OneLinePostingUndo: Boolean)
+    begin
+    end;
+
 }
 

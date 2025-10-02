@@ -5,7 +5,6 @@
 namespace Microsoft.Assembly.Test;
 
 using Microsoft.Inventory.Ledger;
-using Microsoft.Manufacturing.Setup;
 using System.Environment.Configuration;
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.BOM;
@@ -16,6 +15,8 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Availability;
 using Microsoft.Sales.Document;
 using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Setup;
+using Microsoft.Foundation.NoSeries;
 
 codeunit 137906 "SCM Assembly Availability"
 {
@@ -24,12 +25,9 @@ codeunit 137906 "SCM Assembly Availability"
     TestPermissions = Disabled;
 
     trigger OnRun()
-    var
-        MfgSetup: Record "Manufacturing Setup";
     begin
         // [FEATURE] [Assembly] [SCM]
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate();
     end;
 
     var
@@ -38,6 +36,7 @@ codeunit 137906 "SCM Assembly Availability"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryKitting: Codeunit "Library - Kitting";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         DummyAssemblyOrderTestPage: TestPage "Assembly Order";
@@ -241,7 +240,6 @@ codeunit 137906 "SCM Assembly Availability"
     var
         AssemblyHeader: Record "Assembly Header";
         BOMComp: Record "BOM Component";
-        MfgSetup: Record "Manufacturing Setup";
         parentItem: Record Item;
         childItem: Record Item;
         QTYParent: Decimal;
@@ -249,10 +247,7 @@ codeunit 137906 "SCM Assembly Availability"
     begin
         Initialize();
         LibraryKitting.SetLookahead('<1M>');
-
-        MfgSetup.Get();
-        Clear(MfgSetup."Default Safety Lead Time");
-        MfgSetup.Modify();
+        LibraryPlanning.SetDefaultSafetyLeadTime('');
 
         QTYParent := 1;
         QTYChild := 5;
@@ -358,7 +353,6 @@ codeunit 137906 "SCM Assembly Availability"
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
         BOMComp: Record "BOM Component";
-        MfgSetup: Record "Manufacturing Setup";
         parentItem: Record Item;
         childItem: Record Item;
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
@@ -370,10 +364,7 @@ codeunit 137906 "SCM Assembly Availability"
     begin
         Initialize();
         LibraryKitting.SetLookahead('<1Y>');
-
-        MfgSetup.Get();
-        Clear(MfgSetup."Default Safety Lead Time");
-        MfgSetup.Modify();
+        LibraryPlanning.SetDefaultSafetyLeadTime('');
 
         QTYParent := 1;
         QTYChild := 16;     // must be 16
@@ -413,7 +404,7 @@ codeunit 137906 "SCM Assembly Availability"
     var
         AssemblyHeader: Record "Assembly Header";
         BOMComp: Record "BOM Component";
-        MfgSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         parentItem: Record Item;
         childItem: Record Item;
         childItem2: Record Item;
@@ -422,9 +413,7 @@ codeunit 137906 "SCM Assembly Availability"
         ExpectedDate: Date;
     begin
         Initialize();
-        MfgSetup.Get();
-        Evaluate(MfgSetup."Default Safety Lead Time", '<1D>');
-        MfgSetup.Modify();
+        LibraryPlanning.SetDefaultSafetyLeadTime('<1D>');
 
         LibraryKitting.SetLookahead('<1M>');
         QTYParent := 8;
@@ -450,7 +439,8 @@ codeunit 137906 "SCM Assembly Availability"
         MockPurchaseOrder(childItem2."No.", 1, AssemblyHeader."Location Code", ExpectedDate);
 
         ValidateQtyAvailableToMake(AssemblyHeader, 4);
-        ValidateEarliestDate(AssemblyHeader, CalcDate(MfgSetup."Default Safety Lead Time", ExpectedDate));
+        InventorySetup.Get();
+        ValidateEarliestDate(AssemblyHeader, CalcDate(InventorySetup."Default Safety Lead Time", ExpectedDate));
         ValidateOrderRatio(AssemblyHeader, 4);
         NotificationLifecycleMgt.RecallAllNotifications();
         asserterror Error('') // roll back
@@ -603,11 +593,13 @@ codeunit 137906 "SCM Assembly Availability"
     local procedure SetItemInventory(ItemNo: Code[20]; Quantity: Integer)
     var
         Item: Record Item;
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
         Item.SetRange("No.", ItemNo);
         Item.FindFirst();
         Item.Validate(Inventory, Quantity);
         Item.Modify();
+        SequenceNoMgt.ClearState();
     end;
 
     local procedure ValidateOrderRatio(AsmHeader: Record "Assembly Header"; ExpectedAvailable: Decimal)

@@ -18,23 +18,21 @@ codeunit 843 "Cash Flow Wksh. - Register"
     var
         CFWkshLine: Record "Cash Flow Worksheet Line";
 
-#pragma warning disable AA0074
-        Text1001: Label 'Do you want to register the worksheet lines?';
-        Text1002: Label 'There is nothing to register.';
-        Text1003: Label 'The worksheet lines were successfully registered.';
-#pragma warning restore AA0074
+        RegisterWorksheetLinesQst: Label 'Do you want to register the worksheet lines?';
+        NothingToRegisterMsg: Label 'There is nothing to register.';
+        WorksheetLinesRegisteredMsg: Label 'The worksheet lines were successfully registered.';
 
     local procedure "Code"()
     begin
-        if not Confirm(Text1001) then
+        if not Confirm(RegisterWorksheetLinesQst) then
             exit;
 
         CODEUNIT.Run(CODEUNIT::"Cash Flow Wksh.-Register Batch", CFWkshLine);
 
         if CFWkshLine."Line No." = 0 then
-            Message(Text1002)
+            Message(NothingToRegisterMsg)
         else
-            Message(Text1003);
+            Message(WorksheetLinesRegisteredMsg);
 
         if not CFWkshLine.Find('=><') then begin
             CFWkshLine.Reset();

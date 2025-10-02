@@ -39,6 +39,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(3; "Commission %"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Commission %';
             DecimalPlaces = 2 : 2;
             MaxValue = 100;
@@ -137,6 +138,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5056; "Estimated Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Estimated Value (LCY)" where("Salesperson Code" = field(Code),
                                                                                  Active = const(true),
@@ -152,6 +154,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5057; "Calcd. Current Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Calcd. Current Value (LCY)" where("Salesperson Code" = field(Code),
                                                                                       Active = const(true),
@@ -182,6 +185,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5060; "Cost (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Interaction Log Entry"."Cost (LCY)" where("Salesperson Code" = field(Code),
                                                                           Canceled = const(false),
@@ -193,6 +197,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5061; "Duration (Min.)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Interaction Log Entry"."Duration (Min.)" where("Salesperson Code" = field(Code),
                                                                                Canceled = const(false),
                                                                                Date = field("Date Filter"),
@@ -227,6 +232,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5066; "Probability % Filter"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Probability % Filter';
             DecimalPlaces = 1 : 1;
             FieldClass = FlowFilter;
@@ -235,6 +241,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5067; "Completed % Filter"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Completed % Filter';
             DecimalPlaces = 1 : 1;
             FieldClass = FlowFilter;
@@ -243,6 +250,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5068; "Avg. Estimated Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = average("Opportunity Entry"."Estimated Value (LCY)" where("Salesperson Code" = field(Code),
                                                                                      Active = const(true),
@@ -258,6 +266,7 @@ table 13 "Salesperson/Purchaser"
         }
         field(5069; "Avg.Calcd. Current Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = average("Opportunity Entry"."Calcd. Current Value (LCY)" where("Salesperson Code" = field(Code),
                                                                                           Active = const(true),
@@ -291,18 +300,21 @@ table 13 "Salesperson/Purchaser"
         }
         field(5073; "Estimated Value Filter"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Estimated Value Filter';
             FieldClass = FlowFilter;
         }
         field(5074; "Calcd. Current Value Filter"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Calcd. Current Value Filter';
             FieldClass = FlowFilter;
         }
         field(5075; "Chances of Success % Filter"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Chances of Success % Filter';
             DecimalPlaces = 0 : 0;
             FieldClass = FlowFilter;
@@ -545,4 +557,3 @@ table 13 "Salesperson/Purchaser"
     begin
     end;
 }
-

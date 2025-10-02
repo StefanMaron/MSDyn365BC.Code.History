@@ -13,6 +13,7 @@ using System.Device;
 using System.Environment;
 using System.IO;
 using System.Utilities;
+using System.Threading;
 
 page 189 "Incoming Document"
 {
@@ -132,6 +133,15 @@ page 189 "Incoming Document"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the job queue entry that is processing the incoming document.';
+
+                    trigger OnDrillDown()
+                    var
+                        JobQueueEntry: Record "Job Queue Entry";
+                    begin
+                        if Rec."Job Queue Status" = Rec."Job Queue Status"::" " then
+                            exit;
+                        JobQueueEntry.ShowStatusMsg(Rec."Job Queue Entry ID");
+                    end;
                 }
                 group(Control71)
                 {

@@ -1109,10 +1109,10 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         Quantity := LibraryRandom.RandIntInRange(6497, 6497);
         DirectUnitCost := LibraryRandom.RandDecInDecimalRange(1.96, 1.96, 2);
 
-        // [GIVEN] Create a Purchase Invoice with Inherit 
+        // [GIVEN] Create a Purchase Invoice with Inherit
         CreatePurchaseInvoiceWithInheritFromParent(DestinationGLAccount."No.", AllocationAccount."No.", PurchaseInvoice, PurchaseHeader, Quantity, DirectUnitCost);
 
-        // [GIVEN] Save the value in AmountIncludingVAT variable 
+        // [GIVEN] Save the value in AmountIncludingVAT variable
         Evaluate(AmountIncludingVAT, PurchaseInvoice.DocAmount.Value());
 
         // [WHEN] The Purchase Invoice is posted
@@ -1141,7 +1141,7 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         UnitCost: Decimal;
         AmountIncludingVAT: Decimal;
     begin
-        // [SCENARIO 572659] A Purchase Invoice with a G/L Account and Allocation Account generates correct 
+        // [SCENARIO 572659] A Purchase Invoice with a G/L Account and Allocation Account generates correct
         // allocation of the Expense and include Canada Tax in the Allocation of the Purchase Invoice Line Amount
         Initialize();
 
@@ -1158,10 +1158,10 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         // [GIVEN] Create a fixed Allocation Account with nine Distribution Lines and inherit from parent values.
         CreateFixedAllocationAccountWithNineDistributionLinesInheritFromParent(AllocationAccount, DimensionValue);
 
-        // [GIVEN] Create a Purchase Invoice with Inherit 
+        // [GIVEN] Create a Purchase Invoice with Inherit
         CreatePurchaseInvoiceWithInheritFromParent(GLAccount."No.", AllocationAccount."No.", PurchaseInvoice, PurchaseHeader, Quantity, UnitCost);
 
-        // [GIVEN] Save the value in AmountIncludingVAT variable 
+        // [GIVEN] Save the value in AmountIncludingVAT variable
         Evaluate(AmountIncludingVAT, PurchaseInvoice.DocAmount.Value());
 
         // [WHEN] The Purchase Invoice is posted
@@ -1250,11 +1250,6 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
     local procedure GetLineAmountToForceRounding(): Decimal
     begin
         exit(1025.27)
-    end;
-
-    local procedure GetAmountWithVAT(): Decimal
-    begin
-        exit(1618.61);
     end;
 
     local procedure CreateAllocationAccountwithFixedGLDistributions(

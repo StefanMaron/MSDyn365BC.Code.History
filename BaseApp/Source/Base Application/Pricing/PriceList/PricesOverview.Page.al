@@ -606,14 +606,20 @@ page 7024 "Prices Overview"
         ParentSourceNoFilterEditable: Boolean;
         SourceNoFilter: Text;
         SourceNoFilterEditable: Boolean;
-        AssetNoFilterEditable: Boolean;
         CurrencyCodeFilter: Text;
         StartingDateFilter: Text;
         EndingDateFilter: Text;
         PageCaptionText: Text;
+        AssetNoFilterEditable: Boolean;
+        LineExists: Boolean;
+        UseCustomLookup: Boolean;
         Description3Lbl: Label '%1 %2 %3', Locked = true;
         Description5Lbl: Label '%1 %2 %3 %4 %5', Locked = true;
         WithinFilterLbl: Label 'No %1 within the filter %2.', Comment = '%1 - the unique entity id, %2 - the filter string ';
+
+    protected var
+        PriceAsset: Record "Price Asset";
+        AssetNoFilter: Text;
         AssignToNoEditable: Boolean;
         AssignToParentNoEditable: Boolean;
         PriceTypeVisible: Boolean;
@@ -643,17 +649,11 @@ page 7024 "Prices Overview"
         VariantCodeEditable: Boolean;
         UnitPriceEditable: Boolean;
         LineDiscPctEditable: Boolean;
-        LineExists: Boolean;
-        UseCustomLookup: Boolean;
         VariantCodeVisible: Boolean;
         VariantCodeLookupVisible: Boolean;
         UoMVisible: Boolean;
         UoMLookupVisible: Boolean;
         WorkTypeCodeEditable: Boolean;
-
-    protected var
-        PriceAsset: Record "Price Asset";
-        AssetNoFilter: Text;
 
     procedure SetRecFilters()
     begin

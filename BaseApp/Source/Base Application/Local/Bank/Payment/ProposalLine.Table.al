@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -281,27 +281,15 @@ table 11000000 "Proposal Line"
             var
                 TrMode: Record "Transaction Mode";
                 NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-                NoSeriesManagement: Codeunit NoSeriesManagement;
-                IsHandled: Boolean;
-#endif
 
             begin
                 TrMode.Get("Account Type", "Transaction Mode");
                 TrMode.TestField("Identification No. Series");
-#if not CLEAN24
-                NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(TrMode."Identification No. Series", '', "Transaction Date", Identification, "Identification No. Series", IsHandled);
-                if not IsHandled then begin
-#endif
                     "Identification No. Series" := TrMode."Identification No. Series";
                     if Identification = '' then
                         Identification := NoSeries.GetNextNo("Identification No. Series", "Transaction Date")
                     else
                         NoSeries.TestManual("Identification No. Series");
-#if not CLEAN24
-                    NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("Identification No. Series", TrMode."Identification No. Series", "Transaction Date", Identification);
-                end;
-#endif
             end;
         }
         field(16; "Bank Account No."; Text[30])
@@ -334,10 +322,6 @@ table 11000000 "Proposal Line"
             var
                 TrMode: Record "Transaction Mode";
                 NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-                NoSeriesManagement: Codeunit NoSeriesManagement;
-                IsHandled: Boolean;
-#endif
             begin
                 if "Transaction Mode" <> xRec."Transaction Mode" then
                     TestDetailAvailable(FieldCaption("Our Bank No."));
@@ -352,16 +336,8 @@ table 11000000 "Proposal Line"
 
                 if Identification = '' then begin
                     TrMode.TestField("Identification No. Series");
-#if not CLEAN24
-                    NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(TrMode."Identification No. Series", '', "Transaction Date", Identification, "Identification No. Series", IsHandled);
-                    if not IsHandled then begin
-#endif
                         "Identification No. Series" := TrMode."Identification No. Series";
                         Identification := NoSeries.GetNextNo("Identification No. Series", "Transaction Date");
-#if not CLEAN24
-                        NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("Identification No. Series", TrMode."Identification No. Series", "Transaction Date", Identification);
-                    end;
-#endif
                 end;
             end;
         }
@@ -859,4 +835,3 @@ table 11000000 "Proposal Line"
             HeaderGlobalDim1, HeaderGlobalDim2);
     end;
 }
-

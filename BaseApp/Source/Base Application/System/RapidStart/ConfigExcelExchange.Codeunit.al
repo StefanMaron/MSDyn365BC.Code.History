@@ -703,6 +703,7 @@ codeunit 8618 "Config. Excel Exchange"
         StringValue: DotNet StringValue;
         RowsCount: Integer;
         ColumnNameAndRowNo: Code[10];
+        RowNo: Integer;
     begin
         TableDefinitionPart := WrkShtWriter.CreateTableDefinitionPart();
         ConfigPackageField.Reset();
@@ -711,7 +712,8 @@ codeunit 8618 "Config. Excel Exchange"
         ConfigPackageField.SetRange("Include Field", true);
 
         ColumnNameAndRowNo := 'A3:';
-        OnAddAndInitializeTableDefinitionPartOnBeforeGetDataTable(ConfigPackageTable, DataTableCounter, ColumnNameAndRowNo);
+        RowNo := 3;
+        OnAddAndInitializeTableDefinitionPartOnBeforeGetDataTable(ConfigPackageTable, DataTableCounter, ColumnNameAndRowNo, RowNo);
 
         DataTable := DataSet.Tables.Item(DataTableCounter);
 
@@ -724,7 +726,7 @@ codeunit 8618 "Config. Excel Exchange"
         Table.TotalsRowShown := BooleanValue.BooleanValue(false);
         Table.Reference :=
           StringValue.StringValue(
-            ColumnNameAndRowNo + OpenXMLManagement.GetXLColumnID(ConfigPackageField.Count) + Format(RowsCount + 3));
+            ColumnNameAndRowNo + OpenXMLManagement.GetXLColumnID(ConfigPackageField.Count) + Format(RowsCount + RowNo));
         Table.Name := StringValue.StringValue('Table' + Format(id));
         Table.DisplayName := StringValue.StringValue('Table' + Format(id));
         OpenXMLManagement.AppendAutoFilter(Table);
@@ -877,7 +879,7 @@ codeunit 8618 "Config. Excel Exchange"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAddAndInitializeTableDefinitionPartOnBeforeGetDataTable(var ConfigPackageTable: Record "Config. Package Table"; var DataTableCounter: Integer; var ColumnNameAndRowNo: Code[10])
+    local procedure OnAddAndInitializeTableDefinitionPartOnBeforeGetDataTable(var ConfigPackageTable: Record "Config. Package Table"; var DataTableCounter: Integer; var ColumnNameAndRowNo: Code[10]; var RowNo: Integer)
     begin
     end;
 

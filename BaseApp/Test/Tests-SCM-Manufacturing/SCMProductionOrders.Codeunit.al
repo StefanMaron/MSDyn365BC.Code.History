@@ -87,7 +87,7 @@ codeunit 137069 "SCM Production Orders"
         NumberOfLineEqualErr: Label 'Number of Lines must be same.';
         QtyToHandleErr: Label 'Qty. to Handle (Base) in the item tracking assigned to the document line for item';
         LotNoErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
-        ProductionOrderFinishedStatusMsg: Label 'Some consumption is still missing. Do you still want to finish the order?';
+        ProductionOrderFinishedStatusMsg: Label '\\  * Some consumption is still missing.\\ Do you still want to finish the order?';
         ProductionOrderNotExistErr: Label 'There is no Production Order within the filter';
         NothingToPlanMsg: Label 'There is nothing to plan';
         JournalLinePostedMsg: Label 'The journal lines were successfully posted.';
@@ -1538,7 +1538,7 @@ codeunit 137069 "SCM Production Orders"
         LibraryVariableStorage.Enqueue(FirmPlannedProdOrderCreatedTxt);  // Enqueue value for Message Handler.
 
         // Exercise: Create Firm Planned Production Order using Sales Order Planning.
-        LibraryPlanning.CreateProdOrderUsingPlanning(
+        LibraryManufacturing.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesLine."Document No.", SalesLine."No.");
 
         // Verify: Verify Created new Firm Planned Production Order.
@@ -1561,7 +1561,7 @@ codeunit 137069 "SCM Production Orders"
 
         // Create Firm Planned Production Order using Sales Order Planning and assign Tracking on Production Order Line.
         LibraryVariableStorage.Enqueue(FirmPlannedProdOrderCreatedTxt);  // Enqueue value for Message Handler.
-        LibraryPlanning.CreateProdOrderUsingPlanning(
+        LibraryManufacturing.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesLine."Document No.", SalesLine."No.");
         AssignTrackingOnProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
         Item.Get(SalesLine."No.");
@@ -1719,7 +1719,7 @@ codeunit 137069 "SCM Production Orders"
         LibraryVariableStorage.Enqueue(NothingToPlanMsg);   // Enqueue value for Message Handler.
 
         // Exercise: Create Production Order from Sales Order.
-        asserterror LibraryPlanning.CreateProdOrderUsingPlanning(
+        asserterror LibraryManufacturing.CreateProdOrderUsingPlanning(
             ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesLine."Document No.", SalesLine."No.");
 
         // Verify: Verify Error message when Replenishment System as Purchase on SKU.
@@ -1748,7 +1748,7 @@ codeunit 137069 "SCM Production Orders"
         LibraryVariableStorage.Enqueue(FirmPlannedProdOrderCreatedTxt);  // Enqueue value for Message Handler.
 
         // Exercise: Create Production Order from Sales Order.
-        LibraryPlanning.CreateProdOrderUsingPlanning(
+        LibraryManufacturing.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesLine."Document No.", SalesLine."No.");
 
         // Verify: Verify Production Order Line when Replenishment System as Prod. Order on SKU.
@@ -2801,7 +2801,7 @@ codeunit 137069 "SCM Production Orders"
         LibraryVariableStorage.Enqueue(FirmPlannedProdOrderCreatedTxt); // Enqueue value for MessageHandler.
 
         // [GIVEN] Create Prod. Order from Sales Order Planning.
-        LibraryPlanning.CreateProdOrderUsingPlanning(
+        LibraryManufacturing.CreateProdOrderUsingPlanning(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesLine."Document No.", SalesLine."No.");
 
         // [WHEN] Cancel resevation.
@@ -3670,7 +3670,7 @@ codeunit 137069 "SCM Production Orders"
         FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", CompItem[2]."No.");
 
         // [GIVEN] Create warehouse pick for the components.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
         WarehouseActivityLine.SetRange("Item No.", CompItem[2]."No.");
         WarehouseActivityLine.FindFirst();
@@ -5159,7 +5159,7 @@ codeunit 137069 "SCM Production Orders"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+        LibraryManufacturing.CreateInboundWhseReqFromProdOrder(ProductionOrder);
         LibraryWarehouse.CreateInvtPutPickMovement(
           WarehouseActivityLine."Source Document"::"Prod. Output", ProductionOrder."No.", true, false, false);
         LibraryWarehouse.FindWhseActivityBySourceDoc(

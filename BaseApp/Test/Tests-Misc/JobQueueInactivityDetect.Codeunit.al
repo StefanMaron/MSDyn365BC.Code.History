@@ -385,22 +385,6 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         JobQueueEntry.Insert(true);
     end;
 
-    local procedure CreateJobQueueEntryWithDeletedUserID(var JobQueueEntry: Record "Job Queue Entry"; TableNo: Integer; JobStatus: Option)
-    begin
-        CreateJobQueueEntry(JobQueueEntry, TableNo, JobStatus);
-        JobQueueEntry."User ID" := LibraryPermissions.GetNonExistingUserID();
-        JobQueueEntry.Modify();
-    end;
-
-    local procedure VerifyJobQueueEntryUnchanged(ExpectedJobQueueEntry: Record "Job Queue Entry")
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-    begin
-        JobQueueEntry := ExpectedJobQueueEntry;
-        JobQueueEntry.Find();
-        JobQueueEntry.TestField(Status, ExpectedJobQueueEntry.Status);
-    end;
-
     local procedure VerifyDateTimeDifference(DateTime1: DateTime; DateTime2: DateTime; ExpectedDiffInSeconds: Integer)
     var
         DiffInMilliseconds: Integer;
@@ -410,4 +394,3 @@ codeunit 139032 "Job Queue - Inactivity Detect"
     end;
 
 }
-

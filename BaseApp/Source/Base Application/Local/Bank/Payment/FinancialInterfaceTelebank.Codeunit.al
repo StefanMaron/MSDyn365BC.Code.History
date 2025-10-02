@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -46,10 +46,6 @@ codeunit 11000001 "Financial Interface Telebank"
     procedure PostPaymReceived(var GenJnlLine: Record "Gen. Journal Line"; var PaymentHistLine: Record "Payment History Line"; var PaymentHist: Record "Payment History")
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         PaymentHistLine.TestField(Status, PaymentHistLine.Status::New);
         BankAcc.Get(PaymentHistLine."Our Bank");
@@ -63,16 +59,8 @@ codeunit 11000001 "Financial Interface Telebank"
 
         "New Document No." := '';
         NewPostingDate := Today;
-#if not CLEAN24
-        NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(TrMode."Posting No. Series", '', NewPostingDate, "New Document No.", NewSeriesCode, IsHandled);
-        if not IsHandled then begin
-#endif
             NewSeriesCode := TrMode."Posting No. Series";
             "New Document No." := NoSeries.GetNextNo(NewSeriesCode);
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(NewSeriesCode, TrMode."Posting No. Series", NewPostingDate, "New Document No.");
-        end;
-#endif
 
         "Initialize GJLine"(GenJnlLine);
         GenJnlLine.Validate("System-Created Entry", true);
@@ -120,10 +108,6 @@ codeunit 11000001 "Financial Interface Telebank"
     procedure ReversePaymReceived(var GenJnlLine: Record "Gen. Journal Line"; var PaymentHistLine: Record "Payment History Line"; NewStatus: Option New,Transmitted,"Request for Cancellation",Rejected,Cancelled,Posted; var PaymentHist: Record "Payment History")
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if not (PaymentHistLine.Status in
                 [PaymentHistLine.Status::New,
@@ -143,16 +127,8 @@ codeunit 11000001 "Financial Interface Telebank"
 
         "New Document No." := '';
         NewPostingDate := Today;
-#if not CLEAN24
-        NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(TrMode."Correction Posting No. Series", '', NewPostingDate, "New Document No.", NewSeriesCode, IsHandled);
-        if not IsHandled then begin
-#endif
             NewSeriesCode := TrMode."Correction Posting No. Series";
             "New Document No." := NoSeries.GetNextNo(NewSeriesCode);
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(NewSeriesCode, TrMode."Correction Posting No. Series", NewPostingDate, "New Document No.");
-        end;
-#endif
 
         "Initialize GJLine"(GenJnlLine);
         GenJnlLine.Validate("System-Created Entry", true);
@@ -547,4 +523,3 @@ codeunit 11000001 "Financial Interface Telebank"
     begin
     end;
 }
-

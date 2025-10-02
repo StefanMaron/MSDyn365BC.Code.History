@@ -85,12 +85,10 @@ table 740 "VAT Report Header"
                 HandleDateInput();
             end;
         }
-        field(6; Status; Option)
+        field(6; Status; Enum "VAT Report Status")
         {
             Caption = 'Status';
             Editable = false;
-            OptionCaption = 'Open,Released,Submitted,Accepted,Closed,Rejected,Canceled';
-            OptionMembers = Open,Released,Submitted,Accepted,Closed,Rejected,Canceled;
         }
         field(8; "No. Series"; Code[20])
         {
@@ -288,32 +286,13 @@ table 740 "VAT Report Header"
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        DefaultNoSeriesCode: Code[20];
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
-#if not CLEAN24
-            DefaultNoSeriesCode := GetNoSeriesCode();
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(DefaultNoSeriesCode, xRec."No. Series", WorkDate(), "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(DefaultNoSeriesCode, xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := DefaultNoSeriesCode;
-                "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", DefaultNoSeriesCode, WorkDate(), "No.");
-            end;
-#else
-			if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := GetNoSeriesCode();
+            if NoSeries.AreRelated(GetNoSeriesCode(), xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := GetNoSeriesCode();
             "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
 
         InitRecord();

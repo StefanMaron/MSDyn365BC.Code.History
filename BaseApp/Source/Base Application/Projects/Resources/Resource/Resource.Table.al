@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Resources.Resource;
 
 using Microsoft.Assembly.Document;
@@ -715,9 +719,6 @@ table 156 Resource
     trigger OnInsert()
     var
         Resource: Record Resource;
-#if not CLEAN24        
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -728,22 +729,14 @@ table 156 Resource
         if "No." = '' then begin
             ResSetup.Get();
             ResSetup.TestField("Resource Nos.");
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(ResSetup."Resource Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
-                "No. Series" := ResSetup."Resource Nos.";
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
+            "No. Series" := ResSetup."Resource Nos.";
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series");
+            Resource.ReadIsolation(IsolationLevel::ReadUncommitted);
+            Resource.SetLoadFields("No.");
+            while Resource.Get("No.") do
                 "No." := NoSeries.GetNextNo("No. Series");
-                Resource.ReadIsolation(IsolationLevel::ReadUncommitted);
-                Resource.SetLoadFields("No.");
-                while Resource.Get("No.") do
-                    "No." := NoSeries.GetNextNo("No. Series");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", ResSetup."Resource Nos.", 0D, "No.");
-            end;
-#endif
         end;
 
         if GetFilter("Resource Group No.") <> '' then

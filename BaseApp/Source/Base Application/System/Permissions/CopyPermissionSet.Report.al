@@ -1,6 +1,7 @@
 namespace System.Security.AccessControl;
 
 using System.Reflection;
+using System.Telemetry;
 
 report 9802 "Copy Permission Set"
 {
@@ -17,6 +18,7 @@ report 9802 "Copy Permission Set"
             trigger OnAfterGetRecord()
             var
                 PermissionSetLink: Record "Permission Set Link";
+                AuditLog: Codeunit "Audit Log";
                 PermissionManager: Codeunit "Permission Manager";
                 PermissionSetRelation: Codeunit "Permission Set Relation";
                 PermissionSetCopiedLbl: Label 'The permission set %1 has been copied by UserSecurityId %2.', Locked = true;
@@ -31,7 +33,7 @@ report 9802 "Copy Permission Set"
                         PermissionSetLink."Source Hash" := PermissionManager.GenerateHashForPermissionSet("Role ID");
                         PermissionSetLink.Insert();
                     end;
-                Session.LogAuditMessage(StrSubstNo(PermissionSetCopiedLbl, "App ID", UserSecurityId()), SecurityOperationResult::Success, AuditCategory::UserManagement, 2, 0);
+                AuditLog.LogAuditMessage(StrSubstNo(PermissionSetCopiedLbl, "App ID", UserSecurityId()), SecurityOperationResult::Success, AuditCategory::UserManagement, 2, 0);
             end;
 
 

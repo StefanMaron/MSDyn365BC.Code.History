@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 104171 "Elec. Tax. Decl. Upgrade"
 {
     Subtype = Upgrade;

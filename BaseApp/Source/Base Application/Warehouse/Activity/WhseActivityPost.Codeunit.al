@@ -1,16 +1,18 @@
-﻿namespace Microsoft.Warehouse.Activity;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Activity;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Finance.GeneralLedger.Preview;
 using Microsoft.Foundation.AuditCodes;
-using Microsoft.Inventory.Item;
+#if not CLEAN27
 using Microsoft.Inventory.Journal;
+#endif
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Planning;
@@ -53,15 +55,7 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     var
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text000: Label 'Warehouse Activity    #1##########\\';
-        Text001: Label 'Checking lines        #2######\';
-        Text002: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
         Location: Record Location;
-        Item: Record Item;
         WhseActivHeader: Record "Warehouse Activity Header";
         WhseActivLine: Record "Warehouse Activity Line";
         TempWhseActivLine: Record "Warehouse Activity Line" temporary;
@@ -87,17 +81,18 @@ codeunit 7324 "Whse.-Activity-Post"
         LineCount: Integer;
         PostingReference: Integer;
         HideDialog: Boolean;
-#pragma warning disable AA0074
-#pragma warning disable AA0470
-        Text005: Label 'The source document %1 %2 is not released.';
-#pragma warning restore AA0470
-#pragma warning restore AA0074
         InvoiceSourceDoc: Boolean;
         PrintDoc: Boolean;
         SuppressCommit: Boolean;
         IsPreview: Boolean;
         PostingDateErr: Label 'is before the posting date';
         InventoryNotAvailableErr: Label '%1 %2 is not available on inventory or it has already been reserved for another document.', Comment = '%1 = Item Tracking ID, %2 = Item Tracking No."';
+#pragma warning disable AA0074, AA0470
+        Text005: Label 'The source document %1 %2 is not released.';
+        Text000: Label 'Warehouse Activity    #1##########\\';
+        Text001: Label 'Checking lines        #2######\';
+        Text002: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+#pragma warning restore AA0074, AA0470
 
     local procedure "Code"()
     var
@@ -540,7 +535,6 @@ codeunit 7324 "Whse.-Activity-Post"
     local procedure UpdateSourceDocument()
     var
         SalesLine: Record "Sales Line";
-        ATOLink: Record "Assemble-to-Order Link";
     begin
         OnBeforeUpdateSourceDocument(TempWhseActivLine);
 
@@ -598,10 +592,6 @@ codeunit 7324 "Whse.-Activity-Post"
                     SalesLine."Bin Code" := TempWhseActivLine."Bin Code";
                     OnUpdateSourceDocumentOnBeforeModifySalesLine(SalesLine, TempWhseActivLine, WhseActivHeader);
                     SalesLine.Modify();
-                    if TempWhseActivLine."Assemble to Order" then begin
-                        ATOLink.UpdateQtyToAsmFromInvtPickLine(TempWhseActivLine);
-                        ATOLink.UpdateAsmBinCodeFromInvtPickLine(TempWhseActivLine);
-                    end;
                     OnUpdateSourceDocumentOnBeforeSalesLineModify(SalesLine, TempWhseActivLine);
                     OnAfterSalesLineModify(SalesLine);
                     OnUpdateSourceDocumentOnAfterSalesLineModify(SalesLine, TempWhseActivLine);
@@ -817,11 +807,8 @@ codeunit 7324 "Whse.-Activity-Post"
 
     local procedure PostWhseActivityLine(WhseActivHeader: Record "Warehouse Activity Header"; var WhseActivLine: Record "Warehouse Activity Line")
     var
-        ProdOrder: Record "Production Order";
         PostedInvtPutAwayHeader: Record "Posted Invt. Put-away Header";
         PostedInvtPickHeader: Record "Posted Invt. Pick Header";
-        WhseProdRelease: Codeunit "Whse.-Production Release";
-        WhseOutputProdRelease: Codeunit "Whse.-Output Prod. Release";
         PurchaseForJob: Boolean;
         IsHandled: Boolean;
     begin
@@ -833,14 +820,12 @@ codeunit 7324 "Whse.-Activity-Post"
         IsHandled := false;
         OnPostWhseActivityLineOnBeforePosting(WhseActivHeader, WhseActivLine, PostedSourceNo, PostedSourceType, PostedSourceSubType, IsHandled);
         if not IsHandled then
-            if WhseActivHeader."Source Document" = WhseActivHeader."Source Document"::"Prod. Consumption" then begin
-                PostConsumption(ProdOrder);
-                WhseProdRelease.Release(ProdOrder);
-            end else
-                if (WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Put-away") and (WhseActivHeader."Source Document" = WhseActivHeader."Source Document"::"Prod. Output") then begin
-                    PostOutput(ProdOrder);
-                    WhseOutputProdRelease.Release(ProdOrder);
-                end else
+            if WhseActivHeader."Source Document" = WhseActivHeader."Source Document"::"Prod. Consumption" then
+                PostProdConsumption(WhseActivHeader)
+            else
+                if (WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Put-away") and (WhseActivHeader."Source Document" = WhseActivHeader."Source Document"::"Prod. Output") then
+                    PostProdOutput(WhseActivHeader)
+                else
                     if (WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Pick") and (WhseActivHeader."Source Document" = WhseActivHeader."Source Document"::"Job Usage") then
                         PostJobUsage(WhseActivHeader."Posting Date")
                     else begin
@@ -961,16 +946,8 @@ codeunit 7324 "Whse.-Activity-Post"
                     WhseJnlLine."Source Code" := SourceCodeSetup.Transfer;
                     WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Posted T. Receipt";
                 end;
-            WhseActivLine."Source Document"::"Prod. Consumption":
-                begin
-                    WhseJnlLine."Source Code" := SourceCodeSetup."Consumption Journal";
-                    WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Prod.";
-                end;
-            WhseActivLine."Source Document"::"Prod. Output":
-                begin
-                    WhseJnlLine."Source Code" := SourceCodeSetup."Output Journal";
-                    WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Prod.";
-                end;
+            else
+                OnCreateWhseJnlLineOnSetReferenceDocument(WhseActivLine, WhseJnlLine, SourceCodeSetup);
         end;
 
         if WhseActivLine."Activity Type" in [WhseActivLine."Activity Type"::"Invt. Put-away", WhseActivLine."Activity Type"::"Invt. Pick",
@@ -1135,152 +1112,14 @@ codeunit 7324 "Whse.-Activity-Post"
         PostSourceDocument(WhseActivHeader);
     end;
 
-    local procedure PostConsumption(var ProdOrder: Record "Production Order")
-    var
-        ProdOrderComp: Record "Prod. Order Component";
+    local procedure PostProdConsumption(WhseActivityHeader: Record "Warehouse Activity Header")
     begin
-        TempWhseActivLine.Reset();
-        TempWhseActivLine.Find('-');
-        ProdOrder.Get(TempWhseActivLine."Source Subtype", TempWhseActivLine."Source No.");
-        repeat
-            ProdOrderComp.Get(TempWhseActivLine."Source Subtype", TempWhseActivLine."Source No.", TempWhseActivLine."Source Line No.", TempWhseActivLine."Source Subline No.");
-            PostConsumptionLine(ProdOrder, ProdOrderComp);
-        until TempWhseActivLine.Next() = 0;
-
-        PostedSourceType := TempWhseActivLine."Source Type";
-        PostedSourceSubType := TempWhseActivLine."Source Subtype";
-        PostedSourceNo := TempWhseActivLine."Source No.";
+        OnPostProdConsumption(WhseActivityHeader, TempWhseActivLine, PostedSourceType, PostedSourceSubType, PostedSourceNo);
     end;
 
-    local procedure PostConsumptionLine(ProdOrder: Record "Production Order"; ProdOrderComp: Record "Prod. Order Component")
-    var
-        ItemJnlLine: Record "Item Journal Line";
-        ProdOrderLine: Record "Prod. Order Line";
-        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
+    local procedure PostProdOutput(WhseActivityHeader: Record "Warehouse Activity Header")
     begin
-        ProdOrderLine.Get(TempWhseActivLine."Source Subtype", TempWhseActivLine."Source No.", TempWhseActivLine."Source Line No.");
-        ItemJnlLine.Init();
-        OnPostConsumptionLineOnAfterInitItemJournalLine(ItemJnlLine, SourceCodeSetup);
-        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Consumption);
-        ItemJnlLine.Validate("Posting Date", WhseActivHeader."Posting Date");
-        ItemJnlLine."Source No." := ProdOrderLine."Item No.";
-        ItemJnlLine."Source Type" := ItemJnlLine."Source Type"::Item;
-        ItemJnlLine."Document No." := ProdOrder."No.";
-        ItemJnlLine.Validate("Order Type", ItemJnlLine."Order Type"::Production);
-        ItemJnlLine.Validate("Order No.", ProdOrder."No.");
-        ItemJnlLine.Validate("Order Line No.", ProdOrderLine."Line No.");
-        ItemJnlLine.Validate("Item No.", TempWhseActivLine."Item No.");
-        if ItemJnlLine."Unit of Measure Code" <> TempWhseActivLine."Unit of Measure Code" then
-            ItemJnlLine.Validate("Unit of Measure Code", TempWhseActivLine."Unit of Measure Code");
-        ItemJnlLine.Validate("Prod. Order Comp. Line No.", ProdOrderComp."Line No.");
-        ItemJnlLine."Qty. per Unit of Measure" := TempWhseActivLine."Qty. per Unit of Measure";
-        ItemJnlLine."Qty. Rounding Precision" := TempWhseActivLine."Qty. Rounding Precision";
-        ItemJnlLine."Qty. Rounding Precision (Base)" := TempWhseActivLine."Qty. Rounding Precision (Base)";
-        ItemJnlLine.Description := TempWhseActivLine.Description;
-        if TempWhseActivLine."Activity Type" = TempWhseActivLine."Activity Type"::"Invt. Pick" then
-            ItemJnlLine.Validate(Quantity, TempWhseActivLine."Qty. to Handle")
-        else
-            ItemJnlLine.Validate(Quantity, -TempWhseActivLine."Qty. to Handle");
-        ItemJnlLine.Validate("Unit Cost", ProdOrderComp."Unit Cost");
-        ItemJnlLine."Location Code" := TempWhseActivLine."Location Code";
-        ItemJnlLine."Bin Code" := TempWhseActivLine."Bin Code";
-        ItemJnlLine."Variant Code" := TempWhseActivLine."Variant Code";
-        ItemJnlLine."Source Code" := SourceCodeSetup."Consumption Journal";
-        ItemJnlLine."Gen. Bus. Posting Group" := ProdOrder."Gen. Bus. Posting Group";
-        GetItem(TempWhseActivLine."Item No.");
-        ItemJnlLine."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
-        OnPostConsumptionLineOnAfterCreateItemJnlLine(ItemJnlLine, ProdOrderLine, WhseActivLine, SourceCodeSetup);
-        ProdOrderCompReserve.TransferPOCompToItemJnlLineCheckILE(ProdOrderComp, ItemJnlLine, ItemJnlLine."Quantity (Base)", true);
-        ItemJnlPostLine.SetCalledFromInvtPutawayPick(true);
-        ItemJnlPostLine.RunWithCheck(ItemJnlLine);
-        ProdOrderCompReserve.UpdateItemTrackingAfterPosting(ProdOrderComp);
-    end;
-
-    local procedure PostOutput(var ProdOrder: Record "Production Order")
-    var
-        ProdOrderLine: Record "Prod. Order Line";
-    begin
-        TempWhseActivLine.Reset();
-        TempWhseActivLine.Find('-');
-        ProdOrder.Get(TempWhseActivLine."Source Subtype", TempWhseActivLine."Source No.");
-        repeat
-            ProdOrderLine.Get(TempWhseActivLine."Source Subtype", TempWhseActivLine."Source No.", TempWhseActivLine."Source Line No.");
-            PostOutputLine(ProdOrder, ProdOrderLine);
-        until TempWhseActivLine.Next() = 0;
-        PostedSourceType := TempWhseActivLine."Source Type";
-        PostedSourceSubType := TempWhseActivLine."Source Subtype";
-        PostedSourceNo := TempWhseActivLine."Source No.";
-    end;
-
-    local procedure PostOutputLine(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line")
-    var
-        ItemJnlLine: Record "Item Journal Line";
-        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-        ReservProdOrderLine: Codeunit "Prod. Order Line-Reserve";
-    begin
-        ItemJnlLine.Init();
-        OnPostOutputLineOnAfterItemJournalLineInit(ItemJnlLine, SourceCodeSetup);
-        ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Output);
-        ItemJnlLine.Validate("Posting Date", WhseActivHeader."Posting Date");
-        ItemJnlLine."Document No." := ProdOrder."No.";
-        ItemJnlLine.Validate("Order Type", ItemJnlLine."Order Type"::Production);
-        ItemJnlLine.Validate("Order No.", ProdOrder."No.");
-        ItemJnlLine.Validate("Order Line No.", ProdOrderLine."Line No.");
-        ItemJnlLine.Validate("Routing Reference No.", ProdOrderLine."Routing Reference No.");
-        ItemJnlLine.Validate("Routing No.", ProdOrderLine."Routing No.");
-        ItemJnlLine.Validate("Item No.", ProdOrderLine."Item No.");
-        if ItemJnlLine."Unit of Measure Code" <> TempWhseActivLine."Unit of Measure Code" then
-            ItemJnlLine.Validate("Unit of Measure Code", TempWhseActivLine."Unit of Measure Code");
-        ItemJnlLine."Qty. per Unit of Measure" := TempWhseActivLine."Qty. per Unit of Measure";
-        ItemJnlLine."Qty. Rounding Precision" := TempWhseActivLine."Qty. Rounding Precision";
-        ItemJnlLine."Qty. Rounding Precision (Base)" := TempWhseActivLine."Qty. Rounding Precision (Base)";
-        ItemJnlLine."Location Code" := TempWhseActivLine."Location Code";
-        ItemJnlLine."Bin Code" := TempWhseActivLine."Bin Code";
-        ItemJnlLine."Variant Code" := TempWhseActivLine."Variant Code";
-        ItemJnlLine.Description := TempWhseActivLine.Description;
-        if ProdOrderLine."Routing No." <> '' then
-            ItemJnlLine.Validate("Operation No.", CalcLastOperationNo(ProdOrderLine));
-        ItemJnlLine.Validate("Output Quantity", TempWhseActivLine."Qty. to Handle");
-        ItemJnlLine."Source Code" := SourceCodeSetup."Output Journal";
-        ItemJnlLine."Dimension Set ID" := ProdOrderLine."Dimension Set ID";
-        OnPostOutputLineOnAfterCreateItemJnlLine(ItemJnlLine, ProdOrderLine, TempWhseActivLine, SourceCodeSetup);
-        ReservProdOrderLine.TransferPOLineToItemJnlLine(
-          ProdOrderLine, ItemJnlLine, ItemJnlLine."Quantity (Base)");
-        ItemJnlPostLine.SetCalledFromInvtPutawayPick(true);
-        ItemJnlPostLine.RunWithCheck(ItemJnlLine);
-        ReservProdOrderLine.UpdateItemTrackingAfterPosting(ProdOrderLine);
-    end;
-
-    local procedure CalcLastOperationNo(ProdOrderLine: Record "Prod. Order Line"): Code[10]
-    var
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
-    begin
-        ProdOrderRtngLine.SetRange(Status, ProdOrderLine.Status);
-        ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-        ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
-        ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
-        if not ProdOrderRtngLine.IsEmpty() then begin
-            CheckProdOrderLine(ProdOrderLine);
-            ProdOrderRtngLine.SetRange("Next Operation No.", '');
-            ProdOrderRtngLine.FindLast();
-            exit(ProdOrderRtngLine."Operation No.");
-        end;
-
-        exit('');
-    end;
-
-    local procedure CheckProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
-    var
-        ProdOrderRouteManagement: Codeunit "Prod. Order Route Management";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckProdOrderLine(ProdOrderLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        ProdOrderRouteManagement.Check(ProdOrderLine);
+        OnPostProdOutput(WhseActivityHeader, TempWhseActivLine, PostedSourceType, PostedSourceSubType, PostedSourceNo);
     end;
 
     procedure GetLocation(LocationCode: Code[10])
@@ -1290,12 +1129,6 @@ codeunit 7324 "Whse.-Activity-Post"
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
-    end;
-
-    local procedure GetItem(ItemNo: Code[20])
-    begin
-        if Item."No." <> ItemNo then
-            Item.Get(ItemNo);
     end;
 
     local procedure LockPostedTables(WarehouseActivityHeader: Record "Warehouse Activity Header")
@@ -1368,8 +1201,15 @@ codeunit 7324 "Whse.-Activity-Post"
         if TempWarehouseActivityLineForItemTrackingChecking.FindSet() then
             repeat
                 case TempWarehouseActivityLineForItemTrackingChecking."Source Type" of
-                    Database::"Prod. Order Component":
-                        TrackingSpecification.CheckItemTrackingQuantity(TempWarehouseActivityLineForItemTrackingChecking."Source Type", TempWarehouseActivityLineForItemTrackingChecking."Source Subtype", TempWarehouseActivityLineForItemTrackingChecking."Source No.", TempWarehouseActivityLineForItemTrackingChecking."Source Subline No.", TempWarehouseActivityLineForItemTrackingChecking."Source Line No.", TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                    5407: // Database::"Prod. Order Component"
+                        TrackingSpecification.CheckItemTrackingQuantity(
+                            TempWarehouseActivityLineForItemTrackingChecking."Source Type",
+                            TempWarehouseActivityLineForItemTrackingChecking."Source Subtype",
+                            TempWarehouseActivityLineForItemTrackingChecking."Source No.",
+                            TempWarehouseActivityLineForItemTrackingChecking."Source Subline No.",
+                            TempWarehouseActivityLineForItemTrackingChecking."Source Line No.",
+                            TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)",
+                            TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", true, InvoiceSourceDoc);
                     Database::Job:
                         begin
                             // Checking tracking specification for Job by mapping Temporary warehouse activity line to Job planning line item tracking.
@@ -1377,8 +1217,12 @@ codeunit 7324 "Whse.-Activity-Post"
                             JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
                             JobPlanningLine.SetRange("Job Contract Entry No.", TempWarehouseActivityLineForItemTrackingChecking."Source Line No.");
                             JobPlanningLine.FindFirst();
-
-                            TrackingSpecification.CheckItemTrackingQuantity(Database::"Job Planning Line", JobPlanningLine.Status.AsInteger(), TempWarehouseActivityLineForItemTrackingChecking."Source No.", TempWarehouseActivityLineForItemTrackingChecking."Source Line No.", TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                            TrackingSpecification.CheckItemTrackingQuantity(
+                                Database::"Job Planning Line", JobPlanningLine.Status.AsInteger(),
+                                TempWarehouseActivityLineForItemTrackingChecking."Source No.",
+                                TempWarehouseActivityLineForItemTrackingChecking."Source Line No.",
+                                TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)",
+                                TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", true, InvoiceSourceDoc);
                         end;
                     else
                         TrackingSpecification.CheckItemTrackingQuantity(TempWarehouseActivityLineForItemTrackingChecking."Source Type", TempWarehouseActivityLineForItemTrackingChecking."Source Subtype", TempWarehouseActivityLineForItemTrackingChecking."Source No.", TempWarehouseActivityLineForItemTrackingChecking."Source Line No.", TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)", true, InvoiceSourceDoc);
@@ -1853,10 +1697,18 @@ codeunit 7324 "Whse.-Activity-Post"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnPostConsumptionLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; SourceCodeSetup: Record "Source Code Setup")
+    begin
+        OnPostConsumptionLineOnAfterCreateItemJnlLine(ItemJournalLine, ProdOrderLine, WarehouseActivityLine, SourceCodeSetup);
+    end;
+
+    [Obsolete('Moved to codeunit MfgWhseActivityPost', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnPostConsumptionLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; SourceCodeSetup: Record "Source Code Setup")
+    local procedure OnPostConsumptionLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; SourceCodeSetup: Record "Source Code Setup")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSourceDocumentOnBeforeTransferPostReceiptRun(var TransferHeader: Record "Transfer Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
@@ -1873,15 +1725,31 @@ codeunit 7324 "Whse.-Activity-Post"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnPostConsumptionLineOnAfterInitItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; SourceCodeSetup: Record "Source Code Setup")
+    begin
+        OnPostConsumptionLineOnAfterInitItemJournalLine(ItemJournalLine, SourceCodeSetup);
+    end;
+
+    [Obsolete('Moved to codeunit MfgWhseActivityPost', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostConsumptionLineOnAfterInitItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; SourceCodeSetup: Record "Source Code Setup")
     begin
     end;
+#endif
 
+#if not CLEAN27
+    internal procedure RunOnPostOutputLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; SourceCodeSetup: Record "Source Code Setup")
+    begin
+        OnPostOutputLineOnAfterCreateItemJnlLine(ItemJournalLine, ProdOrderLine, WarehouseActivityLine, SourceCodeSetup);
+    end;
+
+    [Obsolete('Moved to codeunit MfgWhseActivityPost', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnPostOutputLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; SourceCodeSetup: Record "Source Code Setup")
+    local procedure OnPostOutputLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; SourceCodeSetup: Record "Source Code Setup")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSourceDocumentOnBeforePurchPostRun(WarehouseActivityHeader: Record "Warehouse Activity Header"; var PurchaseHeader: Record "Purchase Header")
@@ -1963,10 +1831,18 @@ codeunit 7324 "Whse.-Activity-Post"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnPostOutputLineOnAfterItemJournalLineInit(var ItemJournalLine: Record "Item Journal Line"; SourceCodeSetup2: Record "Source Code Setup")
+    begin
+        OnPostOutputLineOnAfterItemJournalLineInit(ItemJournalLine, SourceCodeSetup2);
+    end;
+
+    [Obsolete('Moved to codeunit MfgWhseActivityPost', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnPostOutputLineOnAfterItemJournalLineInit(var ItemJournalLine: Record "Item Journal Line"; SourceCodeSetup: Record "Source Code Setup")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateQtyToHandleOnPurchaseLineOnBeforePurchLineModify(var PurchaseLine: Record "Purchase Line"; var ModifyLine: Boolean)
@@ -2003,13 +1879,36 @@ codeunit 7324 "Whse.-Activity-Post"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnBeforeCheckProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckProdOrderLine(ProdOrderLine, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit MfgWhseActivityPost', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnPostWhseActivityLineOnBeforeCreatePostedActivHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostProdConsumption(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var PostedSourceType: Integer; var PostedSourceSubType: Integer; var PostedSourceNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostProdOutput(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var PostedSourceType: Integer; var PostedSourceSubType: Integer; var PostedSourceNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseJnlLineOnSetReferenceDocument(WarehouseActivityLine: Record "Warehouse Activity Line"; var WhseJnlLine: Record "Warehouse Journal Line"; SourceCodeSetup: Record "Source Code Setup")
     begin
     end;
 }

@@ -515,18 +515,7 @@ codeunit 137268 "SCM Package Tracking Fixes"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Package Tracking Fixes");
     end;
 
-    local procedure AssignTrackingReclassification(var ItemJournalLine: Record "Item Journal Line"; PackageNo: Code[50]; NewPackageNo: Code[50])
-    begin
-        LibraryVariableStorage.Enqueue(ItemTrackingOption::ReclassPackageNo);
-        LibraryVariableStorage.Enqueue(PackageNo);
-        LibraryVariableStorage.Enqueue(ItemJournalLine."Quantity (Base)");
-        LibraryVariableStorage.Enqueue(NewPackageNo);
-        ItemJournalLine.OpenItemTrackingLines(true);
-    end;
-
-    local procedure CreateSalesOrderWhseShipmentAndPick(var WarehouseShipmentHeader: Record "Warehouse Shipment Header";
-                                                        var WarehouseActivityHeader: Record "Warehouse Activity Header";
-                                                        ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)
+    local procedure CreateSalesOrderWhseShipmentAndPick(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -608,19 +597,6 @@ codeunit 137268 "SCM Package Tracking Fixes"
         ItemLedgerEntry.TestField("Package No.", PackageNo);
     end;
 
-    local procedure VerifyTrackingReclassification(ItemJnlLine: Record "Item Journal Line"; ExpectedPackageNo: Code[50])
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        ReservationEntry.SetRange("Item No.", ItemJnlLine."Item No.");
-        ReservationEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
-        ReservationEntry.SetRange("Source ID", ItemJnlLine."Journal Template Name");
-        ReservationEntry.SetRange("Source Batch Name", ItemJnlLine."Journal Batch Name");
-        ReservationEntry.FindFirst();
-
-        ReservationEntry.TestField("New Package No.", ExpectedPackageNo);
-    end;
-
     local procedure SelectItemJournal(var ItemJournalBatch: Record "Item Journal Batch")
     var
         ItemJournalTemplate: Record "Item Journal Template";
@@ -668,4 +644,3 @@ codeunit 137268 "SCM Package Tracking Fixes"
         AvailableItemLedgEntries.OK().Invoke();
     end;
 }
-

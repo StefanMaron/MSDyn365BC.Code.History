@@ -53,6 +53,14 @@ page 5971 "Posted Service Credit Memos"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the currency code for the amounts on the credit memo.';
                 }
+                field(Amount; Rec.Amount)
+                {
+                    ToolTip = 'Specifies the total credit memo amount excluding VAT.';
+                }
+                field("Amount Including VAT"; Rec."Amount Including VAT")
+                {
+                    ToolTip = 'Specifies the total credit memo amount including VAT.';
+                }
                 field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Service;
@@ -294,6 +302,7 @@ page 5971 "Posted Service Credit Memos"
 
                 trigger OnAction()
                 begin
+                    ServCrMemoHeader := Rec;
                     CurrPage.SetSelectionFilter(ServCrMemoHeader);
                     ServCrMemoHeader.PrintRecords(true);
                 end;

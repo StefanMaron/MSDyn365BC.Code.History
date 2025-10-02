@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Vendor;
 
 page 34 "Vendor Lookup"
@@ -60,6 +64,23 @@ page 34 "Vendor Lookup"
                 field(Contact; Rec.Contact)
                 {
                     ApplicationArea = Basic, Suite;
+                }
+                field("E-Mail"; Rec."E-mail")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the vendor''s email address.';
+                }
+                field("Pay-to Vendor No."; Rec."Pay-to Vendor No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the vendor''s pay-to vendor (who should receive invoices).';
+                    Visible = false;
+                }
+                field("Registration Number"; Rec."Registration Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the vendor''s registration number.';
+                    Visible = false;
                 }
                 field("Fax No."; Rec."Fax No.")
                 {

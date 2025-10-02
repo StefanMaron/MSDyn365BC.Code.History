@@ -1,4 +1,4 @@
-﻿namespace System.Diagnostics;
+namespace System.Diagnostics;
 
 using System.Email;
 using System.Environment;
@@ -7,6 +7,7 @@ using System.Privacy;
 using System.Security.AccessControl;
 using System.Security.User;
 using System.Utilities;
+using System.Telemetry;
 
 page 1368 "Monitor Field Setup Wizard"
 {
@@ -346,6 +347,7 @@ page 1368 "Monitor Field Setup Wizard"
 
     local procedure ValidateAndFinishSetup()
     var
+        AuditLog: Codeunit "Audit Log";
         GuidedExperience: Codeunit "Guided Experience";
         MonitorFieldSetUpLbl: Label 'The Monitor Field feature has been set up by UserSecurityId %1.', Locked = true;
     begin
@@ -355,7 +357,7 @@ page 1368 "Monitor Field Setup Wizard"
         MonitorSensitiveField.EnableMonitor(false);
 
         GuidedExperience.CompleteAssistedSetup(ObjectType::Page, page::"Monitor Field Setup Wizard");
-        Session.LogAuditMessage(StrSubstNo(MonitorFieldSetUpLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+        AuditLog.LogAuditMessage(StrSubstNo(MonitorFieldSetUpLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
         if OpenMonitorWorksheetPage then
             Page.Run(Page::"Monitored Fields Worksheet");
     end;

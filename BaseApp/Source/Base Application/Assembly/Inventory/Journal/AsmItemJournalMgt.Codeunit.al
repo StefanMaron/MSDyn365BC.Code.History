@@ -16,6 +16,12 @@ codeunit 924 "Asm. Item Journal Mgt."
     var
         CannotChangeFieldErr: Label 'You cannot change %1 when %2 is %3.', Comment = '%1 %2 - field captions, %3 - field value';
 
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnIsAssemblyItem', '', false, false)]
+    local procedure OnIsAssemblyItem(Item: Record Item; var Result: Boolean)
+    begin
+        Result := Item."Replenishment System" = Item."Replenishment System"::Assembly;
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnValidateItemNoOnSetCostAndPrice', '', false, false)]
     local procedure OnValidateItemNoOnSetCostAndPrice(var ItemJournalLine: Record "Item Journal Line"; UnitCost: Decimal)
     begin

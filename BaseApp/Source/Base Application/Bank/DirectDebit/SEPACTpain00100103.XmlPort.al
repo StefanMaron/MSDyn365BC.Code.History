@@ -9,6 +9,11 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.Company;
 using System.Telemetry;
 
+/// <summary>
+/// XMLPort for exporting SEPA credit transfers in pain.001.001.03 format.
+/// Generates XML files compliant with SEPA Customer Credit Transfer Initiation standard
+/// for submission to banks for automated payment processing.
+/// </summary>
 xmlport 1000 "SEPA CT pain.001.001.03"
 {
     Caption = 'SEPA CT pain.001.001.03';

@@ -1,17 +1,17 @@
 ﻿codeunit 136300 "Job Consumption Basic"
 {
     // This test codeunit tests all the different ways to consume something for a job:
-    // 
+    //
     // - job journal
     // - purchase order
     // - purchase invoice
     // - general journal
-    // 
+    //
     // All valid combinations (32) of account type (resource, g/l account, item) and job journal line type
     // (blank, budget, billable, both) are exercised.
-    // 
+    //
     // The following aspects are validated:
-    // 
+    //
     // - job ledger (number of entries, unit cost/price)
     // - job planning lines (number and type of lines, unit cost/price)
     // - g/l (job no.)
@@ -81,6 +81,7 @@
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup.Modify();
+        LibraryJob.SetJobNoSeriesCode();
 
         IsInitialized := true;
         Commit();
@@ -1007,4 +1008,3 @@
         GetReceiptLines.OK().Invoke();
     end;
 }
-

@@ -5,7 +5,8 @@ using System.Security.AccessControl;
 table 1530 "Workflow Step Instance Archive"
 {
     Caption = 'Workflow Step Instance Archive';
-    Permissions = TableData "Workflow Step Argument Archive" = md;
+    Permissions = TableData "Workflow Step Argument Archive" = md,
+                  TableData "Workflow Record Change Archive" = md;
     ReplicateData = true;
     DataClassification = CustomerContent;
 

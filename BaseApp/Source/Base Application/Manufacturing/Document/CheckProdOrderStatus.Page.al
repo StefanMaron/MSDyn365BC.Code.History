@@ -73,6 +73,7 @@ page 99000833 "Check Prod. Order Status"
         LastOrderType: Option Production,Purchase;
         LastOrderNo: Code[20];
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"Manufacturing Setup", 'r')]
     procedure SalesLineShowWarning(SalesLine: Record "Sales Line"): Boolean
     var
         SalesLine2: Record "Sales Line";

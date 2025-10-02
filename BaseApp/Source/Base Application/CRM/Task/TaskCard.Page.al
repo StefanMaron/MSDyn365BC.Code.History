@@ -525,24 +525,22 @@ page 5098 "Task Card"
     begin
         if (Rec."Team Code" = '') and (Rec."Salesperson Code" = '') then
             Error(
-              Text000, Rec.TableCaption(), Rec.FieldCaption("Salesperson Code"), Rec.FieldCaption("Team Code"));
+              TaskWillAlwaysHaveResponsiblePersonTxt, Rec.TableCaption(), Rec.FieldCaption("Salesperson Code"), Rec.FieldCaption("Team Code"));
 
         if (Rec.Type = Rec.Type::Meeting) and (not Rec."All Day Event") then begin
             if Rec."Start Time" = 0T then
-                Error(Text002, Rec.TableCaption(), Rec.Type, Rec.FieldCaption("Start Time"));
+                Error(TaskTypeRequiresFieldErr, Rec.TableCaption(), Rec.Type, Rec.FieldCaption("Start Time"));
             if Rec.Duration = 0 then
-                Error(Text002, Rec.TableCaption(), Rec.Type, Rec.FieldCaption(Duration));
+                Error(TaskTypeRequiresFieldErr, Rec.TableCaption(), Rec.Type, Rec.FieldCaption(Duration));
         end;
     end;
 
     var
         Contact: Record Contact;
-#pragma warning disable AA0074
 #pragma warning disable AA0470
-        Text000: Label 'The %1 will always have either the %2 or %3 assigned.';
-        Text002: Label 'The %1 of the %2 type must always have the %3 assigned.';
+        TaskWillAlwaysHaveResponsiblePersonTxt: Label 'The %1 will always have either the %2 or %3 assigned.';
+        TaskTypeRequiresFieldErr: Label 'The %1 of the %2 type must always have the %3 assigned.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
         CannotSelectAttendeesErr: Label 'You cannot select attendees for a task of the ''%1'' type.', Comment = '%1 = Task Type';
         MakePhoneCallIsNotAvailableErr: Label 'The Make Phone Call function for this task is available only in the Attendee Scheduling window.';
         MustAssignContactErr: Label 'You must assign a contact to this task before you can use the Make Phone Call function.';

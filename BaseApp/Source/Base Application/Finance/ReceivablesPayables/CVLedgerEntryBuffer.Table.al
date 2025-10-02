@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Finance.ReceivablesPayables;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.Team;
@@ -417,6 +421,7 @@ table 382 "CV Ledger Entry Buffer"
         field(83; "Pmt. Tolerance (LCY)"; Decimal)
         {
             Caption = 'Pmt. Tolerance (LCY)';
+            AutoFormatType = 1;
             DataClassification = SystemMetadata;
         }
         field(84; "Amount to Apply"; Decimal)
@@ -667,4 +672,3 @@ table 382 "CV Ledger Entry Buffer"
     begin
     end;
 }
-

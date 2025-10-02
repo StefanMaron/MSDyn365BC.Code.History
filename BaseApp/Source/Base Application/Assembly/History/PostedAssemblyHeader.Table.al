@@ -128,11 +128,13 @@ table 910 "Posted Assembly Header"
             Caption = 'Quantity';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+            AutoFormatType = 0;
         }
         field(41; "Quantity (Base)"; Decimal)
         {
             Caption = 'Quantity (Base)';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(54; "Assemble to Order"; Boolean)
         {
@@ -145,11 +147,13 @@ table 910 "Posted Assembly Header"
         field(65; "Unit Cost"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost';
         }
         field(67; "Cost Amount"; Decimal)
         {
             AutoFormatType = 1;
+            AutoFormatExpression = '';
             Caption = 'Cost Amount';
             Editable = false;
         }
@@ -157,11 +161,13 @@ table 910 "Posted Assembly Header"
         {
             Caption = 'Indirect Cost %';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(76; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(80; "Unit of Measure Code"; Code[10])
         {
@@ -173,6 +179,7 @@ table 910 "Posted Assembly Header"
             Caption = 'Qty. per Unit of Measure';
             DecimalPlaces = 0 : 5;
             Editable = false;
+            AutoFormatType = 0;
         }
         field(100; Reversed; Boolean)
         {

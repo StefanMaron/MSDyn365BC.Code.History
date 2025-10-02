@@ -2219,7 +2219,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateAndRefreshProdOrderOnLocation(ProductionOrder, ProdItem."No.", Location.Code, 1);
 
         // [WHEN] Create warehouse pick to collect the components.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [THEN] The warehouse pick is created.
         // [THEN] A breakbulk line of 1 "BOX of "C2" is included in the pick.
@@ -2975,6 +2975,31 @@ codeunit 137408 "SCM Warehouse VI"
     end;
 
     [Test]
+    [HandlerFunctions('SourceDocumentsPageHandler')]
+    [Scope('OnPrem')]
+    procedure RegisteringDateIsSetInRegisteredInventoryMovement()
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr.";
+    begin
+        // [SCENARIO] The registering date of the Registered Inventory Movement must be set to the WorkDate
+        // [FEATURE] [Inventory Movement]
+        Initialize();
+
+        // [GIVEN] Inventory Movement ready to be registered
+        CreateItemMovementSetup(WarehouseActivityHeader);
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Register the Inventory Movement
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Verify that the "Registering Date" of the Registered Inventory Movement is set
+        RegisteredInvtMovementHdr.SetRange("Invt. Movement No.", WarehouseActivityHeader."No.");
+        RegisteredInvtMovementHdr.FindFirst();
+        Assert.AreEqual(WorkDate(), RegisteredInvtMovementHdr."Registering Date", RegisteredInvtMovementHdr.FieldCaption("Registering Date"));
+    end;
+
+    [Test]
     [HandlerFunctions('ItemTrackingLinesHandler2')]
     [Scope('OnPrem')]
     procedure ItemTrackingOnPickAfterOrderToOrderPurchReceiptPosted()
@@ -3305,7 +3330,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateAndRefreshProdOrderOnLocation(ProductionOrder, ProdItem."No.", Location.Code, 2 * Qty);
 
         // [GIVEN] Create warehouse pick and register it in two iterations, each for 1 pc.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         UpdateQuantityToHandleInWarehouseActivityLine(ProductionOrder."No.", Qty);
         RegisterWarehouseActivityHeader(Location.Code, WarehouseActivityHeader.Type::Pick);
         RegisterWarehouseActivityHeader(Location.Code, WarehouseActivityHeader.Type::Pick);
@@ -3316,7 +3341,7 @@ codeunit 137408 "SCM Warehouse VI"
         ProdOrderLine.Modify(true);
 
         // [WHEN] Create warehouse pick for the remaining 1 pc.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [THEN] The warehouse pick can be registered.
         RegisterWarehouseActivityHeader(Location.Code, WarehouseActivityHeader.Type::Pick);

@@ -49,10 +49,8 @@ page 9184 "Generic Chart Type Preview"
     end;
 
     var
-#pragma warning disable AA0074
-        Text000: Label 'Sample Chart Data', Comment = 'Sample Chart Data';
-        Text003: Label 'Cat', Comment = 'Cat';
-#pragma warning restore AA0074
+        SampleChartDataTxt: Label 'Sample Chart Data', Comment = 'Sample Chart Data';
+        CategoryTxt: Label 'Cat', Comment = 'Cat';
         ChartAddInInitialized: Boolean;
 
     [Scope('OnPrem')]
@@ -74,7 +72,7 @@ page 9184 "Generic Chart Type Preview"
             exit;
 
         ChartDefinition := ChartDefinition.BusinessChartData();
-        ChartDataTable := ChartDataTable.DataTable(Text000);
+        ChartDataTable := ChartDataTable.DataTable(SampleChartDataTxt);
         // chartBuilder -> chartDef
         if ChartBuilder.HasXDimension then begin
             ChartDataTable.Columns.Add(ChartBuilder.XDimensionName, DataType.GetType('System.String'));
@@ -97,9 +95,9 @@ page 9184 "Generic Chart Type Preview"
         for i := 0 to 10 do begin
             ChartDataRow := ChartDataTable.NewRow();
             if ChartBuilder.HasXDimension and (ChartBuilder.XDimensionName <> '') then
-                ChartDataRow.Item(ChartBuilder.XDimensionName, Text003 + Format(i));
+                ChartDataRow.Item(ChartBuilder.XDimensionName, CategoryTxt + Format(i));
             if ChartBuilder.HasZDimension and (ChartBuilder.ZDimensionName <> '') then
-                ChartDataRow.Item(ChartBuilder.ZDimensionName, Text003 + Format(i));
+                ChartDataRow.Item(ChartBuilder.ZDimensionName, CategoryTxt + Format(i));
             for j := 0 to ChartBuilder.MeasureCount - 1 do begin
                 MeasureName := ChartBuilder.GetMeasureName(j);
                 if MeasureName = '' then

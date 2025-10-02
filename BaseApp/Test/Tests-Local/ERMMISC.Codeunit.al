@@ -5,7 +5,7 @@ codeunit 144018 "ERM MISC"
     // 3. Verify Transaction Mode Code and Bank Account Code after Posting Service Credit Memo.
     // 4. Verify Payment Discount after posting Sales Return Order.
     // 5. Verify Payment Discount after posting Purchase Return Order.
-    // 
+    //
     // Covers Test Cases for WI -  341960
     // ----------------------------------------------------------------------------------------------
     // Test Function Name                                                                      TFS ID
@@ -356,22 +356,6 @@ codeunit 144018 "ERM MISC"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM MISC");
     end;
 
-    local procedure EnableAdvancedChecklist()
-    begin
-    end;
-
-    local procedure GetEntryExitPointFromDeclarationFile(var FileTempBlob: Codeunit "Temp Blob"): Text[12]
-    var
-        FileInStream: InStream;
-        DeclarationString: Text[256];
-    begin
-        FileTempBlob.CreateInStream(FileInStream);
-        FileInStream.ReadText(DeclarationString);
-        FileInStream.ReadText(DeclarationString);
-        DeclarationString := CopyStr(DeclarationString, 33, 2);
-        exit(DeclarationString);
-    end;
-
     local procedure CreateCBGStatementWithTemplate(GenJnlTemplateName: Code[10]): Integer
     var
         CBGStatement: Record "CBG Statement";
@@ -471,46 +455,6 @@ codeunit 144018 "ERM MISC"
         exit(CustomerBankAccount.Code);
     end;
 
-    local procedure CreateCountryRegionCode(): Code[10]
-    var
-        CountryRegion: Record "Country/Region";
-        CountryRegionCode: Code[10];
-    begin
-        CountryRegionCode := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(2, 0), 1, 2);
-        if not CountryRegion.Get(CountryRegionCode) then begin
-            CountryRegion.Init();
-            CountryRegion.Code := CountryRegionCode;
-            CountryRegion."Intrastat Code" := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(2, 0), 1, 2);
-            CountryRegion.Insert();
-        end else
-            if CountryRegion."Intrastat Code" = '' then begin
-                CountryRegion."Intrastat Code" := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(2, 0), 1, 2);
-                CountryRegion.Modify();
-            end;
-
-        exit(CountryRegionCode);
-    end;
-
-    local procedure CreateForeignVendorNo(): Code[20]
-    var
-        Vendor: Record Vendor;
-    begin
-        LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Country/Region Code", FindCountryRegionCode());
-        Vendor.Modify(true);
-        exit(Vendor."No.");
-    end;
-
-    local procedure CreateForeignCustomerNo(): Code[20]
-    var
-        Customer: Record Customer;
-    begin
-        LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Country/Region Code", FindCountryRegionCode());
-        Customer.Modify(true);
-        exit(Customer."No.");
-    end;
-
     local procedure CreateItem(): Code[20]
     var
         Item: Record Item;
@@ -521,66 +465,12 @@ codeunit 144018 "ERM MISC"
         exit(Item."No.");
     end;
 
-    local procedure CreateItemForIntrastat(): Code[20]
-    var
-        Item: Record Item;
-        TariffNumber: Record "Tariff Number";
-    begin
-        Item.Get(CreateItem());
-        TariffNumber.FindFirst();
-        Item.Validate("Tariff No.", TariffNumber."No.");
-        Item.Modify(true);
-        exit(Item."No.");
-    end;
-
-    local procedure CreateItemWithTariffNo(var Item: Record Item)
-    begin
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Tariff No.", LibraryUtility.CreateCodeRecord(DATABASE::"Tariff Number"));
-        Item.Validate("Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
-        Item.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
-        Item.Validate("Last Direct Cost", LibraryRandom.RandDecInRange(100, 200, 2));
-        Item.Validate("Net Weight", LibraryRandom.RandDecInRange(100, 200, 2));
-        Item.Modify(true);
-    end;
-
     local procedure CreatePaymentTerms(): Code[10]
     var
         PaymentTerms: Record "Payment Terms";
     begin
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
         exit(PaymentTerms.Code);
-    end;
-
-    local procedure CreatePurchasedItemsWithTariff(var Amount: array[2] of Decimal; var ItemFilter: Code[20])
-    var
-        Item: array[2] of Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-    begin
-        CreateItemWithTariffNo(Item[1]);
-        CreateItemWithTariffNo(Item[2]);
-        ItemFilter := Item[1]."No.";
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateForeignVendorNo());
-
-        PurchaseHeader.Validate("Posting Date", CalcDate('<+1M>', WorkDate()));
-        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
-        PurchaseHeader.Modify(true);
-
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader,
-          PurchaseLine.Type::Item, Item[1]."No.",
-          LibraryRandom.RandDec(100, 2));
-        Amount[1] := Round(PurchaseLine."Line Amount", 1);
-
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader,
-          PurchaseLine.Type::Item, Item[2]."No.",
-          LibraryRandom.RandDec(100, 2));
-        Amount[2] := Round(PurchaseLine."Line Amount", 1);
-
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
     local procedure CreateAndPostPurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header") Amount: Decimal
@@ -595,21 +485,6 @@ codeunit 144018 "ERM MISC"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreatePostPurchaseReturnOrderWithSingleLine(var ItemNo: Code[20])
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        Item: Record Item;
-    begin
-        CreateItemWithTariffNo(Item);
-        ItemNo := Item."No.";
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateForeignVendorNo());
-        PurchaseHeader.Validate("Posting Date", CalcDate('<+1M>', WorkDate()));
-        PurchaseHeader.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-    end;
-
     local procedure CreateAndPostSalesReturnOrder(var SalesHeader: Record "Sales Header") Amount: Decimal
     var
         SalesLine: Record "Sales Line";
@@ -618,22 +493,6 @@ codeunit 144018 "ERM MISC"
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));  // Taking Random Quantity.
         Amount := SalesLine."Outstanding Amount" - (SalesLine."Outstanding Amount" / SalesHeader."Payment Discount %") / 100;
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-    end;
-
-    local procedure CreatePostSalesReturnOrderWithSingleLine(var ItemNo: Code[20])
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        Item: Record Item;
-    begin
-        CreateItemWithTariffNo(Item);
-        ItemNo := Item."No.";
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateForeignCustomerNo());
-        SalesHeader.Validate("Posting Date", CalcDate('<+1M>', WorkDate()));
-        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
-        SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -679,52 +538,6 @@ codeunit 144018 "ERM MISC"
         exit(VendorBankAccount.Code);
     end;
 
-    local procedure MockItemLedgerEntry(DocumentType: Enum "Item Ledger Document Type"): Integer
-    var
-        ItemLedgerEntry: Record "Item Ledger Entry";
-    begin
-        ItemLedgerEntry.Init();
-        ItemLedgerEntry."Document Type" := DocumentType;
-        ItemLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
-        ItemLedgerEntry.Insert();
-        exit(ItemLedgerEntry."Entry No.");
-    end;
-
-    local procedure FindCountryRegionCode(): Code[10]
-    var
-        CountryRegion: Record "Country/Region";
-        CompanyInformation: Record "Company Information";
-    begin
-        CompanyInformation.Get();
-        CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
-        CountryRegion.SetFilter("Intrastat Code", '<>%1', '');
-        CountryRegion.FindFirst();
-        exit(CountryRegion.Code);
-    end;
-
-    local procedure FindOrCreateIntrastatTransportMethod(): Code[10]
-    begin
-        exit(LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Transport Method"));
-    end;
-
-    local procedure FindOrCreateIntrastatTransactionType(): Code[10]
-    begin
-        exit(LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Transaction Type"));
-    end;
-
-    local procedure FindOrCreateIntrastatEntryExitPoint(): Code[10]
-    begin
-        exit(LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Entry/Exit Point"));
-    end;
-
-    local procedure GetExpectedVATRegNo(): Text[12]
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        CompanyInformation.Get();
-        exit(CopyStr(CompanyInformation."VAT Registration No.", 3, 12));
-    end;
-
     local procedure PostBankGiroJournal(JournalTemplateName: Code[10]; DocumentNo: Code[20])
     var
         BankGiroJournal: TestPage "Bank/Giro Journal";
@@ -757,26 +570,6 @@ codeunit 144018 "ERM MISC"
         CustLedgerEntry.TestField("Recipient Bank Account", ServiceHeader."Bank Account Code");
     end;
 
-    local procedure VerifyTransactionAndPatnerIDInDeclarationFile(var FileTempBlob: Codeunit "Temp Blob"; ExpectedPartnedID: Text; ExpectedCountryOfOrigin: Text; ExpectedSpecialUnitSign: Text)
-    var
-        FileInStream: InStream;
-        DeclarationString: Text[256];
-    begin
-        FileTempBlob.CreateInStream(FileInStream);
-        FileInStream.ReadText(DeclarationString);
-        FileInStream.ReadText(DeclarationString);
-        Assert.AreEqual(ExpectedPartnedID, CopyStr(DeclarationString, 118, 17), 'Partner ID');
-        Assert.AreEqual(ExpectedCountryOfOrigin, CopyStr(DeclarationString, 25, 2), 'Country of Origin');
-        Assert.AreEqual(ExpectedSpecialUnitSign, CopyStr(DeclarationString, 81, 1), 'Special Unit + sign'); // TFS 400682
-        Assert.AreEqual('         0', CopyStr(DeclarationString, 82, 10), 'Special Unit value');
-    end;
-
-    local procedure VerifyTestfieldChecklistError(FieldName: Text)
-    begin
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(FieldName);
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GenJournalTemplListCBGPageHandler(var GenJournalTemplListCBG: TestPage "Gen. Journal Templ. List (CBG)")
@@ -807,4 +600,3 @@ codeunit 144018 "ERM MISC"
         GLAccountWhereUsedList.OK().Invoke();
     end;
 }
-

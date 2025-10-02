@@ -48,16 +48,22 @@ table 1104 "Cost Entry"
         }
         field(16; Amount; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Amount';
         }
         field(17; "Debit Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Debit Amount';
         }
         field(18; "Credit Amount"; Decimal)
         {
+            AutoFormatExpression = '';
+            AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Credit Amount';
         }
@@ -206,4 +212,3 @@ table 1104 "Cost Entry"
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 }
-

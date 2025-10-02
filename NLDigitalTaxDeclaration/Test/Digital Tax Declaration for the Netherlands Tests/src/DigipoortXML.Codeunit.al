@@ -1,6 +1,7 @@
 codeunit 148000 "Digipoort XML"
 {
     Subtype = Test;
+    TestType = Uncategorized;
     TestPermissions = Disabled;
 
     trigger OnRun()

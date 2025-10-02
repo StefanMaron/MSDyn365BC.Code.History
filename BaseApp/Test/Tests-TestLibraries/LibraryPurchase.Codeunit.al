@@ -1080,13 +1080,15 @@ codeunit 130512 "Library - Purchase"
         PurchasesPayablesSetup.Modify(true);
     end;
 
+#if not CLEAN27
+    [Obsolete('Discontinued functionality', '27.0')]
     procedure SetCreateItemFromItemNo(NewValue: Boolean)
     begin
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Create Item from Item No.", NewValue);
         PurchasesPayablesSetup.Modify(true);
     end;
-
+#endif
     procedure SetDefaultPostingDateWorkDate()
     begin
         PurchasesPayablesSetup.Get();
@@ -1299,4 +1301,3 @@ codeunit 130512 "Library - Purchase"
     begin
     end;
 }
-

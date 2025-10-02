@@ -6,6 +6,11 @@ namespace Microsoft.Bank.Ledger;
 
 using Microsoft.Bank.BankAccount;
 
+/// <summary>
+/// Query object providing optimized read-only access to bank account ledger entry data.
+/// Exposes key bank account ledger entry fields for reporting, analysis, and external integrations
+/// with improved performance compared to table-based data access.
+/// </summary>
 query 264 "Bank Account Ledger Entries"
 {
     Caption = 'Bank Account Ledger Entries';

@@ -1,11 +1,12 @@
+#if not CLEAN27
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Reports;
 
+using Microsoft.Inventory.Setup;
 using Microsoft.Manufacturing.Forecast;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Sales.Document;
 using System.Utilities;
 
@@ -14,8 +15,11 @@ report 99003804 "Demand Forecast"
     DefaultLayout = RDLC;
     RDLCLayout = './Manufacturing/Reports/DemandForecast.rdlc';
     ApplicationArea = Manufacturing;
-    Caption = 'Demand Forecast';
+    Caption = 'Demand Forecast (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report has been deprecated and will be removed in a future release.';
+    ObsoleteTag = '27.0';
 
     dataset
     {
@@ -116,9 +120,9 @@ report 99003804 "Demand Forecast"
                     SetRange(Type, Type::Item);
                     SetRange("No.", "Production Forecast Entry"."Item No.");
                     SetRange("Document Type", "Document Type"::Order);
-                    if MfgSetup."Use Forecast on Locations" then
+                    if InventorySetup."Use Forecast on Locations" then
                         SetRange("Location Code", "Production Forecast Entry"."Location Code");
-                    if MfgSetup."Use Forecast on Variants" then
+                    if InventorySetup."Use Forecast on Variants" then
                         SetRange("Variant Code", "Production Forecast Entry"."Variant Code");
                 end;
             }
@@ -141,9 +145,9 @@ report 99003804 "Demand Forecast"
                 ProdForecastEntry.SetRange("Production Forecast Name", "Production Forecast Name");
                 ProdForecastEntry.SetRange("Item No.", "Item No.");
                 ProdForecastEntry.SetRange("Forecast Date", "Forecast Date");
-                if MfgSetup."Use Forecast on Locations" then
+                if InventorySetup."Use Forecast on Locations" then
                     ProdForecastEntry.SetRange("Location Code", "Location Code");
-                if MfgSetup."Use Forecast on Variants" then
+                if InventorySetup."Use Forecast on Variants" then
                     ProdForecastEntry.SetRange("Variant Code", "Variant Code");
                 Total := 0;
                 repeat
@@ -159,14 +163,15 @@ report 99003804 "Demand Forecast"
             trigger OnPreDataItem()
             begin
                 ProdForecastEntry2.Copy("Production Forecast Entry");
-                MfgSetup.Get();
+                InventorySetup.Get();
             end;
         }
     }
 
     requestpage
     {
-
+        AboutTitle = 'About Demand Forecast (Obsolete)';
+        AboutText = 'Helps you plan future production needs by predicting the demand for items based on historical data and other factors. Use the report to help ensure that production schedules align with anticipated sales and inventory requirements.** This report is obsolete and will be removed in a future release.** Please refer to the report documentation for alternative ways to retrieve this information.';
         layout
         {
         }
@@ -188,7 +193,7 @@ report 99003804 "Demand Forecast"
     var
         ProdForecastEntry: Record "Production Forecast Entry";
         ProdForecastEntry2: Record "Production Forecast Entry";
-        MfgSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         Total: Decimal;
         ForecastFilter: Text;
         ProductionForecastCaptionLbl: Label 'Demand Forecast';
@@ -202,3 +207,4 @@ report 99003804 "Demand Forecast"
         TotalCaptionLbl: Label 'Total';
 }
 
+#endif

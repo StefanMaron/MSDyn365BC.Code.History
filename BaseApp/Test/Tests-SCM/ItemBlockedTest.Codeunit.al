@@ -32,33 +32,6 @@ codeunit 134815 "Item Blocked Test"
         InvalidTableRelationErr: Label 'The field %1 of table %2 contains a value (%3) that cannot be found in the related table (%4).', Comment = '%1 - Validating Field Caption, %2 - Validating Table Caption, %3 - Validating Value, %4 - Related Table Caption';
 
     [Test]
-    [Scope('OnPrem')]
-    procedure T100_ItemBlockedForSaleOnInvoice()
-    var
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        Customer: Record Customer;
-    begin
-        // [FEATURE] [Sales] [Invoice]
-        Initialize();
-        // [GIVEN] An item that is blocked for sales
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Sales Blocked", true);
-        Item.Modify(true);
-
-        LibrarySales.CreateCustomer(Customer);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-
-        // [WHEN] Create a line on the sales order with the item that is blocked for sale
-        asserterror
-          LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2));
-
-        // [THEN] An error appears: 'You cannot sell Item'
-        Assert.ExpectedError(StrSubstNo(SalesBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Sales Blocked")));
-    end;
-
-    [Test]
     [HandlerFunctions('SentNotificationHandler')]
     [Scope('OnPrem')]
     procedure T105_ItemBlockedForSaleOnCrMemo()
@@ -126,44 +99,6 @@ codeunit 134815 "Item Blocked Test"
         Item.TestField("Sales Blocked");
         // [THEN] Return order can be posted
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemListModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure T110_ItemBlockedForSaleOnOrderDescriptionLookup()
-    var
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        Customer: Record Customer;
-        SalesOrderPage: TestPage "Sales Order";
-    begin
-        // [FEATURE] [Sales] [Order] [UI]
-        Initialize();
-        // [GIVEN] An item 'X' that is blocked for sales
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Sales Blocked", true);
-        Item.Modify(true);
-
-        // [GIVEN] New line is created on the sales order, where "Type" is 'Item'
-        LibrarySales.CreateCustomer(Customer);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        SalesOrderPage.OpenEdit();
-        SalesOrderPage.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesOrderPage.SalesLines.Type.Value('Item');
-
-        // [WHEN] Lookup in "No." control
-        LibraryVariableStorage.Enqueue(Item."No."); // to ItemListModalPageHandler
-        SalesOrderPage.SalesLines."No.".Lookup();
-        // [THEN] The item 'X' is not in the list
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Item must not be in the list');
-
-        // [WHEN] Lookup in "Description" control
-        LibraryVariableStorage.Enqueue(Item."No."); // to ItemListModalPageHandler
-        SalesOrderPage.SalesLines.Description.Lookup();
-        // [THEN] The item 'X' is not in the list
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Item must not be in the list (Description)');
-        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -302,33 +237,6 @@ codeunit 134815 "Item Blocked Test"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure T200_ItemBlockedForPurchaseOnInvoice()
-    var
-        Item: Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        Vendor: Record Vendor;
-    begin
-        // [FEATURE] [Purchase] [Invoice]
-        Initialize();
-        // [GIVEN] An item that is blocked for purchase
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Purchasing Blocked", true);
-        Item.Modify(true);
-        LibraryPurchase.CreateVendor(Vendor);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
-
-        // [WHEN] Create a line in a purchase invoice with the item that is blocked for purchase
-        asserterror
-          LibraryPurchase.CreatePurchaseLine(
-            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2));
-
-        // [THEN] An error appears: 'You cannot purchase Item'
-        Assert.ExpectedError(StrSubstNo(PurchasingBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Purchasing Blocked")));
-    end;
-
-    [Test]
     [HandlerFunctions('SentNotificationHandler')]
     [Scope('OnPrem')]
     procedure T205_ItemBlockedForPurchaseOnCrMemo()
@@ -396,44 +304,6 @@ codeunit 134815 "Item Blocked Test"
         Item.TestField("Purchasing Blocked");
         // [THEN] Return Order can be posted
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemListModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure T210_ItemBlockedForPurchOnOrderDescriptionLookup()
-    var
-        Item: Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        Vendor: Record Vendor;
-        PurchaseOrderPage: TestPage "Purchase Order";
-    begin
-        // [FEATURE] [Purchase] [Order] [UI]
-        Initialize();
-        // [GIVEN] An item 'X' that is blocked for purchase
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Purchasing Blocked", true);
-        Item.Modify(true);
-
-        // [GIVEN] New line is created on the purchase order, where "Type" is 'Item'
-        LibraryPurchase.CreateVendor(Vendor);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
-        PurchaseOrderPage.OpenEdit();
-        PurchaseOrderPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrderPage.PurchLines.Type.Value('Item');
-
-        // [WHEN] Lookup in "No." control
-        LibraryVariableStorage.Enqueue(Item."No."); // to ItemListModalPageHandler
-        PurchaseOrderPage.PurchLines."No.".Lookup();
-        // [THEN] The item 'X' is not in the list
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Item must not be in the list');
-
-        // [WHEN] Lookup in "Description" control
-        LibraryVariableStorage.Enqueue(Item."No."); // to ItemListModalPageHandler
-        PurchaseOrderPage.PurchLines.Description.Lookup();
-        // [THEN] The item 'X' is not in the list
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Item must not be in the list (Description)');
-        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]

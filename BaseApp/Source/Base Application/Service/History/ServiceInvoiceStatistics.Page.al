@@ -24,7 +24,7 @@ page 6033 "Service Invoice Statistics"
             group(General)
             {
                 Caption = 'General';
-                field(Amount; CustAmount + InvDiscAmount)
+                field(Amount; CustAmount + InvDiscAmount + PmtDiscAmount)
                 {
                     ApplicationArea = Service;
                     AutoFormatExpression = Rec."Currency Code";
@@ -39,6 +39,14 @@ page 6033 "Service Invoice Statistics"
                     AutoFormatType = 1;
                     Caption = 'Inv. Discount Amount';
                     ToolTip = 'Specifies the invoice discount amount for the entire service invoice. If there is a check mark in the Calc. Inv. Discount field in the Sales & Receivables Setup window, the discount was calculated automatically.';
+                }
+                field(PmtDiscAmount; PmtDiscAmount)
+                {
+                    ApplicationArea = Service;
+                    AutoFormatExpression = Rec."Currency Code";
+                    AutoFormatType = 1;
+                    Caption = 'Pmt. Discount Amount';
+                    ToolTip = 'Specifies the payment discount amount that you have granted to customers. ';
                 }
                 field(CustAmount; CustAmount)
                 {
@@ -226,10 +234,13 @@ page 6033 "Service Invoice Statistics"
             repeat
                 CustAmount := CustAmount + ServInvLine.Amount;
                 AmountInclVAT := AmountInclVAT + ServInvLine."Amount Including VAT";
-                if Rec."Prices Including VAT" then
-                    InvDiscAmount := InvDiscAmount + ServInvLine."Inv. Discount Amount" / (1 + ServInvLine.GetVATPct() / 100)
-                else
+                if Rec."Prices Including VAT" then begin
+                    InvDiscAmount := InvDiscAmount + ServInvLine."Inv. Discount Amount" / (1 + ServInvLine.GetVATPct() / 100);
+                    PmtDiscAmount := PmtDiscAmount + ServInvLine."Pmt. Discount Amount" / (1 + ServInvLine.GetVATPct() / 100);
+                end else begin
                     InvDiscAmount := InvDiscAmount + ServInvLine."Inv. Discount Amount";
+                    PmtDiscAmount := PmtDiscAmount + ServInvLine."Pmt. Discount Amount";
+                end;
                 CostLCY := CostLCY + (ServInvLine.Quantity * ServInvLine."Unit Cost (LCY)");
                 LineQty := LineQty + ServInvLine.Quantity;
                 TotalNetWeight := TotalNetWeight + (ServInvLine.Quantity * ServInvLine."Net Weight");
@@ -315,6 +326,7 @@ page 6033 "Service Invoice Statistics"
         CreditLimitLCYExpendedPct: Decimal;
         VATPercentage: Decimal;
         VATAmountText: Text[30];
+        PmtDiscAmount: Decimal;
 
 #pragma warning disable AA0074
         Text000: Label 'VAT Amount';

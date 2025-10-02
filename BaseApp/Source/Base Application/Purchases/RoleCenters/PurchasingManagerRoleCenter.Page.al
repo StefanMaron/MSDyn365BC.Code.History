@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.RoleCenters;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.RoleCenters;
 
 using Microsoft.Assembly.Document;
 using Microsoft.CRM.Contact;
@@ -137,6 +141,14 @@ page 8905 "Purchasing Manager Role Center"
                         ApplicationArea = Dimensions, PurchaseAnalysis;
                         Caption = 'Purchase Analysis by Dimensions';
                         RunObject = page "Analysis View List Purchase";
+                    }
+                    action("Purch. Order Perf. Analysis")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Analyze Purchase Orders';
+                        Image = Purchase;
+                        RunObject = query "Purch. Order Perf. Analysis";
+                        ToolTip = 'Analyze (group, summarize, pivot) your Purchase Order performance against vendors and goods/services bought, including outstanding vs. posted quantities and amounts.';
                     }
                     action("Item Dimensions - Detail")
                     {
