@@ -70,7 +70,8 @@ table 8069 "Sales Sub. Line Archive"
             Caption = 'Calculation Base Amount';
             MinValue = 0;
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(16; "Calculation Base %"; Decimal)
         {
@@ -78,6 +79,7 @@ table 8069 "Sales Sub. Line Archive"
             MinValue = 0;
             BlankZero = true;
             DecimalPlaces = 0 : 5;
+            AutoFormatType = 0;
         }
         field(17; "Price"; Decimal)
         {
@@ -85,6 +87,7 @@ table 8069 "Sales Sub. Line Archive"
             Editable = false;
             BlankZero = true;
             AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(18; "Discount %"; Decimal)
         {
@@ -93,19 +96,22 @@ table 8069 "Sales Sub. Line Archive"
             MaxValue = 100;
             BlankZero = true;
             DecimalPlaces = 0 : 2;
+            AutoFormatType = 0;
         }
         field(19; "Discount Amount"; Decimal)
         {
             Caption = 'Discount Amount';
             MinValue = 0;
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(20; Amount; Decimal)
         {
             Caption = 'Amount';
             BlankZero = true;
-            AutoFormatType = 2;
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(21; "Sub. Line Start Formula"; DateFormula)
         {
@@ -156,6 +162,11 @@ table 8069 "Sales Sub. Line Archive"
             Editable = false;
             TableRelation = "Customer Price Group";
         }
+        field(34; "Currency Code"; Code[10])
+        {
+            Caption = 'Currency Code';
+            Editable = false;
+        }
         field(60; "Linked to No."; Code[20])
         {
             Caption = 'Linked to No.';
@@ -174,10 +185,13 @@ table 8069 "Sales Sub. Line Archive"
         field(100; "Unit Cost"; Decimal)
         {
             Caption = 'Unit Cost';
+            AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(101; "Unit Cost (LCY)"; Decimal)
         {
             AutoFormatType = 2;
+            AutoFormatExpression = '';
             Caption = 'Unit Cost (LCY)';
         }
     }

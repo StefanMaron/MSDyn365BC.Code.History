@@ -140,6 +140,7 @@ table 5071 Campaign
         }
         field(14; "Duration (Min.)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Interaction Log Entry"."Duration (Min.)" where("Campaign No." = field("No."),
                                                                                Canceled = const(false),
                                                                                Date = field("Date Filter"),
@@ -151,6 +152,7 @@ table 5071 Campaign
         }
         field(16; "Cost (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Interaction Log Entry"."Cost (LCY)" where("Campaign No." = field("No."),
                                                                           Canceled = const(false),
@@ -170,6 +172,7 @@ table 5071 Campaign
         }
         field(18; "Estimated Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Estimated Value (LCY)" where("Campaign No." = field("No."),
                                                                                  Active = const(true)));
@@ -179,6 +182,7 @@ table 5071 Campaign
         }
         field(19; "Calcd. Current Value (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Opportunity Entry"."Calcd. Current Value (LCY)" where("Campaign No." = field("No."),
                                                                                       Active = const(true)));
@@ -212,6 +216,7 @@ table 5071 Campaign
         }
         field(26; "Probability % Filter"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Probability % Filter';
             DecimalPlaces = 1 : 1;
             FieldClass = FlowFilter;
@@ -220,6 +225,7 @@ table 5071 Campaign
         }
         field(27; "Completed % Filter"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Completed % Filter';
             DecimalPlaces = 1 : 1;
             FieldClass = FlowFilter;
@@ -240,18 +246,21 @@ table 5071 Campaign
         }
         field(30; "Estimated Value Filter"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Estimated Value Filter';
             FieldClass = FlowFilter;
         }
         field(31; "Calcd. Current Value Filter"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Calcd. Current Value Filter';
             FieldClass = FlowFilter;
         }
         field(32; "Chances of Success % Filter"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Chances of Success % Filter';
             DecimalPlaces = 0 : 0;
             FieldClass = FlowFilter;
@@ -372,32 +381,15 @@ table 5071 Campaign
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
             RMSetup.Get();
             RMSetup.TestField("Campaign Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RMSetup."Campaign Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                if NoSeries.AreRelated(RMSetup."Campaign Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series"
-                else
-                    "No. Series" := RMSetup."Campaign Nos.";
-                "No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", RMSetup."Campaign Nos.", 0D, "No.");
-            end;
-#else
-			if NoSeries.AreRelated(RMSetup."Campaign Nos.", xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := RMSetup."Campaign Nos.";
+            if NoSeries.AreRelated(RMSetup."Campaign Nos.", xRec."No. Series") then
+                "No. Series" := xRec."No. Series"
+            else
+                "No. Series" := RMSetup."Campaign Nos.";
             "No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
 
         if "Salesperson Code" = '' then
@@ -491,4 +483,3 @@ table 5071 Campaign
     begin
     end;
 }
-

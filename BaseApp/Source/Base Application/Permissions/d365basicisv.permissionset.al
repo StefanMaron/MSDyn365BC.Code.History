@@ -4,12 +4,10 @@ using Microsoft.AccountantPortal;
 using Microsoft.Booking;
 using Microsoft.Sales.Archive;
 using Microsoft.CRM.Team;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Inventory.Location;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.CostAccounting.Setup;
-using Microsoft.Manufacturing.Reports;
 using Microsoft.Bank.Payment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.EServices.EDocument;
@@ -42,9 +40,6 @@ using Microsoft.Finance.VAT.Registration;
 using Microsoft.Assembly.Setup;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
-#if not CLEAN24
-using Microsoft.Bank.Deposit;
-#endif
 using Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.Ledger;
 using Microsoft.Bank.PositivePay;
@@ -128,8 +123,6 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Projects.Resources.Analysis;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Ledger;
@@ -193,14 +186,6 @@ using Microsoft.API.Upgrade;
 using Microsoft.API;
 using Microsoft;
 
-using Microsoft.Service.Contract;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
-using Microsoft.Service.Loaner;
-using Microsoft.Service.Maintenance;
-using Microsoft.Service.Resources;
-using Microsoft.Service.Setup;
-
 permissionset 732 "D365 BASIC ISV"
 {
     Access = Public;
@@ -253,6 +238,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Allocation Line" = RIMD,
                   tabledata "Alt. Customer Posting Group" = RIMD,
                   tabledata "Alt. Vendor Posting Group" = RIMD,
+                  tabledata "Alt. Employee Posting Group" = RIMD,
                   tabledata "Analysis by Dim. Parameters" = RIMD,
                   tabledata "Analysis by Dim. User Param." = RIMD,
                   tabledata "Analysis Report Chart Setup" = R,
@@ -315,10 +301,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Business Unit" = RIMD,
                   tabledata "Business Unit Information" = RIMD,
                   tabledata "Business Unit Setup" = RIMD,
-#if not CLEAN24
-                  tabledata "Calendar Event" = Rimd,
-                  tabledata "Calendar Event User Config." = Rimd,
-#endif
                   tabledata "Cancelled Document" = Rimd,
                   tabledata "Cash Flow Account" = RIMD,
                   tabledata "Cash Flow Account Comment" = RIMD,
@@ -390,7 +372,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Copy Item Parameters" = RIMD,
                   tabledata "Cost Accounting Setup" = Ri,
                   tabledata "Cost Element Buffer" = RIMD,
-                  tabledata "Cost Share Buffer" = RIMD,
                   tabledata "Country/Region" = RIMD,
                   tabledata "Country/Region Translation" = RIMD,
                   tabledata "Coupling Record Buffer" = RIMD,
@@ -452,9 +433,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Deferral Line Archive" = RIMD,
                   tabledata "Deferral Posting Buffer" = RIMD,
                   tabledata "Deferral Template" = RIMD,
-#if not CLEAN24
-                  tabledata "Deposits Page Setup" = RIMD,
-#endif
                   tabledata "Dispute Status" = RIMD,
                   tabledata "Depreciation Book" = RIMD,
                   tabledata "Depreciation Table Buffer" = RIMD,
@@ -723,20 +701,15 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "License Agreement" = RIMD,
                   tabledata "Line Fee Note on Report Hist." = Rimd,
                   tabledata "Line Number Buffer" = RIMD,
-                  tabledata "Load Buffer" = RIMD,
                   tabledata Location = RIMD,
                   tabledata "Mailing Group" = RIMD,
                   tabledata "Main Asset Component" = RIMD,
                   tabledata Maintenance = RIMD,
                   tabledata "Maintenance Ledger Entry" = Rimd,
                   tabledata "Maintenance Registration" = RIMD,
-#if not CLEAN24
-                  tabledata "Man. Integration Field Mapping" = RIMD,
-#endif
                   tabledata "Man. Integration Table Mapping" = RIMD,
                   tabledata "Man. Int. Field Mapping" = RIMD,
                   tabledata Manufacturer = RIMD,
-                  tabledata "Manufacturing Setup" = Ri,
                   tabledata "Marketing Setup" = RIMD,
                   tabledata "Media Repository" = RIMD,
                   tabledata "Memoized Result" = RIMD,
@@ -751,6 +724,7 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "My Vendor" = RIMD,
                   tabledata "Name/Value Buffer" = RIMD,
                   tabledata "Named Forward Link" = RIMD,
+                  tabledata "Nationality" = RIMD,
                   tabledata "No. Series" = RIMD,
                   tabledata "No. Series Line" = RIMD,
                   tabledata "No. Series Relationship" = RIMD,
@@ -1104,7 +1078,6 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Warehouse Setup" = Ri,
                   tabledata "Web Source" = RIMD,
                   tabledata "WF Event/Response Combination" = RIMD,
-                  tabledata "Work Center" = RIMD,
                   tabledata "Work Type" = RIMD,
                   tabledata "Workflow - Record Change" = Rimd,
                   tabledata "Workflow - Table Relation" = RIMD,
@@ -1133,33 +1106,5 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "XML Buffer" = RIMD,
                   tabledata "XML Schema" = RIMD,
                   tabledata "XML Schema Element" = RIMD,
-                  tabledata "XML Schema Restriction" = RIMD,
-
-                  // Service
-                  tabledata "Contract Change Log" = RIMD,
-                  tabledata "Contract Gain/Loss Entry" = RIMD,
-                  tabledata "Contract Group" = RIMD,
-                  tabledata "Contract Trend Buffer" = RIMD,
-                  tabledata "Fault Area" = RIMD,
-                  tabledata "Fault Code" = RIMD,
-                  tabledata "Fault Reason Code" = RIMD,
-                  tabledata "Fault/Resol. Cod. Relationship" = RIMD,
-                  tabledata "Filed Contract Line" = RIMD,
-                  tabledata "Filed Serv. Contract Cmt. Line" = RIMD,
-                  tabledata Loaner = RIMD,
-                  tabledata "Loaner Entry" = RIMD,
-                  tabledata "Repair Status" = RIMD,
-                  tabledata "Resolution Code" = RIMD,
-                  tabledata "Resource Location" = RIMD,
-                  tabledata "Resource Service Zone" = RIMD,
-                  tabledata "Resource Skill" = RIMD,
-                  tabledata "Service Item Trend Buffer" = RIMD,
-                  tabledata "Service Mgt. Setup" = Ri,
-                  tabledata "Skill Code" = RIMD,
-                  tabledata "Symptom Code" = RIMD,
-                  tabledata "Troubleshooting Header" = RIMD,
-                  tabledata "Troubleshooting Line" = RIMD,
-                  tabledata "Troubleshooting Setup" = RIMD,
-                  tabledata "Warranty Ledger Entry" = RIMD,
-                  tabledata "Work-Hour Template" = RIMD;
+                  tabledata "XML Schema Restriction" = RIMD;
 }

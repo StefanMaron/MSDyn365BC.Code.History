@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -387,22 +387,10 @@ codeunit 10635 "Import SEPA Common"
     local procedure FindDocumentNo(PostDate: Date; RemittanceAccount: Record "Remittance Account"; CreateNewDocumentNo: Boolean; var TransDocumentNo: Code[20])
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if CreateNewDocumentNo then begin
             TransDocumentNo := '';
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RemittanceAccount."Document No. Series", '', PostDate, TransDocumentNo, RemittanceAccount."Document No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 TransDocumentNo := NoSeries.GetNextNo(RemittanceAccount."Document No. Series", PostDate);
-#if not CLEAN24
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(RemittanceAccount."Document No. Series", RemittanceAccount."Document No. Series", PostDate, TransDocumentNo);
-            end;
-#endif
             CreateNewDocumentNo := false;
         end;
         // Trans. document no. is now the current document no.
@@ -432,4 +420,3 @@ codeunit 10635 "Import SEPA Common"
         exit(true);
     end;
 }
-

@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Sales.History;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.History;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -119,7 +123,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         CreateCreditMemoLbl: Label 'Create credit memo anyway';
         ShowEntriesLbl: Label 'Show applied entries';
         WMSLocationCancelCorrectErr: Label 'You cannot cancel or correct this posted sales invoice because Warehouse Receive is required for Line No. = %1.', Comment = '%1 - line number';
-        DropShipmentDocumentExistsErr: Label 'You cannot use the cancel or correct functionality because the invoice line is associated with purchase order %1 via a Drop Shipment.', Comment = '%1 - Purchase Order No.';
+        DropShipmentDocumentExistsErr: Label 'You cannot use the cancel or correct functionality because the invoice line is associated with purchase order %1 due to Drop Shipment.', Comment = '%1 - Purchase Order No.';
         CreateCreditMemoQst: Label 'The invoice was posted from an order. A Sales Credit memo will be created which you complete and post manually. The quantities will be corrected in the existing Sales Order.\ \Do you want to continue?';
 
     procedure CancelPostedInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
@@ -1074,6 +1078,8 @@ codeunit 1303 "Correct Posted Sales Invoice"
             exit;
 
         if SalesInvoiceLine.Type <> SalesInvoiceLine.Type::Item then
+            exit;
+        if SalesInvoiceLine.Quantity = 0 then
             exit;
         if not Item.Get(SalesInvoiceLine."No.") then
             exit;

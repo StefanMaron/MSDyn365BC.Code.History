@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Project.Planning;
 
 using Microsoft.Finance.Currency;
@@ -221,10 +225,6 @@ codeunit 1002 "Job Create-Invoice"
 
                     OnCreateSalesInvoiceLinesOnBeforeCreateSalesLine(
                       JobPlanningLine, SalesHeader, SalesHeader2, NewInvoice, NoOfSalesLinesCreated);
-#if not CLEAN24
-                    if not CreditMemo then
-                        CheckJobPlanningLineIsNegative(JobPlanningLine);
-#endif
 
                     CreateSalesLine(JobPlanningLine);
 
@@ -983,6 +983,7 @@ codeunit 1002 "Job Create-Invoice"
                 if SalesHeader."Ship-to Code" = '' then begin
                     SalesHeader."Ship-to Contact" := Job."Ship-to Contact";
                     SalesHeader."Ship-to Name" := Job."Ship-to Name";
+                    SalesHeader."Ship-to Name 2" := Job."Ship-to Name 2";
                     SalesHeader."Ship-to Address" := Job."Ship-to Address";
                     SalesHeader."Ship-to Address 2" := Job."Ship-to Address 2";
                     SalesHeader."Ship-to City" := Job."Ship-to City";
@@ -1033,6 +1034,7 @@ codeunit 1002 "Job Create-Invoice"
             if SalesHeader."Ship-to Code" = '' then begin
                 SalesHeader."Ship-to Contact" := JobTask."Ship-to Contact";
                 SalesHeader."Ship-to Name" := JobTask."Ship-to Name";
+                SalesHeader."Ship-to Name 2" := JobTask."Ship-to Name 2";
                 SalesHeader."Ship-to Address" := JobTask."Ship-to Address";
                 SalesHeader."Ship-to Address 2" := JobTask."Ship-to Address 2";
                 SalesHeader."Ship-to City" := JobTask."Ship-to City";
@@ -1238,16 +1240,6 @@ codeunit 1002 "Job Create-Invoice"
         end;
     end;
 
-#if not CLEAN24
-    local procedure CheckJobPlanningLineIsNegative(JobPlanningLine: Record "Job Planning Line")
-    var
-        IsHandled: Boolean;
-    begin
-        OnBeforeCheckJobPlanningLineIsNegative(JobPlanningLine, IsHandled);
-        if IsHandled then
-            exit;
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesInvoiceLines(var SalesHeader: Record "Sales Header"; NewInvoice: Boolean)
@@ -1489,13 +1481,6 @@ codeunit 1002 "Job Create-Invoice"
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Has no purpose in procedure CheckJobPlanningLineIsNegative anymore', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckJobPlanningLineIsNegative(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceLinesOnAfterSetJobInvCurrency(Job: Record Job; var JobInvCurrency: Boolean)
@@ -1547,4 +1532,3 @@ codeunit 1002 "Job Create-Invoice"
     begin
     end;
 }
-

@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
+/// <summary>
+/// Page 982 "Payment Registration Setup" provides configuration interface for payment registration functionality.
+/// This page allows users to set up journal templates, batch names, and balancing accounts for payment processing.
+/// </summary>
+/// <remarks>
+/// Source table: Payment Registration Setup. Used for configuring user-specific defaults
+/// for payment registration including journal settings and automation preferences.
+/// </remarks>
 page 982 "Payment Registration Setup"
 {
     ApplicationArea = Basic, Suite;

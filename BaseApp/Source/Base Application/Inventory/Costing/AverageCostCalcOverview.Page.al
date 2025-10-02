@@ -281,10 +281,12 @@ page 5847 "Average Cost Calc. Overview"
         ItemLedgerEntryNoHideValue := false;
         TypeIndent := 0;
         SetExpansionStatus();
+
+        // For synthetic summary (Closing Entry) rows compute dynamic roll‑up values on demand
         if Rec.Type = Rec.Type::"Closing Entry" then begin
-            Rec.Quantity := Rec.CalculateRemainingQty();
-            Rec."Cost Amount (Expected)" := Rec.CalculateCostAmt(false);
-            Rec."Cost Amount (Actual)" := Rec.CalculateCostAmt(true);
+            Rec.Quantity := Rec.CalculateRemainingQty();            // Remaining quantity at valuation point
+            Rec."Cost Amount (Expected)" := Rec.CalculateCostAmt(false); // Summed expected cost
+            Rec."Cost Amount (Actual)" := Rec.CalculateCostAmt(true);   // Summed adjusted/actual cost
         end;
         TypeOnFormat();
         ItemLedgerEntryNoOnFormat();
@@ -293,9 +295,13 @@ page 5847 "Average Cost Calc. Overview"
     end;
 
     trigger OnOpenPage()
+    var
+        ProgressDialog: Dialog;
     begin
-        InitTempTable();
-        ExpandAll(TempAvgCostCalcOverview);
+        ProgressDialog.Open(LoadingAvgCalcLbl);
+        InitTempTable();                // Load level 0 nodes (root Closing Entry summaries)
+        ExpandAll(TempAvgCostCalcOverview); // Pre-expand tree so user immediately sees detail
+        ProgressDialog.Close();
 
         SetRecFilters();
         CurrPage.Update(false);
@@ -309,22 +315,23 @@ page 5847 "Average Cost Calc. Overview"
         ItemLedgEntry: Record "Item Ledger Entry";
         GetAvgCostCalcOverview: Codeunit "Get Average Cost Calc Overview";
         Navigate: Page Navigate;
-        ActualExpansionStatus: Integer;
+        ActualExpansionStatus: Integer;  // 0 = collapsed, 1 = expanded, 2 = leaf
         ItemName: Text[250];
         TypeIndent: Integer;
         ItemLedgerEntryNoHideValue: Boolean;
         EntryTypeHideValue: Boolean;
         DocumentLineNoHideValue: Boolean;
+        LoadingAvgCalcLbl: Label 'Loading average cost calculations...';
 
     procedure SetExpansionStatus()
     begin
         case true of
             IsExpanded(Rec):
-                ActualExpansionStatus := 1;
+                ActualExpansionStatus := 1; // expanded
             HasChildren(Rec):
-                ActualExpansionStatus := 0
+                ActualExpansionStatus := 0 // collapsible (has children but not expanded in current iteration)
             else
-                ActualExpansionStatus := 2;
+                ActualExpansionStatus := 2; // leaf
         end;
     end;
 
@@ -343,13 +350,13 @@ page 5847 "Average Cost Calc. Overview"
         AvgCostCalcOverviewFilters.CopyFilters(Rec);
         Rec.Reset();
         Rec.DeleteAll();
-        if TempAvgCostCalcOverview.Find('-') then
+        TempAvgCostCalcOverview.SetRange(Level, 0);
+        if TempAvgCostCalcOverview.FindSet() then
             repeat
-                if TempAvgCostCalcOverview.Level = 0 then begin
-                    Rec := TempAvgCostCalcOverview;
-                    Rec.Insert();
-                end;
+                Rec := TempAvgCostCalcOverview;
+                Rec.Insert();
             until TempAvgCostCalcOverview.Next() = 0;
+        TempAvgCostCalcOverview.SetRange(Level);
         Rec.CopyFilters(AvgCostCalcOverviewFilters);
     end;
 
@@ -368,14 +375,16 @@ page 5847 "Average Cost Calc. Overview"
         Rec.Reset();
         Rec.DeleteAll();
 
+        // Pass 1 (descending): compute aggregates by calling Calculate on each (some routines rely on reverse order)
         if TempAvgCostCalcOverview.Find('+') then
             repeat
                 Rec := AvgCostCalcOverview;
                 GetAvgCostCalcOverview.Calculate(AvgCostCalcOverview);
                 TempAvgCostCalcOverview.Reset();
-                AvgCostCalcOverview := Rec;
+                AvgCostCalcOverview := Rec; // restore record after Calculate changed it
             until TempAvgCostCalcOverview.Next(-1) = 0;
 
+        // Pass 2 (ascending): insert all nodes to visible temp (Rec) maintaining hierarchy visual order
         if TempAvgCostCalcOverview.Find('+') then
             repeat
                 Rec := AvgCostCalcOverview;

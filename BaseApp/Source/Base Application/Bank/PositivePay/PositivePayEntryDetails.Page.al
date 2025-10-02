@@ -4,6 +4,17 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.PositivePay;
 
+/// <summary>
+/// Displays detailed check information for a specific positive pay entry upload.
+/// This page provides a detailed view of all checks that were included in a positive pay file upload.
+/// </summary>
+/// <remarks>
+/// The Positive Pay Entry Details page shows the individual check records that were uploaded to the bank
+/// as part of a positive pay submission. Users can review check numbers, amounts, payees, and document types
+/// for each check in the upload. This page serves as an audit trail and reference for troubleshooting
+/// any discrepancies between the uploaded data and bank processing. All data is read-only as it represents
+/// historical upload information that should not be modified after submission.
+/// </remarks>
 page 1232 "Positive Pay Entry Details"
 {
     Caption = 'Positive Pay Entry Details';

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -59,6 +59,8 @@ codeunit 427 ICInboxOutboxMgt
         TransactionAlreadyExistsInOutboxHandledQst: Label '%1 %2 has already been sent to intercompany partner %3. Resending it will create a duplicate %1 for them. Do you want to send it again?', Comment = '%1 - Document Type, %2 - Document No, %3 - IC parthner code';
         TransactionCantBeFoundErr: Label 'The Intercompany transaction that originated this document cannot be found.';
         DuplicateICDocumentMsg: Label 'An %1 with no. %2 has been previously received through intercompany. You have an order and an invoice for the same document which can lead to duplicating information. You can remove one of these documents or use Reject IC Document.', Comment = '%1 - either "order", "invoice", or "posted invoice", %2 - a code';
+        PermissionToAutoAcceptICDocsErr: Label 'Auto-accepting intercompany documents requires scheduling permissions which you do not have assigned, delegated administrators can not schedule tasks.';
+
 
     procedure CreateOutboxJnlTransaction(TempGenJnlLine: Record "Gen. Journal Line" temporary; Rejection: Boolean): Integer
     var
@@ -1362,7 +1364,7 @@ codeunit 427 ICInboxOutboxMgt
         HandledInboxTransaction.Init();
         HandledInboxTransaction."Transaction No." := InboxTransaction."Transaction No.";
         HandledInboxTransaction."IC Partner Code" := InboxTransaction."IC Partner Code";
-        HandledInboxTransaction."Source Type" := InboxTransaction."Source Type";
+        HandledInboxTransaction."IC Source Type" := InboxTransaction."IC Source Type";
         HandledInboxTransaction."Document Type" := InboxTransaction."Document Type";
         HandledInboxTransaction."Document No." := InboxTransaction."Document No.";
         HandledInboxTransaction."Posting Date" := InboxTransaction."Posting Date";
@@ -1598,7 +1600,7 @@ codeunit 427 ICInboxOutboxMgt
         InboxTransaction.Init();
         InboxTransaction."Transaction No." := HandledInboxTransaction2."Transaction No.";
         InboxTransaction."IC Partner Code" := HandledInboxTransaction2."IC Partner Code";
-        InboxTransaction."Source Type" := HandledInboxTransaction2."Source Type";
+        InboxTransaction."IC Source Type" := HandledInboxTransaction2."IC Source Type";
         InboxTransaction."Document Type" := HandledInboxTransaction2."Document Type";
         InboxTransaction."Document No." := HandledInboxTransaction2."Document No.";
         InboxTransaction."Posting Date" := HandledInboxTransaction2."Posting Date";
@@ -1610,8 +1612,8 @@ codeunit 427 ICInboxOutboxMgt
         InboxTransaction."Source Line No." := HandledInboxTransaction2."Source Line No.";
         OnRecreateInboxTransactionOnBeforeInboxTransactionInsert(InboxTransaction, HandledInboxTransaction2, HandledInboxTransaction);
         InboxTransaction.Insert();
-        case InboxTransaction."Source Type" of
-            InboxTransaction."Source Type"::Journal:
+        case InboxTransaction."IC Source Type" of
+            InboxTransaction."IC Source Type"::Journal:
                 begin
                     HandledInboxJnlLine.LockTable();
                     InboxJnlLine.LockTable();
@@ -1632,7 +1634,7 @@ codeunit 427 ICInboxOutboxMgt
                     HandledInboxTransaction.Delete(true);
                     Commit();
                 end;
-            InboxTransaction."Source Type"::"Sales Document":
+            InboxTransaction."IC Source Type"::"Sales Document":
                 begin
                     if HandledInboxSalesHdr.Get(HandledInboxTransaction2."Transaction No.",
                             HandledInboxTransaction2."IC Partner Code", HandledInboxTransaction2."Transaction Source")
@@ -1676,7 +1678,7 @@ codeunit 427 ICInboxOutboxMgt
                     HandledInboxTransaction.Delete(true);
                     Commit();
                 end;
-            InboxTransaction."Source Type"::"Purchase Document":
+            InboxTransaction."IC Source Type"::"Purchase Document":
                 begin
                     if HandledInboxPurchHdr.Get(HandledInboxTransaction2."Transaction No.",
                             HandledInboxTransaction2."IC Partner Code", HandledInboxTransaction2."Transaction Source")
@@ -1757,7 +1759,7 @@ codeunit 427 ICInboxOutboxMgt
             OutboxTransaction.Init();
             OutboxTransaction."Transaction No." := HandledOutboxTransaction2."Transaction No.";
             OutboxTransaction."IC Partner Code" := HandledOutboxTransaction2."IC Partner Code";
-            OutboxTransaction."IC Source Type" := HandledOutboxTransaction2."Source Type";
+            OutboxTransaction."IC Source Type" := HandledOutboxTransaction2."IC Source Type";
             OutboxTransaction."Document Type" := HandledOutboxTransaction2."Document Type";
             OutboxTransaction."Document No." := HandledOutboxTransaction2."Document No.";
             OutboxTransaction."Posting Date" := HandledOutboxTransaction2."Posting Date";
@@ -1909,7 +1911,7 @@ codeunit 427 ICInboxOutboxMgt
         OutboxTransaction.Init();
         OutboxTransaction."Transaction No." := InboxTransaction."Transaction No.";
         OutboxTransaction."IC Partner Code" := InboxTransaction."IC Partner Code";
-        OutboxTransaction."IC Source Type" := InboxTransaction."Source Type";
+        OutboxTransaction."IC Source Type" := InboxTransaction."IC Source Type";
         OutboxTransaction."Document Type" := InboxTransaction."Document Type";
         OutboxTransaction."Document No." := InboxTransaction."Document No.";
         OutboxTransaction."Posting Date" := InboxTransaction."Posting Date";
@@ -1917,8 +1919,8 @@ codeunit 427 ICInboxOutboxMgt
         OutboxTransaction."Document Date" := InboxTransaction."Document Date";
         OnForwardToOutBoxOnBeforeOutboxTransactionInsert(OutboxTransaction, InboxTransaction);
         OutboxTransaction.Insert();
-        case InboxTransaction."Source Type" of
-            InboxTransaction."Source Type"::Journal:
+        case InboxTransaction."IC Source Type" of
+            InboxTransaction."IC Source Type"::Journal:
                 begin
                     InboxJnlLine.SetRange("Transaction No.", InboxTransaction."Transaction No.");
                     InboxJnlLine.SetRange("IC Partner Code", InboxTransaction."IC Partner Code");
@@ -1945,7 +1947,7 @@ codeunit 427 ICInboxOutboxMgt
 
                         until InboxJnlLine.Next() = 0;
                 end;
-            InboxTransaction."Source Type"::"Sales Document":
+            InboxTransaction."IC Source Type"::"Sales Document":
                 begin
                     if InboxSalesHdr.Get(InboxTransaction."Transaction No.", InboxTransaction."IC Partner Code", InboxTransaction."Transaction Source") then begin
                         OutboxSalesHdr.TransferFields(InboxSalesHdr);
@@ -1988,7 +1990,7 @@ codeunit 427 ICInboxOutboxMgt
                     end;
                     OnAfterForwardToOutBoxSalesDoc(InboxTransaction, OutboxTransaction);
                 end;
-            InboxTransaction."Source Type"::"Purchase Document":
+            InboxTransaction."IC Source Type"::"Purchase Document":
                 begin
                     if InboxPurchHdr.Get(InboxTransaction."Transaction No.", InboxTransaction."IC Partner Code", InboxTransaction."Transaction Source") then begin
                         OutboxPurchHdr.TransferFields(InboxPurchHdr);
@@ -2083,13 +2085,6 @@ codeunit 427 ICInboxOutboxMgt
         exit(Item."No.");
     end;
 
-#if not CLEAN23
-    [Obsolete('Use another implementation of GetItemFromItemRef.', '23.0')]
-    procedure GetItemFromItemRef(RefNo: Code[50]; RefType: Enum "Item Reference Type"; RefTypeNo: Code[20]): Code[20]
-    begin
-        exit(GetItemFromItemRef(RefNo, RefType, RefTypeNo, 0D));
-    end;
-#endif
 
     procedure GetItemFromItemRef(RefNo: Code[50]; RefType: Enum "Item Reference Type"; RefTypeNo: Code[20]; ToDate: Date): Code[20]
     var
@@ -2157,6 +2152,15 @@ codeunit 427 ICInboxOutboxMgt
 
     procedure OutboxTransToInbox(var ICOutboxTrans: Record "IC Outbox Transaction"; var ICInboxTrans: Record "IC Inbox Transaction"; FromICPartnerCode: Code[20])
     var
+        TempAllPartnerICInboxTransaction: Record "IC Inbox Transaction" temporary;
+        TempAllPartnerHandledICInboxTrans: Record "Handled IC Inbox Trans." temporary;
+        ICPartnerCodeList: List of [Text];
+    begin
+        OutboxTransToInboxOptimized(ICOutboxTrans, ICInboxTrans, FromICPartnerCode, ICPartnerCodeList, TempAllPartnerICInboxTransaction, TempAllPartnerHandledICInboxTrans);
+    end;
+
+    procedure OutboxTransToInboxOptimized(var ICOutboxTrans: Record "IC Outbox Transaction"; var ICInboxTrans: Record "IC Inbox Transaction"; FromICPartnerCode: Code[20]; var ICPartnerCodeList: List of [Text]; var TempAllPartnerICInboxTransaction: Record "IC Inbox Transaction" temporary; var TempAllPartnerHandledICInboxTrans: Record "Handled IC Inbox Trans." temporary)
+    var
         TempPartnerICInboxTransaction: Record "IC Inbox Transaction" temporary;
         TempPartnerHandledICInboxTrans: Record "Handled IC Inbox Trans." temporary;
         ICPartner: Record "IC Partner";
@@ -2174,11 +2178,11 @@ codeunit 427 ICInboxOutboxMgt
         ICInboxTrans."Document Type" := ICOutboxTrans."Document Type";
         case ICOutboxTrans."IC Source Type" of
             ICOutboxTrans."IC Source Type"::Journal:
-                ICInboxTrans."Source Type" := ICInboxTrans."Source Type"::Journal;
+                ICInboxTrans."IC Source Type" := ICInboxTrans."IC Source Type"::Journal;
             ICOutboxTrans."IC Source Type"::"Sales Document":
-                ICInboxTrans."Source Type" := ICInboxTrans."Source Type"::"Purchase Document";
+                ICInboxTrans."IC Source Type" := ICInboxTrans."IC Source Type"::"Purchase Document";
             ICOutboxTrans."IC Source Type"::"Purchase Document":
-                ICInboxTrans."Source Type" := ICInboxTrans."Source Type"::"Sales Document";
+                ICInboxTrans."IC Source Type" := ICInboxTrans."IC Source Type"::"Sales Document";
         end;
         ICInboxTrans."Document No." := ICOutboxTrans."Document No.";
         ICInboxTrans."Original Document No." := ICOutboxTrans."Document No.";
@@ -2198,8 +2202,26 @@ codeunit 427 ICInboxOutboxMgt
 
         ICDataExchange := ICPartner."Data Exchange Type";
         if ICPartner."Inbox Type" = ICPartner."Inbox Type"::Database then
-            ICDataExchange.GetICPartnerICInboxTransaction(ICPartner, TempPartnerICInboxTransaction);
-        if TempPartnerICInboxTransaction.Get(
+            if not ICPartnerCodeList.Contains(ICInboxTrans."IC Partner Code") then begin
+                ICDataExchange.GetICPartnerHandledICInboxTransaction(ICPartner, TempPartnerHandledICInboxTrans);
+                if TempPartnerHandledICInboxTrans.FindSet() then
+                    repeat
+                        TempAllPartnerHandledICInboxTrans.Init();
+                        TempAllPartnerHandledICInboxTrans.TransferFields(TempPartnerHandledICInboxTrans);
+                        TempAllPartnerHandledICInboxTrans.Insert();
+                    until TempPartnerHandledICInboxTrans.Next() = 0;
+
+                ICDataExchange.GetICPartnerICInboxTransaction(ICPartner, TempPartnerICInboxTransaction);
+                if TempPartnerICInboxTransaction.FindSet() then
+                    repeat
+                        TempAllPartnerICInboxTransaction.Init();
+                        TempAllPartnerICInboxTransaction.TransferFields(TempPartnerICInboxTransaction);
+                        TempAllPartnerICInboxTransaction.Insert();
+                    until TempPartnerICInboxTransaction.Next() = 0;
+                ICPartnerCodeList.Add(ICInboxTrans."IC Partner Code");
+            end;
+
+        if TempAllPartnerICInboxTransaction.Get(
              ICInboxTrans."Transaction No.", ICInboxTrans."IC Partner Code",
              ICInboxTrans."Transaction Source", ICInboxTrans."Document Type")
         then
@@ -2207,9 +2229,7 @@ codeunit 427 ICInboxOutboxMgt
               Text004, ICInboxTrans."Transaction No.", ICInboxTrans.FieldCaption("IC Partner Code"),
               ICInboxTrans."IC Partner Code", TempPartnerICInboxTransaction.TableCaption());
 
-        if ICPartner."Inbox Type" = ICPartner."Inbox Type"::Database then
-            ICDataExchange.GetICPartnerHandledICInboxTransaction(ICPartner, TempPartnerHandledICInboxTrans);
-        if TempPartnerHandledICInboxTrans.Get(
+        if TempAllPartnerHandledICInboxTrans.Get(
              ICInboxTrans."Transaction No.", ICInboxTrans."IC Partner Code",
              ICInboxTrans."Transaction Source", ICInboxTrans."Document Type")
         then
@@ -2735,7 +2755,7 @@ codeunit 427 ICInboxOutboxMgt
 
         OnMoveOutboxTransToHandledOutboxOnBeforeHandledICOutboxTransTransferFields(HandledICOutboxTrans, ICOutboxTrans);
         HandledICOutboxTrans.TransferFields(ICOutboxTrans, true);
-        HandledICOutboxTrans."Source Type" := ICOutboxTrans."IC Source Type";
+        HandledICOutboxTrans."IC Source Type" := ICOutboxTrans."IC Source Type";
         OnMoveOutboxTransToHandledOutboxOnAfterHandledICOutboxTransTransferFields(HandledICOutboxTrans, ICOutboxTrans);
 
         case ICOutboxTrans."Line Action" of
@@ -3132,7 +3152,7 @@ codeunit 427 ICInboxOutboxMgt
         if IsHandled then
             exit;
 
-        HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Sales Document");
+        HandledICOutboxTrans.SetRange("IC Source Type", HandledICOutboxTrans."IC Source Type"::"Sales Document");
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::"Credit Memo":
                 HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::"Credit Memo");
@@ -3168,7 +3188,7 @@ codeunit 427 ICInboxOutboxMgt
         if IsHandled then
             exit;
 
-        HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Purchase Document");
+        HandledICOutboxTrans.SetRange("IC Source Type", HandledICOutboxTrans."IC Source Type"::"Purchase Document");
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::"Credit Memo":
                 HandledICOutboxTrans.SetRange("Document Type", HandledICOutboxTrans."Document Type"::"Credit Memo");
@@ -3191,6 +3211,43 @@ codeunit 427 ICInboxOutboxMgt
                 true)
             then
                 Error('');
+    end;
+
+    procedure CheckPermissionToSendICTransaction(var SalesHeader: Record "Sales Header")
+    var
+        ICSetup: Record "IC Setup";
+        ICPartner: Record "IC Partner";
+        Customer: Record "Customer";
+        TempRegisteredPartner: Record "IC Partner" temporary;
+        ICDataExchange: Interface "IC Data Exchange";
+    begin
+        // Should the IC-document be sent?
+        if not (SalesHeader.Invoice and SalesHeader."Send IC Document") then
+            exit;
+
+        // Is the Document type Order or Invoice?
+        if not (SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice]) then
+            exit;
+
+        // Do we auto send IC-transactions?
+        if not ICSetup.Get() then
+            exit;
+        if not ICSetup."Auto. Send Transactions" then
+            exit;
+
+        // Does the partner auto accept the transaction?
+        if not Customer.Get(SalesHeader."Bill-to Customer No.") then
+            exit;
+        if not ICPartner.Get(Customer."IC Partner Code") then
+            exit;
+        ICDataExchange := ICPartner."Data Exchange Type";
+        ICDataExchange.GetICPartnerFromICPartner(ICPartner, TempRegisteredPartner);
+        if not TempRegisteredPartner."Auto. Accept Transactions" then
+            exit;
+
+        // Check if user can schedule tasks
+        if not TaskScheduler.CanCreateTask() then
+            Error(PermissionToAutoAcceptICDocsErr)
     end;
 
     [IntegrationEvent(false, false)]

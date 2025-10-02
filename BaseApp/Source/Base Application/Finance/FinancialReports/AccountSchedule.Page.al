@@ -1,4 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
+using System.Environment.Configuration;
+using System.Integration;
+using System.Integration.Excel;
 
 page 104 "Account Schedule"
 {
@@ -18,12 +25,17 @@ page 104 "Account Schedule"
     {
         area(content)
         {
+#if not CLEAN27
             field(CurrentSchedName; CurrentSchedName)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Name';
                 Lookup = true;
                 ToolTip = 'Specifies the unique name (code) of the financial report row definition.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This field is no longer required and will be removed in a future release.';
+                ObsoleteTag = '27.0';
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
@@ -34,7 +46,23 @@ page 104 "Account Schedule"
                 begin
                     AccSchedManagement.CheckName(CurrentSchedName);
                     CurrentSchedNameOnAfterValidate();
-                    GetInternalDescription();
+                    GetDescriptions();
+                end;
+            }
+#endif
+            field(CurrentDescription; CurrentDescription)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Description';
+                ToolTip = 'Specifies the description of row definition. The description is not shown on the final report but is used to provide more context when using the definition.';
+
+                trigger OnValidate()
+                var
+                    AccScheduleName: Record "Acc. Schedule Name";
+                begin
+                    AccScheduleName.Get(CurrentSchedName);
+                    AccScheduleName.Description := CurrentDescription;
+                    AccScheduleName.Modify();
                 end;
             }
             field(InternalDescription; InternalDescription)
@@ -183,7 +211,6 @@ page 104 "Account Schedule"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to double underline the amounts in this row.';
-                    Visible = false;
                 }
                 field("New Page"; Rec."New Page")
                 {
@@ -330,6 +357,29 @@ page 104 "Account Schedule"
                     end;
                 }
             }
+            group(Page)
+            {
+                Caption = 'Page';
+                action(EditInExcel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Edit in Excel';
+                    Image = Excel;
+                    ToolTip = 'Send the data in the worksheet to an Excel file for analysis or editing.';
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
+
+                    trigger OnAction()
+                    var
+                        EditinExcel: Codeunit "Edit in Excel";
+                        EditinExcelFilters: Codeunit "Edit in Excel Filters";
+                        ODataUtility: Codeunit "ODataUtility";
+                    begin
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Schedule Name")), Enum::"Edit in Excel Filter Type"::Equal, CurrentSchedName, Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcel.EditPageInExcel(Text.CopyStr(CurrPage.Caption, 1, 240), Page::"Account Schedule", EditInExcelFilters, StrSubstNo(ExcelFileNameTxt, CurrentSchedName));
+                    end;
+                }
+            }
         }
         area(Promoted)
         {
@@ -381,22 +431,30 @@ page 104 "Account Schedule"
     trigger OnOpenPage()
     var
         FinancialReportMgt: Codeunit "Financial Report Mgt.";
+        ServerSetting: Codeunit "Server Setting";
         OriginalSchedName: Code[10];
     begin
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+
         FinancialReportMgt.LaunchEditRowsWarningNotification();
         OriginalSchedName := CurrentSchedName;
         AccSchedManagement.OpenAndCheckSchedule(CurrentSchedName, Rec);
         if CurrentSchedName <> OriginalSchedName then
             CurrentSchedNameOnAfterValidate();
-        GetInternalDescription();
+        if CurrentSchedName <> '' then
+            CurrPage.Caption(CurrentSchedName);
+        GetDescriptions();
     end;
 
     var
         AccSchedManagement: Codeunit AccSchedManagement;
         CurrentSchedName: Code[10];
         DimCaptionsInitialized: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
+        CurrentDescription: Text[80];
         InternalDescription: Text[250];
         TotalingDisplayed: Text[250];
+        ExcelFileNameTxt: Label 'Row Definition - ScheduleName %1', Comment = '%1 = Schedule Name';
 
     procedure SetAccSchedName(NewAccSchedName: Code[10])
     begin
@@ -410,13 +468,16 @@ page 104 "Account Schedule"
         CurrPage.Update(false);
     end;
 
-    local procedure GetInternalDescription()
+    local procedure GetDescriptions()
     var
         AccScheduleName: Record "Acc. Schedule Name";
     begin
+        CurrentDescription := '';
         InternalDescription := '';
-        if AccScheduleName.Get(CurrentSchedName) then
+        if AccScheduleName.Get(CurrentSchedName) then begin
+            CurrentDescription := AccScheduleName.Description;
             InternalDescription := AccScheduleName."Internal Description";
+        end;
     end;
 
     local procedure FormatLines()

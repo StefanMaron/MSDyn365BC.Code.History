@@ -11,14 +11,7 @@ namespace Microsoft.Foundation.NoSeries;
 codeunit 4143 "No. Series Check"
 {
     TableNo = "No. Series";
-#if not CLEAN24
-    Access = Public;
-    ObsoleteReason = 'Please use the PeekNextNo procedure from the  "No. Series" codeunit instead';
-    ObsoleteState = Pending;
-    ObsoleteTag = '24.0';
-#else
     Access = Internal;
-#endif
 
     trigger OnRun()
     var

@@ -14,7 +14,12 @@ codeunit 8891 "Email Scenario Mapping"
     procedure FromReportSelectionUsage(ReportSelectionUsage: Enum "Report Selection Usage"): Enum "Email Scenario"
     var
         EmailScenario: Enum "Email Scenario";
+        EmailScenarioChanged: Boolean;
     begin
+        OnOverrideEmailScenario(ReportSelectionUsage, EmailScenario, EmailScenarioChanged);
+        if EmailScenarioChanged then
+            exit(EmailScenario);
+
         case ReportSelectionUsage of
             ReportSelectionUsage::"S.Quote":
                 exit(EmailScenario::"Sales Quote");
@@ -53,6 +58,17 @@ codeunit 8891 "Email Scenario Mapping"
     /// <param name="EmailScenario">The output email scenario of the FromReportSelectionUsage function.</param>
     [IntegrationEvent(false, false)]
     local procedure OnAfterFromReportSelectionUsage(ReportSelectionUsage: Enum "Report Selection Usage"; var EmailScenario: Enum "Email Scenario")
+    begin
+    end;
+
+    /// <summary>
+    /// Subscribe to this event to override the email scenario for a specific report selection usage.
+    /// </summary>
+    /// <param name="ReportSelectionUsage">The input report selection usage of the FromReportSelectionUsage function.</param>
+    /// <param name="EmailScenario">The output email scenario of the FromReportSelectionUsage function.</param>
+    /// <param name="EmailScenarioChanged">Set to true if you want to change the default email set.</param>
+    [IntegrationEvent(false, false)]
+    local procedure OnOverrideEmailScenario(ReportSelectionUsage: Enum "Report Selection Usage"; var EmailScenario: Enum "Email Scenario"; var EmailScenarioChanged: Boolean)
     begin
     end;
 }

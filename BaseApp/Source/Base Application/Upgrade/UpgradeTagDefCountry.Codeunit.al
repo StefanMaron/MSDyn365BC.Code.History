@@ -1,3 +1,4 @@
+#pragma warning disable AA0247
 codeunit 9997 "Upgrade Tag Def - Country"
 {
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', false, false)]

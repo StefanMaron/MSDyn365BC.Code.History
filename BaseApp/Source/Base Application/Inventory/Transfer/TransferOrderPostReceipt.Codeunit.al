@@ -43,7 +43,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOnRun(Rec, HideValidationDialog, SuppressCommit, IsHandled);
+        OnBeforeOnRun(Rec, HideValidationDialog, SuppressCommit, PreviewMode, IsHandled);
         if IsHandled then
             exit;
 
@@ -73,7 +73,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         TransHeader := TransferHeader2;
         TransHeader.SetHideValidationDialog(HideValidationDialog);
 
-        OnBeforeTransferOrderPostReceipt(TransHeader, SuppressCommit, ItemJnlPostLine);
+        OnBeforeTransferOrderPostReceipt(TransHeader, SuppressCommit, PreviewMode, ItemJnlPostLine);
 
         TransHeader.CheckBeforePost();
 
@@ -193,7 +193,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 // Allow deletion
                 ReservMgt.DeleteReservEntries(true, 0);
                 TransLine.Modify();
-                OnAfterTransLineUpdateQtyReceived(TransLine, SuppressCommit);
+                OnAfterTransLineUpdateQtyReceived(TransLine, SuppressCommit, PreviewMode);
             until TransLine.Next() = 0;
 
         OnRunOnBeforePostUpdateDocumens(ItemJnlPostLine);
@@ -222,7 +222,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, Enum::"Transfer Direction"::Inbound);
         end;
 
-        OnRunOnBeforeCommit(TransHeader, TransRcptHeader, PostedWhseRcptHeader, SuppressCommit);
+        OnRunOnBeforeCommit(TransHeader, TransRcptHeader, PostedWhseRcptHeader, SuppressCommit, PreviewMode);
         if not (InvtPickPutaway or SuppressCommit or PreviewMode) then begin
             Commit();
             UpdateAnalysisView.UpdateAll(0, true);
@@ -234,7 +234,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
         TransferHeader2 := TransHeader;
 
-        OnAfterTransferOrderPostReceipt(TransferHeader2, SuppressCommit, TransRcptHeader);
+        OnAfterTransferOrderPostReceipt(TransferHeader2, SuppressCommit, PreviewMode, TransRcptHeader);
     end;
 
     var
@@ -344,7 +344,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         WriteDownDerivedLines(TransLine3);
         ItemJnlPostLine.SetPostponeReservationHandling(true);
 
-        OnBeforePostItemJournalLine(ItemJnlLine, TransLine3, TransRcptHeader2, TransRcptLine2, SuppressCommit, TransLine, PostedWhseRcptHeader);
+        OnBeforePostItemJournalLine(ItemJnlLine, TransLine3, TransRcptHeader2, TransRcptLine2, SuppressCommit, PreviewMode, TransLine, PostedWhseRcptHeader);
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
 
         OnAfterPostItemJnlLine(ItemJnlLine, TransLine3, TransRcptHeader2, TransRcptLine2, ItemJnlPostLine);
@@ -450,7 +450,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         TrackingSpecificationExists: Boolean;
         IsHandled: Boolean;
     begin
-        OnBeforeWriteDownDerivedLines(TransLine3, SuppressCommit, TransLine4, T337, TempDerivedSpecification, IsHandled);
+        OnBeforeWriteDownDerivedLines(TransLine3, SuppressCommit, PreviewMode, TransLine4, T337, TempDerivedSpecification, IsHandled);
         if IsHandled then
             exit;
 
@@ -563,7 +563,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         NoSeriesCodeunit: Codeunit "No. Series";
         Handled: Boolean;
     begin
-        OnBeforeInsertTransRcptHeader(TransRcptHeader, TransHeader, SuppressCommit, Handled);
+        OnBeforeInsertTransRcptHeader(TransRcptHeader, TransHeader, SuppressCommit, PreviewMode, Handled);
         if Handled then
             exit;
 
@@ -588,12 +588,12 @@ codeunit 5705 "TransferOrder-Post Receipt"
         TransRcptLine."Document No." := TransferReceiptHeader."No.";
         TransRcptLine.CopyFromTransferLine(TransLine);
         IsHandled := false;
-        OnBeforeInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit, IsHandled, TransferReceiptHeader);
+        OnBeforeInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit, PreviewMode, IsHandled, TransferReceiptHeader);
         if IsHandled then
             exit;
 
         TransRcptLine.Insert();
-        OnAfterInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit, TransferReceiptHeader);
+        OnAfterInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit, PreviewMode, TransferReceiptHeader);
 
         if TransLine."Qty. to Receive" > 0 then begin
             OriginalQuantity := TransLine."Qty. to Receive";
@@ -614,10 +614,10 @@ codeunit 5705 "TransferOrder-Post Receipt"
                     CreatePostedRcptLineFromWhseRcptLine(TransRcptLine);
             end;
             ShouldRunPosting := WhsePosting;
-            OnInsertTransRcptLineOnBeforePostWhseJnlLine(TransRcptLine, TransLine, SuppressCommit, WhsePosting, ShouldRunPosting);
+            OnInsertTransRcptLineOnBeforePostWhseJnlLine(TransRcptLine, TransLine, SuppressCommit, PreviewMode, WhsePosting, ShouldRunPosting);
             if ShouldRunPosting then
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempWhseSplitSpecification);
-            OnAfterTransRcptLineModify(TransRcptLine, TransLine, SuppressCommit);
+            OnAfterTransRcptLineModify(TransRcptLine, TransLine, SuppressCommit, PreviewMode);
         end;
     end;
 
@@ -840,17 +840,17 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; TransferReceiptHeader: Record "Transfer Receipt Header"; TransferReceiptLine: Record "Transfer Receipt Line"; CommitIsSuppressed: Boolean; TransLine: Record "Transfer Line"; PostedWhseRcptHeader: Record "Posted Whse. Receipt Header")
+    local procedure OnBeforePostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; TransferReceiptHeader: Record "Transfer Receipt Header"; TransferReceiptLine: Record "Transfer Receipt Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; TransLine: Record "Transfer Line"; PostedWhseRcptHeader: Record "Posted Whse. Receipt Header")
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeTransferOrderPostReceipt(var TransferHeader: Record "Transfer Header"; var CommitIsSuppressed: Boolean; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
+    local procedure OnBeforeTransferOrderPostReceipt(var TransferHeader: Record "Transfer Header"; var CommitIsSuppressed: Boolean; PreviewMode: Boolean; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertTransRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; TransferReceiptHeader: Record "Transfer Receipt Header")
+    local procedure OnAfterInsertTransRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; TransferReceiptHeader: Record "Transfer Receipt Header")
     begin
     end;
 
@@ -860,17 +860,17 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferOrderPostReceipt(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean; var TransferReceiptHeader: Record "Transfer Receipt Header")
+    local procedure OnAfterTransferOrderPostReceipt(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var TransferReceiptHeader: Record "Transfer Receipt Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransLineUpdateQtyReceived(var TransferLine: Record "Transfer Line"; CommitIsSuppressed: Boolean)
+    local procedure OnAfterTransLineUpdateQtyReceived(var TransferLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransRcptLineModify(var TransferReceiptLine: Record "Transfer Receipt Line"; TransferLine: Record "Transfer Line"; CommitIsSuppressed: Boolean)
+    local procedure OnAfterTransRcptLineModify(var TransferReceiptLine: Record "Transfer Receipt Line"; TransferLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     begin
     end;
 
@@ -900,12 +900,12 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnRun(var TransferHeader2: Record "Transfer Header"; var HideValidationDialog: Boolean; SuppressCommit: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeOnRun(var TransferHeader2: Record "Transfer Header"; var HideValidationDialog: Boolean; SuppressCommit: Boolean; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertTransRcptHeader(var TransRcptHeader: Record "Transfer Receipt Header"; TransHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean; var Handled: Boolean)
+    local procedure OnBeforeInsertTransRcptHeader(var TransRcptHeader: Record "Transfer Receipt Header"; TransHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var Handled: Boolean)
     begin
     end;
 
@@ -915,7 +915,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertTransRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; TransferReceiptHeader: Record "Transfer Receipt Header")
+    local procedure OnBeforeInsertTransRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; var IsHandled: Boolean; TransferReceiptHeader: Record "Transfer Receipt Header")
     begin
     end;
 
@@ -975,7 +975,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertTransRcptLineOnBeforePostWhseJnlLine(var TransRcptLine: Record "Transfer Receipt Line"; var TransLine: Record "Transfer Line"; SuppressCommit: Boolean; var WhsePosting: Boolean; var ShouldRunPosting: Boolean)
+    local procedure OnInsertTransRcptLineOnBeforePostWhseJnlLine(var TransRcptLine: Record "Transfer Receipt Line"; var TransLine: Record "Transfer Line"; SuppressCommit: Boolean; PreviewMode: Boolean; var WhsePosting: Boolean; var ShouldRunPosting: Boolean)
     begin
     end;
 
@@ -985,7 +985,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeCommit(var TransHeader: Record "Transfer Header"; var TransRcptHeader: Record "Transfer Receipt Header"; PostedWhseRcptHeader: Record "Posted Whse. Receipt Header"; var SuppressCommit: Boolean)
+    local procedure OnRunOnBeforeCommit(var TransHeader: Record "Transfer Header"; var TransRcptHeader: Record "Transfer Receipt Header"; PostedWhseRcptHeader: Record "Posted Whse. Receipt Header"; var SuppressCommit: Boolean; PreviewMode: Boolean)
     begin
     end;
 
@@ -1050,7 +1050,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWriteDownDerivedLines(var TransferLine: Record "Transfer Line"; SuppressCommit: Boolean; var TransferLine2: Record "Transfer Line"; var ReservationLine: Record "Reservation Entry"; var TempDerivedSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeWriteDownDerivedLines(var TransferLine: Record "Transfer Line"; SuppressCommit: Boolean; PreviewMode: Boolean; var TransferLine2: Record "Transfer Line"; var ReservationLine: Record "Reservation Entry"; var TempDerivedSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
     begin
     end;
 

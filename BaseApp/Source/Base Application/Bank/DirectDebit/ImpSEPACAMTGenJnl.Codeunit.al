@@ -7,6 +7,11 @@ namespace Microsoft.Bank.DirectDebit;
 using Microsoft.Finance.GeneralLedger.Journal;
 using System.IO;
 
+/// <summary>
+/// Imports SEPA CAMT (Customer Account Management) bank statement files into general journal lines.
+/// Processes XML-formatted bank statements, extracts transaction details, and populates journal entries
+/// for automated bank reconciliation and payment processing.
+/// </summary>
 codeunit 1260 "Imp. SEPA CAMT Gen. Jnl."
 {
     TableNo = "Gen. Journal Line";

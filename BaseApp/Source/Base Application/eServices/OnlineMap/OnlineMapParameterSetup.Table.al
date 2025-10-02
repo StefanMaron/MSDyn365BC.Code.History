@@ -43,10 +43,10 @@ table 801 "Online Map Parameter Setup"
                         RemainingURL := CopyStr("Directions Service", ParmPos + 3);
                         ParmPos := StrPos(RemainingURL, StrSubstNo('{%1}', i));
                         if not (ParmPos > 1) then
-                            Error(Text002, i);
+                            Error(AddressParametersDuplicateErr, i);
                         RemainingURL := CopyStr(RemainingURL, ParmPos + 3);
                         if StrPos(RemainingURL, StrSubstNo('{%1}', i)) > 1 then
-                            Error(Text002, i);
+                            Error(AddressParametersDuplicateErr, i);
                     end;
                 end;
             end;
@@ -94,12 +94,10 @@ table 801 "Online Map Parameter Setup"
     end;
 
     var
-#pragma warning disable AA0074
-        Text001: Label 'Inserting default values will delete your current setup.\Do you wish to continue?';
+        ConfirmDefaultInsertQst: Label 'Inserting default values will delete your current setup.\Do you wish to continue?';
 #pragma warning disable AA0470
-        Text002: Label 'Address parameters must only occur twice in the Directions URL. Validate the use of {%1}.';
+        AddressParametersDuplicateErr: Label 'Address parameters must only occur twice in the Directions URL. Validate the use of {%1}.';
 #pragma warning restore AA0470
-#pragma warning restore AA0074
 
     procedure InsertDefaults()
     var
@@ -108,7 +106,7 @@ table 801 "Online Map Parameter Setup"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         if not OnlineMapParameterSetup.IsEmpty() then
-            if not ConfirmManagement.GetResponseOrDefault(Text001, false) then
+            if not ConfirmManagement.GetResponseOrDefault(ConfirmDefaultInsertQst, false) then
                 exit;
         OnlineMapMgt.SetupDefault();
     end;

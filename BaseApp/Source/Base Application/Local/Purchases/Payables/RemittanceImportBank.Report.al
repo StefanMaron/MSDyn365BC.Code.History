@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -503,22 +503,10 @@ report 15000062 "Remittance - Import (Bank)"
     local procedure FindDocumentNo(PostDate: Date)
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if CreateNewDocumentNo then begin
             TransDocumentNo := '';
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RemAccount."Document No. Series", '', PostDate, TransDocumentNo, RemAccount."Document No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
                 TransDocumentNo := NoSeries.GetNextNo(RemAccount."Document No. Series", PostDate);
-#if not CLEAN24
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(RemAccount."Document No. Series", RemAccount."Document No. Series", PostDate, TransDocumentNo);
-            end;
-#endif
             CreateNewDocumentNo := false;
         end;
         // Trans. document no. is now the current document no.

@@ -1798,9 +1798,6 @@ codeunit 139164 "Library - CRM Integration"
         IntegrationSynchJob: Record "Integration Synch. Job";
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
         ManIntegrationTableMapping: Record "Man. Integration Table Mapping";
-#if not CLEAN24
-        ManIntegrationFieldMapping: Record "Man. Integration Field Mapping";
-#endif
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         IntTableSynchSubscriber: Codeunit "Int. Table Synch. Subscriber";
     begin
@@ -1809,9 +1806,6 @@ codeunit 139164 "Library - CRM Integration"
         IntegrationSynchJob.DeleteAll();
         IntegrationSynchJobErrors.DeleteAll();
         IntegrationTableMapping.DeleteAll(true);
-#if not CLEAN24
-        ManIntegrationFieldMapping.DeleteAll();
-#endif
         ManIntegrationTableMapping.DeleteAll();
 
         IntTableSynchSubscriber.Reset();
@@ -2058,4 +2052,3 @@ codeunit 139164 "Library - CRM Integration"
         exit(CurrentDateTime() + (CRMTimeDiffSeconds * 1000));
     end;
 }
-

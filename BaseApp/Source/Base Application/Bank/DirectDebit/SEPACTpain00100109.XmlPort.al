@@ -11,6 +11,11 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Utilities;
 using System.Telemetry;
 
+/// <summary>
+/// XMLPort for exporting SEPA credit transfers in pain.001.001.09 format.
+/// Generates XML files compliant with SEPA Customer Credit Transfer Initiation standard version 9
+/// for submission to banks for automated payment processing.
+/// </summary>
 xmlport 1001 "SEPA CT pain.001.001.09"
 {
     Caption = 'SEPA CT pain.001.001.09';
@@ -560,14 +565,15 @@ xmlport 1001 "SEPA CT pain.001.001.09"
             1, MaxStrLen(PaymentExportDataGroup."Payment Information ID"));
     end;
 
+#if not CLEAN27
+    [Obsolete('The event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnSpecifyRemittanceTextSeparatorText(var SeparatorText: Text)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforePassVariableRmtInf(PaymentExportData: Record "Payment Export Data"; var RemittanceText: Text; var IsHandled: Boolean)
     begin
     end;
 }
-

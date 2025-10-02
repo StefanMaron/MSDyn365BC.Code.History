@@ -156,7 +156,7 @@ page 8629 "Config. Wizard"
                             if ConfigVisible then
                                 Error(PackageIsAlreadyAppliedErr);
 
-                            Rec."Package File Name" := CopyStr(FileManagement.UploadFile(Text004, ''), 1, MaxStrLen(Rec."Package File Name"));
+                            Rec."Package File Name" := CopyStr(FileManagement.UploadFile(SelectPackageFileErr, ''), 1, MaxStrLen(Rec."Package File Name"));
 
                             if Rec."Package File Name" <> '' then begin
                                 Rec.Validate("Package File Name");
@@ -272,7 +272,7 @@ page 8629 "Config. Wizard"
                         if Rec.CompleteWizard() then
                             ConfigVisible := true
                         else
-                            Error(Text003);
+                            Error(SelectPackageToRunErr);
                     end;
                 }
                 action("Configuration Worksheet")
@@ -358,10 +358,8 @@ page 8629 "Config. Wizard"
     end;
 
     var
-#pragma warning disable AA0074
-        Text003: Label 'Select a package to run the Apply Package function.';
-        Text004: Label 'Select a package file.';
-#pragma warning restore AA0074
+        SelectPackageToRunErr: Label 'Select a package to run the Apply Package function.';
+        SelectPackageFileErr: Label 'Select a package file.';
         YourProfileCode: Code[30];
         ApplyVisible: Boolean;
         ConfigVisible: Boolean;

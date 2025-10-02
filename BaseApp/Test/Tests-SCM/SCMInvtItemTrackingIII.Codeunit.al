@@ -3346,7 +3346,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('ItemTrackingLinesPageHandlerTrackingOption,ItemTracingSpecificationRequestPageHandler')]
-    procedure ItemDescUpto50CharactersIsPrintedInItemTracingReport()
+    procedure ItemDescWithMoreThan50CharactersIsPrintedInItemTracingReport()
     var
         Item: Record Item;
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -3354,7 +3354,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ItemTracing: TestPage "Item Tracing";
         TraceMethod: Option "Origin -> Usage","Usage -> Origin";
     begin
-        // [SCENARIO 591447] Item Description upto 50 characters is displayed in 
+        // [SCENARIO 591447] Item Description more than 50 characters is displayed in 
         // Item Tracing Specification report.
         Initialize();
 
@@ -3371,7 +3371,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // [THEN] Item Description is displayed in BodyText1 column of Item Tracing Specification report.
         LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.AssertElementWithValueExists('BodyText1', CopyStr(Item.Description, LibraryRandom.RandIntInRange(1, 1), LibraryRandom.RandIntInRange(50, 50)));
+        LibraryReportDataset.AssertElementWithValueExists('BodyText1', Item.Description);
     end;
 
     local procedure Initialize()

@@ -1132,7 +1132,7 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         PurchaseLine.Validate("Selected Alloc. Account No.", AllocationAccount."No.");
         PurchaseLine.Modify(true);
 
-        // [WHEN] Purchase Invoice is Posted. 
+        // [WHEN] Purchase Invoice is Posted.
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
         // [THEN] Line is split into 8 Lines in "Purch. Inv Line".
@@ -1160,7 +1160,7 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         UnitCost: Decimal;
         LineAmount: Decimal;
     begin
-        // [SCENARIO 572659] A Purchase Invoice with a G/L Account and Allocation Account generates correct 
+        // [SCENARIO 572659] A Purchase Invoice with a G/L Account and Allocation Account generates correct
         // allocation of the Expense and include Canada Tax in the Allocation of the Purchase Invoice Line Amount
         Initialize();
 
@@ -1205,7 +1205,7 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         PurchaseLine.Validate("Selected Alloc. Account No.", AllocationAccount."No.");
         PurchaseLine.Modify(true);
 
-        // [WHEN] Purchase Invoice is Posted. 
+        // [WHEN] Purchase Invoice is Posted.
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
         // [THEN] Verify G/L entry will be posted with correct amount.
@@ -1288,11 +1288,6 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
     local procedure GetLineAmountToForceRounding(): Decimal
     begin
         exit(1025.27)
-    end;
-
-    local procedure GetAmountWithVAT(): Decimal
-    begin
-        exit(1618.61);
     end;
 
     local procedure CreateAllocationAccountwithFixedGLDistributions(

@@ -152,24 +152,9 @@ codeunit 138050 "O365 Test Name Nearness"
         WrongName[15] := '@';
     end;
 
-    local procedure ValidateSalesLine(var SalesHeader: Record "Sales Header"; Description: Text[50]; ItemNo: Code[20])
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        SalesLine.Init();
-        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst();
-        Assert.AreEqual(10000, SalesLine."Line No.", 'wrong line number');
-        Assert.AreEqual(SalesLine.Type::Item, SalesLine.Type, 'wrong line type');
-        Assert.AreEqual(ItemNo, SalesLine."No.", 'wrong item number');
-        Assert.AreEqual(Description, SalesLine.Description, 'Wrong Description');
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', false, false)]
     local procedure DoNotScheduleTasks(var JobQueueEntry: Record "Job Queue Entry"; var DoNotScheduleTask: Boolean)
     begin
         DoNotScheduleTask := true;
     end;
 }
-

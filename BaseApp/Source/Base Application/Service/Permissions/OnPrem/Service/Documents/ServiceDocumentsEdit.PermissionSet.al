@@ -44,14 +44,12 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Service.Loaner;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Inventory.Planning;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Projects.Resources.Resource;
 #if not CLEAN25
@@ -139,7 +137,6 @@ permissionset 8611 "Service Documents - Edit"
                   tabledata "Loaner Entry" = RIMD,
                   tabledata Location = R,
                   tabledata "Lot No. Information" = RIMD,
-                  tabledata "Manufacturing Setup" = R,
                   tabledata "Package No. Information" = RIMD,
                   tabledata "Payment Method" = R,
                   tabledata "Payment Terms" = R,
@@ -153,8 +150,6 @@ permissionset 8611 "Service Documents - Edit"
                   tabledata "Price List Line" = R,
                   tabledata "Price Source" = R,
                   tabledata "Price Worksheet Line" = R,
-                  tabledata "Prod. Order Component" = R,
-                  tabledata "Prod. Order Line" = R,
                   tabledata "Purchase Line" = R,
                   tabledata "Reason Code" = R,
                   tabledata "Repair Status" = RIMD,

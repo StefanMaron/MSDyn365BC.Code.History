@@ -1634,4 +1634,3 @@ codeunit 144001 "VAT Tools Test"
         VATReportRequestPage.OK().Invoke();
     end;
 }
-

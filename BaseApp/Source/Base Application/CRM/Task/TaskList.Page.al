@@ -265,8 +265,8 @@ page 5096 "Task List"
                             ContCompanyNo := CopyStr(Rec.GetFilter("Contact Company No."), 1, MaxStrLen(ContCompanyNo));
                         if ContactNo = '' then begin
                             if (Rec.Type = Rec.Type::Meeting) and (Rec."Team Code" = '') then
-                                Error(Text004);
-                            Error(Text005);
+                                Error(PhoneCallOnlyInAttendeeSchedulingErr);
+                            Error(MustSelectTaskWithContactErr);
                         end;
                         TempSegmentLine."To-do No." := Rec."No.";
                         TempSegmentLine."Contact No." := ContactNo;
@@ -340,12 +340,10 @@ page 5096 "Task List"
 
     var
         RecordsFound: Boolean;
-#pragma warning disable AA0074
-        Text000: Label '(Multiple)';
-        Text001: Label 'untitled';
-        Text004: Label 'The Make Phone Call function for this task is available only on the Attendee Scheduling window.';
-        Text005: Label 'You must select a task with a contact assigned to it before you can use the Make Phone Call function.';
-#pragma warning restore AA0074
+        MultipleTxt: Label '(Multiple)';
+        UntitledTxt: Label 'untitled';
+        PhoneCallOnlyInAttendeeSchedulingErr: Label 'The Make Phone Call function for this task is available only on the Attendee Scheduling window.';
+        MustSelectTaskWithContactErr: Label 'You must select a task with a contact assigned to it before you can use the Make Phone Call function.';
 
     procedure GetCaption() CaptionStr: Text
     var
@@ -364,7 +362,7 @@ page 5096 "Task List"
             if Contact.Get(Rec.GetFilter("Contact Company No.")) then begin
                 Contact2.Get(Rec.GetFilter("Contact Company No."));
                 if Contact2."No." <> Contact."No." then
-                    CaptionStr := CopyStr(Contact."No." + ' ' + Contact.Name, 1, MaxStrLen(CaptionStr));
+                        CaptionStr := CopyStr(Contact."No." + ' ' + Contact.Name, 1, MaxStrLen(CaptionStr));
             end;
             if Contact.Get(Rec.GetFilter("Contact No.")) then
                 CaptionStr := CopyStr(CaptionStr + ' ' + Contact."No." + ' ' + Contact.Name, 1, MaxStrLen(CaptionStr));
@@ -379,7 +377,7 @@ page 5096 "Task List"
             if SegmentHeader.Get(Rec.GetFilter("Segment No.")) then
                 CaptionStr := CopyStr(CaptionStr + ' ' + SegmentHeader."No." + ' ' + SegmentHeader.Description, 1, MaxStrLen(CaptionStr));
             if CaptionStr = '' then
-                CaptionStr := Text001;
+                CaptionStr := UntitledTxt;
         end;
 
         OnAfterGetCaption(Rec, CaptionStr);
@@ -388,7 +386,7 @@ page 5096 "Task List"
     local procedure ContactNoOnFormat(Text: Text[1024])
     begin
         if Rec.Type = Rec.Type::Meeting then
-            Text := Text000;
+            Text := MultipleTxt;
     end;
 
     [IntegrationEvent(false, false)]

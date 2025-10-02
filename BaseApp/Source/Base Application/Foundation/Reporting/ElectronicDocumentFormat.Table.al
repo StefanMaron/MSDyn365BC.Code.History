@@ -129,7 +129,7 @@ table 61 "Electronic Document Format"
         end;
 
         RecRef.GetTable(DocumentVariant);
-        OnSendElectronicallyOnAfterRecRefGetTable(RecRef);
+        OnSendElectronicallyOnAfterRecRefGetTable(Rec, RecRef);
 
         StartID := 0;
         RecordExportBuffer.LockTable();
@@ -514,7 +514,7 @@ table 61 "Electronic Document Format"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSendElectronicallyOnAfterRecRefGetTable(var RecRef: RecordRef)
+    local procedure OnSendElectronicallyOnAfterRecRefGetTable(ElectronicDocumentFormat: Record "Electronic Document Format"; var RecRef: RecordRef)
     begin
     end;
 

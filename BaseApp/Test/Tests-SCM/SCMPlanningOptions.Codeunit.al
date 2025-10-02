@@ -159,13 +159,10 @@ codeunit 137008 "SCM Planning Options"
         PurchaseLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
-        MfgSetup: Record "Manufacturing Setup";
     begin
         Initialize();
 
-        MfgSetup.Get();
-        Evaluate(MfgSetup."Default Dampener Period", '<5D>');
-        MfgSetup.Modify();
+        LibraryPlanning.SetDefaultDampenerPeriod('<5D>');
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
@@ -435,13 +432,10 @@ codeunit 137008 "SCM Planning Options"
         PurchaseLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
-        MfgSetup: Record "Manufacturing Setup";
     begin
         Initialize();
 
-        MfgSetup.Get();
-        MfgSetup."Default Dampener %" := 10;
-        MfgSetup.Modify();
+        LibraryPlanning.SetDefaultDampenerPercent(10);
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
@@ -803,7 +797,7 @@ codeunit 137008 "SCM Planning Options"
         RequisitionLine: Record "Requisition Line";
         PlanningRoutingLine: Record "Planning Routing Line";
         RequisitionWkshName: Record "Requisition Wksh. Name";
-        PlanningLineManagement: Codeunit "Planning Line Management";
+        PlanningRoutingManagement: Codeunit PlanningRoutingManagement;
     begin
         // [FEATURE] [UT] [Planning Worksheet]
         // [SCENARIO 257194] Function CalculatePlanningLineDates in codeunit 99000809 "Planning Line Management" updates fields "Starting Date-Time" and "Ending Date-Time" of the requisition line
@@ -813,7 +807,7 @@ codeunit 137008 "SCM Planning Options"
 
         MockPlanningRoutingLine(PlanningRoutingLine, RequisitionLine);
 
-        PlanningLineManagement.CalculatePlanningLineDates(RequisitionLine);
+        PlanningRoutingManagement.CalculatePlanningLineDates(RequisitionLine);
 
         Assert.AreEqual(
             CreateDateTime(PlanningRoutingLine."Starting Date", PlanningRoutingLine."Starting Time"), RequisitionLine."Starting Date-Time",
@@ -978,18 +972,16 @@ codeunit 137008 "SCM Planning Options"
 
     local procedure CalculatePlanInRequisitionWorksheet(var Item: Record Item; LocationCode: Code[10]; PlanningStartDate: Date; PlanningEndDate: Date)
     var
-        MfgSetup: Record "Manufacturing Setup";
         ReqWkshName: Record "Requisition Wksh. Name";
         InvtProfileOffsetting: Codeunit "Inventory Profile Offsetting";
     begin
         Item.SetRecFilter();
         Item.SetRange("Location Filter", LocationCode);
 
-        MfgSetup.Get();
         LibraryPlanning.SelectRequisitionWkshName(ReqWkshName, ReqWkshName."Template Type"::"Req.");
         InvtProfileOffsetting.SetParm('', 0D, 0);
         InvtProfileOffsetting.CalculatePlanFromWorksheet(
-          Item, MfgSetup, ReqWkshName."Worksheet Template Name", ReqWkshName.Name, PlanningStartDate, PlanningEndDate, true, true);
+          Item, ReqWkshName."Worksheet Template Name", ReqWkshName.Name, PlanningStartDate, PlanningEndDate, true, true);
     end;
 
     local procedure CreateSKU(var SKU: Record "Stockkeeping Unit"; LocationCode: Code[10]; ItemNo: Code[20]; ReorderingPolicy: Enum "Reordering Policy")

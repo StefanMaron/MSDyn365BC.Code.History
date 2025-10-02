@@ -1,8 +1,4 @@
 #if not CLEAN26
-#pragma warning disable AS0018
-#pragma warning disable AS0004
-#pragma warning disable AS0115
-#pragma warning disable AS0072
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -45,18 +41,10 @@ interface IBlobToStructuredDataConverter
     /// A text variable that will contain the result of the conversion.
     /// This is the structured output derived from the input blob data.
     /// </param>
-#pragma warning disable AS0066
-#pragma warning disable AS0026
     procedure Convert(
         EDocument: Record "E-Document";
         FromTempblob: Codeunit "Temp Blob";
         FromType: Integer;
         var ConvertedType: Integer) StructuredData: Text;
-#pragma warning restore AS0066
-#pragma warning restore AS0026
 }
-#pragma warning restore AS0115
-#pragma warning restore AS0004
-#pragma warning restore AS0018
-#pragma warning restore AS0072
 #endif

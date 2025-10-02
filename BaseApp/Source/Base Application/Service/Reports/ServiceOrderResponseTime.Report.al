@@ -132,7 +132,8 @@ report 5908 "Service Order - Response Time"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Order - Response Time';
+        AboutText = 'Analyze response times for service orders that are shipped.';
         layout
         {
         }

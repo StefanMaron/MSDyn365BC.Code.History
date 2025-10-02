@@ -32,9 +32,6 @@ table 6125 "E-Doc. Data Storage"
             Caption = 'Data Storage Size';
             ToolTip = 'Specifies the size of the binary data.';
         }
-#pragma warning disable AS0004
-#pragma warning disable AS0115
-#pragma warning disable AS0072
 #if not CLEANSCHEMA26
         field(4; "Data Type"; Integer)
         {
@@ -45,16 +42,11 @@ table 6125 "E-Doc. Data Storage"
             ObsoleteTag = '26.0';
         }
 #endif
-#pragma warning restore AS0115
-#pragma warning restore AS0004
-#pragma warning restore AS0072
         field(5; "Name"; Text[256])
         {
             Caption = 'Name';
             ToolTip = 'Specifies the name of the binary data.';
         }
-#pragma warning disable AS0072
-#pragma warning disable AS0115
 #if not CLEANSCHEMA26
         field(6; "Is Structured"; Boolean)
         {
@@ -65,8 +57,6 @@ table 6125 "E-Doc. Data Storage"
             ObsoleteTag = '26.0';
         }
 #endif
-#pragma warning restore AS0115
-#pragma warning restore AS0072
         field(7; "File Format"; Enum "E-Doc. File Format")
         {
             Caption = 'File Format';

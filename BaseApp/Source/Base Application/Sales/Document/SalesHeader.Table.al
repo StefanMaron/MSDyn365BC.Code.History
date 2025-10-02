@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -95,6 +95,7 @@ table 36 "Sales Header"
         field(2; "Sell-to Customer No."; Code[20])
         {
             Caption = 'Sell-to Customer No.';
+            ToolTip = 'Specifies the number of the customer that you''re selling to. By default, the same customer is suggested as the ship-to customer. If needed, you can specify a different ship-to customer on the document.';
             TableRelation = Customer;
 
             trigger OnValidate()
@@ -215,6 +216,9 @@ table 36 "Sales Header"
                 then
                     RecreateSalesLines(SellToCustomerTxt);
 
+                if not InsertMode and ("Sell-to Customer No." <> '') then
+                    StandardCodesMgtGlobal.CheckCreateSalesRecurringLines(Rec);
+
                 OnValidateSellToCustomerNoOnBeforeUpdateSellToCont(Rec, xRec, Customer, SkipSellToContact);
                 if not SkipSellToContact then
                     UpdateSellToCont("Sell-to Customer No.");
@@ -230,6 +234,7 @@ table 36 "Sales Header"
         field(3; "No."; Code[20])
         {
             Caption = 'No.';
+            ToolTip = 'Specifies a unique number that identifies the sales document. The number can be generated automatically from a number series, or you can number each of them manually.';
 
             trigger OnValidate()
             var
@@ -245,6 +250,7 @@ table 36 "Sales Header"
         field(4; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
+            ToolTip = 'Specifies the number of the customer that you send or sent the invoice or credit memo to.';
             NotBlank = true;
             TableRelation = Customer;
 
@@ -331,42 +337,24 @@ table 36 "Sales Header"
         field(5; "Bill-to Name"; Text[100])
         {
             Caption = 'Bill-to Name';
+            ToolTip = 'Specifies the name of the customer that you send or sent the invoice or credit memo to.';
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
-
-            trigger OnLookup()
-            var
-                Customer: Record Customer;
-                IsHandled: Boolean;
-            begin
-                IsHandled := false;
-                OnBeforeValidateBillToName(Rec, Customer, IsHandled, xRec);
-                if IsHandled then
-                    exit;
-
-                if "Bill-to Customer No." <> '' then
-                    Customer.Get("Bill-to Customer No.");
-
-                if Customer.SelectCustomer(Customer) then begin
-                    xRec := Rec;
-                    "Bill-to Name" := Customer.Name;
-                    Validate("Bill-to Customer No.", Customer."No.");
-                end;
-            end;
 
             trigger OnValidate()
             var
                 Customer: Record Customer;
             begin
                 OnBeforeValidateBillToCustomerName(Rec, Customer);
-
-                if ShouldSearchForCustomerByName("Bill-to Customer No.") then
-                    Validate("Bill-to Customer No.", Customer.GetCustNo("Bill-to Name"));
+                if Rec."Bill-to Name" <> xRec."Bill-to Name" then
+                    if ShouldSearchForCustomerByName("Bill-to Customer No.") then
+                        Validate("Bill-to Customer No.", Customer.GetCustNo("Bill-to Name"));
             end;
         }
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer that you send or sent the invoice or credit memo to.';
         }
         field(7; "Bill-to Address"; Text[100])
         {
@@ -418,6 +406,7 @@ table 36 "Sales Header"
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+            ToolTip = 'Specifies the name of the contact person at the customer''s billing address.';
 
             trigger OnLookup()
             var
@@ -438,10 +427,12 @@ table 36 "Sales Header"
         field(11; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+            ToolTip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
         }
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
+            ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
             TableRelation = "Ship-to Address".Code where("Customer No." = field("Sell-to Customer No."));
 
             trigger OnValidate()
@@ -511,6 +502,7 @@ table 36 "Sales Header"
         field(13; "Ship-to Name"; Text[100])
         {
             Caption = 'Ship-to Name';
+            ToolTip = 'Specifies the name of the customer at the address that the items are shipped to.';
         }
         field(14; "Ship-to Name 2"; Text[50])
         {
@@ -555,6 +547,7 @@ table 36 "Sales Header"
         field(18; "Ship-to Contact"; Text[100])
         {
             Caption = 'Ship-to Contact';
+            ToolTip = 'Specifies the name of the contact person at the address that the items are shipped to.';
         }
         field(19; "Order Date"; Date)
         {
@@ -572,6 +565,7 @@ table 36 "Sales Header"
         field(20; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ToolTip = 'Specifies the date when the posting of the sales document will be recorded.';
 
             trigger OnValidate()
             var
@@ -623,6 +617,7 @@ table 36 "Sales Header"
         field(21; "Shipment Date"; Date)
         {
             Caption = 'Shipment Date';
+            ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
 
             trigger OnValidate()
             var
@@ -637,10 +632,12 @@ table 36 "Sales Header"
         field(22; "Posting Description"; Text[100])
         {
             Caption = 'Posting Description';
+            ToolTip = 'Specifies additional posting information for the document. After you post the document, the description can add detail to vendor and customer ledger entries.';
         }
         field(23; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
+            ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
             TableRelation = "Payment Terms";
 
             trigger OnValidate()
@@ -700,10 +697,12 @@ table 36 "Sales Header"
         field(24; "Due Date"; Date)
         {
             Caption = 'Due Date';
+            ToolTip = 'Specifies when the sales invoice must be paid.';
         }
         field(25; "Payment Discount %"; Decimal)
         {
             Caption = 'Payment Discount %';
+            ToolTip = 'Specifies the payment discount percentage that is granted if the customer pays on or before the date entered in the Pmt. Discount Date field. The discount percentage is specified in the Payment Terms Code field.';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
@@ -734,6 +733,7 @@ table 36 "Sales Header"
         field(27; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
+            ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
             TableRelation = "Shipment Method";
 
             trigger OnValidate()
@@ -751,6 +751,7 @@ table 36 "Sales Header"
         field(28; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            ToolTip = 'Specifies the location from where items are to be shipped. This field acts as the default location for new lines. You can update the location code for individual lines as needed.';
             TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
@@ -778,6 +779,7 @@ table 36 "Sales Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
                                                           Blocked = const(false));
 
@@ -790,6 +792,7 @@ table 36 "Sales Header"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
+            ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
             TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
                                                           Blocked = const(false));
 
@@ -811,6 +814,7 @@ table 36 "Sales Header"
         field(32; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+            ToolTip = 'Specifies the currency of amounts on the sales document.';
             TableRelation = Currency;
 
             trigger OnValidate()
@@ -999,6 +1003,7 @@ table 36 "Sales Header"
         field(43; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
+            ToolTip = 'Specifies the name of the salesperson who is assigned to the customer.';
             TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
@@ -1102,6 +1107,8 @@ table 36 "Sales Header"
                     else
                         if ("Applies-to Doc. No." <> xRec."Applies-to Doc. No.") and ("Applies-to Doc. No." = '') then
                             CustLedgEntry.SetAmountToApply(xRec."Applies-to Doc. No.", "Bill-to Customer No.");
+
+                OnAfterValidateAppliesToDocNo(Rec, xRec, CustLedgEntry);
             end;
         }
         field(55; "Bal. Account No."; Code[20])
@@ -1159,6 +1166,7 @@ table 36 "Sales Header"
             CalcFormula = sum("Sales Line".Amount where("Document Type" = field("Document Type"),
                                                          "Document No." = field("No.")));
             Caption = 'Amount';
+            ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1169,6 +1177,7 @@ table 36 "Sales Header"
             CalcFormula = sum("Sales Line"."Amount Including VAT" where("Document Type" = field("Document Type"),
                                                                          "Document No." = field("No.")));
             Caption = 'Amount Including VAT';
+            ToolTip = 'Specifies the sum of amounts, including VAT, on all the lines in the document. This will include invoice discounts.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -1347,23 +1356,14 @@ table 36 "Sales Header"
         field(79; "Sell-to Customer Name"; Text[100])
         {
             Caption = 'Sell-to Customer Name';
+            ToolTip = 'Specifies the name of the customer that you''re selling to. By default, the same customer is suggested as the ship-to customer. If needed, you can specify a different ship-to customer on the document.';
             TableRelation = Customer.Name;
             ValidateTableRelation = false;
-
-            trigger OnLookup()
-            var
-                CustomerName: Text;
-            begin
-                CustomerName := "Sell-to Customer Name";
-                LookupSellToCustomerName(CustomerName);
-                "Sell-to Customer Name" := CopyStr(CustomerName, 1, MaxStrLen("Sell-to Customer Name"));
-            end;
 
             trigger OnValidate()
             var
                 Customer: Record Customer;
                 LookupStateManager: Codeunit "Lookup State Manager";
-                StandardCodesMgt: Codeunit "Standard Codes Mgt.";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -1379,16 +1379,11 @@ table 36 "Sales Header"
                     if Customer."No." <> '' then begin
                         LookupStateManager.ClearSavedRecord();
                         Validate("Sell-to Customer No.", Customer."No.");
-
-                        GetShippingTime(FieldNo("Sell-to Customer Name"));
-                        if "No." <> '' then
-                            StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
-                        exit;
-                    end;
-                end;
-
-                if ShouldSearchForCustomerByName("Sell-to Customer No.") then
-                    Validate("Sell-to Customer No.", Customer.GetCustNo("Sell-to Customer Name"));
+                    end
+                end else
+                    if Rec."Sell-to Customer Name" <> xRec."Sell-to Customer Name" then
+                        if ShouldSearchForCustomerByName("Sell-to Customer No.") then
+                            Validate("Sell-to Customer No.", Customer.GetCustNo("Sell-to Customer Name"));
 
                 GetShippingTime(FieldNo("Sell-to Customer Name"));
             end;
@@ -1396,6 +1391,7 @@ table 36 "Sales Header"
         field(80; "Sell-to Customer Name 2"; Text[50])
         {
             Caption = 'Sell-to Customer Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer who will receive the products and be billed by default.';
         }
         field(81; "Sell-to Address"; Text[100])
         {
@@ -1450,6 +1446,7 @@ table 36 "Sales Header"
         field(84; "Sell-to Contact"; Text[100])
         {
             Caption = 'Sell-to Contact';
+            ToolTip = 'Specifies the name of the contact person at the customer''s main address.';
 
             trigger OnLookup()
             var
@@ -1482,6 +1479,7 @@ table 36 "Sales Header"
         field(85; "Bill-to Post Code"; Code[20])
         {
             Caption = 'Bill-to Post Code';
+            ToolTip = 'Specifies the postal code of the customer''s billing address.';
             TableRelation = "Post Code";
             ValidateTableRelation = false;
 
@@ -1519,6 +1517,7 @@ table 36 "Sales Header"
         field(87; "Bill-to Country/Region Code"; Code[10])
         {
             Caption = 'Bill-to Country/Region Code';
+            ToolTip = 'Specifies the country/region code of the customer''s billing address.';
             TableRelation = "Country/Region";
 
             trigger OnValidate()
@@ -1533,6 +1532,7 @@ table 36 "Sales Header"
         field(88; "Sell-to Post Code"; Code[20])
         {
             Caption = 'Sell-to Post Code';
+            ToolTip = 'Specifies the postal code of the customer''s main address.';
             TableRelation = if ("Sell-to Country/Region Code" = const('')) "Post Code"
             else
             if ("Sell-to Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Sell-to Country/Region Code"));
@@ -1578,6 +1578,7 @@ table 36 "Sales Header"
         field(90; "Sell-to Country/Region Code"; Code[10])
         {
             Caption = 'Sell-to Country/Region Code';
+            ToolTip = 'Specifies the country/region code of the customer''s main address.';
             TableRelation = "Country/Region";
 
             trigger OnValidate()
@@ -1594,6 +1595,7 @@ table 36 "Sales Header"
         field(91; "Ship-to Post Code"; Code[20])
         {
             Caption = 'Ship-to Post Code';
+            ToolTip = 'Specifies the postal code of the address that the items are shipped to.';
             TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code"
             else
             if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Ship-to Country/Region Code"));
@@ -1627,6 +1629,7 @@ table 36 "Sales Header"
         field(93; "Ship-to Country/Region Code"; Code[10])
         {
             Caption = 'Ship-to Country/Region Code';
+            ToolTip = 'Specifies the country/region code of the address that the items are shipped to.';
             TableRelation = "Country/Region";
 
             trigger OnValidate()
@@ -1655,6 +1658,7 @@ table 36 "Sales Header"
         field(99; "Document Date"; Date)
         {
             Caption = 'Document Date';
+            ToolTip = 'Specifies the date when the related document was created.';
 
             trigger OnValidate()
             var
@@ -1680,6 +1684,7 @@ table 36 "Sales Header"
         field(100; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
 
             trigger OnValidate()
             var
@@ -1752,6 +1757,7 @@ table 36 "Sales Header"
         {
             AccessByPermission = TableData "Shipping Agent Services" = R;
             Caption = 'Shipping Agent Code';
+            ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
             TableRelation = "Shipping Agent";
 
             trigger OnValidate()
@@ -1774,22 +1780,17 @@ table 36 "Sales Header"
                 UpdateSalesLinesByFieldNo(FieldNo("Shipping Agent Code"), CurrFieldNo <> 0);
             end;
         }
-#if not CLEAN24
-        field(106; "Package Tracking No."; Text[30])
-        {
-            Caption = 'Package Tracking No.';
-            ObsoleteReason = 'Field length will be increased to 50.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '24.0';
-        }
-#else
+#if not CLEAN27
 #pragma warning disable AS0086
+#endif
         field(106; "Package Tracking No."; Text[50])
-        {
-            Caption = 'Package Tracking No.';
-                    }
+#if not CLEAN27
 #pragma warning restore AS0086
 #endif
+        {
+            Caption = 'Package Tracking No.';
+            ToolTip = 'Specifies the shipping agent''s package number.';
+        }
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -1970,6 +1971,7 @@ table 36 "Sales Header"
         field(120; Status; Enum "Sales Document Status")
         {
             Caption = 'Status';
+            ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
             Editable = false;
         }
         field(121; "Invoice Discount Calculation"; Option)
@@ -2218,6 +2220,7 @@ table 36 "Sales Header"
         field(151; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
+            ToolTip = 'Specifies the number of the sales quote that the sales order was created from. You can track the number to sales quote documents that you have printed, saved, or emailed.';
             Editable = false;
         }
         field(152; "Quote Valid Until Date"; Date)
@@ -2250,6 +2253,7 @@ table 36 "Sales Header"
         field(160; "Job Queue Status"; Enum "Document Job Queue Status")
         {
             Caption = 'Job Queue Status';
+            ToolTip = 'Specifies the status of a job queue entry or task that handles the posting of sales orders.';
             Editable = false;
 
             trigger OnLookup()
@@ -2406,14 +2410,17 @@ table 36 "Sales Header"
             CalcFormula = sum("Sales Line"."Shipped Not Invoiced (LCY)" where("Document Type" = field("Document Type"),
                                                                                "Document No." = field("No.")));
             Caption = 'Amount Shipped Not Invoiced (LCY) Incl. VAT';
+            ToolTip = 'Specifies the sum, in LCY, for items that have been shipped but not yet been invoiced. The amount is calculated as Amount Including VAT x Qty. Shipped Not Invoiced / Quantity.';
             Editable = false;
             FieldClass = FlowField;
+            AutoFormatType = 1;
         }
         field(301; "Amt. Ship. Not Inv. (LCY) Base"; Decimal)
         {
             CalcFormula = sum("Sales Line"."Shipped Not Inv. (LCY) No VAT" where("Document Type" = field("Document Type"),
                                                                                   "Document No." = field("No.")));
             Caption = 'Amount Shipped Not Invoiced (LCY)';
+            ToolTip = 'Specifies the sum, in LCY, for items that have been shipped but not yet been invoiced. The amount is calculated as Amount Including VAT x Qty. Shipped Not Invoiced / Quantity.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -2451,6 +2458,7 @@ table 36 "Sales Header"
         {
             FieldClass = FlowField;
             Caption = 'Coupled to Dynamics 365 Sales';
+            ToolTip = 'Specifies that the sales order is coupled to an order in Dynamics 365 Sales.';
             Editable = false;
             CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::"Sales Header")));
         }
@@ -2486,6 +2494,7 @@ table 36 "Sales Header"
         field(5050; "Campaign No."; Code[20])
         {
             Caption = 'Campaign No.';
+            ToolTip = 'Specifies the campaign number the document is linked to.';
             TableRelation = Campaign;
 
             trigger OnValidate()
@@ -2767,6 +2776,7 @@ table 36 "Sales Header"
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Shipping Advice';
+            ToolTip = 'Specifies if the customer accepts partial shipment of orders.';
 
             trigger OnValidate()
             var
@@ -2797,6 +2807,7 @@ table 36 "Sales Header"
                                                                        Type = filter(<> " "),
                                                                        "Location Code" = field("Location Filter")));
             Caption = 'Completely Shipped';
+            ToolTip = 'Specifies whether all the items on the order have been shipped or, in the case of inbound items, completely received.';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -2830,6 +2841,7 @@ table 36 "Sales Header"
         field(5790; "Requested Delivery Date"; Date)
         {
             Caption = 'Requested Delivery Date';
+            ToolTip = 'Specifies the date that the customer has asked for the order to be delivered.';
 
             trigger OnValidate()
             var
@@ -2895,6 +2907,7 @@ table 36 "Sales Header"
         field(5794; "Shipping Agent Service Code"; Code[10])
         {
             Caption = 'Shipping Agent Service Code';
+            ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
             TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
 
             trigger OnValidate()
@@ -3008,6 +3021,7 @@ table 36 "Sales Header"
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';
+            ToolTip = 'Specifies the ID of the user who is responsible for the document.';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
 
@@ -3032,7 +3046,7 @@ table 36 "Sales Header"
         field(10606; "Account Code"; Text[30])
         {
             Caption = 'Account Code';
-            
+
             trigger OnValidate()
             begin
                 if "Account Code" <> xRec."Account Code" then
@@ -3074,7 +3088,7 @@ table 36 "Sales Header"
         key(Key4; "Document Type", "Bill-to Customer No.")
         {
         }
-        key(Key5; "Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name")
+        key(Key5; "Document Type", "Combine Shipments", "Sell-to Customer No.", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name")
         {
         }
         key(Key6; "Sell-to Customer No.", "External Document No.")
@@ -3317,6 +3331,8 @@ table 36 "Sales Header"
 #pragma warning disable AA0470
         Text072: Label 'There are unpaid prepayment invoices related to the document of type %1 with the number %2.';
         Text10606: Label 'The GLN No. field does not contain a valid, 13-digit GLN  number';
+        DifferentDatesQst: Label 'Posting Date %1 is different from Work Date %2.\\Do you want to continue?', Comment = '%1 - Posting Date, %2 - work date';
+        DifferentDatesErr: Label 'Posting Date %1 is different from Work Date %2.\\Batch posting cannot be used.', Comment = '%1 - Posting Date, %2 - work date';
 #pragma warning restore AA0470
 #pragma warning restore AA0074
         DeferralLineQst: Label 'Do you want to update the deferral schedules for the lines?';
@@ -3361,12 +3377,6 @@ table 36 "Sales Header"
         SalesSetup: Record "Sales & Receivables Setup";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-#if not CLEAN24
-#pragma warning disable AA0137, AL0432
-        [Obsolete('This variable is no longer used. Please us codeunit "No. Series" instead.', '24.0')]
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-#pragma warning restore AA0137, AL0432
-#endif
         HideCreditCheckDialogue: Boolean;
         HideValidationDialog: Boolean;
         InsertMode: Boolean;
@@ -3383,9 +3393,6 @@ table 36 "Sales Header"
     var
         SalesHeader2: Record "Sales Header";
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesMgt2: Codeunit NoSeriesManagement;
-#endif
         NoSeriesCode: Code[20];
         IsHandled: Boolean;
     begin
@@ -3395,22 +3402,14 @@ table 36 "Sales Header"
             if "No." = '' then begin
                 TestNoSeries();
                 NoSeriesCode := GetNoSeriesCode();
-#if not CLEAN24
-                NoSeriesMgt2.RaiseObsoleteOnBeforeInitSeries(NoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-                if not IsHandled then begin
-#endif
-                    "No. Series" := NoSeriesCode;
-                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                        "No. Series" := xRec."No. Series";
+                "No. Series" := NoSeriesCode;
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                SalesHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
+                SalesHeader2.SetLoadFields("No.");
+                while SalesHeader2.Get("Document Type", "No.") do
                     "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-                    SalesHeader2.ReadIsolation(IsolationLevel::ReadUncommitted);
-                    SalesHeader2.SetLoadFields("No.");
-                    while SalesHeader2.Get("Document Type", "No.") do
-                        "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#if not CLEAN24
-                    NoSeriesMgt2.RaiseObsoleteOnAfterInitSeries("No. Series", NoSeriesCode, "Posting Date", "No.");
-                end;
-#endif
             end;
 
         OnInitInsertOnBeforeInitRecord(Rec, xRec);
@@ -4983,6 +4982,21 @@ table 36 "Sales Header"
     end;
 #endif
 
+    procedure TestPostingDate(BatchPost: Boolean)
+    begin
+        SalesSetup.Get();
+        if not SalesSetup."Posting Date Check on Posting" then
+            exit;
+        if not GuiAllowed then
+            exit;
+        if "Posting Date" <> WorkDate() then begin
+            if BatchPost then
+                Error(DifferentDatesErr, "Posting Date", WorkDate());
+            if not Confirm(DifferentDatesQst, false, "Posting Date", WorkDate()) then
+                Error('');
+        end;
+    end;
+
     /// <summary>
     /// Updates the sell-to contact details of a sales header based on the provided customer number.
     /// </summary>
@@ -5367,6 +5381,7 @@ table 36 "Sales Header"
         if (CalledByFieldNo <> CurrFieldNo) and (CurrFieldNo <> 0) then
             exit;
 
+        ShippingAgentServices.SetLoadFields("Shipping Time");
         if ShippingAgentServices.Get("Shipping Agent Code", "Shipping Agent Service Code") then
             "Shipping Time" := ShippingAgentServices."Shipping Time"
         else begin
@@ -8962,11 +8977,7 @@ table 36 "Sales Header"
     /// </summary>
     procedure InitPostingNoSeries()
     var
-#if CLEAN24
         NoSeries: Codeunit "No. Series";
-#else
-        NoSeriesMgt2: Codeunit NoSeriesManagement;
-#endif
         PostingNoSeries: Code[20];
     begin
         GLSetup.GetRecordOnce();
@@ -8989,7 +9000,6 @@ table 36 "Sales Header"
         case "Document Type" of
             "Document Type"::Quote, "Document Type"::Order:
                 begin
-#if CLEAN24
                     if NoSeries.IsAutomatic(PostingNoSeries) then
                         "Posting No. Series" := PostingNoSeries;
                     if NoSeries.IsAutomatic(SalesSetup."Posted Shipment Nos.") then
@@ -8998,77 +9008,36 @@ table 36 "Sales Header"
                         "Prepayment No. Series" := SalesSetup."Posted Prepmt. Inv. Nos.";
                     if NoSeries.IsAutomatic(SalesSetup."Posted Prepmt. Cr. Memo Nos.") then
                         "Prepmt. Cr. Memo No. Series" := SalesSetup."Posted Prepmt. Cr. Memo Nos.";
-#else
-#pragma warning disable AL0432
-                    NoSeriesMgt2.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-                    NoSeriesMgt2.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
-                    if "Document Type" = "Document Type"::Order then begin
-                        NoSeriesMgt2.SetDefaultSeries("Prepayment No. Series", SalesSetup."Posted Prepmt. Inv. Nos.");
-                        NoSeriesMgt2.SetDefaultSeries("Prepmt. Cr. Memo No. Series", SalesSetup."Posted Prepmt. Cr. Memo Nos.");
-                    end;
-#pragma warning restore AL0432
-#endif
                 end;
             "Document Type"::Invoice:
                 begin
                     if ("No. Series" <> '') and (SalesSetup."Invoice Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
-#if CLEAN24
                         if NoSeries.IsAutomatic(PostingNoSeries) then
                             "Posting No. Series" := PostingNoSeries;
 
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt2.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-#pragma warning restore AL0432
-#endif
                     if SalesSetup."Shipment on Invoice" then
-#if CLEAN24
-                    if NoSeries.IsAutomatic(SalesSetup."Posted Shipment Nos.") then
+                        if NoSeries.IsAutomatic(SalesSetup."Posted Shipment Nos.") then
                             "Shipping No. Series" := SalesSetup."Posted Shipment Nos.";
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt2.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
-#pragma warning restore AL0432
-#endif
                 end;
             "Document Type"::"Return Order":
                 begin
-#if CLEAN24
                     if NoSeries.IsAutomatic(PostingNoSeries) then
                         "Posting No. Series" := PostingNoSeries;
                     if NoSeries.IsAutomatic(SalesSetup."Posted Return Receipt Nos.") then
                         "Return Receipt No. Series" := SalesSetup."Posted Return Receipt Nos.";
-#else
-#pragma warning disable AL0432
-                    NoSeriesMgt2.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-                    NoSeriesMgt2.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
-#pragma warning restore AL0432
-#endif
                 end;
             "Document Type"::"Credit Memo":
                 begin
                     if ("No. Series" <> '') and (SalesSetup."Credit Memo Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
-#if CLEAN24
                         if NoSeries.IsAutomatic(PostingNoSeries) then
                             "Posting No. Series" := PostingNoSeries;
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt2.SetDefaultSeries("Posting No. Series", PostingNoSeries);
-#pragma warning restore AL0432
-#endif
                     if SalesSetup."Return Receipt on Credit Memo" then
-#if CLEAN24
-                    if NoSeries.IsAutomatic(SalesSetup."Posted Return Receipt Nos.") then
+                        if NoSeries.IsAutomatic(SalesSetup."Posted Return Receipt Nos.") then
                             "Return Receipt No. Series" := SalesSetup."Posted Return Receipt Nos."
-#else
-#pragma warning disable AL0432
-                        NoSeriesMgt2.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
-#pragma warning restore AL0432
-#endif
                 end;
         end;
 
@@ -9181,64 +9150,6 @@ table 36 "Sales Header"
         OnAfterSalesLinesEditable(Rec, IsEditable);
     end;
 
-#if not CLEAN24
-    [Obsolete('SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
-    internal procedure SetTrackInfoForCancellation()
-    var
-        CancelledDocument: Record "Cancelled Document";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
-        IsHandled: Boolean;
-    begin
-        if (Rec."Applies-to Doc. Type" = Rec."Applies-to Doc. Type"::" ") and (Rec."Applies-to Doc. No." = '')
-            and (Rec."Applies-to ID" <> '') and (Rec."Document Type" = Rec."Document Type"::"Credit Memo") then
-            if SetTrackInfoForCancellDocumentsWithAppliesToID() then
-                exit;
-        if Rec."Applies-to Doc. Type" <> Rec."Applies-to Doc. Type"::Invoice then
-            exit;
-        SalesInvoiceHeader.SetLoadFields("No.");
-        if not SalesInvoiceHeader.Get(Rec."Applies-to Doc. No.") then
-            exit;
-        SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.", "Cust. Ledger Entry No.");
-        SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
-        if not SalesCreditMemoHeader.FindFirst() then
-            exit;
-        if IsNotFullyCancelled(SalesCreditMemoHeader) then
-            exit;
-        IsHandled := false;
-        OnSetTrackInfoForCancellationOnBeforeInsertCancelledDocument(SalesCreditMemoHeader, IsHandled);
-        if not IsHandled then
-            CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(SalesInvoiceHeader."No.", SalesCreditMemoHeader."No.");
-    end;
-
-    local procedure SetTrackInfoForCancellDocumentsWithAppliesToID() Connected: Boolean
-    var
-        CancelledDocument: Record "Cancelled Document";
-        CustLedgerEntry, ClosedCustLedgerEntry : Record "Cust. Ledger Entry";
-        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
-    begin
-        Connected := false;
-        SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.");
-        SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
-        if SalesCreditMemoHeader.FindFirst() then begin
-            CustLedgerEntry.SetLoadFields("Entry No.", "Document No.");
-            CustLedgerEntry.Setrange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
-            CustLedgerEntry.Setrange("Document No.", SalesCreditMemoHeader."No.");
-            if CustLedgerEntry.FindFirst() then begin
-                ClosedCustLedgerEntry.SetLoadFields("Document No.");
-                ClosedCustLedgerEntry.SetRange("Document Type", ClosedCustLedgerEntry."Document Type"::"Invoice");
-                ClosedCustLedgerEntry.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
-                ClosedCustLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)", "Remaining Amount");
-                if ClosedCustLedgerEntry.FindFirst() then
-                    if (ClosedCustLedgerEntry."Remaining Amt. (LCY)" = 0) and (ClosedCustLedgerEntry."Remaining Amount" = 0) then begin
-                        CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(ClosedCustLedgerEntry."Document No.", CustLedgerEntry."Document No.");
-                        Connected := true;
-                    end;
-            end;
-        end;
-        exit(Connected);
-    end;
-#endif
 
     local procedure FindDocumentWithSameExternalDocNo(): Boolean
     var
@@ -9313,29 +9224,6 @@ table 36 "Sales Header"
         CorrectPostedSalesInvoice.UpdateSalesOrderLineIfExist(SalesCreditMemoHeader."No.");
     end;
 
-    local procedure IsNotFullyCancelled(var SalesCreditMemoHeader: Record "Sales Cr.Memo Header") Result: Boolean
-    var
-        CustLedgerEntry, ClosedCustLedgerEntry : Record "Cust. Ledger Entry";
-        IsHandled: Boolean;
-    begin
-        OnBeforeIsNotFullyCancelled(SalesCreditMemoHeader, Result, IsHandled);
-        if IsHandled then
-            exit(Result);
-
-        if SalesCreditMemoHeader."Cust. Ledger Entry No." = 0 then
-            exit(true);
-
-        CustLedgerEntry.SetLoadFields("Closed by Entry No.");
-        if CustLedgerEntry.Get(SalesCreditMemoHeader."Cust. Ledger Entry No.") then begin
-            if CustLedgerEntry."Closed by Entry No." = 0 then
-                exit(false);
-            ClosedCustLedgerEntry.SetLoadFields("Remaining Amt. (LCY)", "Remaining Amount");
-            ClosedCustLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)", "Remaining Amount");
-            if ClosedCustLedgerEntry.Get(CustLedgerEntry."Closed by Entry No.") then
-                exit((ClosedCustLedgerEntry."Remaining Amt. (LCY)" <> 0) and (ClosedCustLedgerEntry."Remaining Amount" <> 0));
-        end;
-    end;
-
     internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
         QtyReservedFromStock: Decimal;
@@ -9344,22 +9232,28 @@ table 36 "Sales Header"
         if QtyReservedFromStock = 0 then
             exit(Result::None);
 
-        if QtyReservedFromStock = CalcOutstandingQuantityBase() then
+        if QtyReservedFromStock = CalculateReservableOutstandingQuantityBase() then
             exit(Result::Full);
 
         exit(Result::Partial);
     end;
 
-    local procedure CalcOutstandingQuantityBase(): Decimal
+    internal procedure CalculateReservableOutstandingQuantityBase() OutstandingQtyBase: Decimal
     var
-        SalesLine2: Record "Sales Line";
+        RemQtyBaseInvtItemSalesLine: Query RemQtyBaseInvtItemSalesLine;
+        IsHandled: Boolean;
     begin
-        SalesLine2.SetRange("Document Type", "Document Type");
-        SalesLine2.SetRange("Document No.", "No.");
-        SalesLine2.SetRange(Type, SalesLine2.Type::Item);
-        OnCalcOutstandingQuantityBaseOnAfterSalesLineSetFilters(SalesLine2);
-        SalesLine2.CalcSums("Outstanding Qty. (Base)");
-        exit(SalesLine2."Outstanding Qty. (Base)");
+        IsHandled := false;
+        OnBeforeCalculateReservableOutstandingQuantityBase(Rec, IsHandled, OutstandingQtyBase);
+        if IsHandled then
+            exit(OutstandingQtyBase);
+
+        OutstandingQtyBase := 0;
+        RemQtyBaseInvtItemSalesLine.SetSalesLineFilter(Rec);
+        if RemQtyBaseInvtItemSalesLine.Open() then
+            if RemQtyBaseInvtItemSalesLine.Read() then
+                OutstandingQtyBase := RemQtyBaseInvtItemSalesLine.Outstanding_Qty___Base_;
+        RemQtyBaseInvtItemSalesLine.Close();
     end;
 
     local procedure UpdateVATReportingDate(CalledByFieldNo: Integer)
@@ -10840,11 +10734,13 @@ table 36 "Sales Header"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('This event is never raised.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBillToName(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; var IsHandled: Boolean; xSalesHeader: Record "Sales Header")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnValidateShipToCodeOnBeforeValidateTaxLiable(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header")
     begin
@@ -11115,13 +11011,6 @@ table 36 "Sales Header"
     begin
     end;
 
-#if not CLEAN24
-    [IntegrationEvent(false, false)]
-    [Obsolete('This event is obsolete. SetTrackInfoForCancellation procedure is planned to be removed.', '24.0')]
-    local procedure OnSetTrackInfoForCancellationOnBeforeInsertCancelledDocument(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateSelltoContactNoOnBeforeValidateSalespersonCode(var SalesHeader: Record "Sales Header"; Contact: Record Contact; var IsHandled: Boolean)
@@ -11283,10 +11172,13 @@ table 36 "Sales Header"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Removed Not used anymore.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsNotFullyCancelled(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckCreditLimitOnAfterCreditLimitCheck(var SalesHeader: Record "Sales Header")
@@ -11318,13 +11210,27 @@ table 36 "Sales Header"
     begin
     end;
 
+
+#if not CLEAN27
+    [Obsolete('Not used anymore due to new implementation that uses Query. Replaced by OnBeforeCalculateReservableOutstandingQuantityBase.', '27.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCalcOutstandingQuantityBaseOnAfterSalesLineSetFilters(var SalesLine: Record "Sales Line")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateReservableOutstandingQuantityBase(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var OutstandingQtyBase: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyBillToCustomerAddress(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateAppliesToDocNo(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

@@ -35,6 +35,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ExpectedDateConfclictErr: Label 'The change leads to a date conflict with existing reservations';
         UnexpectedErr: Label 'Unexpected Error occured.';
         ReservEntryQtyIncorrectErr: Label 'Reservation Entry Quantity is different than expected.';
+        ReservationFromStockErr: Label 'Reservation from Stock must be %1 in %2.', Comment = '%1= Field Value, %2 =Table Caption.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1918,6 +1919,29 @@ codeunit 137269 "SCM Transfer Reservation"
         // [THEN] Verify results
         VerifyQtyOnReservationEntriesForLotNo(TransferHeader, Item."No.", LocationBlue.Code, LotNo, 5);
         VerifyQtyOnReservationEntriesForLotNo(TransferHeader, Item."No.", LocationBlue.Code, LotNo2, 5);
+    end;
+
+    [Test]
+    procedure TransferHeaderReservationFromStock()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ReservationFromStock: Enum "Reservation From Stock";
+    begin
+        // [SCENARIO 563164] Reserved from Stock has "Full" status on Statistics page of Transfer Order when there is non-inventory Item is in the Transfer Lines.
+        Initialize();
+
+        // [GIVEN] Create Transfer Header and Transfer Line.
+        CreateTransferOrderQtyOneReservedOutbound(TransferHeader, TransferLine);
+
+        // [THEN]
+        Assert.AreEqual(
+            ReservationFromStock::Full,
+            TransferHeader.GetQtyReservedFromStockState(),
+            StrSubstNo(
+                ReservationFromStockErr,
+                ReservationFromStock::Full,
+                TransferHeader.TableCaption()));
     end;
 
     local procedure Initialize()

@@ -548,14 +548,6 @@ codeunit 139400 "Permissions Test"
         PermissionPagesMgt.ResolvePermissionAction(Notification);
     end;
 
-    local procedure CreatePermissionSet(var PermissionSet: Record "Permission Set")
-    begin
-        PermissionSet.Init();
-        PermissionSet."Role ID" := LibraryUtility.GenerateGUID();
-        PermissionSet.Name := LibraryUtility.GenerateGUID();
-        PermissionSet.Insert();
-    end;
-
     local procedure CreateTenantPermissionSet(var TenantPermissionSet: Record "Tenant Permission Set")
     begin
         TenantPermissionSet.Init();
@@ -597,4 +589,3 @@ codeunit 139400 "Permissions Test"
     begin
     end;
 }
-

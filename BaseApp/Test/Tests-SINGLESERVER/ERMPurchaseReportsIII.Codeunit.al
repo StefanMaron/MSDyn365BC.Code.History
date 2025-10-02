@@ -1907,7 +1907,7 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         // [SCENARIO 435424] To check if Aged Account Payable report is not showing Invoices if Posting date is not in range even if Document date is in range
 
-        // [GIVEN] Create Vendor,Post Invoice 
+        // [GIVEN] Create Vendor,Post Invoice
         Initialize();
         VendorNo := CreateVendor();
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
@@ -1943,7 +1943,7 @@ codeunit 134988 "ERM Purchase Reports III"
         Currency: Record Currency;
         PeriodLength: DateFormula;
     begin
-        // [SCENARIO 543167] Amount in Aged Accounts Payable report is displayed with 
+        // [SCENARIO 543167] Amount in Aged Accounts Payable report is displayed with
         // Decimal places defined in the Currency of that Vendor Ledger Entry.
         Initialize();
 
@@ -3156,18 +3156,6 @@ codeunit 134988 "ERM Purchase Reports III"
         Assert.IsTrue(RowNo > 0, StrSubstNo(RowNotFoundErr, 'VALVATBaseLCY', -VATEntry.Base));
     end;
 
-    local procedure VerifyPurchaseReportVATAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Sign: Integer; VATAmountElementName: Text; VATBaseAmountElementName: Text)
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
-        VATEntry.SetRange("Document Type", DocumentType);
-        VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindLast();
-        LibraryReportDataset.AssertCurrentRowValueEquals(VATAmountElementName, Sign * VATEntry.Amount);
-        LibraryReportDataset.AssertCurrentRowValueEquals(VATBaseAmountElementName, Sign * VATEntry.Base);
-    end;
-
     local procedure VerifyInvoiceDiscountInReport(PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
@@ -3833,4 +3821,3 @@ codeunit 134988 "ERM Purchase Reports III"
         VendorBalanceToDate.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-

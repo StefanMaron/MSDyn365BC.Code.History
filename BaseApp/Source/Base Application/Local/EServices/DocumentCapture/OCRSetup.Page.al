@@ -13,7 +13,7 @@ page 15000100 "OCR Setup"
     Caption = 'OCR Setup';
     PageType = Card;
     SourceTable = "OCR Setup";
-    UsageCategory = Tasks;
+    UsageCategory = Administration;
 
     layout
     {

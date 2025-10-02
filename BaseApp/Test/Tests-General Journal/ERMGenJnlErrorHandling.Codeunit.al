@@ -17,6 +17,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         DummyErr: Label 'Dummy error';
@@ -26,6 +27,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         DocumentOutOfBalanceErr: Label 'Document No. %1 is out of balance by %2', Comment = '%1 - document number, %2 = amount';
         FieldMustNotBeErr: Label '%1 must not be %2', Comment = '%1 - field name, %2 - field value';
         OutOfBalanceFilterTxt: Label '*is out of balance by*';
+        RecurringDocIsOutOfBalanceFilterTxt: Label 'Document No. %1 is out of balance.', Comment = '%1 - document number';
         ExtendingGenJnlCheckLineTxt: Label 'ExtendingGenJnlCheckLine', Locked = true;
         ExtendingGenJnlCheckLineNewTxt: Label 'ExtendingGenJnlCheckLineWithCollectError', Locked = true;
         LogTestFieldOptionTxt: Label 'LogTestFieldOption', Locked = true;
@@ -33,6 +35,9 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         DimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for G/L Account %2.', Comment = '%1 - dimension code, %2 - account number';
         OnBeforeRunCheckTxt: Label 'OnBeforeRunCheck', Locked = true;
         ExpectedErrorTxt: Label 'Expected should be : %1', Comment = '%1 - Expected error message';
+        NotAllowedPostingDateErr: Label 'is not within your range of allowed posting dates';
+        RecurringLineIsExpiredErr: Label 'The posting date %1 must be less or equal the expiration date %2 in the document %3.', Comment = '%1 - posting date, %2 - expiration date, %3 - document number';
+        RecurringLineIsOutOfWorkdateErr: Label 'The posting date %1 must be less or equal the working date %2 in the document %3.', Comment = '%1 - posting date, %2 - working date, %3 - document number';
 
     [Test]
     [Scope('OnPrem')]
@@ -2024,6 +2029,298 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Assert.AreEqual(Error2, Error1, StrSubstNo(ExpectedErrorTxt, Error2));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringGenJnlNumberOfErrorsSunshine()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+    begin
+        // [FEATURE] [Recurring General Journal]
+        // [SCENARIO 490333] Journal Check factbox shows correct number of lines checked, zero lines with issues and total issues 
+        Initialize();
+
+        // [GIVEN] Recurring Gen. Journal has 2 balanced lines for document A1 with "F Fixed" recurring method with no errors
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", LibraryUtility.GenerateGUID(), LibraryERM.CreateGLAccountNo(), LibraryRandom.RandIntInRange(100, 200));
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document No.", LibraryERM.CreateGLAccountNo(), -GenJournalLine.Amount);
+
+        // [WHEN] Open recurring general journal for the batch
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        RecurringGeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [THEN] Lines Checked = 2, Lines with issues = 0, Issues total = 0
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfLinesChecked.AssertEquals(2);
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfLinesWithErrors.AssertEquals(0);
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfBatchErrors.AssertEquals(0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringGenJnlNumberOfErrorsWithErrors()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+    begin
+        // [FEATURE] [Recurring General Journal]
+        // [SCENARIO 490333] Journal Check factbox shows correct number of lines checked, lines with issues and total issues 
+        Initialize();
+
+        // [GIVEN] Recurring Gen. Journal has 2 balanced lines where second line does not have Account No. filled in.
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", LibraryUtility.GenerateGUID(), LibraryERM.CreateGLAccountNo(), LibraryRandom.RandIntInRange(100, 200));
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document No.", '', -GenJournalLine.Amount);
+
+        // [WHEN] Open recurring general journal for the batch
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        RecurringGeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [THEN] Lines Checked = 2, Lines with issues = 1, Issues total = 1
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfLinesChecked.AssertEquals(2);
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfLinesWithErrors.AssertEquals(1);
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfBatchErrors.AssertEquals(1);
+        // [THEN] Error message is "Account No. must have a value" in the factbox
+        RecurringGeneralJournal.Last();
+        Assert.ExpectedMessage(
+            StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine."Account No."), RecurringGeneralJournal.JournalErrorsFactBox.Error1.Value());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringGenJnlNumberOfDocumentOutOfBalanceErrors()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Recurring General Journal]
+        // [SCENARIO 490333] Recurring multiple lines give one common error for out of balance document 
+        Initialize();
+
+        // [GIVEN] Recurring Gen. Journal has 1st document out of balance and 2nd document balanced.
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        DocumentNo := LibraryUtility.GenerateGUID();
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", DocumentNo, LibraryERM.CreateGLAccountNo(), LibraryRandom.RandIntInRange(100, 200));
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", DocumentNo, LibraryERM.CreateGLAccountNo(), GenJournalLine.Amount);
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", LibraryUtility.GenerateGUID(), LibraryERM.CreateGLAccountNo(), LibraryRandom.RandIntInRange(100, 200));
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document No.", LibraryERM.CreateGLAccountNo(), -GenJournalLine.Amount);
+
+        // [WHEN] Open recurring general journal for the batch
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        RecurringGeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [THEN] Lines Checked = 4, Lines with issues = 2, Issues total = 1 (one common error for out of balance document)
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfLinesChecked.AssertEquals(4);
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfLinesWithErrors.AssertEquals(2);
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfBatchErrors.AssertEquals(1);
+        // [THEN] Error message is about first document is out of balance is shown for first and second line        
+        RecurringGeneralJournal.First();
+        RecurringGeneralJournal.JournalErrorsFactBox.Error1.AssertEquals(StrSubstNo(RecurringDocIsOutOfBalanceFilterTxt, DocumentNo));
+        RecurringGeneralJournal.Next();
+        RecurringGeneralJournal.JournalErrorsFactBox.Error1.AssertEquals(StrSubstNo(RecurringDocIsOutOfBalanceFilterTxt, DocumentNo));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringGenJnlCurrentLineTwoErrors()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+    begin
+        // [FEATURE] [Recurring General Journal]
+        // [SCENARIO 490333] One recurring line out of allowed posting dates generates 2 errors
+        Initialize();
+
+        // [GIVEN] Set allowed posting dates in General Ledger Setup
+        LibraryERM.SetAllowPostingFromTo(CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
+
+        // [GIVEN] Recurring Gen. Journal has one line with Posting date less that Allowed Posting From date
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", LibraryUtility.GenerateGUID(), LibraryERM.CreateGLAccountNo(), LibraryRandom.RandIntInRange(100, 200));
+        UpdateRecGenJnlLineWithPostingDateAndExpirationDate(GenJournalLine, CalcDate('<-1M>', WorkDate()), CalcDate('<-1M>', WorkDate()));
+        Commit();
+
+        // [WHEN] Open recurring general journal for the batch
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        RecurringGeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [THEN] Lines Checked = 1, Lines with issues = 1, Issues total = 2        
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfLinesChecked.AssertEquals(1);
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfLinesWithErrors.AssertEquals(1);
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfBatchErrors.AssertEquals(2);
+
+        // [THEN] Error messages are about not allowed posting date and out of balance document 
+        RecurringGeneralJournal.First();
+        Assert.ExpectedMessage(NotAllowedPostingDateErr, RecurringGeneralJournal.JournalErrorsFactBox.Error1.Value);
+        RecurringGeneralJournal.JournalErrorsFactBox.Error2.AssertEquals(StrSubstNo(RecurringDocIsOutOfBalanceFilterTxt, GenJournalLine."Document No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringGenJnlWorkingDateCheck()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Recurring General Journal]
+        // [SCENARIO 490333] Recurring lines ignored during posting with posting date more than working date generate error messages on Error Message page
+        Initialize();
+
+        // [GIVEN] Balanced document with the posting date more than working date   
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", LibraryUtility.GenerateGUID(), LibraryERM.CreateGLAccountNo(), LibraryRandom.RandIntInRange(100, 200));
+        UpdateRecGenJnlLineWithPostingDateAndExpirationDate(GenJournalLine, WorkDate() + 1, WorkDate() + 1);
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document No.", LibraryERM.CreateGLAccountNo(), -GenJournalLine.Amount);
+        UpdateRecGenJnlLineWithPostingDateAndExpirationDate(GenJournalLine, WorkDate() + 1, WorkDate() + 1);
+
+        // [WHEN] Open recurring general journal for the batch
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        RecurringGeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [THEN] Issues total = 2
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfBatchErrors.AssertEquals(2);
+        // [THEN] Error messages are shown respectively for each line about posting date more than working date
+        ErrorMessages.Trap();
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfBatchErrors.Drilldown();
+        ErrorMessages.First();
+        ErrorMessages.Description.AssertEquals(StrSubstNo(RecurringLineIsOutOfWorkdateErr, GenJournalLine."Posting Date", WorkDate(), GenJournalLine."Document No."));
+        ErrorMessages.Next();
+        ErrorMessages.Description.AssertEquals(StrSubstNo(RecurringLineIsOutOfWorkdateErr, GenJournalLine."Posting Date", WorkDate(), GenJournalLine."Document No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringGenJnlExpirationDateCheck()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Recurring General Journal]
+        // [SCENARIO 490333] Recurring lines ignored during posting with posting date more than expiration date generate error messages on Error Message page
+        Initialize();
+
+        // [GIVEN] Balanced document with expired posting date
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", LibraryUtility.GenerateGUID(), LibraryERM.CreateGLAccountNo(), LibraryRandom.RandIntInRange(100, 200));
+        UpdateRecGenJnlLineWithPostingDateAndExpirationDate(GenJournalLine, WorkDate(), WorkDate() - 1);
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document No.", LibraryERM.CreateGLAccountNo(), -GenJournalLine.Amount);
+        UpdateRecGenJnlLineWithPostingDateAndExpirationDate(GenJournalLine, WorkDate(), WorkDate() - 1);
+
+        // [WHEN] Open recurring general journal for the batch
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        RecurringGeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [THEN] Issues total = 2
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfBatchErrors.AssertEquals(2);
+        // [THEN] Error messages are shown respectively for each line about expired posting date
+        ErrorMessages.Trap();
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfBatchErrors.Drilldown();
+        ErrorMessages.First();
+        ErrorMessages.Description.AssertEquals(StrSubstNo(RecurringLineIsExpiredErr, GenJournalLine."Posting Date", GenJournalLine."Expiration Date", GenJournalLine."Document No."));
+        ErrorMessages.Next();
+        ErrorMessages.Description.AssertEquals(StrSubstNo(RecurringLineIsExpiredErr, GenJournalLine."Posting Date", GenJournalLine."Expiration Date", GenJournalLine."Document No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringGenJnlShowLinesActions()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+    begin
+        // [FEATURE] [Recurring General Journal]
+        // [SCENARIO 490333] Background check related actions are visible on the recurring general journal page
+        Initialize();
+
+        // [GIVEN] Recurring Journal with one line
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", LibraryUtility.GenerateGUID(), LibraryERM.CreateGLAccountNo(), LibraryRandom.RandIntInRange(100, 200));
+
+        // [WHEN] Open recurring general journal for the batch
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        RecurringGeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [THEN] 'Show lines' action items are visible
+        Assert.IsTrue(RecurringGeneralJournal.ShowLinesWithErrors.Visible(), 'ShowLinesWithErrors must be visible');
+        Assert.IsTrue(RecurringGeneralJournal.ShowAllLines.Visible(), 'ShowAllLines must be visible');
+        // [THEN] Action "Show Lines with Errors" enabled
+        Assert.IsTrue(RecurringGeneralJournal.ShowLinesWithErrors.Enabled(), 'Action ShowLinesWithErrors must be enabled');
+        // [THEN] Action "Show All Lines" disabled
+        Assert.IsFalse(RecurringGeneralJournal.ShowAllLines.Enabled(), 'Action ShowAllLines must be disabled');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringGenJnlShowLinesWithErrorsAction()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+    begin
+        // [FEATURE] [Recurring General Journal]
+        // [SCENARIO 490333] Background check related contols are visible on the recurring general journal page
+        Initialize();
+
+        // [GIVEN] Recurring Journal with one balanced document and one more line 
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", LibraryUtility.GenerateGUID(), LibraryERM.CreateGLAccountNo(), LibraryRandom.RandIntInRange(100, 200));
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document No.", LibraryERM.CreateGLAccountNo(), -GenJournalLine.Amount);
+        CreateRecurringGenJnlLineWithDocumentNo(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", LibraryUtility.GenerateGUID(), LibraryERM.CreateGLAccountNo(), LibraryRandom.RandIntInRange(100, 200));
+
+        // [GIVEN] Open recurring general journal for the batch
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        RecurringGeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        RecurringGeneralJournal.JournalErrorsFactBox.NumberOfBatchErrors.AssertEquals(1);
+        // [WHEN] Action "Show Lines with Errors" is selected
+        RecurringGeneralJournal.ShowLinesWithErrors.Invoke();
+
+        // [THEN] One line with error is shown in the journal
+        RecurringGeneralJournal.Last();
+        Assert.IsFalse(RecurringGeneralJournal.Previous(), 'There must be only one line with error shown in the journal'); // Next() generates new line after the last one
+
+        // [THEN] 'Show lines' action items are visible
+        Assert.IsTrue(RecurringGeneralJournal.ShowLinesWithErrors.Visible(), 'ShowLinesWithErrors must be visible');
+        Assert.IsTrue(RecurringGeneralJournal.ShowAllLines.Visible(), 'ShowAllLines must be visible');
+        // [THEN] Action "Show Lines with Errors" disabled
+        Assert.IsFalse(RecurringGeneralJournal.ShowLinesWithErrors.Enabled(), 'Action ShowLinesWithErrors must be disabled');
+        // [THEN] Action "Show All Lines" enabled
+        Assert.IsTrue(RecurringGeneralJournal.ShowAllLines.Enabled(), 'Action ShowAllLines must be enabled');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2248,6 +2545,37 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
             "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::Customer, Customer."No.", LibraryRandom.RandDec(100, 2));
         Commit();
+    end;
+
+    local procedure CreateRecurringGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.FindRecurringTemplateName(GenJournalTemplate);
+        GenJournalTemplate."Force Doc. Balance" := true;
+        GenJournalTemplate.Modify();
+        LibraryERM.CreateRecurringBatchName(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    local procedure CreateRecurringGenJnlLineWithDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Enum "Gen. Journal Recurring Method"; DocumentNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
+    var
+        RecurringFrequency: DateFormula;
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", AccountNo, Amount);
+        GenJournalLine.Validate(Description, LibraryUtility.GenerateGUID());
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate("Recurring Method", RecurringMethod);
+        Evaluate(RecurringFrequency, '<' + Format(LibraryRandom.RandInt(10)) + 'M >');
+        GenJournalLine.Validate("Recurring Frequency", RecurringFrequency);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure UpdateRecGenJnlLineWithPostingDateAndExpirationDate(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; ExpirationDate: Date)
+    begin
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Expiration Date", ExpirationDate);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure GetNumberOfLines(var GenJournalLine: Record "Gen. Journal Line"): Integer

@@ -13,7 +13,6 @@ codeunit 144000 "Proportional VAT Test"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryReportDataset: Codeunit "Library - Report Dataset";
@@ -566,43 +565,6 @@ codeunit 144000 "Proportional VAT Test"
         exit(Currency.Code);
     end;
 
-    local procedure CreateCustomer(GenBusPostGroupCode: Code[20]; VATBusPostGroupCode: Code[20]): Code[20]
-    var
-        Customer: Record Customer;
-    begin
-        LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Gen. Bus. Posting Group", GenBusPostGroupCode);
-        Customer.Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
-        Customer.Modify(true);
-        exit(Customer."No.");
-    end;
-
-    local procedure CreateGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; EntryAmount: Decimal; GenPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Enum "General Posting Type")
-    begin
-        InitGenJnlLine(GenJnlLine);
-
-        LibraryERM.CreateGeneralJnlLine(
-          GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", GenJnlLine."Document Type"::Invoice, AccountType, AccountNo, -EntryAmount);
-
-        LibraryERM.CreateGeneralJnlLine(
-          GenJnlLine, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", "Gen. Journal Document Type"::" ",
-          GenJnlLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), EntryAmount);
-        GenJnlLine.Validate("Gen. Posting Type", GenPostingType);
-        GenJnlLine.Validate("Gen. Prod. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
-        GenJnlLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        GenJnlLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        GenJnlLine.Modify(true);
-    end;
-
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
-    begin
-        LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDec(10, 2));
-        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
-        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
-        VATPostingSetup.Modify(true);
-    end;
-
     local procedure CreateCopyOfVATPostingSetup(var VATPostingSetupNew: Record "VAT Posting Setup"; VATPostingSetup: Record "VAT Posting Setup"; ProportionalVATPct: Decimal)
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -657,24 +619,6 @@ codeunit 144000 "Proportional VAT Test"
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
-    local procedure CreateApplyPostGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; CustomerNo: Code[20]) DocNo: Code[20]
-    var
-        GenJnlBatch: Record "Gen. Journal Batch";
-    begin
-        InitGenJnlLine(GenJnlLine);
-        CreatePaymentGenJournalBatch(GenJnlBatch);
-        LibraryERM.CreateGeneralJnlLine(
-          GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
-          GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Customer, CustomerNo, 0);
-        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
-        GenJnlLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-        GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::Invoice);
-        GenJnlLine.Modify(true);
-        SetAppliesToIDToCashRcptJnl(GenJnlLine."Document Type"::Payment, GenJnlLine."Document No.", GenJnlBatch.Name);
-        DocNo := GenJnlLine."Document No.";
-        LibraryERM.PostGeneralJnlLine(GenJnlLine);
-    end;
-
     local procedure InitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     var
         GenJnlTemplate: Record "Gen. Journal Template";
@@ -717,37 +661,6 @@ codeunit 144000 "Proportional VAT Test"
         PurchLine.Modify(true);
     end;
 
-    local procedure CreatePurchJournalWithACY(var VATPostingSetup: Record "VAT Posting Setup"; var GenJnlLine: Record "Gen. Journal Line")
-    var
-        GenPostingSetup: Record "General Posting Setup";
-        CurrencyCode: Code[10];
-    begin
-        CurrencyCode := SetupAdditionalCurrency();
-        LibraryERM.FindGeneralPostingSetup(GenPostingSetup);
-        CreateProportionalVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", GetTFS190253PropVATRate());
-        CreatePostGenJnlLines(GenJnlLine, GenPostingSetup, VATPostingSetup, CurrencyCode, '', WorkDate());
-    end;
-
-    local procedure CreateSalesInvoice(var Customer: Record Customer; VATPostingSetup: Record "VAT Posting Setup")
-    var
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        CreateCustomerWithPaymentTerms(Customer, VATPostingSetup."VAT Bus. Posting Group");
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        Item.Modify(true);
-        LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
-        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(5000));
-        SalesLine.Validate("Line Discount %", LibraryRandom.RandInt(20) + 5);
-        SalesLine.Modify(true);
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-    end;
-
     local procedure CreateVendor(GenBusPostGroupCode: Code[20]; VATBusPostGroupCode: Code[20]): Code[20]
     var
         Vendor: Record Vendor;
@@ -759,44 +672,11 @@ codeunit 144000 "Proportional VAT Test"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateCustomerWithPaymentTerms(var Customer: Record Customer; VATBusPostingGroupCode: Code[20])
-    begin
-        LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-        Customer.Validate("Payment Terms Code", CreatePaymentTermCode());
-        Customer.Modify(true);
-    end;
-
     local procedure CreateGLAccWithSetup(GenProdPostGroupCode: Code[20]; VATProdPostGroupCode: Code[20]) GLAccNo: Code[20]
     begin
         GLAccNo := LibraryERM.CreateGLAccountNo();
         UpdateGLAccWithSetup(GLAccNo, GenProdPostGroupCode, VATProdPostGroupCode);
         exit(GLAccNo);
-    end;
-
-    local procedure CreatePaymentTermCode(): Code[10]
-    var
-        PaymentTerms: Record "Payment Terms";
-    begin
-        LibraryERM.CreatePaymentTerms(PaymentTerms);
-        PaymentTerms.Validate("Discount %", LibraryRandom.RandDec(5, 2));
-        PaymentTerms.Modify(true);
-        exit(PaymentTerms.Code);
-    end;
-
-    local procedure CreatePaymentGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-        BankAccount: Record "Bank Account";
-    begin
-        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::"Cash Receipts");
-        GenJournalTemplate.FindFirst();
-
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
-        LibraryERM.FindBankAccount(BankAccount);
-        GenJournalBatch.Validate("Bal. Account No.", BankAccount."No.");
-        GenJournalBatch.Modify(true);
     end;
 
     local procedure CreatePurchInvWithDeferral(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DeferralTemplateCode: Code[10]): Decimal
@@ -870,48 +750,6 @@ codeunit 144000 "Proportional VAT Test"
         GLAccount.Modify(true);
     end;
 
-    local procedure UpdateGLSetupAdjustPmtDiscount(NewAdjustForPaymentDisc: Boolean) OldAdjustForPaymentDisc: Boolean
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        GLSetup.Get();
-        OldAdjustForPaymentDisc := GLSetup."Adjust for Payment Disc.";
-        GLSetup.Validate("Adjust for Payment Disc.", NewAdjustForPaymentDisc);
-        GLSetup.Modify(true);
-    end;
-
-    local procedure UpdateVATPostingSetupAdjPmtDisc(var VATPostingSetup: Record "VAT Posting Setup"; NewAdjustForPaymentDisc: Boolean) OldVATPostingSetupAdjPmtDisc: Boolean
-    begin
-        OldVATPostingSetupAdjPmtDisc := VATPostingSetup."Adjust for Payment Discount";
-        VATPostingSetup.Validate("Adjust for Payment Discount", NewAdjustForPaymentDisc);
-        VATPostingSetup.Modify(true);
-    end;
-
-    local procedure UpdateGenPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
-    var
-        GLAccount: Record "G/L Account";
-    begin
-        LibraryERM.FindGLAccount(GLAccount);
-        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
-        GeneralPostingSetup."Sales Pmt. Disc. Credit Acc." := GLAccount."No.";
-        GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." := GLAccount."No.";
-        GeneralPostingSetup.Modify(true);
-    end;
-
-    local procedure SetAppliesToIDToCashRcptJnl(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; JournalBatchName: Code[10])
-    var
-        CashReceiptJournal: TestPage "Cash Receipt Journal";
-    begin
-        Commit();  // Commit is require for opening Cash Receipt Journal Page.
-        CashReceiptJournal.OpenEdit();
-        CashReceiptJournal.CurrentJnlBatchName.SetValue := JournalBatchName;
-        CashReceiptJournal.FILTER.SetFilter("Document Type", Format(DocumentType));
-        CashReceiptJournal.FILTER.SetFilter("Document No.", DocumentNo);
-        CashReceiptJournal.First();
-        CashReceiptJournal."Applies-to Doc. No.".Lookup();
-        CashReceiptJournal.OK().Invoke();
-    end;
-
     local procedure GetTFS190253VATRate(): Decimal
     begin
         exit(25);
@@ -970,18 +808,6 @@ codeunit 144000 "Proportional VAT Test"
         if DeductWithPropVAT then
             VATAmount := Round(VATAmount * VATPostingSetup."Proportional Deduction VAT %" / 100, LibraryERM.GetAmountRoundingPrecision());
         exit(VATAmount);
-    end;
-
-    local procedure CalcSalesVATAmount(var SalesVAT: Decimal; DocNo: Code[20]) BaseAmountSalesVAT: Decimal
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        VATEntry.SetRange("Document No.", DocNo);
-        VATEntry.FindSet();
-        repeat
-            BaseAmountSalesVAT += VATEntry.Base;
-            SalesVAT += VATEntry.Amount;
-        until VATEntry.Next() = 0;
     end;
 
     local procedure UpdateSettledVATPeriods()
@@ -1091,4 +917,3 @@ codeunit 144000 "Proportional VAT Test"
         Reply := true;
     end;
 }
-

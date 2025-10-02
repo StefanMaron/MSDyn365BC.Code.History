@@ -38,6 +38,7 @@ codeunit 5950 "Service-Calc. Discount"
         ChargeBase: Decimal;
         CurrencyDate: Date;
         TemporaryHeader: Boolean;
+        CustInvDiscFound: Boolean;
 
 #pragma warning disable AA0074
         Text000: Label 'Service Charge';
@@ -101,13 +102,12 @@ codeunit 5950 "Service-Calc. Discount"
             else
                 CurrencyDate := ServHeader."Posting Date";
 
-            CustInvDisc.GetRec(
-              ServHeader."Invoice Disc. Code", ServHeader."Currency Code", CurrencyDate, ChargeBase);
+            CustInvDiscFound := CustInvDisc.GetRecord(ServHeader."Invoice Disc. Code", ServHeader."Currency Code", CurrencyDate, ChargeBase);
 
             OnCalculateInvoiceDiscountOnBeforeApplyServiceCharge(CustInvDisc, ServHeader, CurrencyDate, ChargeBase, ApplyServiceCharge);
 
             if ApplyServiceCharge then
-                if CustInvDisc."Service Charge" <> 0 then begin
+                if CustInvDiscFound and (CustInvDisc."Service Charge" <> 0) then begin
                     Currency.Initialize(ServHeader."Currency Code");
                     if TemporaryHeader then
                         ServiceLine2.SetServHeader(ServHeader);
@@ -158,15 +158,29 @@ codeunit 5950 "Service-Calc. Discount"
                             ServiceLine2.Delete(true);
                     end;
 
+            OnCalculateInvoiceDiscountOnAfterApplyServiceCharge(CustInvDisc, ServHeader, ServiceLine2, CurrencyDate, TemporaryHeader);
+
             if CustInvDiscRecExists(ServHeader."Invoice Disc. Code") then begin
                 if InvDiscBase <> ChargeBase then
-                    CustInvDisc.GetRec(
-                      ServHeader."Invoice Disc. Code", ServHeader."Currency Code", CurrencyDate, InvDiscBase);
+                    CustInvDisc.GetRecord(ServHeader."Invoice Disc. Code", ServHeader."Currency Code", CurrencyDate, InvDiscBase);
 
                 DiscountNotificationMgt.NotifyAboutMissingSetup(
                   SalesSetup.RecordId, ServHeader."Gen. Bus. Posting Group", ServiceLine2."Gen. Prod. Posting Group",
                   SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Line Discounts");
 
+                ServHeader."Invoice Discount Calculation" := ServHeader."Invoice Discount Calculation"::"%";
+                ServHeader."Invoice Discount Value" := CustInvDisc."Discount %";
+                if not TemporaryHeader then
+                    ServHeader.Modify();
+
+                TempVATAmountLine.SetInvoiceDiscountPercent(
+                  CustInvDisc."Discount %", ServHeader."Currency Code",
+                  ServHeader."Prices Including VAT", SalesSetup."Calc. Inv. Disc. per VAT ID",
+                  ServHeader."VAT Base Discount %");
+
+                ServiceLine2.SetServHeader(ServHeader);
+                ServiceLine2.UpdateVATOnLines(0, ServHeader, ServiceLine2, TempVATAmountLine);
+            end else begin
                 ServHeader."Invoice Discount Calculation" := ServHeader."Invoice Discount Calculation"::"%";
                 ServHeader."Invoice Discount Value" := CustInvDisc."Discount %";
                 if not TemporaryHeader then
@@ -267,6 +281,11 @@ codeunit 5950 "Service-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeApplyServiceCharge(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var ServiceHeader: Record "Service Header"; CurrencyDate: Date; ChargeBase: Decimal; var ApplyServiceCharge: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnCalculateInvoiceDiscountOnAfterApplyServiceCharge(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; CurrencyDate: Date; TemporaryHeader: Boolean)
     begin
     end;
 

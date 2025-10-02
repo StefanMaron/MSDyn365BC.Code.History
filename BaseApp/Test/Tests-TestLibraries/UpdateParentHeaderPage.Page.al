@@ -15,6 +15,8 @@ page 139141 "Update Parent Header Page"
             field(LinesAmount; LinesAmount)
             {
                 Caption = 'Amount';
+                AutoFormatType = 1;
+                AutoFormatExpression = '';
             }
             field(LinesQuantity; LinesQuantity)
             {
@@ -110,4 +112,3 @@ page 139141 "Update Parent Header Page"
         FactLineId := ParmFactLineId;
     end;
 }
-

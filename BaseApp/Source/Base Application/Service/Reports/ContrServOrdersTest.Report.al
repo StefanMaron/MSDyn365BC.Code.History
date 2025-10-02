@@ -172,7 +172,8 @@ report 5988 "Contr. Serv. Orders - Test"
 
     requestpage
     {
-
+        AboutTitle = 'About Contr. Serv. Orders - Test';
+        AboutText = 'Find service contracts that include service items that are due for service within a period you specify.';
         layout
         {
             area(content)

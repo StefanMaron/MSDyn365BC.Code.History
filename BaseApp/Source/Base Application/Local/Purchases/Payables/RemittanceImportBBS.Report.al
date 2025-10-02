@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -308,21 +308,10 @@ report 15000063 "Remittance - Import (BBS)"
     local procedure FindDocumentNo(PostDate: Date)
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if CreateNewDocumentNo then begin
             TransDocumentNo := '';
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RemAccount."Document No. Series", '', PostDate, TransDocumentNo, RemAccount."Document No. Series", IsHandled);
-            if not IsHandled then
-#endif
                 TransDocumentNo := NoSeries.GetNextNo(RemAccount."Document No. Series", PostDate);
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(RemAccount."Document No. Series", RemAccount."Document No. Series", PostDate, TransDocumentNo);
-#endif
             CreateNewDocumentNo := false;
         end;
         // TransDocumentNo is now current Document no.
@@ -469,4 +458,3 @@ report 15000063 "Remittance - Import (BBS)"
           CurrentWaitingJournal.Reference);
     end;
 }
-

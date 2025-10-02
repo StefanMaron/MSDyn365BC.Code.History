@@ -2,7 +2,6 @@ codeunit 130028 "License Management Starter"
 {
     // This codeunit is used for reducing table data in the demo database so that it can be used for license testing.
 
-
     trigger OnRun()
     begin
         ReduceDemoData();
@@ -90,14 +89,6 @@ codeunit 130028 "License Management Starter"
         CostObject: Record "Cost Object";
         CostBudgetBuffer: Record "Cost Budget Buffer";
         ExchangeFolder: Record "Exchange Folder";
-        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
-        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
-        ProdOrderRoutingTool: Record "Prod. Order Routing Tool";
-        ProdOrderRoutingPersonnel: Record "Prod. Order Routing Personnel";
-        ProdOrderRtngQltyMeas: Record "Prod. Order Rtng Qlty Meas.";
-        ProdOrderCommentLine: Record "Prod. Order Comment Line";
-        ProdOrderRtngCommentLine: Record "Prod. Order Rtng Comment Line";
-        ProdOrderCompCmtLine: Record "Prod. Order Comp. Cmt Line";
         PlanningErrorLog: Record "Planning Error Log";
         ResponsibilityCenter: Record "Responsibility Center";
         WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity";
@@ -205,43 +196,6 @@ codeunit 130028 "License Management Starter"
         MiniformFunction: Record "Miniform Function";
         ItemIdentifier: Record "Item Identifier";
         ADCSUser: Record "ADCS User";
-        WorkShift: Record "Work Shift";
-        ShopCalendar: Record "Shop Calendar";
-        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
-        ShopCalendarHoliday: Record "Shop Calendar Holiday";
-        WorkCenter: Record "Work Center";
-        WorkCenterGroup: Record "Work Center Group";
-        CalendarEntry: Record "Calendar Entry";
-        MachineCenter: Record "Machine Center";
-        CalendarAbsenceEntry: Record "Calendar Absence Entry";
-        Stop: Record Stop;
-        Scrap: Record Scrap;
-        RoutingHeader: Record "Routing Header";
-        RoutingLine: Record "Routing Line";
-        Family: Record Family;
-        FamilyLine: Record "Family Line";
-        RoutingCommentLine: Record "Routing Comment Line";
-        RoutingLink: Record "Routing Link";
-        StandardTask: Record "Standard Task";
-        ProductionBOMVersion: Record "Production BOM Version";
-        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
-        StandardTaskTool: Record "Standard Task Tool";
-        StandardTaskPersonnel: Record "Standard Task Personnel";
-        StandardTaskDescription: Record "Standard Task Description";
-        StandardTaskQualityMeasure: Record "Standard Task Quality Measure";
-        QualityMeasure: Record "Quality Measure";
-        RoutingVersion: Record "Routing Version";
-        ProductionMatrixBOMLine: Record "Production Matrix BOM Line";
-        ProductionMatrixBOMEntry: Record "Production Matrix  BOM Entry";
-        RoutingTool: Record "Routing Tool";
-        RoutingPersonnel: Record "Routing Personnel";
-        RoutingQualityMeasure: Record "Routing Quality Measure";
-        PlanningRoutingLine: Record "Planning Routing Line";
-        PlanningBuffer: Record "Planning Buffer";
-        RegisteredAbsence: Record "Registered Absence";
-        ProductionForecastName: Record "Production Forecast Name";
-        ProductionForecastEntry: Record "Production Forecast Entry";
-        CapacityConstrainedResource: Record "Capacity Constrained Resource";
         OrderPromisingLine: Record "Order Promising Line";
         ServiceLine: Record "Service Line";
     begin
@@ -321,14 +275,6 @@ codeunit 130028 "License Management Starter"
         CostObject.DeleteAll();
         CostBudgetBuffer.DeleteAll();
         ExchangeFolder.DeleteAll();
-        ProdOrderRoutingLine.DeleteAll();
-        ProdOrderCapacityNeed.DeleteAll();
-        ProdOrderRoutingTool.DeleteAll();
-        ProdOrderRoutingPersonnel.DeleteAll();
-        ProdOrderRtngQltyMeas.DeleteAll();
-        ProdOrderCommentLine.DeleteAll();
-        ProdOrderRtngCommentLine.DeleteAll();
-        ProdOrderCompCmtLine.DeleteAll();
         PlanningErrorLog.DeleteAll();
         ResponsibilityCenter.DeleteAll();
         WhseCrossDockOpportunity.DeleteAll();
@@ -436,46 +382,16 @@ codeunit 130028 "License Management Starter"
         MiniformFunction.DeleteAll();
         ItemIdentifier.DeleteAll();
         ADCSUser.DeleteAll();
-        WorkShift.DeleteAll();
-        ShopCalendar.DeleteAll();
-        ShopCalendarWorkingDays.DeleteAll();
-        ShopCalendarHoliday.DeleteAll();
-        WorkCenter.DeleteAll();
-        WorkCenterGroup.DeleteAll();
-        CalendarEntry.DeleteAll();
-        MachineCenter.DeleteAll();
-        CalendarAbsenceEntry.DeleteAll();
-        Stop.DeleteAll();
-        Scrap.DeleteAll();
-        RoutingHeader.DeleteAll();
-        RoutingLine.DeleteAll();
-        Family.DeleteAll();
-        FamilyLine.DeleteAll();
-        RoutingCommentLine.DeleteAll();
-        RoutingLink.DeleteAll();
-        StandardTask.DeleteAll();
-        ProductionBOMVersion.DeleteAll();
-        CapacityUnitOfMeasure.DeleteAll();
-        StandardTaskTool.DeleteAll();
-        StandardTaskPersonnel.DeleteAll();
-        StandardTaskDescription.DeleteAll();
-        StandardTaskQualityMeasure.DeleteAll();
-        QualityMeasure.DeleteAll();
-        RoutingVersion.DeleteAll();
-        ProductionMatrixBOMLine.DeleteAll();
-        ProductionMatrixBOMEntry.DeleteAll();
-        RoutingTool.DeleteAll();
-        RoutingPersonnel.DeleteAll();
-        RoutingQualityMeasure.DeleteAll();
-        PlanningRoutingLine.DeleteAll();
-        PlanningBuffer.DeleteAll();
-        RegisteredAbsence.DeleteAll();
-        ProductionForecastName.DeleteAll();
-        ProductionForecastEntry.DeleteAll();
-        CapacityConstrainedResource.DeleteAll();
         OrderPromisingLine.DeleteAll();
         ServiceLine.DeleteAll(); // Included in Starter Pack, but not deleting causes data inconsistency
+
+        OnAfterReduceDemodata();
         Message(TableClearedSuccessfullyMsg);
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnAfterReduceDemodata()
+    begin
     end;
 }
 

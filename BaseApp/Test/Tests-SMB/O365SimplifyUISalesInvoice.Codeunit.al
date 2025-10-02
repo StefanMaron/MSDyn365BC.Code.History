@@ -21,9 +21,7 @@
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-        LibraryInventory: Codeunit "Library - Inventory";
         LibraryTemplates: Codeunit "Library - Templates";
-        LibraryDimension: Codeunit "Library - Dimension";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         SelectCustErr: Label 'You must select an existing customer.';
@@ -32,14 +30,11 @@
         SellToCustomerName4HandlerFunction: Text[100];
         LeaveDocWithoutPostingTxt: Label 'This document is not posted.';
         CopyItemsOption: Option "None",All,Selected;
-        RefDocType: Option Quote,"Order",Invoice,"Credit Memo";
-        RefMode: Option Manual,Automatic,"Always Ask";
         ControlShouldBeDisabledErr: Label 'Control should be disabled';
         ControlShouldBeEnabledErr: Label 'Control should be enabled';
         CannotCreatePurchaseOrderWithoutVendorErr: Label 'You cannot create purchase orders without specifying a vendor for all lines.';
         EntireOrderIsAvailableTxt: Label 'All items on the sales order are available.';
         NoPurchaseOrdersCreatedErr: Label 'No purchase orders are created.';
-        CombineShipmentMsg: Label 'The shipments are now combined';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
@@ -2913,61 +2908,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('NoDefaultVendorPurchOrderFromSalesOrderModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure CreatePurchaseOrderFromSalesOrderWithNoItemVendor()
-    var
-        SalesHeader: Record "Sales Header";
-        PurchaseHeader: Record "Purchase Header";
-        DummyPurchaseOrder: TestPage "Purchase Order";
-        VendorNo: Code[20];
-    begin
-        // [SCENARIO] User creates Purchase Order from Sales Order, no default vendors for items.
-        Initialize();
-
-        // [GIVEN] Sales Order with lines, no default vendors for items, Vendor."No." will be chosen by user.
-        VendorNo := CreateSalesHeaderWithLinesAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
-
-        // [WHEN] Create Purchase Order From Sales Order, user picks vendor
-        LibraryVariableStorage.Enqueue(VendorNo);
-        SalesOrderCreatePurchaseOrder(SalesHeader, DummyPurchaseOrder);
-        DummyPurchaseOrder.Close();
-
-        // [THEN] Last Purchase Order for Vendor."No." contains all the same lines as Sales Order.
-        VerifyPurchaseDocumentCreatedFromSalesDocument(VendorNo, PurchaseHeader."Document Type"::Order, SalesHeader);
-    end;
-
-    [Test]
-    [HandlerFunctions('LookupVendorPurchOrderFromSalesOrderModalPageHandler,ItemVendorCatalogModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure CreatePurchaseOrderFromSalesOrderLookupItemVendorCatalog()
-    var
-        SalesHeader: Record "Sales Header";
-        PurchaseHeader: Record "Purchase Header";
-        ItemVendor: Record "Item Vendor";
-        Item: Record Item;
-        DummyPurchaseOrder: TestPage "Purchase Order";
-        VendorNo: Code[20];
-    begin
-        // [SCENARIO] User creates Purchase Order from Sales Order, use lookup for vendor field, shows Item Vendor Catalog
-        Initialize();
-
-        // [GIVEN] Sales Order with lines, no default vendors for items, Vendor."No." will be chosen by user.
-        VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
-        LibrarySmallBusiness.CreateItem(Item);
-        LibraryInventory.CreateItemVendor(ItemVendor, VendorNo, Item."No.");
-        AddRandomNumberOfLinesToSalesHeader(SalesHeader, Item);
-
-        // [WHEN] Create Purchase Order From Sales Order, user picks vendor through lookup
-        LibraryVariableStorage.Enqueue(VendorNo);
-        SalesOrderCreatePurchaseOrder(SalesHeader, DummyPurchaseOrder);
-        DummyPurchaseOrder.Close();
-
-        // [THEN] Last Purchase Order for Vendor."No." contains all the same lines as Sales Order.
-        VerifyPurchaseDocumentCreatedFromSalesDocument(VendorNo, PurchaseHeader."Document Type"::Order, SalesHeader);
-    end;
-
-    [Test]
     [HandlerFunctions('LookupCancelVendorPurchOrderFromSalesOrderModalPageHandler,VendorLookupCancelPageHandler')]
     [Scope('OnPrem')]
     procedure CreatePurchaseOrderFromSalesOrderLookupVendorList()
@@ -3043,37 +2983,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('NoDefaultVendorPurchOrderFromSalesOrderModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure CreatePurchaseOrderFromSalesOrderWithPurchaseReplenishment()
-    var
-        SalesHeader: Record "Sales Header";
-        Item: Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        DummyPurchaseOrder: TestPage "Purchase Order";
-        VendorNo: Code[20];
-    begin
-        // [SCENARIO] User creates Purchase Order from Sales Order where the Item has replenishment system Assembly
-        Initialize();
-
-        // [GIVEN] Sales Order with lines, Item has replenishment type Assembly
-        VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
-
-        // Add item with Purchase replenishment
-        LibrarySmallBusiness.CreateItem(Item);
-        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
-        Item.Modify(true);
-        AddRandomNumberOfLinesToSalesHeader(SalesHeader, Item);
-
-        // [WHEN] Create Purchase Order From Sales Order, user picks vendor
-        LibraryVariableStorage.Enqueue(VendorNo);
-        SalesOrderCreatePurchaseOrder(SalesHeader, DummyPurchaseOrder);
-
-        // [THEN] Last Purchase Order for Vendor."No." contains all the same lines as Sales Order.
-        VerifyPurchaseDocumentCreatedFromSalesDocument(VendorNo, PurchaseHeader."Document Type"::Order, SalesHeader);
-    end;
-
-    [Test]
     [HandlerFunctions('UserCancelsPurchOrderFromSalesOrderModalPageHandler')]
     [Scope('OnPrem')]
     procedure CreatePurchaseOrderFromSalesOrderCancel()
@@ -3096,166 +3005,6 @@
 
         // [THEN] Purchase Order for Vendor."No." doesn't exist.
         VerifyPurchaseDocumentCreationFromSalesDocumentCanceled(VendorNo, PurchaseHeader."Document Type"::Order);
-    end;
-
-    [Test]
-    [HandlerFunctions('SingleDefaultVendorPurchOrderFromSalesOrderModalPageHandler,ReceiveAndInvoiceStrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure CreatePurchaseOrderFromSalesOrderAndPost()
-    var
-        SalesHeader: Record "Sales Header";
-        PurchaseOrder: TestPage "Purchase Order";
-        VendorNo: Code[20];
-    begin
-        // [SCENARIO] User creates Purchase Order from Sales Order and posts this Purchase Order.
-        Initialize();
-
-        // [GIVEN] Sales Order with lines, default vendors for items
-        VendorNo := CreateSalesHeaderWithLinesForOneDefaultVendor(SalesHeader, SalesHeader."Document Type"::Order);
-
-        // [WHEN] Create Purchase Order From Sales Order, vendor is picked from items and posts this Purchase Order.
-        LibraryVariableStorage.Enqueue(VendorNo);
-        SalesOrderCreatePurchaseOrder(SalesHeader, PurchaseOrder);
-        PostPurchaseOrder(PurchaseOrder);
-
-        // [THEN] Last Posted Purchase Order for Vendor."No." contains all the same lines as Sales Order.
-        VerifyPostedPurchaseDocumentCreatedFromSalesDocument(VendorNo, SalesHeader);
-    end;
-
-    [Test]
-    [HandlerFunctions('SingleDefaultVendorPurchOrderFromSalesOrderModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure CreatePurchaseOrderFromSalesOrderWithSameItemVendor()
-    var
-        SalesHeader: Record "Sales Header";
-        PurchaseHeader: Record "Purchase Header";
-        DummyPurchaseOrder: TestPage "Purchase Order";
-        VendorNo: Code[20];
-    begin
-        // [FEATURE] [Item Vendor]
-        // [SCENARIO] User creates Purchase Order from Sales Order, same default vendor for all items.
-        Initialize();
-
-        // [GIVEN] Sales Order with lines, same default vendor for all items and his "No.".
-        VendorNo := CreateSalesHeaderWithLinesForOneDefaultVendor(SalesHeader, SalesHeader."Document Type"::Order);
-
-        // [WHEN] Create Purchase Order From Sales Order, Vendor."No". is picked up from Items
-        LibraryVariableStorage.Enqueue(VendorNo);
-        SalesOrderCreatePurchaseOrder(SalesHeader, DummyPurchaseOrder);
-        DummyPurchaseOrder.Close();
-
-        // [THEN] Last Purchase Order for Vendor."No." contains all the same lines as Sales Order.
-        VerifyPurchaseDocumentCreatedFromSalesDocument(VendorNo, PurchaseHeader."Document Type"::Order, SalesHeader);
-    end;
-
-    [Test]
-    [HandlerFunctions('DifferentDefaultVendorsPurchOrderFromSalesOrderModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure CreatePurchaseOrderFromSalesOrderWithDifferentItemVendors()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        PurchaseHeader: Record "Purchase Header";
-        Item1: Record Item;
-        Item2: Record Item;
-        DummyPurchaseOrderList: TestPage "Purchase Order List";
-    begin
-        // [FEATURE] [Item Vendor]
-        // [SCENARIO] User creates Purchase Order from Sales Order, two items with different default vendors
-        Initialize();
-
-        // [GIVEN] Sales Order with two lines, one default vendor for each item
-        CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
-
-        LibrarySmallBusiness.CreateItem(Item1);
-        LibrarySmallBusiness.CreateItem(Item2);
-
-        CreateDefaultVendorForItem(Item1);
-        CreateDefaultVendorForItem(Item2);
-
-        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item1, LibraryRandom.RandIntInRange(1, 100));
-        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item2, LibraryRandom.RandIntInRange(1, 100));
-
-        // [WHEN] Create Purchase Order From Sales Order
-        LibraryVariableStorage.Enqueue(Item1."Vendor No.");
-        LibraryVariableStorage.Enqueue(Item2."Vendor No.");
-        SalesOrderCreatePurchaseOrders(SalesHeader, DummyPurchaseOrderList);
-        DummyPurchaseOrderList.Close();
-
-        // [THEN] Two purchase orders are create, one for each vendor, each containing the item supplied by that vendor.
-        VerifyPurchaseDocumentCreatedFromSelectedLineOfSalesDocument(
-          Item1."Vendor No.", SalesHeader, GetSalesLineNo(1, SalesHeader), PurchaseHeader."Document Type"::Order);
-        VerifyPurchaseDocumentCreatedFromSelectedLineOfSalesDocument(
-          Item2."Vendor No.", SalesHeader, GetSalesLineNo(2, SalesHeader), PurchaseHeader."Document Type"::Order);
-    end;
-
-    [Test]
-    [HandlerFunctions('ValidateQuantitiesPurchOrderFromSalesOrderModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure CreatePurchaseOrderFromSalesOrderWithDifferentAvailability()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        AvailableItem: Record Item;
-        PartialAvailableItem: Record Item;
-        UnavailableItem: Record Item;
-        Item: Record Item;
-        DummyPurchaseOrder: TestPage "Purchase Order";
-        VendorNo: Code[20];
-        PartialQuantity: Integer;
-        AvailableQuantity: Integer;
-        UnavailableQuantity: Integer;
-    begin
-        // [SCENARIO] User creates Purchase Order from Sales Order, Items have different availability
-        Initialize();
-
-        // [GIVEN] Sales Order with 3 items, one fully available, one partially available and one unavailable
-        VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
-
-        LibrarySmallBusiness.CreateItem(UnavailableItem);
-        LibrarySmallBusiness.CreateItem(AvailableItem);
-        LibrarySmallBusiness.CreateItem(PartialAvailableItem);
-        Item.SetFilter("No.", StrSubstNo('%1|%2|%3', UnavailableItem."No.", AvailableItem."No.", PartialAvailableItem."No."));
-        Item.ModifyAll("Vendor No.", VendorNo, true);
-
-        AvailableQuantity := LibraryRandom.RandIntInRange(1, 100);
-        PartialQuantity := LibraryRandom.RandIntInRange(1, 100);
-        UnavailableQuantity := LibraryRandom.RandIntInRange(1, 100);
-
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, AvailableItem."No.", AvailableQuantity);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        PurchaseHeader."Expected Receipt Date" := CalcDate('<-1W>', WorkDate());
-        PurchaseHeader.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PartialAvailableItem."No.", PartialQuantity);
-
-        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, UnavailableItem, UnavailableQuantity);
-        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, AvailableItem, AvailableQuantity);
-        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, PartialAvailableItem, PartialQuantity * 2);
-
-        // [WHEN] Create Purchase Order From Sales Order
-        // [THEN] The unavailable item has the same quantity on sales order as will be put on Purchase Order
-        LibraryVariableStorage.Enqueue(UnavailableQuantity);
-        LibraryVariableStorage.Enqueue(UnavailableQuantity);
-
-        // [THEN] The available item has the full quantity on sales order and zero to be put on the Purchase Order
-        LibraryVariableStorage.Enqueue(0);
-        LibraryVariableStorage.Enqueue(AvailableQuantity);
-
-        // [THEN] The partially available item has the full quantity on sales order half that to be put on the Purchase Order
-        LibraryVariableStorage.Enqueue(PartialQuantity);
-        LibraryVariableStorage.Enqueue(PartialQuantity * 2);
-
-        SalesOrderCreatePurchaseOrder(SalesHeader, DummyPurchaseOrder);
-        DummyPurchaseOrder.Close();
-
-        // [THEN] Purchase Order for Vendor."No." is created
-        VerifyPurchaseDocumentHeaderCreatedFromSalesDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
     end;
 
     [Test]
@@ -3300,62 +3049,6 @@
         // [THEN] Purchase Order for Vendor."No." is created
         VerifyPurchaseDocumentCreationFromSalesDocumentCanceled(VendorNo, PurchaseHeader."Document Type"::Order);
         LibraryERM.SetEnableDataCheck(true);
-    end;
-
-    [Test]
-    [HandlerFunctions('ValidateQuantitiesPurchOrderFromSalesOrderModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure CreatePurchaseOrderFromSalesOrderInFutureDateAndDifferentAvailability()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        Item: Record Item;
-        DummyPurchaseOrder: TestPage "Purchase Order";
-        VendorNo: Code[20];
-        QuantityOnSO1: Integer;
-        QuantityOnSO2: Integer;
-    begin
-        // [SCENARIO] User creates Purchase Order from Sales Order, Items have different availability
-        Initialize();
-
-        // [GIVEN] Sales Order with 3 items, one fully available, one partially available and one unavailable
-        QuantityOnSO1 := LibraryRandom.RandIntInRange(1, 10);
-        QuantityOnSO2 := LibraryRandom.RandIntInRange(20, 30);
-
-        VendorNo := CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
-        LibrarySmallBusiness.CreateItem(Item);
-        Item."Vendor No." := VendorNo;
-        Item.Modify(true);
-
-        // Change the shipment date to be in a week
-        SalesHeader.Validate("Shipment Date", CalcDate('<1W>', WorkDate()));
-        SalesHeader.Modify(true);
-        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, QuantityOnSO1);
-
-        // Create a sales order with shipment data in 3 weeks(future date)
-        CreateSalesHeaderAndSelectVendor(SalesHeader, SalesHeader."Document Type"::Order);
-        SalesHeader.Validate("Shipment Date", CalcDate('<3W>', WorkDate()));
-        SalesHeader.Modify(true);
-        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, QuantityOnSO2);
-
-        // [WHEN] Create Purchase Order From Sales Order
-        // [THEN] The item has the same quantity on sales order as will be put on Purchase Order
-        LibraryVariableStorage.Enqueue(QuantityOnSO2);
-        LibraryVariableStorage.Enqueue(QuantityOnSO2);
-
-        // [THEN] The item quantity on sales order is put on the Purchase Order
-        SalesOrderCreatePurchaseOrder(SalesHeader, DummyPurchaseOrder);
-        DummyPurchaseOrder.Close();
-
-        LibraryVariableStorage.Enqueue(0);
-        LibraryVariableStorage.Enqueue(QuantityOnSO2);
-
-        // [WHEN] Create Purchase Order From Sales Order again
-        asserterror SalesOrderCreatePurchaseOrder(SalesHeader, DummyPurchaseOrder);
-        Assert.ExpectedError(NoPurchaseOrdersCreatedErr);
-        // [THEN] Requisition line is not created and purchase order is not created
-        asserterror DummyPurchaseOrder.Close();
-        Assert.ExpectedError('The TestPage is not open');
     end;
 
     [Test]
@@ -4070,82 +3763,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('NoDefaultVendorPurchOrderFromSalesOrderModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure CreatePurchaseOrderFromSalesOrderWithItemWithDimensionAndBlankVendorNo()
-    var
-        DefaultDim: Record "Default Dimension";
-        DimValue: Record "Dimension Value";
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        PurchDocFromSalesDoc: Codeunit "Purch. Doc. From Sales Doc.";
-        DummyPurchaseOrder: TestPage "Purchase Order";
-        VendorNo: Code[20];
-    begin
-        // [SCENARIO 364920] Create Purchase Order From Sales Order copies dimensions when user picks vendor.
-        Initialize();
-
-        // [GIVEN] Vendor with Default Dimension = "D1", Default Dimension Value = "DV1".
-        VendorNo := CreateVendorNoWithDefaultDimension();
-
-        // [GIVEN] Item with Default Dimension = "D2", blank Default Dimension Value, Value Posting = "Code Mandatory".
-        CreateItemWithDefaultDimension(Item, DimValue, DefaultDim."Value Posting"::"Code Mandatory");
-
-        // [GIVEN] Sales Order with Sales line with Item and Dimension "D2" with Dimension Value "DV2".
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        CreateSalesLineWithItemAndDimValue(SalesHeader, Item, DimValue);
-
-        // [WHEN] Create Purchase Order From Sales Order, user picks Vendor.
-        LibraryVariableStorage.Enqueue(VendorNo);
-        DummyPurchaseOrder.Trap();
-        PurchDocFromSalesDoc.CreatePurchaseOrder(SalesHeader);
-        DummyPurchaseOrder.Close();
-
-        // [THEN] Dimension set of created Purchase line is a combination of Dimensions "D1", "D2" with values "DV1", "DV2".
-        VerifyDimensionSetForPurchaseLineCreatedFromSalesLine(SalesHeader, VendorNo);
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [HandlerFunctions('SingleDefaultVendorPurchOrderFromSalesOrderModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure CreatePurchaseOrderFromSalesOrderWithItemWithDimensionAndVendorNo()
-    var
-        DefaultDim: Record "Default Dimension";
-        DimValue: Record "Dimension Value";
-        Item: Record Item;
-        SalesHeader: Record "Sales Header";
-        PurchDocFromSalesDoc: Codeunit "Purch. Doc. From Sales Doc.";
-        DummyPurchaseOrder: TestPage "Purchase Order";
-        VendorNo: Code[20];
-    begin
-        // [SCENARIO 364920] Create Purchase Order From Sales Order copies dimensions when item has default vendor.
-        Initialize();
-
-        // [GIVEN] Vendor with Default Dimension = "D1", Default Dimension Value = "DV1".
-        VendorNo := CreateVendorNoWithDefaultDimension();
-
-        // [GIVEN] Item with Default Dimension = "D2", blank Default Dimension Value, Value Posting = "Code Mandatory", default Vendor.
-        CreateItemWithDefaultDimension(Item, DimValue, DefaultDim."Value Posting"::"Code Mandatory");
-        Item.Validate("Vendor No.", VendorNo);
-        Item.Modify(true);
-
-        // [GIVEN] Sales Order with Sales line with Item and Dimension "D2" with Dimension Value "DV2".
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        CreateSalesLineWithItemAndDimValue(SalesHeader, Item, DimValue);
-
-        // [WHEN] Create Purchase Order From Sales Order, Vendor chosen from Item.
-        LibraryVariableStorage.Enqueue(VendorNo);
-        DummyPurchaseOrder.Trap();
-        PurchDocFromSalesDoc.CreatePurchaseOrder(SalesHeader);
-        DummyPurchaseOrder.Close();
-
-        // [THEN] Dimension set of created Purchase line is a combination of Dimensions "D1", "D2" with values "DV1", "DV2".
-        VerifyDimensionSetForPurchaseLineCreatedFromSalesLine(SalesHeader, VendorNo);
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure ChangeSalesHeaderSellToNameSalesSetupDisableSearchByName()
     var
@@ -4201,72 +3818,6 @@
         Assert.IsTrue(SalesOrder."Bill-to Name".Editable(), 'Bill-to Name is not editable');
         SalesOrder."Bill-to Name".SetValue(NewName);
         SalesOrder."Bill-to Name".AssertEquals(NewName);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure InsertTextStdCustSalesLinesAndCombineShipmentWhenCreateNewSalesOrderFromCustomerCard()
-    var
-        Customer: Record Customer;
-        SalesHeader: array[2] of Record "Sales Header";
-        CustomerCard: TestPage "Customer Card";
-        SalesOrder: TestPage "Sales Order";
-    begin
-        // [FEATURE] [UI] [Automatic mode] [Order]
-        // [SCENARIO 468776]  "The Customer does not exist. Identification fields and values: No.=''" error message appears on using combine shipments with comment lines coming from recurring sales lines
-        Initialize();
-
-        // [GIVEN] Customer "C" with text Std. Sales Code where Insert Rec. Lines On Orders = Automatic
-        Customer.Get(
-            GetNewCustNoWithStandardSalesCodeForCode(RefDocType::Order, RefMode::Automatic, CreateStandardSalesCodeWithItemLineAndCommentLine()));
-        Customer.Validate("Combine Shipments", true);
-        Customer.Modify(true);
-
-        // [GIVEN] Customer List on customer "C" record
-        CustomerCard.OpenEdit();
-        CustomerCard.GotoRecord(Customer);
-
-        // [GIVEN] Perform page action: New Sales Document -> Sales Order
-        SalesOrder.Trap();
-        CustomerCard.NewSalesOrder.Invoke();
-
-        // [WHEN] Activate "Sell-to Customer No." field
-        SalesOrder."Sell-to Customer No.".Activate();
-
-        // [THEN] Text recurring sales line created
-        SalesHeader[1].Get(SalesHeader[1]."Document Type"::Order, SalesOrder."No.".Value);
-
-        SalesOrder.Close();
-        CustomerCard.Close();
-
-        // [THEN] Post Sales Shipment
-        LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
-
-        // [GIVEN] Customer List on customer "C" record
-        CustomerCard.OpenEdit();
-        CustomerCard.GotoRecord(Customer);
-
-        // [GIVEN] Perform page action: New Sales Document -> Sales Order
-        SalesOrder.Trap();
-        CustomerCard.NewSalesOrder.Invoke();
-
-        // [WHEN] Activate "Sell-to Customer No." field
-        SalesOrder."Sell-to Customer No.".Activate();
-
-        // [THEN] Text recurring sales line created
-        SalesHeader[2].Get(SalesHeader[2]."Document Type"::Order, SalesOrder."No.".Value);
-        SalesOrder.Close();
-        CustomerCard.Close();
-
-        // [THEN] Post Sales Shipment
-        LibrarySales.PostSalesDocument(SalesHeader[2], true, false);
-
-        // [WHEN] Run Combine Shipments for "Sell-to Customer No." = 2 for both shipped sales orders without posting
-        RunCombineShipmentsBySellToCustomer(Customer."No.", false, false, false, true);
-
-        // [VERIFY] Verify: Sales Invoice created and also verify the number of combined sales lines
-        VerifySalesInvoice(Customer."No.", LibraryRandom.RandIntInRange(6, 6));
     end;
 
     local procedure Initialize()
@@ -4406,16 +3957,6 @@
         Vendor.Validate(City, LibraryUtility.GenerateRandomCode(Vendor.FieldNo(City), DATABASE::Vendor));
         Vendor.Validate("Post Code", LibraryUtility.GenerateRandomCode(Vendor.FieldNo("Post Code"), DATABASE::Vendor));
         Vendor.Modify();
-    end;
-
-    local procedure CreateVendorNoWithDefaultDimension() VendorNo: Code[20]
-    var
-        DefaultDim: Record "Default Dimension";
-        DimValue: Record "Dimension Value";
-    begin
-        VendorNo := LibraryPurchase.CreateVendorNo();
-        LibraryDimension.CreateDimWithDimValue(DimValue);
-        LibraryDimension.CreateDefaultDimensionVendor(DefaultDim, VendorNo, DimValue."Dimension Code", DimValue.Code);
     end;
 
     local procedure CreateTwoCustomersSameName(var Customer: Record Customer)
@@ -4812,17 +4353,6 @@
         Item.Modify();
     end;
 
-    local procedure CreateItemWithDefaultDimension(var Item: Record Item; var DimValue: Record "Dimension Value"; ValuePosting: Enum "Default Dimension Value Posting Type")
-    var
-        DefaultDim: Record "Default Dimension";
-    begin
-        LibrarySmallBusiness.CreateItem(Item);
-        LibraryDimension.CreateDimWithDimValue(DimValue);
-        LibraryDimension.CreateDefaultDimensionItem(DefaultDim, Item."No.", DimValue."Dimension Code", '');
-        DefaultDim.Validate("Value Posting", ValuePosting);
-        DefaultDim.Modify(true);
-    end;
-
     local procedure SetupDataForDiscountTypePct(var Item: Record Item; var ItemQuantity: Integer; var Customer: Record Customer; var DiscPct: Decimal)
     var
         MinAmt: Decimal;
@@ -4899,15 +4429,6 @@
         Vendor.Validate(Name, LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         Vendor.Modify(true);
         exit(Vendor."No.");
-    end;
-
-    local procedure CreateSalesLineWithItemAndDimValue(var SalesHeader: Record "Sales Header"; Item: Record Item; DimValue: Record "Dimension Value")
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, LibraryRandom.RandInt(10));
-        SalesLine.Validate("Dimension Set ID", LibraryDimension.CreateDimSet(0, DimValue."Dimension Code", DimValue.Code));
-        SalesLine.Modify(true);
     end;
 
     local procedure CreateNewSalesLineWithDescription(SalesHeader: Record "Sales Header")
@@ -5067,24 +4588,6 @@
         SalesOrder.CreatePurchaseOrder.Invoke();
     end;
 
-    local procedure SalesOrderCreatePurchaseOrders(var SalesHeader: Record "Sales Header"; PurchaseOrderList: TestPage "Purchase Order List")
-    var
-        SalesOrder: TestPage "Sales Order";
-    begin
-        PurchaseOrderList.Trap();
-        SalesOrder.OpenEdit();
-        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.CreatePurchaseOrder.Invoke();
-    end;
-
-    local procedure PostPurchaseOrder(var PurchaseOrder: TestPage "Purchase Order")
-    begin
-        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryRandom.RandInt(1000));
-        LibrarySales.DisableConfirmOnPostingDoc();
-
-        PurchaseOrder.Post.Invoke();
-    end;
-
     local procedure PostPurchaseInvoice(var PurchaseInvoice: TestPage "Purchase Invoice")
     begin
         PurchaseInvoice."Vendor Invoice No.".SetValue(LibraryRandom.RandInt(1000));
@@ -5093,7 +4596,6 @@
 
         PurchaseInvoice.Post.Invoke();
     end;
-
     local procedure UpdateCustBusRelCode(CustBusRelCode: Code[10]) OldCustBusRelCode: Code[10]
     var
         MarketingSetup: Record "Marketing Setup";
@@ -5104,94 +4606,6 @@
         MarketingSetup.Modify();
     end;
 
-    local procedure GetNewCustNoWithStandardSalesCodeForCode(DocType: Option; Mode: Integer; SalesCode: code[10]): Code[20]
-    var
-        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
-    begin
-        StandardCustomerSalesCode.Init();
-        StandardCustomerSalesCode.Validate("Customer No.", LibrarySales.CreateCustomerNo());
-        StandardCustomerSalesCode.Validate(Code, SalesCode);
-        case DocType of
-            RefDocType::Quote:
-                StandardCustomerSalesCode."Insert Rec. Lines On Quotes" := Mode;
-            RefDocType::Order:
-                StandardCustomerSalesCode."Insert Rec. Lines On Orders" := Mode;
-            RefDocType::Invoice:
-                StandardCustomerSalesCode."Insert Rec. Lines On Invoices" := Mode;
-            RefDocType::"Credit Memo":
-                StandardCustomerSalesCode."Insert Rec. Lines On Cr. Memos" := Mode;
-        end;
-        StandardCustomerSalesCode.Insert();
-
-        exit(StandardCustomerSalesCode."Customer No.");
-    end;
-
-    local procedure CreateStandardSalesCodeWithItemLineAndCommentLine(): Code[10]
-    var
-        StandardSalesLine: array[2] of Record "Standard Sales Line";
-        LibraryInventory: Codeunit "Library - Inventory";
-    begin
-        StandardSalesLine[1].Init();
-        StandardSalesLine[1]."Standard Sales Code" := CreateStandardSalesCode();
-        StandardSalesLine[1]."Line No." := 10000;
-        StandardSalesLine[1].Type := StandardSalesLine[1].Type::Item;
-        StandardSalesLine[1]."No." := LibraryInventory.CreateItemNo();
-        StandardSalesLine[1].Quantity := LibraryRandom.RandDec(10, 2);
-        StandardSalesLine[1].Insert();
-
-        StandardSalesLine[2].Init();
-        StandardSalesLine[2]."Line No." := StandardSalesLine[1]."Line No." + 10000;
-        StandardSalesLine[2]."Standard Sales Code" := StandardSalesLine[1]."Standard Sales Code";
-        StandardSalesLine[2].Type := StandardSalesLine[2].Type::" ";
-        StandardSalesLine[2].Insert();
-
-        exit(StandardSalesLine[2]."Standard Sales Code")
-    end;
-
-    local procedure CreateStandardSalesCode(): Code[10]
-    var
-        StandardSalesCode: Record "Standard Sales Code";
-    begin
-        LibrarySales.CreateStandardSalesCode(StandardSalesCode);
-        exit(StandardSalesCode.Code);
-    end;
-
-    local procedure RunCombineShipmentsBySellToCustomer(CustomerNo: Code[20]; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
-    var
-        SalesShipmentHeader: Record "Sales Shipment Header";
-        SalesHeader: Record "Sales Header";
-    begin
-        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesShipmentHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        LibraryVariableStorage.Enqueue(CombineShipmentMsg);  // Enqueue for MessageHandler.
-        LibrarySales.CombineShipments(
-          SalesHeader, SalesShipmentHeader, WorkDate(), WorkDate(), CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);
-    end;
-
-    local procedure VerifySalesInvoice(SellToCustomerNo: Code[20]; ExpectedCount: Integer)
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.FindFirst();
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
-        Assert.RecordCount(SalesLine, ExpectedCount);
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandler(Message: Text[1024])
-    var
-        DequeueVariable: Variant;
-        LocalMessage: Text[1024];
-    begin
-        LibraryVariableStorage.Dequeue(DequeueVariable);
-        LocalMessage := DequeueVariable;
-        Assert.IsTrue(StrPos(Message, LocalMessage) > 0, Message);
-    end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
@@ -5444,23 +4858,6 @@
             VendorList.OK().Invoke();
     end;
 
-    local procedure VerifyDimensionSetForPurchaseLineCreatedFromSalesLine(SalesHeader: Record "Sales Header"; VendorNo: Code[20])
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        SalesLine: Record "Sales Line";
-        DimManagement: Codeunit DimensionManagement;
-        DimSetIDArr: array[10] of Integer;
-    begin
-        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
-        DimSetIDArr[1] := SalesLine."Dimension Set ID";
-        VerifyPurchaseDocumentHeaderCreatedFromSalesDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        DimSetIDArr[2] := PurchaseHeader."Dimension Set ID";
-        DimSetIDArr[1] := DimManagement.GetCombinedDimensionSetID(
-            DimSetIDArr, SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
-        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
-        Assert.AreEqual(DimSetIDArr[1], PurchaseLine."Dimension Set ID", '');
-    end;
 
     local procedure VerifyPurchaseDocumentCreatedFromSalesDocument(VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type"; var SalesHeader: Record "Sales Header")
     var
@@ -5822,40 +5219,9 @@
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoDefaultVendorPurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
-    var
-        Vendor: Record Vendor;
-    begin
-        Vendor."No." := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(Vendor."No."));
-        PurchOrderFromSalesOrder.First();
-        repeat
-            PurchOrderFromSalesOrder.Vendor.AssertEquals('');
-            PurchOrderFromSalesOrder.Vendor.SetValue(Vendor."No.");
-        until not PurchOrderFromSalesOrder.Next();
-        PurchOrderFromSalesOrder.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
     procedure EmptyPurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
     begin
         Assert.IsFalse(PurchOrderFromSalesOrder.First(), 'PurchaseOrderFr4omSalesOrder page is not empty.');
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure LookupVendorPurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
-    var
-        VendorNo: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(VendorNo);
-        PurchOrderFromSalesOrder.First();
-        repeat
-            PurchOrderFromSalesOrder.Vendor.AssertEquals('');
-            LibraryVariableStorage.Enqueue(VendorNo);
-            PurchOrderFromSalesOrder.Vendor.Lookup();
-        until not PurchOrderFromSalesOrder.Next();
-        PurchOrderFromSalesOrder.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5864,53 +5230,6 @@
     begin
         PurchOrderFromSalesOrder.Vendor.Lookup();
         PurchOrderFromSalesOrder.Cancel().Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure SingleDefaultVendorPurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
-    var
-        Vendor: Record Vendor;
-    begin
-        Vendor.Get(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(Vendor."No.")));
-        PurchOrderFromSalesOrder.First();
-        repeat
-            PurchOrderFromSalesOrder.Vendor.AssertEquals(Vendor.Name);
-        until not PurchOrderFromSalesOrder.Next();
-        PurchOrderFromSalesOrder.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure DifferentDefaultVendorsPurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
-    var
-        Vendor: Record Vendor;
-    begin
-        PurchOrderFromSalesOrder.First();
-        repeat
-            Vendor.Get(CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(Vendor."No.")));
-            PurchOrderFromSalesOrder.Vendor.AssertEquals(Vendor.Name);
-        until not PurchOrderFromSalesOrder.Next();
-        PurchOrderFromSalesOrder.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ValidateQuantitiesPurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
-    var
-        Quantity: Decimal;
-        SalesOrderQuantity: Decimal;
-    begin
-        if PurchOrderFromSalesOrder.First() then begin
-            repeat
-                Quantity := LibraryVariableStorage.DequeueDecimal();
-                SalesOrderQuantity := LibraryVariableStorage.DequeueDecimal();
-                PurchOrderFromSalesOrder.Quantity.AssertEquals(Quantity);
-                PurchOrderFromSalesOrder."Demand Quantity".AssertEquals(SalesOrderQuantity);
-            until not PurchOrderFromSalesOrder.Next();
-            PurchOrderFromSalesOrder.OK().Invoke();
-        end else
-            PurchOrderFromSalesOrder.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5925,13 +5244,6 @@
     procedure UserAcceptsWithoutChangesPurchOrderFromSalesOrderModalPageHandler(var PurchOrderFromSalesOrder: TestPage "Purch. Order From Sales Order")
     begin
         PurchOrderFromSalesOrder.OK().Invoke();
-    end;
-
-    [StrMenuHandler]
-    [Scope('OnPrem')]
-    procedure ReceiveAndInvoiceStrMenuHandler(Option: Text[1024]; var Choice: Integer; Instruction: Text[1024])
-    begin
-        Choice := 3; // Receive and Invoice
     end;
 
     local procedure GetSalesLineNo(LineIndex: Integer; var SalesHeader: Record "Sales Header"): Integer
@@ -5962,18 +5274,6 @@
         Assert.ExpectedMessage(EntireOrderIsAvailableTxt, Notification.Message);
     end;
 
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ItemVendorCatalogModalPageHandler(var ItemVendorCatalog: TestPage "Item Vendor Catalog")
-    var
-        VendorNo: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(VendorNo);
-        ItemVendorCatalog.FILTER.SetFilter("Vendor No.", VendorNo);
-        ItemVendorCatalog.Last();
-        ItemVendorCatalog.OK().Invoke();
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillSalesLineExcludedFieldList(var FieldListToExclude: List of [Text])
     begin
@@ -5989,4 +5289,3 @@
     begin
     end;
 }
-

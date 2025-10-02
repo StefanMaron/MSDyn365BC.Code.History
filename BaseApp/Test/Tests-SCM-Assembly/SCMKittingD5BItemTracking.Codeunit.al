@@ -5,7 +5,6 @@
 namespace Microsoft.Assembly.Test;
 
 using Microsoft.Assembly.Setup;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.Document;
@@ -34,6 +33,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
@@ -56,7 +56,6 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
     local procedure Initialize()
     var
         AssemblySetup: Record "Assembly Setup";
-        MfgSetup: Record "Manufacturing Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting-D5B-ItemTracking");
@@ -67,8 +66,7 @@ codeunit 137098 "SCM Kitting-D5B-ItemTracking"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate(); // to avoid Due Date Before Work Date message.
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card",
           LibraryUtility.GetGlobalNoSeriesCode());
         LibrarySales.SetCreditWarningsToNoWarnings();

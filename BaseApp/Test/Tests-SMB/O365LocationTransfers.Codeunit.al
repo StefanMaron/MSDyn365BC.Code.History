@@ -977,26 +977,6 @@ codeunit 137281 "O365 Location Transfers"
         TransferHeader.Modify(true);
     end;
 
-    [Scope('OnPrem')]
-    local procedure CreateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10])
-    begin
-        Clear(TransferRoute);
-        TransferRoute.Init();
-        TransferRoute.Validate("Transfer-from Code", TransferFrom);
-        TransferRoute.Validate("Transfer-to Code", TransferTo);
-        TransferRoute.Insert(true);
-    end;
-
-    [Scope('OnPrem')]
-    local procedure CreateAndUpdateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10]; InTransitCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10])
-    begin
-        CreateTransferRoute(TransferRoute, TransferFrom, TransferTo);
-        TransferRoute.Validate("In-Transit Code", InTransitCode);
-        TransferRoute.Validate("Shipping Agent Code", ShippingAgentCode);
-        TransferRoute.Validate("Shipping Agent Service Code", ShippingAgentServiceCode);
-        TransferRoute.Modify(true);
-    end;
-
     local procedure CreateLocations(var LocationFrom: Code[10]; var LocationTo: Code[10]; var LocationInTransit: Code[10])
     begin
         LocationFrom := CreateLocationWithInventoryPostingSetup(false);
@@ -1048,4 +1028,3 @@ codeunit 137281 "O365 Location Transfers"
     begin
     end;
 }
-

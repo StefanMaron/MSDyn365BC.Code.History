@@ -10,7 +10,6 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Planning;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Inventory.Location;
 using System.Security.User;
 using Microsoft.Warehouse.Ledger;
@@ -55,8 +54,6 @@ permissionset 8823 "Item Journals - Post"
                   tabledata "Phys. Invt. Counting Period" = RIMD,
                   tabledata "Phys. Invt. Item Selection" = RIMD,
                   tabledata "Planning Component" = Rm,
-                  tabledata "Prod. Order Component" = Rm,
-                  tabledata "Prod. Order Line" = Rm,
                   tabledata "Serial No. Information" = R,
                   tabledata "Stockkeeping Unit" = R,
                   tabledata "Unit of Measure" = R,

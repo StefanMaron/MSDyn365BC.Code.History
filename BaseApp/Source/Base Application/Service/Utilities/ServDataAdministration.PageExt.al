@@ -23,7 +23,7 @@ pageextension 6461 "Serv. Data Administration" extends "Data Administration"
                 Ellipsis = true;
             }
         }
-        addafter(DeleteExpiredComponents)
+        addafter(DeletePhysicalInventoryLedger)
         {
             action(ServiceEmailQueue)
             {

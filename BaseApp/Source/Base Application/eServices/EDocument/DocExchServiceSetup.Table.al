@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -177,6 +177,7 @@ table 1275 "Doc. Exch. Service Setup"
 
             trigger OnValidate()
             var
+                AuditLog: Codeunit "Audit Log";
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
                 DocExchServiceSetupConsentProvidedLbl: Label 'Document Exchange Service Setup - consent has been provided by UserSecurityId %1.', Locked = true;
             begin
@@ -184,7 +185,7 @@ table 1275 "Doc. Exch. Service Setup"
                     if not CustomerConsentMgt.ConfirmUserConsent() then
                         Enabled := false;
                     if Enabled then
-                        Session.LogAuditMessage(StrSubstNo(DocExchServiceSetupConsentProvidedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                        AuditLog.LogAuditMessage(StrSubstNo(DocExchServiceSetupConsentProvidedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
                     DocExchServiceMgt.VerifyPrerequisites(true);
                 end;
             end;

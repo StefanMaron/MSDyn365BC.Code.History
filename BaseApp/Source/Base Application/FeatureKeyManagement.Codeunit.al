@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace System.Environment.Configuration;
 
 #if not CLEAN25
@@ -14,19 +18,13 @@ codeunit 265 "Feature Key Management"
         FeatureTelemetry: Codeunit System.Telemetry."Feature Telemetry";
         AutomaticAccountCodesTxt: Label 'AutomaticAccountCodes', Locked = true;
         SIEAuditFileExportTxt: Label 'SIEAuditFileExport', Locked = true;
-#if not CLEAN24
-        PhysInvtOrderPackageTrackingTxt: Label 'PhysInvtOrderPackageTracking', Locked = true;
-#endif
-#if not CLEAN24
+#if not CLEAN25
         GLCurrencyRevaluationTxt: Label 'GLCurrencyRevaluation', Locked = true;
 #endif
 #if not CLEAN26
         ManufacturingFlushingMethodActivateManualWithoutPickLbl: Label 'Manufacturing_FlushingMethod_ActivateManualWoPick', Locked = true;
         ManufacturingFlushingMethodActivateManualWithoutPick, ManufacturingFlushingMethodActivateManualWithoutPickRead, MockEnabledManufacturingFlushingMethodActivateManualWithoutPick : Boolean;
 #endif
-        ConcurrentWarehousingPostingLbl: Label 'ConcurrentWarehousingPosting', Locked = true;
-        ConcurrentWarehousingPosting: Boolean;
-        ConcurrentWarehousingPostingRead: Boolean;
         ConcurrentInventoryPostingLbl: Label 'ConcurrentInventoryPosting', Locked = true;
         ConcurrentInventoryPosting: Boolean;
         ConcurrentInventoryPostingRead: Boolean;
@@ -37,14 +35,7 @@ codeunit 265 "Feature Key Management"
         ConcurrentResourcePosting: Boolean;
         ConcurrentResourcePostingRead: Boolean;
 
-#if not CLEAN24
-    procedure IsPhysInvtOrderPackageTrackingEnabled(): Boolean
-    begin
-        exit(FeatureManagementFacade.IsEnabled(GetPhysInvtOrderPackageTrackingFeatureKey()));
-    end;
-#endif
-
-#if not CLEAN24
+#if not CLEAN25
     procedure IsGLCurrencyRevaluationEnabled(): Boolean
     begin
         exit(FeatureManagementFacade.IsEnabled(GetGLCurrencyRevaluationFeatureKey()));
@@ -61,13 +52,13 @@ codeunit 265 "Feature Key Management"
         exit(FeatureManagementFacade.IsEnabled(GetSIEAuditFileExportFeatureKeyId()));
     end;
 
+#if not CLEAN27
+    [Obsolete('This function is deprecated. Concurrent warehouse posting is always on.', '27.0')]
     procedure IsConcurrentWarehousingPostingEnabled(): Boolean
     begin
-        if not ConcurrentWarehousingPostingRead then
-            ConcurrentWarehousingPosting := FeatureManagementFacade.IsEnabled(ConcurrentWarehousingPostingLbl);
-        ConcurrentWarehousingPostingRead := true;
-        exit(ConcurrentWarehousingPosting);
+        exit(true);
     end;
+#endif
 
     procedure IsConcurrentInventoryPostingEnabled(): Boolean
     begin
@@ -117,14 +108,7 @@ codeunit 265 "Feature Key Management"
     end;
 #endif
 
-#if not CLEAN24
-    local procedure GetPhysInvtOrderPackageTrackingFeatureKey(): Text[50]
-    begin
-        exit(PhysInvtOrderPackageTrackingTxt);
-    end;
-#endif
-
-#if not CLEAN24
+#if not CLEAN25
     local procedure GetGLCurrencyRevaluationFeatureKey(): Text[50]
     begin
         exit(GLCurrencyRevaluationTxt);
@@ -146,7 +130,7 @@ codeunit 265 "Feature Key Management"
     begin
         // Log feature uptake
         case FeatureKey.ID of
-#if not CLEAN24
+#if not CLEAN25
             GLCurrencyRevaluationTxt:
                 FeatureTelemetry.LogUptake('0000JRR', GLCurrencyRevaluationTxt, Enum::System.Telemetry."Feature Uptake Status"::Discovered);
 #endif

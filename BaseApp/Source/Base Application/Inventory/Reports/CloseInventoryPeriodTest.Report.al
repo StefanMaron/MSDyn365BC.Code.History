@@ -9,7 +9,6 @@ using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Setup;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Utilities;
 using System.Environment;
 using System.Utilities;
@@ -299,7 +298,7 @@ report 1004 "Close Inventory Period - Test"
         Text010: Label 'Posted Assembly';
 #pragma warning restore AA0074
 
-    local procedure StoreItemInErrorBuffer(ItemNo: Code[20]; SourceTableNo: Integer; ErrorText: Text[250]; Recordbookmark: Text[250]; HyperlinkSourceRecNo: Code[20]; HyperlinkPageID: Integer)
+    procedure StoreItemInErrorBuffer(ItemNo: Code[20]; SourceTableNo: Integer; ErrorText: Text[250]; Recordbookmark: Text[250]; HyperlinkSourceRecNo: Code[20]; HyperlinkPageID: Integer)
     begin
         TempItemErrorBuffer."Error No." += 1;
         TempItemErrorBuffer."Error Text" := ErrorText;
@@ -323,21 +322,12 @@ report 1004 "Close Inventory Period - Test"
 
     local procedure StoreOrderInErrorBuffer(InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
     var
-        ProductionOrder: Record "Production Order";
         PostedAssemblyHeader: Record "Posted Assembly Header";
         RecRef: RecordRef;
         Bookmark: Text[250];
     begin
+        OnStoreOrderInErrorBuffer(InventoryAdjmtEntryOrder);
         case InventoryAdjmtEntryOrder."Order Type" of
-            InventoryAdjmtEntryOrder."Order Type"::Production:
-                begin
-                    ProductionOrder.Get(ProductionOrder.Status::Finished, InventoryAdjmtEntryOrder."Order No.");
-                    RecRef.GetTable(ProductionOrder);
-                    Bookmark := Format(RecRef.RecordId, 0, 10);
-                    StoreItemInErrorBuffer(InventoryAdjmtEntryOrder."Item No.", DATABASE::"Inventory Adjmt. Entry (Order)",
-                      StrSubstNo(Text009, InventoryAdjmtEntryOrder."Order Type"), Bookmark, InventoryAdjmtEntryOrder."Order No.",
-                      PAGE::"Finished Production Order");
-                end;
             InventoryAdjmtEntryOrder."Order Type"::Assembly:
                 begin
                     PostedAssemblyHeader.SetRange("Order No.", InventoryAdjmtEntryOrder."Order No.");
@@ -345,8 +335,9 @@ report 1004 "Close Inventory Period - Test"
                         repeat
                             RecRef.GetTable(PostedAssemblyHeader);
                             Bookmark := Format(RecRef.RecordId, 0, 10);
-                            StoreItemInErrorBuffer(InventoryAdjmtEntryOrder."Item No.", DATABASE::"Inventory Adjmt. Entry (Order)",
-                              StrSubstNo(Text009, Text010), Bookmark, PostedAssemblyHeader."No.", PAGE::"Posted Assembly Order");
+                            StoreItemInErrorBuffer(
+                                InventoryAdjmtEntryOrder."Item No.", DATABASE::"Inventory Adjmt. Entry (Order)",
+                                StrSubstNo(Text009, Text010), Bookmark, PostedAssemblyHeader."No.", PAGE::"Posted Assembly Order");
                         until PostedAssemblyHeader.Next() = 0;
                 end;
         end;
@@ -372,6 +363,11 @@ report 1004 "Close Inventory Period - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnCaseOrderTypeElse(var ValueEntry: Record "Value Entry");
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnStoreOrderInErrorBuffer(InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
     begin
     end;
 }

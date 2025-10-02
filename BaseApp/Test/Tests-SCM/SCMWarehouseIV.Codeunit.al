@@ -4040,6 +4040,7 @@ codeunit 137407 "SCM Warehouse IV"
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesHandler,CreatePutAwayFromPostedWhseSourceReportHandler,MessageHandler')]
+    [Scope('OnPrem')]
     procedure VerifyWhsePutAwayIsCreatedFromPostedWhseReceiptIfWhsePutAwayIsRegisteredPartially()
     var
         ItemTrackingCode: Record "Item Tracking Code";

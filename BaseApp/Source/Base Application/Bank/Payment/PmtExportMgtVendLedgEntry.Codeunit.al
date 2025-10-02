@@ -12,6 +12,10 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using System.IO;
 
+/// <summary>
+/// Manages payment export operations for vendor ledger entries.
+/// This codeunit handles the export of vendor payments to external payment files.
+/// </summary>
 codeunit 1207 "Pmt Export Mgt Vend Ledg Entry"
 {
     Permissions = TableData "Vendor Ledger Entry" = rm;
@@ -27,6 +31,11 @@ codeunit 1207 "Pmt Export Mgt Vend Ledg Entry"
 #pragma warning restore AA0470
         PaymentExportMgt: Codeunit "Payment Export Mgt";
 
+    /// <summary>
+    /// Exports vendor payment file with user confirmation if entries were previously exported.
+    /// This procedure prompts the user if re-exporting already exported vendor entries.
+    /// </summary>
+    /// <param name="VendorLedgerEntry">Vendor ledger entries to export for payment processing.</param>
     [Scope('OnPrem')]
     procedure ExportVendorPaymentFileYN(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin

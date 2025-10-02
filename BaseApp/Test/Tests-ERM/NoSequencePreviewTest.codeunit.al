@@ -10,6 +10,9 @@ codeunit 134898 "No Sequence Preview Test"
     begin
         if SequenceNoMgt.GetNextSeqNo(Database::"Warehouse Entry") >= 0 then
             Error('Negative number expected.');
+        SequenceNoMgt.AllocateSeqNoBuffer(Database::"Warehouse Entry", 100);
+        if SequenceNoMgt.GetNextSeqNo(Database::"Warehouse Entry") >= 0 then
+            Error('Negative number expected.');
         if SequenceNoMgt.GetNextSeqNo(Database::"G/L Entry") < 0 then
             Error('Positive number expected.');
         GenJnlPostPreview.ThrowError(); // preview

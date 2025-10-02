@@ -1,11 +1,14 @@
-﻿namespace Microsoft.Warehouse.Activity;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Activity;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Warehouse.Journal;
@@ -33,15 +36,12 @@ codeunit 7321 "Create Inventory Put-away"
         CurrItem: Record Item;
         CurrPutAwayTemplateHeader: Record "Put-away Template Header";
         CurrStockkeepingUnit: Record "Stockkeeping Unit";
-        CurrPurchaseHeader: Record "Purchase Header";
-        CurrSalesHeader: Record "Sales Header";
-        CurrTransferHeader: Record "Transfer Header";
-        CurrProductionOrder: Record "Production Order";
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         WarehouseSourceFilter: Record "Warehouse Source Filter";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         SourceDocRecordRef: RecordRef;
+        SourceDocRecordVar: Variant;
         PostingDate: Date;
         VendorDocNo: Code[35];
         WarehouseClassCode: Code[10];
@@ -52,13 +52,11 @@ codeunit 7321 "Create Inventory Put-away"
         HideDialog: Boolean;
         CheckLineExist: Boolean;
         AutoCreation: Boolean;
-        ApplyAdditionalSourceDocFilters: Boolean;
+        ApplySourceFilters: Boolean;
         NothingToHandleMsg: Label 'Nothing to handle.';
         BinPolicyTelemetryCategoryTok: Label 'Bin Policy', Locked = true;
         DefaultBinPutawayPolicyTelemetryTok: Label 'Default Bin Put-away Policy in used for inventory put-away.', Locked = true;
         PutawayTemplateBinPickPolicyTelemetryTok: Label 'Put-away template Bin Put-away Policy in used for inventory put-away.', Locked = true;
-        ProdAsmJobWhseHandlingTelemetryCategoryTok: Label 'Prod/Asm/Job Whse. Handling', Locked = true;
-        ProdAsmJobWhseHandlingTelemetryTok: Label 'Prod/Asm/Job Whse. Handling in used for creating put-away lines.', Locked = true;
 
     local procedure "Code"()
     var
@@ -82,21 +80,20 @@ codeunit 7321 "Create Inventory Put-away"
 
         case CurrWarehouseRequest."Source Document" of
             CurrWarehouseRequest."Source Document"::"Purchase Order":
-                CreatePutAwayLinesFromPurchase(CurrPurchaseHeader);
+                CreatePutAwayLinesFromPurchase(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Purchase Return Order":
-                CreatePutAwayLinesFromPurchase(CurrPurchaseHeader);
+                CreatePutAwayLinesFromPurchase(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Sales Order":
-                CreatePutAwayLinesFromSales(CurrSalesHeader);
+                CreatePutAwayLinesFromSales(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Sales Return Order":
-                CreatePutAwayLinesFromSales(CurrSalesHeader);
+                CreatePutAwayLinesFromSales(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Inbound Transfer":
-                CreatePutAwayLinesFromTransfer(CurrTransferHeader);
-            CurrWarehouseRequest."Source Document"::"Prod. Output":
-                CreatePutAwayLinesFromProd(CurrProductionOrder);
-            CurrWarehouseRequest."Source Document"::"Prod. Consumption":
-                CreatePutAwayLinesFromComp(CurrProductionOrder);
+                CreatePutAwayLinesFromTransfer(SourceDocRecordVar);
             else
-                OnCreatePutAwayFromWhseRequest(CurrWarehouseRequest, SourceDocRecordRef, LineCreated)
+                OnCreatePutAwayFromWhseRequest(
+                    CurrWarehouseRequest, SourceDocRecordRef, LineCreated, SourceDocRecordVar,
+                    CurrWarehouseActivityHeader, WarehouseSourceFilter, CheckLineExist, ApplySourceFilters,
+                    RemQtyToPutAway);
         end;
 
         IsHandled := false;
@@ -143,6 +140,9 @@ codeunit 7321 "Create Inventory Put-away"
 
     local procedure GetSourceDocHeader()
     var
+        PurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        TransferHeader: Record "Transfer Header";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -153,43 +153,38 @@ codeunit 7321 "Create Inventory Put-away"
         case CurrWarehouseRequest."Source Document" of
             CurrWarehouseRequest."Source Document"::"Purchase Order":
                 begin
-                    CurrPurchaseHeader.Get(CurrPurchaseHeader."Document Type"::Order, CurrWarehouseRequest."Source No.");
-                    PostingDate := CurrPurchaseHeader."Posting Date";
-                    VendorDocNo := CurrPurchaseHeader."Vendor Invoice No.";
+                    PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, CurrWarehouseRequest."Source No.");
+                    PostingDate := PurchaseHeader."Posting Date";
+                    VendorDocNo := PurchaseHeader."Vendor Invoice No.";
+                    SourceDocRecordVar := PurchaseHeader;
                 end;
             CurrWarehouseRequest."Source Document"::"Purchase Return Order":
                 begin
-                    CurrPurchaseHeader.Get(CurrPurchaseHeader."Document Type"::"Return Order", CurrWarehouseRequest."Source No.");
-                    PostingDate := CurrPurchaseHeader."Posting Date";
-                    VendorDocNo := CurrPurchaseHeader."Vendor Cr. Memo No.";
+                    PurchaseHeader.Get(PurchaseHeader."Document Type"::"Return Order", CurrWarehouseRequest."Source No.");
+                    PostingDate := PurchaseHeader."Posting Date";
+                    VendorDocNo := PurchaseHeader."Vendor Cr. Memo No.";
+                    SourceDocRecordVar := PurchaseHeader;
                 end;
             CurrWarehouseRequest."Source Document"::"Sales Order":
                 begin
-                    CurrSalesHeader.Get(CurrSalesHeader."Document Type"::Order, CurrWarehouseRequest."Source No.");
-                    PostingDate := CurrSalesHeader."Posting Date";
+                    SalesHeader.Get(SalesHeader."Document Type"::Order, CurrWarehouseRequest."Source No.");
+                    PostingDate := SalesHeader."Posting Date";
+                    SourceDocRecordVar := SalesHeader;
                 end;
             CurrWarehouseRequest."Source Document"::"Sales Return Order":
                 begin
-                    CurrSalesHeader.Get(CurrSalesHeader."Document Type"::"Return Order", CurrWarehouseRequest."Source No.");
-                    PostingDate := CurrSalesHeader."Posting Date";
+                    SalesHeader.Get(SalesHeader."Document Type"::"Return Order", CurrWarehouseRequest."Source No.");
+                    PostingDate := SalesHeader."Posting Date";
+                    SourceDocRecordVar := SalesHeader;
                 end;
             CurrWarehouseRequest."Source Document"::"Inbound Transfer":
                 begin
-                    CurrTransferHeader.Get(CurrWarehouseRequest."Source No.");
-                    PostingDate := CurrTransferHeader."Posting Date";
-                end;
-            CurrWarehouseRequest."Source Document"::"Prod. Output":
-                begin
-                    CurrProductionOrder.Get(CurrProductionOrder.Status::Released, CurrWarehouseRequest."Source No.");
-                    PostingDate := WorkDate();
-                end;
-            CurrWarehouseRequest."Source Document"::"Prod. Consumption":
-                begin
-                    CurrProductionOrder.Get(CurrWarehouseRequest."Source Subtype", CurrWarehouseRequest."Source No.");
-                    PostingDate := WorkDate();
+                    TransferHeader.Get(CurrWarehouseRequest."Source No.");
+                    PostingDate := TransferHeader."Posting Date";
+                    SourceDocRecordVar := TransferHeader;
                 end;
             else
-                OnGetSourceDocHeaderForWhseRequest(CurrWarehouseRequest, SourceDocRecordRef, PostingDate, VendorDocNo);
+                OnGetSourceDocHeaderForWhseRequest(CurrWarehouseRequest, SourceDocRecordRef, PostingDate, VendorDocNo, SourceDocRecordVar);
         end;
     end;
 
@@ -222,22 +217,24 @@ codeunit 7321 "Create Inventory Put-away"
     procedure SetSourceDocDetailsFilter(var WarehouseSourceFilter2: Record "Warehouse Source Filter")
     begin
         if WarehouseSourceFilter2.GetFilters() <> '' then begin
-            ApplyAdditionalSourceDocFilters := true;
+            ApplySourceFilters := true;
             WarehouseSourceFilter.Reset();
             WarehouseSourceFilter.CopyFilters(WarehouseSourceFilter2);
         end;
     end;
 
     // Purchase 
-    local procedure CreatePutAwayLinesFromPurchase(PurchaseHeader: Record "Purchase Header")
+    local procedure CreatePutAwayLinesFromPurchase(PurchaseHeaderVar: Variant)
     var
+        PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         NewWarehouseActivityLine: Record "Warehouse Activity Line";
         IsHandled: Boolean;
     begin
+        PurchaseHeader := PurchaseHeaderVar;
+
         if not SetFilterPurchLine(PurchaseLine, PurchaseHeader) then begin
-            if not HideDialog then
-                Message(NothingToHandleMsg);
+            GetNothingToHandleMsg();
             exit;
         end;
 
@@ -275,10 +272,11 @@ codeunit 7321 "Create Inventory Put-away"
 
                     if (CurrLocation."Always Create Put-away Line" or not CurrLocation."Bin Mandatory") and (RemQtyToPutAway > 0) then
                         repeat
-                            CreateWarehouseActivityLine(Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", 0, PurchaseLine."Location Code",
-                                                        PurchaseLine."No.", PurchaseLine."Variant Code", PurchaseLine."Unit of Measure Code",
-                                                        PurchaseLine."Qty. per Unit of Measure", PurchaseLine."Qty. Rounding Precision", PurchaseLine."Qty. Rounding Precision (Base)",
-                                                        PurchaseLine.Description, PurchaseLine."Description 2", PurchaseLine."Expected Receipt Date", '', PurchaseLine);
+                            CreateWarehouseActivityLine(
+                                Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", 0, PurchaseLine."Location Code",
+                                PurchaseLine."No.", PurchaseLine."Variant Code", PurchaseLine."Unit of Measure Code",
+                                PurchaseLine."Qty. per Unit of Measure", PurchaseLine."Qty. Rounding Precision", PurchaseLine."Qty. Rounding Precision (Base)",
+                                PurchaseLine.Description, PurchaseLine."Description 2", PurchaseLine."Expected Receipt Date", '', PurchaseLine);
                         until RemQtyToPutAway <= 0;
                 end;
         until PurchaseLine.Next() = 0;
@@ -351,7 +349,7 @@ codeunit 7321 "Create Inventory Put-away"
         else
             PurchaseLine.SetFilter("Return Qty. to Ship", '<%1', 0);
 
-        if ApplyAdditionalSourceDocFilters then begin
+        if ApplySourceFilters then begin
             PurchaseLine.SetFilter("No.", WarehouseSourceFilter.GetFilter("Item No. Filter"));
             PurchaseLine.SetFilter("Variant Code", WarehouseSourceFilter.GetFilter("Variant Code Filter"));
             PurchaseLine.SetFilter("Planned Receipt Date", WarehouseSourceFilter.GetFilter("Receipt Date Filter"));
@@ -366,15 +364,17 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     // Sales
-    local procedure CreatePutAwayLinesFromSales(SalesHeader: Record "Sales Header")
+    local procedure CreatePutAwayLinesFromSales(SalesHeaderVar: Variant)
     var
+        SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         NewWarehouseActivityLine: Record "Warehouse Activity Line";
         IsHandled: Boolean;
     begin
+        SalesHeader := SalesHeaderVar;
+
         if not SetFilterSalesLine(SalesLine, SalesHeader) then begin
-            if not HideDialog then
-                Message(NothingToHandleMsg);
+            GetNothingToHandleMsg();
             exit;
         end;
 
@@ -482,7 +482,7 @@ codeunit 7321 "Create Inventory Put-away"
         else
             SalesLine.SetFilter("Return Qty. to Receive", '>%1', 0);
 
-        if ApplyAdditionalSourceDocFilters then begin
+        if ApplySourceFilters then begin
             SalesLine.SetFilter("No.", WarehouseSourceFilter.GetFilter("Item No. Filter"));
             SalesLine.SetFilter("Variant Code", WarehouseSourceFilter.GetFilter("Variant Code Filter"));
             SalesLine.SetFilter("Shipment Date", WarehouseSourceFilter.GetFilter("Receipt Date Filter"));
@@ -497,15 +497,17 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     // Transfer
-    local procedure CreatePutAwayLinesFromTransfer(TransferHeader: Record "Transfer Header")
+    local procedure CreatePutAwayLinesFromTransfer(TransferHeaderVar: Variant)
     var
+        TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
         NewWarehouseActivityLine: Record "Warehouse Activity Line";
         IsHandled: Boolean;
     begin
+        TransferHeader := TransferHeaderVar;
+
         if not SetFilterTransferLine(TransferLine, TransferHeader) then begin
-            if not HideDialog then
-                Message(NothingToHandleMsg);
+            GetNothingToHandleMsg();
             exit;
         end;
 
@@ -604,7 +606,7 @@ codeunit 7321 "Create Inventory Put-away"
             TransferLine.SetRange("Transfer-to Code", CurrWarehouseActivityHeader."Location Code");
         TransferLine.SetFilter("Qty. to Receive", '>%1', 0);
 
-        if ApplyAdditionalSourceDocFilters then begin
+        if ApplySourceFilters then begin
             TransferLine.SetFilter("Item No.", WarehouseSourceFilter.GetFilter("Item No. Filter"));
             TransferLine.SetFilter("Variant Code", WarehouseSourceFilter.GetFilter("Variant Code Filter"));
             TransferLine.SetFilter("Receipt Date", WarehouseSourceFilter.GetFilter("Receipt Date Filter"));
@@ -614,259 +616,24 @@ codeunit 7321 "Create Inventory Put-away"
         exit(TransferLine.Find('-'));
     end;
 
-    // Production
-    local procedure CreatePutAwayLinesFromProd(ProductionOrder: Record "Production Order")
+#if not CLEAN27
+    [Obsolete('Moved to codeunit MfgCreateInventoiryPutaway', '27.0')]
+    procedure SetFilterProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"): Boolean
     var
-        ProdOrderLine: Record "Prod. Order Line";
-        NewWarehouseActivityLine: Record "Warehouse Activity Line";
-        IsHandled: Boolean;
+        MfgCreateInventoryPutaway: Codeunit "Mfg. Create Inventory Put-Away";
     begin
-        if not SetFilterProdOrderLine(ProdOrderLine, ProductionOrder) then begin
-            if not HideDialog then
-                Message(NothingToHandleMsg);
-            exit;
-        end;
-
-        FindNextLineNo();
-
-        repeat
-            IsHandled := false;
-            OnBeforeCreatePutAwayLinesFromProdLoop(CurrWarehouseActivityHeader, ProductionOrder, IsHandled, ProdOrderLine);
-            if not IsHandled then
-                if not NewWarehouseActivityLine.ActivityExists(Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", 0, 0) then begin
-                    GetLocation(ProdOrderLine."Location Code");
-                    if (ProdOrderLine."Location Code" = '') or (CurrLocation."Prod. Output Whse. Handling" = CurrLocation."Prod. Output Whse. Handling"::"Inventory Put-away") then begin
-                        if CurrLocation."Prod. Output Whse. Handling" = CurrLocation."Prod. Output Whse. Handling"::"Inventory Put-away" then
-                            FeatureTelemetry.LogUsage('0000KSY', ProdAsmJobWhseHandlingTelemetryCategoryTok, ProdAsmJobWhseHandlingTelemetryTok);
-                        RemQtyToPutAway := ProdOrderLine."Remaining Quantity";
-
-                        FindReservationFromProdOrderLine(ProdOrderLine);
-
-                        if CurrLocation."Bin Mandatory" then
-                            case CurrLocation."Put-away Bin Policy" of
-                                CurrLocation."Put-away Bin Policy"::"Default Bin":
-                                    CreatePutawayWithDefaultBinPolicy(ProdOrderLine);
-                                CurrLocation."Put-away Bin Policy"::"Put-away Template":
-                                    CreatePutawayWithPutawayTemplateBinPolicy(ProdOrderLine);
-                                else
-                                    OnCreatePutawayForProdOrderLine(ProdOrderLine, RemQtyToPutAway);
-                            end;
-
-                        if (CurrLocation."Always Create Put-away Line" or not CurrLocation."Bin Mandatory") and (RemQtyToPutAway > 0) then
-                            repeat
-                                CreateWarehouseActivityLine(
-                                    Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", 0,
-                                                            ProdOrderLine."Location Code", ProdOrderLine."Item No.", ProdOrderLine."Variant Code", ProdOrderLine."Unit of Measure Code",
-                                                            ProdOrderLine."Qty. per Unit of Measure", ProdOrderLine."Qty. Rounding Precision", ProdOrderLine."Qty. Rounding Precision (Base)",
-                                                            ProdOrderLine.Description, ProdOrderLine."Description 2", ProdOrderLine."Due Date", '', ProdOrderLine);
-                            until RemQtyToPutAway <= 0;
-                    end;
-                end;
-        until ProdOrderLine.Next() = 0;
+        exit(
+            MfgCreateInventoryPutaway.SetFilterProdOrderLine(
+                ProdOrderLine, ProductionOrder, CurrWarehouseActivityHeader, WarehouseSourceFilter, CheckLineExist, ApplySourceFilters));
     end;
-
-    local procedure CreatePutawayWithDefaultBinPolicy(var ProdOrderLineToPutaway: Record "Prod. Order Line")
-    var
-        DefaultBinCode: Code[20];
-        BinCodeToUse: Code[20];
-    begin
-        DefaultBinCode := GetDefaultBinCode(ProdOrderLineToPutaway."Item No.", ProdOrderLineToPutaway."Variant Code", ProdOrderLineToPutaway."Location Code");
-
-        if (DefaultBinCode = '') and (ProdOrderLineToPutaway."Bin Code" = '') then
-            exit;
-
-        repeat
-            if ProdOrderLineToPutaway."Bin Code" = '' then
-                BinCodeToUse := DefaultBinCode
-            else
-                BinCodeToUse := ProdOrderLineToPutaway."Bin Code";
-
-            CreateWarehouseActivityLine(
-                Database::"Prod. Order Line", ProdOrderLineToPutaway.Status.AsInteger(), ProdOrderLineToPutaway."Prod. Order No.", ProdOrderLineToPutaway."Line No.", 0,
-                ProdOrderLineToPutaway."Location Code", ProdOrderLineToPutaway."Item No.", ProdOrderLineToPutaway."Variant Code", ProdOrderLineToPutaway."Unit of Measure Code",
-                ProdOrderLineToPutaway."Qty. per Unit of Measure", ProdOrderLineToPutaway."Qty. Rounding Precision", ProdOrderLineToPutaway."Qty. Rounding Precision (Base)",
-                ProdOrderLineToPutaway.Description, ProdOrderLineToPutaway."Description 2", ProdOrderLineToPutaway."Due Date", BinCodeToUse, ProdOrderLineToPutaway)
-
-        until RemQtyToPutAway <= 0;
-    end;
-
-    local procedure CreatePutawayWithPutawayTemplateBinPolicy(var ProdOrderLineToPutaway: Record "Prod. Order Line")
-    begin
-
-        CreatePutawayWithPutawayTemplateBinPolicy(
-            Database::"Prod. Order Line", ProdOrderLineToPutaway.Status.AsInteger(), ProdOrderLineToPutaway."Prod. Order No.", ProdOrderLineToPutaway."Line No.", 0,
-            ProdOrderLineToPutaway."Location Code", ProdOrderLineToPutaway."Bin Code", ProdOrderLineToPutaway."Item No.", ProdOrderLineToPutaway."Variant Code", ProdOrderLineToPutaway."Quantity (Base)",
-            ProdOrderLineToPutaway."Unit of Measure Code", ProdOrderLineToPutaway."Qty. per Unit of Measure", ProdOrderLineToPutaway."Qty. Rounding Precision",
-            ProdOrderLineToPutaway."Qty. Rounding Precision (Base)", ProdOrderLineToPutaway.Description, ProdOrderLineToPutaway."Description 2", ProdOrderLineToPutaway."Due Date");
-    end;
-
-    local procedure FindReservationFromProdOrderLine(var ProdOrderLine: Record "Prod. Order Line")
-    var
-        ItemTrackingManagement: Codeunit "Item Tracking Management";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeFindReservationFromProdOrderLine(ProdOrderLine, WhseItemTrackingSetup, ItemTrackingManagement, ReservationFound, IsHandled);
-        if IsHandled then
-            exit;
-
-        ItemTrackingManagement.GetWhseItemTrkgSetup(ProdOrderLine."Item No.", WhseItemTrackingSetup);
-        if WhseItemTrackingSetup.TrackingRequired() then
-            ReservationFound := FindReservationEntry(Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
-    end;
-
-    procedure SetFilterProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order"): Boolean
-    begin
-        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
-        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        if not CheckLineExist then
-            ProdOrderLine.SetRange("Location Code", CurrWarehouseActivityHeader."Location Code");
-        ProdOrderLine.SetFilter("Remaining Quantity", '>%1', 0);
-
-        if ApplyAdditionalSourceDocFilters then begin
-            ProdOrderLine.SetFilter("Item No.", WarehouseSourceFilter.GetFilter("Item No. Filter"));
-            ProdOrderLine.SetFilter("Variant Code", WarehouseSourceFilter.GetFilter("Variant Code Filter"));
-            ProdOrderLine.SetFilter("Due Date", WarehouseSourceFilter.GetFilter("Receipt Date Filter"));
-            ProdOrderLine.SetFilter("Line No.", WarehouseSourceFilter.GetFilter("Prod. Order Line No. Filter"));
-        end;
-
-        OnBeforeFindProdOrderLine(ProdOrderLine, CurrWarehouseActivityHeader);
-        exit(ProdOrderLine.Find('-'));
-    end;
-
-    // Production Component
-    local procedure CreatePutAwayLinesFromComp(ProductionOrder: Record "Production Order")
-    var
-        ProdOrderComponent: Record "Prod. Order Component";
-        NewWarehouseActivityLine: Record "Warehouse Activity Line";
-        IsHandled: Boolean;
-    begin
-        if not SetFilterProdCompLine(ProdOrderComponent, ProductionOrder) then begin
-            if not HideDialog then
-                Message(NothingToHandleMsg);
-            exit;
-        end;
-
-        FindNextLineNo();
-
-        repeat
-            IsHandled := false;
-            OnBeforeCreatePutAwayLinesFromCompLoop(CurrWarehouseActivityHeader, ProductionOrder, IsHandled, ProdOrderComponent);
-            if not IsHandled then
-                if not
-                   NewWarehouseActivityLine.ActivityExists(
-                     Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.", 0)
-                then begin
-                    RemQtyToPutAway := -ProdOrderComponent."Remaining Quantity";
-
-                    FindReservationFromProdOrderComponent(ProdOrderComponent);
-
-                    if CurrLocation."Bin Mandatory" then
-                        case CurrLocation."Put-away Bin Policy" of
-                            CurrLocation."Put-away Bin Policy"::"Default Bin":
-                                CreatePutawayWithDefaultBinPolicy(ProdOrderComponent);
-                            CurrLocation."Put-away Bin Policy"::"Put-away Template":
-                                CreatePutawayWithPutawayTemplateBinPolicy(ProdOrderComponent);
-                            else
-                                OnCreatePutawayForProdOrderComponent(ProdOrderComponent, RemQtyToPutAway);
-                        end;
-
-                    if (CurrLocation."Always Create Put-away Line" or not CurrLocation."Bin Mandatory") and (RemQtyToPutAway > 0) then
-                        repeat
-                            CreateWarehouseActivityLine(
-                                Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.",
-                                ProdOrderComponent."Location Code", ProdOrderComponent."Item No.", ProdOrderComponent."Variant Code", ProdOrderComponent."Unit of Measure Code",
-                                ProdOrderComponent."Qty. per Unit of Measure", ProdOrderComponent."Qty. Rounding Precision", ProdOrderComponent."Qty. Rounding Precision (Base)",
-                                ProdOrderComponent.Description, '', ProdOrderComponent."Due Date", '', ProdOrderComponent);
-                        until RemQtyToPutAway <= 0;
-                end;
-        until ProdOrderComponent.Next() = 0;
-    end;
-
-    local procedure CreatePutawayWithDefaultBinPolicy(var ProdOrderComponent: Record "Prod. Order Component")
-    var
-        DefaultBinCode: Code[20];
-        BinCodeToUse: Code[20];
-    begin
-        DefaultBinCode := GetDefaultBinCode(ProdOrderComponent."Item No.", ProdOrderComponent."Variant Code", ProdOrderComponent."Location Code");
-
-        if (DefaultBinCode = '') and (ProdOrderComponent."Bin Code" = '') then
-            exit;
-
-        repeat
-            if ProdOrderComponent."Bin Code" = '' then
-                BinCodeToUse := DefaultBinCode
-            else
-                BinCodeToUse := ProdOrderComponent."Bin Code";
-
-            CreateWarehouseActivityLine(
-                Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.",
-                ProdOrderComponent."Location Code", ProdOrderComponent."Item No.", ProdOrderComponent."Variant Code", ProdOrderComponent."Unit of Measure Code",
-                ProdOrderComponent."Qty. per Unit of Measure", ProdOrderComponent."Qty. Rounding Precision", ProdOrderComponent."Qty. Rounding Precision (Base)",
-                ProdOrderComponent.Description, '', ProdOrderComponent."Due Date", BinCodeToUse, ProdOrderComponent)
-
-        until RemQtyToPutAway <= 0;
-    end;
-
-    local procedure CreatePutawayWithPutawayTemplateBinPolicy(var ProdOrderComponent: Record "Prod. Order Component")
-    begin
-
-        CreatePutawayWithPutawayTemplateBinPolicy(
-            Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.",
-            ProdOrderComponent."Location Code", ProdOrderComponent."Bin Code", ProdOrderComponent."Item No.", ProdOrderComponent."Variant Code", ProdOrderComponent."Quantity (Base)",
-            ProdOrderComponent."Unit of Measure Code", ProdOrderComponent."Qty. per Unit of Measure", ProdOrderComponent."Qty. Rounding Precision",
-            ProdOrderComponent."Qty. Rounding Precision (Base)", ProdOrderComponent.Description, '', ProdOrderComponent."Due Date");
-    end;
-
-    local procedure FindReservationFromProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component")
-    var
-        ItemTrackingManagement: Codeunit "Item Tracking Management";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeFindReservationFromProdOrderComponent(ProdOrderComponent, WhseItemTrackingSetup, ItemTrackingManagement, ReservationFound, IsHandled);
-        if IsHandled then
-            exit;
-
-        ItemTrackingManagement.GetWhseItemTrkgSetup(ProdOrderComponent."Item No.", WhseItemTrackingSetup);
-        if WhseItemTrackingSetup.TrackingRequired() then
-            ReservationFound := FindReservationEntry(Database::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Line No.");
-    end;
-
-    local procedure SetFilterProdCompLine(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrder: Record "Production Order"): Boolean
-#if not CLEAN26
-    var
-        ManufacturingSetup: Record Microsoft.Manufacturing.Setup."Manufacturing Setup";
 #endif
-    begin
-        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
-        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-        if not CheckLineExist then
-            ProdOrderComponent.SetRange("Location Code", CurrWarehouseActivityHeader."Location Code");
-#if not CLEAN26
-        if not ManufacturingSetup.IsFeatureKeyFlushingMethodManualWithoutPickEnabled() then
-            ProdOrderComponent.SetFilter(ProdOrderComponent."Flushing Method", '%1|%2', ProdOrderComponent."Flushing Method"::Manual, ProdOrderComponent."Flushing Method"::"Pick + Manual")
-        else
-#endif        
-            ProdOrderComponent.SetRange("Flushing Method", ProdOrderComponent."Flushing Method"::"Pick + Manual");
-        ProdOrderComponent.SetRange("Planning Level Code", 0);
-        ProdOrderComponent.SetFilter("Remaining Quantity", '<0');
-
-        if ApplyAdditionalSourceDocFilters then begin
-            ProdOrderComponent.SetFilter("Item No.", WarehouseSourceFilter.GetFilter("Item No. Filter"));
-            ProdOrderComponent.SetFilter("Variant Code", WarehouseSourceFilter.GetFilter("Variant Code Filter"));
-            ProdOrderComponent.SetFilter("Due Date", WarehouseSourceFilter.GetFilter("Receipt Date Filter"));
-            ProdOrderComponent.SetFilter("Prod. Order Line No.", WarehouseSourceFilter.GetFilter("Prod. Order Line No. Filter"));
-        end;
-
-        OnBeforeFindProdOrderComp(ProdOrderComponent, CurrWarehouseActivityHeader);
-        exit(ProdOrderComponent.Find('-'));
-    end;
 
     // Helper methods
-    local procedure CreateWarehouseActivityLine(SourceType: Integer; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; SublineNo: Integer;
-                                LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; QtyPerUnitMeasure: Decimal;
-                                QtyRndingPrecision: Decimal; QtyRndingPrecisionBase: Decimal; Description: Text[100]; Description2: Text[50]; DueDate: Date; BinCode: Code[20]; SourceRecordVariant: Variant)
+    internal procedure CreateWarehouseActivityLine(
+        SourceType: Integer; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; SublineNo: Integer;
+        LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; QtyPerUnitMeasure: Decimal;
+        QtyRndingPrecision: Decimal; QtyRndingPrecisionBase: Decimal; Description: Text[100]; Description2: Text[50]; DueDate: Date;
+        BinCode: Code[20]; SourceRecordVariant: Variant): Decimal
     var
         NewWarehouseActivityLine: Record "Warehouse Activity Line";
         PurchaseLine: Record "Purchase Line";
@@ -915,10 +682,8 @@ codeunit 7321 "Create Inventory Put-away"
                 end;
             Database::"Transfer Line":
                 NewWarehouseActivityLine."Source Document" := NewWarehouseActivityLine."Source Document"::"Inbound Transfer";
-            Database::"Prod. Order Line":
-                NewWarehouseActivityLine."Source Document" := NewWarehouseActivityLine."Source Document"::"Prod. Output";
-            Database::"Prod. Order Component":
-                NewWarehouseActivityLine."Source Document" := NewWarehouseActivityLine."Source Document"::"Prod. Consumption";
+            else
+                OnCreateWarehouseActivityLineOnSetSourceDocument(NewWarehouseActivityLine, SourceType);
         end;
 
         RaiseOnBeforeNewWhseActivLineInsertFromEvent(NewWarehouseActivityLine, SourceRecordVariant);
@@ -930,11 +695,14 @@ codeunit 7321 "Create Inventory Put-away"
             until RemQtyToPutAway <= 0
         else
             InsertWhseActivLine(NewWarehouseActivityLine, RemQtyToPutAway);
+
+        exit(RemQtyToPutAway);
     end;
 
-    local procedure CreateWarehouseActivityLine(SourceType: Integer; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; SublineNo: Integer; LocationCode: Code[10]; BinCode: Code[20];
-                                ItemNo: Code[20]; VariantCode: Code[10]; QuantityBase: Decimal; UnitOfMeasureCode: Code[10]; QtyPerUnitMeasure: Decimal; QtyRndingPrecision: Decimal;
-                                QtyRndingPrecisionBase: Decimal; Description: Text[100]; Description2: Text[50]; DueDate: Date; var QtyToPutAwayBase: Decimal)
+    local procedure CreateWarehouseActivityLine(
+        SourceType: Integer; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; SublineNo: Integer; LocationCode: Code[10]; BinCode: Code[20];
+        ItemNo: Code[20]; VariantCode: Code[10]; QuantityBase: Decimal; UnitOfMeasureCode: Code[10]; QtyPerUnitMeasure: Decimal; QtyRndingPrecision: Decimal;
+        QtyRndingPrecisionBase: Decimal; Description: Text[100]; Description2: Text[50]; DueDate: Date; var QtyToPutAwayBase: Decimal)
     var
         NewWarehouseActivityLine: Record "Warehouse Activity Line";
         PurchaseLine: Record "Purchase Line";
@@ -991,10 +759,8 @@ codeunit 7321 "Create Inventory Put-away"
                     end;
                 Database::"Transfer Line":
                     NewWarehouseActivityLine."Source Document" := NewWarehouseActivityLine."Source Document"::"Inbound Transfer";
-                Database::"Prod. Order Line":
-                    NewWarehouseActivityLine."Source Document" := NewWarehouseActivityLine."Source Document"::"Prod. Output";
-                Database::"Prod. Order Component":
-                    NewWarehouseActivityLine."Source Document" := NewWarehouseActivityLine."Source Document"::"Prod. Consumption";
+                else
+                    OnCreateWarehouseActivityLineOnSetSourceDocument(NewWarehouseActivityLine, SourceType);
             end;
 
             if not ReservationFound and WhseItemTrackingSetup."Serial No. Required" then
@@ -1006,9 +772,10 @@ codeunit 7321 "Create Inventory Put-away"
         end
     end;
 
-    local procedure CreatePutawayWithPutawayTemplateBinPolicy(SourceType: Integer; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; SublineNo: Integer; LocationCode: Code[10]; BinCode: Code[20];
-                                ItemNo: Code[20]; VariantCode: Code[10]; QuantityBase: Decimal; UnitOfMeasureCode: Code[10]; QtyPerUnitMeasure: Decimal; QtyRndingPrecision: Decimal;
-                                QtyRndingPrecisionBase: Decimal; Description: Text[100]; Description2: Text[50]; DueDate: Date)
+    internal procedure CreatePutawayWithPutawayTemplateBinPolicy(
+        SourceType: Integer; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; SublineNo: Integer; LocationCode: Code[10]; BinCode: Code[20];
+        ItemNo: Code[20]; VariantCode: Code[10]; QuantityBase: Decimal; UnitOfMeasureCode: Code[10]; QtyPerUnitMeasure: Decimal; QtyRndingPrecision: Decimal;
+        QtyRndingPrecisionBase: Decimal; Description: Text[100]; Description2: Text[50]; DueDate: Date)
     var
         PutAwayTemplateLine: Record "Put-away Template Line";
         BinContent: Record "Bin Content";
@@ -1109,10 +876,14 @@ codeunit 7321 "Create Inventory Put-away"
                 OnBeforeNewWhseActivLineInsertFromSales(WarehouseActivityLine, RecordVariant);
             Database::"Transfer Line":
                 OnBeforeNewWhseActivLineInsertFromTransfer(WarehouseActivityLine, RecordVariant);
-            Database::"Prod. Order Line":
+#if not CLEAN27
+            5406: // Database::"Prod. Order Line"
                 OnBeforeNewWhseActivLineInsertFromProd(WarehouseActivityLine, RecordVariant);
-            Database::"Prod. Order Component":
+            5407: // Database::"Prod. Order Component"
                 OnBeforeNewWhseActivLineInsertFromComp(WarehouseActivityLine, RecordVariant);
+#endif
+            else
+                OnRaiseOnBeforeNewWhseActivLineInsertFromEvent(WarehouseActivityLine, RecordVariant, RecordRefToCheck);
         end;
     end;
 
@@ -1236,7 +1007,7 @@ codeunit 7321 "Create Inventory Put-away"
                 if CurrPutAwayTemplateHeader.Get(CurrLocation."Put-away Template Code") then;
     end;
 
-    local procedure FindNextLineNo()
+    internal procedure FindNextLineNo()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -1249,12 +1020,12 @@ codeunit 7321 "Create Inventory Put-away"
             NextLineNo := 10000;
     end;
 
-    local procedure FindReservationEntry(SourceType: Integer; DocType: Integer; DocNo: Code[20]; DocLineNo: Integer): Boolean
+    internal procedure FindReservationEntry(SourceType: Integer; DocType: Integer; DocNo: Code[20]; DocLineNo: Integer): Boolean
     var
         ReservationEntry: Record "Reservation Entry";
         ItemTrackingManagement: Codeunit "Item Tracking Management";
     begin
-        if SourceType in [Database::"Prod. Order Line", Database::"Transfer Line"] then begin
+        if SourceType in [5406, Database::"Transfer Line"] then begin // Database::"Prod. Order Line"
             ReservationEntry.SetSourceFilter(SourceType, DocType, DocNo, -1, true);
             ReservationEntry.SetRange("Source Prod. Order Line", DocLineNo)
         end else
@@ -1263,6 +1034,11 @@ codeunit 7321 "Create Inventory Put-away"
         if ReservationEntry.FindFirst() then
             if ItemTrackingManagement.SumUpItemTracking(ReservationEntry, TempTrackingSpecification, true, true) then
                 exit(true);
+    end;
+
+    internal procedure SetReservationFound(NewReservationFound: Boolean)
+    begin
+        ReservationFound := NewReservationFound;
     end;
 
     local procedure InsertSNWhseActivLine(var NewWarehouseActivityLine: Record "Warehouse Activity Line")
@@ -1360,7 +1136,7 @@ codeunit 7321 "Create Inventory Put-away"
         exit(BinContentFound);
     end;
 
-    local procedure GetDefaultBinCode(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]): Code[20]
+    internal procedure GetDefaultBinCode(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]): Code[20]
     var
         WMSManagement: Codeunit "WMS Management";
         BinCode: Code[20];
@@ -1406,13 +1182,11 @@ codeunit 7321 "Create Inventory Put-away"
         LineCreated := false;
     end;
 
-    procedure CheckSourceDoc(NewWarehouseRequest: Record "Warehouse Request"): Boolean
+    procedure CheckSourceDoc(NewWarehouseRequest: Record "Warehouse Request") Result: Boolean
     var
         PurchaseLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
         TransferLine: Record "Transfer Line";
-        ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderComponent: Record "Prod. Order Component";
         IsFound: Boolean;
         IsHandled: Boolean;
     begin
@@ -1428,21 +1202,19 @@ codeunit 7321 "Create Inventory Put-away"
         CheckLineExist := true;
         case CurrWarehouseRequest."Source Document" of
             CurrWarehouseRequest."Source Document"::"Purchase Order":
-                exit(SetFilterPurchLine(PurchaseLine, CurrPurchaseHeader));
+                exit(SetFilterPurchLine(PurchaseLine, SourceDocRecordVar));
             CurrWarehouseRequest."Source Document"::"Purchase Return Order":
-                exit(SetFilterPurchLine(PurchaseLine, CurrPurchaseHeader));
+                exit(SetFilterPurchLine(PurchaseLine, SourceDocRecordVar));
             CurrWarehouseRequest."Source Document"::"Sales Order":
-                exit(SetFilterSalesLine(SalesLine, CurrSalesHeader));
+                exit(SetFilterSalesLine(SalesLine, SourceDocRecordVar));
             CurrWarehouseRequest."Source Document"::"Sales Return Order":
-                exit(SetFilterSalesLine(SalesLine, CurrSalesHeader));
+                exit(SetFilterSalesLine(SalesLine, SourceDocRecordVar));
             CurrWarehouseRequest."Source Document"::"Inbound Transfer":
-                exit(SetFilterTransferLine(TransferLine, CurrTransferHeader));
-            CurrWarehouseRequest."Source Document"::"Prod. Output":
-                exit(SetFilterProdOrderLine(ProdOrderLine, CurrProductionOrder));
-            CurrWarehouseRequest."Source Document"::"Prod. Consumption":
-                exit(SetFilterProdCompLine(ProdOrderComponent, CurrProductionOrder));
+                exit(SetFilterTransferLine(TransferLine, SourceDocRecordVar));
             else
-                OnCheckSourceDocForWhseRequest(CurrWarehouseRequest, SourceDocRecordRef);
+                OnCheckSourceDocForWhseRequest(
+                    CurrWarehouseRequest, SourceDocRecordRef, SourceDocRecordVar, Result,
+                    CurrWarehouseActivityHeader, WarehouseSourceFilter, CheckLineExist, ApplySourceFilters);
         end;
     end;
 
@@ -1462,21 +1234,19 @@ codeunit 7321 "Create Inventory Put-away"
 
         case CurrWarehouseRequest."Source Document" of
             CurrWarehouseRequest."Source Document"::"Purchase Order":
-                CreatePutAwayLinesFromPurchase(CurrPurchaseHeader);
+                CreatePutAwayLinesFromPurchase(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Purchase Return Order":
-                CreatePutAwayLinesFromPurchase(CurrPurchaseHeader);
+                CreatePutAwayLinesFromPurchase(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Sales Order":
-                CreatePutAwayLinesFromSales(CurrSalesHeader);
+                CreatePutAwayLinesFromSales(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Sales Return Order":
-                CreatePutAwayLinesFromSales(CurrSalesHeader);
+                CreatePutAwayLinesFromSales(SourceDocRecordVar);
             CurrWarehouseRequest."Source Document"::"Inbound Transfer":
-                CreatePutAwayLinesFromTransfer(CurrTransferHeader);
-            CurrWarehouseRequest."Source Document"::"Prod. Output":
-                CreatePutAwayLinesFromProd(CurrProductionOrder);
-            CurrWarehouseRequest."Source Document"::"Prod. Consumption":
-                CreatePutAwayLinesFromComp(CurrProductionOrder);
+                CreatePutAwayLinesFromTransfer(SourceDocRecordVar);
             else
-                OnAutoCreatePutAwayLinesFromWhseRequest(CurrWarehouseRequest, SourceDocRecordRef, LineCreated);
+                OnAutoCreatePutAwayLinesFromWhseRequest(
+                    CurrWarehouseRequest, SourceDocRecordRef, LineCreated, SourceDocRecordVar, RemQtyToPutAway,
+                    CurrWarehouseActivityHeader, WarehouseSourceFilter, CheckLineExist, ApplySourceFilters);
         end;
         if LineCreated then begin
             CurrWarehouseActivityHeader.Modify();
@@ -1484,6 +1254,12 @@ codeunit 7321 "Create Inventory Put-away"
         end;
 
         OnAfterAutoCreatePutAway(CurrWarehouseRequest, LineCreated, NewWarehouseActivityHeader);
+    end;
+
+    procedure GetNothingToHandleMsg()
+    begin
+        if not HideDialog then
+            Message(NothingToHandleMsg);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1536,13 +1312,24 @@ codeunit 7321 "Create Inventory Put-away"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Replaced by event OnRaiseOnBeforeNewWhseActivLineInsertFromEvent', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNewWhseActivLineInsertFromProd(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnBeforeNewWhseActivLineInsertFromProd(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
     begin
     end;
+#endif
+
+#if not CLEAN27
+    [Obsolete('Replaced by event OnRaiseOnBeforeNewWhseActivLineInsertFromEvent', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNewWhseActivLineInsertFromComp(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNewWhseActivLineInsertFromComp(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderComp: Record "Prod. Order Component")
+    local procedure OnRaiseOnBeforeNewWhseActivLineInsertFromEvent(var WarehouseActivityLine: Record "Warehouse Activity Line"; RecordVariant: Variant; RecordRefToCheck: RecordRef)
     begin
     end;
 
@@ -1561,15 +1348,31 @@ codeunit 7321 "Create Inventory Put-away"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+#if not CLEAN27
+    internal procedure RunOnBeforeFindProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
+        OnBeforeFindProdOrderLine(ProdOrderLine, WarehouseActivityHeader);
     end;
 
+    [Obsolete('Moved to codeunit MfgCreateInventoryPutaway', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindProdOrderComp(var ProdOrderComp: Record "Prod. Order Component"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    local procedure OnBeforeFindProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnBeforeFindProdOrderComp(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+        OnBeforeFindProdOrderComp(ProdOrderComp, WarehouseActivityHeader);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCreateInventoryPutaway', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindProdOrderComp(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSourceDocHeader(var WarehouseRequest: Record "Warehouse Request"; var IsHandled: Boolean)
@@ -1596,15 +1399,31 @@ codeunit 7321 "Create Inventory Put-away"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePutAwayLinesFromCompLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ProductionOrder: Record "Production Order"; var IsHandled: Boolean; ProdOrderComponent: Record "Prod. Order Component")
+#if not CLEAN27
+    internal procedure RunOnBeforeCreatePutAwayLinesFromCompLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var IsHandled: Boolean; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
+        OnBeforeCreatePutAwayLinesFromCompLoop(WarehouseActivityHeader, ProductionOrder, IsHandled, ProdOrderComponent);
     end;
 
+    [Obsolete('Moved to codeunit MfgCreateInventoryPutaway', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePutAwayLinesFromProdLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ProductionOrder: Record "Production Order"; var IsHandled: Boolean; ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnBeforeCreatePutAwayLinesFromCompLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var IsHandled: Boolean; ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component")
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnBeforeCreatePutAwayLinesFromProdLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var IsHandled: Boolean; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+        OnBeforeCreatePutAwayLinesFromProdLoop(WarehouseActivityHeader, ProductionOrder, IsHandled, ProdOrderLine);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCreateInventoryPutaway', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePutAwayLinesFromProdLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ProductionOrder: Record Microsoft.Manufacturing.Document."Production Order"; var IsHandled: Boolean; ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePutAwayLinesFromPurchaseLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; PurchaseLine: Record "Purchase Line")
@@ -1636,28 +1455,44 @@ codeunit 7321 "Create Inventory Put-away"
     begin
     end;
 
+#if not CLEAN27
+    internal procedure RunOnBeforeFindReservationFromProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var ItemTrackingMgt: Codeunit "Item Tracking Management"; var ReservationFound: Boolean; var IsHandled: Boolean)
+    begin
+        OnBeforeFindReservationFromProdOrderLine(ProdOrderLine, WhseItemTrackingSetup, ItemTrackingMgt, ReservationFound, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCreateInventoryPutaway', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindReservationFromProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var ItemTrackingMgt: Codeunit "Item Tracking Management"; var ReservationFound: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeFindReservationFromProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var ItemTrackingMgt: Codeunit "Item Tracking Management"; var ReservationFound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnBeforeFindReservationFromProdOrderComponent(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var ItemTrackingMgt: Codeunit "Item Tracking Management"; var ReservationFound: Boolean; var IsHandled: Boolean)
+    begin
+        OnBeforeFindReservationFromProdOrderComponent(ProdOrderComp, WhseItemTrackingSetup, ItemTrackingMgt, ReservationFound, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCreateInventoryPutaway', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindReservationFromProdOrderComponent(var ProdOrderComp: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var ItemTrackingMgt: Codeunit "Item Tracking Management"; var ReservationFound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAutoCreatePutAwayLinesFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean; var SourceDocRecVar: Variant; var RemQtyToPutaway: Decimal; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseSourceFilter: Record "Warehouse Source Filter"; CheckLineExist: Boolean; ApplySourceFilters: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindReservationFromProdOrderComponent(var ProdOrderComp: Record "Prod. Order Component"; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var ItemTrackingMgt: Codeunit "Item Tracking Management"; var ReservationFound: Boolean; var IsHandled: Boolean)
+    local procedure OnCheckSourceDocForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var SourceDocRecordVar: Variant; var Result: Boolean; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseSourceFilter: Record "Warehouse Source Filter"; CheckLineExist: Boolean; ApplySourceFilters: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAutoCreatePutAwayLinesFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean);
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCheckSourceDocForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef);
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnCreatePutAwayFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnCreatePutAwayFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean; var SourceDocRecordVar: Variant; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseSourceFilter: Record "Warehouse Source Filter"; CheckLineExist: Boolean; ApplySourceFilters: Boolean; var RemQtyToPutaway: Decimal)
     begin
     end;
 
@@ -1667,7 +1502,7 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetSourceDocHeaderForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var SourceDocRecRef: RecordRef; var PostingDate: Date; var VendorDocNo: Code[35]);
+    local procedure OnGetSourceDocHeaderForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var SourceDocRecRef: RecordRef; var PostingDate: Date; var VendorDocNo: Code[35]; var SourceDocRecordVar: Variant);
     begin
     end;
 
@@ -1696,15 +1531,31 @@ codeunit 7321 "Create Inventory Put-away"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnCreatePutawayForProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var RemQtyToPutAway: Decimal)
+#if not CLEAN27
+    internal procedure RunOnCreatePutawayForProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RemQtyToPutAway: Decimal)
     begin
+        OnCreatePutawayForProdOrderLine(ProdOrderLine, RemQtyToPutAway);
     end;
 
+    [Obsolete('Moved to codeunit MfgCreateInventoryPutaway', '27.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnCreatePutawayForProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; var RemQtyToPutAway: Decimal)
+    local procedure OnCreatePutawayForProdOrderLine(var ProdOrderLine: Record Microsoft.Manufacturing.Document."Prod. Order Line"; var RemQtyToPutAway: Decimal)
     begin
     end;
+#endif
+
+#if not CLEAN27
+    internal procedure RunOnCreatePutawayForProdOrderComponent(var ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var RemQtyToPutAway: Decimal)
+    begin
+        OnCreatePutawayForProdOrderComponent(ProdOrderComponent, RemQtyToPutAway);
+    end;
+
+    [Obsolete('Moved to codeunit MfgCreateInventoryPutaway', '27.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePutawayForProdOrderComponent(var ProdOrderComponent: Record Microsoft.Manufacturing.Document."Prod. Order Component"; var RemQtyToPutAway: Decimal)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnGetWhseRequestOnAfterFilterGroup(WarehouseRequest: Record "Warehouse Request"; var Result: Boolean; var IsHandled: Boolean)
@@ -1713,6 +1564,11 @@ codeunit 7321 "Create Inventory Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateWhseActivHeaderOnBeforeGetLocation(var WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    local procedure OnCreateWarehouseActivityLineOnSetSourceDocument(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer)
     begin
     end;
 }

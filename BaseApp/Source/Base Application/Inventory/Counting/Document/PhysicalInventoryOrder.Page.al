@@ -8,7 +8,6 @@ using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Counting.Comment;
 using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Counting.Recording;
-using Microsoft.Inventory.Counting.Reports;
 
 page 5875 "Physical Inventory Order"
 {
@@ -388,8 +387,16 @@ page 5875 "Physical Inventory Order"
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
-                RunObject = Report "Phys. Invt. Recording";
                 ToolTip = 'Print the first physical inventory recording that exists for the order. The printed document has an empty column in which to write the counted quantities.';
+
+                trigger OnAction()
+                var
+                    PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+                begin
+                    PhysInvtRecordHeader.SetRange("Order No.", Rec."No.");
+                    PhysInvtRecordHeader.FindFirst();
+                    DocPrint.PrintInvtRecording(PhysInvtRecordHeader, true);
+                end;
             }
         }
         area(Promoted)

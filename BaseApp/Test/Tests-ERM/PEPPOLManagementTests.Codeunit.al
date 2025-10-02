@@ -1210,16 +1210,16 @@
           Percent, AllowanceChargeTaxSchemeID);
 
         // Verify
-        Assert.AreEqual('false', ChargeIndicator, '');
-        Assert.AreEqual('104', AllowanceChargeReasonCode, '');
-        Assert.AreEqual('UNCL4465', AllowanceChargeListID, '');
-        Assert.AreEqual('Invoice Discount Amount', AllowanceChargeReason, '');
-        Assert.AreEqual(Format(TempVATAmtLine."Invoice Discount Amount", 0, 9), Amount, '');
-        Assert.AreEqual(LibraryERM.GetLCYCode(), AllowanceChargeCurrencyID, '');
-        Assert.AreEqual(TempVATAmtLine."VAT Identifier", TaxCategoryID, '');
-        Assert.AreEqual('', TaxCategorySchemeID, '');
-        Assert.AreEqual(Format(TempVATAmtLine."VAT %", 0, 9), Percent, '');
-        Assert.AreEqual('VAT', AllowanceChargeTaxSchemeID, '');
+        Assert.AreEqual('false', ChargeIndicator, 'ChargeIndicator has unexpected value.');
+        Assert.AreEqual('104', AllowanceChargeReasonCode, 'AllowanceChargeReasonCode has unexpected value.');
+        Assert.AreEqual('UNCL4465', AllowanceChargeListID, 'AllowanceChargeListID has unexpected value.');
+        Assert.AreEqual('Invoice Discount Amount', AllowanceChargeReason, 'AllowanceChargeReason has unexpected value.');
+        Assert.AreEqual(Format(TempVATAmtLine."Invoice Discount Amount", 0, 9), Amount, 'Amount has unexpected value.');
+        Assert.AreEqual(LibraryERM.GetLCYCode(), AllowanceChargeCurrencyID, 'AllowanceChargeCurrencyID has unexpected value.');
+        Assert.AreEqual(TempVATAmtLine."VAT Identifier", TaxCategoryID, 'TaxCategoryID has unexpected value.');
+        Assert.AreEqual('', TaxCategorySchemeID, 'TaxCategorySchemeID has unexpected value.');
+        Assert.AreEqual(Format(TempVATAmtLine."VAT %", 0, 9), Percent, 'Percent has unexpected value.');
+        Assert.AreEqual('VAT', AllowanceChargeTaxSchemeID, 'AllowanceChargeTaxSchemeID has unexpected value.');
     end;
 
     [Test]
@@ -1483,16 +1483,16 @@
           TaxTotalTaxSchemeID);
 
         // Verify
-        Assert.AreEqual(Format(TempVATAmtLine."VAT Base", 0, 9), TaxableAmount, '');
-        Assert.AreEqual(LibraryERM.GetLCYCode(), TaxAmountCurrencyID, '');
-        Assert.AreEqual(Format(TempVATAmtLine."VAT Amount", 0, 9), SubtotalTaxAmount, '');
-        Assert.AreEqual(LibraryERM.GetLCYCode(), TaxSubtotalCurrencyID, '');
-        // Assert.AreEqual(FORMAT(tempVATAmtLine."Amount including vat",0,9),TransactionCurrencyTaxAmount,'');
-        // Assert.AreEqual(LibraryERM.GetLCYCode(),TransCurrTaxAmtCurrencyID,'');
-        Assert.AreEqual(TempVATAmtLine."VAT Identifier", TaxTotalTaxCategoryID, '');
-        Assert.AreEqual('', schemeID, ''); // (TFS 388773)
-        Assert.AreEqual(Format(TempVATAmtLine."VAT %", 0, 9), TaxCategoryPercent, '');
-        Assert.AreEqual('VAT', TaxTotalTaxSchemeID, '');
+        Assert.AreEqual(Format(TempVATAmtLine."VAT Base", 0, 9), TaxableAmount, 'TaxableAmount has unexpected value.');
+        Assert.AreEqual(LibraryERM.GetLCYCode(), TaxAmountCurrencyID, 'TaxAmountCurrencyID has unexpected value.');
+        Assert.AreEqual(Format(TempVATAmtLine."VAT Amount", 0, 9), SubtotalTaxAmount, 'SubtotalTaxAmount has unexpected value.');
+        Assert.AreEqual(LibraryERM.GetLCYCode(), TaxSubtotalCurrencyID, 'TaxSubtotalCurrencyID has unexpected value.');
+        // Assert.AreEqual(FORMAT(tempVATAmtLine."Amount including vat",0,9),TransactionCurrencyTaxAmount,'TransactionCurrencyTaxAmount has unexpected value.');
+        // Assert.AreEqual(LibraryERM.GetLCYCode(),TransCurrTaxAmtCurrencyID,'TransCurrTaxAmtCurrencyID has unexpected value.');
+        Assert.AreEqual(TempVATAmtLine."VAT Identifier", TaxTotalTaxCategoryID, 'TaxTotalTaxCategoryID has unexpected value.');
+        Assert.AreEqual('', schemeID, 'schemeID has unexpected value.'); // (TFS 388773)
+        Assert.AreEqual(Format(TempVATAmtLine."VAT %", 0, 9), TaxCategoryPercent, 'TaxCategoryPercent has unexpected value.');
+        Assert.AreEqual('VAT', TaxTotalTaxSchemeID, 'TaxTotalTaxSchemeID has unexpected value.');
     end;
 
     [Test]
@@ -3234,6 +3234,92 @@
         Assert.IsTrue(FileManagement.ServerFileExists(XMLFilePath), InvoiceElectronicallySendPEPPOLFormatTxt);
     end;
 
+    [Test]
+    procedure GetAccountingCustomerPartyTaxSchemeBIS30()
+    var
+        TempVATAmtLine: Record "VAT Amount Line" temporary;
+        SalesHeader: Record "Sales Header";
+        Cust: Record Customer;
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        PEPPOLMgt: Codeunit "PEPPOL Management";
+        CustPartyTaxSchemeCompanyID: Text;
+        CustPartyTaxSchemeCompIDSchID: Text;
+        CustTaxSchemeID: Text;
+    begin
+        // [SCENARIO] PEPPOLMgt.GetAccountingCustomerPartyTaxSchemeBIS30 returns correct values for Customer with PEPPOL identifier and empty tax scheme ID.
+        Initialize();
+
+        // [GIVEN] Customer with PEPPOL identifier and country/region code
+        Cust.Get(LibrarySales.CreateCustomerWithCountryCodeAndVATRegNo());
+        AddCustPEPPOLIdentifier(Cust."No.");
+        Cust.Modify(false);
+        // [GIVEN] Posted sales document
+        CreateItemWithPrice(Item, 10);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        GetVatAmtWithTaxCategory(SalesLine, TempVATAmtLine);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Excute GetAccountingCustomerPartyTaxSchemeBIS30
+        PEPPOLMgt.GetAccountingCustomerPartyTaxSchemeBIS30(
+            SalesHeader,
+            CustPartyTaxSchemeCompanyID,
+            CustPartyTaxSchemeCompIDSchID,
+            CustTaxSchemeID,
+            TempVATAmtLine);
+
+        // [THEN] Correct values are returned
+        Assert.AreEqual(PEPPOLMgt.FormatVATRegistrationNo(Cust.GetVATRegistrationNo(), Cust."Country/Region Code", true, true), CustPartyTaxSchemeCompanyID, 'Cutomer Party Tax Scheme Company ID should match VAT Registration No.');
+        Assert.AreEqual('', CustPartyTaxSchemeCompIDSchID, 'Company ID''s Scheme ID should be empty.');
+        Assert.AreEqual('VAT', CustTaxSchemeID, 'Wrong Tax Scheme ID.');
+    end;
+
+    [Test]
+    procedure GetAccountingCustomerPartyTaxSchemeBIS30WithTaxSchemeIDWithOTaxCategory()
+    var
+        TempVATAmtLine: Record "VAT Amount Line" temporary;
+        SalesHeader: Record "Sales Header";
+        Cust: Record Customer;
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        PEPPOLMgt: Codeunit "PEPPOL Management";
+        CustPartyTaxSchemeCompanyID: Text;
+        CustPartyTaxSchemeCompIDSchID: Text;
+        CustTaxSchemeID: Text;
+    begin
+        // [SCENARIO] PEPPOLMgt.GetAccountingCustomerPartyTaxSchemeBIS30 returns correct values for Customer with PEPPOL identifier and tax scheme ID with O tax category.
+        Initialize();
+
+        // [GIVEN] Customer with PEPPOL identifier and country/region code
+        Cust.Get(LibrarySales.CreateCustomerWithCountryCodeAndVATRegNo());
+        AddCustPEPPOLIdentifier(Cust."No.");
+        Cust.Modify(false);
+        // [GIVEN] Posted sales document
+        CreateItemWithPrice(Item, 10);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        GetVatAmtWithTaxCategory(SalesLine, TempVATAmtLine);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        // [GIVEN] VAT Amount Line with O tax category
+        TempVATAmtLine.Findfirst();
+        TempVATAmtLine."Tax Category" := 'O';
+        TempVATAmtLine.Modify(false);
+
+        // [WHEN] Excute GetAccountingCustomerPartyTaxSchemeBIS30
+        PEPPOLMgt.GetAccountingCustomerPartyTaxSchemeBIS30(
+            SalesHeader,
+            CustPartyTaxSchemeCompanyID,
+            CustPartyTaxSchemeCompIDSchID,
+            CustTaxSchemeID,
+            TempVATAmtLine);
+
+        // [THEN] Correct values are returned
+        Assert.AreEqual('', CustPartyTaxSchemeCompanyID, 'Cutomer Party Tax Scheme Company ID should be empty for Tax Category O.');
+        Assert.AreEqual('', CustPartyTaxSchemeCompIDSchID, 'Company ID''s Scheme ID should be empty.');
+        Assert.AreEqual('', CustTaxSchemeID, 'Tax Scheme ID should be empty for Tax Category O.');
+    end;
+
     local procedure Initialize()
     var
         CompanyInfo: Record "Company Information";
@@ -3429,6 +3515,16 @@
             VATAmtLine."Inv. Disc. Base Amount" := SalesLine."Line Amount";
         VATAmtLine."Invoice Discount Amount" := SalesLine."Inv. Discount Amount";
         VATAmtLine.InsertLine();
+    end;
+
+    local procedure GetVatAmtWithTaxCategory(SalesLine: Record "Sales Line"; var VATAmtLine: Record "VAT Amount Line")
+    var
+        VatPostingSetup: Record "VAT Posting Setup";
+    begin
+        VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
+        GetVATAmt(SalesLine, VATAmtLine);
+        VATAmtLine."Tax Category" := VATPostingSetup."Tax Category";
+        VATAmtLine.Modify(false);
     end;
 
     local procedure AssertVisibility(IsVisible: Boolean; Name: Text)

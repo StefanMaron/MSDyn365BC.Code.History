@@ -484,6 +484,15 @@ codeunit 419 "File Management"
     end;
 
     [Scope('OnPrem')]
+    internal procedure TempBlobToServerFile(var TempBlob: Codeunit "Temp Blob"; FileExt: Text) TempServerFilePath: Text[250]
+    var
+        FileInstream: InStream;
+    begin
+        TempBlob.CreateInStream(FileInstream, TextEncoding::UTF8);
+        TempServerFilePath := CopyStr(InstreamExportToServerFile(FileInstream, FileExt), 1, MaxStrLen(TempServerFilePath));
+    end;
+
+    [Scope('OnPrem')]
     procedure CreateAndWriteToServerFile(FileContent: Text; FileExt: Text) FileName: Text
     var
         File: File;

@@ -182,6 +182,7 @@ report 130 "EC Sales List"
                         else
                             NotEUTrdPartyAmt += Base;
 
+                    OnBeforeSetGrouping(ReportLayout, NotEUTrdPartyAmt, Grouping, NotEUTrdPartyAmtService, EUTrdPartyAmt, EUTrdPartyAmtService);
                     if ReportLayout = ReportLayout::"Separate &Lines" then begin
                         if NotEUTrdPartyAmt <> 0 then
                             Grouping := Grouping::NotEUTrdPartyAmt;
@@ -200,7 +201,8 @@ report 130 "EC Sales List"
                                     CurrReport.Skip()
                             end else
                                 CurrReport.Skip();
-                        ResetVATEntry := true
+                        ResetVATEntry := true;
+                        OnAfterVATEntryNext(ResetVATEntry, "VAT Entry");
                     end;
 
                     TotalEUTrdPartyAmtService += Round(EUTrdPartyAmtService, 1);
@@ -234,6 +236,8 @@ report 130 "EC Sales List"
 
     requestpage
     {
+        AboutTitle = 'About EC Sales List';
+        AboutText = 'The **EC Sales List** report summarizes sales of goods and services to VAT-registered customers in other EU countries for tax reporting. Use it for preparing and submitting EC Sales declarations to EU tax authorities, ensuring compliance with intra-EU VAT reporting requirements.';
         SaveValues = true;
 
         layout
@@ -332,6 +336,16 @@ report 130 "EC Sales List"
     procedure InitializeRequest(NewReportLayout: Option)
     begin
         ReportLayout := NewReportLayout;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetGrouping(ReportLayout: Option "Separate &Lines","Column with &Amount"; NotEUTrdPartyAmt: Decimal; Grouping: Option NotEUTrdPartyAmt,NotEUTrdPartyAmtService,EUTrdPartyAmt,EUTrdPartyAmtService; NotEUTrdPartyAmtService: Decimal; EUTrdPartyAmt: Decimal; EUTrdPartyAmtService: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterVATEntryNext(ResetVATEntry: Boolean; "VAT Entry": Record "VAT Entry")
+    begin
     end;
 }
 

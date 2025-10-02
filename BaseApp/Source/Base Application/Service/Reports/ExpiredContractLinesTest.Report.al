@@ -106,7 +106,8 @@ report 5987 "Expired Contract Lines - Test"
 
     requestpage
     {
-
+        AboutTitle = 'About Expired Contract Lines - Test';
+        AboutText = 'Find contract lines that are expired up to a date that you specify. Then remove them from the service contracts.';
         layout
         {
             area(content)

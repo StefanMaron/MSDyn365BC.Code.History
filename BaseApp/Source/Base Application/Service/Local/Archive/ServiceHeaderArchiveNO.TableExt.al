@@ -18,6 +18,7 @@ tableextension 10600 "Service Header Archive NO" extends "Service Header Archive
         {
             Caption = 'Account Code';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
             ToolTip = 'Specifies the account code of the customer.';
         }
         field(10605; "E-Invoice"; Boolean)
@@ -30,6 +31,7 @@ tableextension 10600 "Service Header Archive NO" extends "Service Header Archive
         {
             Caption = 'External Document No.';
             DataClassification = CustomerContent;
+            OptimizeForTextSearch = true;
             ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
         }
         field(10607; "Delivery Date"; Date)

@@ -2205,7 +2205,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         LotNo := PostItemPositiveAdjmtWithLotTracking(ComponentItem."No.", Location.Code, Bin.Code, DemandQty);
 
         // [GIVEN] Create a warehouse pick from the production order
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [GIVEN] Set lot no. = "L1" in warehouse pick lines
         WarehouseActivityLine.SetRange("Item No.", ComponentItem."No.");
@@ -2262,7 +2262,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [GIVEN] Post item stock of 100 PCS with lot no. = "L1"
         LotNo := PostItemPositiveAdjmtWithLotTracking(ComponentItem."No.", Location.Code, Bin.Code, DemandQty + SurplusQty);
         // [GIVEN] Create a warehouse pick from the production order
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [GIVEN] Set lot no. = "L1" in warehouse pick lines, set "Qty. to Handle" = 2 to pick partial quantitiy
         WarehouseActivityLine.SetRange("Item No.", ComponentItem."No.");
@@ -2327,7 +2327,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [GIVEN] Post item stock of 2 PCS with lot no. = "L1"
         LotNo := PostItemPositiveAdjmtWithLotTracking(ComponentItem."No.", Location.Code, Bin.Code, StockQty);
         // [GIVEN] Create a warehouse pick from the production order
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
 
         // [GIVEN] Set lot no. = "L1" in warehouse pick lines, set "Qty. to Handle" = 2 to pick partial quantitiy
         WarehouseActivityLine.SetRange("Item No.", ComponentItem."No.");
@@ -4381,7 +4381,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehouseActivityWithLotNo(
           WarehouseActivityLine."Source Document"::"Prod. Consumption", ProductionOrder."No.",
           WarehouseActivityLine."Activity Type"::Pick, LotNo);
@@ -4446,7 +4446,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         CreateWMSLocationWithProductionBin(Location);
         LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
-        UpdateManufacturingSetup(Location.Code);
+        LibraryManufacturing.SetComponentsAtLocation(Location.Code);
     end;
 
     local procedure CreateDimensionSet() DimSetID: Integer
@@ -5442,7 +5442,7 @@ codeunit 137153 "SCM Warehouse - Journal"
           ProductionOrder, Item."No.",
           Location.Code, Location."To-Production Bin Code", 1);
         // Create and register Pick from Released Production Order.
-        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        LibraryManufacturing.CreateWhsePickFromProduction(ProductionOrder);
         RegisterWarehouseActivity(
           WarehouseActivityLine."Source Document"::"Prod. Consumption",
           ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
@@ -6173,15 +6173,6 @@ codeunit 137153 "SCM Warehouse - Journal"
         ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
         ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity / 2);
         LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
-    end;
-
-    local procedure UpdateManufacturingSetup(LocationCode: Code[10])
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup.Validate("Components at Location", LocationCode);
-        ManufacturingSetup.Modify(true);
     end;
 
     local procedure UpdatePhysicalInventoryAndRegister(var WarehouseJournalLine: Record "Warehouse Journal Line"; ItemNo: Code[20])

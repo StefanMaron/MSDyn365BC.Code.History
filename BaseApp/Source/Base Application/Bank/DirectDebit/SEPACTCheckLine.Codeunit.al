@@ -12,6 +12,11 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Utilities;
 
+/// <summary>
+/// Validates general journal lines for SEPA credit transfer compliance and data completeness.
+/// Performs comprehensive validation of account types, amounts, bank information, and vendor/customer/employee
+/// details before export to ensure SEPA credit transfer standard compliance.
+/// </summary>
 codeunit 1223 "SEPA CT-Check Line"
 {
     TableNo = "Gen. Journal Line";

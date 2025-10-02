@@ -118,6 +118,7 @@ codeunit 240 ItemJnlManagement
     var
         ItemJnlTemplate: Record "Item Journal Template";
         ItemJnlLine: Record "Item Journal Line";
+        ToTemplateType: Enum "Item Journal Template Type";
         JnlSelected: Boolean;
     begin
         if ItemJnlBatch.GetFilter("Journal Template Name") <> '' then
@@ -130,17 +131,20 @@ codeunit 240 ItemJnlManagement
         end;
         ItemJnlBatch.FilterGroup(0);
 
-        if not ItemJnlBatch.Find('-') then
-            for ItemJnlTemplate.Type := ItemJnlTemplate.Type::Item to ItemJnlTemplate.Type::"Prod. Order" do begin
+        if not ItemJnlBatch.Find('-') then begin
+            ToTemplateType := ItemJnlTemplate.GetProdOrderTemplateType();
+            if ToTemplateType = ToTemplateType::Item then
+                ToTemplateType := ToTemplateType::Revaluation;
+            for ItemJnlTemplate.Type := ItemJnlTemplate.Type::Item to ToTemplateType do begin
                 ItemJnlTemplate.SetRange(Type, ItemJnlTemplate.Type);
                 if not ItemJnlTemplate.FindFirst() then
                     TemplateSelection(0, ItemJnlTemplate.Type.AsInteger(), false, ItemJnlLine, JnlSelected);
                 if ItemJnlTemplate.FindFirst() then
                     CheckTemplateName(ItemJnlTemplate.Name, ItemJnlBatch.Name);
                 if ItemJnlTemplate.Type in [ItemJnlTemplate.Type::Item,
-                                            ItemJnlTemplate.Type::Consumption,
-                                            ItemJnlTemplate.Type::Output,
-                                            ItemJnlTemplate.Type::Capacity]
+                                            ItemJnlTemplate.GetConsumptionTemplateType(),
+                                            ItemJnlTemplate.GetOutputTemplateType(),
+                                            ItemJnlTemplate.GetCapacityTemplateType()]
                 then begin
                     ItemJnlTemplate.SetRange(Recurring, true);
                     if not ItemJnlTemplate.FindFirst() then
@@ -150,6 +154,7 @@ codeunit 240 ItemJnlManagement
                     ItemJnlTemplate.SetRange(Recurring);
                 end;
             end;
+        end;
 
         ItemJnlBatch.Find('-');
         JnlSelected := true;

@@ -75,6 +75,7 @@ table 5994 "Service Cr.Memo Header"
         field(6; "Bill-to Name 2"; Text[50])
         {
             Caption = 'Bill-to Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer that you send or sent credit memo to.';
         }
         field(7; "Bill-to Address"; Text[100])
         {
@@ -258,6 +259,7 @@ table 5994 "Service Cr.Memo Header"
                 CustLedgEntry.SetCurrentKey("Document Type");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliestoDocNoOnAfterSetFilters(Rec, CustLedgEntry);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -326,6 +328,7 @@ table 5994 "Service Cr.Memo Header"
         field(80; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
+            ToolTip = 'Specifies an additional part of the name of the customer on the service invoice.';
         }
         field(81; Address; Text[100])
         {
@@ -1024,6 +1027,11 @@ table 5994 "Service Cr.Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendRecords(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliestoDocNoOnAfterSetFilters(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

@@ -42,6 +42,7 @@ codeunit 5400 "Available Management"
     var
         CopyOfItem: Record Item;
         JobPlanningLine: Record "Job Planning Line";
+        ScheduledReceiptQty: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -51,12 +52,8 @@ codeunit 5400 "Available Management"
 
         CopyOfItem.Copy(Item);
         CopyOfItem.SetRange("Date Filter", 0D, CopyOfItem.GetRangeMax(CopyOfItem."Date Filter"));
-        CopyOfItem.CalcFields(
-          "Qty. on Purch. Order",
-          "Scheduled Receipt (Qty.)",
-          "Trans. Ord. Receipt (Qty.)",
-          "Planned Order Receipt (Qty.)",
-          "Qty. on Sales Return");
+        CopyOfItem.CalcFields("Qty. on Purch. Order", "Trans. Ord. Receipt (Qty.)", "Qty. on Sales Return");
+        OnCalcAvailableQtyOnAfterCalcFields(CopyOfItem, ScheduledReceiptQty);
 
         if CopyOfItem.GetFilter("Location Filter") <> '' then
             CopyOfItem.CalcFields("Qty. in Transit");
@@ -65,7 +62,6 @@ codeunit 5400 "Available Management"
             CopyOfItem.SetRange("Date Filter", 0D, PlannedOrderReceiptDate);
         CopyOfItem.CalcFields(
           "Qty. on Sales Order",
-          "Qty. on Component Lines",
           "Trans. Ord. Shipment (Qty.)",
           "Qty. on Assembly Order",
           "Qty. on Purch. Return");
@@ -77,9 +73,9 @@ codeunit 5400 "Available Management"
           CopyOfItem.Inventory +
           CopyOfItem."Qty. on Purch. Order" -
           CopyOfItem."Qty. on Sales Order" -
-          CopyOfItem."Qty. on Component Lines" +
-          CopyOfItem."Planned Order Receipt (Qty.)" +
-          CopyOfItem."Scheduled Receipt (Qty.)" -
+          CopyOfItem.CalcQtyOnComponentLines() +
+          CopyOfItem.CalcPlannedOrderReceiptQty() +
+          ScheduledReceiptQty -
           CopyOfItem."Trans. Ord. Shipment (Qty.)" +
           CopyOfItem."Qty. in Transit" +
           CopyOfItem."Trans. Ord. Receipt (Qty.)" -
@@ -205,6 +201,11 @@ codeunit 5400 "Available Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcAvailableQtyOnAfterCalculation(var CopyOfItem: Record Item; var AvailableQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailableQtyOnAfterCalcFields(var CopyOfItem: Record Item; var ScheduledReceiptQty: Decimal)
     begin
     end;
 }

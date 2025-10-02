@@ -13,7 +13,7 @@ codeunit 99000763 "Inv. Post. To G/L Subscribers"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Posting To G/L", OnBeforeAdjustWIPForProduction, '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Inventory Posting To G/L", OnBeforeAdjustWIPForProduction, '', false, false)]
     local procedure OnBeforeAdjustWIPForProduction(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
     begin
         IsHandled := SkipAdjustWIPForProduction(ValueEntry);

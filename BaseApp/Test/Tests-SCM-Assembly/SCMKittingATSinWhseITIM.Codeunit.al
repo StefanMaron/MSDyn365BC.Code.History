@@ -11,7 +11,6 @@ using Microsoft.Warehouse.Setup;
 using Microsoft.Sales.Setup;
 using Microsoft.Purchases.Setup;
 using Microsoft.Assembly.Setup;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Assembly.Document;
 using Microsoft.Foundation.AuditCodes;
@@ -47,6 +46,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryKitting: Codeunit "Library - Kitting";
         LibraryRandom: Codeunit "Library - Random";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
@@ -83,7 +83,6 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         AssemblySetup: Record "Assembly Setup";
-        MfgSetup: Record "Manufacturing Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting ATS in Whse/IT IM");
@@ -97,8 +96,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         ClearLastError();
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate();
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card",
           LibraryUtility.GetGlobalNoSeriesCode());
 

@@ -68,6 +68,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cust/Vend/Item/Empl Templates - NamedType InsertedVendorErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3467874167 - NamedType 206654887" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item should have received the value "Allow Invoice Disc." = % from the Item Template]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = value of "Allow Invoice Disc." field which can be either true or false.]D;]A;(LookupHint=Codeunit Cust/Vend/Item/Empl Templates - NamedType ItemAllowInvoiceDiscErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3467874167 - NamedType 2335728399" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Item template should have value "Allow Invoice Disc." set to %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = value of "Allow Invoice Disc." field which can be either true or false.]D;]A;(LookupHint=Codeunit Cust/Vend/Item/Empl Templates - NamedType ItemTemplateAllowInvoiceDiscErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3467874167 - NamedType 2830596812" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[that cannot be found in the related table]]></Val>
@@ -561,15 +579,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Simplify UI Sales Invoice - NamedType CannotCreatePurchaseOrderWithoutVendorErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2523966737 - NamedType 3908984908" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The shipments are now combined]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Simplify UI Sales Invoice - NamedType CombineShipmentMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2523966737 - NamedType 1612216320" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

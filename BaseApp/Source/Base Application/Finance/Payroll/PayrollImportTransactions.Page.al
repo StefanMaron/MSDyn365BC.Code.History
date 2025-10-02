@@ -426,11 +426,28 @@ page 1661 "Payroll Import Transactions"
                 TopBannerVisible := MediaResourcesDone."Media Reference".HasValue;
     end;
 
+    /// <summary>
+    /// Integration event raised to import payroll transactions from external sources.
+    /// Enables custom payroll import functionality for different service providers.
+    /// </summary>
+    /// <param name="TempServiceConnection">Service connection record for external payroll service</param>
+    /// <param name="TempImportGLTransaction">Temporary table to store imported G/L transactions</param>
+    /// <remarks>
+    /// Raised from ImportPayrollTransactions procedure to allow external payroll service integration.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnImportPayrollTransactions(var TempServiceConnection: Record "Service Connection" temporary; var TempImportGLTransaction: Record "Import G/L Transaction" temporary)
     begin
     end;
 
+    /// <summary>
+    /// Integration event raised to create sample payroll import files.
+    /// Enables generation of sample files for payroll import format demonstration.
+    /// </summary>
+    /// <param name="TempServiceConnection">Service connection record for external payroll service</param>
+    /// <remarks>
+    /// Raised from CreateSampleFile procedure to generate sample payroll import files.
+    /// </remarks>
     [IntegrationEvent(false, false)]
     local procedure OnCreateSampleFile(TempServiceConnection: Record "Service Connection" temporary)
     begin

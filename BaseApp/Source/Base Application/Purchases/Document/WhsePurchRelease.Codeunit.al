@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Document;
 
 using Microsoft.Inventory.Location;
@@ -44,12 +48,11 @@ codeunit 5772 "Whse.-Purch. Release"
         PurchaseLine.SetRange("Drop Shipment", false);
         if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Return Order" then
             PurchaseLine.SetRange("Job No.", '');
-        PurchaseLine.SetRange("Work Center No.", '');
         OnAfterReleaseSetFilters(PurchaseLine, PurchaseHeader);
         if PurchaseLine.FindSet() then begin
             First := true;
             repeat
-                if PurchaseLine.IsInventoriableItem() then begin
+                if PurchaseLine.IsInventoriableItem() and not PurchaseLine.IsWorkCenter() then begin
                     if ((PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order) and (PurchaseLine.Quantity >= 0)) or
                         ((PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Return Order") and (PurchaseLine.Quantity < 0))
                     then
