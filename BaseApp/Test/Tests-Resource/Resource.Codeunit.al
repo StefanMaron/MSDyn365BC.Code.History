@@ -1543,6 +1543,7 @@ codeunit 136907 Resource
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup.Modify();
+        LibraryJob.SetJobNoSeriesCode();
 
         IsInitialized := true;
         Commit();
@@ -2514,4 +2515,3 @@ codeunit 136907 Resource
         ServiceContractTemplateList.OK().Invoke();
     end;
 }
-

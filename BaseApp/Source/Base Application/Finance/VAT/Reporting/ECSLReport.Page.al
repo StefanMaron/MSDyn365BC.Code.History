@@ -165,6 +165,7 @@ page 321 "ECSL Report"
                     Caption = 'Suggest Lines';
                     Image = SuggestLines;
                     ToolTip = 'Create EC Sales List entries based on information gathered from sales-related documents.';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -217,6 +218,7 @@ page 321 "ECSL Report"
                     Caption = 'Log Entries';
                     Image = ErrorLog;
                     ToolTip = 'View a history of communications with the tax authority.';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -229,6 +231,7 @@ page 321 "ECSL Report"
                     Caption = 'Release';
                     Image = ReleaseDoc;
                     ToolTip = 'Verify that the report includes all of the required information, and prepare it for submission.';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -241,6 +244,7 @@ page 321 "ECSL Report"
                     Caption = 'Reopen';
                     Image = ReOpen;
                     ToolTip = 'Open the report again to make changes.';
+                    Visible = false;
 
                     trigger OnAction()
                     begin

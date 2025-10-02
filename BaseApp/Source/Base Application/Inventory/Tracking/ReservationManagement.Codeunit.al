@@ -2026,8 +2026,7 @@ codeunit 99000845 "Reservation Management"
         if ReservEntry."Source Type" = Database::"Sales Line" then begin
             SynchronizingSalesLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.");
             if (Item."Order Tracking Policy" <> Item."Order Tracking Policy"::None) and
-               (Item."Assembly Policy" = Item."Assembly Policy"::"Assemble-to-Order") and
-               (Item."Replenishment System" = Item."Replenishment System"::Assembly) and
+               (Item."Assembly Policy" = Item."Assembly Policy"::"Assemble-to-Order") and Item.IsAssemblyItem() and
                (SynchronizingSalesLine."Quantity (Base)" = 0)
             then
                 exit(ReservEntry."Quantity (Base)" * CreateReservEntry.SignFactor(ReservEntry));

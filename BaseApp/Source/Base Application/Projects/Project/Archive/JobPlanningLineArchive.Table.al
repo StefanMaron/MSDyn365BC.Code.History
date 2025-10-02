@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Projects.Project.Archive;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.Project.Archive;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -331,22 +335,30 @@ table 5137 "Job Planning Line Archive"
         field(1035; "Invoiced Amount (LCY)"; Decimal)
         {
             Caption = 'Invoiced Amount (LCY)';
+            AutoFormatType = 1;
         }
         field(1036; "Invoiced Cost Amount (LCY)"; Decimal)
         {
             Caption = 'Invoiced Cost Amount (LCY)';
+            AutoFormatType = 1;
         }
         field(1037; "VAT Unit Price"; Decimal)
         {
             Caption = 'VAT Unit Price';
+            AutoFormatType = 2;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(1038; "VAT Line Discount Amount"; Decimal)
         {
             Caption = 'VAT Line Discount Amount';
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(1039; "VAT Line Amount"; Decimal)
         {
             Caption = 'VAT Line Amount';
+            AutoFormatType = 1;
+            AutoFormatExpression = Rec."Currency Code";
         }
         field(1041; "VAT %"; Decimal)
         {

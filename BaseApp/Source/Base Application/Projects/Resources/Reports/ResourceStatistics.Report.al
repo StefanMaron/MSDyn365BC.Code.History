@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.Resources.Resource;
 
 report 1105 "Resource Statistics"
@@ -68,6 +72,8 @@ report 1105 "Resource Statistics"
 
     requestpage
     {
+        AboutTitle = 'About Resource Statistics';
+        AboutText = 'View detailed, historical information for the resource.';
 
         layout
         {

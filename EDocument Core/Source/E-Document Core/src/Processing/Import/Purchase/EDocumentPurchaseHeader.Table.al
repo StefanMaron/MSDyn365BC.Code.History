@@ -1,4 +1,3 @@
-#pragma warning disable AS0049
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -14,10 +13,8 @@ table 6100 "E-Document Purchase Header"
 {
     Access = Internal;
     ReplicateData = false;
-#pragma warning disable AS0034
     InherentEntitlements = RIMDX;
     InherentPermissions = RIMDX;
-#pragma warning restore AS0034
 
     fields
     {
@@ -264,4 +261,3 @@ table 6100 "E-Document Purchase Header"
         DeleteDraftPerformedTxt: Label 'User deleted the draft.';
 
 }
-#pragma warning restore AS0049

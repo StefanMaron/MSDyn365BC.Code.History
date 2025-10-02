@@ -9,7 +9,6 @@ codeunit 131016 "Library - Power BI Service Mgt"
     end;
 
     var
-        BlobReportMap: DotNet GenericDictionary2;
         MockExceptionMessage: Text;
         MockExceptionDetails: Text;
         MockDeploymentUploadSuccessful: Boolean;
@@ -70,14 +69,4 @@ codeunit 131016 "Library - Power BI Service Mgt"
         MockDeploymentUploadCount := 0;
         MockDeploymentRetryCount := 0;
     end;
-
-    local procedure GetPowerBIReportId(BlobId: Guid): Guid
-    var
-        DummyValue: Variant;
-    begin
-        if BlobReportMap.TryGetValue(BlobId, DummyValue) then
-            exit(DummyValue);
-        exit(CreateGuid());
-    end;
 }
-

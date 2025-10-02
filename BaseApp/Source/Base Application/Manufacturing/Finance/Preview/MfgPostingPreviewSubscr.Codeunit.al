@@ -13,7 +13,7 @@ codeunit 99000798 "Mfg. Posting Preview Subscr."
         TempCapacityLedgerEntry: Record "Capacity Ledger Entry" temporary;
         PostingPreviewEventHandler: Codeunit "Posting Preview Event Handler";
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Preview Event Handler", 'OnGetEntries', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Preview Event Handler", 'OnGetEntries', '', false, false)]
     local procedure GetEntriesOnGetEntries(TableNo: Integer; var RecRef: RecordRef)
     begin
         GetAllTables();
@@ -23,7 +23,7 @@ codeunit 99000798 "Mfg. Posting Preview Subscr."
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Preview Event Handler", 'OnAfterShowEntries', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Preview Event Handler", 'OnAfterShowEntries', '', false, false)]
     local procedure ShowEntriesOnAfterShowEntries(TableNo: Integer)
     begin
         GetAllTables();
@@ -33,7 +33,7 @@ codeunit 99000798 "Mfg. Posting Preview Subscr."
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Preview Event Handler", 'OnAfterFillDocumentEntry', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Posting Preview Event Handler", 'OnAfterFillDocumentEntry', '', false, false)]
     local procedure FillDocumentEntryOnAfterFillDocumentEntry(var DocumentEntry: Record "Document Entry")
     begin
         GetAllTables();

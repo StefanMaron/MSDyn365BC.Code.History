@@ -321,15 +321,6 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         VATReportHeader.Insert(true);
     end;
 
-    local procedure CreateVATReportLine(VATReportHeaderNo: Code[20])
-    var
-        VATReportLine: Record "VAT Report Line";
-    begin
-        VATReportLine.Init();
-        VATReportLine."VAT Report No." := VATReportHeaderNo;
-        VATReportLine.Insert();
-    end;
-
     local procedure CreateVATReportHeaderWithData(var VATReportHeader: Record "VAT Report Header"; TradeType: Option)
     begin
         CreateVATReportHeader(VATReportHeader);
@@ -477,4 +468,3 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         VATEntries.OK().Invoke();
     end;
 }
-

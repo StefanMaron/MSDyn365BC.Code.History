@@ -16,7 +16,9 @@ tableextension 5005270 SourceCodeSetupDACH extends "Source Code Setup"
             Caption = 'Delivery Reminder';
             TableRelation = "Source Code";
             DataClassification = CustomerContent;
+#if not CLEANSCHEMA27
             MovedFrom = 'f3552374-a1f2-4356-848e-196002525837';
+#endif
         }
     }
 }

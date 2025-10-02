@@ -55,6 +55,13 @@ page 7770 "Copilot Cap. Early Preview"
                     ToolTip = 'Specifies the publisher of this Copilot.';
                     Editable = false;
                 }
+                field("Billing Type"; Rec."Billing Type")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Billing Type';
+                    ToolTip = 'Specifies the billing type of this Copilot.';
+                    Editable = false;
+                }
                 field("Learn More"; LearnMore)
                 {
                     ApplicationArea = All;
@@ -93,9 +100,10 @@ page 7770 "Copilot Cap. Early Preview"
                         if not Rec.EnsurePrivacyNoticesApproved() then
                             exit;
                         Rec.Status := Rec.Status::Active;
-                        Rec.Modify(true);
-
-                        CopilotCapabilityImpl.SendActivateTelemetry(Rec.Capability, Rec."App Id");
+                        if Rec.Modify(true) then begin
+                            CopilotCapabilityImpl.SendActivateTelemetry(Rec.Capability, Rec."App Id");
+                            CopilotNotifications.ShowCapabilityChange();
+                        end;
                     end;
                 end;
             }
@@ -145,6 +153,7 @@ page 7770 "Copilot Cap. Early Preview"
 
     var
         CopilotCapabilityImpl: Codeunit "Copilot Capability Impl";
+        CopilotNotifications: Codeunit "Copilot Notifications";
         StatusStyleExpr: Text;
         LearnMore: Text;
         LearnMoreLbl: Label 'Learn More';

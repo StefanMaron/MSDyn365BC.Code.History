@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.FinancialReports;
 
 page 488 "Column Layout Names"
@@ -71,6 +75,21 @@ page 488 "Column Layout Names"
                     ColumnLayout.Run();
                 end;
             }
+            action(WhereUsed)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Where-Used';
+                ToolTip = 'View or edit financial reports in which the column definition is used.';
+                Image = Track;
+
+                trigger OnAction()
+                var
+                    FinancialReport: Record "Financial Report";
+                begin
+                    FinancialReport.SetRange("Financial Report Column Group", Rec.Name);
+                    Page.Run(0, FinancialReport);
+                end;
+            }
             action(CopyColumnLayout)
             {
                 ApplicationArea = Basic, Suite;
@@ -122,9 +141,8 @@ page 488 "Column Layout Names"
             {
                 Caption = 'Process';
 
-                actionref(EditColumnLayoutSetup_Promoted; EditColumnLayoutSetup)
-                {
-                }
+                actionref(EditColumnLayoutSetup_Promoted; EditColumnLayoutSetup) { }
+                actionref(WhereUsed_Promoted; WhereUsed) { }
 
                 group(CopyExportImport)
                 {

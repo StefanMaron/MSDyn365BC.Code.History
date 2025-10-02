@@ -159,11 +159,11 @@ codeunit 134769 "Test User Tasks"
         // FEATURE] [UT]
         // [SCENARIO 253612] Task Description field in User Task table must be set accordingly to its encoding
         UserTask.Init();
-        UserTask.SetDescription('VytvorenÃƒÂ­ ÃƒÂºcetnÃƒÂ­ho obdobÃƒÂ­ pro rok 2018');
+        UserTask.SetDescription('Vytvorení úcetního období pro rok 2018');
         UserTask.Insert();
 
         UserTask2.Get(UserTask.ID);
-        Assert.AreEqual('VytvorenÃƒÂ­ ÃƒÂºcetnÃƒÂ­ho obdobÃƒÂ­ pro rok 2018', UserTask2.GetDescription(), 'Unexpected value in the Task Description');
+        Assert.AreEqual('Vytvorení úcetního období pro rok 2018', UserTask2.GetDescription(), 'Unexpected value in the Task Description');
     end;
 
     [Test]
@@ -279,4 +279,3 @@ codeunit 134769 "Test User Tasks"
             Assert.IsTrue(User.Modify(), 'Modifying the Windows user''s Windows Security ID should be possible in OnPrem environment');
     end;
 }
-

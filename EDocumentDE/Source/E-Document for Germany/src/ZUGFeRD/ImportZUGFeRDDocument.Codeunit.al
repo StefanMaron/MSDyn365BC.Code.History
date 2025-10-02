@@ -35,7 +35,7 @@ codeunit 13919 "Import ZUGFeRD Document"
         DocumentNamespace: Text;
         PDFInStream: InStream;
         PdfAttachmentStream: InStream;
-        DocumentElementLbl: Label '%1:%2', Comment = '%1 = Namespace, %2 = Document';
+        DocumentElementLbl: Label '%1:%2', Comment = '%1 = Namespace, %2 = Document', Locked = true;
         NoXMLFileErr: Label 'No invoice attachment found in the PDF file. Please check the PDF file.';
         CrossIndustryInvoiceLbl: Label 'CrossIndustryInvoice', Locked = true;
         UnsupportedDocumentTypeErr: Label 'Unsupported document type: %1', Comment = '%1 = Document type';
@@ -45,7 +45,7 @@ codeunit 13919 "Import ZUGFeRD Document"
         TempBlob.CreateInStream(PdfInStream);
         Clear(TempBlob);
         if not PDFDocument.GetDocumentAttachmentStream(PdfInStream, TempBlob) then
-            Message(NoXMLFileErr);
+            Error(NoXMLFileErr);
 
         TempBlob.CreateInStream(PdfAttachmentStream);
         TempXMLBuffer.LoadFromStream(PdfAttachmentStream);
@@ -77,7 +77,7 @@ codeunit 13919 "Import ZUGFeRD Document"
         DocumentType: Text;
         DocumentNamespace: Text;
         PdfAttachmentStream: InStream;
-        DocumentElementLbl: Label '%1:%2', Comment = '%1 = Namespace, %2 = Document';
+        DocumentElementLbl: Label '%1:%2', Comment = '%1 = Namespace, %2 = Document', Locked = true;
         CrossIndustryInvoiceLbl: Label 'CrossIndustryInvoice', Locked = true;
     begin
         FeatureTelemetry.LogUsage('0000EXS', FeatureNameTok, ContinueEventNameTok);
@@ -240,12 +240,9 @@ codeunit 13919 "Import ZUGFeRD Document"
     local procedure ParseSellerTradeParty(var EDocument: Record "E-Document"; var TempXMLBuffer: Record "XML Buffer" temporary; DocumentType: Text)
     var
         Vendor: Record Vendor;
-        EDocumentService: Record "E-Document Service";
-        EDocumentHelper: Codeunit "E-Document Helper";
         VendorName, VendorAddress : Text;
         VATRegistrationNo: Text[20];
         GLN: Text[13];
-        VendorID: Text[200];
         VendorNo: Code[20];
     begin
         if GetAttributeByPath(TempXMLBuffer, '/' + DocumentType + '/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:SellerTradeParty/ram:SpecifiedTaxRegistration/ram:ID') = 'VA' then
@@ -254,16 +251,6 @@ codeunit 13919 "Import ZUGFeRD Document"
         if GetAttributeByPath(TempXMLBuffer, '/' + DocumentType + '/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:SellerTradeParty/ram:SpecifiedLegalOrganization/ram:ID') = '0002' then
             GLN := CopyStr(GetNodeByPath(TempXMLBuffer, '/' + DocumentType + '/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:SellerTradeParty/ram:SpecifiedLegalOrganization/ram:ID'), 1, MaxStrLen(GLN));
         VendorNo := EDocumentImportHelper.FindVendor('', GLN, VATRegistrationNo);
-
-        // If vendor not found, try to find by Service Participant.
-        if VendorNo = '' then begin
-            VendorID := GetNodeByPath(TempXMLBuffer, '/' + DocumentType + '/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:SellerTradeParty/ram:SpecifiedLegalOrganization/ram:ID') + ':';
-            VendorID += GetNodeByPath(TempXMLBuffer, '/' + DocumentType + '/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:SellerTradeParty/ram:SpecifiedLegalOrganization');
-
-            EDocumentHelper.GetEdocumentService(EDocument, EDocumentService);
-            VendorNo := EDocumentImportHelper.FindVendorByServiceParticipant(VendorID, EDocumentService.Code);
-        end;
-
         if VendorNo = '' then begin
             VendorName := CopyStr(GetNodeByPath(TempXMLBuffer, '/' + DocumentType + '/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:SellerTradeParty/ram:Name'), 1, MaxStrLen(VendorName));
             VendorAddress := CopyStr(GetNodeByPath(TempXMLBuffer, '/' + DocumentType + 'rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeAgreement/ram:SellerTradeParty/ram:PostalTradeAddress/ram:LineOne'), 1, MaxStrLen(VendorAddress));

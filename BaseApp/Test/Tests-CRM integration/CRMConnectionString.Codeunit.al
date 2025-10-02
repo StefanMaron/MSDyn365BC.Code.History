@@ -10,7 +10,6 @@ codeunit 139178 "CRM Connection String"
 
     var
         Assert: Codeunit Assert;
-        LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryUtility: Codeunit "Library - Utility";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
@@ -795,22 +794,4 @@ codeunit 139178 "CRM Connection String"
     begin
         Reply := true;
     end;
-
-    local procedure CreateCRMUser(var CRMSystemuser: Record "CRM Systemuser"; DomainUserName: Text[250]; IntEmail: Text[100])
-    begin
-        LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser);
-        CRMSystemuser.DomainName := DomainUserName;
-        CRMSystemuser.Validate(InternalEMailAddress, IntEmail);
-        CRMSystemuser.Modify();
-    end;
-
-    local procedure CreateUser(var User: Record User; AuthEmail: Text[250])
-    begin
-        CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
-        User.SetRange("Windows Security ID", Sid());
-        User.FindFirst();
-        User.Validate("Authentication Email", AuthEmail);
-        User.Modify();
-    end;
 }
-

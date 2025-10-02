@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Intercompany.Inbox;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Intercompany.Inbox;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;

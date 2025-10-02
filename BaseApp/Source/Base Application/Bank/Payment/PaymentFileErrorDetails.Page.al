@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
+/// <summary>
+/// Page 1229 "Payment File Error Details" displays detailed information about payment export errors.
+/// This page provides comprehensive error information including error text, additional details, and support URLs.
+/// </summary>
+/// <remarks>
+/// Source table: Payment Jnl. Export Error Text. Used as a card part to show
+/// detailed error information when users drill down from payment error lists.
+/// </remarks>
 page 1229 "Payment File Error Details"
 {
     Caption = 'Payment File Error Details';

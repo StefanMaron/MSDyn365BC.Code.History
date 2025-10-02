@@ -55,7 +55,7 @@ page 738 "VAT Return Period Card"
                 Caption = 'Receive Submitted VAT Returns';
                 Image = RefreshLines;
                 ToolTip = 'Receive the VAT returns that have been submitted.';
-                Visible = IsReceiveSubmittedEnabled;
+                Visible = false;
             }
             action("Create VAT Return")
             {
@@ -64,6 +64,7 @@ page 738 "VAT Return Period Card"
                 Enabled = CreateVATReturnEnabled;
                 Image = RefreshLines;
                 ToolTip = 'Create a new VAT return from this VAT return period.';
+                Visible = false;
             }
         }
         area(navigation)
@@ -75,6 +76,7 @@ page 738 "VAT Return Period Card"
                 Enabled = OpenVATReturnEnabled;
                 Image = ShowList;
                 ToolTip = 'Open the VAT return card for this VAT return period.';
+                Visible = false;
             }
         }
         area(Promoted)
@@ -85,9 +87,11 @@ page 738 "VAT Return Period Card"
 
                 actionref("Receive Submitted VAT Returns_Promoted"; "Receive Submitted VAT Returns")
                 {
+                    Visible = false;
                 }
                 actionref("Create VAT Return_Promoted"; "Create VAT Return")
                 {
+                    Visible = false;
                 }
             }
         }

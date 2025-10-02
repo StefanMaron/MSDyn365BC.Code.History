@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace Microsoft.Integration.Shopify;
 
 using Microsoft.Sales.Document;
@@ -6,7 +11,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
 {
 
     var
-        SalesHeader: Record "Sales Header";
+        OrderSalesHeader: Record "Sales Header";
         Shop: Record "Shpfy Shop";
         RefundProcessEvents: Codeunit "Shpfy Refund Process Events";
         RefundId: BigInteger;
@@ -29,7 +34,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
 
     internal procedure GetSalesHeader(): Record "Sales Header";
     begin
-        exit(SalesHeader);
+        exit(OrderSalesHeader);
     end;
 
     local procedure CreateSalesDocument()
@@ -39,11 +44,11 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
     begin
         if RefundHeader.Get(RefundId) then begin
             Shop.Get(RefundHeader."Shop Code");
-            if DoCreateSalesHeader(RefundHeader, SalesDocumentType, SalesHeader) then begin
-                CreateSalesLines(RefundHeader, SalesHeader);
+            if DoCreateSalesHeader(RefundHeader, SalesDocumentType, OrderSalesHeader) then begin
+                CreateSalesLines(RefundHeader, OrderSalesHeader);
                 RefundHeader.Get(RefundHeader."Refund Id");
-                ReleaseSalesDocument.Run(SalesHeader);
-                RefundProcessEvents.OnAfterProcessSalesDocument(RefundHeader, SalesHeader);
+                ReleaseSalesDocument.Run(OrderSalesHeader);
+                RefundProcessEvents.OnAfterProcessSalesDocument(RefundHeader, OrderSalesHeader);
             end;
         end;
     end;
@@ -111,6 +116,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                 SalesHeader.Validate("Document Date", DT2Date(RefundHeader."Created At"));
                 if OrderMgt.FindTaxArea(OrderHeader, ShopifyTaxArea) and (ShopifyTaxArea."Tax Area Code" <> '') then
                     SalesHeader.Validate("Tax Area Code", ShopifyTaxArea."Tax Area Code");
+                MapPaymentMethodCode(SalesHeader);
             end;
             SalesHeader."Shpfy Refund Id" := RefundHeader."Refund Id";
             SalesHeader.Modify(true);
@@ -141,25 +147,42 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
         SalesLine: Record "Sales Line";
         RefundLine: Record "Shpfy Refund Line";
         ReturnLine: Record "Shpfy Return Line";
+        OrderHeader: Record "Shpfy Order Header";
         LineNo: Integer;
+        RoundingAmount: Decimal;
+        ShopifyOrderNoLbl: Label 'Shopify Order No.: %1', Comment = '%1 = Order No.';
     begin
-        RefundLine.SetRange("Refund Id", RefundHeader."Refund Id");
-        RefundLine.SetAutoCalcFields("Item No.", "Variant Code", Description, "Gift Card");
         LineNo := GetLastLineNo(SalesHeader."Document Type", SalesHeader."No.");
+        if Shop."Shopify Order No. on Doc. Line" then begin
+            SalesLine.Init();
+            SalesLine.SetHideValidationDialog(true);
+            SalesLine.Validate("Document Type", SalesHeader."Document Type");
+            SalesLine.Validate("Document No.", SalesHeader."No.");
+            SalesLine.Validate("Line No.", LineNo);
+            SalesLine.Validate(Type, SalesLine.Type::" ");
+            OrderHeader.Get(RefundHeader."Order Id");
+            SalesLine.Validate(Description, StrSubstNo(ShopifyOrderNoLbl, OrderHeader."Shopify Order No."));
+            SalesLine.Insert(true);
+        end;
+
+        RefundLine.SetRange("Refund Id", RefundHeader."Refund Id");
+        RefundLine.SetAutoCalcFields("Item No.", "Variant Code", Description, "Gift Card", "Unit of Measure Code");
         if RefundLine.FindSet(false) then
             CreateSalesLinesFromRefundLines(RefundLine, RefundHeader, SalesHeader, LineNo)
         else
             if RefundHeader."Return Id" > 0 then begin
                 ReturnLine.SetRange("Return Id", RefundHeader."Return Id");
-                ReturnLine.SetAutoCalcFields("Item No.", "Variant Code", Description);
+                ReturnLine.SetAutoCalcFields("Item No.", "Variant Code", Description, "Unit of Measure Code");
                 if ReturnLine.FindSet(false) then
                     CreateSalesLinesFromReturnLines(ReturnLine, RefundHeader, SalesHeader, LineNo);
             end;
 
         CreateSalesLinesFromRefundShippingLines(RefundHeader, SalesHeader, LineNo);
 
+        RoundingAmount := CreateRoundingLine(RefundHeader, SalesHeader, LineNo);
+
         SalesHeader.CalcFields(Amount, "Amount Including VAT");
-        if SalesHeader."Amount Including VAT" <> RefundHeader."Total Refunded Amount" then begin
+        if SalesHeader."Amount Including VAT" <> RefundHeader."Total Refunded Amount" + RoundingAmount then begin
             LineNo += 10000;
             SalesLine.Init();
             SalesLine.SetHideValidationDialog(true);
@@ -207,15 +230,20 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
 
                             if RefundLine."Gift Card" then begin
                                 SalesLine.Validate(Type, "Sales Line Type"::"G/L Account");
+                                Shop.TestField("Sold Gift Card Account");
                                 SalesLine.Validate("No.", Shop."Sold Gift Card Account");
                             end else
                                 if RefundLine."Restock Type" = "Shpfy restock Type"::"No Restock" then begin
                                     SalesLine.Validate(Type, "Sales Line Type"::"G/L Account");
+                                    Shop.TestField("Refund Acc. non-restock Items");
                                     SalesLine.Validate("No.", Shop."Refund Acc. non-restock Items");
                                     SalesLine.Description := RefundLine.Description;
                                 end else begin
                                     SalesLine.Validate(Type, "Sales Line Type"::Item);
                                     SalesLine.Validate("No.", RefundLine."Item No.");
+                                    if RefundLine."Unit of Measure Code" <> '' then
+                                        SalesLine.Validate("Unit of Measure Code", RefundLine."Unit of Measure Code");
+
                                     if RefundLine."Variant Code" <> '' then
                                         SalesLine.Validate("Variant Code", RefundLine."Variant Code");
 
@@ -263,6 +291,7 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                         SalesLine.Insert(true);
 
                         SalesLine.Validate(Type, "Sales Line Type"::"G/L Account");
+                        Shop.TestField("Refund Account");
                         SalesLine.Validate("No.", Shop."Refund Account");
                         SalesLine.Validate(Quantity, 1);
                         SalesLine.Validate("Unit Price", RefundLine."Presentment Subtotal Amount");
@@ -293,6 +322,9 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
 
                 SalesLine.Validate(Type, "Sales Line Type"::Item);
                 SalesLine.Validate("No.", ReturnLine."Item No.");
+                if ReturnLine."Unit of Measure Code" <> '' then
+                    SalesLine.Validate("Unit of Measure Code", ReturnLine."Unit of Measure Code");
+
                 if ReturnLine."Variant Code" <> '' then
                     SalesLine.Validate("Variant Code", ReturnLine."Variant Code");
 
@@ -328,7 +360,8 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                 SalesLine.Insert(true);
 
                 SalesLine.Validate(Type, "Sales Line Type"::"G/L Account");
-                SalesLine.Validate("No.", Shop."Refund Account");
+                Shop.TestField("Shipping Charges Account");
+                SalesLine.Validate("No.", Shop."Shipping Charges Account");
                 SalesLine.Validate(Description, RefundShippingLine.Title);
                 SalesLine.Validate(Quantity, 1);
                 if SalesHeader."Prices Including VAT" then
@@ -339,5 +372,71 @@ codeunit 30246 "Shpfy Create Sales Doc. Refund"
                 SalesLine."Shpfy Refund Shipping Line Id" := RefundShippingLine."Refund Shipping Line Id";
                 SalesLine.Modify();
             until RefundShippingLine.Next() = 0;
+    end;
+
+    local procedure CreateRoundingLine(RefundHeader: Record "Shpfy Refund Header"; var SalesHeader: Record "Sales Header"; var LineNo: Integer): Decimal
+    var
+        OrderHeader: Record "Shpfy Order Header";
+        SalesLine: Record "Sales Line";
+        CashRoundingLbl: Label 'Cash rounding';
+    begin
+        OrderHeader.Get(RefundHeader."Order Id");
+        if OrderHeader."Refund Rounding Amount" <> 0 then begin
+            LineNo += 10000;
+            SalesLine.Init();
+            SalesLine.SetHideValidationDialog(true);
+            SalesLine.Validate("Document Type", SalesHeader."Document Type");
+            SalesLine.Validate("Document No.", SalesHeader."No.");
+            SalesLine.Validate("Line No.", LineNo);
+            SalesLine.Insert(true);
+
+            SalesLine.Validate(Type, SalesLine.Type::"G/L Account");
+            Shop.TestField("Cash Roundings Account");
+            SalesLine.Validate("No.", Shop."Cash Roundings Account");
+            SalesLine.Validate(Quantity, 1);
+            SalesLine.Validate("Unit Price", GetRoundingAmountFromTransactions());
+            SalesLine.Validate(Description, CashRoundingLbl);
+            SalesLine.Modify();
+            exit(SalesLine."Unit Price");
+        end;
+    end;
+
+    local procedure MapPaymentMethodCode(var SalesHeader: Record "Sales Header")
+    var
+        OrderTransaction: Record "Shpfy Order Transaction";
+        PaymentMethods: List of [Code[10]];
+    begin
+        OrderTransaction.SetAutoCalcFields("Payment Method");
+        OrderTransaction.SetRange("Refund Id", RefundId);
+        OrderTransaction.SetRange(Status, "Shpfy Transaction Status"::Success);
+        OrderTransaction.SetRange(Type, "Shpfy Transaction Type"::Refund);
+        if OrderTransaction.FindSet() then begin
+            repeat
+                if not PaymentMethods.Contains(OrderTransaction."Payment Method") then
+                    PaymentMethods.Add(OrderTransaction."Payment Method");
+
+                if PaymentMethods.Count > 1 then
+                    exit;
+            until OrderTransaction.Next() = 0;
+            SalesHeader.Validate("Payment Method Code", PaymentMethods.Get(1));
+        end;
+    end;
+
+    local procedure GetRoundingAmountFromTransactions(): Decimal
+    var
+        OrderTransaction: Record "Shpfy Order Transaction";
+        TotalAmount: Decimal;
+    begin
+        OrderTransaction.SetRange("Refund Id", RefundId);
+        OrderTransaction.SetRange(Status, "Shpfy Transaction Status"::Success);
+        OrderTransaction.SetRange(Type, "Shpfy Transaction Type"::Refund);
+        if not OrderTransaction.FindSet() then
+            exit;
+
+        repeat
+            TotalAmount += OrderTransaction."Rounding Amount";
+        until OrderTransaction.Next() = 0;
+
+        exit(TotalAmount);
     end;
 }

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Peppol;
 
 using Microsoft.Finance.VAT.Calculation;
@@ -841,11 +845,12 @@ xmlport 1610 "Sales Invoice - PEPPOL BIS 3.0"
                       CustomerIdentificationCode,
                       DummyVar);
 
-                    PEPPOLMgt.GetAccountingCustomerPartyTaxSchemeBIS(
+                    PEPPOLMgt.GetAccountingCustomerPartyTaxSchemeBIS30(
                       SalesHeader,
                       CustPartyTaxSchemeCompanyID,
                       CustPartyTaxSchemeCompIDSchID,
-                      CustTaxSchemeID);
+                      CustTaxSchemeID,
+                      TempVATAmtLine);
 
                     PEPPOLMgt.GetAccountingCustomerPartyLegalEntityBIS(
                       SalesHeader,

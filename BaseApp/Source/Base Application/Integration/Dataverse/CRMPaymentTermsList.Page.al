@@ -151,7 +151,7 @@ page 7210 "CRM Payment Terms List"
         CurrentlyMappedCRMPaymentTermOptionId := OptionId;
     end;
 
-    procedure GetRec(OptionId: Integer): Record "CRM Payment Terms"
+    internal procedure GetRec(OptionId: Integer): Record "CRM Payment Terms"
     begin
         if Rec.Get(OptionId) then
             exit(Rec);

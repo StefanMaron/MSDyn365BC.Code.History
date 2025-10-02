@@ -1,17 +1,9 @@
-#if not CLEAN24
-page 742 "VAT Report Lines"
-#else
+#pragma warning disable AA0247
 page 784 "VAT Report Lines"
-#endif
 {
     Caption = 'VAT Report Lines';
     PageType = List;
     SourceTable = "VAT Report Line";
-#if not CLEAN24
-    ObsoleteReason = 'This page will be renumbered to page 784 to resolve inconsisteny with W1 page.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '24.0';
-#endif
 
     layout
     {

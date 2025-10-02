@@ -21,6 +21,7 @@ using Microsoft.Foundation.PaymentTerms;
 codeunit 13922 "ZUGFeRD XML Document Tests"
 {
     Subtype = Test;
+    TestType = Uncategorized;
 
     trigger OnRun();
     begin

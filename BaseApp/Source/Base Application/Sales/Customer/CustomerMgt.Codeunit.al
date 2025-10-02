@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,6 +6,7 @@ namespace Microsoft.Sales.Customer;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.Period;
+using Microsoft.CRM.Interaction;
 using Microsoft.Inventory.Costing;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
@@ -21,46 +22,160 @@ codeunit 1302 "Customer Mgt."
     var
         FiscalYearTotals: Boolean;
 
-    procedure AvgDaysToPay(CustNo: Code[20]): Decimal
+#if not CLEAN27
+    [Obsolete('Use procedure CalculatePaymentStats(CustomerNo: Code[20]; var Stats: Dictionary of [Text, Text]) instead.', '27.0')]
+    procedure AvgDaysToPay(CustNo: Code[20]) AverageDaysToPay: Decimal
     var
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        CustLedgEntry2: Record "Cust. Ledger Entry";
-        AverageDaysToPay: Decimal;
-        TotalDaysToPay: Decimal;
-        TotalNoOfInv: Integer;
+        Stats: Dictionary of [Text, Text];
     begin
-        AverageDaysToPay := 0;
-        CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
-        SetFilterForPostedDocs(CustLedgEntry, CustNo, CustLedgEntry."Document Type"::Invoice);
-        CustLedgEntry.SetRange(Open, false);
-
-        if CustLedgEntry.FindSet() then
-            repeat
-                case true of
-                    CustLedgEntry."Closed at Date" > CustLedgEntry."Posting Date":
-                        UpdateDaysToPay(CustLedgEntry."Closed at Date" - CustLedgEntry."Posting Date", TotalDaysToPay, TotalNoOfInv);
-                    CustLedgEntry."Closed by Entry No." <> 0:
-                        if CustLedgEntry2.Get(CustLedgEntry."Closed by Entry No.") then
-                            UpdateDaysToPay(CustLedgEntry2."Posting Date" - CustLedgEntry."Posting Date", TotalDaysToPay, TotalNoOfInv);
-                    else begin
-                        CustLedgEntry2.SetCurrentKey("Closed by Entry No.");
-                        CustLedgEntry2.SetRange("Closed by Entry No.", CustLedgEntry."Entry No.");
-                        if CustLedgEntry2.FindFirst() then
-                            UpdateDaysToPay(CustLedgEntry2."Posting Date" - CustLedgEntry."Posting Date", TotalDaysToPay, TotalNoOfInv);
-                    end;
-                end;
-            until CustLedgEntry.Next() = 0;
-
-        if TotalNoOfInv <> 0 then
-            AverageDaysToPay := TotalDaysToPay / TotalNoOfInv;
-
-        exit(AverageDaysToPay);
+        CalculatePaymentStats(CustNo, Stats);
+        exit(GetAvgDaysToPay(stats));
     end;
 
-    local procedure UpdateDaysToPay(NoOfDays: Integer; var TotalDaysToPay: Decimal; var TotalNoOfInv: Integer)
+    local procedure GetAvgDaysToPay(var Stats: Dictionary of [Text, Text]) AverageDaysToPay: Decimal
+    var
+        CustomerCardCalculations: Codeunit "Customer Card Calculations";
+        AverageDaysToPayText: Text;
     begin
-        TotalDaysToPay += NoOfDays;
-        TotalNoOfInv += 1;
+        if Stats.Get(CustomerCardCalculations.GetAvgDaysToPayLabel(), AverageDaysToPayText) then
+            if Evaluate(AverageDaysToPay, AverageDaysToPayText, 0) then
+                exit(AverageDaysToPay);
+    end;
+#endif
+    procedure CalculatePaymentStats(CustomerNo: Code[20]; var Stats: Dictionary of [Text, Text])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntry2: Record "Cust. Ledger Entry";
+        CustomerCardCalculations: Codeunit "Customer Card Calculations";
+        TotalDaysToPay: Decimal;
+        TotalNoOfInv: Integer;
+        PaidLateCount: Decimal;
+    begin
+        TotalDaysToPay := 0;
+        TotalNoOfInv := 0;
+        PaidLateCount := 0;
+
+        CustLedgerEntry.SetCurrentKey("Customer No.", "Posting Date");
+        SetFilterForPostedDocs(CustLedgerEntry, CustomerNo, CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.SetRange(Open, false);
+
+        if CustLedgerEntry.FindSet() then
+            repeat
+                case true of
+                    CustLedgerEntry."Closed at Date" > CustLedgerEntry."Posting Date":
+                        begin
+                            TotalDaysToPay += CustLedgerEntry."Closed at Date" - CustLedgerEntry."Posting Date";
+                            TotalNoOfInv += 1;
+                            if CustLedgerEntry."Closed at Date" > CustLedgerEntry."Due Date" then
+                                PaidLateCount += 1;
+                        end;
+                    CustLedgerEntry."Closed by Entry No." <> 0:
+                        if CustLedgerEntry2.Get(CustLedgerEntry."Closed by Entry No.") then begin
+                            TotalDaysToPay += CustLedgerEntry2."Posting Date" - CustLedgerEntry."Posting Date";
+                            TotalNoOfInv += 1;
+                            if CustLedgerEntry2."Posting Date" > CustLedgerEntry."Due Date" then
+                                PaidLateCount += 1;
+                        end;
+                    else begin
+                        CustLedgerEntry2.SetCurrentKey("Closed by Entry No.");
+                        CustLedgerEntry2.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
+                        if CustLedgerEntry2.FindFirst() then begin
+                            TotalDaysToPay += CustLedgerEntry2."Posting Date" - CustLedgerEntry."Posting Date";
+                            TotalNoOfInv += 1;
+                            if CustLedgerEntry2."Posting Date" > CustLedgerEntry."Due Date" then
+                                PaidLateCount += 1;
+                        end
+                    end;
+                end;
+            until CustLedgerEntry.Next() = 0;
+
+        if TotalNoOfInv <> 0 then begin
+            Stats.Add(CustomerCardCalculations.GetAvgDaysToPayLabel(), (TotalDaysToPay / TotalNoOfInv).ToText());
+            Stats.Add(CustomerCardCalculations.GetPaidLateCountLabel(), PaidLateCount.ToText());
+            Stats.Add(CustomerCardCalculations.GetPaidOnTimeCountLabel(), (TotalNoOfInv - PaidLateCount).ToText());
+            Stats.Add(CustomerCardCalculations.GetPercentPaidLateLabel(), Round((PaidLateCount / TotalNoOfInv) * 100).ToText());
+        end;
+
+        CustLedgerEntry.SetRange(Open, true);
+        CustLedgerEntry.SetRange("Due Date", 0D, WorkDate() - 1);
+        Stats.Add(CustomerCardCalculations.GetOverdueCountLabel(), CustLedgerEntry.Count().ToText());
+
+        CalcLastPaymentInfo(CustomerNo, Stats);
+
+        CustLedgerEntry.Reset();
+        CustLedgerEntry.SetCurrentKey("Posting Date");
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetFilter("Sales (LCY)", '>%1', 0);
+        if CustLedgerEntry.FindLast() then
+            Stats.Add(CustomerCardCalculations.GetDaysSinceLastSaleLabel(), (WorkDate() - CustLedgerEntry."Posting Date").ToText());
+    end;
+
+    procedure CalcLastPaymentInfo(CustomerNo: Code[20]; var Stats: Dictionary of [Text, Text])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntry2: Record "Cust. Ledger Entry";
+        CustomerCardCalculations: Codeunit "Customer Card Calculations";
+    begin
+        CustLedgerEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.SetRange(Reversed, false);
+        if CustLedgerEntry.FindLast() then begin
+            CustLedgerEntry.CalcFields("Amount (LCY)");
+            Stats.Add(CustomerCardCalculations.GetLastPaymentDateLabel(), CustLedgerEntry."Posting Date".ToText());
+            Stats.Add(CustomerCardCalculations.GetLastPaymentAmountLabel(), (-CustLedgerEntry."Amount (LCY)").ToText());
+            CustLedgerEntry2.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
+            if CustLedgerEntry2.FindLast() then
+                Stats.Add(CustomerCardCalculations.GetLastPaymentOnTimeLabel(), (CustLedgerEntry2."Closed at Date" < CustLedgerEntry2."Due Date").ToText())
+        end;
+    end;
+
+    procedure CalcNumberOfDistinctItemsSold(CustomerNo: Code[20]; var Stats: Dictionary of [Text, Text])
+    var
+        CustomerCardCalculations: Codeunit "Customer Card Calculations";
+        DistinctItemsSoldQuery: Query "Distinct Items Sold";
+        DistinctItemCount: Integer;
+    begin
+        DistinctItemCount := 0;
+        DistinctItemsSoldQuery.SetRange(CustomerNoFilter, CustomerNo);
+
+        if DistinctItemsSoldQuery.Open() then
+            while DistinctItemsSoldQuery.Read() do
+                DistinctItemCount += 1;
+        Stats.Add(CustomerCardCalculations.GetDistinctItemsSoldLabel(), DistinctItemCount.ToText())
+    end;
+
+    procedure CalculateInteractionStats(CustomerNo: Code[20]; var Stats: Dictionary of [Text, Text])
+    var
+        InteractionLogEntry: Record "Interaction Log Entry";
+        InteractionGroup: Record "Interaction Group";
+        CustomerCardCalculations: Codeunit "Customer Card Calculations";
+        CustomerInteractionStats: Query "Customer Interaction Stats.";
+        EntryCount, MaxEntryNo, MaxGroupCount : integer;
+        MaxGroupDescription: Text[100];
+    begin
+        MaxEntryNo := 0;
+        MaxGroupCount := 0;
+        CustomerInteractionStats.SetRange(CustomerNo, CustomerNo);
+        CustomerInteractionStats.SetFilter(InteractionDate, GetCurrentYearFilter());
+        CustomerInteractionStats.Open();
+        while CustomerInteractionStats.Read() do begin
+            EntryCount += CustomerInteractionStats.InteractionCount;
+            if MaxGroupCount < CustomerInteractionStats.InteractionCount then begin
+                MaxGroupCount := CustomerInteractionStats.InteractionCount;
+                MaxGroupDescription := CustomerInteractionStats.Description;
+            end;
+            if MaxEntryNo < CustomerInteractionStats.MaxEntryNo then
+                MaxEntryNo := CustomerInteractionStats.MaxEntryNo;
+        end;
+        Stats.Add(CustomerCardCalculations.GetInteractionCountLabel(), EntryCount.ToText());
+        if InteractionLogEntry.Get(MaxEntryNo) then begin
+            Stats.Add(CustomerCardCalculations.GetLastInteractionDateLabel(), InteractionLogEntry.Date.ToText());
+            if InteractionGroup.Get(InteractionLogEntry."Interaction Group Code") then
+                Stats.Add(CustomerCardCalculations.GetLastInteractionTypeLabel(), InteractionGroup.Description);
+            Stats.Add(CustomerCardCalculations.GetMostFrequentInteractionTypeLabel(), MaxGroupDescription);
+        end;
+
     end;
 
     procedure CalculateStatistic(Customer: Record Customer; var AdjmtCostLCY: Decimal; var AdjCustProfit: Decimal; var AdjProfitPct: Decimal; var CustInvDiscAmountLCY: Decimal; var CustPaymentsLCY: Decimal; var CustSalesLCY: Decimal; var CustProfit: Decimal)
@@ -363,22 +478,6 @@ codeunit 1302 "Customer Mgt."
         exit(Totals);
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by procedure CalculateShipBillToOptions()', '24.0')]
-    procedure CalculateShipToBillToOptions(var ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address"; var BillToOptions: Option "Default (Customer)","Another Customer","Custom Address"; var SalesHeader: Record "Sales Header")
-    var
-        ShipToOptionsEnum: Enum "Sales Ship-to Options";
-        BillToOptionsEnum: Enum "Sales Bill-to Options";
-    begin
-        ShipToOptionsEnum := "Sales Ship-to Options".FromInteger(ShipToOptions);
-        BillToOptionsEnum := "Sales Bill-to Options".FromInteger(BillToOptions);
-        CalculateShipBillToOptions(ShipToOptionsEnum, BillToOptionsEnum, SalesHeader);
-        ShipToOptions := ShipToOptionsEnum.AsInteger();
-        BillToOptions := BillToOptionsEnum.AsInteger();
-
-        OnAfterCalculateShipToBillToOptions(ShipToOptions, BillToOptions, SalesHeader);
-    end;
-#endif
 
     procedure SearchForExternalDocNo(var OriginalSalesHeader: Record "Sales Header"): Boolean
     var
@@ -476,17 +575,9 @@ codeunit 1302 "Customer Mgt."
     begin
     end;
 
-#if not CLEAN24
-    [Obsolete('Replaced by event OnAfterCalculateShipBillToOptions()', '24.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCalculateShipToBillToOptions(var ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address"; var BillToOptions: Option "Default (Customer)","Another Customer","Custom Address"; SalesHeader: Record "Sales Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateStatisticsWithCurrentCustomerValues(var Customer: Record Customer; var AdjmtCostLCY: Decimal; var AdjCustProfit: Decimal; var AdjProfitPct: Decimal; var CustInvDiscAmountLCY: Decimal; var CustPaymentsLCY: Decimal; var CustSalesLCY: Decimal; var CustProfit: Decimal; var IsHandled: Boolean)
     begin
     end;
 }
-

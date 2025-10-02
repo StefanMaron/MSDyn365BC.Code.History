@@ -10,15 +10,10 @@
     end;
 
     var
-        LibraryUTUtility: Codeunit "Library UT Utility";
         Assert: Codeunit Assert;
         FieldMustEnabledMsg: Label 'Field must be enabled';
         NothingToAdjustTxt: Label 'There is nothing to adjust.';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryERM: Codeunit "Library - ERM";
-        LibraryRandom: Codeunit "Library - Random";
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryJournals: Codeunit "Library - Journals";
         RefValuationMethod: Option Standard,"Lowest Value","BilMoG (Germany)";
 
     [Test]
@@ -103,117 +98,10 @@
 
         // Verify: Verify various Fields in AdjustExchangeRatesPostingDescRequestPageHandler, AdjustExchangeRatesValPerEndRequestPageHandler and  AdjustExchangeRatesValuationMethodRequestPageHandler.
     end;
-    
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
-    end;
-
-    local procedure CreateBankAccountWithCurrencyAndGroup(var BankAccount: Record "Bank Account"; CurrencyCode: Code[10]; BankAccountPostingGroupCode: Code[20])
-    begin
-        LibraryERM.CreateBankAccount(BankAccount);
-        BankAccount.Validate("Currency Code", CurrencyCode);
-        BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroupCode);
-        BankAccount.Modify(true);
-    end;
-
-    local procedure CreateCurrencyWithExchangeRate(): Code[10]
-    var
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
-        Currency: Record Currency;
-    begin
-        Currency.Init();
-        Currency.Code := LibraryUTUtility.GetNewCode10();
-        Currency.Insert();
-
-        CurrencyExchangeRate.Init();
-        CurrencyExchangeRate."Currency Code" := Currency.Code;
-        CurrencyExchangeRate."Starting Date" := WorkDate();
-        CurrencyExchangeRate."Adjustment Exch. Rate Amount" := 1;
-        CurrencyExchangeRate."Relational Adjmt Exch Rate Amt" := 1;
-        CurrencyExchangeRate.Insert();
-        exit(Currency.Code);
-    end;
-
-    local procedure CreateCurrencyWithSpecificExchangeRates(var AdjustmentDate: array[2] of Date) CurrencyCode: Code[10]
-    begin
-        // Exchange rate for "October"
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<CM - 3M>', WorkDate()), 1.2368, 1.2368);
-
-        // Exchange rate for "November"
-        AdjustmentDate[1] := CalcDate('<CM - 2M>', WorkDate());
-        LibraryERM.CreateExchangeRate(CurrencyCode, AdjustmentDate[1], 0.92, 0.92);
-
-        // Exchange rate for "December"
-        AdjustmentDate[2] := CalcDate('<CM - 1M>', WorkDate());
-        LibraryERM.CreateExchangeRate(CurrencyCode, AdjustmentDate[2], 0.8, 0.8);
-    end;
-
-    local procedure CreateForeignVendorNoWithVATPostingSetup(CurrencyCode: Code[10]; var VATPostingSetup: Record "VAT Posting Setup"): Code[20]
-    var
-        Vendor: Record Vendor;
-    begin
-        LibraryERM.CreateVATPostingSetupWithAccounts(
-          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 20));
-
-        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
-        Vendor.Validate("Currency Code", CurrencyCode);
-        Vendor.Modify();
-        exit(Vendor."No.");
-    end;
-
-    local procedure CreatePostJournalInvoice(VendorNo: Code[20]; PostingDate: Date; InvoiceAmount: Decimal; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        LibraryJournals.CreateGenJournalLineWithBatch(
-            GenJournalLine, GenJournalLine."Document Type"::Invoice,
-            GenJournalLine."Account Type"::"G/L Account",
-            LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GenJournalLine."Gen. Posting Type"::Purchase),
-            InvoiceAmount);
-        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Vendor);
-        GenJournalLine.Validate("Bal. Account No.", VendorNo);
-        GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Modify();
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        exit(GenJournalLine."Document No.");
-    end;
-
-    local procedure CreatePostPaymentAppliedToInvoice(VendorNo: Code[20]; PostingDate: Date; PaymentAmount: Decimal; InvoiceNo: Code[20])
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-    begin
-        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Vendor, VendorNo, PaymentAmount);
-        GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
-        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
-        GenJournalLine.Modify();
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
-    local procedure PostGenJournalLineForBankAccount(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; BankAccount: Record "Bank Account")
-    begin
-        LibraryJournals.CreateGenJournalLineWithBatch(
-          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"Bank Account", BankAccount."No.",
-          LibraryRandom.RandDecInRange(100, 200, 2));
-        GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Modify(true);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
-    local procedure RunAdjExchRatesForVendorByDateBilMog(CurrencyCode: Code[10]; AdjustmentDate: Date)
-    var
-        Currency: Record Currency;
-        ExchRateAdjustment: Report "Exch. Rate Adjustment";
-    begin
-        Currency.SetRange(Code, CurrencyCode);
-        ExchRateAdjustment.SetTableView(Currency);
-        ExchRateAdjustment.InitializeRequest2(
-            AdjustmentDate, AdjustmentDate, '', AdjustmentDate, 'DocumentNo', true, false);
-        ExchRateAdjustment.SetValuationMethod(RefValuationMethod::"BilMoG (Germany)", 0D, AdjustmentDate);
-        ExchRateAdjustment.UseRequestPage(false);
-        ExchRateAdjustment.Run();
     end;
 
     [RequestPageHandler]
@@ -281,4 +169,3 @@
     begin
     end;
 }
-

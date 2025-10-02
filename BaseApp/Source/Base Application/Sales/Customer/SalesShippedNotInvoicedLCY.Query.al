@@ -24,10 +24,7 @@ query 115 "Sales Shipped Not Invoiced LCY"
                 DataItemTableFilter = "Document Type" = const(Order);
                 DataItemLink = "Document No." = SalesShipmentLine."Order No.",
                                "Line No." = SalesShipmentLine."Order Line No.";
-                column(ShippedNotInvoicedLCY; "Shipped Not Invoiced (LCY)")
-                {
-                    Method = Sum;
-                }
+                column(ShippedNotInvoicedLCY; "Shipped Not Invoiced (LCY)") { }
             }
         }
     }

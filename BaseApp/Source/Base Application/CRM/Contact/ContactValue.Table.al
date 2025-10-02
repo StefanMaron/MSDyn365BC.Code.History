@@ -18,6 +18,7 @@ table 5101 "Contact Value"
         }
         field(2; Value; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             Caption = 'Value';
         }
@@ -27,6 +28,7 @@ table 5101 "Contact Value"
         }
         field(4; "Questions Answered (%)"; Decimal)
         {
+            AutoFormatType = 0;
             Caption = 'Questions Answered (%)';
         }
     }
@@ -46,4 +48,3 @@ table 5101 "Contact Value"
     {
     }
 }
-

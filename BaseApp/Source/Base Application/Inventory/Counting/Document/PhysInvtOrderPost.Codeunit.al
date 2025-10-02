@@ -31,9 +31,6 @@ codeunit 5884 "Phys. Invt. Order-Post"
                   TableData "Pstd. Phys. Invt. Record Hdr" = rimd,
                   TableData "Pstd. Phys. Invt. Record Line" = rimd,
                   TableData "Pstd. Phys. Invt. Tracking" = rimd,
-#if not CLEAN24
-                  TableData "Pstd. Exp. Phys. Invt. Track" = rimd,
-#endif
                   TableData "Pstd.Exp.Invt.Order.Tracking" = rimd;
     TableNo = "Phys. Invt. Order Header";
 
@@ -61,10 +58,6 @@ codeunit 5884 "Phys. Invt. Order-Post"
         PhysInvtOrderLine2: Record "Phys. Invt. Order Line";
         PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
         PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
-#if not CLEAN24
-        ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking";
-        PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track";
-#endif
         ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking";
         PstdExpInvtOrderTracking: Record "Pstd.Exp.Invt.Order.Tracking";
         PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
@@ -192,31 +185,15 @@ codeunit 5884 "Phys. Invt. Order-Post"
                 OnCodeOnAferPostPhysInventoryOrderLineNonNegative(PhysInvtOrderHeader, PhysInvtOrderLine, ItemJnlPostLine);
             until PhysInvtOrderLine.Next() = 0;
         // Insert posted expected phys. invt. tracking Lines
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-            ExpPhysInvtTracking.Reset();
-            ExpPhysInvtTracking.SetRange("Order No", PhysInvtOrderHeader."No.");
-            if ExpPhysInvtTracking.Find('-') then
-                repeat
-                    PstdExpPhysInvtTrack.Init();
-                    PstdExpPhysInvtTrack.TransferFields(ExpPhysInvtTracking);
-                    PstdExpPhysInvtTrack."Order No" := PstdPhysInvtOrderHdr."No.";
-                    PstdExpPhysInvtTrack.Insert();
-                until ExpPhysInvtTracking.Next() = 0;
-        end else begin
-#endif
-            ExpInvtOrderTracking.Reset();
-            ExpInvtOrderTracking.SetRange("Order No", PhysInvtOrderHeader."No.");
-            if ExpInvtOrderTracking.Find('-') then
-                repeat
-                    PstdExpInvtOrderTracking.Init();
-                    PstdExpInvtOrderTracking.TransferFields(ExpInvtOrderTracking);
-                    PstdExpInvtOrderTracking."Order No" := PstdPhysInvtOrderHdr."No.";
-                    PstdExpInvtOrderTracking.Insert();
-                until ExpInvtOrderTracking.Next() = 0;
-#if not CLEAN24
-        end;
-#endif
+        ExpInvtOrderTracking.Reset();
+        ExpInvtOrderTracking.SetRange("Order No", PhysInvtOrderHeader."No.");
+        if ExpInvtOrderTracking.Find('-') then
+            repeat
+                PstdExpInvtOrderTracking.Init();
+                PstdExpInvtOrderTracking.TransferFields(ExpInvtOrderTracking);
+                PstdExpInvtOrderTracking."Order No" := PstdPhysInvtOrderHdr."No.";
+                PstdExpInvtOrderTracking.Insert();
+            until ExpInvtOrderTracking.Next() = 0;
         // Insert posted recording header and lines
         InsertPostedRecordings(PhysInvtOrderHeader."No.", PstdPhysInvtOrderHdr."No.");
         // Insert posted comment Lines
@@ -505,27 +482,13 @@ codeunit 5884 "Phys. Invt. Order-Post"
 
     local procedure FinalizePost(DocNo: Code[20])
     begin
-#if not CLEAN24
-        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
-            ExpPhysInvtTracking.Reset();
-            ExpPhysInvtTracking.SetRange("Order No", DocNo);
-            ExpPhysInvtTracking.DeleteAll();
-            PhysInvtOrderLine.Reset();
-            PhysInvtOrderLine.SetRange("Document No.", DocNo);
-            PhysInvtOrderLine.DeleteAll();
-            PhysInvtOrderHeader.Delete();
-        end else begin
-#endif
-            ExpInvtOrderTracking.Reset();
-            ExpInvtOrderTracking.SetRange("Order No", DocNo);
-            ExpInvtOrderTracking.DeleteAll();
-            PhysInvtOrderLine.Reset();
-            PhysInvtOrderLine.SetRange("Document No.", DocNo);
-            PhysInvtOrderLine.DeleteAll();
-            PhysInvtOrderHeader.Delete();
-#if not CLEAN24
-        end;
-#endif
+        ExpInvtOrderTracking.Reset();
+        ExpInvtOrderTracking.SetRange("Order No", DocNo);
+        ExpInvtOrderTracking.DeleteAll();
+        PhysInvtOrderLine.Reset();
+        PhysInvtOrderLine.SetRange("Document No.", DocNo);
+        PhysInvtOrderLine.DeleteAll();
+        PhysInvtOrderHeader.Delete();
     end;
 
     local procedure MakeInventoryAdjustment()

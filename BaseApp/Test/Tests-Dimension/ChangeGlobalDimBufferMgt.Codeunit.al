@@ -11,7 +11,6 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
     var
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryUtility: Codeunit "Library - Utility";
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -111,15 +110,6 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         ChangeGlobalDimLogEntry.DeleteAll();
     end;
 
-    local procedure InsertODataEdmTypeEntry()
-    var
-        ODataEdmType: Record "OData Edm Type";
-    begin
-        ODataEdmType.Init();
-        ODataEdmType.Key := LibraryUtility.GenerateGUID();
-        ODataEdmType.Insert();
-    end;
-
     local procedure MockChangeGlobalDimLogEntry(): Integer
     var
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
@@ -130,13 +120,4 @@ codeunit 134484 "Change Global Dim. Buffer Mgt."
         ChangeGlobalDimLogEntry.Insert();
         exit(ChangeGlobalDimLogEntry."Table ID");
     end;
-
-    local procedure VerifyTableTriggers(TableTrigger: array[4] of Boolean; ExpectedValue: Boolean)
-    var
-        i: Integer;
-    begin
-        for i := 1 to 4 do
-            Assert.AreEqual(ExpectedValue, TableTrigger[i], 'Table Trigger ' + Format(i));
-    end;
 }
-

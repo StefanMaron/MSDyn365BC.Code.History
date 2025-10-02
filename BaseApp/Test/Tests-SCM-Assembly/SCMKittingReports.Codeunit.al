@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Assembly.Test;
 
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Sales.Setup;
 using Microsoft.Inventory.Setup;
 using Microsoft.Assembly.Setup;
@@ -43,9 +42,8 @@ codeunit 137390 "SCM Kitting -  Reports"
     end;
 
     var
-        MfgSetup: Record "Manufacturing Setup";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         InventorySetup: Record "Inventory Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         AssemblySetup: Record "Assembly Setup";
         SourceCodeSetup: Record "Source Code Setup";
         Item: Record Item;
@@ -61,6 +59,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPlanning: Codeunit "Library - Planning";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
@@ -107,8 +106,7 @@ codeunit 137390 "SCM Kitting -  Reports"
 
         SalesReceivablesSetup.Get();
         SourceCodeSetup.Get();
-        MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate();
 
         LibrarySetupStorage.SaveSalesSetup();
         LibrarySetupStorage.SaveGeneralLedgerSetup();

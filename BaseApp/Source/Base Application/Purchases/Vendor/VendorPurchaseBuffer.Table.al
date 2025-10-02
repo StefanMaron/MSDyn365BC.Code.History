@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.Vendor;
 
 table 924 "Vendor Purchase Buffer"
@@ -31,11 +35,13 @@ table 924 "Vendor Purchase Buffer"
         {
             Caption = 'Balance Due (LCY)';
             DataClassification = SystemMetadata;
+            AutoFormatType = 1;
         }
         field(11; "Purchases (LCY)"; Decimal)
         {
             Caption = 'Purchases (LCY)';
             DataClassification = SystemMetadata;
+            AutoFormatType = 1;
         }
     }
 

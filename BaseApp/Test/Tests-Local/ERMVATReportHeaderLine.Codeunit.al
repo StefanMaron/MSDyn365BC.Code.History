@@ -268,18 +268,6 @@ codeunit 134056 "ERM VAT Report Header Line"
         Commit();
     end;
 
-    local procedure CreateVATReportHdr(No: Code[20])
-    var
-        VATReportHdr: Record "VAT Report Header";
-    begin
-        VATReportHdr.Init();
-        VATReportHdr."No." := No;
-        VATReportHdr."Start Date" := Today + 1;
-        VATReportHdr."End Date" := Today + 1;
-
-        VATReportHdr.Insert(true);
-    end;
-
     local procedure TearDown(VATReportHdr: Record "VAT Report Header")
     var
         VATReportSetup: Record "VAT Report Setup";
@@ -304,4 +292,3 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReportList.OK().Invoke();
     end;
 }
-

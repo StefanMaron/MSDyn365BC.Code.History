@@ -64,6 +64,7 @@ table 5072 "Campaign Entry"
         }
         field(10; "Cost (LCY)"; Decimal)
         {
+            AutoFormatExpression = '';
             AutoFormatType = 1;
             CalcFormula = sum("Interaction Log Entry"."Cost (LCY)" where("Campaign No." = field("Campaign No."),
                                                                           "Campaign Entry No." = field("Entry No."),
@@ -74,6 +75,7 @@ table 5072 "Campaign Entry"
         }
         field(11; "Duration (Min.)"; Decimal)
         {
+            AutoFormatType = 0;
             CalcFormula = sum("Interaction Log Entry"."Duration (Min.)" where("Campaign No." = field("Campaign No."),
                                                                                "Campaign Entry No." = field("Entry No."),
                                                                                Canceled = field(Canceled)));
@@ -178,4 +180,3 @@ table 5072 "Campaign Entry"
         exit(Confirm(Text002, true, TableCaption(), "Entry No.", FieldCaption(Canceled)));
     end;
 }
-

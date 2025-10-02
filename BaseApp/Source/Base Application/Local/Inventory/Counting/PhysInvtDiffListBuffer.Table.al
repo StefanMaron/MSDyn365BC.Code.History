@@ -1,4 +1,4 @@
-﻿#if not CLEANSCHEMA27 
+#if not CLEANSCHEMA27 
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -9,13 +9,8 @@ table 5005363 "Phys. Invt. Diff. List Buffer"
 {
     Caption = 'Phys. Invt. Diff. List Buffer';
     ObsoleteReason = 'Merged to W1';
-#if CLEAN24
     ObsoleteState = Removed;
     ObsoleteTag = '27.0';
-#else
-    ObsoleteState = Pending;
-    ObsoleteTag = '24.0';
-#endif
     DataClassification = CustomerContent;
 
     fields

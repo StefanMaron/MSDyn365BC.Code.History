@@ -1,4 +1,4 @@
-﻿namespace System.AI;
+namespace System.AI;
 
 using System;
 using System.Azure.KeyVault;
@@ -105,15 +105,6 @@ codeunit 2020 "Image Analysis Management"
         FileManagement.BLOBExportToServerFile(TempBlob, ImagePath);
     end;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [Obsolete('Replaced by SetUriAndKey with SecretText data type for KeyValue parameter.', '24.0')]
-    procedure SetUriAndKey(UriValue: Text; KeyValue: Text)
-    begin
-        Uri := UriValue;
-        Key := KeyValue;
-    end;
-#endif
 
     procedure SetUriAndKey(UriValue: Text; KeyValue: SecretText)
     begin
@@ -270,47 +261,6 @@ codeunit 2020 "Image Analysis Management"
         exit(ImageAnalysisProvider.IsLanguageSupported(AnalysisTypes, GlobalLanguage()));
     end;
 
-#if not CLEAN24
-    [NonDebuggable]
-    [TryFunction]
-    [Scope('OnPrem')]
-    [Obsolete('Replaced by GetImageAnalysisCredentials with SecretText data type for ApiKey parameter.', '24.0')]
-    procedure GetImageAnalysisCredentials(var ApiKey: Text; var ApiUri: Text; var LocalLimitType: Option; var LocalLimitValue: Integer)
-    var
-        AzureKeyVault: Codeunit "Azure Key Vault";
-        MachineLearningKeyVaultMgmt: Codeunit "Machine Learning KeyVaultMgmt.";
-        ImageAnalysisParametersList: JsonArray;
-        ImageAnalysisParameters: JsonObject;
-        JToken: JsonToken;
-        ImageAnalysisParametersText: Text;
-        LimitTypeTxt: Text;
-        LimitValueTxt: Text;
-    begin
-        if not AzureKeyVault.GetAzureKeyVaultSecret(ImageAnalysisSecretTxt, ImageAnalysisParametersText) then
-            Error(MissingImageAnalysisSecretErr);
-
-        // Check if the value is a proper JSON array
-        if not ImageAnalysisParametersList.ReadFrom(ImageAnalysisParametersText) then
-            exit;
-
-        // Check if the JSON array has values
-        if not (ImageAnalysisParametersList.Count > 0) then
-            exit;
-
-        if not ImageAnalysisParametersList.Get(Random(ImageAnalysisParametersList.Count()) - 1, JToken) then
-            exit;
-
-        ImageAnalysisParameters := JToken.AsObject();
-
-        ApiKey := ExtractParameterValue(ImageAnalysisParameters, 'key', false);
-        ApiUri := ExtractParameterValue(ImageAnalysisParameters, 'endpoint', false);
-        LimitTypeTxt := ExtractParameterValue(ImageAnalysisParameters, 'limittype', true);
-        LimitValueTxt := ExtractParameterValue(ImageAnalysisParameters, 'limitvalue', true);
-
-        LocalLimitType := MachineLearningKeyVaultMgmt.GetLimitTypeOptionFromText(LimitTypeTxt);
-        Evaluate(LocalLimitValue, LimitValueTxt);
-    end;
-#endif
 
     [NonDebuggable]
     local procedure ExtractParameterValue(Parameters: JsonObject; ParameterName: Text; IsMandatory: Boolean): Text

@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Sales.Reports;
 
 using Microsoft.Foundation.Period;
@@ -134,7 +138,7 @@ report 129 "Customer - Trial Balance"
 
     requestpage
     {
-        AboutTitle = 'About Customer Trial Balance';
+        AboutTitle = 'About Customer - Trial Balance';
         AboutText = 'View the closing balances of customers at the end of a period to reconcile the customer subledger against receivables accounts in the general ledger. View beginning balances and net changes by customer for the period and fiscal year to date.';
 
         layout

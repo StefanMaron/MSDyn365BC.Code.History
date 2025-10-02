@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Purchases.Posting;
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Purchases.Posting;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
@@ -196,13 +200,20 @@ codeunit 826 "Purch. Post Invoice Events"
     begin
     end;
 
+#if not CLEAN27
+    [Obsolete('Use the procedure with AccountNo parameter instead.', '27.0')]
     procedure RunOnBeforePrepareLineFADiscount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; GenPostingSetup: Record "General Posting Setup"; var IsHandled: Boolean)
     begin
-        OnBeforePrepareLineFADiscount(InvoicePostingBuffer, GenPostingSetup, IsHandled);
+        RunOnBeforePrepareLineFADiscount(InvoicePostingBuffer, GenPostingSetup, '', IsHandled);
     end;
+#endif
 
+    procedure RunOnBeforePrepareLineFADiscount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; GenPostingSetup: Record "General Posting Setup"; AccountNo: Code[20]; var IsHandled: Boolean)
+    begin
+        OnBeforePrepareLineFADiscount(InvoicePostingBuffer, GenPostingSetup, AccountNo, IsHandled);
+    end;
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrepareLineFADiscount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; GenPostingSetup: Record "General Posting Setup"; var IsHandled: Boolean)
+    local procedure OnBeforePrepareLineFADiscount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; GenPostingSetup: Record "General Posting Setup"; AccountNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

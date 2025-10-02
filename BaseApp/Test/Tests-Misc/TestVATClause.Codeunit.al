@@ -13,14 +13,12 @@ codeunit 134067 "Test VAT Clause"
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         RefVATClauseDocumentType: enum "VAT Clause Document Type";
-        VATClauseDoesNotExistErr: Label 'Unexpected XML Element VAT Clause. Expected result:XML Element VAT Clause doesn''t exist.';
         VATClauseTextErr: Label 'Wrong VATClauseText on VAT Clause %1! Expected ID: %2, Actual ID: %3';
 
     [Test]
@@ -160,7 +158,7 @@ codeunit 134067 "Test VAT Clause"
         // [WHEN] Function GetDescription is being run
         VATClauseText := VATClause.GetDescriptionText(SalesHeader);
 
-        // [THEN] VAT Clause has same descriptions "D1" and "D2" 
+        // [THEN] VAT Clause has same descriptions "D1" and "D2"
         VATClause.TestField(Description, SavedVATClause.Description);
         VATClause.TestField("Description 2", SavedVATClause."Description 2");
         Assert.AreEqual(SavedVATClause.Description + ' ' + SavedVATClause."Description 2", VATClauseText,
@@ -192,7 +190,7 @@ codeunit 134067 "Test VAT Clause"
         // [WHEN] Function GetDescription is being run
         VATClauseText := VATClause.GetDescriptionText(SalesHeader);
 
-        // [THEN] VAT Clause has descriptions "DT1" and "DT2" 
+        // [THEN] VAT Clause has descriptions "DT1" and "DT2"
         VATClause.TestField(Description, VATClauseTranslation.Description);
         VATClause.TestField("Description 2", VATClauseTranslation."Description 2");
         Assert.AreEqual(VATClauseTranslation.Description + ' ' + VATClauseTranslation."Description 2", VATClauseText,
@@ -222,7 +220,7 @@ codeunit 134067 "Test VAT Clause"
         // [WHEN] Function GetDescription is being run
         VATClauseText := VATClause.GetDescriptionText(SalesHeader);
 
-        // [THEN] VAT Clause has same descriptions "DI1" and "DI2" 
+        // [THEN] VAT Clause has same descriptions "DI1" and "DI2"
         VATClause.TestField(Description, VATClauseByDocType.Description);
         VATClause.TestField("Description 2", VATClauseByDocType."Description 2");
         Assert.AreEqual(VATClauseByDocType.Description + ' ' + VATClauseByDocType."Description 2", VATClauseText,
@@ -258,7 +256,7 @@ codeunit 134067 "Test VAT Clause"
         // [WHEN] Function GetDescription is being run
         VATClauseText := VATClause.GetDescriptionText(SalesHeader);
 
-        // [THEN] VAT Clause has same descriptions "DIT1" and "DIT2" 
+        // [THEN] VAT Clause has same descriptions "DIT1" and "DIT2"
         VATClause.TestField(Description, VATClauseByDocTypeTrans.Description);
         VATClause.TestField("Description 2", VATClauseByDocTypeTrans."Description 2");
         Assert.AreEqual(VATClauseByDocTypeTrans.Description + ' ' + VATClauseByDocTypeTrans."Description 2", VATClauseText,
@@ -294,7 +292,7 @@ codeunit 134067 "Test VAT Clause"
         // [WHEN] Function GetDescription is being run
         VATClauseText := VATClause.GetDescriptionText(SalesHeader);
 
-        // [THEN] VAT Clause has same descriptions "DIT1" and "DIT2" 
+        // [THEN] VAT Clause has same descriptions "DIT1" and "DIT2"
         VATClause.TestField(Description, VATClauseByDocTypeTrans.Description);
         VATClause.TestField("Description 2", VATClauseByDocTypeTrans."Description 2");
         Assert.AreEqual(VATClauseByDocTypeTrans.Description + ' ' + VATClauseByDocTypeTrans."Description 2", VATClauseText,
@@ -328,7 +326,7 @@ codeunit 134067 "Test VAT Clause"
         // [WHEN] Function GetDescription is being run
         VATClauseText := VATClause.GetDescriptionText(IssuedReminderHeader);
 
-        // [THEN] VAT Clause has same descriptions "DIT1" and "DIT2" 
+        // [THEN] VAT Clause has same descriptions "DIT1" and "DIT2"
         VATClause.TestField(Description, VATClauseByDocTypeTrans.Description);
         VATClause.TestField("Description 2", VATClauseByDocTypeTrans."Description 2");
         Assert.AreEqual(VATClauseByDocTypeTrans.Description + ' ' + VATClauseByDocTypeTrans."Description 2", VATClauseText,
@@ -362,7 +360,7 @@ codeunit 134067 "Test VAT Clause"
         // [WHEN] Function GetDescription is being run
         VATClauseText := VATClause.GetDescriptionText(IssuedFinChargeMemoHeader);
 
-        // [THEN] VAT Clause has same descriptions "DIT1" and "DIT2" 
+        // [THEN] VAT Clause has same descriptions "DIT1" and "DIT2"
         VATClause.TestField(Description, VATClauseByDocTypeTrans.Description);
         VATClause.TestField("Description 2", VATClauseByDocTypeTrans."Description 2");
         Assert.AreEqual(VATClauseByDocTypeTrans.Description + ' ' + VATClauseByDocTypeTrans."Description 2", VATClauseText,
@@ -493,41 +491,4 @@ codeunit 134067 "Test VAT Clause"
         Item.Modify(true);
         exit(Item."No.")
     end;
-
-    local procedure UpdateVATClause(var VATClause: Record "VAT Clause"; Description: Text; Description2: Text)
-    begin
-        VATClause.Validate(Description, CopyStr(Description, 1, MaxStrLen(VATClause.Description)));
-        VATClause.Validate("Description 2", CopyStr(Description2, 1, MaxStrLen(VATClause."Description 2")));
-        VATClause.Modify(true);
-    end;
-
-    local procedure UpdateVATClauseTranslation(VATClauseTranslation: Record "VAT Clause Translation"; Description: Text; Description2: Text)
-    begin
-        VATClauseTranslation.Validate(Description, CopyStr(Description, 1, MaxStrLen(VATClauseTranslation.Description)));
-        VATClauseTranslation.Validate("Description 2", CopyStr(Description2, 1, MaxStrLen(VATClauseTranslation."Description 2")));
-        VATClauseTranslation.Modify(true);
-    end;
-
-    local procedure VerifySalesInvoiceVATClause(VATClauseCode: Code[20]; VATDescription: Code[250]; VATDescription2: Code[250])
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-
-        if LibraryReportDataset.GetNextRow() then begin
-            LibraryReportDataset.AssertElementWithValueExists('VATClauseCode', VATClauseCode);
-            LibraryReportDataset.AssertElementWithValueExists('VATClauseDescription', VATDescription);
-            LibraryReportDataset.AssertElementWithValueExists('VATClauseDescription2', VATDescription2);
-        end
-    end;
-
-    local procedure VerifySalesInvoiceVATClauseDoesNotExist(SalesInvHdrNo: Code[20])
-    begin
-        LibraryReportDataset.LoadDataSetFile();
-        LibraryReportDataset.SetRange('No_SalesInvHdr', SalesInvHdrNo);
-
-        while LibraryReportDataset.GetNextRow() do
-            Assert.IsFalse(LibraryReportDataset.CurrentRowHasElement('VATClauseCode') or
-              LibraryReportDataset.CurrentRowHasElement('VATClauseDescription') or
-              LibraryReportDataset.CurrentRowHasElement('VATClauseDescription2'), VATClauseDoesNotExistErr);
-    end;
 }
-

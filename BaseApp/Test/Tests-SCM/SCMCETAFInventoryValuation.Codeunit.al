@@ -112,7 +112,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         // Verify adjustment.
         LibraryCosting.CheckAdjustment(ParentItem);
         LibraryCosting.CheckAdjustment(CompItem);
-        LibraryCosting.CheckProductionOrderCost(ProductionOrder, true);
+        LibraryManufacturing.CheckProductionOrderCost(ProductionOrder, true);
     end;
 
     [Test]

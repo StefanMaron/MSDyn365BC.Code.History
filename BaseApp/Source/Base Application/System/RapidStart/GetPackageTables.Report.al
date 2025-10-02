@@ -67,7 +67,7 @@ report 8616 "Get Package Tables"
         ConfigLine: Record "Config. Line";
     begin
         if PackageCode = '' then
-            Error(Text001);
+            Error(PackageNotSetErr);
 
         TempConfigSelection.Reset();
         TempConfigSelection.SetRange("Line Type", TempConfigSelection."Line Type"::Table);
@@ -97,9 +97,7 @@ report 8616 "Get Package Tables"
         SelectedTables: Integer;
         PackageCode: Code[20];
         WithDataOnly: Boolean;
-#pragma warning disable AA0074
-        Text001: Label 'Package is not set.';
-#pragma warning restore AA0074
+        PackageNotSetErr: Label 'Package is not set.';
 
     procedure Set(NewPackageCode: Code[20])
     begin

@@ -4,6 +4,14 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.BankAccount;
 
+/// <summary>
+/// Selection interface for linking local bank accounts to online banking services.
+/// Displays available online bank accounts for automated statement import setup.
+/// </summary>
+/// <remarks>
+/// Source Table: Online Bank Acc. Link (777). Used in bank account linking wizard.
+/// Facilitates connection between local bank accounts and external banking services.
+/// </remarks>
 page 270 "Online Bank Accounts"
 {
     Caption = 'Select which bank account to set up';

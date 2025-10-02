@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace System.Environment;
 
 using Microsoft.Foundation.Company;
@@ -285,6 +289,8 @@ codeunit 6060 "Hybrid Deployment"
         InstanceId: Text;
         JsonOutput: Text;
     begin
+        OnBeforeRunReplication();
+
         if not TryRunReplication(InstanceId, ReplicationType) then
             Error(FailedRunReplicationErr);
 
@@ -485,6 +491,11 @@ codeunit 6060 "Hybrid Deployment"
 
     [IntegrationEvent(false, false)]
     local procedure OnRegenerateIntegrationRuntimeKeys(var InstanceId: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunReplication()
     begin
     end;
 

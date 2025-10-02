@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.Dimension;
@@ -153,12 +157,6 @@ page 137 "Posted Purchase Rcpt. Subform"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related project task.';
-                    Visible = false;
-                }
-                field("Prod. Order No."; Rec."Prod. Order No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the number of the related production order.';
                     Visible = false;
                 }
                 field("Inbound Whse. Handling Time"; Rec."Inbound Whse. Handling Time")

@@ -50,7 +50,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     end;
 
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
+        InventorySetup: Record "Inventory Setup";
         LocationBlue: Record Location;
         LocationGreen: Record Location;
         LocationInTransit: Record Location;
@@ -99,7 +99,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         TrackingOption: Option AssignLotNo,SelectEntries;
         TrackingQuantity: Decimal;
         StartingDateTimeErr: Label 'Starting Date Time must be greater or equal';
-        FinishedStatusQst: Label 'Some consumption is still missing. Do you still want to finish the order?';
+        FinishedStatusQst: Label '\\  * Some consumption is still missing.\\ Do you still want to finish the order?';
         ModifyRtngErr: Label 'You cannot modify Routing No. %1 because there is at least one %2 associated with it.', Locked = true;
         DeleteRtngErr: Label 'You cannot delete Prod. Order Line %1 because there is at least one %2 associated with it.', Locked = true;
         ExpectedReceiptDateErr: Label 'The change leads to a date conflict with existing reservations.';
@@ -1229,8 +1229,9 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProductionOrder.TestField("Source Type", ProductionOrder."Source Type"::Family);
         ProductionOrder.TestField("Source No.", Family."No.");
         ProductionOrder.TestField("Due Date", DueDate);
+        InventorySetup.Get();
         ExpectedEndingDate := CalcDate('<' + '-' + Format(LocationBlue."Inbound Whse. Handling Time") + '>',
-            CalcDate('<' + '-' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', ProductionOrder."Due Date"));
+            CalcDate('<' + '-' + Format(InventorySetup."Default Safety Lead Time") + '>', ProductionOrder."Due Date"));
 
         ShopCalendarCode := GetShopCalendarCodeForProductionOrder(ProductionOrder);
         while not CheckShopCalendarWorkingDay(ShopCalendarCode, ExpectedEndingDate) do
@@ -1475,8 +1476,8 @@ codeunit 137063 "SCM Manufacturing 7.0"
     [Normal]
     local procedure B308740_ChangeWaitTime(Forward: Boolean)
     var
-        TempManufacturingSetup: Record "Manufacturing Setup" temporary;
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+        ManufacturingSetup: Record "Manufacturing Setup";
         RoutingHeader: Record "Routing Header";
         RoutingLine: Record "Routing Line";
         RoutingLine1: Record "Routing Line";
@@ -1485,7 +1486,6 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         WorkCenter: Record "Work Center";
         WorkCenter2: Record "Work Center";
-        DefaultSafetyLeadTime: DateFormula;
         ExpEndingDate: Date;
         ExpEndingTime: Time;
         OperationNo: Code[10];
@@ -1494,15 +1494,13 @@ codeunit 137063 "SCM Manufacturing 7.0"
         Initialize();
         CreateWorkCenterSetup(WorkCenter, CapacityUnitOfMeasure.Type::Hours, 080000T, 230000T);
         CreateWorkCenterSetup(WorkCenter2, CapacityUnitOfMeasure.Type::Hours, 080000T, 120000T);
-        TempManufacturingSetup := ManufacturingSetup;
-        TempManufacturingSetup.Insert();
 
         ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Normal Starting Time", 080000T);
         ManufacturingSetup.Validate("Normal Ending Time", 230000T);
-        Evaluate(DefaultSafetyLeadTime, '<0D>');
-        ManufacturingSetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
         ManufacturingSetup.Modify(true);
+
+        LibraryPlanning.SetDefaultSafetyLeadTime('<0D>');
 
         CreateRouting(RoutingHeader, RoutingLine, WorkCenter."No.", RoutingHeader.Type::Serial, RoutingLine.Type::"Work Center");
         UpdateRoutingLine(RoutingLine, 0, 1, 12);
@@ -1536,12 +1534,6 @@ codeunit 137063 "SCM Manufacturing 7.0"
           ExpEndingDate, ProdOrderRoutingLine."Ending Date", 'Wrong Ending Date for order ' + ProdOrderRoutingLine."Prod. Order No.");
         Assert.AreEqual(
           ExpEndingTime, ProdOrderRoutingLine."Ending Time", 'Wrong Ending Time for order ' + ProdOrderRoutingLine."Prod. Order No.");
-
-        // Teardown: Manufacturing Setup.
-        ManufacturingSetup.Validate("Normal Starting Time", TempManufacturingSetup."Normal Starting Time");
-        ManufacturingSetup.Validate("Normal Ending Time", TempManufacturingSetup."Normal Ending Time");
-        ManufacturingSetup.Validate("Default Safety Lead Time", TempManufacturingSetup."Default Safety Lead Time");
-        ManufacturingSetup.Modify(true);
     end;
 
     [Test]
@@ -1822,7 +1814,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         StockkeepingUnitList: TestPage "Stockkeeping Unit List";
     begin
         // Check assignment of Routing No. and Production BOM No. from SKU
-        // Setup: Create Item, Routing Header and Production BOM 
+        // Setup: Create Item, Routing Header and Production BOM
         // [SCENARIO 555088] "Production BOM" action opens Production BOM page. Also "Prod. Active BOM Version" does the same, when there is no version.
         Initialize();
 
@@ -1908,7 +1900,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderLine: Record "Prod. Order Line";
     begin
         // Check assignment of Routing No. and Production BOM No. from Parent  Item
-        // Setup: Create Item, Routing Header and Production BOM 
+        // Setup: Create Item, Routing Header and Production BOM
         Initialize();
 
         CreateItem(ChildItem, ChildItem."Replenishment System"::Purchase, ChildItem."Reordering Policy"::Order, false, 0, 0, 0, '');
@@ -2550,8 +2542,9 @@ codeunit 137063 "SCM Manufacturing 7.0"
         CalcCapableToPromise(TempOrderPromisingLine, SalesHeader);
 
         // [THEN] "Earliest Shipment Date" is calculated as "Original Shipment Date" + <1D> according to "Queue Time".
+        InventorySetup.Get();
         ExpectedShipmentDate :=
-          CalcDate('<' + Format(ManufacturingSetup."Default Safety Lead Time") + '>',
+          CalcDate('<' + Format(InventorySetup."Default Safety Lead Time") + '>',
             CalcDate('<' + Format(LocationBlue."Inbound Whse. Handling Time") + '>',
               CalcDate('<1D>', TempOrderPromisingLine."Original Shipment Date")));
         VerifyEarliestShipmentDate(ExpectedShipmentDate, TempOrderPromisingLine);
@@ -2971,7 +2964,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         UpdateItem(ChildItem, ChildItem.FieldNo("Time Bucket"), TimeBucket);
         UpdateItem(ChildItem, ChildItem.FieldNo("Safety Stock Quantity"), 20 + LibraryRandom.RandInt(5));
 
-        // [GIVEN] Create Parent Item 
+        // [GIVEN] Create Parent Item
         CreateItem(
           ParentItem, ParentItem."Replenishment System"::"Prod. Order", ParentItem."Reordering Policy"::"Fixed Reorder Qty.", false,
           20 + LibraryRandom.RandInt(10), 30 + LibraryRandom.RandInt(10), 0, '');
@@ -2987,7 +2980,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         //[THEN] Run  "Calc. Item Plan - Plan Wksh." report
         LibraryPlanning.CalcRegenPlanForPlanWksh(ParentItem, WorkDate(), WorkDate());
 
-        // [VERIFY] Verify Requisition Detail 
+        // [VERIFY] Verify Requisition Detail
         VerifyRequisitionLineDetails(ParentItem);
 
         // [VERIFY] Vertify Quantity Per on Planning Component
@@ -3002,7 +2995,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         PurchaseLine: Record "Purchase Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        // [SCENARIO 539761] Order Date is calculated correctly for Lead Time Calculation greater than one year on Calculate Plan from Req Worksheet        
+        // [SCENARIO 539761] Order Date is calculated correctly for Lead Time Calculation greater than one year on Calculate Plan from Req Worksheet
         Initialize();
         RequisitionLine.DeleteAll(true);
 
@@ -3160,7 +3153,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         i: Integer;
     begin
         // [SCENARIO 527492] Production BOM Components is considering Negative and Zero Quantity in Production Order
-        // When Production Order Created from Planning Worksheet. 
+        // When Production Order Created from Planning Worksheet.
         Initialize();
 
         // [GIVEN] Create Parent Item.
@@ -3188,7 +3181,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         CreateSalesOrder(SalesHeader, SalesLine, ParentItem."No.", '');
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
-        // [GIVEN] Calculate Regenerative Plan   
+        // [GIVEN] Calculate Regenerative Plan
         LibraryPlanning.CalcRegenPlanForPlanWksh(ParentItem, WorkDate(), WorkDate());
 
         // [WHEN] Carry Out Action Message
@@ -3210,8 +3203,8 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        // [SCENARIO 556431] When Stan runs Refresh Production Order action from a 
-        // Released Production Order having Source Type as Family then Prod. Order Lines 
+        // [SCENARIO 556431] When Stan runs Refresh Production Order action from a
+        // Released Production Order having Source Type as Family then Prod. Order Lines
         // are created as per Unit of Measure Codes of Items.
         Initialize();
 
@@ -3550,7 +3543,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProductionOrder: Record "Production Order";
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        // [SCENARIO 557289] When refreshing Production orders and using starting/ending dates on Production BOM Line 
+        // [SCENARIO 557289] When refreshing Production orders and using starting/ending dates on Production BOM Line
         // in a Released production order document pick correct component.
         Initialize();
 
@@ -3617,8 +3610,8 @@ codeunit 137063 "SCM Manufacturing 7.0"
         CapacityJournalSetup();
         OutputJournalSetup();
         CreateLocationSetup();
-        ManufacturingSetup.Get();
-        LibrarySetupStorage.Save(Database::"Inventory Setup");
+        LibrarySetupStorage.SaveInventorySetup();
+        LibrarySetupStorage.SaveManufacturingSetup();
 
         Initialized := true;
         Commit();
@@ -4080,13 +4073,6 @@ codeunit 137063 "SCM Manufacturing 7.0"
     local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal; SourceType: Enum "Prod. Order Source Type"; Forward: Boolean)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, SourceType, SourceNo, Quantity);
-        LibraryManufacturing.RefreshProdOrder(ProductionOrder, Forward, true, true, true, false);
-    end;
-
-    local procedure CreateAndRefreshProdOrderWithVariantCode(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; VariantCode: Code[10]; Quantity: Decimal; SourceType: Enum "Prod. Order Source Type"; Forward: Boolean)
-    begin
-        LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, SourceType, SourceNo, Quantity);
-        ProductionOrder.Validate("Variant Code", VariantCode);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, Forward, true, true, true, false);
     end;
 
@@ -5026,6 +5012,8 @@ codeunit 137063 "SCM Manufacturing 7.0"
     end;
 
     local procedure UpdateManufacturingSetup(NewDocNoIsProdOrderNo: Boolean) DocNoIsProdOrderNo: Boolean
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
         ManufacturingSetup.Get();
         DocNoIsProdOrderNo := ManufacturingSetup."Doc. No. Is Prod. Order No.";
@@ -5190,8 +5178,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         FindRequisitionLine(RequisitionLine, Item."No.");
         Assert.AreEqual(1, RequisitionLine.Count, PlanningLinesErr);
         RequisitionLine.TestField(Quantity, Item."Reorder Quantity");
-        ManufacturingSetup.Get();
-        RequisitionLine.TestField("Due Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
+        RequisitionLine.TestField("Due Date", LibraryPlanning.SetSafetyWorkDate());
     end;
 
     local procedure VerifyQuantityRequisitionLine(RequisitionLine: Record "Requisition Line"; Quantity: Decimal; DueDate: Date)
@@ -5266,8 +5253,9 @@ codeunit 137063 "SCM Manufacturing 7.0"
         FindRequisitionLine(RequisitionLine, Item."No.");
         RequisitionLine.TestField(Type, RequisitionLine.Type::Item);
         RequisitionLine.TestField(Quantity, RequisitionLineQuantity);
+        InventorySetup.Get();
         RequisitionLine.TestField(
-          "Due Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", CalcDate(Item."Lead Time Calculation", WorkDate())));
+          "Due Date", CalcDate(InventorySetup."Default Safety Lead Time", CalcDate(Item."Lead Time Calculation", WorkDate())));
     end;
 
     local procedure VerifyValueInRequisitionLine(Item: Record Item; Quantity: Decimal; OrderDate: Date)
@@ -5277,8 +5265,9 @@ codeunit 137063 "SCM Manufacturing 7.0"
         FindRequisitionLine(RequisitionLine, Item."No.");
         RequisitionLine.TestField(Quantity, Quantity);
         RequisitionLine.TestField("Due Date", CalcDate(Item."Lead Time Calculation", WorkDate()));
+        InventorySetup.Get();
         RequisitionLine.TestField(
-          "Order Date", CalcDate('<' + '-' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', OrderDate));
+          "Order Date", CalcDate('<' + '-' + Format(InventorySetup."Default Safety Lead Time") + '>', OrderDate));
     end;
 
     local procedure VerifyPlanningRoutingLine(RoutingHeader: Record "Routing Header"; RequisitionWkshName: Record "Requisition Wksh. Name"; ItemNo: Code[20]; Quantity: Integer)
@@ -5395,8 +5384,9 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RequisitionLine.SetRange("No.", Item."No.");
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.FindSet();
+        InventorySetup.Get();
         VerifyQuantityRequisitionLine(
-          RequisitionLine, Item."Reorder Quantity", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
+          RequisitionLine, Item."Reorder Quantity", CalcDate(InventorySetup."Default Safety Lead Time", WorkDate()));
         RequisitionLine.Next();
         VerifyQuantityRequisitionLine(RequisitionLine, Item."Safety Stock Quantity", WorkDate());
     end;
@@ -5409,9 +5399,10 @@ codeunit 137063 "SCM Manufacturing 7.0"
         PlanningComponent.FindSet();
         VerifyPlanningComponent(PlanningComponent, Item."Reorder Quantity" * QuantityPer, WorkDate());
         PlanningComponent.Next();
+        InventorySetup.Get();
         VerifyPlanningComponent(
           PlanningComponent, Item."Safety Stock Quantity" * QuantityPer,
-          CalcDate('<' + '-' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', WorkDate()));
+          CalcDate('<' + '-' + Format(InventorySetup."Default Safety Lead Time") + '>', WorkDate()));
     end;
 
     local procedure VerifyMultipleRequisitionLine(Item: Record Item; Item2: Record Item; QuantityPer: Decimal)
@@ -5421,13 +5412,14 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RequisitionLine.SetRange("No.", Item2."No.");
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.FindSet();
+        InventorySetup.Get();
         VerifyQuantityRequisitionLine(
           RequisitionLine, Item."Safety Stock Quantity" * QuantityPer,
-          CalcDate('<' + '-' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', WorkDate()));
+          CalcDate('<' + '-' + Format(InventorySetup."Default Safety Lead Time") + '>', WorkDate()));
         RequisitionLine.Next();
         VerifyQuantityRequisitionLine(
           RequisitionLine, Item2."Maximum Inventory" - Item2."Safety Stock Quantity",
-          CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
+          CalcDate(InventorySetup."Default Safety Lead Time", WorkDate()));
         RequisitionLine.Next();
         VerifyQuantityRequisitionLine(RequisitionLine, Item."Reorder Quantity" * QuantityPer + Item2."Safety Stock Quantity", WorkDate());
     end;
@@ -6132,7 +6124,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RecRef.SetTable(ProductionBOMLine);
         ProductionBOMLine.Modify(true);
     end;
-  
+
     local procedure CreateProductionBOMWithStartingEndingDate(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitOfMeasure: Code[10]; Type: Enum "Production BOM Line Type"; ItemNo: Code[20]; ItemNo2: Code[20]; QuantityPer: Integer)
     var
         ProductionBOMLine: Record "Production BOM Line";
@@ -6172,4 +6164,3 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RoutingLine.Modify(true);
     end;
 }
-

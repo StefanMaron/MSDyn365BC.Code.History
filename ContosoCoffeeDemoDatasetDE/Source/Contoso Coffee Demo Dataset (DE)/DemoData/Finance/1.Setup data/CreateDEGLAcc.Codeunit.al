@@ -1,3 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
+namespace Microsoft.DemoData.Finance;
+
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Foundation.Enums;
+using Microsoft.DemoTool.Helpers;
+
 codeunit 11119 "Create DE GL Acc."
 {
     InherentEntitlements = X;
@@ -444,10 +455,10 @@ codeunit 11119 "Create DE GL Acc."
         ContosoGLAccount.AddAccountForLocalization(ManufVariancesName(), '5030');
         ContosoGLAccount.AddAccountForLocalization(PurchaseVarianceCapName(), '5031');
         ContosoGLAccount.AddAccountForLocalization(MaterialVarianceName(), '5032');
-        ContosoGLAccount.AddAccountForLocalization(CapacityVarianceName(), '5033');
-        ContosoGLAccount.AddAccountForLocalization(SubcontractedVarianceName(), '5034');
-        ContosoGLAccount.AddAccountForLocalization(CapOverheadVarianceName(), '5035');
-        ContosoGLAccount.AddAccountForLocalization(MfgOverheadVarianceName(), '5036');
+        ContosoGLAccount.AddAccountForLocalization(CapacityVarianceName(), '5034');
+        ContosoGLAccount.AddAccountForLocalization(SubcontractedVarianceName(), '5035');
+        ContosoGLAccount.AddAccountForLocalization(CapOverheadVarianceName(), '5036');
+        ContosoGLAccount.AddAccountForLocalization(MfgOverheadVarianceName(), '5037');
         ContosoGLAccount.AddAccountForLocalization(TotalManufVariancesName(), '5038');
         ContosoGLAccount.AddAccountForLocalization(CostofVariancesName(), '5039');
         ContosoGLAccount.AddAccountForLocalization(CostsofJobsName(), '5040');

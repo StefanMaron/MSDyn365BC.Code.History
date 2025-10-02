@@ -8,7 +8,8 @@ table 1175 "User Task Group"
 {
     Caption = 'User Task Group';
     DataCaptionFields = "Code", Description;
-    LookupPageID = "User Task Group";
+    DrillDownPageId = "User Task Groups";
+    LookupPageId = "User Task Groups";
     ReplicateData = false;
     DataClassification = CustomerContent;
 

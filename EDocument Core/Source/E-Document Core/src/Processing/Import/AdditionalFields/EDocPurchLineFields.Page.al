@@ -11,7 +11,7 @@ using Microsoft.eServices.EDocument;
 page 6101 "E-Doc. Purch. Line Fields"
 {
     PageType = ListPart;
-#pragma warning disable AS0035 // extensible = false, released in 26.2, changed for 26.3, this is breaking if someone uses Page.run(6101, Rec)
+#pragma warning disable AS0035 // extensible = false, released in 26.2, changed for 26.3, this is breaking if someone uses Page.run(6104, Rec)
     SourceTable = "ED Purchase Line Field Setup";
 #pragma warning restore AS0035
     SourceTableTemporary = true;

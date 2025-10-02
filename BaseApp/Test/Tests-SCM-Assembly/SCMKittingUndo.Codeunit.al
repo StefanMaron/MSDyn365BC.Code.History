@@ -63,6 +63,7 @@ codeunit 137097 "SCM Kitting - Undo"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryPlanning: Codeunit "Library - Planning";
         GenProdPostingGr: Code[20];
         AsmInvtPostingGr: Code[20];
         CompInvtPostingGr: Code[20];
@@ -112,7 +113,7 @@ codeunit 137097 "SCM Kitting - Undo"
     begin
         SetupAssembly();
         SetupItemJournal();
-        SetupManufacturingSetup();
+        SetupInventorySetup();
         WarehouseEmployee.Reset();
         WarehouseEmployee.DeleteAll(true);
         LibraryAssembly.SetupPostingToGL(GenProdPostingGr, AsmInvtPostingGr, CompInvtPostingGr, '');
@@ -201,16 +202,10 @@ codeunit 137097 "SCM Kitting - Undo"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, Directed);
     end;
 
-    local procedure SetupManufacturingSetup()
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
+    local procedure SetupInventorySetup()
     begin
-        Clear(ManufacturingSetup);
-        ManufacturingSetup.Get();
-        Evaluate(ManufacturingSetup."Default Safety Lead Time", '<1D>');
-        ManufacturingSetup.Modify(true);
-
-        WorkDate2 := CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
+        LibraryPlanning.SetDefaultSafetyLeadTime('<1D>');
+        WorkDate2 := LibraryPlanning.SetSafetyWorkDate();
     end;
 
     [Normal]

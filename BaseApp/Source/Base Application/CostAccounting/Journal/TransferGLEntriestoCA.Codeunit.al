@@ -136,6 +136,7 @@ codeunit 1105 "Transfer GL Entries to CA"
         GLEntry.SetRange("Entry No.", FirstGLEntryNo, LastGLEntryNo);
         GLEntry.SetFilter("Posting Date", '%1..', CostAccSetup."Starting Date for G/L Transfer");
         OnGetGLEntriesOnAfterSetGLEntryFilters(GLEntry, FirstGLEntryNo, LastGLEntryNo, CostAccSetup."Starting Date for G/L Transfer");
+        GLEntry.SetLoadFields("Entry No.", "Dimension Set ID", "Posting Date", "G/L Account No.", Amount, "Document No.", Description, "Additional-Currency Amount", "Add.-Currency Credit Amount", "Add.-Currency Debit Amount");
         if GLEntry.FindSet() then
             repeat
                 if BatchRun and ((GLEntry."Entry No." mod 100) = 0) then

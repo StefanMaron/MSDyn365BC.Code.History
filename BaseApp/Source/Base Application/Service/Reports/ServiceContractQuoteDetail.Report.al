@@ -333,7 +333,8 @@ report 5973 "Service Contract Quote-Detail"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Contract Quote-Detail';
+        AboutText = 'Get an overview of all your service contract quotes.';
         layout
         {
             area(content)

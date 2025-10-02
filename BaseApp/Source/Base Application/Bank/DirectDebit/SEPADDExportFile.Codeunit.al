@@ -9,6 +9,11 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using System.IO;
 using System.Utilities;
 
+/// <summary>
+/// Handles the export of SEPA direct debit collections to XML files in compliance with SEPA standards.
+/// Validates bank account information, generates XML files using appropriate XMLPorts, and manages
+/// the collection status throughout the export process.
+/// </summary>
 codeunit 1230 "SEPA DD-Export File"
 {
     TableNo = "Direct Debit Collection Entry";
@@ -49,6 +54,10 @@ codeunit 1230 "SEPA DD-Export File"
         ExportWithoutIBANErr: Label 'Either the Bank Account No. and Bank Branch No. fields or the IBAN field must be filled in for %1 %2.', Comment = '%1= table name, %2=key field value. Example: Either the Bank Account No. and Bank Branch No. fields or the IBAN field must be filled in for Bank Account WWB-OPERATING.';
         FeatureNameTxt: label 'SEPA Direct Debit Export', locked = true;
 
+    /// <summary>
+    /// Returns the feature name for telemetry and logging purposes.
+    /// </summary>
+    /// <returns>Feature name for SEPA direct debit export functionality</returns>
     internal procedure FeatureName(): Text
     begin
         exit(FeatureNameTxt)
@@ -90,21 +99,44 @@ codeunit 1230 "SEPA DD-Export File"
         DirectDebitCollection.Get(DirectDebitCollectionEntry."Direct Debit Collection No.");
     end;
 
+    /// <summary>
+    /// Enables server-side file export mode instead of client download.
+    /// </summary>
     procedure EnableExportToServerFile()
     begin
         ExportToServerFile := true;
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of direct debit collection retrieval logic.
+    /// </summary>
+    /// <param name="DirectDebitCollectionEntry">The collection entry being processed</param>
+    /// <param name="DirectDebitCollection">The collection being retrieved</param>
+    /// <param name="IsHandled">Whether the event has been handled by subscribers</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDirectDebitCollection(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var DirectDebitCollection: Record "Direct Debit Collection"; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event that allows customization of the export process before XML generation.
+    /// </summary>
+    /// <param name="DirectDebitCollectionEntry">The collection entry being exported</param>
+    /// <param name="XMLPortID">ID of the XMLPort used for export</param>
+    /// <param name="FileName">Name of the file being generated</param>
+    /// <param name="Result">Result of the export operation</param>
+    /// <param name="IsHandled">Whether the event has been handled by subscribers</param>
     [IntegrationEvent(false, false)]
     local procedure OnBeforeExport(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; XMLPortID: Integer; FileName: Text; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
+    /// <summary>
+    /// Integration event triggered after XML export is completed, allowing post-processing of the generated content.
+    /// </summary>
+    /// <param name="TempBlob">Temporary blob containing the exported XML data</param>
+    /// <param name="Result">Result of the export operation</param>
+    /// <param name="IsHandled">Whether the event has been handled by subscribers</param>
     [IntegrationEvent(false, false)]
     local procedure OnExportOnAfterXMLPortExport(var TempBlob: Codeunit "Temp Blob"; var Result: Boolean; var IsHandled: Boolean)
     begin

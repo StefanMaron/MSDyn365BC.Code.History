@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Counting.Document;
 
-using Microsoft.Inventory.Counting.Reports;
+using Microsoft.Foundation.Reporting;
 
 page 5876 "Physical Inventory Orders"
 {
@@ -85,8 +85,14 @@ page 5876 "Physical Inventory Orders"
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
-                RunObject = Report "Phys. Invt. Order Diff. List";
                 ToolTip = 'View or print the list of differences after counting.';
+
+                trigger OnAction()
+                var
+                    DocumentPrint: Codeunit "Document-Print";
+                begin
+                    DocumentPrint.PrintInvtOrder(Rec, true);
+                end;
             }
             action("Phys. Invt. Order - Test")
             {
@@ -95,8 +101,14 @@ page 5876 "Physical Inventory Orders"
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
-                RunObject = Report "Phys. Invt. Order - Test";
                 ToolTip = 'View the result of posting the counted inventory quantities before you actually post.';
+
+                trigger OnAction()
+                var
+                    DocumentPrint: Codeunit "Document-Print";
+                begin
+                    DocumentPrint.PrintInvtOrderTest(Rec, true);
+                end;
             }
         }
         area(Promoted)

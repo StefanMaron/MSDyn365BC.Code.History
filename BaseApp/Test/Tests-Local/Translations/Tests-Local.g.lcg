@@ -473,15 +473,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purchase Report - NamedType RemainingAmountCaption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3711915420 - NamedType 259151621" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DimText]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purchase Report - NamedType SalesHdrDimText)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3711915420 - NamedType 1753731803" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[SalesToCust]]></Val>

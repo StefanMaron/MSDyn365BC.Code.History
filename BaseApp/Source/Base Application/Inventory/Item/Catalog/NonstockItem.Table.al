@@ -253,30 +253,15 @@ table 5718 "Nonstock Item"
     trigger OnInsert()
     var
         NoSeries: Codeunit "No. Series";
-#if not CLEAN24
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         NonStockItem.LockTable();
         if "Entry No." = '' then begin
             GetInvtSetup();
             InvtSetup.TestField("Nonstock Item Nos.");
-#if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(InvtSetup."Nonstock Item Nos.", xRec."No. Series", 0D, "Entry No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-                "No. Series" := InvtSetup."Nonstock Item Nos.";
-                if NoSeries.AreRelated(InvtSetup."Nonstock Item Nos.", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
-                "Entry No." := NoSeries.GetNextNo("No. Series");
-                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", InvtSetup."Nonstock Item Nos.", 0D, "Entry No.");
-            end;
-#else
             "No. Series" := InvtSetup."Nonstock Item Nos.";
             if NoSeries.AreRelated(InvtSetup."Nonstock Item Nos.", xRec."No. Series") then
                 "No. Series" := xRec."No. Series";
             "Entry No." := NoSeries.GetNextNo("No. Series");
-#endif
         end;
     end;
 

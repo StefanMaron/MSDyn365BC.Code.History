@@ -18,10 +18,12 @@ table 806 Geolocation
         field(2; Latitude; Decimal)
         {
             Caption = 'Latitude';
+            AutoFormatType = 0;
         }
         field(3; Longitude; Decimal)
         {
             Caption = 'Longitude';
+            AutoFormatType = 0;
         }
     }
 
@@ -37,4 +39,3 @@ table 806 Geolocation
     {
     }
 }
-

@@ -12,6 +12,10 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Foundation.Company;
 using System.IO;
 
+/// <summary>
+/// Manages payment export operations for customer ledger entries.
+/// This codeunit handles the export of customer refund payments to external payment files.
+/// </summary>
 codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm;
@@ -27,6 +31,11 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
 #pragma warning restore AA0470
         PaymentExportMgt: Codeunit "Payment Export Mgt";
 
+    /// <summary>
+    /// Exports customer payment file with user confirmation if entries were previously exported.
+    /// This procedure prompts the user if re-exporting already exported entries.
+    /// </summary>
+    /// <param name="CustLedgerEntry">Customer ledger entries to export for payment processing.</param>
     [Scope('OnPrem')]
     procedure ExportCustPaymentFileYN(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
@@ -85,6 +94,11 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
         exit(false);
     end;
 
+    /// <summary>
+    /// Exports customer payment file without user prompts.
+    /// This procedure validates and exports customer ledger entries and sets export flags.
+    /// </summary>
+    /// <param name="CustLedgerEntry">Customer ledger entries to export for payment processing.</param>
     [Scope('OnPrem')]
     procedure ExportCustPaymentFile(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
@@ -93,6 +107,11 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
         SetExportFlagOnCustLedgerEntries(CustLedgerEntry);
     end;
 
+    /// <summary>
+    /// Processes customer ledger entries for export to payment file format.
+    /// This procedure creates the data exchange entries and export file for customer payments.
+    /// </summary>
+    /// <param name="CustLedgerEntry">Customer ledger entries to process for export.</param>
     [Scope('OnPrem')]
     procedure ExportCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
     var

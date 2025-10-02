@@ -39,8 +39,8 @@ codeunit 99000853 "Service Line-Planning"
 
     // Codeunit "Get Unplanned Demand"
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Get Unplanned Demand", 'OnBeforeOpenPlanningWindow', '', false, false)]
-    local procedure OnBeforeOpenPlanningWindow(var RecordCounter: Integer)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Get Unplanned Demand", 'OnBeforeOpenWindow', '', false, false)]
+    local procedure OnBeforeOpenWindow(var RecordCounter: Integer)
     var
         ServiceLine: Record "Service Line";
     begin

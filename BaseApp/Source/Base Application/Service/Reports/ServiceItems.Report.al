@@ -80,7 +80,8 @@ report 5935 "Service Items"
 
     requestpage
     {
-
+        AboutTitle = 'About Service Items';
+        AboutText = 'Get an overview of registered service items, grouped by customer.';
         layout
         {
         }

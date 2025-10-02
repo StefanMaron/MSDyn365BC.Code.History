@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Warehouse.Activity;
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Warehouse.Activity;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Finance.ReceivablesPayables;
@@ -62,7 +66,7 @@ table 5766 "Warehouse Activity Header"
                 GetLocation("Location Code");
                 case Type of
                     Type::"Invt. Put-away":
-                        if ((Location.Code <> '') and (Location."Prod. Output Whse. Handling" = Location."Prod. Output Whse. Handling"::"Inventory Put-away") and ("Source Document" <> "Source Document"::"Prod. Output")) or
+                        if ((Location.Code <> '') and ProdWhseHandlingIsInventoryPutaway(Location) and ("Source Document" <> "Source Document"::"Prod. Output")) or
                            ((Location.Code = '') and Location.RequireReceive("Location Code") and ("Source Document" <> "Source Document"::"Prod. Output"))
                          then
                             Validate("Source Document", "Source Document"::"Prod. Output");
@@ -423,37 +427,18 @@ table 5766 "Warehouse Activity Header"
     end;
 
     trigger OnInsert()
-#if not CLEAN24
-    var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
-#endif
     begin
         if "No." = '' then begin
             TestNoSeries();
             "No. Series" := GetNoSeriesCode();
-#if not CLEAN24
-            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-            if not IsHandled then begin
-#endif
-                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                    "No. Series" := xRec."No. Series";
-                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
-#if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "Posting Date", "No.");
-            end;
-#endif
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
 
         end;
 
-#if CLEAN24
         if NoSeries.IsAutomatic(GetRegisteringNoSeriesCode()) then
             "Registering No. Series" := GetRegisteringNoSeriesCode();
-#else
-#pragma warning disable AL0432
-        NoSeriesMgt.SetDefaultSeries("Registering No. Series", GetRegisteringNoSeriesCode());
-#pragma warning restore AL0432
-#endif
     end;
 
     trigger OnRename()
@@ -1043,6 +1028,11 @@ table 5766 "Warehouse Activity Header"
         Rec.Modify()
     end;
 
+    internal procedure ProdWhseHandlingIsInventoryPutaway(Location: Record Location) Result: Boolean
+    begin
+        OnProdWhseHandlingIsInventoryPutaway(Location, Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteWhseActivHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
@@ -1092,5 +1082,9 @@ table 5766 "Warehouse Activity Header"
     local procedure OnValidateSourceDocumentOnAssignSourceType(var WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
-}
 
+    [InternalEvent(false)]
+    local procedure OnProdWhseHandlingIsInventoryPutaway(Location: Record Location; var Result: Boolean)
+    begin
+    end;
+}

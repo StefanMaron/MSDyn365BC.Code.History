@@ -4,27 +4,13 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Inventory.Item;
 
-using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
 
 tableextension 99000757 "Mfg. Item Templ." extends "Item Templ."
 {
     fields
     {
-        field(5417; "Flushing Method"; Enum "Flushing Method")
-        {
-            AccessByPermission = TableData "Production Order" = R;
-            Caption = 'Flushing Method';
-            DataClassification = CustomerContent;
-
-            trigger OnValidate()
-            begin
-                ValidateItemField(FieldNo("Flushing Method"));
-            end;
-        }
         field(8011; "Production Blocked"; Enum "Item Production Blocked")
         {
             Caption = 'Production Blocked';
@@ -58,16 +44,6 @@ tableextension 99000757 "Mfg. Item Templ." extends "Item Templ."
                 ValidateItemField(FieldNo("Production BOM No."));
             end;
         }
-        field(99000773; "Order Tracking Policy"; Enum "Order Tracking Policy")
-        {
-            Caption = 'Order Tracking Policy';
-            DataClassification = CustomerContent;
-
-            trigger OnValidate()
-            begin
-                ValidateItemField(FieldNo("Order Tracking Policy"));
-            end;
-        }
         field(99000779; "Single-Lvl Mat. Non-Invt. Cost"; Decimal)
         {
             AutoFormatType = 2;
@@ -89,26 +65,6 @@ tableextension 99000757 "Mfg. Item Templ." extends "Item Templ."
             trigger OnValidate()
             begin
                 ValidateItemField(FieldNo("Allow Whse. Overpick"));
-            end;
-        }
-        field(99000875; Critical; Boolean)
-        {
-            Caption = 'Critical';
-            DataClassification = CustomerContent;
-
-            trigger OnValidate()
-            begin
-                ValidateItemField(FieldNo(Critical));
-            end;
-        }
-        field(99008500; "Common Item No."; Code[20])
-        {
-            Caption = 'Common Item No.';
-            DataClassification = CustomerContent;
-
-            trigger OnValidate()
-            begin
-                ValidateItemField(FieldNo("Common Item No."));
             end;
         }
     }

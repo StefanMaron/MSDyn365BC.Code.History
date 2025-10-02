@@ -46,6 +46,7 @@ codeunit 46 SelectionFilterManagement
     /// <remarks>This method queries the database intensively, can cause perfomance issues and even cause database server exceptions. Consider using the overload with ComputeRangesUsingRecords set to false.</remarks>
     procedure GetSelectionFilter(var TempRecRef: RecordRef; SelectionFieldID: Integer): Text
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         RecRef: RecordRef;
         FieldRef: FieldRef;
         FirstRecRef: Text;
